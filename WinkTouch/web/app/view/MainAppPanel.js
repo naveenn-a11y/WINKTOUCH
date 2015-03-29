@@ -81,7 +81,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 xtype: 'button',
                                 cls: 'mainMenuButton',
                                 height: 125,
-                                itemId: 'mybutton6',
+                                itemId: 'QuicksaleButton',
                                 width: 125,
                                 text: 'Quicksale'
                             },
@@ -90,7 +90,8 @@ Ext.define('WINK.view.MainAppPanel', {
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'New Patient'
+                                text: 'New Patient',
+                                 itemId: 'NewPatientButton'
                             }
                         ]
                     },
@@ -103,14 +104,17 @@ Ext.define('WINK.view.MainAppPanel', {
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'New Invoice'
+                                text: 'New Invoice',
+                                
+                                 itemId: 'NewInvoiceButton'
                             },
                             {
                                 xtype: 'button',
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'Find Patient'
+                                text: 'Find Patient',
+                                itemId: 'FindPatientButton'
                             }
                         ]
                     },
@@ -123,7 +127,8 @@ Ext.define('WINK.view.MainAppPanel', {
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'Deliver Job'
+                                text: 'Deliver Job',
+                                itemId: 'DeliveryJobButton'
                             },
                             {
                                 xtype: 'button',

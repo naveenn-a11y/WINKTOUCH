@@ -680,6 +680,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.store.LocationStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
+  "WINK.view.FindPatientPanel": [],
   "WINK.view.InputPrescriptionPanel": [],
   "WINK.view.InvoiceItemPanel": [],
   "WINK.view.InvoicePanel": [],
@@ -687,8 +688,11 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.view.LoginPanel": [],
   "WINK.view.Main": [],
   "WINK.view.MainAppPanel": [],
+  "WINK.view.MonthPicker": [],
+  "WINK.view.MonthPickerFormField": [],
   "WINK.view.MyPowerPicker": [],
   "WINK.view.ParentView": [],
+  "WINK.view.PatientPanel": [],
   "WINK.view.PatientTabPanel": [],
   "WINK.view.PowerSelectField": [],
   "WINK.view.PrescriptionContainer": [],
@@ -1438,6 +1442,9 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.store.LocationStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
+  "WINK.view.FindPatientPanel": [
+    "widget.FindPatientPanel"
+  ],
   "WINK.view.InputPrescriptionPanel": [],
   "WINK.view.InvoiceItemPanel": [
     "widget.mycontainer10"
@@ -1457,9 +1464,16 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.view.MainAppPanel": [
     "widget.MainAppPanel"
   ],
+  "WINK.view.MonthPicker": [],
+  "WINK.view.MonthPickerFormField": [
+    "widget.monthpickerfield"
+  ],
   "WINK.view.MyPowerPicker": [],
   "WINK.view.ParentView": [
     "widget.ParentView"
+  ],
+  "WINK.view.PatientPanel": [
+    "widget.PatientPanel"
   ],
   "WINK.view.PatientTabPanel": [
     "widget.PatientTabPanel"

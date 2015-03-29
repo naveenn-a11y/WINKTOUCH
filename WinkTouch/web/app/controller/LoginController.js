@@ -15,7 +15,6 @@
 
 Ext.define('WINK.controller.LoginController', {
     extend: 'Ext.app.Controller',
-
     config: {
         refs: {
             loginPanel: {
@@ -31,17 +30,21 @@ Ext.define('WINK.controller.LoginController', {
                 xtype: 'MainAppPanel'
             }
         },
-
         control: {
-            "button#logInButton": {
+            'button#logInButton': {
                 tap: 'onMybuttonTap'
+            },
+            'button[action=goToMainScreen]': {
+                tap: 'doGoToMainScree'
             }
         }
     },
-
+    doGoToMainScree: function() {
+        this.getParentView().setActiveItem(this.getMainAppPanel());
+    },
     onMybuttonTap: function() {
 
-                    this.getParentView().setActiveItem(this.getMainAppPanel());
+        this.getParentView().setActiveItem(this.getMainAppPanel());
     }
 
 });
