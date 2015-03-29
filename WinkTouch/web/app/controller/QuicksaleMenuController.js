@@ -25,16 +25,51 @@ Ext.define('WINK.controller.QuicksaleMenuController', {
         },
 
         control: {
-            "button#mybutton6": {
-                tap: 'onMybutton6Tap'
+            "button#QuicksaleButton": {
+                tap: 'onQuicksaleButtonTap'
+            },
+            "button#NewPatientButton": {
+                tap: 'onNewPatientButtonTap'
+            },
+            "button#FindPatientButton": {
+                tap: 'onFindPatientButtonTap'
+            },
+            "button#DeliveryJobButton": {
+                tap: 'onDeliveryJobButtonTap'
+            },
+            "button#NewInvoiceButton": {
+                tap: 'onNewInvoiceButtonTap'
             }
         }
     },
 
-    onMybutton6Tap: function(button, e, eOpts) {
+    onQuicksaleButtonTap: function(button, e, eOpts) {
          var quicksale = Ext.create('WINK.view.InvoicePanel');
 
         this.getParentView().setActiveItem(quicksale);
-    }
+    },
+    
+    onNewPatientButtonTap: function(button, e, eOpts) {
+        var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
+        this.getParentView().setActiveItem(newPatientPanel);
+    },
+    
+    onFindPatientButtonTap: function(button, e, eOpts) {
+         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+
+        this.getParentView().setActiveItem(newPatientPanel);
+    },
+    
+    onDeliveryJobButtonTap: function(button, e, eOpts) {
+         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+
+        this.getParentView().setActiveItem(newPatientPanel);
+    },
+    onNewInvoiceButtonTap: function(button, e, eOpts) {
+         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+
+        this.getParentView().setActiveItem(newPatientPanel);
+    }
+    
 });
