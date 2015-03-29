@@ -1,0 +1,63 @@
+@import url('http://fonts.googleapis.com/css?family=Open+Sans');
+
+.mainMenuButton:active{
+    border: 1px solid #ddd !important;
+     background: #434e5d !important;
+    color: #fff !important;
+    
+    
+}
+
+.mainMenuButton:hover{
+    border: 1px solid #ddd !important;
+    
+}
+
+.mainMenuButton{
+    margin: 10px;
+   
+    font-size: 12px;
+    padding-top: 45px!important;
+    border-radius: 2px !important;
+    text-align: center;
+    background: #f8f8f8 !important;
+    color: #444 !important;
+    border: 1px solid #eee !important;
+    cursor: pointer; cursor: hand;
+    font-size: 12px;
+   
+    
+}
+
+.x-panel{
+    border-radius:0.0em !important;
+}
+
+.x-panel-inner{
+    border-radius:0.0em !important;
+}
+
+.inputBorder{
+    
+    border-style: solid !important;
+    border-color: darkgrey !important;
+    border-width: 1px !important;
+    
+    
+}
+.inputBorderDisabled{
+    
+    border-style: hidden !important;
+    border-color: white !important;
+    border-width: 1px !important;
+    
+    
+}
+.inputAmount{
+    text-align:right;
+    
+}
+
+.buttonSquare{
+    border-radius: 0px !important;
+}
