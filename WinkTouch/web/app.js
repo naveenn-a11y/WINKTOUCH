@@ -20,12 +20,14 @@ Ext.application({
         'Product',
         'InvoiceItem',
         'Invoice',
-        'TaxCode'
+        'TaxCode',
+        'Patient'
     ],
     stores: [
         'leftNavigationTreeStore',
         'LocationStore',
-        'TaxCodeStore'
+        'TaxCodeStore',
+        'PatientStore'
     ],
     views: [
         'LoginPanel',
@@ -51,7 +53,7 @@ Ext.application({
         'ShowHideSideMenuButtonController',
         'LoginController',
         'LockScreenController',
-        'QuicksaleMenuController',
+        'MenuController',
         'FavoriteButtonController'
     ],
     icon: {
@@ -75,7 +77,7 @@ Ext.application({
 
         // Initialize the main view
         Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {fullscreen: true});
-        // Ext.Viewport.add(Ext.create('WINK.view.PatientPanel'), {fullscreen: true});
+        //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
     },
     onUpdated: function() {
         Ext.Msg.confirm(

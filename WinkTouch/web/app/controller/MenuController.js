@@ -13,7 +13,7 @@
  * Do NOT hand edit this file.
  */
 
-Ext.define('WINK.controller.QuicksaleMenuController', {
+Ext.define('WINK.controller.MenuController', {
     extend: 'Ext.app.Controller',
 
     config: {
@@ -25,20 +25,14 @@ Ext.define('WINK.controller.QuicksaleMenuController', {
         },
 
         control: {
-            "button#QuicksaleButton": {
-                tap: 'onQuicksaleButtonTap'
-            },
-            "button#NewPatientButton": {
+            'button[action=doNewPatient]': {
                 tap: 'onNewPatientButtonTap'
             },
-            "button#FindPatientButton": {
+            'button[action=doQuickSale]': {
+                tap: 'onQuicksaleButtonTap'
+            },
+            'button[action=doFindPatient]': {
                 tap: 'onFindPatientButtonTap'
-            },
-            "button#DeliveryJobButton": {
-                tap: 'onDeliveryJobButtonTap'
-            },
-            "button#NewInvoiceButton": {
-                tap: 'onNewInvoiceButtonTap'
             }
         }
     },
@@ -56,9 +50,9 @@ Ext.define('WINK.controller.QuicksaleMenuController', {
     },
     
     onFindPatientButtonTap: function(button, e, eOpts) {
-         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+         var findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
 
-        this.getParentView().setActiveItem(newPatientPanel);
+        this.getParentView().setActiveItem(findPatientPanel);
     },
     
     onDeliveryJobButtonTap: function(button, e, eOpts) {
