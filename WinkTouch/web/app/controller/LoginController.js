@@ -37,6 +37,7 @@ Ext.define('WINK.controller.LoginController', {
             'button[action=goToMainScreen]': {
                 tap: 'doGoToMainScree'
             }
+            
         }
     },
     doGoToMainScree: function() {
