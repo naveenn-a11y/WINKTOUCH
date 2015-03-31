@@ -675,10 +675,12 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.model.Invoice": [],
   "WINK.model.InvoiceItem": [],
   "WINK.model.Patient": [],
+  "WINK.model.PatientHistory": [],
   "WINK.model.Product": [],
   "WINK.model.Store": [],
   "WINK.model.TaxCode": [],
   "WINK.store.LocationStore": [],
+  "WINK.store.PatientHistoryStore": [],
   "WINK.store.PatientStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
@@ -694,6 +696,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.view.MonthPickerFormField": [],
   "WINK.view.MyPowerPicker": [],
   "WINK.view.ParentView": [],
+  "WINK.view.PatientHistoryPanel": [],
   "WINK.view.PatientPanel": [],
   "WINK.view.PatientTabPanel": [],
   "WINK.view.PowerSelectField": [],
@@ -1439,10 +1442,12 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.model.Invoice": [],
   "WINK.model.InvoiceItem": [],
   "WINK.model.Patient": [],
+  "WINK.model.PatientHistory": [],
   "WINK.model.Product": [],
   "WINK.model.Store": [],
   "WINK.model.TaxCode": [],
   "WINK.store.LocationStore": [],
+  "WINK.store.PatientHistoryStore": [],
   "WINK.store.PatientStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
@@ -1475,6 +1480,9 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.view.MyPowerPicker": [],
   "WINK.view.ParentView": [
     "widget.ParentView"
+  ],
+  "WINK.view.PatientHistoryPanel": [
+    "widget.InvoicePanel"
   ],
   "WINK.view.PatientPanel": [
     "widget.PatientPanel"

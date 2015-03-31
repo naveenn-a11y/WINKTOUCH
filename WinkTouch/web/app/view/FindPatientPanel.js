@@ -36,13 +36,7 @@ Ext.define('WINK.view.FindPatientPanel', {
                     {
                         text: 'Open',
                         ui: 'forward',
-                        listeners: {
-                            tap: function(c) {
-
-                                alert('Open');
-
-                            }
-                        }
+                        action : 'doOpenPatient'
                     }
                 ]
 

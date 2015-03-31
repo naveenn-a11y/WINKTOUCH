@@ -15,7 +15,6 @@
 
 Ext.define('WINK.controller.MenuController', {
     extend: 'Ext.app.Controller',
-
     config: {
         refs: {
             parentView: {
@@ -23,7 +22,6 @@ Ext.define('WINK.controller.MenuController', {
                 xtype: 'ParentView'
             }
         },
-
         control: {
             'button[action=doNewPatient]': {
                 tap: 'onNewPatientButtonTap'
@@ -33,37 +31,41 @@ Ext.define('WINK.controller.MenuController', {
             },
             'button[action=doFindPatient]': {
                 tap: 'onFindPatientButtonTap'
+            },
+             'button[action=doOpenPatient]': {
+                tap: 'onOpenPatientTap'
             }
         }
     },
+    onOpenPatientTap: function(button, e, eOpts) {
+        var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
 
+        this.getParentView().setActiveItem(patientHistory);
+    },
     onQuicksaleButtonTap: function(button, e, eOpts) {
-         var quicksale = Ext.create('WINK.view.InvoicePanel');
+        var quicksale = Ext.create('WINK.view.InvoicePanel');
 
         this.getParentView().setActiveItem(quicksale);
     },
-    
     onNewPatientButtonTap: function(button, e, eOpts) {
         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
         this.getParentView().setActiveItem(newPatientPanel);
     },
-    
     onFindPatientButtonTap: function(button, e, eOpts) {
-         var findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
+        var findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
 
         this.getParentView().setActiveItem(findPatientPanel);
     },
-    
     onDeliveryJobButtonTap: function(button, e, eOpts) {
-         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+        var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
         this.getParentView().setActiveItem(newPatientPanel);
     },
     onNewInvoiceButtonTap: function(button, e, eOpts) {
-         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+        var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
         this.getParentView().setActiveItem(newPatientPanel);
     }
-    
+
 });

@@ -31,13 +31,7 @@ Ext.define('WINK.view.PatientPanel', {
                     {
                         text: 'Save',
                         ui: 'action',
-                        listeners: {
-                            tap: function(c) {
-
-                                alert('save');
-
-                            }
-                        }
+                        action: 'doOpenPatient'
                     }
                 ]
 
