@@ -21,13 +21,15 @@ Ext.application({
         'InvoiceItem',
         'Invoice',
         'TaxCode',
-        'Patient'
+        'Patient',
+        'PatientHistory'
     ],
     stores: [
         'leftNavigationTreeStore',
         'LocationStore',
         'TaxCodeStore',
-        'PatientStore'
+        'PatientStore',
+        'PatientHistoryStore'
     ],
     views: [
         'LoginPanel',
@@ -46,7 +48,8 @@ Ext.application({
         'PatientPanel',
         'MonthPickerFormField',
         'MonthPicker',
-        'FindPatientPanel'
+        'FindPatientPanel',
+        'PatientHistoryPanel'
 
     ],
     controllers: [
