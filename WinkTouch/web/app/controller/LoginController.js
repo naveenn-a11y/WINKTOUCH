@@ -37,7 +37,7 @@ Ext.define('WINK.controller.LoginController', {
             'button[action=goToMainScreen]': {
                 tap: 'doGoToMainScree'
             }
-            
+
         }
     },
     doGoToMainScree: function() {
@@ -45,7 +45,19 @@ Ext.define('WINK.controller.LoginController', {
     },
     onMybuttonTap: function() {
 
+        Ext.Ajax.request({
+            url: 'http://localhost:8080/WinkRESTfull/webresources/generic',
+            method: 'GET',
+             withCredentials: true,
+    useDefaultXhrHeader: false,
+            callback: function(options, success, response) {
+                
+                
+                alert(response.responseText);
+            }
+        });
         this.getParentView().setActiveItem(this.getMainAppPanel());
+
     }
 
 });
