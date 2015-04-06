@@ -56,10 +56,10 @@ Ext.define('WINK.view.LoginPanel', {
                                 xtype: 'selectfield',
                                 label: 'Location',
                                 required: true,
-                                displayField: 'locationName',
+                                displayField: 'name',
                                 store: 'LocationStore',
                                 usePicker: true,
-                                valueField: 'id'
+                                valueField: 'idstore'
                             },
                             {
                                 xtype: 'emailfield',
