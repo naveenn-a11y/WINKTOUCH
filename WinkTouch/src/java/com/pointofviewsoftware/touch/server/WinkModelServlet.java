@@ -5,8 +5,11 @@
  */
 package com.pointofviewsoftware.touch.server;
 
+import ProgramWritter.DataModelUpdatableGettableByField;
+import com.pointofviewsoftware.mypov.common.RestModelFieldsNotToSend;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Christian
  */
-public class WinkModel extends HttpServlet {
+public class WinkModelServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -32,8 +35,32 @@ public class WinkModel extends HttpServlet {
         response.setContentType("text/javascript;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("Ext.define('WINK.model.Store', {\n"
+
+            String modelName = request.getRequestURI();
+            System.err.println("pathInfo:" + modelName);
+
+            modelName = modelName.substring(modelName.lastIndexOf("/") + 1, modelName.lastIndexOf("."));
+            System.err.println("Touch Model Name:" + modelName);
+            WinkModelMapping mapping = null;
+            for (WinkModelMapping map : WinkModelMapping.mapping) {
+                System.err.println(map.touchModelName + " vs " + modelName);
+                if (map.touchModelName.equals(modelName)) {
+                    mapping = map;
+                    break;
+                }
+            }
+
+            if (mapping == null) {
+                String redirect = request.getRequestURI().replace("/model/", "/model-static/");
+                System.err.println("Wink Model Mapping not Found for " + modelName);
+                System.err.println("redirecting to :" + redirect);
+                response.sendRedirect(redirect);
+
+                return;
+            }
+            System.err.println("Wink Model Mapping - for " + modelName + " is  " + mapping.className);
+
+            out.println("Ext.define('WINK.model." + modelName + "', {\n"
                     + "    extend: 'Ext.data.Model',\n"
                     + "\n"
                     + "    requires: [\n"
@@ -41,21 +68,46 @@ public class WinkModel extends HttpServlet {
                     + "    ],\n"
                     + "\n"
                     + "    config: {\n"
-                    + "        fields: [\n"
-                    + "            {\n"
-                    + "                name: 'name'\n"
-                    + "            },\n"
-                    + "            {\n"
-                    + "                name: 'companyname'\n"
-                    + "            },\n"
-                    + "            {\n"
-                 //   + "                allowNull: false,\n"
-                    + "                name: 'idstore',\n"
-                    + "                type: 'int'\n"
-                    + "            }\n"
-                    + "        ]\n"
+                    + "        fields: [\n");
+
+            boolean isFirst = true;
+
+            DataModelUpdatableGettableByField model = ((DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(mapping.className).newInstance());
+
+            List<String> fieldsNotToSend = RestModelFieldsNotToSend.getForClassName(model.getClass().getName());
+
+            for (String fieldName : model.getAllFieldNames()) {
+                boolean add = true;
+                if (fieldsNotToSend != null) {
+                    for (String notToSend : fieldsNotToSend) {
+                        if (notToSend.equalsIgnoreCase(fieldName)) {
+                            add = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (add) {
+
+                    if (!isFirst) {
+                        out.println(",");
+                    }
+
+                    out.println("{"
+                            + " name: '" + fieldName.toLowerCase() + "'"
+                            + "}");
+
+                    isFirst = false;
+                }
+            }
+
+            out.println("        ]\n"
                     + "    }\n"
                     + "});");
+        } catch (Error ex) {
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         } finally {
             out.close();
         }
