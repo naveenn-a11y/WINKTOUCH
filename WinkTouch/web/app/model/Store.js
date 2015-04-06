@@ -23,14 +23,14 @@ Ext.define('WINK.model.Store', {
     config: {
         fields: [
             {
-                name: 'CompanyName'
+                name: 'companyName'
             },
             {
-                name: 'LocationName'
+                name: 'locationName'
             },
             {
                 allowNull: false,
-                name: 'ID',
+                name: 'id',
                 type: 'int'
             }
         ]
