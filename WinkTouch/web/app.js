@@ -17,11 +17,14 @@ Ext.application({
     ],
     models: [
         'Store',
+        'Country',
+        'CountrySubdivision',
+        'User',
+        'Patient',
         'Product',
         'InvoiceItem',
         'Invoice',
         'TaxCode',
-        'Patient',
         'PatientHistory'
     ],
     stores: [
