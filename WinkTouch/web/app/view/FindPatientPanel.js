@@ -160,8 +160,7 @@ Ext.define('WINK.view.FindPatientPanel', {
         ]
     },
     findFunction: function(btn) {
-        alert('find clicks');
-        
+         
         var FindPatientPanelThis = this;
         WINK.Utilities.showWorking();
         
@@ -172,16 +171,16 @@ Ext.define('WINK.view.FindPatientPanel', {
             params: {
                 'limit': 100
             },
+           
             success: function(response) {
-
-                Ext.Msg.alert('ok', 'ok', Ext.emptyFn);
                 FindPatientPanelThis.down('list').getStore().loadData(Ext.JSON.decode(response.responseText),false);
                 WINK.Utilities.hideWorking();
             },
             failure: function(response) {
+                
                 WINK.Utilities.hideWorking();
-                //TODO if forbidden, show login prompt, and do this function again.
-                Ext.Msg.alert('Search Failed', response.responseText, Ext.emptyFn);
+              
+                WINK.Utilities.showAjaxError('Find Patient',response);
             },
             callback: function(options, success, response) {
 
