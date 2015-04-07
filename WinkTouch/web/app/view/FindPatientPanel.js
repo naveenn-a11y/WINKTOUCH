@@ -44,87 +44,97 @@ Ext.define('WINK.view.FindPatientPanel', {
 
             },
             {
-                xtype: 'formpanel',
-                scrollable: true,
+                xtype: 'container',
                 width: '250px',
-                id: 'FindPatientForm',
+                scrollable: false,
+                layout: 'vbox',
                 items: [
                     {
-                        xtype: 'fieldset',
-                        title: 'Find Patient',
-                        instructions: 'Please enter any of the fields above to find your patient',
-                        defaults: {
-                            labelWidth: '35%',
-                            labelAlign: 'top'
-                        },
+                        xtype: 'formpanel',
+                        scrollable: true,
+                        id: 'FindPatientForm',
+                        flex: 1,
                         items: [
                             {
-                                xtype: "textfield",
-                                name: "name",
-                                label: "Name"
-                            },
-                            {
-                                xtype: "textfield",
-                                name: "phone",
-                                label: "Phone Number"
-                            },
-                            {
-                                xtype: "textfield",
-                                name: "medicalcard",
-                                label: "Medical Card"
-                            },
-                            {
-                                xtype: "textfield",
-                                name: "email",
-                                label: "EMail"
-                            },
-                            {
-                                xtype: "textfield",
-                                name: "address",
-                                label: "Address"
-                            },
-                            {
-                                xtype: "datepickerfield",
-                                name: "dob",
-                                label: "Date of Birth"
-                            },
-                            {
-                                xtype: "textfield",
-                                name: "frame",
-                                label: "Frame"
-                            }
+                                xtype: 'fieldset',
+                                title: 'Find Patient',
+                                instructions: 'Please enter any of the fields above to find your patient',
+                                defaults: {
+                                    labelWidth: '35%',
+                                    labelAlign: 'top'
+                                },
+                                items: [
+                                    {
+                                        xtype: "textfield",
+                                        name: "name",
+                                        label: "Name"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "phone",
+                                        label: "Phone Number"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "medicalcard",
+                                        label: "Medical Card"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "email",
+                                        label: "EMail"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "address",
+                                        label: "Address"
+                                    },
+                                    {
+                                        xtype: "datepickerfield",
+                                        name: "dob",
+                                        label: "Date of Birth"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "frame",
+                                        label: "Frame"
+                                    }
 
-                        ]
-                    },
-                    {
-                        xtype: 'fieldset',
-                        title: 'Quick Find',
-                        // instructions: 'Please enter any of the fields above to find your patient',
-                        defaults: {
-                            labelWidth: '35%',
-                            labelAlign: 'top'
-                        },
-                        items: [
-                            {
-                                xtype: "textfield",
-                                name: "WinkFile",
-                                label: "Wink File (R/O/I/Z/S)"
+                                ]
                             },
                             {
-                                xtype: "textfield",
-                                name: "PatientFolder",
-                                label: "Patient Folder"
-                            },
-                            {
-                                xtype: "textfield",
-                                name: "Tray",
-                                label: "Tray"
-                            }
+                                xtype: 'fieldset',
+                                title: 'Quick Find',
+                                // instructions: 'Please enter any of the fields above to find your patient',
+                                defaults: {
+                                    labelWidth: '35%',
+                                    labelAlign: 'top'
+                                },
+                                items: [
+                                    {
+                                        xtype: "textfield",
+                                        name: "winkfile",
+                                        label: "Wink File (R/O/I/Z/S)"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "paperfile",
+                                        label: "Patient Folder"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "tray",
+                                        label: "Tray"
+                                    }
 
+                                ]
+                            }
                         ]
                     },
                     {
                         xtype: 'container',
+                        flex: 0,
+                        height: "100px",
                         defaults: {
                             xtype: 'button',
                             flex: 1,
@@ -160,10 +170,10 @@ Ext.define('WINK.view.FindPatientPanel', {
         ]
     },
     findFunction: function(btn) {
-         
+
         var FindPatientPanelThis = this;
         WINK.Utilities.showWorking();
-        
+
         Ext.Ajax.request({
             url: WINK.Utilities.getRestURL() + 'patients/find',
             method: 'GET',
@@ -171,16 +181,15 @@ Ext.define('WINK.view.FindPatientPanel', {
             params: {
                 'limit': 100
             },
-           
             success: function(response) {
-                FindPatientPanelThis.down('list').getStore().loadData(Ext.JSON.decode(response.responseText),false);
+                FindPatientPanelThis.down('list').getStore().loadData(Ext.JSON.decode(response.responseText), false);
                 WINK.Utilities.hideWorking();
             },
             failure: function(response) {
-                
+
                 WINK.Utilities.hideWorking();
-              
-                WINK.Utilities.showAjaxError('Find Patient',response);
+
+                WINK.Utilities.showAjaxError('Find Patient', response);
             },
             callback: function(options, success, response) {
 
