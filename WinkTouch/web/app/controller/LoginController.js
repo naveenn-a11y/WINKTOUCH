@@ -38,12 +38,12 @@ Ext.define('WINK.controller.LoginController', {
                 tap: 'onMybuttonTap'
             },
             'button[action=goToMainScreen]': {
-                tap: 'doGoToMainScree'
+                tap: 'doGoToMainScreen'
             }
 
         }
     },
-    doGoToMainScree: function() {
+    doGoToMainScreen: function() {
         this.getParentView().setActiveItem(this.getMainAppPanel());
     },
     onMybuttonTap: function() {
@@ -52,7 +52,7 @@ Ext.define('WINK.controller.LoginController', {
         var myController = this;
         WINK.Utilities.showWorking();
         Ext.Ajax.request({
-            url: WINK.Utilities.getRestURL() + 'product',
+            url: WINK.Utilities.getRestURL() + 'users/me',
             method: 'GET',
             headers: {
                 'wink-username': loginPanel.getUsername(),
