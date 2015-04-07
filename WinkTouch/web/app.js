@@ -9,6 +9,22 @@
  changes and its generated code, it will produce a "merge conflict" that you
  will need to resolve manually.
  */
+Ext.define('WINK.Utilities', {
+    statics: {
+        getAccountId: function() {
+            return 37;
+        },
+        getRestURL: function() {
+            return 'http://localhost:8080/WinkRESTfull/webresources/';
+        },
+        showWorking: function() {
+            Ext.getCmp('PleaseWait').show({type: 'slide', direction: 'down'});
+        },
+        hideWorking: function() {
+            Ext.getCmp('PleaseWait').hide();
+        }
+    }
+});
 
 Ext.application({
     name: 'WINK',
@@ -52,7 +68,8 @@ Ext.application({
         'MonthPickerFormField',
         'MonthPicker',
         'FindPatientPanel',
-        'PatientHistoryPanel'
+        'PatientHistoryPanel',
+        'WINK.view.PleaseWaitPanel'
 
     ],
     controllers: [
@@ -83,6 +100,7 @@ Ext.application({
 
         // Initialize the main view
         Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {fullscreen: true});
+        Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
         //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
     },
     onUpdated: function() {

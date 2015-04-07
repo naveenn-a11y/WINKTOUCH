@@ -15,24 +15,20 @@
 
 Ext.define('WINK.store.LocationStore', {
     extend: 'Ext.data.Store',
-
     requires: [
-        'WINK.model.Store'
+        'WINK.model.Store',
+        'WINK.Utilities'
     ],
-
     config: {
-        autoLoad:true,
+        autoLoad: true,
         data: [
         ],
         model: 'WINK.model.Store',
         storeId: 'LocationStore',
         proxy: {
             type: 'rest',
-            url: 'http://localhost:8080/WinkRESTfull/webresources/stores/37',
-            headers: {
-                'username':'chris',
-                'password':'test'
-            }
+            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId()
+
         }
     }
 });
