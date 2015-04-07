@@ -14,10 +14,12 @@
  */
 
 Ext.define('WINK.controller.LoginController', {
+    
     extend: 'Ext.app.Controller',
     requires: [
         'WINK.Utilities'
     ],
+    
     config: {
         refs: {
             loginPanel: {
@@ -35,7 +37,7 @@ Ext.define('WINK.controller.LoginController', {
         },
         control: {
             'button#logInButton': {
-                tap: 'onMybuttonTap'
+                tap: 'login'
             },
             'button[action=goToMainScreen]': {
                 tap: 'doGoToMainScreen'
@@ -44,12 +46,15 @@ Ext.define('WINK.controller.LoginController', {
         }
     },
     doGoToMainScreen: function() {
+        WINK.Utilities.previousActiveItem=null;
         this.getParentView().setActiveItem(this.getMainAppPanel());
     },
-    onMybuttonTap: function() {
+  
+    login: function() {
 
         var loginPanel = this.getLoginPanel();
         var myController = this;
+       
         WINK.Utilities.showWorking();
         Ext.Ajax.request({
             url: WINK.Utilities.getRestURL() + 'users/me',
@@ -62,8 +67,15 @@ Ext.define('WINK.controller.LoginController', {
             },
             success: function(response) {
 
-                myController.getParentView().setActiveItem(myController.getMainAppPanel());
+               
                 loginPanel.clearForm();
+                if(WINK.Utilities.previousActiveItem)
+                {
+                     myController.getParentView().setActiveItem(WINK.Utilities.previousActiveItem);
+                     WINK.Utilities.previousActiveItem=null;
+                }else{
+                     myController.getParentView().setActiveItem(myController.getMainAppPanel());
+                }
                 WINK.Utilities.hideWorking();
             },
             failure: function(response) {

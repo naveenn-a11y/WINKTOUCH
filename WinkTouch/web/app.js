@@ -10,6 +10,10 @@
  will need to resolve manually.
  */
 Ext.define('WINK.Utilities', {
+    requires: [
+        'Ext.ComponentQuery',
+        'Ext.MessageBox'
+    ],
     statics: {
         getAccountId: function() {
             return 37;
@@ -22,7 +26,24 @@ Ext.define('WINK.Utilities', {
         },
         hideWorking: function() {
             Ext.getCmp('PleaseWait').hide();
+        },
+        showAjaxError: function(title, response) {
+            if (response.status == 403)
+            {
+                WINK.Utilities.relogin();
+            } else {
+                Ext.Msg.alert(title, response.status + " " + response.responseText, Ext.emptyFn);
+            }
+        },
+        relogin: function() {
+            var parentView = Ext.ComponentQuery.query('#ParentView')[0];
+            var loginView = Ext.ComponentQuery.query('#LoginPanel')[0];
+
+            WINK.Utilities.previousActiveItem = parentView.getActiveItem();
+            parentView.setActiveItem(loginView);
+
         }
+
     }
 });
 
