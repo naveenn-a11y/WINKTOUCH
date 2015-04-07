@@ -9,11 +9,13 @@ Ext.define('WINK.view.FindPatientPanel', {
         'Ext.field.Password',
         'Ext.Button',
         'Ext.form.FormPanel',
-        'WINK.view.MonthPickerFormField'
+        'WINK.view.MonthPickerFormField',
+        'WINK.Utilities'
     ],
     config: {
         fullscreen: true,
         layout: 'hbox',
+        id: 'FindPatientPanel',
         items: [
             {
                 docked: 'top',
@@ -31,12 +33,12 @@ Ext.define('WINK.view.FindPatientPanel', {
                     {
                         text: 'New',
                         ui: 'confirm',
-                        action : 'doNewPatient'
+                        action: 'doNewPatient'
                     },
                     {
                         text: 'Open',
                         ui: 'forward',
-                        action : 'doOpenPatient'
+                        action: 'doOpenPatient'
                     }
                 ]
 
@@ -58,27 +60,27 @@ Ext.define('WINK.view.FindPatientPanel', {
                         items: [
                             {
                                 xtype: "textfield",
-                                name: "Name",
+                                name: "name",
                                 label: "Name"
                             },
                             {
                                 xtype: "textfield",
-                                name: "Phone",
+                                name: "phone",
                                 label: "Phone Number"
                             },
                             {
                                 xtype: "textfield",
-                                name: "MedicalCard",
+                                name: "medicalcard",
                                 label: "Medical Card"
                             },
                             {
                                 xtype: "textfield",
-                                name: "Email",
+                                name: "email",
                                 label: "EMail"
                             },
                             {
                                 xtype: "textfield",
-                                name: "Address",
+                                name: "address",
                                 label: "Address"
                             },
                             {
@@ -88,7 +90,7 @@ Ext.define('WINK.view.FindPatientPanel', {
                             },
                             {
                                 xtype: "textfield",
-                                name: "Frame",
+                                name: "frame",
                                 label: "Frame"
                             }
 
@@ -133,7 +135,7 @@ Ext.define('WINK.view.FindPatientPanel', {
                                 text: "Find",
                                 ui: "confirm",
                                 handler: function(btn) {
-
+                                    Ext.getCmp('FindPatientPanel').findFunction(btn);
                                 }
                             },
                             {
@@ -153,8 +155,40 @@ Ext.define('WINK.view.FindPatientPanel', {
                 pinHeaders: true,
                 flex: 1,
                 store: 'PatientStore',
-                itemTpl: '{LastName} {FirstName}'
+                itemTpl: '{lastname} {firstname}'
             }
         ]
+    },
+    findFunction: function(btn) {
+        alert('find clicks');
+        
+        var FindPatientPanelThis = this;
+        WINK.Utilities.showWorking();
+        
+        Ext.Ajax.request({
+            url: WINK.Utilities.getRestURL() + 'patients/find',
+            method: 'GET',
+            form: 'FindPatientForm',
+            params: {
+                'limit': 100
+            },
+            success: function(response) {
+
+                Ext.Msg.alert('ok', 'ok', Ext.emptyFn);
+                FindPatientPanelThis.down('list').getStore().loadData(Ext.JSON.decode(response.responseText),false);
+                WINK.Utilities.hideWorking();
+            },
+            failure: function(response) {
+                WINK.Utilities.hideWorking();
+                //TODO if forbidden, show login prompt, and do this function again.
+                Ext.Msg.alert('Search Failed', response.responseText, Ext.emptyFn);
+            },
+            callback: function(options, success, response) {
+
+
+            }
+
+        });
     }
+
 });

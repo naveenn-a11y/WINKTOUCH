@@ -32,7 +32,7 @@ Ext.define('WINK.controller.MenuController', {
             'button[action=doFindPatient]': {
                 tap: 'onFindPatientButtonTap'
             },
-             'button[action=doOpenPatient]': {
+            'button[action=doOpenPatient]': {
                 tap: 'onOpenPatientTap'
             }
         }
@@ -53,9 +53,10 @@ Ext.define('WINK.controller.MenuController', {
         this.getParentView().setActiveItem(newPatientPanel);
     },
     onFindPatientButtonTap: function(button, e, eOpts) {
-        var findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
+        if (!this.findPatientPanel)
+            this.findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
 
-        this.getParentView().setActiveItem(findPatientPanel);
+        this.getParentView().setActiveItem(this.findPatientPanel);
     },
     onDeliveryJobButtonTap: function(button, e, eOpts) {
         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
