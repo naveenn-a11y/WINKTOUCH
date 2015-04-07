@@ -16,13 +16,12 @@
 Ext.define('WINK.view.ParentView', {
     extend: 'Ext.Container',
     alias: 'widget.ParentView',
-
     requires: [
         'WINK.view.LoginPanel',
         'WINK.view.MainAppPanel',
         'Ext.Panel'
     ],
-
+   
     config: {
         itemId: 'ParentView',
         layout: {
@@ -30,6 +29,7 @@ Ext.define('WINK.view.ParentView', {
             animation: 'slide'
         },
         items: [
+            
             {
                 xtype: 'LoginPanel'
             },

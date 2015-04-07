@@ -15,6 +15,9 @@
 
 Ext.define('WINK.controller.LoginController', {
     extend: 'Ext.app.Controller',
+    requires: [
+        'WINK.Utilities'
+    ],
     config: {
         refs: {
             loginPanel: {
@@ -45,19 +48,33 @@ Ext.define('WINK.controller.LoginController', {
     },
     onMybuttonTap: function() {
 
+        var loginPanel = this.getLoginPanel();
+        var myController = this;
+        WINK.Utilities.showWorking();
         Ext.Ajax.request({
-            url: 'http://localhost:8080/WinkRESTfull/webresources/generic',
+            url: WINK.Utilities.getRestURL() + 'product',
             method: 'GET',
-             withCredentials: true,
-    useDefaultXhrHeader: false,
+            headers: {
+                'wink-username': loginPanel.getUsername(),
+                'wink-password': loginPanel.getPassword(),
+                'wink-store': loginPanel.getStore(),
+                'wink-accountid': WINK.Utilities.getAccountId()
+            },
+            success: function(response) {
+
+                myController.getParentView().setActiveItem(myController.getMainAppPanel());
+                loginPanel.clearForm();
+                WINK.Utilities.hideWorking();
+            },
+            failure: function(response) {
+                WINK.Utilities.hideWorking();
+                Ext.Msg.alert('Login Failed','Invalid Login...Please try again',Ext.emptyFn);
+            },
             callback: function(options, success, response) {
-                
-                
-                alert(response.responseText);
+
+
             }
         });
-        this.getParentView().setActiveItem(this.getMainAppPanel());
-
     }
 
 });

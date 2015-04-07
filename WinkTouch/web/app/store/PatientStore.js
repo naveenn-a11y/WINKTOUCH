@@ -23,84 +23,19 @@ Ext.define('WINK.store.PatientStore', {
     config: {
         data: [
             {
-                ID: 1,
-                FirstName: 'Christian',
-                LastName: 'Mokbel'
+                idpatient: 1,
+                firstname: 'Christian',
+                lastname: 'Mokbel'
             },
             {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
+                idpatient: 2,
+                firstname: 'Ted',
+                lastname: 'Harrar'
             },
             {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
-            },
-            {
-                ID: 2,
-                FirstName: 'Ted',
-                LastName: 'Harrar'
+                idpatient: 2,
+                firstname: 'Ted',
+                lastname: 'Harrar'
             }
             
             
@@ -112,9 +47,9 @@ Ext.define('WINK.store.PatientStore', {
         storeId: 'PatientStore',
         grouper: {
             groupFn: function(record) {
-                return record.get('LastName').substr(0, 1);
+                return record.get('lastname').substr(0, 1);
             },
-            sortProperty: 'LastName'
+            sortProperty: 'lastname'
         }
     }
 });

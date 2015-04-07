@@ -16,14 +16,13 @@
 Ext.define('WINK.view.MainAppPanel', {
     extend: 'Ext.Panel',
     alias: 'widget.MainAppPanel',
-
     requires: [
         'Ext.dataview.NestedList',
         'Ext.Toolbar',
         'Ext.Button',
         'Ext.Spacer'
     ],
-
+    
     config: {
         centered: false,
         itemId: 'WinkAppContent',
@@ -83,7 +82,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 height: 125,
                                 width: 125,
                                 text: 'Quicksale',
-                                action : 'doQuickSale'
+                                action: 'doQuickSale'
                             },
                             {
                                 xtype: 'button',
@@ -91,7 +90,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 height: 125,
                                 width: 125,
                                 text: 'New Patient',
-                                 itemId: 'NewPatientButton'
+                                itemId: 'NewPatientButton'
                             }
                         ]
                     },
@@ -105,7 +104,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 height: 125,
                                 width: 125,
                                 text: 'Find Patient',
-                                action : 'doFindPatient'
+                                action: 'doFindPatient'
                             },
                             {
                                 xtype: 'button',
@@ -120,7 +119,7 @@ Ext.define('WINK.view.MainAppPanel', {
                         xtype: 'container',
                         layout: 'vbox',
                         items: [
-                             {
+                            {
                                 xtype: 'button',
                                 cls: 'mainMenuButton',
                                 height: 125,
@@ -148,18 +147,17 @@ Ext.define('WINK.view.MainAppPanel', {
             }
         ]
     },
-
     onMynestedlistActiveItemChange: function(container, value, oldValue, eOpts) {
 
         alert("selection changed: " + value.action);
-             if(value.action==1)
-                    {
+        if (value.action == 1)
+        {
 
-                        var main  = this.getComponent("mycontainer1");
-                        main.add(new WINK.view.PatientTabPanel());
-                         mail.doLayout();
+            var main = this.getComponent("mycontainer1");
+            main.add(new WINK.view.PatientTabPanel());
+            mail.doLayout();
 
-                    }
+        }
     }
 
 });

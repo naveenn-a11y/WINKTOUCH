@@ -16,7 +16,6 @@
 Ext.define('WINK.view.LoginPanel', {
     extend: 'Ext.Panel',
     alias: 'widget.LoginPanel',
-
     requires: [
         'Ext.TitleBar',
         'Ext.form.FieldSet',
@@ -25,7 +24,19 @@ Ext.define('WINK.view.LoginPanel', {
         'Ext.field.Password',
         'Ext.Button'
     ],
-
+    getUsername: function() {
+        return this.down("emailfield").getValue();
+    },
+    getPassword: function() {
+         return this.down("passwordfield").getValue();
+    },
+    getStore: function() {
+        return this.down("selectfield").getValue();
+    },
+    clearForm: function(){
+        this.down("emailfield").setValue("");
+        this.down("passwordfield").setValue("");
+    },
     config: {
         centered: false,
         fullscreen: false,
