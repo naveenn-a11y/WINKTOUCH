@@ -28,7 +28,11 @@ Ext.define('WINK.store.LocationStore', {
         storeId: 'LocationStore',
         proxy: {
             type: 'rest',
-            url: 'http://localhost:8080/WinkRESTfull/webresources/stores/37'
+            url: 'http://localhost:8080/WinkRESTfull/webresources/stores/37',
+            headers: {
+                'username':'chris',
+                'password':'test'
+            }
         }
     }
 });
