@@ -1,15 +1,42 @@
 Ext.define('WINK.view.PatientPanel', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.form.Panel',
     alias: 'widget.PatientPanel',
     requires: [
         'Ext.TitleBar',
         'Ext.form.FieldSet',
+        'Ext.form.Panel',
         'Ext.field.Select',
         'Ext.field.Email',
         'Ext.field.Password',
         'Ext.Button',
         'WINK.view.MonthPickerFormField'
     ],
+    addPatient: function(bnt) {
+        var formPanel = this;
+        WINK.Utilities.showWorking();
+
+        Ext.Ajax.request({
+            url: WINK.Utilities.getRestURL() + 'patients',
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            params: Ext.JSON.encode(formPanel.getValues()),
+            success: function(response) {
+                alert('added');
+                WINK.Utilities.hideWorking();
+            },
+            failure: function(response) {
+
+                WINK.Utilities.hideWorking();
+
+                WINK.Utilities.showAjaxError('Add Patient', response);
+            },
+            callback: function(options, success, response) {
+
+
+            }
+
+        });
+    },
     config: {
         centered: false,
         modal: false,
@@ -23,7 +50,7 @@ Ext.define('WINK.view.PatientPanel', {
                     {
                         text: 'Back',
                         ui: 'back',
-                         action: 'goToMainScreen'
+                        action: 'goToMainScreen'
                     },
                     {
                         xtype: 'spacer'
@@ -31,7 +58,10 @@ Ext.define('WINK.view.PatientPanel', {
                     {
                         text: 'Save',
                         ui: 'action',
-                        action: 'doOpenPatient'
+                        handler: function(btn) {
+                            btn.up('.PatientPanel').addPatient(btn);
+
+                        }
                     }
                 ]
 
@@ -45,24 +75,28 @@ Ext.define('WINK.view.PatientPanel', {
                         items: [
                             {
                                 xtype: 'textfield',
-                                label: 'First Name'
+                                label: 'First Name',
+                                name: 'firstname'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Last Name'
+                                label: 'Last Name',
+                                name: 'lastname'
                             },
                             {
                                 xtype: 'selectfield',
                                 label: 'Gender',
+                                name: 'ismale',
                                 options: [
-                                    {text: 'Male', value: 'Male'},
-                                    {text: 'Female', value: 'Female'}
+                                    {text: 'Male', value: false},
+                                    {text: 'Female', value: true}
                                 ]
                             },
                             {
                                 xtype: 'datepickerfield',
                                 label: 'DOB',
-                                placeHolder: 'mm/dd/yyyy'
+                                placeHolder: 'mm/dd/yyyy',
+                                name: 'dob'
                             }
                         ]
                     },
