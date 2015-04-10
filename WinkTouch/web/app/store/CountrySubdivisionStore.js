@@ -13,21 +13,21 @@
  * Do NOT hand edit this file.
  */
 
-Ext.define('WINK.store.LocationStore', {
+Ext.define('WINK.store.CountrySubdivisionStore', {
     extend: 'Ext.data.Store',
     requires: [
-        'WINK.model.Store',
+        'WINK.model.CountrySubdivision',
         'WINK.Utilities'
     ],
     config: {
         autoLoad: true,
         data: [
         ],
-        model: 'WINK.model.Store',
-        storeId: 'LocationStore',
+        model: 'WINK.model.CountrySubdivision',
+        storeId: 'CountrySubdivisionStore',
         proxy: {
             type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId()
+            url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId()
 
         },
         sorters: [

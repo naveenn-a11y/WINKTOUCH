@@ -8,11 +8,19 @@ Ext.define('WINK.model.CountrySubdivision', {
     config: {
         fields: [
 
-{ name: 'idcountrysubdivision'}
+{ name: 'idcountrysubdivision',
+ defaultValue: 0
+}
 ,
-{ name: 'country_idcountry'}
+{ name: 'country_idcountry',
+ defaultValue: 0
+}
 ,
-{ name: 'name'}
-        ]
-    }
+{ name: 'name',
+ defaultValue: null
+}
+        ],
+validations: [
+ { type: 'length', field: 'name', max: 45 }
+]    }
 });

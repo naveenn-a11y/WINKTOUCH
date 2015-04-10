@@ -32,7 +32,8 @@ Ext.Loader.addClassPathMappings({
   "Ext.device.sqlite.SQLResultSet": "touch/src/device/sqlite/Sencha.js",
   "Ext.device.sqlite.SQLResultSetRowList": "touch/src/device/sqlite/Sencha.js",
   "Ext.device.sqlite.SQLTransaction": "touch/src/device/sqlite/Sencha.js",
-  "WINK": "app"
+  "WINK": "app",
+  "WINK.Utilities": "app.js"
 });
 
 Ext.ClassManager.addNameAlternateMappings({
@@ -667,17 +668,24 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.viewport.WindowsPhone": [
     "Ext.viewport.WP"
   ],
+  "WINK.Utilities": [],
   "WINK.controller.FavoriteButtonController": [],
   "WINK.controller.LockScreenController": [],
   "WINK.controller.LoginController": [],
   "WINK.controller.MenuController": [],
   "WINK.controller.ShowHideSideMenuButtonController": [],
+  "WINK.model.Country": [],
+  "WINK.model.CountrySubdivision": [],
   "WINK.model.Invoice": [],
   "WINK.model.InvoiceItem": [],
   "WINK.model.Patient": [],
   "WINK.model.PatientHistory": [],
   "WINK.model.Product": [],
+  "WINK.model.Store": [],
   "WINK.model.TaxCode": [],
+  "WINK.model.User": [],
+  "WINK.store.CountryStore": [],
+  "WINK.store.CountrySubdivisionStore": [],
   "WINK.store.LocationStore": [],
   "WINK.store.PatientHistoryStore": [],
   "WINK.store.PatientStore": [],
@@ -698,6 +706,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.view.PatientHistoryPanel": [],
   "WINK.view.PatientPanel": [],
   "WINK.view.PatientTabPanel": [],
+  "WINK.view.PleaseWaitPanel": [],
   "WINK.view.PowerSelectField": [],
   "WINK.view.PrescriptionContainer": [],
   "WINK.view.QuickProductSelectionPanel": [],
@@ -1433,17 +1442,24 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.viewport.Ios": [],
   "Ext.viewport.Viewport": [],
   "Ext.viewport.WindowsPhone": [],
+  "WINK.Utilities": [],
   "WINK.controller.FavoriteButtonController": [],
   "WINK.controller.LockScreenController": [],
   "WINK.controller.LoginController": [],
   "WINK.controller.MenuController": [],
   "WINK.controller.ShowHideSideMenuButtonController": [],
+  "WINK.model.Country": [],
+  "WINK.model.CountrySubdivision": [],
   "WINK.model.Invoice": [],
   "WINK.model.InvoiceItem": [],
   "WINK.model.Patient": [],
   "WINK.model.PatientHistory": [],
   "WINK.model.Product": [],
+  "WINK.model.Store": [],
   "WINK.model.TaxCode": [],
+  "WINK.model.User": [],
+  "WINK.store.CountryStore": [],
+  "WINK.store.CountrySubdivisionStore": [],
   "WINK.store.LocationStore": [],
   "WINK.store.PatientHistoryStore": [],
   "WINK.store.PatientStore": [],
@@ -1487,6 +1503,9 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "WINK.view.PatientTabPanel": [
     "widget.PatientTabPanel"
+  ],
+  "WINK.view.PleaseWaitPanel": [
+    "widget.PleaseWaitPanel"
   ],
   "WINK.view.PowerSelectField": [
     "widget.powerselectfield"

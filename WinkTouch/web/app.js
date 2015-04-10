@@ -69,7 +69,9 @@ Ext.application({
         'LocationStore',
         'TaxCodeStore',
         'PatientStore',
-        'PatientHistoryStore'
+        'PatientHistoryStore',
+        'CountrySubdivisionStore',
+        'CountryStore'
     ],
     views: [
         'LoginPanel',
