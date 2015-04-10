@@ -8,165 +8,393 @@ Ext.define('WINK.model.Product', {
     config: {
         fields: [
 
-{ name: 'idproduct'}
+{ name: 'idproduct',
+ defaultValue: 0
+}
+,
+{ name: 'name',
+ defaultValue: null
+}
+,
+{ name: 'description',
+ defaultValue: null
+}
+,
+{ name: 'usebarcode',
+ defaultValue: false
+}
+,
+{ name: 'comment',
+ defaultValue: ""
+}
+,
+{ name: 'type',
+ defaultValue: 0
+}
+,
+{ name: 'framebrand',
+ defaultValue: null
+}
+,
+{ name: 'framemodel',
+ defaultValue: null
+}
+,
+{ name: 'framecolor',
+ defaultValue: null
+}
+,
+{ name: 'framea',
+ defaultValue: null
+}
+,
+{ name: 'frameb',
+ defaultValue: null
+}
+,
+{ name: 'frameed',
+ defaultValue: null
+}
+,
+{ name: 'framedbl',
+ defaultValue: null
+}
+,
+{ name: 'frametype',
+ defaultValue: 0
+}
+,
+{ name: 'frameshape',
+ defaultValue: 0
+}
+,
+{ name: 'contactlensbrand',
+ defaultValue: null
+}
+,
+{ name: 'contactlensdesign',
+ defaultValue: null
+}
+,
+{ name: 'contactlenstype',
+ defaultValue: 0
+}
+,
+{ name: 'contactlensmaterial',
+ defaultValue: 0
+}
+,
+{ name: 'contactlenswearingperiod',
+ defaultValue: 0
+}
+,
+{ name: 'contactlensreplacement',
+ defaultValue: 0
+}
+,
+{ name: 'contactlensqtyperbox',
+ defaultValue: 1
+}
+,
+{ name: 'finishedlensdesign',
+ defaultValue: null
+}
+,
+{ name: 'finsihedlenstype',
+ defaultValue: 0
+}
+,
+{ name: 'finishedlensissurfaced',
+ defaultValue: false
+}
+,
+{ name: 'finishedlensaddfrom',
+ defaultValue: 0.0
+}
+,
+{ name: 'finishedlensaddto',
+ defaultValue: 0.0
+}
+,
+{ name: 'version',
+ defaultValue: 0
+}
+,
+{ name: 'inactive',
+ defaultValue: false
+}
+,
+{ name: 'productcategory_idproductcategory',
+ defaultValue: 0
+}
+,
+{ name: 'finishedlensistoric',
+ defaultValue: true
+}
+,
+{ name: 'reference1',
+ defaultValue: null
+}
+,
+{ name: 'reference2',
+ defaultValue: null
+}
+,
+{ name: 'iseyeexam',
+ defaultValue: false
+}
+,
+{ name: 'povonlineid',
+ defaultValue: 0
+}
+,
+{ name: 'description_fr',
+ defaultValue: null
+}
+,
+{ name: 'description_sp',
+ defaultValue: null
+}
+,
+{ name: 'description_it',
+ defaultValue: null
+}
+,
+{ name: 'name_fr',
+ defaultValue: null
+}
+,
+{ name: 'name_sp',
+ defaultValue: null
+}
+,
+{ name: 'name_it',
+ defaultValue: null
+}
+,
+{ name: 'printas',
+ defaultValue: null
+}
+,
+{ name: 'printas_fr',
+ defaultValue: null
+}
+,
+{ name: 'printas_sp',
+ defaultValue: null
+}
+,
+{ name: 'printas_it',
+ defaultValue: null
+}
+,
+{ name: 'framesex',
+ defaultValue: 0
+}
+,
+{ name: 'finishedlenspricedetailed',
+ defaultValue: 1
+}
+,
+{ name: 'code',
+ defaultValue: null
+}
+,
+{ name: 'tagcolor',
+ defaultValue: 0
+}
+,
+{ name: 'discontinuedon',
+ defaultValue: null
+}
+,
+{ name: 'msrp',
+ defaultValue: 0.0
+}
+,
+{ name: 'publishedwholesalecost',
+ defaultValue: 0.0
+}
+,
+{ name: 'frametemple',
+ defaultValue: null
+}
+,
+{ name: 'insurancecode',
+ defaultValue: null
+}
+,
+{ name: 'preferredsupplier_idsupplier',
+ defaultValue: 0
+}
+,
+{ name: 'manufacturersupplier_idsupplier',
+ defaultValue: 0
+}
+,
+{ name: 'donotpreload',
+ defaultValue: false
+}
 ,
-{ name: 'name'}
+{ name: 'entrymethod',
+ defaultValue: 0
+}
 ,
-{ name: 'description'}
+{ name: 'framesdataid',
+ defaultValue: 0
+}
 ,
-{ name: 'usebarcode'}
+{ name: 'bestseller',
+ defaultValue: false
+}
 ,
-{ name: 'comment'}
+{ name: 'framecolorname',
+ defaultValue: null
+}
 ,
-{ name: 'type'}
+{ name: 'framelenscolorcode',
+ defaultValue: null
+}
 ,
-{ name: 'framebrand'}
+{ name: 'framelenscolorname',
+ defaultValue: null
+}
 ,
-{ name: 'framemodel'}
+{ name: 'upc',
+ defaultValue: null
+}
 ,
-{ name: 'framecolor'}
+{ name: 'imageuploads_iduploads',
+ defaultValue: 0
+}
 ,
-{ name: 'framea'}
+{ name: 'framecolorasone',
+ defaultValue: null
+}
 ,
-{ name: 'frameb'}
+{ name: 'lensoptiontype',
+ defaultValue: 0
+}
 ,
-{ name: 'frameed'}
+{ name: 'finishedlensisfreefrom',
+ defaultValue: false
+}
 ,
-{ name: 'framedbl'}
+{ name: 'lensoptionunit',
+ defaultValue: 0
+}
 ,
-{ name: 'frametype'}
+{ name: 'finishedlensmaterialcolor',
+ defaultValue: null
+}
 ,
-{ name: 'frameshape'}
+{ name: 'finishedlensmaterialpolarized',
+ defaultValue: false
+}
 ,
-{ name: 'contactlensbrand'}
+{ name: 'finishedlensmaterialphotochromic',
+ defaultValue: false
+}
 ,
-{ name: 'contactlensdesign'}
+{ name: 'finishedlenscoatinghydrophobe',
+ defaultValue: false
+}
 ,
-{ name: 'contactlenstype'}
+{ name: 'finishedlenscoatingar',
+ defaultValue: false
+}
 ,
-{ name: 'contactlensmaterial'}
+{ name: 'finishedlenscoatingbackar',
+ defaultValue: false
+}
 ,
-{ name: 'contactlenswearingperiod'}
+{ name: 'finishedlenscoatingrae',
+ defaultValue: false
+}
 ,
-{ name: 'contactlensreplacement'}
+{ name: 'isgeneric',
+ defaultValue: false
+}
 ,
-{ name: 'contactlensqtyperbox'}
+{ name: 'finishedlensmaterialname',
+ defaultValue: null
+}
 ,
-{ name: 'finishedlensdesign'}
+{ name: 'finishedlensistintable',
+ defaultValue: false
+}
 ,
-{ name: 'finsihedlenstype'}
+{ name: 'finishedlensmaterialindex',
+ defaultValue: 0.0
+}
+        ],
+validations: [
+ { type: 'length', field: 'name', max: 300 }
 ,
-{ name: 'finishedlensissurfaced'}
+ { type: 'length', field: 'description', max: 150 }
 ,
-{ name: 'finishedlensaddfrom'}
+ { type: 'length', field: 'frameBrand', max: 100 }
 ,
-{ name: 'finishedlensaddto'}
+ { type: 'length', field: 'frameModel', max: 100 }
 ,
-{ name: 'version'}
+ { type: 'length', field: 'frameColor', max: 100 }
 ,
-{ name: 'inactive'}
+ { type: 'length', field: 'frameA', max: 45 }
 ,
-{ name: 'productcategory_idproductcategory'}
+ { type: 'length', field: 'frameB', max: 45 }
 ,
-{ name: 'finishedlensistoric'}
+ { type: 'length', field: 'frameED', max: 45 }
 ,
-{ name: 'reference1'}
+ { type: 'length', field: 'frameDBL', max: 45 }
 ,
-{ name: 'reference2'}
+ { type: 'length', field: 'contactLensBrand', max: 45 }
 ,
-{ name: 'iseyeexam'}
+ { type: 'length', field: 'contactLensDesign', max: 45 }
 ,
-{ name: 'povonlineid'}
+ { type: 'length', field: 'finishedLensDesign', max: 45 }
 ,
-{ name: 'description_fr'}
+ { type: 'length', field: 'reference1', max: 45 }
 ,
-{ name: 'description_sp'}
+ { type: 'length', field: 'reference2', max: 45 }
 ,
-{ name: 'description_it'}
+ { type: 'length', field: 'description_fr', max: 150 }
 ,
-{ name: 'name_fr'}
+ { type: 'length', field: 'description_sp', max: 150 }
 ,
-{ name: 'name_sp'}
+ { type: 'length', field: 'description_it', max: 150 }
 ,
-{ name: 'name_it'}
+ { type: 'length', field: 'name_fr', max: 255 }
 ,
-{ name: 'printas'}
+ { type: 'length', field: 'name_sp', max: 255 }
 ,
-{ name: 'printas_fr'}
+ { type: 'length', field: 'name_it', max: 255 }
 ,
-{ name: 'printas_sp'}
+ { type: 'length', field: 'printAs', max: 100 }
 ,
-{ name: 'printas_it'}
+ { type: 'length', field: 'printAs_fr', max: 100 }
 ,
-{ name: 'framesex'}
+ { type: 'length', field: 'printAs_sp', max: 100 }
 ,
-{ name: 'finishedlenspricedetailed'}
+ { type: 'length', field: 'printAs_it', max: 100 }
 ,
-{ name: 'code'}
+ { type: 'length', field: 'code', max: 45 }
 ,
-{ name: 'tagcolor'}
+ { type: 'length', field: 'frameTemple', max: 45 }
 ,
-{ name: 'discontinuedon'}
+ { type: 'length', field: 'insuranceCode', max: 45 }
 ,
-{ name: 'msrp'}
+ { type: 'length', field: 'frameColorName', max: 100 }
 ,
-{ name: 'publishedwholesalecost'}
+ { type: 'length', field: 'frameLensColorCode', max: 100 }
 ,
-{ name: 'frametemple'}
+ { type: 'length', field: 'frameLensColorName', max: 100 }
 ,
-{ name: 'insurancecode'}
+ { type: 'length', field: 'UPC', max: 45 }
 ,
-{ name: 'preferredsupplier_idsupplier'}
+ { type: 'length', field: 'frameColorAsOne', max: 400 }
 ,
-{ name: 'manufacturersupplier_idsupplier'}
+ { type: 'length', field: 'finishedLensMaterialColor', max: 45 }
 ,
-{ name: 'donotpreload'}
-,
-{ name: 'entrymethod'}
-,
-{ name: 'framesdataid'}
-,
-{ name: 'bestseller'}
-,
-{ name: 'framecolorname'}
-,
-{ name: 'framelenscolorcode'}
-,
-{ name: 'framelenscolorname'}
-,
-{ name: 'upc'}
-,
-{ name: 'imageuploads_iduploads'}
-,
-{ name: 'framecolorasone'}
-,
-{ name: 'lensoptiontype'}
-,
-{ name: 'finishedlensisfreefrom'}
-,
-{ name: 'lensoptionunit'}
-,
-{ name: 'finishedlensmaterialcolor'}
-,
-{ name: 'finishedlensmaterialpolarized'}
-,
-{ name: 'finishedlensmaterialphotochromic'}
-,
-{ name: 'finishedlenscoatinghydrophobe'}
-,
-{ name: 'finishedlenscoatingar'}
-,
-{ name: 'finishedlenscoatingbackar'}
-,
-{ name: 'finishedlenscoatingrae'}
-,
-{ name: 'isgeneric'}
-,
-{ name: 'finishedlensmaterialname'}
-,
-{ name: 'finishedlensistintable'}
-,
-{ name: 'finishedlensmaterialindex'}
-        ]
-    }
+ { type: 'length', field: 'finishedLensMaterialName', max: 45 }
+]    }
 });

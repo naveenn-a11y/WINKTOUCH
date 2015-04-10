@@ -9,7 +9,10 @@ Ext.define('WINK.view.PatientPanel', {
         'Ext.field.Email',
         'Ext.field.Password',
         'Ext.Button',
-        'WINK.view.MonthPickerFormField'
+        'WINK.view.MonthPickerFormField',
+        'WINK.store.CountrySubdivisionStore',
+        'WINK.store.CountryStore',
+        'WINK.model.Patient'
     ],
     addPatient: function(bnt) {
         var formPanel = this;
@@ -37,10 +40,49 @@ Ext.define('WINK.view.PatientPanel', {
 
         });
     },
+    initProvinceStore: function(obj, options) {
+        console.log("PatientPanel.initProvinceStore()");
+        var countrySelect = this.down("selectfield[name=country_idcountry]");
+        var subdivisionSelect = this.down("selectfield[name=province_select]");
+        var subdivisionText = this.down("textfield[name=province]");
+
+        var subdivisionStore = subdivisionSelect.getStore();
+        var mainSubdivisionStore = Ext.getStore('CountrySubdivisionStore');
+        mainSubdivisionStore.clearFilter();
+        subdivisionStore.loadData(mainSubdivisionStore.getRange(), false);
+
+    },
+    updateProvinces: function(obj, options) {
+        console.log("PatientPanel.updateProvinces()");
+        var countrySelect = this.down("selectfield[name=country_idcountry]");
+        var subdivisionSelect = this.down("selectfield[name=province_select]");
+        var subdivisionText = this.down("textfield[name=province]");
+        var selectedCountryId = countrySelect.getValue();
+        var subdivisionStore = subdivisionSelect.getStore();
+        subdivisionStore.clearFilter();
+        subdivisionStore.filter("country_idcountry", selectedCountryId);
+        if (subdivisionStore.getData().length === 0)
+        {
+            subdivisionText.show();
+            subdivisionSelect.hide();
+        } else {
+            subdivisionText.hide();
+            subdivisionSelect.show();
+        }
+    },
     config: {
         centered: false,
         modal: false,
         scrollable: 'vertical',
+        listeners: {
+            activate: function(value, options) {
+                value.initProvinceStore();
+                value.updateProvinces();
+                var newPatient = new WINK.model.Patient();
+                this.setRecord(newPatient);
+            }
+
+        },
         items: [
             {
                 xtype: 'toolbar',
@@ -86,7 +128,7 @@ Ext.define('WINK.view.PatientPanel', {
                             {
                                 xtype: 'selectfield',
                                 label: 'Gender',
-                                name: 'ismale',
+                                name: 'sex',
                                 options: [
                                     {text: 'Male', value: false},
                                     {text: 'Female', value: true}
@@ -107,23 +149,29 @@ Ext.define('WINK.view.PatientPanel', {
                             {
                                 xtype: 'emailfield',
                                 label: 'Email',
-                                placeHolder: 'email@example.com'
+                                placeHolder: 'email@example.com',
+                                name: 'email'
+
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Home'
+                                label: 'Home',
+                                name: 'home'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Cell'
+                                label: 'Cell',
+                                name: 'cell'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Work'
+                                label: 'Work',
+                                name: 'work'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Fax'
+                                label: 'Fax',
+                                name: 'fax'
                             }
                         ]
                     },
@@ -133,31 +181,83 @@ Ext.define('WINK.view.PatientPanel', {
                         items: [
                             {
                                 xtype: 'textfield',
-                                label: 'Civic Number'
+                                label: 'Civic Number',
+                                name: 'address1'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Unit'
+                                label: 'Unit',
+                                name: 'unit'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Street Name'
+                                label: 'Street Name',
+                                name: 'address2'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'City'
+                                label: 'City',
+                                name: 'city'
                             },
                             {
                                 xtype: 'selectfield',
-                                label: 'Country'
+                                label: 'Country',
+                                name: 'country_idcountry',
+                                required: true,
+                                displayField: 'name',
+                                store: 'CountryStore',
+                                usePicker: true,
+                                valueField: 'idcountry',
+                                listeners: {
+                                    change: function(field, value) {
+
+                                        field.up('PatientPanel').updateProvinces();
+                                    }
+                                }
+
+
                             },
                             {
                                 xtype: 'selectfield',
-                                label: 'Province/St'
+                                label: 'Province/St',
+                                name: 'province_select',
+                                required: true,
+                                displayField: 'name',
+                                store: Ext.create('WINK.store.CountrySubdivisionStore',
+                                        {
+                                            autoLoad: false
+                                        }),
+                                usePicker: true,
+                                valueField: 'idcountrysubdivision',
+                                listeners: {
+                                    change: function(field, value) {
+                                        var provinceText = field.up('PatientPanel').down("textfield[name=province]");
+
+                                        console.log('country selection changed ');
+                                        if (field.getRecord())
+                                        {
+                                            value = field.getRecord().get(field.getDisplayField());
+
+                                            console.log('country selection changed to ' + value);
+                                            provinceText.setValue(value);
+                                        } else {
+                                            
+                                            console.log('country selection clear');
+                                            provinceText.setValue("");
+                                        }
+                                    }
+                                }
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Postal/Zip'
+                                label: 'Province/St',
+                                name: 'province',
+                                hidden: false
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Postal/Zip',
+                                name: 'postalcode'
                             }
                         ]
                     },
@@ -167,21 +267,25 @@ Ext.define('WINK.view.PatientPanel', {
                         items: [
                             {
                                 xtype: 'textfield',
-                                label: 'Medical Card'
+                                label: 'Medical Card',
+                                name: 'medialcard'
                             },
                             {
                                 xtype: 'monthpickerfield',
                                 label: 'Medical Card Expiry',
                                 slotOrder: ['month', 'year'],
-                                format: 'F Y'
+                                format: 'F Y',
+                                name: 'medialcardexpiry'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'SIN'
+                                label: 'SIN',
+                                name: 'sin'
                             },
                             {
                                 xtype: 'textfield',
-                                label: 'Driver\'s License'
+                                label: 'Driver\'s License',
+                                name: 'drivers'
                             }
                         ]
                     }

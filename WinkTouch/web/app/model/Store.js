@@ -8,99 +8,243 @@ Ext.define('WINK.model.Store', {
     config: {
         fields: [
 
-{ name: 'idstore'}
+{ name: 'idstore',
+ defaultValue: 0
+}
 ,
-{ name: 'companyname'}
+{ name: 'companyname',
+ defaultValue: null
+}
 ,
-{ name: 'name'}
+{ name: 'name',
+ defaultValue: null
+}
 ,
-{ name: 'address1'}
+{ name: 'address1',
+ defaultValue: null
+}
 ,
-{ name: 'address2'}
+{ name: 'address2',
+ defaultValue: null
+}
 ,
-{ name: 'city'}
+{ name: 'city',
+ defaultValue: null
+}
 ,
-{ name: 'province'}
+{ name: 'province',
+ defaultValue: null
+}
 ,
-{ name: 'postalcode'}
+{ name: 'postalcode',
+ defaultValue: null
+}
 ,
-{ name: 'tel1'}
+{ name: 'tel1',
+ defaultValue: null
+}
 ,
-{ name: 'tel2'}
+{ name: 'tel2',
+ defaultValue: null
+}
 ,
-{ name: 'fax'}
+{ name: 'fax',
+ defaultValue: null
+}
 ,
-{ name: 'tollfree'}
+{ name: 'tollfree',
+ defaultValue: null
+}
 ,
-{ name: 'email'}
+{ name: 'email',
+ defaultValue: null
+}
 ,
-{ name: 'website'}
+{ name: 'website',
+ defaultValue: null
+}
 ,
-{ name: 'inactive'}
+{ name: 'inactive',
+ defaultValue: false
+}
 ,
-{ name: 'version'}
+{ name: 'version',
+ defaultValue: 0
+}
 ,
-{ name: 'taxnumber1'}
+{ name: 'taxnumber1',
+ defaultValue: null
+}
 ,
-{ name: 'taxnumber2'}
+{ name: 'taxnumber2',
+ defaultValue: null
+}
 ,
-{ name: 'unit'}
+{ name: 'unit',
+ defaultValue: null
+}
 ,
-{ name: 'country_idcountry'}
+{ name: 'country_idcountry',
+ defaultValue: 0
+}
 ,
-{ name: 'povonlineid'}
+{ name: 'povonlineid',
+ defaultValue: 0
+}
 ,
-{ name: 'onlineversion'}
+{ name: 'onlineversion',
+ defaultValue: 0
+}
 ,
-{ name: 'quickbooksfile_idquickbooksfile'}
+{ name: 'quickbooksfile_idquickbooksfile',
+ defaultValue: 0
+}
 ,
-{ name: 'timezone'}
+{ name: 'timezone',
+ defaultValue: "America/New_York"
+}
 ,
-{ name: 'smsgatewayprotocol'}
+{ name: 'smsgatewayprotocol',
+ defaultValue: 0
+}
 ,
-{ name: 'name_fr'}
+{ name: 'name_fr',
+ defaultValue: null
+}
 ,
-{ name: 'name_sp'}
+{ name: 'name_sp',
+ defaultValue: null
+}
 ,
-{ name: 'name_it'}
+{ name: 'name_it',
+ defaultValue: null
+}
 ,
-{ name: 'useasdefaultaddress'}
+{ name: 'useasdefaultaddress',
+ defaultValue: true
+}
 ,
-{ name: 'epayaccounts_idepayaccounts'}
+{ name: 'epayaccounts_idepayaccounts',
+ defaultValue: 0
+}
 ,
-{ name: 'edgemountcapacity'}
+{ name: 'edgemountcapacity',
+ defaultValue: 0
+}
 ,
-{ name: 'cariesstocklenses'}
+{ name: 'cariesstocklenses',
+ defaultValue: false
+}
 ,
-{ name: 'icdrevision'}
+{ name: 'icdrevision',
+ defaultValue: null
+}
 ,
-{ name: 'defaultlanguage'}
+{ name: 'defaultlanguage',
+ defaultValue: 0
+}
 ,
-{ name: 'defaultinvoicenote'}
+{ name: 'defaultinvoicenote',
+ defaultValue: null
+}
 ,
-{ name: 'rxverificationbeforeorderrequired'}
+{ name: 'rxverificationbeforeorderrequired',
+ defaultValue: false
+}
 ,
-{ name: 'rxverificationbeforedeliveryrequired'}
+{ name: 'rxverificationbeforedeliveryrequired',
+ defaultValue: false
+}
 ,
-{ name: 'inclusiveoftax'}
+{ name: 'inclusiveoftax',
+ defaultValue: false
+}
 ,
-{ name: 'openingbalancedate'}
+{ name: 'openingbalancedate',
+ defaultValue: "2015-04-10"
+}
 ,
-{ name: 'openingbalanceclosedon'}
+{ name: 'openingbalanceclosedon',
+ defaultValue: null
+}
 ,
-{ name: 'defaultpairlenspricing'}
+{ name: 'defaultpairlenspricing',
+ defaultValue: false
+}
 ,
-{ name: 'reference1'}
+{ name: 'reference1',
+ defaultValue: null
+}
 ,
-{ name: 'reference2'}
+{ name: 'reference2',
+ defaultValue: null
+}
 ,
-{ name: 'companylegalname'}
+{ name: 'companylegalname',
+ defaultValue: null
+}
 ,
-{ name: 'bookscloseddate'}
+{ name: 'bookscloseddate',
+ defaultValue: null
+}
 ,
-{ name: 'edgeatstore_idstore'}
+{ name: 'edgeatstore_idstore',
+ defaultValue: 0
+}
 ,
-{ name: 'edgeatsupplier_idsupplier'}
-        ]
-    }
+{ name: 'edgeatsupplier_idsupplier',
+ defaultValue: 0
+}
+        ],
+validations: [
+ { type: 'length', field: 'CompanyName', max: 45 }
+,
+ { type: 'length', field: 'name', max: 45 }
+,
+ { type: 'length', field: 'address1', max: 150 }
+,
+ { type: 'length', field: 'address2', max: 150 }
+,
+ { type: 'length', field: 'city', max: 45 }
+,
+ { type: 'length', field: 'province', max: 45 }
+,
+ { type: 'length', field: 'postalcode', max: 45 }
+,
+ { type: 'length', field: 'tel1', max: 45 }
+,
+ { type: 'length', field: 'tel2', max: 45 }
+,
+ { type: 'length', field: 'fax', max: 45 }
+,
+ { type: 'length', field: 'tollfree', max: 45 }
+,
+ { type: 'length', field: 'email', max: 45 }
+,
+ { type: 'length', field: 'website', max: 150 }
+,
+ { type: 'length', field: 'taxnumber1', max: 45 }
+,
+ { type: 'length', field: 'taxnumber2', max: 45 }
+,
+ { type: 'length', field: 'unit', max: 45 }
+,
+ { type: 'length', field: 'timeZone', max: 45 }
+,
+ { type: 'length', field: 'name_fr', max: 45 }
+,
+ { type: 'length', field: 'name_sp', max: 45 }
+,
+ { type: 'length', field: 'name_it', max: 45 }
+,
+ { type: 'length', field: 'ICDRevision', max: 45 }
+,
+ { type: 'length', field: 'defaultInvoiceNote', max: 150 }
+,
+ { type: 'length', field: 'Reference1', max: 45 }
+,
+ { type: 'length', field: 'Reference2', max: 45 }
+,
+ { type: 'length', field: 'companyLegalName', max: 300 }
+]    }
 });

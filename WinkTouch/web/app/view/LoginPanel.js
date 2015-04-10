@@ -28,16 +28,18 @@ Ext.define('WINK.view.LoginPanel', {
         return this.down("emailfield").getValue();
     },
     getPassword: function() {
-         return this.down("passwordfield").getValue();
+        return this.down("passwordfield").getValue();
     },
     getStore: function() {
         return this.down("selectfield").getValue();
     },
-    clearForm: function(){
+    clearForm: function() {
         this.down("emailfield").setValue("");
         this.down("passwordfield").setValue("");
     },
+   
     config: {
+         
         centered: false,
         fullscreen: false,
         hidden: false,

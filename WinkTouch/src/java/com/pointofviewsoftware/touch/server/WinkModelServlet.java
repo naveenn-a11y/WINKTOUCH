@@ -6,6 +6,8 @@
 package com.pointofviewsoftware.touch.server;
 
 import ProgramWritter.DataModelUpdatableGettableByField;
+import ProgramWritter.ProgramWritterField;
+import ProgramWritter.client.myGWTDate;
 import com.pointofviewsoftware.mypov.common.RestModelFieldsNotToSend;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -77,6 +79,10 @@ public class WinkModelServlet extends HttpServlet {
             List<String> fieldsNotToSend = RestModelFieldsNotToSend.getForClassName(model.getClass().getName());
 
             for (String fieldName : model.getAllFieldNames()) {
+
+                if (fieldName.equalsIgnoreCase("firstname")) {
+                    model.setString(fieldName, "chirs");
+                }
                 boolean add = true;
                 if (fieldsNotToSend != null) {
                     for (String notToSend : fieldsNotToSend) {
@@ -94,15 +100,82 @@ public class WinkModelServlet extends HttpServlet {
                     }
 
                     out.println("{"
-                            + " name: '" + fieldName.toLowerCase() + "'"
-                            + "}");
+                            + " name: '" + fieldName.toLowerCase() + "',");
+                    out.print(" defaultValue: ");
+                    if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
+                        out.println(model.getInt(fieldName));
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                        if (model.isNull(fieldName)) {
+                            out.println("null");
+                        } else {
+                            out.println("\"" + model.getString(fieldName) + "\"");
+                        }
+
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.LONG) {
+                        out.println(model.getLong(fieldName));
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.DATE) {
+                        if (model.isNull(fieldName)) {
+                            out.println("null");
+                        } else {
+                            myGWTDate d = model.getDate(fieldName);
+                            if ((d == null) || (d.isNull())) {
+                                out.println("null");
+                            } else {
+                                out.println("\"" + d.toString() + "\"");
+                            }
+                        }
+
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
+
+                        out.println("" + model.getBoolean(fieldName) + "");
+
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
+                        out.println(model.getDouble(fieldName));
+                    } else {
+                        if (model.isNull(fieldName)) {
+                            out.println("null");
+                        } else {
+                            out.println("\"" + model.getStringValue(fieldName) + "\"");
+                        }
+                    }
+
+                    out.println("}");
 
                     isFirst = false;
                 }
             }
 
-            out.println("        ]\n"
-                    + "    }\n"
+            out.println("        ],\n"
+                    + "validations: [");
+            isFirst = true;
+            for (String fieldName : model.getAllFieldNames()) {
+                boolean add = true;
+                if (fieldsNotToSend != null) {
+                    for (String notToSend : fieldsNotToSend) {
+                        if (notToSend.equalsIgnoreCase(fieldName)) {
+                            add = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (add) {
+
+                    if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                        int max = model.getMaximumNumberOfCharacters(fieldName);
+                        if (max > 0) {
+                            if (!isFirst) {
+                                out.println(",");
+                            }
+                            out.println(" { type: 'length', field: '" + fieldName + "', max: " +max +" }");
+                            isFirst = false;
+                        }
+                    }
+                }
+            }
+
+            out.println("]    "
+                    + "}\n"
                     + "});");
         } catch (Error ex) {
             ex.printStackTrace();

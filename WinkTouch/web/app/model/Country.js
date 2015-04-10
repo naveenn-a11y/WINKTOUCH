@@ -8,9 +8,15 @@ Ext.define('WINK.model.Country', {
     config: {
         fields: [
 
-{ name: 'idcountry'}
+{ name: 'idcountry',
+ defaultValue: 0
+}
 ,
-{ name: 'name'}
-        ]
-    }
+{ name: 'name',
+ defaultValue: null
+}
+        ],
+validations: [
+ { type: 'length', field: 'name', max: 45 }
+]    }
 });
