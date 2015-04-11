@@ -22,26 +22,7 @@ Ext.define('WINK.store.PatientStore', {
 
     config: {
         data: [
-            {
-                idpatient: 1,
-                firstname: 'Christian',
-                lastname: 'Mokbel'
-            },
-            {
-                idpatient: 2,
-                firstname: 'Ted',
-                lastname: 'Harrar'
-            },
-            {
-                idpatient: 2,
-                firstname: 'Ted',
-                lastname: 'Harrar'
-            }
-            
-            
-            
-            
-            
+                      
         ],
         model: 'WINK.model.Patient',
         storeId: 'PatientStore',

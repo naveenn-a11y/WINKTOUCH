@@ -8,18 +8,24 @@ Ext.define('WINK.view.PatientPanel', {
         'WINK.store.CountrySubdivisionStore',
         'WINK.store.CountryStore',
         'WINK.view.MonthPickerFormField',
+        'WINK.view.DatePickerToolbar',
         'Ext.TitleBar',
         'Ext.form.FieldSet',
         'Ext.form.Panel',
         'Ext.field.Select',
         'Ext.field.Email',
         'Ext.field.Password',
-        'Ext.Button'        
+        'Ext.Button',
+        'WINK.Utilities'
     ],
+    patientAdded: function(newPatient){
+        alert('patient Added' + newPatient.get('id'));
+    },
     addPatient: function(bnt) {
         var formPanel = this;
-        WINK.Utilities.showWorking();
-
+        WINK.Utilities.submitForm(formPanel,this.patientAdded);
+        return;
+        
         Ext.Ajax.request({
             url: WINK.Utilities.getRestURL() + 'patients',
             method: 'POST',
@@ -36,7 +42,7 @@ Ext.define('WINK.view.PatientPanel', {
                 WINK.Utilities.showAjaxError('Add Patient', response);
             },
             callback: function(options, success, response) {
-
+                formPanel.unmask();
 
             }
 
@@ -97,6 +103,15 @@ Ext.define('WINK.view.PatientPanel', {
                         action: 'goToMainScreen'
                     },
                     {
+                        text: 'Clear',
+                        ui: 'decline',
+                        handler: function(btn) {
+                            var newPatient = new WINK.model.Patient();
+                            //btn.up('.PatientPanel').reset();
+                            btn.up('.PatientPanel').setRecord(newPatient);
+                        }
+                    },
+                    {
                         xtype: 'spacer'
                     },
                     {
@@ -140,7 +155,13 @@ Ext.define('WINK.view.PatientPanel', {
                                 xtype: 'datepickerfield',
                                 label: 'DOB',
                                 placeHolder: 'mm/dd/yyyy',
-                                name: 'dob'
+                                name: 'dob',
+                                picker: {
+                                    yearFrom: 1800,
+                                    toolbar: {
+                                        xtype: 'datepickertoolbar'
+                                    }
+                                }
                             }
                         ]
                     },
@@ -209,7 +230,7 @@ Ext.define('WINK.view.PatientPanel', {
                                 displayField: 'name',
                                 store: 'CountryStore',
                                 usePicker: true,
-                                valueField: 'idcountry',
+                                valueField: 'id',
                                 listeners: {
                                     change: function(field, value) {
 
@@ -230,7 +251,7 @@ Ext.define('WINK.view.PatientPanel', {
                                             autoLoad: false
                                         }),
                                 usePicker: true,
-                                valueField: 'idcountrysubdivision',
+                                valueField: 'id',
                                 listeners: {
                                     change: function(field, value) {
                                         var provinceText = field.up('PatientPanel').down("textfield[name=province]");
@@ -243,7 +264,7 @@ Ext.define('WINK.view.PatientPanel', {
                                             console.log('country selection changed to ' + value);
                                             provinceText.setValue(value);
                                         } else {
-                                            
+
                                             console.log('country selection clear');
                                             provinceText.setValue("");
                                         }
@@ -278,6 +299,7 @@ Ext.define('WINK.view.PatientPanel', {
                                 slotOrder: ['month', 'year'],
                                 format: 'F Y',
                                 name: 'medialcardexpiry'
+                               
                             },
                             {
                                 xtype: 'textfield',

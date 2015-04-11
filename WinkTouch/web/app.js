@@ -44,6 +44,48 @@ Ext.define('WINK.Utilities', {
             WINK.Utilities.previousActiveItem = parentView.getActiveItem();
             parentView.setActiveItem(loginView);
 
+        },
+        submitForm: function(formPanel, callback) {
+            WINK.Utilities.showWorking();
+            formPanel.setMasked(true);
+
+            var rec = formPanel.getRecord();
+            rec.set(formPanel.getValues());
+            var errors = rec.validate();
+
+            if (!errors.isValid()) {
+                // at least one error occurred
+                var errorMsg = "";
+                errors.each(function(errorObj) {
+                    errorMsg += errorObj.getField() + ": " + errorObj.getMessage() + "<br>";
+                    return false;
+                });
+                Ext.Msg.alert("Invalid Entry", errorMsg);
+                WINK.Utilities.hideWorking();
+                formPanel.unmask();
+
+            } else {
+
+
+                rec.save({
+                    success: function(response) {
+                        if (callback)
+                        {
+                            console.info(response.responseText);
+                            rec.set(Ext.JSON.decode(response.responseText));
+                            callback(rec);
+                        }
+                    },
+                    failure: function(response) {
+                        WINK.Utilities.showAjaxError('Add Patient', response);
+                    },
+                    callback: function(options, success, response) {
+                        formPanel.unmask();
+                        WINK.Utilities.hideWorking();
+                    }
+                });
+
+            }
         }
 
     }
@@ -76,6 +118,8 @@ Ext.application({
         'CountryStore'
     ],
     views: [
+        'DatePickerToolbar',
+        'PleaseWaitPanel',
         'LoginPanel',
         'MainAppPanel',
         'ParentView',
@@ -93,8 +137,8 @@ Ext.application({
         'MonthPickerFormField',
         'MonthPicker',
         'FindPatientPanel',
-        'PatientHistoryPanel',
-        'PleaseWaitPanel'
+        'PatientHistoryPanel'
+
 
     ],
     controllers: [
@@ -126,6 +170,17 @@ Ext.application({
                 return this.indexOf(str) === 0;
             };
         }
+        Ext.data.validations.length = function(config, value) {
+            var length = value ? value.length : 0,
+                    min = config.min,
+                    max = config.max;
+
+            if ((min && length < min) || (max && length > max)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
 
         Ext.Msg.defaultAllowedConfig.showAnimation = false;
 
@@ -134,7 +189,7 @@ Ext.application({
                 return n < 10 ? '0' + n : n;
             }
 
-            return  "\"" + d.getUTCMilliseconds() + " " +
+            return  "\"" + d.valueOf() + " " +
                     d.getFullYear() + '-' +
                     f(d.getMonth() + 1) + '-' +
                     f(d.getDate()) + ' ' +
@@ -142,7 +197,7 @@ Ext.application({
                     f(d.getMinutes()) + ':' +
                     f(d.getSeconds()) + "\"";
         };
-       
+
         // Destroy the #appLoadingIndicator element
         Ext.fly('appLoadingIndicator').destroy();
 
