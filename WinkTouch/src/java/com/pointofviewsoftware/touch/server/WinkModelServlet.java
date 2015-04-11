@@ -5,6 +5,7 @@
  */
 package com.pointofviewsoftware.touch.server;
 
+import com.pointofviewsoftware.server.WinkModelMapping;
 import ProgramWritter.DataModelUpdatableGettableByField;
 import ProgramWritter.ProgramWritterField;
 import ProgramWritter.client.myGWTDate;
@@ -45,8 +46,8 @@ public class WinkModelServlet extends HttpServlet {
             System.err.println("Touch Model Name:" + modelName);
             WinkModelMapping mapping = null;
             for (WinkModelMapping map : WinkModelMapping.mapping) {
-                System.err.println(map.touchModelName + " vs " + modelName);
-                if (map.touchModelName.equals(modelName)) {
+                System.err.println(map.getTouchModelName()  + " vs " + modelName);
+                if (map.getTouchModelName().equals(modelName)) {
                     mapping = map;
                     break;
                 }
@@ -60,7 +61,7 @@ public class WinkModelServlet extends HttpServlet {
 
                 return;
             }
-            System.err.println("Wink Model Mapping - for " + modelName + " is  " + mapping.className);
+            System.err.println("Wink Model Mapping - for " + modelName + " is  " + mapping.getClassName());
 
             out.println("Ext.define('WINK.model." + modelName + "', {\n"
                     + "    extend: 'Ext.data.Model',\n"
@@ -74,15 +75,12 @@ public class WinkModelServlet extends HttpServlet {
 
             boolean isFirst = true;
 
-            DataModelUpdatableGettableByField model = ((DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(mapping.className).newInstance());
+            DataModelUpdatableGettableByField model = ((DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(mapping.getClassName()).newInstance());
 
             List<String> fieldsNotToSend = RestModelFieldsNotToSend.getForClassName(model.getClass().getName());
 
             for (String fieldName : model.getAllFieldNames()) {
 
-                if (fieldName.equalsIgnoreCase("firstname")) {
-                    model.setString(fieldName, "chirs");
-                }
                 boolean add = true;
                 if (fieldsNotToSend != null) {
                     for (String notToSend : fieldsNotToSend) {
@@ -99,43 +97,67 @@ public class WinkModelServlet extends HttpServlet {
                         out.println(",");
                     }
 
+               
+                 
                     out.println("{"
-                            + " name: '" + fieldName.toLowerCase() + "',");
-                    out.print(" defaultValue: ");
-                    if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
-                        out.println(model.getInt(fieldName));
+                            + " name: '" + mapping.getRestFieldName(model,fieldName) + "'");
+                    if (mapping.isDateField(model, fieldName)) { //always check date before checking long
+                        out.println(", type:'date'");
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
+                        out.println(", type:'int'");
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
-                        if (model.isNull(fieldName)) {
-                            out.println("null");
-                        } else {
-                            out.println("\"" + model.getString(fieldName) + "\"");
-                        }
-
+                        out.println(", type:'string'");
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.LONG) {
-                        out.println(model.getLong(fieldName));
-                    } else if (model.getFieldType(fieldName) == ProgramWritterField.DATE) {
-                        if (model.isNull(fieldName)) {
-                            out.println("null");
-                        } else {
-                            myGWTDate d = model.getDate(fieldName);
-                            if ((d == null) || (d.isNull())) {
+                        out.println(", type:'string'");
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
+                        out.println(", type:'boolean'");
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
+                        out.println(", type:'float'");
+                    } else {
+
+                    }
+
+                    if (mapping.isPrintDefaults()) {
+                        out.print(" ,defaultValue: ");
+                        if (mapping.isDateField(model, fieldName)) {
+                            if (model.isNull(fieldName)) {
                                 out.println("null");
                             } else {
-                                out.println("\"" + d.toString() + "\"");
+                                myGWTDate d = model.getDate(fieldName);
+                                if ((d == null) || (d.isNull())) {
+                                    out.println("null");
+                                } else {
+                                    if (mapping.isDateFieldLong(model, fieldName)) {
+                                        out.println("new Date(" + d.getDate() + ")");
+                                    } else {
+                                        out.println("new Date(" + d.getYear() + "," + (d.getMonth_1_to_12() - 1) + "," + d.getDay() + "," + d.getHourOfDay() + "," + d.getMinute() + "," + d.getSecond() + ")");
+                                    }
+                                }
                             }
-                        }
+                        } else if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
+                            out.println(model.getInt(fieldName));
+                        } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                            if (model.isNull(fieldName)) {
+                                out.println("null");
+                            } else {
+                                out.println("\"" + model.getString(fieldName) + "\"");
+                            }
 
-                    } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
+                        } else if (model.getFieldType(fieldName) == ProgramWritterField.LONG) {
+                            out.println(model.getLong(fieldName));
 
-                        out.println("" + model.getBoolean(fieldName) + "");
+                        } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
 
-                    } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
-                        out.println(model.getDouble(fieldName));
-                    } else {
-                        if (model.isNull(fieldName)) {
-                            out.println("null");
+                            out.println("" + model.getBoolean(fieldName) + "");
+
+                        } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
+                            out.println(model.getDouble(fieldName));
                         } else {
-                            out.println("\"" + model.getStringValue(fieldName) + "\"");
+                            if (model.isNull(fieldName)) {
+                                out.println("null");
+                            } else {
+                                out.println("\"" + model.getStringValue(fieldName) + "\"");
+                            }
                         }
                     }
 
@@ -145,37 +167,40 @@ public class WinkModelServlet extends HttpServlet {
                 }
             }
 
-            out.println("        ],\n"
-                    + "validations: [");
-            isFirst = true;
-            for (String fieldName : model.getAllFieldNames()) {
-                boolean add = true;
-                if (fieldsNotToSend != null) {
-                    for (String notToSend : fieldsNotToSend) {
-                        if (notToSend.equalsIgnoreCase(fieldName)) {
-                            add = false;
-                            break;
-                        }
-                    }
-                }
+            out.println("        ]\n");
 
-                if (add) {
-
-                    if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
-                        int max = model.getMaximumNumberOfCharacters(fieldName);
-                        if (max > 0) {
-                            if (!isFirst) {
-                                out.println(",");
+            if (mapping.isPrintValidations()) {
+                out.println(",validations: [");
+                isFirst = true;
+                for (String fieldName : model.getAllFieldNames()) {
+                    boolean add = true;
+                    if (fieldsNotToSend != null) {
+                        for (String notToSend : fieldsNotToSend) {
+                            if (notToSend.equalsIgnoreCase(fieldName)) {
+                                add = false;
+                                break;
                             }
-                            out.println(" { type: 'length', field: '" + fieldName + "', max: " +max +" }");
-                            isFirst = false;
+                        }
+                    }
+
+                    if (add) {
+
+                        if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                            int max = model.getMaximumNumberOfCharacters(fieldName);
+                            if (max > 0) {
+                                if (!isFirst) {
+                                    out.println(",");
+                                }
+                                out.println(" { type: 'length', field: '" + mapping.getRestFieldName(model,fieldName) + "', max: " + max + ",min:0 }");
+                                isFirst = false;
+                            }
                         }
                     }
                 }
-            }
 
-            out.println("]    "
-                    + "}\n"
+                out.println("]    ");
+            }
+            out.println("}\n"
                     + "});");
         } catch (Error ex) {
             ex.printStackTrace();

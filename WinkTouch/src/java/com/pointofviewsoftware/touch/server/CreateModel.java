@@ -5,6 +5,7 @@
  */
 package com.pointofviewsoftware.touch.server;
 
+import com.pointofviewsoftware.server.WinkModelMapping;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,10 +44,10 @@ public class CreateModel {
         }
         //replace existing from servlet
         for (WinkModelMapping m : WinkModelMapping.mapping) {
-            File fOut = new File(folderModel.getAbsolutePath() + File.separator + m.touchModelName + ".js");
+            File fOut = new File(folderModel.getAbsolutePath() + File.separator + m.getTouchModelName() + ".js");
             System.err.println(fOut.getAbsolutePath());
             fOut.createNewFile();
-            URL u = new URL("http://localhost:8080/WinkTouch/app/model/" + m.touchModelName + ".js");
+            URL u = new URL("http://localhost:8080/WinkTouch/app/model/" + m.getTouchModelName()  + ".js");
             InputStream in = u.openStream();
             FileOutputStream out = new FileOutputStream(fOut);
             byte[] buffer = new byte[1000];

@@ -9,6 +9,8 @@
  changes and its generated code, it will produce a "merge conflict" that you
  will need to resolve manually.
  */
+
+
 Ext.define('WINK.Utilities', {
     requires: [
         'Ext.ComponentQuery',
@@ -53,9 +55,9 @@ Ext.application({
         'Ext.MessageBox'
     ],
     models: [
+        'CountrySubdivision',
         'Store',
         'Country',
-        'CountrySubdivision',
         'User',
         'Patient',
         'Product',
@@ -92,7 +94,7 @@ Ext.application({
         'MonthPicker',
         'FindPatientPanel',
         'PatientHistoryPanel',
-        'WINK.view.PleaseWaitPanel'
+        'PleaseWaitPanel'
 
     ],
     controllers: [
@@ -118,7 +120,29 @@ Ext.application({
         '1496x2048': 'resources/startup/1496x2048.png'
     },
     launch: function() {
+        if (typeof String.prototype.startsWith != 'function') {
+            // see below for better implementation!
+            String.prototype.startsWith = function(str) {
+                return this.indexOf(str) === 0;
+            };
+        }
+
         Ext.Msg.defaultAllowedConfig.showAnimation = false;
+
+        Ext.JSON.encodeDate = function(d) {
+            function f(n) {
+                return n < 10 ? '0' + n : n;
+            }
+
+            return  "\"" + d.getUTCMilliseconds() + " " +
+                    d.getFullYear() + '-' +
+                    f(d.getMonth() + 1) + '-' +
+                    f(d.getDate()) + ' ' +
+                    f(d.getHours()) + ':' +
+                    f(d.getMinutes()) + ':' +
+                    f(d.getSeconds()) + "\"";
+        };
+       
         // Destroy the #appLoadingIndicator element
         Ext.fly('appLoadingIndicator').destroy();
 

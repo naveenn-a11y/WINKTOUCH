@@ -111,7 +111,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'Deliver Job',
+                                text: 'Deliver Job'
                             }
                         ]
                     },

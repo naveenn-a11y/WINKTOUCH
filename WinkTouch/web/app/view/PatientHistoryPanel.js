@@ -17,10 +17,9 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         'Ext.SegmentedButton',
         'Ext.Label',
         'Ext.tab.Bar',
-        'Ext.Panel',
+        'Ext.Panel'
     ],
     config: {
-        layout: 'hbox',
         scrollable: true,
         layout: 'hbox',
                 items: [

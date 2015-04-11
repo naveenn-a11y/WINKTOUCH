@@ -2,17 +2,19 @@ Ext.define('WINK.view.PatientPanel', {
     extend: 'Ext.form.Panel',
     alias: 'widget.PatientPanel',
     requires: [
+        'WINK.model.Patient',
+        'WINK.model.CountrySubdivision',
+        'WINK.model.Country',
+        'WINK.store.CountrySubdivisionStore',
+        'WINK.store.CountryStore',
+        'WINK.view.MonthPickerFormField',
         'Ext.TitleBar',
         'Ext.form.FieldSet',
         'Ext.form.Panel',
         'Ext.field.Select',
         'Ext.field.Email',
         'Ext.field.Password',
-        'Ext.Button',
-        'WINK.view.MonthPickerFormField',
-        'WINK.store.CountrySubdivisionStore',
-        'WINK.store.CountryStore',
-        'WINK.model.Patient'
+        'Ext.Button'        
     ],
     addPatient: function(bnt) {
         var formPanel = this;
@@ -130,8 +132,8 @@ Ext.define('WINK.view.PatientPanel', {
                                 label: 'Gender',
                                 name: 'sex',
                                 options: [
-                                    {text: 'Male', value: false},
-                                    {text: 'Female', value: true}
+                                    {text: 'Male', value: 0},
+                                    {text: 'Female', value: 1}
                                 ]
                             },
                             {
