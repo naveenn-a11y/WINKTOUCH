@@ -78,6 +78,6 @@ Ext.define('WINK.store.PatientHistoryStore', {
 
             },
             sortProperty: 'Type'
-        },
+        }
     }
 });

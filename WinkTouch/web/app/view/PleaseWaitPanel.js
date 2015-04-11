@@ -19,7 +19,7 @@ Ext.define('WINK.view.PleaseWaitPanel', {
             {
                 xtype: 'titlebar',
                 docked: 'top',
-                title: 'Please Wait',
+                title: 'Please Wait'
             }
         ]
     }

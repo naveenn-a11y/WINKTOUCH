@@ -21,8 +21,6 @@ Ext.define('WINK.store.CountrySubdivisionStore', {
     ],
     config: {
         autoLoad: true,
-        data: [
-        ],
         model: 'WINK.model.CountrySubdivision',
         storeId: 'CountrySubdivisionStore',
         proxy: {
