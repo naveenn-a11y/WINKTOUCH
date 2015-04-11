@@ -46,7 +46,7 @@ public class WinkModelServlet extends HttpServlet {
             System.err.println("Touch Model Name:" + modelName);
             WinkModelMapping mapping = null;
             for (WinkModelMapping map : WinkModelMapping.mapping) {
-                System.err.println(map.getTouchModelName()  + " vs " + modelName);
+                System.err.println(map.getTouchModelName() + " vs " + modelName);
                 if (map.getTouchModelName().equals(modelName)) {
                     mapping = map;
                     break;
@@ -61,23 +61,34 @@ public class WinkModelServlet extends HttpServlet {
 
                 return;
             }
+
             System.err.println("Wink Model Mapping - for " + modelName + " is  " + mapping.getClassName());
+
+            DataModelUpdatableGettableByField model = ((DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(mapping.getClassName()).newInstance());
+
+            List<String> fieldsNotToSend = RestModelFieldsNotToSend.getForClassName(model.getClass().getName());
 
             out.println("Ext.define('WINK.model." + modelName + "', {\n"
                     + "    extend: 'Ext.data.Model',\n"
                     + "\n"
                     + "    requires: [\n"
-                    + "        'Ext.data.Field'\n"
+                    + "        'Ext.data.Field',\n"
+                    + "        'WINK.Utilities'"
                     + "    ],\n"
                     + "\n"
-                    + "    config: {\n"
-                    + "        fields: [\n");
+                    + "    config: {\n");
+
+            String restURL = mapping.getRestUrl();
+            if ((restURL != null) && (restURL.trim().length() > 0)) {
+                out.println("proxy: {\n"
+                        + "    type: 'rest',\n"
+                        + "    url: WINK.Utilities.getRestURL() + '" + restURL + "'\n"
+                        + "  },");
+            }
+
+            out.println("        fields: [\n");
 
             boolean isFirst = true;
-
-            DataModelUpdatableGettableByField model = ((DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(mapping.getClassName()).newInstance());
-
-            List<String> fieldsNotToSend = RestModelFieldsNotToSend.getForClassName(model.getClass().getName());
 
             for (String fieldName : model.getAllFieldNames()) {
 
@@ -97,10 +108,8 @@ public class WinkModelServlet extends HttpServlet {
                         out.println(",");
                     }
 
-               
-                 
                     out.println("{"
-                            + " name: '" + mapping.getRestFieldName(model,fieldName) + "'");
+                            + " name: '" + mapping.getRestFieldName(model, fieldName) + "'");
                     if (mapping.isDateField(model, fieldName)) { //always check date before checking long
                         out.println(", type:'date'");
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
@@ -138,7 +147,7 @@ public class WinkModelServlet extends HttpServlet {
                             out.println(model.getInt(fieldName));
                         } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
                             if (model.isNull(fieldName)) {
-                                out.println("null");
+                                out.println("''");
                             } else {
                                 out.println("\"" + model.getString(fieldName) + "\"");
                             }
@@ -191,7 +200,8 @@ public class WinkModelServlet extends HttpServlet {
                                 if (!isFirst) {
                                     out.println(",");
                                 }
-                                out.println(" { type: 'length', field: '" + mapping.getRestFieldName(model,fieldName) + "', max: " + max + ",min:0 }");
+                                String restField = mapping.getRestFieldName(model, fieldName);
+                                out.println(" { type: 'length', field: '" + restField + "', max: " + max + ",min:0 }");
                                 isFirst = false;
                             }
                         }
