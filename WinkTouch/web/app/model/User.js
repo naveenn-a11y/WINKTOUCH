@@ -7,6 +7,10 @@ Ext.define('WINK.model.User', {
 
     config: {
 
+proxy: {
+    type: 'rest',
+    url: WINK.Utilities.getRestURL() + 'users'
+  },
         fields: [
 
 { name: 'id'

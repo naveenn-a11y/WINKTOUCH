@@ -7,6 +7,10 @@ Ext.define('WINK.model.Product', {
 
     config: {
 
+proxy: {
+    type: 'rest',
+    url: WINK.Utilities.getRestURL() + 'products'
+  },
         fields: [
 
 { name: 'id'

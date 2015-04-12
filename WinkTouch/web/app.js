@@ -21,7 +21,7 @@ Ext.define('WINK.Utilities', {
             return 37;
         },
         getRestURL: function() {
-            return 'http://localhost:8080/WinkRESTfull/webresources/';
+            return '/WinkRESTfull/webresources/';
         },
         showWorking: function() {
             Ext.getCmp('PleaseWait').show({type: 'slide', direction: 'down'});
@@ -97,16 +97,33 @@ Ext.application({
         'Ext.MessageBox'
     ],
     models: [
-        'CountrySubdivision',
-        'Store',
+        'ApplicationSetting',
+        'Appointment',
+        'AppointmentType',
+        'Barcode',
         'Country',
-        'User',
-        'Patient',
-        'Product',
-        'InvoiceItem',
+        'CountrySubdivision',
         'Invoice',
+        'InvoiceAttachement',
+        'InvoiceItem',
+        'JobStatus',
+        'Patient',
+        'PatientHistory',
+        'PatientInvoice',
+        'PatientInvoiceItem',
+        'PatientNote',
+        'PatientPaperFileNumber',
+        'PatientPayment',
+        'PaymentMethod',
+        'Product',
+        'ProductCategory',
+        'ProductRetailDetail',
+        'Store',
+        'Supplier',
         'TaxCode',
-        'PatientHistory'
+        'TaxCodeEffectiveDate',
+        'Upload',
+        'User'
     ],
     stores: [
         'leftNavigationTreeStore',

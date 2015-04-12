@@ -1,4 +1,4 @@
-Ext.define('WINK.model.Store', {
+Ext.define('WINK.model.Supplier', {
     extend: 'Ext.data.Model',
 
     requires: [
@@ -9,7 +9,7 @@ Ext.define('WINK.model.Store', {
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'stores'
+    url: WINK.Utilities.getRestURL() + 'suppliers'
   },
         fields: [
 
@@ -18,12 +18,17 @@ proxy: {
  ,defaultValue: 0
 }
 ,
-{ name: 'companyname'
+{ name: 'povonlineid'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'name'
 , type:'string'
  ,defaultValue: ''
 }
 ,
-{ name: 'name'
+{ name: 'maincontact'
 , type:'string'
  ,defaultValue: ''
 }
@@ -83,6 +88,11 @@ proxy: {
  ,defaultValue: ''
 }
 ,
+{ name: 'comment'
+, type:'string'
+ ,defaultValue: ''
+}
+,
 { name: 'inactive'
 , type:'boolean'
  ,defaultValue: false
@@ -103,6 +113,11 @@ proxy: {
  ,defaultValue: ''
 }
 ,
+{ name: 'cooppercentage'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
 { name: 'unit'
 , type:'string'
  ,defaultValue: ''
@@ -113,109 +128,34 @@ proxy: {
  ,defaultValue: 0
 }
 ,
-{ name: 'povonlineid'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'onlineversion'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'quickbooksfile_idquickbooksfile'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'timezone'
-, type:'string'
- ,defaultValue: "America/New_York"
-}
-,
-{ name: 'smsgatewayprotocol'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'name_fr'
-, type:'string'
- ,defaultValue: ''
-}
-,
-{ name: 'name_sp'
-, type:'string'
- ,defaultValue: ''
-}
-,
-{ name: 'name_it'
-, type:'string'
- ,defaultValue: ''
-}
-,
-{ name: 'useasdefaultaddress'
-, type:'boolean'
- ,defaultValue: true
-}
-,
-{ name: 'epayaccounts_idepayaccounts'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'edgemountcapacity'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'cariesstocklenses'
+{ name: 'isinsuranceprovider'
 , type:'boolean'
  ,defaultValue: false
 }
 ,
-{ name: 'icdrevision'
-, type:'string'
- ,defaultValue: ''
-}
-,
-{ name: 'defaultlanguage'
+{ name: 'entrymethod'
 , type:'int'
  ,defaultValue: 0
 }
 ,
-{ name: 'defaultinvoicenote'
+{ name: 'framesdataid'
+, type:'string'
+ ,defaultValue: 0
+}
+,
+{ name: 'isfinishinglab'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'issurfacinglab'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'iorderdriver'
 , type:'string'
  ,defaultValue: ''
-}
-,
-{ name: 'rxverificationbeforeorderrequired'
-, type:'boolean'
- ,defaultValue: false
-}
-,
-{ name: 'rxverificationbeforedeliveryrequired'
-, type:'boolean'
- ,defaultValue: false
-}
-,
-{ name: 'inclusiveoftax'
-, type:'boolean'
- ,defaultValue: false
-}
-,
-{ name: 'openingbalancedate'
-, type:'date'
- ,defaultValue: new Date(2015,3,11,0,0,0)
-}
-,
-{ name: 'openingbalanceclosedon'
-, type:'date'
- ,defaultValue: null
-}
-,
-{ name: 'defaultpairlenspricing'
-, type:'boolean'
- ,defaultValue: false
 }
 ,
 { name: 'reference1'
@@ -227,32 +167,12 @@ proxy: {
 , type:'string'
  ,defaultValue: ''
 }
-,
-{ name: 'companylegalname'
-, type:'string'
- ,defaultValue: ''
-}
-,
-{ name: 'bookscloseddate'
-, type:'date'
- ,defaultValue: null
-}
-,
-{ name: 'edgeatstore_idstore'
-, type:'int'
- ,defaultValue: 0
-}
-,
-{ name: 'edgeatsupplier_idsupplier'
-, type:'int'
- ,defaultValue: 0
-}
         ]
 
 ,validations: [
- { type: 'length', field: 'companyname', max: 45,min:0 }
-,
  { type: 'length', field: 'name', max: 45,min:0 }
+,
+ { type: 'length', field: 'maincontact', max: 150,min:0 }
 ,
  { type: 'length', field: 'address1', max: 150,min:0 }
 ,
@@ -282,23 +202,11 @@ proxy: {
 ,
  { type: 'length', field: 'unit', max: 45,min:0 }
 ,
- { type: 'length', field: 'timezone', max: 45,min:0 }
-,
- { type: 'length', field: 'name_fr', max: 45,min:0 }
-,
- { type: 'length', field: 'name_sp', max: 45,min:0 }
-,
- { type: 'length', field: 'name_it', max: 45,min:0 }
-,
- { type: 'length', field: 'icdrevision', max: 45,min:0 }
-,
- { type: 'length', field: 'defaultinvoicenote', max: 150,min:0 }
+ { type: 'length', field: 'iorderdriver', max: 300,min:0 }
 ,
  { type: 'length', field: 'reference1', max: 45,min:0 }
 ,
  { type: 'length', field: 'reference2', max: 45,min:0 }
-,
- { type: 'length', field: 'companylegalname', max: 300,min:0 }
 ]    
 }
 });

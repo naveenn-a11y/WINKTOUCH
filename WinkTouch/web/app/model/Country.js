@@ -7,6 +7,10 @@ Ext.define('WINK.model.Country', {
 
     config: {
 
+proxy: {
+    type: 'rest',
+    url: WINK.Utilities.getRestURL() + 'countries'
+  },
         fields: [
 
 { name: 'id'
