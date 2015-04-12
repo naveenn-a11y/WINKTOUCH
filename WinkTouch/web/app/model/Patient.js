@@ -216,7 +216,7 @@ Ext.define('WINK.model.Patient', {
             ,
             {name: 'createddate'
                 , type: 'string'
-                , defaultValue: 1428780887278
+                , defaultValue: 1428803260632
             }
             ,
             {name: 'lastpurchasedate'

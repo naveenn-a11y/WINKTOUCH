@@ -38,7 +38,9 @@ Ext.define('WINK.view.FindPatientPanel', {
                     {
                         text: 'Open',
                         ui: 'forward',
-                        action: 'doOpenPatient'
+                        handler:function(btn){
+                            btn.up('FindPatientPanel').openSelectedPatient(btn);
+                        }
                     }
                 ]
 
@@ -169,6 +171,15 @@ Ext.define('WINK.view.FindPatientPanel', {
             }
         ]
     },
+    openSelectedPatient: function(btn){
+        var list = this.down("list");
+        if(list.getSelectionCount()>0)
+        {
+            var selectedPatient = list.getSelection()[0];
+            window.location.href="#patient/"+selectedPatient.get('id');
+                   
+        }
+    },
     findFunction: function(btn) {
 
         var FindPatientPanelThis = this;
@@ -182,6 +193,7 @@ Ext.define('WINK.view.FindPatientPanel', {
                 'limit': 100
             },
             success: function(response) {
+                //console.log(response.responseText);
                 FindPatientPanelThis.down('list').getStore().loadData(Ext.JSON.decode(response.responseText), false);
                 WINK.Utilities.hideWorking();
             },

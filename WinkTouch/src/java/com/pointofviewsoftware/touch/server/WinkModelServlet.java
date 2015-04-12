@@ -79,11 +79,14 @@ public class WinkModelServlet extends HttpServlet {
                     + "    config: {\n");
 
             String restURL = mapping.getRestUrl();
+            if(!restURL.equalsIgnoreCase("countries/subdivision"))
+            {
             if ((restURL != null) && (restURL.trim().length() > 0)) {
                 out.println("proxy: {\n"
                         + "    type: 'rest',\n"
                         + "    url: WINK.Utilities.getRestURL() + '" + restURL + "'\n"
                         + "  },");
+            }
             }
 
             out.println("        fields: [\n");

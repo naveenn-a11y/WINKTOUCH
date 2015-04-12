@@ -20,33 +20,15 @@ Ext.define('WINK.view.PatientPanel', {
     ],
     patientAdded: function(newPatient){
         alert('patient Added' + newPatient.get('id'));
+         document.location.href ='#patient/'+newPatient.get('id');
+        return;
     },
     addPatient: function(bnt) {
+       
         var formPanel = this;
         WINK.Utilities.submitForm(formPanel,this.patientAdded);
-        return;
-        
-        Ext.Ajax.request({
-            url: WINK.Utilities.getRestURL() + 'patients',
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            params: Ext.JSON.encode(formPanel.getValues()),
-            success: function(response) {
-                alert('added');
-                WINK.Utilities.hideWorking();
-            },
-            failure: function(response) {
-
-                WINK.Utilities.hideWorking();
-
-                WINK.Utilities.showAjaxError('Add Patient', response);
-            },
-            callback: function(options, success, response) {
-                formPanel.unmask();
-
-            }
-
-        });
+          
+       
     },
     initProvinceStore: function(obj, options) {
         console.log("PatientPanel.initProvinceStore()");

@@ -22,6 +22,9 @@ Ext.define('WINK.controller.MenuController', {
                 xtype: 'ParentView'
             }
         },
+        routes: {
+            'patient/:id': 'openPatient'
+        },
         control: {
             'button[action=doNewPatient]': {
                 tap: 'onNewPatientButtonTap'
@@ -36,6 +39,26 @@ Ext.define('WINK.controller.MenuController', {
                 tap: 'onOpenPatientTap'
             }
         }
+    },
+    openPatient: function(id) {
+        WINK.Utilities.showWorking();
+        WINK.model.Patient.load(id, {
+            scope: this,
+            failure: function(record, operation) {
+                WINK.Utilities.showAjaxError('Open Patient');
+            },
+            success: function(record, operation) {
+                var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
+
+                this.getParentView().setActiveItem(patientHistory);
+            },
+            callback: function(record, operation) {
+                WINK.Utilities.hideWorking();
+            }
+        });
+
+
+
     },
     onOpenPatientTap: function(button, e, eOpts) {
         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
