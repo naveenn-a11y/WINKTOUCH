@@ -236,7 +236,7 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'patientinvoiceitem_idpatientinvoiceitem',
                 primaryKey: 'id'
             }
@@ -244,7 +244,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitem',
+                name: 'patientinvoiceitems',
                 foreignKey: 'refundofpatientinvoiceitem_idpatientinvoiceitem',
                 primaryKey: 'id'
             }
@@ -252,7 +252,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Barcode',
-                name: 'barcode',
+                name: 'barcodes',
                 foreignKey: 'removedbypatientinvoiceitem_idpatientinvoiceitem',
                 primaryKey: 'id'
             }
@@ -260,7 +260,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Barcode',
-                name: 'barcode',
+                name: 'barcodes',
                 foreignKey: 'createdbypatientinvoiceitem_idpatientinvoiceitem',
                 primaryKey: 'id'
             }

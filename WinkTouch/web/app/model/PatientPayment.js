@@ -41,7 +41,7 @@ proxy: {
 ,
 { name: 'date'
 , type:'date'
- ,defaultValue: new Date(2015,3,13,10,9,10)
+ ,defaultValue: new Date(2015,3,13,10,21,57)
 }
 ,
 { name: 'amount'

@@ -71,14 +71,19 @@ Ext.define('WINK.view.PatientPanel', {
         centered: false,
         modal: false,
         scrollable: 'vertical',
+        
         listeners: {
-            activate: function(value, options) {
+            activate: {
+                single:true,
+                fn: function(value, options) {
 
-                console.log("PatientPanel.activate()");
-                value.initProvinceStore();
-                value.updateProvinces();
-                var newPatient = new WINK.model.Patient();
-                this.setRecord(newPatient);
+                    console.log("PatientPanel.activate()");
+                    //alert("PatientPanel.activate()")
+                    value.initProvinceStore();
+                    value.updateProvinces();
+                    var newPatient = new WINK.model.Patient();
+                    this.setRecord(newPatient);
+                }
             }
 
         },

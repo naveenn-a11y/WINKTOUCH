@@ -43,22 +43,24 @@ Ext.define('WINK.controller.MenuController', {
     openPatient: function(patientid) {
         WINK.Utilities.showWorking();
         WINK.model.Patient.load(patientid, {
-            callback: function(patient) {
-                console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname')); //logs 123
-                patient.getFkenteredinstore_idstore({
-                    
-                     callback: function(store,operation) {
-                          console.log('Loaded store' + store.getId() + " " + store.get('name')); //logs 123
-               
-                     }
-                });
-                var invoicesStore = patient.patientinvoices();
-                invoicesStore.load({
-                    callback: function() {
-                          console.log('Loaded invoices ' ); //logs 123
-               
-                     }
-                });
+            scope:this,
+            failure: function(patient, operation) {
+                   WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Open Patient', operation);
+            },
+            success: function(patient, operation) {
+                console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname')); 
+                var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
+         
+                this.getParentView().setActiveItem(patientHistory);
+                WINK.Utilities.hideWorking();
+                  
+                patientHistory.loadPatient(patient);
+                
+
+            },
+            callback: function(patient, operation) {
+
             }
         });
 

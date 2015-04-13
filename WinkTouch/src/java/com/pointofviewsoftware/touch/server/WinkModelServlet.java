@@ -261,7 +261,7 @@ public class WinkModelServlet extends HttpServlet {
                                         out.println(",");
                                     }
 
-                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase();
+                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase()+"s";
 
                                     out.println("            {\n"
                                             + "                model: 'WINK.model." + foreignMapping.getTouchModelName() + "',\n"

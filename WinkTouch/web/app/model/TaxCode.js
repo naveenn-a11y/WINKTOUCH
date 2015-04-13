@@ -97,7 +97,7 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitem',
+                name: 'patientinvoiceitems',
                 foreignKey: 'taxcode_idtaxcode',
                 primaryKey: 'id'
             }
@@ -105,7 +105,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.TaxCodeEffectiveDate',
-                name: 'taxcodeeffectivedate',
+                name: 'taxcodeeffectivedates',
                 foreignKey: 'taxcode_idtaxcode',
                 primaryKey: 'id'
             }
@@ -113,7 +113,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetail',
+                name: 'productretaildetails',
                 foreignKey: 'taxcode_idtaxcode',
                 primaryKey: 'id'
             }

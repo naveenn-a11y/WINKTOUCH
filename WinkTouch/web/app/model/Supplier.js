@@ -191,7 +191,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Store',
-                name: 'store',
+                name: 'stores',
                 foreignKey: 'edgeatsupplier_idsupplier',
                 primaryKey: 'id'
             }
@@ -199,7 +199,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Product',
-                name: 'product',
+                name: 'products',
                 foreignKey: 'preferredsupplier_idsupplier',
                 primaryKey: 'id'
             }
@@ -207,7 +207,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Product',
-                name: 'product',
+                name: 'products',
                 foreignKey: 'manufacturersupplier_idsupplier',
                 primaryKey: 'id'
             }
@@ -215,7 +215,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'paidbyinsurancesupplier_idsupplier',
                 primaryKey: 'id'
             }
@@ -223,7 +223,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'insurance1_idsupplier',
                 primaryKey: 'id'
             }
@@ -231,7 +231,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'insurance2_idsupplier',
                 primaryKey: 'id'
             }

@@ -30,7 +30,6 @@ Ext.application({
         'Patient',
         'PatientInvoice',
         'PatientInvoiceItem',
-        'Patienthistory',
         'PatientHistoryTree',
         'PatientNote',
         'PatientPaperFileNumber',

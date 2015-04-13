@@ -466,7 +466,7 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitem',
+                name: 'patientinvoiceitems',
                 foreignKey: 'product_idproduct',
                 primaryKey: 'id'
             }
@@ -474,7 +474,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Barcode',
-                name: 'barcode',
+                name: 'barcodes',
                 foreignKey: 'product_idproduct',
                 primaryKey: 'id'
             }
@@ -482,7 +482,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetail',
+                name: 'productretaildetails',
                 foreignKey: 'product_idproduct',
                 primaryKey: 'id'
             }
@@ -490,7 +490,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetail',
+                name: 'productretaildetails',
                 foreignKey: 'lenstreatment_idlenstreatment',
                 primaryKey: 'id'
             }
@@ -498,7 +498,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetail',
+                name: 'productretaildetails',
                 foreignKey: 'lensmaterial_idlensmaterial',
                 primaryKey: 'id'
             }

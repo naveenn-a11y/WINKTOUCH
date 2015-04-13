@@ -276,7 +276,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Patient',
-                name: 'patient',
+                name: 'patients',
                 foreignKey: 'referringdoctor_iduser',
                 primaryKey: 'id'
             }
@@ -284,7 +284,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'user_iduser',
                 primaryKey: 'id'
             }
@@ -292,7 +292,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'createby_iduser',
                 primaryKey: 'id'
             }
@@ -300,7 +300,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'salesrep',
                 primaryKey: 'id'
             }
@@ -308,7 +308,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'provideruser_iduser',
                 primaryKey: 'id'
             }
@@ -316,7 +316,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'doctoruser_iduser',
                 primaryKey: 'id'
             }
@@ -324,7 +324,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'writeoffbalanceuser_iduser',
                 primaryKey: 'id'
             }
@@ -332,7 +332,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitem',
+                name: 'patientinvoiceitems',
                 foreignKey: 'discountauthorizedbyuser_iduser',
                 primaryKey: 'id'
             }
@@ -340,7 +340,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointment',
+                name: 'appointments',
                 foreignKey: 'doctor_idpatient',
                 primaryKey: 'id'
             }
@@ -348,7 +348,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Barcode',
-                name: 'barcode',
+                name: 'barcodes',
                 foreignKey: 'disabledbyuser_iduser',
                 primaryKey: 'id'
             }
@@ -356,7 +356,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientNote',
-                name: 'patientnote',
+                name: 'patientnotes',
                 foreignKey: 'user_iduser',
                 primaryKey: 'id'
             }

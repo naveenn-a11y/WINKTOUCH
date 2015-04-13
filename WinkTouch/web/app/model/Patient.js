@@ -226,7 +226,7 @@ proxy: {
 ,
 { name: 'createddate'
 , type:'string'
- ,defaultValue: 1428934150361
+ ,defaultValue: 1428934917357
 }
 ,
 { name: 'lastpurchasedate'
@@ -446,7 +446,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Patient',
-                name: 'patient',
+                name: 'patients',
                 foreignKey: 'referredby_idpatient',
                 primaryKey: 'id'
             }
@@ -454,7 +454,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'patient_idpatient',
                 primaryKey: 'id'
             }
@@ -462,7 +462,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'patient_idpatient',
                 primaryKey: 'id'
             }
@@ -470,7 +470,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointment',
+                name: 'appointments',
                 foreignKey: 'patient_idpatient',
                 primaryKey: 'id'
             }
@@ -478,7 +478,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientNote',
-                name: 'patientnote',
+                name: 'patientnotes',
                 foreignKey: 'patient_idpatient',
                 primaryKey: 'id'
             }
@@ -486,7 +486,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPaperFileNumber',
-                name: 'patientpaperfilenumber',
+                name: 'patientpaperfilenumbers',
                 foreignKey: 'patient_idpatient',
                 primaryKey: 'id'
             }

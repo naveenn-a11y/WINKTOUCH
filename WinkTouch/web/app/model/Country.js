@@ -37,7 +37,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Store',
-                name: 'store',
+                name: 'stores',
                 foreignKey: 'country_idcountry',
                 primaryKey: 'id'
             }
@@ -45,7 +45,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.CountrySubdivision',
-                name: 'countrysubdivision',
+                name: 'countrysubdivisions',
                 foreignKey: 'country_idcountry',
                 primaryKey: 'id'
             }
@@ -53,7 +53,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.User',
-                name: 'user',
+                name: 'users',
                 foreignKey: 'country_idcountry',
                 primaryKey: 'id'
             }
@@ -61,7 +61,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Patient',
-                name: 'patient',
+                name: 'patients',
                 foreignKey: 'country_idcountry',
                 primaryKey: 'id'
             }
@@ -69,7 +69,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'country_idcountry',
                 primaryKey: 'id'
             }
@@ -77,7 +77,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Supplier',
-                name: 'supplier',
+                name: 'suppliers',
                 foreignKey: 'country_idcountry',
                 primaryKey: 'id'
             }

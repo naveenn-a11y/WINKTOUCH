@@ -17,68 +17,33 @@ Ext.define('WINK.store.PatientHistoryStore', {
     extend: 'Ext.data.Store',
     requires: [
         'WINK.model.Patient',
-        'WINK.model.Patienthistory'
+        'WINK.model.PatientHistoryTree'
     ],
     config: {
         data: [
-            {
-                Type: 0,
-                ID: 1,
-                Label: 'Christian Mokbel',
-                Icon: '',
-                Date: ''
-            },
-            {
-                Type: 4,
-                ID: 1,
-                Label: '2015-01-01 20.00',
-                Icon: '',
-                Date: ''
-            },
-            {
-                Type: 4,
-                ID: 1,
-                Label: '2015-01-01 20.00',
-                Icon: '',
-                Date: ''
-            },
-            {
-                Type: 5,
-                ID: 1,
-                Label: '2015-01-01 20.00',
-                Icon: '',
-                Date: ''
-            },
-            {
-                Type: 5,
-                ID: 1,
-                Label: '2015-01-01 20.00',
-                Icon: '',
-                Date: ''
-            }
+            
         ],
-        model: 'WINK.model.Patienthistory',
-        storeId: 'PatientHistoryStore',
+        model: 'WINK.model.PatientHistoryTree',
         grouper: {
             groupFn: function(record) {
-                if (record.get('Type') == 0)
+                if (record.get('type') == 0)
                     return "Patient Details";
 
-                if (record.get('Type') == 1)
+                if (record.get('type') == 1)
                     return "Exams";
-                if (record.get('Type') == 2)
+                if (record.get('type') == 2)
                     return "Appointments";
-                if (record.get('Type') == 3)
+                if (record.get('type') == 3)
                     return "Photobooth";
 
-                if (record.get('Type') == 4)
+                if (record.get('type') == 4)
                     return "Open Jobs";
-                if (record.get('Type') == 5)
+                if (record.get('type') == 5)
                     return "Closed Jobs";
-                return record.get('Type');
+                return record.get('type');
 
             },
-            sortProperty: 'Type'
+            sortProperty: 'type'
         }
     }
 });
