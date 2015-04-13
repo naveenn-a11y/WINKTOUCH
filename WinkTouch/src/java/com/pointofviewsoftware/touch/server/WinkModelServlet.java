@@ -73,6 +73,9 @@ public class WinkModelServlet extends HttpServlet {
                     + "extend: 'Ext.data.Model',\n"
                     + "requires: [\n"
                     + "'Ext.data.Field',\n"
+                    + "'Ext.data.association.HasMany',\n"
+                    + "'Ext.data.association.HasOne',\n"
+                    + "'Ext.data.association.BelongsTo',\n"
                     + "'WINK.Utilities'\n");
             out.println("        ,'Ext.data.proxy.Rest'\n");
 
@@ -179,38 +182,134 @@ public class WinkModelServlet extends HttpServlet {
 
             out.println("        ]\n");
 
-            //if (mapping.isPrintValidations()) {
-            out.println(",validations: [");
-            isFirst = true;
-            for (String fieldName : model.getAllFieldNames()) {
-                boolean add = true;
-                if (fieldsNotToSend != null) {
-                    for (String notToSend : fieldsNotToSend) {
-                        if (notToSend.equalsIgnoreCase(fieldName)) {
-                            add = false;
-                            break;
-                        }
-                    }
-                }
+            {
+                //belongs to
 
-                if (add) {
+                out.println(" ,belongsTo: [\n");
+                isFirst = true;
+                for (String fieldName : model.getAllFieldNames()) {
 
-                    if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
-                        int max = model.getMaximumNumberOfCharacters(fieldName);
-                        if (max > 0) {
-                            if (!isFirst) {
-                                out.println(",");
+                    boolean add = true;
+                    if (fieldsNotToSend != null) {
+                        for (String notToSend : fieldsNotToSend) {
+                            if (notToSend.equalsIgnoreCase(fieldName)) {
+                                add = false;
+                                break;
                             }
-                            String restField = mapping.getRestFieldName(model, fieldName);
-                            out.println(" { type: 'length', field: '" + restField + "', max: " + max + ",min:0 }");
-                            isFirst = false;
+                        }
+                    }
+
+                    if (add) {
+
+                        if (model.isFK(fieldName)) {
+
+                            String referencedClass = model.getForeignKeyTableName(fieldName);
+                            WinkModelMapping foreignMapping = WinkModelMapping.getForClassName(referencedClass);
+                            if (foreignMapping != null) {
+                                if (!isFirst) {
+                                    out.println(",");
+                                }
+
+                                String restFieldName = mapping.getRestFieldName(model, fieldName);
+
+                                out.println("            {\n"
+                                        + "                model: 'WINK.model." + foreignMapping.getTouchModelName() + "',\n"
+                                        + "                associatedName: 'fk" + restFieldName + "',\n"
+                                        + "                foreignKey: '" + restFieldName + "',\n"
+                                        + "                primaryKey: 'id',\n"
+                                        + "                getterName: 'getFk" + restFieldName + "',\n"
+                                        + "                setterName: 'setFk" + restFieldName + "'\n"
+                                        + "            }\n");
+                                isFirst = false;
+                            }
                         }
                     }
                 }
-            }
 
-            out.println("]    ");
-            //}
+                out.println("        ] ");
+            }
+            {
+                //belongs to
+
+                out.println(" ,hasMany: [\n");
+                isFirst = true;
+
+                //We are looking for any classes that references this model class
+                for (WinkModelMapping foreignMapping : WinkModelMapping.mapping) {
+                    DataModelUpdatableGettableByField fkModel = (DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(foreignMapping.getClassName()).newInstance();
+
+                    List<String> fkFieldsNotToSend = RestModelFieldsNotToSend.getForClassName(fkModel.getClass().getName());
+
+                    for (String fkFieldName : fkModel.getAllFieldNames()) {
+
+                        boolean add = true;
+                        if (fkFieldsNotToSend != null) {
+                            for (String notToSend : fkFieldsNotToSend) {
+                                if (notToSend.equalsIgnoreCase(fkFieldName)) {
+                                    add = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (add) {
+
+                            if (fkModel.isFK(fkFieldName)) {
+
+                                if (fkModel.getForeignKeyTableName(fkFieldName).equalsIgnoreCase(model.getClass().getName())) {
+                                    if (!isFirst) {
+                                        out.println(",");
+                                    }
+
+                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase();
+
+                                    out.println("            {\n"
+                                            + "                model: 'WINK.model." + foreignMapping.getTouchModelName() + "',\n"
+                                            + "                name: '" + restFieldName + "',\n"
+                                            + "                foreignKey: '" + foreignMapping.getRestFieldName(fkModel, fkFieldName) + "',\n"
+                                            + "                primaryKey: 'id'\n"
+                                            + "            }\n");
+                                    isFirst = false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                out.println("        ] ");
+            }
+            {
+                out.println(",validations: [");
+                isFirst = true;
+                for (String fieldName : model.getAllFieldNames()) {
+                    boolean add = true;
+                    if (fieldsNotToSend != null) {
+                        for (String notToSend : fieldsNotToSend) {
+                            if (notToSend.equalsIgnoreCase(fieldName)) {
+                                add = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (add) {
+
+                        if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                            int max = model.getMaximumNumberOfCharacters(fieldName);
+                            if (max > 0) {
+                                if (!isFirst) {
+                                    out.println(",");
+                                }
+                                String restField = mapping.getRestFieldName(model, fieldName);
+                                out.println(" { type: 'length', field: '" + restField + "', max: " + max + ",min:0 }");
+                                isFirst = false;
+                            }
+                        }
+                    }
+                }
+
+                out.println("]    ");
+            }
             out.println("}\n"
                     + "});");
         } catch (Error ex) {

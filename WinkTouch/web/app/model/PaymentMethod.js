@@ -2,6 +2,9 @@ Ext.define('WINK.model.PaymentMethod',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -92,6 +95,19 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayment',
+                foreignKey: 'paymentmethod_idpaymentmethod',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'name', max: 45,min:0 }
 ,

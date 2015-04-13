@@ -2,6 +2,9 @@ Ext.define('WINK.model.Appointment',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -167,6 +170,78 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            }
+
+,
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdoctor_idpatient',
+                foreignKey: 'doctor_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkdoctor_idpatient',
+                setterName: 'setFkdoctor_idpatient'
+            }
+
+,
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            }
+
+,
+            {
+                model: 'WINK.model.AppointmentType',
+                associatedName: 'fkappointmenttypes_idappointmenttypes',
+                foreignKey: 'appointmenttypes_idappointmenttypes',
+                primaryKey: 'id',
+                getterName: 'getFkappointmenttypes_idappointmenttypes',
+                setterName: 'setFkappointmenttypes_idappointmenttypes'
+            }
+
+,
+            {
+                model: 'WINK.model.AppointmentType',
+                associatedName: 'fkinitialappointmenttypes_idappointmenttypes',
+                foreignKey: 'initialappointmenttypes_idappointmenttypes',
+                primaryKey: 'id',
+                getterName: 'getFkinitialappointmenttypes_idappointmenttypes',
+                setterName: 'setFkinitialappointmenttypes_idappointmenttypes'
+            }
+
+,
+            {
+                model: 'WINK.model.Appointment',
+                associatedName: 'fkappointments_idappointments',
+                foreignKey: 'appointments_idappointments',
+                primaryKey: 'id',
+                getterName: 'getFkappointments_idappointments',
+                setterName: 'setFkappointments_idappointments'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointment',
+                foreignKey: 'appointments_idappointments',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'googleeventid', max: 300,min:0 }
 ]    

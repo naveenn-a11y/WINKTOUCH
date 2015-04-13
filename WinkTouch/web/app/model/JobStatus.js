@@ -2,6 +2,9 @@ Ext.define('WINK.model.JobStatus',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -117,6 +120,12 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+        ] 
+ ,hasMany: [
+
+        ] 
 ,validations: [
  { type: 'length', field: 'comment', max: 200,min:0 }
 ,

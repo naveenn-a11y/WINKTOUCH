@@ -2,6 +2,9 @@ Ext.define('WINK.model.Product',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -417,6 +420,90 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.ProductCategory',
+                associatedName: 'fkproductcategory_idproductcategory',
+                foreignKey: 'productcategory_idproductcategory',
+                primaryKey: 'id',
+                getterName: 'getFkproductcategory_idproductcategory',
+                setterName: 'setFkproductcategory_idproductcategory'
+            }
+
+,
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkpreferredsupplier_idsupplier',
+                foreignKey: 'preferredsupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkpreferredsupplier_idsupplier',
+                setterName: 'setFkpreferredsupplier_idsupplier'
+            }
+
+,
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkmanufacturersupplier_idsupplier',
+                foreignKey: 'manufacturersupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkmanufacturersupplier_idsupplier',
+                setterName: 'setFkmanufacturersupplier_idsupplier'
+            }
+
+,
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkimageuploads_iduploads',
+                foreignKey: 'imageuploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkimageuploads_iduploads',
+                setterName: 'setFkimageuploads_iduploads'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitem',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcode',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetail',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetail',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetail',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'name', max: 300,min:0 }
 ,

@@ -2,6 +2,9 @@ Ext.define('WINK.model.AppointmentType',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -67,6 +70,27 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointment',
+                foreignKey: 'appointmenttypes_idappointmenttypes',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointment',
+                foreignKey: 'initialappointmenttypes_idappointmenttypes',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'name', max: 45,min:0 }
 ,

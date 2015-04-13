@@ -2,6 +2,9 @@ Ext.define('WINK.model.Barcode',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -112,6 +115,58 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkremovedbypatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'removedbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkremovedbypatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkremovedbypatientinvoiceitem_idpatientinvoiceitem'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkcreatedbypatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'createdbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkcreatedbypatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkcreatedbypatientinvoiceitem_idpatientinvoiceitem'
+            }
+
+,
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdisabledbyuser_iduser',
+                foreignKey: 'disabledbyuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdisabledbyuser_iduser',
+                setterName: 'setFkdisabledbyuser_iduser'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitem',
+                foreignKey: 'barcode_idbarcode',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
 ]    
 }

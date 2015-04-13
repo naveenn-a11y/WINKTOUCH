@@ -2,6 +2,9 @@ Ext.define('WINK.model.User',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -247,6 +250,118 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkgooglecalendaruploads_iduploads',
+                foreignKey: 'googlecalendaruploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkgooglecalendaruploads_iduploads',
+                setterName: 'setFkgooglecalendaruploads_iduploads'
+            }
+
+,
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.Patient',
+                name: 'patient',
+                foreignKey: 'referringdoctor_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayment',
+                foreignKey: 'user_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'createby_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'salesrep',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'provideruser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'doctoruser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'writeoffbalanceuser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitem',
+                foreignKey: 'discountauthorizedbyuser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointment',
+                foreignKey: 'doctor_idpatient',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcode',
+                foreignKey: 'disabledbyuser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientNote',
+                name: 'patientnote',
+                foreignKey: 'user_iduser',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'username', max: 45,min:0 }
 ,

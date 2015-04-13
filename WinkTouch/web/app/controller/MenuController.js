@@ -42,29 +42,51 @@ Ext.define('WINK.controller.MenuController', {
     },
     openPatient: function(patientid) {
         WINK.Utilities.showWorking();
-        var history = new WINK.model.Patienthistory({
-            id: patientid
+        WINK.model.Patient.load(patientid, {
+            callback: function(patient) {
+                console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname')); //logs 123
+                patient.getFkenteredinstore_idstore({
+                    
+                     callback: function(store,operation) {
+                          console.log('Loaded store' + store.getId() + " " + store.get('name')); //logs 123
+               
+                     }
+                });
+                var invoicesStore = patient.patientinvoices();
+                invoicesStore.load({
+                    callback: function() {
+                          console.log('Loaded invoices ' ); //logs 123
+               
+                     }
+                });
+            }
         });
-        alert(history.get('id'));
-        var invoices =  history.invoices();
-        invoices.load();
-        history.getPatient({
-            reload: true,
-            callback: function(patient, operation) {
-                WINK.Utilities.hideWorking();
-                console.info("getpatient callback");
-                alert(patient.get('firstname'));
-            },
-            success: function(patient, operation) {
-                WINK.Utilities.hideWorking();
-                console.info("getpatient success");
-            },
-            failure: function(patient, operation) {
-                WINK.Utilities.hideWorking();
-                console.info("getpatient failure");
-            }, 
-            scope: this});
 
+
+        /*
+         var history = new WINK.model.Patienthistory({
+         id: patientid
+         });
+         alert(history.get('id'));
+         var invoices =  history.invoices();
+         invoices.load();
+         history.getPatient({
+         reload: true,
+         callback: function(patient, operation) {
+         WINK.Utilities.hideWorking();
+         console.info("getpatient callback");
+         alert(patient.get('firstname'));
+         },
+         success: function(patient, operation) {
+         WINK.Utilities.hideWorking();
+         console.info("getpatient success");
+         },
+         failure: function(patient, operation) {
+         WINK.Utilities.hideWorking();
+         console.info("getpatient failure");
+         }, 
+         scope: this});
+         */
         /*
          WINK.model.Patient.load(id, {
          scope: this,

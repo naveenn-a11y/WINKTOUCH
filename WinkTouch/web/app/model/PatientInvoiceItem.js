@@ -2,6 +2,9 @@ Ext.define('WINK.model.PatientInvoiceItem',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -167,6 +170,102 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            }
+
+,
+            {
+                model: 'WINK.model.TaxCode',
+                associatedName: 'fktaxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id',
+                getterName: 'getFktaxcode_idtaxcode',
+                setterName: 'setFktaxcode_idtaxcode'
+            }
+
+,
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            }
+
+,
+            {
+                model: 'WINK.model.Barcode',
+                associatedName: 'fkbarcode_idbarcode',
+                foreignKey: 'barcode_idbarcode',
+                primaryKey: 'id',
+                getterName: 'getFkbarcode_idbarcode',
+                setterName: 'setFkbarcode_idbarcode'
+            }
+
+,
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdiscountauthorizedbyuser_iduser',
+                foreignKey: 'discountauthorizedbyuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdiscountauthorizedbyuser_iduser',
+                setterName: 'setFkdiscountauthorizedbyuser_iduser'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkrefundofpatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'refundofpatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkrefundofpatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkrefundofpatientinvoiceitem_idpatientinvoiceitem'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayment',
+                foreignKey: 'patientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitem',
+                foreignKey: 'refundofpatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcode',
+                foreignKey: 'removedbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcode',
+                foreignKey: 'createdbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'description', max: 150,min:0 }
 ,

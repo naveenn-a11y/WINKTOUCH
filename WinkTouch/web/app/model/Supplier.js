@@ -2,6 +2,9 @@ Ext.define('WINK.model.Supplier',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -172,6 +175,68 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.Store',
+                name: 'store',
+                foreignKey: 'edgeatsupplier_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Product',
+                name: 'product',
+                foreignKey: 'preferredsupplier_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Product',
+                name: 'product',
+                foreignKey: 'manufacturersupplier_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayment',
+                foreignKey: 'paidbyinsurancesupplier_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'insurance1_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'insurance2_idsupplier',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'name', max: 45,min:0 }
 ,

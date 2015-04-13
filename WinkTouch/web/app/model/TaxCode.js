@@ -2,6 +2,9 @@ Ext.define('WINK.model.TaxCode',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -87,6 +90,35 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitem',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.TaxCodeEffectiveDate',
+                name: 'taxcodeeffectivedate',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetail',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'code', max: 45,min:0 }
 ,
