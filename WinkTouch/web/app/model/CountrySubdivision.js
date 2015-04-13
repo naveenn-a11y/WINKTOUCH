@@ -2,8 +2,14 @@ Ext.define('WINK.model.CountrySubdivision', {
     extend: 'Ext.data.Model',
     requires: [
         'Ext.data.Field',
-        'WINK.Utilities'],
+        'WINK.Utilities',
+        'Ext.data.proxy.Rest'
+    ],
     config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'countries/subdivision'
+        },
         fields: [
             {name: 'id'
                 , type: 'int'
@@ -21,5 +27,8 @@ Ext.define('WINK.model.CountrySubdivision', {
             }
         ]
 
+        , validations: [
+            {type: 'length', field: 'name', max: 45, min: 0}
+        ]
     }
 });

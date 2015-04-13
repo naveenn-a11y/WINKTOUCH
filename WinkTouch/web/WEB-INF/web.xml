@@ -6,7 +6,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>WinkModel</servlet-name>
-        <url-pattern>/app/model/*</url-pattern>
+        <url-pattern>/app/model-dynamic/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -1,6 +1,6 @@
 
 
-Ext.define('WINK.model.PatientHistory', {
+Ext.define('WINK.model.PatientHistoryTree', {
     extend: 'Ext.data.Model',
 
     requires: [
@@ -13,7 +13,8 @@ Ext.define('WINK.model.PatientHistory', {
     config: {
         fields: [
             {
-                name: 'Label'
+                name: 'id',
+                type : 'int'
             },
             {
                 name: 'Icon'
@@ -28,7 +29,7 @@ Ext.define('WINK.model.PatientHistory', {
             },
             {
                 allowNull: false,
-                name: 'ID',
+                name: 'id',
                 type: 'int'
             }
         ]

@@ -43,10 +43,10 @@ public class WinkModelServlet extends HttpServlet {
             System.err.println("pathInfo:" + modelName);
 
             modelName = modelName.substring(modelName.lastIndexOf("/") + 1, modelName.lastIndexOf("."));
-            System.err.println("Touch Model Name:" + modelName);
+            //System.err.println("Touch Model Name:" + modelName);
             WinkModelMapping mapping = null;
             for (WinkModelMapping map : WinkModelMapping.mapping) {
-                System.err.println(map.getTouchModelName() + " vs " + modelName);
+                // System.err.println(map.getTouchModelName() + " vs " + modelName);
                 if (map.getTouchModelName().equals(modelName)) {
                     mapping = map;
                     break;
@@ -55,38 +55,36 @@ public class WinkModelServlet extends HttpServlet {
 
             if (mapping == null) {
                 String redirect = request.getRequestURI().replace("/model/", "/model-static/");
-                System.err.println("Wink Model Mapping not Found for " + modelName);
-                System.err.println("redirecting to :" + redirect);
+                //System.err.println("Wink Model Mapping not Found for " + modelName);
+                //System.err.println("redirecting to :" + redirect);
                 response.sendRedirect(redirect);
 
                 return;
             }
 
-            System.err.println("Wink Model Mapping - for " + modelName + " is  " + mapping.getClassName());
-
+            //System.err.println("Wink Model Mapping - for " + modelName + " is  " + mapping.getClassName());
             DataModelUpdatableGettableByField model = ((DataModelUpdatableGettableByField) Thread.currentThread().getContextClassLoader().loadClass(mapping.getClassName()).newInstance());
 
             List<String> fieldsNotToSend = RestModelFieldsNotToSend.getForClassName(model.getClass().getName());
 
-            out.println("Ext.define('WINK.model." + modelName + "', {\n"
-                    + "    extend: 'Ext.data.Model',\n"
-                    + "\n"
-                    + "    requires: [\n"
-                    + "        'Ext.data.Field',\n"
-                    + "        'WINK.Utilities'"
-                    + "    ],\n"
+            String restURL = mapping.getRestUrl();
+
+            out.println("Ext.define('WINK.model." + modelName + "',{\n"
+                    + "extend: 'Ext.data.Model',\n"
+                    + "requires: [\n"
+                    + "'Ext.data.Field',\n"
+                    + "'WINK.Utilities'\n");
+            out.println("        ,'Ext.data.proxy.Rest'\n");
+
+            out.println("    ],\n"
                     + "\n"
                     + "    config: {\n");
 
-            String restURL = mapping.getRestUrl();
-            if(!restURL.equalsIgnoreCase("countries/subdivision"))
-            {
             if ((restURL != null) && (restURL.trim().length() > 0)) {
                 out.println("proxy: {\n"
                         + "    type: 'rest',\n"
                         + "    url: WINK.Utilities.getRestURL() + '" + restURL + "'\n"
                         + "  },");
-            }
             }
 
             out.println("        fields: [\n");
@@ -129,49 +127,49 @@ public class WinkModelServlet extends HttpServlet {
 
                     }
 
-                    if (mapping.isPrintDefaults()) {
-                        out.print(" ,defaultValue: ");
-                        if (mapping.isDateField(model, fieldName)) {
-                            if (model.isNull(fieldName)) {
+                    //if (mapping.isPrintDefaults()) {
+                    out.print(" ,defaultValue: ");
+                    if (mapping.isDateField(model, fieldName)) {
+                        if (model.isNull(fieldName)) {
+                            out.println("null");
+                        } else {
+                            myGWTDate d = model.getDate(fieldName);
+                            if ((d == null) || (d.isNull())) {
                                 out.println("null");
                             } else {
-                                myGWTDate d = model.getDate(fieldName);
-                                if ((d == null) || (d.isNull())) {
-                                    out.println("null");
+                                if (mapping.isDateFieldLong(model, fieldName)) {
+                                    out.println("new Date(" + d.getDate() + ")");
                                 } else {
-                                    if (mapping.isDateFieldLong(model, fieldName)) {
-                                        out.println("new Date(" + d.getDate() + ")");
-                                    } else {
-                                        out.println("new Date(" + d.getYear() + "," + (d.getMonth_1_to_12() - 1) + "," + d.getDay() + "," + d.getHourOfDay() + "," + d.getMinute() + "," + d.getSecond() + ")");
-                                    }
+                                    out.println("new Date(" + d.getYear() + "," + (d.getMonth_1_to_12() - 1) + "," + d.getDay() + "," + d.getHourOfDay() + "," + d.getMinute() + "," + d.getSecond() + ")");
                                 }
                             }
-                        } else if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
-                            out.println(model.getInt(fieldName));
-                        } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
-                            if (model.isNull(fieldName)) {
-                                out.println("''");
-                            } else {
-                                out.println("\"" + model.getString(fieldName) + "\"");
-                            }
-
-                        } else if (model.getFieldType(fieldName) == ProgramWritterField.LONG) {
-                            out.println(model.getLong(fieldName));
-
-                        } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
-
-                            out.println("" + model.getBoolean(fieldName) + "");
-
-                        } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
-                            out.println(model.getDouble(fieldName));
+                        }
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
+                        out.println(model.getInt(fieldName));
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                        if (model.isNull(fieldName)) {
+                            out.println("''");
                         } else {
-                            if (model.isNull(fieldName)) {
-                                out.println("null");
-                            } else {
-                                out.println("\"" + model.getStringValue(fieldName) + "\"");
-                            }
+                            out.println("\"" + model.getString(fieldName) + "\"");
+                        }
+
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.LONG) {
+                        out.println(model.getLong(fieldName));
+
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
+
+                        out.println("" + model.getBoolean(fieldName) + "");
+
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
+                        out.println(model.getDouble(fieldName));
+                    } else {
+                        if (model.isNull(fieldName)) {
+                            out.println("null");
+                        } else {
+                            out.println("\"" + model.getStringValue(fieldName) + "\"");
                         }
                     }
+                    // }
 
                     out.println("}");
 
@@ -181,38 +179,38 @@ public class WinkModelServlet extends HttpServlet {
 
             out.println("        ]\n");
 
-            if (mapping.isPrintValidations()) {
-                out.println(",validations: [");
-                isFirst = true;
-                for (String fieldName : model.getAllFieldNames()) {
-                    boolean add = true;
-                    if (fieldsNotToSend != null) {
-                        for (String notToSend : fieldsNotToSend) {
-                            if (notToSend.equalsIgnoreCase(fieldName)) {
-                                add = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (add) {
-
-                        if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
-                            int max = model.getMaximumNumberOfCharacters(fieldName);
-                            if (max > 0) {
-                                if (!isFirst) {
-                                    out.println(",");
-                                }
-                                String restField = mapping.getRestFieldName(model, fieldName);
-                                out.println(" { type: 'length', field: '" + restField + "', max: " + max + ",min:0 }");
-                                isFirst = false;
-                            }
+            //if (mapping.isPrintValidations()) {
+            out.println(",validations: [");
+            isFirst = true;
+            for (String fieldName : model.getAllFieldNames()) {
+                boolean add = true;
+                if (fieldsNotToSend != null) {
+                    for (String notToSend : fieldsNotToSend) {
+                        if (notToSend.equalsIgnoreCase(fieldName)) {
+                            add = false;
+                            break;
                         }
                     }
                 }
 
-                out.println("]    ");
+                if (add) {
+
+                    if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
+                        int max = model.getMaximumNumberOfCharacters(fieldName);
+                        if (max > 0) {
+                            if (!isFirst) {
+                                out.println(",");
+                            }
+                            String restField = mapping.getRestFieldName(model, fieldName);
+                            out.println(" { type: 'length', field: '" + restField + "', max: " + max + ",min:0 }");
+                            isFirst = false;
+                        }
+                    }
+                }
             }
+
+            out.println("]    ");
+            //}
             out.println("}\n"
                     + "});");
         } catch (Error ex) {

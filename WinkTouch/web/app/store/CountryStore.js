@@ -16,8 +16,7 @@
 Ext.define('WINK.store.CountryStore', {
     extend: 'Ext.data.Store',
     requires: [
-        'WINK.model.Country',
-        'WINK.Utilities'
+        'WINK.model.Country'
     ],
     config: {
         autoLoad: true,

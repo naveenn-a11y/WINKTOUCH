@@ -20,13 +20,15 @@ public class CreateModel {
 
     public static void main(String[] args) throws Exception {
         File folderModel = new File("C:\\git\\pov\\WinkTouch\\web\\app\\model");
-        File folderModelStatic = new File("C:\\git\\pov\\WinkTouch\\web\\app\\model-static");
-        if (folderModel.exists()) {
+        //File folderModelStatic = new File("C:\\git\\pov\\WinkTouch\\web\\app\\model-static");
+        /*if (folderModel.exists()) {
             for (File f : folderModel.listFiles()) {
                 f.delete();
             }
-        }
-        folderModel.mkdir();
+        }*/
+                
+        //folderModel.mkdir();
+        /*
         for (File f : folderModelStatic.listFiles()) {
             File fOut = new File(folderModel.getAbsolutePath() + File.separator + f.getName());
             System.err.println(fOut.getAbsolutePath() + " from " + f.getAbsolutePath());
@@ -41,13 +43,17 @@ public class CreateModel {
             }
             in.close();
             out.close();
-        }
+        }*/
+        
         //replace existing from servlet
         for (WinkModelMapping m : WinkModelMapping.mapping) {
             File fOut = new File(folderModel.getAbsolutePath() + File.separator + m.getTouchModelName() + ".js");
             System.err.println(fOut.getAbsolutePath());
+            if(fOut.exists())
+                fOut.delete();
+            
             fOut.createNewFile();
-            URL u = new URL("http://localhost:8080/WinkTouch/app/model/" + m.getTouchModelName()  + ".js");
+            URL u = new URL("http://localhost:8080/WinkTouch/app/model-dynamic/" + m.getTouchModelName()  + ".js");
             InputStream in = u.openStream();
             FileOutputStream out = new FileOutputStream(fOut);
             byte[] buffer = new byte[1000];

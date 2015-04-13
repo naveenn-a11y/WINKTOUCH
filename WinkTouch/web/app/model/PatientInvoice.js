@@ -1,9 +1,12 @@
-Ext.define('WINK.model.PatientInvoice', {
-    extend: 'Ext.data.Model',
+Ext.define('WINK.model.PatientInvoice',{
+extend: 'Ext.data.Model',
+requires: [
+'Ext.data.Field',
+'WINK.Utilities'
 
-    requires: [
-        'Ext.data.Field',
-        'WINK.Utilities'    ],
+        ,'Ext.data.proxy.Rest'
+
+    ],
 
     config: {
 
@@ -20,7 +23,7 @@ proxy: {
 ,
 { name: 'orderdate'
 , type:'date'
- ,defaultValue: new Date(2015,3,11,21,47,40)
+ ,defaultValue: new Date(2015,3,12,20,13,13)
 }
 ,
 { name: 'patient_idpatient'
@@ -135,7 +138,7 @@ proxy: {
 ,
 { name: 'createdon'
 , type:'date'
- ,defaultValue: new Date(2015,3,11,21,47,40)
+ ,defaultValue: new Date(2015,3,12,20,13,13)
 }
 ,
 { name: 'insurance1_idsupplier'

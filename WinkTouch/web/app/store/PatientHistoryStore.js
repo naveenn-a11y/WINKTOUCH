@@ -16,7 +16,8 @@
 Ext.define('WINK.store.PatientHistoryStore', {
     extend: 'Ext.data.Store',
     requires: [
-        'WINK.model.Patient'
+        'WINK.model.Patient',
+        'WINK.model.Patienthistory'
     ],
     config: {
         data: [
@@ -56,7 +57,7 @@ Ext.define('WINK.store.PatientHistoryStore', {
                 Date: ''
             }
         ],
-        model: 'WINK.model.PatientHistory',
+        model: 'WINK.model.Patienthistory',
         storeId: 'PatientHistoryStore',
         grouper: {
             groupFn: function(record) {

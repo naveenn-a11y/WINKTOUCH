@@ -9,8 +9,7 @@ Ext.define('WINK.view.FindPatientPanel', {
         'Ext.field.Password',
         'Ext.Button',
         'Ext.form.FormPanel',
-        'WINK.view.MonthPickerFormField',
-        'WINK.Utilities'
+        'WINK.view.MonthPickerFormField'
     ],
     config: {
         fullscreen: true,
