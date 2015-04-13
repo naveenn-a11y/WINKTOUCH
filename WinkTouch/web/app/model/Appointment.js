@@ -236,7 +236,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointment',
+                name: 'appointments',
                 foreignKey: 'appointments_idappointments',
                 primaryKey: 'id'
             }

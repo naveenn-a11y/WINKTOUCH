@@ -36,7 +36,13 @@
 .x-panel-inner{
     border-radius:0.0em !important;
 }
+.x-form{
+    border-radius:0.0em !important;
+}
 
+.x-form-inner{
+    border-radius:0.0em !important;
+}
 .inputBorder{
     
     border-style: solid !important;

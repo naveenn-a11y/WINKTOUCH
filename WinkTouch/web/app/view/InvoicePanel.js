@@ -14,7 +14,7 @@
  */
 
 Ext.define('WINK.view.InvoicePanel', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.form.Panel',
     alias: 'widget.InvoicePanel',
 
     requires: [
@@ -25,13 +25,18 @@ Ext.define('WINK.view.InvoicePanel', {
         'Ext.Button',
         'Ext.SegmentedButton',
         'Ext.Label',
-        'Ext.tab.Bar'
+        'Ext.tab.Bar',
+        'Ext.form.Panel'
     ],
 
     config: {
         layout: 'hbox',
+          centered: false,
+       // modal: false,
         scrollable: false,
+        
         items: [
+            
             {
                 xtype: 'tabpanel',
                 flex: 1,

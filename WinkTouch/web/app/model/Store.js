@@ -291,7 +291,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Store',
-                name: 'store',
+                name: 'stores',
                 foreignKey: 'edgeatstore_idstore',
                 primaryKey: 'id'
             }
@@ -299,7 +299,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Patient',
-                name: 'patient',
+                name: 'patients',
                 foreignKey: 'store_idstore',
                 primaryKey: 'id'
             }
@@ -307,7 +307,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Patient',
-                name: 'patient',
+                name: 'patients',
                 foreignKey: 'enteredinstore_idstore',
                 primaryKey: 'id'
             }
@@ -315,7 +315,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'store_idstore',
                 primaryKey: 'id'
             }
@@ -323,7 +323,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'store_idstore',
                 primaryKey: 'id'
             }
@@ -331,7 +331,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'pickupatstore_idstore',
                 primaryKey: 'id'
             }
@@ -339,7 +339,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointment',
+                name: 'appointments',
                 foreignKey: 'store_idstore',
                 primaryKey: 'id'
             }
@@ -347,7 +347,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPaperFileNumber',
-                name: 'patientpaperfilenumber',
+                name: 'patientpaperfilenumbers',
                 foreignKey: 'store_idstore',
                 primaryKey: 'id'
             }
@@ -355,7 +355,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetail',
+                name: 'productretaildetails',
                 foreignKey: 'store_idstore',
                 primaryKey: 'id'
             }

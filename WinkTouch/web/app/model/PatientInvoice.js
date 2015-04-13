@@ -26,7 +26,7 @@ proxy: {
 ,
 { name: 'orderdate'
 , type:'date'
- ,defaultValue: new Date(2015,3,13,10,9,10)
+ ,defaultValue: new Date(2015,3,13,10,21,57)
 }
 ,
 { name: 'patient_idpatient'
@@ -141,7 +141,7 @@ proxy: {
 ,
 { name: 'createdon'
 , type:'date'
- ,defaultValue: new Date(2015,3,13,10,9,10)
+ ,defaultValue: new Date(2015,3,13,10,21,57)
 }
 ,
 { name: 'insurance1_idsupplier'
@@ -401,7 +401,7 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
@@ -409,7 +409,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitem',
+                name: 'patientinvoiceitems',
                 foreignKey: 'patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
@@ -417,7 +417,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.InvoiceAttachement',
-                name: 'invoiceattachement',
+                name: 'invoiceattachements',
                 foreignKey: 'patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }

@@ -66,7 +66,7 @@ proxy: {
 
             {
                 model: 'WINK.model.Product',
-                name: 'product',
+                name: 'products',
                 foreignKey: 'imageuploads_iduploads',
                 primaryKey: 'id'
             }
@@ -74,7 +74,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.User',
-                name: 'user',
+                name: 'users',
                 foreignKey: 'googlecalendaruploads_iduploads',
                 primaryKey: 'id'
             }
@@ -82,7 +82,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'uploads_iduploads',
                 primaryKey: 'id'
             }
@@ -90,7 +90,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayment',
+                name: 'patientpayments',
                 foreignKey: 'signatureuploads_iduploads',
                 primaryKey: 'id'
             }
@@ -98,7 +98,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoice',
+                name: 'patientinvoices',
                 foreignKey: 'uploads_iduploads',
                 primaryKey: 'id'
             }
@@ -106,7 +106,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.InvoiceAttachement',
-                name: 'invoiceattachement',
+                name: 'invoiceattachements',
                 foreignKey: 'uploads_iduploads',
                 primaryKey: 'id'
             }
@@ -114,7 +114,7 @@ proxy: {
 ,
             {
                 model: 'WINK.model.PatientNote',
-                name: 'patientnote',
+                name: 'patientnotes',
                 foreignKey: 'uploads_iduploads',
                 primaryKey: 'id'
             }
