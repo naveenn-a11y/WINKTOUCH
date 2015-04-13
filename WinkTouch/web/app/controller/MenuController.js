@@ -23,7 +23,10 @@ Ext.define('WINK.controller.MenuController', {
             }
         },
         routes: {
-            'patient/:patientid': 'openPatient'
+            'patient/:patientid': 'openPatient',
+            'findpatient': 'openFindPatient',
+            'newpatient': 'openNewPatient',
+            'newquicksale':'openQuicksale'
         },
         control: {
             'button[action=doNewPatient]': {
@@ -43,20 +46,20 @@ Ext.define('WINK.controller.MenuController', {
     openPatient: function(patientid) {
         WINK.Utilities.showWorking();
         WINK.model.Patient.load(patientid, {
-            scope:this,
+            scope: this,
             failure: function(patient, operation) {
-                   WINK.Utilities.hideWorking();
+                WINK.Utilities.hideWorking();
                 WINK.Utilities.showAjaxError('Open Patient', operation);
             },
             success: function(patient, operation) {
-                console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname')); 
+                console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname'));
                 var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
-         
+
                 this.getParentView().setActiveItem(patientHistory);
                 WINK.Utilities.hideWorking();
-                  
+
                 patientHistory.loadPatient(patient);
-                
+
 
             },
             callback: function(patient, operation) {
@@ -114,20 +117,30 @@ Ext.define('WINK.controller.MenuController', {
         this.getParentView().setActiveItem(patientHistory);
     },
     onQuicksaleButtonTap: function(button, e, eOpts) {
+        document.location.href = '#newquicksale';
+    },
+    openQuicksale: function(button, e, eOpts) {
         var quicksale = Ext.create('WINK.view.InvoicePanel');
 
         this.getParentView().setActiveItem(quicksale);
     },
     onNewPatientButtonTap: function(button, e, eOpts) {
+        document.location.href = '#newpatient';
+    },
+    openNewPatient: function(button, e, eOpts) {
         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
         this.getParentView().setActiveItem(newPatientPanel);
     },
-    onFindPatientButtonTap: function(button, e, eOpts) {
+    openFindPatient: function() {
         if (!this.findPatientPanel)
             this.findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
 
         this.getParentView().setActiveItem(this.findPatientPanel);
+    },
+    onFindPatientButtonTap: function(button, e, eOpts) {
+        document.location.href = "#findpatient";
+
     },
     onDeliveryJobButtonTap: function(button, e, eOpts) {
 
