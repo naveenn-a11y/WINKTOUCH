@@ -1,34 +1,57 @@
-Ext.define('WINK.model.CountrySubdivision', {
-    extend: 'Ext.data.Model',
-    requires: [
-        'Ext.data.Field',
-        'WINK.Utilities',
-        'Ext.data.proxy.Rest'
+Ext.define('WINK.model.CountrySubdivision',{
+extend: 'Ext.data.Model',
+requires: [
+'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
+'WINK.Utilities'
+
+        ,'Ext.data.proxy.Rest'
+
     ],
+
     config: {
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'countries/subdivision'
-        },
+
+proxy: {
+    type: 'rest',
+    url: WINK.Utilities.getRestURL() + 'countries/subdivision'
+  },
         fields: [
-            {name: 'id'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'country_idcountry'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'name'
-                , type: 'string'
-                , defaultValue: ''
-            }
+
+{ name: 'id'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'country_idcountry'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'name'
+, type:'string'
+ ,defaultValue: ''
+}
         ]
 
-        , validations: [
-            {type: 'length', field: 'name', max: 45, min: 0}
-        ]
-    }
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+
+        ] 
+ ,hasMany: [
+
+        ] 
+,validations: [
+ { type: 'length', field: 'name', max: 45,min:0 }
+]    
+}
 });

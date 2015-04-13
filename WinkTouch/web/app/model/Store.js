@@ -2,6 +2,9 @@ Ext.define('WINK.model.Store',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -208,7 +211,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,3,12,0,0,0)
+ ,defaultValue: new Date(2015,3,13,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'
@@ -252,6 +255,112 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+
+,
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkedgeatstore_idstore',
+                foreignKey: 'edgeatstore_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkedgeatstore_idstore',
+                setterName: 'setFkedgeatstore_idstore'
+            }
+
+,
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkedgeatsupplier_idsupplier',
+                foreignKey: 'edgeatsupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkedgeatsupplier_idsupplier',
+                setterName: 'setFkedgeatsupplier_idsupplier'
+            }
+
+        ] 
+ ,hasMany: [
+
+            {
+                model: 'WINK.model.Store',
+                name: 'store',
+                foreignKey: 'edgeatstore_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Patient',
+                name: 'patient',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Patient',
+                name: 'patient',
+                foreignKey: 'enteredinstore_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayment',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoice',
+                foreignKey: 'pickupatstore_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointment',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientPaperFileNumber',
+                name: 'patientpaperfilenumber',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetail',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id'
+            }
+
+        ] 
 ,validations: [
  { type: 'length', field: 'companyname', max: 45,min:0 }
 ,

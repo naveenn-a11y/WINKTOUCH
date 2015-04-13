@@ -2,6 +2,9 @@ Ext.define('WINK.model.TaxCodeEffectiveDate',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -52,6 +55,21 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.TaxCode',
+                associatedName: 'fktaxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id',
+                getterName: 'getFktaxcode_idtaxcode',
+                setterName: 'setFktaxcode_idtaxcode'
+            }
+
+        ] 
+ ,hasMany: [
+
+        ] 
 ,validations: [
 ]    
 }

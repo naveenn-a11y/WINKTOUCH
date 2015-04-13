@@ -2,6 +2,9 @@ Ext.define('WINK.model.PatientPayment',{
 extend: 'Ext.data.Model',
 requires: [
 'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
 'WINK.Utilities'
 
         ,'Ext.data.proxy.Rest'
@@ -38,7 +41,7 @@ proxy: {
 ,
 { name: 'date'
 , type:'date'
- ,defaultValue: new Date(2015,3,12,20,13,13)
+ ,defaultValue: new Date(2015,3,13,10,9,10)
 }
 ,
 { name: 'amount'
@@ -187,6 +190,101 @@ proxy: {
 }
         ]
 
+ ,belongsTo: [
+
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            }
+
+,
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            }
+
+,
+            {
+                model: 'WINK.model.PaymentMethod',
+                associatedName: 'fkpaymentmethod_idpaymentmethod',
+                foreignKey: 'paymentmethod_idpaymentmethod',
+                primaryKey: 'id',
+                getterName: 'getFkpaymentmethod_idpaymentmethod',
+                setterName: 'setFkpaymentmethod_idpaymentmethod'
+            }
+
+,
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkuploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkuploads_iduploads',
+                setterName: 'setFkuploads_iduploads'
+            }
+
+,
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkpaidbyinsurancesupplier_idsupplier',
+                foreignKey: 'paidbyinsurancesupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkpaidbyinsurancesupplier_idsupplier',
+                setterName: 'setFkpaidbyinsurancesupplier_idsupplier'
+            }
+
+,
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkpatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'patientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkpatientinvoiceitem_idpatientinvoiceitem'
+            }
+
+,
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fksignatureuploads_iduploads',
+                foreignKey: 'signatureuploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFksignatureuploads_iduploads',
+                setterName: 'setFksignatureuploads_iduploads'
+            }
+
+,
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkuser_iduser',
+                foreignKey: 'user_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkuser_iduser',
+                setterName: 'setFkuser_iduser'
+            }
+
+        ] 
+ ,hasMany: [
+
+        ] 
 ,validations: [
  { type: 'length', field: 'description', max: 45,min:0 }
 ,
