@@ -16,13 +16,10 @@
 Ext.define('WINK.store.CountrySubdivisionStore', {
     extend: 'Ext.data.Store',
     requires: [
-        'WINK.model.CountrySubdivision',
-        'WINK.Utilities'
+        'WINK.model.CountrySubdivision'
     ],
     config: {
-        autoLoad: true,
         model: 'WINK.model.CountrySubdivision',
-        storeId: 'CountrySubdivisionStore',
         proxy: {
             type: 'rest',
             url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId()

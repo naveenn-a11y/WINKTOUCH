@@ -1,9 +1,12 @@
-Ext.define('WINK.model.Store', {
-    extend: 'Ext.data.Model',
+Ext.define('WINK.model.Store',{
+extend: 'Ext.data.Model',
+requires: [
+'Ext.data.Field',
+'WINK.Utilities'
 
-    requires: [
-        'Ext.data.Field',
-        'WINK.Utilities'    ],
+        ,'Ext.data.proxy.Rest'
+
+    ],
 
     config: {
 
@@ -205,7 +208,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,3,11,0,0,0)
+ ,defaultValue: new Date(2015,3,12,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'

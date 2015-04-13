@@ -15,32 +15,39 @@ Ext.define('WINK.view.PatientPanel', {
         'Ext.field.Select',
         'Ext.field.Email',
         'Ext.field.Password',
-        'Ext.Button',
-        'WINK.Utilities'
+        'Ext.Button'
     ],
-    patientAdded: function(newPatient){
+    patientAdded: function(newPatient) {
         alert('patient Added' + newPatient.get('id'));
-         document.location.href ='#patient/'+newPatient.get('id');
+        document.location.href = '#patient/' + newPatient.get('id');
         return;
     },
     addPatient: function(bnt) {
-       
+
         var formPanel = this;
-        WINK.Utilities.submitForm(formPanel,this.patientAdded);
-          
-       
+        WINK.Utilities.submitForm(formPanel, this.patientAdded);
+
+
     },
-    initProvinceStore: function(obj, options) {
+    initProvinceStore: function() {
         console.log("PatientPanel.initProvinceStore()");
+        var subdivisionStore = Ext.create('WINK.store.CountrySubdivisionStore');
+
+
         var countrySelect = this.down("selectfield[name=country_idcountry]");
         var subdivisionSelect = this.down("selectfield[name=province_select]");
         var subdivisionText = this.down("textfield[name=province]");
+        subdivisionSelect.setStore(subdivisionStore);
 
-        var subdivisionStore = subdivisionSelect.getStore();
+
+
+
         var mainSubdivisionStore = Ext.getStore('CountrySubdivisionStore');
         mainSubdivisionStore.clearFilter();
+        console.log("number of provinces in main store" + mainSubdivisionStore.getData().length);
         subdivisionStore.loadData(mainSubdivisionStore.getRange(), false);
 
+        return subdivisionStore;
     },
     updateProvinces: function(obj, options) {
         console.log("PatientPanel.updateProvinces()");
@@ -66,6 +73,8 @@ Ext.define('WINK.view.PatientPanel', {
         scrollable: 'vertical',
         listeners: {
             activate: function(value, options) {
+
+                console.log("PatientPanel.activate()");
                 value.initProvinceStore();
                 value.updateProvinces();
                 var newPatient = new WINK.model.Patient();
@@ -228,10 +237,6 @@ Ext.define('WINK.view.PatientPanel', {
                                 name: 'province_select',
                                 required: true,
                                 displayField: 'name',
-                                store: Ext.create('WINK.store.CountrySubdivisionStore',
-                                        {
-                                            autoLoad: false
-                                        }),
                                 usePicker: true,
                                 valueField: 'id',
                                 listeners: {
@@ -258,6 +263,8 @@ Ext.define('WINK.view.PatientPanel', {
                                 label: 'Province/St',
                                 name: 'province',
                                 hidden: false
+
+
                             },
                             {
                                 xtype: 'textfield',
@@ -281,7 +288,7 @@ Ext.define('WINK.view.PatientPanel', {
                                 slotOrder: ['month', 'year'],
                                 format: 'F Y',
                                 name: 'medialcardexpiry'
-                               
+
                             },
                             {
                                 xtype: 'textfield',

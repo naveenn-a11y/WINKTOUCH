@@ -1,37 +1,40 @@
-
-
-Ext.define('WINK.model.PatientHistory', {
+Ext.define('WINK.model.Patienthistory', {
     extend: 'Ext.data.Model',
-
     requires: [
-        'Ext.data.association.HasMany'
+        'Ext.data.association.HasMany',
+        'Ext.data.association.HasOne',
+        'Ext.data.Field',
+        'WINK.model.PatientInvoice',
+        'WINK.model.Patient',
+        'WINK.Utilities'
     ],
-    uses: [
-        
-    ],
-
     config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patient/history'
+        },
         fields: [
             {
-                name: 'Label'
-            },
-            {
-                name: 'Icon'
-            },
-            {
-                name: 'Date',
-                type: 'date'
-            },
-            {
-                name: 'Type',
-                type: 'int' //0 is the patient details,1 is exams, 2 is appointments, 3 is photo booth,  4 is an open job, 5 is a closed job
-            },
-            {
-                allowNull: false,
-                name: 'ID',
+                name: 'id',
                 type: 'int'
             }
+        ],
+        hasOne: [
+            {
+                model: 'WINK.model.Patient',
+                name: 'patient',
+                foreignKey: 'id',
+                primaryKey: 'id'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'invoices',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id'
+            }
         ]
-        
     }
+
 });

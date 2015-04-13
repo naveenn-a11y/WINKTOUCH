@@ -16,8 +16,7 @@
 Ext.define('WINK.store.LocationStore', {
     extend: 'Ext.data.Store',
     requires: [
-        'WINK.model.Store',
-        'WINK.Utilities'
+        'WINK.model.Store'
     ],
     config: {
         autoLoad: true,

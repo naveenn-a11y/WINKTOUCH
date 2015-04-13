@@ -1,9 +1,12 @@
-Ext.define('WINK.model.InvoiceAttachement', {
-    extend: 'Ext.data.Model',
+Ext.define('WINK.model.InvoiceAttachement',{
+extend: 'Ext.data.Model',
+requires: [
+'Ext.data.Field',
+'WINK.Utilities'
 
-    requires: [
-        'Ext.data.Field',
-        'WINK.Utilities'    ],
+        ,'Ext.data.proxy.Rest'
+
+    ],
 
     config: {
 

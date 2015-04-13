@@ -2,7 +2,11 @@ Ext.define('WINK.model.Patient', {
     extend: 'Ext.data.Model',
     requires: [
         'Ext.data.Field',
-        'WINK.Utilities'],
+        'WINK.Utilities'
+
+                , 'Ext.data.proxy.Rest'
+
+    ],
     config: {
         proxy: {
             type: 'rest',
@@ -216,7 +220,7 @@ Ext.define('WINK.model.Patient', {
             ,
             {name: 'createddate'
                 , type: 'string'
-                , defaultValue: 1428803260632
+                , defaultValue: 1428883993347
             }
             ,
             {name: 'lastpurchasedate'

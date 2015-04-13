@@ -23,7 +23,7 @@ Ext.define('WINK.controller.MenuController', {
             }
         },
         routes: {
-            'patient/:id': 'openPatient'
+            'patient/:patientid': 'openPatient'
         },
         control: {
             'button[action=doNewPatient]': {
@@ -40,23 +40,47 @@ Ext.define('WINK.controller.MenuController', {
             }
         }
     },
-    openPatient: function(id) {
+    openPatient: function(patientid) {
         WINK.Utilities.showWorking();
-        WINK.model.Patient.load(id, {
-            scope: this,
-            failure: function(record, operation) {
-                WINK.Utilities.showAjaxError('Open Patient');
-            },
-            success: function(record, operation) {
-                var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
-
-                this.getParentView().setActiveItem(patientHistory);
-            },
-            callback: function(record, operation) {
-                WINK.Utilities.hideWorking();
-            }
+        var history = new WINK.model.Patienthistory({
+            id: patientid
         });
+        alert(history.get('id'));
+        var invoices =  history.invoices();
+        invoices.load();
+        history.getPatient({
+            reload: true,
+            callback: function(patient, operation) {
+                WINK.Utilities.hideWorking();
+                console.info("getpatient callback");
+                alert(patient.get('firstname'));
+            },
+            success: function(patient, operation) {
+                WINK.Utilities.hideWorking();
+                console.info("getpatient success");
+            },
+            failure: function(patient, operation) {
+                WINK.Utilities.hideWorking();
+                console.info("getpatient failure");
+            }, 
+            scope: this});
 
+        /*
+         WINK.model.Patient.load(id, {
+         scope: this,
+         failure: function(record, operation) {
+         WINK.Utilities.showAjaxError('Open Patient');
+         },
+         success: function(record, operation) {
+         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
+         
+         this.getParentView().setActiveItem(patientHistory);
+         },
+         callback: function(record, operation) {
+         WINK.Utilities.hideWorking();
+         }
+         });
+         */
 
 
     },
@@ -82,14 +106,10 @@ Ext.define('WINK.controller.MenuController', {
         this.getParentView().setActiveItem(this.findPatientPanel);
     },
     onDeliveryJobButtonTap: function(button, e, eOpts) {
-        var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
-        this.getParentView().setActiveItem(newPatientPanel);
     },
     onNewInvoiceButtonTap: function(button, e, eOpts) {
-        var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
-        this.getParentView().setActiveItem(newPatientPanel);
     }
 
 });

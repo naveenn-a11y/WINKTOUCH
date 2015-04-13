@@ -17,7 +17,7 @@ Ext.define('WINK.controller.LoginController', {
     
     extend: 'Ext.app.Controller',
     requires: [
-        'WINK.Utilities'
+      
     ],
     
     config: {
@@ -77,6 +77,11 @@ Ext.define('WINK.controller.LoginController', {
                      myController.getParentView().setActiveItem(myController.getMainAppPanel());
                 }
                 WINK.Utilities.hideWorking();
+                Ext.create('WINK.store.CountrySubdivisionStore',{
+                     storeId: 'CountrySubdivisionStore',
+                     autoLoad: true 
+                 }); //just to start loading the data
+
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();
