@@ -22,10 +22,20 @@ Ext.define('WINK.view.PatientPanel', {
         document.location.href = '#patient/' + newPatient.get('id');
         return;
     },
+    patientSaved:function(savedPatient){
+        
+    },
     addPatient: function(bnt) {
 
         var formPanel = this;
         WINK.Utilities.submitForm(formPanel, this.patientAdded);
+
+
+    },
+    savePatient: function(bnt) {
+        alert('save Patient');
+        var formPanel = this;
+        WINK.Utilities.submitForm(formPanel, this.patientSaved);
 
 
     },

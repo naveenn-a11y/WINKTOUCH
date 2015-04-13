@@ -19,9 +19,23 @@ Ext.define('WINK.store.PatientHistoryStore', {
         'WINK.model.Patient',
         'WINK.model.PatientHistoryTree'
     ],
+    sortHistory: function() {
+        this.sort([
+            {
+                property: 'type',
+                direction: 'ASC'
+
+            },
+            {
+                property: 'date',
+                direction: 'DESC'
+
+            }
+        ]);
+
+    },
     config: {
         data: [
-            
         ],
         model: 'WINK.model.PatientHistoryTree',
         grouper: {
@@ -44,6 +58,12 @@ Ext.define('WINK.store.PatientHistoryStore', {
 
             },
             sortProperty: 'type'
-        }
+        },
+        sorters: [
+            {
+                property: 'type',
+                direction: 'ASC'
+
+            }]
     }
 });

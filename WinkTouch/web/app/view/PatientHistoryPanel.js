@@ -18,6 +18,38 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         'Ext.Panel',
         'WINK.store.PatientHistoryStore'
     ],
+    newPhoto: function() {
+
+    },
+    newAttachment: function() {
+
+    },
+    newInvoice: function() {
+        var historyStore = this.getHistoryList().getStore();
+        var item = Ext.create('WINK.model.PatientInvoice');
+
+        var invoiceItem = Ext.create('WINK.model.PatientHistoryTree', {
+            type: 4,
+            id: 0,
+            label: item.get('orderdate').getFullYear() + '-' + item.get('orderdate').getMonth() + "-" + item.get('orderdate').getDate(),
+            icon: '',
+            date: item.get('orderdate')
+        });
+        historyStore.add(invoiceItem);
+        this.openHistoryItem(invoiceItem);
+
+    },
+    newExam: function() {
+
+    },
+    saveClicked: function() {
+        alert('saved clicked');
+        if (this.patientView)
+        {
+            alert('patientView.savePatient()');
+            this.patientView.savePatient();
+        }
+    },
     loadPatient: function(patient) {
         console.log('PatientHistoryPanel.loadPatient()' + patient.get('id'));
         this.patient = patient;
@@ -36,6 +68,9 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
 
     },
+    getHistoryList: function(){
+        return this.down('list');
+    },
     loadPatientHistoryStore: function() {
         var patient = this.patient;
         console.log('PatientHistoryPanel.loadPatientHistoryStore()' + patient.get('id'));
@@ -45,7 +80,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         var fullName = patient.get('lastname') + " " + patient.get('firstname');
         console.log('PatientHistoryPanel.loadPatientHistoryStore() fullname:' + fullName);
 
-        this.down('list').setStore(historyStore);
+        this.getHistoryList().setStore(historyStore);
 
         {
             var patientItem = Ext.create('WINK.model.PatientHistoryTree', {
@@ -75,19 +110,20 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                 historyStore.add(invoiceItem);
             }, this);
         }
-
-
-
-
+        historyStore.sortHistory();
         this.unmask();
     },
+    
     openHistoryItem: function(record) {
         this.setMasked(true);
         var patient = this.patient;
+        var list = this.getHistoryList();
         var type = record.get('type');
         var id = record.get('id');
         console.log('PatientHistoryPanel.openHistoryItem()' + type + "." + id);
 
+
+        list.select(record,false,true);
         var myContainer = this.down('container[winkname=patientmaincontainer]');
 
         if (type === 0) {
@@ -104,7 +140,14 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                 this.patientView.setRecord(patient); //has to run after myContainer.activate event
             }
         } else if ((type === 4) || (type === 5)) {
-            var patientView = Ext.create('WINK.view.InvoicePanel');
+            var patientView = null;
+            if (!this['invoicePanels' + id.toString()])
+            {
+                patientView = Ext.create('WINK.view.InvoicePanel');
+                this['invoicePanels' + id.toString()] = patientView;
+            } else {
+                patientView = this['invoicePanels' + id.toString()];
+            }
             myContainer.setActiveItem(patientView);
         }
 
@@ -148,6 +191,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
                                 var myOverlay = Ext.create('Ext.Panel', {
                                     modal: true,
+                                    winkname:'newoverlay',
                                     hideOnMaskTap: true,
                                     showAnimation: {
                                         type: 'popIn',
@@ -181,7 +225,29 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                                 {title: 'Invoice'},
                                                 {title: 'Attachment'},
                                                 {title: 'Photo'}
-                                            ]
+                                            ],
+                                            listeners: {
+                                                itemtap: function(dataview, index, target, record, e, eOpts) {
+                                                    dataview.up("panel[winkname=newoverlay]").hide();
+                                                    var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0];
+                                                    if (index === 0)
+                                                    {
+                                                        historyPanel.newExam();
+                                                    } else if (index === 1) {
+
+                                                        historyPanel.newInvoice();
+                                                    } else if (index === 2) {
+
+                                                        historyPanel.newAttachment();
+
+                                                    } else if (index === 3) {
+
+                                                        historyPanel.newPhoto();
+
+
+                                                    }
+                                                }
+                                            }
 
                                         }
                                     ]
@@ -194,12 +260,12 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                         }
                     },
                     {
-                        text: 'Open',
-                        ui: 'forward',
+                        text: 'Save',
+                        ui: 'action',
                         listeners: {
                             tap: function(c) {
+                                c.up('PatientHistoryPanel').saveClicked();
 
-                                alert('Open');
                             }
                         }
                     }
@@ -224,7 +290,10 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             {
                 xtype: 'container',
                 flex: 1,
-                layout: 'card',
+                layout: {
+                    type: 'card',
+                    animation: 'slide'
+                },
                 winkname: 'patientmaincontainer'
             }
         ]

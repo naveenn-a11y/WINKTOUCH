@@ -14,12 +14,9 @@
  */
 
 Ext.define('WINK.controller.LoginController', {
-    
     extend: 'Ext.app.Controller',
     requires: [
-      
     ],
-    
     config: {
         refs: {
             loginPanel: {
@@ -35,6 +32,10 @@ Ext.define('WINK.controller.LoginController', {
                 xtype: 'MainAppPanel'
             }
         },
+        routes: {
+            'mainmenu': 'openMainmenu',
+            'login': 'openLogin'
+        },
         control: {
             'button#logInButton': {
                 tap: 'login'
@@ -46,15 +47,17 @@ Ext.define('WINK.controller.LoginController', {
         }
     },
     doGoToMainScreen: function() {
-        WINK.Utilities.previousActiveItem=null;
+        document.location.href = '#mainmenu';
+    },
+    openMainmenu: function() {
+        WINK.Utilities.previousActiveItem = null;
         this.getParentView().setActiveItem(this.getMainAppPanel());
     },
-  
     login: function() {
 
         var loginPanel = this.getLoginPanel();
         var myController = this;
-       
+
         WINK.Utilities.showWorking();
         Ext.Ajax.request({
             url: WINK.Utilities.getRestURL() + 'users/me',
@@ -67,25 +70,25 @@ Ext.define('WINK.controller.LoginController', {
             },
             success: function(response) {
 
-               
+
                 loginPanel.clearForm();
-                if(WINK.Utilities.previousActiveItem)
+                if (WINK.Utilities.previousActiveItem)
                 {
-                     myController.getParentView().setActiveItem(WINK.Utilities.previousActiveItem);
-                     WINK.Utilities.previousActiveItem=null;
-                }else{
-                     myController.getParentView().setActiveItem(myController.getMainAppPanel());
+                    myController.getParentView().setActiveItem(WINK.Utilities.previousActiveItem);
+                    WINK.Utilities.previousActiveItem = null;
+                } else {
+                    myController.getParentView().setActiveItem(myController.getMainAppPanel());
                 }
                 WINK.Utilities.hideWorking();
-                Ext.create('WINK.store.CountrySubdivisionStore',{
-                     storeId: 'CountrySubdivisionStore',
-                     autoLoad: true 
-                 }); //just to start loading the data
+                Ext.create('WINK.store.CountrySubdivisionStore', {
+                    storeId: 'CountrySubdivisionStore',
+                    autoLoad: true
+                }); //just to start loading the data
 
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();
-                Ext.Msg.alert('Login Failed','Invalid Login...Please try again',Ext.emptyFn);
+                Ext.Msg.alert('Login Failed', 'Invalid Login...Please try again', Ext.emptyFn);
             },
             callback: function(options, success, response) {
 
