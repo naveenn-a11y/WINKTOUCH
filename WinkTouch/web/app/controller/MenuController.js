@@ -40,9 +40,15 @@ Ext.define('WINK.controller.MenuController', {
             },
             'button[action=doOpenPatient]': {
                 tap: 'onOpenPatientTap'
-            }
+            },
+            'button[action=goBack]': {
+                tap: 'goBack'
+            },
         }
     },
+    goBack:function(){
+        history.back();
+    },  
     openPatient: function(patientid) {
         WINK.Utilities.showWorking();
         WINK.model.Patient.load(patientid, {

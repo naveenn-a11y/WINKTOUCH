@@ -74,7 +74,8 @@ Ext.application({
         'MonthPickerFormField',
         'MonthPicker',
         'FindPatientPanel',
-        'PatientHistoryPanel'
+        'PatientHistoryPanel',
+        'ProductSearchResultsPanel'
 
 
     ],

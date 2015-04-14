@@ -106,7 +106,7 @@ Ext.define('WINK.view.PatientPanel', {
                     {
                         text: 'Back',
                         ui: 'back',
-                        action: 'goToMainScreen'
+                        action: 'goBack'
                     },
                     {
                         text: 'Clear',

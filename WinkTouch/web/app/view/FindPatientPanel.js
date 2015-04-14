@@ -24,7 +24,7 @@ Ext.define('WINK.view.FindPatientPanel', {
                     {
                         text: 'Back',
                         ui: 'back',
-                        action: 'goToMainScreen'
+                        action: 'goBack'
                     },
                     {
                         xtype: 'spacer'

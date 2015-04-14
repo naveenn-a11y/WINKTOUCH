@@ -90,7 +90,8 @@ Ext.define('WINK.view.MainAppPanel', {
                                 height: 125,
                                 width: 125,
                                 text: 'New Patient',
-                                itemId: 'NewPatientButton'
+                                itemId: 'NewPatientButton',
+                                hidden:true
                             }
                         ]
                     },
@@ -111,7 +112,8 @@ Ext.define('WINK.view.MainAppPanel', {
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'Deliver Job'
+                                text: 'Deliver Job',
+                                hidden:true
                             }
                         ]
                     },
@@ -132,7 +134,8 @@ Ext.define('WINK.view.MainAppPanel', {
                                 cls: 'mainMenuButton',
                                 height: 125,
                                 width: 125,
-                                text: 'MyButton4'
+                                text: 'MyButton4',
+                                hidden:true
                             }
                         ]
                     }

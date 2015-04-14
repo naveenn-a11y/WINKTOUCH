@@ -32,6 +32,7 @@ Ext.define('WINK.store.PatientHistoryStore', {
 
             }
         ]);
+       // this.group();
 
     },
     config: {

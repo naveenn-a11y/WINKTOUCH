@@ -677,7 +677,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.model.PatientNote": [],
   "WINK.model.PatientPaperFileNumber": [],
   "WINK.model.PatientPayment": [],
-  "WINK.model.Patienthistory": [],
   "WINK.model.PaymentMethod": [],
   "WINK.model.Product": [],
   "WINK.model.ProductCategory": [],
@@ -714,6 +713,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.view.PleaseWaitPanel": [],
   "WINK.view.PowerSelectField": [],
   "WINK.view.PrescriptionContainer": [],
+  "WINK.view.ProductSearchResultsPanel": [],
   "WINK.view.QuickProductSelectionPanel": [],
   "WINK.view.RxWorksheetPanel": []
 });
@@ -1457,7 +1457,6 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.model.PatientNote": [],
   "WINK.model.PatientPaperFileNumber": [],
   "WINK.model.PatientPayment": [],
-  "WINK.model.Patienthistory": [],
   "WINK.model.PaymentMethod": [],
   "WINK.model.Product": [],
   "WINK.model.ProductCategory": [],
@@ -1509,7 +1508,7 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.ParentView"
   ],
   "WINK.view.PatientHistoryPanel": [
-    "widget.InvoicePanel"
+    "widget.PatientHistoryPanel"
   ],
   "WINK.view.PatientPanel": [
     "widget.PatientPanel"
@@ -1524,6 +1523,7 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.powerselectfield"
   ],
   "WINK.view.PrescriptionContainer": [],
+  "WINK.view.ProductSearchResultsPanel": [],
   "WINK.view.QuickProductSelectionPanel": [],
   "WINK.view.RxWorksheetPanel": []
 });
