@@ -15,12 +15,10 @@
 
 Ext.define('WINK.view.QuickProductSelectionPanel', {
     extend: 'Ext.Panel',
-
     requires: [
         'Ext.Button',
         'Ext.Toolbar'
     ],
-
     config: {
         parentView: null,
         style: 'background: white',
@@ -359,7 +357,8 @@ Ext.define('WINK.view.QuickProductSelectionPanel', {
                         xtype: 'button',
                         itemId: 'mybutton59',
                         ui: 'back',
-                        text: 'Back'
+                        text: 'Back',
+                        action: 'goBack'
                     }
                 ]
             }
@@ -372,7 +371,6 @@ Ext.define('WINK.view.QuickProductSelectionPanel', {
             }
         ]
     },
-
     onMybutton59Tap: function(button, e, eOpts) {
 
 

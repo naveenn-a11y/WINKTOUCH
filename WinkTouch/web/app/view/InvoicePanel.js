@@ -26,9 +26,24 @@ Ext.define('WINK.view.InvoicePanel', {
         'Ext.SegmentedButton',
         'Ext.Label',
         'Ext.tab.Bar',
-        'Ext.form.Panel'
+        'Ext.form.Panel',
+        'WINK.view.ProductSearchResultsPanel'
     ],
 
+    loadPatientInvoice:function(patientinvoice){
+        this.patientinvoice = patientinvoice;
+        var itemsContainer = this.getInvoiceItemsContainer();
+        this.clearInvoiceItemsContainer();
+        
+        
+    },
+    getInvoiceItemsContainer:function(){
+        return this.down('container[winkname=invoiceitemscontainer]');
+        
+    },
+    clearInvoiceItemsContainer:function(){
+      this.getInvoiceItemsContainer().removeAll(true,false);  
+    },
     config: {
         layout: 'hbox',
           centered: false,
@@ -88,7 +103,13 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 height: 45,
                                                 margin: '2 2 2 0',
                                                 ui: 'action',
-                                                text: 'Search'
+                                                text: 'Search',
+                                                handler:function(btn){
+                                                    var temp = btn.up('InvoicePanel').getInvoiceItemsContainer();
+                                                    var results = Ext.create('WINK.view.ProductSearchResultsPanel');
+                                                    temp.setActiveItem(results);
+                                                    alert('set active item results');
+                                                }
                                             },
                                             {
                                                 xtype: 'button',
@@ -195,23 +216,11 @@ Ext.define('WINK.view.InvoicePanel', {
                                 xtype: 'container',
                                 flex: 1,
                                 style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
-                                layout: 'vbox',
+                                layout: 'card',
                                 scrollable: 'vertical',
+                                winkname:'invoiceitemscontainer',
                                 items: [
-                                    {
-                                        xtype: 'mycontainer10',
-                                        margin: 5
-                                    },
-                                    {
-                                        xtype: 'mycontainer10',
-                                        invoiceItemIndex: 1,
-                                        margin: 5
-                                    },
-                                    {
-                                        xtype: 'mycontainer10',
-                                        invoiceItemIndex: 2,
-                                        margin: 5
-                                    }
+                                   
                                 ]
                             }
                         ]

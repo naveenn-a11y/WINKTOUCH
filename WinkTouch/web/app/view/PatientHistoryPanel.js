@@ -178,7 +178,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                     {
                         text: 'Back',
                         ui: 'back',
-                        action: 'goToMainScreen'
+                        action: 'goBack'
                     },
                     {
                         xtype: 'spacer'
