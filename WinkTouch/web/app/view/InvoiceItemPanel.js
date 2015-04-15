@@ -14,16 +14,25 @@
  */
 
 Ext.define('WINK.view.InvoiceItemPanel', {
-    extend: 'Ext.Container',
+    extend: 'Ext.form.Panel',
     alias: 'widget.mycontainer10',
-
     requires: [
         'Ext.Label',
         'Ext.field.Number',
         'Ext.field.Select',
         'Ext.Button'
     ],
-
+    loadItem: function(item) {
+        this.setRecord(item);
+        var productField = this.down('label[winkname=productname]');
+       
+        item.getFkproduct_idproduct({
+            callback: function(product, operation) {
+                productField.setHtml(product.get('name'));
+            }
+        });
+        
+    },
     config: {
         invoiceItemIndex: 0,
         border: '0 0 1 0',
@@ -39,10 +48,16 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                 xtype: 'label',
                 flex: 1,
                 baseCls: 'Product Name',
-                html: 'Gucci 1234',
+                html: '',
                 margin: '0 2 0 5',
                 style: 'font-size:20px; font-family:"open sans"',
-                width: 235
+                width: 235,
+                winkname: 'productname'
+            },
+            {
+                xtype: 'numberfield',
+                name: 'product_idproduct',
+                hidden: false
             },
             {
                 xtype: 'numberfield',
@@ -55,7 +70,8 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                 value: 999,
                 maxValue: 999,
                 minValue: -999,
-                stepValue: 1
+                stepValue: 1,
+                name: 'qty'
             },
             {
                 xtype: 'numberfield',
@@ -70,7 +86,8 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                 autoCorrect: true,
                 maxValue: 999999,
                 minValue: 0,
-                stepValue: 0.01
+                stepValue: 0.01,
+                name: 'unitprice'
             },
             {
                 xtype: 'selectfield',
@@ -81,7 +98,8 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                 displayField: 'code',
                 store: 'TaxCodeStore',
                 usePicker: false,
-                valueField: 'id'
+                valueField: 'id',
+                name: 'taxcode_idtaxcode'
             },
             {
                 xtype: 'numberfield',
@@ -108,10 +126,9 @@ Ext.define('WINK.view.InvoiceItemPanel', {
             }
         ]
     },
-
     initialize: function() {
         this.callParent();
-        if(this.invoiceItemIndex%2===0){
+        if (this.invoiceItemIndex % 2 === 0) {
             this.setStyle("background: #000000;");
         }
     }

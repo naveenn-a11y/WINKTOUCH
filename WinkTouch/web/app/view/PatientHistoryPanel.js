@@ -68,7 +68,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
 
     },
-    getHistoryList: function(){
+    getHistoryList: function() {
         return this.down('list');
     },
     loadPatientHistoryStore: function() {
@@ -82,18 +82,18 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
         this.getHistoryList().setStore(historyStore);
 
-        {
-            var patientItem = Ext.create('WINK.model.PatientHistoryTree', {
-                type: 0,
-                id: patient.get('id'),
-                label: fullName,
-                icon: '',
-                date: ''
-            });
+
+        var patientItem = Ext.create('WINK.model.PatientHistoryTree', {
+            type: 0,
+            id: patient.get('id'),
+            label: fullName,
+            icon: '',
+            date: ''
+        });
 
 
-            historyStore.add(patientItem);
-        }
+        historyStore.add(patientItem);
+
         {
 
             invoicesStore.each(function(item, index, length) {
@@ -111,9 +111,8 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             }, this);
         }
         historyStore.sortHistory();
-        this.unmask();
+        this.openHistoryItem(patientItem);
     },
-    
     openHistoryItem: function(record) {
         this.setMasked(true);
         var patient = this.patient;
@@ -123,7 +122,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         console.log('PatientHistoryPanel.openHistoryItem()' + type + "." + id);
 
 
-        list.select(record,false,true);
+        list.select(record, false, true);
         var myContainer = this.down('container[winkname=patientmaincontainer]');
 
         if (type === 0) {
@@ -141,14 +140,21 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             }
         } else if ((type === 4) || (type === 5)) {
             var patientView = null;
+            var justLoaded = false;
             if (!this['invoicePanels' + id.toString()])
             {
                 patientView = Ext.create('WINK.view.InvoicePanel');
                 this['invoicePanels' + id.toString()] = patientView;
+                justLoaded=true;
             } else {
                 patientView = this['invoicePanels' + id.toString()];
             }
             myContainer.setActiveItem(patientView);
+            if(justLoaded){
+                var patientInvoiceModel = patient.patientinvoices().getById( id );
+                
+                 this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
+            }
         }
 
 
@@ -191,7 +197,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
                                 var myOverlay = Ext.create('Ext.Panel', {
                                     modal: true,
-                                    winkname:'newoverlay',
+                                    winkname: 'newoverlay',
                                     hideOnMaskTap: true,
                                     showAnimation: {
                                         type: 'popIn',

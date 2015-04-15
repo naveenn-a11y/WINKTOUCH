@@ -14,9 +14,8 @@
  */
 
 Ext.define('WINK.view.InvoiceSummary', {
-    extend: 'Ext.Container',
+    extend: 'Ext.form.Panel',
     alias: 'widget.InvoiceSummary',
-
     requires: [
         'Ext.field.DatePicker',
         'Ext.picker.Date',
@@ -24,11 +23,13 @@ Ext.define('WINK.view.InvoiceSummary', {
         'Ext.Label',
         'Ext.SegmentedButton'
     ],
-
+    loadPatientInvoice: function(model) {
+        this.setRecord(model);
+    },
     config: {
         border: 1,
         style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
-        width: 320,
+        width: 220,
         layout: 'fit',
         items: [
             {
@@ -37,25 +38,44 @@ Ext.define('WINK.view.InvoiceSummary', {
                 layout: 'vbox',
                 items: [
                     {
-                        xtype: 'datepickerfield',
+                        xtype: 'selectfield',
+                        store: 'LocationStore',
                         margin: '5 0 5 0',
-                        label: 'Ordered',
-                        labelWidth: '50%',
-                        placeHolder: 'mm/dd/yyyy'
+                        label: '',
+                        labelWidth: '0%',
+                        disabled: true,
+                        value: 'id',
+                        displayField: 'name',
+                        name: 'store_idstore',
+                        title:'Store'
                     },
                     {
                         xtype: 'datepickerfield',
                         margin: '5 0 5 0',
-                        label: 'Promissed',
-                        labelWidth: '50%',
-                        placeHolder: 'mm/dd/yyyy'
+                        label: 'O',
+                        labelWidth: '20%',
+                        disabled: true,
+                        name: 'orderdate',
+                       
                     },
                     {
                         xtype: 'datepickerfield',
                         margin: '5 0 5 0',
-                        label: 'Delivered',
-                        labelWidth: '50%',
-                        placeHolder: 'mm/dd/yyyy'
+                        label: 'P',
+                        labelWidth: '20%',
+                        placeHolder: 'Not Promissed',
+                        name: 'promisseddate',
+                        
+                    },
+                    {
+                        xtype: 'datepickerfield',
+                        margin: '5 0 5 0',
+                        label: 'D',
+                        labelWidth: '20%',
+                        placeHolder: 'Open',
+                        name: 'delivereddate'
+                        
+
                     },
                     {
                         xtype: 'container',
@@ -187,7 +207,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'label',
                                 flex: 1,
-                                html: 'Payments',
+                                html: 'Pay',
                                 style: 'color: darkgrey'
                             },
                             {
@@ -225,12 +245,12 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'button',
                                 ui: 'confirm',
-                                width: 140,
+                                width: 90,
                                 text: 'Payment'
                             },
                             {
                                 xtype: 'button',
-                                width: 140,
+                                width: 90,
                                 text: 'Deliver'
                             }
                         ]
@@ -243,13 +263,13 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'button',
                                 ui: 'action',
-                                width: 140,
+                                width: 90,
                                 text: 'Print'
                             },
                             {
                                 xtype: 'button',
                                 ui: 'action',
-                                width: 140,
+                                width: 90,
                                 text: 'Email'
                             }
                         ]
@@ -262,13 +282,13 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'button',
                                 ui: 'action',
-                                width: 140,
+                                width: 90,
                                 text: 'Save'
                             },
                             {
                                 xtype: 'button',
                                 ui: 'decline',
-                                width: 140,
+                                width: 90,
                                 text: 'Delete'
                             }
                         ]
