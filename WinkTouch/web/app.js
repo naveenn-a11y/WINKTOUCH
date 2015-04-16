@@ -19,6 +19,7 @@ Ext.application({
 
     ],
     models: [
+        'BarcodeResponse',
         'ApplicationSetting',
         'Appointment',
         'AppointmentType',
@@ -46,6 +47,7 @@ Ext.application({
         'User'
     ],
     stores: [
+        'ProductStore',
         'leftNavigationTreeStore',
         'LocationStore',
         'TaxCodeStore',
@@ -55,6 +57,9 @@ Ext.application({
         'CountryStore'
     ],
     views: [
+        'PhoneField',
+        'PriceField',
+        'IntField',
         'DatePickerToolbar',
         'PleaseWaitPanel',
         'LoginPanel',

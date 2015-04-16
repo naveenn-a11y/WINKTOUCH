@@ -33,7 +33,6 @@ Ext.define('WINK.view.InvoicePanel', {
             return false;
         if (!this.isInvoiceItemsLoaded)
             return false;
-
         return this.isPaymentsLoaded && this.isInvoiceItemsLoaded;
     },
     loadPatientInvoice: function(patientinvoice) {
@@ -44,6 +43,9 @@ Ext.define('WINK.view.InvoicePanel', {
         var itemsContainer = this.getInvoiceItemsContainer();
         this.clearInvoiceItemsContainer();
         this.setRecord(patientinvoice);
+
+        this.down('label[name=id]').setHtml("i" + patientinvoice.get('id'));
+
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems();
         var patientpaymentsStore = patientinvoice.patientpayments();
@@ -61,7 +63,6 @@ Ext.define('WINK.view.InvoicePanel', {
                 this.paymentsLoaded();
             }
         });
-
         this.unmask();
     },
     itemsLoaded: function() {
@@ -69,16 +70,16 @@ Ext.define('WINK.view.InvoicePanel', {
         var patientinvoice = this.patientinvoice;
         var itemsContainer = this.getInvoiceItemsContainer();
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems();
-
         patientinvoiceitemsStore.each(function(item, index, length) {
+
             var invoiceItemPanel = Ext.create('WINK.view.InvoiceItemPanel');
 
+            if (!this.invoiceitems)
+                this.invoiceitems = [];
+
+            this.invoiceitems[index] = invoiceItemPanel;
             itemsContainer.add(invoiceItemPanel);
-
             invoiceItemPanel.loadItem(item);
-
-
-
         }, this);
         this.isInvoiceItemsLoaded = true;
         if (this.isFullyLoaded())
@@ -97,10 +98,78 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     getInvoiceItemsContainer: function() {
         return this.down('container[winkname=invoiceitemscontainer]');
-
     },
     clearInvoiceItemsContainer: function() {
         this.getInvoiceItemsContainer().removeAll(true, false);
+        this.invoiceitems = [];
+    },
+    deleteItem: function(item) {
+
+
+        for (var i = 0; i < this.invoiceitems.length; i++) {
+            if (this.invoiceitems[i] === item) {
+                this.invoiceitems.splice(i, 1);
+                this.getInvoiceItemsContainer().remove(item);
+                break;
+            }
+
+        }
+
+        this.updateSummary();
+    },
+    getSubtotal: function() {
+
+        var subtotal = 0;
+        if (this.invoiceitems)
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                console.log('invoicePanel getSubtTotal():' + i + " of " + this.invoiceitems.length + " = " + subtotal);
+                subtotal += this.invoiceitems[i].getSubtotal();
+            }
+        console.log("invoicePanel getSubtTotal() sum " + subtotal);
+
+        return subtotal;
+    },
+    getTax1: function() {
+
+        var t = 0;
+        if (this.invoiceitems)
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                t += this.invoiceitems[i].getTax1();
+            }
+        return t;
+    },
+    getTax2: function() {
+
+        var t = 0;
+        if (this.invoiceitems)
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                t += this.invoiceitems[i].getTax2();
+            }
+        return t;
+    },
+    updateSummary: function() {
+        this.getInvoiceSummary().updateSummary();
+    },
+    getInvoiceContainer: function() {
+        return this.down('container[winkname=invoicecontainer]');
+    },
+    getSearchProductsContainer: function() {
+        if (!this.searchProductsContainer)
+        {
+            this.searchProductsContainer = Ext.create('WINK.view.ProductSearchResultsPanel');
+
+        }
+        this.getInvoiceContainer().setActiveItem(this.searchProductsContainer);
+        return this.searchProductsContainer;
+    },
+    searchProducts: function() {
+        var searchProductField = this.down('textfield[winkname=searchProductField]');
+        var v = searchProductField.getValue();
+        if ((v != null) && (v.trim().length > 0))
+        {
+            console.log('looking for products with ' + searchProductField);
+            this.getSearchProductsContainer().find(v);
+        }
     },
     config: {
         layout: 'hbox',
@@ -124,7 +193,24 @@ Ext.define('WINK.view.InvoicePanel', {
                                 xtype: 'container',
                                 border: '0 0 1 0',
                                 height: 50,
-                                style: 'background:rgb(215,224,231); border-style:solid; border-color: darkgrey;'
+                                style: 'background:rgb(215,224,231); border-style:solid; border-color: darkgrey;',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'center'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        name: 'id',
+                                        readOnly: true,
+                                        html: '',
+                                        margin: '0 2 0 5',
+                                        style: 'font-size:15px; font-family:"open sans"',
+                                    }
+
+                                ]
+
+
                             },
                             {
                                 xtype: 'container',
@@ -151,7 +237,8 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 margin: '2 0 2 2',
                                                 width: 200,
                                                 label: '',
-                                                placeHolder: 'Item'
+                                                placeHolder: 'Item',
+                                                winkname: 'searchProductField'
                                             },
                                             {
                                                 xtype: 'button',
@@ -161,10 +248,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 ui: 'action',
                                                 text: 'Search',
                                                 handler: function(btn) {
-                                                    var temp = btn.up('InvoicePanel').getInvoiceItemsContainer();
-                                                    var results = Ext.create('WINK.view.ProductSearchResultsPanel');
-                                                    temp.setActiveItem(results);
-                                                    alert('set active item results');
+                                                    var temp = btn.up('InvoicePanel').searchProducts();
                                                 }
                                             },
                                             {
@@ -233,7 +317,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                     {
                                         xtype: 'label',
                                         flex: 1,
-                                        html: 'Product Name',
+                                        html: '',
                                         margin: '5 2 5 5'
                                     },
                                     {
@@ -256,6 +340,12 @@ Ext.define('WINK.view.InvoicePanel', {
                                     },
                                     {
                                         xtype: 'label',
+                                        html: 'Discount',
+                                        margin: '5 2 0 0',
+                                        width: 100
+                                    },
+                                    {
+                                        xtype: 'label',
                                         html: 'Total',
                                         margin: '5 2 0 0',
                                         width: 100
@@ -271,11 +361,23 @@ Ext.define('WINK.view.InvoicePanel', {
                             {
                                 xtype: 'container',
                                 flex: 1,
+                                scrollable: false,
                                 style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
-                                layout: 'card',
-                                scrollable: 'vertical',
-                                winkname: 'invoiceitemscontainer',
+                                winkname: 'invoicecontainer',
+                                layout: {
+                                    type: 'card',
+                                    animation: 'slide'
+                                },
                                 items: [
+                                    {
+                                        xtype: 'container',
+                                        style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
+                                        layout: {
+                                            type: 'vbox'
+                                        },
+                                        scrollable: 'vertical',
+                                        winkname: 'invoiceitemscontainer'
+                                    }
                                 ]
                             }
                         ]
