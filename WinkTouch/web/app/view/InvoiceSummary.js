@@ -26,6 +26,29 @@ Ext.define('WINK.view.InvoiceSummary', {
     loadPatientInvoice: function(model) {
         this.setRecord(model);
     },
+    updateSummary:function(){
+        var subtotalLabel = this.down('label[name=subtotal]');
+        var tax1Label = this.down('label[name=tax1]');
+        var tax2Label = this.down('label[name=tax2]');
+        var tax1NameLabel = this.down('label[name=tax1name]');
+        var tax2NameLabel = this.down('label[name=tax2name]');
+        var totalLabel = this.down('label[name=total]');
+        var insuranceLabel = this.down('label[name=insuranceportion]');
+        var patientLabel = this.down('label[name=patientportion]');
+        var paymentsLabel = this.down('label[name=payments]');
+        var patientbalanceLabel = this.down('label[name=balance]');
+        
+        
+        var invoicePanel = this.up('InvoicePanel');
+        var subtotal =invoicePanel.getSubtotal();
+        var tax1 =invoicePanel.getTax1();
+        var tax2 =invoicePanel.getTax2();
+        var total = subtotal+tax1+tax2;
+        subtotalLabel.setHtml(subtotal);
+        tax1Label.setHtml(tax1);
+        tax2Label.setHtml(tax2);
+        totalLabel.setHtml(total);
+    },
     config: {
         border: 1,
         style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
@@ -43,7 +66,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                         margin: '5 0 5 0',
                         label: '',
                         labelWidth: '0%',
-                        disabled: true,
+                        readOnly:true,
                         value: 'id',
                         displayField: 'name',
                         name: 'store_idstore',
@@ -54,7 +77,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                         margin: '5 0 5 0',
                         label: 'O',
                         labelWidth: '20%',
-                        disabled: true,
+                        readOnly:true,
                         name: 'orderdate',
                        
                     },
@@ -92,8 +115,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'subtotal'
                             }
                         ]
                     },
@@ -108,12 +132,14 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'label',
                                 flex: 1,
                                 html: 'Tax 1',
-                                style: 'color: darkgrey'
+                                style: 'color: darkgrey',
+                                name: 'tax1name'
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'tax1'
                             }
                         ]
                     },
@@ -128,12 +154,14 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'label',
                                 flex: 1,
                                 html: 'Tax 2',
-                                style: 'color: darkgrey'
+                                style: 'color: darkgrey',
+                                name: 'tax2name'
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'tax2'
                             }
                         ]
                     },
@@ -152,8 +180,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'total'
                             }
                         ]
                     },
@@ -172,8 +201,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'insuranceportion'
                             }
                         ]
                     },
@@ -192,8 +222,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'patientportion'
                             }
                         ]
                     },
@@ -207,13 +238,14 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'label',
                                 flex: 1,
-                                html: 'Pay',
+                                html: 'Payments',
                                 style: 'color: darkgrey'
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'payments'
                             }
                         ]
                     },
@@ -232,8 +264,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: black'
+                                html: '0.00',
+                                style: 'color: black',
+                                name: 'balance'
                             }
                         ]
                     },
@@ -246,7 +279,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'button',
                                 ui: 'confirm',
                                 width: 90,
-                                text: 'Payment'
+                                text: 'Pay'
                             },
                             {
                                 xtype: 'button',

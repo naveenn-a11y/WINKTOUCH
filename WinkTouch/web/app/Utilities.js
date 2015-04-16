@@ -23,6 +23,8 @@ Ext.define('WINK.Utilities', {
             Ext.getCmp('PleaseWait').hide();
         },
         showAjaxError: function(title, response) {
+            
+            
             if (response.status == 403)
             {
                 WINK.Utilities.relogin();

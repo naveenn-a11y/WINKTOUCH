@@ -15,116 +15,228 @@
 
 Ext.define('WINK.view.InvoiceItemPanel', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.mycontainer10',
+    alias: 'widget.invoiceitempanel',
     requires: [
         'Ext.Label',
         'Ext.field.Number',
         'Ext.field.Select',
-        'Ext.Button'
+        'Ext.Button',
+        'WINK.view.PriceField',
+        'WINK.view.IntField'
+
     ],
+    deleteItem: function() {
+        var invoicePanel = this.up('InvoicePanel');
+        invoicePanel.deleteItem(this);
+    },
     loadItem: function(item) {
         this.setRecord(item);
         var productField = this.down('label[winkname=productname]');
-       
+
         item.getFkproduct_idproduct({
             callback: function(product, operation) {
                 productField.setHtml(product.get('name'));
             }
         });
-        
+
+        this.updateTotal();
+        //this.showMore();
+    },
+    getSubtotal: function() {
+        var qtyField = this.down('numberfield[name=qty]');
+        var prediscountUnitPriceField = this.down('numberfield[name=prediscount_unitprice]');
+        var discountField = this.down('numberfield[name=discountamount]');
+        var subtotal = ((qtyField.getValue() * prediscountUnitPriceField.getValue()) - discountField.getValue());
+        console.log('invoice item getSubtTotal():' + subtotal);
+        return subtotal;
+    },
+    showMore: function() {
+        this.setHeight(160),
+                this.down('container[winkname=invoiceitemdetails]').show();
+    },
+    showLess: function() {
+        this.setHeight(80),
+                this.down('container[winkname=invoiceitemdetails]').hide();
+    },
+    getTax1: function() {
+        var field = this.down('numberfield[name=tax1amount]');
+        return field.getValue();
+    },
+    getTax2: function() {
+        var field = this.down('numberfield[name=tax2amount]');
+        return field.getValue();
+    },
+    updateTotal: function() {
+        var subtotalField = this.down('numberfield[name=subtotal_beforetax]');
+        var invoicePanel = this.up('InvoicePanel');
+        subtotalField.setValue(this.getSubtotal());
+
+        invoicePanel.updateSummary();
     },
     config: {
         invoiceItemIndex: 0,
         border: '0 0 1 0',
-        height: 60,
+        height: 80,
         style: 'border-style:solid; border-color:darkgrey',
         scrollable: false,
         layout: {
-            type: 'hbox',
-            align: 'center'
+            type: 'vbox'
         },
         items: [
             {
                 xtype: 'label',
-                flex: 1,
                 baseCls: 'Product Name',
                 html: '',
                 margin: '0 2 0 5',
-                style: 'font-size:20px; font-family:"open sans"',
-                width: 235,
-                winkname: 'productname'
+                style: 'font-size:15px; font-family:"open sans"',
+                winkname: 'productname',
+                height: 20
             },
             {
-                xtype: 'numberfield',
-                name: 'product_idproduct',
-                hidden: false
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'center'
+                },
+                winkname: 'invoiceitemsummary',
+                items: [
+                    {
+                        xtype: 'label',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'intfield',
+                        name: 'product_idproduct',
+                        hidden: true
+                    },
+                    {
+                        xtype: 'intfield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        name: 'qty',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'pricefield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        autoComplete: false,
+                        autoCorrect: true,
+                        maxValue: 999999,
+                        minValue: 0,
+                        name: 'prediscount_unitprice',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'selectfield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        displayField: 'code',
+                        store: 'TaxCodeStore',
+                        usePicker: false,
+                        valueField: 'id',
+                        name: 'taxcode_idtaxcode'
+                    },
+                    {
+                        xtype: 'pricefield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        autoComplete: false,
+                        autoCorrect: true,
+                        maxValue: 999999,
+                        minValue: 0,
+                        name: 'discountamount',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'pricefield',
+                        cls: 'inputBorderDisabled',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        autoComplete: true,
+                        readOnly: true,
+                        maxValue: 999999,
+                        minValue: -999999,
+                        stepValue: 0.01,
+                        name: 'subtotal_beforetax'
+                    },
+                    {
+                        xtype: 'button',
+                        height: 40,
+                        margin: '0 2 0 2',
+                        ui: 'decline-small',
+                        width: 50,
+                        text: 'Del',
+                        handler:function(b){
+                            b.up('invoiceitempanel').deleteItem();
+                        }
+                    }
+                ]
             },
             {
-                xtype: 'numberfield',
-                cls: 'inputBorder',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                clearIcon: false,
-                inputCls: 'inputAmount',
-                value: 999,
-                maxValue: 999,
-                minValue: -999,
-                stepValue: 1,
-                name: 'qty'
-            },
-            {
-                xtype: 'numberfield',
-                cls: 'inputBorder',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                clearIcon: false,
-                inputCls: 'inputAmount',
-                value: '9,999.99',
-                autoComplete: false,
-                autoCorrect: true,
-                maxValue: 999999,
-                minValue: 0,
-                stepValue: 0.01,
-                name: 'unitprice'
-            },
-            {
-                xtype: 'selectfield',
-                cls: 'inputBorder',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                displayField: 'code',
-                store: 'TaxCodeStore',
-                usePicker: false,
-                valueField: 'id',
-                name: 'taxcode_idtaxcode'
-            },
-            {
-                xtype: 'numberfield',
-                cls: 'inputBorderDisabled',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                clearIcon: false,
-                inputCls: 'inputAmount',
-                value: '9,999.99',
-                autoComplete: true,
-                readOnly: true,
-                maxValue: 999999,
-                minValue: -999999,
-                stepValue: 0.01
-            },
-            {
-                xtype: 'button',
-                height: 40,
-                margin: '0 2 0 2',
-                ui: 'decline-small',
-                width: 50,
-                text: 'Del'
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'center'
+                },
+                winkname: 'invoiceitemdetails',
+                hidden: true,
+                items: [
+                    {
+                        xtype: 'pricefield',
+                        name: 'tax1amount',
+                        inputCls: 'inputAmount',
+                        value: 0
+                    },
+                    {
+                        xtype: 'pricefield',
+                        name: 'tax2amount',
+                        inputCls: 'inputAmount',
+                        value: 0
+                    }
+
+
+
+                ]
             }
+
         ]
+
     },
     initialize: function() {
         this.callParent();

@@ -9,6 +9,7 @@ Ext.define('WINK.view.PatientPanel', {
         'WINK.store.CountryStore',
         'WINK.view.MonthPickerFormField',
         'WINK.view.DatePickerToolbar',
+        'WINK.view.PhoneField',
         'Ext.TitleBar',
         'Ext.form.FieldSet',
         'Ext.form.Panel',
@@ -22,8 +23,8 @@ Ext.define('WINK.view.PatientPanel', {
         document.location.href = '#patient/' + newPatient.get('id');
         return;
     },
-    patientSaved:function(savedPatient){
-        
+    patientSaved: function(savedPatient) {
+
     },
     addPatient: function(bnt) {
 
@@ -81,10 +82,9 @@ Ext.define('WINK.view.PatientPanel', {
         centered: false,
         modal: false,
         scrollable: 'vertical',
-        
         listeners: {
             activate: {
-                single:true,
+                single: true,
                 fn: function(value, options) {
 
                     console.log("PatientPanel.activate()");
@@ -183,22 +183,23 @@ Ext.define('WINK.view.PatientPanel', {
 
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'phonefield',
                                 label: 'Home',
                                 name: 'home'
+                               
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'phonefield',
                                 label: 'Cell',
                                 name: 'cell'
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'phonefield',
                                 label: 'Work',
                                 name: 'work'
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'phonefield',
                                 label: 'Fax',
                                 name: 'fax'
                             }

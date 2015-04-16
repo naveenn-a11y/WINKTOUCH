@@ -9,7 +9,8 @@ Ext.define('WINK.view.FindPatientPanel', {
         'Ext.field.Password',
         'Ext.Button',
         'Ext.form.FormPanel',
-        'WINK.view.MonthPickerFormField'
+        'WINK.view.MonthPickerFormField',
+        'WINK.view.PhoneField'
     ],
     config: {
         fullscreen: true,
@@ -71,7 +72,7 @@ Ext.define('WINK.view.FindPatientPanel', {
                                         label: "Name"
                                     },
                                     {
-                                        xtype: "textfield",
+                                        xtype: "phonefield",
                                         name: "phone",
                                         label: "Phone Number"
                                     },
