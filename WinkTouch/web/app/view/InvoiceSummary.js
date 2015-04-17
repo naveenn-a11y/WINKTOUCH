@@ -88,7 +88,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                         label: 'O',
                         labelWidth: '20%',
                         readOnly:true,
-                        name: 'orderdate',
+                        name: 'orderdate'
                        
                     },
                     {
@@ -289,12 +289,18 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'button',
                                 ui: 'confirm',
                                 width: 90,
-                                text: 'Pay'
+                                text: 'Pay',
+                                handler:function(btn){
+                                    btn.up('InvoicePanel').pay();
+                                }
                             },
                             {
                                 xtype: 'button',
                                 width: 90,
-                                text: 'Deliver'
+                                text: 'Deliver',
+                                handler:function(btn){
+                                    btn.up('InvoicePanel').deliver();
+                                }
                             }
                         ]
                     },
@@ -307,13 +313,19 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'button',
                                 ui: 'action',
                                 width: 90,
-                                text: 'Print'
+                                text: 'Print',
+                                handler:function(btn){
+                                    btn.up('InvoicePanel').print();
+                                }
                             },
                             {
                                 xtype: 'button',
                                 ui: 'action',
                                 width: 90,
-                                text: 'Email'
+                                text: 'Email',
+                                handler:function(btn){
+                                    btn.up('InvoicePanel').email();
+                                }
                             }
                         ]
                     },
@@ -326,13 +338,19 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'button',
                                 ui: 'action',
                                 width: 90,
-                                text: 'Save'
+                                text: 'Save',
+                                handler:function(btn){
+                                    btn.up('InvoicePanel').save();
+                                }
                             },
                             {
                                 xtype: 'button',
                                 ui: 'decline',
                                 width: 90,
-                                text: 'Delete'
+                                text: 'Delete',
+                                handler:function(btn){
+                                    btn.up('InvoicePanel').delete();
+                                }
                             }
                         ]
                     }

@@ -21,17 +21,19 @@ Ext.define('WINK.store.TaxCodeStore', {
     ],
 
     config: {
-        data: [
-            {
-                id: 690,
-                code: 'Q'
-            },
-            {
-                id: 804,
-                code: 'E'
-            }
-        ],
+        data: [],
         model: 'WINK.model.TaxCode',
-        storeId: 'TaxCodeStore'
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'taxcodes'
+
+        },
+        sorters: [
+            {
+                property: "code",
+                direction: "ASC"
+            }
+        ]  
+
     }
 });

@@ -15,6 +15,9 @@
 
 Ext.define('WINK.controller.MenuController', {
     extend: 'Ext.app.Controller',
+    requires: [
+        'WINK.Utilities'
+    ],
     config: {
         refs: {
             parentView: {
@@ -26,7 +29,7 @@ Ext.define('WINK.controller.MenuController', {
             'patient/:patientid': 'openPatient',
             'findpatient': 'openFindPatient',
             'newpatient': 'openNewPatient',
-            'newquicksale':'openQuicksale'
+            'newquicksale': 'openQuicksale'
         },
         control: {
             'button[action=doNewPatient]': {
@@ -46,11 +49,12 @@ Ext.define('WINK.controller.MenuController', {
             },
         }
     },
-    goBack:function(){
+    goBack: function() {
         history.back();
-    },  
+    },
     openPatient: function(patientid) {
         WINK.Utilities.showWorking();
+        WINK.Utilities.loadAllRequiredStores();
         WINK.model.Patient.load(patientid, {
             scope: this,
             failure: function(patient, operation) {
@@ -118,6 +122,7 @@ Ext.define('WINK.controller.MenuController', {
 
     },
     onOpenPatientTap: function(button, e, eOpts) {
+        WINK.Utilities.loadAllRequiredStores();
         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
 
         this.getParentView().setActiveItem(patientHistory);
@@ -126,19 +131,26 @@ Ext.define('WINK.controller.MenuController', {
         document.location.href = '#newquicksale';
     },
     openQuicksale: function(button, e, eOpts) {
+        WINK.Utilities.loadAllRequiredStores();
+       var model= Ext.create('WINK.model.PatientInvoice');
+       WINK.Utilities.setDefaultValues(model);
+       
         var quicksale = Ext.create('WINK.view.InvoicePanel');
-
+       
         this.getParentView().setActiveItem(quicksale);
+        quicksale.loadPatientInvoice(model);
     },
     onNewPatientButtonTap: function(button, e, eOpts) {
         document.location.href = '#newpatient';
     },
     openNewPatient: function(button, e, eOpts) {
+        WINK.Utilities.loadAllRequiredStores();
         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
         this.getParentView().setActiveItem(newPatientPanel);
     },
     openFindPatient: function() {
+        WINK.Utilities.loadAllRequiredStores();
         if (!this.findPatientPanel)
             this.findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
 

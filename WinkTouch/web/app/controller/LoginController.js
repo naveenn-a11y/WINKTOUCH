@@ -15,7 +15,8 @@
 
 Ext.define('WINK.controller.LoginController', {
     extend: 'Ext.app.Controller',
-    requires: [
+     requires: [
+        'WINK.Utilities'
     ],
     config: {
         refs: {
@@ -53,6 +54,7 @@ Ext.define('WINK.controller.LoginController', {
         WINK.Utilities.previousActiveItem = null;
         this.getParentView().setActiveItem(this.getMainAppPanel());
     },
+  
     login: function() {
 
         var loginPanel = this.getLoginPanel();
@@ -60,6 +62,7 @@ Ext.define('WINK.controller.LoginController', {
 
         WINK.Utilities.showWorking();
         Ext.Ajax.request({
+            scope:this,
             url: WINK.Utilities.getRestURL() + 'users/me',
             method: 'GET',
             headers: {
@@ -70,7 +73,7 @@ Ext.define('WINK.controller.LoginController', {
             },
             success: function(response) {
 
-
+                WINK.Utilities.currentstore=loginPanel.getStore();
                 loginPanel.clearForm();
                 if (WINK.Utilities.previousActiveItem)
                 {
@@ -80,11 +83,7 @@ Ext.define('WINK.controller.LoginController', {
                     myController.getParentView().setActiveItem(myController.getMainAppPanel());
                 }
                 WINK.Utilities.hideWorking();
-                Ext.create('WINK.store.CountrySubdivisionStore', {
-                    storeId: 'CountrySubdivisionStore',
-                    autoLoad: true
-                }); //just to start loading the data
-
+                 WINK.Utilities.loadAllRequiredStores();
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();

@@ -30,6 +30,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
         invoicePanel.deleteItem(this);
     },
     loadItem: function(item) {
+        this.winkloading=true;
         console.log('InvoiceItemPanel.loadItem item.unitprice:' + item.get('unitprice'));
         this.setRecord(item);
         var productField = this.down('label[winkname=productname]');
@@ -42,6 +43,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
 
         this.updateTotal();
         //this.showMore();
+          this.winkloading=false;
     },
     getSubtotal: function() {
         var qtyField = this.down('numberfield[name=qty]');
@@ -59,6 +61,78 @@ Ext.define('WINK.view.InvoiceItemPanel', {
         this.setHeight(80),
                 this.down('container[winkname=invoiceitemdetails]').hide();
     },
+    getInvoiceDate: function() {
+        var invoicePanel = this.up('InvoicePanel');
+        return invoicePanel.getOrderDate();
+    },
+    getTaxCodeRate: function() {
+        var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxCode = taxSelect.getRecord();
+        if (!taxCode)
+            return null;
+        ratesStore = taxCode.taxcodeeffectivedates_taxcode_idtaxcode();
+        var rate = null;
+        var now = this.getInvoiceDate();
+        console.log('invoice date: ' + now);
+
+        ratesStore.each(function(rateRecord, index, length) {
+            console.log('looking for taxcode rate: ' + rateRecord.get('effectivedate'));
+            var rateDate = rateRecord.get('effectivedate');
+            var isForNow = false;
+            if (!rateDate)
+            {
+                isForNow = true;
+            } else if (rateDate <= now) {
+                isForNow = true;
+            }
+
+            if (isForNow) {
+                console.log('found valid tax code rate');
+                if (!rate)
+                {
+                    rate = rateRecord;
+                } else if (rate.get('effectivedate') < rateDate) {
+                    rate = rateRecord;
+                }
+            } else {
+                console.log('found invalid tax code rate');
+            }
+
+        }, this);
+
+        return rate;
+    },
+    recalculateTax: function() {
+        if(this.winkloading)
+            return;
+        
+        console.log('InvoiceItemPanel.recalculateTax()');
+        var tax1Field = this.down('numberfield[name=tax1amount]');
+
+        var tax2Field = this.down('numberfield[name=tax2amount]');
+
+        var taxRate = this.getTaxCodeRate();
+        if (!taxRate)
+        {
+            console.log('InvoiceItemPanel.recalculateTax() noFoundTaxRate');
+            tax1Field.setValue(0);
+            tax2Field.setValue(0);
+        } else {
+            console.log('InvoiceItemPanel.recalculateTax()  FoundTaxRate ' + taxRate.get('tax1percentage') + ' ' + taxRate.get('tax2percentage'));
+
+            var qtyField = this.down('numberfield[name=qty]');
+            var prediscountUnitPriceField = this.down('numberfield[name=prediscount_unitprice]');
+            var discountField = this.down('numberfield[name=discountamount]');
+            var subtotal = ((qtyField.getValue() * prediscountUnitPriceField.getValue()) - discountField.getValue());
+
+            var tax1 = subtotal * taxRate.get('tax1percentage') / 100.0;
+            if (taxRate.get('piggyback'))
+                subtotal += tax1;
+            var tax2 = subtotal * taxRate.get('tax2percentage') / 100.0;
+            tax1Field.setValue(tax1);
+            tax2Field.setValue(tax2);
+        }
+    },
     getTax1: function() {
         var field = this.down('numberfield[name=tax1amount]');
         return field.getValue();
@@ -66,6 +140,22 @@ Ext.define('WINK.view.InvoiceItemPanel', {
     getTax2: function() {
         var field = this.down('numberfield[name=tax2amount]');
         return field.getValue();
+    },
+    getTax1Name: function() {
+       var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxCode = taxSelect.getRecord();
+        if (!taxCode)
+            return null;
+        return taxCode.get('tax1name');
+
+    },
+    getTax2Name: function() {
+         var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxCode = taxSelect.getRecord();
+        if (!taxCode)
+            return null;
+        return taxCode.get('tax2name');
+
     },
     updateTotal: function() {
         var subtotalField = this.down('numberfield[name=subtotal_beforetax]');
@@ -157,7 +247,13 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         store: 'TaxCodeStore',
                         usePicker: false,
                         valueField: 'id',
-                        name: 'taxcode_idtaxcode'
+                        name: 'taxcode_idtaxcode',
+                        listeners:{
+                             change: function(comp, newData, eOpts) {
+                              
+                                arguments[0].up('invoiceitempanel').recalculateTax();
+                            }
+                        }
                     },
                     {
                         xtype: 'pricefield',
@@ -203,6 +299,8 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         ui: 'decline-small',
                         width: 50,
                         text: 'Del',
+                        //iconCls:'delete',
+                        //iconMask:true,
                         handler: function(b) {
                             b.up('invoiceitempanel').deleteItem();
                         }

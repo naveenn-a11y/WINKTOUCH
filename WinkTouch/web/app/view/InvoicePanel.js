@@ -28,6 +28,28 @@ Ext.define('WINK.view.InvoicePanel', {
         'Ext.form.Panel',
         'WINK.view.ProductSearchResultsPanel'
     ],
+    deliver: function() {
+        this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').setValue(new Date());
+        this.save();
+    },
+    isDirty:function(){
+        
+    },
+    save: function() {
+
+    },
+    pay: function() {
+
+    },
+    delete: function() {
+
+    },
+    email: function() {
+        this.save();
+    },
+    print: function() {
+        this.save();
+    },
     isFullyLoaded: function() {
         if (!this.isPaymentsLoaded)
             return false;
@@ -44,8 +66,13 @@ Ext.define('WINK.view.InvoicePanel', {
         this.clearInvoiceItemsContainer();
         this.setRecord(patientinvoice);
 
-        this.down('label[name=id]').setHtml("i" + patientinvoice.get('id'));
-
+        var invoiceIdLabel = this.down('label[name=id]');
+        if (patientinvoice.get('id') === 0)
+        {
+            invoiceIdLabel.setHtml('New Invoice');
+        } else {
+            invoiceIdLabel.setHtml("i" + patientinvoice.get('id'));
+        }
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
@@ -131,6 +158,9 @@ Ext.define('WINK.view.InvoicePanel', {
         var selectedStore = this.getInvoiceSummary().down('selectfield[name=store_idstore]').getRecord();
         return selectedStore.get('id');
     },
+    getOrderDate: function() {
+        return this.getInvoiceSummary().down('datepickerfield[name=orderdate]').getValue();
+    },
     getProductRetailDetails: function(product, idStore) {
         idStore = idStore || this.getCurrentStoreId();
         var prd = null;
@@ -187,6 +217,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.getInvoiceContainer().setActiveItem(itemsContainer); //this needs to be done before we load the item (because of the activate event)
         itemsContainer.add(invoiceItemPanel); //this needs to be done before we load the item (because of the activate event)
         invoiceItemPanel.loadItem(newInvoiceItem);
+        invoiceItemPanel.recalculateTax();
         this.down('textfield[winkname=searchProductField]').setValue('');
     },
     getSubtotal: function() {
@@ -233,15 +264,53 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     getTax1Name: function() {
 
-        var t = 0;
+        var name = null;
+        if (this.invoiceitems)
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                var temp = this.invoiceitems[i].getTax1Name();
+                if (temp && temp.trim().length > 0)
+                {
+                    if (name && name.length > 0)
+                    {
+                        if (name.toUpperCase() === temp.trim().toUpperCase())
+                        {
 
-        return t;
+                        } else {
+                            name = "Tax 1";
+                            break;
+                        }
+                    } else {
+                        name = temp.trim();
+                    }
+                }
+            }
+
+        return name || 'Tax 1';
     },
     getTax2Name: function() {
 
-        var t = 0;
+        var name = null;
+        if (this.invoiceitems)
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                var temp = this.invoiceitems[i].getTax2Name();
+                if (temp && temp.trim().length > 0)
+                {
+                    if (name && name.length > 0)
+                    {
+                        if (name.toUpperCase() === temp.trim().toUpperCase())
+                        {
 
-        return t;
+                        } else {
+                            name = "Tax 2";
+                            break;
+                        }
+                    } else {
+                        name = temp.trim();
+                    }
+                }
+            }
+
+        return name || 'Tax 2';
     },
     updateSummary: function() {
         this.getInvoiceSummary().updateSummary();
@@ -300,7 +369,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                         name: 'id',
                                         readOnly: true,
                                         html: '',
-                                        margin: '0 2 0 5',
+                                        margin: '0 2 0 20',
                                         style: 'font-size:15px; font-family:"open sans"',
                                     }
 
@@ -354,7 +423,8 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 itemId: 'mybutton58',
                                                 margin: '0 0 0 5',
                                                 ui: 'confirm',
-                                                text: 'Favorites'
+                                                text: 'Favorites',
+                                                hidden: true
                                             }
                                         ]
                                     },
@@ -373,6 +443,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 xtype: 'segmentedbutton',
                                                 margin: '0 0 0 5',
                                                 allowToggle: false,
+                                                hidden: true,
                                                 items: [
                                                     {
                                                         xtype: 'button',
@@ -396,7 +467,8 @@ Ext.define('WINK.view.InvoicePanel', {
                                                     },
                                                     {
                                                         xtype: 'button',
-                                                        text: 'Attachment'
+                                                        text: 'Attachment',
+                                                        hidden: true
                                                     }
                                                 ]
                                             }
