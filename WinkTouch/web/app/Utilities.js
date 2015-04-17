@@ -10,6 +10,33 @@ Ext.define('WINK.Utilities', {
         'Ext.MessageBox'
     ],
     statics: {
+        setDefaultValues: function(model) {
+            if (model instanceof WINK.model.PatientInvoice) {
+                model.set('orderdate', new Date());
+                model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
+            }
+        },
+        loadAllRequiredStores: function() {
+            if (!WINK.Utilities.currentstore) {
+                WINK.Utilities.currentstore = Ext.create('WINK.model.Store', {
+                    id: 1
+                });
+            }
+            if (!this.storesLoaded)
+            {
+
+                Ext.create('WINK.store.CountrySubdivisionStore', {
+                    storeId: 'CountrySubdivisionStore',
+                    autoLoad: true
+                }); //just to start loading the data
+                Ext.create('WINK.store.TaxCodeStore', {
+                    storeId: 'TaxCodeStore',
+                    autoLoad: true
+                }); //just to start loading the data
+
+                this.storesLoaded = true;
+            }
+        },
         getAccountId: function() {
             return 37;
         },
@@ -23,8 +50,8 @@ Ext.define('WINK.Utilities', {
             Ext.getCmp('PleaseWait').hide();
         },
         showAjaxError: function(title, response) {
-            
-            
+
+
             if (response.status == 403)
             {
                 WINK.Utilities.relogin();
