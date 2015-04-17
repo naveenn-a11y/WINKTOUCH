@@ -59,11 +59,26 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     loadPatientInvoice: function(patientinvoice) {
         this.setMasked(true);
+        this.patientinvoice = patientinvoice;
         this.isPaymentsLoaded = false;
         this.isInvoiceItemsLoaded = false;
-        this.patientinvoice = patientinvoice;
         var itemsContainer = this.getInvoiceItemsContainer();
         this.clearInvoiceItemsContainer();
+        
+        if(!patientinvoice.get('patient_idpatient') || patientinvoice.get('patient_idpatient')==0)
+        {
+            //quicksale
+            if(!patientinvoice.get('delivereddate'))
+                patientinvoice.set('delivereddate',patientinvoice.get('orderdate'))
+            
+            this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').hide();
+             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').hide();
+             
+        }else{
+            this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').show();
+             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').show();
+        }
+        
         this.setRecord(patientinvoice);
 
         var invoiceIdLabel = this.down('label[name=id]');
@@ -345,8 +360,15 @@ Ext.define('WINK.view.InvoicePanel', {
             {
                 xtype: 'tabpanel',
                 flex: 1,
-                id: 'invoiceTabPanel',
-                itemId: 'invoiceTabPanel',
+                listeners:{
+                  activeitemchange: function( tabpanel, value, oldValue, eOpts )  {
+                       console.log('InvoicePanel tabpanel activeitemchange');
+                      if(value instanceof WINK.view.JobStatusPanel)
+                      {
+                          value.loadStatusOnce();
+                      }
+                  }
+              },
                 items: [
                     {
                         xtype: 'container',
@@ -551,13 +573,8 @@ Ext.define('WINK.view.InvoicePanel', {
                         ]
                     },
                     {
-                        xtype: 'container',
+                        xtype: 'jobstatuspanel',
                         title: 'Job Status',
-                        iconCls: 'info'
-                    },
-                    {
-                        xtype: 'container',
-                        title: 'New CL',
                         iconCls: 'info'
                     }
                 ],
@@ -580,8 +597,8 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     onMybutton17Tap: function(button, e, eOpts) {
         var newSheet = new WINK.view.RxWorksheetPanel({title: "New Rx"});
-        var tabPanel = Ext.getCmp("invoiceTabPanel");
-        tabPanel.add(newSheet);
+       // var tabPanel = Ext.getCmp("invoiceTabPanel");
+       // tabPanel.add(newSheet);
     }
 
 });

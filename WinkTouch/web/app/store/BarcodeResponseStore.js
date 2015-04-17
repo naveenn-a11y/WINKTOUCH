@@ -47,7 +47,7 @@ Ext.define('WINK.store.BarcodeResponseStore', {
     config: {
         data: [
         ],
-        model: 'WINK.model.PatientHistoryTree',
+        model: 'WINK.model.BarcodeResponse',
         grouper: {
             groupFn: function(record) {
 

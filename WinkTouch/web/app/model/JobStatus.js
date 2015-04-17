@@ -120,11 +120,9 @@ proxy: {
 }
         ]
 
- ,belongsTo: [
-
-        ] 
- ,hasMany: [
-
+        , belongsTo: [
+        ]
+        , hasMany: [
         ] 
 ,validations: [
  { type: 'length', field: 'comment', max: 200,min:0 }
