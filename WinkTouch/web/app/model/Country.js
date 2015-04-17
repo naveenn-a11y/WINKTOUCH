@@ -37,48 +37,54 @@ proxy: {
 
             {
                 model: 'WINK.model.Store',
-                name: 'stores',
+                name: 'stores_country_idcountry',
                 foreignKey: 'country_idcountry',
+                associationKey: 'stores_country_idcountry',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.CountrySubdivision',
-                name: 'countrysubdivisions',
+                name: 'countrysubdivisions_country_idcountry',
                 foreignKey: 'country_idcountry',
+                associationKey: 'countrysubdivisions_country_idcountry',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.User',
-                name: 'users',
+                name: 'users_country_idcountry',
                 foreignKey: 'country_idcountry',
+                associationKey: 'users_country_idcountry',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Patient',
-                name: 'patients',
+                name: 'patients_country_idcountry',
                 foreignKey: 'country_idcountry',
+                associationKey: 'patients_country_idcountry',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_country_idcountry',
                 foreignKey: 'country_idcountry',
+                associationKey: 'patientinvoices_country_idcountry',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Supplier',
-                name: 'suppliers',
+                name: 'suppliers_country_idcountry',
                 foreignKey: 'country_idcountry',
+                associationKey: 'suppliers_country_idcountry',
                 primaryKey: 'id'
             }
 

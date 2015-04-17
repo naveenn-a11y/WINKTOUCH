@@ -191,48 +191,54 @@ proxy: {
 
             {
                 model: 'WINK.model.Store',
-                name: 'stores',
+                name: 'stores_edgeatsupplier_idsupplier',
                 foreignKey: 'edgeatsupplier_idsupplier',
+                associationKey: 'stores_edgeatsupplier_idsupplier',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Product',
-                name: 'products',
+                name: 'products_preferredsupplier_idsupplier',
                 foreignKey: 'preferredsupplier_idsupplier',
+                associationKey: 'products_preferredsupplier_idsupplier',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Product',
-                name: 'products',
+                name: 'products_manufacturersupplier_idsupplier',
                 foreignKey: 'manufacturersupplier_idsupplier',
+                associationKey: 'products_manufacturersupplier_idsupplier',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_paidbyinsurancesupplier_idsupplier',
                 foreignKey: 'paidbyinsurancesupplier_idsupplier',
+                associationKey: 'patientpayments_paidbyinsurancesupplier_idsupplier',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_insurance1_idsupplier',
                 foreignKey: 'insurance1_idsupplier',
+                associationKey: 'patientinvoices_insurance1_idsupplier',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_insurance2_idsupplier',
                 foreignKey: 'insurance2_idsupplier',
+                associationKey: 'patientinvoices_insurance2_idsupplier',
                 primaryKey: 'id'
             }
 

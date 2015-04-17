@@ -97,8 +97,9 @@ proxy: {
 
             {
                 model: 'WINK.model.Product',
-                name: 'products',
+                name: 'products_productcategory_idproductcategory',
                 foreignKey: 'productcategory_idproductcategory',
+                associationKey: 'products_productcategory_idproductcategory',
                 primaryKey: 'id'
             }
 

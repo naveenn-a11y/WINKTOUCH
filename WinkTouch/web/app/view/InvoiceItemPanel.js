@@ -30,6 +30,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
         invoicePanel.deleteItem(this);
     },
     loadItem: function(item) {
+        console.log('InvoiceItemPanel.loadItem item.unitprice:' + item.get('unitprice'));
         this.setRecord(item);
         var productField = this.down('label[winkname=productname]');
 
@@ -202,7 +203,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         ui: 'decline-small',
                         width: 50,
                         text: 'Del',
-                        handler:function(b){
+                        handler: function(b) {
                             b.up('invoiceitempanel').deleteItem();
                         }
                     }
@@ -221,13 +222,25 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         xtype: 'pricefield',
                         name: 'tax1amount',
                         inputCls: 'inputAmount',
-                        value: 0
+                        value: 0,
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
                     },
                     {
                         xtype: 'pricefield',
                         name: 'tax2amount',
                         inputCls: 'inputAmount',
-                        value: 0
+                        value: 0,
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
                     }
 
 
@@ -237,12 +250,6 @@ Ext.define('WINK.view.InvoiceItemPanel', {
 
         ]
 
-    },
-    initialize: function() {
-        this.callParent();
-        if (this.invoiceItemIndex % 2 === 0) {
-            this.setStyle("background: #000000;");
-        }
     }
 
 });

@@ -261,12 +261,14 @@ public class WinkModelServlet extends HttpServlet {
                                         out.println(",");
                                     }
 
-                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase()+"s";
+                                    String foreignTable_foreinkKeyName = foreignMapping.getRestFieldName(fkModel, fkFieldName);
+                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase()+"s_"+foreignTable_foreinkKeyName;
 
                                     out.println("            {\n"
                                             + "                model: 'WINK.model." + foreignMapping.getTouchModelName() + "',\n"
                                             + "                name: '" + restFieldName + "',\n"
-                                            + "                foreignKey: '" + foreignMapping.getRestFieldName(fkModel, fkFieldName) + "',\n"
+                                            + "                foreignKey: '" + foreignTable_foreinkKeyName + "',\n"
+                                            + "                associationKey: '"+restFieldName+"',\n"
                                             + "                primaryKey: 'id'\n"
                                             + "            }\n");
                                     isFirst = false;

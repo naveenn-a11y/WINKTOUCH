@@ -226,7 +226,7 @@ proxy: {
 ,
 { name: 'createddate'
 , type:'string'
- ,defaultValue: 1428934917357
+ ,defaultValue: 1429227895483
 }
 ,
 { name: 'lastpurchasedate'
@@ -446,48 +446,54 @@ proxy: {
 
             {
                 model: 'WINK.model.Patient',
-                name: 'patients',
+                name: 'patients_referredby_idpatient',
                 foreignKey: 'referredby_idpatient',
+                associationKey: 'patients_referredby_idpatient',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_patient_idpatient',
                 foreignKey: 'patient_idpatient',
+                associationKey: 'patientpayments_patient_idpatient',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_patient_idpatient',
                 foreignKey: 'patient_idpatient',
+                associationKey: 'patientinvoices_patient_idpatient',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointments',
+                name: 'appointments_patient_idpatient',
                 foreignKey: 'patient_idpatient',
+                associationKey: 'appointments_patient_idpatient',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientNote',
-                name: 'patientnotes',
+                name: 'patientnotes_patient_idpatient',
                 foreignKey: 'patient_idpatient',
+                associationKey: 'patientnotes_patient_idpatient',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPaperFileNumber',
-                name: 'patientpaperfilenumbers',
+                name: 'patientpaperfilenumbers_patient_idpatient',
                 foreignKey: 'patient_idpatient',
+                associationKey: 'patientpaperfilenumbers_patient_idpatient',
                 primaryKey: 'id'
             }
 
