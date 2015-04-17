@@ -276,88 +276,99 @@ proxy: {
 
             {
                 model: 'WINK.model.Patient',
-                name: 'patients',
+                name: 'patients_referringdoctor_iduser',
                 foreignKey: 'referringdoctor_iduser',
+                associationKey: 'patients_referringdoctor_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_user_iduser',
                 foreignKey: 'user_iduser',
+                associationKey: 'patientpayments_user_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_createby_iduser',
                 foreignKey: 'createby_iduser',
+                associationKey: 'patientinvoices_createby_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_salesrep',
                 foreignKey: 'salesrep',
+                associationKey: 'patientinvoices_salesrep',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_provideruser_iduser',
                 foreignKey: 'provideruser_iduser',
+                associationKey: 'patientinvoices_provideruser_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_doctoruser_iduser',
                 foreignKey: 'doctoruser_iduser',
+                associationKey: 'patientinvoices_doctoruser_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_writeoffbalanceuser_iduser',
                 foreignKey: 'writeoffbalanceuser_iduser',
+                associationKey: 'patientinvoices_writeoffbalanceuser_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitems',
+                name: 'patientinvoiceitems_discountauthorizedbyuser_iduser',
                 foreignKey: 'discountauthorizedbyuser_iduser',
+                associationKey: 'patientinvoiceitems_discountauthorizedbyuser_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointments',
+                name: 'appointments_doctor_idpatient',
                 foreignKey: 'doctor_idpatient',
+                associationKey: 'appointments_doctor_idpatient',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Barcode',
-                name: 'barcodes',
+                name: 'barcodes_disabledbyuser_iduser',
                 foreignKey: 'disabledbyuser_iduser',
+                associationKey: 'barcodes_disabledbyuser_iduser',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientNote',
-                name: 'patientnotes',
+                name: 'patientnotes_user_iduser',
                 foreignKey: 'user_iduser',
+                associationKey: 'patientnotes_user_iduser',
                 primaryKey: 'id'
             }
 

@@ -44,10 +44,20 @@ Ext.define('WINK.view.InvoiceSummary', {
         var tax1 =invoicePanel.getTax1();
         var tax2 =invoicePanel.getTax2();
         var total = subtotal+tax1+tax2;
+        var insurancePortion = invoicePanel.getInsurancePortion();
+        var totalPayments = invoicePanel.getPatientPaymentsTotal();
         subtotalLabel.setHtml(subtotal);
         tax1Label.setHtml(tax1);
         tax2Label.setHtml(tax2);
         totalLabel.setHtml(total);
+        insuranceLabel.setHtml(insurancePortion);
+        patientLabel.setHtml(total-insurancePortion);
+        paymentsLabel.setHtml(totalPayments);
+        patientbalanceLabel.setHtml(total-insurancePortion-totalPayments);
+        
+        tax1NameLabel.setHtml(invoicePanel.getTax1Name());
+        tax2NameLabel.setHtml(invoicePanel.getTax2Name());
+        
     },
     config: {
         border: 1,

@@ -211,7 +211,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,3,13,0,0,0)
+ ,defaultValue: new Date(2015,3,16,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'
@@ -291,72 +291,81 @@ proxy: {
 
             {
                 model: 'WINK.model.Store',
-                name: 'stores',
+                name: 'stores_edgeatstore_idstore',
                 foreignKey: 'edgeatstore_idstore',
+                associationKey: 'stores_edgeatstore_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Patient',
-                name: 'patients',
+                name: 'patients_store_idstore',
                 foreignKey: 'store_idstore',
+                associationKey: 'patients_store_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Patient',
-                name: 'patients',
+                name: 'patients_enteredinstore_idstore',
                 foreignKey: 'enteredinstore_idstore',
+                associationKey: 'patients_enteredinstore_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_store_idstore',
                 foreignKey: 'store_idstore',
+                associationKey: 'patientpayments_store_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_store_idstore',
                 foreignKey: 'store_idstore',
+                associationKey: 'patientinvoices_store_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_pickupatstore_idstore',
                 foreignKey: 'pickupatstore_idstore',
+                associationKey: 'patientinvoices_pickupatstore_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointments',
+                name: 'appointments_store_idstore',
                 foreignKey: 'store_idstore',
+                associationKey: 'appointments_store_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPaperFileNumber',
-                name: 'patientpaperfilenumbers',
+                name: 'patientpaperfilenumbers_store_idstore',
                 foreignKey: 'store_idstore',
+                associationKey: 'patientpaperfilenumbers_store_idstore',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetails',
+                name: 'productretaildetails_store_idstore',
                 foreignKey: 'store_idstore',
+                associationKey: 'productretaildetails_store_idstore',
                 primaryKey: 'id'
             }
 

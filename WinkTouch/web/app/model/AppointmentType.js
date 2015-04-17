@@ -77,16 +77,18 @@ proxy: {
 
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointments',
+                name: 'appointments_appointmenttypes_idappointmenttypes',
                 foreignKey: 'appointmenttypes_idappointmenttypes',
+                associationKey: 'appointments_appointmenttypes_idappointmenttypes',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.Appointment',
-                name: 'appointments',
+                name: 'appointments_initialappointmenttypes_idappointmenttypes',
                 foreignKey: 'initialappointmenttypes_idappointmenttypes',
+                associationKey: 'appointments_initialappointmenttypes_idappointmenttypes',
                 primaryKey: 'id'
             }
 

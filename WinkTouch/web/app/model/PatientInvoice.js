@@ -1,278 +1,282 @@
-Ext.define('WINK.model.PatientInvoice', {
-    extend: 'Ext.data.Model',
-    requires: [
-        'Ext.data.Field',
-        'Ext.data.association.HasMany',
-        'Ext.data.association.HasOne',
-        'Ext.data.association.BelongsTo',
-        'WINK.Utilities'
+Ext.define('WINK.model.PatientInvoice',{
+extend: 'Ext.data.Model',
+requires: [
+'Ext.data.Field',
+'Ext.data.association.HasMany',
+'Ext.data.association.HasOne',
+'Ext.data.association.BelongsTo',
+'WINK.Utilities'
 
-                , 'Ext.data.proxy.Rest'
+        ,'Ext.data.proxy.Rest'
 
     ],
+
     config: {
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'patientinvoices'
-        },
+
+proxy: {
+    type: 'rest',
+    url: WINK.Utilities.getRestURL() + 'patientinvoices'
+  },
         fields: [
-            {name: 'id'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'orderdate'
-                , type: 'date'
-                , defaultValue: new Date(2015, 3, 13, 10, 21, 57)
-            }
-            ,
-            {name: 'patient_idpatient'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'store_idstore'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'promisseddate'
-                , type: 'date'
-                , defaultValue: null
-            }
-            ,
-            {name: 'delivereddate'
-                , type: 'date'
-                , defaultValue: null
-            }
-            ,
-            {name: 'createby_iduser'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'version'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'noteoninvoice'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'balance'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'salesrep'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'reference1'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'reference2'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'uploads_iduploads'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'uploadname'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'quickbookslistid'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'quickbooksversionid'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'quickbookssequenceid'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'quickbooksfile_idquickbooksfile'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'quickbooksiscreditmemo'
-                , type: 'boolean'
-                , defaultValue: false
-            }
-            ,
-            {name: 'subtotal'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'tax1'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'tax2'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'eyeexam'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'createdon'
-                , type: 'date'
-                , defaultValue: new Date(2015, 3, 13, 10, 21, 57)
-            }
-            ,
-            {name: 'insurance1_idsupplier'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'insurance2_idsupplier'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'subtotal_insurance1'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'tax1_insurance1'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'tax2_insurance1'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'subtotal_insurance2'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'tax1_insurance2'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'tax2_insurance2'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'provideruser_iduser'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'patientpayments'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'shipto'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'address1'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'address2'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'city'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'province'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'postalcode'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'country_idcountry'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'unit'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'specials_idspecials'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'recalls_idrecalls'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'shiptoname'
-                , type: 'string'
-                , defaultValue: ''
-            }
-            ,
-            {name: 'doctoruser_iduser'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'pickupatstore_idstore'
-                , type: 'int'
-                , defaultValue: 0
-            }
-            ,
-            {name: 'writeoffbalanceamount'
-                , type: 'float'
-                , defaultValue: 0.0
-            }
-            ,
-            {name: 'writeoffbalancedate'
-                , type: 'date'
-                , defaultValue: null
-            }
-            ,
-            {name: 'writeoffbalanceuser_iduser'
-                , type: 'int'
-                , defaultValue: 0
-            }
+
+{ name: 'id'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'orderdate'
+, type:'date'
+ ,defaultValue: new Date(2015,3,16,19,44,55)
+}
+,
+{ name: 'patient_idpatient'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'store_idstore'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'promisseddate'
+, type:'date'
+ ,defaultValue: null
+}
+,
+{ name: 'delivereddate'
+, type:'date'
+ ,defaultValue: null
+}
+,
+{ name: 'createby_iduser'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'version'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'noteoninvoice'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'balance'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'salesrep'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'reference1'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'reference2'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'uploads_iduploads'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'uploadname'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'quickbookslistid'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'quickbooksversionid'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'quickbookssequenceid'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'quickbooksfile_idquickbooksfile'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'quickbooksiscreditmemo'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'subtotal'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'tax1'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'tax2'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'eyeexam'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'createdon'
+, type:'date'
+ ,defaultValue: new Date(2015,3,16,19,44,55)
+}
+,
+{ name: 'insurance1_idsupplier'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'insurance2_idsupplier'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'subtotal_insurance1'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'tax1_insurance1'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'tax2_insurance1'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'subtotal_insurance2'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'tax1_insurance2'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'tax2_insurance2'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'provideruser_iduser'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'patientpayments'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'shipto'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'address1'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'address2'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'city'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'province'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'postalcode'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'country_idcountry'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'unit'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'specials_idspecials'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'recalls_idrecalls'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'shiptoname'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'doctoruser_iduser'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'pickupatstore_idstore'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'writeoffbalanceamount'
+, type:'float'
+ ,defaultValue: 0.0
+}
+,
+{ name: 'writeoffbalancedate'
+, type:'date'
+ ,defaultValue: null
+}
+,
+{ name: 'writeoffbalanceuser_iduser'
+, type:'int'
+ ,defaultValue: 0
+}
         ]
 
-        , belongsTo: [
+ ,belongsTo: [
+
             {
                 model: 'WINK.model.Patient',
                 associatedName: 'fkpatient_idpatient',
@@ -282,7 +286,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkpatient_idpatient'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.Store',
                 associatedName: 'fkstore_idstore',
@@ -292,7 +296,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkstore_idstore'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.User',
                 associatedName: 'fkcreateby_iduser',
@@ -302,7 +306,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkcreateby_iduser'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.User',
                 associatedName: 'fksalesrep',
@@ -312,7 +316,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFksalesrep'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.Upload',
                 associatedName: 'fkuploads_iduploads',
@@ -322,7 +326,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkuploads_iduploads'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.Supplier',
                 associatedName: 'fkinsurance1_idsupplier',
@@ -332,7 +336,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkinsurance1_idsupplier'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.Supplier',
                 associatedName: 'fkinsurance2_idsupplier',
@@ -342,7 +346,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkinsurance2_idsupplier'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.User',
                 associatedName: 'fkprovideruser_iduser',
@@ -352,7 +356,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkprovideruser_iduser'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.Country',
                 associatedName: 'fkcountry_idcountry',
@@ -362,7 +366,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkcountry_idcountry'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.User',
                 associatedName: 'fkdoctoruser_iduser',
@@ -372,7 +376,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkdoctoruser_iduser'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.Store',
                 associatedName: 'fkpickupatstore_idstore',
@@ -382,7 +386,7 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkpickupatstore_idstore'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.User',
                 associatedName: 'fkwriteoffbalanceuser_iduser',
@@ -392,58 +396,62 @@ Ext.define('WINK.model.PatientInvoice', {
                 setterName: 'setFkwriteoffbalanceuser_iduser'
             }
 
-        ]
-        , hasMany: [
+        ] 
+ ,hasMany: [
+
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'patientpayments_patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitems',
+                name: 'patientinvoiceitems_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'patientinvoiceitems_patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
 
-            ,
+,
             {
                 model: 'WINK.model.InvoiceAttachement',
-                name: 'invoiceattachements',
+                name: 'invoiceattachements_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
 
-        ]
-        , validations: [
-            {type: 'length', field: 'noteoninvoice', max: 150, min: 0}
-            ,
-            {type: 'length', field: 'reference1', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'reference2', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'uploadname', max: 100, min: 0}
-            ,
-            {type: 'length', field: 'quickbookslistid', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'quickbookssequenceid', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'address1', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'address2', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'city', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'province', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'postalcode', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'unit', max: 45, min: 0}
-            ,
-            {type: 'length', field: 'shiptoname', max: 45, min: 0}
-        ]
-    }
+        ] 
+,validations: [
+ { type: 'length', field: 'noteoninvoice', max: 150,min:0 }
+,
+ { type: 'length', field: 'reference1', max: 45,min:0 }
+,
+ { type: 'length', field: 'reference2', max: 45,min:0 }
+,
+ { type: 'length', field: 'uploadname', max: 100,min:0 }
+,
+ { type: 'length', field: 'quickbookslistid', max: 45,min:0 }
+,
+ { type: 'length', field: 'quickbookssequenceid', max: 45,min:0 }
+,
+ { type: 'length', field: 'address1', max: 45,min:0 }
+,
+ { type: 'length', field: 'address2', max: 45,min:0 }
+,
+ { type: 'length', field: 'city', max: 45,min:0 }
+,
+ { type: 'length', field: 'province', max: 45,min:0 }
+,
+ { type: 'length', field: 'postalcode', max: 45,min:0 }
+,
+ { type: 'length', field: 'unit', max: 45,min:0 }
+,
+ { type: 'length', field: 'shiptoname', max: 45,min:0 }
+]    
+}
 });

@@ -47,8 +47,8 @@ Ext.define('WINK.view.InvoicePanel', {
         this.down('label[name=id]').setHtml("i" + patientinvoice.get('id'));
 
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
-        var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems();
-        var patientpaymentsStore = patientinvoice.patientpayments();
+        var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
+        var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
         patientinvoiceitemsStore.load({
             scope: this,
             callback: function(records, operation, success) {
@@ -69,7 +69,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.clearInvoiceItemsContainer();
         var patientinvoice = this.patientinvoice;
         var itemsContainer = this.getInvoiceItemsContainer();
-        var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems();
+        var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         patientinvoiceitemsStore.each(function(item, index, length) {
 
             var invoiceItemPanel = Ext.create('WINK.view.InvoiceItemPanel');
@@ -87,7 +87,7 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     paymentsLoaded: function() {
         var patientinvoice = this.patientinvoice;
-        var patientpaymentsStore = patientinvoice.patientpayments();
+        var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
         this.isPaymentsLoaded = true;
         if (this.isFullyLoaded())
             this.unmask();
@@ -117,6 +117,78 @@ Ext.define('WINK.view.InvoicePanel', {
 
         this.updateSummary();
     },
+    getListedUnitPrice: function(product, idStore) {
+        var listedUnitPrice = 0;
+        var prd = this.getProductRetailDetails(product, idStore);
+        if (prd)
+            listedUnitPrice = prd.get('retailpriceto');
+
+        console.log('returning:' + listedUnitPrice);
+
+        return listedUnitPrice;
+    },
+    getCurrentStoreId: function() {
+        var selectedStore = this.getInvoiceSummary().down('selectfield[name=store_idstore]').getRecord();
+        return selectedStore.get('id');
+    },
+    getProductRetailDetails: function(product, idStore) {
+        idStore = idStore || this.getCurrentStoreId();
+        var prd = null;
+        var retailDetailsStore = product.productretaildetails_product_idproduct();
+
+        retailDetailsStore.each(function(retail, index, length) {
+            console.log('lookgin for retail price:' + retail.get('store_idstore') + " " + retail.get('retailpriceto'));
+
+            if ((retail.get('store_idstore') === 0) || (retail.get('store_idstore') === idStore))
+            {
+                prd = retail;
+                if (retail.get('store_idstore') === idStore) {
+                    return;
+                }
+            }
+        }, this);
+        return prd;
+    },
+    getTaxCodeId: function(product) {
+        var temp = this.getProductRetailDetails(product);
+        if (!temp)
+            return null;
+        return temp.get('taxcode_idtaxcode');
+    },
+    addProductToInvoice: function(product, barcode) {
+
+        var defaultUnitPrice = this.getListedUnitPrice(product, this.getCurrentStoreId());
+        console.log('default price is:' + defaultUnitPrice);
+        var itemsContainer = this.getInvoiceItemsContainer();
+        var idbarcode = null;
+        if (barcode)
+            idbarcode = barcode.get('id');
+        var idTaxCode = this.getTaxCodeId(product);
+        console.log('Tax Code ID is:' + idTaxCode);
+
+        var newInvoiceItem = Ext.create('WINK.model.PatientInvoiceItem', {
+            qty: 1,
+            product_idproduct: product.get('idProduct'),
+            fkproduct_idproduct: product,
+            prediscount_unitprice: defaultUnitPrice,
+            barcode_idbarcode: idbarcode,
+            fkbarcode: barcode,
+            taxcode_idtaxcode: idTaxCode
+        });
+
+        console.log('newInvoiceItem unit price is:' + newInvoiceItem.get('prediscount_unitprice'));
+
+        var invoiceItemPanel = Ext.create('WINK.view.InvoiceItemPanel');
+
+        if (!this.invoiceitems)
+            this.invoiceitems = [];
+
+        this.invoiceitems[this.invoiceitems.length] = invoiceItemPanel;
+        this.getInvoiceContainer().setActiveItem(itemsContainer); //this needs to be done before we load the item (because of the activate event)
+        itemsContainer.add(invoiceItemPanel); //this needs to be done before we load the item (because of the activate event)
+        invoiceItemPanel.loadItem(newInvoiceItem);
+        this.down('textfield[winkname=searchProductField]').setValue('');
+    },
     getSubtotal: function() {
 
         var subtotal = 0;
@@ -145,6 +217,30 @@ Ext.define('WINK.view.InvoicePanel', {
             for (var i = 0; i < this.invoiceitems.length; i++) {
                 t += this.invoiceitems[i].getTax2();
             }
+        return t;
+    },
+    getInsurancePortion: function() {
+
+        var t = 0;
+
+        return t;
+    },
+    getPatientPaymentsTotal: function() {
+
+        var t = 0;
+
+        return t;
+    },
+    getTax1Name: function() {
+
+        var t = 0;
+
+        return t;
+    },
+    getTax2Name: function() {
+
+        var t = 0;
+
         return t;
     },
     updateSummary: function() {

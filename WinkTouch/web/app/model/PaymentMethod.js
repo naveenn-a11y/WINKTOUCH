@@ -102,8 +102,9 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_paymentmethod_idpaymentmethod',
                 foreignKey: 'paymentmethod_idpaymentmethod',
+                associationKey: 'patientpayments_paymentmethod_idpaymentmethod',
                 primaryKey: 'id'
             }
 

@@ -66,56 +66,63 @@ proxy: {
 
             {
                 model: 'WINK.model.Product',
-                name: 'products',
+                name: 'products_imageuploads_iduploads',
                 foreignKey: 'imageuploads_iduploads',
+                associationKey: 'products_imageuploads_iduploads',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.User',
-                name: 'users',
+                name: 'users_googlecalendaruploads_iduploads',
                 foreignKey: 'googlecalendaruploads_iduploads',
+                associationKey: 'users_googlecalendaruploads_iduploads',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
+                associationKey: 'patientpayments_uploads_iduploads',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientPayment',
-                name: 'patientpayments',
+                name: 'patientpayments_signatureuploads_iduploads',
                 foreignKey: 'signatureuploads_iduploads',
+                associationKey: 'patientpayments_signatureuploads_iduploads',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientInvoice',
-                name: 'patientinvoices',
+                name: 'patientinvoices_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
+                associationKey: 'patientinvoices_uploads_iduploads',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.InvoiceAttachement',
-                name: 'invoiceattachements',
+                name: 'invoiceattachements_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
+                associationKey: 'invoiceattachements_uploads_iduploads',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.PatientNote',
-                name: 'patientnotes',
+                name: 'patientnotes_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
+                associationKey: 'patientnotes_uploads_iduploads',
                 primaryKey: 'id'
             }
 

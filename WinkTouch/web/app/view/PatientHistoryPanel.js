@@ -56,7 +56,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         var toolbar = this.down('toolbar');
         toolbar.setTitle(patient.get('lastname') + " " + patient.get('firstname'));
 
-        var invoicesStore = patient.patientinvoices();
+        var invoicesStore = patient.patientinvoices_patient_idpatient();
 
         invoicesStore.load({
             scope: this,
@@ -75,7 +75,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         var patient = this.patient;
         console.log('PatientHistoryPanel.loadPatientHistoryStore()' + patient.get('id'));
 
-        var invoicesStore = patient.patientinvoices();
+        var invoicesStore = patient.patientinvoices_patient_idpatient();
         var historyStore = Ext.create('WINK.store.PatientHistoryStore');
         var fullName = patient.get('lastname') + " " + patient.get('firstname');
         console.log('PatientHistoryPanel.loadPatientHistoryStore() fullname:' + fullName);
@@ -151,7 +151,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             }
             myContainer.setActiveItem(patientView);
             if(justLoaded){
-                var patientInvoiceModel = patient.patientinvoices().getById( id );
+                var patientInvoiceModel = patient.patientinvoices_patient_idpatient().getById( id );
                 
                  this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
             }

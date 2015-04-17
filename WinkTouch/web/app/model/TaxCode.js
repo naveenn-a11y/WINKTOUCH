@@ -97,24 +97,27 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitems',
+                name: 'patientinvoiceitems_taxcode_idtaxcode',
                 foreignKey: 'taxcode_idtaxcode',
+                associationKey: 'patientinvoiceitems_taxcode_idtaxcode',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.TaxCodeEffectiveDate',
-                name: 'taxcodeeffectivedates',
+                name: 'taxcodeeffectivedates_taxcode_idtaxcode',
                 foreignKey: 'taxcode_idtaxcode',
+                associationKey: 'taxcodeeffectivedates_taxcode_idtaxcode',
                 primaryKey: 'id'
             }
 
 ,
             {
                 model: 'WINK.model.ProductRetailDetail',
-                name: 'productretaildetails',
+                name: 'productretaildetails_taxcode_idtaxcode',
                 foreignKey: 'taxcode_idtaxcode',
+                associationKey: 'productretaildetails_taxcode_idtaxcode',
                 primaryKey: 'id'
             }
 

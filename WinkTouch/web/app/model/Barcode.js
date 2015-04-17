@@ -161,8 +161,9 @@ proxy: {
 
             {
                 model: 'WINK.model.PatientInvoiceItem',
-                name: 'patientinvoiceitems',
+                name: 'patientinvoiceitems_barcode_idbarcode',
                 foreignKey: 'barcode_idbarcode',
+                associationKey: 'patientinvoiceitems_barcode_idbarcode',
                 primaryKey: 'id'
             }
 
