@@ -19,6 +19,7 @@ Ext.application({
 
     ],
     models: [
+        'JobStatusWrapper',
         'BarcodeResponse',
         'ApplicationSetting',
         'Appointment',
@@ -54,9 +55,11 @@ Ext.application({
         'PatientStore',
         'PatientHistoryStore',
         'CountrySubdivisionStore',
-        'CountryStore'
+        'CountryStore',
+        'JobStatusStore'
     ],
     views: [
+        'JobStatusPanel',
         'PhoneField',
         'PriceField',
         'IntField',

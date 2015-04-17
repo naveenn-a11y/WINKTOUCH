@@ -68,7 +68,7 @@ Ext.define('WINK.controller.LoginController', {
             headers: {
                 'wink-username': loginPanel.getUsername(),
                 'wink-password': loginPanel.getPassword(),
-                'wink-store': loginPanel.getStore(),
+                'wink-store': loginPanel.getStoreId(),
                 'wink-accountid': WINK.Utilities.getAccountId()
             },
             success: function(response) {

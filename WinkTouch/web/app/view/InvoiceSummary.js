@@ -46,14 +46,14 @@ Ext.define('WINK.view.InvoiceSummary', {
         var total = subtotal+tax1+tax2;
         var insurancePortion = invoicePanel.getInsurancePortion();
         var totalPayments = invoicePanel.getPatientPaymentsTotal();
-        subtotalLabel.setHtml(subtotal);
-        tax1Label.setHtml(tax1);
-        tax2Label.setHtml(tax2);
-        totalLabel.setHtml(total);
-        insuranceLabel.setHtml(insurancePortion);
-        patientLabel.setHtml(total-insurancePortion);
-        paymentsLabel.setHtml(totalPayments);
-        patientbalanceLabel.setHtml(total-insurancePortion-totalPayments);
+        subtotalLabel.setHtml(subtotal.toFixed(2));
+        tax1Label.setHtml(tax1.toFixed(2));
+        tax2Label.setHtml(tax2.toFixed(2));
+        totalLabel.setHtml(total.toFixed(2));
+        insuranceLabel.setHtml(insurancePortion.toFixed(2));
+        patientLabel.setHtml((total-insurancePortion).toFixed(2));
+        paymentsLabel.setHtml(totalPayments.toFixed(2));
+        patientbalanceLabel.setHtml((total-insurancePortion-totalPayments).toFixed(2));
         
         tax1NameLabel.setHtml(invoicePanel.getTax1Name());
         tax2NameLabel.setHtml(invoicePanel.getTax2Name());
@@ -97,7 +97,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                         label: 'P',
                         labelWidth: '20%',
                         placeHolder: 'Not Promissed',
-                        name: 'promisseddate',
+                        name: 'promisseddate'
                         
                     },
                     {

@@ -27,7 +27,8 @@ Ext.define('WINK.view.PatientHistoryPanel', {
     newInvoice: function() {
         var historyStore = this.getHistoryList().getStore();
         var item = Ext.create('WINK.model.PatientInvoice');
-
+        WINK.Utilities.setDefaultValues(item);
+        item.set('patient_idpatient', this.patient.get('id'));
         var invoiceItem = Ext.create('WINK.model.PatientHistoryTree', {
             type: 4,
             id: 0,
@@ -145,15 +146,15 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             {
                 patientView = Ext.create('WINK.view.InvoicePanel');
                 this['invoicePanels' + id.toString()] = patientView;
-                justLoaded=true;
+                justLoaded = true;
             } else {
                 patientView = this['invoicePanels' + id.toString()];
             }
             myContainer.setActiveItem(patientView);
-            if(justLoaded){
-                var patientInvoiceModel = patient.patientinvoices_patient_idpatient().getById( id );
-                
-                 this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
+            if (justLoaded) {
+                var patientInvoiceModel = patient.patientinvoices_patient_idpatient().getById(id);
+
+                this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
             }
         }
 

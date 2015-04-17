@@ -30,8 +30,11 @@ Ext.define('WINK.view.LoginPanel', {
     getPassword: function() {
         return this.down("passwordfield").getValue();
     },
-    getStore: function() {
+    getStoreId: function() {
         return this.down("selectfield").getValue();
+    },
+    getStore: function() {
+        return this.down("selectfield").getRecord();
     },
     clearForm: function() {
         this.down("emailfield").setValue("");
