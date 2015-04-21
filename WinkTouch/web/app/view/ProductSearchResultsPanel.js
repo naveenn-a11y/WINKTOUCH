@@ -6,7 +6,7 @@
 
 Ext.define('WINK.view.ProductSearchResultsPanel', {
     extend: 'Ext.Panel',
-     alias: 'widget.productsearchresultspanel',
+    alias: 'widget.productsearchresultspanel',
     requires: [
         'Ext.SegmentedButton',
         'Ext.Button',
@@ -16,8 +16,24 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
         'WINK.store.ProductStore',
         'WINK.model.BarcodeResponse',
         'WINK.model.Barcode',
-        'WINK.model.Product'
+        'WINK.model.Product',
+        'WINK.model.ProductBrowseModel'
     ],
+    browse: function() {
+
+        var s = Ext.create('Ext.data.TreeStore', {
+            model: 'WINK.model.ProductBrowseModel',
+            defaultRootProperty: 'items',
+            root: {
+            },
+            proxy: {
+                type: 'ajax',
+                url: WINK.Utilities.getRestURL() + 'products/browse'
+            }
+        });
+        this.down('nestedlist[winkname=browseproduct]').setStore(s);
+        this.setActiveItem(this.down('nestedlist[winkname=browseproduct]'));
+    },
     getStore: function() {
         if (!this.winkProductStore)
         {
@@ -26,18 +42,21 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
         }
         return this.winkProductStore;
     },
-    selectProduct: function(product,barcode) {
-       
+    selectProduct: function(product, barcode) {
+        this.setMasked(true);
         product.productretaildetails_product_idproduct().load({
             scope: this,
             callback: function(records, operation, success) {
                 console.log('Loaded product retails pricing ');
-                this.up('InvoicePanel').addProductToInvoice(product,barcode);
+                this.up('InvoicePanel').addProductToInvoice(product, barcode);
+                this.setMasked(false);
             }});
     },
     find: function(query) {
         WINK.Utilities.showWorking();
         this.setMasked(true);
+
+        this.setActiveItem(this.down('list[winkname=searchproduct]'));
         this.getStore().setData([]);
 
         Ext.Ajax.request({
@@ -63,7 +82,7 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
                     console.log('product:' + product.get('id') + ' ' + product.get('name'));
 
 
-                    this.selectProduct(product,barcode);
+                    this.selectProduct(product, barcode);
                 } else {
                     for (var i = 0; i < productArray.length; i++)
                     {
@@ -90,13 +109,13 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
 
     },
     config: {
-        layout: 'fit',
+        layout: 'card',
         cls: 'productListDataViewContainer',
         items: [
             {
                 xtype: 'list',
                 //cls: 'productListDataViewContainer',
-
+                winkname: 'searchproduct',
                 indexBar: false,
                 grouped: true,
                 pinHeaders: true,
@@ -106,13 +125,47 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
                         //dataview.up('PatientHistoryPanel').openHistoryItem(record);
                     }
                 },
-                onItemDisclosure:function(bResponse,btn,index){
-                  //  alert('disclosure');
-                     var product = bResponse.getFkproduct_idproduct();
+                onItemDisclosure: function(bResponse, btn, index) {
+                    //  alert('disclosure');
+                    var product = bResponse.getFkproduct_idproduct();
                     var barcode = bResponse.getFkbarcode_idbarcode();
-                     btn.up('productsearchresultspanel').selectProduct(product,barcode);
-                   
+                    btn.up('productsearchresultspanel').selectProduct(product, barcode);
+
                 }
+
+            },
+            {
+                xtype: 'nestedlist',
+                //cls: 'productListDataViewContainer',
+                winkname: 'browseproduct',
+                displayField: 'name',
+                listeners: {
+                    itemtap: function(dataview, index, target, record, e, eOpts) {
+                        //dataview.up('PatientHistoryPanel').openHistoryItem(record);
+                    },
+                    leafitemtap: function(me, list, index, item) {
+                        var item = list.getStore().getAt(index);
+                        if (item.get('type') === 2)
+                        {
+                            var product = item.getFkproduct_idproduct();
+                            //var barcode = bResponse.getFkbarcode_idbarcode();
+                            list.up('productsearchresultspanel').selectProduct(product);
+                        }
+                    }
+                },
+                getItemTextTpl: function(recordnode)
+                {
+                    return '<div class="item-title">{name}</div><tpl if="leaf === true"><div class="x-list-disclosure"></div></tpl>';
+                }
+                /*onItemDisclosure: function(bResponse, btn, index) {
+                 if (bResponse.get('type') === 2)
+                 {
+                 var product = bResponse.getFkproduct_idproduct();
+                 //var barcode = bResponse.getFkbarcode_idbarcode();
+                 btn.up('productsearchresultspanel').selectProduct(product);
+                 }
+                 
+                 }*/
 
             }
         ]
