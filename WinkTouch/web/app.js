@@ -44,7 +44,8 @@ Ext.application({
         'TaxCode',
         'TaxCodeEffectiveDate',
         'Upload',
-        'User'
+        'User',
+        'ProductBrowseModel'
     ],
     stores: [
         'ProductStore',
@@ -92,8 +93,8 @@ Ext.application({
         'ShowHideSideMenuButtonController',
         'LoginController',
         'LockScreenController',
-        'MenuController',
-        'FavoriteButtonController'
+        'MenuController'
+        
     ],
     icon: {
         '57': 'resources/icons/Icon.png',
@@ -132,6 +133,7 @@ Ext.application({
         Ext.Msg.defaultAllowedConfig.showAnimation = false;
 
 
+                  
         Ext.JSON.encodeDate = function(d) {
             console.log('WINK.JSON, encode date');
             function f(n) {
@@ -197,11 +199,14 @@ Ext.application({
                          * Iterate over all the removed records and add them to the preparedData. Set a flag on them to show that
                          * they are to be deleted
                          */
-                        Ext.each(childStore.removed, function(removedChildRecord) {
+                        Ext.each(childStore.getRemovedRecords( ), function(removedChildRecord) {
                             //Set a flag here to identify removed records
+                            if (!data[name]) {
+                                data[name] = [];
+                            }
                             removedChildRecord.set('forDeletion', true);
                             var removedChildData = this.getRecordData.call(this, removedChildRecord);
-                            data[association.name].push(removedChildData);
+                            data[name].push(removedChildData);
                             record.setDirty();
                         }, me);
                     }

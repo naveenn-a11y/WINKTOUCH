@@ -206,10 +206,13 @@ Ext.define('WINK.view.InvoicePanel', {
 
             this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').hide();
             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').hide();
+            this.down('segmentedbutton[winkname=addworksheetbuttons]').hide();
+
 
         } else {
             this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').show();
             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').show();
+            this.down('segmentedbutton[winkname=addworksheetbuttons]').show();
         }
 
         this.setRecord(patientinvoice);
@@ -607,6 +610,11 @@ Ext.define('WINK.view.InvoicePanel', {
             this.getSearchProductsContainer().find(v);
         }
     },
+    browseProducts: function() {
+      
+            this.getSearchProductsContainer().browse();
+        
+    },
     config: {
         layout: 'hbox',
         centered: false,
@@ -683,7 +691,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 ui: 'action',
                                                 text: 'Search',
                                                 handler: function(btn) {
-                                                    var temp = btn.up('InvoicePanel').searchProducts();
+                                                    btn.up('InvoicePanel').searchProducts();
                                                 }
                                             },
                                             {
@@ -693,8 +701,10 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 itemId: 'mybutton58',
                                                 margin: '0 0 0 5',
                                                 ui: 'confirm',
-                                                text: 'Favorites',
-                                                hidden: true
+                                                text: 'Browse',
+                                                handler: function(btn) {
+                                                    btn.up('InvoicePanel').browseProducts();
+                                                }
                                             }
                                         ]
                                     },
@@ -713,16 +723,20 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 xtype: 'segmentedbutton',
                                                 margin: '0 0 0 5',
                                                 allowToggle: false,
-                                                hidden: true,
+                                                winkname: 'addworksheetbuttons',
                                                 items: [
                                                     {
                                                         xtype: 'button',
                                                         itemId: 'mybutton17',
-                                                        text: '+ Rx'
+                                                        text: '+ Rx',
+                                                        handler: function(button, event) {
+                                                            button.up('InvoicePanel').newRxWorksheet();
+                                                        }
                                                     },
                                                     {
                                                         xtype: 'button',
-                                                        text: '+ CL'
+                                                        text: '+ CL',
+                                                        hidden: true
                                                     }
                                                 ]
                                             },
@@ -906,19 +920,13 @@ Ext.define('WINK.view.InvoicePanel', {
             {
                 xtype: 'InvoiceSummary'
             }
-        ],
-        listeners: [
-            {
-                fn: 'onMybutton17Tap',
-                event: 'tap',
-                delegate: '#mybutton17'
-            }
         ]
+
     },
-    onMybutton17Tap: function(button, e, eOpts) {
+    newRxWorksheet: function() {
         var newSheet = new WINK.view.RxWorksheetPanel({title: "New Rx"});
-        // var tabPanel = Ext.getCmp("invoiceTabPanel");
-        // tabPanel.add(newSheet);
+        var tabPanel = this.down("tabpanel");
+        tabPanel.setActiveItem(newSheet);
     }
 
 });

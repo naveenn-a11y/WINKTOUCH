@@ -21,7 +21,8 @@ Ext.define('WINK.view.InvoiceSummary', {
         'Ext.picker.Date',
         'Ext.Button',
         'Ext.Label',
-        'Ext.SegmentedButton'
+        'Ext.SegmentedButton',
+        'WINK.store.LocationStore'
     ],
     loadPatientInvoice: function(model) {
         this.setRecord(model);

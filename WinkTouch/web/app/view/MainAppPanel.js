@@ -22,7 +22,6 @@ Ext.define('WINK.view.MainAppPanel', {
         'Ext.Button',
         'Ext.Spacer'
     ],
-    
     config: {
         centered: false,
         itemId: 'WinkAppContent',
@@ -70,76 +69,137 @@ Ext.define('WINK.view.MainAppPanel', {
             {
                 xtype: 'container',
                 centered: true,
-                layout: 'hbox',
+                layout: 'vbox',
                 items: [
                     {
                         xtype: 'container',
-                        layout: 'vbox',
+                        layout: 'hbox',
                         items: [
                             {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'Quicksale',
-                                action: 'doQuickSale'
+                                xtype: 'container',
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'Quicksale',
+                                        action: 'doQuickSale'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'New Patient',
+                                        itemId: 'NewPatientButton',
+                                        hidden: true
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'New Patient',
-                                itemId: 'NewPatientButton',
-                                hidden:true
+                                xtype: 'container',
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'Find Patient',
+                                        action: 'doFindPatient'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'Deliver Job',
+                                        hidden: true
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'container',
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'New Patient',
+                                        action: 'doNewPatient'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'MyButton4',
+                                        hidden: true
+                                    }
+                                ]
                             }
+
+
                         ]
                     },
                     {
-                        xtype: 'container',
-                        layout: 'vbox',
+                        // instructions: 'Please enter any of the fields above to find your patient',
+                        xtype: 'fieldset',
+                        title: 'Quick Find',
+                        winkname: 'quickfind',
+                        defaults: {
+                            labelWidth: '35%'
+                                    //   labelAlign: 'top'
+                        },
                         items: [
                             {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'Find Patient',
-                                action: 'doFindPatient'
+                                xtype: "textfield",
+                                name: "winkfile",
+                                label: "Wink File ",
+                                placeHolder: 'i,r,z,s'
+
+                            },
+                            {
+                                xtype: "textfield",
+                                flex: 1,
+                                name: "paperfile",
+                                label: "Patient Folder"
+                            },
+                            {
+                                xtype: "textfield",
+                                name: "tray",
+                                label: "Tray"
                             },
                             {
                                 xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'Deliver Job',
-                                hidden:true
+                                docked: 'bottom',
+                                margin: '5 5 5 5',
+                                ui: 'action',
+                                text: 'Open',
+                                handler: function(button, event) {
+                                    console.log("Quickfind.handler()");
+                                    var quick = button.up('fieldset[winkname=quickfind]').down('textfield[name=winkfile]').getValue();
+                                    if (!quick)
+                                        return;
+                                    quick = quick.toLowerCase();
+                                    console.log("Quickfind:" + quick);
+                                    if (quick.startsWith('i') || quick.startsWith('z') || quick.startsWith('r'))
+                                    {
+                                        document.location.href = '#' + quick;
+                                    }
+
+                                }
                             }
-                        ]
-                    },
-                    {
-                        xtype: 'container',
-                        layout: 'vbox',
-                        items: [
-                            {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'New Patient',
-                                action: 'doNewPatient'
-                            },
-                            {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'MyButton4',
-                                hidden:true
-                            }
+
+
                         ]
                     }
                 ]
+
             }
         ],
         listeners: [

@@ -22,7 +22,8 @@ Ext.define('WINK.view.LoginPanel', {
         'Ext.field.Select',
         'Ext.field.Email',
         'Ext.field.Password',
-        'Ext.Button'
+        'Ext.Button',
+        'WINK.store.LocationStore'
     ],
     getUsername: function() {
         return this.down("emailfield").getValue();
@@ -40,9 +41,7 @@ Ext.define('WINK.view.LoginPanel', {
         this.down("emailfield").setValue("");
         this.down("passwordfield").setValue("");
     },
-   
     config: {
-         
         centered: false,
         fullscreen: false,
         hidden: false,
@@ -62,7 +61,6 @@ Ext.define('WINK.view.LoginPanel', {
                     {
                         xtype: 'fieldset',
                         centered: true,
-                        height: 212,
                         width: 550,
                         instructions: '',
                         title: '',
@@ -93,6 +91,7 @@ Ext.define('WINK.view.LoginPanel', {
                             {
                                 xtype: 'button',
                                 docked: 'bottom',
+                                margin: '5 5 5 5',
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'
