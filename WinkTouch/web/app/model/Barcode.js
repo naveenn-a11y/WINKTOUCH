@@ -21,22 +21,22 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'product_idproduct'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'contactlens_idcontactlens'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'stocklens_idstocklens'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'dateprinted'
@@ -46,32 +46,32 @@ proxy: {
 ,
 { name: 'removedbyinventoryadjustment_idinventoryadjustment'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'createdbyinventoryadjustment_idinventoryadjustment'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'removedbypatientinvoiceitem_idpatientinvoiceitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'createdbypatientinvoiceitem_idpatientinvoiceitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'removedbyreceiveproductitem_idreceiveproductitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'createdbyreceiveproductitem_idreceiveproductitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'lastdatefound'
@@ -91,7 +91,7 @@ proxy: {
 ,
 { name: 'disabledbyuser_iduser'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'reference1'
@@ -106,7 +106,7 @@ proxy: {
 ,
 { name: 'createdbyproductob_idproductob'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'datecreated'

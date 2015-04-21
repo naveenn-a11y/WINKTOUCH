@@ -29,10 +29,12 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         var item = Ext.create('WINK.model.PatientInvoice');
         WINK.Utilities.setDefaultValues(item);
         item.set('patient_idpatient', this.patient.get('id'));
+        this.patient.patientinvoices_patient_idpatient().add(item);
+        console.log('New Invoice ID:' + item.get('id'));
         var invoiceItem = Ext.create('WINK.model.PatientHistoryTree', {
             type: 4,
-            id: 0,
-            label: item.get('orderdate').getFullYear() + '-' + item.get('orderdate').getMonth() + "-" + item.get('orderdate').getDate(),
+            modelid: item.get('id'),
+            label: item.get('orderdate').getFullYear() + '-' + (item.get('orderdate').getMonth() + 1) + "-" + item.get('orderdate').getDate(),
             icon: '',
             date: item.get('orderdate')
         });
@@ -40,14 +42,56 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         this.openHistoryItem(invoiceItem);
 
     },
+    updateInvoiceId: function(previousInvoiceId, newInvoice) {
+        var newInvoiceId = newInvoice.get('id');
+        var invoiceHistoryStore = this.patient.patientinvoices_patient_idpatient();
+       var oldInvoiceModel =  invoiceHistoryStore.getById(previousInvoiceId);
+       if(oldInvoiceModel)
+           invoiceHistoryStore.remove(oldInvoiceModel);
+       invoiceHistoryStore.add(newInvoice);
+        var historyStore = this.getHistoryList().getStore();
+        historyStore.each(function(item, index, length) {
+            if ((item.get('type') === 4 || item.get('type') === 5))
+                if (item.get('modelid') === previousInvoiceId)
+                {
+                    item.set('modelid', newInvoiceId);
+                }
+        }, this);
+        if (!this['invoicePanels' + previousInvoiceId.toString()]) {
+            this['invoicePanels' + newInvoiceId.toString()] = this['invoicePanels' + previousInvoiceId.toString()];
+            this['invoicePanels' + previousInvoiceId.toString()] = null;
+        }
+
+    },
+    updateInvoiceHistoryItem: function(historyItem, invoiceModel) {
+        var type = 4;
+        if (invoiceModel.get('delivereddate'))
+            type = 5;
+        historyItem.set('type', type);
+        historyItem.set('label', invoiceModel.get('orderdate').getFullYear() + '-' + (invoiceModel.get('orderdate').getMonth() + 1) + "-" + invoiceModel.get('orderdate').getDate());
+        historyItem.set('date', invoiceModel.get('orderdate'));
+        historyItem.set('modelid', invoiceModel.get('id'));
+
+    },
+    invoiceSaved: function(invoicePanel) {
+        var historyStore = this.getHistoryList().getStore();
+        var invoiceId = invoicePanel.getRecord().get('id');
+        var invoice = invoicePanel.getRecord();
+        console.log('invoiceSaved:' + invoiceId);
+        historyStore.each(function(item, index, length) {
+            if ((item.get('type') === 4 || item.get('type') === 5) && item.get('modelid') === invoiceId)
+            {
+                this.updateInvoiceHistoryItem(item, invoice);
+            }
+        }, this);
+        historyStore.sortHistory();
+    },
     newExam: function() {
 
     },
     saveClicked: function() {
-        alert('saved clicked');
         if (this.patientView)
         {
-            alert('patientView.savePatient()');
             this.patientView.savePatient();
         }
     },
@@ -86,7 +130,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
         var patientItem = Ext.create('WINK.model.PatientHistoryTree', {
             type: 0,
-            id: patient.get('id'),
+            modelid: patient.get('id'),
             label: fullName,
             icon: '',
             date: ''
@@ -98,16 +142,10 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         {
 
             invoicesStore.each(function(item, index, length) {
-                var type = 4;
-                if (item.get('delivereddate'))
-                    type = 5;
-                var invoiceItem = Ext.create('WINK.model.PatientHistoryTree', {
-                    type: type,
-                    id: item.get('id'),
-                    label: item.get('orderdate').getFullYear() + '-' + item.get('orderdate').getMonth() + "-" + item.get('orderdate').getDate(),
-                    icon: '',
-                    date: item.get('orderdate')
-                });
+
+                var invoiceItem = Ext.create('WINK.model.PatientHistoryTree');
+                this.updateInvoiceHistoryItem(invoiceItem, item);
+
                 historyStore.add(invoiceItem);
             }, this);
         }
@@ -119,7 +157,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         var patient = this.patient;
         var list = this.getHistoryList();
         var type = record.get('type');
-        var id = record.get('id');
+        var id = record.get('modelid');
         console.log('PatientHistoryPanel.openHistoryItem()' + type + "." + id);
 
 

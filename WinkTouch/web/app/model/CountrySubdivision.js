@@ -21,12 +21,12 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'country_idcountry'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'name'

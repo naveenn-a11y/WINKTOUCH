@@ -13,8 +13,7 @@ Ext.define('WINK.model.PatientHistoryTree', {
     config: {
         fields: [
             {
-                name: 'id',
-                type : 'int'
+                name: 'modelid'
             },
             {
                 name: 'icon'

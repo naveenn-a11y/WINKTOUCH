@@ -26,7 +26,7 @@ Ext.define('WINK.view.InvoiceSummary', {
     loadPatientInvoice: function(model) {
         this.setRecord(model);
     },
-    updateSummary:function(){
+    updateSummary: function() {
         var subtotalLabel = this.down('label[name=subtotal]');
         var tax1Label = this.down('label[name=tax1]');
         var tax2Label = this.down('label[name=tax2]');
@@ -37,13 +37,13 @@ Ext.define('WINK.view.InvoiceSummary', {
         var patientLabel = this.down('label[name=patientportion]');
         var paymentsLabel = this.down('label[name=payments]');
         var patientbalanceLabel = this.down('label[name=balance]');
-        
-        
+
+
         var invoicePanel = this.up('InvoicePanel');
-        var subtotal =invoicePanel.getSubtotal();
-        var tax1 =invoicePanel.getTax1();
-        var tax2 =invoicePanel.getTax2();
-        var total = subtotal+tax1+tax2;
+        var subtotal = invoicePanel.getSubtotal();
+        var tax1 = invoicePanel.getTax1();
+        var tax2 = invoicePanel.getTax2();
+        var total = subtotal + tax1 + tax2;
         var insurancePortion = invoicePanel.getInsurancePortion();
         var totalPayments = invoicePanel.getPatientPaymentsTotal();
         subtotalLabel.setHtml(subtotal.toFixed(2));
@@ -51,13 +51,13 @@ Ext.define('WINK.view.InvoiceSummary', {
         tax2Label.setHtml(tax2.toFixed(2));
         totalLabel.setHtml(total.toFixed(2));
         insuranceLabel.setHtml(insurancePortion.toFixed(2));
-        patientLabel.setHtml((total-insurancePortion).toFixed(2));
+        patientLabel.setHtml((total - insurancePortion).toFixed(2));
         paymentsLabel.setHtml(totalPayments.toFixed(2));
-        patientbalanceLabel.setHtml((total-insurancePortion-totalPayments).toFixed(2));
-        
+        patientbalanceLabel.setHtml((total - insurancePortion - totalPayments).toFixed(2));
+
         tax1NameLabel.setHtml(invoicePanel.getTax1Name());
         tax2NameLabel.setHtml(invoicePanel.getTax2Name());
-        
+
     },
     config: {
         border: 1,
@@ -76,20 +76,20 @@ Ext.define('WINK.view.InvoiceSummary', {
                         margin: '5 0 5 0',
                         label: '',
                         labelWidth: '0%',
-                        readOnly:true,
-                        value: 'id',
+                        readOnly: true,
+                        valueField: 'id',
                         displayField: 'name',
                         name: 'store_idstore',
-                        title:'Store'
+                        title: 'Store'
                     },
                     {
                         xtype: 'datepickerfield',
                         margin: '5 0 5 0',
                         label: 'O',
                         labelWidth: '20%',
-                        readOnly:true,
+                        readOnly: true,
                         name: 'orderdate'
-                       
+
                     },
                     {
                         xtype: 'datepickerfield',
@@ -98,7 +98,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                         labelWidth: '20%',
                         placeHolder: 'Not Promissed',
                         name: 'promisseddate'
-                        
+
                     },
                     {
                         xtype: 'datepickerfield',
@@ -107,7 +107,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                         labelWidth: '20%',
                         placeHolder: 'Open',
                         name: 'delivereddate'
-                        
+
 
                     },
                     {
@@ -290,7 +290,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 ui: 'confirm',
                                 width: 90,
                                 text: 'Pay',
-                                handler:function(btn){
+                                handler: function(btn) {
                                     btn.up('InvoicePanel').pay();
                                 }
                             },
@@ -298,7 +298,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'button',
                                 width: 90,
                                 text: 'Deliver',
-                                handler:function(btn){
+                                handler: function(btn) {
                                     btn.up('InvoicePanel').deliver();
                                 }
                             }
@@ -314,7 +314,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 ui: 'action',
                                 width: 90,
                                 text: 'Print',
-                                handler:function(btn){
+                                handler: function(btn) {
                                     btn.up('InvoicePanel').print();
                                 }
                             },
@@ -323,7 +323,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 ui: 'action',
                                 width: 90,
                                 text: 'Email',
-                                handler:function(btn){
+                                handler: function(btn) {
                                     btn.up('InvoicePanel').email();
                                 }
                             }
@@ -339,7 +339,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 ui: 'action',
                                 width: 90,
                                 text: 'Save',
-                                handler:function(btn){
+                                handler: function(btn) {
                                     btn.up('InvoicePanel').save();
                                 }
                             },
@@ -348,7 +348,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 ui: 'decline',
                                 width: 90,
                                 text: 'Delete',
-                                handler:function(btn){
+                                handler: function(btn) {
                                     btn.up('InvoicePanel').delete();
                                 }
                             }

@@ -16,7 +16,6 @@ Ext.application({
     requires: [
         'Ext.MessageBox',
         'WINK.Utilities'
-
     ],
     models: [
         'JobStatusWrapper',
@@ -56,7 +55,8 @@ Ext.application({
         'PatientHistoryStore',
         'CountrySubdivisionStore',
         'CountryStore',
-        'JobStatusStore'
+        'JobStatusStore',
+        'PaymentMethodStore'
     ],
     views: [
         'JobStatusPanel',
@@ -83,8 +83,9 @@ Ext.application({
         'MonthPicker',
         'FindPatientPanel',
         'PatientHistoryPanel',
-        'ProductSearchResultsPanel'
-
+        'ProductSearchResultsPanel',
+        'AddPaymentPanel',
+        'InvoicePaymentPanel'
 
     ],
     controllers: [
@@ -126,11 +127,13 @@ Ext.application({
             } else {
                 return true;
             }
-        }
+        };
 
         Ext.Msg.defaultAllowedConfig.showAnimation = false;
 
+
         Ext.JSON.encodeDate = function(d) {
+            console.log('WINK.JSON, encode date');
             function f(n) {
                 return n < 10 ? '0' + n : n;
             }
@@ -144,7 +147,73 @@ Ext.application({
                     f(d.getSeconds()) + "\"";
         };
 
-       
+        Ext.data.writer.Json.override({
+            /*
+             * This function overrides the default implementation of json writer. Any hasMany relationships will be submitted
+             * as nested objects. When preparing the data, only children which have been newly created, modified or marked for
+             * deletion will be added. To do this, a depth first bottom -> up recursive technique was used.
+             */
+            getRecordData: function(record) {
+                //Setup variables
+                console.log("getRecordData");
+
+                var me = this, i, association, childStore, data = record.data;
+
+                //Iterate over all the hasMany associations
+                for (i = 0; i < record.associations.length; i++) {
+                    association = record.associations.get(i);
+                    var name = association.getName();
+                    console.log(i + " association " + name + " " + association.getType());
+
+                    if (association.getType() === 'hasmany') {
+                        console.log(name + " " + association.getAssociationKey( ));
+                        data[name] = null;
+                        childStore = record[name]();
+                        console.log("child store:" + childStore);
+
+                        //Iterate over all the children in the current association
+                        childStore.each(function(childRecord) {
+                            console.log("childStore.each():" + childRecord);
+                            if (!data[name]) {
+                                data[name] = [];
+                            }
+
+                            //Recursively get the record data for children (depth first)
+                            var childData = this.getRecordData.call(this, childRecord);
+
+                            /*
+                             * If the child was marked dirty or phantom it must be added. If there was data returned that was neither
+                             * dirty or phantom, this means that the depth first recursion has detected that it has a child which is
+                             * either dirty or phantom. For this child to be put into the prepared data, it's parents must be in place whether
+                             * they were modified or not.
+                             */
+                            if (childRecord.dirty | childRecord.phantom | (childData != null)) {
+                                data[name].push(childData);
+                                record.setDirty();
+                            }
+                        }, me);
+
+                        /*
+                         * Iterate over all the removed records and add them to the preparedData. Set a flag on them to show that
+                         * they are to be deleted
+                         */
+                        Ext.each(childStore.removed, function(removedChildRecord) {
+                            //Set a flag here to identify removed records
+                            removedChildRecord.set('forDeletion', true);
+                            var removedChildData = this.getRecordData.call(this, removedChildRecord);
+                            data[association.name].push(removedChildData);
+                            record.setDirty();
+                        }, me);
+                    }
+                }
+
+                //Only return data if it was dirty, new or marked for deletion.
+                if (record.dirty | record.phantom | record.get('forDeletion')) {
+                    return data;
+                }
+            }
+        });
+
         // Destroy the #appLoadingIndicator element
         Ext.fly('appLoadingIndicator').destroy();
 
@@ -152,7 +221,8 @@ Ext.application({
         Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {fullscreen: true});
         Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
         //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
-    },
+    }
+    ,
     onUpdated: function() {
         Ext.Msg.confirm(
                 "Application Update",

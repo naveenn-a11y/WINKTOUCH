@@ -21,17 +21,17 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patientinvoice_idpatientinvoice'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'uploads_iduploads'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'name'

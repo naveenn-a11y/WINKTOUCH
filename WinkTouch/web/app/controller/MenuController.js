@@ -25,11 +25,22 @@ Ext.define('WINK.controller.MenuController', {
                 xtype: 'ParentView'
             }
         },
+        before: {
+            openPatient: 'beforeRoute',
+            openInvoice: 'beforeRoute',
+            openFindPatient: 'beforeRoute',
+            openNewPatient: 'beforeRoute',
+            openQuicksale: 'beforeRoute'
+        },
         routes: {
             'patient/:patientid': 'openPatient',
+            //  'patientinvoice/:patientid/:invoiceid': 'openPatientInvoice',
+            'invoice/:invoiceid': 'openInvoice',
             'findpatient': 'openFindPatient',
             'newpatient': 'openNewPatient',
-            'newquicksale': 'openQuicksale'
+            'newquicksale': 'openQuicksale',
+            'i:invoiceid': 'openInvoice',
+            'z:patientid': 'openPatient'
         },
         control: {
             'button[action=doNewPatient]': {
@@ -52,9 +63,44 @@ Ext.define('WINK.controller.MenuController', {
     goBack: function() {
         history.back();
     },
-    openPatient: function(patientid) {
+    beforeRoute: function(action) {
+        console.log('MenuController.beforeRoute()');
         WINK.Utilities.showWorking();
-        WINK.Utilities.loadAllRequiredStores();
+        WINK.Utilities.loadAllRequiredStores(function() {
+            console.log('MenuController.beforeRoute() callback');
+            WINK.Utilities.hideWorking();
+            action.resume();
+
+        });
+    },
+    openInvoice: function(invoiceid) {
+
+        var me = this;
+
+        WINK.model.PatientInvoice.load(invoiceid, {
+            success: function(invoice) {
+                console.log('loaded ' + invoice.get('id')); //logs 123
+
+                if (invoice.get('patient_idpatient') && invoice.get('patient_idpatient') > 0)
+                {
+                    me.openPatientInvoice(invoice.get('patient_idpatient'), invoiceid);
+                } else {
+                    var quicksale = Ext.create('WINK.view.InvoicePanel');
+
+                    me.getParentView().setActiveItem(quicksale);
+                    quicksale.loadPatientInvoice(invoice);
+                }
+
+            }
+        });
+
+
+    },
+    openPatientInvoice: function(patientid, invoiceid) {
+        this.openPatient(patientid);
+    },
+    openPatient: function(patientid) {
+
         WINK.model.Patient.load(patientid, {
             scope: this,
             failure: function(patient, operation) {
@@ -122,7 +168,6 @@ Ext.define('WINK.controller.MenuController', {
 
     },
     onOpenPatientTap: function(button, e, eOpts) {
-        WINK.Utilities.loadAllRequiredStores();
         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
 
         this.getParentView().setActiveItem(patientHistory);
@@ -130,27 +175,25 @@ Ext.define('WINK.controller.MenuController', {
     onQuicksaleButtonTap: function(button, e, eOpts) {
         document.location.href = '#newquicksale';
     },
-    openQuicksale: function(button, e, eOpts) {
-        WINK.Utilities.loadAllRequiredStores();
-       var model= Ext.create('WINK.model.PatientInvoice');
-       WINK.Utilities.setDefaultValues(model);
-       
+    openQuicksale: function() {
+        console.log('MenuController.openQuicksale()');
+        var model = Ext.create('WINK.model.PatientInvoice');
+        WINK.Utilities.setDefaultValues(model);
+
         var quicksale = Ext.create('WINK.view.InvoicePanel');
-       
+
         this.getParentView().setActiveItem(quicksale);
         quicksale.loadPatientInvoice(model);
     },
     onNewPatientButtonTap: function(button, e, eOpts) {
         document.location.href = '#newpatient';
     },
-    openNewPatient: function(button, e, eOpts) {
-        WINK.Utilities.loadAllRequiredStores();
+    openNewPatient: function() {
         var newPatientPanel = Ext.create('WINK.view.PatientPanel');
 
         this.getParentView().setActiveItem(newPatientPanel);
     },
     openFindPatient: function() {
-        WINK.Utilities.loadAllRequiredStores();
         if (!this.findPatientPanel)
             this.findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
 

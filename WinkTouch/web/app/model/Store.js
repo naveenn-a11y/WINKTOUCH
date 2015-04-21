@@ -21,7 +21,7 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'companyname'
@@ -116,7 +116,7 @@ proxy: {
 ,
 { name: 'country_idcountry'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'povonlineid'
@@ -131,7 +131,7 @@ proxy: {
 ,
 { name: 'quickbooksfile_idquickbooksfile'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'timezone'
@@ -166,7 +166,7 @@ proxy: {
 ,
 { name: 'epayaccounts_idepayaccounts'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'edgemountcapacity'
@@ -211,7 +211,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,3,16,0,0,0)
+ ,defaultValue: new Date(2015,3,21,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'
@@ -246,12 +246,12 @@ proxy: {
 ,
 { name: 'edgeatstore_idstore'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'edgeatsupplier_idsupplier'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
         ]
 

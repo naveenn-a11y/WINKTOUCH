@@ -15,7 +15,7 @@
 
 Ext.define('WINK.controller.LoginController', {
     extend: 'Ext.app.Controller',
-     requires: [
+    requires: [
         'WINK.Utilities'
     ],
     config: {
@@ -35,7 +35,8 @@ Ext.define('WINK.controller.LoginController', {
         },
         routes: {
             'mainmenu': 'openMainmenu',
-            'login': 'openLogin'
+            'login': 'openLogin',
+            '': 'goToLogin'
         },
         control: {
             'button#logInButton': {
@@ -47,14 +48,19 @@ Ext.define('WINK.controller.LoginController', {
 
         }
     },
+    openLogin: function() {
+        this.getParentView().setActiveItem(this.getLoginPanel());
+    },
     doGoToMainScreen: function() {
         document.location.href = '#mainmenu';
+    },
+    goToLogin: function() {
+        document.location.href = '#login';
     },
     openMainmenu: function() {
         WINK.Utilities.previousActiveItem = null;
         this.getParentView().setActiveItem(this.getMainAppPanel());
     },
-  
     login: function() {
 
         var loginPanel = this.getLoginPanel();
@@ -62,7 +68,7 @@ Ext.define('WINK.controller.LoginController', {
 
         WINK.Utilities.showWorking();
         Ext.Ajax.request({
-            scope:this,
+            scope: this,
             url: WINK.Utilities.getRestURL() + 'users/me',
             method: 'GET',
             headers: {
@@ -73,17 +79,19 @@ Ext.define('WINK.controller.LoginController', {
             },
             success: function(response) {
 
-                WINK.Utilities.currentstore=loginPanel.getStore();
+                WINK.Utilities.loginSuccess(response);
+                WINK.Utilities.loadAllRequiredStores();
+
                 loginPanel.clearForm();
                 if (WINK.Utilities.previousActiveItem)
                 {
                     myController.getParentView().setActiveItem(WINK.Utilities.previousActiveItem);
                     WINK.Utilities.previousActiveItem = null;
                 } else {
-                    myController.getParentView().setActiveItem(myController.getMainAppPanel());
+                    document.location.href = "#mainmenu";
                 }
                 WINK.Utilities.hideWorking();
-                 WINK.Utilities.loadAllRequiredStores();
+
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();

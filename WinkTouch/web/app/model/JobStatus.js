@@ -21,7 +21,7 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'rxorderform_idrxorderform'
@@ -96,7 +96,7 @@ proxy: {
 ,
 { name: 'workflowstages_idworkflowstages'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'datecompletedon'
@@ -106,7 +106,7 @@ proxy: {
 ,
 { name: 'holdreasons_idholdreasons'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'inactive'
@@ -120,9 +120,11 @@ proxy: {
 }
         ]
 
-        , belongsTo: [
-        ]
-        , hasMany: [
+ ,belongsTo: [
+
+        ] 
+ ,hasMany: [
+
         ] 
 ,validations: [
  { type: 'length', field: 'comment', max: 200,min:0 }

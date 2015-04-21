@@ -21,27 +21,27 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'store_idstore'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patientinvoice_idpatientinvoice'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patient_idpatient'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'date'
 , type:'date'
- ,defaultValue: new Date(2015,3,16,19,44,55)
+ ,defaultValue: new Date(2015,3,21,4,43,25)
 }
 ,
 { name: 'amount'
@@ -56,7 +56,7 @@ proxy: {
 ,
 { name: 'paymentmethod_idpaymentmethod'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'description'
@@ -76,7 +76,7 @@ proxy: {
 ,
 { name: 'uploads_iduploads'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'quickbookslistid'
@@ -96,7 +96,7 @@ proxy: {
 ,
 { name: 'quickbooksfile_idquickbooksfile'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'quickbookstype'
@@ -106,7 +106,7 @@ proxy: {
 ,
 { name: 'evotransactionlog_idevotransactionlog'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'entrymethod'
@@ -141,32 +141,32 @@ proxy: {
 ,
 { name: 'customervault_idcustomervault'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'epayaccounts_idepayaccounts'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'paidbyinsurancesupplier_idsupplier'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'insurancepayment_idinsurancepayment'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'receiveproductitem_idreceiveproductitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patientinvoiceitem_idpatientinvoiceitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'cardholdername'
@@ -176,7 +176,7 @@ proxy: {
 ,
 { name: 'signatureuploads_iduploads'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'chargebackamount'
@@ -186,7 +186,7 @@ proxy: {
 ,
 { name: 'user_iduser'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
         ]
 

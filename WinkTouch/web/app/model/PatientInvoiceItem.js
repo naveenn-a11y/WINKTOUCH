@@ -21,12 +21,12 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patientinvoice_idpatientinvoice'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'qty'
@@ -51,17 +51,17 @@ proxy: {
 ,
 { name: 'taxcode_idtaxcode'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'product_idproduct'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'rxworksheet_idrxworksheet'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'description'
@@ -71,7 +71,7 @@ proxy: {
 ,
 { name: 'clworksheet_idclworksheet'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'worksheetflag'
@@ -81,27 +81,27 @@ proxy: {
 ,
 { name: 'contactlens_idcontactlens'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'stocklens_idstocklens'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'barcode_idbarcode'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'discountauthorizedbyuser_iduser'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'icd_idicd'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'insurance1amount'
@@ -146,7 +146,7 @@ proxy: {
 ,
 { name: 'refundofpatientinvoiceitem_idpatientinvoiceitem'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'reference1'

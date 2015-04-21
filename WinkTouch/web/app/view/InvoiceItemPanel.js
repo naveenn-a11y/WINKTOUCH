@@ -30,7 +30,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
         invoicePanel.deleteItem(this);
     },
     loadItem: function(item) {
-        this.winkloading=true;
+        this.winkloading = true;
         console.log('InvoiceItemPanel.loadItem item.unitprice:' + item.get('unitprice'));
         this.setRecord(item);
         var productField = this.down('label[winkname=productname]');
@@ -43,7 +43,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
 
         this.updateTotal();
         //this.showMore();
-          this.winkloading=false;
+        this.winkloading = false;
     },
     getSubtotal: function() {
         var qtyField = this.down('numberfield[name=qty]');
@@ -103,9 +103,9 @@ Ext.define('WINK.view.InvoiceItemPanel', {
         return rate;
     },
     recalculateTax: function() {
-        if(this.winkloading)
+        if (this.winkloading)
             return;
-        
+
         console.log('InvoiceItemPanel.recalculateTax()');
         var tax1Field = this.down('numberfield[name=tax1amount]');
 
@@ -142,7 +142,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
         return field.getValue();
     },
     getTax1Name: function() {
-       var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
         var taxCode = taxSelect.getRecord();
         if (!taxCode)
             return null;
@@ -150,19 +150,29 @@ Ext.define('WINK.view.InvoiceItemPanel', {
 
     },
     getTax2Name: function() {
-         var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
         var taxCode = taxSelect.getRecord();
         if (!taxCode)
             return null;
         return taxCode.get('tax2name');
 
     },
+    updateModel: function() {
+        var model = this.getRecord();
+        var temp = this.getValues();
+        console.log('Invoice Item:'+model);
+         console.log(temp);
+       
+        model.set(temp);
+        return model;
+    },
     updateTotal: function() {
         var subtotalField = this.down('numberfield[name=subtotal_beforetax]');
         var invoicePanel = this.up('InvoicePanel');
         subtotalField.setValue(this.getSubtotal());
 
-        invoicePanel.updateSummary();
+        if (invoicePanel) //this might not be on the invoice panel yet
+            invoicePanel.updateSummary();
     },
     config: {
         invoiceItemIndex: 0,
@@ -248,9 +258,9 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         usePicker: false,
                         valueField: 'id',
                         name: 'taxcode_idtaxcode',
-                        listeners:{
-                             change: function(comp, newData, eOpts) {
-                              
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+
                                 arguments[0].up('invoiceitempanel').recalculateTax();
                             }
                         }
