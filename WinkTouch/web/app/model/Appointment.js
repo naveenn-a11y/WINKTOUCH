@@ -21,7 +21,7 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'fromold'
@@ -51,17 +51,17 @@ proxy: {
 ,
 { name: 'store_idstore'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'doctor_idpatient'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patient_idpatient'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'isbusy'
@@ -76,12 +76,12 @@ proxy: {
 ,
 { name: 'appointmenttypes_idappointmenttypes'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'initialappointmenttypes_idappointmenttypes'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'googlecalendarversion'
@@ -161,7 +161,7 @@ proxy: {
 ,
 { name: 'appointments_idappointments'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'doublebooked'

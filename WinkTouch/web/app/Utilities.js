@@ -10,21 +10,67 @@ Ext.define('WINK.Utilities', {
         'Ext.MessageBox'
     ],
     statics: {
+        isKeyNull: function(model) {
+            if (model.get('id') === 0)
+                return true;
+            if (typeof model.get('id') === "string")
+                if (model.get('id').startsWith("ext-record"))
+                    return true;
+            return false;
+        },
         setDefaultValues: function(model) {
             if (model instanceof WINK.model.PatientInvoice) {
                 model.set('orderdate', new Date());
                 model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
+            } else if (model instanceof WINK.model.PatientPayment) {
+                model.set('date', new Date());
+                model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
+                model.set('user_iduser', WINK.Utilities.currentuser.get('id'));
+
             }
         },
-        loadAllRequiredStores: function() {
+        loginSuccess: function(response) {
+            WINK.Utilities.currentstore = Ext.create('WINK.model.Store', {
+                id: 1
+            });
+            WINK.Utilities.currentuser = Ext.create('WINK.model.User');
+            console.log("Set logged In User:" + response.responseText);
+
+            WINK.Utilities.currentuser.set(Ext.JSON.decode(response.responseText));
+            console.log("Set logged In User:" + WINK.Utilities.currentuser.get('id'));
+
+        },
+        loadAllRequiredStores: function(callback) {
+            console.log("Utilities.loadAllRequiredStores()");
             if (!WINK.Utilities.currentstore) {
-                WINK.Utilities.currentstore = Ext.create('WINK.model.Store', {
-                    id: 1
+                console.log("Utilities.loadAllRequiredStores() ajax /users/me");
+                Ext.Ajax.request({
+                    scope: this,
+                    url: WINK.Utilities.getRestURL() + 'users/me',
+                    method: 'GET',
+                    success: function(response) {
+                        WINK.Utilities.loginSuccess(response);
+                        WINK.Utilities.loadAllRequiredStores(callback);
+                    },
+                    failure: function(response) {
+                        Ext.Msg.alert('Login Failed', 'Invalid Login...Please try again', Ext.emptyFn);
+                        document.location.href = '#login';
+
+                        //TODO, once we login go to the right bookmark
+                    },
+                    callback: function(options, success, response) {
+
+
+                    }
                 });
+                return;
+
             }
+
             if (!this.storesLoaded)
             {
 
+                console.log("Utilities.loadAllRequiredStores() loading stores");
                 Ext.create('WINK.store.CountrySubdivisionStore', {
                     storeId: 'CountrySubdivisionStore',
                     autoLoad: true
@@ -34,8 +80,20 @@ Ext.define('WINK.Utilities', {
                     autoLoad: true
                 }); //just to start loading the data
 
+                Ext.create('WINK.store.PaymentMethodStore', {
+                    storeId: 'PaymentMethodForCurrentStore',
+                    autoLoad: true,
+                    params: {
+                        store_idstore: WINK.Utilities.currentstore.get('id')
+                    }
+                }); //just to start loading the data
+
                 this.storesLoaded = true;
             }
+
+            console.log("Utilities.loadAllRequiredStores() done!");
+            if (callback)
+                callback();
         },
         getAccountId: function() {
             return 37;

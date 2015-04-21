@@ -21,7 +21,7 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'name'
@@ -166,7 +166,7 @@ proxy: {
 ,
 { name: 'productcategory_idproductcategory'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'finishedlensistoric'
@@ -291,12 +291,12 @@ proxy: {
 ,
 { name: 'preferredsupplier_idsupplier'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'manufacturersupplier_idsupplier'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'donotpreload'
@@ -341,7 +341,7 @@ proxy: {
 ,
 { name: 'imageuploads_iduploads'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'framecolorasone'

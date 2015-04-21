@@ -34,9 +34,12 @@ Ext.JSON = new(function() {
         } else if (Ext.isArray(o)) {
             return encodeArray(o);
         } else if (Ext.isDate(o)) {
+            console.log("JSON encode Date.");
             return Ext.JSON.encodeDate(o);
         } else if (Ext.isString(o)) {
+             console.log("JSON encode String...");
             if (Ext.isMSDate(o)) {
+             console.log("JSON encode String...as MSDate");
                return encodeMSDate(o);
             } else {
                 return encodeString(o);

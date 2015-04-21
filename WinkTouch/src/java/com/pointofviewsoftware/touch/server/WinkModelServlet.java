@@ -148,7 +148,15 @@ public class WinkModelServlet extends HttpServlet {
                             }
                         }
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.INT) {
-                        out.println(model.getInt(fieldName));
+                        if (model.getInt(fieldName) == 0) {
+                            if (model.isFK(fieldName) || model.getKeyFieldName().equalsIgnoreCase(fieldName)) {
+                                out.println("null");
+                            } else {
+                                out.println("0");
+                            }
+                        } else {
+                            out.println(model.getInt(fieldName));
+                        }
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.STRING) {
                         if (model.isNull(fieldName)) {
                             out.println("''");
@@ -157,7 +165,15 @@ public class WinkModelServlet extends HttpServlet {
                         }
 
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.LONG) {
-                        out.println(model.getLong(fieldName));
+                        if (model.getLong(fieldName) == 0) {
+                            if (model.isFK(fieldName) || model.getKeyFieldName().equalsIgnoreCase(fieldName)) {
+                                out.println("null");
+                            } else {
+                                out.println("0");
+                            }
+                        } else {
+                            out.println(model.getLong(fieldName));
+                        }
 
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.BOOLEAN) {
 
@@ -262,13 +278,13 @@ public class WinkModelServlet extends HttpServlet {
                                     }
 
                                     String foreignTable_foreinkKeyName = foreignMapping.getRestFieldName(fkModel, fkFieldName);
-                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase()+"s_"+foreignTable_foreinkKeyName;
+                                    String restFieldName = foreignMapping.getTouchModelName().toLowerCase() + "s_" + foreignTable_foreinkKeyName;
 
                                     out.println("            {\n"
                                             + "                model: 'WINK.model." + foreignMapping.getTouchModelName() + "',\n"
                                             + "                name: '" + restFieldName + "',\n"
                                             + "                foreignKey: '" + foreignTable_foreinkKeyName + "',\n"
-                                            + "                associationKey: '"+restFieldName+"',\n"
+                                            + "                associationKey: '" + restFieldName + "',\n"
                                             + "                primaryKey: 'id'\n"
                                             + "            }\n");
                                     isFirst = false;

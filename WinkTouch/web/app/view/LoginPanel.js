@@ -63,7 +63,6 @@ Ext.define('WINK.view.LoginPanel', {
                         xtype: 'fieldset',
                         centered: true,
                         height: 212,
-                        id: 'LogInFieldSet',
                         width: 550,
                         instructions: '',
                         title: '',

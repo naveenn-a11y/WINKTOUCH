@@ -21,22 +21,22 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'product_idproduct'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'store_idstore'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'taxcode_idtaxcode'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'retailpricefrom'
@@ -51,17 +51,17 @@ proxy: {
 ,
 { name: 'finishedlensavaillibility_idfinishedlensavaillibility'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'contactlensavaillibility_idcontactlensavaillibility'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'lenstreatment_idlenstreatment'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'hasextras'
@@ -71,7 +71,7 @@ proxy: {
 ,
 { name: 'lensmaterial_idlensmaterial'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'taxincluded'

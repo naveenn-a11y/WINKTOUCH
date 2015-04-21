@@ -21,7 +21,7 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'type'
@@ -196,7 +196,7 @@ proxy: {
 ,
 { name: 'googlecalendaruploads_iduploads'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'reference1'
@@ -226,7 +226,7 @@ proxy: {
 ,
 { name: 'country_idcountry'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'locale_fr'

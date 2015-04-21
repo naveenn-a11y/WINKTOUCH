@@ -21,22 +21,22 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'patient_idpatient'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'user_iduser'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'uploads_iduploads'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'note'
@@ -46,7 +46,7 @@ proxy: {
 ,
 { name: 'postedon'
 , type:'date'
- ,defaultValue: new Date(2015,3,16,19,44,55)
+ ,defaultValue: new Date(2015,3,21,4,43,25)
 }
 ,
 { name: 'version'

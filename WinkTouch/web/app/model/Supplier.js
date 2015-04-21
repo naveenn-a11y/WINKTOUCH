@@ -21,7 +21,7 @@ proxy: {
 
 { name: 'id'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'povonlineid'
@@ -131,7 +131,7 @@ proxy: {
 ,
 { name: 'country_idcountry'
 , type:'int'
- ,defaultValue: 0
+ ,defaultValue: null
 }
 ,
 { name: 'isinsuranceprovider'
