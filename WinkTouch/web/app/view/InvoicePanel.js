@@ -427,7 +427,7 @@ Ext.define('WINK.view.InvoicePanel', {
         retailDetailsStore.each(function(retail, index, length) {
             console.log('lookgin for retail price:' + retail.get('store_idstore') + " " + retail.get('retailpriceto'));
 
-            if ((retail.get('store_idstore') === 0) || (retail.get('store_idstore') === idStore))
+            if ((retail.get('store_idstore') == null)|| (retail.get('store_idstore') === 0) || (retail.get('store_idstore') === idStore))
             {
                 prd = retail;
                 if (retail.get('store_idstore') === idStore) {
