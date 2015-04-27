@@ -657,7 +657,6 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.viewport.WP"
   ],
   "WINK.Utilities": [],
-  "WINK.controller.FavoriteButtonController": [],
   "WINK.controller.LockScreenController": [],
   "WINK.controller.LoginController": [],
   "WINK.controller.MenuController": [],
@@ -666,10 +665,12 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.model.Appointment": [],
   "WINK.model.AppointmentType": [],
   "WINK.model.Barcode": [],
+  "WINK.model.BarcodeResponse": [],
   "WINK.model.Country": [],
   "WINK.model.CountrySubdivision": [],
   "WINK.model.InvoiceAttachement": [],
   "WINK.model.JobStatus": [],
+  "WINK.model.JobStatusWrapper": [],
   "WINK.model.Patient": [],
   "WINK.model.PatientHistoryTree": [],
   "WINK.model.PatientInvoice": [],
@@ -679,6 +680,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.model.PatientPayment": [],
   "WINK.model.PaymentMethod": [],
   "WINK.model.Product": [],
+  "WINK.model.ProductBrowseModel": [],
   "WINK.model.ProductCategory": [],
   "WINK.model.ProductRetailDetail": [],
   "WINK.model.Store": [],
@@ -687,19 +689,27 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.model.TaxCodeEffectiveDate": [],
   "WINK.model.Upload": [],
   "WINK.model.User": [],
+  "WINK.store.BarcodeResponseStore": [],
   "WINK.store.CountryStore": [],
   "WINK.store.CountrySubdivisionStore": [],
+  "WINK.store.JobStatusStore": [],
   "WINK.store.LocationStore": [],
   "WINK.store.PatientHistoryStore": [],
   "WINK.store.PatientStore": [],
+  "WINK.store.PaymentMethodStore": [],
+  "WINK.store.ProductStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
+  "WINK.view.AddPaymentPanel": [],
   "WINK.view.DatePickerToolbar": [],
   "WINK.view.FindPatientPanel": [],
   "WINK.view.InputPrescriptionPanel": [],
+  "WINK.view.IntField": [],
   "WINK.view.InvoiceItemPanel": [],
   "WINK.view.InvoicePanel": [],
+  "WINK.view.InvoicePaymentPanel": [],
   "WINK.view.InvoiceSummary": [],
+  "WINK.view.JobStatusPanel": [],
   "WINK.view.LoginPanel": [],
   "WINK.view.Main": [],
   "WINK.view.MainAppPanel": [],
@@ -710,9 +720,11 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.view.PatientHistoryPanel": [],
   "WINK.view.PatientPanel": [],
   "WINK.view.PatientTabPanel": [],
+  "WINK.view.PhoneField": [],
   "WINK.view.PleaseWaitPanel": [],
   "WINK.view.PowerSelectField": [],
   "WINK.view.PrescriptionContainer": [],
+  "WINK.view.PriceField": [],
   "WINK.view.ProductSearchResultsPanel": [],
   "WINK.view.QuickProductSelectionPanel": [],
   "WINK.view.RxWorksheetPanel": []
@@ -1437,7 +1449,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.viewport.Viewport": [],
   "Ext.viewport.WindowsPhone": [],
   "WINK.Utilities": [],
-  "WINK.controller.FavoriteButtonController": [],
   "WINK.controller.LockScreenController": [],
   "WINK.controller.LoginController": [],
   "WINK.controller.MenuController": [],
@@ -1446,10 +1457,12 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.model.Appointment": [],
   "WINK.model.AppointmentType": [],
   "WINK.model.Barcode": [],
+  "WINK.model.BarcodeResponse": [],
   "WINK.model.Country": [],
   "WINK.model.CountrySubdivision": [],
   "WINK.model.InvoiceAttachement": [],
   "WINK.model.JobStatus": [],
+  "WINK.model.JobStatusWrapper": [],
   "WINK.model.Patient": [],
   "WINK.model.PatientHistoryTree": [],
   "WINK.model.PatientInvoice": [],
@@ -1459,6 +1472,7 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.model.PatientPayment": [],
   "WINK.model.PaymentMethod": [],
   "WINK.model.Product": [],
+  "WINK.model.ProductBrowseModel": [],
   "WINK.model.ProductCategory": [],
   "WINK.model.ProductRetailDetail": [],
   "WINK.model.Store": [],
@@ -1467,13 +1481,20 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.model.TaxCodeEffectiveDate": [],
   "WINK.model.Upload": [],
   "WINK.model.User": [],
+  "WINK.store.BarcodeResponseStore": [],
   "WINK.store.CountryStore": [],
   "WINK.store.CountrySubdivisionStore": [],
+  "WINK.store.JobStatusStore": [],
   "WINK.store.LocationStore": [],
   "WINK.store.PatientHistoryStore": [],
   "WINK.store.PatientStore": [],
+  "WINK.store.PaymentMethodStore": [],
+  "WINK.store.ProductStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
+  "WINK.view.AddPaymentPanel": [
+    "widget.addpaymentpanel"
+  ],
   "WINK.view.DatePickerToolbar": [
     "widget.datepickertoolbar"
   ],
@@ -1481,14 +1502,23 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.FindPatientPanel"
   ],
   "WINK.view.InputPrescriptionPanel": [],
+  "WINK.view.IntField": [
+    "widget.intfield"
+  ],
   "WINK.view.InvoiceItemPanel": [
-    "widget.mycontainer10"
+    "widget.invoiceitempanel"
   ],
   "WINK.view.InvoicePanel": [
     "widget.InvoicePanel"
   ],
+  "WINK.view.InvoicePaymentPanel": [
+    "widget.invoicepaymentpanel"
+  ],
   "WINK.view.InvoiceSummary": [
     "widget.InvoiceSummary"
+  ],
+  "WINK.view.JobStatusPanel": [
+    "widget.jobstatuspanel"
   ],
   "WINK.view.LoginPanel": [
     "widget.LoginPanel"
@@ -1516,6 +1546,9 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.view.PatientTabPanel": [
     "widget.PatientTabPanel"
   ],
+  "WINK.view.PhoneField": [
+    "widget.phonefield"
+  ],
   "WINK.view.PleaseWaitPanel": [
     "widget.PleaseWaitPanel"
   ],
@@ -1523,7 +1556,12 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.powerselectfield"
   ],
   "WINK.view.PrescriptionContainer": [],
-  "WINK.view.ProductSearchResultsPanel": [],
+  "WINK.view.PriceField": [
+    "widget.pricefield"
+  ],
+  "WINK.view.ProductSearchResultsPanel": [
+    "widget.productsearchresultspanel"
+  ],
   "WINK.view.QuickProductSelectionPanel": [],
   "WINK.view.RxWorksheetPanel": []
 });

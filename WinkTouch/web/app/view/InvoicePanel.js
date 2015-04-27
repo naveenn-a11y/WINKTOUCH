@@ -127,8 +127,8 @@ Ext.define('WINK.view.InvoicePanel', {
         this.updateSummary();
         this.save();
     },
-    delete: function() {
-
+    deleteInvoice: function() {
+        alert('not implemented');
     },
     email: function() {
         this.save();
@@ -427,7 +427,7 @@ Ext.define('WINK.view.InvoicePanel', {
         retailDetailsStore.each(function(retail, index, length) {
             console.log('lookgin for retail price:' + retail.get('store_idstore') + " " + retail.get('retailpriceto'));
 
-            if ((retail.get('store_idstore') == null)|| (retail.get('store_idstore') === 0) || (retail.get('store_idstore') === idStore))
+            if ((retail.get('store_idstore') == null) || (retail.get('store_idstore') === 0) || (retail.get('store_idstore') === idStore))
             {
                 prd = retail;
                 if (retail.get('store_idstore') === idStore) {
@@ -611,9 +611,9 @@ Ext.define('WINK.view.InvoicePanel', {
         }
     },
     browseProducts: function() {
-      
-            this.getSearchProductsContainer().browse();
-        
+
+        this.getSearchProductsContainer().browse();
+
     },
     config: {
         layout: 'hbox',
@@ -747,7 +747,27 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 items: [
                                                     {
                                                         xtype: 'button',
-                                                        text: 'Camera'
+                                                        text: 'Camera',
+                                                        handler: function() {
+                                                            function success(image_uri) {
+                                                                /* var img = Ext.ComponentQuery.query("image")[0];
+                                                                 img.setSrc(image_uri);*/
+
+                                                                alert("Success: " + image_uri);
+                                                            }
+
+                                                            function fail(message) {
+                                                                alert("Failed: " + message);
+                                                            }
+                                                            navigator.camera.getPicture(success, fail,
+                                                                    {
+                                                                        quality: 50,
+                                                                        destinationType: navigator.camera.DestinationType.FILE_URI,
+                                                                        sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+                                                                    }
+                                                            );
+                                                        }
+
                                                     },
                                                     {
                                                         xtype: 'button',
