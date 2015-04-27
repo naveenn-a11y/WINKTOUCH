@@ -134,5 +134,36 @@
      * Uniquely generated id for this application, used as prefix for localStorage keys.
      * Normally you should never change this value.
      */
-    "id": "8fa743c3-3605-4bd6-ad54-19aa9bf5caa1"
+    "id": "8fa743c3-3605-4bd6-ad54-19aa9bf5caa1",
+    
+     "builds": {
+        "ios": { //build name
+            "packager": "phonegap",
+            "phonegap": {
+                "config": {
+                    // Uncomment the line below and add the platform you wish to build for
+                    "platform": "ios",
+
+                    "remote": false,
+                    "id": "com.downloadwink.WINK",
+                    "name": "WINK"
+                }
+            }
+        },
+         "android": { //build name
+            "packager": "phonegap",
+            "phonegap": {
+                "config": {
+                    // Uncomment the line below and add the platform you wish to build for
+                    "platform": "android",
+
+                    "remote": false,
+                    "id": "com.downloadwink.WINK",
+                    "name": "WINK"
+                }
+            }
+        }
+    }
+    
 }
+

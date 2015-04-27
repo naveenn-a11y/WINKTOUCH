@@ -350,7 +350,7 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 width: 90,
                                 text: 'Delete',
                                 handler: function(btn) {
-                                    btn.up('InvoicePanel').delete();
+                                    btn.up('InvoicePanel').deleteInvoice();
                                 }
                             }
                         ]
