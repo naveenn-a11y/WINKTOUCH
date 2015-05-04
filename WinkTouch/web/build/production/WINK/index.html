@@ -1,56 +1,80 @@
 <!DOCTYPE HTML>
 <html manifest="cache.appcache" lang="en-US">
-<head>
-    <meta charset="UTF-8">
-    <title>WINK</title>
-    <style type="text/css">
-         /**
-         * Example of an initial loading indicator.
-         * It is recommended to keep this as minimal as possible to provide instant feedback
-         * while other resources are still being loaded for the first time
-         */
-        html, body {
-            height: 100%;
-            background-color: #1985D0
-        }
-
-        #appLoadingIndicator {
-            position: absolute;
-            top: 50%;
-            margin-top: -15px;
-            text-align: center;
-            width: 100%;
-            height: 30px;
-            -webkit-animation-name: appLoadingIndicator;
-            -webkit-animation-duration: 0.5s;
-            -webkit-animation-iteration-count: infinite;
-            -webkit-animation-direction: linear;
-        }
-
-        #appLoadingIndicator > * {
-            background-color: #FFFFFF;
-            display: inline-block;
-            height: 30px;
-            -webkit-border-radius: 15px;
-            margin: 0 5px;
-            width: 30px;
-            opacity: 0.8;
-        }
-
-        @-webkit-keyframes appLoadingIndicator{
-            0% {
-                opacity: 0.8
+    <head>
+        <meta charset="UTF-8">
+        <title>WINK</title>
+        <style type="text/css">
+            /**
+            * Example of an initial loading indicator.
+            * It is recommended to keep this as minimal as possible to provide instant feedback
+            * while other resources are still being loaded for the first time
+            */
+            html, body {
+                height: 100%;
+                background-color: #1985D0
             }
-            50% {
-                opacity: 0
+
+            #appLoadingIndicator {
+                position: absolute;
+                top: 50%;
+                margin-top: -15px;
+                text-align: center;
+                width: 100%;
+                height: 30px;
+                -webkit-animation-name: appLoadingIndicator;
+                -webkit-animation-duration: 0.5s;
+                -webkit-animation-iteration-count: infinite;
+                -webkit-animation-direction: linear;
             }
-            100% {
-                opacity: 0.8
+
+            #appLoadingIndicator > * {
+                background-color: #FFFFFF;
+                display: inline-block;
+                height: 30px;
+                -webkit-border-radius: 15px;
+                margin: 0 5px;
+                width: 30px;
+                opacity: 0.8;
             }
-        }
-    </style>
-    <!-- The line below must be kept intact for Sencha Command to build your application -->
-    <script type="text/javascript">(function(k){function t(b){function c(a,b){var f=a.length,j,d;for(j=0;j<f;j++){d=a[j];var c=a,e=j,q=void 0;"string"==typeof d&&(d={path:d});d.shared?(d.version=d.shared,q=d.shared+d.path):(G.href=d.path,q=G.href);d.uri=q;d.key=g+"-"+q;h[q]=d;c[e]=d;d.type=b;d.index=j;d.collection=a;d.ready=!1;d.evaluated=!1}return a}var f;"string"==typeof b?(f=b,b=H(f)):f=JSON.stringify(b);var g=b.id,e=g+"-"+I+r,h={};this.key=e;this.css=c(b.css,"css");this.js=c(b.js,"js");l.microloaded=!0;var n=window.Ext.filterPlatform=
+
+            @-webkit-keyframes appLoadingIndicator{
+                0% {
+                    opacity: 0.8
+                }
+                50% {
+                    opacity: 0
+                }
+                100% {
+                    opacity: 0.8
+                }
+            }
+        </style>
+        <!-- The line below must be kept intact for Sencha Command to build your application -->
+        <script type="text/javascript">
+            window.onerror = function(msg, url, line, col, error) {
+                // Note that col & error are new to the HTML 5 spec and may not be 
+                // supported in every browser.  It worked for me in Chrome.
+                var extra = !col ? '' : '\ncolumn: ' + col;
+                extra += !error ? '' : '\nerror: ' + error;
+
+                // You can view the information in an alert to see things working like this:
+                alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
+
+                // TODO: Report this error via ajax so you can keep track
+                //       of what pages have JS issues
+
+                var suppressErrorAlert = true;
+                // If you return true, then error alerts (like in older versions of 
+                // Internet Explorer) will be suppressed.
+                return suppressErrorAlert;
+            }
+            ;
+        </script>
+         <script src="phonegap.js"></script>
+          <script src="http://localhost/phonegap.js"></script>
+          <script src="http://localhost:8080/phonegap.js"></script>
+          <script src="http://localhost:3000/phonegap.js"></script>
+        <script type="text/javascript">(function(k){function t(b){function c(a,b){var f=a.length,j,d;for(j=0;j<f;j++){d=a[j];var c=a,e=j,q=void 0;"string"==typeof d&&(d={path:d});d.shared?(d.version=d.shared,q=d.shared+d.path):(G.href=d.path,q=G.href);d.uri=q;d.key=g+"-"+q;h[q]=d;c[e]=d;d.type=b;d.index=j;d.collection=a;d.ready=!1;d.evaluated=!1}return a}var f;"string"==typeof b?(f=b,b=H(f)):f=JSON.stringify(b);var g=b.id,e=g+"-"+I+r,h={};this.key=e;this.css=c(b.css,"css");this.js=c(b.js,"js");l.microloaded=!0;var n=window.Ext.filterPlatform=
 function(a){function b(a){var d=/Mobile(\/|\s)/.test(a);return/(iPhone|iPod)/.test(a)||!/(Silk)/.test(a)&&/(Android)/.test(a)&&(/(Android 2)/.test(a)||d)||/(BlackBerry|BB)/.test(a)&&d||/(Windows Phone)/.test(a)}function f(a){return!b(a)&&(/iPad/.test(a)||/Android|Silk/.test(a)||/(RIM Tablet OS)/.test(a)||/MSIE 10/.test(a)&&/; Touch/.test(a))}var j=!1,d=navigator.userAgent,c,h;a=[].concat(a);c=window.location.search.substr(1).split("\x26");h={};var g;for(g=0;g<c.length;g++){var e=c[g].split("\x3d");
 h[e[0]]=e[1]}if(c=h.platform)return-1!=a.indexOf(c);c=0;for(h=a.length;c<h;c++){switch(a[c]){case "phone":j=b(d);break;case "tablet":j=f(d);break;case "desktop":j=!b(d)&&!f(d);break;case "ios":j=/(iPad|iPhone|iPod)/.test(d);break;case "android":j=/(Android|Silk)/.test(d);break;case "blackberry":j=/(BlackBerry|BB)/.test(d);break;case "safari":j=/Safari/.test(d)&&!/(BlackBerry|BB)/.test(d);break;case "chrome":j=/Chrome/.test(d);break;case "ie10":j=/MSIE 10/.test(d);break;case "windows":j=/MSIE 10/.test(d)||
 /Trident/.test(d);break;case "tizen":j=/Tizen/.test(d);break;case "firefox":j=/Firefox/.test(d)}if(j)return!0}return!1};this.css=this.css.filter(function(a){var b=a.platform,c=a.exclude;a.type="css";if(b){if(n(b)&&!n(c))return l.theme||(l.theme={}),l.theme.name||(l.theme.name=a.theme||"Default"),!0;a.filtered=!0;return!1}return!0});this.js=this.js.filter(function(a){var b=a.platform,c=a.exclude;a.type="js";return b&&(!n(b)||n(c))?(a.filtered=!0,!1):!0});this.assets=this.css.concat(this.js);this.getAsset=
@@ -65,12 +89,12 @@ g+f[++h])):b.push(g);d=b.join("")}j(c,d)}catch(l){C("Malformed delta content rec
 A(a.key,b);c(a,b)},function(){c(a,"")}):c(a,b)})}function O(b){if(navigator.userAgent.match(/IEMobile\/10\.0/)){var c=document.createElement("style");c.appendChild(document.createTextNode("@media screen and (orientation: portrait) {@-ms-viewport {width: 320px !important;}}@media screen and (orientation: landscape) {@-ms-viewport {width: 560px !important;}}"));document.getElementsByTagName("head")[0].appendChild(c)}c=/MSIE 10/.test(navigator.userAgent)?/complete|loaded/:/interactive|complete|loaded/;
 null!==m.readyState.match(c)?E(b):F("DOMContentLoaded",function(){navigator.standalone?setTimeout(function(){setTimeout(function(){E(b)},1)},1):setTimeout(function(){E(b)},1)},!1)}var J=function(){},v=[],m=k.document,p=m.head||m.getElementsByTagName("head")[0],F=k.addEventListener,N=k.removeEventListener,H=JSON.parse,G=m.createElement("a"),y=m.location,I=y.protocol+"//"+y.hostname+y.pathname+y.search,r="app.json",L=!1,D,e,w;try{w=k.localStorage,e=k.applicationCache}catch(Q){}if("undefined"===typeof k.Ext)var l=
 k.Ext={};l.blink=function(b){var c=x(b.id+"-"+I+r);B("viewport","width\x3ddevice-width, initial-scale\x3d1.0, maximum-scale\x3d1.0, minimum-scale\x3d1.0, user-scalable\x3dno");B("apple-mobile-web-app-capable","yes");B("apple-touch-fullscreen","yes");c?(b=new t(c),O(b)):s(r,function(c){b=new t(c);b.store();O(b)})}})(this);Ext.blink({id:"8fa743c3-3605-4bd6-ad54-19aa9bf5caa1"});</script>
-</head>
-<body>
-    <div id="appLoadingIndicator">
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
-</body>
+    </head>
+    <body>
+        <div id="appLoadingIndicator">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </body>
 </html>

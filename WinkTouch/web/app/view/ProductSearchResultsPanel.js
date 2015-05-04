@@ -28,7 +28,10 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
             },
             proxy: {
                 type: 'ajax',
-                url: WINK.Utilities.getRestURL() + 'products/browse'
+                url: WINK.Utilities.getRestURL() + 'products/browse',
+                withCredentials: true,
+                useDefaultXhrHeader: false,
+                cors: true
             }
         });
         this.down('nestedlist[winkname=browseproduct]').setStore(s);
@@ -63,6 +66,8 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
             url: WINK.Utilities.getRestURL() + 'products/find/' + encodeURIComponent(query),
             method: 'GET',
             scope: this,
+            withCredentials: true,
+            useDefaultXhrHeader: false,
             success: function(response) {
 
                 console.log('product lookup success ' + response.responseText);

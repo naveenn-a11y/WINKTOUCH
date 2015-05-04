@@ -15,8 +15,10 @@ requires: [
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'patients'
-  },
+    url: WINK.Utilities.getRestURL() + 'patients',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true  },
         fields: [
 
 { name: 'id'
@@ -226,7 +228,7 @@ proxy: {
 ,
 { name: 'createddate'
 , type:'string'
- ,defaultValue: 1429605805158
+ ,defaultValue: 1430768867656
 }
 ,
 { name: 'lastpurchasedate'

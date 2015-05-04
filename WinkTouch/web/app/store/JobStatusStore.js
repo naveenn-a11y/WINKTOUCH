@@ -34,8 +34,9 @@ Ext.define('WINK.store.JobStatusStore', {
         ],
         proxy: {
             type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'jobstatuss/forpatientinvoice'
-
+            url: WINK.Utilities.getRestURL() + 'jobstatuss/forpatientinvoice',
+            withCredentials: true,
+            useDefaultXhrHeader: false
         },
         model: 'WINK.model.JobStatusWrapper',
         sorters: [

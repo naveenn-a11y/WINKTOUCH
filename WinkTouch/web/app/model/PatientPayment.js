@@ -15,8 +15,10 @@ requires: [
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'patientpayments'
-  },
+    url: WINK.Utilities.getRestURL() + 'patientpayments',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true  },
         fields: [
 
 { name: 'id'
@@ -41,7 +43,7 @@ proxy: {
 ,
 { name: 'date'
 , type:'date'
- ,defaultValue: new Date(2015,3,21,4,43,25)
+ ,defaultValue: new Date(2015,4,4,15,47,47)
 }
 ,
 { name: 'amount'

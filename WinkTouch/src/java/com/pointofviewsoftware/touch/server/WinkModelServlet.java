@@ -86,7 +86,10 @@ public class WinkModelServlet extends HttpServlet {
             if ((restURL != null) && (restURL.trim().length() > 0)) {
                 out.println("proxy: {\n"
                         + "    type: 'rest',\n"
-                        + "    url: WINK.Utilities.getRestURL() + '" + restURL + "'\n"
+                        + "    url: WINK.Utilities.getRestURL() + '" + restURL + "',\n"
+                        + "            withCredentials: true,\n"
+                        + "            useDefaultXhrHeader: false,\n"
+                        + "            cors: true"
                         + "  },");
             }
 

@@ -15,8 +15,10 @@ requires: [
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'countries/subdivision'
-  },
+    url: WINK.Utilities.getRestURL() + 'countries/subdivision',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true  },
         fields: [
 
 { name: 'id'
