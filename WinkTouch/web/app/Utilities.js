@@ -18,6 +18,9 @@ Ext.define('WINK.Utilities', {
                     return true;
             return false;
         },
+        getURLParameter: function(name) {
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null
+        },
         setDefaultValues: function(model) {
             if (model instanceof WINK.model.PatientInvoice) {
                 model.set('orderdate', new Date());
@@ -96,8 +99,11 @@ Ext.define('WINK.Utilities', {
                 callback();
         },
         getAccountId: function() {
-            //return 37;
-            return 57;
+            if (!this.accountid)
+                this.accountid = getURLParameter("accountid");
+
+
+            return this.accountid;
         },
         getRestURL: function() {
             return '/WinkRESTfull/webresources/';
