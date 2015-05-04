@@ -118,6 +118,12 @@ Ext.application({
                 return this.indexOf(str) === 0;
             };
         }
+        Ext.Ajax.cors = true;
+        Ext.Ajax.useDefaultXhrHeader =false;
+        Ext.Ajax.withCredentials =true;
+        Ext.data.proxy.Ajax.useDefaultXhrHeader=false;
+        Ext.data.proxy.Ajax.withCredentials=true;
+   
         Ext.data.validations.length = function(config, value) {
             var length = value ? value.length : 0,
                     min = config.min,
@@ -229,14 +235,6 @@ Ext.application({
     }
     ,
     onUpdated: function() {
-        Ext.Msg.confirm(
-                "Application Update",
-                "This application has just successfully been updated to the latest version. Reload now?",
-                function(buttonId) {
-                    if (buttonId === 'yes') {
-                        window.location.reload();
-                    }
-                }
-        );
+         window.location.reload();
     }
 });

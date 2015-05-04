@@ -25,7 +25,9 @@ Ext.define('WINK.store.TaxCodeStore', {
         model: 'WINK.model.TaxCode',
         proxy: {
             type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'taxcodes'
+            url: WINK.Utilities.getRestURL() + 'taxcodes',
+            withCredentials: true,
+            useDefaultXhrHeader: false
 
         },
         sorters: [

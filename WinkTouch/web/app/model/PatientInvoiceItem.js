@@ -15,8 +15,10 @@ requires: [
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'patientinvoiceitems'
-  },
+    url: WINK.Utilities.getRestURL() + 'patientinvoiceitems',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true  },
         fields: [
 
 { name: 'id'
@@ -167,6 +169,11 @@ proxy: {
 { name: 'datediscountposted'
 , type:'date'
  ,defaultValue: null
+}
+,
+{ name: 'isestimate'
+, type:'boolean'
+ ,defaultValue: false
 }
         ]
 

@@ -16,7 +16,7 @@
      * This value is needed when build to resolve your application's dependencies if it requires server-side resources
      * that are not accessible via file system protocol.
      */
-    "url": null,
+    "url": "http://pointofviewsoftware.com/winktouch/index.html",
 
     /**
      * List of all JavaScript assets in the right execution order.
@@ -134,36 +134,8 @@
      * Uniquely generated id for this application, used as prefix for localStorage keys.
      * Normally you should never change this value.
      */
-    "id": "8fa743c3-3605-4bd6-ad54-19aa9bf5caa1",
+    "id": "8fa743c3-3605-4bd6-ad54-19aa9bf5caa1"   
     
-     "builds": {
-        "ios": { //build name
-            "packager": "phonegap",
-            "phonegap": {
-                "config": {
-                    // Uncomment the line below and add the platform you wish to build for
-                    "platform": "ios",
-
-                    "remote": false,
-                    "id": "com.downloadwink.WINK",
-                    "name": "WINK"
-                }
-            }
-        },
-         "android": { //build name
-            "packager": "phonegap",
-            "phonegap": {
-                "config": {
-                    // Uncomment the line below and add the platform you wish to build for
-                    "platform": "android",
-
-                    "remote": false,
-                    "id": "com.downloadwink.WINK",
-                    "name": "WINK"
-                }
-            }
-        }
-    }
     
 }
 

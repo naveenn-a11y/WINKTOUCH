@@ -15,8 +15,10 @@ requires: [
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'stores'
-  },
+    url: WINK.Utilities.getRestURL() + 'stores',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true  },
         fields: [
 
 { name: 'id'
@@ -211,7 +213,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,3,21,0,0,0)
+ ,defaultValue: new Date(2015,4,4,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'

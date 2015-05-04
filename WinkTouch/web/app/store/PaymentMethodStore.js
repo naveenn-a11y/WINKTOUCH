@@ -15,24 +15,24 @@
 
 Ext.define('WINK.store.PaymentMethodStore', {
     extend: 'Ext.data.Store',
-
     requires: [
         'WINK.model.PaymentMethod'
     ],
-
     config: {
         data: [],
         model: 'WINK.model.PaymentMethod',
         proxy: {
             type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'paymentmethods'         
+            url: WINK.Utilities.getRestURL() + 'paymentmethods',
+            withCredentials: true,
+            useDefaultXhrHeader: false
         },
         sorters: [
             {
                 property: "name",
                 direction: "ASC"
             }
-        ]  
+        ]
 
     }
 });

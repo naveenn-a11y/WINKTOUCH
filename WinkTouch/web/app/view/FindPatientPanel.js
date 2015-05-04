@@ -189,12 +189,15 @@ Ext.define('WINK.view.FindPatientPanel', {
             url: WINK.Utilities.getRestURL() + 'patients/find',
             method: 'GET',
             form: 'FindPatientForm',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true,
             params: {
                 'limit': 100
             },
             success: function(response) {
                 //console.log(response.responseText);
-                FindPatientPanelThis.down('list').getStore().loadData(Ext.JSON.decode(response.responseText), false);
+                FindPatientPanelThis.down('list').getStore().setData(Ext.JSON.decode(response.responseText));
                 WINK.Utilities.hideWorking();
             },
             failure: function(response) {

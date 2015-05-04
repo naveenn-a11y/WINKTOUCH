@@ -15,8 +15,10 @@ requires: [
 
 proxy: {
     type: 'rest',
-    url: WINK.Utilities.getRestURL() + 'suppliers'
-  },
+    url: WINK.Utilities.getRestURL() + 'suppliers',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true  },
         fields: [
 
 { name: 'id'
@@ -172,6 +174,16 @@ proxy: {
 { name: 'reference2'
 , type:'string'
  ,defaultValue: ''
+}
+,
+{ name: 'iscontactlenssupplier'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'isframesupplier'
+, type:'boolean'
+ ,defaultValue: false
 }
         ]
 

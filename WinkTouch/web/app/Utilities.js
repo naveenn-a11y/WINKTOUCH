@@ -51,6 +51,8 @@ Ext.define('WINK.Utilities', {
                     scope: this,
                     url: WINK.Utilities.getRestURL() + 'users/me',
                     method: 'GET',
+                    withCredentials: true,
+                    useDefaultXhrHeader: false,
                     success: function(response) {
                         WINK.Utilities.loginSuccess(response);
                         WINK.Utilities.loadAllRequiredStores(callback);
@@ -99,14 +101,14 @@ Ext.define('WINK.Utilities', {
                 callback();
         },
         getAccountId: function() {
-            if (!this.accountid)
-                this.accountid = getURLParameter("accountid");
+            if (!WINK.Utilities.accountid)
+                WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
 
 
-            return this.accountid;
+            return WINK.Utilities.accountid;
         },
         getRestURL: function() {
-            return '/WinkRESTfull/webresources/';
+            return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
         },
         showWorking: function() {
             Ext.getCmp('PleaseWait').show({type: 'slide', direction: 'down'});

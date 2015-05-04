@@ -1,5 +1,14 @@
-.bda5abf297f4f792abe9307d3d55124f0fea69f7{display:block;}@import url('http://fonts.googleapis.com/css?family=Open+Sans');
-
+.65841b2a37856951dabcec07f3cbe82675a2aa62{display:block;}@import url('http://fonts.googleapis.com/css?family=Open+Sans');
+.productListDataViewContainer{
+    background-color: white !important;
+    
+}
+.productListDataView{
+    float: left;
+    width: 75px;
+    height: 100px;
+    
+}
 .mainMenuButton:active{
     border: 1px solid #ddd !important;
      background: #434e5d !important;
@@ -36,7 +45,13 @@
 .x-panel-inner{
     border-radius:0.0em !important;
 }
+.x-form{
+    border-radius:0.0em !important;
+}
 
+.x-form-inner{
+    border-radius:0.0em !important;
+}
 .inputBorder{
     
     border-style: solid !important;

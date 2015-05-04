@@ -56,7 +56,7 @@ Ext.define('WINK.view.PatientPanel', {
         var mainSubdivisionStore = Ext.getStore('CountrySubdivisionStore');
         mainSubdivisionStore.clearFilter();
         console.log("number of provinces in main store" + mainSubdivisionStore.getData().length);
-        subdivisionStore.loadData(mainSubdivisionStore.getRange(), false);
+        subdivisionStore.setData(mainSubdivisionStore.getRange());
 
         return subdivisionStore;
     },

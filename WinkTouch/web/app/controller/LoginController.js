@@ -71,6 +71,10 @@ Ext.define('WINK.controller.LoginController', {
             scope: this,
             url: WINK.Utilities.getRestURL() + 'users/me',
             method: 'GET',
+            
+                    crossDomain: true,
+                        withCredentials : true,
+    useDefaultXhrHeader: false,
             headers: {
                 'wink-username': loginPanel.getUsername(),
                 'wink-password': loginPanel.getPassword(),

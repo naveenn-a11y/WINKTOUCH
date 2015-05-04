@@ -1,4 +1,4 @@
-function _5af61ef0304ad41936f170fbc8800c68f8741195(){};//@tag foundation,core
+function _71d0ee44391be268e39d798f6ff6755641821803(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -3214,9 +3214,12 @@ Ext.JSON = new (function() {
             } else if (Ext.isArray(o)) {
                 return encodeArray(o);
             } else if (Ext.isDate(o)) {
+                console.log("JSON encode Date.");
                 return Ext.JSON.encodeDate(o);
             } else if (Ext.isString(o)) {
+                console.log("JSON encode String...");
                 if (Ext.isMSDate(o)) {
+                    console.log("JSON encode String...as MSDate");
                     return encodeMSDate(o);
                 } else {
                     return encodeString(o);
@@ -50493,6 +50496,229 @@ Ext.define('Ext.data.ArrayStore', {
 // Ext.reg('simplestore', Ext.data.SimpleStore);
 
 /**
+ * Ext.Direct aims to streamline communication between the client and server by providing a single interface that
+ * reduces the amount of common code typically required to validate data and handle returned data packets (reading data,
+ * error conditions, etc).
+ *
+ * The Ext.direct namespace includes several classes for a closer integration with the server-side. The Ext.data
+ * namespace also includes classes for working with Ext.data.Stores which are backed by data from an Ext.Direct method.
+ *
+ * # Specification
+ *
+ * For additional information consult the [Ext.Direct Specification](http://sencha.com/products/extjs/extdirect).
+ *
+ * # Providers
+ *
+ * Ext.Direct uses a provider architecture, where one or more providers are used to transport data to and from the
+ * server. There are several providers that exist in the core at the moment:
+ *
+ * - {@link Ext.direct.JsonProvider JsonProvider} for simple JSON operations
+ * - {@link Ext.direct.PollingProvider PollingProvider} for repeated requests
+ * - {@link Ext.direct.RemotingProvider RemotingProvider} exposes server side on the client.
+ *
+ * A provider does not need to be invoked directly, providers are added via {@link Ext.direct.Manager}.{@link #addProvider}.
+ *
+ * # Router
+ *
+ * Ext.Direct utilizes a "router" on the server to direct requests from the client to the appropriate server-side
+ * method. Because the Ext.Direct API is completely platform-agnostic, you could completely swap out a Java based server
+ * solution and replace it with one that uses C# without changing the client side JavaScript at all.
+ *
+ * # Server side events
+ *
+ * Custom events from the server may be handled by the client by adding listeners, for example:
+ *
+ *     {"type":"event","name":"message","data":"Successfully polled at: 11:19:30 am"}
+ *
+ *     // add a handler for a 'message' event sent by the server
+ *     Ext.direct.Manager.on('message', function(e){
+ *         out.append(String.format('<p><i>{0}</i></p>', e.data));
+ *         out.el.scrollTo('t', 100000, true);
+ *     });
+ *
+ * @singleton
+ * @alternateClassName Ext.Direct
+ */
+Ext.define('Ext.direct.Manager', {
+    singleton: true,
+    mixins: {
+        observable: Ext.mixin.Observable
+    },
+    alternateClassName: 'Ext.Direct',
+    exceptions: {
+        TRANSPORT: 'xhr',
+        PARSE: 'parse',
+        LOGIN: 'login',
+        SERVER: 'exception'
+    },
+    /**
+     * @event event
+     * Fires after an event.
+     * @param {Ext.direct.Event} e The Ext.direct.Event type that occurred.
+     * @param {Ext.direct.Provider} provider The {@link Ext.direct.Provider Provider}.
+     */
+    /**
+     * @event exception
+     * Fires after an event exception.
+     * @param {Ext.direct.Event} e The event type that occurred.
+     */
+    constructor: function() {
+        var me = this;
+        me.transactions = Ext.create('Ext.util.Collection', this.getKey);
+        me.providers = Ext.create('Ext.util.Collection', this.getKey);
+    },
+    getKey: function(item) {
+        return item.getId();
+    },
+    /**
+     * Adds an Ext.Direct Provider and creates the proxy or stub methods to execute server-side methods. If the provider
+     * is not already connected, it will auto-connect.
+     *
+     *     Ext.direct.Manager.addProvider({
+     *         type: "remoting",       // create a {@link Ext.direct.RemotingProvider}
+     *         url: "php/router.php", // url to connect to the Ext.Direct server-side router.
+     *         actions: {              // each property within the actions object represents a Class
+     *             TestAction: [       // array of methods within each server side Class
+     *             {
+     *                 name: "doEcho", // name of method
+     *                 len: 1
+     *             },{
+     *                 name: "multiply",
+     *                 len: 1
+     *             },{
+     *                 name: "doForm",
+     *                 formHandler: true,  // handle form on server with Ext.Direct.Transaction
+     *                 len: 1
+     *             }]
+     *         },
+     *         namespace: "myApplication" // namespace to create the Remoting Provider in
+     *     });
+     *
+     * @param {Ext.direct.Provider/Object...} provider
+     * Accepts any number of Provider descriptions (an instance or config object for
+     * a Provider). Each Provider description instructs Ext.Direct how to create
+     * client-side stub methods.
+     * @return {Object}
+     */
+    addProvider: function(provider) {
+        var me = this,
+            args = Ext.toArray(arguments),
+            i = 0,
+            ln;
+        if (args.length > 1) {
+            for (ln = args.length; i < ln; ++i) {
+                me.addProvider(args[i]);
+            }
+            return;
+        }
+        // if provider has not already been instantiated
+        if (!provider.isProvider) {
+            provider = Ext.create('direct.' + provider.type + 'provider', provider);
+        }
+        me.providers.add(provider);
+        provider.on('data', me.onProviderData, me);
+        if (!provider.isConnected()) {
+            provider.connect();
+        }
+        return provider;
+    },
+    /**
+     * Retrieves a {@link Ext.direct.Provider provider} by the **{@link Ext.direct.Provider#id id}** specified when the
+     * provider is {@link #addProvider added}.
+     * @param {String/Ext.direct.Provider} id The id of the provider, or the provider instance.
+     * @return {Object}
+     */
+    getProvider: function(id) {
+        return id.isProvider ? id : this.providers.get(id);
+    },
+    /**
+     * Removes the provider.
+     * @param {String/Ext.direct.Provider} provider The provider instance or the id of the provider.
+     * @return {Ext.direct.Provider/null} The provider, `null` if not found.
+     */
+    removeProvider: function(provider) {
+        var me = this,
+            providers = me.providers;
+        provider = provider.isProvider ? provider : providers.get(provider);
+        if (provider) {
+            provider.un('data', me.onProviderData, me);
+            providers.remove(provider);
+            return provider;
+        }
+        return null;
+    },
+    /**
+     * Adds a transaction to the manager.
+     * @private
+     * @param {Ext.direct.Transaction} transaction The transaction to add
+     * @return {Ext.direct.Transaction} transaction
+     */
+    addTransaction: function(transaction) {
+        this.transactions.add(transaction);
+        return transaction;
+    },
+    /**
+     * Removes a transaction from the manager.
+     * @private
+     * @param {String/Ext.direct.Transaction} transaction The transaction/id of transaction to remove
+     * @return {Ext.direct.Transaction} transaction
+     */
+    removeTransaction: function(transaction) {
+        transaction = this.getTransaction(transaction);
+        this.transactions.remove(transaction);
+        return transaction;
+    },
+    /**
+     * Gets a transaction
+     * @private
+     * @param {String/Ext.direct.Transaction} transaction The transaction/id of transaction to get
+     * @return {Ext.direct.Transaction}
+     */
+    getTransaction: function(transaction) {
+        return Ext.isObject(transaction) ? transaction : this.transactions.get(transaction);
+    },
+    onProviderData: function(provider, event) {
+        var me = this,
+            i = 0,
+            ln, name;
+        if (Ext.isArray(event)) {
+            for (ln = event.length; i < ln; ++i) {
+                me.onProviderData(provider, event[i]);
+            }
+            return;
+        }
+        name = event.getName();
+        if (name && name != 'event' && name != 'exception') {
+            me.fireEvent(name, event);
+        } else if (event.getStatus() === false) {
+            me.fireEvent('exception', event);
+        }
+        me.fireEvent('event', event, provider);
+    },
+    /**
+     * Parses a direct function. It may be passed in a string format, for example:
+     * "MyApp.Person.read".
+     * @protected
+     * @param {String/Function} fn The direct function
+     * @return {Function} The function to use in the direct call. Null if not found
+     */
+    parseMethod: function(fn) {
+        if (Ext.isString(fn)) {
+            var parts = fn.split('.'),
+                i = 0,
+                ln = parts.length,
+                current = window;
+            while (current && i < ln) {
+                current = current[parts[i]];
+                ++i;
+            }
+            fn = Ext.isFunction(current) ? current : null;
+        }
+        return fn || null;
+    }
+});
+
+/**
  * @class Ext.data.NodeInterface
  * This class is meant to be used as a set of methods that are applied to the prototype of a
  * Record to decorate it with a Node API. This means that models used in conjunction with a tree
@@ -52241,6 +52467,173 @@ Ext.define('Ext.data.Validations', {
      */
     exclusion: function(config, value) {
         return config.list && Ext.Array.indexOf(config.list, value) == -1;
+    }
+});
+
+/**
+ * @author Ed Spencer
+ * @aside guide proxies
+ *
+ * The Rest proxy is a specialization of the {@link Ext.data.proxy.Ajax AjaxProxy} which simply maps the four actions
+ * (create, read, update and destroy) to RESTful HTTP verbs. For example, let's set up a {@link Ext.data.Model Model}
+ * with an inline Rest proxy:
+ *
+ *     Ext.define('User', {
+ *         extend: 'Ext.data.Model',
+ *         config: {
+ *             fields: ['id', 'name', 'email'],
+ *
+ *             proxy: {
+ *                 type: 'rest',
+ *                 url : '/users'
+ *             }
+ *         }
+ *     });
+ *
+ * Now we can create a new User instance and save it via the Rest proxy. Doing this will cause the Proxy to send a POST
+ * request to '/users':
+ *
+ *     var user = Ext.create('User', {name: 'Ed Spencer', email: 'ed@sencha.com'});
+ *
+ *     user.save(); //POST /users
+ *
+ * Let's expand this a little and provide a callback for the {@link Ext.data.Model#save} call to update the Model once
+ * it has been created. We'll assume the creation went successfully and that the server gave this user an ID of 123:
+ *
+ *     user.save({
+ *         success: function(user) {
+ *             user.set('name', 'Khan Noonien Singh');
+ *
+ *             user.save(); //PUT /users/123
+ *         }
+ *     });
+ *
+ * Now that we're no longer creating a new Model instance, the request method is changed to an HTTP PUT, targeting the
+ * relevant url for that user. Now let's delete this user, which will use the DELETE method:
+ *
+ *         user.erase(); //DELETE /users/123
+ *
+ * Finally, when we perform a load of a Model or Store, Rest proxy will use the GET method:
+ *
+ *     //1. Load via Store
+ *
+ *     //the Store automatically picks up the Proxy from the User model
+ *     var store = Ext.create('Ext.data.Store', {
+ *         model: 'User'
+ *     });
+ *
+ *     store.load(); //GET /users
+ *
+ *     //2. Load directly from the Model
+ *
+ *     //GET /users/123
+ *     Ext.ModelManager.getModel('User').load(123, {
+ *         success: function(user) {
+ *             console.log(user.getId()); //outputs 123
+ *         }
+ *     });
+ *
+ * # Url generation
+ *
+ * The Rest proxy is able to automatically generate the urls above based on two configuration options - {@link #appendId} and
+ * {@link #format}. If appendId is true (it is by default) then Rest proxy will automatically append the ID of the Model
+ * instance in question to the configured url, resulting in the '/users/123' that we saw above.
+ *
+ * If the request is not for a specific Model instance (e.g. loading a Store), the url is not appended with an id.
+ * The Rest proxy will automatically insert a '/' before the ID if one is not already present.
+ *
+ *     new Ext.data.proxy.Rest({
+ *         url: '/users',
+ *         appendId: true //default
+ *     });
+ *
+ *     // Collection url: /users
+ *     // Instance url  : /users/123
+ *
+ * The Rest proxy can also optionally append a format string to the end of any generated url:
+ *
+ *     new Ext.data.proxy.Rest({
+ *         url: '/users',
+ *         format: 'json'
+ *     });
+ *
+ *     // Collection url: /users.json
+ *     // Instance url  : /users/123.json
+ *
+ * If further customization is needed, simply implement the {@link #buildUrl} method and add your custom generated url
+ * onto the {@link Ext.data.Request Request} object that is passed to buildUrl. See [Rest proxy's implementation][1] for
+ * an example of how to achieve this.
+ *
+ * Note that Rest proxy inherits from {@link Ext.data.proxy.Ajax AjaxProxy}, which already injects all of the sorter,
+ * filter, group and paging options into the generated url. See the {@link Ext.data.proxy.Ajax AjaxProxy docs} for more
+ * details.
+ *
+ * [1]: source/Rest.html#Ext-data-proxy-Rest-method-buildUrl
+ */
+Ext.define('Ext.data.proxy.Rest', {
+    extend: Ext.data.proxy.Ajax,
+    alternateClassName: 'Ext.data.RestProxy',
+    alias: 'proxy.rest',
+    config: {
+        /**
+         * @cfg {Boolean} appendId
+         * `true` to automatically append the ID of a Model instance when performing a request based on that single instance.
+         * See Rest proxy intro docs for more details.
+         */
+        appendId: true,
+        /**
+         * @cfg {String} format
+         * Optional data format to send to the server when making any request (e.g. 'json'). See the Rest proxy intro docs
+         * for full details.
+         */
+        format: null,
+        /**
+         * @cfg {Boolean} batchActions
+         * `true` to batch actions of a particular type when synchronizing the store.
+         */
+        batchActions: false,
+        actionMethods: {
+            create: 'POST',
+            read: 'GET',
+            update: 'PUT',
+            destroy: 'DELETE'
+        }
+    },
+    /**
+     * Specialized version of `buildUrl` that incorporates the {@link #appendId} and {@link #format} options into the
+     * generated url. Override this to provide further customizations, but remember to call the superclass `buildUrl` so
+     * that additional parameters like the cache buster string are appended.
+     * @param {Object} request
+     * @return {Object}
+     */
+    buildUrl: function(request) {
+        var me = this,
+            operation = request.getOperation(),
+            records = operation.getRecords() || [],
+            record = records[0],
+            model = me.getModel(),
+            idProperty = model.getIdProperty(),
+            format = me.getFormat(),
+            url = me.getUrl(request),
+            params = request.getParams() || {},
+            id = (record && !record.phantom) ? record.getId() : params[idProperty];
+        if (me.getAppendId() && id) {
+            if (!url.match(/\/$/)) {
+                url += '/';
+            }
+            url += id;
+            delete params[idProperty];
+        }
+        if (format) {
+            if (!url.match(/\.$/)) {
+                url += '.';
+            }
+            url += format;
+        }
+        request.setUrl(url);
+        return me.callParent([
+            request
+        ]);
     }
 });
 
@@ -60589,6 +60982,337 @@ Ext.define('Ext.event.recognizer.Tap', {
 });
 
 /**
+ * @aside guide forms
+ *
+ * The checkbox field is an enhanced version of the native browser checkbox and is great for enabling your user to
+ * choose one or more items from a set (for example choosing toppings for a pizza order). It works like any other
+ * {@link Ext.field.Field field} and is usually found in the context of a form:
+ *
+ * ## Example
+ *
+ *     @example miniphone preview
+ *     var form = Ext.create('Ext.form.Panel', {
+ *         fullscreen: true,
+ *         items: [
+ *             {
+ *                 xtype: 'checkboxfield',
+ *                 name : 'tomato',
+ *                 label: 'Tomato',
+ *                 value: 'tomato',
+ *                 checked: true
+ *             },
+ *             {
+ *                 xtype: 'checkboxfield',
+ *                 name : 'salami',
+ *                 label: 'Salami'
+ *             },
+ *             {
+ *                 xtype: 'toolbar',
+ *                 docked: 'bottom',
+ *                 items: [
+ *                     { xtype: 'spacer' },
+ *                     {
+ *                         text: 'getValues',
+ *                         handler: function() {
+ *                             var form = Ext.ComponentQuery.query('formpanel')[0],
+ *                                 values = form.getValues();
+ *
+ *                             Ext.Msg.alert(null,
+ *                                 "Tomato: " + ((values.tomato) ? "yes" : "no") +
+ *                                 "<br />Salami: " + ((values.salami) ? "yes" : "no")
+ *                             );
+ *                         }
+ *                     },
+ *                     { xtype: 'spacer' }
+ *                 ]
+ *             }
+ *         ]
+ *     });
+ *
+ *
+ * The form above contains two check boxes - one for Tomato, one for Salami. We configured the Tomato checkbox to be
+ * checked immediately on load, and the Salami checkbox to be unchecked. We also specified an optional text
+ * {@link #value} that will be sent when we submit the form. We can get this value using the Form's
+ * {@link Ext.form.Panel#getValues getValues} function, or have it sent as part of the data that is sent when the
+ * form is submitted:
+ *
+ *     form.getValues(); //contains a key called 'tomato' if the Tomato field is still checked
+ *     form.submit(); //will send 'tomato' in the form submission data
+ *
+ */
+Ext.define('Ext.field.Checkbox', {
+    extend: Ext.field.Field,
+    alternateClassName: 'Ext.form.Checkbox',
+    xtype: 'checkboxfield',
+    qsaLeftRe: /[\[]/g,
+    qsaRightRe: /[\]]/g,
+    isCheckbox: true,
+    /**
+     * @event change
+     * Fires just before the field blurs if the field value has changed.
+     * @param {Ext.field.Checkbox} this This field.
+     * @param {Boolean} newValue The new value.
+     * @param {Boolean} oldValue The original value.
+     */
+    /**
+     * @event check
+     * Fires when the checkbox is checked.
+     * @param {Ext.field.Checkbox} this This checkbox.
+     * @param {Ext.EventObject} e This event object.
+     */
+    /**
+     * @event uncheck
+     * Fires when the checkbox is unchecked.
+     * @param {Ext.field.Checkbox} this This checkbox.
+     * @param {Ext.EventObject} e This event object.
+     */
+    config: {
+        /**
+         * @cfg
+         * @inheritdoc
+         */
+        ui: 'checkbox',
+        /**
+         * @cfg {String} value The string value to submit if the item is in a checked state.
+         * @accessor
+         */
+        value: '',
+        /**
+         * @cfg {Boolean} checked `true` if the checkbox should render initially checked.
+         * @accessor
+         */
+        checked: false,
+        /**
+         * @cfg {Number} tabIndex
+         * @hide
+         */
+        tabIndex: -1,
+        /**
+         * @cfg
+         * @inheritdoc
+         */
+        component: {
+            xtype: 'input',
+            type: 'checkbox',
+            useMask: true,
+            cls: Ext.baseCSSPrefix + 'input-checkbox'
+        }
+    },
+    /**
+         * @cfg {Boolean} labelMaskTap
+         * @private
+         */
+    platformConfig: [
+        {
+            theme: [
+                'Windows',
+                'Blackberry',
+                'Tizen'
+            ],
+            labelAlign: 'left'
+        }
+    ],
+    // @private
+    initialize: function() {
+        var me = this,
+            component = me.getComponent();
+        me.callParent();
+        component.on({
+            scope: me,
+            order: 'before',
+            masktap: 'onMaskTap'
+        });
+        component.doMaskTap = Ext.emptyFn;
+        me.label.on({
+            scope: me,
+            tap: 'onMaskTap'
+        });
+    },
+    // @private
+    doInitValue: function() {
+        var me = this,
+            initialConfig = me.getInitialConfig();
+        // you can have a value or checked config, but checked get priority
+        if (initialConfig.hasOwnProperty('value')) {
+            me.originalState = initialConfig.value;
+        }
+        if (initialConfig.hasOwnProperty('checked')) {
+            me.originalState = initialConfig.checked;
+        }
+        me.callParent(arguments);
+    },
+    // @private
+    updateInputType: function(newInputType) {
+        var component = this.getComponent();
+        if (component) {
+            component.setType(newInputType);
+        }
+    },
+    // @private
+    updateName: function(newName) {
+        var component = this.getComponent();
+        if (component) {
+            component.setName(newName);
+        }
+    },
+    /**
+     * Returns the field checked value.
+     * @return {Mixed} The field value.
+     */
+    getChecked: function() {
+        // we need to get the latest value from the {@link #input} and then update the value
+        this._checked = this.getComponent().getChecked();
+        return this._checked;
+    },
+    /**
+     * Returns the submit value for the checkbox which can be used when submitting forms.
+     * @return {Boolean/String} value The value of {@link #value} or `true`, if {@link #checked}.
+     */
+    getSubmitValue: function() {
+        return (this.getChecked()) ? Ext.isEmpty(this._value) ? true : this._value : null;
+    },
+    setChecked: function(newChecked) {
+        this.updateChecked(newChecked);
+        this._checked = newChecked;
+    },
+    updateChecked: function(newChecked) {
+        this.getComponent().setChecked(newChecked);
+        // only call onChange (which fires events) if the component has been initialized
+        if (this.initialized) {
+            this.onChange();
+        }
+    },
+    // @private
+    onMaskTap: function(component, e) {
+        var me = this,
+            dom = me.getComponent().input.dom;
+        if (me.getDisabled()) {
+            return false;
+        }
+        //we must manually update the input dom with the new checked value
+        dom.checked = !dom.checked;
+        me.onChange(e);
+        //return false so the mask does not disappear
+        return false;
+    },
+    /**
+     * Fires the `check` or `uncheck` event when the checked value of this component changes.
+     * @private
+     */
+    onChange: function(e) {
+        var me = this,
+            oldChecked = me._checked,
+            newChecked = me.getChecked();
+        // only fire the event when the value changes
+        if (oldChecked != newChecked) {
+            if (newChecked) {
+                me.fireEvent('check', me, e);
+            } else {
+                me.fireEvent('uncheck', me, e);
+            }
+            me.fireEvent('change', me, newChecked, oldChecked);
+        }
+    },
+    /**
+     * @method
+     * Method called when this {@link Ext.field.Checkbox} has been checked.
+     */
+    doChecked: Ext.emptyFn,
+    /**
+     * @method
+     * Method called when this {@link Ext.field.Checkbox} has been unchecked.
+     */
+    doUnChecked: Ext.emptyFn,
+    /**
+     * Returns the checked state of the checkbox.
+     * @return {Boolean} `true` if checked, `false` otherwise.
+     */
+    isChecked: function() {
+        return this.getChecked();
+    },
+    /**
+     * Set the checked state of the checkbox to `true`.
+     * @return {Ext.field.Checkbox} This checkbox.
+     */
+    check: function() {
+        return this.setChecked(true);
+    },
+    /**
+     * Set the checked state of the checkbox to `false`.
+     * @return {Ext.field.Checkbox} This checkbox.
+     */
+    uncheck: function() {
+        return this.setChecked(false);
+    },
+    getSameGroupFields: function() {
+        var me = this,
+            component = me.up('formpanel') || me.up('fieldset'),
+            name = me.getName(),
+            replaceLeft = me.qsaLeftRe,
+            replaceRight = me.qsaRightRe,
+            //handle baseCls with multiple class values
+            baseCls = me.getBaseCls().split(' ').join('.'),
+            components = [],
+            elements, element, i, ln;
+        if (!component) {
+            Ext.Logger.warn('Ext.field.Radio components must always be descendants of an Ext.form.Panel or Ext.form.FieldSet.');
+            component = Ext.Viewport;
+        }
+        // This is to handle ComponentQuery's lack of handling [name=foo[bar]] properly
+        name = name.replace(replaceLeft, '\\[');
+        name = name.replace(replaceRight, '\\]');
+        elements = Ext.query('[name=' + name + ']', component.element.dom);
+        ln = elements.length;
+        for (i = 0; i < ln; i++) {
+            element = elements[i];
+            element = Ext.fly(element).up('.' + baseCls);
+            if (element && element.id) {
+                components.push(Ext.getCmp(element.id));
+            }
+        }
+        return components;
+    },
+    /**
+     * Returns an array of values from the checkboxes in the group that are checked.
+     * @return {Array}
+     */
+    getGroupValues: function() {
+        var values = [];
+        this.getSameGroupFields().forEach(function(field) {
+            if (field.getChecked()) {
+                values.push(field.getValue());
+            }
+        });
+        return values;
+    },
+    /**
+     * Set the status of all matched checkboxes in the same group to checked.
+     * @param {Array} values An array of values.
+     * @return {Ext.field.Checkbox} This checkbox.
+     */
+    setGroupValues: function(values) {
+        this.getSameGroupFields().forEach(function(field) {
+            field.setChecked((values.indexOf(field.getValue()) !== -1));
+        });
+        return this;
+    },
+    /**
+     * Resets the status of all matched checkboxes in the same group to checked.
+     * @return {Ext.field.Checkbox} This checkbox.
+     */
+    resetGroupValues: function() {
+        this.getSameGroupFields().forEach(function(field) {
+            field.setChecked(field.originalState);
+        });
+        return this;
+    },
+    reset: function() {
+        this.setChecked(this.originalState);
+        return this;
+    }
+});
+
+/**
  * @private
  *
  * A general {@link Ext.picker.Picker} slot class.  Slots are used to organize multiple scrollable slots into
@@ -64876,6 +65600,1243 @@ Ext.define('Ext.form.FieldSet', {
 });
 
 /**
+ * The Form panel presents a set of form fields and provides convenient ways to load and save data. Usually a form
+ * panel just contains the set of fields you want to display, ordered inside the items configuration like this:
+ *
+ *     @example
+ *     var form = Ext.create('Ext.form.Panel', {
+ *         fullscreen: true,
+ *         items: [
+ *             {
+ *                 xtype: 'textfield',
+ *                 name: 'name',
+ *                 label: 'Name'
+ *             },
+ *             {
+ *                 xtype: 'emailfield',
+ *                 name: 'email',
+ *                 label: 'Email'
+ *             },
+ *             {
+ *                 xtype: 'passwordfield',
+ *                 name: 'password',
+ *                 label: 'Password'
+ *             }
+ *         ]
+ *     });
+ *
+ * Here we just created a simple form panel which could be used as a registration form to sign up to your service. We
+ * added a plain {@link Ext.field.Text text field} for the user's Name, an {@link Ext.field.Email email field} and
+ * finally a {@link Ext.field.Password password field}. In each case we provided a {@link Ext.field.Field#name name}
+ * config on the field so that we can identify it later on when we load and save data on the form.
+ *
+ * ##Loading data
+ *
+ * Using the form we created above, we can load data into it in a few different ways, the easiest is to use
+ * {@link #setValues}:
+ *
+ *     form.setValues({
+ *         name: 'Ed',
+ *         email: 'ed@sencha.com',
+ *         password: 'secret'
+ *     });
+ *
+ * It's also easy to load {@link Ext.data.Model Model} instances into a form - let's say we have a User model and want
+ * to load a particular instance into our form:
+ *
+ *     Ext.define('MyApp.model.User', {
+ *         extend: 'Ext.data.Model',
+ *         config: {
+ *             fields: ['name', 'email', 'password']
+ *         }
+ *     });
+ *
+ *     var ed = Ext.create('MyApp.model.User', {
+ *         name: 'Ed',
+ *         email: 'ed@sencha.com',
+ *         password: 'secret'
+ *     });
+ *
+ *     form.setRecord(ed);
+ *
+ * ##Retrieving form data
+ *
+ * Getting data out of the form panel is simple and is usually achieve via the {@link #getValues} method:
+ *
+ *     var values = form.getValues();
+ *
+ *     //values now looks like this:
+ *     {
+ *         name: 'Ed',
+ *         email: 'ed@sencha.com',
+ *         password: 'secret'
+ *     }
+ *
+ * It's also possible to listen to the change events on individual fields to get more timely notification of changes
+ * that the user is making. Here we expand on the example above with the User model, updating the model as soon as
+ * any of the fields are changed:
+ *
+ *     var form = Ext.create('Ext.form.Panel', {
+ *         listeners: {
+ *             '> field': {
+ *                 change: function(field, newValue, oldValue) {
+ *                     ed.set(field.getName(), newValue);
+ *                 }
+ *             }
+ *         },
+ *         items: [
+ *             {
+ *                 xtype: 'textfield',
+ *                 name: 'name',
+ *                 label: 'Name'
+ *             },
+ *             {
+ *                 xtype: 'emailfield',
+ *                 name: 'email',
+ *                 label: 'Email'
+ *             },
+ *             {
+ *                 xtype: 'passwordfield',
+ *                 name: 'password',
+ *                 label: 'Password'
+ *             }
+ *         ]
+ *     });
+ *
+ * The above used a new capability of Sencha Touch 2.0, which enables you to specify listeners on child components of any
+ * container. In this case, we attached a listener to the {@link Ext.field.Text#change change} event of each form
+ * field that is a direct child of the form panel. Our listener gets the name of the field that fired the change event,
+ * and updates our {@link Ext.data.Model Model} instance with the new value. For example, changing the email field
+ * in the form will update the Model's email field.
+ *
+ * ##Submitting forms
+ *
+ * There are a few ways to submit form data. In our example above we have a Model instance that we have updated, giving
+ * us the option to use the Model's {@link Ext.data.Model#save save} method to persist the changes back to our server,
+ * without using a traditional form submission. Alternatively, we can send a normal browser form submit using the
+ * {@link #method} method:
+ *
+ *     form.submit({
+ *         url: 'url/to/submit/to',
+ *         method: 'POST',
+ *         success: function() {
+ *             alert('form submitted successfully!');
+ *         }
+ *     });
+ *
+ * In this case we provided the `url` to submit the form to inside the submit call - alternatively you can just set the
+ * {@link #url} configuration when you create the form. We can specify other parameters (see {@link #method} for a
+ * full list), including callback functions for success and failure, which are called depending on whether or not the
+ * form submission was successful. These functions are usually used to take some action in your app after your data
+ * has been saved to the server side.
+ *
+ * @aside guide forms
+ * @aside example forms
+ * @aside example forms-toolbars
+ */
+Ext.define('Ext.form.Panel', {
+    alternateClassName: 'Ext.form.FormPanel',
+    extend: Ext.Panel,
+    xtype: 'formpanel',
+    /**
+     * @event submit
+     * @preventable doSubmit
+     * Fires upon successful (Ajax-based) form submission.
+     * @param {Ext.form.Panel} this This FormPanel.
+     * @param {Object} result The result object as returned by the server.
+     * @param {Ext.EventObject} e The event object.
+     */
+    /**
+     * @event beforesubmit
+     * @preventable doBeforeSubmit
+     * Fires immediately preceding any Form submit action.
+     * Implementations may adjust submitted form values or options prior to execution.
+     * A return value of `false` from this listener will abort the submission
+     * attempt (regardless of `standardSubmit` configuration).
+     * @param {Ext.form.Panel} this This FormPanel.
+     * @param {Object} values A hash collection of the qualified form values about to be submitted.
+     * @param {Object} options Submission options hash (only available when `standardSubmit` is `false`).
+     * @param {Ext.EventObject} e The event object if the form was submitted via a HTML5 form submit event.
+     */
+    /**
+     * @event exception
+     * Fires when either the Ajax HTTP request reports a failure OR the server returns a `success:false`
+     * response in the result payload.
+     * @param {Ext.form.Panel} this This FormPanel.
+     * @param {Object} result Either a failed Ext.data.Connection request object or a failed (logical) server.
+     * response payload.
+     */
+    config: {
+        /**
+         * @cfg {String} baseCls
+         * @inheritdoc
+         */
+        baseCls: Ext.baseCSSPrefix + 'form',
+        /**
+         * @cfg {Boolean} standardSubmit
+         * Whether or not we want to perform a standard form submit.
+         * @accessor
+         */
+        standardSubmit: false,
+        /**
+         * @cfg {String} url
+         * The default url for submit actions.
+         * @accessor
+         */
+        url: null,
+        /**
+         * @cfg (String} enctype
+         * The enctype attribute for the form, specifies how the form should be encoded when submitting
+         */
+        enctype: null,
+        /**
+         * @cfg {Object} baseParams
+         * Optional hash of params to be sent (when `standardSubmit` configuration is `false`) on every submit.
+         * @accessor
+         */
+        baseParams: null,
+        /**
+         * @cfg {Object} submitOnAction
+         * When this is set to `true`, the form will automatically submit itself whenever the `action`
+         * event fires on a field in this form. The action event usually fires whenever you press
+         * go or enter inside a textfield.
+         * @accessor
+         */
+        submitOnAction: false,
+        /**
+         * @cfg {Ext.data.Model} record The model instance of this form. Can by dynamically set at any time.
+         * @accessor
+         */
+        record: null,
+        /**
+         * @cfg {String} method
+         * The method which this form will be submitted. `post` or `get`.
+         */
+        method: 'post',
+        /**
+         * @cfg {Object} scrollable
+         * Possible values are true, false, and null. The true value indicates that
+         * users can scroll the panel. The false value disables scrolling, but developers
+         * can enable it in the app. The null value indicates that the object cannot be
+         * scrolled and that scrolling cannot be enabled for this object.
+         *
+         * Example:
+         *      title: 'Sliders',
+         *      xtype: 'formpanel',
+         *      iconCls: Ext.filterPlatform('blackberry') ? 'list' : null,
+         *      scrollable: true,
+         *      items: [ ...
+         * @inheritdoc
+         */
+        scrollable: {
+            translatable: {
+                translationMethod: 'scrollposition'
+            }
+        },
+        /**
+         * @cfg {Boolean} trackResetOnLoad
+         * If set to true, {@link #reset}() resets to the last loaded or {@link #setValues}() data instead of
+         * when the form was first created.
+         */
+        trackResetOnLoad: false,
+        /**
+         * @cfg {Object} api
+         * If specified, load and submit actions will be loaded and submitted via Ext.Direct.  Methods which have been imported by
+         * {@link Ext.direct.Manager} can be specified here to load and submit forms. API methods may also be
+         * specified as strings and will be parsed into the actual functions when the first submit or load has occurred. Such as the following:
+         *
+         *     api: {
+         *         load: App.ss.MyProfile.load,
+         *         submit: App.ss.MyProfile.submit
+         *     }
+         *
+         *     api: {
+         *         load: 'App.ss.MyProfile.load',
+         *         submit: 'App.ss.MyProfile.submit'
+         *     }
+         *
+         * Load actions can use {@link #paramOrder} or {@link #paramsAsHash} to customize how the load method
+         * is invoked.  Submit actions will always use a standard form submit. The `formHandler` configuration
+         * (see Ext.direct.RemotingProvider#action) must be set on the associated server-side method which has
+         * been imported by {@link Ext.direct.Manager}.
+         */
+        api: null,
+        /**
+         * @cfg {String/String[]} paramOrder
+         * A list of params to be executed server side. Only used for the {@link #api} `load`
+         * configuration.
+         *
+         * Specify the params in the order in which they must be executed on the
+         * server-side as either (1) an Array of String values, or (2) a String of params
+         * delimited by either whitespace, comma, or pipe. For example,
+         * any of the following would be acceptable:
+         *
+         *     paramOrder: ['param1','param2','param3']
+         *     paramOrder: 'param1 param2 param3'
+         *     paramOrder: 'param1,param2,param3'
+         *     paramOrder: 'param1|param2|param'
+         */
+        paramOrder: null,
+        /**
+         * @cfg {Boolean} paramsAsHash
+         * Only used for the {@link #api} `load` configuration. If true, parameters will be sent as a
+         * single hash collection of named arguments. Providing a {@link #paramOrder} nullifies this
+         * configuration.
+         */
+        paramsAsHash: null,
+        /**
+         * @cfg {Number} timeout
+         * Timeout for form actions in seconds.
+         */
+        timeout: 30,
+        /**
+         * @cfg {Boolean} multipartDetection
+         * If this is enabled the form will automatically detect the need to use 'multipart/form-data' during submission.
+         */
+        multipartDetection: true,
+        /**
+         * @cfg {Boolean} enableSubmissionForm
+         * The submission form is generated but never added to the dom. It is a submittable version of your form panel, allowing for fields
+         * that are not simple textfields to be properly submitted to servers. It will also send values that are easier to parse
+         * with server side code.
+         *
+         * If this is false we will attempt to subject the raw form inside the form panel.
+         */
+        enableSubmissionForm: true
+    },
+    getElementConfig: function() {
+        var config = this.callParent();
+        config.tag = "form";
+        // Added a submit input for standard form submission. This cannot have "display: none;" or it will not work
+        config.children.push({
+            tag: 'input',
+            type: 'submit',
+            style: 'visibility: hidden; width: 0; height: 0; position: absolute; right: 0; bottom: 0;'
+        });
+        return config;
+    },
+    // @private
+    initialize: function() {
+        var me = this;
+        me.callParent();
+        me.element.on({
+            submit: 'onSubmit',
+            scope: me
+        });
+    },
+    applyEnctype: function(newValue) {
+        var form = this.element.dom || null;
+        if (form) {
+            if (newValue) {
+                form.setAttribute("enctype", newValue);
+            } else {
+                form.setAttribute("enctype");
+            }
+        }
+    },
+    updateRecord: function(newRecord) {
+        var fields, values, name;
+        if (newRecord && (fields = newRecord.fields)) {
+            values = this.getValues();
+            for (name in values) {
+                if (values.hasOwnProperty(name) && fields.containsKey(name)) {
+                    newRecord.set(name, values[name]);
+                }
+            }
+        }
+        return this;
+    },
+    /**
+     * Loads matching fields from a model instance into this form.
+     * @param {Ext.data.Model} record The model instance.
+     * @return {Ext.form.Panel} This form.
+     */
+    setRecord: function(record) {
+        var me = this;
+        if (record && record.data) {
+            me.setValues(record.data);
+        }
+        me._record = record;
+        return this;
+    },
+    // @private
+    onSubmit: function(e) {
+        var me = this;
+        if (e && !me.getStandardSubmit()) {
+            e.stopEvent();
+        } else {
+            this.submit(null, e);
+        }
+    },
+    updateSubmitOnAction: function(newSubmitOnAction) {
+        if (newSubmitOnAction) {
+            this.on({
+                action: 'onFieldAction',
+                scope: this
+            });
+        } else {
+            this.un({
+                action: 'onFieldAction',
+                scope: this
+            });
+        }
+    },
+    // @private
+    onFieldAction: function(field) {
+        if (this.getSubmitOnAction()) {
+            field.blur();
+            this.submit();
+        }
+    },
+    /**
+     * Performs a Ajax-based submission of form values (if {@link #standardSubmit} is false) or otherwise
+     * executes a standard HTML Form submit action.
+     *
+     * **Notes**
+     *
+     *  1. Only the first parameter is implemented. Put all other parameters inside the first
+     *  parameter:
+     *
+     *     submit({params: "" ,headers: "" etc.})
+     *
+     *  2. Submit example:
+     *
+     *     myForm.submit({
+     *       url: 'PostMyData/To',
+     *       method: 'Post',
+     *       success: function() { Ext.Msg.alert("success"); },
+     *       failure: function() { Ext.Msg.alert("error"); }
+     *     });
+     *
+     *  3. Parameters and values only submit for a POST and not for a GET.
+     *
+     * @param {Object} options
+     * The configuration when submitting this form.
+     *
+     * The following are the configurations when submitting via Ajax only:
+     *
+     * @param {String} options.url
+     * The url for the action (defaults to the form's {@link #url}).
+     *
+     * @param {String} options.method
+     * The form method to use (defaults to the form's {@link #method}, or POST if not defined).
+     *
+     * @param {Object} options.headers
+     * Request headers to set for the action.
+     *
+     * @param {Boolean} [options.autoAbort=false]
+     * `true` to abort any pending Ajax request prior to submission.
+     * __Note:__ Has no effect when `{@link #standardSubmit}` is enabled.
+     *
+     * @param {Number} options.timeout
+     * The number is seconds the loading will timeout in.
+     *
+     * The following are the configurations when loading via Ajax or Direct:
+     *
+     * @param {String/Object} options.params
+     * The params to pass when submitting this form (defaults to this forms {@link #baseParams}).
+     * Parameters are encoded as standard HTTP parameters using {@link Ext#urlEncode}.
+     *
+     * @param {Boolean} [options.submitDisabled=false]
+     * `true` to submit all fields regardless of disabled state.
+     * __Note:__ Has no effect when `{@link #standardSubmit}` is enabled.
+     *
+     * @param {String/Object} [options.waitMsg]
+     * If specified, the value which is passed to the loading {@link #masked mask}. See {@link #masked} for
+     * more information.
+     *
+     * @param {Function} options.success
+     * The callback that will be invoked after a successful response. A response is successful if
+     * a response is received from the server and is a JSON object where the `success` property is set
+     * to `true`, `{"success": true}`.
+     *
+     * The function is passed the following parameters and can be used for submitting via Ajax or Direct:
+     *
+     * @param {Ext.form.Panel} options.success.form
+     * The {@link Ext.form.Panel} that requested the action.
+     *
+     * @param {Object/Ext.direct.Event} options.success.result
+     * The result object returned by the server as a result of the submit request. If the submit is sent using Ext.Direct,
+     * this will return the {@link Ext.direct.Event} instance, otherwise will return an Object.
+     *
+     * @param {Object} options.success.data
+     * The parsed data returned by the server.
+     *
+     * @param {Function} options.failure
+     * The callback that will be invoked after a failed transaction attempt.
+     *
+     * The function is passed the following parameters and can be used for submitting via Ajax or Direct:
+     *
+     * @param {Ext.form.Panel} options.failure.form
+     * The {@link Ext.form.Panel} that requested the submit.
+     *
+     * @param {Ext.form.Panel} options.failure.result
+     * The failed response or result object returned by the server which performed the operation.
+     *
+     * @param {Object} options.success.data
+     * The parsed data returned by the server.
+     *
+     * @param {Object} options.scope
+     * The scope in which to call the callback functions (The `this` reference for the callback functions).
+     *
+     * @return {Ext.data.Connection} The request object if the {@link #standardSubmit} config is false.
+     * If the standardSubmit config is true, then the return value is undefined.
+     */
+    submit: function(options, e) {
+        options = options || {};
+        var me = this,
+            formValues = me.getValues(me.getStandardSubmit() || !options.submitDisabled),
+            form = me.element.dom || {};
+        if (this.getEnableSubmissionForm()) {
+            form = this.createSubmissionForm(form, formValues);
+        }
+        options = Ext.apply({
+            url: me.getUrl() || form.action,
+            submit: false,
+            form: form,
+            method: me.getMethod() || form.method || 'post',
+            autoAbort: false,
+            params: null,
+            waitMsg: null,
+            headers: null,
+            success: null,
+            failure: null
+        }, options || {});
+        return me.fireAction('beforesubmit', [
+            me,
+            formValues,
+            options,
+            e
+        ], 'doBeforeSubmit');
+    },
+    createSubmissionForm: function(form, values) {
+        var fields = this.getFields(),
+            name, input, field, fileinputElement, inputComponent;
+        if (form.nodeType === 1) {
+            form = form.cloneNode(false);
+            for (name in values) {
+                input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("name", name);
+                input.setAttribute("value", values[name]);
+                form.appendChild(input);
+            }
+        }
+        for (name in fields) {
+            if (fields.hasOwnProperty(name)) {
+                field = fields[name];
+                if (field.isFile) {
+                    if (!form.$fileswap)  {
+                        form.$fileswap = [];
+                    }
+                    
+                    inputComponent = field.getComponent().input;
+                    fileinputElement = inputComponent.dom;
+                    input = fileinputElement.cloneNode(true);
+                    fileinputElement.parentNode.insertBefore(input, fileinputElement.nextSibling);
+                    form.appendChild(fileinputElement);
+                    form.$fileswap.push({
+                        original: fileinputElement,
+                        placeholder: input
+                    });
+                } else if (field.isPassword) {
+                    if (field.getComponent().getType !== "password") {
+                        field.setRevealed(false);
+                    }
+                }
+            }
+        }
+        return form;
+    },
+    doBeforeSubmit: function(me, formValues, options) {
+        var form = options.form || {},
+            multipartDetected = false;
+        if (this.getMultipartDetection() === true) {
+            this.getFieldsAsArray().forEach(function(field) {
+                if (field.isFile === true) {
+                    multipartDetected = true;
+                    return false;
+                }
+            });
+            if (multipartDetected) {
+                form.setAttribute("enctype", "multipart/form-data");
+            }
+        }
+        if (options.enctype) {
+            form.setAttribute("enctype", options.enctype);
+        }
+        if (me.getStandardSubmit()) {
+            if (options.url && Ext.isEmpty(form.action)) {
+                form.action = options.url;
+            }
+            // Spinner fields must have their components enabled *before* submitting or else the value
+            // will not be posted.
+            var fields = this.query('spinnerfield'),
+                ln = fields.length,
+                i, field;
+            for (i = 0; i < ln; i++) {
+                field = fields[i];
+                if (!field.getDisabled()) {
+                    field.getComponent().setDisabled(false);
+                }
+            }
+            form.method = (options.method || form.method).toLowerCase();
+            form.submit();
+        } else {
+            var api = me.getApi(),
+                url = options.url || me.getUrl(),
+                scope = options.scope || me,
+                waitMsg = options.waitMsg,
+                failureFn = function(response, responseText) {
+                    if (Ext.isFunction(options.failure)) {
+                        options.failure.call(scope, me, response, responseText);
+                    }
+                    me.fireEvent('exception', me, response);
+                },
+                successFn = function(response, responseText) {
+                    if (Ext.isFunction(options.success)) {
+                        options.success.call(options.scope || me, me, response, responseText);
+                    }
+                    me.fireEvent('submit', me, response);
+                },
+                submit;
+            if (options.waitMsg) {
+                if (typeof waitMsg === 'string') {
+                    waitMsg = {
+                        xtype: 'loadmask',
+                        message: waitMsg
+                    };
+                }
+                me.setMasked(waitMsg);
+            }
+            if (api) {
+                submit = api.submit;
+                if (typeof submit === 'string') {
+                    submit = Ext.direct.Manager.parseMethod(submit);
+                    if (submit) {
+                        api.submit = submit;
+                    }
+                }
+                if (submit) {
+                    return submit(this.element, function(data, response, success) {
+                        me.setMasked(false);
+                        if (success) {
+                            if (data.success) {
+                                successFn(response, data);
+                            } else {
+                                failureFn(response, data);
+                            }
+                        } else {
+                            failureFn(response, data);
+                        }
+                    }, this);
+                }
+            } else {
+                var request = Ext.merge({}, {
+                        url: url,
+                        timeout: this.getTimeout() * 1000,
+                        form: form,
+                        scope: me
+                    }, options);
+                delete request.success;
+                delete request.failure;
+                request.params = Ext.merge(me.getBaseParams() || {}, options.params);
+                request.header = Ext.apply({
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }, options.headers || {});
+                request.callback = function(callbackOptions, success, response) {
+                    var responseText = response.responseText,
+                        responseXML = response.responseXML,
+                        statusResult = Ext.Ajax.parseStatus(response.status, response);
+                    if (form.$fileswap) {
+                        var original, placeholder;
+                        Ext.each(form.$fileswap, function(item) {
+                            original = item.original;
+                            placeholder = item.placeholder;
+                            placeholder.parentNode.insertBefore(original, placeholder.nextSibling);
+                            placeholder.parentNode.removeChild(placeholder);
+                        });
+                        form.$fileswap = null;
+                        delete form.$fileswap;
+                    }
+                    me.setMasked(false);
+                    if (response.success === false)  {
+                        success = false;
+                    }
+                    
+                    if (success) {
+                        if (statusResult && responseText && responseText.length == 0) {
+                            success = true;
+                        } else {
+                            if (!Ext.isEmpty(response.responseBytes)) {
+                                success = statusResult.success;
+                            } else {
+                                if (Ext.isString(responseText) && response.request.options.responseType === "text") {
+                                    response.success = true;
+                                } else if (Ext.isString(responseText)) {
+                                    try {
+                                        response = Ext.decode(responseText);
+                                    } catch (e) {
+                                        response.success = false;
+                                        response.error = e;
+                                        response.message = e.message;
+                                    }
+                                } else if (Ext.isSimpleObject(responseText)) {
+                                    response = responseText;
+                                    Ext.applyIf(response, {
+                                        success: true
+                                    });
+                                }
+                                if (!Ext.isEmpty(responseXML)) {
+                                    response.success = true;
+                                }
+                                success = !!response.success;
+                            }
+                        }
+                        if (success) {
+                            successFn(response, responseText);
+                        } else {
+                            failureFn(response, responseText);
+                        }
+                    } else {
+                        failureFn(response, responseText);
+                    }
+                };
+                if (Ext.feature.has.XHR2 && request.xhr2) {
+                    delete request.form;
+                    var formData = new FormData(form);
+                    if (request.params) {
+                        Ext.iterate(request.params, function(name, value) {
+                            if (Ext.isArray(value)) {
+                                Ext.each(value, function(v) {
+                                    formData.append(name, v);
+                                });
+                            } else {
+                                formData.append(name, value);
+                            }
+                        });
+                        delete request.params;
+                    }
+                    request.data = formData;
+                }
+                return Ext.Ajax.request(request);
+            }
+        }
+    },
+    /**
+     * Performs an Ajax or Ext.Direct call to load values for this form.
+     *
+     * @param {Object} options
+     * The configuration when loading this form.
+     *
+     * The following are the configurations when loading via Ajax only:
+     *
+     * @param {String} options.url
+     * The url for the action (defaults to the form's {@link #url}).
+     *
+     * @param {String} options.method
+     * The form method to use (defaults to the form's {@link #method}, or GET if not defined).
+     *
+     * @param {Object} options.headers
+     * Request headers to set for the action.
+     *
+     * @param {Number} options.timeout
+     * The number is seconds the loading will timeout in.
+     *
+     * The following are the configurations when loading via Ajax or Direct:
+     *
+     * @param {Boolean} [options.autoAbort=false]
+     * `true` to abort any pending Ajax request prior to loading.
+     *
+     * @param {String/Object} options.params
+     * The params to pass when submitting this form (defaults to this forms {@link #baseParams}).
+     * Parameters are encoded as standard HTTP parameters using {@link Ext#urlEncode}.
+     *
+     * @param {String/Object} [options.waitMsg]
+     * If specified, the value which is passed to the loading {@link #masked mask}. See {@link #masked} for
+     * more information.
+     *
+     * @param {Function} options.success
+     * The callback that will be invoked after a successful response. A response is successful if
+     * a response is received from the server and is a JSON object where the `success` property is set
+     * to `true`, `{"success": true}`.
+     *
+     * The function is passed the following parameters and can be used for loading via Ajax or Direct:
+     *
+     * @param {Ext.form.Panel} options.success.form
+     * The {@link Ext.form.Panel} that requested the load.
+     *
+     * @param {Object/Ext.direct.Event} options.success.result
+     * The result object returned by the server as a result of the load request. If the loading was done via Ext.Direct,
+     * will return the {@link Ext.direct.Event} instance, otherwise will return an Object.
+     *
+     * @param {Object} options.success.data
+     * The parsed data returned by the server.
+     *
+     * @param {Function} options.failure
+     * The callback that will be invoked after a failed transaction attempt.
+     *
+     * The function is passed the following parameters and can be used for loading via Ajax or Direct:
+     *
+     * @param {Ext.form.Panel} options.failure.form
+     * The {@link Ext.form.Panel} that requested the load.
+     *
+     * @param {Ext.form.Panel} options.failure.result
+     * The failed response or result object returned by the server which performed the operation.
+     *
+     * @param {Object} options.success.data
+     * The parsed data returned by the server.
+     *
+     * @param {Object} options.scope
+     * The scope in which to call the callback functions (The `this` reference for the callback functions).
+     *
+     * @return {Ext.data.Connection} The request object.
+     */
+    load: function(options) {
+        options = options || {};
+        var me = this,
+            api = me.getApi(),
+            url = me.getUrl() || options.url,
+            waitMsg = options.waitMsg,
+            successFn = function(response, data) {
+                me.setValues(data.data);
+                if (Ext.isFunction(options.success)) {
+                    options.success.call(options.scope || me, me, response, data);
+                }
+                me.fireEvent('load', me, response);
+            },
+            failureFn = function(response, data) {
+                if (Ext.isFunction(options.failure)) {
+                    options.failure.call(scope, me, response, data);
+                }
+                me.fireEvent('exception', me, response);
+            },
+            load, method, args;
+        if (options.waitMsg) {
+            if (typeof waitMsg === 'string') {
+                waitMsg = {
+                    xtype: 'loadmask',
+                    message: waitMsg
+                };
+            }
+            me.setMasked(waitMsg);
+        }
+        if (api) {
+            load = api.load;
+            if (typeof load === 'string') {
+                load = Ext.direct.Manager.parseMethod(load);
+                if (load) {
+                    api.load = load;
+                }
+            }
+            if (load) {
+                method = load.directCfg.method;
+                args = method.getArgs(me.getParams(options.params), me.getParamOrder(), me.getParamsAsHash());
+                args.push(function(data, response, success) {
+                    me.setMasked(false);
+                    if (success) {
+                        successFn(response, data);
+                    } else {
+                        failureFn(response, data);
+                    }
+                }, me);
+                return load.apply(window, args);
+            }
+        } else if (url) {
+            return Ext.Ajax.request({
+                url: url,
+                timeout: (options.timeout || this.getTimeout()) * 1000,
+                method: options.method || 'GET',
+                autoAbort: options.autoAbort,
+                headers: Ext.apply({
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }, options.headers || {}),
+                callback: function(callbackOptions, success, response) {
+                    var responseText = response.responseText,
+                        statusResult = Ext.Ajax.parseStatus(response.status, response);
+                    me.setMasked(false);
+                    if (success) {
+                        if (statusResult && responseText.length == 0) {
+                            success = true;
+                        } else {
+                            response = Ext.decode(responseText);
+                            success = !!response.success;
+                        }
+                        if (success) {
+                            successFn(response, responseText);
+                        } else {
+                            failureFn(response, responseText);
+                        }
+                    } else {
+                        failureFn(response, responseText);
+                    }
+                }
+            });
+        }
+    },
+    //@private
+    getParams: function(params) {
+        return Ext.apply({}, params, this.getBaseParams());
+    },
+    /**
+     * Sets the values of form fields in bulk. Example usage:
+     *
+     *     myForm.setValues({
+     *         name: 'Ed',
+     *         crazy: true,
+     *         username: 'edspencer'
+     *     });
+     *
+     * If there groups of checkbox fields with the same name, pass their values in an array. For example:
+     *
+     *     myForm.setValues({
+     *         name: 'Jacky',
+     *         crazy: false,
+     *         hobbies: [
+     *             'reading',
+     *             'cooking',
+     *             'gaming'
+     *         ]
+     *     });
+     *
+     * @param {Object} values field name => value mapping object.
+     * @return {Ext.form.Panel} This form.
+     */
+    setValues: function(values) {
+        var fields = this.getFields(),
+            me = this,
+            name, field, value, ln, i, f;
+        values = values || {};
+        for (name in values) {
+            if (values.hasOwnProperty(name)) {
+                field = fields[name];
+                value = values[name];
+                if (field) {
+                    // If there are multiple fields with the same name. Checkboxes, radio fields and maybe event just normal fields..
+                    if (Ext.isArray(field)) {
+                        ln = field.length;
+                        // Loop through each of the fields
+                        for (i = 0; i < ln; i++) {
+                            f = field[i];
+                            if (f.isRadio) {
+                                // If it is a radio field just use setGroupValue which will handle all of the radio fields
+                                f.setGroupValue(value);
+                                break;
+                            } else if (f.isCheckbox) {
+                                if (Ext.isArray(value)) {
+                                    f.setChecked((value.indexOf(f._value) != -1));
+                                } else {
+                                    f.setChecked((value == f._value));
+                                }
+                            } else {
+                                // If it is a bunch of fields with the same name, check if the value is also an array, so we can map it
+                                // to each field
+                                if (Ext.isArray(value)) {
+                                    f.setValue(value[i]);
+                                }
+                            }
+                        }
+                    } else {
+                        if (field.isRadio || field.isCheckbox) {
+                            // If the field is a radio or a checkbox
+                            field.setChecked(value);
+                        } else {
+                            // If just a normal field
+                            field.setValue(value);
+                        }
+                    }
+                    if (me.getTrackResetOnLoad()) {
+                        field.resetOriginalValue();
+                    }
+                }
+            }
+        }
+        return this;
+    },
+    /**
+     * Returns an object containing the value of each field in the form, keyed to the field's name.
+     * For groups of checkbox fields with the same name, it will be arrays of values. For example:
+     *
+     *     {
+     *         name: "Jacky Nguyen", // From a TextField
+     *         favorites: [
+     *             'pizza',
+     *             'noodle',
+     *             'cake'
+     *         ]
+     *     }
+     *
+     * @param {Boolean} [enabled] `true` to return only enabled fields.
+     * @param {Boolean} [all] `true` to return all fields even if they don't have a
+     * {@link Ext.field.Field#name name} configured.
+     * @return {Object} Object mapping field name to its value.
+     */
+    getValues: function(enabled, all) {
+        var fields = this.getFields(),
+            values = {},
+            isArray = Ext.isArray,
+            field, value, addValue, bucket, name, ln, i;
+        // Function which you give a field and a name, and it will add it into the values
+        // object accordingly
+        addValue = function(field, name) {
+            if (!all && (!name || name === 'null') || field.isFile) {
+                return;
+            }
+            if (field.isCheckbox) {
+                value = field.getSubmitValue();
+            } else {
+                value = field.getValue();
+            }
+            if (!(enabled && field.getDisabled())) {
+                // RadioField is a special case where the value returned is the fields valUE
+                // ONLY if it is checked
+                if (field.isRadio) {
+                    if (field.isChecked()) {
+                        values[name] = value;
+                    }
+                } else {
+                    // Check if the value already exists
+                    bucket = values[name];
+                    if (!Ext.isEmpty(bucket)) {
+                        // if it does and it isn't an array, we need to make it into an array
+                        // so we can push more
+                        if (!isArray(bucket)) {
+                            bucket = values[name] = [
+                                bucket
+                            ];
+                        }
+                        // Check if it is an array
+                        if (isArray(value)) {
+                            // Concat it into the other values
+                            bucket = values[name] = bucket.concat(value);
+                        } else {
+                            // If it isn't an array, just pushed more values
+                            bucket.push(value);
+                        }
+                    } else {
+                        values[name] = value;
+                    }
+                }
+            }
+        };
+        // Loop through each of the fields, and add the values for those fields.
+        for (name in fields) {
+            if (fields.hasOwnProperty(name)) {
+                field = fields[name];
+                if (isArray(field)) {
+                    ln = field.length;
+                    for (i = 0; i < ln; i++) {
+                        addValue(field[i], name);
+                    }
+                } else {
+                    addValue(field, name);
+                }
+            }
+        }
+        return values;
+    },
+    /**
+     * Resets all fields in the form back to their original values.
+     * @return {Ext.form.Panel} This form.
+     */
+    reset: function() {
+        this.getFieldsAsArray().forEach(function(field) {
+            field.reset();
+        });
+        return this;
+    },
+    /**
+     * A convenient method to disable all fields in this form.
+     * @return {Ext.form.Panel} This form.
+     */
+    doSetDisabled: function(newDisabled) {
+        this.getFieldsAsArray().forEach(function(field) {
+            field.setDisabled(newDisabled);
+        });
+        return this;
+    },
+    /**
+     * @private
+     */
+    getFieldsAsArray: function() {
+        var fields = [],
+            getFieldsFrom = function(item) {
+                if (item.isField) {
+                    fields.push(item);
+                }
+                if (item.isContainer) {
+                    item.getItems().each(getFieldsFrom);
+                }
+            };
+        this.getItems().each(getFieldsFrom);
+        return fields;
+    },
+    /**
+     * Returns all {@link Ext.field.Field field} instances inside this form.
+     * @param {Boolean} byName return only fields that match the given name, otherwise return all fields.
+     * @return {Object/Array} All field instances, mapped by field name; or an array if `byName` is passed.
+     */
+    getFields: function(byName) {
+        var fields = {},
+            itemName;
+        var getFieldsFrom = function(item) {
+                if (item.isField) {
+                    itemName = item.getName();
+                    if ((byName && itemName == byName) || typeof byName == 'undefined') {
+                        if (fields.hasOwnProperty(itemName)) {
+                            if (!Ext.isArray(fields[itemName])) {
+                                fields[itemName] = [
+                                    fields[itemName]
+                                ];
+                            }
+                            fields[itemName].push(item);
+                        } else {
+                            fields[itemName] = item;
+                        }
+                    }
+                }
+                if (item.isContainer) {
+                    item.items.each(getFieldsFrom);
+                }
+            };
+        this.getItems().each(getFieldsFrom);
+        return (byName) ? (fields[byName] || []) : fields;
+    },
+    /**
+     * Returns an array of fields in this formpanel.
+     * @return {Ext.field.Field[]} An array of fields in this form panel.
+     * @private
+     */
+    getFieldsArray: function() {
+        var fields = [];
+        var getFieldsFrom = function(item) {
+                if (item.isField) {
+                    fields.push(item);
+                }
+                if (item.isContainer) {
+                    item.items.each(getFieldsFrom);
+                }
+            };
+        this.items.each(getFieldsFrom);
+        return fields;
+    },
+    getFieldsFromItem: Ext.emptyFn,
+    /**
+     * Shows a generic/custom mask over a designated Element.
+     * @param {String/Object} cfg Either a string message or a configuration object supporting
+     * the following options:
+     *
+     *     {
+     *         message : 'Please Wait',
+     *         cls : 'form-mask'
+     *     }
+     *
+     * @param {Object} target
+     * @return {Ext.form.Panel} This form
+     * @deprecated 2.0.0 Please use {@link #setMasked} instead.
+     */
+    showMask: function(cfg, target) {
+        Ext.Logger.warn('showMask is now deprecated. Please use Ext.form.Panel#setMasked instead');
+        cfg = Ext.isObject(cfg) ? cfg.message : cfg;
+        if (cfg) {
+            this.setMasked({
+                xtype: 'loadmask',
+                message: cfg
+            });
+        } else {
+            this.setMasked(true);
+        }
+        return this;
+    },
+    /**
+     * Hides a previously shown wait mask (See {@link #showMask}).
+     * @return {Ext.form.Panel} this
+     * @deprecated 2.0.0 Please use {@link #unmask} or {@link #setMasked} instead.
+     */
+    hideMask: function() {
+        this.setMasked(false);
+        return this;
+    },
+    /**
+     * Returns the currently focused field
+     * @return {Ext.field.Field} The currently focused field, if one is focused or `null`.
+     * @private
+     */
+    getFocusedField: function() {
+        var fields = this.getFieldsArray(),
+            ln = fields.length,
+            field, i;
+        for (i = 0; i < ln; i++) {
+            field = fields[i];
+            if (field.isFocused) {
+                return field;
+            }
+        }
+        return null;
+    },
+    /**
+     * @return {Boolean/Ext.field.Field} The next field if one exists, or `false`.
+     * @private
+     */
+    getNextField: function() {
+        var fields = this.getFieldsArray(),
+            focusedField = this.getFocusedField(),
+            index;
+        if (focusedField) {
+            index = fields.indexOf(focusedField);
+            if (index !== fields.length - 1) {
+                index++;
+                return fields[index];
+            }
+        }
+        return false;
+    },
+    /**
+     * Tries to focus the next field in the form, if there is currently a focused field.
+     * @return {Boolean/Ext.field.Field} The next field that was focused, or `false`.
+     * @private
+     */
+    focusNextField: function() {
+        var field = this.getNextField();
+        if (field) {
+            field.focus();
+            return field;
+        }
+        return false;
+    },
+    /**
+     * @private
+     * @return {Boolean/Ext.field.Field} The next field if one exists, or `false`.
+     */
+    getPreviousField: function() {
+        var fields = this.getFieldsArray(),
+            focusedField = this.getFocusedField(),
+            index;
+        if (focusedField) {
+            index = fields.indexOf(focusedField);
+            if (index !== 0) {
+                index--;
+                return fields[index];
+            }
+        }
+        return false;
+    },
+    /**
+     * Tries to focus the previous field in the form, if there is currently a focused field.
+     * @return {Boolean/Ext.field.Field} The previous field that was focused, or `false`.
+     * @private
+     */
+    focusPreviousField: function() {
+        var field = this.getPreviousField();
+        if (field) {
+            field.focus();
+            return field;
+        }
+        return false;
+    }
+}, function() {});
+
+/**
  * @private
  */
 Ext.define('Ext.fx.runner.Css', {
@@ -67756,129 +69717,5905 @@ Ext.define('Ext.viewport.Viewport', {
  * you should **not** use {@link Ext#onReady}.
  */
 
-/*
- * File: app/model/Store.js
- *
- * This file was generated by Sencha Architect version 3.2.0.
- * http://www.sencha.com/products/architect/
- *
- * This file requires use of the Sencha Touch 2.4.x library, under independent license.
- * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
- * details see http://www.sencha.com/license or contact license@sencha.com.
- *
- * This file will be auto-generated each and everytime you save your project.
- *
- * Do NOT hand edit this file.
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
-Ext.define('WINK.model.Store', {
+Ext.define('WINK.Utilities', {
+    statics: {
+        isKeyNull: function(model) {
+            if (model.get('id') === 0)  {
+                return true;
+            }
+            
+            if (typeof model.get('id') === "string")  {
+                if (model.get('id').startsWith("ext-record"))  {
+                    return true;
+                }
+                ;
+            }
+            
+            return false;
+        },
+        getURLParameter: function(name) {
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [
+                ""
+            ])[1].replace(/\+/g, '%20')) || null;
+        },
+        setDefaultValues: function(model) {
+            if (model instanceof WINK.model.PatientInvoice) {
+                model.set('orderdate', new Date());
+                model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
+            } else if (model instanceof WINK.model.PatientPayment) {
+                model.set('date', new Date());
+                model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
+                model.set('user_iduser', WINK.Utilities.currentuser.get('id'));
+            }
+        },
+        loginSuccess: function(response) {
+            WINK.Utilities.currentstore = Ext.create('WINK.model.Store', {
+                id: 1
+            });
+            WINK.Utilities.currentuser = Ext.create('WINK.model.User');
+            console.log("Set logged In User:" + response.responseText);
+            WINK.Utilities.currentuser.set(Ext.JSON.decode(response.responseText));
+            console.log("Set logged In User:" + WINK.Utilities.currentuser.get('id'));
+        },
+        loadAllRequiredStores: function(callback) {
+            console.log("Utilities.loadAllRequiredStores()");
+            if (!WINK.Utilities.currentstore) {
+                console.log("Utilities.loadAllRequiredStores() ajax /users/me");
+                Ext.Ajax.request({
+                    scope: this,
+                    url: WINK.Utilities.getRestURL() + 'users/me',
+                    method: 'GET',
+                    withCredentials: true,
+                    useDefaultXhrHeader: false,
+                    success: function(response) {
+                        WINK.Utilities.loginSuccess(response);
+                        WINK.Utilities.loadAllRequiredStores(callback);
+                    },
+                    failure: function(response) {
+                        Ext.Msg.alert('Login Failed', 'Invalid Login...Please try again', Ext.emptyFn);
+                        document.location.href = '#login';
+                    },
+                    //TODO, once we login go to the right bookmark
+                    callback: function(options, success, response) {}
+                });
+                return;
+            }
+            if (!this.storesLoaded) {
+                console.log("Utilities.loadAllRequiredStores() loading stores");
+                Ext.create('WINK.store.CountrySubdivisionStore', {
+                    storeId: 'CountrySubdivisionStore',
+                    autoLoad: true
+                });
+                //just to start loading the data
+                Ext.create('WINK.store.TaxCodeStore', {
+                    storeId: 'TaxCodeStore',
+                    autoLoad: true
+                });
+                //just to start loading the data
+                Ext.create('WINK.store.PaymentMethodStore', {
+                    storeId: 'PaymentMethodForCurrentStore',
+                    autoLoad: true,
+                    params: {
+                        store_idstore: WINK.Utilities.currentstore.get('id')
+                    }
+                });
+                //just to start loading the data
+                this.storesLoaded = true;
+            }
+            console.log("Utilities.loadAllRequiredStores() done!");
+            if (callback)  {
+                callback();
+            }
+            
+        },
+        getAccountId: function() {
+            if (!WINK.Utilities.accountid)  {
+                WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
+            }
+            
+            return WINK.Utilities.accountid;
+        },
+        getRestURL: function() {
+            return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
+        },
+        showWorking: function() {
+            Ext.getCmp('PleaseWait').show({
+                type: 'slide',
+                direction: 'down'
+            });
+        },
+        hideWorking: function() {
+            Ext.getCmp('PleaseWait').hide();
+        },
+        showAjaxError: function(title, response) {
+            if (response.status == 403) {
+                WINK.Utilities.relogin();
+            } else {
+                Ext.Msg.alert(title, response.status + " " + response.responseText, Ext.emptyFn);
+            }
+        },
+        relogin: function() {
+            var parentView = Ext.ComponentQuery.query('#ParentView')[0];
+            var loginView = Ext.ComponentQuery.query('#LoginPanel')[0];
+            WINK.Utilities.previousActiveItem = parentView.getActiveItem();
+            parentView.setActiveItem(loginView);
+        },
+        submitForm: function(formPanel, callback) {
+            WINK.Utilities.showWorking();
+            formPanel.setMasked(true);
+            var rec = formPanel.getRecord();
+            rec.set(formPanel.getValues());
+            var errors = rec.validate();
+            if (!errors.isValid()) {
+                // at least one error occurred
+                var errorMsg = "";
+                errors.each(function(errorObj) {
+                    errorMsg += errorObj.getField() + ": " + errorObj.getMessage() + "<br>";
+                    return false;
+                });
+                Ext.Msg.alert("Invalid Entry", errorMsg);
+                WINK.Utilities.hideWorking();
+                formPanel.unmask();
+            } else {
+                rec.save({
+                    success: function(response) {
+                        if (callback) {
+                            console.info(response.responseText);
+                            rec.set(Ext.JSON.decode(response.responseText));
+                            callback(rec);
+                        }
+                    },
+                    failure: function(response) {
+                        WINK.Utilities.showAjaxError('Add Patient', response);
+                    },
+                    callback: function(options, success, response) {
+                        formPanel.unmask();
+                        WINK.Utilities.hideWorking();
+                    }
+                });
+            }
+        }
+    }
+});
+
+Ext.define('WINK.model.JobStatus', {
     extend: Ext.data.Model,
     config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'jobstatuses',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
         fields: [
             {
-                name: 'CompanyName'
+                name: 'id',
+                type: 'int',
+                defaultValue: null
             },
             {
-                name: 'LocationName'
+                name: 'rxorderform_idrxorderform',
+                type: 'int',
+                defaultValue: 0
             },
             {
-                allowNull: false,
-                name: 'ID',
-                type: 'int'
+                name: 'rxworksheet_idrxworksheet',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'clworksheet_idclworksheet',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'patientinvoice_idpatientinvoice',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'user_iduser',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'date',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'status',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'supplier_idsupplier',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'shipment_idshipment',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'remiderdate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'comment',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'sharewithpatient',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'reminderemailsenton',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'workflowstages_idworkflowstages',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'datecompletedon',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'holdreasons_idholdreasons',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'extusername',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [],
+        hasMany: [],
+        validations: [
+            {
+                type: 'length',
+                field: 'comment',
+                max: 200,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'extusername',
+                max: 45,
+                min: 0
             }
         ]
     }
 });
 
-/*
- * File: app/model/Product.js
- *
- * This file was generated by Sencha Architect version 3.2.0.
- * http://www.sencha.com/products/architect/
- *
- * This file requires use of the Sencha Touch 2.4.x library, under independent license.
- * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
- * details see http://www.sencha.com/license or contact license@sencha.com.
- *
- * This file will be auto-generated each and everytime you save your project.
- *
- * Do NOT hand edit this file.
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
-Ext.define('WINK.model.Product', {
-    extend: Ext.data.Model,
-    config: {}
-});
-
-/*
- * File: app/model/InvoiceItem.js
- *
- * This file was generated by Sencha Architect version 3.2.0.
- * http://www.sencha.com/products/architect/
- *
- * This file requires use of the Sencha Touch 2.4.x library, under independent license.
- * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
- * details see http://www.sencha.com/license or contact license@sencha.com.
- *
- * This file will be auto-generated each and everytime you save your project.
- *
- * Do NOT hand edit this file.
- */
-Ext.define('WINK.model.InvoiceItem', {
-    extend: Ext.data.Model,
-    config: {
-        hasOne: {
-            model: 'WINK.model.Product'
-        }
-    }
-});
-
-/*
- * File: app/model/Invoice.js
- *
- * This file was generated by Sencha Architect version 3.2.0.
- * http://www.sencha.com/products/architect/
- *
- * This file requires use of the Sencha Touch 2.4.x library, under independent license.
- * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
- * details see http://www.sencha.com/license or contact license@sencha.com.
- *
- * This file will be auto-generated each and everytime you save your project.
- *
- * Do NOT hand edit this file.
- */
-Ext.define('WINK.model.Invoice', {
-    extend: Ext.data.Model,
-    config: {
-        hasMany: {
-            model: 'WINK.model.InvoiceItem'
-        }
-    }
-});
-
-/*
- * File: app/model/TaxCode.js
- *
- * This file was generated by Sencha Architect version 3.2.0.
- * http://www.sencha.com/products/architect/
- *
- * This file requires use of the Sencha Touch 2.4.x library, under independent license.
- * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
- * details see http://www.sencha.com/license or contact license@sencha.com.
- *
- * This file will be auto-generated each and everytime you save your project.
- *
- * Do NOT hand edit this file.
- */
-Ext.define('WINK.model.TaxCode', {
+Ext.define('WINK.model.JobStatusWrapper', {
     extend: Ext.data.Model,
     config: {
         fields: [
             {
-                name: 'id',
+                name: 'date',
+                type: 'date',
+                dateFormat: 'time'
+            },
+            {
+                name: 'statusid',
                 type: 'int'
             },
             {
-                name: 'code',
+                name: 'status',
                 type: 'string'
+            },
+            {
+                name: 'comment',
+                type: 'string'
+            },
+            {
+                name: 'user',
+                type: 'string'
+            },
+            {
+                name: 'jobstatus_idjobstatus',
+                type: 'int'
+            },
+            {
+                name: 'reference',
+                type: 'string'
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.JobStatus',
+                associatedName: 'fkjobstatus_idjobstatus',
+                foreignKey: 'jobstatus_idjobstatus',
+                primaryKey: 'id',
+                getterName: 'getFkjobstatus_idjobstatus',
+                setterName: 'setFkjobstatus_idjobstatus'
+            }
+        ],
+        hasMany: []
+    }
+});
+
+Ext.define('WINK.model.Product', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'products',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'usebarcode',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'comment',
+                type: 'string',
+                defaultValue: ""
+            },
+            {
+                name: 'type',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'framebrand',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framemodel',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framecolor',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framea',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'frameb',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'frameed',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framedbl',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'frametype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'frameshape',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'contactlensbrand',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'contactlensdesign',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'contactlenstype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'contactlensmaterial',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'contactlenswearingperiod',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'contactlensreplacement',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'contactlensqtyperbox',
+                type: 'int',
+                defaultValue: 1
+            },
+            {
+                name: 'finishedlensdesign',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'finsihedlenstype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'finishedlensissurfaced',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlensaddfrom',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'finishedlensaddto',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'productcategory_idproductcategory',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'finishedlensistoric',
+                type: 'boolean',
+                defaultValue: true
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'iseyeexam',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'povonlineid',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'description_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'printas',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'printas_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'printas_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'printas_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framesex',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'finishedlenspricedetailed',
+                type: 'int',
+                defaultValue: 1
+            },
+            {
+                name: 'code',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tagcolor',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'discontinuedon',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'msrp',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'publishedwholesalecost',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'frametemple',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'insurancecode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'preferredsupplier_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'manufacturersupplier_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'donotpreload',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'entrymethod',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'framesdataid',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'bestseller',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'framecolorname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framelenscolorcode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framelenscolorname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'upc',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'imageuploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'framecolorasone',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'lensoptiontype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'finishedlensisfreefrom',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lensoptionunit',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'finishedlensmaterialcolor',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'finishedlensmaterialpolarized',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlensmaterialphotochromic',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlenscoatinghydrophobe',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlenscoatingar',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlenscoatingbackar',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlenscoatingrae',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'isgeneric',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlensmaterialname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'finishedlensistintable',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'finishedlensmaterialindex',
+                type: 'float',
+                defaultValue: 0
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.ProductCategory',
+                associatedName: 'fkproductcategory_idproductcategory',
+                foreignKey: 'productcategory_idproductcategory',
+                primaryKey: 'id',
+                getterName: 'getFkproductcategory_idproductcategory',
+                setterName: 'setFkproductcategory_idproductcategory'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkpreferredsupplier_idsupplier',
+                foreignKey: 'preferredsupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkpreferredsupplier_idsupplier',
+                setterName: 'setFkpreferredsupplier_idsupplier'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkmanufacturersupplier_idsupplier',
+                foreignKey: 'manufacturersupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkmanufacturersupplier_idsupplier',
+                setterName: 'setFkmanufacturersupplier_idsupplier'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkimageuploads_iduploads',
+                foreignKey: 'imageuploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkimageuploads_iduploads',
+                setterName: 'setFkimageuploads_iduploads'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_product_idproduct',
+                foreignKey: 'product_idproduct',
+                associationKey: 'patientinvoiceitems_product_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcodes_product_idproduct',
+                foreignKey: 'product_idproduct',
+                associationKey: 'barcodes_product_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetails_product_idproduct',
+                foreignKey: 'product_idproduct',
+                associationKey: 'productretaildetails_product_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetails_lenstreatment_idlenstreatment',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                associationKey: 'productretaildetails_lenstreatment_idlenstreatment',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetails_lensmaterial_idlensmaterial',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                associationKey: 'productretaildetails_lensmaterial_idlensmaterial',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framebrand',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framemodel',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framecolor',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framea',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'frameb',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'frameed',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framedbl',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'contactlensbrand',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'contactlensdesign',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'finishedlensdesign',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_fr',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_sp',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_it',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_fr',
+                max: 255,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_sp',
+                max: 255,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_it',
+                max: 255,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'printas',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'printas_fr',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'printas_sp',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'printas_it',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'code',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'frametemple',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'insurancecode',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framecolorname',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framelenscolorcode',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framelenscolorname',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'upc',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framecolorasone',
+                max: 400,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'finishedlensmaterialcolor',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'finishedlensmaterialname',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.Barcode', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'barcodes',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'product_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'contactlens_idcontactlens',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'stocklens_idstocklens',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'dateprinted',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'removedbyinventoryadjustment_idinventoryadjustment',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'createdbyinventoryadjustment_idinventoryadjustment',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'removedbypatientinvoiceitem_idpatientinvoiceitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'createdbypatientinvoiceitem_idpatientinvoiceitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'removedbyreceiveproductitem_idreceiveproductitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'createdbyreceiveproductitem_idreceiveproductitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'lastdatefound',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'disabled',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'disabledon',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'disabledbyuser_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reference1',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'reference2',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'createdbyproductob_idproductob',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'datecreated',
+                type: 'date',
+                defaultValue: null
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkremovedbypatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'removedbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkremovedbypatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkremovedbypatientinvoiceitem_idpatientinvoiceitem'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkcreatedbypatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'createdbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkcreatedbypatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkcreatedbypatientinvoiceitem_idpatientinvoiceitem'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdisabledbyuser_iduser',
+                foreignKey: 'disabledbyuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdisabledbyuser_iduser',
+                setterName: 'setFkdisabledbyuser_iduser'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_barcode_idbarcode',
+                foreignKey: 'barcode_idbarcode',
+                associationKey: 'patientinvoiceitems_barcode_idbarcode',
+                primaryKey: 'id'
+            }
+        ],
+        validations: []
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.model.BarcodeResponse', {
+    extend: Ext.data.Model,
+    config: {
+        fields: [
+            {
+                name: 'product_idproduct',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'storeInventory',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'entrepriseInventory',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'isInventory',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'barcode_idbarcode',
+                type: 'int',
+                defaultValue: 0
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                associatedName: 'fkbarcode_idbarcode',
+                foreignKey: 'barcode_idbarcode',
+                primaryKey: 'id',
+                getterName: 'getFkbarcode_idbarcode',
+                setterName: 'setFkbarcode_idbarcode'
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.ApplicationSetting', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'applicationsettings',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'setting',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'value',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'date',
+                type: 'date',
+                defaultValue: null
+            }
+        ],
+        belongsTo: [],
+        hasMany: [],
+        validations: [
+            {
+                type: 'length',
+                field: 'setting',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'value',
+                max: 350,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.Appointment', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'appointments',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'fromold',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'toold',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'status',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'comment',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'doctor_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patient_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'isbusy',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'appointmenttypes_idappointmenttypes',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'initialappointmenttypes_idappointmenttypes',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'googlecalendarversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'outlookcalendarversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'maccalendarversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'googleeventid',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'fromdate',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'todate',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'ishistorical',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'emailversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'emailsenton',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'smsversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'smssenton',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'emailconfirmationversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'emailconfirmationsenton',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'smsconfirmationversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'smsconfirmationsenton',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'appointments_idappointments',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'doublebooked',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdoctor_idpatient',
+                foreignKey: 'doctor_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkdoctor_idpatient',
+                setterName: 'setFkdoctor_idpatient'
+            },
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            },
+            {
+                model: 'WINK.model.AppointmentType',
+                associatedName: 'fkappointmenttypes_idappointmenttypes',
+                foreignKey: 'appointmenttypes_idappointmenttypes',
+                primaryKey: 'id',
+                getterName: 'getFkappointmenttypes_idappointmenttypes',
+                setterName: 'setFkappointmenttypes_idappointmenttypes'
+            },
+            {
+                model: 'WINK.model.AppointmentType',
+                associatedName: 'fkinitialappointmenttypes_idappointmenttypes',
+                foreignKey: 'initialappointmenttypes_idappointmenttypes',
+                primaryKey: 'id',
+                getterName: 'getFkinitialappointmenttypes_idappointmenttypes',
+                setterName: 'setFkinitialappointmenttypes_idappointmenttypes'
+            },
+            {
+                model: 'WINK.model.Appointment',
+                associatedName: 'fkappointments_idappointments',
+                foreignKey: 'appointments_idappointments',
+                primaryKey: 'id',
+                getterName: 'getFkappointments_idappointments',
+                setterName: 'setFkappointments_idappointments'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointments_appointments_idappointments',
+                foreignKey: 'appointments_idappointments',
+                associationKey: 'appointments_appointments_idappointments',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'googleeventid',
+                max: 300,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.AppointmentType', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'appointmenttypes',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'canbebookedonline',
+                type: 'boolean',
+                defaultValue: true
+            },
+            {
+                name: 'numberofslotsnew',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'numberofslotsreturning',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'iseyeexam',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [],
+        hasMany: [
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointments_appointmenttypes_idappointmenttypes',
+                foreignKey: 'appointmenttypes_idappointmenttypes',
+                associationKey: 'appointments_appointmenttypes_idappointmenttypes',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointments_initialappointmenttypes_idappointmenttypes',
+                foreignKey: 'initialappointmenttypes_idappointmenttypes',
+                associationKey: 'appointments_initialappointmenttypes_idappointmenttypes',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_fr',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_sp',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_it',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.Country', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'countries',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [],
+        hasMany: [
+            {
+                model: 'WINK.model.Store',
+                name: 'stores_country_idcountry',
+                foreignKey: 'country_idcountry',
+                associationKey: 'stores_country_idcountry',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.CountrySubdivision',
+                name: 'countrysubdivisions_country_idcountry',
+                foreignKey: 'country_idcountry',
+                associationKey: 'countrysubdivisions_country_idcountry',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.User',
+                name: 'users_country_idcountry',
+                foreignKey: 'country_idcountry',
+                associationKey: 'users_country_idcountry',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Patient',
+                name: 'patients_country_idcountry',
+                foreignKey: 'country_idcountry',
+                associationKey: 'patients_country_idcountry',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_country_idcountry',
+                foreignKey: 'country_idcountry',
+                associationKey: 'patientinvoices_country_idcountry',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                name: 'suppliers_country_idcountry',
+                foreignKey: 'country_idcountry',
+                associationKey: 'suppliers_country_idcountry',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.CountrySubdivision', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'countries/subdivision',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'country_idcountry',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+        ],
+        hasMany: [],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.InvoiceAttachement', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'invoiceattachements',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientinvoice_idpatientinvoice',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'uploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkuploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkuploads_iduploads',
+                setterName: 'setFkuploads_iduploads'
+            }
+        ],
+        hasMany: [],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.Patient', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patients',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'referredby_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'firstname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'lastname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'city',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'province',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'postalcode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'home',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'cell',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'work',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'fax',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'mainnumber',
+                type: 'int',
+                defaultValue: 1
+            },
+            {
+                name: 'email',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'dob',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'sex',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'medialcard',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'drivers',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'note',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'unit',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'country_idcountry',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'title',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'language',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'lasteyeexam',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'referringdoctor_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'nocall',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'notxt',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'nofax',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'noemail',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'wearscl',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'wearsprogressives',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'wearsbifocal',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lastee',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'nextee',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'totalspending',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'avgspending',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'createddate',
+                type: 'string',
+                defaultValue: 1.430768867656E12
+            },
+            {
+                name: 'lastpurchasedate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'lastcontactlenspurchasedate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'lasteyeglasspurchasedate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'enteredinstore_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'recall1',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'recall2',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'passedaway',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'passedawayon',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'totalamountinvoices',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'totalamountcreditnotes',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'totalamountee',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'totalinvoices',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'totalcreditnotes',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'totalinvoicesatzero',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'primaryinsurer',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'primaryinsureraccountnumber',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'primaryinsurergroupnumber',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'primaryinsurerplanname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'supplementalinsurer',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'supplementalinsureraccountnumber',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'supplementalinsurergroupnumber',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'supplementalinsurerplanname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'primaryinsurerother',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'supplementalinsurerother',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'patientprivacyconsentformsignedon',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'patientprivacyconsentacceptads',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'patientprivacyconsentmethod',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'patientprivacyconsentipaddress',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'sin',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'referalmethods_idreferalmethods',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'medialcardexpiry',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkreferredby_idpatient',
+                foreignKey: 'referredby_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkreferredby_idpatient',
+                setterName: 'setFkreferredby_idpatient'
+            },
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkreferringdoctor_iduser',
+                foreignKey: 'referringdoctor_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkreferringdoctor_iduser',
+                setterName: 'setFkreferringdoctor_iduser'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkenteredinstore_idstore',
+                foreignKey: 'enteredinstore_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkenteredinstore_idstore',
+                setterName: 'setFkenteredinstore_idstore'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.Patient',
+                name: 'patients_referredby_idpatient',
+                foreignKey: 'referredby_idpatient',
+                associationKey: 'patients_referredby_idpatient',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_patient_idpatient',
+                foreignKey: 'patient_idpatient',
+                associationKey: 'patientpayments_patient_idpatient',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_patient_idpatient',
+                foreignKey: 'patient_idpatient',
+                associationKey: 'patientinvoices_patient_idpatient',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointments_patient_idpatient',
+                foreignKey: 'patient_idpatient',
+                associationKey: 'appointments_patient_idpatient',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientNote',
+                name: 'patientnotes_patient_idpatient',
+                foreignKey: 'patient_idpatient',
+                associationKey: 'patientnotes_patient_idpatient',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPaperFileNumber',
+                name: 'patientpaperfilenumbers_patient_idpatient',
+                foreignKey: 'patient_idpatient',
+                associationKey: 'patientpaperfilenumbers_patient_idpatient',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'firstname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'lastname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'city',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'province',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'postalcode',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'home',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'cell',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'work',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'fax',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'email',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'medialcard',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'drivers',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'unit',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'primaryinsurer',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'primaryinsureraccountnumber',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'primaryinsurergroupnumber',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'primaryinsurerplanname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'supplementalinsurer',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'supplementalinsureraccountnumber',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'supplementalinsurergroupnumber',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'supplementalinsurerplanname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'patientprivacyconsentipaddress',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'sin',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'medialcardexpiry',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.PatientInvoice', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patientinvoices',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'orderdate',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+            },
+            {
+                name: 'patient_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'promisseddate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'delivereddate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'createby_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'noteoninvoice',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'balance',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'salesrep',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'uploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'uploadname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'quickbookslistid',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'quickbooksversionid',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'quickbookssequenceid',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'quickbooksfile_idquickbooksfile',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'quickbooksiscreditmemo',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'subtotal',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax1',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'eyeexam',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'createdon',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+            },
+            {
+                name: 'insurance1_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'insurance2_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'subtotal_insurance1',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax1_insurance1',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax2_insurance1',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'subtotal_insurance2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax1_insurance2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax2_insurance2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'provideruser_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientpayments',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'shipto',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'address1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'city',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'province',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'postalcode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'country_idcountry',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'unit',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'specials_idspecials',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'recalls_idrecalls',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'shiptoname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'doctoruser_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'pickupatstore_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'writeoffbalanceamount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'writeoffbalancedate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'writeoffbalanceuser_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'isestimate',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'estimatedate',
+                type: 'date',
+                defaultValue: null
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkcreateby_iduser',
+                foreignKey: 'createby_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkcreateby_iduser',
+                setterName: 'setFkcreateby_iduser'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fksalesrep',
+                foreignKey: 'salesrep',
+                primaryKey: 'id',
+                getterName: 'getFksalesrep',
+                setterName: 'setFksalesrep'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkuploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkuploads_iduploads',
+                setterName: 'setFkuploads_iduploads'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkinsurance1_idsupplier',
+                foreignKey: 'insurance1_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkinsurance1_idsupplier',
+                setterName: 'setFkinsurance1_idsupplier'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkinsurance2_idsupplier',
+                foreignKey: 'insurance2_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkinsurance2_idsupplier',
+                setterName: 'setFkinsurance2_idsupplier'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkprovideruser_iduser',
+                foreignKey: 'provideruser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkprovideruser_iduser',
+                setterName: 'setFkprovideruser_iduser'
+            },
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdoctoruser_iduser',
+                foreignKey: 'doctoruser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdoctoruser_iduser',
+                setterName: 'setFkdoctoruser_iduser'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkpickupatstore_idstore',
+                foreignKey: 'pickupatstore_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkpickupatstore_idstore',
+                setterName: 'setFkpickupatstore_idstore'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkwriteoffbalanceuser_iduser',
+                foreignKey: 'writeoffbalanceuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkwriteoffbalanceuser_iduser',
+                setterName: 'setFkwriteoffbalanceuser_iduser'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'patientpayments_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'patientinvoiceitems_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.InvoiceAttachement',
+                name: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'noteoninvoice',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'uploadname',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'quickbookslistid',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'quickbookssequenceid',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'city',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'province',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'postalcode',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'unit',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'shiptoname',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.PatientInvoiceItem', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patientinvoiceitems',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientinvoice_idpatientinvoice',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'qty',
+                type: 'int',
+                defaultValue: 1
+            },
+            {
+                name: 'unitprice',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax1amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax2amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'taxcode_idtaxcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'product_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'rxworksheet_idrxworksheet',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'clworksheet_idclworksheet',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'worksheetflag',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'contactlens_idcontactlens',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'stocklens_idstocklens',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'barcode_idbarcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'discountauthorizedbyuser_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'icd_idicd',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'insurance1amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'insurance1tax1amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'insurance1tax2amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'insurance2amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'insurance2tax1amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'insurance2tax2amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'discountamount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'prediscount_unitprice',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'refundofpatientinvoiceitem_idpatientinvoiceitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'dateposted',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'datediscountposted',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'isestimate',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            },
+            {
+                model: 'WINK.model.TaxCode',
+                associatedName: 'fktaxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id',
+                getterName: 'getFktaxcode_idtaxcode',
+                setterName: 'setFktaxcode_idtaxcode'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                associatedName: 'fkbarcode_idbarcode',
+                foreignKey: 'barcode_idbarcode',
+                primaryKey: 'id',
+                getterName: 'getFkbarcode_idbarcode',
+                setterName: 'setFkbarcode_idbarcode'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdiscountauthorizedbyuser_iduser',
+                foreignKey: 'discountauthorizedbyuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdiscountauthorizedbyuser_iduser',
+                setterName: 'setFkdiscountauthorizedbyuser_iduser'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkrefundofpatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'refundofpatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkrefundofpatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkrefundofpatientinvoiceitem_idpatientinvoiceitem'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_patientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'patientinvoiceitem_idpatientinvoiceitem',
+                associationKey: 'patientpayments_patientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_refundofpatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'refundofpatientinvoiceitem_idpatientinvoiceitem',
+                associationKey: 'patientinvoiceitems_refundofpatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcodes_removedbypatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'removedbypatientinvoiceitem_idpatientinvoiceitem',
+                associationKey: 'barcodes_removedbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcodes_createdbypatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'createdbypatientinvoiceitem_idpatientinvoiceitem',
+                associationKey: 'barcodes_createdbypatientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'description',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'worksheetflag',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.PatientHistoryTree', {
+    extend: Ext.data.Model,
+    uses: [],
+    config: {
+        fields: [
+            {
+                name: 'modelid'
+            },
+            {
+                name: 'icon'
+            },
+            {
+                name: 'label',
+                type: 'string'
+            },
+            {
+                name: 'date',
+                type: 'date'
+            },
+            {
+                name: 'type',
+                type: 'int'
+            }
+        ]
+    }
+});
+//0 is the patient details,1 is exams, 2 is appointments, 3 is photo booth,  4 is an open job, 5 is a closed job
+
+Ext.define('WINK.model.PatientNote', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patientnotes',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patient_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'user_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'uploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'note',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'postedon',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkuser_iduser',
+                foreignKey: 'user_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkuser_iduser',
+                setterName: 'setFkuser_iduser'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkuploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkuploads_iduploads',
+                setterName: 'setFkuploads_iduploads'
+            }
+        ],
+        hasMany: [],
+        validations: []
+    }
+});
+
+Ext.define('WINK.model.PatientPaperFileNumber', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patientpaperfilenumbers',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patient_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'number',
+                type: 'int',
+                defaultValue: 0
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            }
+        ],
+        hasMany: [],
+        validations: []
+    }
+});
+
+Ext.define('WINK.model.PatientPayment', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patientpayments',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientinvoice_idpatientinvoice',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patient_idpatient',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'date',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+            },
+            {
+                name: 'amount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'paymentmethod_idpaymentmethod',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'uploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'quickbookslistid',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'quickbookssequencenumber',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'quickbooksversionid',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'quickbooksfile_idquickbooksfile',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'quickbookstype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'evotransactionlog_idevotransactionlog',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'entrymethod',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'cardnumber',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'cardexpiraydate',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'cardtype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'paylater',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'epayentrymethod',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'customervault_idcustomervault',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'epayaccounts_idepayaccounts',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'paidbyinsurancesupplier_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'insurancepayment_idinsurancepayment',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'receiveproductitem_idreceiveproductitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientinvoiceitem_idpatientinvoiceitem',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'cardholdername',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'signatureuploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'chargebackamount',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'user_iduser',
+                type: 'int',
+                defaultValue: null
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            },
+            {
+                model: 'WINK.model.Patient',
+                associatedName: 'fkpatient_idpatient',
+                foreignKey: 'patient_idpatient',
+                primaryKey: 'id',
+                getterName: 'getFkpatient_idpatient',
+                setterName: 'setFkpatient_idpatient'
+            },
+            {
+                model: 'WINK.model.PaymentMethod',
+                associatedName: 'fkpaymentmethod_idpaymentmethod',
+                foreignKey: 'paymentmethod_idpaymentmethod',
+                primaryKey: 'id',
+                getterName: 'getFkpaymentmethod_idpaymentmethod',
+                setterName: 'setFkpaymentmethod_idpaymentmethod'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkuploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkuploads_iduploads',
+                setterName: 'setFkuploads_iduploads'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkpaidbyinsurancesupplier_idsupplier',
+                foreignKey: 'paidbyinsurancesupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkpaidbyinsurancesupplier_idsupplier',
+                setterName: 'setFkpaidbyinsurancesupplier_idsupplier'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                associatedName: 'fkpatientinvoiceitem_idpatientinvoiceitem',
+                foreignKey: 'patientinvoiceitem_idpatientinvoiceitem',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoiceitem_idpatientinvoiceitem',
+                setterName: 'setFkpatientinvoiceitem_idpatientinvoiceitem'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fksignatureuploads_iduploads',
+                foreignKey: 'signatureuploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFksignatureuploads_iduploads',
+                setterName: 'setFksignatureuploads_iduploads'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkuser_iduser',
+                foreignKey: 'user_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkuser_iduser',
+                setterName: 'setFkuser_iduser'
+            }
+        ],
+        hasMany: [],
+        validations: [
+            {
+                type: 'length',
+                field: 'description',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'quickbookslistid',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'quickbookssequencenumber',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'cardnumber',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'cardexpiraydate',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'cardholdername',
+                max: 200,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.PaymentMethod', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'patients',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'defaultmethod',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'opencashdrawer',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_paymentmethod_idpaymentmethod',
+                foreignKey: 'paymentmethod_idpaymentmethod',
+                associationKey: 'patientpayments_paymentmethod_idpaymentmethod',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_fr',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_sp',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_it',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_fr',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_sp',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_it',
+                max: 150,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.ProductCategory', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'productcategories',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'comment',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [],
+        hasMany: [
+            {
+                model: 'WINK.model.Product',
+                name: 'products_productcategory_idproductcategory',
+                foreignKey: 'productcategory_idproductcategory',
+                associationKey: 'products_productcategory_idproductcategory',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_fr',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_sp',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_it',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_fr',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_sp',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description_it',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.ProductRetailDetail', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'productretaildetails',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'product_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'store_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'taxcode_idtaxcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'retailpricefrom',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'retailpriceto',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'finishedlensavaillibility_idfinishedlensavaillibility',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'contactlensavaillibility_idcontactlensavaillibility',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'lenstreatment_idlenstreatment',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'hasextras',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lensmaterial_idlensmaterial',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'taxincluded',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkstore_idstore',
+                foreignKey: 'store_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkstore_idstore',
+                setterName: 'setFkstore_idstore'
+            },
+            {
+                model: 'WINK.model.TaxCode',
+                associatedName: 'fktaxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id',
+                getterName: 'getFktaxcode_idtaxcode',
+                setterName: 'setFktaxcode_idtaxcode'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fklenstreatment_idlenstreatment',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                primaryKey: 'id',
+                getterName: 'getFklenstreatment_idlenstreatment',
+                setterName: 'setFklenstreatment_idlenstreatment'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fklensmaterial_idlensmaterial',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                primaryKey: 'id',
+                getterName: 'getFklensmaterial_idlensmaterial',
+                setterName: 'setFklensmaterial_idlensmaterial'
+            }
+        ],
+        hasMany: [],
+        validations: []
+    }
+});
+
+Ext.define('WINK.model.Store', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'stores',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'companyname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'city',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'province',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'postalcode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tel1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tel2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'fax',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tollfree',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'email',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'website',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'taxnumber1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'taxnumber2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'unit',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'country_idcountry',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'povonlineid',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'onlineversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'quickbooksfile_idquickbooksfile',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'timezone',
+                type: 'string',
+                defaultValue: "America/New_York"
+            },
+            {
+                name: 'smsgatewayprotocol',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'name_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'useasdefaultaddress',
+                type: 'boolean',
+                defaultValue: true
+            },
+            {
+                name: 'epayaccounts_idepayaccounts',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'edgemountcapacity',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'cariesstocklenses',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'icdrevision',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'defaultlanguage',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'defaultinvoicenote',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'rxverificationbeforeorderrequired',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'rxverificationbeforedeliveryrequired',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'inclusiveoftax',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'openingbalancedate',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 4, 0, 0, 0)
+            },
+            {
+                name: 'openingbalanceclosedon',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'defaultpairlenspricing',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'companylegalname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'bookscloseddate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'edgeatstore_idstore',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'edgeatsupplier_idsupplier',
+                type: 'int',
+                defaultValue: null
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            },
+            {
+                model: 'WINK.model.Store',
+                associatedName: 'fkedgeatstore_idstore',
+                foreignKey: 'edgeatstore_idstore',
+                primaryKey: 'id',
+                getterName: 'getFkedgeatstore_idstore',
+                setterName: 'setFkedgeatstore_idstore'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fkedgeatsupplier_idsupplier',
+                foreignKey: 'edgeatsupplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFkedgeatsupplier_idsupplier',
+                setterName: 'setFkedgeatsupplier_idsupplier'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.Store',
+                name: 'stores_edgeatstore_idstore',
+                foreignKey: 'edgeatstore_idstore',
+                associationKey: 'stores_edgeatstore_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Patient',
+                name: 'patients_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'patients_store_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Patient',
+                name: 'patients_enteredinstore_idstore',
+                foreignKey: 'enteredinstore_idstore',
+                associationKey: 'patients_enteredinstore_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'patientpayments_store_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'patientinvoices_store_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_pickupatstore_idstore',
+                foreignKey: 'pickupatstore_idstore',
+                associationKey: 'patientinvoices_pickupatstore_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointments_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'appointments_store_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPaperFileNumber',
+                name: 'patientpaperfilenumbers_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'patientpaperfilenumbers_store_idstore',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetails_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'productretaildetails_store_idstore',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'companyname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address1',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address2',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'city',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'province',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'postalcode',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tel1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tel2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'fax',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tollfree',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'email',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'website',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'taxnumber1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'taxnumber2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'unit',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'timezone',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_fr',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_sp',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'name_it',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'icdrevision',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'defaultinvoicenote',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'companylegalname',
+                max: 300,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.Supplier', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'suppliers',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'povonlineid',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'maincontact',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'city',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'province',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'postalcode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tel1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tel2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'fax',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tollfree',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'email',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'website',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'comment',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'taxnumber1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'taxnumber2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'cooppercentage',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'unit',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'country_idcountry',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'isinsuranceprovider',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'entrymethod',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'framesdataid',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'isfinishinglab',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'issurfacinglab',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'iorderdriver',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'iscontactlenssupplier',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'isframesupplier',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.Store',
+                name: 'stores_edgeatsupplier_idsupplier',
+                foreignKey: 'edgeatsupplier_idsupplier',
+                associationKey: 'stores_edgeatsupplier_idsupplier',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Product',
+                name: 'products_preferredsupplier_idsupplier',
+                foreignKey: 'preferredsupplier_idsupplier',
+                associationKey: 'products_preferredsupplier_idsupplier',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Product',
+                name: 'products_manufacturersupplier_idsupplier',
+                foreignKey: 'manufacturersupplier_idsupplier',
+                associationKey: 'products_manufacturersupplier_idsupplier',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_paidbyinsurancesupplier_idsupplier',
+                foreignKey: 'paidbyinsurancesupplier_idsupplier',
+                associationKey: 'patientpayments_paidbyinsurancesupplier_idsupplier',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_insurance1_idsupplier',
+                foreignKey: 'insurance1_idsupplier',
+                associationKey: 'patientinvoices_insurance1_idsupplier',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_insurance2_idsupplier',
+                foreignKey: 'insurance2_idsupplier',
+                associationKey: 'patientinvoices_insurance2_idsupplier',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'maincontact',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address1',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address2',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'city',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'province',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'postalcode',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tel1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tel2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'fax',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tollfree',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'email',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'website',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'taxnumber1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'taxnumber2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'unit',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'iorderdriver',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.TaxCode', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'taxcodes',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'code',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'description',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax1name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax2name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'povonlineid',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'tax1name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax1name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax1name_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax2name_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax2name_sp',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tax2name_it',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_taxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                associationKey: 'patientinvoiceitems_taxcode_idtaxcode',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.TaxCodeEffectiveDate',
+                name: 'taxcodeeffectivedates_taxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                associationKey: 'taxcodeeffectivedates_taxcode_idtaxcode',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ProductRetailDetail',
+                name: 'productretaildetails_taxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                associationKey: 'productretaildetails_taxcode_idtaxcode',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'code',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'description',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax1name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax2name',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax1name_fr',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax1name_sp',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax1name_it',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax2name_fr',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax2name_sp',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tax2name_it',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.TaxCodeEffectiveDate', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'taxcodeeffectivedates',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'taxcode_idtaxcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'tax1percentage',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'tax2percentage',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'piggyback',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'effectivedate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'povonlineid',
+                type: 'int',
+                defaultValue: 0
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.TaxCode',
+                associatedName: 'fktaxcode_idtaxcode',
+                foreignKey: 'taxcode_idtaxcode',
+                primaryKey: 'id',
+                getterName: 'getFktaxcode_idtaxcode',
+                setterName: 'setFktaxcode_idtaxcode'
+            }
+        ],
+        hasMany: [],
+        validations: []
+    }
+});
+
+Ext.define('WINK.model.Upload', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'uploads',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'datetime',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'data',
+                defaultValue: "null"
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'filename',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'mimetype',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'size',
+                type: 'int',
+                defaultValue: 0
+            }
+        ],
+        belongsTo: [],
+        hasMany: [
+            {
+                model: 'WINK.model.Product',
+                name: 'products_imageuploads_iduploads',
+                foreignKey: 'imageuploads_iduploads',
+                associationKey: 'products_imageuploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.User',
+                name: 'users_googlecalendaruploads_iduploads',
+                foreignKey: 'googlecalendaruploads_iduploads',
+                associationKey: 'users_googlecalendaruploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'patientpayments_uploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_signatureuploads_iduploads',
+                foreignKey: 'signatureuploads_iduploads',
+                associationKey: 'patientpayments_signatureuploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'patientinvoices_uploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.InvoiceAttachement',
+                name: 'invoiceattachements_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'invoiceattachements_uploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientNote',
+                name: 'patientnotes_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'patientnotes_uploads_iduploads',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'mimetype',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.User', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'users',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'type',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'hassystemaccess',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'username',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'firstname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'lastname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'address2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'city',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'province',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'postalcode',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tel1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tel2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'fax',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'tollfree',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'email',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'comment',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'lastlogindate',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'lasttry',
+                type: 'date',
+                defaultValue: null
+            },
+            {
+                name: 'numberofinvalidtries',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'inactive',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'taxcodeaccess',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'storeaccess',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'doctoraccess',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'useraccess',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'advertisingaccess',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'negpos',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'negposdontask',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'calendarusecategories',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'googlecalendarid',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'locale',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'termsofuseversion',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'termsofuseacceptedon',
+                type: 'string',
+                defaultValue: 0
+            },
+            {
+                name: 'termsofusemacaddress',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'googlecalendaruploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'providertype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'prefersgeneric',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'providerlicense',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'country_idcountry',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'locale_fr',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'locale_es',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'locale_it',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'accesscard',
+                type: 'string',
+                defaultValue: ''
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkgooglecalendaruploads_iduploads',
+                foreignKey: 'googlecalendaruploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkgooglecalendaruploads_iduploads',
+                setterName: 'setFkgooglecalendaruploads_iduploads'
+            },
+            {
+                model: 'WINK.model.Country',
+                associatedName: 'fkcountry_idcountry',
+                foreignKey: 'country_idcountry',
+                primaryKey: 'id',
+                getterName: 'getFkcountry_idcountry',
+                setterName: 'setFkcountry_idcountry'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.Patient',
+                name: 'patients_referringdoctor_iduser',
+                foreignKey: 'referringdoctor_iduser',
+                associationKey: 'patients_referringdoctor_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientPayment',
+                name: 'patientpayments_user_iduser',
+                foreignKey: 'user_iduser',
+                associationKey: 'patientpayments_user_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_createby_iduser',
+                foreignKey: 'createby_iduser',
+                associationKey: 'patientinvoices_createby_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_salesrep',
+                foreignKey: 'salesrep',
+                associationKey: 'patientinvoices_salesrep',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_provideruser_iduser',
+                foreignKey: 'provideruser_iduser',
+                associationKey: 'patientinvoices_provideruser_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_doctoruser_iduser',
+                foreignKey: 'doctoruser_iduser',
+                associationKey: 'patientinvoices_doctoruser_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoice',
+                name: 'patientinvoices_writeoffbalanceuser_iduser',
+                foreignKey: 'writeoffbalanceuser_iduser',
+                associationKey: 'patientinvoices_writeoffbalanceuser_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_discountauthorizedbyuser_iduser',
+                foreignKey: 'discountauthorizedbyuser_iduser',
+                associationKey: 'patientinvoiceitems_discountauthorizedbyuser_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Appointment',
+                name: 'appointments_doctor_idpatient',
+                foreignKey: 'doctor_idpatient',
+                associationKey: 'appointments_doctor_idpatient',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                name: 'barcodes_disabledbyuser_iduser',
+                foreignKey: 'disabledbyuser_iduser',
+                associationKey: 'barcodes_disabledbyuser_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.PatientNote',
+                name: 'patientnotes_user_iduser',
+                foreignKey: 'user_iduser',
+                associationKey: 'patientnotes_user_iduser',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'username',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'firstname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'lastname',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address1',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'address2',
+                max: 150,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'city',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'province',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'postalcode',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tel1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tel2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'fax',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tollfree',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'email',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'googlecalendarid',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'locale',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'termsofusemacaddress',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'providerlicense',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'locale_fr',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'locale_es',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'locale_it',
+                max: 300,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'accesscard',
+                max: 300,
+                min: 0
+            }
+        ]
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.model.ProductBrowseModel', {
+    extend: Ext.data.Model,
+    config: {
+        fields: [
+            {
+                name: 'id'
+            },
+            {
+                name: 'name',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'product_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'productcategory_idproductcategory',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'type',
+                type: 'int'
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.ProductCategory',
+                associatedName: 'fkproductcategory_idproductcategory',
+                foreignKey: 'productcategory_idproductcategory',
+                primaryKey: 'id',
+                getterName: 'getFkproductcategory_idproductcategory',
+                setterName: 'setFkproductcategory_idproductcategory'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkproduct_idproduct',
+                foreignKey: 'product_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkproduct_idproduct',
+                setterName: 'setFkproduct_idproduct'
+            }
+        ]
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.store.ProductStore', {
+    extend: Ext.data.Store,
+    config: {
+        autoLoad: false,
+        data: [],
+        model: 'WINK.model.Product',
+        sorters: [
+            {
+                property: "name",
+                direction: "ASC"
             }
         ]
     }
@@ -67956,15 +75693,22 @@ Ext.define('WINK.store.leftNavigationTreeStore', {
 Ext.define('WINK.store.LocationStore', {
     extend: Ext.data.Store,
     config: {
-        data: [
-            {
-                ID: 1,
-                CompanyName: 'Bailey Nelson',
-                LocationName: 'Neal'
-            }
-        ],
+        autoLoad: true,
+        data: [],
         model: 'WINK.model.Store',
-        storeId: 'LocationStore'
+        storeId: 'LocationStore',
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId(),
+            withCredentials: true,
+            useDefaultXhrHeader: false
+        },
+        sorters: [
+            {
+                property: "name",
+                direction: "ASC"
+            }
+        ]
     }
 });
 
@@ -67985,18 +75729,266 @@ Ext.define('WINK.store.LocationStore', {
 Ext.define('WINK.store.TaxCodeStore', {
     extend: Ext.data.Store,
     config: {
-        data: [
+        data: [],
+        model: 'WINK.model.TaxCode',
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'taxcodes',
+            withCredentials: true,
+            useDefaultXhrHeader: false
+        },
+        sorters: [
             {
-                id: 690,
-                code: 'Q'
+                property: "code",
+                direction: "ASC"
+            }
+        ]
+    }
+});
+
+/*
+ * File: app/store/LocationStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.PatientStore', {
+    extend: Ext.data.Store,
+    config: {
+        data: [],
+        model: 'WINK.model.Patient',
+        storeId: 'PatientStore',
+        grouper: {
+            groupFn: function(record) {
+                return record.get('lastname').substr(0, 1);
+            },
+            sortProperty: 'lastname'
+        }
+    }
+});
+
+/*
+ * File: app/store/LocationStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.PatientHistoryStore', {
+    extend: Ext.data.Store,
+    sortHistory: function() {
+        this.sort([
+            {
+                property: 'type',
+                direction: 'ASC'
             },
             {
-                id: 804,
-                code: 'E'
+                property: 'date',
+                direction: 'DESC'
             }
-        ],
-        model: 'WINK.model.TaxCode',
-        storeId: 'TaxCodeStore'
+        ]);
+    },
+    // this.group();
+    config: {
+        data: [],
+        model: 'WINK.model.PatientHistoryTree',
+        grouper: {
+            groupFn: function(record) {
+                if (record.get('type') == 0)  {
+                    return "Patient Details";
+                }
+                
+                if (record.get('type') == 1)  {
+                    return "Exams";
+                }
+                
+                if (record.get('type') == 2)  {
+                    return "Appointments";
+                }
+                
+                if (record.get('type') == 3)  {
+                    return "Photobooth";
+                }
+                
+                if (record.get('type') == 4)  {
+                    return "Open Jobs";
+                }
+                
+                if (record.get('type') == 5)  {
+                    return "Closed Jobs";
+                }
+                
+                return record.get('type');
+            },
+            sortProperty: 'type'
+        },
+        sorters: [
+            {
+                property: 'type',
+                direction: 'ASC'
+            }
+        ]
+    }
+});
+
+/*
+ * File: app/store/LocationStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.CountrySubdivisionStore', {
+    extend: Ext.data.Store,
+    config: {
+        model: 'WINK.model.CountrySubdivision',
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),
+            withCredentials: true,
+            useDefaultXhrHeader: false
+        },
+        sorters: [
+            {
+                property: "name",
+                direction: "ASC"
+            }
+        ]
+    }
+});
+
+/*
+ * File: app/store/LocationStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.CountryStore', {
+    extend: Ext.data.Store,
+    config: {
+        autoLoad: true,
+        data: [],
+        model: 'WINK.model.Country',
+        storeId: 'CountryStore',
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'countries/' + WINK.Utilities.getAccountId(),
+            withCredentials: true,
+            useDefaultXhrHeader: false
+        },
+        sorters: [
+            {
+                property: "name",
+                direction: "ASC"
+            }
+        ]
+    }
+});
+
+/*
+ * File: app/store/LocationStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.JobStatusStore', {
+    extend: Ext.data.Store,
+    sortList: function() {
+        this.sort([
+            {
+                property: 'date',
+                direction: 'DESC'
+            }
+        ]);
+    },
+    // this.group();
+    config: {
+        data: [],
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'jobstatuss/forpatientinvoice',
+            withCredentials: true,
+            useDefaultXhrHeader: false
+        },
+        model: 'WINK.model.JobStatusWrapper',
+        sorters: [
+            {
+                property: 'date',
+                direction: 'DESC'
+            }
+        ]
+    }
+});
+
+/*
+ * File: app/store/TaxCodeStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.PaymentMethodStore', {
+    extend: Ext.data.Store,
+    config: {
+        data: [],
+        model: 'WINK.model.PaymentMethod',
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'paymentmethods',
+            withCredentials: true,
+            useDefaultXhrHeader: false
+        },
+        sorters: [
+            {
+                property: "name",
+                direction: "ASC"
+            }
+        ]
     }
 });
 
@@ -68017,6 +76009,22 @@ Ext.define('WINK.store.TaxCodeStore', {
 Ext.define('WINK.view.LoginPanel', {
     extend: Ext.Panel,
     alias: 'widget.LoginPanel',
+    getUsername: function() {
+        return this.down("emailfield").getValue();
+    },
+    getPassword: function() {
+        return this.down("passwordfield").getValue();
+    },
+    getStoreId: function() {
+        return this.down("selectfield").getValue();
+    },
+    getStore: function() {
+        return this.down("selectfield").getRecord();
+    },
+    clearForm: function() {
+        this.down("emailfield").setValue("");
+        this.down("passwordfield").setValue("");
+    },
     config: {
         centered: false,
         fullscreen: false,
@@ -68037,8 +76045,6 @@ Ext.define('WINK.view.LoginPanel', {
                     {
                         xtype: 'fieldset',
                         centered: true,
-                        height: 212,
-                        id: 'LogInFieldSet',
                         width: 550,
                         instructions: '',
                         title: '',
@@ -68047,10 +76053,10 @@ Ext.define('WINK.view.LoginPanel', {
                                 xtype: 'selectfield',
                                 label: 'Location',
                                 required: true,
-                                displayField: 'LocationName',
+                                displayField: 'name',
                                 store: 'LocationStore',
                                 usePicker: true,
-                                valueField: 'ID'
+                                valueField: 'id'
                             },
                             {
                                 xtype: 'emailfield',
@@ -68069,6 +76075,7 @@ Ext.define('WINK.view.LoginPanel', {
                             {
                                 xtype: 'button',
                                 docked: 'bottom',
+                                margin: '5 5 5 5',
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'
@@ -68145,66 +76152,127 @@ Ext.define('WINK.view.MainAppPanel', {
             {
                 xtype: 'container',
                 centered: true,
-                layout: 'hbox',
+                layout: 'vbox',
                 items: [
                     {
                         xtype: 'container',
-                        layout: 'vbox',
+                        layout: 'hbox',
                         items: [
                             {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                itemId: 'mybutton6',
-                                width: 125,
-                                text: 'Quicksale'
+                                xtype: 'container',
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'Quicksale',
+                                        action: 'doQuickSale'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'New Patient',
+                                        itemId: 'NewPatientButton',
+                                        hidden: true
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'New Patient'
+                                xtype: 'container',
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'Find Patient',
+                                        action: 'doFindPatient'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'Deliver Job',
+                                        hidden: true
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'container',
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'New Patient',
+                                        action: 'doNewPatient'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        cls: 'mainMenuButton',
+                                        height: 125,
+                                        width: 125,
+                                        text: 'MyButton4',
+                                        hidden: true
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        xtype: 'container',
-                        layout: 'vbox',
+                        // instructions: 'Please enter any of the fields above to find your patient',
+                        xtype: 'fieldset',
+                        title: 'Quick Find',
+                        winkname: 'quickfind',
+                        defaults: {
+                            labelWidth: '35%'
+                        },
+                        //   labelAlign: 'top'
                         items: [
                             {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'New Invoice'
+                                xtype: "textfield",
+                                name: "winkfile",
+                                label: "Wink File ",
+                                placeHolder: 'i,r,z,s'
+                            },
+                            {
+                                xtype: "textfield",
+                                flex: 1,
+                                name: "paperfile",
+                                label: "Patient Folder"
+                            },
+                            {
+                                xtype: "textfield",
+                                name: "tray",
+                                label: "Tray"
                             },
                             {
                                 xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'Find Patient'
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'container',
-                        layout: 'vbox',
-                        items: [
-                            {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'Deliver Job'
-                            },
-                            {
-                                xtype: 'button',
-                                cls: 'mainMenuButton',
-                                height: 125,
-                                width: 125,
-                                text: 'MyButton4'
+                                docked: 'bottom',
+                                margin: '5 5 5 5',
+                                ui: 'action',
+                                text: 'Open',
+                                handler: function(button, event) {
+                                    console.log("Quickfind.handler()");
+                                    var quick = button.up('fieldset[winkname=quickfind]').down('textfield[name=winkfile]').getValue();
+                                    if (!quick)  {
+                                        return;
+                                    }
+                                    
+                                    quick = quick.toLowerCase();
+                                    console.log("Quickfind:" + quick);
+                                    if (quick.startsWith('i') || quick.startsWith('z') || quick.startsWith('r')) {
+                                        document.location.href = '#' + quick;
+                                    }
+                                }
                             }
                         ]
                     }
@@ -68258,6 +76326,29 @@ Ext.define('WINK.view.ParentView', {
             },
             {
                 xtype: 'MainAppPanel'
+            }
+        ]
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.PleaseWaitPanel', {
+    extend: Ext.Container,
+    alias: 'widget.PleaseWaitPanel',
+    config: {
+        itemId: 'PleaseWait',
+        id: 'PleaseWait',
+        hidden: true,
+        height: '50px',
+        items: [
+            {
+                xtype: 'titlebar',
+                docked: 'top',
+                title: 'Please Wait'
             }
         ]
     }
@@ -68331,14 +76422,68 @@ Ext.define('WINK.controller.LoginController', {
                 xtype: 'MainAppPanel'
             }
         },
+        routes: {
+            'mainmenu': 'openMainmenu',
+            'login': 'openLogin',
+            '': 'goToLogin'
+        },
         control: {
-            "button#logInButton": {
-                tap: 'onMybuttonTap'
+            'button#logInButton': {
+                tap: 'login'
+            },
+            'button[action=goToMainScreen]': {
+                tap: 'doGoToMainScreen'
             }
         }
     },
-    onMybuttonTap: function() {
+    openLogin: function() {
+        this.getParentView().setActiveItem(this.getLoginPanel());
+    },
+    doGoToMainScreen: function() {
+        document.location.href = '#mainmenu';
+    },
+    goToLogin: function() {
+        document.location.href = '#login';
+    },
+    openMainmenu: function() {
+        WINK.Utilities.previousActiveItem = null;
         this.getParentView().setActiveItem(this.getMainAppPanel());
+    },
+    login: function() {
+        var loginPanel = this.getLoginPanel();
+        var myController = this;
+        WINK.Utilities.showWorking();
+        Ext.Ajax.request({
+            scope: this,
+            url: WINK.Utilities.getRestURL() + 'users/me',
+            method: 'GET',
+            crossDomain: true,
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            headers: {
+                'wink-username': loginPanel.getUsername(),
+                'wink-password': loginPanel.getPassword(),
+                'wink-store': loginPanel.getStoreId(),
+                'wink-accountid': WINK.Utilities.getAccountId()
+            },
+            success: function(response) {
+                WINK.Utilities.loginSuccess(response);
+                WINK.Utilities.loadAllRequiredStores();
+                loginPanel.clearForm();
+                if (WINK.Utilities.previousActiveItem) {
+                    myController.getParentView().setActiveItem(WINK.Utilities.previousActiveItem);
+                    WINK.Utilities.previousActiveItem = null;
+                } else {
+                    document.location.href = "#mainmenu";
+                }
+                WINK.Utilities.hideWorking();
+            },
+            failure: function(response) {
+                WINK.Utilities.hideWorking();
+                Ext.Msg.alert('Login Failed', 'Invalid Login...Please try again', Ext.emptyFn);
+            },
+            callback: function(options, success, response) {}
+        });
     }
 });
 
@@ -68394,7 +76539,7 @@ Ext.define('WINK.controller.LockScreenController', {
  *
  * Do NOT hand edit this file.
  */
-Ext.define('WINK.controller.QuicksaleMenuController', {
+Ext.define('WINK.controller.MenuController', {
     extend: Ext.app.Controller,
     config: {
         refs: {
@@ -68403,15 +76548,335 @@ Ext.define('WINK.controller.QuicksaleMenuController', {
                 xtype: 'ParentView'
             }
         },
+        before: {
+            openPatient: 'beforeRoute',
+            openInvoice: 'beforeRoute',
+            openFindPatient: 'beforeRoute',
+            openNewPatient: 'beforeRoute',
+            openQuicksale: 'beforeRoute'
+        },
+        routes: {
+            'patient/:patientid': 'openPatient',
+            //  'patientinvoice/:patientid/:invoiceid': 'openPatientInvoice',
+            'invoice/:invoiceid': 'openInvoice',
+            'findpatient': 'openFindPatient',
+            'newpatient': 'openNewPatient',
+            'newquicksale': 'openQuicksale',
+            'i:invoiceid': 'openInvoice',
+            'z:patientid': 'openPatient'
+        },
         control: {
-            "button#mybutton6": {
-                tap: 'onMybutton6Tap'
+            'button[action=doNewPatient]': {
+                tap: 'onNewPatientButtonTap'
+            },
+            'button[action=doQuickSale]': {
+                tap: 'onQuicksaleButtonTap'
+            },
+            'button[action=doFindPatient]': {
+                tap: 'onFindPatientButtonTap'
+            },
+            'button[action=doOpenPatient]': {
+                tap: 'onOpenPatientTap'
+            },
+            'button[action=goBack]': {
+                tap: 'goBack'
             }
         }
     },
-    onMybutton6Tap: function(button, e, eOpts) {
+    goBack: function() {
+        history.back();
+    },
+    beforeRoute: function(action) {
+        console.log('MenuController.beforeRoute()');
+        WINK.Utilities.showWorking();
+        WINK.Utilities.loadAllRequiredStores(function() {
+            console.log('MenuController.beforeRoute() callback');
+            WINK.Utilities.hideWorking();
+            action.resume();
+        });
+    },
+    openInvoice: function(invoiceid) {
+        var me = this;
+        WINK.model.PatientInvoice.load(invoiceid, {
+            success: function(invoice) {
+                console.log('loaded ' + invoice.get('id'));
+                //logs 123
+                if (invoice.get('patient_idpatient') && invoice.get('patient_idpatient') > 0) {
+                    me.openPatientInvoice(invoice.get('patient_idpatient'), invoiceid);
+                } else {
+                    var quicksale = Ext.create('WINK.view.InvoicePanel');
+                    me.getParentView().setActiveItem(quicksale);
+                    quicksale.loadPatientInvoice(invoice);
+                }
+            }
+        });
+    },
+    openPatientInvoice: function(patientid, invoiceid) {
+        this.openPatient(patientid);
+    },
+    openPatient: function(patientid) {
+        WINK.model.Patient.load(patientid, {
+            scope: this,
+            failure: function(patient, operation) {
+                WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Open Patient', operation);
+            },
+            success: function(patient, operation) {
+                console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname'));
+                var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
+                this.getParentView().setActiveItem(patientHistory);
+                WINK.Utilities.hideWorking();
+                patientHistory.loadPatient(patient);
+            },
+            callback: function(patient, operation) {}
+        });
+    },
+    /*
+         var history = new WINK.model.Patienthistory({
+         id: patientid
+         });
+         alert(history.get('id'));
+         var invoices =  history.invoices();
+         invoices.load();
+         history.getPatient({
+         reload: true,
+         callback: function(patient, operation) {
+         WINK.Utilities.hideWorking();
+         console.info("getpatient callback");
+         alert(patient.get('firstname'));
+         },
+         success: function(patient, operation) {
+         WINK.Utilities.hideWorking();
+         console.info("getpatient success");
+         },
+         failure: function(patient, operation) {
+         WINK.Utilities.hideWorking();
+         console.info("getpatient failure");
+         }, 
+         scope: this});
+         */
+    /*
+         WINK.model.Patient.load(id, {
+         scope: this,
+         failure: function(record, operation) {
+         WINK.Utilities.showAjaxError('Open Patient');
+         },
+         success: function(record, operation) {
+         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
+         
+         this.getParentView().setActiveItem(patientHistory);
+         },
+         callback: function(record, operation) {
+         WINK.Utilities.hideWorking();
+         }
+         });
+         */
+    onOpenPatientTap: function(button, e, eOpts) {
+        var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
+        this.getParentView().setActiveItem(patientHistory);
+    },
+    onQuicksaleButtonTap: function(button, e, eOpts) {
+        document.location.href = '#newquicksale';
+    },
+    openQuicksale: function() {
+        console.log('MenuController.openQuicksale()');
+        var model = Ext.create('WINK.model.PatientInvoice');
+        WINK.Utilities.setDefaultValues(model);
         var quicksale = Ext.create('WINK.view.InvoicePanel');
         this.getParentView().setActiveItem(quicksale);
+        quicksale.loadPatientInvoice(model);
+    },
+    onNewPatientButtonTap: function(button, e, eOpts) {
+        document.location.href = '#newpatient';
+    },
+    openNewPatient: function() {
+        var newPatientPanel = Ext.create('WINK.view.PatientPanel');
+        this.getParentView().setActiveItem(newPatientPanel);
+    },
+    openFindPatient: function() {
+        if (!this.findPatientPanel)  {
+            this.findPatientPanel = Ext.create('WINK.view.FindPatientPanel');
+        }
+        
+        this.getParentView().setActiveItem(this.findPatientPanel);
+    },
+    onFindPatientButtonTap: function(button, e, eOpts) {
+        document.location.href = "#findpatient";
+    },
+    onDeliveryJobButtonTap: function(button, e, eOpts) {},
+    onNewInvoiceButtonTap: function(button, e, eOpts) {}
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.JobStatusPanel', {
+    extend: Ext.Panel,
+    alias: 'widget.jobstatuspanel',
+    getStore: function() {
+        if (!this.winkStore) {
+            this.winkStore = Ext.create('WINK.store.JobStatusStore');
+            this.down('dataview').setStore(this.winkStore);
+        }
+        return this.winkStore;
+    },
+    loadStatusOnce: function() {
+        console.log('JobStatusPanel loadStatusOnce()');
+        if (!this.alreadyLoaded) {
+            this.alreadyLoaded = true;
+            this.setMasked(true);
+            var invoicePanel = this.up('InvoicePanel');
+            var patientInvoiceModel = invoicePanel.patientinvoice;
+            console.log('Jobstatuspanel loadStatusOnce idpatientinvoice ' + patientInvoiceModel.get('id'));
+            this.getStore().load({
+                scope: this,
+                params: {
+                    idpatientinvoice: patientInvoiceModel.get('id')
+                },
+                callback: function(records, operation, success) {
+                    console.log('loaded job status records');
+                    this.setMasked(false);
+                }
+            });
+        }
+    },
+    config: {
+        layout: 'fit',
+        items: [
+            {
+                xtype: 'list',
+                indexBar: false,
+                grouped: false,
+                pinHeaders: false,
+                itemTpl: '{date:date("Y M D h:m")} ({reference}) {user} {status} {comment}',
+                listeners: {
+                    itemtap: function(dataview, index, target, record, e, eOpts) {}
+                }
+            }
+        ]
+    }
+});
+//dataview.up('PatientHistoryPanel').openHistoryItem(record);
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.PhoneField', {
+    extend: Ext.field.Text,
+    alias: 'widget.phonefield',
+    config: {
+        component: {
+            xtype: 'input',
+            type: 'tel'
+        }
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.PriceField', {
+    extend: Ext.form.Number,
+    alias: 'widget.pricefield',
+    applyValue: function(value) {
+        var minValue = this.getMinValue(),
+            maxValue = this.getMaxValue();
+        if (Ext.isNumber(minValue) && Ext.isNumber(value)) {
+            value = Math.max(value, minValue);
+        }
+        if (Ext.isNumber(maxValue) && Ext.isNumber(value)) {
+            value = Math.min(value, maxValue);
+        }
+        value = parseFloat(value).toFixed(2);
+        // where 2 is your decimal precision value
+        return (isNaN(value)) ? '' : value;
+    },
+    config: {
+        component: {
+            xtype: 'input',
+            type: 'number'
+        },
+        stepValue: 0.01
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.IntField', {
+    extend: Ext.form.Number,
+    alias: 'widget.intfield',
+    applyValue1: function(value) {
+        // console.log(this.name + ' applyValue1: ' + value);
+        var minValue = this.getMinValue(),
+            maxValue = this.getMaxValue();
+        if (Ext.isNumber(minValue) && Ext.isNumber(value)) {
+            value = Math.max(value, minValue);
+        }
+        if (Ext.isNumber(maxValue) && Ext.isNumber(value)) {
+            value = Math.min(value, maxValue);
+        }
+        value = Math.round(value);
+        // where 2 is your decimal precision value
+        value = (isNaN(value)) ? '' : value;
+        return value;
+    },
+    setValue1: function(myValue) {
+        var formattedValue = this.applyValue1(myValue);
+        console.log(myValue + ' formattedTo  ' + formattedValue);
+        this.superclass.setValue.call(this, formattedValue);
+    },
+    parseStringToFloat: function(string) {
+        string = string.replace(/[^0-9.]/g, "");
+        //regex to delete all non digits and periods
+        return parseFloat(string);
+    },
+    config: {
+        component: {
+            xtype: 'input',
+            type: 'number'
+        },
+        value: 0,
+        maxValue: 999,
+        minValue: -999,
+        stepValue: 1
+    }
+});
+
+Ext.define('WINK.view.DatePickerToolbar', {
+    extend: Ext.Toolbar,
+    alias: 'widget.datepickertoolbar',
+    config: {
+        docked: 'top',
+        items: [
+            {
+                xtype: 'button',
+                handler: function(button, event) {
+                    var picker = button.up('datepicker');
+                    picker.fireEvent('change', picker, null);
+                    picker.hide();
+                },
+                ui: 'decline',
+                text: 'Clear'
+            },
+            {
+                xtype: 'button',
+                handler: function(button, event) {
+                    var picker = button.up('datepicker');
+                    picker.fireEvent('change', picker, Ext.DateExtras.clearTime(new Date()));
+                },
+                ui: 'confirm',
+                text: 'Today'
+            }
+        ]
     }
 });
 
@@ -68430,97 +76895,328 @@ Ext.define('WINK.controller.QuicksaleMenuController', {
  * Do NOT hand edit this file.
  */
 Ext.define('WINK.view.InvoiceItemPanel', {
-    extend: Ext.Container,
-    alias: 'widget.mycontainer10',
+    extend: Ext.form.Panel,
+    alias: 'widget.invoiceitempanel',
+    deleteItem: function() {
+        var invoicePanel = this.up('InvoicePanel');
+        invoicePanel.deleteItem(this);
+    },
+    loadItem: function(item) {
+        this.winkloading = true;
+        console.log('InvoiceItemPanel.loadItem item.unitprice:' + item.get('unitprice'));
+        this.setRecord(item);
+        var productField = this.down('label[winkname=productname]');
+        item.getFkproduct_idproduct({
+            callback: function(product, operation) {
+                productField.setHtml(product.get('name'));
+            }
+        });
+        this.updateTotal();
+        //this.showMore();
+        this.winkloading = false;
+    },
+    getSubtotal: function() {
+        var qtyField = this.down('numberfield[name=qty]');
+        var prediscountUnitPriceField = this.down('numberfield[name=prediscount_unitprice]');
+        var discountField = this.down('numberfield[name=discountamount]');
+        var subtotal = ((qtyField.getValue() * prediscountUnitPriceField.getValue()) - discountField.getValue());
+        console.log('invoice item getSubtTotal():' + subtotal);
+        return subtotal;
+    },
+    showMore: function() {
+        this.setHeight(160) , this.down('container[winkname=invoiceitemdetails]').show();
+    },
+    showLess: function() {
+        this.setHeight(80) , this.down('container[winkname=invoiceitemdetails]').hide();
+    },
+    getInvoiceDate: function() {
+        var invoicePanel = this.up('InvoicePanel');
+        return invoicePanel.getOrderDate();
+    },
+    getTaxCodeRate: function() {
+        var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxCode = taxSelect.getRecord();
+        if (!taxCode)  {
+            return null;
+        }
+        
+        ratesStore = taxCode.taxcodeeffectivedates_taxcode_idtaxcode();
+        var rate = null;
+        var now = this.getInvoiceDate();
+        console.log('invoice date: ' + now);
+        ratesStore.each(function(rateRecord, index, length) {
+            console.log('looking for taxcode rate: ' + rateRecord.get('effectivedate'));
+            var rateDate = rateRecord.get('effectivedate');
+            var isForNow = false;
+            if (!rateDate) {
+                isForNow = true;
+            } else if (rateDate <= now) {
+                isForNow = true;
+            }
+            if (isForNow) {
+                console.log('found valid tax code rate');
+                if (!rate) {
+                    rate = rateRecord;
+                } else if (rate.get('effectivedate') < rateDate) {
+                    rate = rateRecord;
+                }
+            } else {
+                console.log('found invalid tax code rate');
+            }
+        }, this);
+        return rate;
+    },
+    recalculateTax: function() {
+        if (this.winkloading)  {
+            return;
+        }
+        
+        console.log('InvoiceItemPanel.recalculateTax()');
+        var tax1Field = this.down('numberfield[name=tax1amount]');
+        var tax2Field = this.down('numberfield[name=tax2amount]');
+        var taxRate = this.getTaxCodeRate();
+        if (!taxRate) {
+            console.log('InvoiceItemPanel.recalculateTax() noFoundTaxRate');
+            tax1Field.setValue(0);
+            tax2Field.setValue(0);
+        } else {
+            console.log('InvoiceItemPanel.recalculateTax()  FoundTaxRate ' + taxRate.get('tax1percentage') + ' ' + taxRate.get('tax2percentage'));
+            var qtyField = this.down('numberfield[name=qty]');
+            var prediscountUnitPriceField = this.down('numberfield[name=prediscount_unitprice]');
+            var discountField = this.down('numberfield[name=discountamount]');
+            var subtotal = ((qtyField.getValue() * prediscountUnitPriceField.getValue()) - discountField.getValue());
+            var tax1 = subtotal * taxRate.get('tax1percentage') / 100;
+            if (taxRate.get('piggyback'))  {
+                subtotal += tax1;
+            }
+            
+            var tax2 = subtotal * taxRate.get('tax2percentage') / 100;
+            tax1Field.setValue(tax1);
+            tax2Field.setValue(tax2);
+        }
+    },
+    getTax1: function() {
+        var field = this.down('numberfield[name=tax1amount]');
+        return field.getValue();
+    },
+    getTax2: function() {
+        var field = this.down('numberfield[name=tax2amount]');
+        return field.getValue();
+    },
+    getTax1Name: function() {
+        var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxCode = taxSelect.getRecord();
+        if (!taxCode)  {
+            return null;
+        }
+        
+        return taxCode.get('tax1name');
+    },
+    getTax2Name: function() {
+        var taxSelect = this.down('selectfield[name=taxcode_idtaxcode]');
+        var taxCode = taxSelect.getRecord();
+        if (!taxCode)  {
+            return null;
+        }
+        
+        return taxCode.get('tax2name');
+    },
+    updateModel: function() {
+        var model = this.getRecord();
+        var temp = this.getValues();
+        console.log('Invoice Item:' + model);
+        console.log(temp);
+        model.set(temp);
+        return model;
+    },
+    updateTotal: function() {
+        var subtotalField = this.down('numberfield[name=subtotal_beforetax]');
+        var invoicePanel = this.up('InvoicePanel');
+        subtotalField.setValue(this.getSubtotal());
+        if (invoicePanel)  {
+            //this might not be on the invoice panel yet
+            invoicePanel.updateSummary();
+        }
+        
+    },
     config: {
         invoiceItemIndex: 0,
         border: '0 0 1 0',
-        height: 60,
+        height: 80,
         style: 'border-style:solid; border-color:darkgrey',
         scrollable: false,
         layout: {
-            type: 'hbox',
-            align: 'center'
+            type: 'vbox'
         },
         items: [
             {
                 xtype: 'label',
-                flex: 1,
                 baseCls: 'Product Name',
-                html: 'Gucci 1234',
+                html: '',
                 margin: '0 2 0 5',
-                style: 'font-size:20px; font-family:"open sans"',
-                width: 235
+                style: 'font-size:15px; font-family:"open sans"',
+                winkname: 'productname',
+                height: 20
             },
             {
-                xtype: 'numberfield',
-                cls: 'inputBorder',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                clearIcon: false,
-                inputCls: 'inputAmount',
-                value: 999,
-                maxValue: 999,
-                minValue: -999,
-                stepValue: 1
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'center'
+                },
+                winkname: 'invoiceitemsummary',
+                items: [
+                    {
+                        xtype: 'label',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'intfield',
+                        name: 'product_idproduct',
+                        hidden: true
+                    },
+                    {
+                        xtype: 'intfield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        name: 'qty',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'pricefield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        autoComplete: false,
+                        autoCorrect: true,
+                        maxValue: 999999,
+                        minValue: 0,
+                        name: 'prediscount_unitprice',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'selectfield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        displayField: 'code',
+                        store: 'TaxCodeStore',
+                        usePicker: false,
+                        valueField: 'id',
+                        name: 'taxcode_idtaxcode',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                arguments[0].up('invoiceitempanel').recalculateTax();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'pricefield',
+                        cls: 'inputBorder',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        autoComplete: false,
+                        autoCorrect: true,
+                        maxValue: 999999,
+                        minValue: 0,
+                        name: 'discountamount',
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'pricefield',
+                        cls: 'inputBorderDisabled',
+                        margin: '0 2 0 0',
+                        style: 'borderInput',
+                        width: 100,
+                        clearIcon: false,
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        autoComplete: true,
+                        readOnly: true,
+                        maxValue: 999999,
+                        minValue: -999999,
+                        stepValue: 0.01,
+                        name: 'subtotal_beforetax'
+                    },
+                    {
+                        xtype: 'button',
+                        height: 40,
+                        margin: '0 2 0 2',
+                        ui: 'decline-small',
+                        width: 50,
+                        text: 'Del',
+                        //iconCls:'delete',
+                        //iconMask:true,
+                        handler: function(b) {
+                            b.up('invoiceitempanel').deleteItem();
+                        }
+                    }
+                ]
             },
             {
-                xtype: 'numberfield',
-                cls: 'inputBorder',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                clearIcon: false,
-                inputCls: 'inputAmount',
-                value: '9,999.99',
-                autoComplete: false,
-                autoCorrect: true,
-                maxValue: 999999,
-                minValue: 0,
-                stepValue: 0.01
-            },
-            {
-                xtype: 'selectfield',
-                cls: 'inputBorder',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                displayField: 'code',
-                store: 'TaxCodeStore',
-                usePicker: false,
-                valueField: 'id'
-            },
-            {
-                xtype: 'numberfield',
-                cls: 'inputBorderDisabled',
-                margin: '0 2 0 0',
-                style: 'borderInput',
-                width: 100,
-                clearIcon: false,
-                inputCls: 'inputAmount',
-                value: '9,999.99',
-                autoComplete: true,
-                readOnly: true,
-                maxValue: 999999,
-                minValue: -999999,
-                stepValue: 0.01
-            },
-            {
-                xtype: 'button',
-                height: 40,
-                margin: '0 2 0 2',
-                ui: 'decline-small',
-                width: 50,
-                text: 'Del'
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'center'
+                },
+                winkname: 'invoiceitemdetails',
+                hidden: true,
+                items: [
+                    {
+                        xtype: 'pricefield',
+                        name: 'tax1amount',
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'pricefield',
+                        name: 'tax2amount',
+                        inputCls: 'inputAmount',
+                        value: 0,
+                        listeners: {
+                            change: function(comp, newData, eOpts) {
+                                // alert('qty update data');
+                                comp.up('invoiceitempanel').updateTotal();
+                            }
+                        }
+                    }
+                ]
             }
         ]
-    },
-    initialize: function() {
-        this.callParent();
-        if (this.invoiceItemIndex % 2 === 0) {
-            this.setStyle("background: #000000;");
-        }
     }
 });
 
@@ -68539,12 +77235,44 @@ Ext.define('WINK.view.InvoiceItemPanel', {
  * Do NOT hand edit this file.
  */
 Ext.define('WINK.view.InvoiceSummary', {
-    extend: Ext.Container,
+    extend: Ext.form.Panel,
     alias: 'widget.InvoiceSummary',
+    loadPatientInvoice: function(model) {
+        this.setRecord(model);
+    },
+    updateSummary: function() {
+        var subtotalLabel = this.down('label[name=subtotal]');
+        var tax1Label = this.down('label[name=tax1]');
+        var tax2Label = this.down('label[name=tax2]');
+        var tax1NameLabel = this.down('label[name=tax1name]');
+        var tax2NameLabel = this.down('label[name=tax2name]');
+        var totalLabel = this.down('label[name=total]');
+        var insuranceLabel = this.down('label[name=insuranceportion]');
+        var patientLabel = this.down('label[name=patientportion]');
+        var paymentsLabel = this.down('label[name=payments]');
+        var patientbalanceLabel = this.down('label[name=balance]');
+        var invoicePanel = this.up('InvoicePanel');
+        var subtotal = invoicePanel.getSubtotal();
+        var tax1 = invoicePanel.getTax1();
+        var tax2 = invoicePanel.getTax2();
+        var total = subtotal + tax1 + tax2;
+        var insurancePortion = invoicePanel.getInsurancePortion();
+        var totalPayments = invoicePanel.getPatientPaymentsTotal();
+        subtotalLabel.setHtml(subtotal.toFixed(2));
+        tax1Label.setHtml(tax1.toFixed(2));
+        tax2Label.setHtml(tax2.toFixed(2));
+        totalLabel.setHtml(total.toFixed(2));
+        insuranceLabel.setHtml(insurancePortion.toFixed(2));
+        patientLabel.setHtml((total - insurancePortion).toFixed(2));
+        paymentsLabel.setHtml(totalPayments.toFixed(2));
+        patientbalanceLabel.setHtml((total - insurancePortion - totalPayments).toFixed(2));
+        tax1NameLabel.setHtml(invoicePanel.getTax1Name());
+        tax2NameLabel.setHtml(invoicePanel.getTax2Name());
+    },
     config: {
         border: 1,
         style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
-        width: 320,
+        width: 220,
         layout: 'fit',
         items: [
             {
@@ -68553,25 +77281,40 @@ Ext.define('WINK.view.InvoiceSummary', {
                 layout: 'vbox',
                 items: [
                     {
-                        xtype: 'datepickerfield',
+                        xtype: 'selectfield',
+                        store: 'LocationStore',
                         margin: '5 0 5 0',
-                        label: 'Ordered',
-                        labelWidth: '50%',
-                        placeHolder: 'mm/dd/yyyy'
+                        label: '',
+                        labelWidth: '0%',
+                        readOnly: true,
+                        valueField: 'id',
+                        displayField: 'name',
+                        name: 'store_idstore',
+                        title: 'Store'
                     },
                     {
                         xtype: 'datepickerfield',
                         margin: '5 0 5 0',
-                        label: 'Promissed',
-                        labelWidth: '50%',
-                        placeHolder: 'mm/dd/yyyy'
+                        label: 'O',
+                        labelWidth: '20%',
+                        readOnly: true,
+                        name: 'orderdate'
                     },
                     {
                         xtype: 'datepickerfield',
                         margin: '5 0 5 0',
-                        label: 'Delivered',
-                        labelWidth: '50%',
-                        placeHolder: 'mm/dd/yyyy'
+                        label: 'P',
+                        labelWidth: '20%',
+                        placeHolder: 'Not Promissed',
+                        name: 'promisseddate'
+                    },
+                    {
+                        xtype: 'datepickerfield',
+                        margin: '5 0 5 0',
+                        label: 'D',
+                        labelWidth: '20%',
+                        placeHolder: 'Open',
+                        name: 'delivereddate'
                     },
                     {
                         xtype: 'container',
@@ -68588,8 +77331,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'subtotal'
                             }
                         ]
                     },
@@ -68604,12 +77348,14 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'label',
                                 flex: 1,
                                 html: 'Tax 1',
-                                style: 'color: darkgrey'
+                                style: 'color: darkgrey',
+                                name: 'tax1name'
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'tax1'
                             }
                         ]
                     },
@@ -68624,12 +77370,14 @@ Ext.define('WINK.view.InvoiceSummary', {
                                 xtype: 'label',
                                 flex: 1,
                                 html: 'Tax 2',
-                                style: 'color: darkgrey'
+                                style: 'color: darkgrey',
+                                name: 'tax2name'
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'tax2'
                             }
                         ]
                     },
@@ -68648,8 +77396,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'total'
                             }
                         ]
                     },
@@ -68668,8 +77417,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'insuranceportion'
                             }
                         ]
                     },
@@ -68688,8 +77438,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'patientportion'
                             }
                         ]
                     },
@@ -68708,8 +77459,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: darkgrey'
+                                html: '0.00',
+                                style: 'color: darkgrey',
+                                name: 'payments'
                             }
                         ]
                     },
@@ -68728,8 +77480,9 @@ Ext.define('WINK.view.InvoiceSummary', {
                             },
                             {
                                 xtype: 'label',
-                                html: '$0.00',
-                                style: 'color: black'
+                                html: '0.00',
+                                style: 'color: black',
+                                name: 'balance'
                             }
                         ]
                     },
@@ -68741,13 +77494,19 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'button',
                                 ui: 'confirm',
-                                width: 140,
-                                text: 'Payment'
+                                width: 90,
+                                text: 'Pay',
+                                handler: function(btn) {
+                                    btn.up('InvoicePanel').pay();
+                                }
                             },
                             {
                                 xtype: 'button',
-                                width: 140,
-                                text: 'Deliver'
+                                width: 90,
+                                text: 'Deliver',
+                                handler: function(btn) {
+                                    btn.up('InvoicePanel').deliver();
+                                }
                             }
                         ]
                     },
@@ -68759,14 +77518,20 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'button',
                                 ui: 'action',
-                                width: 140,
-                                text: 'Print'
+                                width: 90,
+                                text: 'Print',
+                                handler: function(btn) {
+                                    btn.up('InvoicePanel').print();
+                                }
                             },
                             {
                                 xtype: 'button',
                                 ui: 'action',
-                                width: 140,
-                                text: 'Email'
+                                width: 90,
+                                text: 'Email',
+                                handler: function(btn) {
+                                    btn.up('InvoicePanel').email();
+                                }
                             }
                         ]
                     },
@@ -68778,14 +77543,20 @@ Ext.define('WINK.view.InvoiceSummary', {
                             {
                                 xtype: 'button',
                                 ui: 'action',
-                                width: 140,
-                                text: 'Save'
+                                width: 90,
+                                text: 'Save',
+                                handler: function(btn) {
+                                    btn.up('InvoicePanel').save();
+                                }
                             },
                             {
                                 xtype: 'button',
                                 ui: 'decline',
-                                width: 140,
-                                text: 'Delete'
+                                width: 90,
+                                text: 'Delete',
+                                handler: function(btn) {
+                                    btn.up('InvoicePanel').deleteInvoice();
+                                }
                             }
                         ]
                     }
@@ -68797,6 +77568,232 @@ Ext.define('WINK.view.InvoiceSummary', {
         ]
     }
 });
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.AddPaymentPanel', {
+    extend: Ext.form.Panel,
+    alias: 'widget.addpaymentpanel',
+    addPayment: function() {
+        var patientpaymentmodel = Ext.create('WINK.model.PatientPayment');
+        patientpaymentmodel.set(this.getValues());
+        var paymentPanel = Ext.create('WINK.view.InvoicePaymentPanel');
+        paymentPanel.loadItem(patientpaymentmodel);
+        this.patientinvoicepanel.addPayment(paymentPanel);
+        Ext.Viewport.remove(this);
+    },
+    setPatientInvoicePanel: function(patientinvoicepanel) {
+        this.patientinvoicepanel = patientinvoicepanel;
+        this.down('pricefield[name=amount]').setValue(patientinvoicepanel.getPatientBalance());
+    },
+    config: {
+        centered: true,
+        fullscreen: false,
+        layout: 'fit',
+        modal: true,
+        hideOnMaskTap: true,
+        scrollable: false,
+        width: 600,
+        height: 300,
+        items: [
+            {
+                xtype: 'titlebar',
+                docked: 'top',
+                title: 'Add Payment'
+            },
+            {
+                xtype: 'container',
+                items: [
+                    {
+                        xtype: 'fieldset',
+                        centered: true,
+                        height: 212,
+                        id: 'LogInFieldSet',
+                        width: 550,
+                        instructions: '',
+                        title: '',
+                        items: [
+                            {
+                                xtype: 'selectfield',
+                                label: 'Method',
+                                required: true,
+                                displayField: 'name',
+                                store: 'PaymentMethodForCurrentStore',
+                                usePicker: true,
+                                valueField: 'id',
+                                name: 'paymentmethod_idpaymentmethod'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Description',
+                                required: false,
+                                name: 'description'
+                            },
+                            {
+                                xtype: 'pricefield',
+                                label: 'Amount',
+                                name: 'amount',
+                                required: true
+                            },
+                            {
+                                xtype: 'button',
+                                docked: 'bottom',
+                                ui: 'action',
+                                text: 'Add Payment',
+                                handler: function(btn) {
+                                    btn.up('addpaymentpanel').addPayment();
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.ProductSearchResultsPanel', {
+    extend: Ext.Panel,
+    alias: 'widget.productsearchresultspanel',
+    browse: function() {
+        var s = Ext.create('Ext.data.TreeStore', {
+                model: 'WINK.model.ProductBrowseModel',
+                defaultRootProperty: 'items',
+                root: {},
+                proxy: {
+                    type: 'ajax',
+                    url: WINK.Utilities.getRestURL() + 'products/browse',
+                    withCredentials: true,
+                    useDefaultXhrHeader: false,
+                    cors: true
+                }
+            });
+        this.down('nestedlist[winkname=browseproduct]').setStore(s);
+        this.setActiveItem(this.down('nestedlist[winkname=browseproduct]'));
+    },
+    getStore: function() {
+        if (!this.winkProductStore) {
+            this.winkProductStore = Ext.create('WINK.store.BarcodeResponseStore');
+            this.down('dataview').setStore(this.winkProductStore);
+        }
+        return this.winkProductStore;
+    },
+    selectProduct: function(product, barcode) {
+        this.setMasked(true);
+        product.productretaildetails_product_idproduct().load({
+            scope: this,
+            callback: function(records, operation, success) {
+                console.log('Loaded product retails pricing ');
+                this.up('InvoicePanel').addProductToInvoice(product, barcode);
+                this.setMasked(false);
+            }
+        });
+    },
+    find: function(query) {
+        WINK.Utilities.showWorking();
+        this.setMasked(true);
+        this.setActiveItem(this.down('list[winkname=searchproduct]'));
+        this.getStore().setData([]);
+        Ext.Ajax.request({
+            url: WINK.Utilities.getRestURL() + 'products/find/' + encodeURIComponent(query),
+            method: 'GET',
+            scope: this,
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            success: function(response) {
+                console.log('product lookup success ' + response.responseText);
+                var productArray = Ext.JSON.decode(response.responseText);
+                console.log('product lookup success products returned:' + productArray.length);
+                if (productArray.length === 0) {
+                    Ext.Msg.alert('Product Lookup', 'No Products Found For:' + query, Ext.emptyFn);
+                } else if (productArray.length === 1) {
+                    console.log('product lookup returned 1 product');
+                    var bResponse = Ext.create('WINK.model.BarcodeResponse', productArray[0]);
+                    var product = bResponse.getFkproduct_idproduct();
+                    var barcode = bResponse.getFkbarcode_idbarcode();
+                    console.log('product:' + product.get('id') + ' ' + product.get('name'));
+                    this.selectProduct(product, barcode);
+                } else {
+                    for (var i = 0; i < productArray.length; i++) {
+                        var bResponse = Ext.create('WINK.model.BarcodeResponse', productArray[i]);
+                        this.getStore().add(bResponse);
+                    }
+                    this.getStore().sortList();
+                }
+                WINK.Utilities.hideWorking();
+                this.unmask();
+            },
+            failure: function(response) {
+                WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError(response, 'Product Lookup');
+            },
+            callback: function(options, success, response) {}
+        });
+    },
+    config: {
+        layout: 'card',
+        cls: 'productListDataViewContainer',
+        items: [
+            {
+                xtype: 'list',
+                //cls: 'productListDataViewContainer',
+                winkname: 'searchproduct',
+                indexBar: false,
+                grouped: true,
+                pinHeaders: true,
+                itemTpl: '{fkproduct_idproduct.name}',
+                listeners: {
+                    itemtap: function(dataview, index, target, record, e, eOpts) {}
+                },
+                //dataview.up('PatientHistoryPanel').openHistoryItem(record);
+                onItemDisclosure: function(bResponse, btn, index) {
+                    //  alert('disclosure');
+                    var product = bResponse.getFkproduct_idproduct();
+                    var barcode = bResponse.getFkbarcode_idbarcode();
+                    btn.up('productsearchresultspanel').selectProduct(product, barcode);
+                }
+            },
+            {
+                xtype: 'nestedlist',
+                //cls: 'productListDataViewContainer',
+                winkname: 'browseproduct',
+                displayField: 'name',
+                listeners: {
+                    itemtap: function(dataview, index, target, record, e, eOpts) {},
+                    //dataview.up('PatientHistoryPanel').openHistoryItem(record);
+                    leafitemtap: function(me, list, index, item) {
+                        var item = list.getStore().getAt(index);
+                        if (item.get('type') === 2) {
+                            var product = item.getFkproduct_idproduct();
+                            //var barcode = bResponse.getFkbarcode_idbarcode();
+                            list.up('productsearchresultspanel').selectProduct(product);
+                        }
+                    }
+                },
+                getItemTextTpl: function(recordnode) {
+                    return '<div class="item-title">{name}</div><tpl if="leaf === true"><div class="x-list-disclosure"></div></tpl>';
+                }
+            }
+        ]
+    }
+});
+/*onItemDisclosure: function(bResponse, btn, index) {
+                 if (bResponse.get('type') === 2)
+                 {
+                 var product = bResponse.getFkproduct_idproduct();
+                 //var barcode = bResponse.getFkbarcode_idbarcode();
+                 btn.up('productsearchresultspanel').selectProduct(product);
+                 }
+                 
+                 }*/
 
 /*
  * File: app/view/InvoicePanel.js
@@ -68813,17 +77810,555 @@ Ext.define('WINK.view.InvoiceSummary', {
  * Do NOT hand edit this file.
  */
 Ext.define('WINK.view.InvoicePanel', {
-    extend: Ext.Panel,
+    extend: Ext.form.Panel,
     alias: 'widget.InvoicePanel',
+    deliver: function() {
+        this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').setValue(new Date());
+        this.save();
+    },
+    isDirty: function() {},
+    save: function() {
+        this.setMasked(true);
+        this.updateInvoiceModel();
+        var me = this;
+        var patientinvoice = this.patientinvoice;
+        var previousInvoiceId = this.patientinvoice.get('id');
+        var historyPanel = me.up('PatientHistoryPanel');
+        console.info('InvoicePanel.save() before Ajax, historyPanel:' + historyPanel + " " + this.patientinvoice.get('delivereddate'));
+        this.patientinvoice.save({
+            success: function(response) {
+                console.info('save invoice success');
+                console.info('historyPanel:' + historyPanel);
+                var newId = patientinvoice.get('id');
+                console.info(previousInvoiceId + " vs " + patientinvoice.get('id'));
+                //TODO this could be better with less calls to the server (Especially  document.location.href =..._)
+                var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
+                console.info("calling load:" + patientInvoiceClass + " " + newId);
+                patientInvoiceClass.load(newId, {
+                    scope: this,
+                    failure: function(record, operation) {
+                        console.info("InvoicePanel.save().PatientInvoice.load().failure()");
+                    },
+                    success: function(record, operation) {
+                        var savedpatientinvoice = record;
+                        console.info("InvoicePanel.save().PatientInvoice.load().success()");
+                        console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
+                        if (newId !== previousInvoiceId) {
+                            console.info(previousInvoiceId + ' !== ' + newId);
+                            if (historyPanel) {
+                                console.info("calling historyPanel.updateInvoiceId()");
+                                historyPanel.updateInvoiceId(previousInvoiceId, savedpatientinvoice);
+                            }
+                        } else {
+                            console.info(previousInvoiceId + ' = ' + newId);
+                        }
+                        console.info(document.location.href);
+                        if (document.location.href.indexOf('#newquicksale') >= 0) {
+                            document.location.href = '#invoice/' + savedpatientinvoice.get('id');
+                        } else {
+                            me.loadPatientInvoice(savedpatientinvoice);
+                            if (historyPanel) {
+                                console.info('historyPanel.invoiceSaved()');
+                                historyPanel.invoiceSaved(me);
+                            }
+                        }
+                    }
+                });
+            },
+            failure: function(response) {},
+            callback: function(options, success, response) {
+                me.setMasked(false);
+            }
+        });
+    },
+    pay: function() {
+        var addPaymentPanel = Ext.create('WINK.view.AddPaymentPanel');
+        Ext.Viewport.add(addPaymentPanel);
+        addPaymentPanel.setPatientInvoicePanel(this);
+    },
+    addPayment: function(patientpaymentpanel) {
+        var patientinvoice = this.patientinvoice;
+        if (!this.payments)  {
+            this.payments = [];
+        }
+        
+        this.payments[this.payments.length] = patientpaymentpanel;
+        this.getPaymentsContainer().add(patientpaymentpanel);
+        this.updateNoPaymentsPanel();
+        this.updateSummary();
+        this.save();
+    },
+    deleteInvoice: function() {
+        alert('not implemented');
+    },
+    email: function() {
+        this.save();
+    },
+    print: function() {
+        this.save();
+    },
+    isFullyLoaded: function() {
+        if (!this.isPaymentsLoaded)  {
+            return false;
+        }
+        
+        if (!this.isInvoiceItemsLoaded)  {
+            return false;
+        }
+        
+        return this.isPaymentsLoaded && this.isInvoiceItemsLoaded;
+    },
+    updatePaymentsModel: function() {
+        var temp = [];
+        for (var i = 0; i < this.payments.length; i++) {
+            console.log('updatePaymentsModel() ' + i);
+            temp.push(this.payments[i].updateModel());
+        }
+        return temp;
+    },
+    updateItemsModel: function() {
+        var temp = [];
+        for (var i = 0; i < this.invoiceitems.length; i++) {
+            console.log('InvoicePanel.updateItemsModel() i=' + i);
+            temp.push(this.invoiceitems[i].updateModel());
+        }
+        console.log('InvoicePanel.updateItemsModel() length ' + temp.length);
+        return temp;
+    },
+    updateInvoiceModel: function() {
+        console.log('InvoicePanel.updateInvoiceModel()');
+        var temp = this.getInvoiceSummary().getValues();
+        for (var i = 0; i < temp.length; i++) {
+            console.log(i + " " + temp[0]);
+        }
+        this.patientinvoice.set(temp);
+        var paymentsStore = this.patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
+        var invoiceItemsStore = this.patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
+        paymentsStore.setData(this.updatePaymentsModel());
+        invoiceItemsStore.setData(this.updateItemsModel());
+        console.log('InvoicePanel.updateInvoiceModel() count of items' + invoiceItemsStore.getCount());
+        invoiceItemsStore.each(function(childRecord) {
+            console.log("InvoicePanel.updateInvoiceModel invoiceItemsStore.each():" + childRecord);
+        });
+        return this.patientinvoice;
+    },
+    loadPatientInvoice: function(patientinvoice) {
+        this.setMasked(true);
+        this.patientinvoice = patientinvoice;
+        console.log('InvoicePanel.loadPanelInvoice() ' + patientinvoice.get('id'));
+        this.isPaymentsLoaded = false;
+        this.isInvoiceItemsLoaded = false;
+        var itemsContainer = this.getInvoiceItemsContainer();
+        this.clearInvoiceItemsContainer();
+        this.clearInvoicePaymentsContainer();
+        if (!patientinvoice.get('patient_idpatient') || patientinvoice.get('patient_idpatient') === 0) {
+            //quicksale
+            if (!patientinvoice.get('delivereddate'))  {
+                patientinvoice.set('delivereddate', patientinvoice.get('orderdate'));
+            }
+            
+            this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').hide();
+            this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').hide();
+            this.down('segmentedbutton[winkname=addworksheetbuttons]').hide();
+        } else {
+            this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').show();
+            this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').show();
+            this.down('segmentedbutton[winkname=addworksheetbuttons]').show();
+        }
+        this.setRecord(patientinvoice);
+        var invoiceIdLabel = this.down('label[name=id]');
+        if (WINK.Utilities.isKeyNull(patientinvoice)) {
+            invoiceIdLabel.setHtml('New Invoice');
+        } else {
+            invoiceIdLabel.setHtml("i" + patientinvoice.get('id'));
+        }
+        this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
+        var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
+        var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
+        patientinvoiceitemsStore.load({
+            scope: this,
+            callback: function(records, operation, success) {
+                console.log('Loaded invoice items ');
+                this.itemsLoaded();
+            }
+        });
+        patientpaymentsStore.load({
+            scope: this,
+            callback: function(records, operation, success) {
+                console.log('Loaded invoice payments ');
+                this.paymentsLoaded();
+            }
+        });
+        this.unmask();
+    },
+    itemsLoaded: function() {
+        this.clearInvoiceItemsContainer();
+        var patientinvoice = this.patientinvoice;
+        var itemsContainer = this.getInvoiceItemsContainer();
+        var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
+        patientinvoiceitemsStore.each(function(item, index, length) {
+            console.log('InvoicePanel.itemsLoaded() patientinvoiceitemsStore.each() ' + index);
+            var invoiceItemPanel = Ext.create('WINK.view.InvoiceItemPanel');
+            if (!this.invoiceitems)  {
+                this.invoiceitems = [];
+            }
+            
+            this.invoiceitems[index] = invoiceItemPanel;
+            itemsContainer.add(invoiceItemPanel);
+            invoiceItemPanel.loadItem(item);
+        }, this);
+        this.updateNoItemsPanel();
+        this.isInvoiceItemsLoaded = true;
+        if (this.isFullyLoaded())  {
+            this.unmask();
+        }
+        
+    },
+    updateNoItemsPanel: function() {
+        if (this.invoiceitems)  {
+            if (this.invoiceitems.length === 0) {
+                if (this.noItemsPanelAdded)  {
+                    return;
+                }
+                
+                this.getInvoiceItemsContainer().add(this.getNoItemsPanel());
+                this.noItemsPanelAdded = true;
+            } else {
+                if (this.noItemsPanelAdded)  {
+                    this.getInvoiceItemsContainer().remove(this.getNoItemsPanel());
+                }
+                
+                this.noItemsPanel = null;
+                this.noItemsPanelAdded = false;
+            };
+        }
+        
+    },
+    updateNoPaymentsPanel: function() {
+        if (this.payments)  {
+            if (this.payments.length === 0) {
+                if (this.noPaymentsPanelAdded)  {
+                    return;
+                }
+                
+                this.getPaymentsContainer().add(this.getNoPaymentsPanel());
+                this.noPaymentsPanelAdded = true;
+            } else {
+                if (this.noPaymentsPanelAdded)  {
+                    this.getPaymentsContainer().remove(this.getNoPaymentsPanel());
+                }
+                
+                this.noPaymentsPanel = null;
+                this.noPaymentsPanelAdded = false;
+            };
+        }
+        
+    },
+    getNoPaymentsPanel: function() {
+        if (!this.noPaymentsPanel) {
+            this.noPaymentsPanel = Ext.create('WINK.view.InvoicePaymentPanel', {
+                items: [
+                    {
+                        xtype: 'label',
+                        html: 'No Payments Received',
+                        margin: '0 5 0 5',
+                        style: 'font-size:15px; font-family:"open sans"',
+                        height: 20
+                    }
+                ]
+            });
+        }
+        return this.noPaymentsPanel;
+    },
+    getNoItemsPanel: function() {
+        if (!this.noItemsPanel) {
+            this.noItemsPanel = Ext.create('WINK.view.InvoicePaymentPanel', {
+                items: [
+                    {
+                        xtype: 'label',
+                        html: 'No Items Sold. Look for products to add to the invoice.',
+                        margin: '0 5 0 5',
+                        style: 'font-size:15px; font-family:"open sans"',
+                        height: 20
+                    }
+                ]
+            });
+        }
+        return this.noItemsPanel;
+    },
+    paymentsLoaded: function() {
+        this.clearInvoicePaymentsContainer();
+        var patientinvoice = this.patientinvoice;
+        var paymentsContainer = this.getPaymentsContainer();
+        var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
+        patientpaymentsStore.each(function(item, index, length) {
+            var invoicePaymentPanel = Ext.create('WINK.view.InvoicePaymentPanel');
+            if (!this.payments)  {
+                this.payments = [];
+            }
+            
+            this.payments[index] = invoicePaymentPanel;
+            paymentsContainer.add(invoicePaymentPanel);
+            invoicePaymentPanel.loadItem(item);
+        }, this);
+        this.updateNoPaymentsPanel();
+        this.isPaymentsLoaded = true;
+        if (this.isFullyLoaded())  {
+            this.unmask();
+        }
+        
+    },
+    getInvoiceSummary: function() {
+        return this.down('InvoiceSummary');
+    },
+    getPaymentsContainer: function() {
+        return this.down('container[winkname=invoicepaymentscontainer]');
+    },
+    getInvoiceItemsContainer: function() {
+        return this.down('container[winkname=invoiceitemscontainer]');
+    },
+    clearInvoiceItemsContainer: function() {
+        this.getInvoiceItemsContainer().removeAll(true, false);
+        this.invoiceitems = [];
+        this.noItemsPanel = null;
+        this.noItemsPanelAdded = false;
+    },
+    clearInvoicePaymentsContainer: function() {
+        this.getPaymentsContainer().removeAll(true, false);
+        this.payments = [];
+        this.noPaymentsPanel = null;
+        this.noPaymentsPanelAdded = false;
+    },
+    deletePayment: function(item) {
+        for (var i = 0; i < this.payments.length; i++) {
+            if (this.payments[i] === item) {
+                this.payments.splice(i, 1);
+                this.getPaymentsContainer().remove(item);
+                break;
+            }
+        }
+        this.updateNoPaymentsPanel();
+        this.updateSummary();
+    },
+    deleteItem: function(item) {
+        for (var i = 0; i < this.invoiceitems.length; i++) {
+            if (this.invoiceitems[i] === item) {
+                this.invoiceitems.splice(i, 1);
+                this.getInvoiceItemsContainer().remove(item);
+                break;
+            }
+        }
+        this.updateNoItemsPanel();
+        this.updateSummary();
+    },
+    getListedUnitPrice: function(product, idStore) {
+        var listedUnitPrice = 0;
+        var prd = this.getProductRetailDetails(product, idStore);
+        if (prd)  {
+            listedUnitPrice = prd.get('retailpriceto');
+        }
+        
+        console.log('returning:' + listedUnitPrice);
+        return listedUnitPrice;
+    },
+    getCurrentStoreId: function() {
+        var selectedStore = this.getInvoiceSummary().down('selectfield[name=store_idstore]').getRecord();
+        return selectedStore.get('id');
+    },
+    getOrderDate: function() {
+        return this.getInvoiceSummary().down('datepickerfield[name=orderdate]').getValue();
+    },
+    getProductRetailDetails: function(product, idStore) {
+        idStore = idStore || this.getCurrentStoreId();
+        var prd = null;
+        var retailDetailsStore = product.productretaildetails_product_idproduct();
+        retailDetailsStore.each(function(retail, index, length) {
+            console.log('lookgin for retail price:' + retail.get('store_idstore') + " " + retail.get('retailpriceto'));
+            if ((retail.get('store_idstore') == null) || (retail.get('store_idstore') === 0) || (retail.get('store_idstore') === idStore)) {
+                prd = retail;
+                if (retail.get('store_idstore') === idStore) {
+                    return;
+                }
+            }
+        }, this);
+        return prd;
+    },
+    getTaxCodeId: function(product) {
+        var temp = this.getProductRetailDetails(product);
+        if (!temp)  {
+            return null;
+        }
+        
+        return temp.get('taxcode_idtaxcode');
+    },
+    addProductToInvoice: function(product, barcode) {
+        var defaultUnitPrice = this.getListedUnitPrice(product, this.getCurrentStoreId());
+        console.log('default price is:' + defaultUnitPrice);
+        var itemsContainer = this.getInvoiceItemsContainer();
+        var idbarcode = null;
+        if (barcode)  {
+            idbarcode = barcode.get('id');
+        }
+        
+        var idTaxCode = this.getTaxCodeId(product);
+        console.log('Tax Code ID is:' + idTaxCode);
+        var newInvoiceItem = Ext.create('WINK.model.PatientInvoiceItem', {
+                qty: 1,
+                product_idproduct: product.get('id'),
+                fkproduct_idproduct: product,
+                prediscount_unitprice: defaultUnitPrice,
+                barcode_idbarcode: idbarcode,
+                fkbarcode: barcode,
+                taxcode_idtaxcode: idTaxCode
+            });
+        console.log('newInvoiceItem unit price is:' + newInvoiceItem.get('prediscount_unitprice'));
+        var invoiceItemPanel = Ext.create('WINK.view.InvoiceItemPanel');
+        if (!this.invoiceitems)  {
+            this.invoiceitems = [];
+        }
+        
+        this.invoiceitems[this.invoiceitems.length] = invoiceItemPanel;
+        this.getInvoiceContainer().setActiveItem(itemsContainer);
+        //this needs to be done before we load the item (because of the activate event)
+        itemsContainer.add(invoiceItemPanel);
+        //this needs to be done before we load the item (because of the activate event)
+        invoiceItemPanel.loadItem(newInvoiceItem);
+        invoiceItemPanel.recalculateTax();
+        this.updateNoItemsPanel();
+        this.down('textfield[winkname=searchProductField]').setValue('');
+    },
+    getSubtotal: function() {
+        var subtotal = 0;
+        if (this.invoiceitems)  {
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                console.log('invoicePanel getSubtTotal():' + i + " of " + this.invoiceitems.length + " = " + subtotal);
+                subtotal += this.invoiceitems[i].getSubtotal();
+            };
+        }
+        
+        console.log("invoicePanel getSubtTotal() sum " + subtotal);
+        return subtotal;
+    },
+    getTax1: function() {
+        var t = 0;
+        if (this.invoiceitems)  {
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                t += this.invoiceitems[i].getTax1();
+            };
+        }
+        
+        return t;
+    },
+    getTax2: function() {
+        var t = 0;
+        if (this.invoiceitems)  {
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                t += this.invoiceitems[i].getTax2();
+            };
+        }
+        
+        return t;
+    },
+    getInsurancePortion: function() {
+        var t = 0;
+        return t;
+    },
+    getPatientBalance: function() {
+        var subtotal = this.getSubtotal();
+        var tax1 = this.getTax1();
+        var tax2 = this.getTax2();
+        var total = subtotal + tax1 + tax2;
+        var insurancePortion = this.getInsurancePortion();
+        var totalPayments = this.getPatientPaymentsTotal();
+        return total - insurancePortion - totalPayments;
+    },
+    getPatientPaymentsTotal: function() {
+        var t = 0;
+        if (this.payments)  {
+            for (var i = 0; i < this.payments.length; i++) {
+                t += this.payments[i].getAmount();
+            };
+        }
+        
+        return t;
+    },
+    getTax1Name: function() {
+        var name = null;
+        if (this.invoiceitems)  {
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                var temp = this.invoiceitems[i].getTax1Name();
+                if (temp && temp.trim().length > 0) {
+                    if (name && name.length > 0) {
+                        if (name.toUpperCase() === temp.trim().toUpperCase()) {} else {
+                            name = "Tax 1";
+                            break;
+                        }
+                    } else {
+                        name = temp.trim();
+                    }
+                }
+            };
+        }
+        
+        return name || 'Tax 1';
+    },
+    getTax2Name: function() {
+        var name = null;
+        if (this.invoiceitems)  {
+            for (var i = 0; i < this.invoiceitems.length; i++) {
+                var temp = this.invoiceitems[i].getTax2Name();
+                if (temp && temp.trim().length > 0) {
+                    if (name && name.length > 0) {
+                        if (name.toUpperCase() === temp.trim().toUpperCase()) {} else {
+                            name = "Tax 2";
+                            break;
+                        }
+                    } else {
+                        name = temp.trim();
+                    }
+                }
+            };
+        }
+        
+        return name || 'Tax 2';
+    },
+    updateSummary: function() {
+        this.getInvoiceSummary().updateSummary();
+    },
+    getInvoiceContainer: function() {
+        return this.down('container[winkname=invoicecontainer]');
+    },
+    getSearchProductsContainer: function() {
+        if (!this.searchProductsContainer) {
+            this.searchProductsContainer = Ext.create('WINK.view.ProductSearchResultsPanel', {
+                title: 'Product Seach',
+                iconCls: 'info'
+            });
+        }
+        this.getInvoiceContainer().setActiveItem(this.searchProductsContainer);
+        return this.searchProductsContainer;
+    },
+    searchProducts: function() {
+        var searchProductField = this.down('textfield[winkname=searchProductField]');
+        var v = searchProductField.getValue();
+        if ((v != null) && (v.trim().length > 0)) {
+            console.log('looking for products with ' + searchProductField);
+            this.getSearchProductsContainer().find(v);
+        }
+    },
+    browseProducts: function() {
+        this.getSearchProductsContainer().browse();
+    },
     config: {
         layout: 'hbox',
+        centered: false,
+        // modal: false,
         scrollable: false,
         items: [
             {
-                xtype: 'tabpanel',
+                xtype: 'container',
                 flex: 1,
-                id: 'invoiceTabPanel',
-                itemId: 'invoiceTabPanel',
+                layout: 'fit',
                 items: [
                     {
                         xtype: 'container',
@@ -68835,7 +78370,21 @@ Ext.define('WINK.view.InvoicePanel', {
                                 xtype: 'container',
                                 border: '0 0 1 0',
                                 height: 50,
-                                style: 'background:rgb(215,224,231); border-style:solid; border-color: darkgrey;'
+                                style: 'background:rgb(215,224,231); border-style:solid; border-color: darkgrey;',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'center'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        name: 'id',
+                                        readOnly: true,
+                                        html: '',
+                                        margin: '0 2 0 20',
+                                        style: 'font-size:15px; font-family:"open sans"'
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'container',
@@ -68862,7 +78411,8 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 margin: '2 0 2 2',
                                                 width: 200,
                                                 label: '',
-                                                placeHolder: 'Item'
+                                                placeHolder: 'Item',
+                                                winkname: 'searchProductField'
                                             },
                                             {
                                                 xtype: 'button',
@@ -68870,7 +78420,10 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 height: 45,
                                                 margin: '2 2 2 0',
                                                 ui: 'action',
-                                                text: 'Search'
+                                                text: 'Search',
+                                                handler: function(btn) {
+                                                    btn.up('InvoicePanel').searchProducts();
+                                                }
                                             },
                                             {
                                                 xtype: 'button',
@@ -68879,7 +78432,10 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 itemId: 'mybutton58',
                                                 margin: '0 0 0 5',
                                                 ui: 'confirm',
-                                                text: 'Favorites'
+                                                text: 'Browse',
+                                                handler: function(btn) {
+                                                    btn.up('InvoicePanel').browseProducts();
+                                                }
                                             }
                                         ]
                                     },
@@ -68898,15 +78454,20 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 xtype: 'segmentedbutton',
                                                 margin: '0 0 0 5',
                                                 allowToggle: false,
+                                                winkname: 'addworksheetbuttons',
                                                 items: [
                                                     {
                                                         xtype: 'button',
                                                         itemId: 'mybutton17',
-                                                        text: '+ Rx'
+                                                        text: '+ Rx',
+                                                        handler: function(button, event) {
+                                                            button.up('InvoicePanel').newRxWorksheet();
+                                                        }
                                                     },
                                                     {
                                                         xtype: 'button',
-                                                        text: '+ CL'
+                                                        text: '+ CL',
+                                                        hidden: true
                                                     }
                                                 ]
                                             },
@@ -68917,11 +78478,27 @@ Ext.define('WINK.view.InvoicePanel', {
                                                 items: [
                                                     {
                                                         xtype: 'button',
-                                                        text: 'Camera'
+                                                        text: 'Camera',
+                                                        handler: function() {
+                                                            function success(image_uri) {
+                                                                /* var img = Ext.ComponentQuery.query("image")[0];
+                                                                 img.setSrc(image_uri);*/
+                                                                alert("Success: " + image_uri);
+                                                            }
+                                                            function fail(message) {
+                                                                alert("Failed: " + message);
+                                                            }
+                                                            navigator.camera.getPicture(success, fail, {
+                                                                quality: 50,
+                                                                destinationType: navigator.camera.DestinationType.FILE_URI,
+                                                                sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+                                                            });
+                                                        }
                                                     },
                                                     {
                                                         xtype: 'button',
-                                                        text: 'Attachment'
+                                                        text: 'Attachment',
+                                                        hidden: true
                                                     }
                                                 ]
                                             }
@@ -68934,12 +78511,13 @@ Ext.define('WINK.view.InvoicePanel', {
                                 border: '1 0 1 0',
                                 style: 'background:rgb(248,248,248); border-style:solid; border-color: darkgrey;',
                                 layout: 'hbox',
+                                winkname: 'invoiceitemsheader',
                                 items: [
                                     {
                                         xtype: 'label',
                                         flex: 1,
-                                        html: 'Product Name',
-                                        margin: '5 2 5 5'
+                                        html: '',
+                                        margin: '5 2 0 5'
                                     },
                                     {
                                         xtype: 'label',
@@ -68961,6 +78539,12 @@ Ext.define('WINK.view.InvoicePanel', {
                                     },
                                     {
                                         xtype: 'label',
+                                        html: 'Discount',
+                                        margin: '5 2 0 0',
+                                        width: 100
+                                    },
+                                    {
+                                        xtype: 'label',
                                         html: 'Total',
                                         margin: '5 2 0 0',
                                         width: 100
@@ -68975,105 +78559,119 @@ Ext.define('WINK.view.InvoicePanel', {
                             },
                             {
                                 xtype: 'container',
-                                flex: 1,
-                                style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
-                                layout: 'vbox',
-                                scrollable: 'vertical',
+                                border: '1 0 1 0',
+                                style: 'background:rgb(248,248,248); border-style:solid; border-color: darkgrey;',
+                                layout: 'hbox',
+                                winkname: 'paymentsheader',
+                                hidden: true,
                                 items: [
                                     {
-                                        xtype: 'mycontainer10',
-                                        margin: 5
+                                        xtype: 'label',
+                                        html: 'Date',
+                                        margin: '5 2 0 2',
+                                        width: 150
                                     },
                                     {
-                                        xtype: 'mycontainer10',
-                                        invoiceItemIndex: 1,
-                                        margin: 5
+                                        xtype: 'label',
+                                        html: 'Method',
+                                        margin: '5 2 0 0',
+                                        width: 150
                                     },
                                     {
-                                        xtype: 'mycontainer10',
-                                        invoiceItemIndex: 2,
-                                        margin: 5
+                                        xtype: 'label',
+                                        flex: 1,
+                                        html: 'Description',
+                                        margin: '5 2 0 0'
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        html: 'Amount',
+                                        margin: '5 2 0 0',
+                                        width: 100
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        html: '',
+                                        margin: '5 2 0 2',
+                                        width: 50
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'tabpanel',
+                                flex: 1,
+                                scrollable: false,
+                                style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
+                                winkname: 'invoicecontainer',
+                                tabBar: {
+                                    docked: 'bottom',
+                                    ui: 'light'
+                                },
+                                listeners: {
+                                    activeitemchange: function(tabpanel, value, oldValue, eOpts) {
+                                        console.log('InvoicePanel tabpanel activeitemchange');
+                                        if (value instanceof WINK.view.JobStatusPanel) {
+                                            value.loadStatusOnce();
+                                        }
+                                        if (value === tabpanel.down('container[winkname=invoiceitemscontainer]')) {
+                                            tabpanel.up('InvoicePanel').down('container[winkname=invoiceitemsheader]').show();
+                                        } else {
+                                            tabpanel.up('InvoicePanel').down('container[winkname=invoiceitemsheader]').hide();
+                                        }
+                                        if (value === tabpanel.down('container[winkname=invoicepaymentscontainer]')) {
+                                            tabpanel.up('InvoicePanel').down('container[winkname=paymentsheader]').show();
+                                        } else {
+                                            tabpanel.up('InvoicePanel').down('container[winkname=paymentsheader]').hide();
+                                        }
+                                    }
+                                },
+                                items: [
+                                    {
+                                        xtype: 'container',
+                                        style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
+                                        layout: {
+                                            type: 'vbox'
+                                        },
+                                        scrollable: 'vertical',
+                                        iconCls: 'more',
+                                        title: 'Items Sold',
+                                        winkname: 'invoiceitemscontainer'
+                                    },
+                                    {
+                                        xtype: 'container',
+                                        style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
+                                        layout: {
+                                            type: 'vbox'
+                                        },
+                                        scrollable: 'vertical',
+                                        iconCls: 'more',
+                                        title: 'Payment(s)',
+                                        winkname: 'invoicepaymentscontainer'
+                                    },
+                                    {
+                                        xtype: 'jobstatuspanel',
+                                        title: 'Job Status',
+                                        iconCls: 'settings'
                                     }
                                 ]
                             }
                         ]
-                    },
-                    {
-                        xtype: 'container',
-                        title: 'Job Status',
-                        iconCls: 'info'
-                    },
-                    {
-                        xtype: 'container',
-                        title: 'New CL',
-                        iconCls: 'info'
                     }
-                ],
-                tabBar: {
-                    docked: 'bottom',
-                    ui: 'light'
-                }
+                ]
             },
+            //tab panel items
+            //tab panel
             {
                 xtype: 'InvoiceSummary'
             }
-        ],
-        listeners: [
-            {
-                fn: 'onMybutton17Tap',
-                event: 'tap',
-                delegate: '#mybutton17'
-            }
         ]
     },
-    onMybutton17Tap: function(button, e, eOpts) {
+    newRxWorksheet: function() {
         var newSheet = new WINK.view.RxWorksheetPanel({
                 title: "New Rx"
             });
-        var tabPanel = Ext.getCmp("invoiceTabPanel");
-        tabPanel.add(newSheet);
-    }
-});
-
-/*
- * File: app/controller/FavoriteButtonController.js
- *
- * This file was generated by Sencha Architect version 3.2.0.
- * http://www.sencha.com/products/architect/
- *
- * This file requires use of the Sencha Touch 2.4.x library, under independent license.
- * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
- * details see http://www.sencha.com/license or contact license@sencha.com.
- *
- * This file will be auto-generated each and everytime you save your project.
- *
- * Do NOT hand edit this file.
- */
-Ext.define('WINK.controller.FavoriteButtonController', {
-    extend: Ext.app.Controller,
-    config: {
-        refs: {
-            parentView: {
-                selector: 'ParentView',
-                xtype: 'ParentView'
-            },
-            invoicePanel: {
-                selector: 'InvoicePanel',
-                xtype: 'InvoicePanel'
-            }
-        },
-        control: {
-            "button#mybutton58": {
-                tap: 'onFavoriteTap'
-            }
-        }
-    },
-    onFavoriteTap: function(button, e, eOpts) {
-        var favProducts = new WINK.view.QuickProductSelectionPanel({
-                invoicePanel: this.getInvoicePanel(),
-                parentView: this.getParentView()
-            });
-        this.getParentView().setActiveItem(favProducts);
+        var tabPanel = this.down("tabpanel");
+        tabPanel.setActiveItem(newSheet);
     }
 });
 
@@ -69569,7 +79167,8 @@ Ext.define('WINK.view.QuickProductSelectionPanel', {
                         xtype: 'button',
                         itemId: 'mybutton59',
                         ui: 'back',
-                        text: 'Back'
+                        text: 'Back',
+                        action: 'goBack'
                     }
                 ]
             }
@@ -69862,32 +79461,1010 @@ Ext.define('WINK.view.Main', {
     }
 });
 
-/*
-    This file is generated and updated by Sencha Cmd. You can edit this file as
-    needed for your application, but these edits will have to be merged by
-    Sencha Cmd when it performs code generation tasks such as generating new
-    models, controllers or views and when running "sencha app upgrade".
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.MonthPickerFormField', {
+    extend: Ext.form.DatePicker,
+    alias: 'widget.monthpickerfield',
+    getDatePicker: function() {
+        if (!this.datePicker) {
+            if (this.picker instanceof WINK.view.MonthPicker) {
+                this.datePicker = this.picker;
+            } else {
+                this.datePicker = new WINK.view.MonthPicker(Ext.apply(this.picker || {}));
+            }
+            this.datePicker.setValue(this.value || null);
+            this.datePicker.on({
+                scope: this,
+                change: this.onPickerChange,
+                hide: this.onPickerHide
+            });
+        }
+        return this.datePicker;
+    }
+});
 
-    Ideally changes to this file would be limited and most work would be done
-    in other places (such as Controllers). If Sencha Cmd cannot merge your
-    changes and its generated code, it will produce a "merge conflict" that you
-    will need to resolve manually.
-*/
+Ext.define('WINK.view.PatientPanel', {
+    extend: Ext.form.Panel,
+    alias: 'widget.PatientPanel',
+    patientAdded: function(newPatient) {
+        alert('patient Added' + newPatient.get('id'));
+        document.location.href = '#patient/' + newPatient.get('id');
+        return;
+    },
+    patientSaved: function(savedPatient) {},
+    addPatient: function(bnt) {
+        var formPanel = this;
+        WINK.Utilities.submitForm(formPanel, this.patientAdded);
+    },
+    savePatient: function(bnt) {
+        alert('save Patient');
+        var formPanel = this;
+        WINK.Utilities.submitForm(formPanel, this.patientSaved);
+    },
+    initProvinceStore: function() {
+        console.log("PatientPanel.initProvinceStore()");
+        var subdivisionStore = Ext.create('WINK.store.CountrySubdivisionStore');
+        var countrySelect = this.down("selectfield[name=country_idcountry]");
+        var subdivisionSelect = this.down("selectfield[name=province_select]");
+        var subdivisionText = this.down("textfield[name=province]");
+        subdivisionSelect.setStore(subdivisionStore);
+        var mainSubdivisionStore = Ext.getStore('CountrySubdivisionStore');
+        mainSubdivisionStore.clearFilter();
+        console.log("number of provinces in main store" + mainSubdivisionStore.getData().length);
+        subdivisionStore.loadData(mainSubdivisionStore.getRange(), false);
+        return subdivisionStore;
+    },
+    updateProvinces: function(obj, options) {
+        console.log("PatientPanel.updateProvinces()");
+        var countrySelect = this.down("selectfield[name=country_idcountry]");
+        var subdivisionSelect = this.down("selectfield[name=province_select]");
+        var subdivisionText = this.down("textfield[name=province]");
+        var selectedCountryId = countrySelect.getValue();
+        var subdivisionStore = subdivisionSelect.getStore();
+        subdivisionStore.clearFilter();
+        subdivisionStore.filter("country_idcountry", selectedCountryId);
+        if (subdivisionStore.getData().length === 0) {
+            subdivisionText.show();
+            subdivisionSelect.hide();
+        } else {
+            subdivisionText.hide();
+            subdivisionSelect.show();
+        }
+    },
+    config: {
+        centered: false,
+        modal: false,
+        scrollable: 'vertical',
+        listeners: {
+            activate: {
+                single: true,
+                fn: function(value, options) {
+                    console.log("PatientPanel.activate()");
+                    //alert("PatientPanel.activate()")
+                    value.initProvinceStore();
+                    value.updateProvinces();
+                    var newPatient = new WINK.model.Patient();
+                    this.setRecord(newPatient);
+                }
+            }
+        },
+        items: [
+            {
+                xtype: 'toolbar',
+                docked: 'top',
+                title: 'New Patient',
+                items: [
+                    {
+                        text: 'Back',
+                        ui: 'back',
+                        action: 'goBack'
+                    },
+                    {
+                        text: 'Clear',
+                        ui: 'decline',
+                        handler: function(btn) {
+                            var newPatient = new WINK.model.Patient();
+                            //btn.up('.PatientPanel').reset();
+                            btn.up('.PatientPanel').setRecord(newPatient);
+                        }
+                    },
+                    {
+                        xtype: 'spacer'
+                    },
+                    {
+                        text: 'Save',
+                        ui: 'action',
+                        handler: function(btn) {
+                            btn.up('.PatientPanel').addPatient(btn);
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'container',
+                items: [
+                    {
+                        xtype: 'fieldset',
+                        title: 'Patient',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                label: 'First Name',
+                                name: 'firstname'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Last Name',
+                                name: 'lastname'
+                            },
+                            {
+                                xtype: 'selectfield',
+                                label: 'Gender',
+                                name: 'sex',
+                                options: [
+                                    {
+                                        text: 'Male',
+                                        value: 0
+                                    },
+                                    {
+                                        text: 'Female',
+                                        value: 1
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'datepickerfield',
+                                label: 'DOB',
+                                placeHolder: 'mm/dd/yyyy',
+                                name: 'dob',
+                                picker: {
+                                    yearFrom: 1800,
+                                    toolbar: {
+                                        xtype: 'datepickertoolbar'
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: 'Contact ',
+                        items: [
+                            {
+                                xtype: 'emailfield',
+                                label: 'Email',
+                                placeHolder: 'email@example.com',
+                                name: 'email'
+                            },
+                            {
+                                xtype: 'phonefield',
+                                label: 'Home',
+                                name: 'home'
+                            },
+                            {
+                                xtype: 'phonefield',
+                                label: 'Cell',
+                                name: 'cell'
+                            },
+                            {
+                                xtype: 'phonefield',
+                                label: 'Work',
+                                name: 'work'
+                            },
+                            {
+                                xtype: 'phonefield',
+                                label: 'Fax',
+                                name: 'fax'
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: 'Address',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                label: 'Civic Number',
+                                name: 'address1'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Unit',
+                                name: 'unit'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Street Name',
+                                name: 'address2'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'City',
+                                name: 'city'
+                            },
+                            {
+                                xtype: 'selectfield',
+                                label: 'Country',
+                                name: 'country_idcountry',
+                                required: true,
+                                displayField: 'name',
+                                store: 'CountryStore',
+                                usePicker: true,
+                                valueField: 'id',
+                                listeners: {
+                                    change: function(field, value) {
+                                        field.up('PatientPanel').updateProvinces();
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'selectfield',
+                                label: 'Province/St',
+                                name: 'province_select',
+                                required: true,
+                                displayField: 'name',
+                                usePicker: true,
+                                valueField: 'id',
+                                listeners: {
+                                    change: function(field, value) {
+                                        var provinceText = field.up('PatientPanel').down("textfield[name=province]");
+                                        console.log('country selection changed ');
+                                        if (field.getRecord()) {
+                                            value = field.getRecord().get(field.getDisplayField());
+                                            console.log('country selection changed to ' + value);
+                                            provinceText.setValue(value);
+                                        } else {
+                                            console.log('country selection clear');
+                                            provinceText.setValue("");
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Province/St',
+                                name: 'province',
+                                hidden: false
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Postal/Zip',
+                                name: 'postalcode'
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: 'Identification',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                label: 'Medical Card',
+                                name: 'medialcard'
+                            },
+                            {
+                                xtype: 'monthpickerfield',
+                                label: 'Medical Card Expiry',
+                                slotOrder: [
+                                    'month',
+                                    'year'
+                                ],
+                                format: 'F Y',
+                                name: 'medialcardexpiry'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'SIN',
+                                name: 'sin'
+                            },
+                            {
+                                xtype: 'textfield',
+                                label: 'Driver\'s License',
+                                name: 'drivers'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.MonthPicker', {
+    extend: Ext.DatePicker,
+    onSlotPick: function(slot, value) {
+        Ext.DatePicker.superclass.onSlotPick.apply(this, arguments);
+    },
+    getValue: function() {
+        var value = Ext.DatePicker.superclass.getValue.call(this);
+        return new Date(value.year, value.month - 1, 1);
+    }
+});
+
+Ext.define('WINK.view.FindPatientPanel', {
+    extend: Ext.Panel,
+    alias: 'widget.FindPatientPanel',
+    config: {
+        fullscreen: true,
+        layout: 'hbox',
+        id: 'FindPatientPanel',
+        items: [
+            {
+                docked: 'top',
+                xtype: 'toolbar',
+                title: 'Find Patient',
+                items: [
+                    {
+                        text: 'Back',
+                        ui: 'back',
+                        action: 'goBack'
+                    },
+                    {
+                        xtype: 'spacer'
+                    },
+                    {
+                        text: 'New',
+                        ui: 'confirm',
+                        action: 'doNewPatient'
+                    },
+                    {
+                        text: 'Open',
+                        ui: 'forward',
+                        handler: function(btn) {
+                            btn.up('FindPatientPanel').openSelectedPatient(btn);
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'container',
+                width: '250px',
+                scrollable: false,
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'formpanel',
+                        scrollable: true,
+                        id: 'FindPatientForm',
+                        flex: 1,
+                        items: [
+                            {
+                                xtype: 'fieldset',
+                                title: 'Find Patient',
+                                instructions: 'Please enter any of the fields above to find your patient',
+                                defaults: {
+                                    labelWidth: '35%',
+                                    labelAlign: 'top'
+                                },
+                                items: [
+                                    {
+                                        xtype: "textfield",
+                                        name: "name",
+                                        label: "Name"
+                                    },
+                                    {
+                                        xtype: "phonefield",
+                                        name: "phone",
+                                        label: "Phone Number"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "medicalcard",
+                                        label: "Medical Card"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "email",
+                                        label: "EMail"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "address",
+                                        label: "Address"
+                                    },
+                                    {
+                                        xtype: "datepickerfield",
+                                        name: "dob",
+                                        label: "Date of Birth"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "frame",
+                                        label: "Frame"
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'fieldset',
+                                title: 'Quick Find',
+                                // instructions: 'Please enter any of the fields above to find your patient',
+                                defaults: {
+                                    labelWidth: '35%',
+                                    labelAlign: 'top'
+                                },
+                                items: [
+                                    {
+                                        xtype: "textfield",
+                                        name: "winkfile",
+                                        label: "Wink File (R/O/I/Z/S)"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "paperfile",
+                                        label: "Patient Folder"
+                                    },
+                                    {
+                                        xtype: "textfield",
+                                        name: "tray",
+                                        label: "Tray"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'container',
+                        flex: 0,
+                        height: "100px",
+                        defaults: {
+                            xtype: 'button',
+                            flex: 1,
+                            margin: '10px'
+                        },
+                        items: [
+                            {
+                                text: "Find",
+                                ui: "confirm",
+                                handler: function(btn) {
+                                    Ext.getCmp('FindPatientPanel').findFunction(btn);
+                                }
+                            },
+                            {
+                                text: "Clear",
+                                handler: function(btn) {
+                                    Ext.getCmp('FindPatientForm').reset();
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                xtype: 'list',
+                indexBar: true,
+                grouped: true,
+                pinHeaders: true,
+                flex: 1,
+                store: 'PatientStore',
+                itemTpl: '{lastname} {firstname}'
+            }
+        ]
+    },
+    openSelectedPatient: function(btn) {
+        var list = this.down("list");
+        if (list.getSelectionCount() > 0) {
+            var selectedPatient = list.getSelection()[0];
+            window.location.href = "#patient/" + selectedPatient.get('id');
+        }
+    },
+    findFunction: function(btn) {
+        var me = this;
+        WINK.Utilities.showWorking();
+        Ext.Ajax.request({
+            url: WINK.Utilities.getRestURL() + 'patients/find',
+            method: 'GET',
+            form: 'FindPatientForm',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true,
+            params: {
+                'limit': 100
+            },
+            success: function(response) {
+                //console.log(response.responseText);
+                me.down('list').getStore().setData(Ext.JSON.decode(response.responseText));
+                WINK.Utilities.hideWorking();
+            },
+            failure: function(response) {
+                WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Find Patient', response);
+            },
+            callback: function(options, success, response) {}
+        });
+    }
+});
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+Ext.define('WINK.view.PatientHistoryPanel', {
+    extend: Ext.Panel,
+    alias: 'widget.PatientHistoryPanel',
+    newPhoto: function() {},
+    newAttachment: function() {},
+    newInvoice: function() {
+        var historyStore = this.getHistoryList().getStore();
+        var item = Ext.create('WINK.model.PatientInvoice');
+        WINK.Utilities.setDefaultValues(item);
+        item.set('patient_idpatient', this.patient.get('id'));
+        this.patient.patientinvoices_patient_idpatient().add(item);
+        console.log('New Invoice ID:' + item.get('id'));
+        var invoiceItem = Ext.create('WINK.model.PatientHistoryTree', {
+                type: 4,
+                modelid: item.get('id'),
+                label: item.get('orderdate').getFullYear() + '-' + (item.get('orderdate').getMonth() + 1) + "-" + item.get('orderdate').getDate(),
+                icon: '',
+                date: item.get('orderdate')
+            });
+        historyStore.add(invoiceItem);
+        this.openHistoryItem(invoiceItem);
+    },
+    updateInvoiceId: function(previousInvoiceId, newInvoice) {
+        var newInvoiceId = newInvoice.get('id');
+        var invoiceHistoryStore = this.patient.patientinvoices_patient_idpatient();
+        var oldInvoiceModel = invoiceHistoryStore.getById(previousInvoiceId);
+        if (oldInvoiceModel)  {
+            invoiceHistoryStore.remove(oldInvoiceModel);
+        }
+        
+        invoiceHistoryStore.add(newInvoice);
+        var historyStore = this.getHistoryList().getStore();
+        historyStore.each(function(item, index, length) {
+            if ((item.get('type') === 4 || item.get('type') === 5))  {
+                if (item.get('modelid') === previousInvoiceId) {
+                    item.set('modelid', newInvoiceId);
+                };
+            }
+            
+        }, this);
+        if (!this['invoicePanels' + previousInvoiceId.toString()]) {
+            this['invoicePanels' + newInvoiceId.toString()] = this['invoicePanels' + previousInvoiceId.toString()];
+            this['invoicePanels' + previousInvoiceId.toString()] = null;
+        }
+    },
+    updateInvoiceHistoryItem: function(historyItem, invoiceModel) {
+        var type = 4;
+        if (invoiceModel.get('delivereddate'))  {
+            type = 5;
+        }
+        
+        historyItem.set('type', type);
+        historyItem.set('label', invoiceModel.get('orderdate').getFullYear() + '-' + (invoiceModel.get('orderdate').getMonth() + 1) + "-" + invoiceModel.get('orderdate').getDate());
+        historyItem.set('date', invoiceModel.get('orderdate'));
+        historyItem.set('modelid', invoiceModel.get('id'));
+    },
+    invoiceSaved: function(invoicePanel) {
+        var historyStore = this.getHistoryList().getStore();
+        var invoiceId = invoicePanel.getRecord().get('id');
+        var invoice = invoicePanel.getRecord();
+        console.log('invoiceSaved:' + invoiceId);
+        historyStore.each(function(item, index, length) {
+            if ((item.get('type') === 4 || item.get('type') === 5) && item.get('modelid') === invoiceId) {
+                this.updateInvoiceHistoryItem(item, invoice);
+            }
+        }, this);
+        historyStore.sortHistory();
+    },
+    newExam: function() {},
+    saveClicked: function() {
+        if (this.patientView) {
+            this.patientView.savePatient();
+        }
+    },
+    loadPatient: function(patient) {
+        console.log('PatientHistoryPanel.loadPatient()' + patient.get('id'));
+        this.patient = patient;
+        var toolbar = this.down('toolbar');
+        toolbar.setTitle(patient.get('lastname') + " " + patient.get('firstname'));
+        var invoicesStore = patient.patientinvoices_patient_idpatient();
+        invoicesStore.load({
+            scope: this,
+            callback: function(records, operation, success) {
+                console.log('Loaded invoices ');
+                this.loadPatientHistoryStore();
+            }
+        });
+    },
+    getHistoryList: function() {
+        return this.down('list');
+    },
+    loadPatientHistoryStore: function() {
+        var patient = this.patient;
+        console.log('PatientHistoryPanel.loadPatientHistoryStore()' + patient.get('id'));
+        var invoicesStore = patient.patientinvoices_patient_idpatient();
+        var historyStore = Ext.create('WINK.store.PatientHistoryStore');
+        var fullName = patient.get('lastname') + " " + patient.get('firstname');
+        console.log('PatientHistoryPanel.loadPatientHistoryStore() fullname:' + fullName);
+        this.getHistoryList().setStore(historyStore);
+        var patientItem = Ext.create('WINK.model.PatientHistoryTree', {
+                type: 0,
+                modelid: patient.get('id'),
+                label: fullName,
+                icon: '',
+                date: ''
+            });
+        historyStore.add(patientItem);
+        {
+            invoicesStore.each(function(item, index, length) {
+                var invoiceItem = Ext.create('WINK.model.PatientHistoryTree');
+                this.updateInvoiceHistoryItem(invoiceItem, item);
+                historyStore.add(invoiceItem);
+            }, this);
+        }
+        historyStore.sortHistory();
+        this.openHistoryItem(patientItem);
+    },
+    openHistoryItem: function(record) {
+        this.setMasked(true);
+        var patient = this.patient;
+        var list = this.getHistoryList();
+        var type = record.get('type');
+        var id = record.get('modelid');
+        console.log('PatientHistoryPanel.openHistoryItem()' + type + "." + id);
+        list.select(record, false, true);
+        var myContainer = this.down('container[winkname=patientmaincontainer]');
+        if (type === 0) {
+            var justLoaded = false;
+            if (!this.patientView) {
+                this.patientView = Ext.create('WINK.view.PatientPanel');
+                this.patientView.down('toolbar').hide();
+                justLoaded = true;
+            }
+            myContainer.setActiveItem(this.patientView);
+            if (justLoaded === true) {
+                this.patientView.setRecord(patient);
+            }
+        }
+        //has to run after myContainer.activate event
+        else if ((type === 4) || (type === 5)) {
+            var patientView = null;
+            var justLoaded = false;
+            if (!this['invoicePanels' + id.toString()]) {
+                patientView = Ext.create('WINK.view.InvoicePanel');
+                this['invoicePanels' + id.toString()] = patientView;
+                justLoaded = true;
+            } else {
+                patientView = this['invoicePanels' + id.toString()];
+            }
+            myContainer.setActiveItem(patientView);
+            if (justLoaded) {
+                var patientInvoiceModel = patient.patientinvoices_patient_idpatient().getById(id);
+                this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
+            }
+        }
+        this.unmask();
+    },
+    config: {
+        listeners: {
+            activate: {
+                scope: this,
+                fn: function() {}
+            }
+        },
+        scrollable: false,
+        layout: 'hbox',
+        masked: true,
+        items: [
+            {
+                docked: 'top',
+                xtype: 'toolbar',
+                title: 'Loading Patient...',
+                items: [
+                    {
+                        text: 'Back',
+                        ui: 'back',
+                        action: 'goBack'
+                    },
+                    {
+                        xtype: 'spacer'
+                    },
+                    {
+                        text: 'New',
+                        ui: 'confirm',
+                        listeners: {
+                            tap: function(c) {
+                                var myOverlay = Ext.create('Ext.Panel', {
+                                        modal: true,
+                                        winkname: 'newoverlay',
+                                        hideOnMaskTap: true,
+                                        showAnimation: {
+                                            type: 'popIn',
+                                            duration: 250,
+                                            easing: 'ease-out'
+                                        },
+                                        hideAnimation: {
+                                            type: 'popOut',
+                                            easing: 'ease-out',
+                                            duration: 250
+                                        },
+                                        width: '200px',
+                                        height: '300px',
+                                        scrollable: true,
+                                        layout: 'vbox',
+                                        items: [
+                                            {
+                                                docked: 'top',
+                                                xtype: 'toolbar',
+                                                title: 'New'
+                                            },
+                                            {
+                                                xtype: 'list',
+                                                indexBar: false,
+                                                grouped: false,
+                                                pinHeaders: true,
+                                                flex: 1,
+                                                itemTpl: '{title}',
+                                                data: [
+                                                    {
+                                                        title: 'Exam'
+                                                    },
+                                                    {
+                                                        title: 'Invoice'
+                                                    },
+                                                    {
+                                                        title: 'Attachment'
+                                                    },
+                                                    {
+                                                        title: 'Photo'
+                                                    }
+                                                ],
+                                                listeners: {
+                                                    itemtap: function(dataview, index, target, record, e, eOpts) {
+                                                        dataview.up("panel[winkname=newoverlay]").hide();
+                                                        var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0];
+                                                        if (index === 0) {
+                                                            historyPanel.newExam();
+                                                        } else if (index === 1) {
+                                                            historyPanel.newInvoice();
+                                                        } else if (index === 2) {
+                                                            historyPanel.newAttachment();
+                                                        } else if (index === 3) {
+                                                            historyPanel.newPhoto();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    });
+                                Ext.Viewport.add(myOverlay);
+                                myOverlay.showBy(c);
+                            }
+                        }
+                    },
+                    {
+                        text: 'Save',
+                        ui: 'action',
+                        listeners: {
+                            tap: function(c) {
+                                c.up('PatientHistoryPanel').saveClicked();
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'list',
+                width: '200px',
+                indexBar: false,
+                grouped: true,
+                pinHeaders: true,
+                itemTpl: '{label}',
+                border: '0 1 0 0',
+                style: 'border-style:solid; border-color: darkgrey;',
+                listeners: {
+                    itemtap: function(dataview, index, target, record, e, eOpts) {
+                        dataview.up('PatientHistoryPanel').openHistoryItem(record);
+                    }
+                }
+            },
+            {
+                xtype: 'container',
+                flex: 1,
+                layout: {
+                    type: 'card',
+                    animation: 'slide'
+                },
+                winkname: 'patientmaincontainer'
+            }
+        ]
+    }
+});
+
+/*
+ * File: app/view/InvoiceItemPanel.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.view.InvoicePaymentPanel', {
+    extend: Ext.form.Panel,
+    alias: 'widget.invoicepaymentpanel',
+    deleteItem: function() {
+        var invoicePanel = this.up('InvoicePanel');
+        invoicePanel.deletePayment(this);
+    },
+    loadItem: function(item) {
+        this.setRecord(item);
+    },
+    getAmount: function() {
+        var amountField = this.down('numberfield[name=amount]');
+        return amountField.getValue();
+    },
+    updateModel: function() {
+        var model = this.getRecord();
+        var temp = this.getValues();
+        model.set(temp);
+        return model;
+    },
+    updateInvoiceBalance: function() {
+        var invoicePanel = this.up('InvoicePanel');
+        if (invoicePanel)  {
+            //this, might not been added to the invoice panel yet
+            invoicePanel.updateSummary();
+        }
+        
+    },
+    config: {
+        invoiceItemIndex: 0,
+        border: '0 0 1 0',
+        height: 50,
+        style: 'border-style:solid; border-color:darkgrey',
+        scrollable: false,
+        layout: {
+            type: 'hbox',
+            align: 'center'
+        },
+        items: [
+            {
+                xtype: 'datepickerfield',
+                required: true,
+                margin: '0 2 0 2',
+                usePicker: true,
+                name: 'date',
+                width: 150,
+                style: 'borderInput'
+            },
+            {
+                xtype: 'selectfield',
+                required: true,
+                margin: '0 2 0 0',
+                displayField: 'name',
+                store: 'PaymentMethodForCurrentStore',
+                usePicker: true,
+                valueField: 'id',
+                width: 150,
+                name: 'paymentmethod_idpaymentmethod',
+                style: 'borderInput'
+            },
+            {
+                xtype: 'textfield',
+                cls: 'inputBorder',
+                margin: '0 2 0 0',
+                style: 'borderInput',
+                flex: 1,
+                clearIcon: false,
+                inputCls: 'inputAmount',
+                name: 'description'
+            },
+            {
+                xtype: 'pricefield',
+                cls: 'inputBorder',
+                margin: '0 2 0 0',
+                style: 'borderInput',
+                width: 100,
+                clearIcon: false,
+                inputCls: 'inputAmount',
+                value: 0,
+                autoComplete: false,
+                autoCorrect: true,
+                maxValue: 999999,
+                minValue: -999999,
+                name: 'amount',
+                listeners: {
+                    change: function(comp, newData, eOpts) {
+                        // alert('qty update data');
+                        comp.up('invoicepaymentpanel').updateInvoiceBalance();
+                    }
+                }
+            },
+            {
+                xtype: 'button',
+                height: 40,
+                margin: '0 2 0 2',
+                ui: 'decline-small',
+                width: 50,
+                text: 'Del',
+                //iconCls:'delete',
+                //iconMask:true,
+                handler: function(b) {
+                    b.up('invoicepaymentpanel').deleteItem();
+                }
+            }
+        ]
+    }
+});
+
+/*
+ This file is generated and updated by Sencha Cmd. You can edit this file as
+ needed for your application, but these edits will have to be merged by
+ Sencha Cmd when it performs code generation tasks such as generating new
+ models, controllers or views and when running "sencha app upgrade".
+ 
+ Ideally changes to this file would be limited and most work would be done
+ in other places (such as Controllers). If Sencha Cmd cannot merge your
+ changes and its generated code, it will produce a "merge conflict" that you
+ will need to resolve manually.
+ */
 Ext.application({
     name: 'WINK',
     models: [
-        'Store',
+        'JobStatusWrapper',
+        'BarcodeResponse',
+        'ApplicationSetting',
+        'Appointment',
+        'AppointmentType',
+        'Barcode',
+        'Country',
+        'CountrySubdivision',
+        'InvoiceAttachement',
+        'JobStatus',
+        'Patient',
+        'PatientInvoice',
+        'PatientInvoiceItem',
+        'PatientHistoryTree',
+        'PatientNote',
+        'PatientPaperFileNumber',
+        'PatientPayment',
+        'PaymentMethod',
         'Product',
-        'InvoiceItem',
-        'Invoice',
-        'TaxCode'
+        'ProductCategory',
+        'ProductRetailDetail',
+        'Store',
+        'Supplier',
+        'TaxCode',
+        'TaxCodeEffectiveDate',
+        'Upload',
+        'User',
+        'ProductBrowseModel'
     ],
     stores: [
+        'ProductStore',
         'leftNavigationTreeStore',
         'LocationStore',
-        'TaxCodeStore'
+        'TaxCodeStore',
+        'PatientStore',
+        'PatientHistoryStore',
+        'CountrySubdivisionStore',
+        'CountryStore',
+        'JobStatusStore',
+        'PaymentMethodStore'
     ],
     views: [
+        'JobStatusPanel',
+        'PhoneField',
+        'PriceField',
+        'IntField',
+        'DatePickerToolbar',
+        'PleaseWaitPanel',
         'LoginPanel',
         'MainAppPanel',
         'ParentView',
@@ -69900,14 +80477,21 @@ Ext.application({
         'InputPrescriptionPanel',
         'MyPowerPicker',
         'PowerSelectField',
-        'Main'
+        'Main',
+        'PatientPanel',
+        'MonthPickerFormField',
+        'MonthPicker',
+        'FindPatientPanel',
+        'PatientHistoryPanel',
+        'ProductSearchResultsPanel',
+        'AddPaymentPanel',
+        'InvoicePaymentPanel'
     ],
     controllers: [
         'ShowHideSideMenuButtonController',
         'LoginController',
         'LockScreenController',
-        'QuicksaleMenuController',
-        'FavoriteButtonController'
+        'MenuController'
     ],
     icon: {
         '57': 'resources/icons/Icon.png',
@@ -69925,19 +80509,188 @@ Ext.application({
         '1496x2048': 'resources/startup/1496x2048.png'
     },
     launch: function() {
+        if (typeof String.prototype.startsWith != 'function') {
+            // see below for better implementation!
+            String.prototype.startsWith = function(str) {
+                return this.indexOf(str) === 0;
+            };
+        }
+        Ext.Ajax.cors = true;
+        Ext.Ajax.useDefaultXhrHeader = false;
+        Ext.Ajax.withCredentials = true;
+        Ext.data.proxy.Ajax.useDefaultXhrHeader = false;
+        Ext.data.proxy.Ajax.withCredentials = true;
+        Ext.data.validations.length = function(config, value) {
+            var length = value ? value.length : 0,
+                min = config.min,
+                max = config.max;
+            if ((min && length < min) || (max && length > max)) {
+                return false;
+            } else {
+                return true;
+            }
+        };
+        Ext.Msg.defaultAllowedConfig.showAnimation = false;
+        Ext.JSON.encodeDate = function(d) {
+            console.log('WINK.JSON, encode date');
+            function f(n) {
+                return n < 10 ? '0' + n : n;
+            }
+            return "\"" + d.valueOf() + " " + d.getFullYear() + '-' + f(d.getMonth() + 1) + '-' + f(d.getDate()) + ' ' + f(d.getHours()) + ':' + f(d.getMinutes()) + ':' + f(d.getSeconds()) + "\"";
+        };
+        Ext.data.writer.Json.override({
+            /*
+             * This function overrides the default implementation of json writer. Any hasMany relationships will be submitted
+             * as nested objects. When preparing the data, only children which have been newly created, modified or marked for
+             * deletion will be added. To do this, a depth first bottom -> up recursive technique was used.
+             */
+            getRecordData: function(record) {
+                //Setup variables
+                console.log("getRecordData");
+                var me = this,
+                    i, association, childStore,
+                    data = record.data;
+                //Iterate over all the hasMany associations
+                for (i = 0; i < record.associations.length; i++) {
+                    association = record.associations.get(i);
+                    var name = association.getName();
+                    console.log(i + " association " + name + " " + association.getType());
+                    if (association.getType() === 'hasmany') {
+                        console.log(name + " " + association.getAssociationKey());
+                        data[name] = null;
+                        childStore = record[name]();
+                        console.log("child store:" + childStore);
+                        //Iterate over all the children in the current association
+                        childStore.each(function(childRecord) {
+                            console.log("childStore.each():" + childRecord);
+                            if (!data[name]) {
+                                data[name] = [];
+                            }
+                            //Recursively get the record data for children (depth first)
+                            var childData = this.getRecordData.call(this, childRecord);
+                            /*
+                             * If the child was marked dirty or phantom it must be added. If there was data returned that was neither
+                             * dirty or phantom, this means that the depth first recursion has detected that it has a child which is
+                             * either dirty or phantom. For this child to be put into the prepared data, it's parents must be in place whether
+                             * they were modified or not.
+                             */
+                            if (childRecord.dirty | childRecord.phantom | (childData != null)) {
+                                data[name].push(childData);
+                                record.setDirty();
+                            }
+                        }, me);
+                        /*
+                         * Iterate over all the removed records and add them to the preparedData. Set a flag on them to show that
+                         * they are to be deleted
+                         */
+                        Ext.each(childStore.getRemovedRecords(), function(removedChildRecord) {
+                            //Set a flag here to identify removed records
+                            if (!data[name]) {
+                                data[name] = [];
+                            }
+                            removedChildRecord.set('forDeletion', true);
+                            var removedChildData = this.getRecordData.call(this, removedChildRecord);
+                            data[name].push(removedChildData);
+                            record.setDirty();
+                        }, me);
+                    }
+                }
+                //Only return data if it was dirty, new or marked for deletion.
+                if (record.dirty | record.phantom | record.get('forDeletion')) {
+                    return data;
+                }
+            }
+        });
         // Destroy the #appLoadingIndicator element
         Ext.fly('appLoadingIndicator').destroy();
         // Initialize the main view
         Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {
             fullscreen: true
         });
+        Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
     },
+    //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
     onUpdated: function() {
-        Ext.Msg.confirm("Application Update", "This application has just successfully been updated to the latest version. Reload now?", function(buttonId) {
-            if (buttonId === 'yes') {
-                window.location.reload();
+        window.location.reload();
+    }
+});
+
+/*
+ * File: app/store/LocationStore.js
+ *
+ * This file was generated by Sencha Architect version 3.2.0.
+ * http://www.sencha.com/products/architect/
+ *
+ * This file requires use of the Sencha Touch 2.4.x library, under independent license.
+ * License of Sencha Architect does not include license for Sencha Touch 2.4.x. For more
+ * details see http://www.sencha.com/license or contact license@sencha.com.
+ *
+ * This file will be auto-generated each and everytime you save your project.
+ *
+ * Do NOT hand edit this file.
+ */
+Ext.define('WINK.store.BarcodeResponseStore', {
+    extend: Ext.data.Store,
+    sortList: function() {
+        this.sort([
+            {
+                property: 'isInventory',
+                direction: 'ASC'
+            },
+            {
+                property: 'storeInventory',
+                direction: 'DESC'
+            },
+            {
+                property: 'entrepriseInventory',
+                direction: 'DESC'
+            },
+            {
+                property: 'fkproduct_idproduct.name',
+                direction: 'ASC'
             }
-        });
+        ]);
+    },
+    // this.group();
+    config: {
+        data: [],
+        model: 'WINK.model.BarcodeResponse',
+        grouper: {
+            groupFn: function(record) {
+                if (!record.get('isInventory'))  {
+                    return "Services and Non Inventory Products";
+                }
+                
+                if (record.get('storeInventory') > 0)  {
+                    return "Found in Current Store";
+                }
+                
+                if (record.get('entrepriseInventory') > 0)  {
+                    return "Found in Another Store";
+                }
+                
+                return "Not Found In Inventory";
+            },
+            sortProperty: 'type'
+        },
+        sorters: [
+            {
+                property: 'isInventory',
+                direction: 'ASC'
+            },
+            {
+                property: 'storeInventory',
+                direction: 'DESC'
+            },
+            {
+                property: 'entrepriseInventory',
+                direction: 'DESC'
+            },
+            {
+                property: 'fkproduct_idproduct.name',
+                direction: 'ASC'
+            }
+        ]
     }
 });
 
@@ -70067,5 +80820,5 @@ Ext.define('WINK.view.PatientTabPanel', {
 });
 
 // @tag full-page
-// @require C:\git\pov\WinkTouch2\web\app.js
+// @require C:\git\pov\WinkTouch\web\app.js
 

@@ -26,8 +26,9 @@ Ext.define('WINK.store.LocationStore', {
         storeId: 'LocationStore',
         proxy: {
             type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId()
-
+            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId(),
+            withCredentials: true,
+            useDefaultXhrHeader: false
         },
         sorters: [
             {
