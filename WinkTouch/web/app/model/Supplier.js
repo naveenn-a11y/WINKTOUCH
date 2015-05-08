@@ -254,6 +254,24 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_supplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                associationKey: 'rxworksheets_supplier_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_supplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                associationKey: 'clworksheets_supplier_idsupplier',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'name', max: 45,min:0 }

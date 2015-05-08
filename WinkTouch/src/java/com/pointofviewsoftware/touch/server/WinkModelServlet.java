@@ -129,6 +129,10 @@ public class WinkModelServlet extends HttpServlet {
                         out.println(", type:'boolean'");
                     } else if (model.getFieldType(fieldName) == ProgramWritterField.DOUBLE) {
                         out.println(", type:'float'");
+                        
+                    } else if (model.getFieldType(fieldName) == ProgramWritterField.BYTE_ARRAY) {
+                        out.println(", type:'string'");
+                        
                     } else {
 
                     }

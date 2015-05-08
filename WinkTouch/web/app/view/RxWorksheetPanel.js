@@ -14,8 +14,7 @@
  */
 
 Ext.define('WINK.view.RxWorksheetPanel', {
-    extend: 'Ext.Panel',
-
+    extend: 'Ext.form.Panel',
     requires: [
         'WINK.view.PowerSelectField',
         'Ext.form.FieldSet',
@@ -24,73 +23,138 @@ Ext.define('WINK.view.RxWorksheetPanel', {
         'Ext.SegmentedButton',
         'Ext.Button'
     ],
-
+    loadRxWorksheet: function(rxWorksheetModel) {
+           this.setRecord(rxWorksheetModel);
+    },
     config: {
+         border: '0 0 1 0',
+        style: 'border-style:solid; border-color:darkgrey',
         items: [
             {
                 xtype: 'container',
                 layout: {
-                    type: 'hbox',
+                    type: 'vbox',
                     align: 'start'
                 },
                 items: [
                     {
-                        xtype: 'fieldset',
-                        width: 203,
-                        title: 'SPH',
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'start'
+                        },
                         items: [
                             {
-                                xtype: 'selectfield',
-                                label: '',
-                                labelWidth: '0%'
+                                xtype: 'fieldset',
+                                width: 150,
+                                title: 'Far PD',
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'R',
+                                        labelWidth: '20%',
+                                        name: 'r_farpd'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'L',
+                                        labelWidth: '20%',
+                                        name: 'l_farpd'
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'selectfield',
-                                label: '',
-                                labelWidth: '0%'
+                                xtype: 'fieldset',
+                                width: 150,
+                                title: 'Near PD',
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'R',
+                                        labelWidth: '20%',
+                                        name: 'r_closepd'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'L',
+                                        labelWidth: '20%',
+                                        name: 'l_closepd'
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'powerselectfield'
+                                xtype: 'fieldset',
+                                width: 150,
+                                title: 'Height',
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'R',
+                                        labelWidth: '20%',
+                                        name: 'r_height'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'L',
+                                        labelWidth: '20%',
+                                        name: 'l_height'
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        xtype: 'fieldset',
-                        title: 'MyFieldSet2',
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'start'
+                        },
                         items: [
                             {
-                                xtype: 'sliderfield',
-                                label: 'SPH',
-                                value: [
-                                    0
-                                ],
-                                increment: 0.25,
-                                maxValue: 40,
-                                minValue: -40
-                            },
-                            {
-                                xtype: 'textfield',
-                                label: 'Field'
-                            },
-                            {
-                                xtype: 'textfield',
-                                label: 'Field'
+                                xtype: 'fieldset',
+                               
+                                width:500,
+                                title: 'Frame',
+                                items: [
+                                    {
+                                        xtype: 'selectfield',
+                                        label: 'Source',
+                                        name: 'framesrc',
+                                        options: [
+                                            {text: 'Patient Own Frame', value: 0},
+                                            {text: 'From Stock', value: 1},
+                                            {text: 'To Order', value: 2}
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        xtype: 'segmentedbutton',
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'start'
+                        },
                         items: [
                             {
-                                xtype: 'button',
-                                text: 'MyButton1'
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'MyButton2'
+                                xtype: 'fieldset',
+                              
+                                width:500,
+                                items: [
+                                    {
+                                        xtype: 'textareafield',
+                                        label: 'Lab Instructions',
+                                        maxRows: 4,
+                                        name: 'labinstructions'
+                                    }
+                                ]
                             }
+
+
                         ]
                     }
+
                 ]
             }
         ]

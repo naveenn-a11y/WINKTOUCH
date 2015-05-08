@@ -20,12 +20,7 @@ Ext.define('WINK.store.CountrySubdivisionStore', {
     ],
     config: {
         model: 'WINK.model.CountrySubdivision',
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),  
-            withCredentials: true,
-            useDefaultXhrHeader: false
-        },
+        
         sorters: [
             {
                 property: "name",

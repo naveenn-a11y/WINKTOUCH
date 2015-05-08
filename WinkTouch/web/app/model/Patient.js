@@ -228,7 +228,7 @@ proxy: {
 ,
 { name: 'createddate'
 , type:'string'
- ,defaultValue: 1430768867656
+ ,defaultValue: 1430989795240
 }
 ,
 { name: 'lastpurchasedate'

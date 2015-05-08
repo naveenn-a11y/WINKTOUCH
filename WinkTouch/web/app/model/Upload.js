@@ -32,6 +32,7 @@ proxy: {
 }
 ,
 { name: 'data'
+, type:'string'
  ,defaultValue: "null"
 }
 ,
@@ -121,10 +122,28 @@ proxy: {
 
 ,
             {
+                model: 'WINK.model.InvoiceAttachement',
+                name: 'invoiceattachements_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'invoiceattachements_uploads_iduploads',
+                primaryKey: 'id'
+            }
+
+,
+            {
                 model: 'WINK.model.PatientNote',
                 name: 'patientnotes_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
                 associationKey: 'patientnotes_uploads_iduploads',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'rxworksheets_uploads_iduploads',
                 primaryKey: 'id'
             }
 

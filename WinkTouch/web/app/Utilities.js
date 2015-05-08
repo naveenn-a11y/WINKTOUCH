@@ -18,8 +18,14 @@ Ext.define('WINK.Utilities', {
                     return true;
             return false;
         },
+        getURLParameter2: function(url, name) {
+            var index = url.indexOf("?");
+            url = url.substring(index);
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [, ""])[1].replace(/\+/g, '%20')) || null;
+        },
         getURLParameter: function(name) {
-            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null
+
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
         },
         setDefaultValues: function(model) {
             if (model instanceof WINK.model.PatientInvoice) {
@@ -29,18 +35,50 @@ Ext.define('WINK.Utilities', {
                 model.set('date', new Date());
                 model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
                 model.set('user_iduser', WINK.Utilities.currentuser.get('id'));
+            } else if (model instanceof WINK.model.RxWorksheet) {
+
+                model.set('createdon', new Date());
+                model.set('scriptreceivedon', null);
+                model.set('createby_iduser', WINK.Utilities.currentuser.get('id'));
+
 
             }
         },
         loginSuccess: function(response) {
-            WINK.Utilities.currentstore = Ext.create('WINK.model.Store', {
-                id: 1
-            });
+            WINK.Utilities.currentstore = Ext.create('WINK.model.Store');
             WINK.Utilities.currentuser = Ext.create('WINK.model.User');
             console.log("Set logged In User:" + response.responseText);
+            var me = Ext.JSON.decode(response.responseText);
 
-            WINK.Utilities.currentuser.set(Ext.JSON.decode(response.responseText));
-            console.log("Set logged In User:" + WINK.Utilities.currentuser.get('id'));
+            // alert(me);
+            //alert(me.user);
+            //alert(me.user.lastname);
+
+            WINK.Utilities.currentuser.set(me.user);
+            WINK.Utilities.currentstore.set(me.store);
+
+            console.log("Set logged In User:" + WINK.Utilities.currentuser.get('lastname') + " @ " + WINK.Utilities.currentstore.get('name'));
+
+        },
+        hasPhonegap: function() {
+            return true;
+
+        },
+        getDeviceID: function() {
+            if (!WINK.Utilities.hasPhonegap())
+                return null;
+
+            return Ext.device.Device.uuid;
+            /*
+             if (WINK.Utilities.hasPhonegap())
+             return device.uuid;
+             
+             return 'Unknown';
+             */
+        },
+        showPleaseAuthorize: function(callback) {
+            alert("Please Authorize " + WINK.Utilities.getDeviceID() + " Using WINK Desktop"); //needs to be syncrhonous (thread blocking)
+            WINK.Utilities.getAccountId(callback);
 
         },
         loadAllRequiredStores: function(callback) {
@@ -78,7 +116,13 @@ Ext.define('WINK.Utilities', {
                 console.log("Utilities.loadAllRequiredStores() loading stores");
                 Ext.create('WINK.store.CountrySubdivisionStore', {
                     storeId: 'CountrySubdivisionStore',
-                    autoLoad: true
+                    autoLoad: true,
+                    proxy: {
+                        type: 'rest',
+                        url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),
+                        withCredentials: true,
+                        useDefaultXhrHeader: false
+                    }
                 }); //just to start loading the data
                 Ext.create('WINK.store.TaxCodeStore', {
                     storeId: 'TaxCodeStore',
@@ -100,15 +144,77 @@ Ext.define('WINK.Utilities', {
             if (callback)
                 callback();
         },
-        getAccountId: function() {
+        getAccountId: function(callbackAccountId) {
             if (!WINK.Utilities.accountid)
-                WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
+            {
+                var devid = WINK.Utilities.getDeviceID();
+                console.log('deviceid:' + devid);
+                if (devid)
+                {
+                    Ext.Ajax.request({
+                        scope: this,
+                        url: 'https://server1.downloadwink.com/wink-ecomm/WinkTabletUUID',
+                        method: 'POST',
+                        async: false,
+                        params: {
+                            "uuid": devid
+                        },
+                        success: function(response) {
+                            console.log('getAccountId success');
+                            console.log("response:" + response.responseText);
+                            response.responseText = response.responseText.trim();
+                            if (response.responseText.toLowerCase().startsWith("http"))
+                            {
 
+                                WINK.Utilities.accountid = WINK.Utilities.getURLParameter2(response.responseText.trim(), 'accountid');
+                                if (WINK.Utilities.accountid)
+                                {
+                                    WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
+                                }
+
+                                console.log('got account id from ajax request:' + WINK.Utilities.accountid)
+                                if (callbackAccountId)
+                                {
+                                    callbackAccountId(WINK.Utilities.accountid);
+                                }
+
+                            } else {
+                                console.log(" calling WINK.Utilities.showPleaseAuthorize");
+                                WINK.Utilities.showPleaseAuthorize(callbackAccountId);
+                            }
+                        },
+                        failure: function(response) {
+                            console.log('getAccountId failure, calling WINK.Utilities.showPleaseAuthorize');
+                            WINK.Utilities.showPleaseAuthorize(callbackAccountId);
+                        },
+                        callback: function(options, success, response) {
+
+
+                        }
+                    });
+                    return -1;
+
+                } else {
+                    WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
+                    if (WINK.Utilities.accountid)
+                    {
+                        WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
+                    }
+                }
+
+                if (!WINK.Utilities.accountid)
+                    WINK.Utilities.accountid = 37;
+
+            }
+            if (callbackAccountId)
+                callbackAccountId(WINK.Utilities.accountid);
 
             return WINK.Utilities.accountid;
         },
         getRestURL: function() {
+
             return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
+            //return 'http://192.168.0.102:8080/WinkRESTfull/webresources/';
         },
         showWorking: function() {
             Ext.getCmp('PleaseWait').show({type: 'slide', direction: 'down'});

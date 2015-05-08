@@ -86,7 +86,7 @@ Ext.define('WINK.view.LoginPanel', {
                                 name: 'Password',
                                 required: true,
                                 placeHolder: 'password',
-                                revealable: true
+                                revealable: false
                             },
                             {
                                 xtype: 'button',

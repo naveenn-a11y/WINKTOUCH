@@ -510,6 +510,69 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_frame_idproduct',
+                foreignKey: 'frame_idproduct',
+                associationKey: 'rxworksheets_frame_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_lens_idproduct',
+                foreignKey: 'lens_idproduct',
+                associationKey: 'rxworksheets_lens_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_lensmaterial_idlensmaterial',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                associationKey: 'rxworksheets_lensmaterial_idlensmaterial',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_lenstreatment_idlenstreatment',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                associationKey: 'rxworksheets_lenstreatment_idlenstreatment',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheetTreatment',
+                name: 'rxworksheettreatments_product_idproduct',
+                foreignKey: 'product_idproduct',
+                associationKey: 'rxworksheettreatments_product_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_rcl_idproduct',
+                foreignKey: 'rcl_idproduct',
+                associationKey: 'clworksheets_rcl_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_lcl_idproduct',
+                foreignKey: 'lcl_idproduct',
+                associationKey: 'clworksheets_lcl_idproduct',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'name', max: 300,min:0 }
