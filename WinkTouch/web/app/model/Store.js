@@ -213,7 +213,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,4,4,0,0,0)
+ ,defaultValue: new Date(2015,4,7,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'

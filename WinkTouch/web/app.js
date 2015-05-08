@@ -15,7 +15,9 @@ Ext.application({
     name: 'WINK',
     requires: [
         'Ext.MessageBox',
-        'WINK.Utilities'
+        'WINK.Utilities',
+        'Ext.device.Device',
+        'Ext.device.Camera'
     ],
     models: [
         'JobStatusWrapper',
@@ -45,7 +47,9 @@ Ext.application({
         'TaxCodeEffectiveDate',
         'Upload',
         'User',
-        'ProductBrowseModel'
+        'ProductBrowseModel',
+        'RxWorksheet',
+        'ClWorksheet'
     ],
     stores: [
         'ProductStore',
@@ -94,7 +98,7 @@ Ext.application({
         'LoginController',
         'LockScreenController',
         'MenuController'
-        
+
     ],
     icon: {
         '57': 'resources/icons/Icon.png',
@@ -119,11 +123,11 @@ Ext.application({
             };
         }
         Ext.Ajax.cors = true;
-        Ext.Ajax.useDefaultXhrHeader =false;
-        Ext.Ajax.withCredentials =true;
-        Ext.data.proxy.Ajax.useDefaultXhrHeader=false;
-        Ext.data.proxy.Ajax.withCredentials=true;
-   
+        Ext.Ajax.useDefaultXhrHeader = false;
+        Ext.Ajax.withCredentials = true;
+        Ext.data.proxy.Ajax.useDefaultXhrHeader = false;
+        Ext.data.proxy.Ajax.withCredentials = true;
+
         Ext.data.validations.length = function(config, value) {
             var length = value ? value.length : 0,
                     min = config.min,
@@ -139,7 +143,7 @@ Ext.application({
         Ext.Msg.defaultAllowedConfig.showAnimation = false;
 
 
-                  
+
         Ext.JSON.encodeDate = function(d) {
             console.log('WINK.JSON, encode date');
             function f(n) {
@@ -226,15 +230,46 @@ Ext.application({
         });
 
         // Destroy the #appLoadingIndicator element
-        Ext.fly('appLoadingIndicator').destroy();
 
-        // Initialize the main view
-        Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {fullscreen: true});
-        Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
-        //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
+
+        WINK.Utilities.getAccountId(function() {
+
+            console.log('app.js get Account id callback');
+
+            var s1 = Ext.create('WINK.store.CountryStore', {
+                proxy: {
+                    type: 'rest',
+                    url: WINK.Utilities.getRestURL() + 'countries/' + WINK.Utilities.getAccountId(),
+                    withCredentials: true,
+                    useDefaultXhrHeader: false
+                }
+            });
+            s1.load();
+
+
+            var s2 = Ext.create('WINK.store.LocationStore', {
+                proxy: {
+                    type: 'rest',
+                    url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId(),
+                    withCredentials: true,
+                    useDefaultXhrHeader: false
+                }
+            });
+            s2.load();
+
+
+
+            Ext.fly('appLoadingIndicator').destroy();
+            // Initialize the main view
+            Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {fullscreen: true});
+            Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
+            //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
+        });
+
+
     }
     ,
     onUpdated: function() {
-         window.location.reload();
+        window.location.reload();
     }
 });

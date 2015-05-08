@@ -169,6 +169,33 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_framebarcode_idbarcode',
+                foreignKey: 'framebarcode_idbarcode',
+                associationKey: 'rxworksheets_framebarcode_idbarcode',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_rbarcode_idbarcode',
+                foreignKey: 'rbarcode_idbarcode',
+                associationKey: 'clworksheets_rbarcode_idbarcode',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_lbarcode_idbarcode',
+                foreignKey: 'lbarcode_idbarcode',
+                associationKey: 'clworksheets_lbarcode_idbarcode',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
 ]    

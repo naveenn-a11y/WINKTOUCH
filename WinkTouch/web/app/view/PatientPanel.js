@@ -42,7 +42,14 @@ Ext.define('WINK.view.PatientPanel', {
     },
     initProvinceStore: function() {
         console.log("PatientPanel.initProvinceStore()");
-        var subdivisionStore = Ext.create('WINK.store.CountrySubdivisionStore');
+        var subdivisionStore = Ext.create('WINK.store.CountrySubdivisionStore', {
+            proxy: {
+                type: 'rest',
+                url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),
+                withCredentials: true,
+                useDefaultXhrHeader: false
+            }
+        });
 
 
         var countrySelect = this.down("selectfield[name=country_idcountry]");
@@ -186,7 +193,7 @@ Ext.define('WINK.view.PatientPanel', {
                                 xtype: 'phonefield',
                                 label: 'Home',
                                 name: 'home'
-                               
+
                             },
                             {
                                 xtype: 'phonefield',

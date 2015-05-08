@@ -19,17 +19,11 @@ Ext.define('WINK.store.CountryStore', {
         'WINK.model.Country'
     ],
     config: {
-        autoLoad: true,
+        autoLoad: false,
+        storeId: 'CountryStore',
         data: [
         ],
         model: 'WINK.model.Country',
-        storeId: 'CountryStore',
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'countries/' + WINK.Utilities.getAccountId(),
-            withCredentials: true,
-            useDefaultXhrHeader: false
-        },
         sorters: [
             {
                 property: "name",

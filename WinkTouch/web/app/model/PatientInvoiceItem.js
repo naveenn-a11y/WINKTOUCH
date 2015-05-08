@@ -210,6 +210,26 @@ proxy: {
 
 ,
             {
+                model: 'WINK.model.RxWorksheet',
+                associatedName: 'fkrxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                primaryKey: 'id',
+                getterName: 'getFkrxworksheet_idrxworksheet',
+                setterName: 'setFkrxworksheet_idrxworksheet'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                associatedName: 'fkclworksheet_idclworksheet',
+                foreignKey: 'clworksheet_idclworksheet',
+                primaryKey: 'id',
+                getterName: 'getFkclworksheet_idclworksheet',
+                setterName: 'setFkclworksheet_idclworksheet'
+            }
+
+,
+            {
                 model: 'WINK.model.Barcode',
                 associatedName: 'fkbarcode_idbarcode',
                 foreignKey: 'barcode_idbarcode',

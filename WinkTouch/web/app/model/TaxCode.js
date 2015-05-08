@@ -123,6 +123,15 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_frame_idtaxcode',
+                foreignKey: 'frame_idtaxcode',
+                associationKey: 'rxworksheets_frame_idtaxcode',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'code', max: 45,min:0 }

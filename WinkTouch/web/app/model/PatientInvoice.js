@@ -28,7 +28,7 @@ proxy: {
 ,
 { name: 'orderdate'
 , type:'date'
- ,defaultValue: new Date(2015,4,4,15,47,47)
+ ,defaultValue: new Date(2015,4,7,5,9,55)
 }
 ,
 { name: 'patient_idpatient'
@@ -143,7 +143,7 @@ proxy: {
 ,
 { name: 'createdon'
 , type:'date'
- ,defaultValue: new Date(2015,4,4,15,47,47)
+ ,defaultValue: new Date(2015,4,7,5,9,55)
 }
 ,
 { name: 'insurance1_idsupplier'
@@ -421,6 +421,15 @@ proxy: {
 
 ,
             {
+                model: 'WINK.model.InvoiceAttachement',
+                name: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            }
+
+,
+            {
                 model: 'WINK.model.PatientInvoiceItem',
                 name: 'patientinvoiceitems_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
@@ -434,6 +443,24 @@ proxy: {
                 name: 'invoiceattachements_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
                 associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'rxworksheets_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'clworksheets_patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
 

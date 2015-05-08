@@ -374,6 +374,60 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_createby_iduser',
+                foreignKey: 'createby_iduser',
+                associationKey: 'rxworksheets_createby_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_doctor_iduser',
+                foreignKey: 'doctor_iduser',
+                associationKey: 'rxworksheets_doctor_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_opticianuser_iduser',
+                foreignKey: 'opticianuser_iduser',
+                associationKey: 'rxworksheets_opticianuser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_createby_iduser',
+                foreignKey: 'createby_iduser',
+                associationKey: 'clworksheets_createby_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_doctor_iduser',
+                foreignKey: 'doctor_iduser',
+                associationKey: 'clworksheets_doctor_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_opticianuser_iduser',
+                foreignKey: 'opticianuser_iduser',
+                associationKey: 'clworksheets_opticianuser_iduser',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'username', max: 45,min:0 }

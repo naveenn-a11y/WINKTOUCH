@@ -19,17 +19,11 @@ Ext.define('WINK.store.LocationStore', {
         'WINK.model.Store'
     ],
     config: {
-        autoLoad: true,
+        autoLoad: false,
         data: [
         ],
         model: 'WINK.model.Store',
         storeId: 'LocationStore',
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId(),
-            withCredentials: true,
-            useDefaultXhrHeader: false
-        },
         sorters: [
             {
                 property: "name",
