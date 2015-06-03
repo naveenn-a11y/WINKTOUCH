@@ -714,7 +714,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.view.InvoiceSummary": [],
   "WINK.view.JobStatusPanel": [],
   "WINK.view.LoginPanel": [],
-  "WINK.view.Main": [],
   "WINK.view.MainAppPanel": [],
   "WINK.view.MonthPicker": [],
   "WINK.view.MonthPickerFormField": [],
@@ -1528,9 +1527,6 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "WINK.view.LoginPanel": [
     "widget.LoginPanel"
-  ],
-  "WINK.view.Main": [
-    "widget.main"
   ],
   "WINK.view.MainAppPanel": [
     "widget.MainAppPanel"

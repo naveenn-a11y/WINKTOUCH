@@ -160,7 +160,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 xtype: "textfield",
                                 name: "winkfile",
                                 label: "Wink File ",
-                                placeHolder: 'i,r,z,s'
+                                placeHolder: 'i,r,z,s,o'
 
                             },
                             {
@@ -177,7 +177,7 @@ Ext.define('WINK.view.MainAppPanel', {
                             {
                                 xtype: 'button',
                                 docked: 'bottom',
-                                margin: '5 5 5 5',
+                                margin: '5 0 5 0',
                                 ui: 'action',
                                 text: 'Open',
                                 handler: function(button, event) {

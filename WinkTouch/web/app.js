@@ -82,7 +82,6 @@ Ext.application({
         'InputPrescriptionPanel',
         'MyPowerPicker',
         'PowerSelectField',
-        'Main',
         'PatientPanel',
         'MonthPickerFormField',
         'MonthPicker',
@@ -263,7 +262,7 @@ Ext.application({
             // Initialize the main view
             Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {fullscreen: true});
             Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
-            //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
+            
         });
 
 
