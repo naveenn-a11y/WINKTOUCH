@@ -32,6 +32,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
     loadItem: function(item) {
         this.winkloading = true;
         console.log('InvoiceItemPanel.loadItem item.unitprice:' + item.get('unitprice'));
+        console.log('InvoiceItemPanel.loadItem item.product_idproduct:' + item.get('product_idproduct'));
         this.setRecord(item);
         var productField = this.down('label[winkname=productname]');
 
@@ -160,8 +161,10 @@ Ext.define('WINK.view.InvoiceItemPanel', {
     updateModel: function() {
         var model = this.getRecord();
         var temp = this.getValues();
-        console.log('Invoice Item:'+model);
-         console.log(temp);
+        console.log('InvoiceItem.form.getRecord():');
+          console.log(model);
+        console.log('InvoiceItem.form.getValues():');
+        console.log(temp);
        
         model.set(temp);
         return model;
@@ -206,7 +209,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         flex: 1
                     },
                     {
-                        xtype: 'intfield',
+                        xtype: 'textfield',
                         name: 'product_idproduct',
                         hidden: true
                     },

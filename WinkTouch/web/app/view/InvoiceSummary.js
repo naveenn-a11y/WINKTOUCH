@@ -356,9 +356,6 @@ Ext.define('WINK.view.InvoiceSummary', {
                         ]
                     }
                 ]
-            },
-            {
-                xtype: 'container'
             }
         ]
     }

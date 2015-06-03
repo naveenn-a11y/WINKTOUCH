@@ -55,6 +55,22 @@ Ext.define('WINK.view.LoginPanel', {
                 docked: 'top',
                 title: 'WINK Login'
             },
+             {
+                xtype: 'container',
+                docked: 'bottom',
+                height: 25,
+                 style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
+                 border: 1,
+                items:[
+                    {
+                        xtype:'label',
+                        html:WINK.Utilities.getDeviceID(),
+                        margin:5,
+                        style: 'font-size:10px'
+                    }
+                    
+                ]
+            },
             {
                 xtype: 'container',
                 items: [
@@ -91,7 +107,7 @@ Ext.define('WINK.view.LoginPanel', {
                             {
                                 xtype: 'button',
                                 docked: 'bottom',
-                                margin: '5 5 5 5',
+                                margin: '5 0 5 0',
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'

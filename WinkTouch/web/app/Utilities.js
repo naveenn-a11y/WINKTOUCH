@@ -61,7 +61,12 @@ Ext.define('WINK.Utilities', {
 
         },
         hasPhonegap: function() {
-            return true;
+           var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+           if(app)
+               return true;
+           
+            
+            return false;
 
         },
         getDeviceID: function() {
@@ -213,14 +218,16 @@ Ext.define('WINK.Utilities', {
         },
         getRestURL: function() {
 
-            return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
-            //return 'http://192.168.0.102:8080/WinkRESTfull/webresources/';
+            //return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
+            return 'http://192.168.0.102:8080/WinkRESTfull/webresources/';
         },
         showWorking: function() {
+            
             Ext.getCmp('PleaseWait').show({type: 'slide', direction: 'down'});
         },
         hideWorking: function() {
-            Ext.getCmp('PleaseWait').hide();
+            
+            Ext.getCmp('PleaseWait').hide({type: 'slide', direction: 'up', out:true});
         },
         showAjaxError: function(title, response) {
 

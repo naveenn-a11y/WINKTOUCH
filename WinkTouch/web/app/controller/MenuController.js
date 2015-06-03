@@ -182,6 +182,8 @@ Ext.define('WINK.controller.MenuController', {
 
         var quicksale = Ext.create('WINK.view.InvoicePanel');
 
+        
+
         this.getParentView().setActiveItem(quicksale);
         quicksale.loadPatientInvoice(model);
     },

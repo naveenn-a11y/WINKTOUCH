@@ -14,12 +14,15 @@ Ext.define('WINK.view.PleaseWaitPanel', {
         itemId: 'PleaseWait',
         id: 'PleaseWait',
         hidden: true,
-        height: '50px',
-        items: [
+        fullscreen: true,
+        
+        style:'background-color: rgba(25,133,208, 0.8)',
+        items:[
             {
-                xtype: 'titlebar',
-                docked: 'top',
-                title: 'Please Wait'
+                xtype:'label',
+                 style:'color: #FFFFFF; font-size:40px',
+                html:"PLEASE WAIT ...",
+                centered:true
             }
         ]
     }

@@ -15,7 +15,7 @@
         <if>
             <x-is-true value="enable.browser.launch"/>
             <then>
-                <x-launch-browser url="http://localhost:${build.web.port}"/>
+                <x-launch-browser url="http://127.0.0.1:${build.web.port}"/>
             </then>
         </if>
     </target>
