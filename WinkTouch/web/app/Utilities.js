@@ -61,11 +61,11 @@ Ext.define('WINK.Utilities', {
 
         },
         hasPhonegap: function() {
-           var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
-           if(app)
-               return true;
-           
-            
+            var app = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+            if (app)
+                return true;
+
+
             return false;
 
         },
@@ -216,18 +216,22 @@ Ext.define('WINK.Utilities', {
 
             return WINK.Utilities.accountid;
         },
+        getWinkVersion: function() {
+            return "2.0";
+        },
         getRestURL: function() {
+            if (WINK.Utilities.hasPhonegap())
+                return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
 
-            //return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
-            return 'http://192.168.0.102:8080/WinkRESTfull/webresources/';
+            return '/WinkRESTfull/webresources/';
         },
         showWorking: function() {
-            
+
             Ext.getCmp('PleaseWait').show({type: 'slide', direction: 'down'});
         },
         hideWorking: function() {
-            
-            Ext.getCmp('PleaseWait').hide({type: 'slide', direction: 'up', out:true});
+
+            Ext.getCmp('PleaseWait').hide({type: 'slide', direction: 'up', out: true});
         },
         showAjaxError: function(title, response) {
 
