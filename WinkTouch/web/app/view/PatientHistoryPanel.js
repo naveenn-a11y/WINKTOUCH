@@ -45,10 +45,10 @@ Ext.define('WINK.view.PatientHistoryPanel', {
     updateInvoiceId: function(previousInvoiceId, newInvoice) {
         var newInvoiceId = newInvoice.get('id');
         var invoiceHistoryStore = this.patient.patientinvoices_patient_idpatient();
-       var oldInvoiceModel =  invoiceHistoryStore.getById(previousInvoiceId);
-       if(oldInvoiceModel)
-           invoiceHistoryStore.remove(oldInvoiceModel);
-       invoiceHistoryStore.add(newInvoice);
+        var oldInvoiceModel = invoiceHistoryStore.getById(previousInvoiceId);
+        if (oldInvoiceModel)
+            invoiceHistoryStore.remove(oldInvoiceModel);
+        invoiceHistoryStore.add(newInvoice);
         var historyStore = this.getHistoryList().getStore();
         historyStore.each(function(item, index, length) {
             if ((item.get('type') === 4 || item.get('type') === 5))
@@ -143,10 +143,13 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
             invoicesStore.each(function(item, index, length) {
 
-                var invoiceItem = Ext.create('WINK.model.PatientHistoryTree');
-                this.updateInvoiceHistoryItem(invoiceItem, item);
+                //until WINK Touch supports estimates, we hide them
+                if (item.get('isestimate') === false) {
+                    var invoiceItem = Ext.create('WINK.model.PatientHistoryTree');
+                    this.updateInvoiceHistoryItem(invoiceItem, item);
 
-                historyStore.add(invoiceItem);
+                    historyStore.add(invoiceItem);
+                }
             }, this);
         }
         historyStore.sortHistory();

@@ -53,7 +53,7 @@ Ext.define('WINK.view.LoginPanel', {
             {
                 xtype: 'titlebar',
                 docked: 'top',
-                title: 'WINK Login'
+                title: 'WINK '+ WINK.Utilities.getWinkVersion(),
             },
              {
                 xtype: 'container',

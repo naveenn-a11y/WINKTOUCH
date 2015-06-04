@@ -94,7 +94,7 @@ Ext.define('WINK.view.InvoicePanel', {
 
             },
             callback: function(options, success, response) {
-                 WINK.Utilities.hideWorking();
+                WINK.Utilities.hideWorking();
             }
 
         });
@@ -255,7 +255,7 @@ Ext.define('WINK.view.InvoicePanel', {
                 }, this);
             }
         });
-        WINK.Utilities.hideWorking();
+       
     },
     itemsLoaded: function() {
         this.clearInvoiceItemsContainer();
@@ -275,7 +275,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.isInvoiceItemsLoaded = true;
         if (this.isFullyLoaded())
         {
-             WINK.Utilities.hideWorking();
+            WINK.Utilities.hideWorking();
         }
     },
     updateNoItemsPanel: function() {
@@ -358,7 +358,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.isPaymentsLoaded = true;
         if (this.isFullyLoaded())
         {
-          WINK.Utilities.hideWorking();
+            WINK.Utilities.hideWorking();
         }
     },
     getInvoiceSummary: function() {
@@ -448,8 +448,8 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     addProductToInvoice: function(product, barcode) {
 
- console.log('InvoicePanel.addProductToInvoice():' );
- console.log(product );
+        console.log('InvoicePanel.addProductToInvoice() product:');
+        console.log(product);
         var defaultUnitPrice = this.getListedUnitPrice(product, this.getCurrentStoreId());
         console.log('default price is:' + defaultUnitPrice);
         var itemsContainer = this.getInvoiceItemsContainer();
@@ -458,7 +458,7 @@ Ext.define('WINK.view.InvoicePanel', {
             idbarcode = barcode.get('id');
         var idTaxCode = this.getTaxCodeId(product);
         console.log('Tax Code ID is:' + idTaxCode);
-        console.log('Product ID is:' +product.get('id'));
+        console.log('Product ID is:' + product.get('id'));
         var newInvoiceItem = Ext.create('WINK.model.PatientInvoiceItem', {
             qty: 1,
             product_idproduct: product.get('id'),
