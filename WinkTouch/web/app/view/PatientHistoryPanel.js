@@ -155,6 +155,13 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         historyStore.sortHistory();
         this.openHistoryItem(patientItem);
     },
+    getEmailAddress: function(){
+         if (this.patientView)
+         {
+             return this.patientView.getEmailAddress();
+         }
+         return this.patient.get('email');
+    },
     openHistoryItem: function(record) {
         this.setMasked(true);
         var patient = this.patient;
@@ -194,7 +201,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             myContainer.setActiveItem(patientView);
             if (justLoaded) {
                 var patientInvoiceModel = patient.patientinvoices_patient_idpatient().getById(id);
-
+ this['invoicePanels' + id.toString()].setPatientHistoryPanel(this);
                 this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
             }
         }
@@ -244,12 +251,8 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                     showAnimation: {
                                         type: 'popIn',
                                         duration: 250,
-                                        easing: 'ease-out'
-                                    },
-                                    hideAnimation: {
-                                        type: 'popOut',
-                                        easing: 'ease-out',
-                                        duration: 250
+                                       easing: 'ease-in',
+                                       out: false
                                     },
                                     width: '200px',
                                     height: '300px',
@@ -269,10 +272,10 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                             flex: 1,
                                             itemTpl: '{title}',
                                             data: [
-                                                {title: 'Exam'},
+                                                // {title: 'Exam'},
                                                 {title: 'Invoice'},
-                                                {title: 'Attachment'},
-                                                {title: 'Photo'}
+                                                // {title: 'Attachment'},
+                                                // {title: 'Photo'}
                                             ],
                                             listeners: {
                                                 itemtap: function(dataview, index, target, record, e, eOpts) {
@@ -302,7 +305,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
 
                                 });
-                                Ext.Viewport.add(myOverlay);
+                                
                                 myOverlay.showBy(c);
                             }
                         }

@@ -36,8 +36,88 @@ Ext.define('WINK.view.InvoicePanel', {
     isDirty: function() {
 
     },
-    save: function() {
+    saveSuccess: function(previousInvoiceId, newId) {
+        //this is called after the invoice is saved and after the invoice is emailed (if applicable)
+
+        var me = this;
+        var historyPanel = me.up('PatientHistoryPanel');
+        var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
+        console.info("calling load:" + patientInvoiceClass + " " + newId);
+        patientInvoiceClass.load(newId, {
+            scope: this,
+            failure: function(record, operation) {
+                console.info("InvoicePanel.save().PatientInvoice.load().failure()");
+            },
+            success: function(record, operation) {
+                var savedpatientinvoice = record;
+                console.info("InvoicePanel.save().PatientInvoice.load().success()");
+                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
+                if (newId !== previousInvoiceId)
+                {
+                    console.info(previousInvoiceId + ' !== ' + newId);
+                    if (historyPanel)
+                    {
+                        console.info("calling historyPanel.updateInvoiceId()");
+                        historyPanel.updateInvoiceId(previousInvoiceId, savedpatientinvoice);
+                    }
+
+                } else {
+                    console.info(previousInvoiceId + ' = ' + newId);
+                }
+                console.info(document.location.href);
+                if (document.location.href.indexOf('#newquicksale') >= 0)
+                {
+                    document.location.href = '#invoice/' + savedpatientinvoice.get('id'); //calls the WINK.Utilities.hideWorking();
+
+                } else {
+                    me.loadPatientInvoice(savedpatientinvoice); //calls the WINK.Utilities.hideWorking();
+                    if (historyPanel)
+                    {
+                        console.info('historyPanel.invoiceSaved()');
+                        historyPanel.invoiceSaved(me);
+                    }
+                }
+            }
+        });
+    },
+    saveSuccessEmail: function(previousInvoiceId,emailAddress){
+          var me = this;
+        var patientinvoice = this.patientinvoice;
+           var newId = patientinvoice.get('id');
+       Ext.Ajax.request({
+                        url: WINK.Utilities.getRestURL() + 'patientinvoices/email/' + newId + "/"+emailAddress,
+                        method: 'GET',
+                        withCredentials: true,
+                        useDefaultXhrHeader: false,
+                        cors: true,
+                        success: function(response) {
+
+                            me.saveSuccess(previousInvoiceId, newId);
+                        },
+                        failure: function(response) {
+                            me.saveSuccess(previousInvoiceId, newId);
+                        },
+                        callback: function(options, success, response) {
+
+
+                        }
+
+                    });  
+    },
+    setPatientHistoryPanel:function(patientHistoryPanel){
+        this.patientHistoryPanel=patientHistoryPanel;
+    },
+    getPatientHistoryPanel:function(){
+        if( this.patientHistoryPanel)
+            return  this.patientHistoryPanel;
+        return this.up('PatientHistoryPanel');
+    },
+    getPatientEmailAddress: function(){
+        return this.getPatientHistoryPanel().getEmailAddress();
+    },
+    save: function(email) {
         WINK.Utilities.showWorking();
+        email = email || false;
         this.updateInvoiceModel();
         var me = this;
         var patientinvoice = this.patientinvoice;
@@ -52,49 +132,35 @@ Ext.define('WINK.view.InvoicePanel', {
                 console.info(previousInvoiceId + " vs " + patientinvoice.get('id'));
                 //TODO this could be better with less calls to the server (Especially  document.location.href =..._)
                 var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
-                console.info("calling load:" + patientInvoiceClass + " " + newId);
-                patientInvoiceClass.load(newId, {
-                    scope: this,
-                    failure: function(record, operation) {
-                        console.info("InvoicePanel.save().PatientInvoice.load().failure()");
-                    },
-                    success: function(record, operation) {
-                        var savedpatientinvoice = record;
-                        console.info("InvoicePanel.save().PatientInvoice.load().success()");
-                        console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
-                        if (newId !== previousInvoiceId)
-                        {
-                            console.info(previousInvoiceId + ' !== ' + newId);
-                            if (historyPanel)
-                            {
-                                console.info("calling historyPanel.updateInvoiceId()");
-                                historyPanel.updateInvoiceId(previousInvoiceId, savedpatientinvoice);
-                            }
-
-                        } else {
-                            console.info(previousInvoiceId + ' = ' + newId);
-                        }
-                        console.info(document.location.href);
-                        if (document.location.href.indexOf('#newquicksale') >= 0)
-                        {
-                            document.location.href = '#invoice/' + savedpatientinvoice.get('id');
-                        } else {
-                            me.loadPatientInvoice(savedpatientinvoice);
-                            if (historyPanel)
-                            {
-
-                                console.info('historyPanel.invoiceSaved()');
-                                historyPanel.invoiceSaved(me);
-                            }
-                        }
+                if (email)
+                {
+                    
+                    console.info("emailing invoice : " + newId);
+                    var patientEmail = me.getPatientEmailAddress();
+                    
+                    if(me.isQuicksale() || !patientEmail  || patientEmail.length===0){
+                        Ext.Msg.prompt("Email","Enter Patient's Email Address.", function(text){
+                            
+                            me.saveSuccessEmail(previousInvoiceId,text);
+                        });
+                    }else{
+                        me.saveSuccessEmail(previousInvoiceId,patientEmail);
                     }
-                });
+                   
+                } else {
+                    me.saveSuccess(previousInvoiceId, newId);
+                }
+
+
+
             },
             failure: function(response) {
 
+                WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Save Invoice', response);
             },
             callback: function(options, success, response) {
-                WINK.Utilities.hideWorking();
+
             }
 
         });
@@ -118,7 +184,7 @@ Ext.define('WINK.view.InvoicePanel', {
         alert('not implemented');
     },
     email: function() {
-        this.save();
+        this.save(true);
     },
     print: function() {
         this.save();
@@ -169,6 +235,13 @@ Ext.define('WINK.view.InvoicePanel', {
         });
         return this.patientinvoice;
     },
+    isQuicksale: function() {
+        if (!this.patientinvoice.get('patient_idpatient') || this.patientinvoice.get('patient_idpatient') === 0)
+        {
+            return true;
+        }
+        return false;
+    },
     loadPatientInvoice: function(patientinvoice) {
         WINK.Utilities.showWorking();
         this.patientinvoice = patientinvoice;
@@ -179,8 +252,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.clearInvoiceItemsContainer();
         this.clearInvoicePaymentsContainer();
         this.removeAttachementCarousel();
-
-        if (!patientinvoice.get('patient_idpatient') || patientinvoice.get('patient_idpatient') === 0)
+        if (this.isQuicksale())
         {
             //quicksale
             if (!patientinvoice.get('delivereddate'))
@@ -189,9 +261,7 @@ Ext.define('WINK.view.InvoicePanel', {
             this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').hide();
             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').hide();
             this.down('segmentedbutton[winkname=addworksheetbuttons]').hide();
-
             this.down('toolbar[winkname=quicksaletitlebar]').show();
-
         } else {
             this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').show();
             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').show();
@@ -208,12 +278,9 @@ Ext.define('WINK.view.InvoicePanel', {
             invoiceIdLabel.setHtml("i" + patientinvoice.get('id'));
         }
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
-
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
-
         var rxStore = patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();
-
         var clStore = patientinvoice.clworksheets_patientinvoice_idpatientinvoice();
         patientinvoiceitemsStore.load({
             scope: this,
@@ -236,11 +303,9 @@ Ext.define('WINK.view.InvoicePanel', {
                 rxStore.each(function(item, index, length) {
                     console.log('invoice rx.each() ' + index);
                     this.addRxWorksheet(item);
-
                 }, this);
             }
         });
-
         var attachmentsStore = patientinvoice.invoiceattachements_patientinvoice_idpatientinvoice();
         attachmentsStore.load({
             scope: this,
@@ -251,11 +316,9 @@ Ext.define('WINK.view.InvoicePanel', {
                     item.getFkuploads_iduploads(function(upload, operation) {
                         this.addAttachementToUI(upload);
                     }, this);
-
                 }, this);
             }
         });
-       
     },
     itemsLoaded: function() {
         this.clearInvoiceItemsContainer();
@@ -323,8 +386,7 @@ Ext.define('WINK.view.InvoicePanel', {
             });
         }
         return   this.noPaymentsPanel;
-    },
-    getNoItemsPanel: function() {
+    }, getNoItemsPanel: function() {
         if (!this.noItemsPanel)
         {
             this.noItemsPanel = Ext.create('WINK.view.InvoicePaymentPanel', {
@@ -382,8 +444,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.payments = [];
         this.noPaymentsPanel = null;
         this.noPaymentsPanelAdded = false;
-    },
-    deletePayment: function(item) {
+    }, deletePayment: function(item) {
         for (var i = 0; i < this.payments.length; i++) {
             if (this.payments[i] === item) {
                 this.payments.splice(i, 1);
@@ -394,8 +455,7 @@ Ext.define('WINK.view.InvoicePanel', {
         }
         this.updateNoPaymentsPanel();
         this.updateSummary();
-    },
-    deleteItem: function(item) {
+    }, deleteItem: function(item) {
 
 
         for (var i = 0; i < this.invoiceitems.length; i++) {
@@ -466,8 +526,7 @@ Ext.define('WINK.view.InvoicePanel', {
             prediscount_unitprice: defaultUnitPrice,
             barcode_idbarcode: idbarcode,
             fkbarcode: barcode,
-            taxcode_idtaxcode: idTaxCode
-        });
+            taxcode_idtaxcode: idTaxCode});
         console.log('newInvoiceItem unit price is:' + newInvoiceItem.get('prediscount_unitprice'));
         var invoiceItemPanel = Ext.create('WINK.view.InvoiceItemPanel');
         if (!this.invoiceitems)
@@ -613,7 +672,6 @@ Ext.define('WINK.view.InvoicePanel', {
             html: "<img width='95%' src='data:image/png;base64," + upload.get('data') + "'/>"
         });
         this.getAttachementCarousel().add(myPanel);
-
     },
     removeAttachementCarousel: function() {
         if (this.attachementCarousel)
@@ -631,11 +689,8 @@ Ext.define('WINK.view.InvoicePanel', {
                 },
                 items: [
                 ],
-                iconCls: 'more',
-                title: 'Attachment(s)'
+                iconCls: 'more', title: 'Attachment(s)'
             });
-
-
         }
 
         this.getInvoiceContainer().setActiveItem(this.attachementCarousel);
@@ -650,14 +705,12 @@ Ext.define('WINK.view.InvoicePanel', {
         var me = this;
         WINK.Utilities.showWorking();
         var newUpload = Ext.create('WINK.model.Upload', {
-            'data': image,
-            'mimetype': 'image/png'
+            'data': image, 'mimetype': 'image/png'
         });
         newUpload.save({
             success: function(response) {
                 console.info('upload image done: ' + newUpload.get('id'));
-                var newInvoiceAttachement = Ext.create('WINK.model.InvoiceAttachement', {
-                    'uploads_iduploads': newUpload.get('id')
+                var newInvoiceAttachement = Ext.create('WINK.model.InvoiceAttachement', {'uploads_iduploads': newUpload.get('id')
                 });
                 this.patientinvoice.invoiceattachements_patientinvoice_idpatientinvoice().add(newInvoiceAttachement);
                 this.addAttachementToUI(newUpload);
@@ -679,8 +732,7 @@ Ext.define('WINK.view.InvoicePanel', {
         scrollable: false,
         items: [
             {
-                xtype: 'toolbar',
-                winkname: 'quicksaletitlebar',
+                xtype: 'toolbar', winkname: 'quicksaletitlebar',
                 title: 'Quicksale',
                 docked: 'top',
                 items: [
@@ -701,8 +753,7 @@ Ext.define('WINK.view.InvoicePanel', {
                         xtype: 'container',
                         title: 'Invoice',
                         iconCls: 'info',
-                        layout: 'vbox',
-                        items: [
+                        layout: 'vbox', items: [
                             {
                                 xtype: 'container',
                                 border: '0 0 1 0',
@@ -766,16 +817,13 @@ Ext.define('WINK.view.InvoicePanel', {
                                                         destination: 'data',
                                                         encoding: 'png'
                                                     });
-
-
                                                 }
 
                                             },
                                             {
                                                 xtype: 'button',
                                                 text: 'Attachment',
-                                                hidden: true
-                                            }
+                                                hidden: true}
                                         ]
                                     }
 
@@ -916,8 +964,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                     {
                                         xtype: 'label',
                                         html: 'Discount',
-                                        margin: '5 2 0 0',
-                                        width: 100
+                                        margin: '5 2 0 0', width: 100
                                     },
                                     {
                                         xtype: 'label',
@@ -954,8 +1001,7 @@ Ext.define('WINK.view.InvoicePanel', {
                                         width: 150
                                     },
                                     {
-                                        xtype: 'label',
-                                        flex: 1,
+                                        xtype: 'label', flex: 1,
                                         html: 'Description',
                                         margin: '5 2 0 0'
                                     },
@@ -976,8 +1022,7 @@ Ext.define('WINK.view.InvoicePanel', {
                             {
                                 xtype: 'tabpanel',
                                 flex: 1,
-                                scrollable: false,
-                                style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
+                                scrollable: false, style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
                                 winkname: 'invoicecontainer',
                                 tabBar: {
                                     docked: 'bottom',
@@ -1048,7 +1093,6 @@ Ext.define('WINK.view.InvoicePanel', {
     newRxWorksheet: function() {
         var newRxModel = Ext.create('WINK.model.RxWorksheet');
         this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice().add(newRxModel);
-
         tabPanel.setActiveItem(this.addRxWorksheet());
     },
     addRxWorksheet: function(rxWorksheetModel) {
@@ -1060,10 +1104,8 @@ Ext.define('WINK.view.InvoicePanel', {
         var newSheet = Ext.create('WINK.view.RxWorksheetPanel', {
             title: title
         });
-
         var tabPanel = this.down("tabpanel");
         tabPanel.add(newSheet);
-
         newSheet.loadRxWorksheet(rxWorksheetModel); // call after adding it to the UI, or else it doenst load
 
         return  newSheet;
