@@ -33,6 +33,9 @@ Ext.define('WINK.view.PatientPanel', {
 
 
     },
+    getEmailAddress: function(){
+        return this.down('emailfield[name=email]').getValue();
+    },
     savePatient: function(bnt) {
         alert('save Patient');
         var formPanel = this;

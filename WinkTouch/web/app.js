@@ -197,8 +197,10 @@ Ext.application({
                              * dirty or phantom, this means that the depth first recursion has detected that it has a child which is
                              * either dirty or phantom. For this child to be put into the prepared data, it's parents must be in place whether
                              * they were modified or not.
+                             * 
+                             * With WINK, we always send back all the data
                              */
-                            if (childRecord.dirty | childRecord.phantom | (childData != null)) {
+                            if (true | childRecord.dirty | childRecord.phantom | (childData != null)) {
                                 data[name].push(childData);
                                 record.setDirty();
                             }
@@ -222,7 +224,7 @@ Ext.application({
                 }
 
                 //Only return data if it was dirty, new or marked for deletion.
-                if (record.dirty | record.phantom | record.get('forDeletion')) {
+                if (true | record.dirty | record.phantom | record.get('forDeletion')) {
                     return data;
                 }
             }
