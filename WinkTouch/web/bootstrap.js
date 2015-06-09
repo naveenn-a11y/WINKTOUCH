@@ -1565,7 +1565,9 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.productsearchresultspanel"
   ],
   "WINK.view.QuickProductSelectionPanel": [],
-  "WINK.view.RxWorksheetPanel": []
+  "WINK.view.RxWorksheetPanel": [
+    "widget.RxWorksheetPanel"
+  ]
 });
 
 

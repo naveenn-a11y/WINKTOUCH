@@ -53,7 +53,8 @@ Ext.define('WINK.view.MainAppPanel', {
                         xtype: 'button',
                         itemId: 'showHideSideMenuButton',
                         ui: 'action-small',
-                        text: '...'
+                        text: '...',
+                        hidden:true
                     },
                     {
                         xtype: 'spacer'

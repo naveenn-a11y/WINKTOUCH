@@ -15,6 +15,7 @@
 
 Ext.define('WINK.view.RxWorksheetPanel', {
     extend: 'Ext.form.Panel',
+     alias: 'widget.RxWorksheetPanel',
     requires: [
         'WINK.view.PowerSelectField',
         'Ext.form.FieldSet',

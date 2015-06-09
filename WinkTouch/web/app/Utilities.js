@@ -61,6 +61,7 @@ Ext.define('WINK.Utilities', {
 
         },
         hasPhonegap: function() {
+
             var app = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
             if (app)
                 return true;
@@ -73,7 +74,10 @@ Ext.define('WINK.Utilities', {
             if (!WINK.Utilities.hasPhonegap())
                 return null;
 
-            return Ext.device.Device.uuid;
+            if (!device)
+                return Ext.device.Device.uuid;
+
+            return  device.uuid
             /*
              if (WINK.Utilities.hasPhonegap())
              return device.uuid;
@@ -235,9 +239,9 @@ Ext.define('WINK.Utilities', {
         },
         showAjaxError: function(title, response) {
 
-
-            if (response.status == 403)
-            {
+            if (!response) {
+                Ext.Msg.alert("Internal Server Error", "Unknown Server Error", Ext.emptyFn);
+            } else if (response.status == 403) {
                 WINK.Utilities.relogin();
             } else {
                 Ext.Msg.alert(title, response.status + " " + response.responseText, Ext.emptyFn);
@@ -250,6 +254,7 @@ Ext.define('WINK.Utilities', {
             WINK.Utilities.previousActiveItem = parentView.getActiveItem();
             parentView.setActiveItem(loginView);
 
+            WINK.Utilities.hideWorking();
         },
         submitForm: function(formPanel, callback) {
             WINK.Utilities.showWorking();
