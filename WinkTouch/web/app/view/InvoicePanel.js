@@ -296,6 +296,7 @@ Ext.define('WINK.view.InvoicePanel', {
                 this.paymentsLoaded();
             }
         });
+        this.removeRxWorksheets();
         rxStore.load({
             scope: this,
             callback: function(records, operation, success) {
@@ -1094,6 +1095,15 @@ Ext.define('WINK.view.InvoicePanel', {
         var newRxModel = Ext.create('WINK.model.RxWorksheet');
         this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice().add(newRxModel);
         tabPanel.setActiveItem(this.addRxWorksheet());
+    },
+    removeRxWorksheets: function(){
+         var tabPanel = this.down("tabpanel");
+         while(true){
+             var rxWorksheet = this.down("RxWorksheetPanel");
+             if(!rxWorksheet)
+                 return;
+             tabPanel.remove(rxWorksheet);
+         }
     },
     addRxWorksheet: function(rxWorksheetModel) {
         var title = "New Rx";
