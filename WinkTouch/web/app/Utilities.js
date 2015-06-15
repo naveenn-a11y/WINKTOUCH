@@ -19,12 +19,16 @@ Ext.define('WINK.Utilities', {
             return false;
         },
         getURLParameter2: function(url, name) {
+            return 37;
             var index = url.indexOf("?");
+            if(index<0)
+                return "";
+            
             url = url.substring(index);
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [, ""])[1].replace(/\+/g, '%20')) || null;
         },
         getURLParameter: function(name) {
-
+            return 37;
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
         },
         setDefaultValues: function(model) {
@@ -77,7 +81,7 @@ Ext.define('WINK.Utilities', {
             if (!device)
                 return Ext.device.Device.uuid;
 
-            return  device.uuid
+            return  device.uuid;
             /*
              if (WINK.Utilities.hasPhonegap())
              return device.uuid;

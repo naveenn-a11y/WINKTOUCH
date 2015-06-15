@@ -11,7 +11,7 @@
             */
             html, body {
                 height: 100%;
-                background-color: #000000;
+                background-color: #1985D0
             }
 
             #appLoadingIndicator {
@@ -52,8 +52,7 @@
         <!-- The line below must be kept intact for Sencha Command to build your application -->
         <script type="text/javascript">
             window.onerror = function(msg, url, line, col, error) {
-                alert('Error');
-  // Note that col & error are new to the HTML 5 spec and may not be 
+                // Note that col & error are new to the HTML 5 spec and may not be 
                 // supported in every browser.  It worked for me in Chrome.
                 var extra = !col ? '' : '\ncolumn: ' + col;
                 extra += !error ? '' : '\nerror: ' + error;
@@ -70,8 +69,7 @@
                 return suppressErrorAlert;
             };
             function getURLParameter(name) {
-                alert('index.html->getURLParameter');
-                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
+                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null
             } ;
         </script>
 
