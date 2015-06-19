@@ -49,11 +49,16 @@ Ext.define('WINK.view.LoginPanel', {
         layout: 'fit',
         modal: false,
         scrollable: false,
+        listeners: { 
+            activate: function( self ) { 
+               self.down('label').setHtml(WINK.Utilities.getDeviceID());
+            }
+        },
         items: [
             {
                 xtype: 'titlebar',
                 docked: 'top',
-                title: 'WINK '+ WINK.Utilities.getWinkVersion(),
+                title: 'WINK '+ WINK.Utilities.getWinkVersion()
             },
              {
                 xtype: 'container',

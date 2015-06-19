@@ -703,6 +703,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "WINK.store.ProductStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
+  "WINK.util.PaintMonitor": [],
+  "WINK.util.SizeMonitor": [],
   "WINK.view.AddPaymentPanel": [],
   "WINK.view.DatePickerToolbar": [],
   "WINK.view.FindPatientPanel": [],
@@ -1497,6 +1499,8 @@ Ext.ClassManager.addNameAliasMappings({
   "WINK.store.ProductStore": [],
   "WINK.store.TaxCodeStore": [],
   "WINK.store.leftNavigationTreeStore": [],
+  "WINK.util.PaintMonitor": [],
+  "WINK.util.SizeMonitor": [],
   "WINK.view.AddPaymentPanel": [
     "widget.addpaymentpanel"
   ],

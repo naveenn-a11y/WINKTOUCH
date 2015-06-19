@@ -1,4 +1,4 @@
-function _76064204a495d7edc7da7db02599cc90ce31cdb6(){};//@tag foundation,core
+function _2a0edbab3f0f7c4cb93aad4fb1ed5df81fdcf0ac(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70184,7 +70184,7 @@ Ext.define('WINK.Utilities', {
         getAccountId: function(callbackAccountId) {
             if (!WINK.Utilities.accountid) {
                 var devid = WINK.Utilities.getDeviceID();
-                console.log("getAccountId->devid:" + devid);
+                console.log('deviceid:' + devid);
                 if (devid) {
                     Ext.Ajax.request({
                         scope: this,
@@ -70197,15 +70197,14 @@ Ext.define('WINK.Utilities', {
                         success: function(response) {
                             console.log('getAccountId success');
                             console.log("response:" + response.responseText);
-                            console.log('UUID Authorization response.' + response.responseText);
                             response.responseText = response.responseText.trim();
                             if (response.responseText.toLowerCase().startsWith("http")) {
                                 WINK.Utilities.accountid = WINK.Utilities.getURLParameter2(response.responseText.trim(), 'accountid');
-                                console.log('UUID Authorization accountid:' + WINK.Utilities.accountid);
-                                console.log('UUID Authorization accountid: callbackAccountId?');
+                                if (WINK.Utilities.accountid) {
+                                    WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
+                                }
                                 console.log('got account id from ajax request:' + WINK.Utilities.accountid);
                                 if (callbackAccountId) {
-                                    console.log('UUID Authorization accountid: callbackAccountId!');
                                     callbackAccountId(WINK.Utilities.accountid);
                                 }
                             } else {
@@ -70215,16 +70214,16 @@ Ext.define('WINK.Utilities', {
                         },
                         failure: function(response) {
                             console.log('getAccountId failure, calling WINK.Utilities.showPleaseAuthorize');
-                            alert('UUID Authorization Failed. Please Try Again.');
                             WINK.Utilities.showPleaseAuthorize(callbackAccountId);
                         },
                         callback: function(options, success, response) {}
                     });
                     return -1;
                 } else {
-                    console.log("!devid, using url param");
                     WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
-                    console.log("WINK.Utilities.accountid=" + WINK.Utilities.accountid);
+                    if (WINK.Utilities.accountid) {
+                        WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
+                    }
                 }
                 if (!WINK.Utilities.accountid)  {
                     WINK.Utilities.accountid = 37;
@@ -77670,11 +77669,6 @@ Ext.define('WINK.view.LoginPanel', {
         layout: 'fit',
         modal: false,
         scrollable: false,
-        listeners: {
-            activate: function(self) {
-                self.down('label').setHtml(WINK.Utilities.getDeviceID());
-            }
-        },
         items: [
             {
                 xtype: 'titlebar',
@@ -82415,7 +82409,7 @@ Ext.application({
         '1496x2048': 'resources/startup/1496x2048.png'
     },
     launch: function() {
-        console.log('app.js launch');
+        alert('app.js launch');
         if (typeof String.prototype.startsWith !== 'function') {
             // see below for better implementation!
             String.prototype.startsWith = function(str) {
@@ -82511,9 +82505,9 @@ Ext.application({
             }
         });
         // Destroy the #appLoadingIndicator element
-        console.log('get account id');
+        alert('get account id');
         WINK.Utilities.getAccountId(function() {
-            console.log('get account id --> callback');
+            alert('get account id --> callback');
             console.log('app.js get Account id callback');
             var s1 = Ext.create('WINK.store.CountryStore', {
                     proxy: {
