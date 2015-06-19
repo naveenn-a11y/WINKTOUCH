@@ -1,4 +1,4 @@
-function _85d29c836f1cfec70751c1296b0d8b616dca669f(){};//@tag foundation,core
+function _a256842f7d3b46f382ece8300931ae814bd64e8c(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -31364,296 +31364,6 @@ Ext.define('Ext.Ajax', {
 });
 
 /**
- * Provides a base class for audio/visual controls. Should not be used directly.
- *
- * Please see the {@link Ext.Audio} and {@link Ext.Video} classes for more information.
- * @private
- */
-Ext.define('Ext.Media', {
-    extend: Ext.Component,
-    xtype: 'media',
-    /**
-     * @event play
-     * Fires whenever the media is played.
-     * @param {Ext.Media} this
-     */
-    /**
-     * @event pause
-     * Fires whenever the media is paused.
-     * @param {Ext.Media} this
-     * @param {Number} time The time at which the media was paused at in seconds.
-     */
-    /**
-     * @event ended
-     * Fires whenever the media playback has ended.
-     * @param {Ext.Media} this
-     * @param {Number} time The time at which the media ended at in seconds.
-     */
-    /**
-     * @event stop
-     * Fires whenever the media is stopped.
-     * The `pause` event will also fire after the `stop` event if the media is currently playing.
-     * The `timeupdate` event will also fire after the `stop` event regardless of playing status.
-     * @param {Ext.Media} this
-     */
-    /**
-     * @event volumechange
-     * Fires whenever the volume is changed.
-     * @param {Ext.Media} this
-     * @param {Number} volume The volume level from 0 to 1.
-     */
-    /**
-     * @event mutedchange
-     * Fires whenever the muted status is changed.
-     * The volumechange event will also fire after the `mutedchange` event fires.
-     * @param {Ext.Media} this
-     * @param {Boolean} muted The muted status.
-     */
-    /**
-     * @event timeupdate
-     * Fires when the media is playing every 15 to 250ms.
-     * @param {Ext.Media} this
-     * @param {Number} time The current time in seconds.
-     */
-    config: {
-        /**
-         * @cfg {String} url
-         * Location of the media to play.
-         * @accessor
-         */
-        url: '',
-        /**
-         * @cfg {Boolean} enableControls
-         * Set this to `false` to turn off the native media controls.
-         * Defaults to `false` when you are on Android, as it doesn't support controls.
-         * @accessor
-         */
-        enableControls: Ext.os.is.Android ? false : true,
-        /**
-         * @cfg {Boolean} autoResume
-         * Will automatically start playing the media when the container is activated.
-         * @accessor
-         */
-        autoResume: false,
-        /**
-         * @cfg {Boolean} autoPause
-         * Will automatically pause the media when the container is deactivated.
-         * @accessor
-         */
-        autoPause: true,
-        /**
-         * @cfg {Boolean} preload
-         * Will begin preloading the media immediately.
-         * @accessor
-         */
-        preload: true,
-        /**
-         * @cfg {Boolean} loop
-         * Will loop the media forever.
-         * @accessor
-         */
-        loop: false,
-        /**
-         * @cfg {Ext.Element} media
-         * A reference to the underlying audio/video element.
-         * @accessor
-         */
-        media: null,
-        /**
-         * @cfg {Number} volume
-         * The volume of the media from 0.0 to 1.0.
-         * @accessor
-         */
-        volume: 1,
-        /**
-         * @cfg {Boolean} muted
-         * Whether or not the media is muted. This will also set the volume to zero.
-         * @accessor
-         */
-        muted: false
-    },
-    constructor: function() {
-        this.mediaEvents = {};
-        this.callSuper(arguments);
-    },
-    initialize: function() {
-        var me = this;
-        me.callParent();
-        me.on({
-            scope: me,
-            activate: me.onActivate,
-            deactivate: me.onDeactivate
-        });
-        me.addMediaListener({
-            canplay: 'onCanPlay',
-            play: 'onPlay',
-            pause: 'onPause',
-            ended: 'onEnd',
-            volumechange: 'onVolumeChange',
-            timeupdate: 'onTimeUpdate'
-        });
-    },
-    addMediaListener: function(event, fn) {
-        var me = this,
-            dom = me.media.dom,
-            bind = Ext.Function.bind;
-        Ext.Object.each(event, function(e, fn) {
-            fn = bind(me[fn], me);
-            me.mediaEvents[e] = fn;
-            dom.addEventListener(e, fn);
-        });
-    },
-    onPlay: function() {
-        this.fireEvent('play', this);
-    },
-    onCanPlay: function() {
-        this.fireEvent('canplay', this);
-    },
-    onPause: function() {
-        this.fireEvent('pause', this, this.getCurrentTime());
-    },
-    onEnd: function() {
-        this.fireEvent('ended', this, this.getCurrentTime());
-    },
-    onVolumeChange: function() {
-        this.fireEvent('volumechange', this, this.media.dom.volume);
-    },
-    onTimeUpdate: function() {
-        this.fireEvent('timeupdate', this, this.getCurrentTime());
-    },
-    /**
-     * Returns if the media is currently playing.
-     * @return {Boolean} playing `true` if the media is playing.
-     */
-    isPlaying: function() {
-        return !Boolean(this.media.dom.paused);
-    },
-    // @private
-    onActivate: function() {
-        var me = this;
-        if (me.getAutoResume() && !me.isPlaying()) {
-            me.play();
-        }
-    },
-    // @private
-    onDeactivate: function() {
-        var me = this;
-        if (me.getAutoPause() && me.isPlaying()) {
-            me.pause();
-        }
-    },
-    /**
-     * Sets the URL of the media element. If the media element already exists, it is update the src attribute of the
-     * element. If it is currently playing, it will start the new video.
-     */
-    updateUrl: function(newUrl) {
-        var dom = this.media.dom;
-        //when changing the src, we must call load:
-        //http://developer.apple.com/library/safari/#documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/ControllingMediaWithJavaScript/ControllingMediaWithJavaScript.html
-        dom.src = newUrl;
-        if ('load' in dom) {
-            dom.load();
-        }
-        if (this.isPlaying()) {
-            this.play();
-        }
-    },
-    /**
-     * Updates the controls of the video element.
-     */
-    updateEnableControls: function(enableControls) {
-        this.media.dom.controls = enableControls ? 'controls' : false;
-    },
-    /**
-     * Updates the loop setting of the media element.
-     */
-    updateLoop: function(loop) {
-        this.media.dom.loop = loop ? 'loop' : false;
-    },
-    /**
-     * Starts or resumes media playback.
-     */
-    play: function() {
-        var dom = this.media.dom;
-        if ('play' in dom) {
-            dom.play();
-            setTimeout(function() {
-                dom.play();
-            }, 10);
-        }
-    },
-    /**
-     * Pauses media playback.
-     */
-    pause: function() {
-        var dom = this.media.dom;
-        if ('pause' in dom) {
-            dom.pause();
-        }
-    },
-    /**
-     * Toggles the media playback state.
-     */
-    toggle: function() {
-        if (this.isPlaying()) {
-            this.pause();
-        } else {
-            this.play();
-        }
-    },
-    /**
-     * Stops media playback and returns to the beginning.
-     */
-    stop: function() {
-        var me = this;
-        me.setCurrentTime(0);
-        me.fireEvent('stop', me);
-        me.pause();
-    },
-    //@private
-    updateVolume: function(volume) {
-        this.media.dom.volume = volume;
-    },
-    //@private
-    updateMuted: function(muted) {
-        this.fireEvent('mutedchange', this, muted);
-        this.media.dom.muted = muted;
-    },
-    /**
-     * Returns the current time of the media, in seconds.
-     * @return {Number}
-     */
-    getCurrentTime: function() {
-        return this.media.dom.currentTime;
-    },
-    /*
-     * Set the current time of the media.
-     * @param {Number} time The time, in seconds.
-     * @return {Number}
-     */
-    setCurrentTime: function(time) {
-        this.media.dom.currentTime = time;
-        return time;
-    },
-    /**
-     * Returns the duration of the media, in seconds.
-     * @return {Number}
-     */
-    getDuration: function() {
-        return this.media.dom.duration;
-    },
-    destroy: function() {
-        var me = this,
-            dom = me.media.dom,
-            mediaEvents = me.mediaEvents;
-        Ext.Object.each(mediaEvents, function(event, fn) {
-            dom.removeEventListener(event, fn);
-        });
-        this.callSuper();
-    }
-});
-
-/**
  * @class Ext.ComponentQuery
  * @extends Object
  * @singleton
@@ -35853,196 +35563,6 @@ Ext.define('Ext.TitleBar', {
         this.titleComponent.setTitle(newTitle);
         if (this.isPainted()) {
             this.refreshTitlePosition();
-        }
-    }
-});
-
-/**
- * @aside example video
- * Provides a simple Container for HTML5 Video.
- *
- * ## Notes
- *
- * - There are quite a few issues with the `<video>` tag on Android devices. On Android 2+, the video will
- * appear and play on first attempt, but any attempt afterwards will not work.
- *
- * ## Useful Properties
- *
- * - {@link #url}
- * - {@link #autoPause}
- * - {@link #autoResume}
- *
- * ## Useful Methods
- *
- * - {@link #method-pause}
- * - {@link #method-play}
- * - {@link #toggle}
- *
- * ## Example
- *
- *     var panel = Ext.create('Ext.Panel', {
- *         fullscreen: true,
- *         items: [
- *             {
- *                 xtype    : 'video',
- *                 x        : 600,
- *                 y        : 300,
- *                 width    : 175,
- *                 height   : 98,
- *                 url      : "porsche911.mov",
- *                 posterUrl: 'porsche.png'
- *             }
- *         ]
- *     });
- */
-Ext.define('Ext.Video', {
-    extend: Ext.Media,
-    xtype: 'video',
-    config: {
-        /**
-         * @cfg {String/Array} url
-         * Location of the video to play. This should be in H.264 format and in a .mov file format.
-         * @accessor
-         */
-        /**
-         * @cfg {String} posterUrl
-         * Location of a poster image to be shown before showing the video.
-         * @accessor
-         */
-        posterUrl: null,
-        /**
-         * @cfg
-         * @inheritdoc
-         */
-        baseCls: Ext.baseCSSPrefix + 'video',
-        /**
-         * @cfg {Boolean} controls
-         * Determines if native controls should be shown for this video player.
-         */
-        controls: true
-    },
-    template: [
-        {
-            /**
-         * @property {Ext.dom.Element} ghost
-         * @private
-         */
-            reference: 'ghost',
-            classList: [
-                Ext.baseCSSPrefix + 'video-ghost'
-            ]
-        },
-        {
-            tag: 'video',
-            reference: 'media',
-            classList: [
-                Ext.baseCSSPrefix + 'media'
-            ]
-        }
-    ],
-    initialize: function() {
-        var me = this;
-        me.callParent();
-        me.media.hide();
-        me.onBefore({
-            erased: 'onErased',
-            scope: me
-        });
-        me.ghost.on({
-            tap: 'onGhostTap',
-            scope: me
-        });
-        me.media.on({
-            pause: 'onPause',
-            scope: me
-        });
-        if (Ext.os.is.Android4 || Ext.os.is.iPad) {
-            this.isInlineVideo = true;
-        }
-    },
-    applyUrl: function(url) {
-        return [].concat(url);
-    },
-    updateUrl: function(newUrl) {
-        var me = this,
-            media = me.media,
-            newLn = newUrl.length,
-            existingSources = media.query('source'),
-            oldLn = existingSources.length,
-            i;
-        for (i = 0; i < oldLn; i++) {
-            Ext.fly(existingSources[i]).destroy();
-        }
-        for (i = 0; i < newLn; i++) {
-            media.appendChild(Ext.Element.create({
-                tag: 'source',
-                src: newUrl[i]
-            }));
-        }
-        if (me.isPlaying()) {
-            me.play();
-        }
-    },
-    updateControls: function(value) {
-        this.media.set({
-            controls: value ? true : undefined
-        });
-    },
-    onErased: function() {
-        this.pause();
-        this.media.setTop(-2000);
-        this.ghost.show();
-    },
-    /**
-     * @private
-     * Called when the {@link #ghost} element is tapped.
-     */
-    onGhostTap: function() {
-        var me = this,
-            media = this.media,
-            ghost = this.ghost;
-        media.show();
-        if (Ext.browser.is.AndroidStock2) {
-            setTimeout(function() {
-                me.play();
-                setTimeout(function() {
-                    media.hide();
-                }, 10);
-            }, 10);
-        } else {
-            // Browsers which support native video tag display only, move the media down so
-            // we can control the Viewport
-            ghost.hide();
-            me.play();
-        }
-    },
-    /**
-     * @private
-     * native video tag display only, move the media down so we can control the Viewport
-     */
-    onPause: function() {
-        this.callParent(arguments);
-        if (!this.isInlineVideo) {
-            this.media.setTop(-2000);
-            this.ghost.show();
-        }
-    },
-    /**
-     * @private
-     * native video tag display only, move the media down so we can control the Viewport
-     */
-    onPlay: function() {
-        this.callParent(arguments);
-        this.media.setTop(0);
-    },
-    /**
-     * Updates the URL to the poster, even if it is rendered.
-     * @param {Object} newUrl
-     */
-    updatePosterUrl: function(newUrl) {
-        var ghost = this.ghost;
-        if (ghost) {
-            ghost.setStyle('background-image', 'url(' + newUrl + ')');
         }
     }
 });
@@ -57956,6 +57476,801 @@ Ext.define('Ext.dataview.NestedList', {
     }
 }, function() {});
 
+/**
+ * @private
+ *
+ * This object handles communication between the WebView and Sencha's native shell.
+ * Currently it has two primary responsibilities:
+ *
+ * 1. Maintaining unique string ids for callback functions, together with their scope objects
+ * 2. Serializing given object data into HTTP GET request parameters
+ *
+ * As an example, to capture a photo from the device's camera, we use `Ext.device.Camera.capture()` like:
+ *
+ *     Ext.device.Camera.capture(
+ *         function(dataUri){
+ *             // Do something with the base64-encoded `dataUri` string
+ *         },
+ *         function(errorMessage) {
+ *
+ *         },
+ *         callbackScope,
+ *         {
+ *             quality: 75,
+ *             width: 500,
+ *             height: 500
+ *         }
+ *     );
+ *
+ * Internally, `Ext.device.Communicator.send()` will then be invoked with the following argument:
+ *
+ *     Ext.device.Communicator.send({
+ *         command: 'Camera#capture',
+ *         callbacks: {
+ *             onSuccess: function() {
+ *                 // ...
+ *             },
+ *             onError: function() {
+ *                 // ...
+ *             }
+ *         },
+ *         scope: callbackScope,
+ *         quality: 75,
+ *         width: 500,
+ *         height: 500
+ *     });
+ *
+ * Which will then be transformed into a HTTP GET request, sent to native shell's local
+ * HTTP server with the following parameters:
+ *
+ *     ?quality=75&width=500&height=500&command=Camera%23capture&onSuccess=3&onError=5
+ *
+ * Notice that `onSuccess` and `onError` have been converted into string ids (`3` and `5`
+ * respectively) and maintained by `Ext.device.Communicator`.
+ *
+ * Whenever the requested operation finishes, `Ext.device.Communicator.invoke()` simply needs
+ * to be executed from the native shell with the corresponding ids given before. For example:
+ *
+ *     Ext.device.Communicator.invoke('3', ['DATA_URI_OF_THE_CAPTURED_IMAGE_HERE']);
+ *
+ * will invoke the original `onSuccess` callback under the given scope. (`callbackScope`), with
+ * the first argument of 'DATA_URI_OF_THE_CAPTURED_IMAGE_HERE'
+ *
+ * Note that `Ext.device.Communicator` maintains the uniqueness of each function callback and
+ * its scope object. If subsequent calls to `Ext.device.Communicator.send()` have the same
+ * callback references, the same old ids will simply be reused, which guarantee the best possible
+ * performance for a large amount of repetitive calls.
+ */
+Ext.define('Ext.device.communicator.Default', {
+    SERVER_URL: 'http://localhost:3000',
+    // Change this to the correct server URL
+    callbackDataMap: {},
+    callbackIdMap: {},
+    idSeed: 0,
+    globalScopeId: '0',
+    generateId: function() {
+        return String(++this.idSeed);
+    },
+    getId: function(object) {
+        var id = object.$callbackId;
+        if (!id) {
+            object.$callbackId = id = this.generateId();
+        }
+        return id;
+    },
+    getCallbackId: function(callback, scope) {
+        var idMap = this.callbackIdMap,
+            dataMap = this.callbackDataMap,
+            id, scopeId, callbackId, data;
+        if (!scope) {
+            scopeId = this.globalScopeId;
+        } else if (scope.isIdentifiable) {
+            scopeId = scope.getId();
+        } else {
+            scopeId = this.getId(scope);
+        }
+        callbackId = this.getId(callback);
+        if (!idMap[scopeId]) {
+            idMap[scopeId] = {};
+        }
+        if (!idMap[scopeId][callbackId]) {
+            id = this.generateId();
+            data = {
+                callback: callback,
+                scope: scope
+            };
+            idMap[scopeId][callbackId] = id;
+            dataMap[id] = data;
+        }
+        return idMap[scopeId][callbackId];
+    },
+    getCallbackData: function(id) {
+        return this.callbackDataMap[id];
+    },
+    invoke: function(id, args) {
+        var data = this.getCallbackData(id);
+        data.callback.apply(data.scope, args);
+    },
+    send: function(args) {
+        var callbacks, scope, name, callback;
+        if (!args) {
+            args = {};
+        } else if (args.callbacks) {
+            callbacks = args.callbacks;
+            scope = args.scope;
+            delete args.callbacks;
+            delete args.scope;
+            for (name in callbacks) {
+                if (callbacks.hasOwnProperty(name)) {
+                    callback = callbacks[name];
+                    if (typeof callback == 'function') {
+                        args[name] = this.getCallbackId(callback, scope);
+                    }
+                }
+            }
+        }
+        args.__source = document.location.href;
+        var result = this.doSend(args);
+        return (result && result.length > 0) ? JSON.parse(result) : null;
+    },
+    doSend: function(args) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', this.SERVER_URL + '?' + Ext.Object.toQueryString(args) + '&_dc=' + new Date().getTime(), false);
+        // wrap the request in a try/catch block so we can check if any errors are thrown and attempt to call any
+        // failure/callback functions if defined
+        try {
+            xhr.send(null);
+            return xhr.responseText;
+        } catch (e) {
+            if (args.failure) {
+                this.invoke(args.failure);
+            } else if (args.callback) {
+                this.invoke(args.callback);
+            }
+        }
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.communicator.Android', {
+    extend: Ext.device.communicator.Default,
+    doSend: function(args) {
+        return window.Sencha.action(JSON.stringify(args));
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.Communicator', {
+    singleton: true,
+    constructor: function() {
+        if (Ext.os.is.Android) {
+            return new Ext.device.communicator.Android();
+        }
+        return new Ext.device.communicator.Default();
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.camera.Abstract', {
+    source: {
+        library: 0,
+        camera: 1,
+        album: 2
+    },
+    destination: {
+        data: 0,
+        file: 1,
+        'native': 2
+    },
+    encoding: {
+        jpeg: 0,
+        jpg: 0,
+        png: 1
+    },
+    media: {
+        picture: 0,
+        video: 1,
+        all: 2
+    },
+    direction: {
+        back: 0,
+        front: 1
+    },
+    /**
+     * Allows you to capture a photo.
+     *
+     * @param {Object} options
+     * The options to use when taking a photo.
+     *
+     * @param {Function} options.success
+     * The success callback which is called when the photo has been taken.
+     *
+     * @param {String} options.success.image
+     * The image which was just taken, either a base64 encoded string or a URI depending on which
+     * option you chose (destination).
+     *
+     * @param {Function} options.failure
+     * The function which is called when something goes wrong.
+     *
+     * @param {Object} scope
+     * The scope in which to call the `success` and `failure` functions, if specified.
+     *
+     * @param {Number} options.quality
+     * The quality of the image which is returned in the callback. This should be a percentage.
+     *
+     * @param {String} options.source
+     * The source of where the image should be taken. Available options are:
+     *
+     * - **album** - prompts the user to choose an image from an album
+     * - **camera** - prompts the user to take a new photo
+     * - **library** - prompts the user to choose an image from the library
+     *
+     * @param {String} destination
+     * The destination of the image which is returned. Available options are:
+     *
+     * - **data** - returns a base64 encoded string
+     * - **file** - returns the file's URI
+     *
+     * @param {String} encoding
+     * The encoding of the returned image. Available options are:
+     *
+     * - **jpg**
+     * - **png**
+     *
+     * @param {Number} width
+     * The width of the image to return
+     *
+     * @param {Number} height
+     * The height of the image to return
+     */
+    capture: Ext.emptyFn,
+    getPicture: Ext.emptyFn,
+    cleanup: Ext.emptyFn
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.camera.Cordova', {
+    alternateClassName: 'Ext.device.camera.PhoneGap',
+    extend: Ext.device.camera.Abstract,
+    getPicture: function(onSuccess, onError, options) {
+        try {
+            navigator.camera.getPicture(onSuccess, onError, options);
+        } catch (e) {
+            alert(e);
+        }
+    },
+    cleanup: function(onSuccess, onError) {
+        try {
+            navigator.camera.cleanup(onSuccess, onError);
+        } catch (e) {
+            alert(e);
+        }
+    },
+    capture: function(args) {
+        var onSuccess = args.success,
+            onError = args.failure,
+            scope = args.scope,
+            sources = this.source,
+            destinations = this.destination,
+            encodings = this.encoding,
+            source = args.source,
+            destination = args.destination,
+            encoding = args.encoding,
+            options = {};
+        if (scope) {
+            onSuccess = Ext.Function.bind(onSuccess, scope);
+            onError = Ext.Function.bind(onError, scope);
+        }
+        if (source !== undefined) {
+            options.sourceType = sources.hasOwnProperty(source) ? sources[source] : source;
+        }
+        if (destination !== undefined) {
+            options.destinationType = destinations.hasOwnProperty(destination) ? destinations[destination] : destination;
+        }
+        if (encoding !== undefined) {
+            options.encodingType = encodings.hasOwnProperty(encoding) ? encodings[encoding] : encoding;
+        }
+        if ('quality' in args) {
+            options.quality = args.quality;
+        }
+        if ('width' in args) {
+            options.targetWidth = args.width;
+        }
+        if ('height' in args) {
+            options.targetHeight = args.height;
+        }
+        this.getPicture(onSuccess, onError, options);
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.camera.Sencha', {
+    extend: Ext.device.camera.Abstract,
+    capture: function(options) {
+        var sources = this.source,
+            destinations = this.destination,
+            encodings = this.encoding,
+            source = options.source,
+            destination = options.destination,
+            encoding = options.encoding;
+        if (sources.hasOwnProperty(source)) {
+            source = sources[source];
+        }
+        if (destinations.hasOwnProperty(destination)) {
+            destination = destinations[destination];
+        }
+        if (encodings.hasOwnProperty(encoding)) {
+            encoding = encodings[encoding];
+        }
+        Ext.device.Communicator.send({
+            command: 'Camera#capture',
+            callbacks: {
+                success: options.success,
+                failure: options.failure
+            },
+            scope: options.scope,
+            quality: options.quality,
+            width: options.width,
+            height: options.height,
+            source: source,
+            destination: destination,
+            encoding: encoding
+        });
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.camera.Simulator', {
+    extend: Ext.device.camera.Abstract,
+    config: {
+        samples: [
+            {
+                success: 'http://www.sencha.com/img/sencha-large.png'
+            }
+        ]
+    },
+    constructor: function(config) {
+        this.initConfig(config);
+    },
+    updateSamples: function(samples) {
+        this.sampleIndex = 0;
+    },
+    capture: function(options) {
+        var index = this.sampleIndex,
+            samples = this.getSamples(),
+            samplesCount = samples.length,
+            sample = samples[index],
+            scope = options.scope,
+            success = options.success,
+            failure = options.failure;
+        if ('success' in sample) {
+            if (success) {
+                success.call(scope, sample.success);
+            }
+        } else {
+            if (failure) {
+                failure.call(scope, sample.failure);
+            }
+        }
+        if (++index > samplesCount - 1) {
+            index = 0;
+        }
+        this.sampleIndex = index;
+    }
+});
+
+/**
+ * This class allows you to use native APIs to take photos using the device camera.
+ *
+ * When this singleton is instantiated, it will automatically select the correct implementation depending on the
+ * current device:
+ *
+ * - Sencha Packager
+ * - Cordova
+ * - Simulator
+ *
+ * Both the Sencha Packager and Cordova implementations will use the native camera functionality to take or select
+ * a photo. The Simulator implementation will simply return fake images.
+ *
+ * ## Example
+ *
+ * You can use the {@link Ext.device.Camera#capture} function to take a photo:
+ *
+ *     Ext.device.Camera.capture({
+ *         success: function(image) {
+ *             imageView.setSrc(image);
+ *         },
+ *         quality: 75,
+ *         width: 200,
+ *         height: 200,
+ *         destination: 'data'
+ *     });
+ *
+ * See the documentation for {@link Ext.device.Camera#capture} all available configurations.
+ *
+ * @mixins Ext.device.camera.Abstract
+ *
+ * @aside guide native_apis
+ */
+Ext.define('Ext.device.Camera', {
+    singleton: true,
+    constructor: function() {
+        var browserEnv = Ext.browser.is;
+        if (browserEnv.WebView) {
+            if (browserEnv.Cordova) {
+                return Ext.create('Ext.device.camera.Cordova');
+            } else if (browserEnv.Sencha) {
+                return Ext.create('Ext.device.camera.Sencha');
+            }
+        }
+        return Ext.create('Ext.device.camera.Simulator');
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.device.Abstract', {
+    mixins: [
+        Ext.mixin.Observable
+    ],
+    /**
+     * @event schemeupdate
+     * Event which is fired when your Sencha Native packaged application is opened from another application using a custom URL scheme.
+     * 
+     * This event will only fire if the application was already open (in other words; `onReady` was already fired). This means you should check
+     * if {@link Ext.device.Device#scheme} is set in your Application `launch`/`onReady` method, and perform any needed changes for that URL (if defined).
+     * Then listen to this event for future changed.
+     *
+     * ## Example
+     *
+     *     Ext.application({
+     *         name: 'Sencha',
+     *         requires: ['Ext.device.Device'],
+     *         launch: function() {
+     *             if (Ext.device.Device.scheme) {
+     *                 // the application was opened via another application. Do something:
+     *                 console.log('Applicaton opened via another application: ' + Ext.device.Device.scheme.url);
+     *             }
+     *
+     *             // Listen for future changes
+     *             Ext.device.Device.on('schemeupdate', function(device, scheme) {
+     *                 // the application was launched, closed, and then launched another from another application
+     *                 // this means onReady wont be called again ('cause the application is already running in the 
+     *                 // background) - but this event will be fired
+     *                 console.log('Applicated reopened via another application: ' + scheme.url);
+     *             }, this);
+     *         }
+     *     });
+     *
+     * __Note:__ This currently only works with the Sencha Native Packager. If you attempt to listen to this event when packaged with
+     * PhoneGap or simply in the browser, it will never fire.**
+     * 
+     * @param {Ext.device.Device} this The instance of Ext.device.Device
+     * @param {Object/Boolean} scheme The scheme information, if opened via another application
+     * @param {String} scheme.url The URL that was opened, if this application was opened via another application. Example: `sencha:`
+     * @param {String} scheme.sourceApplication The source application that opened this application. Example: `com.apple.safari`.
+     */
+    /**
+     * @property {String} name
+     * Returns the name of the current device. If the current device does not have a name (for example, in a browser), it will
+     * default to `not available`.
+     *
+     *     alert('Device name: ' + Ext.device.Device.name);
+     */
+    name: 'not available',
+    /**
+     * @property {String} uuid
+     * Returns a unique identifier for the current device. If the current device does not have a unique identifier (for example,
+     * in a browser), it will default to `anonymous`.
+     *
+     *     alert('Device UUID: ' + Ext.device.Device.uuid);
+     */
+    uuid: 'anonymous',
+    /**
+     * @property {String} platform
+     * The current platform the device is running on.
+     *
+     *     alert('Device platform: ' + Ext.device.Device.platform);
+     */
+    platform: Ext.os.name,
+    /**
+     * @property {Object/Boolean} scheme
+     * 
+     */
+    scheme: false,
+    /**
+     * Opens a specified URL. The URL can contain a custom URL Scheme for another app or service:
+     *
+     *     // Safari
+     *     Ext.device.Device.openURL('http://sencha.com');
+     *
+     *     // Telephone
+     *     Ext.device.Device.openURL('tel:6501231234');
+     *
+     *     // SMS with a default number
+     *     Ext.device.Device.openURL('sms:+12345678901');
+     *
+     *     // Email client
+     *     Ext.device.Device.openURL('mailto:rob@sencha.com');
+     *
+     * You can find a full list of available URL schemes here: [http://wiki.akosma.com/IPhone_URL_Schemes](http://wiki.akosma.com/IPhone_URL_Schemes).
+     *
+     * __Note:__ This currently only works with the Sencha Native Packager. Attempting to use this on PhoneGap, iOS Simulator
+     * or the browser will simply result in the current window location changing.**
+     *
+     * If successful, this will close the application (as another one opens).
+     * 
+     * @param {String} url The URL to open
+     */
+    openURL: function(url) {
+        window.location = url;
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.device.Cordova', {
+    alternateClassName: 'Ext.device.device.PhoneGap',
+    extend: Ext.device.device.Abstract,
+    availableListeners: [
+        'pause',
+        'resume',
+        'backbutton',
+        'batterycritical',
+        'batterylow',
+        'batterystatus',
+        'menubutton',
+        'searchbutton',
+        'startcallbutton',
+        'endcallbutton',
+        'volumeupbutton',
+        'volumedownbutton'
+    ],
+    constructor: function() {
+        // We can't get the device details until the device is ready, so lets wait.
+        if (Ext.isReady) {
+            this.onReady();
+        } else {
+            Ext.onReady(this.onReady, this, {
+                single: true
+            });
+        }
+    },
+    /**
+     * @property {String} cordova
+     * Returns the version of Cordova running on the device.
+     *
+     *     alert('Device cordova: ' + Ext.device.Device.cordova);
+     */
+    /**
+     * @property {String} version
+     * Returns the operating system version.
+     *
+     *     alert('Device Version: ' + Ext.device.Device.version);
+     */
+    /**
+     * @property {String} model
+     * Returns the device's model name.
+     *
+     *     alert('Device Model: ' + Ext.device.Device.model);
+     */
+    /**
+     * @event pause
+     * Fires when the application goes into the background
+     */
+    /**
+     * @event resume
+     * Fires when the application goes into the foreground
+     */
+    /**
+     * @event batterycritical
+     * This event that fires when a Cordova application detects the percentage of battery 
+     * has reached the critical battery threshold.
+     */
+    /**
+     * @event batterylow
+     * This event that fires when a Cordova application detects the percentage of battery 
+     * has reached the low battery threshold.
+     */
+    /**
+     * @event batterystatus
+     * This event that fires when a Cordova application detects the percentage of battery 
+     * has changed by at least 1 percent.
+     */
+    /**
+     * @event backbutton
+     * This is an event that fires when the user presses the back button.
+     */
+    /**
+     * @event menubutton
+     * This is an event that fires when the user presses the menu button.
+     */
+    /**
+     * @event searchbutton
+     * This is an event that fires when the user presses the search button.
+     */
+    /**
+     * @event startcallbutton
+     * This is an event that fires when the user presses the start call button.
+     */
+    /**
+     * @event endcallbutton
+     * This is an event that fires when the user presses the end call button.
+     */
+    /**
+     * @event volumeupbutton
+     * This is an event that fires when the user presses the volume up button.
+     */
+    /**
+     * @event volumedownbutton
+     * This is an event that fires when the user presses the volume down button.
+     */
+    onReady: function() {
+        var me = this,
+            device = window.device;
+        me.name = device.name || device.model;
+        me.cordova = device.cordova;
+        me.platform = device.platform || Ext.os.name;
+        me.uuid = device.uuid;
+        me.version = device.version;
+        me.model = device.model;
+    },
+    doAddListener: function(name) {
+        if (!this.addedListeners) {
+            this.addedListeners = [];
+        }
+        if (this.availableListeners.indexOf(name) != -1 && this.addedListeners.indexOf(name) == -1) {
+            // Add the listeners
+            this.addedListeners.push(name);
+            document.addEventListener(name, function() {
+                me.fireEvent(name, me);
+            });
+        }
+        Ext.device.Device.mixins.observable.doAddListener.apply(Ext.device.Device.mixins.observable, arguments);
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.device.Sencha', {
+    extend: Ext.device.device.Abstract,
+    constructor: function() {
+        this.callSuper(arguments);
+        this.name = device.name;
+        this.uuid = device.uuid;
+        this.platform = device.platformName || Ext.os.name;
+        this.scheme = Ext.device.Communicator.send({
+            command: 'OpenURL#getScheme',
+            sync: true
+        }) || false;
+        Ext.device.Communicator.send({
+            command: 'OpenURL#watch',
+            callbacks: {
+                callback: function(scheme) {
+                    this.scheme = scheme || false;
+                    this.fireEvent('schemeupdate', this, this.scheme);
+                }
+            },
+            scope: this
+        });
+    },
+    openURL: function(url) {
+        Ext.device.Communicator.send({
+            command: 'OpenURL#open',
+            url: url
+        });
+    }
+});
+
+/**
+ * @private
+ */
+Ext.define('Ext.device.device.Simulator', {
+    extend: Ext.device.device.Abstract
+});
+
+/**
+ * Provides a cross device way to get information about the device your application is running on. There are 3 different implementations:
+ *
+ * - Sencha Packager
+ * - [Cordova](http://cordova.apache.org/docs/en/2.5.0/cordova_device_device.md.html#Device)
+ * - Simulator
+ *
+ * ## Examples
+ *
+ * #### Device Information
+ *
+ * Getting the device information:
+ *
+ *     Ext.application({
+ *         name: 'Sencha',
+ *
+ *         // Remember that the Ext.device.Device class *must* be required
+ *         requires: ['Ext.device.Device'],
+ *
+ *         launch: function() {
+ *             alert([
+ *                 'Device name: ' + Ext.device.Device.name,
+ *                 'Device platform: ' + Ext.device.Device.platform,
+ *                 'Device UUID: ' + Ext.device.Device.uuid
+ *             ].join('\n'));
+ *         }
+ *     });
+ *
+ * ### Custom Scheme URL
+ *
+ * Using custom scheme URL to application your application from other applications:
+ *
+ *     Ext.application({
+ *         name: 'Sencha',
+ *         requires: ['Ext.device.Device'],
+ *         launch: function() {
+ *             if (Ext.device.Device.scheme) {
+ *                 // the application was opened via another application. Do something:
+ *                 alert('Applicaton pened via another application: ' + Ext.device.Device.scheme.url);
+ *             }
+ *
+ *             // Listen for future changes
+ *             Ext.device.Device.on('schemeupdate', function(device, scheme) {
+ *                 // the application was launched, closed, and then launched another from another application
+ *                 // this means onReady wont be called again ('cause the application is already running in the 
+ *                 // background) - but this event will be fired
+ *                 alert('Applicated reopened via another application: ' + scheme.url);
+ *             }, this);
+ *         }
+ *     });
+ *
+ * Of course, you must add the custom scheme URL you would like to use when packaging your application.
+ * You can do this by setting the `URLScheme` property inside your `package.json` file (Sencha Native Packager configuration file):
+ *
+ *     {
+ *         ...
+ *         "URLScheme": "sencha",
+ *         ...
+ *     }
+ *
+ * You can change the available URL scheme.
+ *
+ * You can then test it by packaging and installing the application onto a device/iOS Simulator, opening Safari and typing: `sencha:testing`.
+ * The application will launch and it will `alert` the URL you specified.
+ *
+ * **PLEASE NOTE: This currently only works with the Sencha Native Packager. If you attempt to listen to this event when packaged with
+ * PhoneGap or simply in the browser, it will not function.**
+ *
+ * @mixins Ext.device.device.Abstract
+ *
+ * @aside guide native_apis
+ */
+Ext.define('Ext.device.Device', {
+    singleton: true,
+    constructor: function() {
+        var browserEnv = Ext.browser.is;
+        if (browserEnv.WebView) {
+            if (browserEnv.Cordova) {
+                return Ext.create('Ext.device.device.Cordova');
+            } else if (browserEnv.Sencha) {
+                return Ext.create('Ext.device.device.Sencha');
+            }
+        }
+        return Ext.create('Ext.device.device.Simulator');
+    }
+});
+
 // Using @mixins to include all members of Ext.event.Touch
 // into here to keep documentation simpler
 /**
@@ -69738,7 +70053,20 @@ Ext.define('WINK.Utilities', {
             
             return false;
         },
+        getURLParameter2: function(url, name) {
+            return 37;
+            var index = url.indexOf("?");
+            if (index < 0)  {
+                return "";
+            }
+            
+            url = url.substring(index);
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [
+                ""
+            ])[1].replace(/\+/g, '%20')) || null;
+        },
         getURLParameter: function(name) {
+            return 37;
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [
                 ""
             ])[1].replace(/\+/g, '%20')) || null;
@@ -69751,16 +70079,50 @@ Ext.define('WINK.Utilities', {
                 model.set('date', new Date());
                 model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
                 model.set('user_iduser', WINK.Utilities.currentuser.get('id'));
+            } else if (model instanceof WINK.model.RxWorksheet) {
+                model.set('createdon', new Date());
+                model.set('scriptreceivedon', null);
+                model.set('createby_iduser', WINK.Utilities.currentuser.get('id'));
             }
         },
         loginSuccess: function(response) {
-            WINK.Utilities.currentstore = Ext.create('WINK.model.Store', {
-                id: 1
-            });
+            WINK.Utilities.currentstore = Ext.create('WINK.model.Store');
             WINK.Utilities.currentuser = Ext.create('WINK.model.User');
             console.log("Set logged In User:" + response.responseText);
-            WINK.Utilities.currentuser.set(Ext.JSON.decode(response.responseText));
-            console.log("Set logged In User:" + WINK.Utilities.currentuser.get('id'));
+            var me = Ext.JSON.decode(response.responseText);
+            // alert(me);
+            //alert(me.user);
+            //alert(me.user.lastname);
+            WINK.Utilities.currentuser.set(me.user);
+            WINK.Utilities.currentstore.set(me.store);
+            console.log("Set logged In User:" + WINK.Utilities.currentuser.get('lastname') + " @ " + WINK.Utilities.currentstore.get('name'));
+        },
+        hasPhonegap: function() {
+            var app = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+            if (app)  {
+                return true;
+            }
+            
+            return false;
+        },
+        getDeviceID: function() {
+            if (!WINK.Utilities.hasPhonegap())  {
+                return null;
+            }
+            
+            return Ext.device.Device.uuid;
+        },
+        // return  device.uuid;
+        /*
+             if (WINK.Utilities.hasPhonegap())
+             return device.uuid;
+             
+             return 'Unknown';
+             */
+        showPleaseAuthorize: function(callback) {
+            alert("Please Authorize " + WINK.Utilities.getDeviceID() + " Using WINK Desktop");
+            //needs to be syncrhonous (thread blocking)
+            WINK.Utilities.getAccountId(callback);
         },
         loadAllRequiredStores: function(callback) {
             console.log("Utilities.loadAllRequiredStores()");
@@ -69789,7 +70151,13 @@ Ext.define('WINK.Utilities', {
                 console.log("Utilities.loadAllRequiredStores() loading stores");
                 Ext.create('WINK.store.CountrySubdivisionStore', {
                     storeId: 'CountrySubdivisionStore',
-                    autoLoad: true
+                    autoLoad: true,
+                    proxy: {
+                        type: 'rest',
+                        url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),
+                        withCredentials: true,
+                        useDefaultXhrHeader: false
+                    }
                 });
                 //just to start loading the data
                 Ext.create('WINK.store.TaxCodeStore', {
@@ -69813,15 +70181,73 @@ Ext.define('WINK.Utilities', {
             }
             
         },
-        getAccountId: function() {
-            if (!WINK.Utilities.accountid)  {
-                WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
+        getAccountId: function(callbackAccountId) {
+            if (!WINK.Utilities.accountid) {
+                var devid = WINK.Utilities.getDeviceID();
+                alert("getAccountId->devid:" + devid);
+                console.log('deviceid:' + devid);
+                if (devid) {
+                    Ext.Ajax.request({
+                        scope: this,
+                        url: 'https://server1.downloadwink.com/wink-ecomm/WinkTabletUUID',
+                        method: 'POST',
+                        async: false,
+                        params: {
+                            "uuid": devid
+                        },
+                        success: function(response) {
+                            console.log('getAccountId success');
+                            console.log("response:" + response.responseText);
+                            response.responseText = response.responseText.trim();
+                            if (response.responseText.toLowerCase().startsWith("http")) {
+                                WINK.Utilities.accountid = WINK.Utilities.getURLParameter2(response.responseText.trim(), 'accountid');
+                                if (WINK.Utilities.accountid) {
+                                    WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
+                                }
+                                console.log('got account id from ajax request:' + WINK.Utilities.accountid);
+                                if (callbackAccountId) {
+                                    callbackAccountId(WINK.Utilities.accountid);
+                                }
+                            } else {
+                                console.log(" calling WINK.Utilities.showPleaseAuthorize");
+                                WINK.Utilities.showPleaseAuthorize(callbackAccountId);
+                            }
+                        },
+                        failure: function(response) {
+                            console.log('getAccountId failure, calling WINK.Utilities.showPleaseAuthorize');
+                            WINK.Utilities.showPleaseAuthorize(callbackAccountId);
+                        },
+                        callback: function(options, success, response) {}
+                    });
+                    return -1;
+                } else {
+                    alert("!devid, using url param");
+                    WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
+                    alert("WINK.Utilities.accountid=" + WINK.Utilities.accountid);
+                    if (WINK.Utilities.accountid) {
+                        WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
+                    }
+                }
+                if (!WINK.Utilities.accountid)  {
+                    WINK.Utilities.accountid = 37;
+                }
+                
+            }
+            if (callbackAccountId)  {
+                callbackAccountId(WINK.Utilities.accountid);
             }
             
             return WINK.Utilities.accountid;
         },
+        getWinkVersion: function() {
+            return "2.0";
+        },
         getRestURL: function() {
-            return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
+            if (WINK.Utilities.hasPhonegap())  {
+                return 'https://server1.downloadwink.com/WinkRESTfull/webresources/';
+            }
+            
+            return '/WinkRESTfull/webresources/';
         },
         showWorking: function() {
             Ext.getCmp('PleaseWait').show({
@@ -69830,10 +70256,16 @@ Ext.define('WINK.Utilities', {
             });
         },
         hideWorking: function() {
-            Ext.getCmp('PleaseWait').hide();
+            Ext.getCmp('PleaseWait').hide({
+                type: 'slide',
+                direction: 'up',
+                out: true
+            });
         },
         showAjaxError: function(title, response) {
-            if (response.status == 403) {
+            if (!response) {
+                Ext.Msg.alert("Internal Server Error", "Unknown Server Error", Ext.emptyFn);
+            } else if (response.status == 403) {
                 WINK.Utilities.relogin();
             } else {
                 Ext.Msg.alert(title, response.status + " " + response.responseText, Ext.emptyFn);
@@ -69844,6 +70276,7 @@ Ext.define('WINK.Utilities', {
             var loginView = Ext.ComponentQuery.query('#LoginPanel')[0];
             WINK.Utilities.previousActiveItem = parentView.getActiveItem();
             parentView.setActiveItem(loginView);
+            WINK.Utilities.hideWorking();
         },
         submitForm: function(formPanel, callback) {
             WINK.Utilities.showWorking();
@@ -70548,6 +70981,55 @@ Ext.define('WINK.model.Product', {
                 foreignKey: 'lensmaterial_idlensmaterial',
                 associationKey: 'productretaildetails_lensmaterial_idlensmaterial',
                 primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_frame_idproduct',
+                foreignKey: 'frame_idproduct',
+                associationKey: 'rxworksheets_frame_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_lens_idproduct',
+                foreignKey: 'lens_idproduct',
+                associationKey: 'rxworksheets_lens_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_lensmaterial_idlensmaterial',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                associationKey: 'rxworksheets_lensmaterial_idlensmaterial',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_lenstreatment_idlenstreatment',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                associationKey: 'rxworksheets_lenstreatment_idlenstreatment',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheetTreatment',
+                name: 'rxworksheettreatments_product_idproduct',
+                foreignKey: 'product_idproduct',
+                associationKey: 'rxworksheettreatments_product_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_rcl_idproduct',
+                foreignKey: 'rcl_idproduct',
+                associationKey: 'clworksheets_rcl_idproduct',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_lcl_idproduct',
+                foreignKey: 'lcl_idproduct',
+                associationKey: 'clworksheets_lcl_idproduct',
+                primaryKey: 'id'
             }
         ],
         validations: [
@@ -70906,6 +71388,27 @@ Ext.define('WINK.model.Barcode', {
                 name: 'patientinvoiceitems_barcode_idbarcode',
                 foreignKey: 'barcode_idbarcode',
                 associationKey: 'patientinvoiceitems_barcode_idbarcode',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_framebarcode_idbarcode',
+                foreignKey: 'framebarcode_idbarcode',
+                associationKey: 'rxworksheets_framebarcode_idbarcode',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_rbarcode_idbarcode',
+                foreignKey: 'rbarcode_idbarcode',
+                associationKey: 'clworksheets_rbarcode_idbarcode',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_lbarcode_idbarcode',
+                foreignKey: 'lbarcode_idbarcode',
+                associationKey: 'clworksheets_lbarcode_idbarcode',
                 primaryKey: 'id'
             }
         ],
@@ -71788,7 +72291,7 @@ Ext.define('WINK.model.Patient', {
             {
                 name: 'createddate',
                 type: 'string',
-                defaultValue: 1.430768867656E12
+                defaultValue: 1.43098979524E12
             },
             {
                 name: 'lastpurchasedate',
@@ -72229,7 +72732,7 @@ Ext.define('WINK.model.PatientInvoice', {
             {
                 name: 'orderdate',
                 type: 'date',
-                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
             },
             {
                 name: 'patient_idpatient',
@@ -72344,7 +72847,7 @@ Ext.define('WINK.model.PatientInvoice', {
             {
                 name: 'createdon',
                 type: 'date',
-                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
             },
             {
                 name: 'insurance1_idsupplier',
@@ -72594,6 +73097,13 @@ Ext.define('WINK.model.PatientInvoice', {
                 primaryKey: 'id'
             },
             {
+                model: 'WINK.model.InvoiceAttachement',
+                name: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            },
+            {
                 model: 'WINK.model.PatientInvoiceItem',
                 name: 'patientinvoiceitems_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
@@ -72605,6 +73115,20 @@ Ext.define('WINK.model.PatientInvoice', {
                 name: 'invoiceattachements_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
                 associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'rxworksheets_patientinvoice_idpatientinvoice',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_patientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                associationKey: 'clworksheets_patientinvoice_idpatientinvoice',
                 primaryKey: 'id'
             }
         ],
@@ -72884,6 +73408,22 @@ Ext.define('WINK.model.PatientInvoiceItem', {
                 setterName: 'setFkproduct_idproduct'
             },
             {
+                model: 'WINK.model.RxWorksheet',
+                associatedName: 'fkrxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                primaryKey: 'id',
+                getterName: 'getFkrxworksheet_idrxworksheet',
+                setterName: 'setFkrxworksheet_idrxworksheet'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                associatedName: 'fkclworksheet_idclworksheet',
+                foreignKey: 'clworksheet_idclworksheet',
+                primaryKey: 'id',
+                getterName: 'getFkclworksheet_idclworksheet',
+                setterName: 'setFkclworksheet_idclworksheet'
+            },
+            {
                 model: 'WINK.model.Barcode',
                 associatedName: 'fkbarcode_idbarcode',
                 foreignKey: 'barcode_idbarcode',
@@ -73034,7 +73574,7 @@ Ext.define('WINK.model.PatientNote', {
             {
                 name: 'postedon',
                 type: 'date',
-                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
             },
             {
                 name: 'version',
@@ -73162,7 +73702,7 @@ Ext.define('WINK.model.PatientPayment', {
             {
                 name: 'date',
                 type: 'date',
-                defaultValue: new Date(2015, 4, 4, 15, 47, 47)
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
             },
             {
                 name: 'amount',
@@ -74080,7 +74620,7 @@ Ext.define('WINK.model.Store', {
             {
                 name: 'openingbalancedate',
                 type: 'date',
-                defaultValue: new Date(2015, 4, 4, 0, 0, 0)
+                defaultValue: new Date(2015, 4, 7, 0, 0, 0)
             },
             {
                 name: 'openingbalanceclosedon',
@@ -74598,6 +75138,20 @@ Ext.define('WINK.model.Supplier', {
                 foreignKey: 'insurance2_idsupplier',
                 associationKey: 'patientinvoices_insurance2_idsupplier',
                 primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_supplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                associationKey: 'rxworksheets_supplier_idsupplier',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_supplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                associationKey: 'clworksheets_supplier_idsupplier',
+                primaryKey: 'id'
             }
         ],
         validations: [
@@ -74823,6 +75377,13 @@ Ext.define('WINK.model.TaxCode', {
                 foreignKey: 'taxcode_idtaxcode',
                 associationKey: 'productretaildetails_taxcode_idtaxcode',
                 primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_frame_idtaxcode',
+                foreignKey: 'frame_idtaxcode',
+                associationKey: 'rxworksheets_frame_idtaxcode',
+                primaryKey: 'id'
             }
         ],
         validations: [
@@ -74975,6 +75536,7 @@ Ext.define('WINK.model.Upload', {
             },
             {
                 name: 'data',
+                type: 'string',
                 defaultValue: "null"
             },
             {
@@ -75048,10 +75610,24 @@ Ext.define('WINK.model.Upload', {
                 primaryKey: 'id'
             },
             {
+                model: 'WINK.model.InvoiceAttachement',
+                name: 'invoiceattachements_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'invoiceattachements_uploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
                 model: 'WINK.model.PatientNote',
                 name: 'patientnotes_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
                 associationKey: 'patientnotes_uploads_iduploads',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_uploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                associationKey: 'rxworksheets_uploads_iduploads',
                 primaryKey: 'id'
             }
         ],
@@ -75403,6 +75979,48 @@ Ext.define('WINK.model.User', {
                 foreignKey: 'user_iduser',
                 associationKey: 'patientnotes_user_iduser',
                 primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_createby_iduser',
+                foreignKey: 'createby_iduser',
+                associationKey: 'rxworksheets_createby_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_doctor_iduser',
+                foreignKey: 'doctor_iduser',
+                associationKey: 'rxworksheets_doctor_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_opticianuser_iduser',
+                foreignKey: 'opticianuser_iduser',
+                associationKey: 'rxworksheets_opticianuser_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_createby_iduser',
+                foreignKey: 'createby_iduser',
+                associationKey: 'clworksheets_createby_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_doctor_iduser',
+                foreignKey: 'doctor_iduser',
+                associationKey: 'clworksheets_doctor_iduser',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.ClWorksheet',
+                name: 'clworksheets_opticianuser_iduser',
+                foreignKey: 'opticianuser_iduser',
+                associationKey: 'clworksheets_opticianuser_iduser',
+                primaryKey: 'id'
             }
         ],
         validations: [
@@ -75601,6 +76219,1045 @@ Ext.define('WINK.model.ProductBrowseModel', {
     }
 });
 
+Ext.define('WINK.model.RxWorksheet', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'rxworksheets',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientinvoice_idpatientinvoice',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'createby_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'externaldoctor',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'doctor_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'tray',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'r',
+                type: 'boolean',
+                defaultValue: true
+            },
+            {
+                name: 'l',
+                type: 'boolean',
+                defaultValue: true
+            },
+            {
+                name: 'r_sph',
+                type: 'string',
+                defaultValue: "0.00"
+            },
+            {
+                name: 'r_cyl',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_axis',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_add',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_prism1',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_prism1b',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'r_prism2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_prism2b',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'prism',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'r_farpd',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_closepd',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_height',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_price',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'labinstructions',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'l_sph',
+                type: 'string',
+                defaultValue: "0.00"
+            },
+            {
+                name: 'l_cyl',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_axis',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_add',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_prism1',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_prism1b',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'l_prism2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_prism2b',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'l_farpd',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_closepd',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_height',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_price',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'underwarranty',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'framesrc',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'framebrand',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framemodel',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framecolor',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'frameb',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'frameed',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framedbl',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'framea',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'frametype',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'frameshape',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'frameprice',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_bc',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_bc',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'frame_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'framebarcode_idbarcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'frame_idtaxcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'isexternaldoctor',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lens_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'lensmaterial_idlensmaterial',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'lenstreatment_idlenstreatment',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'rpricemanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lpricemanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'framepricemanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'supplier_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'uploads_iduploads',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'uploadname',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'rxworksheet_idrxworksheet',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reasonforredocomment',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'rxredoreason_idrxredoreason',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'rxreasonforpurchase_idrxreasonforpurchase',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'ispatientownlenses',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'r_price_material',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_price_coating',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_price_material',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_price_coating',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'rpricecoatingmanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'rpricematerialmanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lpricecoatingmanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lpricematerialmanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'createdon',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
+            },
+            {
+                name: 'scriptreceivedon',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
+            },
+            {
+                name: 'opticianuser_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'r_va',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'l_va',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'r_add2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_add2',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_thickness',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_ec',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'l_thickness',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_ec',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'r_vertex',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_vertexadjust',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_vertex',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_vertextadjust',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'perpairlenspricing',
+                type: 'boolean',
+                defaultValue: false
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkcreateby_iduser',
+                foreignKey: 'createby_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkcreateby_iduser',
+                setterName: 'setFkcreateby_iduser'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdoctor_iduser',
+                foreignKey: 'doctor_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdoctor_iduser',
+                setterName: 'setFkdoctor_iduser'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkframe_idproduct',
+                foreignKey: 'frame_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkframe_idproduct',
+                setterName: 'setFkframe_idproduct'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                associatedName: 'fkframebarcode_idbarcode',
+                foreignKey: 'framebarcode_idbarcode',
+                primaryKey: 'id',
+                getterName: 'getFkframebarcode_idbarcode',
+                setterName: 'setFkframebarcode_idbarcode'
+            },
+            {
+                model: 'WINK.model.TaxCode',
+                associatedName: 'fkframe_idtaxcode',
+                foreignKey: 'frame_idtaxcode',
+                primaryKey: 'id',
+                getterName: 'getFkframe_idtaxcode',
+                setterName: 'setFkframe_idtaxcode'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fklens_idproduct',
+                foreignKey: 'lens_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFklens_idproduct',
+                setterName: 'setFklens_idproduct'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fklensmaterial_idlensmaterial',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                primaryKey: 'id',
+                getterName: 'getFklensmaterial_idlensmaterial',
+                setterName: 'setFklensmaterial_idlensmaterial'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fklenstreatment_idlenstreatment',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                primaryKey: 'id',
+                getterName: 'getFklenstreatment_idlenstreatment',
+                setterName: 'setFklenstreatment_idlenstreatment'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fksupplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFksupplier_idsupplier',
+                setterName: 'setFksupplier_idsupplier'
+            },
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fkuploads_iduploads',
+                foreignKey: 'uploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFkuploads_iduploads',
+                setterName: 'setFkuploads_iduploads'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                associatedName: 'fkrxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                primaryKey: 'id',
+                getterName: 'getFkrxworksheet_idrxworksheet',
+                setterName: 'setFkrxworksheet_idrxworksheet'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkopticianuser_iduser',
+                foreignKey: 'opticianuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkopticianuser_iduser',
+                setterName: 'setFkopticianuser_iduser'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_rxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                associationKey: 'patientinvoiceitems_rxworksheet_idrxworksheet',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheet',
+                name: 'rxworksheets_rxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                associationKey: 'rxworksheets_rxworksheet_idrxworksheet',
+                primaryKey: 'id'
+            },
+            {
+                model: 'WINK.model.RxWorksheetTreatment',
+                name: 'rxworksheettreatments_rxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                associationKey: 'rxworksheettreatments_rxworksheet_idrxworksheet',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'externaldoctor',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tray',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'r_sph',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'l_sph',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framebrand',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framemodel',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framecolor',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'frameb',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'frameed',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framedbl',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'framea',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'uploadname',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reasonforredocomment',
+                max: 100,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'r_va',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'l_va',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
+Ext.define('WINK.model.ClWorksheet', {
+    extend: Ext.data.Model,
+    config: {
+        proxy: {
+            type: 'rest',
+            url: WINK.Utilities.getRestURL() + 'clworksheets',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true
+        },
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'patientinvoice_idpatientinvoice',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'createby_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'externaldoctor',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'doctor_iduser',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'tray',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'labinstructions',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'r_qty',
+                type: 'int',
+                defaultValue: 1
+            },
+            {
+                name: 'l_qty',
+                type: 'int',
+                defaultValue: 1
+            },
+            {
+                name: 'r_sph',
+                type: 'string',
+                defaultValue: "0.00"
+            },
+            {
+                name: 'r_cyl',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_axis',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_add',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_bc',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_dia',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'r_dn',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'r_price',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_sph',
+                type: 'string',
+                defaultValue: "0.00"
+            },
+            {
+                name: 'l_cyl',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_axis',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_add',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_bc',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_dia',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'l_dn',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'l_price',
+                type: 'float',
+                defaultValue: 0
+            },
+            {
+                name: 'version',
+                type: 'int',
+                defaultValue: 0
+            },
+            {
+                name: 'rcl_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'rbarcode_idbarcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'lbarcode_idbarcode',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'isexternaldoctor',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lcl_idproduct',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'reference1',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'reference2',
+                type: 'string',
+                defaultValue: ''
+            },
+            {
+                name: 'rpricemanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'lpricemanuallyupdated',
+                type: 'boolean',
+                defaultValue: false
+            },
+            {
+                name: 'supplier_idsupplier',
+                type: 'int',
+                defaultValue: null
+            },
+            {
+                name: 'createdon',
+                type: 'date',
+                defaultValue: new Date(2015, 4, 7, 5, 9, 55)
+            },
+            {
+                name: 'opticianuser_iduser',
+                type: 'int',
+                defaultValue: null
+            }
+        ],
+        belongsTo: [
+            {
+                model: 'WINK.model.PatientInvoice',
+                associatedName: 'fkpatientinvoice_idpatientinvoice',
+                foreignKey: 'patientinvoice_idpatientinvoice',
+                primaryKey: 'id',
+                getterName: 'getFkpatientinvoice_idpatientinvoice',
+                setterName: 'setFkpatientinvoice_idpatientinvoice'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkcreateby_iduser',
+                foreignKey: 'createby_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkcreateby_iduser',
+                setterName: 'setFkcreateby_iduser'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkdoctor_iduser',
+                foreignKey: 'doctor_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkdoctor_iduser',
+                setterName: 'setFkdoctor_iduser'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fkrcl_idproduct',
+                foreignKey: 'rcl_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFkrcl_idproduct',
+                setterName: 'setFkrcl_idproduct'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                associatedName: 'fkrbarcode_idbarcode',
+                foreignKey: 'rbarcode_idbarcode',
+                primaryKey: 'id',
+                getterName: 'getFkrbarcode_idbarcode',
+                setterName: 'setFkrbarcode_idbarcode'
+            },
+            {
+                model: 'WINK.model.Barcode',
+                associatedName: 'fklbarcode_idbarcode',
+                foreignKey: 'lbarcode_idbarcode',
+                primaryKey: 'id',
+                getterName: 'getFklbarcode_idbarcode',
+                setterName: 'setFklbarcode_idbarcode'
+            },
+            {
+                model: 'WINK.model.Product',
+                associatedName: 'fklcl_idproduct',
+                foreignKey: 'lcl_idproduct',
+                primaryKey: 'id',
+                getterName: 'getFklcl_idproduct',
+                setterName: 'setFklcl_idproduct'
+            },
+            {
+                model: 'WINK.model.Supplier',
+                associatedName: 'fksupplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                primaryKey: 'id',
+                getterName: 'getFksupplier_idsupplier',
+                setterName: 'setFksupplier_idsupplier'
+            },
+            {
+                model: 'WINK.model.User',
+                associatedName: 'fkopticianuser_iduser',
+                foreignKey: 'opticianuser_iduser',
+                primaryKey: 'id',
+                getterName: 'getFkopticianuser_iduser',
+                setterName: 'setFkopticianuser_iduser'
+            }
+        ],
+        hasMany: [
+            {
+                model: 'WINK.model.PatientInvoiceItem',
+                name: 'patientinvoiceitems_clworksheet_idclworksheet',
+                foreignKey: 'clworksheet_idclworksheet',
+                associationKey: 'patientinvoiceitems_clworksheet_idclworksheet',
+                primaryKey: 'id'
+            }
+        ],
+        validations: [
+            {
+                type: 'length',
+                field: 'externaldoctor',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'tray',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'r_sph',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'l_sph',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference1',
+                max: 45,
+                min: 0
+            },
+            {
+                type: 'length',
+                field: 'reference2',
+                max: 45,
+                min: 0
+            }
+        ]
+    }
+});
+
 /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -75693,16 +77350,10 @@ Ext.define('WINK.store.leftNavigationTreeStore', {
 Ext.define('WINK.store.LocationStore', {
     extend: Ext.data.Store,
     config: {
-        autoLoad: true,
+        autoLoad: false,
         data: [],
         model: 'WINK.model.Store',
         storeId: 'LocationStore',
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId(),
-            withCredentials: true,
-            useDefaultXhrHeader: false
-        },
         sorters: [
             {
                 property: "name",
@@ -75864,12 +77515,6 @@ Ext.define('WINK.store.CountrySubdivisionStore', {
     extend: Ext.data.Store,
     config: {
         model: 'WINK.model.CountrySubdivision',
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),
-            withCredentials: true,
-            useDefaultXhrHeader: false
-        },
         sorters: [
             {
                 property: "name",
@@ -75896,16 +77541,10 @@ Ext.define('WINK.store.CountrySubdivisionStore', {
 Ext.define('WINK.store.CountryStore', {
     extend: Ext.data.Store,
     config: {
-        autoLoad: true,
+        autoLoad: false,
+        storeId: 'CountryStore',
         data: [],
         model: 'WINK.model.Country',
-        storeId: 'CountryStore',
-        proxy: {
-            type: 'rest',
-            url: WINK.Utilities.getRestURL() + 'countries/' + WINK.Utilities.getAccountId(),
-            withCredentials: true,
-            useDefaultXhrHeader: false
-        },
         sorters: [
             {
                 property: "name",
@@ -76037,7 +77676,22 @@ Ext.define('WINK.view.LoginPanel', {
             {
                 xtype: 'titlebar',
                 docked: 'top',
-                title: 'WINK Login'
+                title: 'WINK ' + WINK.Utilities.getWinkVersion()
+            },
+            {
+                xtype: 'container',
+                docked: 'bottom',
+                height: 25,
+                style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
+                border: 1,
+                items: [
+                    {
+                        xtype: 'label',
+                        html: WINK.Utilities.getDeviceID(),
+                        margin: 5,
+                        style: 'font-size:10px'
+                    }
+                ]
             },
             {
                 xtype: 'container',
@@ -76070,12 +77724,12 @@ Ext.define('WINK.view.LoginPanel', {
                                 name: 'Password',
                                 required: true,
                                 placeHolder: 'password',
-                                revealable: true
+                                revealable: false
                             },
                             {
                                 xtype: 'button',
                                 docked: 'bottom',
-                                margin: '5 5 5 5',
+                                margin: '5 0 5 0',
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'
@@ -76136,7 +77790,8 @@ Ext.define('WINK.view.MainAppPanel', {
                         xtype: 'button',
                         itemId: 'showHideSideMenuButton',
                         ui: 'action-small',
-                        text: '...'
+                        text: '...',
+                        hidden: true
                     },
                     {
                         xtype: 'spacer'
@@ -76241,7 +77896,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                 xtype: "textfield",
                                 name: "winkfile",
                                 label: "Wink File ",
-                                placeHolder: 'i,r,z,s'
+                                placeHolder: 'i,r,z,s,o'
                             },
                             {
                                 xtype: "textfield",
@@ -76257,7 +77912,7 @@ Ext.define('WINK.view.MainAppPanel', {
                             {
                                 xtype: 'button',
                                 docked: 'bottom',
-                                margin: '5 5 5 5',
+                                margin: '5 0 5 0',
                                 ui: 'action',
                                 text: 'Open',
                                 handler: function(button, event) {
@@ -76343,12 +77998,14 @@ Ext.define('WINK.view.PleaseWaitPanel', {
         itemId: 'PleaseWait',
         id: 'PleaseWait',
         hidden: true,
-        height: '50px',
+        fullscreen: true,
+        style: 'background-color: rgba(25,133,208, 0.8)',
         items: [
             {
-                xtype: 'titlebar',
-                docked: 'top',
-                title: 'Please Wait'
+                xtype: 'label',
+                style: 'color: #FFFFFF; font-size:40px',
+                html: "PLEASE WAIT ...",
+                centered: true
             }
         ]
     }
@@ -76450,7 +78107,6 @@ Ext.define('WINK.controller.LoginController', {
         this.getParentView().setActiveItem(this.getMainAppPanel());
     },
     login: function() {
-        alert('uuid' + evice.uuid);
         var loginPanel = this.getLoginPanel();
         var myController = this;
         WINK.Utilities.showWorking();
@@ -76458,9 +78114,6 @@ Ext.define('WINK.controller.LoginController', {
             scope: this,
             url: WINK.Utilities.getRestURL() + 'users/me',
             method: 'GET',
-            crossDomain: true,
-            withCredentials: true,
-            useDefaultXhrHeader: false,
             headers: {
                 'wink-username': loginPanel.getUsername(),
                 'wink-password': loginPanel.getPassword(),
@@ -76905,6 +78558,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
     loadItem: function(item) {
         this.winkloading = true;
         console.log('InvoiceItemPanel.loadItem item.unitprice:' + item.get('unitprice'));
+        console.log('InvoiceItemPanel.loadItem item.product_idproduct:' + item.get('product_idproduct'));
         this.setRecord(item);
         var productField = this.down('label[winkname=productname]');
         item.getFkproduct_idproduct({
@@ -77025,7 +78679,9 @@ Ext.define('WINK.view.InvoiceItemPanel', {
     updateModel: function() {
         var model = this.getRecord();
         var temp = this.getValues();
-        console.log('Invoice Item:' + model);
+        console.log('InvoiceItem.form.getRecord():');
+        console.log(model);
+        console.log('InvoiceItem.form.getValues():');
         console.log(temp);
         model.set(temp);
         return model;
@@ -77072,7 +78728,7 @@ Ext.define('WINK.view.InvoiceItemPanel', {
                         flex: 1
                     },
                     {
-                        xtype: 'intfield',
+                        xtype: 'textfield',
                         name: 'product_idproduct',
                         hidden: true
                     },
@@ -77562,9 +79218,6 @@ Ext.define('WINK.view.InvoiceSummary', {
                         ]
                     }
                 ]
-            },
-            {
-                xtype: 'container'
             }
         ]
     }
@@ -77818,8 +79471,80 @@ Ext.define('WINK.view.InvoicePanel', {
         this.save();
     },
     isDirty: function() {},
-    save: function() {
-        this.setMasked(true);
+    saveSuccess: function(previousInvoiceId, newId) {
+        //this is called after the invoice is saved and after the invoice is emailed (if applicable)
+        var me = this;
+        var historyPanel = me.up('PatientHistoryPanel');
+        var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
+        console.info("calling load:" + patientInvoiceClass + " " + newId);
+        patientInvoiceClass.load(newId, {
+            scope: this,
+            failure: function(record, operation) {
+                console.info("InvoicePanel.save().PatientInvoice.load().failure()");
+            },
+            success: function(record, operation) {
+                var savedpatientinvoice = record;
+                console.info("InvoicePanel.save().PatientInvoice.load().success()");
+                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
+                if (newId !== previousInvoiceId) {
+                    console.info(previousInvoiceId + ' !== ' + newId);
+                    if (historyPanel) {
+                        console.info("calling historyPanel.updateInvoiceId()");
+                        historyPanel.updateInvoiceId(previousInvoiceId, savedpatientinvoice);
+                    }
+                } else {
+                    console.info(previousInvoiceId + ' = ' + newId);
+                }
+                console.info(document.location.href);
+                if (document.location.href.indexOf('#newquicksale') >= 0) {
+                    document.location.href = '#invoice/' + savedpatientinvoice.get('id');
+                } else //calls the WINK.Utilities.hideWorking();
+                {
+                    me.loadPatientInvoice(savedpatientinvoice);
+                    //calls the WINK.Utilities.hideWorking();
+                    if (historyPanel) {
+                        console.info('historyPanel.invoiceSaved()');
+                        historyPanel.invoiceSaved(me);
+                    }
+                }
+            }
+        });
+    },
+    saveSuccessEmail: function(previousInvoiceId, emailAddress) {
+        var me = this;
+        var patientinvoice = this.patientinvoice;
+        var newId = patientinvoice.get('id');
+        Ext.Ajax.request({
+            url: WINK.Utilities.getRestURL() + 'patientinvoices/email/' + newId + "/" + emailAddress,
+            method: 'GET',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true,
+            success: function(response) {
+                me.saveSuccess(previousInvoiceId, newId);
+            },
+            failure: function(response) {
+                me.saveSuccess(previousInvoiceId, newId);
+            },
+            callback: function(options, success, response) {}
+        });
+    },
+    setPatientHistoryPanel: function(patientHistoryPanel) {
+        this.patientHistoryPanel = patientHistoryPanel;
+    },
+    getPatientHistoryPanel: function() {
+        if (this.patientHistoryPanel)  {
+            return this.patientHistoryPanel;
+        }
+        
+        return this.up('PatientHistoryPanel');
+    },
+    getPatientEmailAddress: function() {
+        return this.getPatientHistoryPanel().getEmailAddress();
+    },
+    save: function(email) {
+        WINK.Utilities.showWorking();
+        email = email || false;
         this.updateInvoiceModel();
         var me = this;
         var patientinvoice = this.patientinvoice;
@@ -77834,42 +79559,25 @@ Ext.define('WINK.view.InvoicePanel', {
                 console.info(previousInvoiceId + " vs " + patientinvoice.get('id'));
                 //TODO this could be better with less calls to the server (Especially  document.location.href =..._)
                 var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
-                console.info("calling load:" + patientInvoiceClass + " " + newId);
-                patientInvoiceClass.load(newId, {
-                    scope: this,
-                    failure: function(record, operation) {
-                        console.info("InvoicePanel.save().PatientInvoice.load().failure()");
-                    },
-                    success: function(record, operation) {
-                        var savedpatientinvoice = record;
-                        console.info("InvoicePanel.save().PatientInvoice.load().success()");
-                        console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
-                        if (newId !== previousInvoiceId) {
-                            console.info(previousInvoiceId + ' !== ' + newId);
-                            if (historyPanel) {
-                                console.info("calling historyPanel.updateInvoiceId()");
-                                historyPanel.updateInvoiceId(previousInvoiceId, savedpatientinvoice);
-                            }
-                        } else {
-                            console.info(previousInvoiceId + ' = ' + newId);
-                        }
-                        console.info(document.location.href);
-                        if (document.location.href.indexOf('#newquicksale') >= 0) {
-                            document.location.href = '#invoice/' + savedpatientinvoice.get('id');
-                        } else {
-                            me.loadPatientInvoice(savedpatientinvoice);
-                            if (historyPanel) {
-                                console.info('historyPanel.invoiceSaved()');
-                                historyPanel.invoiceSaved(me);
-                            }
-                        }
+                if (email) {
+                    console.info("emailing invoice : " + newId);
+                    var patientEmail = me.getPatientEmailAddress();
+                    if (me.isQuicksale() || !patientEmail || patientEmail.length === 0) {
+                        Ext.Msg.prompt("Email", "Enter Patient's Email Address.", function(text) {
+                            me.saveSuccessEmail(previousInvoiceId, text);
+                        });
+                    } else {
+                        me.saveSuccessEmail(previousInvoiceId, patientEmail);
                     }
-                });
+                } else {
+                    me.saveSuccess(previousInvoiceId, newId);
+                }
             },
-            failure: function(response) {},
-            callback: function(options, success, response) {
-                me.setMasked(false);
-            }
+            failure: function(response) {
+                WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Save Invoice', response);
+            },
+            callback: function(options, success, response) {}
         });
     },
     pay: function() {
@@ -77893,7 +79601,7 @@ Ext.define('WINK.view.InvoicePanel', {
         alert('not implemented');
     },
     email: function() {
-        this.save();
+        this.save(true);
     },
     print: function() {
         this.save();
@@ -77935,6 +79643,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.patientinvoice.set(temp);
         var paymentsStore = this.patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
         var invoiceItemsStore = this.patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
+        var rxWorksheetStore = this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();
         paymentsStore.setData(this.updatePaymentsModel());
         invoiceItemsStore.setData(this.updateItemsModel());
         console.log('InvoicePanel.updateInvoiceModel() count of items' + invoiceItemsStore.getCount());
@@ -77943,8 +79652,14 @@ Ext.define('WINK.view.InvoicePanel', {
         });
         return this.patientinvoice;
     },
+    isQuicksale: function() {
+        if (!this.patientinvoice.get('patient_idpatient') || this.patientinvoice.get('patient_idpatient') === 0) {
+            return true;
+        }
+        return false;
+    },
     loadPatientInvoice: function(patientinvoice) {
-        this.setMasked(true);
+        WINK.Utilities.showWorking();
         this.patientinvoice = patientinvoice;
         console.log('InvoicePanel.loadPanelInvoice() ' + patientinvoice.get('id'));
         this.isPaymentsLoaded = false;
@@ -77952,7 +79667,8 @@ Ext.define('WINK.view.InvoicePanel', {
         var itemsContainer = this.getInvoiceItemsContainer();
         this.clearInvoiceItemsContainer();
         this.clearInvoicePaymentsContainer();
-        if (!patientinvoice.get('patient_idpatient') || patientinvoice.get('patient_idpatient') === 0) {
+        this.removeAttachementCarousel();
+        if (this.isQuicksale()) {
             //quicksale
             if (!patientinvoice.get('delivereddate'))  {
                 patientinvoice.set('delivereddate', patientinvoice.get('orderdate'));
@@ -77961,10 +79677,12 @@ Ext.define('WINK.view.InvoicePanel', {
             this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').hide();
             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').hide();
             this.down('segmentedbutton[winkname=addworksheetbuttons]').hide();
+            this.down('toolbar[winkname=quicksaletitlebar]').show();
         } else {
             this.getInvoiceSummary().down('datepickerfield[name=delivereddate]').show();
             this.getInvoiceSummary().down('datepickerfield[name=promisseddate]').show();
             this.down('segmentedbutton[winkname=addworksheetbuttons]').show();
+            this.down('toolbar[winkname=quicksaletitlebar]').hide();
         }
         this.setRecord(patientinvoice);
         var invoiceIdLabel = this.down('label[name=id]');
@@ -77976,6 +79694,8 @@ Ext.define('WINK.view.InvoicePanel', {
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
+        var rxStore = patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();
+        var clStore = patientinvoice.clworksheets_patientinvoice_idpatientinvoice();
         patientinvoiceitemsStore.load({
             scope: this,
             callback: function(records, operation, success) {
@@ -77990,7 +79710,30 @@ Ext.define('WINK.view.InvoicePanel', {
                 this.paymentsLoaded();
             }
         });
-        this.unmask();
+        this.removeRxWorksheets();
+        rxStore.load({
+            scope: this,
+            callback: function(records, operation, success) {
+                console.log('Loaded rxworksheets ');
+                rxStore.each(function(item, index, length) {
+                    console.log('invoice rx.each() ' + index);
+                    this.addRxWorksheet(item);
+                }, this);
+            }
+        });
+        var attachmentsStore = patientinvoice.invoiceattachements_patientinvoice_idpatientinvoice();
+        attachmentsStore.load({
+            scope: this,
+            callback: function(records, operation, success) {
+                console.log('Loaded invoice attachments ');
+                attachmentsStore.each(function(item, index, length) {
+                    console.log('invoice attachments.each() ' + index);
+                    item.getFkuploads_iduploads(function(upload, operation) {
+                        this.addAttachementToUI(upload);
+                    }, this);
+                }, this);
+            }
+        });
     },
     itemsLoaded: function() {
         this.clearInvoiceItemsContainer();
@@ -78010,10 +79753,9 @@ Ext.define('WINK.view.InvoicePanel', {
         }, this);
         this.updateNoItemsPanel();
         this.isInvoiceItemsLoaded = true;
-        if (this.isFullyLoaded())  {
-            this.unmask();
+        if (this.isFullyLoaded()) {
+            WINK.Utilities.hideWorking();
         }
-        
     },
     updateNoItemsPanel: function() {
         if (this.invoiceitems)  {
@@ -78104,10 +79846,9 @@ Ext.define('WINK.view.InvoicePanel', {
         }, this);
         this.updateNoPaymentsPanel();
         this.isPaymentsLoaded = true;
-        if (this.isFullyLoaded())  {
-            this.unmask();
+        if (this.isFullyLoaded()) {
+            WINK.Utilities.hideWorking();
         }
-        
     },
     getInvoiceSummary: function() {
         return this.down('InvoiceSummary');
@@ -78193,6 +79934,8 @@ Ext.define('WINK.view.InvoicePanel', {
         return temp.get('taxcode_idtaxcode');
     },
     addProductToInvoice: function(product, barcode) {
+        console.log('InvoicePanel.addProductToInvoice() product:');
+        console.log(product);
         var defaultUnitPrice = this.getListedUnitPrice(product, this.getCurrentStoreId());
         console.log('default price is:' + defaultUnitPrice);
         var itemsContainer = this.getInvoiceItemsContainer();
@@ -78203,6 +79946,7 @@ Ext.define('WINK.view.InvoicePanel', {
         
         var idTaxCode = this.getTaxCodeId(product);
         console.log('Tax Code ID is:' + idTaxCode);
+        console.log('Product ID is:' + product.get('id'));
         var newInvoiceItem = Ext.create('WINK.model.PatientInvoiceItem', {
                 qty: 1,
                 product_idproduct: product.get('id'),
@@ -78330,14 +80074,14 @@ Ext.define('WINK.view.InvoicePanel', {
         return this.down('container[winkname=invoicecontainer]');
     },
     getSearchProductsContainer: function() {
-        if (!this.searchProductsContainer) {
-            this.searchProductsContainer = Ext.create('WINK.view.ProductSearchResultsPanel', {
+        if (!WINK.Utilities.searchProductsContainer) {
+            WINK.Utilities.searchProductsContainer = Ext.create('WINK.view.ProductSearchResultsPanel', {
                 title: 'Product Seach',
                 iconCls: 'info'
             });
         }
-        this.getInvoiceContainer().setActiveItem(this.searchProductsContainer);
-        return this.searchProductsContainer;
+        this.getInvoiceContainer().setActiveItem(WINK.Utilities.searchProductsContainer);
+        return WINK.Utilities.searchProductsContainer;
     },
     searchProducts: function() {
         var searchProductField = this.down('textfield[winkname=searchProductField]');
@@ -78347,8 +80091,60 @@ Ext.define('WINK.view.InvoicePanel', {
             this.getSearchProductsContainer().find(v);
         }
     },
+    addAttachementToUI: function(upload) {
+        var myPanel = Ext.create('Ext.Panel', {
+                html: "<img width='95%' src='data:image/png;base64," + upload.get('data') + "'/>"
+            });
+        this.getAttachementCarousel().add(myPanel);
+    },
+    removeAttachementCarousel: function() {
+        if (this.attachementCarousel) {
+            this.getInvoiceContainer().remove(this.attachementCarousel);
+            this.attachementCarousel = null;
+        }
+    },
+    getAttachementCarousel: function() {
+        if (!this.attachementCarousel) {
+            this.attachementCarousel = Ext.create('Ext.Carousel', {
+                defaults: {
+                    styleHtmlContent: true
+                },
+                items: [],
+                iconCls: 'more',
+                title: 'Attachment(s)'
+            });
+        }
+        this.getInvoiceContainer().setActiveItem(this.attachementCarousel);
+        return this.attachementCarousel;
+    },
     browseProducts: function() {
         this.getSearchProductsContainer().browse();
+    },
+    uploadImage: function(image) {
+        console.info('uploading image...');
+        var me = this;
+        WINK.Utilities.showWorking();
+        var newUpload = Ext.create('WINK.model.Upload', {
+                'data': image,
+                'mimetype': 'image/png'
+            });
+        newUpload.save({
+            success: function(response) {
+                console.info('upload image done: ' + newUpload.get('id'));
+                var newInvoiceAttachement = Ext.create('WINK.model.InvoiceAttachement', {
+                        'uploads_iduploads': newUpload.get('id')
+                    });
+                this.patientinvoice.invoiceattachements_patientinvoice_idpatientinvoice().add(newInvoiceAttachement);
+                this.addAttachementToUI(newUpload);
+            },
+            failure: function(response) {
+                console.info('upload image error!');
+                Ext.Msg.alert('Image Upload Failed', 'Something went wrong! Please try again.', Ext.emptyFn);
+            },
+            callback: function(options, success, response) {
+                WINK.Utilities.hideWorking();
+            }
+        }, this);
     },
     config: {
         layout: 'hbox',
@@ -78356,6 +80152,19 @@ Ext.define('WINK.view.InvoicePanel', {
         // modal: false,
         scrollable: false,
         items: [
+            {
+                xtype: 'toolbar',
+                winkname: 'quicksaletitlebar',
+                title: 'Quicksale',
+                docked: 'top',
+                items: [
+                    {
+                        text: 'Back',
+                        ui: 'back',
+                        action: 'goBack'
+                    }
+                ]
+            },
             {
                 xtype: 'container',
                 flex: 1,
@@ -78370,7 +80179,7 @@ Ext.define('WINK.view.InvoicePanel', {
                             {
                                 xtype: 'container',
                                 border: '0 0 1 0',
-                                height: 50,
+                                height: 65,
                                 style: 'background:rgb(215,224,231); border-style:solid; border-color: darkgrey;',
                                 layout: {
                                     type: 'hbox',
@@ -78383,7 +80192,60 @@ Ext.define('WINK.view.InvoicePanel', {
                                         readOnly: true,
                                         html: '',
                                         margin: '0 2 0 20',
-                                        style: 'font-size:15px; font-family:"open sans"'
+                                        style: 'font-size:15px; font-family:"open sans"',
+                                        flex: 1
+                                    },
+                                    {
+                                        xtype: 'segmentedbutton',
+                                        margin: '5 5 5 5',
+                                        allowToggle: false,
+                                        items: [
+                                            {
+                                                xtype: 'button',
+                                                text: 'Cam',
+                                                cls: 'buttonSquare',
+                                                height: 45,
+                                                width: 70,
+                                                handler: function(btn) {
+                                                    var invoicePanel = btn.up('InvoicePanel');
+                                                    Ext.device.Camera.capture({
+                                                        success: function(image) {
+                                                            invoicePanel.uploadImage(image);
+                                                        },
+                                                        quality: 75,
+                                                        scope: invoicePanel,
+                                                        source: 'camera',
+                                                        destination: 'data',
+                                                        encoding: 'png'
+                                                    });
+                                                }
+                                            },
+                                            {
+                                                xtype: 'button',
+                                                text: 'Lib',
+                                                cls: 'buttonSquare',
+                                                height: 45,
+                                                width: 70,
+                                                handler: function(btn) {
+                                                    var invoicePanel = btn.up('InvoicePanel');
+                                                    Ext.device.Camera.capture({
+                                                        success: function(image) {
+                                                            invoicePanel.uploadImage(image);
+                                                        },
+                                                        quality: 75,
+                                                        scope: invoicePanel,
+                                                        source: 'library',
+                                                        destination: 'data',
+                                                        encoding: 'png'
+                                                    });
+                                                }
+                                            },
+                                            {
+                                                xtype: 'button',
+                                                text: 'Attachment',
+                                                hidden: true
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -78452,8 +80314,12 @@ Ext.define('WINK.view.InvoicePanel', {
                                         },
                                         items: [
                                             {
+                                                xtype: 'container',
+                                                flex: 1
+                                            },
+                                            {
                                                 xtype: 'segmentedbutton',
-                                                margin: '0 0 0 5',
+                                                margin: '5 5 5 5',
                                                 allowToggle: false,
                                                 winkname: 'addworksheetbuttons',
                                                 items: [
@@ -78461,6 +80327,9 @@ Ext.define('WINK.view.InvoicePanel', {
                                                         xtype: 'button',
                                                         itemId: 'mybutton17',
                                                         text: '+ Rx',
+                                                        cls: 'buttonSquare',
+                                                        height: 45,
+                                                        width: 70,
                                                         handler: function(button, event) {
                                                             button.up('InvoicePanel').newRxWorksheet();
                                                         }
@@ -78468,38 +80337,9 @@ Ext.define('WINK.view.InvoicePanel', {
                                                     {
                                                         xtype: 'button',
                                                         text: '+ CL',
-                                                        hidden: true
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                xtype: 'segmentedbutton',
-                                                margin: '5 5 5 5',
-                                                allowToggle: false,
-                                                items: [
-                                                    {
-                                                        xtype: 'button',
-                                                        text: 'Camera',
-                                                        handler: function() {
-                                                            function success(image_uri) {
-                                                                /* var img = Ext.ComponentQuery.query("image")[0];
-                                                                 img.setSrc(image_uri);*/
-                                                                alert("Success: " + image_uri);
-                                                            }
-                                                            function fail(message) {
-                                                                alert("Failed: " + message);
-                                                            }
-                                                            navigator.camera.getPicture(success, fail, {
-                                                                quality: 50,
-                                                                destinationType: navigator.camera.DestinationType.FILE_URI,
-                                                                sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
-                                                            });
-                                                        }
-                                                    },
-                                                    {
-                                                        xtype: 'button',
-                                                        text: 'Attachment',
-                                                        hidden: true
+                                                        cls: 'buttonSquare',
+                                                        height: 45,
+                                                        width: 70
                                                     }
                                                 ]
                                             }
@@ -78668,11 +80508,34 @@ Ext.define('WINK.view.InvoicePanel', {
         ]
     },
     newRxWorksheet: function() {
-        var newSheet = new WINK.view.RxWorksheetPanel({
-                title: "New Rx"
+        var newRxModel = Ext.create('WINK.model.RxWorksheet');
+        this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice().add(newRxModel);
+        tabPanel.setActiveItem(this.addRxWorksheet());
+    },
+    removeRxWorksheets: function() {
+        var tabPanel = this.down("tabpanel");
+        while (true) {
+            var rxWorksheet = this.down("RxWorksheetPanel");
+            if (!rxWorksheet)  {
+                return;
+            }
+            
+            tabPanel.remove(rxWorksheet);
+        }
+    },
+    addRxWorksheet: function(rxWorksheetModel) {
+        var title = "New Rx";
+        if (rxWorksheetModel.get('id') > 0) {
+            title = "R" + rxWorksheetModel.get('id');
+        }
+        var newSheet = Ext.create('WINK.view.RxWorksheetPanel', {
+                title: title
             });
         var tabPanel = this.down("tabpanel");
-        tabPanel.setActiveItem(newSheet);
+        tabPanel.add(newSheet);
+        newSheet.loadRxWorksheet(rxWorksheetModel);
+        // call after adding it to the UI, or else it doenst load
+        return newSheet;
     }
 });
 
@@ -78741,70 +80604,141 @@ Ext.define('WINK.view.PowerSelectField', {
  * Do NOT hand edit this file.
  */
 Ext.define('WINK.view.RxWorksheetPanel', {
-    extend: Ext.Panel,
+    extend: Ext.form.Panel,
+    alias: 'widget.RxWorksheetPanel',
+    loadRxWorksheet: function(rxWorksheetModel) {
+        this.setRecord(rxWorksheetModel);
+    },
     config: {
+        border: '0 0 1 0',
+        style: 'border-style:solid; border-color:darkgrey',
         items: [
             {
                 xtype: 'container',
                 layout: {
-                    type: 'hbox',
+                    type: 'vbox',
                     align: 'start'
                 },
                 items: [
                     {
-                        xtype: 'fieldset',
-                        width: 203,
-                        title: 'SPH',
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'start'
+                        },
                         items: [
                             {
-                                xtype: 'selectfield',
-                                label: '',
-                                labelWidth: '0%'
+                                xtype: 'fieldset',
+                                width: 150,
+                                title: 'Far PD',
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'R',
+                                        labelWidth: '20%',
+                                        name: 'r_farpd'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'L',
+                                        labelWidth: '20%',
+                                        name: 'l_farpd'
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'selectfield',
-                                label: '',
-                                labelWidth: '0%'
+                                xtype: 'fieldset',
+                                width: 150,
+                                title: 'Near PD',
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'R',
+                                        labelWidth: '20%',
+                                        name: 'r_closepd'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'L',
+                                        labelWidth: '20%',
+                                        name: 'l_closepd'
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'powerselectfield'
+                                xtype: 'fieldset',
+                                width: 150,
+                                title: 'Height',
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'R',
+                                        labelWidth: '20%',
+                                        name: 'r_height'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        label: 'L',
+                                        labelWidth: '20%',
+                                        name: 'l_height'
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        xtype: 'fieldset',
-                        title: 'MyFieldSet2',
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'start'
+                        },
                         items: [
                             {
-                                xtype: 'sliderfield',
-                                label: 'SPH',
-                                value: [
-                                    0
-                                ],
-                                increment: 0.25,
-                                maxValue: 40,
-                                minValue: -40
-                            },
-                            {
-                                xtype: 'textfield',
-                                label: 'Field'
-                            },
-                            {
-                                xtype: 'textfield',
-                                label: 'Field'
+                                xtype: 'fieldset',
+                                width: 500,
+                                title: 'Frame',
+                                items: [
+                                    {
+                                        xtype: 'selectfield',
+                                        label: 'Source',
+                                        name: 'framesrc',
+                                        options: [
+                                            {
+                                                text: 'Patient Own Frame',
+                                                value: 0
+                                            },
+                                            {
+                                                text: 'From Stock',
+                                                value: 1
+                                            },
+                                            {
+                                                text: 'To Order',
+                                                value: 2
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        xtype: 'segmentedbutton',
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'start'
+                        },
                         items: [
                             {
-                                xtype: 'button',
-                                text: 'MyButton1'
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'MyButton2'
+                                xtype: 'fieldset',
+                                width: 500,
+                                items: [
+                                    {
+                                        xtype: 'textareafield',
+                                        label: 'Lab Instructions',
+                                        maxRows: 4,
+                                        name: 'labinstructions'
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -79420,48 +81354,6 @@ Ext.define('WINK.view.MyPowerPicker', {
     }
 });
 
-Ext.define('WINK.view.Main', {
-    extend: Ext.tab.Panel,
-    xtype: 'main',
-    config: {
-        tabBarPosition: 'bottom',
-        items: [
-            {
-                title: 'Welcome',
-                iconCls: 'home',
-                styleHtmlContent: true,
-                scrollable: true,
-                items: {
-                    docked: 'top',
-                    xtype: 'titlebar',
-                    title: 'Welcome to Sencha Touch 2'
-                },
-                html: [
-                    "You've just generated a new Sencha Touch 2 project. What you're looking at right now is the ",
-                    "contents of <a target='_blank' href=\"app/view/Main.js\">app/view/Main.js</a> - edit that file ",
-                    "and refresh to change what's rendered here."
-                ].join("")
-            },
-            {
-                title: 'Get Started',
-                iconCls: 'action',
-                items: [
-                    {
-                        docked: 'top',
-                        xtype: 'titlebar',
-                        title: 'Getting Started'
-                    },
-                    {
-                        xtype: 'video',
-                        url: 'http://av.vimeo.com/64284/137/87347327.mp4?token=1330978144_f9b698fea38cd408d52a2393240c896c',
-                        posterUrl: 'http://b.vimeocdn.com/ts/261/062/261062119_640.jpg'
-                    }
-                ]
-            }
-        ]
-    }
-});
-
 /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -79501,6 +81393,9 @@ Ext.define('WINK.view.PatientPanel', {
         var formPanel = this;
         WINK.Utilities.submitForm(formPanel, this.patientAdded);
     },
+    getEmailAddress: function() {
+        return this.down('emailfield[name=email]').getValue();
+    },
     savePatient: function(bnt) {
         alert('save Patient');
         var formPanel = this;
@@ -79508,7 +81403,14 @@ Ext.define('WINK.view.PatientPanel', {
     },
     initProvinceStore: function() {
         console.log("PatientPanel.initProvinceStore()");
-        var subdivisionStore = Ext.create('WINK.store.CountrySubdivisionStore');
+        var subdivisionStore = Ext.create('WINK.store.CountrySubdivisionStore', {
+                proxy: {
+                    type: 'rest',
+                    url: WINK.Utilities.getRestURL() + 'countries/subdivision/' + WINK.Utilities.getAccountId(),
+                    withCredentials: true,
+                    useDefaultXhrHeader: false
+                }
+            });
         var countrySelect = this.down("selectfield[name=country_idcountry]");
         var subdivisionSelect = this.down("selectfield[name=province_select]");
         var subdivisionText = this.down("textfield[name=province]");
@@ -80098,13 +82000,22 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         historyStore.add(patientItem);
         {
             invoicesStore.each(function(item, index, length) {
-                var invoiceItem = Ext.create('WINK.model.PatientHistoryTree');
-                this.updateInvoiceHistoryItem(invoiceItem, item);
-                historyStore.add(invoiceItem);
+                //until WINK Touch supports estimates, we hide them
+                if (item.get('isestimate') === false) {
+                    var invoiceItem = Ext.create('WINK.model.PatientHistoryTree');
+                    this.updateInvoiceHistoryItem(invoiceItem, item);
+                    historyStore.add(invoiceItem);
+                }
             }, this);
         }
         historyStore.sortHistory();
         this.openHistoryItem(patientItem);
+    },
+    getEmailAddress: function() {
+        if (this.patientView) {
+            return this.patientView.getEmailAddress();
+        }
+        return this.patient.get('email');
     },
     openHistoryItem: function(record) {
         this.setMasked(true);
@@ -80141,6 +82052,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
             myContainer.setActiveItem(patientView);
             if (justLoaded) {
                 var patientInvoiceModel = patient.patientinvoices_patient_idpatient().getById(id);
+                this['invoicePanels' + id.toString()].setPatientHistoryPanel(this);
                 this['invoicePanels' + id.toString()].loadPatientInvoice(patientInvoiceModel);
             }
         }
@@ -80182,12 +82094,8 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                         showAnimation: {
                                             type: 'popIn',
                                             duration: 250,
-                                            easing: 'ease-out'
-                                        },
-                                        hideAnimation: {
-                                            type: 'popOut',
-                                            easing: 'ease-out',
-                                            duration: 250
+                                            easing: 'ease-in',
+                                            out: false
                                         },
                                         width: '200px',
                                         height: '300px',
@@ -80207,19 +82115,13 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                                 flex: 1,
                                                 itemTpl: '{title}',
                                                 data: [
-                                                    {
-                                                        title: 'Exam'
-                                                    },
+                                                    // {title: 'Exam'},
                                                     {
                                                         title: 'Invoice'
-                                                    },
-                                                    {
-                                                        title: 'Attachment'
-                                                    },
-                                                    {
-                                                        title: 'Photo'
                                                     }
                                                 ],
+                                                // {title: 'Attachment'},
+                                                // {title: 'Photo'}
                                                 listeners: {
                                                     itemtap: function(dataview, index, target, record, e, eOpts) {
                                                         dataview.up("panel[winkname=newoverlay]").hide();
@@ -80238,7 +82140,6 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                             }
                                         ]
                                     });
-                                Ext.Viewport.add(myOverlay);
                                 myOverlay.showBy(c);
                             }
                         }
@@ -80445,7 +82346,9 @@ Ext.application({
         'TaxCodeEffectiveDate',
         'Upload',
         'User',
-        'ProductBrowseModel'
+        'ProductBrowseModel',
+        'RxWorksheet',
+        'ClWorksheet'
     ],
     stores: [
         'ProductStore',
@@ -80478,7 +82381,6 @@ Ext.application({
         'InputPrescriptionPanel',
         'MyPowerPicker',
         'PowerSelectField',
-        'Main',
         'PatientPanel',
         'MonthPickerFormField',
         'MonthPicker',
@@ -80510,7 +82412,8 @@ Ext.application({
         '1496x2048': 'resources/startup/1496x2048.png'
     },
     launch: function() {
-        if (typeof String.prototype.startsWith != 'function') {
+        alert('app.js launch');
+        if (typeof String.prototype.startsWith !== 'function') {
             // see below for better implementation!
             String.prototype.startsWith = function(str) {
                 return this.indexOf(str) === 0;
@@ -80574,8 +82477,10 @@ Ext.application({
                              * dirty or phantom, this means that the depth first recursion has detected that it has a child which is
                              * either dirty or phantom. For this child to be put into the prepared data, it's parents must be in place whether
                              * they were modified or not.
+                             * 
+                             * With WINK, we always send back all the data
                              */
-                            if (childRecord.dirty | childRecord.phantom | (childData != null)) {
+                            if (true | childRecord.dirty | childRecord.phantom | (childData != null)) {
                                 data[name].push(childData);
                                 record.setDirty();
                             }
@@ -80597,20 +82502,42 @@ Ext.application({
                     }
                 }
                 //Only return data if it was dirty, new or marked for deletion.
-                if (record.dirty | record.phantom | record.get('forDeletion')) {
+                if (true | record.dirty | record.phantom | record.get('forDeletion')) {
                     return data;
                 }
             }
         });
         // Destroy the #appLoadingIndicator element
-        Ext.fly('appLoadingIndicator').destroy();
-        // Initialize the main view
-        Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {
-            fullscreen: true
+        alert('get account id');
+        WINK.Utilities.getAccountId(function() {
+            alert('get account id --> callback');
+            console.log('app.js get Account id callback');
+            var s1 = Ext.create('WINK.store.CountryStore', {
+                    proxy: {
+                        type: 'rest',
+                        url: WINK.Utilities.getRestURL() + 'countries/' + WINK.Utilities.getAccountId(),
+                        withCredentials: true,
+                        useDefaultXhrHeader: false
+                    }
+                });
+            s1.load();
+            var s2 = Ext.create('WINK.store.LocationStore', {
+                    proxy: {
+                        type: 'rest',
+                        url: WINK.Utilities.getRestURL() + 'stores/' + WINK.Utilities.getAccountId(),
+                        withCredentials: true,
+                        useDefaultXhrHeader: false
+                    }
+                });
+            s2.load();
+            Ext.fly('appLoadingIndicator').destroy();
+            // Initialize the main view
+            Ext.Viewport.add(Ext.create('WINK.view.ParentView'), {
+                fullscreen: true
+            });
+            Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
         });
-        Ext.Viewport.add(Ext.create('WINK.view.PleaseWaitPanel'));
     },
-    //Ext.Viewport.add(Ext.create('WINK.view.FindPatientPanel'), {fullscreen: true});
     onUpdated: function() {
         window.location.reload();
     }

@@ -1,4 +1,4 @@
-function _76064204a495d7edc7da7db02599cc90ce31cdb6(){};//@tag foundation,core
+function _0525fa7228dd06b6df4a03249862916e2a131f0e(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -77670,11 +77670,6 @@ Ext.define('WINK.view.LoginPanel', {
         layout: 'fit',
         modal: false,
         scrollable: false,
-        listeners: {
-            activate: function(self) {
-                self.down('label').setHtml(WINK.Utilities.getDeviceID());
-            }
-        },
         items: [
             {
                 xtype: 'titlebar',

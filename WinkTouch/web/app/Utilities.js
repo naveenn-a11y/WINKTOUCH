@@ -78,10 +78,10 @@ Ext.define('WINK.Utilities', {
             if (!WINK.Utilities.hasPhonegap())
                 return null;
 
-            if (!device)
+           
                 return Ext.device.Device.uuid;
 
-            return  device.uuid;
+            // return  device.uuid;
             /*
              if (WINK.Utilities.hasPhonegap())
              return device.uuid;
@@ -161,7 +161,8 @@ Ext.define('WINK.Utilities', {
             if (!WINK.Utilities.accountid)
             {
                 var devid = WINK.Utilities.getDeviceID();
-                console.log('deviceid:' + devid);
+                console.log("getAccountId->devid:"+devid);
+               
                 if (devid)
                 {
                     Ext.Ajax.request({
@@ -175,19 +176,21 @@ Ext.define('WINK.Utilities', {
                         success: function(response) {
                             console.log('getAccountId success');
                             console.log("response:" + response.responseText);
+                            console.log('UUID Authorization response.'+response.responseText);
                             response.responseText = response.responseText.trim();
                             if (response.responseText.toLowerCase().startsWith("http"))
                             {
 
                                 WINK.Utilities.accountid = WINK.Utilities.getURLParameter2(response.responseText.trim(), 'accountid');
-                                if (WINK.Utilities.accountid)
-                                {
-                                    WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
-                                }
-
-                                console.log('got account id from ajax request:' + WINK.Utilities.accountid)
+                               console.log('UUID Authorization accountid:'+  WINK.Utilities.accountid );
+                                
+ console.log('UUID Authorization accountid: callbackAccountId?' );
+                             
+                                console.log('got account id from ajax request:' + WINK.Utilities.accountid);
                                 if (callbackAccountId)
                                 {
+                                    
+ console.log('UUID Authorization accountid: callbackAccountId!' );
                                     callbackAccountId(WINK.Utilities.accountid);
                                 }
 
@@ -198,6 +201,7 @@ Ext.define('WINK.Utilities', {
                         },
                         failure: function(response) {
                             console.log('getAccountId failure, calling WINK.Utilities.showPleaseAuthorize');
+                            alert('UUID Authorization Failed. Please Try Again.');
                             WINK.Utilities.showPleaseAuthorize(callbackAccountId);
                         },
                         callback: function(options, success, response) {
@@ -208,11 +212,10 @@ Ext.define('WINK.Utilities', {
                     return -1;
 
                 } else {
+                      console.log("!devid, using url param");
                     WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
-                    if (WINK.Utilities.accountid)
-                    {
-                        WINK.Utilities.accountid = WINK.Utilities.accountid.trim();
-                    }
+                        console.log("WINK.Utilities.accountid="+WINK.Utilities.accountid);
+                 
                 }
 
                 if (!WINK.Utilities.accountid)

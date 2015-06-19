@@ -283,10 +283,11 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                                     var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0];
                                                     if (index === 0)
                                                     {
-                                                        historyPanel.newExam();
+                                                        historyPanel.newInvoice();
+                                                        //historyPanel.newExam();
                                                     } else if (index === 1) {
 
-                                                        historyPanel.newInvoice();
+                                                        //historyPanel.newInvoice();
                                                     } else if (index === 2) {
 
                                                         historyPanel.newAttachment();

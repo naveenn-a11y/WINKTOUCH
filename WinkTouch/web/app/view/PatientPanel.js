@@ -19,7 +19,7 @@ Ext.define('WINK.view.PatientPanel', {
         'Ext.Button'
     ],
     patientAdded: function(newPatient) {
-        alert('patient Added' + newPatient.get('id'));
+     
         document.location.href = '#patient/' + newPatient.get('id');
         return;
     },
@@ -37,7 +37,7 @@ Ext.define('WINK.view.PatientPanel', {
         return this.down('emailfield[name=email]').getValue();
     },
     savePatient: function(bnt) {
-        alert('save Patient');
+       
         var formPanel = this;
         WINK.Utilities.submitForm(formPanel, this.patientSaved);
 
