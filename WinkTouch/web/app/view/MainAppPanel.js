@@ -188,7 +188,7 @@ Ext.define('WINK.view.MainAppPanel', {
                                         return;
                                     quick = quick.toLowerCase();
                                     console.log("Quickfind:" + quick);
-                                    if (quick.startsWith('i') || quick.startsWith('z') || quick.startsWith('r'))
+                                    if (quick.startsWith('i') || quick.startsWith('z') || quick.startsWith('r')||quick.startsWith('o'))
                                     {
                                         document.location.href = '#' + quick;
                                     }

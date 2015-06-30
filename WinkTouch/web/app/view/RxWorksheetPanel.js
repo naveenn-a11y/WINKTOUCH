@@ -15,7 +15,7 @@
 
 Ext.define('WINK.view.RxWorksheetPanel', {
     extend: 'Ext.form.Panel',
-     alias: 'widget.RxWorksheetPanel',
+    alias: 'widget.RxWorksheetPanel',
     requires: [
         'WINK.view.PowerSelectField',
         'Ext.form.FieldSet',
@@ -24,11 +24,18 @@ Ext.define('WINK.view.RxWorksheetPanel', {
         'Ext.SegmentedButton',
         'Ext.Button'
     ],
+    updateModel: function() {
+        var model = this.getRecord();
+        var temp = this.getValues();
+
+        model.set(temp);
+        return model;
+    },
     loadRxWorksheet: function(rxWorksheetModel) {
-           this.setRecord(rxWorksheetModel);
+        this.setRecord(rxWorksheetModel);
     },
     config: {
-         border: '0 0 1 0',
+        border: '1 0 0 0',
         style: 'border-style:solid; border-color:darkgrey',
         items: [
             {
@@ -113,8 +120,7 @@ Ext.define('WINK.view.RxWorksheetPanel', {
                         items: [
                             {
                                 xtype: 'fieldset',
-                               
-                                width:500,
+                                width: 485,
                                 title: 'Frame',
                                 items: [
                                     {
@@ -140,8 +146,7 @@ Ext.define('WINK.view.RxWorksheetPanel', {
                         items: [
                             {
                                 xtype: 'fieldset',
-                              
-                                width:500,
+                                width: 485,
                                 items: [
                                     {
                                         xtype: 'textareafield',

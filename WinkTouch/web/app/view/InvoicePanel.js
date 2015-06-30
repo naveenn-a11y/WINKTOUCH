@@ -80,39 +80,39 @@ Ext.define('WINK.view.InvoicePanel', {
             }
         });
     },
-    saveSuccessEmail: function(previousInvoiceId,emailAddress){
-          var me = this;
+    saveSuccessEmail: function(previousInvoiceId, emailAddress) {
+        var me = this;
         var patientinvoice = this.patientinvoice;
-           var newId = patientinvoice.get('id');
-       Ext.Ajax.request({
-                        url: WINK.Utilities.getRestURL() + 'patientinvoices/email/' + newId + "/"+emailAddress,
-                        method: 'GET',
-                        withCredentials: true,
-                        useDefaultXhrHeader: false,
-                        cors: true,
-                        success: function(response) {
+        var newId = patientinvoice.get('id');
+        Ext.Ajax.request({
+            url: WINK.Utilities.getRestURL() + 'patientinvoices/email/' + newId + "/" + emailAddress,
+            method: 'GET',
+            withCredentials: true,
+            useDefaultXhrHeader: false,
+            cors: true,
+            success: function(response) {
 
-                            me.saveSuccess(previousInvoiceId, newId);
-                        },
-                        failure: function(response) {
-                            me.saveSuccess(previousInvoiceId, newId);
-                        },
-                        callback: function(options, success, response) {
+                me.saveSuccess(previousInvoiceId, newId);
+            },
+            failure: function(response) {
+                me.saveSuccess(previousInvoiceId, newId);
+            },
+            callback: function(options, success, response) {
 
 
-                        }
+            }
 
-                    });  
+        });
     },
-    setPatientHistoryPanel:function(patientHistoryPanel){
-        this.patientHistoryPanel=patientHistoryPanel;
+    setPatientHistoryPanel: function(patientHistoryPanel) {
+        this.patientHistoryPanel = patientHistoryPanel;
     },
-    getPatientHistoryPanel:function(){
-        if( this.patientHistoryPanel)
+    getPatientHistoryPanel: function() {
+        if (this.patientHistoryPanel)
             return  this.patientHistoryPanel;
         return this.up('PatientHistoryPanel');
     },
-    getPatientEmailAddress: function(){
+    getPatientEmailAddress: function() {
         return this.getPatientHistoryPanel().getEmailAddress();
     },
     save: function(email) {
@@ -134,19 +134,19 @@ Ext.define('WINK.view.InvoicePanel', {
                 var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
                 if (email)
                 {
-                    
+
                     console.info("emailing invoice : " + newId);
                     var patientEmail = me.getPatientEmailAddress();
-                    
-                    if(me.isQuicksale() || !patientEmail  || patientEmail.length===0){
-                        Ext.Msg.prompt("Email","Enter Patient's Email Address.", function(text){
-                            
-                            me.saveSuccessEmail(previousInvoiceId,text);
+
+                    if (me.isQuicksale() || !patientEmail || patientEmail.length === 0) {
+                        Ext.Msg.prompt("Email", "Enter Patient's Email Address.", function(text) {
+
+                            me.saveSuccessEmail(previousInvoiceId, text);
                         });
-                    }else{
-                        me.saveSuccessEmail(previousInvoiceId,patientEmail);
+                    } else {
+                        me.saveSuccessEmail(previousInvoiceId, patientEmail);
                     }
-                   
+
                 } else {
                     me.saveSuccess(previousInvoiceId, newId);
                 }
@@ -194,7 +194,19 @@ Ext.define('WINK.view.InvoicePanel', {
             return false;
         if (!this.isInvoiceItemsLoaded)
             return false;
-        return this.isPaymentsLoaded && this.isInvoiceItemsLoaded;
+        if (!this.isRxWorksheetsLoaded)
+            return false;
+
+        return this.isPaymentsLoaded && this.isInvoiceItemsLoaded && this.isRxWorksheetsLoaded;
+    },
+    updateRxWorksheetsModel: function() {
+        var temp = [];
+        for (var i = 0; i < this.rxworksheets.length; i++)
+        {
+            console.log('updateRxWorksheetsModel() ' + i);
+            temp.push(this.rxworksheets[i].updateModel());
+        }
+        return temp;
     },
     updatePaymentsModel: function() {
         var temp = [];
@@ -229,6 +241,9 @@ Ext.define('WINK.view.InvoicePanel', {
         var rxWorksheetStore = this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();
         paymentsStore.setData(this.updatePaymentsModel());
         invoiceItemsStore.setData(this.updateItemsModel());
+        rxWorksheetStore.setData(this.updateRxWorksheetsModel());
+
+
         console.log('InvoicePanel.updateInvoiceModel() count of items' + invoiceItemsStore.getCount());
         invoiceItemsStore.each(function(childRecord) {
             console.log("InvoicePanel.updateInvoiceModel invoiceItemsStore.each():" + childRecord);
@@ -248,10 +263,13 @@ Ext.define('WINK.view.InvoicePanel', {
         console.log('InvoicePanel.loadPanelInvoice() ' + patientinvoice.get('id'));
         this.isPaymentsLoaded = false;
         this.isInvoiceItemsLoaded = false;
+        this.isRxWorksheetsLoaded= false;
         var itemsContainer = this.getInvoiceItemsContainer();
         this.clearInvoiceItemsContainer();
         this.clearInvoicePaymentsContainer();
         this.removeAttachementCarousel();
+        this.removeRxWorksheets();
+
         if (this.isQuicksale())
         {
             //quicksale
@@ -296,15 +314,12 @@ Ext.define('WINK.view.InvoicePanel', {
                 this.paymentsLoaded();
             }
         });
-        this.removeRxWorksheets();
         rxStore.load({
             scope: this,
             callback: function(records, operation, success) {
                 console.log('Loaded rxworksheets ');
-                rxStore.each(function(item, index, length) {
-                    console.log('invoice rx.each() ' + index);
-                    this.addRxWorksheet(item);
-                }, this);
+                this.rxWorksheetsLoaded();
+
             }
         });
         var attachmentsStore = patientinvoice.invoiceattachements_patientinvoice_idpatientinvoice();
@@ -320,6 +335,21 @@ Ext.define('WINK.view.InvoicePanel', {
                 }, this);
             }
         });
+    },
+    rxWorksheetsLoaded: function() {
+        this.removeRxWorksheets();
+         var patientinvoice = this.patientinvoice;
+         var rxStore = patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();
+      
+        rxStore.each(function(item, index, length) {
+            console.log('invoice rx.each() ' + index);
+            this.addRxWorksheet(item);
+        }, this);
+        this.isRxWorksheetsLoaded = true;
+        if (this.isFullyLoaded())
+        {
+            WINK.Utilities.hideWorking();
+        }
     },
     itemsLoaded: function() {
         this.clearInvoiceItemsContainer();
@@ -387,7 +417,8 @@ Ext.define('WINK.view.InvoicePanel', {
             });
         }
         return   this.noPaymentsPanel;
-    }, getNoItemsPanel: function() {
+    }, 
+    getNoItemsPanel: function() {
         if (!this.noItemsPanel)
         {
             this.noItemsPanel = Ext.create('WINK.view.InvoicePaymentPanel', {
@@ -445,7 +476,8 @@ Ext.define('WINK.view.InvoicePanel', {
         this.payments = [];
         this.noPaymentsPanel = null;
         this.noPaymentsPanelAdded = false;
-    }, deletePayment: function(item) {
+    },
+    deletePayment: function(item) {
         for (var i = 0; i < this.payments.length; i++) {
             if (this.payments[i] === item) {
                 this.payments.splice(i, 1);
@@ -456,7 +488,8 @@ Ext.define('WINK.view.InvoicePanel', {
         }
         this.updateNoPaymentsPanel();
         this.updateSummary();
-    }, deleteItem: function(item) {
+    },
+    deleteItem: function(item) {
 
 
         for (var i = 0; i < this.invoiceitems.length; i++) {
@@ -1023,7 +1056,8 @@ Ext.define('WINK.view.InvoicePanel', {
                             {
                                 xtype: 'tabpanel',
                                 flex: 1,
-                                scrollable: false, style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
+                                scrollable: false,
+                                style: 'background-color: #ffffff; border-style:solid!important; border:1px; border-color: darkgrey;',
                                 winkname: 'invoicecontainer',
                                 tabBar: {
                                     docked: 'bottom',
@@ -1094,18 +1128,21 @@ Ext.define('WINK.view.InvoicePanel', {
     newRxWorksheet: function() {
         var newRxModel = Ext.create('WINK.model.RxWorksheet');
         this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice().add(newRxModel);
-        tabPanel.setActiveItem(this.addRxWorksheet());
+        var tabPanel = this.down("tabpanel")
+        tabPanel.setActiveItem(this.addRxWorksheet(newRxModel));
     },
-    removeRxWorksheets: function(){
-         var tabPanel = this.down("tabpanel");
-         while(true){
-             var rxWorksheet = this.down("RxWorksheetPanel");
-             if(!rxWorksheet)
-                 return;
-             tabPanel.remove(rxWorksheet);
-         }
+    removeRxWorksheets: function() {
+        var tabPanel = this.down("tabpanel");
+        while (true) {
+            var rxWorksheet = this.down("RxWorksheetPanel");
+            if (!rxWorksheet)
+                return;
+            tabPanel.remove(rxWorksheet);
+        }
+        this.rxworksheets = [];
     },
     addRxWorksheet: function(rxWorksheetModel) {
+
         var title = "New Rx";
         if (rxWorksheetModel.get('id') > 0)
         {
@@ -1114,6 +1151,12 @@ Ext.define('WINK.view.InvoicePanel', {
         var newSheet = Ext.create('WINK.view.RxWorksheetPanel', {
             title: title
         });
+
+        if (!this.rxworksheets)
+            this.rxworksheets = [];
+        this.rxworksheets[this.rxworksheets.length] = newSheet;
+
+
         var tabPanel = this.down("tabpanel");
         tabPanel.add(newSheet);
         newSheet.loadRxWorksheet(rxWorksheetModel); // call after adding it to the UI, or else it doenst load

@@ -28,6 +28,8 @@ Ext.define('WINK.controller.MenuController', {
         before: {
             openPatient: 'beforeRoute',
             openInvoice: 'beforeRoute',
+            openWorksheet:'beforeRoute',
+            openRxOrder:'beforeRoute',
             openFindPatient: 'beforeRoute',
             openNewPatient: 'beforeRoute',
             openQuicksale: 'beforeRoute'
@@ -40,6 +42,8 @@ Ext.define('WINK.controller.MenuController', {
             'newpatient': 'openNewPatient',
             'newquicksale': 'openQuicksale',
             'i:invoiceid': 'openInvoice',
+            'r:invoiceid': 'openWorksheet',
+            'o:invoiceid': 'openRxOrder',
             'z:patientid': 'openPatient'
         },
         control: {
@@ -73,13 +77,36 @@ Ext.define('WINK.controller.MenuController', {
 
         });
     },
+    openWorksheet: function(worksheetid){
+       var me = this;
+
+        WINK.model.RxWorksheet.load(worksheetid, {
+            success: function(worksheet) {
+                console.log('loaded worksheet ' + worksheet.get('id')); 
+                console.log('for patient invoice ' + worksheet.get('patientinvoice_idpatientinvoice')); 
+
+                me.openInvoice(worksheet.get('patientinvoice_idpatientinvoice'));
+            }
+        });
+    },
+    openRxOrder: function(orderid){
+         var me = this;
+
+        WINK.model.RxOrderForm.load(orderid, {
+            success: function(rxorder) {
+                console.log('loaded rx order ' + rxorder.get('id')); 
+                console.log('for worksheet ' + rxorder.get('rxworksheet_idrxworksheet')); 
+                me.openWorksheet(rxorder.get('rxworksheet_idrxworksheet'));
+            }
+        });
+    },
     openInvoice: function(invoiceid) {
 
         var me = this;
 
         WINK.model.PatientInvoice.load(invoiceid, {
             success: function(invoice) {
-                console.log('loaded ' + invoice.get('id')); //logs 123
+                console.log('loaded invoice ' + invoice.get('id')); 
 
                 if (invoice.get('patient_idpatient') && invoice.get('patient_idpatient') > 0)
                 {
