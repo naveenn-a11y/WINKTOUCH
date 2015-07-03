@@ -1,4 +1,4 @@
-function _c69f4c6f2187dcea357b914b64f580da834544ae(){};//@tag foundation,core
+function _b9413654609af70c061c1ca3a27c24abcc4698c4(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70160,17 +70160,9 @@ Ext.define('WINK.Utilities', {
             //needs to be syncrhonous (thread blocking)
             WINK.Utilities.getAccountId(callback);
         },
-        registerWebStart: function() {
-            if (!this.webstartUrl)  {
-                this.webstartUrl = document.referrer;
-            }
-            
-        },
         launchWebStart: function() {
-            WINK.Utilities.registerWebStart();
-            //  var link = prompt("Please enter your link", this.webstartUrl);
-            // document.location.href = link;
-            window.history.back(-10);
+            var link = prompt("Please enter your link", "file://index.html");
+            document.location.href = link;
         },
         loadAllRequiredStores: function(callback) {
             console.log("Utilities.loadAllRequiredStores()");
@@ -78441,7 +78433,6 @@ Ext.define('WINK.controller.LoginController', {
         document.location.href = '#mainmenu';
     },
     goToLogin: function() {
-        WINK.Utilities.registerWebStart();
         document.location.href = '#login';
     },
     openMainmenu: function() {

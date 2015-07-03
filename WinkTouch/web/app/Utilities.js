@@ -21,9 +21,9 @@ Ext.define('WINK.Utilities', {
         getURLParameter2: function(url, name) {
             return 37;
             var index = url.indexOf("?");
-            if(index<0)
+            if (index < 0)
                 return "";
-            
+
             url = url.substring(index);
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [, ""])[1].replace(/\+/g, '%20')) || null;
         },
@@ -78,8 +78,8 @@ Ext.define('WINK.Utilities', {
             if (!WINK.Utilities.hasPhonegap())
                 return null;
 
-           
-                return Ext.device.Device.uuid;
+
+            return Ext.device.Device.uuid;
 
             // return  device.uuid;
             /*
@@ -93,6 +93,18 @@ Ext.define('WINK.Utilities', {
             alert("Please Authorize " + WINK.Utilities.getDeviceID() + " Using WINK Desktop"); //needs to be syncrhonous (thread blocking)
             WINK.Utilities.getAccountId(callback);
 
+        },
+        registerWebStart: function() {
+            if (!this.webstartUrl)
+                this.webstartUrl = document.referrer;
+           
+        },
+        launchWebStart: function() {
+            WINK.Utilities.registerWebStart();
+            
+          //  var link = prompt("Please enter your link", this.webstartUrl);
+            // document.location.href = link;
+            window.history.back(-10);
         },
         loadAllRequiredStores: function(callback) {
             console.log("Utilities.loadAllRequiredStores()");
@@ -161,8 +173,8 @@ Ext.define('WINK.Utilities', {
             if (!WINK.Utilities.accountid)
             {
                 var devid = WINK.Utilities.getDeviceID();
-                console.log("getAccountId->devid:"+devid);
-               
+                console.log("getAccountId->devid:" + devid);
+
                 if (devid)
                 {
                     Ext.Ajax.request({
@@ -176,21 +188,21 @@ Ext.define('WINK.Utilities', {
                         success: function(response) {
                             console.log('getAccountId success');
                             console.log("response:" + response.responseText);
-                            console.log('UUID Authorization response.'+response.responseText);
+                            console.log('UUID Authorization response.' + response.responseText);
                             response.responseText = response.responseText.trim();
                             if (response.responseText.toLowerCase().startsWith("http"))
                             {
 
                                 WINK.Utilities.accountid = WINK.Utilities.getURLParameter2(response.responseText.trim(), 'accountid');
-                               console.log('UUID Authorization accountid:'+  WINK.Utilities.accountid );
-                                
- console.log('UUID Authorization accountid: callbackAccountId?' );
-                             
+                                console.log('UUID Authorization accountid:' + WINK.Utilities.accountid);
+
+                                console.log('UUID Authorization accountid: callbackAccountId?');
+
                                 console.log('got account id from ajax request:' + WINK.Utilities.accountid);
                                 if (callbackAccountId)
                                 {
-                                    
- console.log('UUID Authorization accountid: callbackAccountId!' );
+
+                                    console.log('UUID Authorization accountid: callbackAccountId!');
                                     callbackAccountId(WINK.Utilities.accountid);
                                 }
 
@@ -212,10 +224,10 @@ Ext.define('WINK.Utilities', {
                     return -1;
 
                 } else {
-                      console.log("!devid, using url param");
+                    console.log("!devid, using url param");
                     WINK.Utilities.accountid = WINK.Utilities.getURLParameter("accountid");
-                        console.log("WINK.Utilities.accountid="+WINK.Utilities.accountid);
-                 
+                    console.log("WINK.Utilities.accountid=" + WINK.Utilities.accountid);
+
                 }
 
                 if (!WINK.Utilities.accountid)
