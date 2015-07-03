@@ -116,7 +116,20 @@ Ext.define('WINK.view.LoginPanel', {
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'
+                            },
+                             {
+                                xtype: 'button',
+                                docked: 'bottom',
+                                margin: '5 0 5 0',
+                                ui: 'action',
+                                text: 'Web Start',
+                                 handler:function(btn){
+                                     WINK.Utilities.launchWebStart();
+                                }
                             }
+                            
+                            
+                           
                         ]
                     }
                 ]

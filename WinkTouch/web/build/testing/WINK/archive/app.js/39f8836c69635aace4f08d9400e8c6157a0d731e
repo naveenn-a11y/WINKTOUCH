@@ -1,4 +1,4 @@
-function _c69f4c6f2187dcea357b914b64f580da834544ae(){};//@tag foundation,core
+function _39f8836c69635aace4f08d9400e8c6157a0d731e(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70165,12 +70165,15 @@ Ext.define('WINK.Utilities', {
                 this.webstartUrl = document.referrer;
             }
             
+            alert(this.webstartUrl);
         },
         launchWebStart: function() {
-            WINK.Utilities.registerWebStart();
-            //  var link = prompt("Please enter your link", this.webstartUrl);
-            // document.location.href = link;
-            window.history.back(-10);
+            if (!this.webstartUrl)  {
+                this.webstartUrl = document.referrer;
+            }
+            
+            var link = prompt("Please enter your link", this.webstartUrl);
+            document.location.href = link;
         },
         loadAllRequiredStores: function(callback) {
             console.log("Utilities.loadAllRequiredStores()");

@@ -55,6 +55,7 @@ Ext.define('WINK.controller.LoginController', {
         document.location.href = '#mainmenu';
     },
     goToLogin: function() {
+        WINK.Utilities.registerWebStart();
         document.location.href = '#login';
     },
     openMainmenu: function() {
