@@ -120,6 +120,11 @@ proxy: {
 , type:'string'
  ,defaultValue: ''
 }
+,
+{ name: 'eyeexam_ideyeexam'
+, type:'int'
+ ,defaultValue: null
+}
         ]
 
  ,belongsTo: [

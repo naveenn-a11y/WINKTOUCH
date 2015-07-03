@@ -28,7 +28,7 @@ proxy: {
 ,
 { name: 'orderdate'
 , type:'date'
- ,defaultValue: new Date(2015,4,7,5,9,55)
+ ,defaultValue: new Date(2015,6,2,10,57,17)
 }
 ,
 { name: 'patient_idpatient'
@@ -143,7 +143,7 @@ proxy: {
 ,
 { name: 'createdon'
 , type:'date'
- ,defaultValue: new Date(2015,4,7,5,9,55)
+ ,defaultValue: new Date(2015,6,2,10,57,17)
 }
 ,
 { name: 'insurance1_idsupplier'
@@ -284,6 +284,56 @@ proxy: {
 { name: 'estimatedate'
 , type:'date'
  ,defaultValue: null
+}
+,
+{ name: 'primaryclaimnumber'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'secondaryclaimnumber'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'primaryclaimsenton'
+, type:'date'
+ ,defaultValue: null
+}
+,
+{ name: 'secondaryclaimsenton'
+, type:'date'
+ ,defaultValue: null
+}
+,
+{ name: 'primaryclaimstatuscode'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'primaryclaimstatusdescription'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'secondaryclaimstatuscode'
+, type:'int'
+ ,defaultValue: 0
+}
+,
+{ name: 'secondaryclaimstatusdescription'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'primaryclaimconfirmation'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'secondaryclaimconfirmation'
+, type:'string'
+ ,defaultValue: ''
 }
         ]
 
@@ -439,15 +489,6 @@ proxy: {
 
 ,
             {
-                model: 'WINK.model.InvoiceAttachement',
-                name: 'invoiceattachements_patientinvoice_idpatientinvoice',
-                foreignKey: 'patientinvoice_idpatientinvoice',
-                associationKey: 'invoiceattachements_patientinvoice_idpatientinvoice',
-                primaryKey: 'id'
-            }
-
-,
-            {
                 model: 'WINK.model.RxWorksheet',
                 name: 'rxworksheets_patientinvoice_idpatientinvoice',
                 foreignKey: 'patientinvoice_idpatientinvoice',
@@ -491,6 +532,18 @@ proxy: {
  { type: 'length', field: 'unit', max: 45,min:0 }
 ,
  { type: 'length', field: 'shiptoname', max: 45,min:0 }
+,
+ { type: 'length', field: 'primaryclaimnumber', max: 300,min:0 }
+,
+ { type: 'length', field: 'secondaryclaimnumber', max: 300,min:0 }
+,
+ { type: 'length', field: 'primaryclaimstatusdescription', max: 300,min:0 }
+,
+ { type: 'length', field: 'secondaryclaimstatusdescription', max: 300,min:0 }
+,
+ { type: 'length', field: 'primaryclaimconfirmation', max: 300,min:0 }
+,
+ { type: 'length', field: 'secondaryclaimconfirmation', max: 300,min:0 }
 ]    
 }
 });

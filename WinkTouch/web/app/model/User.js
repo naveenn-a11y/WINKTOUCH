@@ -250,6 +250,11 @@ proxy: {
 , type:'string'
  ,defaultValue: ''
 }
+,
+{ name: 'signatureuploads_iduploads'
+, type:'int'
+ ,defaultValue: null
+}
         ]
 
  ,belongsTo: [
@@ -271,6 +276,16 @@ proxy: {
                 primaryKey: 'id',
                 getterName: 'getFkcountry_idcountry',
                 setterName: 'setFkcountry_idcountry'
+            }
+
+,
+            {
+                model: 'WINK.model.Upload',
+                associatedName: 'fksignatureuploads_iduploads',
+                foreignKey: 'signatureuploads_iduploads',
+                primaryKey: 'id',
+                getterName: 'getFksignatureuploads_iduploads',
+                setterName: 'setFksignatureuploads_iduploads'
             }
 
         ] 
@@ -425,6 +440,33 @@ proxy: {
                 name: 'clworksheets_opticianuser_iduser',
                 foreignKey: 'opticianuser_iduser',
                 associationKey: 'clworksheets_opticianuser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_user_iduser',
+                foreignKey: 'user_iduser',
+                associationKey: 'rxorderforms_user_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_onlineorderrequesteduser_iduser',
+                foreignKey: 'onlineorderrequesteduser_iduser',
+                associationKey: 'rxorderforms_onlineorderrequesteduser_iduser',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_emailorderrequesteduser_iduser',
+                foreignKey: 'emailorderrequesteduser_iduser',
+                associationKey: 'rxorderforms_emailorderrequesteduser_iduser',
                 primaryKey: 'id'
             }
 

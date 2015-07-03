@@ -213,7 +213,7 @@ proxy: {
 ,
 { name: 'openingbalancedate'
 , type:'date'
- ,defaultValue: new Date(2015,4,7,0,0,0)
+ ,defaultValue: new Date(2015,6,2,0,0,0)
 }
 ,
 { name: 'openingbalanceclosedon'
@@ -254,6 +254,11 @@ proxy: {
 { name: 'edgeatsupplier_idsupplier'
 , type:'int'
  ,defaultValue: null
+}
+,
+{ name: 'establishmentnumber'
+, type:'string'
+ ,defaultValue: ''
 }
         ]
 
@@ -371,6 +376,24 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_store_idstore',
+                foreignKey: 'store_idstore',
+                associationKey: 'rxorderforms_store_idstore',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_tostore_idstore',
+                foreignKey: 'tostore_idstore',
+                associationKey: 'rxorderforms_tostore_idstore',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'companyname', max: 45,min:0 }
@@ -422,6 +445,8 @@ proxy: {
  { type: 'length', field: 'reference2', max: 45,min:0 }
 ,
  { type: 'length', field: 'companylegalname', max: 300,min:0 }
+,
+ { type: 'length', field: 'establishmentnumber', max: 300,min:0 }
 ]    
 }
 });

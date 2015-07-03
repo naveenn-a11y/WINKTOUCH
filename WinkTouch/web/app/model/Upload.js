@@ -86,6 +86,15 @@ proxy: {
 
 ,
             {
+                model: 'WINK.model.User',
+                name: 'users_signatureuploads_iduploads',
+                foreignKey: 'signatureuploads_iduploads',
+                associationKey: 'users_signatureuploads_iduploads',
+                primaryKey: 'id'
+            }
+
+,
+            {
                 model: 'WINK.model.PatientPayment',
                 name: 'patientpayments_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
@@ -108,15 +117,6 @@ proxy: {
                 name: 'patientinvoices_uploads_iduploads',
                 foreignKey: 'uploads_iduploads',
                 associationKey: 'patientinvoices_uploads_iduploads',
-                primaryKey: 'id'
-            }
-
-,
-            {
-                model: 'WINK.model.InvoiceAttachement',
-                name: 'invoiceattachements_uploads_iduploads',
-                foreignKey: 'uploads_iduploads',
-                associationKey: 'invoiceattachements_uploads_iduploads',
                 primaryKey: 'id'
             }
 

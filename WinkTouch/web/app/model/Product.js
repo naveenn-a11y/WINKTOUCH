@@ -420,6 +420,11 @@ proxy: {
 , type:'float'
  ,defaultValue: 0.0
 }
+,
+{ name: 'haslimitedicd'
+, type:'boolean'
+ ,defaultValue: false
+}
         ]
 
  ,belongsTo: [
@@ -570,6 +575,42 @@ proxy: {
                 name: 'clworksheets_lcl_idproduct',
                 foreignKey: 'lcl_idproduct',
                 associationKey: 'clworksheets_lcl_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_frame_idproduct',
+                foreignKey: 'frame_idproduct',
+                associationKey: 'rxorderforms_frame_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_lens_idproduct',
+                foreignKey: 'lens_idproduct',
+                associationKey: 'rxorderforms_lens_idproduct',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_lensmaterial_idlensmaterial',
+                foreignKey: 'lensmaterial_idlensmaterial',
+                associationKey: 'rxorderforms_lensmaterial_idlensmaterial',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_lenstreatment_idlenstreatment',
+                foreignKey: 'lenstreatment_idlenstreatment',
+                associationKey: 'rxorderforms_lenstreatment_idlenstreatment',
                 primaryKey: 'id'
             }
 
