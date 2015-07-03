@@ -196,6 +196,15 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_framebarcode_idbarcode',
+                foreignKey: 'framebarcode_idbarcode',
+                associationKey: 'rxorderforms_framebarcode_idbarcode',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
 ]    

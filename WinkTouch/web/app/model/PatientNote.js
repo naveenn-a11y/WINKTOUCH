@@ -48,7 +48,7 @@ proxy: {
 ,
 { name: 'postedon'
 , type:'date'
- ,defaultValue: new Date(2015,4,7,5,9,55)
+ ,defaultValue: new Date(2015,6,2,10,57,18)
 }
 ,
 { name: 'version'

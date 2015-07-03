@@ -228,7 +228,7 @@ proxy: {
 ,
 { name: 'createddate'
 , type:'string'
- ,defaultValue: 1430989795240
+ ,defaultValue: 1435849037939
 }
 ,
 { name: 'lastpurchasedate'
@@ -390,6 +390,16 @@ proxy: {
 , type:'string'
  ,defaultValue: ''
 }
+,
+{ name: 'recall1comment'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'recall2comment'
+, type:'string'
+ ,defaultValue: ''
+}
         ]
 
  ,belongsTo: [
@@ -499,6 +509,15 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_topatient_idpatient',
+                foreignKey: 'topatient_idpatient',
+                associationKey: 'rxorderforms_topatient_idpatient',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'firstname', max: 45,min:0 }
@@ -556,6 +575,10 @@ proxy: {
  { type: 'length', field: 'sin', max: 45,min:0 }
 ,
  { type: 'length', field: 'medialcardexpiry', max: 45,min:0 }
+,
+ { type: 'length', field: 'recall1comment', max: 300,min:0 }
+,
+ { type: 'length', field: 'recall2comment', max: 300,min:0 }
 ]    
 }
 });

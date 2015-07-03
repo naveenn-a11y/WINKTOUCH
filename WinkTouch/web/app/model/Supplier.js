@@ -185,6 +185,41 @@ proxy: {
 , type:'boolean'
  ,defaultValue: false
 }
+,
+{ name: 'iinsurancedriver'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'icdrevision'
+, type:'string'
+ ,defaultValue: ''
+}
+,
+{ name: 'isstocklenssupplier'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'ispreferededgemountlocation'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'isothersupplier'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'iscliponsupplier'
+, type:'boolean'
+ ,defaultValue: false
+}
+,
+{ name: 'isframerepairsupplier'
+, type:'boolean'
+ ,defaultValue: false
+}
         ]
 
  ,belongsTo: [
@@ -272,6 +307,24 @@ proxy: {
                 primaryKey: 'id'
             }
 
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_tosupplier_idsupplier',
+                foreignKey: 'tosupplier_idsupplier',
+                associationKey: 'rxorderforms_tosupplier_idsupplier',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_supplier_idsupplier',
+                foreignKey: 'supplier_idsupplier',
+                associationKey: 'rxorderforms_supplier_idsupplier',
+                primaryKey: 'id'
+            }
+
         ] 
 ,validations: [
  { type: 'length', field: 'name', max: 45,min:0 }
@@ -311,6 +364,10 @@ proxy: {
  { type: 'length', field: 'reference1', max: 45,min:0 }
 ,
  { type: 'length', field: 'reference2', max: 45,min:0 }
+,
+ { type: 'length', field: 'iinsurancedriver', max: 300,min:0 }
+,
+ { type: 'length', field: 'icdrevision', max: 45,min:0 }
 ]    
 }
 });

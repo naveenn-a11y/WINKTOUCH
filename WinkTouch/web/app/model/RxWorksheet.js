@@ -408,12 +408,12 @@ proxy: {
 ,
 { name: 'createdon'
 , type:'date'
- ,defaultValue: new Date(2015,4,7,5,9,55)
+ ,defaultValue: new Date(2015,6,2,10,57,18)
 }
 ,
 { name: 'scriptreceivedon'
 , type:'date'
- ,defaultValue: new Date(2015,4,7,5,9,55)
+ ,defaultValue: new Date(2015,6,2,10,57,18)
 }
 ,
 { name: 'opticianuser_iduser'
@@ -483,7 +483,7 @@ proxy: {
 ,
 { name: 'perpairlenspricing'
 , type:'boolean'
- ,defaultValue: false
+ ,defaultValue: true
 }
         ]
 
@@ -644,6 +644,15 @@ proxy: {
                 name: 'rxworksheettreatments_rxworksheet_idrxworksheet',
                 foreignKey: 'rxworksheet_idrxworksheet',
                 associationKey: 'rxworksheettreatments_rxworksheet_idrxworksheet',
+                primaryKey: 'id'
+            }
+
+,
+            {
+                model: 'WINK.model.RxOrderForm',
+                name: 'rxorderforms_rxworksheet_idrxworksheet',
+                foreignKey: 'rxworksheet_idrxworksheet',
+                associationKey: 'rxorderforms_rxworksheet_idrxworksheet',
                 primaryKey: 'id'
             }
 
