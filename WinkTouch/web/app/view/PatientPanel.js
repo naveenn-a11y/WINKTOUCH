@@ -173,7 +173,7 @@ Ext.define('WINK.view.PatientPanel', {
                                 placeHolder: 'mm/dd/yyyy',
                                 name: 'dob',
                                 picker: {
-                                    yearFrom: 1800,
+                                    yearFrom: new Date().getFullYear()-110,
                                     toolbar: {
                                         xtype: 'datepickertoolbar'
                                     }

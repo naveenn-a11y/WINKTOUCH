@@ -1,4 +1,4 @@
-function _7debdda24f24e4cb154c4a922867332021b940b5(){};//@tag foundation,core
+function _c01d044588f5f3632d0c90825df7c5c775b16560(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70090,6 +70090,7 @@ Ext.define('WINK.Utilities', {
             return false;
         },
         getURLParameter2: function(url, name) {
+            return 37;
             var index = url.indexOf("?");
             if (index < 0)  {
                 return "";
@@ -70101,6 +70102,7 @@ Ext.define('WINK.Utilities', {
             ])[1].replace(/\+/g, '%20')) || null;
         },
         getURLParameter: function(name) {
+            return 37;
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [
                 ""
             ])[1].replace(/\+/g, '%20')) || null;
@@ -70144,9 +70146,9 @@ Ext.define('WINK.Utilities', {
                 return null;
             }
             
-            //return Ext.device.Device.uuid;
-            return device.uuid;
+            return Ext.device.Device.uuid;
         },
+        // return  device.uuid;
         /*
              if (WINK.Utilities.hasPhonegap())
              return device.uuid;
@@ -70167,9 +70169,8 @@ Ext.define('WINK.Utilities', {
         launchWebStart: function() {
             WINK.Utilities.registerWebStart();
             console.log('this.webstartUrl=' + this.webstartUrl);
-            console.log('cordova.file.applicationDirectory=' + cordova.file.applicationDirectory);
-            //console.log('going to file:///android_asset/www/index.html');
-            window.document.location.href = cordova.file.applicationDirectory + 'www/index.html';
+            console.log('going to file:///android_asset/www/index.html');
+            window.document.location.href = 'file:///android_asset/www/index.html';
         },
         loadAllRequiredStores: function(callback) {
             console.log("Utilities.loadAllRequiredStores()");
@@ -70274,7 +70275,7 @@ Ext.define('WINK.Utilities', {
                     console.log("WINK.Utilities.accountid=" + WINK.Utilities.accountid);
                 }
                 if (!WINK.Utilities.accountid)  {
-                    WINK.Utilities.accountid = 57;
+                    WINK.Utilities.accountid = 37;
                 }
                 
             }
@@ -70322,51 +70323,6 @@ Ext.define('WINK.Utilities', {
             WINK.Utilities.previousActiveItem = parentView.getActiveItem();
             parentView.setActiveItem(loginView);
             WINK.Utilities.hideWorking();
-        },
-        updateHasManyAssociations: function(model) {
-            var me = model;
-            var associations = me.associations.items;
-            var associationCount = associations.length;
-            var association, associatedStore, type, name, foreignKey, filterProperty, filters, filter;
-            var newId = model.getId();
-            for (var i = 0; i < associationCount; i++) {
-                association = associations[i];
-                type = association.getType();
-                if (type)  {
-                    type = type.toLowerCase();
-                }
-                
-                name = association.getName();
-                foreignKey = association.getForeignKey();
-                switch (type) {
-                    case 'hasmany':
-                        associatedStore = me[association.storeName];
-                        if (associatedStore) {
-                            // update store associated foreign key fields
-                            // for items are already added to store
-                            //
-                            if (associatedStore.getCount() > 0) {
-                                associatedStore.each(function(item) {
-                                    item.set(foreignKey, newId);
-                                });
-                            }
-                            // update store `modelDefaults` foreign key property
-                            // for future items
-                            //
-                            filterProperty = association.getFilterProperty() || foreignKey;
-                            associatedStore.modelDefaults[filterProperty] = newId;
-                            // update store filter value
-                            // for saving/loading store operations
-                            //
-                            filters = associatedStore.filters;
-                            filter = filters.getAt(filters.findIndex('property', filterProperty));
-                            if (filter) {
-                                filter.setValue(newId);
-                            }
-                        };
-                        break;
-                }
-            }
         },
         submitForm: function(formPanel, callback) {
             WINK.Utilities.showWorking();
@@ -77830,27 +77786,27 @@ Ext.define('WINK.store.PatientHistoryStore', {
         model: 'WINK.model.PatientHistoryTree',
         grouper: {
             groupFn: function(record) {
-                if (record.get('type') === 0)  {
+                if (record.get('type') == 0)  {
                     return "Patient Details";
                 }
                 
-                if (record.get('type') === 1)  {
+                if (record.get('type') == 1)  {
                     return "Exams";
                 }
                 
-                if (record.get('type') === 2)  {
+                if (record.get('type') == 2)  {
                     return "Appointments";
                 }
                 
-                if (record.get('type') === 3)  {
+                if (record.get('type') == 3)  {
                     return "Photobooth";
                 }
                 
-                if (record.get('type') === 4)  {
+                if (record.get('type') == 4)  {
                     return "Open Jobs";
                 }
                 
-                if (record.get('type') === 5)  {
+                if (record.get('type') == 5)  {
                     return "Closed Jobs";
                 }
                 
@@ -78044,7 +78000,7 @@ Ext.define('WINK.view.LoginPanel', {
         scrollable: false,
         listeners: {
             activate: function(self) {
-                self.down('label').setHtml(WINK.Utilities.getDeviceID() + ", Click here to check for updates.");
+                self.down('label').setHtml(WINK.Utilities.getDeviceID());
             }
         },
         items: [
@@ -78059,34 +78015,12 @@ Ext.define('WINK.view.LoginPanel', {
                 height: 25,
                 style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
                 border: 1,
-                layout: 'hbox',
                 items: [
                     {
                         xtype: 'label',
                         html: WINK.Utilities.getDeviceID(),
                         margin: 5,
-                        style: 'font-size:10px',
-                        flex: 0,
-                        listeners: {
-                            element: 'element',
-                            tap: function(e, t) {
-                                WINK.Utilities.launchWebStart();
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'label',
-                        html: '',
-                        margin: 5,
-                        style: 'font-size:10px',
-                        flex: 1
-                    },
-                    {
-                        xtype: 'label',
-                        html: "WINK Technologies Inc. - <a href='tel:+18887644318'>1.888.764.4318</a> - <a href='mailto:support@downloadwink.com'>support@downloadwink.com</a>",
-                        margin: 5,
-                        style: 'font-size:10px',
-                        flex: 0
+                        style: 'font-size:10px'
                     }
                 ]
             },
@@ -78130,6 +78064,16 @@ Ext.define('WINK.view.LoginPanel', {
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'
+                            },
+                            {
+                                xtype: 'button',
+                                docked: 'bottom',
+                                margin: '5 0 5 0',
+                                ui: 'action',
+                                text: 'Web Start',
+                                handler: function(btn) {
+                                    WINK.Utilities.launchWebStart();
+                                }
                             }
                         ]
                     }
@@ -78698,7 +78642,6 @@ Ext.define('WINK.controller.MenuController', {
             },
             success: function(patient, operation) {
                 console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname'));
-                this.destroyAllPatientHistoryPanels();
                 var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
                 this.getParentView().setActiveItem(patientHistory);
                 WINK.Utilities.hideWorking();
@@ -78738,7 +78681,6 @@ Ext.define('WINK.controller.MenuController', {
          WINK.Utilities.showAjaxError('Open Patient');
          },
          success: function(record, operation) {
-         this.destroyAllPatientHistoryPanels();
          var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
          
          this.getParentView().setActiveItem(patientHistory);
@@ -78748,18 +78690,7 @@ Ext.define('WINK.controller.MenuController', {
          }
          });
          */
-    destroyAllPatientHistoryPanels: function() {
-        return;
-        var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel');
-        if (historyPanel) {
-            var arrayLength = historyPanel.length;
-            for (var i = 0; i < arrayLength; i++) {
-                historyPanel[i].destroy();
-            }
-        }
-    },
     onOpenPatientTap: function(button, e, eOpts) {
-        this.destroyAllPatientHistoryPanels();
         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
         this.getParentView().setActiveItem(patientHistory);
     },
@@ -79919,7 +79850,7 @@ Ext.define('WINK.view.InvoicePanel', {
             success: function(record, operation) {
                 var savedpatientinvoice = record;
                 console.info("InvoicePanel.save().PatientInvoice.load().success()");
-                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id') + " " + savedpatientinvoice.getId());
+                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
                 if (newId !== previousInvoiceId) {
                     console.info(previousInvoiceId + ' !== ' + newId);
                     if (historyPanel) {
@@ -79990,8 +79921,7 @@ Ext.define('WINK.view.InvoicePanel', {
                 console.info('save invoice success');
                 console.info('historyPanel:' + historyPanel);
                 var newId = patientinvoice.get('id');
-                WINK.Utilities.updateHasManyAssociations(patientinvoice);
-                console.info(previousInvoiceId + " vs " + patientinvoice.get('id') + " " + patientinvoice.internalId);
+                console.info(previousInvoiceId + " vs " + patientinvoice.get('id'));
                 //TODO this could be better with less calls to the server (Especially  document.location.href =..._)
                 var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
                 if (email) {
@@ -80033,7 +79963,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.save();
     },
     deleteInvoice: function() {
-        Ext.Msg.alert("Delete Invoice", "Please Use WINK Desktop to Delete the Invoice.");
+        alert('not implemented');
     },
     email: function() {
         this.save(true);
@@ -80058,11 +79988,9 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     updateRxWorksheetsModel: function() {
         var temp = [];
-        if (this.rxworksheets) {
-            for (var i = 0; i < this.rxworksheets.length; i++) {
-                console.log('updateRxWorksheetsModel() ' + i);
-                temp.push(this.rxworksheets[i].updateModel());
-            }
+        for (var i = 0; i < this.rxworksheets.length; i++) {
+            console.log('updateRxWorksheetsModel() ' + i);
+            temp.push(this.rxworksheets[i].updateModel());
         }
         return temp;
     },
@@ -80111,7 +80039,7 @@ Ext.define('WINK.view.InvoicePanel', {
     loadPatientInvoice: function(patientinvoice) {
         WINK.Utilities.showWorking();
         this.patientinvoice = patientinvoice;
-        console.log('InvoicePanel.loadPatientInvoice() ' + patientinvoice.get('id'));
+        console.log('InvoicePanel.loadPanelInvoice() ' + patientinvoice.get('id'));
         this.isPaymentsLoaded = false;
         this.isInvoiceItemsLoaded = false;
         this.isRxWorksheetsLoaded = false;
@@ -80144,7 +80072,6 @@ Ext.define('WINK.view.InvoicePanel', {
             invoiceIdLabel.setHtml("i" + patientinvoice.get('id'));
         }
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
-        console.log('InvoicePanel.loadPatientInvoice() ' + patientinvoice.get('id') + ' ' + patientinvoice.getId());
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
         var rxStore = patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();
@@ -81998,7 +81925,7 @@ Ext.define('WINK.view.PatientPanel', {
                                 placeHolder: 'mm/dd/yyyy',
                                 name: 'dob',
                                 picker: {
-                                    yearFrom: new Date().getFullYear() - 110,
+                                    yearFrom: 1800,
                                     toolbar: {
                                         xtype: 'datepickertoolbar'
                                     }
@@ -82453,7 +82380,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         });
     },
     getHistoryList: function() {
-        return this.down('list[winkname=patienthistorytree]');
+        return this.down('list');
     },
     loadPatientHistoryStore: function() {
         var patient = this.patient;
@@ -82598,8 +82525,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                                 listeners: {
                                                     itemtap: function(dataview, index, target, record, e, eOpts) {
                                                         dataview.up("panel[winkname=newoverlay]").hide();
-                                                        //var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0]; -- this is no good because each time we create a PatientHistoryPanel , they do not get discarded once we're done with it. Therefore, we might be adding the invoice in the wrong patienthistorypanel
-                                                        var historyPanel = c.up('PatientHistoryPanel');
+                                                        var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0];
                                                         if (index === 0) {
                                                             historyPanel.newInvoice();
                                                         }
@@ -82640,7 +82566,6 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                 itemTpl: '{label}',
                 border: '0 1 0 0',
                 style: 'border-style:solid; border-color: darkgrey;',
-                winkname: 'patienthistorytree',
                 listeners: {
                     itemtap: function(dataview, index, target, record, e, eOpts) {
                         dataview.up('PatientHistoryPanel').openHistoryItem(record);

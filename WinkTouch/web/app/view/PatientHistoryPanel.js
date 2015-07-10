@@ -114,7 +114,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
 
     },
     getHistoryList: function() {
-        return this.down('list');
+        return this.down('list[winkname=patienthistorytree]');
     },
     loadPatientHistoryStore: function() {
         var patient = this.patient;
@@ -249,8 +249,8 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                     winkname: 'newoverlay',
                                     hideOnMaskTap: true,
                                     showAnimation: {
-                                        type: 'popIn',
-                                        duration: 250,
+                                       type: 'popIn',
+                                       duration: 250,
                                        easing: 'ease-in',
                                        out: false
                                     },
@@ -280,7 +280,8 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                                             listeners: {
                                                 itemtap: function(dataview, index, target, record, e, eOpts) {
                                                     dataview.up("panel[winkname=newoverlay]").hide();
-                                                    var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0];
+                                                    //var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel')[0]; -- this is no good because each time we create a PatientHistoryPanel , they do not get discarded once we're done with it. Therefore, we might be adding the invoice in the wrong patienthistorypanel
+                                                    var historyPanel =  c.up('PatientHistoryPanel');
                                                     if (index === 0)
                                                     {
                                                         historyPanel.newInvoice();
@@ -333,6 +334,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
                 itemTpl: '{label}',
                 border: '0 1 0 0',
                 style: 'border-style:solid; border-color: darkgrey;',
+                 winkname: 'patienthistorytree',
                 listeners: {
                     itemtap: function(dataview, index, target, record, e, eOpts) {
                         dataview.up('PatientHistoryPanel').openHistoryItem(record);
