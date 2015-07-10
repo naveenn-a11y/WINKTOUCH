@@ -28,8 +28,8 @@ Ext.define('WINK.controller.MenuController', {
         before: {
             openPatient: 'beforeRoute',
             openInvoice: 'beforeRoute',
-            openWorksheet:'beforeRoute',
-            openRxOrder:'beforeRoute',
+            openWorksheet: 'beforeRoute',
+            openRxOrder: 'beforeRoute',
             openFindPatient: 'beforeRoute',
             openNewPatient: 'beforeRoute',
             openQuicksale: 'beforeRoute'
@@ -77,25 +77,25 @@ Ext.define('WINK.controller.MenuController', {
 
         });
     },
-    openWorksheet: function(worksheetid){
-       var me = this;
+    openWorksheet: function(worksheetid) {
+        var me = this;
 
         WINK.model.RxWorksheet.load(worksheetid, {
             success: function(worksheet) {
-                console.log('loaded worksheet ' + worksheet.get('id')); 
-                console.log('for patient invoice ' + worksheet.get('patientinvoice_idpatientinvoice')); 
+                console.log('loaded worksheet ' + worksheet.get('id'));
+                console.log('for patient invoice ' + worksheet.get('patientinvoice_idpatientinvoice'));
 
                 me.openInvoice(worksheet.get('patientinvoice_idpatientinvoice'));
             }
         });
     },
-    openRxOrder: function(orderid){
-         var me = this;
+    openRxOrder: function(orderid) {
+        var me = this;
 
         WINK.model.RxOrderForm.load(orderid, {
             success: function(rxorder) {
-                console.log('loaded rx order ' + rxorder.get('id')); 
-                console.log('for worksheet ' + rxorder.get('rxworksheet_idrxworksheet')); 
+                console.log('loaded rx order ' + rxorder.get('id'));
+                console.log('for worksheet ' + rxorder.get('rxworksheet_idrxworksheet'));
                 me.openWorksheet(rxorder.get('rxworksheet_idrxworksheet'));
             }
         });
@@ -106,7 +106,7 @@ Ext.define('WINK.controller.MenuController', {
 
         WINK.model.PatientInvoice.load(invoiceid, {
             success: function(invoice) {
-                console.log('loaded invoice ' + invoice.get('id')); 
+                console.log('loaded invoice ' + invoice.get('id'));
 
                 if (invoice.get('patient_idpatient') && invoice.get('patient_idpatient') > 0)
                 {
@@ -136,6 +136,7 @@ Ext.define('WINK.controller.MenuController', {
             },
             success: function(patient, operation) {
                 console.log('Loaded Patient' + patient.getId() + " " + patient.get('lastname'));
+                this.destroyAllPatientHistoryPanels();
                 var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
 
                 this.getParentView().setActiveItem(patientHistory);
@@ -182,6 +183,7 @@ Ext.define('WINK.controller.MenuController', {
          WINK.Utilities.showAjaxError('Open Patient');
          },
          success: function(record, operation) {
+         this.destroyAllPatientHistoryPanels();
          var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
          
          this.getParentView().setActiveItem(patientHistory);
@@ -194,7 +196,20 @@ Ext.define('WINK.controller.MenuController', {
 
 
     },
+    destroyAllPatientHistoryPanels: function() {
+        return;
+        var historyPanel = Ext.ComponentQuery.query('PatientHistoryPanel');
+        if (historyPanel)
+        {
+            var arrayLength = historyPanel.length;
+            for (var i = 0; i < arrayLength; i++) {
+                historyPanel[i].destroy();
+            }
+        }
+
+    },
     onOpenPatientTap: function(button, e, eOpts) {
+        this.destroyAllPatientHistoryPanels();
         var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
 
         this.getParentView().setActiveItem(patientHistory);
@@ -209,7 +224,7 @@ Ext.define('WINK.controller.MenuController', {
 
         var quicksale = Ext.create('WINK.view.InvoicePanel');
 
-        
+
 
         this.getParentView().setActiveItem(quicksale);
         quicksale.loadPatientInvoice(model);

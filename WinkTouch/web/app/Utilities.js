@@ -19,7 +19,7 @@ Ext.define('WINK.Utilities', {
             return false;
         },
         getURLParameter2: function(url, name) {
-            return 37;
+
             var index = url.indexOf("?");
             if (index < 0)
                 return "";
@@ -28,7 +28,7 @@ Ext.define('WINK.Utilities', {
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [, ""])[1].replace(/\+/g, '%20')) || null;
         },
         getURLParameter: function(name) {
-            return 37;
+
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
         },
         setDefaultValues: function(model) {
@@ -79,9 +79,9 @@ Ext.define('WINK.Utilities', {
                 return null;
 
 
-            return Ext.device.Device.uuid;
+            //return Ext.device.Device.uuid;
 
-            // return  device.uuid;
+            return  device.uuid;
             /*
              if (WINK.Utilities.hasPhonegap())
              return device.uuid;
@@ -97,14 +97,18 @@ Ext.define('WINK.Utilities', {
         registerWebStart: function() {
             if (!this.webstartUrl)
                 this.webstartUrl = document.referrer;
-           
+
         },
         launchWebStart: function() {
             WINK.Utilities.registerWebStart();
-            
-          //  var link = prompt("Please enter your link", this.webstartUrl);
-            // document.location.href = link;
-            window.history.back(-10);
+            console.log('this.webstartUrl=' + this.webstartUrl);
+            console.log('cordova.file.applicationDirectory=' + cordova.file.applicationDirectory);
+
+
+            //console.log('going to file:///android_asset/www/index.html');
+
+            window.document.location.href = cordova.file.applicationDirectory + 'www/index.html';
+
         },
         loadAllRequiredStores: function(callback) {
             console.log("Utilities.loadAllRequiredStores()");
@@ -231,7 +235,7 @@ Ext.define('WINK.Utilities', {
                 }
 
                 if (!WINK.Utilities.accountid)
-                    WINK.Utilities.accountid = 37;
+                    WINK.Utilities.accountid = 57;
 
             }
             if (callbackAccountId)
@@ -274,6 +278,69 @@ Ext.define('WINK.Utilities', {
             parentView.setActiveItem(loginView);
 
             WINK.Utilities.hideWorking();
+        },
+        updateHasManyAssociations: function(model) {
+            var me = model;
+            
+            var associations = me.associations.items;
+            
+            var associationCount = associations.length;
+            
+            var     association, associatedStore,
+                    type, name, foreignKey, filterProperty,
+                    filters, filter;
+            var newId = model.getId();
+            
+            for (var i = 0; i < associationCount; i++) {
+                association = associations[i];
+
+                type = association.getType();
+                if(type)
+                    type=type.toLowerCase();
+                name = association.getName();
+                foreignKey = association.getForeignKey();
+               
+                switch (type) {
+                    case 'hasmany':
+                        var storeName = association.getStoreName();
+                         var store = association.getStore();
+                       
+                        associatedStore = me[name]();
+
+                        if (associatedStore) {
+                            // update store associated foreign key fields
+                            // for items are already added to store
+                            //
+                            if (associatedStore.getCount() > 0) {
+                                associatedStore.each(function(item) {
+                                    item.set(foreignKey, newId);
+                                });
+                            }
+
+                            // update store `modelDefaults` foreign key property
+                            // for future items
+                            //
+                            filterProperty = association.getFilterProperty() || foreignKey;
+
+                            //associatedStore.modelDefaults[filterProperty] = newId;
+
+                            // update store filter value
+                            // for saving/loading store operations
+                            //
+                            filters = associatedStore.getFilters();
+                            filters.forEach(function(item,index,array) {
+                                    if(item.get('property')===filterProperty)
+                                    {
+                                         item.setValue(newId);
+                                    }
+                                   
+                                });
+                          
+                        }
+
+                        break;
+                }
+            }
         },
         submitForm: function(formPanel, callback) {
             WINK.Utilities.showWorking();

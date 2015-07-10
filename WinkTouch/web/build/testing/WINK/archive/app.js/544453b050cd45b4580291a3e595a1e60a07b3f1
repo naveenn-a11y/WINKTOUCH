@@ -1,4 +1,4 @@
-function _7debdda24f24e4cb154c4a922867332021b940b5(){};//@tag foundation,core
+function _544453b050cd45b4580291a3e595a1e60a07b3f1(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70323,51 +70323,6 @@ Ext.define('WINK.Utilities', {
             parentView.setActiveItem(loginView);
             WINK.Utilities.hideWorking();
         },
-        updateHasManyAssociations: function(model) {
-            var me = model;
-            var associations = me.associations.items;
-            var associationCount = associations.length;
-            var association, associatedStore, type, name, foreignKey, filterProperty, filters, filter;
-            var newId = model.getId();
-            for (var i = 0; i < associationCount; i++) {
-                association = associations[i];
-                type = association.getType();
-                if (type)  {
-                    type = type.toLowerCase();
-                }
-                
-                name = association.getName();
-                foreignKey = association.getForeignKey();
-                switch (type) {
-                    case 'hasmany':
-                        associatedStore = me[association.storeName];
-                        if (associatedStore) {
-                            // update store associated foreign key fields
-                            // for items are already added to store
-                            //
-                            if (associatedStore.getCount() > 0) {
-                                associatedStore.each(function(item) {
-                                    item.set(foreignKey, newId);
-                                });
-                            }
-                            // update store `modelDefaults` foreign key property
-                            // for future items
-                            //
-                            filterProperty = association.getFilterProperty() || foreignKey;
-                            associatedStore.modelDefaults[filterProperty] = newId;
-                            // update store filter value
-                            // for saving/loading store operations
-                            //
-                            filters = associatedStore.filters;
-                            filter = filters.getAt(filters.findIndex('property', filterProperty));
-                            if (filter) {
-                                filter.setValue(newId);
-                            }
-                        };
-                        break;
-                }
-            }
-        },
         submitForm: function(formPanel, callback) {
             WINK.Utilities.showWorking();
             formPanel.setMasked(true);
@@ -79919,7 +79874,7 @@ Ext.define('WINK.view.InvoicePanel', {
             success: function(record, operation) {
                 var savedpatientinvoice = record;
                 console.info("InvoicePanel.save().PatientInvoice.load().success()");
-                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id') + " " + savedpatientinvoice.getId());
+                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
                 if (newId !== previousInvoiceId) {
                     console.info(previousInvoiceId + ' !== ' + newId);
                     if (historyPanel) {
@@ -79990,8 +79945,7 @@ Ext.define('WINK.view.InvoicePanel', {
                 console.info('save invoice success');
                 console.info('historyPanel:' + historyPanel);
                 var newId = patientinvoice.get('id');
-                WINK.Utilities.updateHasManyAssociations(patientinvoice);
-                console.info(previousInvoiceId + " vs " + patientinvoice.get('id') + " " + patientinvoice.internalId);
+                console.info(previousInvoiceId + " vs " + patientinvoice.get('id'));
                 //TODO this could be better with less calls to the server (Especially  document.location.href =..._)
                 var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
                 if (email) {
@@ -80033,7 +79987,7 @@ Ext.define('WINK.view.InvoicePanel', {
         this.save();
     },
     deleteInvoice: function() {
-        Ext.Msg.alert("Delete Invoice", "Please Use WINK Desktop to Delete the Invoice.");
+        alert('not implemented');
     },
     email: function() {
         this.save(true);
@@ -80058,11 +80012,9 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     updateRxWorksheetsModel: function() {
         var temp = [];
-        if (this.rxworksheets) {
-            for (var i = 0; i < this.rxworksheets.length; i++) {
-                console.log('updateRxWorksheetsModel() ' + i);
-                temp.push(this.rxworksheets[i].updateModel());
-            }
+        for (var i = 0; i < this.rxworksheets.length; i++) {
+            console.log('updateRxWorksheetsModel() ' + i);
+            temp.push(this.rxworksheets[i].updateModel());
         }
         return temp;
     },
@@ -80111,7 +80063,7 @@ Ext.define('WINK.view.InvoicePanel', {
     loadPatientInvoice: function(patientinvoice) {
         WINK.Utilities.showWorking();
         this.patientinvoice = patientinvoice;
-        console.log('InvoicePanel.loadPatientInvoice() ' + patientinvoice.get('id'));
+        console.log('InvoicePanel.loadPanelInvoice() ' + patientinvoice.get('id'));
         this.isPaymentsLoaded = false;
         this.isInvoiceItemsLoaded = false;
         this.isRxWorksheetsLoaded = false;
@@ -80144,7 +80096,6 @@ Ext.define('WINK.view.InvoicePanel', {
             invoiceIdLabel.setHtml("i" + patientinvoice.get('id'));
         }
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
-        console.log('InvoicePanel.loadPatientInvoice() ' + patientinvoice.get('id') + ' ' + patientinvoice.getId());
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
         var rxStore = patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();

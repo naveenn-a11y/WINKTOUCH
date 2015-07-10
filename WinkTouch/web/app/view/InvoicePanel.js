@@ -50,8 +50,9 @@ Ext.define('WINK.view.InvoicePanel', {
             },
             success: function(record, operation) {
                 var savedpatientinvoice = record;
+                
                 console.info("InvoicePanel.save().PatientInvoice.load().success()");
-                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id'));
+                console.info("InvoicePanel.save().PatientInvoice.load():" + newId + " " + savedpatientinvoice.get('id') + " " +savedpatientinvoice.getId());
                 if (newId !== previousInvoiceId)
                 {
                     console.info(previousInvoiceId + ' !== ' + newId);
@@ -129,7 +130,10 @@ Ext.define('WINK.view.InvoicePanel', {
                 console.info('save invoice success');
                 console.info('historyPanel:' + historyPanel);
                 var newId = patientinvoice.get('id');
-                console.info(previousInvoiceId + " vs " + patientinvoice.get('id'));
+                WINK.Utilities.updateHasManyAssociations(patientinvoice);
+               
+               
+                console.info(previousInvoiceId + " vs " + patientinvoice.get('id') + " " + patientinvoice.internalId);
                 //TODO this could be better with less calls to the server (Especially  document.location.href =..._)
                 var patientInvoiceClass = Ext.ModelManager.getModel('WINK.model.PatientInvoice');
                 if (email)
@@ -181,7 +185,8 @@ Ext.define('WINK.view.InvoicePanel', {
         this.save();
     },
     deleteInvoice: function() {
-        alert('not implemented');
+         Ext.Msg.alert("Delete Invoice", "Please Use WINK Desktop to Delete the Invoice.");
+        
     },
     email: function() {
         this.save(true);
@@ -201,10 +206,13 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     updateRxWorksheetsModel: function() {
         var temp = [];
+        if(this.rxworksheets)
+        {
         for (var i = 0; i < this.rxworksheets.length; i++)
         {
             console.log('updateRxWorksheetsModel() ' + i);
             temp.push(this.rxworksheets[i].updateModel());
+        }
         }
         return temp;
     },
@@ -260,7 +268,7 @@ Ext.define('WINK.view.InvoicePanel', {
     loadPatientInvoice: function(patientinvoice) {
         WINK.Utilities.showWorking();
         this.patientinvoice = patientinvoice;
-        console.log('InvoicePanel.loadPanelInvoice() ' + patientinvoice.get('id'));
+        console.log('InvoicePanel.loadPatientInvoice() ' + patientinvoice.get('id'));
         this.isPaymentsLoaded = false;
         this.isInvoiceItemsLoaded = false;
         this.isRxWorksheetsLoaded= false;
@@ -296,6 +304,9 @@ Ext.define('WINK.view.InvoicePanel', {
             invoiceIdLabel.setHtml("i" + patientinvoice.get('id'));
         }
         this.getInvoiceSummary().loadPatientInvoice(patientinvoice);
+        
+         console.log('InvoicePanel.loadPatientInvoice() ' + patientinvoice.get('id') + ' ' + patientinvoice.getId());
+       
         var patientinvoiceitemsStore = patientinvoice.patientinvoiceitems_patientinvoice_idpatientinvoice();
         var patientpaymentsStore = patientinvoice.patientpayments_patientinvoice_idpatientinvoice();
         var rxStore = patientinvoice.rxworksheets_patientinvoice_idpatientinvoice();

@@ -41,19 +41,19 @@ Ext.define('WINK.store.PatientHistoryStore', {
         model: 'WINK.model.PatientHistoryTree',
         grouper: {
             groupFn: function(record) {
-                if (record.get('type') == 0)
+                if (record.get('type') === 0)
                     return "Patient Details";
 
-                if (record.get('type') == 1)
+                if (record.get('type') === 1)
                     return "Exams";
-                if (record.get('type') == 2)
+                if (record.get('type') === 2)
                     return "Appointments";
-                if (record.get('type') == 3)
+                if (record.get('type') === 3)
                     return "Photobooth";
 
-                if (record.get('type') == 4)
+                if (record.get('type') === 4)
                     return "Open Jobs";
-                if (record.get('type') == 5)
+                if (record.get('type') === 5)
                     return "Closed Jobs";
                 return record.get('type');
 

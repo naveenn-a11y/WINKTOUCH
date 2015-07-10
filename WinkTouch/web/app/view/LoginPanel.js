@@ -49,31 +49,56 @@ Ext.define('WINK.view.LoginPanel', {
         layout: 'fit',
         modal: false,
         scrollable: false,
-        listeners: { 
-            activate: function( self ) { 
-               self.down('label').setHtml(WINK.Utilities.getDeviceID());
+        listeners: {
+            activate: function(self) {
+                self.down('label').setHtml(WINK.Utilities.getDeviceID() + ", Click here to check for updates.");
             }
         },
         items: [
             {
                 xtype: 'titlebar',
                 docked: 'top',
-                title: 'WINK '+ WINK.Utilities.getWinkVersion()
+                title: 'WINK ' + WINK.Utilities.getWinkVersion()
             },
-             {
+            {
                 xtype: 'container',
                 docked: 'bottom',
                 height: 25,
-                 style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
-                 border: 1,
-                items:[
+                style: 'background-color: #eee; border-color: darkgrey; border-style: solid;',
+                border: 1,
+                layout: 'hbox',
+                items: [
                     {
-                        xtype:'label',
-                        html:WINK.Utilities.getDeviceID(),
-                        margin:5,
-                        style: 'font-size:10px'
+                        xtype: 'label',
+                        html: WINK.Utilities.getDeviceID(),
+                        margin: 5,
+                        style: 'font-size:10px',
+                        flex: 0,
+                        listeners:
+                                {
+                                    element: 'element',
+                                    tap: function(e, t)
+                                    {
+                                        WINK.Utilities.launchWebStart();
+                                    }
+                                }
+
+                    },
+                    {
+                        xtype: 'label',
+                        html: '',
+                        margin: 5,
+                        style: 'font-size:10px',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'label',
+                        html: "WINK Technologies Inc. - <a href='tel:+18887644318'>1.888.764.4318</a> - <a href='mailto:support@downloadwink.com'>support@downloadwink.com</a>",
+                        margin: 5,
+                        style: 'font-size:10px',
+                        flex: 0
                     }
-                    
+
                 ]
             },
             {
@@ -116,20 +141,11 @@ Ext.define('WINK.view.LoginPanel', {
                                 itemId: 'logInButton',
                                 ui: 'action',
                                 text: 'Log In'
-                            },
-                             {
-                                xtype: 'button',
-                                docked: 'bottom',
-                                margin: '5 0 5 0',
-                                ui: 'action',
-                                text: 'Web Start',
-                                 handler:function(btn){
-                                     WINK.Utilities.launchWebStart();
-                                }
                             }
-                            
-                            
-                           
+
+
+
+
                         ]
                     }
                 ]
