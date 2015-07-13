@@ -161,10 +161,15 @@ Ext.define('WINK.view.InvoicePanel', {
             failure: function(response) {
 
                 WINK.Utilities.hideWorking();
-                WINK.Utilities.showAjaxError('Save Invoice', response);
+               
             },
-            callback: function(options, success, response) {
+            callback: function(options, success) {
+                if(!success.success)
+                {
+                      WINK.Utilities.showAjaxError('Save Invoice', success.error);
+                }
 
+                console.log("In Invoice Save Callback");
             }
 
         });

@@ -1,4 +1,4 @@
-function _c4f47bbfa06f7389fd97f82d9ad3d9fbd18af80a(){};//@tag foundation,core
+function _9d2cbb5167b2062984c242e96c22851dae1e260f(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70310,7 +70310,7 @@ Ext.define('WINK.Utilities', {
         showAjaxError: function(title, response) {
             if (!response) {
                 Ext.Msg.alert("Internal Server Error", "Unknown Server Error", Ext.emptyFn);
-            } else if (response.status === 403) {
+            } else if (response.status == 403) {
                 WINK.Utilities.relogin();
             } else {
                 Ext.Msg.alert(title, response.status + " " + response.responseText, Ext.emptyFn);
@@ -80013,13 +80013,9 @@ Ext.define('WINK.view.InvoicePanel', {
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Save Invoice', response);
             },
-            callback: function(options, success) {
-                if (!success.success) {
-                    WINK.Utilities.showAjaxError('Save Invoice', success.error);
-                }
-                console.log("In Invoice Save Callback");
-            }
+            callback: function(options, success, response) {}
         });
     },
     pay: function() {

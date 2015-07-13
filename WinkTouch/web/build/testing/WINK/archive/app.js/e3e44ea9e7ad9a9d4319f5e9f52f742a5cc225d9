@@ -1,4 +1,4 @@
-function _c4f47bbfa06f7389fd97f82d9ad3d9fbd18af80a(){};//@tag foundation,core
+function _e3e44ea9e7ad9a9d4319f5e9f52f742a5cc225d9(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -80013,10 +80013,11 @@ Ext.define('WINK.view.InvoicePanel', {
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();
+                WINK.Utilities.showAjaxError('Save Invoice', response);
             },
-            callback: function(options, success) {
+            callback: function(options, success, response) {
                 if (!success.success) {
-                    WINK.Utilities.showAjaxError('Save Invoice', success.error);
+                    WINK.Utilities.showAjaxError('Save Invoice', response.response);
                 }
                 console.log("In Invoice Save Callback");
             }

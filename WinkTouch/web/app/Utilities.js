@@ -264,10 +264,11 @@ Ext.define('WINK.Utilities', {
 
             if (!response) {
                 Ext.Msg.alert("Internal Server Error", "Unknown Server Error", Ext.emptyFn);
-            } else if (response.status == 403) {
+            } else if (response.status === 403) {
                 WINK.Utilities.relogin();
             } else {
-                Ext.Msg.alert(title, response.status + " " + response.responseText, Ext.emptyFn);
+                var message = response.responseText | response.statusText;
+                Ext.Msg.alert(title, response.status + " " + message, Ext.emptyFn);
             }
         },
         relogin: function() {
