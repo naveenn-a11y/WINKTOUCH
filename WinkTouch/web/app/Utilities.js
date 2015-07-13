@@ -375,9 +375,13 @@ Ext.define('WINK.Utilities', {
                         }
                     },
                     failure: function(response) {
-                        WINK.Utilities.showAjaxError('Add Patient', response);
+                       
                     },
-                    callback: function(options, success, response) {
+                    callback: function(options, success) {
+                        if(!success.success)
+                        {
+                            WINK.Utilities.showAjaxError('Save Patient', success.error);
+                        }
                         formPanel.unmask();
                         WINK.Utilities.hideWorking();
                     }
