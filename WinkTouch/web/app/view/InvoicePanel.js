@@ -1144,15 +1144,19 @@ Ext.define('WINK.view.InvoicePanel', {
     newRxWorksheet: function() {
         var newRxModel = Ext.create('WINK.model.RxWorksheet');
         this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice().add(newRxModel);
-        var tabPanel = this.down("tabpanel")
+        var tabPanel = this.down("tabpanel");
         tabPanel.setActiveItem(this.addRxWorksheet(newRxModel));
     },
     removeRxWorksheets: function() {
         var tabPanel = this.down("tabpanel");
+        
+         var invoiceItemsPanel = tabPanel.down('container[winkname=invoiceitemscontainer]');
+        tabPanel.setActiveItem(invoiceItemsPanel); //required in case the active item is one of the worksheets we are removing
+        
         while (true) {
             var rxWorksheet = this.down("RxWorksheetPanel");
             if (!rxWorksheet)
-                return;
+                break;
             tabPanel.remove(rxWorksheet);
         }
         this.rxworksheets = [];
