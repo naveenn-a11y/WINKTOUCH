@@ -103,7 +103,7 @@ Ext.define('WINK.view.ProductSearchResultsPanel', {
             },
             failure: function(response) {
                 WINK.Utilities.hideWorking();
-                WINK.Utilities.showAjaxError(response, 'Product Lookup');
+                WINK.Utilities.showAjaxError('Product Lookup',response );
             },
             callback: function(options, success, response) {
 
