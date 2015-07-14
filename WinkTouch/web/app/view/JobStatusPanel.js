@@ -56,7 +56,7 @@ Ext.define('WINK.view.JobStatusPanel', {
                 indexBar: false,
                 grouped: false,
                 pinHeaders: false,
-                itemTpl: '{date:date("Y M D h:m")} ({reference}) {user} {status} {comment}',
+                itemTpl: '{date:date("Y-m-d H:i")} ({reference}) {user} {status} {comment}',
                 listeners: {
                     itemtap: function(dataview, index, target, record, e, eOpts) {
                         //dataview.up('PatientHistoryPanel').openHistoryItem(record);

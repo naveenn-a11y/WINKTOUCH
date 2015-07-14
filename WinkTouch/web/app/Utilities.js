@@ -34,6 +34,7 @@ Ext.define('WINK.Utilities', {
         setDefaultValues: function(model) {
             if (model instanceof WINK.model.PatientInvoice) {
                 model.set('orderdate', new Date());
+                model.set('CreatedOn', new Date());
                 model.set('store_idstore', WINK.Utilities.currentstore.get('id'));
             } else if (model instanceof WINK.model.PatientPayment) {
                 model.set('date', new Date());
