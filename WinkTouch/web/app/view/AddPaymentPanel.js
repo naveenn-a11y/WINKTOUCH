@@ -20,6 +20,7 @@ Ext.define('WINK.view.AddPaymentPanel', {
     addPayment:function(){
       
       var patientpaymentmodel = Ext.create('WINK.model.PatientPayment');
+       WINK.Utilities.setDefaultValues(patientpaymentmodel);
       patientpaymentmodel.set(this.getValues());
       var paymentPanel = Ext.create('WINK.view.InvoicePaymentPanel');
       paymentPanel.loadItem(patientpaymentmodel);

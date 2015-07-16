@@ -96,6 +96,7 @@ Ext.define('WINK.view.InvoicePanel', {
                 me.saveSuccess(previousInvoiceId, newId);
             },
             failure: function(response) {
+                Ext.Msg.alert("Send Email Error", "Error sending email. Please check store's email configuration.", Ext.emptyFn);
                 me.saveSuccess(previousInvoiceId, newId);
             },
             callback: function(options, success, response) {
@@ -1143,6 +1144,7 @@ Ext.define('WINK.view.InvoicePanel', {
     },
     newRxWorksheet: function() {
         var newRxModel = Ext.create('WINK.model.RxWorksheet');
+         WINK.Utilities.setDefaultValues(newRxModel);
         this.patientinvoice.rxworksheets_patientinvoice_idpatientinvoice().add(newRxModel);
         var tabPanel = this.down("tabpanel");
         tabPanel.setActiveItem(this.addRxWorksheet(newRxModel));

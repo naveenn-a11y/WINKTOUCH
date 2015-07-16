@@ -140,7 +140,7 @@ Ext.define('WINK.controller.MenuController', {
                 var patientHistory = Ext.create('WINK.view.PatientHistoryPanel');
 
                 this.getParentView().setActiveItem(patientHistory);
-                WINK.Utilities.hideWorking();
+                //WINK.Utilities.hideWorking();
 
                 patientHistory.loadPatient(patient);
 

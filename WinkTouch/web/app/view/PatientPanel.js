@@ -40,7 +40,7 @@ Ext.define('WINK.view.PatientPanel', {
        
         var formPanel = this;
         WINK.Utilities.submitForm(formPanel, this.patientSaved);
-
+        
 
     },
     initProvinceStore: function() {
