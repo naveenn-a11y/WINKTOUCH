@@ -80,6 +80,12 @@
                     return suppressErrorAlert;
                 };
             }
+            setTimeout(function () {
+                if(typeof WINK.Utilities.accountid === 'undefined')
+                {
+                    Window.location.reload();
+                }
+            },10000);
 
         </script>
 

@@ -329,7 +329,11 @@ Ext.define('WINK.Utilities', {
                             // update store filter value
                             // for saving/loading store operations
                             //
+                            //associatedStore.clearFilter();
+                            //associatedStore.filter(filterProperty,newId);
                             filters = associatedStore.getFilters();
+                            
+                            
                             filters.forEach(function(item,index,array) {
                                     if(item.get('property')===filterProperty)
                                     {
@@ -368,10 +372,11 @@ Ext.define('WINK.Utilities', {
 
                 rec.save({
                     success: function(response) {
+                        console.info(response.responseText);
+                        rec.set(Ext.JSON.decode(response.responseText));
+                        WINK.Utilities.updateHasManyAssociations(rec);
                         if (callback)
                         {
-                            console.info(response.responseText);
-                            rec.set(Ext.JSON.decode(response.responseText));
                             callback(rec);
                         }
                     },

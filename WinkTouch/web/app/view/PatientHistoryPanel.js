@@ -28,7 +28,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
         var historyStore = this.getHistoryList().getStore();
         var item = Ext.create('WINK.model.PatientInvoice');
         WINK.Utilities.setDefaultValues(item);
-        item.set('patient_idpatient', this.patient.get('id'));
+        //item.set('patient_idpatient', this.patient.get('id'));
         this.patient.patientinvoices_patient_idpatient().add(item);
         console.log('New Invoice ID:' + item.get('id'));
         var invoiceItem = Ext.create('WINK.model.PatientHistoryTree', {
@@ -45,10 +45,7 @@ Ext.define('WINK.view.PatientHistoryPanel', {
     updateInvoiceId: function(previousInvoiceId, newInvoice) {
         var newInvoiceId = newInvoice.get('id');
         var invoiceHistoryStore = this.patient.patientinvoices_patient_idpatient();
-        var oldInvoiceModel = invoiceHistoryStore.getById(previousInvoiceId);
-        if (oldInvoiceModel)
-            invoiceHistoryStore.remove(oldInvoiceModel);
-        invoiceHistoryStore.add(newInvoice);
+       
         var historyStore = this.getHistoryList().getStore();
         historyStore.each(function(item, index, length) {
             if ((item.get('type') === 4 || item.get('type') === 5))
