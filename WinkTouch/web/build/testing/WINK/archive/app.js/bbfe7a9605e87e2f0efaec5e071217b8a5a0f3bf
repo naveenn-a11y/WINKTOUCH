@@ -1,4 +1,4 @@
-function _deadb610b0dd8e0c535bf79d98f6c4438f1e3bf3(){};//@tag foundation,core
+function _bbfe7a9605e87e2f0efaec5e071217b8a5a0f3bf(){};//@tag foundation,core
 //@define Ext
 /**
  * @class Ext
@@ -70286,7 +70286,7 @@ Ext.define('WINK.Utilities', {
             return WINK.Utilities.accountid;
         },
         getWinkVersion: function() {
-            return "2.33";
+            return "2.0";
         },
         getRestURL: function() {
             if (WINK.Utilities.hasPhonegap())  {
