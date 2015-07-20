@@ -245,7 +245,7 @@ Ext.define('WINK.Utilities', {
             return WINK.Utilities.accountid;
         },
         getWinkVersion: function() {
-            return "2.0";
+            return "2.33";
         },
         getRestURL: function() {
             if (WINK.Utilities.hasPhonegap())
