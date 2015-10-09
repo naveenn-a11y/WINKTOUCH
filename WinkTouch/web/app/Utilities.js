@@ -265,8 +265,12 @@ Ext.define('WINK.Utilities', {
 
             if (!response) {
                 Ext.Msg.alert("Internal Server Error", "Unknown Server Error", Ext.emptyFn);
-            } else if (response.status === 403) {
+            } else if (response.status === 401) { //not authenticated
                 WINK.Utilities.relogin();
+
+            } else if (response.status === 403) { //logged in user not allowed to do this operation
+                var message = response.responseText | response.statusText;
+                Ext.Msg.alert(title, "Your user profile is not authorized. " + response.status + " " + message, Ext.emptyFn);
             } else {
                 var message = response.responseText | response.statusText;
                 Ext.Msg.alert(title, response.status + " " + message, Ext.emptyFn);
@@ -283,30 +287,30 @@ Ext.define('WINK.Utilities', {
         },
         updateHasManyAssociations: function(model) {
             var me = model;
-            
+
             var associations = me.associations.items;
-            
+
             var associationCount = associations.length;
-            
-            var     association, associatedStore,
+
+            var association, associatedStore,
                     type, name, foreignKey, filterProperty,
                     filters, filter;
             var newId = model.getId();
-            
+
             for (var i = 0; i < associationCount; i++) {
                 association = associations[i];
 
                 type = association.getType();
-                if(type)
-                    type=type.toLowerCase();
+                if (type)
+                    type = type.toLowerCase();
                 name = association.getName();
                 foreignKey = association.getForeignKey();
-               
+
                 switch (type) {
                     case 'hasmany':
                         var storeName = association.getStoreName();
-                         var store = association.getStore();
-                       
+                        var store = association.getStore();
+
                         associatedStore = me[name]();
 
                         if (associatedStore) {
@@ -332,16 +336,16 @@ Ext.define('WINK.Utilities', {
                             //associatedStore.clearFilter();
                             //associatedStore.filter(filterProperty,newId);
                             filters = associatedStore.getFilters();
-                            
-                            
-                            filters.forEach(function(item,index,array) {
-                                    if(item.get('property')===filterProperty)
-                                    {
-                                         item.setValue(newId);
-                                    }
-                                   
-                                });
-                          
+
+
+                            filters.forEach(function(item, index, array) {
+                                if (item.get('property') === filterProperty)
+                                {
+                                    item.setValue(newId);
+                                }
+
+                            });
+
                         }
 
                         break;
@@ -381,10 +385,10 @@ Ext.define('WINK.Utilities', {
                         }
                     },
                     failure: function(response) {
-                       
+
                     },
                     callback: function(options, success) {
-                        if(!success.success)
+                        if (!success.success)
                         {
                             WINK.Utilities.showAjaxError('Save Patient', success.error);
                         }
