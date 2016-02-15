@@ -25,7 +25,7 @@
 
 	.x-button {
 		border-color: #8e98a3;
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.5), inset 0 1px 0 rgba(#a4aeb6,.6));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.5), inset 0 1px 0 rgba(#a4aeb6,.6));
 		@include background-image(linear-gradient(top, #d3dade, #b5bec6));
 
 		.x-button-label {
@@ -45,7 +45,7 @@
 
 	.x-button.x-button-pressing,
 	.x-button.x-button-pressed {
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.2), inset 0 1px 0 rgba(0,0,0,.3));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.2), inset 0 1px 0 rgba(0,0,0,.3));
 		@include background-image(linear-gradient(top, #8995aa, #667590));
 	}
 
@@ -65,7 +65,7 @@
 
 	.x-button {
 		border-color: #3b4f75;
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.5), inset 0 1px 0 rgba(0,0,0,.2));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.5), inset 0 1px 0 rgba(0,0,0,.2));
 		@include background-image(linear-gradient(bottom, #41618d, #89a0be));
 
 		.x-button-label {
@@ -75,23 +75,23 @@
 	}
 
 	.x-button.x-button-pressing {
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.5), inset 0 1px 0 rgba(0,0,0,.2));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.5), inset 0 1px 0 rgba(0,0,0,.2));
 		@include background-image(linear-gradient(top, #8693ac, #273e6b));
 	}
 
 	.x-button.x-button-pressed {
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.5), inset 0 1px 0 rgba(0,0,0,.2));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.5), inset 0 1px 0 rgba(0,0,0,.2));
 		@include background-image(linear-gradient(top, #8693ac, #213754));
     }
 }
 
 .x-toolbar-black {
-	@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.1));
+	@include box-shadow(0 1px 0 rgba(255,255,255,.1));
 	@include background-image(linear-gradient(top, #2f2f2f 0, #151515 50%, #000 51%, #000 100%));
 
 	.x-button {
 		border-color: #000;
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.3), inset 0 1px 0 rgba(0,0,0,.2));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.3), inset 0 1px 0 rgba(0,0,0,.2));
 		@include background-image(linear-gradient(top, #767676 0, #282828 50%, #000 51%, #000 100%));
 
 		.x-button-label {
@@ -122,7 +122,7 @@
 
 	.x-button {
 		border-color: #9a9b9d;
-		@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.3), inset 0 1px 0 rgba(0,0,0,.1));
+		@include box-shadow(0 1px 0 rgba(255,255,255,.3), inset 0 1px 0 rgba(0,0,0,.1));
 		@include background-image(linear-gradient(top, #f7f7f9, #bbbec8));
 	}
 

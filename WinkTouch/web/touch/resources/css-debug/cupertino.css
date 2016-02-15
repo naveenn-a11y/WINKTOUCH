@@ -1941,10 +1941,10 @@ audio {
   animation-iteration-count: infinite;
   background-repeat: repeat-x;
   background-size: 30px 30px;
-  background-image: -webkit-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -moz-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -ms-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 
 @-webkit-keyframes progressIndicator {
@@ -2220,7 +2220,7 @@ audio {
 .x-legend .x-legend-inner .x-legend-container .x-legend-item {
   padding: 0.8em 1em 0.8em 1.8em;
   color: #333333;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0);
+  background: rgba(255, 255, 255, 0);
   max-width: 20em;
   min-width: 0;
   font-size: 14px;
@@ -2244,9 +2244,9 @@ audio {
   -ms-border-radius: 0.4em;
   -o-border-radius: 0.4em;
   border-radius: 0.4em;
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -moz-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
   left: .7em;
   top: 1em;
 }
@@ -4716,9 +4716,9 @@ input[type="search"]::-webkit-search-cancel-button {
 .x-sheet-action {
   padding: 15px;
   border-top: 1px solid #ccc;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background-color: #fff;
 }
 /* line 7, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino/src/_Sheet.scss */
@@ -4745,9 +4745,9 @@ input[type="search"]::-webkit-search-cancel-button {
   padding: 15px;
   border: 1px solid #ccc;
   border-width: 0;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background-color: #fff;
 }
 /* line 12, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino/src/_Menu.scss */
@@ -5581,7 +5581,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* line 18, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino/src/tab/_Panel.scss */
 .x-tab-active {
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* line 24, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino/src/tab/_Panel.scss */

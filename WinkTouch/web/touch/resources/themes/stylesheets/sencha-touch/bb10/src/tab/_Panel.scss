@@ -138,7 +138,7 @@
 .x-tabbar-light {
     .x-tab {
         border-color: darken($base-color, 13);
-        background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, .1);
+        background-color: rgba(255, 255, 255, .1);
 
         &:before {
             background: lighten($base-color, 15);

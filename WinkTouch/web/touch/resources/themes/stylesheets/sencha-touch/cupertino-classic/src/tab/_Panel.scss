@@ -1,7 +1,7 @@
 .x-tabbar {
 	min-height: 2.6em;
 
-	@include box-shadow(0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.1));
+	@include box-shadow(0 1px 0 rgba(255,255,255,.1));
 	@include background-image(linear-gradient(top, #2f2f2f 0, #151515 50%, #000 51%, #000 100%));
 }
 
@@ -15,7 +15,7 @@
 }
 
 .x-tab-active {
-	background: rgba(***REMOVED***,***REMOVED***,***REMOVED***,.15);
+	background: rgba(255,255,255,.15);
 }
 
 .x-tab {

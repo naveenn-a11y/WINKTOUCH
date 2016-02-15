@@ -13,7 +13,7 @@ $cutout-blur: 5px !default;
     $blur: 5px
 ) {
     @return
-        0 1px 0 rgba(***REMOVED***,***REMOVED***,***REMOVED***,.2),
+        0 1px 0 rgba(255,255,255,.2),
         inset 0 $depth ($blur) rgba(0,0,0,.6),
         inset 0 1px $blur rgba(0,0,0,.6)
 }

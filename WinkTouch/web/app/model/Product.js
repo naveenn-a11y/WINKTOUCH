@@ -650,11 +650,11 @@ proxy: {
 ,
  { type: 'length', field: 'description_it', max: 150,min:0 }
 ,
- { type: 'length', field: 'name_fr', max: ***REMOVED***,min:0 }
+ { type: 'length', field: 'name_fr', max: 255,min:0 }
 ,
- { type: 'length', field: 'name_sp', max: ***REMOVED***,min:0 }
+ { type: 'length', field: 'name_sp', max: 255,min:0 }
 ,
- { type: 'length', field: 'name_it', max: ***REMOVED***,min:0 }
+ { type: 'length', field: 'name_it', max: 255,min:0 }
 ,
  { type: 'length', field: 'printas', max: 100,min:0 }
 ,

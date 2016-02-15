@@ -1846,10 +1846,10 @@ audio {
   animation-iteration-count: infinite;
   background-repeat: repeat-x;
   background-size: 30px 30px;
-  background-image: -webkit-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -moz-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -ms-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 
 @-webkit-keyframes progressIndicator {
@@ -2125,7 +2125,7 @@ audio {
 .x-legend .x-legend-inner .x-legend-container .x-legend-item {
   padding: 0.8em 1em 0.8em 1.8em;
   color: #333333;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0);
+  background: rgba(255, 255, 255, 0);
   max-width: 20em;
   min-width: 0;
   font-size: 14px;
@@ -2149,9 +2149,9 @@ audio {
   -ms-border-radius: 0.4em;
   -o-border-radius: 0.4em;
   border-radius: 0.4em;
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -moz-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
   left: .7em;
   top: 1em;
 }
@@ -4516,14 +4516,14 @@ textarea {
 .x-toolbar-dark .x-segmentedbutton .x-button-pressing,
 .x-toolbar-dark .x-segmentedbutton .x-button-pressed {
   border-color: #000;
-  -webkit-box-shadow: inset 0 0 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  -moz-box-shadow: inset 0 0 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  background: -webkit-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: -moz-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: -o-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: -ms-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
+  -webkit-box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: -o-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: -ms-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
 }
 
 /* line 100, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/bb10/src/_SegmentedButton.scss */
@@ -4565,14 +4565,14 @@ textarea {
 .x-toolbar-light .x-segmentedbutton .x-button-pressing,
 .x-toolbar-light .x-segmentedbutton .x-button-pressed {
   border-color: #0c6893;
-  -webkit-box-shadow: inset 0 0 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  -moz-box-shadow: inset 0 0 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  background: -webkit-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: -moz-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: -o-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: -ms-linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
-  background: linear-gradient(top, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1));
+  -webkit-box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: -o-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: -ms-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
 }
 /* line 129, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/bb10/src/_SegmentedButton.scss */
 .x-toolbar-light .x-segmentedbutton .x-button-label, .x-toolbar-light .x-segmentedbutton .x-badge {
@@ -5198,7 +5198,7 @@ textarea {
   display: -webkit-box;
   display: -ms-flexbox;
   height: 100% !important;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.75);
+  background: rgba(255, 255, 255, 0.75);
 }
 /* line 73, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/bb10/src/dataview/_List.scss */
 .x-indexbar > div {
@@ -5981,9 +5981,9 @@ textarea {
   background: -o-linear-gradient(#3b94c9, #0277ba);
   background: -ms-linear-gradient(#3b94c9, #0277ba);
   background: linear-gradient(#3b94c9, #0277ba);
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border-color: #7D7D7D;
 }
 /* line 31, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/bb10/src/slider/_Toggle.scss */
@@ -6182,7 +6182,7 @@ textarea {
 /* line 139, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/bb10/src/tab/_Panel.scss */
 .x-tabbar-light .x-tab {
   border-color: #077ca5;
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 /* line 143, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/bb10/src/tab/_Panel.scss */
 .x-tabbar-light .x-tab:before {

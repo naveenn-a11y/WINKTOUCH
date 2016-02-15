@@ -1847,10 +1847,10 @@ audio {
   animation-iteration-count: infinite;
   background-repeat: repeat-x;
   background-size: 30px 30px;
-  background-image: -webkit-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -moz-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -ms-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 
 @-webkit-keyframes progressIndicator {
@@ -2126,7 +2126,7 @@ audio {
 .x-legend .x-legend-inner .x-legend-container .x-legend-item {
   padding: 0.8em 1em 0.8em 1.8em;
   color: #333333;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0);
+  background: rgba(255, 255, 255, 0);
   max-width: 20em;
   min-width: 0;
   font-size: 14px;
@@ -2150,9 +2150,9 @@ audio {
   -ms-border-radius: 0.4em;
   -o-border-radius: 0.4em;
   border-radius: 0.4em;
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -moz-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
   left: .7em;
   top: 1em;
 }
@@ -5679,9 +5679,9 @@ body {
   background: -o-linear-gradient(#464c54, #2f3338);
   background: -ms-linear-gradient(#464c54, #2f3338);
   background: linear-gradient(#464c54, #2f3338);
-  -webkit-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 12, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/tizen/variations/dark/src/slider/_Toggle.scss */
 .x-toggle .x-thumb:before {
@@ -6585,9 +6585,9 @@ body {
 .x-theme-variation-light .x-toggle .x-thumb:after {
   background: -ms-#b1ac9c;
   background: #b1ac9c;
-  -webkit-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 12, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/tizen/variations/light/src/slider/_Toggle.scss */
 .x-theme-variation-light .x-toggle .x-thumb:before {

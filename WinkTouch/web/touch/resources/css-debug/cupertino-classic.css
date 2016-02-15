@@ -1985,10 +1985,10 @@ audio {
   animation-iteration-count: infinite;
   background-repeat: repeat-x;
   background-size: 30px 30px;
-  background-image: -webkit-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -moz-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -ms-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 
 @-webkit-keyframes progressIndicator {
@@ -2264,7 +2264,7 @@ audio {
 .x-legend .x-legend-inner .x-legend-container .x-legend-item {
   padding: 0.8em 1em 0.8em 1.8em;
   color: #333333;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0);
+  background: rgba(255, 255, 255, 0);
   max-width: 20em;
   min-width: 0;
   font-size: 14px;
@@ -2288,9 +2288,9 @@ audio {
   -ms-border-radius: 0.4em;
   -o-border-radius: 0.4em;
   border-radius: 0.4em;
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -moz-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
   left: .7em;
   top: 1em;
 }
@@ -3774,51 +3774,51 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 284, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-top {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.99);
+  background-color: rgba(255, 255, 255, 0.99);
 }
 /* line 285, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-top::after {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.9);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 /* line 286, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-left::before {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.8);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 /* line 287, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-left {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.7);
+  background-color: rgba(255, 255, 255, 0.7);
 }
 /* line 288, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-left::after {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6);
+  background-color: rgba(255, 255, 255, 0.6);
 }
 /* line 289, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-bottom::before {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 /* line 290, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-bottom {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.4);
+  background-color: rgba(255, 255, 255, 0.4);
 }
 /* line 291, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-bottom::after {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.35);
+  background-color: rgba(255, 255, 255, 0.35);
 }
 /* line 292, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-right::before {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  background-color: rgba(255, 255, 255, 0.3);
 }
 /* line 293, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-right {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25);
+  background-color: rgba(255, 255, 255, 0.25);
 }
 /* line 294, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-right::after {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 /* line 295, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/base/mixins/_Class.scss */
 .x-loading-spinner > span.x-loading-top::before {
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Rotate each of the 4 Spans */
@@ -3978,9 +3978,9 @@ input[type="search"]::-webkit-search-cancel-button {
   -ms-border-radius: 0;
   -o-border-radius: 0;
   border-radius: 0;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 /* line 62, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_MessageBox.scss */
 .x-msgbox .x-field-input {
@@ -4022,9 +4022,9 @@ input[type="search"]::-webkit-search-cancel-button {
   margin: 0 6px 0 0;
   border: 1px solid #1d2545;
   background: rgba(4, 11, 32, 0.22);
-  -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.5), 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.5), 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: 0 0 1px rgba(0, 0, 0, 0.5), 0 1px rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.5), 0 1px rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.5), 0 1px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.5), 0 1px rgba(255, 255, 255, 0.3);
   background-image: -webkit-linear-gradient(top, rgba(184, 193, 218, 0.48) 0%, rgba(52, 63, 94, 0.48) 50%, rgba(16, 33, 78, 0.48) 51%, rgba(36, 58, 86, 0.48) 100%);
   background-image: -moz-linear-gradient(top, rgba(184, 193, 218, 0.48) 0%, rgba(52, 63, 94, 0.48) 50%, rgba(16, 33, 78, 0.48) 51%, rgba(36, 58, 86, 0.48) 100%);
   background-image: -o-linear-gradient(top, rgba(184, 193, 218, 0.48) 0%, rgba(52, 63, 94, 0.48) 50%, rgba(16, 33, 78, 0.48) 51%, rgba(36, 58, 86, 0.48) 100%);
@@ -4040,10 +4040,10 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 110, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_MessageBox.scss */
 .x-msgbox .x-msgbox-buttons .x-button-action {
-  background-image: -webkit-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
-  background-image: -moz-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
-  background-image: -o-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
-  background-image: -ms-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -webkit-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -moz-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -o-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -ms-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
 }
 /* line 114, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_MessageBox.scss */
 .x-msgbox .x-msgbox-buttons .x-button-pressing {
@@ -4079,14 +4079,14 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 21, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-light .x-title {
   color: #283b5a;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 /* line 26, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-light .x-button {
   border-color: #8e98a3;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(164, 174, 182, 0.6);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(164, 174, 182, 0.6);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(164, 174, 182, 0.6);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(164, 174, 182, 0.6);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(164, 174, 182, 0.6);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(164, 174, 182, 0.6);
   background-image: -webkit-linear-gradient(top, #d3dade, #b5bec6);
   background-image: -moz-linear-gradient(top, #d3dade, #b5bec6);
   background-image: -o-linear-gradient(top, #d3dade, #b5bec6);
@@ -4095,7 +4095,7 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 31, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-light .x-button .x-button-label, .x-toolbar-light .x-button .x-badge {
   color: #4e658b;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 /* line 37, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-light .x-button.x-button-action {
@@ -4115,9 +4115,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 47, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-light .x-button.x-button-pressing,
 .x-toolbar-light .x-button.x-button-pressed {
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3);
   background-image: -webkit-linear-gradient(top, #8995aa, #667590);
   background-image: -moz-linear-gradient(top, #8995aa, #667590);
   background-image: -o-linear-gradient(top, #8995aa, #667590);
@@ -4144,9 +4144,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 66, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-dark .x-button {
   border-color: #3b4f75;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
   background-image: -webkit-linear-gradient(bottom, #41618d, #89a0be);
   background-image: -moz-linear-gradient(bottom, #41618d, #89a0be);
   background-image: -o-linear-gradient(bottom, #41618d, #89a0be);
@@ -4159,9 +4159,9 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 77, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-dark .x-button.x-button-pressing {
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
   background-image: -webkit-linear-gradient(top, #8693ac, #273e6b);
   background-image: -moz-linear-gradient(top, #8693ac, #273e6b);
   background-image: -o-linear-gradient(top, #8693ac, #273e6b);
@@ -4169,9 +4169,9 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 82, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-dark .x-button.x-button-pressed {
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
   background-image: -webkit-linear-gradient(top, #8693ac, #213754);
   background-image: -moz-linear-gradient(top, #8693ac, #213754);
   background-image: -o-linear-gradient(top, #8693ac, #213754);
@@ -4180,9 +4180,9 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* line 88, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-black {
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
   background-image: -webkit-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
   background-image: -moz-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
   background-image: -o-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
@@ -4191,9 +4191,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 92, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-black .x-button {
   border-color: #000;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
   background-image: -webkit-linear-gradient(top, #767676 0%, #282828 50%, #000000 51%, #000000 100%);
   background-image: -moz-linear-gradient(top, #767676 0%, #282828 50%, #000000 51%, #000000 100%);
   background-image: -o-linear-gradient(top, #767676 0%, #282828 50%, #000000 51%, #000000 100%);
@@ -4229,14 +4229,14 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 118, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-neutral .x-title {
   color: #686a71;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 /* line 123, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Toolbar.scss */
 .x-toolbar-neutral .x-button {
   border-color: #9a9b9d;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
   background-image: -webkit-linear-gradient(top, #f7f7f9, #bbbec8);
   background-image: -moz-linear-gradient(top, #f7f7f9, #bbbec8);
   background-image: -o-linear-gradient(top, #f7f7f9, #bbbec8);
@@ -4310,7 +4310,7 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 11, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Button.scss */
 .x-button-icon:before {
   color: #454547;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   font-size: 1.4em;
   line-height: 1.15em;
 }
@@ -4376,7 +4376,7 @@ input[type="search"]::-webkit-search-cancel-button {
 .x-button-forward .x-button-label,
 .x-button-forward .x-badge {
   color: #000;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 /* line 60, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Button.scss */
 .x-button-normal.x-button-pressing, .x-button-normal.x-button-pressed,
@@ -4851,9 +4851,9 @@ input[type="search"]::-webkit-search-cancel-button {
 .x-sheet-action {
   padding: 15px;
   border-top: 1px solid #323436;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background-image: -webkit-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
   background-image: -moz-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
   background-image: -o-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
@@ -4869,9 +4869,9 @@ input[type="search"]::-webkit-search-cancel-button {
   -ms-border-radius: 6px;
   -o-border-radius: 6px;
   border-radius: 6px;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 14, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Sheet.scss */
 .x-sheet-action .x-button:last-child {
@@ -4883,9 +4883,9 @@ input[type="search"]::-webkit-search-cancel-button {
   padding: 15px;
   border: 1px solid #323436;
   border-width: 0;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background-image: -webkit-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
   background-image: -moz-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
   background-image: -o-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
@@ -4901,9 +4901,9 @@ input[type="search"]::-webkit-search-cancel-button {
   -ms-border-radius: 6px;
   -o-border-radius: 6px;
   border-radius: 6px;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 15, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/_Menu.scss */
 .x-menu .x-button:last-child {
@@ -5585,7 +5585,7 @@ input[type="search"]::-webkit-search-cancel-button {
   color: #000;
   margin: .5em;
   color: #586176;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 /* line 39, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/form/_FieldSet.scss */
@@ -5594,7 +5594,7 @@ input[type="search"]::-webkit-search-cancel-button {
   color: #586176;
   margin: 1em;
   font-size: .8em;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 /* line 49, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/form/_FieldSet.scss */
@@ -5659,16 +5659,16 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 8, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/picker/_Picker.scss */
 .x-picker .x-dock-body {
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 12, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/picker/_Picker.scss */
 .x-picker .x-toolbar {
   border-top: 1px solid;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* line 18, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/picker/_Picker.scss */
@@ -5677,9 +5677,9 @@ input[type="search"]::-webkit-search-cancel-button {
   border: 1px solid #000000;
   overflow: hidden;
   margin: .6em;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
   background-image: -webkit-linear-gradient(top, #414245 0%, #f3f3f4 30%, #ffffff 50%, #f3f3f4 70%, #414245 100%);
   background-image: -moz-linear-gradient(top, #414245 0%, #f3f3f4 30%, #ffffff 50%, #f3f3f4 70%, #414245 100%);
   background-image: -o-linear-gradient(top, #414245 0%, #f3f3f4 30%, #ffffff 50%, #f3f3f4 70%, #414245 100%);
@@ -5820,9 +5820,9 @@ input[type="search"]::-webkit-search-cancel-button {
   -webkit-background-clip: padding;
   -moz-background-clip: padding;
   background-clip: padding-box;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
   -webkit-border-radius: 0.725em;
   -moz-border-radius: 0.725em;
   -ms-border-radius: 0.725em;
@@ -5917,9 +5917,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 1, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/tab/_Panel.scss */
 .x-tabbar {
   min-height: 2.6em;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
   background-image: -webkit-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
   background-image: -moz-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
   background-image: -o-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
@@ -5944,7 +5944,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* line 17, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/tab/_Panel.scss */
 .x-tab-active {
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* line 22, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/cupertino-classic/src/tab/_Panel.scss */

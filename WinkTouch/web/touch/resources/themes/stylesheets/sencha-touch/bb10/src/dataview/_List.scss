@@ -68,7 +68,7 @@
 	@include border-radius(0px);
 	@include st-box();
 	height: 100% !important;
-	background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, .75);
+	background: rgba(255, 255, 255, .75);
 
 	& > div {
 		@include st-box();
@@ -125,7 +125,7 @@ $indexbar-indicator-font-size: 2em;
 }
 
 .x-indexbar-pressed {
-	background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 1);
+	background: rgba(255, 255, 255, 1);
 }
 
 .x-list-item-odd {

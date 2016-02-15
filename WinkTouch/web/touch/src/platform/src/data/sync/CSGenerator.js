@@ -25,7 +25,7 @@ Ext.data.CSGenerator = Ext.extend(Ext.data.Config, {
     var current_time= this.clock.now();
     this.update_local_offset(current_time);
     this.s+= 1;
-    if (this.s>***REMOVED***) { // JCM This is totally arbitrary, and it's hard coded too....
+    if (this.s>255) { // JCM This is totally arbitrary, and it's hard coded too....
       this.t= current_time;
       this.local_offset+= 1;
       this.s= 0;

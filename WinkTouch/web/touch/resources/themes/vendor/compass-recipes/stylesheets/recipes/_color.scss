@@ -12,9 +12,9 @@
  * @return {measurement}
  */
 @function brightness($color) {
-    $r: red($color) / ***REMOVED*** * 100;
-    $g: green($color) / ***REMOVED*** * 100;
-    $b: blue($color) / ***REMOVED*** * 100;
+    $r: red($color) / 255 * 100;
+    $g: green($color) / 255 * 100;
+    $b: blue($color) / 255 * 100;
 
     $brightness: (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
 
@@ -41,9 +41,9 @@
  * @return {measurement}
  */
 @function luminosity($color) {
-    $r: color-luminance(red($color) / ***REMOVED***);
-    $g: color-luminance(green($color) / ***REMOVED***);
-    $b: color-luminance(blue($color) / ***REMOVED***);
+    $r: color-luminance(red($color) / 255);
+    $g: color-luminance(green($color) / 255);
+    $b: color-luminance(blue($color) / 255);
     $l: 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
     @debug 'luminosity for ' + $color + ' is ' + $l;
     @return $l;
@@ -174,9 +174,9 @@
 }
 
 @function hsv-to-rgb($color) {
-    $r: red($color) / ***REMOVED***;
-    $g: green($color) / ***REMOVED***;
-    $b: blue($color) / ***REMOVED***;
+    $r: red($color) / 255;
+    $g: green($color) / 255;
+    $b: blue($color) / 255;
     $a: opacity($color);
 }
 

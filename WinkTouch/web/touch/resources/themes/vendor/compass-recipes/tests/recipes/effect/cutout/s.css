@@ -53,15 +53,15 @@ h2 {
 }
 
 .cutout {
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
-  -o-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+  -o-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.6), inset 0 1px 5px rgba(0, 0, 0, 0.6);
 }
 
 .cutout-deep {
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
-  -o-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
+  -o-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 1px 20px rgba(0, 0, 0, 0.6);
 }

@@ -2192,7 +2192,7 @@ audio {
 .x-legend .x-legend-inner .x-legend-container .x-legend-item {
   padding: 0.8em 1em 0.8em 1.8em;
   color: #333333;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0);
+  background: rgba(255, 255, 255, 0);
   max-width: 20em;
   min-width: 0;
   font-size: 14px;
@@ -2216,9 +2216,9 @@ audio {
   -ms-border-radius: 0.4em;
   -o-border-radius: 0.4em;
   border-radius: 0.4em;
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -moz-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
   left: .7em;
   top: 1em;
 }
@@ -3472,11 +3472,11 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 94, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_MessageBox.scss */
 .x-msgbox .x-msgbox-buttons .x-button-action {
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(251, 252, ***REMOVED***, 0.48)), color-stop(50%, rgba(113, 126, 157, 0.48)), color-stop(51%, rgba(74, 77, 104, 0.48)), color-stop(100%, rgba(106, 108, 142, 0.48)));
-  background-image: -webkit-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
-  background-image: -moz-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
-  background-image: -o-linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
-  background-image: linear-gradient(top, rgba(251, 252, ***REMOVED***, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(251, 252, 255, 0.48)), color-stop(50%, rgba(113, 126, 157, 0.48)), color-stop(51%, rgba(74, 77, 104, 0.48)), color-stop(100%, rgba(106, 108, 142, 0.48)));
+  background-image: -webkit-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -moz-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: -o-linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
+  background-image: linear-gradient(top, rgba(251, 252, 255, 0.48) 0%, rgba(113, 126, 157, 0.48) 50%, rgba(74, 77, 104, 0.48) 51%, rgba(106, 108, 142, 0.48) 100%);
 }
 
 /* line 99, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_MessageBox.scss */
@@ -3518,9 +3518,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 21, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_Toolbar.scss */
 .x-toolbar-light .x-button {
   border-color: #3b4f75;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
   background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #41618d), color-stop(100%, #89a0be));
   background-image: -webkit-linear-gradient(bottom, #41618d, #89a0be);
   background-image: -moz-linear-gradient(bottom, #41618d, #89a0be);
@@ -3535,9 +3535,9 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* line 33, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_Toolbar.scss */
 .x-toolbar-dark {
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #2f2f2f), color-stop(50%, #151515), color-stop(51%, #000000), color-stop(100%, #000000));
   background-image: -webkit-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
   background-image: -moz-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
@@ -3547,9 +3547,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 37, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_Toolbar.scss */
 .x-toolbar-dark .x-button {
   border-color: #000;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.2);
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #767676), color-stop(50%, #282828), color-stop(51%, #000000), color-stop(100%, #000000));
   background-image: -webkit-linear-gradient(top, #767676 0%, #282828 50%, #000000 51%, #000000 100%);
   background-image: -moz-linear-gradient(top, #767676 0%, #282828 50%, #000000 51%, #000000 100%);
@@ -3578,9 +3578,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 57, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_Toolbar.scss */
 .x-toolbar-neutral .x-button {
   border-color: #9a9b9d;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(0, 0, 0, 0.1);
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f7f7f9), color-stop(100%, #bbbec8));
   background-image: -webkit-linear-gradient(top, #f7f7f9, #bbbec8);
   background-image: -moz-linear-gradient(top, #f7f7f9, #bbbec8);
@@ -3607,7 +3607,7 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 11, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_Button.scss */
 .x-button-icon:before {
   color: #454547;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   font-size: 1.4em;
   line-height: 1.15em;
 }
@@ -4112,9 +4112,9 @@ input[type="search"]::-webkit-search-cancel-button {
 .x-sheet-action {
   padding: 15px;
   border-top: 1px solid #323436;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(156, 162, 170, 0.9)), color-stop(80%, rgba(80, 87, 97, 0.9)), color-stop(100%, rgba(80, 87, 97, 0.9)));
   background-image: -webkit-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
   background-image: -moz-linear-gradient(top, rgba(156, 162, 170, 0.9) 0%, rgba(80, 87, 97, 0.9) 80%, rgba(80, 87, 97, 0.9) 100%);
@@ -4131,9 +4131,9 @@ input[type="search"]::-webkit-search-cancel-button {
   -ms-border-radius: 6px;
   -o-border-radius: 6px;
   border-radius: 6px;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 14, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/_Sheet.scss */
 .x-sheet-action .x-button:last-child {
@@ -4715,7 +4715,7 @@ input[type="search"]::-webkit-search-cancel-button {
   color: #000;
   margin: .5em;
   color: #586176;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 /* line 39, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/form/_FieldSet.scss */
@@ -4724,7 +4724,7 @@ input[type="search"]::-webkit-search-cancel-button {
   color: #586176;
   margin: 1em;
   font-size: .8em;
-  text-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 /* line 49, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/form/_FieldSet.scss */
@@ -4790,16 +4790,16 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 /* line 8, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/picker/_Picker.scss */
 .x-picker .x-dock-body {
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 /* line 12, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/picker/_Picker.scss */
 .x-picker .x-toolbar {
   border-top: 1px solid;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* line 18, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/picker/_Picker.scss */
@@ -4808,9 +4808,9 @@ input[type="search"]::-webkit-search-cancel-button {
   border: 1px solid black;
   overflow: hidden;
   margin: .6em;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.2);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #414245), color-stop(30%, #f3f3f4), color-stop(50%, #ffffff), color-stop(70%, #f3f3f4), color-stop(100%, #414245));
   background-image: -webkit-linear-gradient(top, #414245 0%, #f3f3f4 30%, #ffffff 50%, #f3f3f4 70%, #414245 100%);
   background-image: -moz-linear-gradient(top, #414245 0%, #f3f3f4 30%, #ffffff 50%, #f3f3f4 70%, #414245 100%);
@@ -4921,9 +4921,9 @@ input[type="search"]::-webkit-search-cancel-button {
   -webkit-background-clip: padding;
   -moz-background-clip: padding;
   background-clip: padding-box;
-  -webkit-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.2);
   -webkit-border-radius: 0.725em;
   -moz-border-radius: 0.725em;
   -ms-border-radius: 0.725em;
@@ -5004,9 +5004,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* line 1, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/tab/_Panel.scss */
 .x-tabbar {
   min-height: 2.6em;
-  -webkit-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  -moz-box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
-  box-shadow: 0 1px 0 rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #2f2f2f), color-stop(50%, #151515), color-stop(51%, #000000), color-stop(100%, #000000));
   background-image: -webkit-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
   background-image: -moz-linear-gradient(top, #2f2f2f 0%, #151515 50%, #000000 51%, #000000 100%);
@@ -5032,7 +5032,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* line 17, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/tab/_Panel.scss */
 .x-tab-active {
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* line 22, /Users/jamieavins/git/SDK/touch/resources/themes/stylesheets/sencha-touch/apple/src/tab/_Panel.scss */

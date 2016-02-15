@@ -31,9 +31,9 @@ module Sass::Script::Functions
    for i in (0..(opts["intensity"].to_s.to_f * (opts["size"].to_i**2)))
       x = rand(opts["size"].to_i)
       y = rand(opts["size"].to_i)
-      r = rand(***REMOVED***)
-      a = rand(***REMOVED*** * opts["opacity"].to_s.to_f)
-      color = opts["monochrome"] ? ChunkyPNG::Color.rgba(r, r, r, a) : ChunkyPNG::Color.rgba(r, rand(***REMOVED***), rand(***REMOVED***), a)
+      r = rand(255)
+      a = rand(255 * opts["opacity"].to_s.to_f)
+      color = opts["monochrome"] ? ChunkyPNG::Color.rgba(r, r, r, a) : ChunkyPNG::Color.rgba(r, rand(255), rand(255), a)
       image.set_pixel(x, y, color)
    end
 

@@ -2310,10 +2310,10 @@ audio {
   animation-iteration-count: infinite;
   background-repeat: repeat-x;
   background-size: 30px 30px;
-  background-image: -webkit-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -moz-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
-  background-image: -ms-linear-gradient(-45deg, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 25%, transparent 25%, transparent 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 50%, rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.15) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 
 @-webkit-keyframes progressIndicator {
@@ -2589,7 +2589,7 @@ audio {
 .x-legend .x-legend-inner .x-legend-container .x-legend-item {
   padding: 0.8em 1em 0.8em 1.8em;
   color: #333333;
-  background: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0);
+  background: rgba(255, 255, 255, 0);
   max-width: 20em;
   min-width: 0;
   font-size: 14px;
@@ -2613,9 +2613,9 @@ audio {
   -ms-border-radius: 0.4em;
   -o-border-radius: 0.4em;
   border-radius: 0.4em;
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  -moz-box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, 0.3) 0 1px 0, rgba(0, 0, 0, 0.4) 0 1px 0 inset;
   left: .7em;
   top: 1em;
 }
@@ -4564,10 +4564,10 @@ body.x-desktop {
 .x-toolbar .x-button.x-button-plain.x-button-pressing,
 .x-toolbar .x-button.x-button-plain.x-button-pressed {
   background: none;
-  background-image: -webkit-radial-gradient(rgba(182, 225, ***REMOVED***, 0.7), rgba(182, 225, ***REMOVED***, 0) 24px);
-  background-image: -moz-radial-gradient(rgba(182, 225, ***REMOVED***, 0.7), rgba(182, 225, ***REMOVED***, 0) 24px);
-  background-image: -o-radial-gradient(rgba(182, 225, ***REMOVED***, 0.7), rgba(182, 225, ***REMOVED***, 0) 24px);
-  background-image: -ms-radial-gradient(rgba(182, 225, ***REMOVED***, 0.7), rgba(182, 225, ***REMOVED***, 0) 24px);
+  background-image: -webkit-radial-gradient(rgba(182, 225, 255, 0.7), rgba(182, 225, 255, 0) 24px);
+  background-image: -moz-radial-gradient(rgba(182, 225, 255, 0.7), rgba(182, 225, 255, 0) 24px);
+  background-image: -o-radial-gradient(rgba(182, 225, 255, 0.7), rgba(182, 225, 255, 0) 24px);
+  background-image: -ms-radial-gradient(rgba(182, 225, 255, 0.7), rgba(182, 225, 255, 0) 24px);
 }
 
 /* line 214, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/_Button.scss */
@@ -5703,7 +5703,7 @@ body.x-desktop {
 /* line 48, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/_Toolbar.scss */
 .x-toolbar-neutral .x-title {
   color: #070707;
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
 }
 /* line 53, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/_Toolbar.scss */
 .x-toolbar-neutral.x-docked-top {
@@ -5779,7 +5779,7 @@ body.x-desktop {
 .x-toolbar-neutral .x-form-label {
   font-weight: bold;
   color: #070707;
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
 }
 
 /* line 89, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/_Toolbar.scss */
@@ -5838,7 +5838,7 @@ body.x-desktop {
 
 /* line 151, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/_Toolbar.scss */
 .x-toolbar .x-field-select.x-item-disabled .x-input-el {
-  -webkit-text-fill-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.6);
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.6);
 }
 
 /* line 156, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/_Toolbar.scss */
@@ -6058,12 +6058,12 @@ body.x-desktop {
 /* line 22, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/carousel/_Carousel.scss */
 .x-carousel-indicator-light span {
   background-image: none;
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 /* line 25, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/carousel/_Carousel.scss */
 .x-carousel-indicator-light span.x-carousel-indicator-active {
   background-image: none;
-  background-color: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.3);
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* line 22, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/carousel/_Carousel.scss */
@@ -6093,7 +6093,7 @@ body.x-desktop {
 .x-form-label {
   text-shadow: #fff 0 1px 1px;
   color: #333333;
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
   padding: 0.6em;
   background-color: #f7f7f7;
   color: #080808;
@@ -6710,7 +6710,7 @@ body.x-desktop {
   background-image: -o-linear-gradient(top, #a2d6f9, #72c0f6 3%, #42abf4);
   background-image: -ms-linear-gradient(top, #a2d6f9, #72c0f6 3%, #42abf4);
   color: #0a6aac;
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
   border-top: 1px solid #5ab5f5;
   border-bottom: 1px solid #0d87dc;
   font-weight: bold;
@@ -6961,7 +6961,7 @@ body.x-desktop {
 .x-picker-slot-title > div {
   font-size: 0.8em;
   color: #113b59;
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
 }
 
 /* line 66, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/picker/_Picker.scss */
@@ -7113,9 +7113,9 @@ body.x-desktop {
   background-image: -moz-linear-gradient(top, #c4c4c4, #d0d0d0 10%, #dddddd 65%, #dedede);
   background-image: -o-linear-gradient(top, #c4c4c4, #d0d0d0 10%, #dddddd 65%, #dedede);
   background-image: -ms-linear-gradient(top, #c4c4c4, #d0d0d0 10%, #dddddd 65%, #dedede);
-  -webkit-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.7) 0 0.1em 0;
-  -moz-box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.7) 0 0.1em 0;
-  box-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.7) 0 0.1em 0;
+  -webkit-box-shadow: rgba(255, 255, 255, 0.7) 0 0.1em 0;
+  -moz-box-shadow: rgba(255, 255, 255, 0.7) 0 0.1em 0;
+  box-shadow: rgba(255, 255, 255, 0.7) 0 0.1em 0;
   -webkit-border-radius: 0.4em;
   -moz-border-radius: 0.4em;
   -ms-border-radius: 0.4em;
@@ -7341,7 +7341,7 @@ body.x-desktop {
   background-image: -moz-linear-gradient(top, #195884, #1d6699 10%, #2175af 65%, #2176b1);
   background-image: -o-linear-gradient(top, #195884, #1d6699 10%, #2175af 65%, #2176b1);
   background-image: -ms-linear-gradient(top, #195884, #1d6699 10%, #2175af 65%, #2176b1);
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
   -webkit-box-shadow: #1d6699 0 0 0.25em inset;
   -moz-box-shadow: #1d6699 0 0 0.25em inset;
   box-shadow: #1d6699 0 0 0.25em inset;
@@ -7457,7 +7457,7 @@ body.x-desktop {
 
 /* line 166, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/tab/_Panel.scss */
 .x-tabbar-neutral.x-docked-bottom .x-tab {
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
 }
 /* line 170, /home/teamcity/buildAgent/work/856564e37705b5b7/touch/resources/themes/stylesheets/sencha-touch/default/src/tab/_Panel.scss */
 .x-tabbar-neutral.x-docked-bottom .x-tab-active {
@@ -7467,7 +7467,7 @@ body.x-desktop {
   background-image: -moz-linear-gradient(top, #bababa, #c7c7c7 10%, #d3d3d3 65%, #d5d5d5);
   background-image: -o-linear-gradient(top, #bababa, #c7c7c7 10%, #d3d3d3 65%, #d5d5d5);
   background-image: -ms-linear-gradient(top, #bababa, #c7c7c7 10%, #d3d3d3 65%, #d5d5d5);
-  text-shadow: rgba(***REMOVED***, ***REMOVED***, ***REMOVED***, 0.25) 0 0.08em 0;
+  text-shadow: rgba(255, 255, 255, 0.25) 0 0.08em 0;
   -webkit-box-shadow: #c7c7c7 0 0 0.25em inset;
   -moz-box-shadow: #c7c7c7 0 0 0.25em inset;
   box-shadow: #c7c7c7 0 0 0.25em inset;
