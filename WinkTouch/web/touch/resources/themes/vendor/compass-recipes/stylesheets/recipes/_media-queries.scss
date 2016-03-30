@@ -45,7 +45,7 @@ $media-query-width-small: 480px;
 @mixin media-small
 {
     //@media (max-width: $media-query-width-medium - 1px)
-    @media (max-width: ***REMOVED***px)
+    @media (max-width: 959px)
     {
         @content;
     }
@@ -54,7 +54,7 @@ $media-query-width-small: 480px;
     @mixin media-small-only
     {
         //@media (min-width: $media-query-width-small) and (max-width: $media-query-width-medium - 1px)
-        @media (min-width: 480px) and (max-width: ***REMOVED***px)
+        @media (min-width: 480px) and (max-width: 959px)
         {
             @content;
         }
