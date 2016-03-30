@@ -44991,22 +44991,6 @@ Ext.define('Ext.Toast', {
  * - {@link #method-play}
  * - {@link #toggle}
  *
- * ## Example
- *
- *     var panel = Ext.create('Ext.Panel', {
- *         fullscreen: true,
- *         items: [
- *             {
- *                 xtype    : 'video',
- *                 x        : 600,
- *                 y        : 300,
- *                 width    : 175,
- *                 height   : 98,
- *                 url      : "porsche911.mov",
- *                 posterUrl: 'porsche.png'
- *             }
- *         ]
- *     });
  */
 Ext.define('Ext.Video', {
     extend:  Ext.Media ,

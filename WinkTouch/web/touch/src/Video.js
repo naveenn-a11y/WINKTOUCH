@@ -19,22 +19,6 @@
  * - {@link #method-play}
  * - {@link #toggle}
  *
- * ## Example
- *
- *     var panel = Ext.create('Ext.Panel', {
- *         fullscreen: true,
- *         items: [
- *             {
- *                 xtype    : 'video',
- *                 x        : 600,
- *                 y        : 300,
- *                 width    : 175,
- *                 height   : 98,
- *                 url      : "***REMOVED***911.mov",
- *                 posterUrl: '***REMOVED***.png'
- *             }
- *         ]
- *     });
  */
 Ext.define('Ext.Video', {
     extend: 'Ext.Media',
