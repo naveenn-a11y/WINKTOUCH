@@ -73,7 +73,7 @@ class ScrollField<T> extends Component {
   render() {
     let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
     if (this.props.width) {
-      style = [{width: 300}, style];
+      style = [{ width: 300 }, style];
     }
     const formattedValue = this.format(this.state.value);
     return <Text onStartShouldSetResponder={(event) => true}
@@ -205,41 +205,53 @@ export class SelectionList extends Component {
   props: {
     label: string,
     items: string[],
-    selection?: string[],
+    selection?: string | string[],
     required?: boolean,
-    onUpdateSelection: (selection: string[]) => void
+    multiValue?: boolean,
+    onUpdateSelection: (selection: string[] | string) => void
   }
   defaultProps: {
-    required: false
+    selection: undefined,
+    required: false,
+    multiValue: false
   }
   constructor(props: any) {
     super(props);
   }
 
   select(item: string, select: boolean) {
-    let selection: string[] = this.props.selection ? this.props.selection : [];
-    const index = selection.indexOf(item);
-    if (index === -1) {
-      if (select) {
-        selection.push(item);
+    if (this.props.multiValue) {
+      let selection: ?string[] = this.props.selection ? this.props.selection : [];
+      const index = selection.indexOf(item);
+      if (index === -1) {
+        if (select) {
+          selection.push(item);
+        }
+      } else {
+        if (!select) {
+          selection.splice(index, 1);
+        }
       }
+      this.props.onUpdateSelection(selection);
     } else {
-      if (!select) {
-        selection.splice(index, 1);
-      }
+      let selection: ?string = undefined;
+      if (select) {
+        selection = item;
+      } 
+      this.props.onUpdateSelection(selection);
     }
-    this.props.onUpdateSelection(selection);
+
   }
 
   isSelected(item: string): boolean {
     if (!this.props.selection)
       return false;
     const index = this.props.selection.indexOf(item);
-    return (index >-1);
+    return (index > -1);
   }
 
   render() {
-    let style: string = this.props.required&&this.props.selection&&this.props.selection.length===0?styles.boardTodo:styles.board;
+    let style: string = this.props.required && this.props.selection && this.props.selection.length === 0 ? styles.boardTodo : styles.board;
     return <View style={style}>
       <Text style={styles.screenTitle}>{this.props.label}</Text>
       <ScrollView>

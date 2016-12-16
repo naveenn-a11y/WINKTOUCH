@@ -27,7 +27,7 @@ function fetchMedications(): Medication[] {
     {
       label: 'Xalatan',
       rxDate: new Date(),
-      strength: '0.05 mg/ml',
+      strength: '20 mg',
       dosage: '1 drop',
       route: 'OS',
       frequency: '5 x daily',
@@ -43,13 +43,13 @@ const medicationDefinition: Definition = {
     label: 'Label',
     options: ['Xalatan', 'Abilify', 'Roxicodone', 'Calcarb']
   },
-  duration: {
-    label: 'Duration',
-    options: ['1 day', '2 days', '3 days', '4 days', '1 week', '2 weeks', '1 month', '2 months', '1 year']
-  },
   strength: {
     label: 'Strength',
     options: ['10 mg', '20 mg', '30 mg', '50 mg', '100 mg', '200 mg']
+  },
+  duration: {
+    label: 'Duration',
+    options: ['1 day', '2 days', '3 days', '4 days', '1 week', '2 weeks', '1 month', '2 months', '1 year']
   },
   instructions: {
     label: 'Instructions',
@@ -115,15 +115,10 @@ export class ItemsScreen extends Component {
     }
   }
 
-  updateItem(field: string, value: any) {
+  updateItem(propertyName: string, value: any) {
     if (!this.state.selectedItem) return;
     let item: Medication = this.state.selectedItem;
-    if (this.props.itemDefinition[field].multiValue) {
-      item[field] = value;
-    } else {
-      item[field] = value[0];
-    }
-    alert(JSON.stringify(value));
+    item[propertyName] = value;
     this.setState({
       selectedItem: item
     });
@@ -171,12 +166,14 @@ export class ItemsScreen extends Component {
         onRemoveSelectedItem={() => this.removeSelectedItem()}
         />
       <ScrollView horizontal={true}>
-        {propertyNames.map((propertyName: string, index: number) =>
-          <SelectionList key={index}
+        {propertyNames.map((propertyName: string, index: number) => {
+          return <SelectionList key={index}
             label={this.props.itemDefinition[propertyName].label}
             items={this.props.itemDefinition[propertyName].options}
+            multiValue={this.props.itemDefinition[propertyName].multiValue}
             selection={this.state.selectedItem[propertyName]}
-            onUpdateSelection={(value) => this.updateItem('label', value)} />
+            onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
+        }
         )}
       </ScrollView>
     </View>
@@ -199,6 +196,6 @@ export class MedicationsScreen extends Component {
 
   render() {
     return <ItemsScreen newItem={() => this.newMedication()}
-      itemDefinition={medicationDefinition} />
+      itemDefinition={medicationDefinition} items={fetchMedications()} />
   }
 }
