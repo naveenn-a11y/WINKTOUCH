@@ -237,7 +237,7 @@ export class SelectionList extends Component {
       let selection: ?string = undefined;
       if (select) {
         selection = item;
-      } 
+      }
       this.props.onUpdateSelection(selection);
     }
 
@@ -250,8 +250,15 @@ export class SelectionList extends Component {
     return (index > -1);
   }
 
+  hasSelection(): boolean {
+    if (this.props.multiValue) {
+      return this.props.selection && this.props.selection.length > 0;
+    }
+    return this.props.selection !== undefined;
+  }
+
   render() {
-    let style: string = this.props.required && this.props.selection && this.props.selection.length === 0 ? styles.boardTodo : styles.board;
+    let style: string = this.props.required && !this.hasSelection() ? styles.boardTodo : styles.board;
     return <View style={style}>
       <Text style={styles.screenTitle}>{this.props.label}</Text>
       <ScrollView>

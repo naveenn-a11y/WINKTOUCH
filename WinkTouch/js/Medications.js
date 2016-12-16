@@ -41,7 +41,8 @@ function fetchMedications(): Medication[] {
 const medicationDefinition: Definition = {
   label: {
     label: 'Label',
-    options: ['Xalatan', 'Abilify', 'Roxicodone', 'Calcarb']
+    options: ['Xalatan', 'Abilify', 'Roxicodone', 'Calcarb'],
+    required: true
   },
   strength: {
     label: 'Strength',
@@ -95,20 +96,20 @@ class ItemsList extends Component {
   }
 }
 
-export class ItemsScreen extends Component {
+export class ItemsScreen<T> extends Component {
   props: {
-    items?: Medication[],
-    newItem: () => Medication,
+    items?: T[],
+    newItem: () => T,
     itemDefinition: Definition
   }
   state: {
-    items: Medication[],
-    selectedItem: Medication
+    items: T[],
+    selectedItem: T
   }
 
   constructor(props: any) {
     super(props);
-    const items: Medication[] = this.props.items ? this.props.items : [this.props.newItem()];
+    const items: T[] = this.props.items ? this.props.items : [this.props.newItem()];
     this.state = {
       items: items,
       selectedItem: items[0]
@@ -125,7 +126,7 @@ export class ItemsScreen extends Component {
   }
 
   addItem() {
-    const newItem: Medication = this.props.newItem();
+    const newItem: T = this.props.newItem();
     this.state.items.push(newItem);
     this.setState({
       items: this.state.items,
@@ -133,7 +134,7 @@ export class ItemsScreen extends Component {
     });
   }
 
-  selectItem(item: Medication) {
+  selectItem(item: T) {
     this.setState({
       selectedItem: item
     });
@@ -144,7 +145,7 @@ export class ItemsScreen extends Component {
     if (index < 0) {
       return;
     }
-    let items: Medication[] = this.state.items;
+    let items: T[] = this.state.items;
     items.splice(index, 1);
     if (items.length === 0)
       items = [this.props.newItem()];
@@ -167,10 +168,12 @@ export class ItemsScreen extends Component {
         />
       <ScrollView horizontal={true}>
         {propertyNames.map((propertyName: string, index: number) => {
-          return <SelectionList key={index}
-            label={this.props.itemDefinition[propertyName].label}
-            items={this.props.itemDefinition[propertyName].options}
-            multiValue={this.props.itemDefinition[propertyName].multiValue}
+          const propertyDefinition = this.props.itemDefinition[propertyName];
+          return <SelectionList key={index}          
+            label={propertyDefinition.label}
+            items={propertyDefinition.options}
+            multiValue={propertyDefinition.multiValue}
+            required={propertyDefinition.required}
             selection={this.state.selectedItem[propertyName]}
             onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
         }
