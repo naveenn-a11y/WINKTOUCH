@@ -145,6 +145,12 @@ export const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center'
     },
+    formRow500: {
+        minWidth: 500 * fontScale,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    },
     formElement: {
         flex: 1,
         flexDirection: 'row',
@@ -445,14 +451,15 @@ function examCardStyle(shadowColor: Color, isExpanded: boolean) {
 function scrollFieldStyle(isActive: boolean, hasNewValue: boolean) {
     return {
         fontSize: 20 * fontScale,
+        minHeight: 34 * fontScale,
         flex: 100,
         paddingHorizontal: 6 * fontScale,
         paddingVertical: 3 * fontScale,
-        textAlign: 'left',
+        textAlign: 'right',
         color: hasNewValue ? 'blue' : 'black',
         backgroundColor: isActive ? '#f0f0ff' : 'white',
-        borderRadius: 3,
-        margin: 3,
+        borderRadius: 3 * fontScale,
+        margin: 3 * fontScale,
         borderWidth: 1 * fontScale,
         borderColor: isActive ? 'blue' : 'black',
         shadowRadius: 3,

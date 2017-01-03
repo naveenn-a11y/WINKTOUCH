@@ -11,8 +11,15 @@ import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen } from './Complaint';
 import type {Complaint } from './Complaint';
 import { ReviewOfSystemsScreen } from './ReviewOfSystems';
-import { PatientMedicationsCard, PatientOcularHistoryCard, PatientMedicalHistoryCard, PatientAllergiesCard, PatientFamilyHistoryCard, PatientSocialHistoryCard } from './Patient';
+import { PatientMedicationsCard, PatientMedicalHistoryCard, PatientAllergiesCard, PatientFamilyHistoryCard, PatientSocialHistoryCard } from './Patient';
 import { MedicationsScreen } from './Medications';
+import { AllergiesScreen } from './Allergies';
+import { SocialHistoryScreen } from './SocialHistory';
+import { FamilyHistoryScreen } from './FamilyHistory';
+import { MedicalHistoryScreen } from './MedicalHistory';
+import { WearingRxScreen, RefractionScreen } from './Refraction';
+import { GlaucomaScreen } from './Glaucoma';
+import { SlitLampScreen } from './SlitLamp';
 
 export type Exam = {
   id?: number,
@@ -29,22 +36,31 @@ function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: bo
   }
 }
 
-export function allExams(): Exam[] {
+export function allExams(visitType: string): Exam[] {
+  if (visitType && visitType === 'followUp') {
+    return [constructExam('Complaint', true, true), constructExam('VisualAcuityTest', true, true),
+    constructExam('RefractionTest', true, true)]
+  }
+  if (visitType && visitType === 'fitting') {
+    return [
+      constructExam('Complaint', true, true), constructExam('VisualAcuityTest', true, true),
+      constructExam('RefractionTest', true, true), constructExam('SlitLampExam', true),
+    ]
+  }
   return [
-    constructExam('Complaint'), constructExam('VisualAcuityTest', true, true),
-    constructExam('VisualFieldTest'), constructExam('CoverTest', true),
-    constructExam('ReviewOfSystems'), constructExam('RetinoscopyTest'),
-    constructExam('RefractionTest'), constructExam('AutorefractorTest'),
-    constructExam('SlitLampExam'), constructExam('GlaucomaTest'), constructExam('IntraocularPressureExam'),
+    constructExam('Complaint', true, true), constructExam('VisualAcuityTest', true, true),
+    constructExam('VisualFieldTest', true, true), constructExam('CoverTest', true, true),
+    constructExam('ReviewOfSystems', true, true),
+    constructExam('RefractionTest', true, true), constructExam('GlaucomaExam', true),
+    constructExam('SlitLampExam', true),
   ]
 }
 
 export function allPreExams(): Exam[] {
   return [
-    constructExam('WearingRx', true, true), constructExam('Medications'),
-    constructExam('OcularHistory'), constructExam('MedicalHistory'),
-    constructExam('Allergies'), constructExam('FamilyHistory'),
-    constructExam('SocialHistory')
+    constructExam('WearingRx', true, true), constructExam('Medications', true, true),
+    constructExam('Allergies', true, true), constructExam('MedicalHistory', true, true),
+    constructExam('FamilyHistory', true, true), constructExam('SocialHistory', true)
   ]
 }
 
@@ -66,8 +82,6 @@ function newExamCardSpecifics(examType: string, isExpanded: boolean) {
   switch (examType) {
     case 'Complaint':
       return <ComplaintCard isExpanded={isExpanded} />
-    case 'Interview':
-      return <InterviewCard isExpanded={isExpanded} />
     case 'VisualAcuityTest':
       return <VisualAcuityTestCard isExpanded={isExpanded} />
     case 'CoverTest':
@@ -78,22 +92,16 @@ function newExamCardSpecifics(examType: string, isExpanded: boolean) {
       return <RetinoscopyTestCard isExpanded={isExpanded} />
     case 'RefractionTest':
       return <RefractionTestCard isExpanded={isExpanded} />
-    case 'AutorefractorTest':
-      return <AutorefractorTestCard isExpanded={isExpanded} />
     case 'SlitLampExam':
       return <SlitLampExamCard isExpanded={isExpanded} />
-    case 'GlaucomaTest':
-      return <GlaucomaTestCard isExpanded={isExpanded} />
     case 'VisualFieldTest':
       return <VisualFieldTestCard isExpanded={isExpanded} />
-    case 'IntraocularPressureExam':
-      return <IntraocularPressureExamCard isExpanded={isExpanded} />
+    case 'GlaucomaExam':
+      return <GlaucomaExamCard isExpanded={isExpanded} />
     case 'WearingRx':
       return <WearingRxCard isExpanded={isExpanded} />
     case 'Medications':
       return <PatientMedicationsCard isExpanded={isExpanded} />
-    case 'OcularHistory':
-      return <PatientOcularHistoryCard isExpanded={isExpanded} />
     case 'MedicalHistory':
       return <PatientMedicalHistoryCard isExpanded={isExpanded} />
     case 'Allergies':
@@ -110,30 +118,32 @@ function newExamScreenSpecifics(examType: string, exam: Exam) {
   switch (examType) {
     case 'Complaint':
       return <ComplaintScreen exam={exam} />;
-    case 'Interview':
-      break;
     case 'VisualAcuityTest':
       return <VisualAcuityTest exam={exam} />;
     case 'CoverTest':
       return <CoverTestScreen exam={exam} />
     case 'ReviewOfSystems':
       return <ReviewOfSystemsScreen exam={exam} />
-    case 'RetinoscopyTest':
-      break;
+    case 'WearingRx':
+      return <WearingRxScreen exam={exam} />
     case 'RefractionTest':
-      break;
-    case 'AutorefractorTest':
-      break;
+      return <RefractionScreen exam={exam} />
     case 'SlitLampExam':
-      break;
-    case 'GlaucomaTest':
-      break;
+      return <SlitLampScreen exam={exam} />
     case 'VisualFieldTest':
       return <VisualFieldTestScreen exam={exam} />
-    case 'IntraocularPressureExam':
-      break;
+    case 'GlaucomaExam':
+      return <GlaucomaScreen exam={exam} />
     case 'Medications':
       return <MedicationsScreen />
+    case 'Allergies':
+      return <AllergiesScreen />
+    case 'SocialHistory':
+      return <SocialHistoryScreen />
+    case 'FamilyHistory':
+      return <FamilyHistoryScreen />
+    case 'MedicalHistory':
+      return <MedicalHistoryScreen />
   }
   return <Text style={styles.screenTitle}>{examType}</Text>
 }
@@ -227,12 +237,6 @@ class ComplaintCard extends ExamCardSpecifics {
   }
 }
 
-class InterviewCard extends ExamCardSpecifics {
-  render() {
-    return <Text style={styles.text}>Interview</Text>
-  }
-}
-
 class VisualAcuityTestCard extends ExamCardSpecifics {
   render() {
     if (!this.props.isExpanded)
@@ -275,21 +279,9 @@ class RefractionTestCard extends ExamCardSpecifics {
   }
 }
 
-class AutorefractorTestCard extends ExamCardSpecifics {
-  render() {
-    return <Text style={styles.text}>Autorefractor</Text>
-  }
-}
-
 class SlitLampExamCard extends ExamCardSpecifics {
   render() {
     return <Text style={styles.text}>Slit Lamp</Text>
-  }
-}
-
-class GlaucomaTestCard extends ExamCardSpecifics {
-  render() {
-    return <Text style={styles.text}>Glaucoma</Text>
   }
 }
 
@@ -305,9 +297,9 @@ class VisualFieldTestCard extends ExamCardSpecifics {
   }
 }
 
-class IntraocularPressureExamCard extends ExamCardSpecifics {
+class GlaucomaExamCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>IOP</Text>
+    return <Text style={styles.text}>Glaucoma</Text>
   }
 }
 

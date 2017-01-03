@@ -190,12 +190,12 @@ class CoverTest extends Component {
   render() {
     return <View style={styles.board}>
       <Text style={styles.screenTitle}>{this.props.title}</Text>
-      <View style={styles.formRow}>
+      <View style={styles.formRow500}>
         <Text style={styles.formLabel}>Lateral:</Text>
         <OptionWheel value='Ortho' options={[null, 'Ortho']} />
         <OptionWheel value='EsoPhoria' options={[null, 'EsoPhoria']} />
       </View>
-      <View style={styles.formRow}>
+      <View style={styles.formRow500}>
         <Text style={styles.formLabel}>Vertical:</Text>
         <OptionWheel value='2' options={[null, 'Ortho']} />
         <OptionWheel value='Hyperphoria OD' options={[null, 'Hyperphoria OD']} />

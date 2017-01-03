@@ -6,6 +6,17 @@
 import React, { Component } from 'react';
 import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
+import { FormRow, FormTextInput } from './Form';
+import { ComplaintDetails } from './Complaint'
+
+export type ItemDefinition = {
+  [id: string]: {
+    label: string,
+    options?: string[],
+    normalValue?: string,
+    required?: boolean
+  }
+};
 
 class ScrollField<T> extends Component {
   props: {
@@ -200,7 +211,6 @@ export class SelectionListRow extends Component {
   }
 }
 
-
 export class SelectionList extends Component {
   props: {
     label: string,
@@ -267,6 +277,295 @@ export class SelectionList extends Component {
           return <SelectionListRow key={index} label={item}
             selected={isSelected} onSelect={(select: boolean) => this.select(item, select)} />
         })}
+      </ScrollView>
+    </View >
+  }
+}
+
+function constructItemView(itemView: string, item: ItemType, itemDefinition: ItemDefinition, orientation?: string) {
+  switch (itemView) {
+    case 'ComplaintDetails':
+      return <ComplaintDetails complaint={item} />
+  }
+  return <Item item={item} orientation={orientation} itemDefinition={itemDefinition} />
+}
+
+export class Item<ItemType> extends Component {
+  props: {
+    item: ItemType,
+    itemDefinition: ItemDefinition,
+    orientation?: string
+  }
+  constructor(props: any) {
+    super(props);
+  }
+
+  render() {
+    const propertyNames: string[] = Object.keys(this.props.itemDefinition);
+    if (this.props.orientation === 'horizontal') {
+      let description = '';
+      let isFirstField = true;
+      for (let i: number = 0; i < propertyNames.length; i++) {
+        const value = this.props.item[propertyNames[i]];
+        if (value && value.length > 0) {
+          let formattedValue: string = String(value);
+          if (formattedValue && formattedValue !== '') {
+            if (!isFirstField)
+              description += ', ';
+            description += formattedValue;
+            isFirstField = false;
+          }
+        }
+      }
+      return <Text>{description}</Text>
+    }
+    return <View>
+      <Text>{this.props.item[propertyNames[0]]}</Text>
+      <Text>{this.props.item[PropertyNames[1]]}</Text>
+    </View>
+  }
+}
+
+
+export class ItemSummary<ItemType> extends Component {
+  props: {
+    title?: string,
+    oneLineHeader?: boolean,
+    item: ItemType,
+    itemDefinition: ItemDefinition,
+    onUpdateItem: (propertyName: string, value: any) => void
+  }
+  format(value: string[] | string): string {
+    if (!value)
+      return '';
+    if (value instanceof Array) {
+      const values: string[] = value;
+      if (values.length === 0)
+        return '';
+      let formattedText: string = values[0];
+      for (var i = 1; i < values.length; i++) {
+        formattedText = formattedText + ', ' + values[i];
+      }
+      return formattedText;
+    }
+    return value;
+  }
+
+  render() {
+    const propertyNames: string[] = Object.keys(this.props.itemDefinition)
+    let haveToAskLabels: string[] = [];
+    return <View style={this.props.oneLineHeader ? styles.flow : styles.form}>
+      {(this.props.title) ? <Text style={styles.screenTitle}>{this.props.title}</Text> : null}
+      {propertyNames.map((propertyName: string, index: number) => {
+        const propertyDefinition = this.props.itemDefinition[propertyName];
+        let description: string = this.format(this.props.item[propertyName]);
+        if (!description && propertyDefinition.required)
+          haveToAskLabels.push(propertyDefinition.label);
+        if (!description || (propertyDefinition.normalValue && propertyDefinition.normalValue === description))
+          return null;
+        const propertyField = <FormTextInput label={propertyDefinition.label} value={description}
+          onChangeText={(text: string) => this.props.onUpdateItem(propertyName, text.split(', '))} />
+        if (this.props.oneLineHeader)
+          return propertyField;
+        return <FormRow key={index}>
+          {propertyField}
+        </FormRow>
+      })
+      }
+      {haveToAskLabels.length > 0 ?
+        <FormRow>
+          <FormTextInput label={'Should ask'} value={this.format(haveToAskLabels)} readOnly={true} />
+        </FormRow> : null}
+    </View>
+  }
+}
+
+class ItemsList<ItemType> extends Component {
+  props: {
+    items: ItemType[],
+    itemDefinition: Defintion,
+    selectedItem: ?ItemType,
+    onAddItem: () => void,
+    onSelectItem: (item: ItemType) => void,
+    onRemoveSelectedItem: () => void,
+    orientation: string,
+    itemView: string
+  }
+
+  render() {
+    const listStyle = this.props.orientation === 'horizontal' ? styles.listRow : styles.centeredColumnLayout;
+    const itemOrientation = this.props.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+    return <View style={styles.board}>
+      <View>
+        {this.props.items.map((item: ItemType, index: number) => {
+          const isSelected: boolean = this.props.selectedItem === item;
+          const itemView = constructItemView(this.props.itemView, item, this.props.itemDefinition, itemOrientation)
+          return <TouchableHighlight key={index} underlayColor='#bbbbffbb'
+            onPress={() => this.props.onSelectItem(item)} >
+            <View style={isSelected ? styles.listRowSelected : styles.listRow}>
+              {itemView}
+            </View>
+          </TouchableHighlight>
+        })}
+      </View>
+      <View style={styles.buttonsRowLayout}>
+        <WinkButton title='Add' onPress={() => this.props.onAddItem()} />
+        <WinkButton title='Remove' onPress={() => this.props.onRemoveSelectedItem()} />
+      </View>
+    </View >
+  }
+}
+
+
+export class ItemsEditor<ItemType> extends Component {
+  props: {
+    items?: ItemType[],
+    newItem: () => ItemType,
+    itemDefinition: ItemDefinition,
+    itemView?: string
+  }
+  state: {
+    items: ItemType[],
+    selectedItem: ItemType
+  }
+
+  constructor(props: any) {
+    super(props);
+    let items: ItemType[] = this.props.items ? this.props.items : [];
+    if (items.length === 0)
+      items = [this.props.newItem()];
+    this.state = {
+      items: items,
+      selectedItem: items[0]
+    }
+  }
+
+  updateItem(propertyName: string, value: any) {
+    if (!this.state.selectedItem) return;
+    let item: ItemType = this.state.selectedItem;
+    item[propertyName] = value;
+    this.setState({
+      selectedItem: item
+    });
+  }
+
+  addItem() {
+    const newItem: ItemType = this.props.newItem();
+    this.state.items.push(newItem);
+    this.setState({
+      items: this.state.items,
+      selectedItem: newItem
+    });
+  }
+
+  selectItem(item: ItemType) {
+    this.setState({
+      selectedItem: item
+    });
+  }
+
+  removeSelectedItem() {
+    let index: number = this.state.items.indexOf(this.state.selectedItem);
+    if (index < 0) {
+      return;
+    }
+    let items: ItemType[] = this.state.items;
+    items.splice(index, 1);
+    if (items.length === 0)
+      items = [this.props.newItem()];
+    if (index >= items.length) index = items.length - 1;
+    this.setState({
+      items: items,
+      selectedItem: items[index]
+    })
+  }
+
+  render() {
+    const propertyNames: string[] = Object.keys(this.props.itemDefinition);
+    return <View>
+      <ItemsList
+        items={this.state.items}
+        itemDefinition={this.props.itemDefinition}
+        onAddItem={() => this.addItem()}
+        selectedItem={this.state.selectedItem}
+        onSelectItem={(item: ItemType) => this.selectItem(item)}
+        onRemoveSelectedItem={() => this.removeSelectedItem()}
+        itemView={this.props.itemView}
+        />
+      <ScrollView horizontal={true}>
+        {propertyNames.map((propertyName: string, index: number) => {
+          const propertyDefinition = this.props.itemDefinition[propertyName];
+          return <SelectionList key={index}
+            label={propertyDefinition.label}
+            items={propertyDefinition.options}
+            multiValue={propertyDefinition.multiValue}
+            required={propertyDefinition.required}
+            selection={this.state.selectedItem[propertyName]}
+            onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
+        }
+        )}
+      </ScrollView>
+    </View>
+  }
+}
+
+
+
+
+export class ItemEditor<ItemType> extends Component {
+  props: {
+    title?: string,
+    oneLineHeader?: boolean,
+    item: ItemType,
+    itemDefinition: ItemDefinition,
+    itemView?: string
+  }
+  state: {
+    item: ItemType
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      item: this.props.item
+    }
+  }
+
+  updateItem(propertyName: string, value: any) {
+    if (!this.state.item) return;
+    let item: ItemType = this.state.item;
+    item[propertyName] = value;
+    this.setState({
+      item: item
+    });
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({ item: nextProps.item });
+  }
+
+  render() {
+    const propertyNames: string[] = Object.keys(this.props.itemDefinition);
+    return <View>
+      <ItemSummary
+        title={this.props.title}
+        oneLineHeader={this.props.oneLineHeader}
+        item={this.state.item}
+        itemDefinition={this.props.itemDefinition}
+        onUpdateItem={(propertyName: string, value: any) => this.updateItem(propertyName, value)}
+        />
+      <ScrollView horizontal={true}>
+        {propertyNames.map((propertyName: string, index: number) => {
+          const propertyDefinition = this.props.itemDefinition[propertyName];
+          return <SelectionList key={index}
+            label={propertyDefinition.label}
+            items={propertyDefinition.options}
+            multiValue={propertyDefinition.multiValue}
+            required={propertyDefinition.required}
+            selection={this.state.item[propertyName]}
+            onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
+        }
+        )}
       </ScrollView>
     </View >
   }

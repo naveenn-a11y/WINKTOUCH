@@ -29,6 +29,7 @@ export class FormTextInput extends Component {
         labelWidth?: number,
         onChangeText?: (text: string) => void,
         keyboardType?: string,
+        readOnly?: boolean
     }
     state: {
         value?: string,
@@ -73,11 +74,12 @@ export class FormTextInput extends Component {
             <FormLabel width={this.props.labelWidth} value={this.props.label} />
             <TextInput
                 value={this.state.value}
-                autoCapitalize='none' autoCorrect={false} placeholder={this.props.label}
+                autoCapitalize='none' autoCorrect={false} placeholder={'Not asked'}
                 keyboardType={this.props.keyboardType}
                 style={styles.formField}
                 onChangeText={(text: string) => this.setState({ value: text })}
                 onEndEditing={(event) => this.commit(event.nativeEvent.text)}
+                editable={!this.props.readOnly}
                 />
             <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>
         </View>

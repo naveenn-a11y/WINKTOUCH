@@ -125,19 +125,6 @@ class PatientHealth extends Component {
     }
 }
 
-export class PatientOcularHistory extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Ocular History</Text>
-        </View>
-    }
-}
-
 export class PatientMedications extends Component {
     props: {
         patient: Patient
@@ -270,6 +257,7 @@ export class PatientScreen extends Component {
         return <ScrollView>
             <PatientTitle patient={this.state.patient} />
             <PatientContact patient={this.state.patient} />
+            <PatientBillingInfo patient={this.state.patient} />
             {/**
             <PatientHealth patient={this.state.patient} />                 
             <PatientOcularHistory patient={this.state.patient} />
@@ -279,8 +267,6 @@ export class PatientScreen extends Component {
             <PatientFamilyHistory patient={this.state.patient} />
             <PatientSocialHistory patient={this.state.patient} />
             */}
-            <PatientBillingInfo patient={this.state.patient} />
-            <PatientContact patient={this.state.patient} />
         </ScrollView>
     }
 }

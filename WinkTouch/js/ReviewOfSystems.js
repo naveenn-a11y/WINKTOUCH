@@ -11,15 +11,14 @@ import { FormRow, FormTextInput } from './Form';
 
 export type ReviewOfSystem = {
   category: string,
-  description: string[],
-  options: string[]
+  options: string[],
 }
 
 function fetchReviewOfSystems(): ReviewOfSystem[] {
   const reviewOfSystems: ReviewOfSystem[] = [
     {
       category: 'General/Constitutional',
-      description: ['Weight gain'],
+      description: ['Weight loss'],
       options: ['Weight loss', 'Weight gain', 'Fever', 'Chills', 'Insomnia', 'Fatigue', 'Weakness']
     }, {
       category: 'Ears/Nose/Mouth/Throat',
@@ -133,7 +132,7 @@ class ReviewOfSystems extends Component {
   render() {
     return <ScrollView horizontal={true}>
       {this.props.reviewOfSystems.map((reviewOfSystem: ReviewOfSystem, index: number) => {
-        return <SelectionList required={true} key={index} label={reviewOfSystem.category}
+        return <SelectionList required={true} multiValue={true} key={index} label={reviewOfSystem.category}
           items={['Negative', ...reviewOfSystem.options]}
           selection={reviewOfSystem.description}
           onUpdateSelection={(selectedOptions: string[]) => this.props.onUpdateReview(reviewOfSystem.category, selectedOptions)}

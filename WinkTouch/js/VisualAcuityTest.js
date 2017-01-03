@@ -71,9 +71,6 @@ export class VisualAcuityTest extends Component {
     return <View>
       <View style={styles.flow}>
         <AcuityTest type='Unaided' />
-        <View>
-          <Anesthetics />
-        </View>
       </View>
       <View style={styles.flow}>
         <AcuityTest type='Glasses' />

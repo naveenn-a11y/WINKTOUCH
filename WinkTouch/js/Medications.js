@@ -6,7 +6,8 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { WinkButton, OptionWheel, SelectionList } from './Widgets';
+import { WinkButton, OptionWheel, SelectionList, ItemsEditor } from './Widgets';
+import type {ItemDefinition } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
 
 export type Medication = {
@@ -19,8 +20,6 @@ export type Medication = {
   duration: string,
   instructions: string[]
 }
-
-export type Definition = any;
 
 function fetchMedications(): Medication[] {
   const medications: Medication[] = [
@@ -38,7 +37,7 @@ function fetchMedications(): Medication[] {
   return medications;
 }
 
-const medicationDefinition: Definition = {
+const medicationDefinition: ItemDefinition = {
   label: {
     label: 'Label',
     options: ['Xalatan', 'Abilify', 'Roxicodone', 'Calcarb'],
@@ -48,9 +47,21 @@ const medicationDefinition: Definition = {
     label: 'Strength',
     options: ['10 mg', '20 mg', '30 mg', '50 mg', '100 mg', '200 mg']
   },
+  dosage: {
+    label: 'Dosage',
+    options: ['1 drop','2 drops','3 drops','1 capsule','2 capsules','1 tablet','2 tablets','1 tablespoon']
+  },
+  frequency: {
+    label: 'Frequency',
+    options: ['1 x Daily', '2 x Daily', '3 x Daily', '4 x Daily', '5 x Daily', '8 x Daily', 'Q15M', 'Q30M', 'Q1H', 'Q2H', 'Q3H', 'Q4H', 'Every other day', 'in AM', 'Nightly', 'Once a month']
+  },
   duration: {
     label: 'Duration',
     options: ['1 day', '2 days', '3 days', '4 days', '1 week', '2 weeks', '1 month', '2 months', '1 year']
+  },
+  route: {
+    label: 'Route',
+    options: ['OD', 'OS', 'OU']
   },
   instructions: {
     label: 'Instructions',
@@ -58,130 +69,6 @@ const medicationDefinition: Definition = {
     multiValue: true
   }
 };
-
-export class Item extends Component {
-  props: {
-    item: Medication,
-    orientation?: string
-  }
-  render() {
-    return <Text>{this.props.item.label} {this.props.item.strength} </Text>
-  }
-}
-
-class ItemsList extends Component {
-  props: {
-    items: Medication[],
-    selectedItem: ?Medication,
-    onAddItem: () => void,
-    onSelectItem: (complaint: Medication) => void,
-    onRemoveSelectedItem: () => void
-  }
-  render() {
-    return <View style={styles.board}>
-      {this.props.items.map((item: Medication, index: number) => {
-        const isSelected: boolean = this.props.selectedItem === item;
-        return <TouchableHighlight key={index} underlayColor='#bbbbffbb'
-          onPress={() => this.props.onSelectItem(item)} >
-          <View style={isSelected ? styles.listRowSelected : styles.listRow}>
-            <Item item={item} />
-          </View>
-        </TouchableHighlight>
-      })}
-      <View style={styles.buttonsRowLayout}>
-        <WinkButton title='Add' onPress={() => this.props.onAddItem()} />
-        <WinkButton title='Remove' onPress={() => this.props.onRemoveSelectedItem()} />
-      </View>
-    </View >
-  }
-}
-
-export class ItemsScreen<T> extends Component {
-  props: {
-    items?: T[],
-    newItem: () => T,
-    itemDefinition: Definition
-  }
-  state: {
-    items: T[],
-    selectedItem: T
-  }
-
-  constructor(props: any) {
-    super(props);
-    const items: T[] = this.props.items ? this.props.items : [this.props.newItem()];
-    this.state = {
-      items: items,
-      selectedItem: items[0]
-    }
-  }
-
-  updateItem(propertyName: string, value: any) {
-    if (!this.state.selectedItem) return;
-    let item: Medication = this.state.selectedItem;
-    item[propertyName] = value;
-    this.setState({
-      selectedItem: item
-    });
-  }
-
-  addItem() {
-    const newItem: T = this.props.newItem();
-    this.state.items.push(newItem);
-    this.setState({
-      items: this.state.items,
-      selectedItem: newItem
-    });
-  }
-
-  selectItem(item: T) {
-    this.setState({
-      selectedItem: item
-    });
-  }
-
-  removeSelectedItem() {
-    let index: number = this.state.items.indexOf(this.state.selectedItem);
-    if (index < 0) {
-      return;
-    }
-    let items: T[] = this.state.items;
-    items.splice(index, 1);
-    if (items.length === 0)
-      items = [this.props.newItem()];
-    if (index >= items.length) index = items.length - 1;
-    this.setState({
-      items: items,
-      selectedItem: items[index]
-    })
-  }
-
-
-  render() {
-    const propertyNames: string[] = Object.keys(this.props.itemDefinition);
-    return <View>
-      <ItemsList items={this.state.items}
-        onAddItem={() => this.addItem()}
-        selectedItem={this.state.selectedItem}
-        onSelectItem={(item: Medication) => this.selectItem(item)}
-        onRemoveSelectedItem={() => this.removeSelectedItem()}
-        />
-      <ScrollView horizontal={true}>
-        {propertyNames.map((propertyName: string, index: number) => {
-          const propertyDefinition = this.props.itemDefinition[propertyName];
-          return <SelectionList key={index}          
-            label={propertyDefinition.label}
-            items={propertyDefinition.options}
-            multiValue={propertyDefinition.multiValue}
-            required={propertyDefinition.required}
-            selection={this.state.selectedItem[propertyName]}
-            onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
-        }
-        )}
-      </ScrollView>
-    </View>
-  }
-}
 
 export class MedicationsScreen extends Component {
   newMedication(): Medication {
@@ -198,7 +85,10 @@ export class MedicationsScreen extends Component {
   }
 
   render() {
-    return <ItemsScreen newItem={() => this.newMedication()}
-      itemDefinition={medicationDefinition} items={fetchMedications()} />
+    return <ItemsEditor
+      items={fetchMedications()}
+      newItem={() => this.newMedication()}
+      itemDefinition={medicationDefinition}
+      />
   }
 }

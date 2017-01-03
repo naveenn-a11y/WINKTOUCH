@@ -128,9 +128,9 @@ export class VisitWorkFlow extends Component {
     renderStartButtons() {
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
-                <Button title='Start Visit Type 1' onPress={() => this.startVisit('type1')} />
-                <Button title='Start Visit Type 2' onPress={() => this.startVisit('type2')} />
-                <Button title='Start Visit Type 3' onPress={() => this.startVisit('type3')} />
+                <Button title='Comprehensive exam' onPress={() => this.startVisit('comprehensive')} />
+                <Button title='Follow up' onPress={() => this.startVisit('followUp')} />
+                <Button title='Contacts Fitting' onPress={() => this.startVisit('fitting')} />
             </View>
         </View>
     }
@@ -198,7 +198,7 @@ export class VisitHistory extends Component {
 
     startVisit(visitType: string) {
         let todaysVisit = this.state.todaysVisit;
-        todaysVisit.exams = allExams();
+        todaysVisit.exams = allExams(visitType);
         this.setState({ todaysVisit });
     }
 

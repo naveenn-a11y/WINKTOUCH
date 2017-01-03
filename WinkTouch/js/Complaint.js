@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { FormTextInput } from './Form';
-import { WinkButton, SelectionList } from './Widgets';
+import { WinkButton, ItemsEditor } from './Widgets';
 
 export type Complaint = {
   date: Date,
@@ -33,22 +33,60 @@ const contexts: string[] = ['Driving', 'Working on computer', 'Watching tv', 'Re
 const modifyingFactors: string[] = ['Medication', 'Sleep', 'Cool compress', 'Warm compress', 'Low light'];
 const associatedSigns: string[] = ['Anxiety', 'Balance problems', 'Black spots', 'Bleeding', 'Blind spot', 'Bump on lower lid margin', 'Bump on upper lid margin'];
 
+const complaintDefinition: ItemDefinition = {
+  symptom: {
+    label: 'Symptom',
+    options: symptoms,
+    multiValue: true,
+    required: true
+  },
+  location: {
+    label: 'Location',
+    options: locations,
+    multiValue: true
+  },
+  quality: {
+    label: 'Quality',
+    options: qualities,
+    multiValue: true
+  },
+  severity: {
+    label: 'Severity',
+    options: severities,
+    multiValue: true
+  },
+  timing: {
+    label: 'Timing',
+    options: timings,
+    multiValue: true
+  },
+  duration: {
+    label: 'Duration',
+    options: durations,
+    multiValue: true
+  },
+  context: {
+    label: 'Context',
+    options: contexts,
+    multiValue: true
+  },
+  modifyingFactor: {
+    label: 'Modifying factor',
+    options: modifyingFactors,
+    multiValue: true
+  },
+  associatedSign: {
+    label: 'Associated Sign',
+    options: associatedSigns,
+    multiValue: true
+  },
+};
 
 export class ComplaintDetails extends Component {
   props: {
-    complaint: Complaint,
-    summarize: ?boolean
+    complaint: Complaint
   }
   render() {
-    if (this.props.summarize)
-      return <Text>
-        {(this.props.complaint.symptom && this.props.complaint.symptom.length > 0) ?
-          ('Symptoms: ' + this.props.complaint.symptom +
-            ((this.props.complaint.location && this.props.complaint.location.length > 0) ? (' on ' + this.props.complaint.location) : '')
-            + '.')
-          : ''}
-        {(this.props.complaint.quality && this.props.complaint.quality.length > 0) ? ('Quality: ' + this.props.complaint.quality + '.') : ''}
-      </Text>
     return <Text>
       {(this.props.complaint.symptom && this.props.complaint.symptom.length > 0) ?
         ('Symptoms: ' + this.props.complaint.symptom +
@@ -56,129 +94,45 @@ export class ComplaintDetails extends Component {
           + '.')
         : ''}
       {(this.props.complaint.quality && this.props.complaint.quality.length > 0) ? ('Quality: ' + this.props.complaint.quality + '.') : ''}
-      {/**
-      Severity is: {this.props.complaint.severity}.
-      Timing is: {this.props.complaint.timing} for {this.props.complaint.duration}.
-      Context is: {this.props.complaint.context}.
-      Modifying factor is: {this.props.complaint.modifyingFactor}.
-      Associated sign is: {this.props.complaint.associatedSign}.
-      */}
     </Text>
-  }
-}
-
-class HistoryPresentIllness extends Component {
-  props: {
-    complaints: Complaint[],
-    selectedComplaint: ?Complaint,
-    onNewComplaint: () => void,
-    onSelectComplaint: (complaint: Complaint) => void,
-    onClearComplaint: () => void
-  }
-  render() {
-    return <View style={styles.board}>
-      {this.props.complaints.map((complaint: Complaint, index: number) => {
-        const isSelected: boolean = this.props.selectedComplaint === complaint;
-        return <TouchableHighlight key={index} underlayColor='#bbbbffbb'
-          onPress={() => this.props.onSelectComplaint(complaint)} >
-          <View style={isSelected ? styles.listRowSelected : styles.listRow}>
-            <ComplaintDetails complaint={complaint} />
-          </View>
-        </TouchableHighlight>
-      })}
-      <View style={styles.buttonsRowLayout}>
-        <WinkButton title='Add' onPress={() => this.props.onNewComplaint()} />
-        <WinkButton title='Clear' onPress={() => this.props.onClearComplaint()} />
-      </View>
-    </View >
   }
 }
 
 export class ComplaintScreen extends Component {
   state: {
-    complaints: Complaint[],
-    selectedComplaint: ?Complaint
+    complaints: Complaint[]
   }
   constructor(props: any) {
     super(props);
     this.state = {
-      complaints: [],
-      selectedComplaint: undefined
+      complaints: []
     }
   }
 
-  update(field: string, values: string[]) {
-    if (!this.state.selectedComplaint) return;
-    let complaint: Complaint = this.state.selectedComplaint;
-    complaint[field] = values;
-    this.setState({
-      selectedComplaint: complaint
-    });
-  }
 
-  newComplaint(isChief: boolean) {
+  newComplaint(isChief: boolean): Complaint {
     const newComplaint: Complaint = {
       date: new Date(),
       isChief: isChief,
       symptom: [],
       location: [],
-      quality: []
+      quality: [],
+      severity: [],
+      timing: [],
+      duration: [],
+      context: [],
+      modifyingFactor: [],
+      associatedSign: []
     };
-    this.state.complaints.push(newComplaint);
-    this.setState({
-      complaints: this.state.complaints,
-      selectedComplaint: newComplaint
-    });
+    return newComplaint;
   }
-
-  selectComplaint(complaint: Complaint) {
-    this.setState({
-      selectedComplaint: complaint
-    });
-  }
-
-  componentDidMount() {
-    this.newComplaint(true);
-  }
-
-  clearComplaint() {
-    if (!this.state.selectedComplaint) {
-      this.setState({
-        complaints: [],
-        selectedComplaint: undefined
-      });
-      this.newComplaint(false);
-      return;
-    }
-    const complaint: Complaint = this.state.selectedComplaint;
-    complaint.symptom = [];
-    complaint.location = [];
-    complaint.quality = [];
-    this.setState({
-      selectedComplaint: complaint
-    })
-  }
-
 
   render() {
-    return <View>
-      <HistoryPresentIllness complaints={this.state.complaints}
-        onNewComplaint={() => this.newComplaint(false)}
-        selectedComplaint={this.state.selectedComplaint}
-        onSelectComplaint={(complaint: Complaint) => this.selectComplaint(complaint)}
-        onClearComplaint={() => this.clearComplaint()}
-        />
-      {(this.state.selectedComplaint) ? <ScrollView horizontal={true}>
-        <SelectionList label='Symptom' items={symptoms} selection={this.state.selectedComplaint.symptom} onUpdateSelection={(symptom: string[]) => this.update('symptom', symptom)} />
-        <SelectionList label='Location' items={locations} selection={this.state.selectedComplaint.location} onUpdateSelection={(location: string[]) => this.update('location', location)} />
-        <SelectionList label='Quality' items={qualities} selection={this.state.selectedComplaint.quality} onUpdateSelection={(quality: string[]) => this.update('quality', quality)} />
-        <SelectionList label='Severity' items={severities} selection={this.state.selectedComplaint.severity} onUpdateSelection={(severity: string[]) => this.update('severity', severity)} />
-        <SelectionList label='Timing' items={timings} selection={this.state.selectedComplaint.timing} onUpdateSelection={(timing: string[]) => this.update('timing', timing)} />
-        <SelectionList label='Duration' items={durations} selection={this.state.selectedComplaint.duration} onUpdateSelection={(duration: string[]) => this.update('duration', duration)} />
-        <SelectionList label='Context' items={contexts} selection={this.state.selectedComplaint.context} onUpdateSelection={(context: string[]) => this.update('context', context)} />
-        <SelectionList label='Modifying Factor' items={modifyingFactors} selection={this.state.selectedComplaint.modifyingFactor} onUpdateSelection={(modifyingFactor: string[]) => this.update('modifyingFactor', modifyingFactor)} />
-        <SelectionList label='Associated Sign' items={associatedSigns} selection={this.state.selectedComplaint.associatedSign} onUpdateSelection={(associatedSign: string[]) => this.update('associatedSign', associatedSign)} />
-      </ScrollView> : null}
-    </View>
+    return <ItemsEditor
+      items={this.state.complaints}
+      newItem={() => this.newComplaint(false)}
+      itemDefinition={complaintDefinition}
+      itemView='ComplaintDetails'
+      />
   }
 }
