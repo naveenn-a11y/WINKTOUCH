@@ -53,6 +53,7 @@ const socialHistoryDefinition: ItemDefinition = {
   alcoholUse: {
     label: 'Alcohol',
     options: ['Denies', 'Prefers not to answer', 'Admits', 'Previous', 'Moderate', 'Excessive', 'Social'],
+    normalValue: 'Denies',
     multiValue: true,
     required: true
   },

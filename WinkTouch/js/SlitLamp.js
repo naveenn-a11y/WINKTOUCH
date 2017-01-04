@@ -98,14 +98,6 @@ export class SlitLampScreen extends Component {
           itemDefinition={slitLampFindingsDefinition}
           />
       </View>
-      <View style={{ flex: 50 }}>
-        <ItemEditor
-          title='OS'
-          oneLineHeader={true}
-          item={this.state.osFindings}
-          itemDefinition={slitLampFindingsDefinition}
-          />
-      </View >
     </View >
   }
-} 
+}

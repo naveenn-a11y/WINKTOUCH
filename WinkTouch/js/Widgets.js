@@ -335,6 +335,7 @@ export class ItemSummary<ItemType> extends Component {
     itemDefinition: ItemDefinition,
     onUpdateItem: (propertyName: string, value: any) => void
   }
+
   format(value: string[] | string): string {
     if (!value)
       return '';
@@ -353,16 +354,20 @@ export class ItemSummary<ItemType> extends Component {
 
   render() {
     const propertyNames: string[] = Object.keys(this.props.itemDefinition)
+    let isAllNormal: boolean = true;
     let haveToAskLabels: string[] = [];
     return <View style={this.props.oneLineHeader ? styles.flow : styles.form}>
       {(this.props.title) ? <Text style={styles.screenTitle}>{this.props.title}</Text> : null}
       {propertyNames.map((propertyName: string, index: number) => {
         const propertyDefinition = this.props.itemDefinition[propertyName];
         let description: string = this.format(this.props.item[propertyName]);
-        if (!description && propertyDefinition.required)
+        if (!description && propertyDefinition.required) {
           haveToAskLabels.push(propertyDefinition.label);
+          isAllNormal = false;
+        }
         if (!description || (propertyDefinition.normalValue && propertyDefinition.normalValue === description))
           return null;
+        isAllNormal = false;
         const propertyField = <FormTextInput key={index} label={propertyDefinition.label} value={description}
           onChangeText={(text: string) => this.props.onUpdateItem(propertyName, text.split(', '))} />
         if (this.props.oneLineHeader)
@@ -371,6 +376,9 @@ export class ItemSummary<ItemType> extends Component {
           {propertyField}
         </FormRow>
       })
+      }
+      {isAllNormal?
+          <Text style={styles.textfield}>All normal</Text>:null
       }
       {haveToAskLabels.length > 0 ?
         <FormRow>
@@ -535,10 +543,10 @@ export class ItemEditor<ItemType> extends Component {
     if (!this.state.item) return;
     let item: ItemType = this.state.item;
     const propertyDefinition = this.props.itemDefinition[propertyName];
-    if (value.length == 2 && value[0].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
+    if (value && value.length == 2 && value[0].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
       value = value.splice(1);
     }
-    if (value.length > 1 && propertyDefinition.normalValue &&
+    if (value && value.length > 1 && propertyDefinition.normalValue &&
       value[value.length - 1].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
       value = [propertyDefinition.normalValue];
     }
