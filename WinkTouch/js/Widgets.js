@@ -330,7 +330,7 @@ export class Item<ItemType> extends Component {
 export class ItemSummary<ItemType> extends Component {
   props: {
     title?: string,
-    oneLineHeader?: boolean,
+    oneLinessHeader?: boolean,
     item: ItemType,
     itemDefinition: ItemDefinition,
     onUpdateItem: (propertyName: string, value: any) => void
@@ -363,7 +363,7 @@ export class ItemSummary<ItemType> extends Component {
           haveToAskLabels.push(propertyDefinition.label);
         if (!description || (propertyDefinition.normalValue && propertyDefinition.normalValue === description))
           return null;
-        const propertyField = <FormTextInput label={propertyDefinition.label} value={description}
+        const propertyField = <FormTextInput key={index} label={propertyDefinition.label} value={description}
           onChangeText={(text: string) => this.props.onUpdateItem(propertyName, text.split(', '))} />
         if (this.props.oneLineHeader)
           return propertyField;
@@ -534,6 +534,14 @@ export class ItemEditor<ItemType> extends Component {
   updateItem(propertyName: string, value: any) {
     if (!this.state.item) return;
     let item: ItemType = this.state.item;
+    const propertyDefinition = this.props.itemDefinition[propertyName];
+    if (value.length == 2 && value[0].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
+      value = value.splice(1);
+    }
+    if (value.length > 1 && propertyDefinition.normalValue &&
+      value[value.length - 1].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
+      value = [propertyDefinition.normalValue];
+    }
     item[propertyName] = value;
     this.setState({
       item: item
