@@ -256,8 +256,11 @@ export class SelectionList extends Component {
   isSelected(item: string): boolean {
     if (!this.props.selection)
       return false;
-    const index = this.props.selection.indexOf(item);
-    return (index > -1);
+    if (this.props.selection instanceof Array) {
+      const index = this.props.selection.indexOf(item);
+      return (index > -1);
+    }
+    return (this.props.selection === item);
   }
 
   hasSelection(): boolean {
@@ -282,12 +285,18 @@ export class SelectionList extends Component {
   }
 }
 
-function constructItemView(itemView: string, item: ItemType, itemDefinition: ItemDefinition, orientation?: string) {
+function constructItemView(itemView: string, item: ItemType, itemDefinition: ItemDefinition, isSelected: boolean, orientation?: string) {
   switch (itemView) {
     case 'ComplaintDetails':
       return <ComplaintDetails complaint={item} />
+    case 'ItemSummary':
+      return <View style={{flex: 10}}>
+        <ItemSummary item={item} itemDefinition={itemDefinition}/>
+      </View>
   }
-  return <Item item={item} orientation={orientation} itemDefinition={itemDefinition} />
+  return <View style={isSelected?styles.listRowSelected:styles.listRow}>
+    <Item item={item} orientation={orientation} itemDefinition={itemDefinition} />
+  </View>
 }
 
 export class Item<ItemType> extends Component {
@@ -330,7 +339,7 @@ export class Item<ItemType> extends Component {
 export class ItemSummary<ItemType> extends Component {
   props: {
     title?: string,
-    oneLinessHeader?: boolean,
+    oneLineHeader?: boolean,
     item: ItemType,
     itemDefinition: ItemDefinition,
     onUpdateItem: (propertyName: string, value: any) => void
@@ -402,24 +411,25 @@ class ItemsList<ItemType> extends Component {
 
   render() {
     const listStyle = this.props.orientation === 'horizontal' ? styles.listRow : styles.centeredColumnLayout;
-    const itemOrientation = this.props.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+    const itemOrientation : string = this.props.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+    const showButtons : boolean = this.props.onAddItem !== undefined;
     return <View style={styles.board}>
       <View>
         {this.props.items.map((item: ItemType, index: number) => {
-          const isSelected: boolean = this.props.selectedItem === item;
-          const itemView = constructItemView(this.props.itemView, item, this.props.itemDefinition, itemOrientation)
+          const isSelected: boolean = this.props.selectedItem === item && (showButtons || this.props.items.length>1);
+          const itemView = constructItemView(this.props.itemView, item, this.props.itemDefinition, isSelected, itemOrientation)
           return <TouchableHighlight key={index} underlayColor='#bbbbffbb'
             onPress={() => this.props.onSelectItem(item)} >
-            <View style={isSelected ? styles.listRowSelected : styles.listRow}>
+            <View style={{flexDirection: 'row'}}>
               {itemView}
             </View>
           </TouchableHighlight>
         })}
       </View>
-      <View style={styles.buttonsRowLayout}>
+      {showButtons?<View style={styles.buttonsRowLayout}>
         <WinkButton title='Add' onPress={() => this.props.onAddItem()} />
         <WinkButton title='Remove' onPress={() => this.props.onRemoveSelectedItem()} />
-      </View>
+      </View>:null}
     </View >
   }
 }
@@ -428,7 +438,7 @@ class ItemsList<ItemType> extends Component {
 export class ItemsEditor<ItemType> extends Component {
   props: {
     items?: ItemType[],
-    newItem: () => ItemType,
+    newItem?: () => ItemType,
     itemDefinition: ItemDefinition,
     itemView?: string
   }
@@ -448,9 +458,25 @@ export class ItemsEditor<ItemType> extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({
+        items: nextProps.items,
+        selectedItem: nextProps.items[0]
+    });
+  }
+
   updateItem(propertyName: string, value: any) {
     if (!this.state.selectedItem) return;
     let item: ItemType = this.state.selectedItem;
+    const propertyDefinition = this.props.itemDefinition[propertyName];
+    if (propertyDefinition.normalValue) {
+      if (value && value.length == 2 && value[0].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
+        value = value.splice(1);
+      }
+      if (value && value.length > 1 && value[value.length - 1].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
+        value = [propertyDefinition.normalValue];
+      }
+    }
     item[propertyName] = value;
     this.setState({
       selectedItem: item
@@ -494,7 +520,7 @@ export class ItemsEditor<ItemType> extends Component {
       <ItemsList
         items={this.state.items}
         itemDefinition={this.props.itemDefinition}
-        onAddItem={() => this.addItem()}
+        onAddItem={this.props.newItem?() => this.addItem():undefined}
         selectedItem={this.state.selectedItem}
         onSelectItem={(item: ItemType) => this.selectItem(item)}
         onRemoveSelectedItem={() => this.removeSelectedItem()}
@@ -514,75 +540,5 @@ export class ItemsEditor<ItemType> extends Component {
         )}
       </ScrollView>
     </View>
-  }
-}
-
-
-
-
-export class ItemEditor<ItemType> extends Component {
-  props: {
-    title?: string,
-    oneLineHeader?: boolean,
-    item: ItemType,
-    itemDefinition: ItemDefinition,
-    itemView?: string
-  }
-  state: {
-    item: ItemType
-  }
-
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      item: this.props.item
-    }
-  }
-
-  updateItem(propertyName: string, value: any) {
-    if (!this.state.item) return;
-    let item: ItemType = this.state.item;
-    const propertyDefinition = this.props.itemDefinition[propertyName];
-    if (value && value.length == 2 && value[0].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
-      value = value.splice(1);
-    }
-    if (value && value.length > 1 && propertyDefinition.normalValue &&
-      value[value.length - 1].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
-      value = [propertyDefinition.normalValue];
-    }
-    item[propertyName] = value;
-    this.setState({
-      item: item
-    });
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({ item: nextProps.item });
-  }
-
-  render() {
-    const propertyNames: string[] = Object.keys(this.props.itemDefinition);
-    return <View>
-      <ItemSummary
-        title={this.props.title}
-        oneLineHeader={this.props.oneLineHeader}
-        item={this.state.item}
-        itemDefinition={this.props.itemDefinition}
-        onUpdateItem={(propertyName: string, value: any) => this.updateItem(propertyName, value)}
-        />
-      <ScrollView horizontal={true}>
-        {propertyNames.map((propertyName: string, index: number) => {
-          const propertyDefinition = this.props.itemDefinition[propertyName];
-          return <SelectionList key={index}
-            label={propertyDefinition.label}
-            items={propertyDefinition.options}
-            multiValue={propertyDefinition.multiValue}
-            required={propertyDefinition.required}
-            selection={this.state.item[propertyName]}
-            onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
-        }
-        )}
-      </ScrollView>
-    </View >
   }
 }

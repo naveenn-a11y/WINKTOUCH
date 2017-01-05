@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { WinkButton, OptionWheel, SelectionList, ItemEditor } from './Widgets';
+import { WinkButton, OptionWheel, SelectionList, ItemsEditor } from './Widgets';
 import type {ItemDefinition } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
 
@@ -42,13 +42,13 @@ const socialHistoryDefinition: ItemDefinition = {
     label: 'Used tobacco in last 30 days',
     options: ['No', 'Prefers not to answer', 'Yes'],
     normalValue: 'No',
-    required: true
+    required: false
   },
   smokelessUsedLastMonth: {
     label: 'Used smokeless tobacco product in last 30 days',
     options: ['No', 'Prefers not to answer', 'Yes'],
     normalValue: 'No',
-    required: true
+    required: false
   },
   alcoholUse: {
     label: 'Alcohol',
@@ -69,25 +69,25 @@ const socialHistoryDefinition: ItemDefinition = {
     options: ['None', 'Prefers not to answer', 'Sexually active', 'History of child abuse', 'History of domestic violence'],
     normalValue: 'None',
     multiValue: true,
-    required: true
+    required: false
   },
   tobaccoCounseling: {
     label: 'Tobacco Cessation Counselling',
     options: ['None', 'Prefers not to answer', 'Pregnancy smoking education', 'Referral to stop-smoking clinic', 'Smoking cessation assistance'],
     normalValue: 'None',
-    required: true
+    required: false
   },
   physicalActivityCounseling: {
     label: 'Physical Activity Counseling',
     options: ['None', 'Determination of physical activity tolerance', 'Exercise eduction', 'Exercise on prescription', 'Exercie promotion: strength training', 'Exercise promotion: stretching', 'Patient advised about exercise', 'Patient given written advise on benefits of physical activity', 'Physical activity assessment', 'Prescribed activity', 'Recommendation to exercise', 'Recommendation to mobilize part', 'Recommendation to undertake activitiy', 'Referral to exercise therapy', 'Referral to physical activity program', 'Referral to weight maintenance regimen service'],
     normalValue: 'None',
-    required: true
+    required: false
   },
   nutritionCounseling: {
     label: 'Nutrition Counseling',
     options: ['None', 'Prefers not to answer', 'Counseling for eating disorder', 'Diet education', 'Diet leaflet given', 'Dietary education for weight gain', 'Dietary management education, guidance, and counseling', 'Eating disorder management', 'Food education, guidance and counseling', 'High fiber diet education', 'High protein diet education', 'Lifestyle education', 'Low carbohydrate diet education', 'low cholesterol diet education', 'Medical utrition therapy', 'Obesity diet education', 'Patient referral to dietition', 'Recommendation to carer regarding child\'s diet', 'Recommendation to change diet'],
     normalValue: 'None',
-    required: true
+    required: false
   }
 };
 
@@ -109,9 +109,10 @@ export class SocialHistoryScreen extends Component {
   }
 
   render() {
-    return <ItemEditor
-      item={this.state.socialHistory}
+    return <ItemsEditor
+      items={[this.state.socialHistory]}
       itemDefinition={socialHistoryDefinition}
+      itemView='ItemSummary'
       />
   }
 }

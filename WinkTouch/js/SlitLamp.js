@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, Switch } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { NumberScrollField, ItemEditor } from './Widgets';
+import { NumberScrollField, ItemsEditor } from './Widgets';
 import type {ItemDefinition } from './Widgets';
 import { PerimetryTest } from './EntranceTest';
 
@@ -81,7 +81,7 @@ export class SlitLampScreen extends Component {
 
   componentDidMount() {
     const odFindings: SlitLampFindings = fetchSlitLampFindings('OD');
-    const osFindings: SlitLampFindings = fetchSlitLampFindings('OD');
+    const osFindings: SlitLampFindings = fetchSlitLampFindings('OS');
     this.setState({
       odFindings: odFindings,
       osFindings: osFindings
@@ -91,11 +91,10 @@ export class SlitLampScreen extends Component {
   render() {
     return <View>
       <View style={{ flex: 50 }}>
-        <ItemEditor
-          title='OD'
-          oneLineHeader={true}
-          item={this.state.odFindings}
+        <ItemsEditor
+          items={[this.state.odFindings, this.state.osFindings]}
           itemDefinition={slitLampFindingsDefinition}
+          itemView='ItemSummary'
           />
       </View>
     </View >

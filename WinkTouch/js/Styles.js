@@ -129,8 +129,8 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         padding: 10 * fontScale,
-        borderRadius: 1,
-        margin: 10,
+        borderRadius: 1 * fontScale,
+        margin: 10 * fontScale,
         backgroundColor: '#fff',
         shadowRadius: 3,
         shadowColor: '#000000',
@@ -229,7 +229,7 @@ export const styles = StyleSheet.create({
     card: {
         padding: 10 * fontScale,
         borderRadius: 1,
-        margin: 10,
+        margin: 10 * fontScale,
         backgroundColor: 'white',
         shadowRadius: 3,
         shadowColor: '#000000',
@@ -246,8 +246,8 @@ export const styles = StyleSheet.create({
     },
     popup: {
         padding: 20 * fontScale,
-        borderRadius: 10,
-        margin: 10,
+        borderRadius: 10 * fontScale,
+        margin: 10 * fontScale,
         backgroundColor: 'white',
         shadowRadius: 4,
         shadowColor: '#000000',
@@ -356,6 +356,7 @@ export const styles = StyleSheet.create({
         }
     },
     listRow: {
+        flex: 10,
         flexDirection: 'row',
         justifyContent: 'center',
         padding: 10 * fontScale,
@@ -363,6 +364,7 @@ export const styles = StyleSheet.create({
         margin: 3 * fontScale
     },
     listRowSelected: {
+        flex: 10,
         flexDirection: 'row',
         justifyContent: 'center',
         padding: 10 * fontScale,
