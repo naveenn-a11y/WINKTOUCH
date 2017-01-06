@@ -6,150 +6,122 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { WinkButton, OptionWheel, SelectionList } from './Widgets';
-import { FormRow, FormTextInput } from './Form';
+import { ItemsEditor } from './Widgets';
+import type {ItemDefinition } from './Widgets';
 
-export type ReviewOfSystem = {
-  category: string,
-  options: string[],
+export type ReviewOfSystems = {
+    general: string[],
+    earsNoseMouth: string[],
+    cardiovascular: string[],
+    respiratory: string[],
+    gastrointestinal: string[],
+    genitourinary: string[],
+    musculosketletal: string[],
+    integumentary: string[],
+    neurological: string[],
+    pshychiatric: string[],
+    endocrine: string[],
+    myphaticHematological: string[],
+    allergicImmunologic: string[]
 }
 
-function fetchReviewOfSystems(): ReviewOfSystem[] {
-  const reviewOfSystems: ReviewOfSystem[] = [
-    {
-      category: 'General/Constitutional',
-      description: ['Weight loss'],
-      options: ['Weight loss', 'Weight gain', 'Fever', 'Chills', 'Insomnia', 'Fatigue', 'Weakness']
-    }, {
-      category: 'Ears/Nose/Mouth/Throat',
-      description: ['Negative'],
-      options: ['Cough', 'Stuffy nose', 'Hay fever', 'Nosebleeds', 'Sinus congestion', 'Dry mouth', 'Sore throat', 'Hoarseness', 'Thrush', 'Mouth sores', 'Dentures', 'Decreased hearing', 'Earache', 'Ear drainage']
-    }, {
-      category: 'Cardiovascular',
-      description: ['Something not on the list'],
-      options: ['Arrhythmia', 'Chest pain or discmfort (Angina)', 'Difficulty breathing lying down (orthopnea)', 'History of Heart disease', 'High cholesterol', 'Murmur', 'Pacemaker', 'Shortness of breath with activity (dyspnea)', 'Stint', 'Szelling', 'Valve defect'],
-    }, {
-      category: 'Respiratory',
-      description: [],
-      options: ['Bronchitis', 'Emphysema', 'COPD', 'Hemoptosis', 'Lung cancer', 'Pneumonia', 'Tuberculosis']
-    }, {
-      category: 'Gatrointestinal',
-      description: [],
-      options: []
-    }, {
-      category: 'Genitourinary',
-      description: [],
-      options: []
-    }, {
-      category: 'Musculosketletal',
-      description: [],
-      options: []
-    }, {
-      category: 'Integumentary',
-      description: [],
-      options: []
-    }, {
-      category: 'Neurological',
-      description: [],
-      options: []
-    }, {
-      category: 'Pshychiatric',
-      description: [],
-      options: []
-    }, {
-      category: 'Endocrine',
-      description: [],
-      options: []
-    }, {
-      category: 'Myphatic/Hematological',
-      description: [],
-      options: []
-    }, {
-      category: 'Allergic/Immunologic',
-      description: [],
-      options: []
+function fetchReviewOfSystems(): ReviewOfSystems {
+    const reviewOfSystems: ReviewOfSystems = {
+      general: ['Fever','Insomnia'],
+      respiratory: ['Difficulty breathing']
     }
-  ];
-  return reviewOfSystems;
+    return reviewOfSystems;
 }
 
-class ReviewOfSystemsSummary extends Component {
-  props: {
-    reviewOfSystems: ReviewOfSystem[],
-    onUpdateReview: (category: string, description: string[]) => void
-  }
-
-  format(description: string[]): string {
-    if (!description || description.length === 0)
-      return '';
-    let formattedText: string = description[0];
-    for (var i = 1; i < description.length; i++) {
-      formattedText = formattedText + ', ' + description[i];
+  const reviewOfSystemsDefinition: ItemDefinition = {
+    general: {
+      label: 'General/Constitutional',
+      options: ['Normal', 'Weight loss', 'Weight gain', 'Fever', 'Chills', 'Insomnia', 'Fatigue', 'Weakness'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    earsNoseMouth: {
+      label: 'Ears/Nose/Mouth/Throat',
+      options: ['Normal', 'Cough', 'Stuffy nose', 'Hay fever', 'Nosebleeds', 'Sinus congestion', 'Dry mouth', 'Sore throat', 'Hoarseness', 'Thrush', 'Mouth sores', 'Dentures', 'Decreased hearing', 'Earache', 'Ear drainage'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    cardiovascular: {
+      label: 'Cardiovascular',
+      options: ['Normal', 'Arrhythmia', 'Chest pain or discmfort (Angina)', 'Difficulty breathing lying down (orthopnea)', 'History of Heart disease', 'High cholesterol', 'Murmur', 'Pacemaker', 'Shortness of breath with activity (dyspnea)', 'Stint', 'Szelling', 'Valve defect'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    respiratory: {
+      label: 'Respiratory',
+      options: ['Normal', 'Bronchitis', 'Emphysema', 'COPD', 'Hemoptosis', 'Lung cancer', 'Pneumonia', 'Tuberculosis'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    gastrointestinal: {
+      label: 'Gastrointestinal',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    genitourinary: {
+      label: 'Genitourinary',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    musculosketletal: {
+      label: 'Musculosketletal',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    integumentary: {
+      label: 'Integumentary',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    neurological: {
+      label: 'Neurological',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    pshychiatric: {
+      label: 'Pshychiatric',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    endocrine: {
+      label: 'Endocrine',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    myphaticHematological: {
+      label: 'Myphatic/Hematological',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
+    },
+    allergicImmunologic: {
+      label: 'Allergic/Immunologic',
+      options: ['Normal'],
+      multiValue: true,
+      normalValue: 'Normal'
     }
-    return formattedText;
-  }
-
-  renderReviewOfSystem(reviewOfSystem: ReviewOfSystem, index: number) {
-    if (!reviewOfSystem.description || reviewOfSystem.description.length === 0 || reviewOfSystem.description[0].toLowerCase() === 'negative')
-      return null;
-    let description: string = this.format(reviewOfSystem.description);
-    return <FormRow key={index}>
-      <FormTextInput label={reviewOfSystem.category} value={description}
-        onChangeText={(text: string) => this.props.onUpdateReview(reviewOfSystem.category, text.split(', '))} />
-    </FormRow>
-  }
-
-  isAllNegative(): boolean {
-    for (let i: number = 0; i < this.props.reviewOfSystems.length; i++) {
-      if (this.props.reviewOfSystems[i].description === null ||
-        this.props.reviewOfSystems[i].description.length !== 1 ||
-        this.props.reviewOfSystems[i].description[0].toLowerCase() != 'negative')
-        return false;
-    }
-    return true;
-  }
-
-  render() {
-    let allNegative: boolean = this.isAllNegative();
-    if (allNegative)
-      return <View style={styles.form}>
-        <Text style={styles.textfield}>No issues reported, all negative</Text>
-      </View>
-    return <View style={styles.form}>
-      {this.props.reviewOfSystems.map((reviewOfSystem: ReviewOfSystem, index: number) => {
-        return this.renderReviewOfSystem(reviewOfSystem, index);
-      })}
-    </View >
-  }
-}
-
-class ReviewOfSystems extends Component {
-  props: {
-    reviewOfSystems: ReviewOfSystem[],
-    onUpdateReview: (category: string, description: string[]) => void
-  }
-
-  render() {
-    return <ScrollView horizontal={true}>
-      {this.props.reviewOfSystems.map((reviewOfSystem: ReviewOfSystem, index: number) => {
-        return <SelectionList required={true} multiValue={true} key={index} label={reviewOfSystem.category}
-          items={['Negative', ...reviewOfSystem.options]}
-          selection={reviewOfSystem.description}
-          onUpdateSelection={(selectedOptions: string[]) => this.props.onUpdateReview(reviewOfSystem.category, selectedOptions)}
-          />
-      })}
-    </ScrollView>
-  }
 }
 
 export class ReviewOfSystemsScreen extends Component {
   state: {
-    reviewOfSystems: ReviewOfSystem[]
+    reviewOfSystems: ReviewOfSystems
   }
   constructor(props: any) {
     super(props);
     this.state = {
-      reviewOfSystems: []
+      reviewOfSystems: {}
     }
   }
 
@@ -158,62 +130,11 @@ export class ReviewOfSystemsScreen extends Component {
     this.setState({ reviewOfSystems });
   }
 
-  updateReview(category: string, description: string[]): void {
-    const reviewOfSystem: any = this.state.reviewOfSystems.find((reviewOfSystem: ReviewOfSystem): boolean => {
-      return category === reviewOfSystem.category;
-    });
-    if (description.length > 1 && description[0].toLowerCase() === 'negative') {
-      description = description.splice(1);
-    }
-    if (description.length > 1 && description[description.length - 1].toLowerCase() === 'negative') {
-      description = ['Negative'];
-    }
-    reviewOfSystem.description = description;
-    this.setState({ reviewOfSystems: this.state.reviewOfSystems });
-  }
-
-  allNegative() {
-    const reviewOfSystems = this.state.reviewOfSystems.map((reviewOfSystem: ReviewOfSystem) => {
-      reviewOfSystem.description = ['Negative'];
-      return reviewOfSystem;
-    });
-    this.setState({ reviewOfSystems });
-  }
-
-  othersNegative() {
-    const reviewOfSystems = this.state.reviewOfSystems.map((reviewOfSystem: ReviewOfSystem) => {
-      if (reviewOfSystem.description.length === 0)
-        reviewOfSystem.description = ['Negative'];
-      return reviewOfSystem;
-    });
-    this.setState({ reviewOfSystems });
-  }
-
-  clear() {
-    const reviewOfSystems = this.state.reviewOfSystems.map((reviewOfSystem: ReviewOfSystem) => {
-      reviewOfSystem.description = [];
-      return reviewOfSystem;
-    });
-    this.setState({ reviewOfSystems });
-  }
-
-  renderButtons() {
-    return <View style={styles.buttonsRowLayout}>
-      <View style={styles.buttonsRowStartLayout}>
-        <WinkButton title='All Negative' onPress={() => { this.allNegative() } } />
-        <WinkButton title='Others Negative' onPress={() => { this.othersNegative() } } />
-      </View>
-      <WinkButton title='Clear' onPress={() => { this.clear() } } />
-    </View>
-  }
-
   render() {
-    return <View>
-      <ReviewOfSystemsSummary reviewOfSystems={this.state.reviewOfSystems}
-        onUpdateReview={(category: string, description: string[]) => this.updateReview(category, description)} />
-      {this.renderButtons()}
-      <ReviewOfSystems reviewOfSystems={this.state.reviewOfSystems}
-        onUpdateReview={(category: string, description: string[]) => this.updateReview(category, description)} />
-    </View>
+    return <ItemsEditor
+          items={[this.state.reviewOfSystems]}
+          itemDefinition={reviewOfSystemsDefinition}
+          itemView='EditableItem'
+          />
   }
 }

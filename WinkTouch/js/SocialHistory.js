@@ -112,7 +112,8 @@ export class SocialHistoryScreen extends Component {
     return <ItemsEditor
       items={[this.state.socialHistory]}
       itemDefinition={socialHistoryDefinition}
-      itemView='ItemSummary'
+      itemView='EditableItem'
+      orientation='horizontal'
       />
   }
 }

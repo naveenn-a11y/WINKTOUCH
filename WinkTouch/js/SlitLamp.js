@@ -11,6 +11,7 @@ import type {ItemDefinition } from './Widgets';
 import { PerimetryTest } from './EntranceTest';
 
 export type SlitLampFindings = {
+  label: string,
   conjunctiva: string,
   cornea: string,
   eyelids: string,
@@ -21,6 +22,7 @@ export type SlitLampFindings = {
 
 function fetchSlitLampFindings(oculus: string): SlitLampFindings {
   const slitLampFindings: SlitLampFindings = {
+    label: oculus,
     lens: 'Cataract anterior cortical 3+',
     conjutiva: 'Normal'
   }
@@ -89,14 +91,11 @@ export class SlitLampScreen extends Component {
   }
 
   render() {
-    return <View>
-      <View style={{ flex: 50 }}>
-        <ItemsEditor
+    return <ItemsEditor
           items={[this.state.odFindings, this.state.osFindings]}
           itemDefinition={slitLampFindingsDefinition}
-          itemView='ItemSummary'
+          itemView='EditableItem'
+          orientation='horizontal'
           />
-      </View>
-    </View >
   }
 }

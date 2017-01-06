@@ -11,6 +11,8 @@ if (isAndroid) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+export const selectionColor = '#ddddffdd';
+
 export const styles = StyleSheet.create({
     screeen: {
         flex: 100,
@@ -368,7 +370,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         padding: 10 * fontScale,
-        backgroundColor: '#ddddffdd',
+        backgroundColor: selectionColor,
         margin: 3 * fontScale
     }
 });
