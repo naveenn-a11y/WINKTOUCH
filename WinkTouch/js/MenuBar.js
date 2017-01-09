@@ -5,6 +5,7 @@
 
 import React, { Component } from 'react';
 import { View, TouchableHighlight, Button, Image, LayoutAnimation, InteractionManager } from 'react-native';
+import { strings } from './Strings';
 import { styles, fontScale } from './Styles';
 import { Clock } from './Widgets';
 import type {Appointment } from './Appointment';
@@ -66,16 +67,16 @@ export class MenuBar extends Component {
         */
         return <View style={styles.sideMenu}>
             <View style={styles.tab}>
-                <Button title='Today' style={styles.button} onPress={() => this.props.onNavigationChange('showToday')} />
+                <Button title={strings.today} style={styles.button} onPress={() => this.props.onNavigationChange('showToday')} />
             </View>
             <View style={styles.tab}>
-                <Button title='Patients' style={styles.button} onPress={() => this.props.onNavigationChange('findPatient')} />
+                <Button title={strings.patients} style={styles.button} onPress={() => this.props.onNavigationChange('findPatient')} />
             </View>
             <View style={styles.tab}>
                 <Button title='Crash me' style={styles.button} onPress={() => console.error('proficiat')} />
             </View>
             {(this.props.backable)?<View style={styles.roundTab}>
-                <Button title='Back' style={styles.button} onPress={() => this.props.onNavigationChange('back')} />
+                <Button title={strings.back} style={styles.button} onPress={() => this.props.onNavigationChange('back')} />
             </View>:null}
             <View style={{ flex: 5 }}></View>
             <Clock hidden={this.props.appointment === undefined} />
