@@ -14,12 +14,12 @@ export class Notifications extends Component {
         return <View>
             <Clock />
             <View style={styles.centeredRowLayout} >
-                <Image source={require('./service.png')} style={{
+                <Image source={require('./image/service.png')} style={{
                     width: 60 * fontScale,
                     height: 60 * fontScale,
                     resizeMode: 'contain',
                 }} />
-                <Image source={require('./nophone.png')} style={{
+                <Image source={require('./image/nophone.png')} style={{
                     width: 60 * fontScale,
                     height: 60 * fontScale,
                     resizeMode: 'contain',
@@ -59,7 +59,7 @@ export class MenuBar extends Component {
     }
     */
     render() {
-        /** 
+        /**
         if (!this.state.visible) {
             return null;
         }

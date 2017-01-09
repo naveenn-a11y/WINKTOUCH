@@ -84,17 +84,20 @@ const complaintDefinition: ItemDefinition = {
 
 export class ComplaintDetails extends Component {
   props: {
-    complaint: Complaint
+    complaint: Complaint,
+    isSelected: boolean
   }
   render() {
-    return <Text>
-      {(this.props.complaint.symptom && this.props.complaint.symptom.length > 0) ?
-        ('Symptoms: ' + this.props.complaint.symptom +
-          ((this.props.complaint.location && this.props.complaint.location.length > 0) ? (' on ' + this.props.complaint.location) : '')
-          + '.')
-        : ''}
-      {(this.props.complaint.quality && this.props.complaint.quality.length > 0) ? ('Quality: ' + this.props.complaint.quality + '.') : ''}
-    </Text>
+    return <View style={this.props.isSelected?styles.listRowSelected:styles.listRow}>
+      <Text>
+        {(this.props.complaint.symptom && this.props.complaint.symptom.length > 0) ?
+          ('Symptoms: ' + this.props.complaint.symptom +
+            ((this.props.complaint.location && this.props.complaint.location.length > 0) ? (' on ' + this.props.complaint.location) : '')
+            + '. ')
+            : ' '}
+            {(this.props.complaint.quality && this.props.complaint.quality.length > 0) ? ('Quality: ' + this.props.complaint.quality + '.') : ''}
+      </Text>
+    </View>
   }
 }
 

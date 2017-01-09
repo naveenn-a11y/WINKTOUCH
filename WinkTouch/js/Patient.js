@@ -32,7 +32,7 @@ export class PatientCard extends Component {
             <View style={styles.card}>
                 <View style={styles.formRow}>
                     <View>
-                        <Image source={require('./bradpitt.png')} style={{
+                        <Image source={require('./image/bradpitt.png')} style={{
                             width: 120 * fontScale,
                             height: 140 * fontScale,
                             resizeMode: 'contain'
@@ -259,7 +259,7 @@ export class PatientScreen extends Component {
             <PatientContact patient={this.state.patient} />
             <PatientBillingInfo patient={this.state.patient} />
             {/**
-            <PatientHealth patient={this.state.patient} />                 
+            <PatientHealth patient={this.state.patient} />
             <PatientOcularHistory patient={this.state.patient} />
             <PatientMedicalHistory patient={this.state.patient} />
             <PatientMedications patient={this.state.patient} />

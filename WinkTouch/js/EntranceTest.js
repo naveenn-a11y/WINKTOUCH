@@ -169,7 +169,7 @@ class HirschbergTest extends Component {
       <Text style={styles.screenTitle}>Hirschberg Test</Text>
       <View style={styles.formRow}>
         <TouchableWithoutFeedback onPress={() => alert('You will be able to move the white dot around')}>
-          <Image source={require('./hirschberg.png')} style={{
+          <Image source={require('./image/hirschberg.png')} style={{
             width: 350 * fontScale,
             resizeMode: 'contain',
           }} />
@@ -245,7 +245,7 @@ export class PerimetryTest extends Component {
     return <View style={styles.board}>
       <Text style={styles.screenTitle}>Perimetry</Text>
       <View style={styles.centeredColumnLayout}>
-        <Image source={require('./perimetry.png')} style={{
+        <Image source={require('./image/perimetry.png')} style={{
           width: 670 * fontScale,
           height: 350 * fontScale,
           resizeMode: 'contain',

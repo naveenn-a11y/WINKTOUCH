@@ -172,7 +172,7 @@ export class Clock extends Component {
   render() {
     if (this.props.hidden)
       return null;
-    return <Image source={require('./clock.png')} style={{
+    return <Image source={require('./image/clock.png')} style={{
       width: 140 * fontScale,
       height: 140 * fontScale,
       resizeMode: 'contain',
@@ -288,7 +288,7 @@ export class SelectionList extends Component {
 function constructItemView(itemView: string, item: any, itemDefinition: ItemDefinition, isSelected: boolean, onUpdateItem?: (propertyName: string, value: any) => void, orientation: string) {
   switch (itemView) {
     case 'ComplaintDetails':
-      return <ComplaintDetails complaint={item} />
+      return <ComplaintDetails complaint={item} isSelected={isSelected}/>
     case 'EditableItem':
       return <View style={{flex: 10}}>
         <EditableItem item={item} itemDefinition={itemDefinition} isSelected={isSelected} onUpdateItem={onUpdateItem} orientation={orientation}/>

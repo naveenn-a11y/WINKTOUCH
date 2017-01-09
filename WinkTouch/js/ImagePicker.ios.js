@@ -30,7 +30,7 @@ export class ImagePicker extends Component {
 
   render() {
     return <TouchableHighlight onPress={() => this.showCamera()}><View>
-      <Image source={require('./camera.png')} style={{
+      <Image source={require('./image/camera.png')} style={{
         width: 20 * fontScale,
         height: 20 * fontScale,
         resizeMode: 'contain',
@@ -40,7 +40,7 @@ export class ImagePicker extends Component {
         width: 350 * fontScale,
         height: 260 * fontScale,
         resizeMode: 'contain',
-      }} />  
+      }} />
     </View>
     </TouchableHighlight>
 

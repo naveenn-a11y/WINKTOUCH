@@ -107,7 +107,7 @@ export default class LoginScreen extends Component {
             <ScrollView>
                 <View style={styles.centeredColumnLayout}>
                     <Text style={styles.h1}>Welcome to Wink</Text>
-                    <Image source={require('./winklogo-big.png')} style={{
+                    <Image source={require('./image/winklogo-big.png')} style={{
                         width: 250 *fontScale,
                         height: 250 *fontScale
                     }}/>
