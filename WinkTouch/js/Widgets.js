@@ -40,6 +40,10 @@ class ScrollField<T> extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({value: nextProps.value});
+  }
+
   calculateOffsetSteps(event: any): number {
     let offsetPixels: number = event.nativeEvent.locationX - this.state.centerXOffset;
     if (Math.abs(offsetPixels) < this.state.centerXOffset)
@@ -84,7 +88,7 @@ class ScrollField<T> extends Component {
   render() {
     let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
     if (this.props.width) {
-      style = [{ width: 300 }, style];
+      style = [{ width: this.props.width }, style];
     }
     const formattedValue = this.format(this.state.value);
     return <Text onStartShouldSetResponder={(event) => true}
@@ -121,13 +125,15 @@ export class NumberScrollField extends ScrollField<number> {
   }
 
   format(value: number): string {
+    if (isNaN(value)) return '';
     return this.props.decimals ? value.toFixed(this.props.decimals) : String(value);
   }
 
   updateValue(event: any) {
     const offsetSteps: number = this.calculateOffsetSteps(event);
     const offset: number = offsetSteps * this.props.stepSize;
-    let newValue: number = this.props.value + offset;
+    let oldValue: number = isNaN(this.props.value)?0:this.props.value;
+    let newValue: number = oldValue + offset;
     newValue = Math.min(newValue, this.props.maxValue);
     newValue = Math.max(newValue, this.props.minValue);
     this.setState({ value: newValue });
@@ -140,7 +146,7 @@ export class OptionWheel extends ScrollField<string> {
     options: string[],
     prefix?: string,
     width?: number,
-    onChangeValue: (newvalue: number) => void
+    onChangeValue: (newvalue: string) => void
   }
   state: {
     value: string,
@@ -220,7 +226,7 @@ export class SelectionList extends Component {
     multiValue?: boolean,
     onUpdateSelection: (selection: string[] | string) => void
   }
-  defaultProps: {
+  static defaultProps = {
     selection: undefined,
     required: false,
     multiValue: false

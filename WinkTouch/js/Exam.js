@@ -18,6 +18,7 @@ import { SocialHistoryScreen } from './SocialHistory';
 import { FamilyHistoryScreen } from './FamilyHistory';
 import { MedicalHistoryScreen } from './MedicalHistory';
 import { WearingRxScreen, RefractionScreen } from './Refraction';
+import type {GlassesRx} from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
 
@@ -28,7 +29,56 @@ export type Exam = {
   hasEnded: boolean,
 };
 
+export type RefractionExam = {
+  id?: number,
+  type: string,
+  hasStarted: boolean,
+  hasEnded: boolean,
+  previousRx: GlassesRx,
+  wearingRx: GlassesRx,
+  phoropter: GlassesRx,
+  autoRefractor: GlassesRx,
+  retinoscope: GlassesRx,
+  cyclopegic: GlassesRx,
+  finalRx: GlassesRx
+}
+
 function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
+  if (type==='WearingRx' || type==='RefractionTest') {
+    return {
+      type: type,
+      hasStarted: hasStarted,
+      hasEnded: hasEnded,
+      previousRx: {
+        od: {sphere: 0.5},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      wearingRx: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      phoropter: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      autoRefractor: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      retinoscope: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      cyclopegic: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      finalRx: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      }
+    }
+  }
   return {
     type: type,
     hasStarted: hasStarted,
@@ -114,7 +164,7 @@ function newExamCardSpecifics(examType: string, isExpanded: boolean) {
   return null;
 }
 
-function newExamScreenSpecifics(examType: string, exam: Exam) {
+function newExamScreenSpecifics(examType: string, exam: Exam, updateExam: (exam: Exam) => void) {
   switch (examType) {
     case 'Complaint':
       return <ComplaintScreen exam={exam} />;
@@ -125,9 +175,9 @@ function newExamScreenSpecifics(examType: string, exam: Exam) {
     case 'ReviewOfSystems':
       return <ReviewOfSystemsScreen exam={exam} />
     case 'WearingRx':
-      return <WearingRxScreen exam={exam} />
+      return <WearingRxScreen exam={exam} onChangeExam={updateExam} />
     case 'RefractionTest':
-      return <RefractionScreen exam={exam} />
+      return <RefractionScreen exam={exam} onChangeExam={updateExam} />
     case 'SlitLampExam':
       return <SlitLampScreen exam={exam} />
     case 'VisualFieldTest':
@@ -135,15 +185,15 @@ function newExamScreenSpecifics(examType: string, exam: Exam) {
     case 'GlaucomaExam':
       return <GlaucomaScreen exam={exam} />
     case 'Medications':
-      return <MedicationsScreen />
+      return <MedicationsScreen exam={exam} />
     case 'Allergies':
-      return <AllergiesScreen />
+      return <AllergiesScreen exam={exam} />
     case 'SocialHistory':
-      return <SocialHistoryScreen />
+      return <SocialHistoryScreen exam={exam} />
     case 'FamilyHistory':
-      return <FamilyHistoryScreen />
+      return <FamilyHistoryScreen exam={exam} />
     case 'MedicalHistory':
-      return <MedicalHistoryScreen />
+      return <MedicalHistoryScreen exam={exam} />
   }
   return <Text style={styles.screenTitle}>{examType}</Text>
 }
@@ -184,36 +234,6 @@ export class ExamCard extends Component {
         {specificCard}
       </View>
     </TouchableOpacity>
-  }
-}
-
-export class GlassesRx extends Component {
-  props: {
-    hidden?: boolean
-  }
-  render() {
-    if (this.props.hidden)
-      return null;
-    return <View style={styles.centeredColumnLayout}>
-      <Text style={styles.text}>   Sphere  Cyl  Axis   Add  Prism</Text>
-      <Text style={styles.text}>OD    -2.5    DS  173  +.50  1/2 BU</Text>
-      <Text style={styles.text}>OS    -2.5    DS  173  +.50             </Text>
-    </View>
-  }
-}
-
-export class ContactsRx extends Component {
-  props: {
-    hidden?: boolean
-  }
-  render() {
-    if (this.props.hidden)
-      return null;
-    return <View style={styles.centeredColumnLayout}>
-      <Text style={styles.text}>   PWR   BC  DIA  CYL   AXIS ADD</Text>
-      <Text style={styles.text}>OD -2.75 8.7 14.0 -2.25 160  +1.75</Text>
-      <Text style={styles.text}>OS -2.75 8.7 14.0 -2.25 160  +1.75</Text>
-    </View>
   }
 }
 
@@ -309,12 +329,22 @@ export class ExamScreen extends Component {
     exam: Exam,
     onNavigationChange: (action: string, data: any) => void
   }
+  state: {
+    exam: Exam
+  }
   constructor(props: any) {
     super(props);
+    this.state = {
+      exam: this.props.exam
+    }
+  }
+
+  updateExam(exam: Exam) {
+    this.setState({exam});
   }
 
   render() {
-    let specificExam = newExamScreenSpecifics(this.props.exam.type, this.props.exam);
+    let specificExam = newExamScreenSpecifics(this.props.exam.type, this.state.exam, (exam: Exam) => this.updateExam(exam));
     return <View style={styles.centeredScreenLayout}>
       <View style={styles.centeredColumnLayout}>
         {specificExam}
@@ -326,7 +356,7 @@ export class ExamScreen extends Component {
         <Text>t</Text>
         <Text>o</Text>
         <Text>r</Text>
-        <Text>y</Text>        
+        <Text>y</Text>
       </View>
       */}
     </View >

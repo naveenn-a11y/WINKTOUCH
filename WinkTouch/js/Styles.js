@@ -148,7 +148,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center'
     },
     formRow500: {
-        minWidth: 500 * fontScale,
+        minWidth: 480 * fontScale,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center'
@@ -336,25 +336,25 @@ export const styles = StyleSheet.create({
     },
     bottomRight: {
         position: 'absolute',
-        bottom: 15,
-        right: 20
+        bottom: 15 * fontScale,
+        right: 20 * fontScale
     },
     hover: {
         backgroundColor: 'white',
-        height: 60,
-        width: 60,
-        borderRadius: 30,
+        height: 60 * fontScale,
+        width: 60 * fontScale,
+        borderRadius: 30 * fontScale,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
-        bottom: 15,
-        right: 15,
+        bottom: 15 * fontScale,
+        right: 15 * fontScale,
         shadowColor: "#000000",
         shadowOpacity: 0.5,
-        shadowRadius: 2,
+        shadowRadius: 2 * fontScale,
         shadowOffset: {
-            height: 3,
-            width: 1
+            height: 3 * fontScale,
+            width: 1 * fontScale
         }
     },
     listRow: {

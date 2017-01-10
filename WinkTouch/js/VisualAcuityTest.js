@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, Text, Switch } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { NumberScrollField } from './Widgets';
-import { ContactsRx, GlassesRx } from './Exam';
+import { ContactsSummary, GlassesSummary } from './Refraction';
 import { Anesthetics } from './EntranceTest';
 
 export class VA extends Component {
@@ -35,8 +35,8 @@ class AcuityTest extends Component {
   render() {
     return <View style={styles.board}>
       <Text style={styles.screenTitle}>{this.props.type} {}Acuities</Text>
-      <GlassesRx hidden={this.props.type !== 'Glasses'} />
-      <ContactsRx hidden={this.props.type !== 'Contacts'} />
+      <GlassesSummary hidden={this.props.type !== 'Glasses'} />
+      <ContactsSummary hidden={this.props.type !== 'Contacts'} />
       <Text style={styles.text}>Conducted after application of anesthetics</Text>
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}></Text>
