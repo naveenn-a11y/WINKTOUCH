@@ -62,7 +62,7 @@ export class VA extends Component {
     }
   }
   render() {
-    return <NumberScrollField prefix='20/' minValue={10} maxValue={600} stepSize={5}
+    return <NumberScrollField prefix='20/' range={[10,600]} stepSize={5}
       value={this.state.value}
       scrollMethod='quadratic'
       onChangeValue={(newValue: number) => this.setState({ value: newValue })} />
@@ -75,7 +75,7 @@ export class DiopterScrollField extends Component {
     onChangeValue: (newvalue: number) => void
   }
   render() {
-    return <NumberScrollField minValue={-20} maxValue={20} stepSize={.25} decimals={2}
+    return <NumberScrollField range={[-20,-10,-7,-5,-4,-3,-2,-1,0,1,2,3,4,5,7,10,20]} stepSize={.25} decimals={2}
       value={this.props.value}
       scrollMethod='quadratic'
       onChangeValue={this.props.onChangeValue} />
@@ -100,7 +100,7 @@ export class DegreeScrollField extends Component {
     onChangeValue: (newvalue: number) => void
   }
   render() {
-    return <NumberScrollField minValue={0} maxValue={180} stepSize={1} decimals={0}
+    return <NumberScrollField range={[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180]} stepSize={1} decimals={0}
       value={this.props.value}
       scrollMethod='quadratic'
       onChangeValue={this.props.onChangeValue} />
@@ -256,6 +256,7 @@ export class RefractionScreen extends Component {
     exam[propertyName] = value;
     this.props.onChangeExam(exam);
   }
+
   render() {
     return <ScrollView>
       <View style={styles.flow}>

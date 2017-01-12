@@ -1,7 +1,9 @@
 import { StyleSheet, Dimensions, Platform, UIManager } from 'react-native';
 
-export const fontScale = 0.8 * Math.min(Dimensions.get('window').width / 1024,
-    Dimensions.get('window').height / 768);
+export const windowWidth : number = Dimensions.get('window').width;
+export const windowHeight : number =   Dimensions.get('window').height;
+export const fontScale = 0.8 * Math.min(windowWidth / 1024,
+  windowHeight / 768)
 
 
 export const isIos = Platform.OS === 'ios';
@@ -372,6 +374,25 @@ export const styles = StyleSheet.create({
         padding: 10 * fontScale,
         backgroundColor: selectionColor,
         margin: 3 * fontScale
+    },
+    scrollPopup: {
+        position: 'absolute',
+        top: 10 * fontScale,
+        height: 40 * fontScale,
+        borderRadius: 4 * fontScale,
+        backgroundColor: '#ffffffdd',
+        shadowRadius: 4 * fontScale,
+        shadowColor: '#000000',
+        shadowOpacity: 0.3,
+        shadowOffset: {
+            height: 6 * fontScale,
+            width: 3 * fontScale
+        }
+    },
+    rulerIndicator: {
+      width: 1*fontScale,
+      height: 40 * fontScale,
+      backgroundColor: 'red'
     }
 });
 

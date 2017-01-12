@@ -6,7 +6,6 @@
 import React, { Component } from 'react';
 import { View, Text, Switch } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { NumberScrollField } from './Widgets';
 import { PerimetryTest } from './EntranceTest';
 
 class Anesthetics extends Component {

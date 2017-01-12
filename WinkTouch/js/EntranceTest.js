@@ -350,12 +350,12 @@ export class Stereopsis extends Component {
       <View style={styles.centeredColumnLayout}>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Dist:</Text>
-          <NumberScrollField value={25} minValue={10} maxValue={200} stepSize={5} />
+          <NumberScrollField value={25} range={[10,200]} stepSize={5} />
           <OptionWheel value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Near:</Text>
-          <NumberScrollField value={25} minValue={10} maxValue={200} stepSize={5} />
+          <NumberScrollField value={25} range={[10,200]} stepSize={5} />
           <OptionWheel value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
         </View>
       </View>
@@ -397,18 +397,18 @@ export class PupilDistance extends Component {
       </View >
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}>OD</Text>
-        <NumberScrollField value={32} minValue={0} maxValue={100} stepSize={.5} decimals={2} />
-        <NumberScrollField value={32} minValue={0} maxValue={100} stepSize={.5} decimals={2} />
+        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
+        <NumberScrollField value={32} range={[0,100]}stepSize={.5} decimals={2} />
       </View >
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}>OS</Text>
-        <NumberScrollField value={32} minValue={0} maxValue={100} stepSize={.5} decimals={2} />
-        <NumberScrollField value={32} minValue={0} maxValue={100} stepSize={.5} decimals={2} />
+        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
+        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
       </View >
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}>OU</Text>
-        <NumberScrollField value={32} minValue={0} maxValue={100} stepSize={.5} decimals={2} />
-        <NumberScrollField value={32} minValue={0} maxValue={100} stepSize={.5} decimals={2} />
+        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
+        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
       </View >
     </View>
   }

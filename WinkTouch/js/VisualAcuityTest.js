@@ -21,7 +21,7 @@ export class VA extends Component {
     }
   }
   render() {
-    return <NumberScrollField prefix='20/' minValue={10} maxValue={600} stepSize={5}
+    return <NumberScrollField prefix='20/' range={[10,600]} stepSize={5}
       value={this.state.value}
       scrollMethod='quadratic'
       onChangeValue={(newValue: number) => this.setState({ value: newValue })} />

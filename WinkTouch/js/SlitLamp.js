@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, Switch } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { NumberScrollField, ItemsEditor } from './Widgets';
+import { ItemsEditor } from './Widgets';
 import type {ItemDefinition } from './Widgets';
 import { PerimetryTest } from './EntranceTest';
 
