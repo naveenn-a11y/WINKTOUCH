@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, Switch } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { NumberScrollField } from './Widgets';
+import { RulerField } from './Widgets';
 import { ContactsSummary, GlassesSummary } from './Refraction';
 import { Anesthetics } from './EntranceTest';
 
@@ -21,7 +21,7 @@ export class VA extends Component {
     }
   }
   render() {
-    return <NumberScrollField prefix='20/' range={[10,600]} stepSize={5}
+    return <RulerField prefix='20/' range={[10,15,20,25,30,35,40,50,60,70,100,200,600]} stepSize={5}
       value={this.state.value}
       scrollMethod='quadratic'
       onChangeValue={(newValue: number) => this.setState({ value: newValue })} />
@@ -35,8 +35,8 @@ class AcuityTest extends Component {
   render() {
     return <View style={styles.board}>
       <Text style={styles.screenTitle}>{this.props.type} {}Acuities</Text>
-      <GlassesSummary hidden={this.props.type !== 'Glasses'} />
-      <ContactsSummary hidden={this.props.type !== 'Contacts'} />
+      <GlassesSummary visible={this.props.type === 'Glasses'} />
+      <ContactsSummary visible={this.props.type === 'Contacts'} />
       <Text style={styles.text}>Conducted after application of anesthetics</Text>
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}></Text>

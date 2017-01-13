@@ -1,7 +1,8 @@
 import { StyleSheet, Dimensions, Platform, UIManager } from 'react-native';
 
 export const windowWidth : number = Dimensions.get('window').width;
-export const windowHeight : number =   Dimensions.get('window').height;
+export const windowHeight : number = Dimensions.get('window').height;
+
 export const fontScale = 0.8 * Math.min(windowWidth / 1024,
   windowHeight / 768)
 
@@ -14,6 +15,7 @@ if (isAndroid) {
 }
 
 export const selectionColor = '#ddddffdd';
+export const selectionFontColor = '#4444ff';
 
 export const styles = StyleSheet.create({
     screeen: {
@@ -65,6 +67,12 @@ export const styles = StyleSheet.create({
         fontSize: 26 * fontScale,
         textAlign: 'center',
         margin: 8 * fontScale
+    },
+    screenTitleSelected: {
+        fontSize: 26 * fontScale,
+        textAlign: 'center',
+        margin: 8 * fontScale,
+        color: selectionFontColor
     },
     text: {
         fontSize: 17 * fontScale,
@@ -253,12 +261,38 @@ export const styles = StyleSheet.create({
         borderRadius: 10 * fontScale,
         margin: 10 * fontScale,
         backgroundColor: 'white',
-        shadowRadius: 4,
+        shadowRadius: 4 * fontScale,
         shadowColor: '#000000',
         shadowOpacity: 0.3,
         shadowOffset: {
-            height: 10,
-            width: 3
+            height: 10 * fontScale,
+            width: 3 * fontScale
+        }
+    },
+    popupTile: {
+        padding: 20 * fontScale,
+        margin: 10 * fontScale,
+        backgroundColor: 'white',
+        borderRadius: 10 * fontScale,
+        shadowRadius: 4 * fontScale,
+        shadowColor: '#000000',
+        shadowOpacity: 0.3,
+        shadowOffset: {
+            height: 10 * fontScale,
+            width: 3 * fontScale
+        }
+    },
+    popupTileSelected: {
+        padding: 20 * fontScale,
+        margin: 10 * fontScale,
+        backgroundColor: 'white',
+        borderRadius: 10 * fontScale,
+        shadowRadius: 10 * fontScale,
+        shadowColor: 'blue',
+        shadowOpacity: 0.3,
+        shadowOffset: {
+            height: 3 * fontScale,
+            width: 3 * fontScale
         }
     },
     tabHeader: {
@@ -310,8 +344,8 @@ export const styles = StyleSheet.create({
     todoExamCardExpanded: examCardStyle('blue', true),
     startedExamCard: examCardStyle('green', false),
     startedExamCardExpanded: examCardStyle('green', true),
-    finishedExamCard: examCardStyle('white', false),
-    finishedExamCardExpanded: examCardStyle('white', true),
+    finishedExamCard: examCardStyle('black', false),
+    finishedExamCardExpanded: examCardStyle('black', true),
     board: boardStyle('white'),
     boardTodo: boardStyle('#ffaabb'),
     store: {
@@ -380,7 +414,7 @@ export const styles = StyleSheet.create({
         top: 10 * fontScale,
         height: 40 * fontScale,
         borderRadius: 4 * fontScale,
-        backgroundColor: '#ffffffdd',
+        backgroundColor: '#ffffffee',
         shadowRadius: 4 * fontScale,
         shadowColor: '#000000',
         shadowOpacity: 0.3,

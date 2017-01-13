@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react';
 import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView, Modal, Dimensions } from 'react-native';
-import { styles, fontScale, selectionColor, windowWidth } from './Styles';
+import { styles, fontScale, selectionColor, windowWidth, windowHeight, selectionFontColor } from './Styles';
 import { FormRow, FormTextInput } from './Form';
 import { ComplaintDetails } from './Complaint'
 
@@ -18,22 +18,26 @@ export type ItemDefinition = {
   }
 };
 
-class ScrollField<T> extends Component {
+export class RulerField extends Component {
   props: {
-    value: T,
+    value: number,
     prefix?: string,
-    range: T[],
-    scrollMethod?: string,
+    range: number[],
     width?: number,
-    onChangeValue: (newvalue: T) => void
+    stepSize?: number,
+    prefix?: string,
+    decimals?: number,
+    onChangeValue?: (newvalue: number) => void,
+    onEnableScroll?: (enableScroll: boolean) => void
   }
-  margin: number;
-  oldPageX: number;
   state: {
     pageX: number,
     isActive: boolean,
-    value: any
+    value: number
   }
+  margin: number;
+  oldPageX: number;
+
   constructor(props: any) {
     super(props);
     this.margin = 50 * fontScale;
@@ -52,128 +56,32 @@ class ScrollField<T> extends Component {
     this.oldPageX = this.toPageX(this.toPercentage(nextProps.value))
   }
 
-  /**
-  calculateOffsetSteps(event: any): number {
-    let offsetPixels: number = event.nativeEvent.locationX;
-    if (Math.abs(offsetPixels) < this.state.centerXOffset)
-      return 0;
-    if (offsetPixels > 0)
-      offsetPixels = offsetPixels - this.state.centerXOffset;
-    else
-      offsetPixels = offsetPixels + this.state.centerXOffset;
-    let scale = 1 / (60 * fontScale);
-    if (this.props.scrollMethod === 'quadratic') {
-      scale = scale * Math.abs(offsetPixels) / 100;
-      if (scale > 0.08) scale = 0.08;
-    }
-    let offsetSteps: number = Math.round(offsetPixels * scale);
-    offsetSteps += (offsetPixels > 0) ? 1 : -1;
-    return offsetSteps;
-  }
-  */
-
   startEditing(event: any) {
+    if (this.props.onEnableScroll) {
+      this.props.onEnableScroll(false);
+    }
     this.updateValue(event);
     LayoutAnimation.easeInEaseOut();
     this.setState({ isActive: true })
   }
 
-  commitValue() {
+  commitEdit() {
     LayoutAnimation.easeInEaseOut();
     this.setState({ isActive: false });
     if (this.props.onChangeValue)
       this.props.onChangeValue(this.state.value);
+    if (this.props.onEnableScroll) {
+        this.props.onEnableScroll(true);
+    }
   }
 
-  updateValue(event: any): number {
-    const pageX: number = event.nativeEvent.pageX;
-    this.setState({pageX});
-    const percentageValue = Math.max(0, Math.min(1, (pageX-this.margin)/(windowWidth-2*this.margin)));
-    return percentageValue;
-  }
-
-  format(value: any): string {
-    if (value === null || value === undefined) return ' ';
-    return String(value);
+  cancelEdit() {
+    this.setState({ isActive: false });
   }
 
   toPageX(percentageValue: number) : number {
     const pageX: number = percentageValue * (windowWidth-2*this.margin) + this.margin;
     return pageX;
-  }
-
-  toPercentage(value: T) : number {
-    return 0.5;
-  }
-
-  toValue(percentage: number) : T {
-  }
-
-  renderRuler(formattedValue: string) {
-    let pageX: number = this.state.pageX;
-    pageX = Math.max(pageX, this.margin);
-    pageX = Math.min(pageX, windowWidth-this.margin);
-    return <View style={[{left: this.margin, width: windowWidth-this.margin*2}, styles.scrollPopup]}>
-        <View style={{position: 'absolute', left:pageX-this.margin, width:3*fontScale, height:40*fontScale, backgroundColor: 'blue'}} />
-        <Text style={{position: 'absolute', left:pageX-this.margin-20*fontScale, top: 50*fontScale, fontSize: 32*fontScale}}>{formattedValue}</Text>
-        <View style={{position: 'absolute', left:this.oldPageX-this.margin, width:1*fontScale, height:90*fontScale, backgroundColor: 'green'}} />
-        <Text style={{position: 'absolute', left:this.oldPageX-this.margin-20*fontScale, top: 90*fontScale, fontSize: 24*fontScale}}>{this.format(this.props.value)}</Text>
-        {this.props.range.map((pillar: number, index: number) => {
-          const percentagePillar : number = index/(this.props.range.length-1);
-          const pageX: number = this.toPageX(percentagePillar);
-          const labelOffset: number = (pillar<0?12:6)*fontScale;
-          return <View key={index}>
-            <Text style={{position: 'absolute', left:pageX-this.margin-labelOffset, top: 8*fontScale, fontSize: 24*fontScale}}>{pillar}</Text>
-            <View style={{position: 'absolute', left:pageX-this.margin, top: 2*fontScale, width:1*fontScale, height:8*fontScale, backgroundColor: 'black'}} />
-          </View>
-        })}
-      </View>
-    }
-
-  render() {
-    let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
-    if (this.props.width) {
-      style = [{ width: this.props.width }, style];
-    }
-    const formattedValue = this.format(this.state.value);
-    return <View style={{flex:100}}>
-      <Text onStartShouldSetResponder={(event) => true}
-      onResponderGrant={(event) => this.startEditing(event)}
-      onResponderReject={(event) => this.setState({ isActive: false })}
-      onMoveShouldSetResponder={(event) => false}
-      onResponderTerminationRequest={(event) => false}
-      onResponderMove={(event) => this.updateValue(event)}
-      onResponderRelease={(event) => this.commitValue()}
-      onResponderTerminate={(event) => this.setState({ isActive: false })}
-      style={style}
-      >{this.state.isActive ? '' : this.props.prefix}{formattedValue}</Text>
-      <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={() => { console.log('TODO: onRequestClose patient list popup') } }>
-        {this.renderRuler(formattedValue)}
-      </Modal>
-      </View>
-  }
-}
-
-export class NumberScrollField extends ScrollField<number> {
-  props: {
-    value: number,
-    width?: number,
-    scrollMethod?: string,
-    range: number[],
-    stepSize?: number,
-    prefix?: string,
-    decimals?: number,
-    onChangeValue: (newvalue: number) => void
-  }
-  state: {
-    windowWidth: number,
-    centerXOffset: number,
-    pageX: number,
-    isActive: boolean,
-    value: number
-  }
-  constructor(props: any) {
-    super(props);
   }
 
   format(value: number): string {
@@ -205,48 +113,196 @@ export class NumberScrollField extends ScrollField<number> {
     return value;
   }
 
-  updateValue(event: any) : number {
-    const percentage : number = super.updateValue(event);
+  updateValue(event: any) : void {
+    const pageX: number = event.nativeEvent.pageX;
+    const percentage: number = Math.max(0, Math.min(1, (pageX-this.margin)/(windowWidth-2*this.margin)));
     let newValue: number = this.toValue(percentage);
-    if (this.props.stepSize) {
+    if (this.props.stepSize && this.props.stepSize>0) {
       newValue = Math.round(newValue/this.props.stepSize)*this.props.stepSize;
     }
-    this.setState({ value: newValue });
-    return percentage;
+    this.setState({
+      value: newValue,
+      pageX
+    });
+  }
+
+  renderPopup(formattedValue: string) {
+    let pageX: number = this.state.pageX;
+    pageX = Math.max(pageX, this.margin);
+    pageX = Math.min(pageX, windowWidth-this.margin);
+    return <View style={[{left: this.margin, width: windowWidth-this.margin*2}, styles.scrollPopup]}>
+        <View style={{position: 'absolute', left:pageX-this.margin, width:3*fontScale, height:40*fontScale, backgroundColor: selectionFontColor}} />
+        <Text style={{position: 'absolute', left:pageX-this.margin-20*fontScale, top: 50*fontScale, fontSize: 32*fontScale, color: selectionFontColor}}>{formattedValue}</Text>
+        <View style={{position: 'absolute', left:this.oldPageX-this.margin, width:2*fontScale, height:90*fontScale, backgroundColor: 'green'}} />
+        <Text style={{position: 'absolute', left:this.oldPageX-this.margin-20*fontScale, top: 90*fontScale, fontSize: 24*fontScale, color: 'green'}}>{this.format(this.props.value)}</Text>
+        {this.props.range.map((pillar: number, index: number) => {
+          const percentagePillar : number = index/(this.props.range.length-1);
+          const pageX: number = this.toPageX(percentagePillar);
+          const labelOffset: number = (pillar<0?12:6)*fontScale;
+          return <View key={index}>
+            <Text style={{position: 'absolute', left:pageX-this.margin-labelOffset, top: 8*fontScale, fontSize: 24*fontScale}}>{pillar}</Text>
+            <View style={{position: 'absolute', left:pageX-this.margin, top: 2*fontScale, width:1*fontScale, height:8*fontScale, backgroundColor: 'black'}} />
+          </View>
+        })}
+    </View>
+  }
+
+  render() {
+    let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
+    if (this.props.width) {
+      style = [{ width: this.props.width }, style];
+    }
+    const formattedValue = this.format(this.state.value);
+    return <View style={{flex:100}} onStartShouldSetResponder={(event) => true}
+    onResponderGrant={(event) => this.startEditing(event)}
+    onResponderReject={(event) => this.setState({ isActive: false })}
+    onMoveShouldSetResponder={(event) => false}
+    onResponderTerminationRequest={(event) => false}
+    onResponderMove={(event) => this.updateValue(event)}
+    onResponderRelease={(event) => this.commitEdit()}
+    onResponderTerminate={(event) => this.cancelEdit()}>
+      <Text style={style}>{this.state.isActive ? '' : this.props.prefix}{formattedValue}</Text>
+      <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={() => { console.log('TODO: onRequestClose RulerField popup') } }>
+        {this.renderPopup(formattedValue)}
+      </Modal>
+      </View>
   }
 }
 
-export class OptionWheel extends ScrollField<string> {
+export class TilesField extends Component {
   props: {
     value: string,
     options: string[],
-    prefix?: string,
     width?: number,
-    scrollMethod?: string,
-    onChangeValue: (newvalue: string) => void
+    onChangeValue?: (newvalue: string) => void,
+    onEnableScroll?: (enableScroll: boolean) => void
   }
   state: {
-    value: string,
-    windowWidth: number,
-    centerXOffset: number,
-    pageX: number,
     isActive: boolean,
+    value: string,
+    position: number,
+    popupWidth: number,
+    optionLayout: {x: number, y:number, width: number, height:number}[]
   }
-  optionIndex: number;
   constructor(props: any) {
     super(props);
-    this.optionIndex = this.props.options.indexOf(this.props.value);
+    this.state = {
+      value: this.props.value,
+      isActive: false,
+      position: 200,
+      popupWidth: 0,
+      optionLayout: this.initOptionLayout(this.props.options.length)
+    }
   }
 
-  updateValue(event: any) {
-    super.updateValue(event);
-    const offsetSteps: number = this.calculateOffsetSteps(event);
-    let newIndex: number = this.optionIndex + offsetSteps;
-    newIndex = newIndex % (this.props.options.length);
-    if (newIndex < 0) newIndex = newIndex + this.props.options.length;
+  initOptionLayout(size: number) : {x: number, y:number, width: number, height:number}[] {
+    const optionLayout: {x: number, y:number, width: number, height:number}[] = [];
+    for (let i = 0; i<size; i++) {
+      optionLayout.push({x:0, y:0, width:0, height:0});
+    }
+    return optionLayout;
+  }
+
+  componentWillReceiveProps(nextProps: any) {
     this.setState({
-      value: this.props.options[newIndex]
+      value: nextProps.value,
+      optionLayout: this.initOptionLayout(nextProps.options.length)
     });
+  }
+
+  startEditing(event: any) {
+    if (this.props.onEnableScroll) {
+        this.props.onEnableScroll(false);
+    }
+    const pageX: number = event.nativeEvent.pageX;
+    this.updateValue(event);
+    LayoutAnimation.easeInEaseOut();
+    this.setState({
+      isActive: true,
+      position: pageX});
+  }
+
+  commitEdit() {
+    LayoutAnimation.easeInEaseOut();
+    this.setState({ isActive: false });
+    if (this.props.onChangeValue)
+      this.props.onChangeValue(this.state.value);
+    if (this.props.onEnableScroll) {
+      this.props.onEnableScroll(true);
+    }
+  }
+
+  cancelEdit() {
+    this.setState({ isActive: false });
+  }
+
+  updateValue(event: any) : void {
+    const y: number = event.nativeEvent.pageY;
+    let newValue: string = this.state.value;
+    if (y<this.state.optionLayout[0].y ||
+      y>(this.state.optionLayout[this.props.options.length-1].y + this.state.optionLayout[this.props.options.length-1].height)) {
+      newValue = this.props.value;
+    } else {
+      for (let i = 0; i<this.props.options.length; i++) {
+          if (this.state.optionLayout[i].y<=y && y<=(this.state.optionLayout[i].y + this.state.optionLayout[i].height)) {
+            newValue = this.props.options[i];
+            break;
+          }
+      }
+    }
+    if (newValue!==this.state.value) {
+      this.setState({value: newValue});
+    }
+  }
+
+  onLayoutPopup(event: any) : void {
+    if (this.state.popupWidth>0) return;
+    const popupWidth: number = event.nativeEvent.layout.width;
+    if (popupWidth!=this.state.popupWidth)
+      this.setState({popupWidth});
+  }
+
+  onLayoutOption(event: any, optionIndex: number) : void {
+    const optionLayout = event.nativeEvent.layout;
+    this.state.optionLayout[optionIndex] = optionLayout;
+  }
+
+  renderPopup() {
+    let position = this.state.position - this.state.popupWidth - 50*fontScale;
+    if (position<0) position = this.state.position + 100 * fontScale;
+    return <View onLayout={(event: any) => this.onLayoutPopup(event)} style={{position:'absolute', left:position}}>
+        <View style={styles.centeredColumnLayout}>
+        {this.props.options.map((option: string, index: number) => {
+            const isSelected: boolean = option === this.state.value;
+            return <View onLayout={(event: any) => this.onLayoutOption(event, index)} style={isSelected?styles.popupTileSelected:styles.popupTile} key={index}>
+                <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
+            </View>
+          })
+        }
+        </View>
+      </View>
+  }
+
+  render() {
+    let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
+    if (this.props.width) {
+      style = [{ width: this.props.width }, style];
+    }
+    const formattedValue = this.state.value;
+    return <View style={{flex:100}}
+        onStartShouldSetResponder={(event) => true}
+        onResponderGrant={(event) => this.startEditing(event)}
+        onResponderReject={(event) => this.setState({ isActive: false })}
+        onMoveShouldSetResponder={(event) => false}
+        onResponderTerminationRequest={(event) => false}
+        onResponderMove={(event) => this.updateValue(event)}
+        onResponderRelease={(event) => this.commitEdit()}
+        onResponderTerminate={(event) => this.cancelEdit()}>
+      <Text style={style}>{formattedValue}</Text>
+      <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={() => { console.log('TODO: onRequestClose TilesField') } }>
+        {this.renderPopup()}
+      </Modal>
+      </View>
   }
 }
 

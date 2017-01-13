@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, Image, TouchableWithoutFeedback, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { OptionWheel, NumberScrollField } from './Widgets';
+import { TilesField, RulerField } from './Widgets';
 import { ImagePicker } from './ImagePicker';
 
 const strabismusTypes: string[] = ['Exotropia', 'Esotropia', 'Hypertropia', 'Hypotropia'];
@@ -33,7 +33,7 @@ export class StrabismusWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.strabismus} options={[null, ...strabismusTypes]}
+    return <TilesField value={this.state.strabismus} options={[null, ...strabismusTypes]}
       onChangeValue={(strabismus: string) => this.setState({ strabismus: strabismus })} />
   }
 }
@@ -54,7 +54,7 @@ export class OculusWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.oculus} options={[null, ...oculusTypes]} {...this.props}
+    return <TilesField value={this.state.oculus} options={[null, ...oculusTypes]} {...this.props}
       onChangeValue={(oculus: string) => this.setState({ oculus: oculus })} />
   }
 }
@@ -75,7 +75,7 @@ export class HandednessWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.handedness} options={[null, ...handednessTypes]} {...this.props}
+    return <TilesField value={this.state.handedness} options={[null, ...handednessTypes]} {...this.props}
       onChangeValue={(handedness: string) => this.setState({ handedness: handedness })} />
   }
 }
@@ -96,7 +96,7 @@ export class VisualFieldWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.visualField} options={[null, ...visualFieldTypes]} {...this.props}
+    return <TilesField value={this.state.visualField} options={[null, ...visualFieldTypes]} {...this.props}
       onChangeValue={(visualField: string) => this.setState({ visualField: visualField })} />
   }
 }
@@ -116,7 +116,7 @@ export class PupilDiagnoseWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.pupilDiagnose} options={[null, ...pupilDiagnoseTypes]} {...this.props}
+    return <TilesField value={this.state.pupilDiagnose} options={[null, ...pupilDiagnoseTypes]} {...this.props}
       onChangeValue={(pupilDiagnose: string) => this.setState({ pupilDiagnose: pupilDiagnose })} />
   }
 }
@@ -136,7 +136,7 @@ export class IrisColorWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.irisColor} options={[null, ...irisColorTypes]} {...this.props}
+    return <TilesField value={this.state.irisColor} options={[null, ...irisColorTypes]} {...this.props}
       onChangeValue={(irisColor: string) => this.setState({ irisColor: irisColor })} />
   }
 }
@@ -156,8 +156,21 @@ export class EOMWheel extends Component {
   }
 
   render() {
-    return <OptionWheel value={this.state.eom} options={[null, ...eomTypes]} {...this.props}
+    return <TilesField value={this.state.eom} options={[null, ...eomTypes]} {...this.props}
       onChangeValue={(eom: string) => this.setState({ eom: eom })} />
+  }
+}
+
+export class PD extends Component {
+  props: {
+    value: number,
+    onChangeValue: (newvalue: number) => void
+  }
+  render() {
+    return <RulerField range={[30,35,40,50,55,60,65,70,75,80,85,90,95,100]} stepSize={1} decimals={0}
+      value={this.props.value}
+      scrollMethod='quadratic'
+      onChangeValue={this.props.onChangeValue} />
   }
 }
 
@@ -191,13 +204,13 @@ class CoverTest extends Component {
       <Text style={styles.screenTitle}>{this.props.title}</Text>
       <View style={styles.formRow500}>
         <Text style={styles.formLabel}>Lateral:</Text>
-        <OptionWheel value='Ortho' options={[null, 'Ortho']} />
-        <OptionWheel value='EsoPhoria' options={[null, 'EsoPhoria']} />
+        <TilesField value='Ortho' options={[null, 'Ortho']} />
+        <TilesField value='EsoPhoria' options={[null, 'EsoPhoria']} />
       </View>
       <View style={styles.formRow500}>
         <Text style={styles.formLabel}>Vertical:</Text>
-        <OptionWheel value='2' options={[null, 'Ortho']} />
-        <OptionWheel value='Hyperphoria OD' options={[null, 'Hyperphoria OD']} />
+        <TilesField value='2' options={[null, 'Ortho']} />
+        <TilesField value='Hyperphoria OD' options={[null, 'Hyperphoria OD']} />
       </View>
     </View>
   }
@@ -350,13 +363,13 @@ export class Stereopsis extends Component {
       <View style={styles.centeredColumnLayout}>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Dist:</Text>
-          <NumberScrollField value={25} range={[10,200]} stepSize={5} />
-          <OptionWheel value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
+          <RulerField value={25} range={[10,200]} stepSize={5} />
+          <TilesField value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Near:</Text>
-          <NumberScrollField value={25} range={[10,200]} stepSize={5} />
-          <OptionWheel value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
+          <RulerField value={25} range={[10,200]} stepSize={5} />
+          <TilesField value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
         </View>
       </View>
     </View>
@@ -370,15 +383,15 @@ export class ColorVision extends Component {
       <View style={styles.centeredColumnLayout}>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Test:</Text>
-          <OptionWheel value='Famsworth D-15' options={[null, 'Famsworth D-15']} />
+          <TilesField value='Famsworth D-15' options={[null, 'Famsworth D-15']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>OD:</Text>
-          <OptionWheel value='Normal' options={[null, 'Normal']} />
+          <TilesField value='Normal' options={[null, 'Normal']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>OS:</Text>
-          <OptionWheel value='Normal' options={[null, 'Normal']} />
+          <TilesField value='Normal' options={[null, 'Normal']} />
         </View>
       </View>
     </View>
@@ -397,18 +410,18 @@ export class PupilDistance extends Component {
       </View >
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}>OD</Text>
-        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
-        <NumberScrollField value={32} range={[0,100]}stepSize={.5} decimals={2} />
+        <PD />
+        <PD />
       </View >
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}>OS</Text>
-        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
-        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
+        <PD />
+        <PD />
       </View >
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}>OU</Text>
-        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
-        <NumberScrollField value={32} range={[0,100]} stepSize={.5} decimals={2} />
+        <PD />
+        <PD />
       </View >
     </View>
   }

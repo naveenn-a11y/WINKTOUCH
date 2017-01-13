@@ -5,8 +5,8 @@
 
 import React, { Component } from 'react';
 import {
-    Image, Text, TextInput, View, StatusBar, Dimensions, TouchableHighlight, Button,
-    NavigationExperimental, TouchableWithoutFeedback, ScrollView
+    Image, Text, TextInput, View, StatusBar, Dimensions,  Button,
+    NavigationExperimental, ScrollView
 } from 'react-native';
 const {CardStack: NavigationCardStack, StateUtils: NavigationStateUtils} = NavigationExperimental;
 import { AppointmentScreen, AppointmentsSummary, fetchAppointments } from './Appointment';

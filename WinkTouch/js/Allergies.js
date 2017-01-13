@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { WinkButton, OptionWheel, SelectionList, ItemsEditor } from './Widgets';
+import { WinkButton, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import type {ItemDefinition } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
 
@@ -28,7 +28,7 @@ const allergyDefinition: ItemDefinition = {
     label: 'Allergy',
     options: ['Aciclovir','Apraclonidine','Nortriptyline'],
     required: true
-  },  
+  },
   reaction: {
     label: 'Reaction',
     options: ['Abdominal Cramps', 'Abdominal Pain', 'Anaphylaxis', 'Anxiety', 'Chest Discomfort', 'Chest Tightness', 'Diarhea', 'Difficulty Breathing', 'Difficulty Swallowing', 'Dizziness', 'Eye Swelling', 'Facial Swelling', 'Fear', 'Feeling of Apprehension', 'Headache', 'Hives', 'Itching', 'Light-Headedness', 'Nasal Congestion', 'Nausea', 'Palpitations', 'Photosensitivity', 'Stomach Cramps', 'Tongue Swelling', 'Unconsciousness', 'Vomiting', 'Watery Eye', 'Weakness', 'Wheezing'],
@@ -55,7 +55,7 @@ export class AllergiesScreen extends Component {
     return <ItemsEditor
       items={fetchAllergies()}
       newItem={() => this.newAllergy()}
-      itemDefinition={allergyDefinition}
-      />
+      itemDefinition={allergyDefinition}      
+    />
   }
 }
