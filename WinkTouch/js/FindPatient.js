@@ -6,10 +6,8 @@
 import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, Button, ScrollView, TextInput, Modal, LayoutAnimation } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {Patient } from './Patient';
+import type {Patient, PatientInfo, RestResponse } from './Types';
 import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard } from './Patient';
-import { AppointmentsSummary, fetchAppointments } from './Appointment';
-import type {Appointment } from './Appointment';
 import { PrescriptionCard } from './Assessment';
 
 class PatientList extends Component {
@@ -36,6 +34,20 @@ class PatientList extends Component {
   }
 }
 
+export async function searchPatients(searchText: string) : Patient[] {
+  try {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/list?accountsId=2&searchData='+searchText, {
+        method: 'get',
+    });
+    let json = await response.json();
+    const patients : Patient[] = json.response;
+    return patients;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to get the patient list from the server. You can try again.');
+  }
+}
+
 export class FindPatient extends Component {
   props: {
     popupResults?: boolean,
@@ -56,20 +68,15 @@ export class FindPatient extends Component {
     }
   }
 
-  async searchPatient() {
-    try {
-      let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/list?accountsId=2&searchData='+this.state.searchCriterium, {
-          method: 'get',
-      });
-      let json = await response.json();
+  async searchPatients() {
+      const patients : Patient[] = await searchPatients(this.state.searchCriterium);
       LayoutAnimation.easeInEaseOut();
       this.setState({
-        showPatientList: true,
-        patients: json.response});
-    } catch (error) {
-      console.error(error);
-    }
+        showPatientList: (patients && patients.length>0),
+        patients
+      });
   }
+
 
   selectPatient(patient: Patient) {
     LayoutAnimation.easeInEaseOut();
@@ -92,7 +99,7 @@ export class FindPatient extends Component {
       <TextInput placeholder='Find patient' returnKeyType='search' autoCorrect={false}
         style={styles.textfieldLeft} value={this.state.searchCriterium}
         onChangeText={(text: string) => this.setState({ searchCriterium: text })}
-        onSubmitEditing={() => this.searchPatient()} />
+        onSubmitEditing={() => this.searchPatients()} />
       <PatientList isPopup={this.props.popupResults}
         patients={this.state.patients}
         isVisible={this.state.showPatientList}
@@ -103,32 +110,50 @@ export class FindPatient extends Component {
   }
 }
 
+export async function fetchPatientInfo(patientId: number) : PatientInfo {
+  try {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patientId, {
+        method: 'get',
+    });
+    const restResponse : RestResponse = await response.json();
+    const patientInfo: PatientInfo = restResponse.response[0];
+    return patientInfo;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to get the patient information from the server. Please try again.');
+    //TODO: signal error to the waiting thread so it can clean up ?
+  }
+}
+
 export class FindPatientScreen extends Component {
   props: {
     onNavigationChange: (action: string, data: any) => void
   }
   state: {
-    patient: Patient
+    patientInfo?: PatientInfo
   }
   constructor(props: any) {
     super(props);
     this.state = {
-      patient: null
+      patientInfo: undefined
     }
   }
 
-  selectPatient(patient: Patient) {
-    this.setState({ patient });
+  async selectPatient(patient: Patient) {
+    const patientInfo : PatientInfo = await fetchPatientInfo(patient.id);
+    LayoutAnimation.easeInEaseOut();
+    this.setState({
+      patientInfo: patientInfo
+    });
   }
 
   render() {
     return <ScrollView>
       <FindPatient popupResults={false}
         onSelectPatient={(patient: Patient) => this.selectPatient(patient)} />
-      <PatientTitle patient={this.state.patient} />
-      <PatientContact patient={this.state.patient} />
-      <PatientBillingInfo patient={this.state.patient} />
-      <PrescriptionCard patient={this.state.patient} />
+      <PatientContact patientInfo={this.state.patientInfo} />
+      <PatientBillingInfo patient={this.state.patientInfo} />
+      <PrescriptionCard patient={this.state.patientInfo} />
     </ScrollView>
   }
 }

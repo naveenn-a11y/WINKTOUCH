@@ -56,7 +56,7 @@ class WorkFlow extends Component {
     }
 }
 
-class Overview extends Component {
+class OverviewScreen extends Component {
     state: {
         appointments: Appointment[]
     }
@@ -120,7 +120,7 @@ class OverviewNavigator extends Component {
         const scene = sceneProps.scene.route.scene;
         switch (scene) {
             case 'overview':
-                return <Overview onNavigationChange={this.props.onNavigationChange} />;
+                return <OverviewScreen onNavigationChange={this.props.onNavigationChange} />;
             case 'findPatient':
                 return <FindPatientScreen onNavigationChange={this.props.onNavigationChange} />;
             case 'reminders':
@@ -141,7 +141,7 @@ class OverviewNavigator extends Component {
     }
 }
 
-export default class OverviewScreen extends Component {
+export class DoctorApp extends Component {
     state: {
         statusMessage: string,
         navigationState: {

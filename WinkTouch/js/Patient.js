@@ -10,14 +10,7 @@ import { styles, fontScale} from './Styles';
 import { strings } from './Strings';
 import { FormRow, FormEmailInput, FormTextInput } from './Form';
 import { ExamCardSpecifics } from './Exam';
-
-export type Patient = {
-    id: number,
-    firstName: string,
-    lastName: string,
-    birthDate?: Date
-}
-
+import type {Patient, PatientInfo} from './Types';
 
 export class PatientCard extends Component {
     props: {
@@ -65,92 +58,12 @@ export class PatientCard extends Component {
 
 export class PatientTitle extends Component {
     props: {
-        patient: Patient
+        patientInfo: PatientInfo
     }
     render() {
-        if (!this.props.patient)
+        if (!this.props.patientInfo)
             return null;
-        return <Text style={styles.screenTitle}>{this.props.patient.firstName} {this.props.patient.lastName}</Text>
-    }
-}
-
-class PatientMedicalHistory extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Medical History</Text>
-        </View>
-    }
-}
-
-class PatientFamilyHistory extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Family History</Text>
-        </View>
-    }
-}
-
-class PatientSocialHistory extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Social History</Text>
-        </View>
-    }
-}
-
-
-class PatientHealth extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Health</Text>
-        </View>
-    }
-}
-
-export class PatientMedications extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Medications</Text>
-        </View>
-    }
-}
-
-
-export class PatientAllergies extends Component {
-    props: {
-        patient: Patient
-    }
-    render() {
-        if (!this.props.patient)
-            return null;
-        return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Allergies</Text>
-        </View>
+        return <Text style={styles.screenTitle}>{this.props.patientInfo.firstName} {this.props.patientInfo.lastName}</Text>
     }
 }
 
@@ -170,7 +83,7 @@ export class PatientBillingInfo extends Component {
 
 export class PatientContact extends Component {
     props: {
-        patient: Patient
+        patientInfo: PatientInfo
     }
     state: {
         isEditable: boolean
@@ -181,6 +94,7 @@ export class PatientContact extends Component {
             isEditable: false
         }
     }
+
     cancelEdit() {
 
     }
@@ -190,30 +104,32 @@ export class PatientContact extends Component {
     }
 
     render() {
-        if (!this.props.patient)
+        if (!this.props.patientInfo)
             return null;
         return <View style={styles.tabCard}>
             <Text style={styles.screenTitle}>Contact</Text>
             <View style={styles.form}>
               <FormRow>
-                <FormTextInput label={strings.firstName} value={'John'} />
-                <FormTextInput label={strings.lastName} value={'Doe'} />
+                <FormTextInput label={strings.firstName} value={this.props.patientInfo.firstName} />
+                <FormTextInput label={strings.lastName} value={this.props.patientInfo.lastName} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.addressLine1} value={'7270 rue Lajeunesse'} />
+                <FormTextInput label={strings.streetName} value={this.props.patientInfo.streetName} />
+                <FormTextInput label={strings.streetNumber} value={this.props.patientInfo.streetNumber} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.addressLine2} value={''} />
+                <FormTextInput label={strings.city} value={this.props.patientInfo.city} />
+                <FormTextInput label={strings.postalCode} value={this.props.patientInfo.postalCode} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.addressLine3} value={'Montreal QC H2R 2H4'} />
+                <FormTextInput label={strings.country} value={this.props.patientInfo.country} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.phoneNr} value={''} />
-                <FormTextInput label={strings.cellPhoneNr} value={'+15147978008'} />
+                <FormTextInput label={strings.phoneNr} value={this.props.patientInfo.phone} />
+                <FormTextInput label={strings.cellPhoneNr} value={this.props.patientInfo.cell} />
               </FormRow>
               <FormRow>
-                <FormEmailInput label='Email' value={'samuel@downloadwink.com'} />
+                <FormEmailInput label={strings.email} value={this.props.patientInfo.email} />
               </FormRow>
               <View style={styles.buttonsRowLayout}>
                 <Button title='Cancel' onPress={() => this.cancelEdit()} />
@@ -261,21 +177,21 @@ export class PatientScreen extends Component {
         onNavigationChange: (action: string, data: any) => void
     }
     state: {
-        patient: Patient
+        patientInfo: Patient
     }
 
     constructor(props: any) {
         super(props);
         this.state = {
-            patient: props.patient
+            patientInfo: undefined
         }
     }
 
     render() {
         return <ScrollView>
-            <PatientTitle patient={this.state.patient} />
-            <PatientContact patient={this.state.patient} />
-            <PatientBillingInfo patient={this.state.patient} />
+            <PatientTitle patientInfo={this.state.patientInfo} />
+            <PatientContact patient={this.state.patientInfo} />
+            <PatientBillingInfo patient={this.state.patientInfo} />
             {/**
             <PatientHealth patient={this.state.patient} />
             <PatientOcularHistory patient={this.state.patient} />

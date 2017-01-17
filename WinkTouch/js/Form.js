@@ -7,6 +7,7 @@ import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, TextInput, Button, TouchableWithoutFeedback } from 'react-native';
 import dateFormat from 'dateformat';
 import { styles, fontScale } from './Styles';
+import { strings } from './Strings';
 
 export class FormLabel extends Component {
     render() {
@@ -25,26 +26,27 @@ export class FormRow extends Component {
 export class FormTextInput extends Component {
     props: {
         value?: string,
+        validation?: string,
         label: string,
         labelWidth?: number,
         onChangeText?: (text: string) => void,
         keyboardType?: string,
-        readOnly?: boolean
+        readOnly?: boolean,
+    }
+    static defaultProps = {
+      validation: 'if (value.length<=5) validationError = errors.formatString(errors.minLengthError, 5);'+
+        'if (value.length>20) validationError = errors.formatString(errors.maxLengthError, 20);',
     }
     state: {
         value?: string,
-        validation: string,
         errorMessage?: string
     }
-    validator: (value: string) => any;
     constructor(props: any) {
         super(props);
         this.state = {
             value: this.props.value,
-            validation: 'if (value.length<=4) return "Not long enough dude \u274c"',
             errorMessage: undefined
         }
-        this.validator = new Function('value', this.state.validation);
     }
 
     componentWillReceiveProps(nextProps: any) {
@@ -52,10 +54,14 @@ export class FormTextInput extends Component {
             this.setState({ value: nextProps.value });
     }
 
-    validate(input: string) {
-        if (!input)
+    validate(value: string) {
+        if (!this.props.validation)
             return;
-        let validationError: string = this.validator(input);
+        let validationError: string = undefined;
+        let errors = strings;
+        eval(this.props.validation);
+        if (validationError)
+          validationError = validationError + ' \u274c';
         this.setState({ errorMessage: validationError });
     }
 

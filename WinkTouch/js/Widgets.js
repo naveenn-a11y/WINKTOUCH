@@ -9,15 +9,6 @@ import { styles, fontScale, selectionColor, windowWidth, windowHeight, selection
 import { FormRow, FormTextInput } from './Form';
 import { ComplaintDetails } from './Complaint'
 
-export type ItemDefinition = {
-  [id: string]: {
-    label: string,
-    options?: string[],
-    normalValue?: string,
-    required?: boolean
-  }
-};
-
 export class RulerField extends Component {
   props: {
     value: number,

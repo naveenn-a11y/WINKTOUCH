@@ -13,11 +13,16 @@ export const strings = new LocalizedStrings({
       bookNewAppointment: 'Book new appointment',
       lastName: 'Last name',
       firstName: 'First name',
-      addressLine1: 'Adress line 1',
-      addressLine2: 'Adress line 2',
-      addressLine3: 'Adress line 3',
+      streetNumber: 'House number',
+      streetName: 'Street',
+      city: 'City',
+      postalCode: 'Postal code',
+      country: 'Country',
       phoneNr: 'Phone',
-      cellPhoneNr: 'Cellphone'
+      cellPhoneNr: 'Cellphone',
+      email:'Email',
+      minLengthError: 'The minimum length is {0} characters.',
+      maxLengthError: 'The maximum length is {0} characters.'
     },
     fr: {
       today: 'Aujourd\'hui',
@@ -25,7 +30,9 @@ export const strings = new LocalizedStrings({
       back: 'Retour',
       bookNewAppointment: 'Nouveau rendez-vous',
       lastName: 'Nom',
-      firstName: 'Prénom'
+      firstName: 'Prénom',
+      streetName: 'Rue',
+      minLengthError: 'La longeur minimal est de {0} caracters.'
     },
 });
 
