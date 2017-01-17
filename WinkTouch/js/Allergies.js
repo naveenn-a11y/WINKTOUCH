@@ -24,7 +24,7 @@ function fetchAllergies(): Allergy[] {
 
 
 const allergyDefinition: ItemDefinition = {
-  Allergy: {
+  allergy: {
     label: 'Allergy',
     options: ['Aciclovir','Apraclonidine','Nortriptyline'],
     required: true
@@ -55,7 +55,7 @@ export class AllergiesScreen extends Component {
     return <ItemsEditor
       items={fetchAllergies()}
       newItem={() => this.newAllergy()}
-      itemDefinition={allergyDefinition}      
+      itemDefinition={allergyDefinition}
     />
   }
 }

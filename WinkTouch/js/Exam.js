@@ -34,13 +34,15 @@ export type RefractionExam = {
   type: string,
   hasStarted: boolean,
   hasEnded: boolean,
-  previousRx: GlassesRx,
-  wearingRx: GlassesRx,
-  phoropter: GlassesRx,
-  autoRefractor: GlassesRx,
-  retinoscope: GlassesRx,
-  cyclopegic: GlassesRx,
-  finalRx: GlassesRx
+  refractions: {
+    previousRx: GlassesRx,
+    wearingRx: GlassesRx,
+    phoropter: GlassesRx,
+    autoRefractor: GlassesRx,
+    retinoscope: GlassesRx,
+    cyclopegic: GlassesRx,
+    finalRx: GlassesRx
+  }
 }
 
 function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
@@ -49,33 +51,35 @@ function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: bo
       type: type,
       hasStarted: hasStarted,
       hasEnded: hasEnded,
-      previousRx: {
-        od: {sphere: 0.5},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      wearingRx: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      phoropter: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      autoRefractor: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      retinoscope: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      cyclopegic: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      finalRx: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
+      refractions: {
+        previousRx: {
+          od: {sphere: 0.5},
+          os: {sphere: 0.25, add: 0.75}
+        },
+        wearingRx: {
+          od: {sphere: 0.25},
+          os: {sphere: 0.25, add: 0.75}
+        },
+        phoropter: {
+          od: {sphere: 0.25},
+          os: {sphere: 0.25, add: 0.75}
+        },
+        autoRefractor: {
+          od: {sphere: 0.25},
+          os: {sphere: 0.25, add: 0.75}
+        },
+        retinoscope: {
+          od: {sphere: 0.25},
+          os: {sphere: 0.25, add: 0.75}
+        },
+        cyclopegic: {
+          od: {sphere: 0.25},
+          os: {sphere: 0.25, add: 0.75}
+        },
+        finalRx: {
+          od: {sphere: 0.25},
+          os: {sphere: 0.25, add: 0.75}
+        }
       }
     }
   }
@@ -268,9 +272,9 @@ class VisualAcuityTestCard extends ExamCardSpecifics {
       </View>
     return <View>
       <Text style={styles.text}>DscOD 20/40 DccOD 20/20</Text>
-      <Text style={styles.text}>DscSD 20/35 DccSD 20/20</Text>
+      <Text style={styles.text}>DscOS 20/35 DccOS 20/20</Text>
       <Text style={styles.text}>NscOD 20/25 NccOD 20/20</Text>
-      <Text style={styles.text}>NscSD 20/20 NccSD 20/20</Text>
+      <Text style={styles.text}>NscOS 20/20 NccOS 20/20</Text>
     </View>
   }
 }
@@ -327,7 +331,8 @@ class GlaucomaExamCard extends ExamCardSpecifics {
 export class ExamScreen extends Component {
   props: {
     exam: Exam,
-    onNavigationChange: (action: string, data: any) => void
+    onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
   }
   state: {
     exam: Exam
@@ -341,6 +346,7 @@ export class ExamScreen extends Component {
 
   updateExam(exam: Exam) {
     this.setState({exam});
+    this.props.onUpdateExam(exam);
   }
 
   render() {

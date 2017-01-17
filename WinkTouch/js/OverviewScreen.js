@@ -4,10 +4,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import {
-    Image, Text, TextInput, View, StatusBar, Dimensions,  Button,
-    NavigationExperimental, ScrollView
-} from 'react-native';
+import { Image, Text, TextInput, View, StatusBar, Dimensions, Button,  NavigationExperimental, ScrollView} from 'react-native';
 const {CardStack: NavigationCardStack, StateUtils: NavigationStateUtils} = NavigationExperimental;
 import { AppointmentScreen, AppointmentsSummary, fetchAppointments } from './Appointment';
 import type {Appointment } from './Appointment';
@@ -100,7 +97,8 @@ class OverviewNavigator extends Component {
             index: number,
             routes: { key: string, scene: string, menuHidden?: boolean }[]
         },
-        onNavigationChange: (action: string, data: any) => void
+        onNavigationChange: (action: string, data: any) => void,
+        onUpdate: (itemType: string, item: any) => void
     }
     constructor(props: any, context: any) {
         super(props, context);
@@ -109,11 +107,11 @@ class OverviewNavigator extends Component {
 
     render() {
         return <NavigationCardStack enableGestures={true}
-            onPop={() => console.log('onPop')}
+            onPop={() => this.props.onNavigationChange('back')}
             onNavigateBack={() => this.props.onNavigationChange('back')}
             navigationState={this.props.navigationState}
             renderScene={(sceneProps) => this.renderScene(sceneProps)}
-            />
+        />
     }
 
     // The detailed spec of `sceneProps` is defined at `NavigationTypeDefinition`
@@ -121,7 +119,7 @@ class OverviewNavigator extends Component {
     renderScene(sceneProps: Object) {
         const scene = sceneProps.scene.route.scene;
         switch (scene) {
-            case 'main':
+            case 'overview':
                 return <Overview onNavigationChange={this.props.onNavigationChange} />;
             case 'findPatient':
                 return <FindPatientScreen onNavigationChange={this.props.onNavigationChange} />;
@@ -138,7 +136,7 @@ class OverviewNavigator extends Component {
                 return <PatientScreen searchCriterium={searchCriterium} patient={patient} onNavigationChange={this.props.onNavigationChange} />;
             case 'exam':
                 let exam: Exam = sceneProps.scene.route.exam;
-                return <ExamScreen exam={exam} onNavigationChange={this.props.onNavigationChange} />
+                return <ExamScreen exam={exam} onNavigationChange={this.props.onNavigationChange} onUpdateExam={(exam: Exam) => this.props.onUpdate('exam',exam)} />
         }
     }
 }
@@ -157,7 +155,7 @@ export default class OverviewScreen extends Component {
             statusMessage: "Welcome to Wink EHR Dr. " + this.props.user.lastName + ".",
             navigationState: {
                 index: 0,
-                routes: [{ key: '0', scene: 'main', menuHidden: false }],
+                routes: [{ key: '0', scene: 'overview', menuHidden: false }],
             }
         }
     }
@@ -271,13 +269,19 @@ export default class OverviewScreen extends Component {
     }
     */
 
+    onUpdate(itemType: string, item: any) :void {
+      console.log('TODO: update '+itemType);
+    }
+
     render() {
         const scene = this.state.navigationState.routes[this.state.navigationState.index]
         return <View style={styles.screeen}>
             <StatusBar hidden={true} />
             <OverviewNavigator
                 navigationState={this.state.navigationState}
-                onNavigationChange={(action: string, data: any) => this.onNavigationChange(action, data)} />
+                onNavigationChange={(action: string, data: any) => this.onNavigationChange(action, data)}
+                onUpdate={(itemType: string, item: any) => this.onUpdate(itemType, item)}
+            />
             <MenuBar
                 hidden={scene.menuHidden}
                 backable={this.state.navigationState.index > 0}

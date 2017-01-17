@@ -24,14 +24,14 @@ export type Appointment = {
     doctor: string
 };
 
-export let fetchAppointments = (): Appointment[] => {
+export let fetchAppointments = () :Appointment[] => {
     let appointment1: Appointment = {
         id: 1,
         type: 'Complaint after new glasses',
         scheduledStart: new Date(2016, 11, 14, 10, 30),
         scheduledEnd: new Date(2016, 11, 14, 10, 50),
         bookingStatus: 'confirmed',
-        location: 'the oval office',
+        location: 'The oval office',
         patient: {
             firstName: 'Siegfried',
             lastName: 'De Bleeckere',
@@ -46,7 +46,7 @@ export let fetchAppointments = (): Appointment[] => {
         scheduledStart: new Date(2016, 11, 14, 11, 0),
         scheduledEnd: new Date(2016, 11, 14, 11, 30),
         bookingStatus: 'confirmed',
-        location: 'the oval office',
+        location: 'The oval office',
         patient: {
             firstName: 'Samuel',
             lastName: 'De Bleeckere',
@@ -61,7 +61,7 @@ export let fetchAppointments = (): Appointment[] => {
         scheduledStart: new Date(2016, 11, 14, 11, 30),
         scheduledEnd: new Date(2016, 11, 14, 10, 45),
         bookingStatus: 'confirmed',
-        location: 'the oval office',
+        location: 'The oval office',
         patient: {
             firstName: 'Vincent',
             lastName: 'De Bleeckere',

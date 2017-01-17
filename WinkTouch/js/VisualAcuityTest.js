@@ -23,7 +23,6 @@ export class VA extends Component {
   render() {
     return <RulerField prefix='20/' range={[10,15,20,25,30,35,40,50,60,70,100,200,600]} stepSize={5}
       value={this.state.value}
-      scrollMethod='quadratic'
       onChangeValue={(newValue: number) => this.setState({ value: newValue })} />
   }
 }

@@ -11,7 +11,9 @@ import type {Appointment } from './Appointment';
 import { formatMoment } from './Util';
 import { ExamCard, allExams, allPreExams, fetchExams } from './Exam';
 import type {Exam } from './Exam';
-import { Assessment, Prescription } from './Assessment';
+import { AssessmentCard, PrescriptionCard } from './Assessment';
+import type {Assessment } from './Assessment';
+import type {GlassesRx} from './Refraction';
 
 export type Visit = {
     id?: number,
@@ -22,7 +24,8 @@ export type Visit = {
     patientId: number,
     doctor: string,
     preExams?: Exam[],
-    exams?: Exam[]
+    exams?: Exam[],
+    assessment: Assessment
 };
 
 export function fetchVisitHistory(): Visit[] {
@@ -35,7 +38,8 @@ export function fetchVisitHistory(): Visit[] {
         patientId: 1,
         doctor: 'Conrad Murray',
         preExams: allPreExams(),
-        exams: fetchExams()
+        exams: fetchExams(),
+        assessment: {prescription: {id: 1, od: {sphere: 2}, os: {sphere: 2}}}
     };
     let visit2: Visit = {
         id: 1,
@@ -45,8 +49,9 @@ export function fetchVisitHistory(): Visit[] {
         location: 'the oval office',
         patientId: 2,
         doctor: 'Conrad Murray',
-        preExams: allPreExams(),        
-        exams: fetchExams()
+        preExams: allPreExams(),
+        exams: fetchExams(),
+        assessment: {prescription: {id:2, od: {sphere: 1.5}, os: {sphere: 1.5}}}
     };
     let visit3: Visit = {
         id: 1,
@@ -55,8 +60,9 @@ export function fetchVisitHistory(): Visit[] {
         end: new Date(2014, 9, 2, 10, 50),
         location: 'the oval office',
         patientId: 2,
-        preExams: allPreExams(),        
-        doctor: 'Conrad Murray'
+        preExams: allPreExams(),
+        doctor: 'Conrad Murray',
+        assessment: {prescription: {id: 3, od: {sphere: 1}, os: {sphere: 1}}}
     };
     return [visit1, visit2, visit3];
 }
@@ -89,10 +95,10 @@ class ExamWorkFlow extends Component {
 export class VisitWorkFlow extends Component {
     props: {
         patient: Patient,
-        preWorkflow: Exam[],
-        workflow: Exam[],
+        visit: Visit,
         onNavigationChange: (action: string, data: any) => void,
-        onStartVisit: (type: string) => void
+        onStartVisit: (type: string) => void,
+        onUpdatePrescription: (prescription: GlassesRx) => void
     }
     state: {
         expandedExamTypes: string[]
@@ -121,16 +127,12 @@ export class VisitWorkFlow extends Component {
         return (index !== -1);
     }
 
-    startVisit(type: string) {
-        this.props.onStartVisit(type);
-    }
-
     renderStartButtons() {
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
-                <Button title='Comprehensive exam' onPress={() => this.startVisit('comprehensive')} />
-                <Button title='Follow up' onPress={() => this.startVisit('followUp')} />
-                <Button title='Contacts Fitting' onPress={() => this.startVisit('fitting')} />
+                <Button title='Comprehensive exam' onPress={() => this.props.onStartVisit('comprehensive')} />
+                <Button title='Follow up' onPress={() => this.props.onStartVisit('followUp')} />
+                <Button title='Contacts Fitting' onPress={() => this.props.onStartVisit('fitting')} />
             </View>
         </View>
     }
@@ -150,17 +152,19 @@ export class VisitWorkFlow extends Component {
     }
 
     render() {
-        if (this.props.workflow === undefined || this.props.workflow.length === 0) {
+        if (this.props.visit.exams === undefined || this.props.visit.exams.length === 0) {
             return <View>
-                {this.renderExams(this.props.preWorkflow)}
+                {this.renderExams(this.props.visit.preExams)}
                 {this.renderStartButtons()}
             </View>
         }
         return <View>
-            {this.renderExams(this.props.preWorkflow)}
-            {this.renderExams(this.props.workflow)}
-            <Assessment />
-            <Prescription patient={this.props.patient} />
+            {this.renderExams(this.props.visit.preExams)}
+            {this.renderExams(this.props.visit.exams)}
+            <AssessmentCard />
+            <PrescriptionCard patient={this.props.patient}
+              prescription={this.props.visit.assessment.prescription}
+              onUpdatePrescription={this.props.onUpdatePrescription} />
         </View>
     }
 }
@@ -171,9 +175,9 @@ export class VisitHistory extends Component {
         onNavigationChange: (action: string, data: any) => void
     }
     state: {
+        history?: Visit[],
         selectedVisit: Visit,
-        todaysVisit: Visit,
-        history?: Visit[]
+        todaysVisit: Visit
     }
     constructor(props: any) {
         super(props);
@@ -184,7 +188,8 @@ export class VisitHistory extends Component {
             patientId: this.props.appointment.patient.id,
             doctor: 'me',
             preExams: allPreExams(),
-            exams: []
+            exams: [],
+            assessment: {prescription: {id: 3, od: {sphere: 1}, os: {sphere: 1}}}
         }
         this.state = {
             todaysVisit: todaysVisit,
@@ -193,17 +198,24 @@ export class VisitHistory extends Component {
     }
 
     showVisit(visit: Visit) {
+        LayoutAnimation.easeInEaseOut();
         this.setState({ selectedVisit: visit });
     }
 
     startVisit(visitType: string) {
         let todaysVisit = this.state.todaysVisit;
         todaysVisit.exams = allExams(visitType);
+        LayoutAnimation.easeInEaseOut();
         this.setState({ todaysVisit });
     }
 
+    updatePrescription(prescription: GlassesRx) {
+      let selectedVisit : Visit = this.state.selectedVisit;
+      selectedVisit.assessment.prescription = prescription;
+      //this.setState({selectedVisit});
+    }
+
     render() {
-        LayoutAnimation.easeInEaseOut();
         return <View>
             <View style={styles.tabHeader}>
                 <ScrollView horizontal={true}>
@@ -217,9 +229,9 @@ export class VisitHistory extends Component {
                 </ScrollView>
             </View>
             <VisitWorkFlow patient={this.props.appointment.patient}
-                preWorkflow={this.state.selectedVisit.preExams}
-                workflow={this.state.selectedVisit.exams}
+                visit={this.state.selectedVisit}
                 onNavigationChange={this.props.onNavigationChange}
+                onUpdatePrescription={(prescription: GlassesRx) => this.updatePrescription(prescription)}
                 onStartVisit={(visitType: string) => this.startVisit(visitType)} />
         </View>
     }

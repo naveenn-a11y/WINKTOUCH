@@ -6,11 +6,13 @@
 import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, ScrollView } from 'react-native';
 import dateFormat from 'dateformat';
-import { styles, fontScale } from './Styles';
-import { FormRow, FormEmailInput } from './Form';
-import { GlassesRx, ExamCardSpecifics } from './Exam';
+import { styles, fontScale} from './Styles';
+import { strings } from './Strings';
+import { FormRow, FormEmailInput, FormTextInput } from './Form';
+import { ExamCardSpecifics } from './Exam';
 
 export type Patient = {
+    id: number,
     firstName: string,
     lastName: string,
     birthDate?: Date
@@ -193,14 +195,30 @@ export class PatientContact extends Component {
         return <View style={styles.tabCard}>
             <Text style={styles.screenTitle}>Contact</Text>
             <View style={styles.form}>
-                <FormRow>
-                    <FormEmailInput label='Email' value={'samuel@downloadwink.com'} />
-                    <FormEmailInput label='Email' />
-                </FormRow>
-                <View style={styles.buttonsRowLayout}>
-                    <Button title='Cancel' onPress={() => this.cancelEdit()} />
-                    <Button title='Update' onPress={() => this.saveEdit()} />
-                </View>
+              <FormRow>
+                <FormTextInput label={strings.firstName} value={'John'} />
+                <FormTextInput label={strings.lastName} value={'Doe'} />
+              </FormRow>
+              <FormRow>
+                <FormTextInput label={strings.addressLine1} value={'7270 rue Lajeunesse'} />
+              </FormRow>
+              <FormRow>
+                <FormTextInput label={strings.addressLine2} value={''} />
+              </FormRow>
+              <FormRow>
+                <FormTextInput label={strings.addressLine3} value={'Montreal QC H2R 2H4'} />
+              </FormRow>
+              <FormRow>
+                <FormTextInput label={strings.phoneNr} value={''} />
+                <FormTextInput label={strings.cellPhoneNr} value={'+15147978008'} />
+              </FormRow>
+              <FormRow>
+                <FormEmailInput label='Email' value={'samuel@downloadwink.com'} />
+              </FormRow>
+              <View style={styles.buttonsRowLayout}>
+                <Button title='Cancel' onPress={() => this.cancelEdit()} />
+                <Button title='Update' onPress={() => this.saveEdit()} />
+              </View>
             </View>
         </View>
     }

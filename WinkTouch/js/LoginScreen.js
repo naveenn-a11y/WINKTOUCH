@@ -71,7 +71,7 @@ export default class LoginScreen extends Component {
         console.log('login attemp for ' + this.state.userName);
         try {
             let response = await fetch('https://dev1.downloadwink.com/Wink/testLogin', {
-                method: 'GET',
+                method: 'POST',                
                 headers: {
                     'Accept': 'applicatoin/json',
                     'Authorization': 'Basic ' + base64.encode(this.state.userName + ':' + this.state.password)

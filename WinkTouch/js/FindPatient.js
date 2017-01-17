@@ -10,12 +10,13 @@ import type {Patient } from './Patient';
 import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard } from './Patient';
 import { AppointmentsSummary, fetchAppointments } from './Appointment';
 import type {Appointment } from './Appointment';
-import { Prescription } from './Assessment';
+import { PrescriptionCard } from './Assessment';
 
 class PatientList extends Component {
   props: {
     isVisible: boolean,
     isPopup: boolean,
+    patients: Patient[],
     onSelect: (patient: Patient) => void,
     onDismiss?: () => void,
     onNewPatient?: () => void
@@ -27,29 +28,11 @@ class PatientList extends Component {
   render() {
     if (!this.props.isVisible)
       return null;
-    const patientList = <View>
-      <Button title='Sarah De Bleeckere' onPress={() => this.props.onSelect({ firstName: 'Sarah', lastName: 'De Bleeckere' })} />
-      <Button title='Vincent De Bleeckere' onPress={() => this.props.onSelect({ firstName: 'Vincent', lastName: 'De Bleeckere' })} />
-      <Button title='Samuel De Bleeckere' onPress={() => this.props.onSelect({ firstName: 'Samuel', lastName: 'De Bleeckere' })} />
-      <Button title='Siegfried De Bleeckere' onPress={() => this.props.onSelect({ firstName: 'Siegfried', lastName: 'De Bleeckere' })} />
-      <Button title='Dorothea De Bleeckere' onPress={() => this.props.onSelect({ firstName: 'Dorothea', lastName: 'De Bleeckere' })} />
+    return <View>
+        {this.props.patients.map((patient: Patient, index: number) => {
+          return <Button key={index} title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} />
+        })}
     </View >;
-    if (this.props.isPopup) {
-      return <Modal visible={this.props.isVisible} transparent={true} animationType={'slide'} onRequestClose={() => { console.log('TODO: onRequestClose patient list popup') } }>
-        <View style={styles.centeredRowLayout}>
-          <View style={styles.centeredColumnLayout}>
-            <View style={styles.popup}>
-              {patientList}
-              <View style={styles.buttonsRowLayout}>
-                <Button title='Cancel' onPress={() => this.props.onDismiss()} />
-                <Button title='New Patient' onPress={() => this.props.onNewPatient()} />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    }
-    return patientList;
   }
 }
 
@@ -61,19 +44,31 @@ export class FindPatient extends Component {
   }
   state: {
     searchCriterium: string,
+    patients: Patient[],
     showPatientList: boolean
   }
   constructor(props: any) {
     super(props);
     this.state = {
       searchCriterium: '',
+      patients: [],
       showPatientList: false
     }
   }
 
-  searchPatient() {
-    LayoutAnimation.easeInEaseOut();
-    this.setState({ showPatientList: true });
+  async searchPatient() {
+    try {
+      let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/list?accountsId=2&searchData='+this.state.searchCriterium, {
+          method: 'get',
+      });
+      let json = await response.json();
+      LayoutAnimation.easeInEaseOut();
+      this.setState({
+        showPatientList: true,
+        patients: json.response});
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   selectPatient(patient: Patient) {
@@ -83,7 +78,7 @@ export class FindPatient extends Component {
     this.props.onSelectPatient(patient);
   }
 
-  newPatient() {    
+  newPatient() {
     this.setState({ showPatientList: false });
     this.props.onNewPatient && this.props.onNewPatient(this.state.searchCriterium);
   }
@@ -98,10 +93,9 @@ export class FindPatient extends Component {
         style={styles.textfieldLeft} value={this.state.searchCriterium}
         onChangeText={(text: string) => this.setState({ searchCriterium: text })}
         onSubmitEditing={() => this.searchPatient()} />
-      <Text>Recent and probably interested patient list:</Text>
-      <PatientList isPopup={false} isVisible={true}
-        onSelect={(patient: Patient) => this.selectPatient(patient)} />
-      <PatientList isPopup={this.props.popupResults} isVisible={this.state.showPatientList}
+      <PatientList isPopup={this.props.popupResults}
+        patients={this.state.patients}
+        isVisible={this.state.showPatientList}
         onDismiss={() => this.cancelSearch()}
         onNewPatient={() => this.newPatient()}
         onSelect={(patient: Patient) => this.selectPatient(patient)} />
@@ -134,7 +128,7 @@ export class FindPatientScreen extends Component {
       <PatientTitle patient={this.state.patient} />
       <PatientContact patient={this.state.patient} />
       <PatientBillingInfo patient={this.state.patient} />
-      <Prescription patient={this.state.patient} />
+      <PrescriptionCard patient={this.state.patient} />
     </ScrollView>
   }
 }
