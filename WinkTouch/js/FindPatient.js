@@ -110,9 +110,10 @@ export class FindPatient extends Component {
   }
 }
 
-export async function fetchPatientInfo(patientId: number) : PatientInfo {
+export async function fetchPatientInfo(patient: Patient) : PatientInfo {
+  if (!patient) return undefined;
   try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patientId, {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patient.id, {
         method: 'get',
     });
     const restResponse : RestResponse = await response.json();
@@ -140,7 +141,7 @@ export class FindPatientScreen extends Component {
   }
 
   async selectPatient(patient: Patient) {
-    const patientInfo : PatientInfo = await fetchPatientInfo(patient.id);
+    const patientInfo : PatientInfo = await fetchPatientInfo(patient);
     LayoutAnimation.easeInEaseOut();
     this.setState({
       patientInfo: patientInfo
@@ -151,9 +152,11 @@ export class FindPatientScreen extends Component {
     return <ScrollView>
       <FindPatient popupResults={false}
         onSelectPatient={(patient: Patient) => this.selectPatient(patient)} />
-      <PatientContact patientInfo={this.state.patientInfo} />
-      <PatientBillingInfo patient={this.state.patientInfo} />
-      <PrescriptionCard patient={this.state.patientInfo} editable={false}/>
+      {this.state.patientInfo?<View>
+        <PatientContact patientInfo={this.state.patientInfo} />
+        <PatientBillingInfo patient={this.state.patientInfo} />
+        <PrescriptionCard patient={this.state.patientInfo} editable={false}/>
+      </View>:null}
     </ScrollView>
   }
 }

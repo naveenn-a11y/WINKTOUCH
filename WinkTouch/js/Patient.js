@@ -4,13 +4,14 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, ScrollView } from 'react-native';
+import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, ScrollView, LayoutAnimation} from 'react-native';
 import dateFormat from 'dateformat';
 import { styles, fontScale} from './Styles';
 import { strings } from './Strings';
 import { FormRow, FormEmailInput, FormTextInput } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import type {Patient, PatientInfo} from './Types';
+import { fetchPatientInfo} from './FindPatient';
 
 export class PatientCard extends Component {
     props: {
@@ -84,7 +85,7 @@ export class PatientBillingInfo extends Component {
 export class PatientContact extends Component {
     props: {
       patientInfo: PatientInfo,
-      editable?: boolean
+      editable: ?boolean
     }
     state: {
       editedPatientInfo: PatientInfo
@@ -94,13 +95,12 @@ export class PatientContact extends Component {
     }
     constructor(props: any) {
         super(props);
-        this.state = {
-          editedPatientInfo: this.props.patientInfo
-        }
+        const editedPatientInfo: PatientInfo = JSON.parse(JSON.stringify(this.props.patientInfo));
+        this.state = {editedPatientInfo: editedPatientInfo};
     }
 
     componentWillReceiveProps(nextProps: any) {
-      this.setState({editedPatientInfo: nextProps.patientInfo});
+      this.setState({editedPatientInfo: JSON.parse(JSON.stringify(nextProps.patientInfo))});
     }
 
     update(propertyName: string, value: string) {
@@ -112,7 +112,9 @@ export class PatientContact extends Component {
     }
 
     cancelEdit() {
-
+      LayoutAnimation.easeInEaseOut();
+      const editedPatientInfo: PatientInfo = JSON.parse(JSON.stringify(this.props.patientInfo));
+      this.setState({editedPatientInfo: editedPatientInfo});
     }
 
     saveEdit() {
@@ -120,32 +122,30 @@ export class PatientContact extends Component {
     }
 
     render() {
-        if (!this.props.patientInfo)
-            return null;
         return <View style={styles.tabCard}>
             <Text style={styles.screenTitle}>Contact</Text>
             <View style={styles.form}>
               <FormRow>
                 <FormTextInput label={strings.firstName} value={this.state.editedPatientInfo.firstName} onChangeText={(text: string) => this.update('firstName', text)}/>
-                <FormTextInput label={strings.lastName} value={this.props.patientInfo.lastName} />
+                <FormTextInput label={strings.lastName} value={this.state.editedPatientInfo.lastName} onChangeText={(text: string) => this.update('lastName', text)} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.streetName} value={this.props.patientInfo.streetName} />
-                <FormTextInput label={strings.streetNumber} value={this.props.patientInfo.streetNumber} />
+                <FormTextInput label={strings.streetName} value={this.state.editedPatientInfo.streetName} onChangeText={(text: string) => this.update('streetName', text)} />
+                <FormTextInput label={strings.streetNumber} value={this.state.editedPatientInfo.streetNumber} onChangeText={(text: string) => this.update('streetNumber', text)} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.city} value={this.props.patientInfo.city} />
-                <FormTextInput label={strings.postalCode} value={this.props.patientInfo.postalCode} />
+                <FormTextInput label={strings.city} value={this.state.editedPatientInfo.city} onChangeText={(text: string) => this.update('city', text)} />
+                <FormTextInput label={strings.postalCode} value={this.state.editedPatientInfo.postalCode} onChangeText={(text: string) => this.update('postalCode', text)} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.country} value={this.props.patientInfo.country} />
+                <FormTextInput label={strings.country} value={this.state.editedPatientInfo.country} onChangeText={(text: string) => this.update('country', text)} />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.phoneNr} value={this.props.patientInfo.phone} />
-                <FormTextInput label={strings.cellPhoneNr} value={this.props.patientInfo.cell} />
+                <FormTextInput label={strings.phoneNr} value={this.state.editedPatientInfo.phone} onChangeText={(text: string) => this.update('phone', text)} />
+                <FormTextInput label={strings.cellPhoneNr} value={this.state.editedPatientInfo.cell} onChangeText={(text: string) => this.update('cell', text)} />
               </FormRow>
               <FormRow>
-                <FormEmailInput label={strings.email} value={this.props.patientInfo.email} />
+                <FormEmailInput label={strings.email} value={this.state.editedPatientInfo.email} onChangeText={(text: string) => this.update('email', text)} />
               </FormRow>
               {this.props.editable?<View style={styles.buttonsRowLayout}>
                 <Button title='Cancel' onPress={() => this.cancelEdit()} />
@@ -184,39 +184,5 @@ export class PatientFamilyHistoryCard extends ExamCardSpecifics {
 export class PatientSocialHistoryCard extends ExamCardSpecifics {
     render() {
         return <Text style={styles.text}>Social History</Text>
-    }
-}
-
-export class PatientScreen extends Component {
-    props: {
-        patient: Patient,
-        onNavigationChange: (action: string, data: any) => void
-    }
-    state: {
-        patientInfo: Patient
-    }
-
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            patientInfo: undefined
-        }
-    }
-
-    render() {
-        return <ScrollView>
-            <PatientTitle patientInfo={this.state.patientInfo} />
-            <PatientContact patient={this.state.patientInfo} />
-            <PatientBillingInfo patient={this.state.patientInfo} />
-            {/**
-            <PatientHealth patient={this.state.patient} />
-            <PatientOcularHistory patient={this.state.patient} />
-            <PatientMedicalHistory patient={this.state.patient} />
-            <PatientMedications patient={this.state.patient} />
-            <PatientAllergies patient={this.state.patient} />
-            <PatientFamilyHistory patient={this.state.patient} />
-            <PatientSocialHistory patient={this.state.patient} />
-            */}
-        </ScrollView>
     }
 }

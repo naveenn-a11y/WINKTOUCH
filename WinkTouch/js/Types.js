@@ -4,7 +4,7 @@
 'use strict';
 
 export type RestResponse = {
-    response: any
+    response: any    
 }
 
 export type ItemDefinition = {
@@ -27,6 +27,7 @@ export type Patient = {
 
 export type PatientInfo = {
     id: number,
+    accountsId: number,
     firstName: string,
     lastName: string,
     dateOfBirth: Date,

@@ -53,7 +53,7 @@ export class FormTextInput extends Component {
 
     componentWillReceiveProps(nextProps: any) {
         if (nextProps.value !== this.state.value)
-            this.setState({ value: nextProps.value });
+            this.setState({ value: nextProps.value, errorMessage: undefined });
     }
 
     validate(value: string) {
