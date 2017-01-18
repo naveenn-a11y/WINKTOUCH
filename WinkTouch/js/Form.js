@@ -31,12 +31,14 @@ export class FormTextInput extends Component {
         labelWidth?: number,
         onChangeText?: (text: string) => void,
         keyboardType?: string,
-        readOnly?: boolean,
+        editable?: boolean,
     }
     static defaultProps = {
+      editable: true,
       validation: 'if (value.length<=5) validationError = errors.formatString(errors.minLengthError, 5);'+
         'if (value.length>20) validationError = errors.formatString(errors.maxLengthError, 20);',
     }
+
     state: {
         value?: string,
         errorMessage?: string
@@ -71,12 +73,13 @@ export class FormTextInput extends Component {
             this.props.onChangeText(input);
     }
 
-    dismissError() {
+    dismissError = () => {
         this.setState({ errorMessage: undefined });
     }
 
     render() {
-        return <View style={styles.formElement}>
+        return <TouchableWithoutFeedback onPress={this.dismissError}>
+          <View style={styles.formElement}>
             <FormLabel width={this.props.labelWidth} value={this.props.label} />
             <TextInput
                 value={this.state.value}
@@ -85,10 +88,11 @@ export class FormTextInput extends Component {
                 style={styles.formField}
                 onChangeText={(text: string) => this.setState({ value: text })}
                 onEndEditing={(event) => this.commit(event.nativeEvent.text)}
-                editable={!this.props.readOnly}
+                editable={this.props.editable}
                 />
             <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>
-        </View>
+          </View>
+        </TouchableWithoutFeedback>
     }
 }
 

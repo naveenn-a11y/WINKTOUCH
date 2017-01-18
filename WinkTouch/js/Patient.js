@@ -83,16 +83,32 @@ export class PatientBillingInfo extends Component {
 
 export class PatientContact extends Component {
     props: {
-        patientInfo: PatientInfo
+      patientInfo: PatientInfo,
+      editable?: boolean
     }
     state: {
-        isEditable: boolean
+      editedPatientInfo: PatientInfo
+    }
+    static defaultProps = {
+      editable: true
     }
     constructor(props: any) {
         super(props);
         this.state = {
-            isEditable: false
+          editedPatientInfo: this.props.patientInfo
         }
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+      this.setState({editedPatientInfo: nextProps.patientInfo});
+    }
+
+    update(propertyName: string, value: string) {
+      if (!this.props.editable) return;
+      if (this.state.editedPatientInfo[propertyName]===value)
+        return;
+      this.state.editedPatientInfo[propertyName] = value
+      this.setState({editedPatientInfo:  this.state.editedPatientInfo});
     }
 
     cancelEdit() {
@@ -100,7 +116,7 @@ export class PatientContact extends Component {
     }
 
     saveEdit() {
-
+      console.log(this.state.editedPatientInfo);
     }
 
     render() {
@@ -110,7 +126,7 @@ export class PatientContact extends Component {
             <Text style={styles.screenTitle}>Contact</Text>
             <View style={styles.form}>
               <FormRow>
-                <FormTextInput label={strings.firstName} value={this.props.patientInfo.firstName} />
+                <FormTextInput label={strings.firstName} value={this.state.editedPatientInfo.firstName} onChangeText={(text: string) => this.update('firstName', text)}/>
                 <FormTextInput label={strings.lastName} value={this.props.patientInfo.lastName} />
               </FormRow>
               <FormRow>
@@ -131,10 +147,10 @@ export class PatientContact extends Component {
               <FormRow>
                 <FormEmailInput label={strings.email} value={this.props.patientInfo.email} />
               </FormRow>
-              <View style={styles.buttonsRowLayout}>
+              {this.props.editable?<View style={styles.buttonsRowLayout}>
                 <Button title='Cancel' onPress={() => this.cancelEdit()} />
                 <Button title='Update' onPress={() => this.saveEdit()} />
-              </View>
+              </View>:null}
             </View>
         </View>
     }
