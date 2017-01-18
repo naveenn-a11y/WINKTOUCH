@@ -6,14 +6,12 @@
 import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {Patient } from './Patient';
+import type {Patient, Exam, GlassesRx } from './Types';
 import type {Appointment } from './Appointment';
 import { formatMoment } from './Util';
 import { ExamCard, allExams, allPreExams, fetchExams } from './Exam';
-import type {Exam } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
 import type {Assessment } from './Assessment';
-import type {GlassesRx} from './Refraction';
 
 export type Visit = {
     id?: number,
@@ -162,9 +160,9 @@ export class VisitWorkFlow extends Component {
             {this.renderExams(this.props.visit.preExams)}
             {this.renderExams(this.props.visit.exams)}
             <AssessmentCard />
-            <PrescriptionCard patient={this.props.patient}
+            <PrescriptionCard patient={this.props.patient} editable={false}
               prescription={this.props.visit.assessment.prescription}
-              onUpdatePrescription={this.props.onUpdatePrescription} />
+            />
         </View>
     }
 }

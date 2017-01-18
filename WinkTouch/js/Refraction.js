@@ -6,24 +6,9 @@
 import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
+import type {GlassesRx, RefractionExam} from './Types';
 import { RulerField, TilesField, WinkButton } from './Widgets';
-import type { RefractionExam } from './Exam';
 import { Anesthetics } from './EntranceTest';
-
-export type GlassRx = {
-  sphere: number,
-  cylinder?: number,
-  axis?: number,
-  base?: string,
-  prism?: number,
-  add?: number
-}
-
-export type GlassesRx = {
-  id: number,
-  od: GlassRx,
-  os: GlassRx
-}
 
 function isAstigmatic(glassesRx: GlassesRx) : boolean {
   if (!glassesRx) return false;
@@ -74,16 +59,19 @@ export class DiopterScrollField extends Component {
   props: {
     value: number,
     visible?: boolean,
+    editable?: boolean,
     onChangeValue: (newvalue: number) => void,
     onEnableScroll?: (enableScroll: boolean) => void
   }
   static defaultProps = {
-    visible: true
+    visible: true,
+    editable: true,
   }
   render() {
     if (!this.props.visible) return null;
     return <RulerField range={[-20,-10,-7,-5,-4,-3,-2,-1,0,1,2,3,4,5,7,10,20]} stepSize={.25} decimals={2}
       value={this.props.value}
+      editable = {this.props.editable}
       onChangeValue={this.props.onChangeValue}
       onEnableScroll = {this.props.onEnableScroll}
     />
@@ -167,6 +155,7 @@ export class GlassesDetail extends Component {
   props: {
     glassesRx: GlassesRx,
     title: string,
+    editable?: boolean,
     onChangeGlassesRx?: (glassesRx: GlassesRx) => void,
     onEnableScroll?: (enableScroll: boolean) => void
   }
@@ -175,6 +164,10 @@ export class GlassesDetail extends Component {
     multiFocal: boolean,
     prism:boolean,
   }
+  static defaultProps = {
+    editable: true
+  }
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -220,7 +213,7 @@ export class GlassesDetail extends Component {
           </View >
           <View style={styles.formRow500}>
             <Text style={styles.formTableRowHeader}>OD</Text>
-            <DiopterScrollField value={this.props.glassesRx.od.sphere}
+            <DiopterScrollField value={this.props.glassesRx.od.sphere} editable={this.props.editable}
               onChangeValue={(value: number) => this.updateGlassesRx('od','sphere', value)} onEnableScroll={this.props.onEnableScroll} />
             <DiopterScrollField visible={this.state.astigmatism} value={this.props.glassesRx.od.cylinder}
               onChangeValue={(value: number) => this.updateGlassesRx('od','cylinder', value)}onEnableScroll={this.props.onEnableScroll} />
@@ -249,7 +242,7 @@ export class GlassesDetail extends Component {
               onChangeValue={(value: number) => this.updateGlassesRx('os','add', value)} onEnableScroll={this.props.onEnableScroll} />
           </View >
         </View>
-        {this.props.onChangeGlassesRx?<View style={styles.buttonsRowLayout}>
+        {this.props.editable?<View style={styles.buttonsRowLayout}>
           <WinkButton title='Astigmatism' onPress={() => this.toggle('astigmatism')}/>
           <WinkButton title='Multifocal' onPress={() => this.toggle('multiFocal')}/>
           <WinkButton title='Prism' onPress={() => this.toggle('prism')}/>

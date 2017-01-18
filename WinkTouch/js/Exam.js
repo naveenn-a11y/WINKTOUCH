@@ -6,6 +6,7 @@
 import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
+import type {Exam, GlassesRx, RefractionExam} from './Types';
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen } from './Complaint';
@@ -18,32 +19,8 @@ import { SocialHistoryScreen } from './SocialHistory';
 import { FamilyHistoryScreen } from './FamilyHistory';
 import { MedicalHistoryScreen } from './MedicalHistory';
 import { WearingRxScreen, RefractionScreen } from './Refraction';
-import type {GlassesRx} from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
-
-export type Exam = {
-  id?: number,
-  type: string,
-  hasStarted: boolean,
-  hasEnded: boolean,
-};
-
-export type RefractionExam = {
-  id?: number,
-  type: string,
-  hasStarted: boolean,
-  hasEnded: boolean,
-  refractions: {
-    previousRx: GlassesRx,
-    wearingRx: GlassesRx,
-    phoropter: GlassesRx,
-    autoRefractor: GlassesRx,
-    retinoscope: GlassesRx,
-    cyclopegic: GlassesRx,
-    finalRx: GlassesRx
-  }
-}
 
 function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
   if (type==='WearingRx' || type==='RefractionTest') {

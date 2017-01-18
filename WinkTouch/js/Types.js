@@ -7,6 +7,18 @@ export type RestResponse = {
     response: any
 }
 
+export type ItemDefinition = {
+  [propertyName: string]: {
+    label: string,
+    options?: string[],
+    normalValue?: string,
+    required?: boolean,
+    minValue?: number,
+    maxValue?: number,
+    stepSize?: number,
+  }
+}
+
 export type Patient = {
     id: number,
     firstName: string,
@@ -32,14 +44,40 @@ export type PatientInfo = {
     streetNumber: string
 }
 
-export type ItemDefinition = {
-  [propertyName: string]: {
-    label: string,
-    options?: string[],
-    normalValue?: string,
-    required?: boolean,
-    minValue?: number,
-    maxValue?: number,
-    stepSize?: number,
+export type GlassRx = {
+    sphere: number,
+    cylinder?: number,
+    axis?: number,
+    base?: string,
+    prism?: number,
+    add?: number
+}
+
+export type GlassesRx = {
+    id: number,
+    od: GlassRx,
+    os: GlassRx
+}
+
+export type Exam = {
+  id?: number,
+  type: string,
+  hasStarted: boolean,
+  hasEnded: boolean,
+};
+
+export type RefractionExam = {
+  id?: number,
+  type: string,
+  hasStarted: boolean,
+  hasEnded: boolean,
+  refractions: {
+    previousRx: GlassesRx,
+    wearingRx: GlassesRx,
+    phoropter: GlassesRx,
+    autoRefractor: GlassesRx,
+    retinoscope: GlassesRx,
+    cyclopegic: GlassesRx,
+    finalRx: GlassesRx
   }
 }

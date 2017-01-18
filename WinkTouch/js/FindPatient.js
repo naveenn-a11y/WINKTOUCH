@@ -153,7 +153,7 @@ export class FindPatientScreen extends Component {
         onSelectPatient={(patient: Patient) => this.selectPatient(patient)} />
       <PatientContact patientInfo={this.state.patientInfo} />
       <PatientBillingInfo patient={this.state.patientInfo} />
-      <PrescriptionCard patient={this.state.patientInfo} />
+      <PrescriptionCard patient={this.state.patientInfo} editable={false}/>
     </ScrollView>
   }
 }

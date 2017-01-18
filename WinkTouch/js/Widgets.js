@@ -16,8 +16,8 @@ export class RulerField extends Component {
     range: number[],
     width?: number,
     stepSize?: number,
-    prefix?: string,
     decimals?: number,
+    editable?: boolean,
     onChangeValue?: (newvalue: number) => void,
     onEnableScroll?: (enableScroll: boolean) => void
   }
@@ -25,6 +25,9 @@ export class RulerField extends Component {
     pageX: number,
     isActive: boolean,
     value: number
+  }
+  static defaultProps = {
+    editable: true
   }
   margin: number;
   oldPageX: number;
@@ -48,6 +51,8 @@ export class RulerField extends Component {
   }
 
   startEditing(event: any) {
+    if (!this.props.editable)
+      return;
     if (this.props.onEnableScroll) {
       this.props.onEnableScroll(false);
     }
@@ -144,14 +149,19 @@ export class RulerField extends Component {
       style = [{ width: this.props.width }, style];
     }
     const formattedValue = this.format(this.state.value);
+    if (!this.props.editable) {
+      return <View style={{flex:100}}>
+        <Text style={style}>{this.props.prefix}{formattedValue}</Text>
+      </View>
+    }
     return <View style={{flex:100}} onStartShouldSetResponder={(event) => true}
-    onResponderGrant={(event) => this.startEditing(event)}
-    onResponderReject={(event) => this.setState({ isActive: false })}
-    onMoveShouldSetResponder={(event) => false}
-    onResponderTerminationRequest={(event) => false}
-    onResponderMove={(event) => this.updateValue(event)}
-    onResponderRelease={(event) => this.commitEdit()}
-    onResponderTerminate={(event) => this.cancelEdit()}>
+        onResponderGrant={(event) => this.startEditing(event)}
+        onResponderReject={(event) => this.setState({ isActive: false })}
+        onMoveShouldSetResponder={(event) => false}
+        onResponderTerminationRequest={(event) => false}
+        onResponderMove={(event) => this.updateValue(event)}
+        onResponderRelease={(event) => this.commitEdit()}
+        onResponderTerminate={(event) => this.cancelEdit()}>
       <Text style={style}>{this.state.isActive ? '' : this.props.prefix}{formattedValue}</Text>
       <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={() => { console.log('TODO: onRequestClose RulerField popup') } }>
         {this.renderPopup(formattedValue)}
