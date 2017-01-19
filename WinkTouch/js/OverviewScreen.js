@@ -7,13 +7,11 @@ import React, { Component } from 'react';
 import { Image, Text, TextInput, View, StatusBar, Dimensions, Button,  NavigationExperimental, ScrollView} from 'react-native';
 const {CardStack: NavigationCardStack, StateUtils: NavigationStateUtils} = NavigationExperimental;
 import { AppointmentScreen, AppointmentsSummary, fetchAppointments } from './Appointment';
-import type {Appointment } from './Appointment';
+import type {Appointment, Patient, PatientInfo, Exam } from './Types';
 import { Reminders } from './Reminders';
 import { Today } from './Today';
 import { PatientScreen } from './Patient';
-import type {Patient } from './Patient';
 import { ExamScreen } from './Exam';
-import type {Exam } from './Exam';
 import { styles, fontScale } from './Styles';
 import { MenuBar, Notifications } from './MenuBar';
 import { FindPatient } from './FindPatient';
@@ -132,8 +130,8 @@ class OverviewNavigator extends Component {
                 return <AppointmentScreen appointment={appointment} onNavigationChange={this.props.onNavigationChange} />;
             case 'patient':
                 let searchCriterium: string = sceneProps.scene.route.searchCriterium;
-                let patient: Patient = sceneProps.scene.route.patient;
-                return <PatientScreen searchCriterium={searchCriterium} patient={patient} onNavigationChange={this.props.onNavigationChange} />;
+                let patientInfo: PatientInfo = sceneProps.scene.route.patientInfo;
+                return <PatientScreen searchCriterium={searchCriterium} patientInfo={patientInfo} onNavigationChange={this.props.onNavigationChange} />;
             case 'exam':
                 let exam: Exam = sceneProps.scene.route.exam;
                 return <ExamScreen exam={exam} onNavigationChange={this.props.onNavigationChange} onUpdateExam={(exam: Exam) => this.props.onUpdate('exam',exam)} />
@@ -237,7 +235,7 @@ export class DoctorApp extends Component {
                 const patientRoute = {
                     key: navigationState.routes.length.toString(),
                     scene: 'patient',
-                    patient: data
+                    patientInfo: data
                 };
                 navigationState = NavigationStateUtils.push(navigationState, patientRoute);
                 break;

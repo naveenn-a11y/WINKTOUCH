@@ -4,6 +4,10 @@
 'use strict';
 import dateFormat from 'dateformat';
 
+export function deepClone(object: any) : any {
+    return JSON.parse(JSON.stringify(object));
+}
+
 export function toDate(time: Date) : Date {
   const date = new Date(time.getFullYear(), time.getMonth(), time.getDate());
   return date;

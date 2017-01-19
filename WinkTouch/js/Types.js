@@ -4,7 +4,7 @@
 'use strict';
 
 export type RestResponse = {
-    response: any    
+    response: any
 }
 
 export type ItemDefinition = {
@@ -16,17 +16,19 @@ export type ItemDefinition = {
     minValue?: number,
     maxValue?: number,
     stepSize?: number,
+    validation?: string
   }
 }
 
 export type Patient = {
-    id: number,
+    patientId: number,
+    accountsId: number,
     firstName: string,
     lastName: string
 }
 
 export type PatientInfo = {
-    id: number,
+    patientId: number,
     accountsId: number,
     firstName: string,
     lastName: string,
@@ -35,7 +37,7 @@ export type PatientInfo = {
     cell: string,
     streetName: string,
     city: string,
-    country: string,
+    countryId: number,
     medicalCard: string,
     medicalcardExp: string,
     postalCode: string,
@@ -44,6 +46,18 @@ export type PatientInfo = {
     gender: number,
     streetNumber: string
 }
+
+export type Appointment = {
+    id: number,
+    type: string,
+    scheduledStart: Date,
+    scheduledEnd: Date,
+    bookingStatus: string,
+    location: string,
+    patient: Patient,
+    patientPresence: string,
+    doctor: string
+};
 
 export type GlassRx = {
     sphere: number,

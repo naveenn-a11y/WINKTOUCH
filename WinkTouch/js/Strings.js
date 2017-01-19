@@ -22,7 +22,8 @@ export const strings = new LocalizedStrings({
       cellPhoneNr: 'Cellphone',
       email:'Email',
       minLengthError: 'The minimum length is {0} characters.',
-      maxLengthError: 'The maximum length is {0} characters.'
+      maxLengthError: 'The maximum length is {0} characters.',
+      newPatient: 'New patient'
     },
     fr: {
       today: 'Aujourd\'hui',
@@ -32,7 +33,7 @@ export const strings = new LocalizedStrings({
       lastName: 'Nom',
       firstName: 'Prénom',
       streetName: 'Rue',
-      minLengthError: 'La longeur minimal est de {0} caracters.'
+      minLengthError: 'La longueur maximale est de {0} caractères.'
     },
 });
 

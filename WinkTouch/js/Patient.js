@@ -11,11 +11,11 @@ import { strings } from './Strings';
 import { FormRow, FormEmailInput, FormTextInput } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import type {Patient, PatientInfo} from './Types';
-import { fetchPatientInfo} from './FindPatient';
+import { fetchPatientInfo, storePatientInfo} from './FindPatient';
 
 export class PatientCard extends Component {
     props: {
-        patient: Patient,
+        patientInfo?: PatientInfo,
         onNavigationChange: (action: string, data: any) => void
     }
 
@@ -24,7 +24,8 @@ export class PatientCard extends Component {
     }
 
     render() {
-        return <TouchableOpacity onPress={() => this.props.onNavigationChange('showPatient', this.props.patient)}>
+        if (!this.props.patientInfo) return null;
+        return <TouchableOpacity onPress={() => this.props.onNavigationChange('showPatient', this.props.patientInfo)}>
             <View style={styles.card}>
                 <View style={styles.formRow}>
                     <View>
@@ -35,7 +36,7 @@ export class PatientCard extends Component {
                         }} />
                     </View>
                     <View style={{ flex: 100 }}>
-                        <Text style={styles.cardTitle}>{this.props.patient.firstName + ' ' + this.props.patient.lastName}</Text>
+                        <Text style={styles.cardTitle}>{this.props.patientInfo.firstName + ' ' + this.props.patientInfo.lastName}</Text>
                         <View style={styles.formRow}>
                             <View style={{ flex: 40 }}>
                                 <Text style={styles.text}>Male age 40</Text>
@@ -85,7 +86,8 @@ export class PatientBillingInfo extends Component {
 export class PatientContact extends Component {
     props: {
       patientInfo: PatientInfo,
-      editable: ?boolean
+      editable?: boolean,
+      onUpdatePatientInfo?: (patientInfo: PatientInfo) => void
     }
     state: {
       editedPatientInfo: PatientInfo
@@ -112,13 +114,15 @@ export class PatientContact extends Component {
     }
 
     cancelEdit() {
-      LayoutAnimation.easeInEaseOut();
       const editedPatientInfo: PatientInfo = JSON.parse(JSON.stringify(this.props.patientInfo));
+      LayoutAnimation.easeInEaseOut();
       this.setState({editedPatientInfo: editedPatientInfo});
     }
 
     saveEdit() {
-      console.log(this.state.editedPatientInfo);
+      storePatientInfo(this.state.editedPatientInfo);
+      if (this.props.onUpdatePatientInfo)
+        this.props.onUpdatePatientInfo(this.state.editedPatientInfo);
     }
 
     render() {
@@ -184,5 +188,29 @@ export class PatientFamilyHistoryCard extends ExamCardSpecifics {
 export class PatientSocialHistoryCard extends ExamCardSpecifics {
     render() {
         return <Text style={styles.text}>Social History</Text>
+    }
+}
+
+export class PatientScreen extends Component {
+    props: {
+        patientInfo: PatientInfo,
+        onNavigationChange: (action: string, data: any) => void
+    }
+
+    render() {
+        return <ScrollView>
+            <PatientTitle patientInfo={this.props.patientInfo} />
+            <PatientContact patientInfo={this.props.patientInfo} />
+            <PatientBillingInfo patient={this.props.patientInfo} />
+            {/**
+            <PatientHealth patient={this.state.patient} />
+            <PatientOcularHistory patient={this.state.patient} />
+            <PatientMedicalHistory patient={this.state.patient} />
+            <PatientMedications patient={this.state.patient} />
+            <PatientAllergies patient={this.state.patient} />
+            <PatientFamilyHistory patient={this.state.patient} />
+            <PatientSocialHistory patient={this.state.patient} />
+            */}
+        </ScrollView>
     }
 }

@@ -7,22 +7,11 @@ import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, TextInput, LayoutAnimation } from 'react-native';
 import dateFormat from 'dateformat';
 import { styles, fontScale } from './Styles';
+import type {PatientInfo, Patient, Appointment} from './Types';
 import { PatientCard } from './Patient';
-import type {Patient } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory } from './Visit';
-
-export type Appointment = {
-    id: number,
-    type: string,
-    scheduledStart: Date,
-    scheduledEnd: Date,
-    bookingStatus: string,
-    location: string,
-    patient: Patient,
-    patientPresence: string,
-    doctor: string
-};
+import { fetchPatientInfo } from './FindPatient';
 
 export let fetchAppointments = () :Appointment[] => {
     let appointment1: Appointment = {
@@ -33,8 +22,10 @@ export let fetchAppointments = () :Appointment[] => {
         bookingStatus: 'confirmed',
         location: 'The oval office',
         patient: {
-            firstName: 'Siegfried',
-            lastName: 'De Bleeckere',
+            patientId: 2,
+            accountsId: 2,
+            firstName: 'Demo',
+            lastName: 'HARRAR',
             birthDate: new Date(1979, 12, 29)
         },
         patientPresence: 'Patient will be late',
@@ -48,8 +39,10 @@ export let fetchAppointments = () :Appointment[] => {
         bookingStatus: 'confirmed',
         location: 'The oval office',
         patient: {
-            firstName: 'Samuel',
-            lastName: 'De Bleeckere',
+            patientId: 6,
+            accountsId: 2,
+            firstName: 'Wais',
+            lastName: 'Nice',
             birthDate: new Date(1976, 2, 17)
         },
         patientPresence: 'In waiting room',
@@ -63,8 +56,10 @@ export let fetchAppointments = () :Appointment[] => {
         bookingStatus: 'confirmed',
         location: 'The oval office',
         patient: {
-            firstName: 'Vincent',
-            lastName: 'De Bleeckere',
+            patientId: 9,
+            accountsId: 2,
+            firstName: 'Wais',
+            lastName: 'Khedri',
             birthDate: new Date(1974, 2, 21)
         },
         patientPresence: 'Checked in',
@@ -187,14 +182,31 @@ export class AppointmentScreen extends Component {
         appointment: Appointment,
         onNavigationChange: (action: string, data: any) => void
     }
+    state: {
+      patientInfo?: PatientInfo
+    }
     constructor(props: any) {
         super(props);
+        this.state = {
+          patientInfo: this.props.appointment.patient
+        };
+    }
+
+    async fetchPatientInfo() {
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patient);
+      this.setState({
+        patientInfo: patientInfo
+      });
+    }
+
+    componentDidMount() {
+      this.fetchPatientInfo();
     }
 
     render() {
         return <ScrollView>
             <AppointmentDetails appointment={this.props.appointment} />
-            <PatientCard patient={this.props.appointment.patient} onNavigationChange={this.props.onNavigationChange} />
+            <PatientCard patientInfo={this.state.patientInfo} onNavigationChange={this.props.onNavigationChange} />
             <VisitHistory appointment={this.props.appointment}
                 onNavigationChange={this.props.onNavigationChange} />
         </ScrollView>

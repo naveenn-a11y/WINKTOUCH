@@ -325,9 +325,14 @@ export class Clock extends Component {
 export class WinkButton extends Component {
   props: {
     title: string,
+    visible?: boolean,
     onPress?: () => void
   }
+  static defaultProps = {
+    visible: true
+  }
   render() {
+    if (!this.props.visible) return null;
     return <Button {...this.props} />
   }
 }
