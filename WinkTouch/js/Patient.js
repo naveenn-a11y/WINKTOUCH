@@ -200,11 +200,31 @@ export class PatientScreen extends Component {
     state: {
       patientInfo: PatientInfo
     }
+    lastFetch: number = 0;
+    cancelFetch: boolean = false;
     constructor(props: any) {
       super(props);
       this.state = {
         patientInfo: this.props.patientInfo
       }
+    }
+
+    async fetchPatientInfo(patient: Patient) {
+      const now : number = Date.now();
+      if (now-this.lastFetch<5000 && patient.patientId===this.props.patientInfo.patientId) {
+        return;
+      }
+      this.lastFetch = now;
+      const patientInfo : PatientInfo = await fetchPatientInfo(patient);
+      !this.cancelFetch && this.setState({patientInfo: patientInfo});
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+        this.fetchPatientInfo(nextProps.patientInfo);
+    }
+
+    componentWillUnmount() {
+      this.cancelFetch = true;
     }
 
     updatePatientInfo = (patientInfo: PatientInfo) => {

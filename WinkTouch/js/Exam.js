@@ -321,13 +321,13 @@ export class ExamScreen extends Component {
     }
   }
 
-  updateExam(exam: Exam) {
+  updateExam = (exam: Exam) => {
     this.setState({exam});
     this.props.onUpdateExam(exam);
   }
 
   render() {
-    let specificExam = newExamScreenSpecifics(this.props.exam.type, this.state.exam, (exam: Exam) => this.updateExam(exam));
+    let specificExam = newExamScreenSpecifics(this.props.exam.type, this.state.exam, this.updateExam);
     return <View style={styles.centeredScreenLayout}>
       <View style={styles.centeredColumnLayout}>
         {specificExam}
