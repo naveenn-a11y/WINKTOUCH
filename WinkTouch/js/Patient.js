@@ -194,14 +194,29 @@ export class PatientSocialHistoryCard extends ExamCardSpecifics {
 export class PatientScreen extends Component {
     props: {
         patientInfo: PatientInfo,
-        onNavigationChange: (action: string, data: any) => void
+        onNavigationChange: (action: string, data: any) => void,
+        onUpdatePatientInfo: (patientInfo: PatientInfo) => void
+    }
+    state: {
+      patientInfo: PatientInfo
+    }
+    constructor(props: any) {
+      super(props);
+      this.state = {
+        patientInfo: this.props.patientInfo
+      }
+    }
+
+    updatePatientInfo = (patientInfo: PatientInfo) => {
+      this.setState({patientInfo});
+      this.props.onUpdatePatientInfo(patientInfo);
     }
 
     render() {
         return <ScrollView>
-            <PatientTitle patientInfo={this.props.patientInfo} />
-            <PatientContact patientInfo={this.props.patientInfo} />
-            <PatientBillingInfo patient={this.props.patientInfo} />
+            <PatientTitle patientInfo={this.state.patientInfo} />
+            <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo} />
+            <PatientBillingInfo patient={this.state.patientInfo} />
             {/**
             <PatientHealth patient={this.state.patient} />
             <PatientOcularHistory patient={this.state.patient} />

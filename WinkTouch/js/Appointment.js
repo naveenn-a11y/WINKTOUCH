@@ -65,7 +65,7 @@ export let fetchAppointments = () :Appointment[] => {
         patientPresence: 'Checked in',
         doctor: 'The spin doctor'
     };
-    return [appointment1, appointment2, appointment3, appointment3, appointment3, appointment3,];
+    return [appointment1, appointment2, appointment3, appointment3, appointment3, appointment3];
 }
 
 export default class AppointmentSummary extends Component {
@@ -183,8 +183,10 @@ export class AppointmentScreen extends Component {
         onNavigationChange: (action: string, data: any) => void
     }
     state: {
-      patientInfo?: PatientInfo
+      patientInfo: PatientInfo
     }
+    lastFetch: number = 0;
+    cancelFetch: boolean = false;
     constructor(props: any) {
         super(props);
         this.state = {
@@ -192,15 +194,22 @@ export class AppointmentScreen extends Component {
         };
     }
 
-    async fetchPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patient);
-      this.setState({
-        patientInfo: patientInfo
-      });
+    async fetchPatientInfo(patient: Patient) {
+      const now : number = Date.now();
+      if (now-this.lastFetch<5000 && patient.patientId===this.props.appointment.patient.patientId) {
+        return;
+      }
+      this.lastFetch = now;
+      const patientInfo : PatientInfo = await fetchPatientInfo(patient);
+      !this.cancelFetch && this.setState({patientInfo: patientInfo});
     }
 
-    componentDidMount() {
-      this.fetchPatientInfo();
+    componentWillReceiveProps(nextProps: any) {
+        this.fetchPatientInfo(nextProps.appointment.patient);
+    }
+
+    componentWillUnmount() {
+      this.cancelFetch = true;
     }
 
     render() {

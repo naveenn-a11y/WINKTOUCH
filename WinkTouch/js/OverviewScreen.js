@@ -131,7 +131,8 @@ class OverviewNavigator extends Component {
             case 'patient':
                 let searchCriterium: string = sceneProps.scene.route.searchCriterium;
                 let patientInfo: PatientInfo = sceneProps.scene.route.patientInfo;
-                return <PatientScreen searchCriterium={searchCriterium} patientInfo={patientInfo} onNavigationChange={this.props.onNavigationChange} />;
+                return <PatientScreen searchCriterium={searchCriterium} patientInfo={patientInfo} onNavigationChange={this.props.onNavigationChange}
+                  onUpdatePatientInfo={(patientInfo: PatientInfo) => this.props.onUpdate('PatientInfo', patientInfo)} />
             case 'exam':
                 let exam: Exam = sceneProps.scene.route.exam;
                 return <ExamScreen exam={exam} onNavigationChange={this.props.onNavigationChange} onUpdateExam={(exam: Exam) => this.props.onUpdate('exam',exam)} />
