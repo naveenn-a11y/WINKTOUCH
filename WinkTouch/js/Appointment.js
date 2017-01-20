@@ -16,7 +16,7 @@ import { fetchPatientInfo } from './FindPatient';
 export let fetchAppointments = () :Appointment[] => {
     let appointment1: Appointment = {
         id: 1,
-        type: 'Complaint after new glasses',
+        type: 'Patient complaint',
         scheduledStart: new Date(2016, 11, 14, 10, 30),
         scheduledEnd: new Date(2016, 11, 14, 10, 50),
         bookingStatus: 'confirmed',
@@ -28,7 +28,7 @@ export let fetchAppointments = () :Appointment[] => {
             lastName: 'HARRAR',
             birthDate: new Date(1979, 12, 29)
         },
-        patientPresence: 'Patient will be late',
+        patientPresence: 'In waiting room',
         doctor: 'Conrad Murray'
     };
     let appointment2: Appointment = {
@@ -45,7 +45,7 @@ export let fetchAppointments = () :Appointment[] => {
             lastName: 'Nice',
             birthDate: new Date(1976, 2, 17)
         },
-        patientPresence: 'In waiting room',
+        patientPresence: 'Patient will be late',
         doctor: 'Conrad Murray'
     };
     let appointment3: Appointment = {

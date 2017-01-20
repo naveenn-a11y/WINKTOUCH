@@ -59,6 +59,24 @@ export type Appointment = {
     doctor: string
 };
 
+export type Assessment = {
+  prescription: GlassesRx
+}
+
+export type Visit = {
+    id?: number,
+    appointmentId?: number,
+    type: string,
+    start: Date,
+    end?: Date,
+    location: string,
+    patientId: number,
+    doctor: string,
+    preExams?: Exam[],
+    exams?: Exam[],
+    assessment: Assessment
+};
+
 export type GlassRx = {
     sphere: number,
     cylinder?: number,
@@ -95,4 +113,10 @@ export type RefractionExam = {
     cyclopegic: GlassesRx,
     finalRx: GlassesRx
   }
+}
+
+export type Allergy = {
+  allergy: string,
+  reaction: string[],
+  status: string
 }

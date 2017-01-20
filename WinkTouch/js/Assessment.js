@@ -9,10 +9,6 @@ import { styles, fontScale } from './Styles';
 import {GlassesRx} from './Styles';
 import {GlassesDetail} from './Refraction';
 
-export type Assessment = {
-  prescription: GlassesRx
-}
-
 export class AssessmentCard extends Component {
   render() {
     return <View style={styles.tabCard}>

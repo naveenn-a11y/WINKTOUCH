@@ -33,7 +33,7 @@ export async function fetchPatientInfo(patient: Patient) : PatientInfo {
         method: 'get',
     });
     const restResponse : RestResponse = await response.json();
-    const patientInfo: PatientInfo = restResponse.response[0];
+    const patientInfo: PatientInfo = restResponse.response;
     return patientInfo;
   } catch (error) {
     console.log(error);

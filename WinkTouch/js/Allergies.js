@@ -6,22 +6,15 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
+import type {ItemDefinition, Allergy } from './Types';
 import { WinkButton, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
-
-export type Allergy = {
-  allergy: string,
-  reaction: string[],
-  status: string
-}
 
 function fetchAllergies(): Allergy[] {
   const allergies: Allergy[] = [
   ];
   return allergies;
 }
-
 
 const allergyDefinition: ItemDefinition = {
   allergy: {

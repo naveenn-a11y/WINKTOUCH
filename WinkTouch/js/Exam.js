@@ -314,13 +314,16 @@ export class ExamScreen extends Component {
   state: {
     exam: Exam
   }
+  lastFetch: number = 0;
+  cancelFetch: boolean = false;
+
   constructor(props: any) {
     super(props);
     this.state = {
       exam: this.props.exam
     }
   }
-
+  
   updateExam = (exam: Exam) => {
     this.setState({exam});
     this.props.onUpdateExam(exam);

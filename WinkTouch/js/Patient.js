@@ -202,6 +202,7 @@ export class PatientScreen extends Component {
     }
     lastFetch: number = 0;
     cancelFetch: boolean = false;
+    
     constructor(props: any) {
       super(props);
       this.state = {

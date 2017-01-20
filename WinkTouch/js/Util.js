@@ -48,12 +48,15 @@ export function weekDifference(d1: Date, d2: Date) : number {
 }
 
 export function formatMoment(date: Date): string {
+  if (!date) return '';
   const now = new Date();
   if (isSameDay(date, today()))
-    return "Today";
+    return 'Today';
   if (isSameDay(date, yesterday()))
-    return "Yesterday";
+    return 'Yesterday';
   const dayCount : number = dayDifference(now, date);
+  if (dayCount<0)
+    return 'In the future';
   if (dayCount <= 14) {
     return dayCount+' days ago';
   }
