@@ -11,7 +11,42 @@ import { strings } from './Strings';
 import { FormRow, FormEmailInput, FormTextInput } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import type {Patient, PatientInfo} from './Types';
-import { fetchPatientInfo, storePatientInfo} from './FindPatient';
+
+export async function fetchPatientInfo(patient: Patient) : PatientInfo {
+  if (!patient) return undefined;
+  try {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patient.patientId, {
+        method: 'get',
+    });
+    const restResponse : RestResponse = await response.json();
+    const patientInfo: PatientInfo = restResponse.response;
+    return patientInfo;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to get the patient information from the server. Please try again.');
+    //TODO: signal error to the waiting thread so it can clean up ?
+  }
+}
+
+export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
+  if (!patientInfo) return undefined;
+  try {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(patientInfo)
+    });
+    //const restResponse : RestResponse = await response.json();
+    return patientInfo;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to store the patient information on the server. Please try again.');
+    //TODO: signal error to the waiting thread so it can clean up ?
+  }
+}
 
 export class PatientCard extends Component {
     props: {
@@ -197,47 +232,22 @@ export class PatientScreen extends Component {
         onNavigationChange: (action: string, data: any) => void,
         onUpdatePatientInfo: (patientInfo: PatientInfo) => void
     }
-    state: {
-      patientInfo: PatientInfo
-    }
-    lastFetch: number = 0;
-    cancelFetch: boolean = false;
-    
+
     constructor(props: any) {
       super(props);
-      this.state = {
-        patientInfo: this.props.patientInfo
-      }
+      this.refreshPatientInfo()
     }
 
-    async fetchPatientInfo(patient: Patient) {
-      const now : number = Date.now();
-      if (now-this.lastFetch<5000 && patient.patientId===this.props.patientInfo.patientId) {
-        return;
-      }
-      this.lastFetch = now;
-      const patientInfo : PatientInfo = await fetchPatientInfo(patient);
-      !this.cancelFetch && this.setState({patientInfo: patientInfo});
-    }
-
-    componentWillReceiveProps(nextProps: any) {
-        this.fetchPatientInfo(nextProps.patientInfo);
-    }
-
-    componentWillUnmount() {
-      this.cancelFetch = true;
-    }
-
-    updatePatientInfo = (patientInfo: PatientInfo) => {
-      this.setState({patientInfo});
+    async refreshPatientInfo() {
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.patientInfo);
       this.props.onUpdatePatientInfo(patientInfo);
     }
 
     render() {
         return <ScrollView>
-            <PatientTitle patientInfo={this.state.patientInfo} />
-            <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo} />
-            <PatientBillingInfo patient={this.state.patientInfo} />
+            <PatientTitle patientInfo={this.props.patientInfo} />
+            <PatientContact patientInfo={this.props.patientInfo} onUpdatePatientInfo={this.props.onUpdatePatientInfo} />
+            <PatientBillingInfo patient={this.props.patientInfo} />
             {/**
             <PatientHealth patient={this.state.patient} />
             <PatientOcularHistory patient={this.state.patient} />

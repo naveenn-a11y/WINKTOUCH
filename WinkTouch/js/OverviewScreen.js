@@ -272,10 +272,17 @@ export class DoctorApp extends Component {
     */
 
     onUpdate(itemType: string, item: any) :void {
-      if (itemType==='PatientInfo' && this.state.navigationState.routes.length>1) {
+      if (itemType==='PatientInfo' && this.state.navigationState.routes.length>=2) {
         const patientInfo : PatientInfo = item;
-        this.state.navigationState.routes[1].appointment.patient = {patientId: patientInfo.patientId, accountsId: patientInfo.accountsId, firstName: patientInfo.firstName, lastName: patientInfo.lastName};
-        this.state.navigationState.routes[1].patientInfo = {...patientInfo};
+        if (this.state.navigationState.routes[1].scene==='appointment') {
+          this.state.navigationState.routes[1].appointment.patient = {patientId: patientInfo.patientId, accountsId: patientInfo.accountsId, firstName: patientInfo.firstName, lastName: patientInfo.lastName};
+          this.state.navigationState.routes[1].patientInfo = {...patientInfo};
+        }
+        if (this.state.navigationState.routes.length>=3) {
+          if (this.state.navigationState.routes[2].scene==='patient') {
+              this.state.navigationState.routes[2].patientInfo = {...patientInfo};
+          }
+        }
       } else {
         console.log('TODO: update '+itemType);
       }

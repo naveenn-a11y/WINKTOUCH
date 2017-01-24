@@ -8,7 +8,7 @@ import { Image, View, TouchableHighlight, Text, Button, ScrollView, TextInput, M
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
 import type {Patient, PatientInfo, RestResponse } from './Types';
-import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard } from './Patient';
+import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo } from './Patient';
 import { PrescriptionCard } from './Assessment';
 import { WinkButton } from './Widgets';
 
@@ -23,42 +23,6 @@ export async function searchPatients(accountsId: number, searchText: string) : P
   } catch (error) {
     console.log(error);
     alert('Something went wrong trying to get the patient list from the server. You can try again.');
-  }
-}
-
-export async function fetchPatientInfo(patient: Patient) : PatientInfo {
-  if (!patient) return undefined;
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patient.patientId, {
-        method: 'get',
-    });
-    const restResponse : RestResponse = await response.json();
-    const patientInfo: PatientInfo = restResponse.response;
-    return patientInfo;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to get the patient information from the server. Please try again.');
-    //TODO: signal error to the waiting thread so it can clean up ?
-  }
-}
-
-export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
-  if (!patientInfo) return undefined;
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/', {
-        method: 'post',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(patientInfo)
-    });
-    //const restResponse : RestResponse = await response.json();
-    return patientInfo;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to store the patient information on the server. Please try again.');
-    //TODO: signal error to the waiting thread so it can clean up ?
   }
 }
 
@@ -80,7 +44,7 @@ export async function createPatient() : PatientInfo {
       "gender": 0,
       "streetNumber": "",
       "firstName": ""
-    }
+    };
 }
 
 class PatientList extends Component {
@@ -123,6 +87,7 @@ export class FindPatient extends Component {
   }
 
   async searchPatients() {
+      this.props.onSelectPatient(undefined);
       this.setState({showPatientList: false, patients: []});
       const patients : Patient[] = await searchPatients(2, this.state.searchCriterium);
       this.setState({

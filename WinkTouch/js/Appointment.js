@@ -11,7 +11,7 @@ import type {PatientInfo, Patient, Appointment} from './Types';
 import { PatientCard } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory } from './Visit';
-import { fetchPatientInfo } from './FindPatient';
+import { fetchPatientInfo } from './Patient';
 
 export let fetchAppointments = () :Appointment[] => {
     let appointment1: Appointment = {
