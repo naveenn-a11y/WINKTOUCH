@@ -45,7 +45,6 @@ export async function fetchPatientInfo(patient: Patient) : PatientInfo {
 export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
   if (!patientInfo) return undefined;
   try {
-    console.log(JSON.stringify(patientInfo));
     let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/', {
         method: 'post',
         headers: {
@@ -157,7 +156,8 @@ export class FindPatient extends Component {
 
 export class FindPatientScreen extends Component {
   props: {
-    onNavigationChange: (action: string, data: any) => void
+    onNavigationChange: (action: string, data: any) => void,
+    onUpdatePatientInfo: (patientInfo: PatientInfo) => void
   }
   state: {
     patientInfo?: PatientInfo
@@ -176,8 +176,9 @@ export class FindPatientScreen extends Component {
     });
   }
 
-  update(propertyName: string, value: any) : void {
-    this.setState({[propertyName]: value});
+  updatePatientInfo = (patientInfo: PatientInfo) : void => {
+    this.setState({patientInfo});
+    this.props.onUpdatePatientInfo(patientInfo);
   }
 
   newPatient() {
@@ -191,7 +192,7 @@ export class FindPatientScreen extends Component {
     return <ScrollView>
       <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={()=>this.newPatient()} />
       {this.state.patientInfo?<View>
-        <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={(patientInfo: PatientInfo) => this.update('patientInfo', patientInfo)}/>
+        <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
         <PatientBillingInfo patient={this.state.patientInfo} />
         <PrescriptionCard patient={this.state.patientInfo} editable={false}/>
       </View>:null}

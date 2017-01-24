@@ -180,42 +180,24 @@ class AppointmentDetails extends Component {
 export class AppointmentScreen extends Component {
     props: {
         appointment: Appointment,
-        onNavigationChange: (action: string, data: any) => void
+        patientInfo: PatientInfo,
+        onNavigationChange: (action: string, data: any) => void,
+        onUpdate: (itemType: string, item: any) => void
     }
-    state: {
-      patientInfo: PatientInfo
-    }
-    lastFetch: number = 0;
-    cancelFetch: boolean = false;
     constructor(props: any) {
         super(props);
-        this.state = {
-          patientInfo: this.props.appointment.patient
-        };
+        this.refreshPatientInfo();
     }
 
-    async fetchPatientInfo(patient: Patient) {
-      const now : number = Date.now();
-      if (now-this.lastFetch<5000 && patient.patientId===this.props.appointment.patient.patientId) {
-        return;
-      }
-      this.lastFetch = now;
-      const patientInfo : PatientInfo = await fetchPatientInfo(patient);
-      !this.cancelFetch && this.setState({patientInfo: patientInfo});
-    }
-
-    componentWillReceiveProps(nextProps: any) {
-        this.fetchPatientInfo(nextProps.appointment.patient);
-    }
-
-    componentWillUnmount() {
-      this.cancelFetch = true;
+    async refreshPatientInfo() {
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patient);
+      this.props.onUpdate("PatientInfo", patientInfo);
     }
 
     render() {
         return <ScrollView>
             <AppointmentDetails appointment={this.props.appointment} />
-            <PatientCard patientInfo={this.state.patientInfo} onNavigationChange={this.props.onNavigationChange} />
+            <PatientCard patientInfo={this.props.patientInfo} onNavigationChange={this.props.onNavigationChange} />
             <VisitHistory appointment={this.props.appointment}
                 onNavigationChange={this.props.onNavigationChange} />
         </ScrollView>

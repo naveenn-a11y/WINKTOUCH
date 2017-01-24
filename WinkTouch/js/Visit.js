@@ -20,9 +20,9 @@ export function fetchVisitHistory(patient: Patient): Visit[] {
       start: patient.patientId===2?new Date():new Date(2017, 0, 18, 10, 30),
       end:  patient.patientId===2?undefined:new Date(2017, 0, 18, 10, 45),
       location: 'the oval office',
-      patientId: patient.patientId,
+      patient: patient,
       doctor: 'Conrad Murray',
-      preExams: allPreExams(),
+      preExams: patient.patientId===2?allPreExams(patient):[],
       exams: [],
       assessment: {prescription: {id: 1, od: {sphere: 2}, os: {sphere: 2}}}
   };
@@ -32,10 +32,10 @@ export function fetchVisitHistory(patient: Patient): Visit[] {
         start: new Date(2016, 10, 14, 10, 30),
         end: new Date(2016, 10, 15, 10, 50),
         location: 'the oval office',
-        patientId: patient.patientId,
+        patient: patient,
         doctor: 'Conrad Murray',
-        preExams: allPreExams(),
-        exams: fetchExams(),
+        preExams: allPreExams(patient),
+        exams: fetchExams(patient),
         assessment: {prescription: {id: 1, od: {sphere: 2}, os: {sphere: 2}}}
     };
     let visit3: Visit = {
@@ -44,10 +44,10 @@ export function fetchVisitHistory(patient: Patient): Visit[] {
         start: new Date(2016, 10, 2, 10, 30),
         end: new Date(2016, 10, 10, 10, 50),
         location: 'the oval office',
-        patientId: patient.patientId,
+        patient: patient,
         doctor: 'Conrad Murray',
-        preExams: allPreExams(),
-        exams: fetchExams(),
+        preExams: allPreExams(patient),
+        exams: fetchExams(patient),
         assessment: {prescription: {id:2, od: {sphere: 1.5}, os: {sphere: 1.5}}}
     };
     let visit4: Visit = {
@@ -56,8 +56,8 @@ export function fetchVisitHistory(patient: Patient): Visit[] {
         start: new Date(2014, 9, 26, 10, 30),
         end: new Date(2014, 9, 2, 10, 50),
         location: 'the oval office',
-        patientId: patient.patientId,
-        preExams: allPreExams(),
+        patient: patient,
+        preExams: allPreExams(patient),
         doctor: 'Conrad Murray',
         assessment: {prescription: {id: 3, od: {sphere: 1}, os: {sphere: 1}}}
     };
@@ -71,9 +71,9 @@ function createVisit(appointment: Appointment) : Visit {
       start: new Date(),
       end: undefined,
       location: undefined,
-      patientId: appointment.patient.patientId,
+      patient: appointment.patient,
       doctor: appointment.doctor,
-      preExams: allPreExams(),
+      preExams: allPreExams(appointment.patient),
       exams: [],
       assessment: undefined
   };
@@ -181,9 +181,6 @@ export class VisitWorkFlow extends Component {
             {this.renderExams(this.props.visit.preExams)}
             {this.renderExams(this.props.visit.exams)}
             <AssessmentCard />
-            <PrescriptionCard patient={this.props.patient} editable={false}
-              prescription={this.props.visit.assessment.prescription}
-            />
         </View>
     }
 }
@@ -221,7 +218,7 @@ export class VisitHistory extends Component {
       if (!appointmentsVisit) {
          appointmentsVisit = createVisit(this.props.appointment);
       }
-      appointmentsVisit.preExams = allPreExams();
+      appointmentsVisit.preExams = allPreExams(this.props.appointment.patient);
       const selectedVisit : ?Visit = appointmentsVisit;
       LayoutAnimation.easeInEaseOut();
       this.setState({ selectedVisit, appointmentsVisit});
@@ -230,7 +227,7 @@ export class VisitHistory extends Component {
     startVisit(visitType: string) {
         const selectedVisit : ?Visit = this.state.selectedVisit;
         if (!selectedVisit) return;
-        selectedVisit.exams = allExams(visitType);
+        selectedVisit.exams = allExams(this.props.appointment.patient, visitType);
         LayoutAnimation.easeInEaseOut();
         this.setState({ selectedVisit });
     }
@@ -245,6 +242,17 @@ export class VisitHistory extends Component {
     findAppointmentsVisit(visitHistory: Visit[]) : ?Visit {
         if (!visitHistory || visitHistory.length===0) return undefined;
         return visitHistory.find(visit => visit.appointmentId && visit.appointmentId === this.props.appointment.id);
+    }
+
+    componentDidMount() {
+        const visitHistory = fetchVisitHistory(this.props.appointment.patient);
+        const appointmentsVisit: ?Visit = this.findAppointmentsVisit(visitHistory);
+        let selectedVisit: ?Visit = appointmentsVisit;
+        if (!selectedVisit && visitHistory && visitHistory.length>0) {
+          selectedVisit = visitHistory[0];
+        }
+        LayoutAnimation.easeInEaseOut();
+        this.setState({ visitHistory, appointmentsVisit, selectedVisit });
     }
 
     render() {
@@ -269,14 +277,5 @@ export class VisitHistory extends Component {
         </View>
     }
 
-    componentDidMount() {
-        const visitHistory = fetchVisitHistory(this.props.appointment.patient);
-        const appointmentsVisit: ?Visit = this.findAppointmentsVisit(visitHistory);
-        let selectedVisit: ?Visit = appointmentsVisit;
-        if (!selectedVisit && visitHistory && visitHistory.length>0) {
-          selectedVisit = visitHistory[0];
-        }
-        LayoutAnimation.easeInEaseOut();
-        this.setState({ visitHistory, appointmentsVisit, selectedVisit });
-    }
+
 }

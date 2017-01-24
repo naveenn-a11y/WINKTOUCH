@@ -27,7 +27,8 @@ export class RulerField extends Component {
     value: number
   }
   static defaultProps = {
-    editable: true
+    editable: true,
+    decimals: 0
   }
   margin: number;
   oldPageX: number;
@@ -82,7 +83,7 @@ export class RulerField extends Component {
 
   format(value: number): string {
     if (isNaN(value)) return '';
-    return this.props.decimals ? value.toFixed(this.props.decimals) : String(value);
+    return this.props.decimals ? Number(value).toFixed(this.props.decimals) : String(value);
   }
 
   toPercentage(value: number) : number {
@@ -175,6 +176,7 @@ export class TilesField extends Component {
     value: string,
     options: string[],
     width?: number,
+    editable?: boolean,
     onChangeValue?: (newvalue: string) => void,
     onEnableScroll?: (enableScroll: boolean) => void
   }
@@ -185,6 +187,10 @@ export class TilesField extends Component {
     popupWidth: number,
     optionLayout: {x: number, y:number, width: number, height:number}[]
   }
+  static defaultProps = {
+    editable: true
+  }
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -212,6 +218,7 @@ export class TilesField extends Component {
   }
 
   startEditing(event: any) {
+    if (!this.props.editable) return;
     if (this.props.onEnableScroll) {
         this.props.onEnableScroll(false);
     }
@@ -290,6 +297,11 @@ export class TilesField extends Component {
       style = [{ width: this.props.width }, style];
     }
     const formattedValue = this.state.value;
+    if (!this.props.editable) {
+      return <View style={{flex:100}}>
+        <Text style={style}>{formattedValue}</Text>
+      </View>
+    }
     return <View style={{flex:100}}
         onStartShouldSetResponder={(event) => true}
         onResponderGrant={(event) => this.startEditing(event)}

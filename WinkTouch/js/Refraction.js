@@ -6,9 +6,77 @@
 import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {GlassesRx, RefractionExam} from './Types';
+import type {GlassesRx, Refractions, Patient, Exam} from './Types';
 import { RulerField, TilesField, WinkButton } from './Widgets';
 import { Anesthetics } from './EntranceTest';
+
+export async function fetchRefractions(patient: Patient, visitId: number) : Refractions {
+  try {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/EyeExam?accountsId='+patient.accountsId+'&patientId='+patient.patientId, {
+        method: 'get',
+    });
+    let refractions : Refractions = {
+      previousRx: {
+        od: {sphere: 0.5},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      wearingRx: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      phoropter: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      autoRefractor: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      retinoscope: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      cyclopegic: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      },
+      finalRx: {
+        od: {sphere: 0.25},
+        os: {sphere: 0.25, add: 0.75}
+      }
+    };
+    let json = await response.json();
+    const types = ['previousRx','wearingRx'];
+    const eyeExams : [] = json.eyeExams;
+    for (let i=0; i<eyeExams.length && i<types.length; i++) {
+        const glassesRx : GlassesRx = {
+          id: eyeExams[i].eyeExamId,
+          od: {
+            sphere: eyeExams[i].OD.sph,
+            cylinder: eyeExams[i].OD.cyl,
+            axis: eyeExams[i].OD.axis,
+            base: undefined,
+            prism: eyeExams[i].OD.prism1,
+            add: eyeExams[i].OD.add
+          },
+          os: {
+            sphere: eyeExams[i].OS.sph,
+            cylinder: eyeExams[i].OS.cyl,
+            axis: eyeExams[i].OS.axis,
+            base: undefined,
+            prism: eyeExams[i].OS.prism1,
+            add: eyeExams[i].OS.add
+          },
+        }
+        refractions[types[i]]=glassesRx;
+    }
+    return refractions;
+  } catch (error) {
+    alert(error);
+    console.log(error);
+    alert('Something went wrong fetching the refractions from the server. You can try again.');
+  }
+}
 
 function isAstigmatic(glassesRx: GlassesRx) : boolean {
   if (!glassesRx) return false;
@@ -177,6 +245,14 @@ export class GlassesDetail extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({
+      astigmatism: isAstigmatic(this.props.glassesRx),
+      multiFocal: isMultiFocal(this.props.glassesRx),
+      prism: isPrism(this.props.glassesRx)
+    });
+  }
+
   updateGlassesRx(oculus: string, propertyName: string, value: number | string) : void {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx[oculus][propertyName] = value;
@@ -185,7 +261,29 @@ export class GlassesDetail extends Component {
   }
 
   toggle(propertyName: string) : void {
+    let glassesUpdated: boolean = false;
+    let glassesRx : GlassesRx = this.props.glassesRx;
+    if (propertyName==='astigmatism' && this.state.astigmatism) {
+        glassesRx.od.cylinder = undefined;
+        glassesRx.od.axis = undefined;
+        glassesRx.os.cylinder = undefined;
+        glassesRx.os.axis = undefined;
+        glassesUpdated = true;
+    } else if (propertyName==='multiFocal' && this.state.multiFocal) {
+        glassesRx.od.add = undefined;
+        glassesRx.os.add = undefined;
+        glassesUpdated = true;
+    } else if (propertyName==='prism' && this.state.prism) {
+        glassesRx.od.prism = undefined;
+        glassesRx.od.base = undefined;
+        glassesRx.os.prism = undefined;
+        glassesRx.os.base = undefined;
+        glassesUpdated = true;
+    }
     this.setState({[propertyName]: !this.state[propertyName]});
+    if (glassesUpdated && this.props.onChangeGlassesRx) {
+        this.props.onChangeGlassesRx(glassesRx);
+    }
   }
 
   copyOsOd() : void {
@@ -256,20 +354,20 @@ export class GlassesDetail extends Component {
 export class WearingRxScreen extends Component {
   props: {
     exam: RefractionExam,
-    onChangeExam: (exam: RefractionExam) => void
+    onChangeExam: (exam: Exam) => void
   }
 
-  updateExam(propertyName: string, value: GlassesRx) {
-    let exam: RefractionExam = this.props.exam;
-    exam[propertyName] = value;
-    this.props.onChangeExam(exam);
+  updateRefraction(refractionType: string, value: GlassesRx) {
+    let refractions: Refractions = this.props.exam.refractions;
+    refractions[refractionType] = value;
+    this.props.onChangeExam(this.props.exam);
   }
 
   render() {
     return <View>
       <View style={styles.flow}>
-        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('previousRx',glassesRx)}/>
-        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('wearingRx',glassesRx)}/>
+        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
+        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
       </View>
     </View>
   }
@@ -290,10 +388,10 @@ export class RefractionScreen extends Component {
     }
   }
 
-  updateExam(propertyName: string, value: GlassesRx) {
-    let exam: RefractionExam = this.props.exam;
-    exam[propertyName] = value;
-    this.props.onChangeExam(exam);
+  updateRefraction(refractionType: string, value: GlassesRx) {
+    let refractions: Refractions = this.props.exam.refractions;
+    refractions[refractionType] = value;
+    this.props.onChangeExam(this.props.exam);
   }
 
   enableScroll = (scrollEnable: boolean) => {
@@ -304,13 +402,13 @@ export class RefractionScreen extends Component {
   render() {
     return <ScrollView scrollEnabled={this.state.scrollEnabled}>
       <View style={styles.flow}>
-        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('previousRx',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('wearingRx',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Phoropter' glassesRx={this.props.exam.refractions.phoropter} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('phoropter',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Auto-refractor'glassesRx={this.props.exam.refractions.autoRefractor} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('autoRefractor',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Retinoscope' glassesRx={this.props.exam.refractions.retinoscope} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('retinoscope',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Cyclopegic' glassesRx={this.props.exam.refractions.cyclopegic} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('cyclopegic',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Final Rx' glassesRx={this.props.exam.refractions.finalRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateExam('finalRx',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Phoropter' glassesRx={this.props.exam.refractions.phoropter} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('phoropter',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Auto-refractor'glassesRx={this.props.exam.refractions.autoRefractor} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('autoRefractor',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Retinoscope' glassesRx={this.props.exam.refractions.retinoscope} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('retinoscope',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Cyclopegic' glassesRx={this.props.exam.refractions.cyclopegic} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('cyclopegic',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Final Rx' glassesRx={this.props.exam.refractions.finalRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('finalRx',glassesRx)} onEnableScroll={this.enableScroll}/>
       </View>
     </ScrollView>
   }

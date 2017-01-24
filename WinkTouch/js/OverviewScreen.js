@@ -116,21 +116,22 @@ class OverviewNavigator extends Component {
     // as type `NavigationSceneRendererProps`.
     renderScene(sceneProps: Object) {
         const scene = sceneProps.scene.route.scene;
+        const patientInfo: PatientInfo = sceneProps.scene.route.patientInfo;
         switch (scene) {
             case 'overview':
                 return <OverviewScreen onNavigationChange={this.props.onNavigationChange} />;
             case 'findPatient':
-                return <FindPatientScreen onNavigationChange={this.props.onNavigationChange} />;
+                return <FindPatientScreen onNavigationChange={this.props.onNavigationChange}
+                  onUpdatePatientInfo={(patientInfo: PatientInfo) => this.props.onUpdate('PatientInfo', patientInfo)} />;
             case 'reminders':
                 return <Reminders onNavigationChange={this.props.onNavigationChange} />;
             case 'today':
                 return <Today onNavigationChange={this.props.onNavigationChange} />;
             case 'appointment':
                 let appointment: Appointment = sceneProps.scene.route.appointment;
-                return <AppointmentScreen appointment={appointment} onNavigationChange={this.props.onNavigationChange} />;
+                return <AppointmentScreen appointment={appointment} patientInfo={patientInfo} onNavigationChange={this.props.onNavigationChange} onUpdate={this.props.onUpdate} />;
             case 'patient':
                 let searchCriterium: string = sceneProps.scene.route.searchCriterium;
-                let patientInfo: PatientInfo = sceneProps.scene.route.patientInfo;
                 return <PatientScreen searchCriterium={searchCriterium} patientInfo={patientInfo} onNavigationChange={this.props.onNavigationChange}
                   onUpdatePatientInfo={(patientInfo: PatientInfo) => this.props.onUpdate('PatientInfo', patientInfo)} />
             case 'exam':
@@ -147,6 +148,7 @@ export class DoctorApp extends Component {
             index: number,
             routes: { key: string, scene: string, menuHidden?: boolean, appointment?: Appointment }[]
         }
+
     }
     constructor(props: any) {
         super(props);
@@ -220,7 +222,8 @@ export class DoctorApp extends Component {
                 const appointmentRoute = {
                     key: navigationState.routes.length.toString(),
                     scene: 'appointment',
-                    appointment: data
+                    appointment: data,
+                    patientInfo: data.patient
                 };
                 navigationState = NavigationStateUtils.push(navigationState, appointmentRoute);
                 break;
@@ -244,7 +247,7 @@ export class DoctorApp extends Component {
                 const examRoute = {
                     key: navigationState.routes.length.toString(),
                     scene: 'exam',
-                    exam: data,
+                    exam: data
                 }
                 navigationState = NavigationStateUtils.push(navigationState, examRoute);
                 break;
@@ -269,7 +272,13 @@ export class DoctorApp extends Component {
     */
 
     onUpdate(itemType: string, item: any) :void {
-      console.log('TODO: update '+itemType);
+      if (itemType==='PatientInfo' && this.state.navigationState.routes.length>1) {
+        const patientInfo : PatientInfo = item;
+        this.state.navigationState.routes[1].appointment.patient = {patientId: patientInfo.patientId, accountsId: patientInfo.accountsId, firstName: patientInfo.firstName, lastName: patientInfo.lastName};
+        this.state.navigationState.routes[1].patientInfo = {...patientInfo};
+      } else {
+        console.log('TODO: update '+itemType);
+      }
     }
 
     render() {

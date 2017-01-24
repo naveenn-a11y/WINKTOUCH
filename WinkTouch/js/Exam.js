@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {Exam, GlassesRx, RefractionExam} from './Types';
+import type {Exam, Patient, GlassesRx, RefractionExam, Refractions} from './Types';
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen } from './Complaint';
@@ -21,11 +21,14 @@ import { MedicalHistoryScreen } from './MedicalHistory';
 import { WearingRxScreen, RefractionScreen } from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
+import { fetchRefractions} from './Refraction';
 
-function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
+function constructExam(patient: Patient, type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
   if (type==='WearingRx' || type==='RefractionTest') {
     return {
       type: type,
+      visitId: 1,
+      patient: patient,
       hasStarted: hasStarted,
       hasEnded: hasEnded,
       refractions: {
@@ -62,44 +65,46 @@ function constructExam(type: string, hasStarted?: boolean = false, hasEnded?: bo
   }
   return {
     type: type,
+    patient: patient,
+    visitId: 2,
     hasStarted: hasStarted,
     hasEnded: hasEnded
   }
 }
 
-export function allExams(visitType: string): Exam[] {
+export function allExams(patient: Patient, visitType: string): Exam[] {
   if (visitType && visitType === 'followUp') {
-    return [constructExam('Complaint', true, true), constructExam('VisualAcuityTest', true, true),
-    constructExam('RefractionTest', true, true)]
+    return [constructExam(patient, 'Complaint', true, true), constructExam(patient, 'VisualAcuityTest', true, true),
+    constructExam(patient, 'RefractionTest', true, true)]
   }
   if (visitType && visitType === 'fitting') {
     return [
-      constructExam('Complaint', true, true), constructExam('VisualAcuityTest', true, true),
-      constructExam('RefractionTest', true, true), constructExam('SlitLampExam', true),
+      constructExam(patient, 'Complaint', true, true), constructExam(patient, 'VisualAcuityTest', true, true),
+      constructExam(patient, 'RefractionTest', true, true), constructExam(patient, 'SlitLampExam', true),
     ]
   }
   return [
-    constructExam('Complaint', true, true), constructExam('VisualAcuityTest', true, true),
-    constructExam('VisualFieldTest', true, true), constructExam('CoverTest', true, true),
-    constructExam('ReviewOfSystems', true, true),
-    constructExam('RefractionTest', true, true), constructExam('GlaucomaExam', true),
-    constructExam('SlitLampExam', true),
+    constructExam(patient,'Complaint', true, true), constructExam(patient,'VisualAcuityTest', true, true),
+    constructExam(patient,'VisualFieldTest', true, true), constructExam(patient,'CoverTest', true, true),
+    constructExam(patient,'ReviewOfSystems', true, true),
+    constructExam(patient,'RefractionTest', true, true), constructExam(patient,'GlaucomaExam', true),
+    constructExam(patient,'SlitLampExam', true),
   ]
 }
 
-export function allPreExams(): Exam[] {
+export function allPreExams(patient: Patient): Exam[] {
   return [
-    constructExam('WearingRx', true, true), constructExam('Medications', true, true),
-    constructExam('Allergies', true, true), constructExam('MedicalHistory', true, true),
-    constructExam('FamilyHistory', true, true), constructExam('SocialHistory', true)
+    constructExam(patient,'WearingRx', true, true), constructExam(patient,'Medications', true, true),
+    constructExam(patient,'Allergies', true, true), constructExam(patient,'MedicalHistory', true, true),
+    constructExam(patient,'FamilyHistory', true, true), constructExam(patient,'SocialHistory', true)
   ]
 }
 
-export function fetchExams(): Exam[] {
+export function fetchExams(patient: Patient): Exam[] {
   return [
-    constructExam('Complaint', true, true), constructExam('CoverTest', true, true), constructExam('ReviewOfSystems', true, true),
-    constructExam('VisualAcuityTest', true, false), constructExam('AutorefractorTest'),
-    constructExam('VisualFieldTest', true, true)
+    constructExam(patient,'Complaint', true, true), constructExam(patient,'CoverTest', true, true), constructExam(patient,'ReviewOfSystems', true, true),
+    constructExam(patient,'VisualAcuityTest', true, false), constructExam(patient,'AutorefractorTest'),
+    constructExam(patient,'VisualFieldTest', true, true)
   ]
 }
 
@@ -322,11 +327,33 @@ export class ExamScreen extends Component {
     this.state = {
       exam: this.props.exam
     }
+    this.fetchSpecificExam(this.props.exam);
   }
-  
+
   updateExam = (exam: Exam) => {
-    this.setState({exam});
+    if (!this.cancelFetch) this.setState({exam});
     this.props.onUpdateExam(exam);
+  }
+
+  async fetchSpecificExam(exam: Exam) {
+    const now : number = Date.now();
+    if (now-this.lastFetch<5000 && exam.id===this.props.exam.id) {
+      return;
+    }
+    this.lastFetch = now;
+    if (exam.type==='WearingRx' || exam.type==='RefractionTest') {
+      const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
+      exam.refractions = refractions;
+    }
+    !this.cancelFetch && this.setState({exam: exam});
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+      this.fetchSpecificExam(nextProps.exam);
+  }
+
+  componentWillUnmount() {
+    this.cancelFetch = true;
   }
 
   render() {
@@ -335,16 +362,6 @@ export class ExamScreen extends Component {
       <View style={styles.centeredColumnLayout}>
         {specificExam}
       </View>
-      {/**<View>
-        <Text>H</Text>
-        <Text>i</Text>
-        <Text>s</Text>
-        <Text>t</Text>
-        <Text>o</Text>
-        <Text>r</Text>
-        <Text>y</Text>
-      </View>
-      */}
     </View >
   }
 }

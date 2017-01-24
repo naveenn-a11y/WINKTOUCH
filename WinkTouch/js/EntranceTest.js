@@ -33,7 +33,7 @@ export class StrabismusWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.strabismus} options={[null, ...strabismusTypes]}
+    return <TilesField value={this.state.strabismus} options={[null, ...strabismusTypes]} {...this.props}
       onChangeValue={(strabismus: string) => this.setState({ strabismus: strabismus })} />
   }
 }
@@ -179,17 +179,15 @@ class HirschbergTest extends Component {
   render() {
     return <View style={styles.board}>
       <Text style={styles.screenTitle}>Hirschberg Test</Text>
-      <View style={styles.formRow}>
-        <TouchableWithoutFeedback onPress={() => alert('You will be able to move the white dot around')}>
-          <Image source={require('./image/hirschberg.png')} style={{
-            width: 350 * fontScale,
-            resizeMode: 'contain',
-          }} />
-        </TouchableWithoutFeedback>
-      </View >
-      <View style={styles.centeredRowLayout}>
-        <StrabismusWheel />
-        <StrabismusWheel strabismus={'Exotropia'} />
+      <View style={styles.centeredColumnLayout}>
+        <View style={styles.centeredRowLayout}>
+          <Text style={styles.formLabel}>OD:</Text>
+          <StrabismusWheel />
+        </View>
+        <View style={styles.centeredRowLayout}>
+          <Text style={styles.formLabel}>OS:</Text>
+          <StrabismusWheel strabismus={'Exotropia'} />
+        </View>
       </View>
     </View>
   }
@@ -202,15 +200,17 @@ class CoverTest extends Component {
   render() {
     return <View style={styles.board}>
       <Text style={styles.screenTitle}>{this.props.title}</Text>
-      <View style={styles.formRow500}>
-        <Text style={styles.formLabel}>Lateral:</Text>
-        <TilesField value='Ortho' options={[null, 'Ortho']} />
-        <TilesField value='EsoPhoria' options={[null, 'EsoPhoria']} />
-      </View>
-      <View style={styles.formRow500}>
-        <Text style={styles.formLabel}>Vertical:</Text>
-        <TilesField value='2' options={[null, 'Ortho']} />
-        <TilesField value='Hyperphoria OD' options={[null, 'Hyperphoria OD']} />
+      <View style={styles.centeredColumnLayout}>
+        <View style={styles.formRow500}>
+          <Text style={styles.formLabel}>Lateral:</Text>
+          <TilesField value='Ortho' options={[null, 'Ortho']} />
+          <TilesField value='EsoPhoria' options={[null, 'EsoPhoria']} />
+        </View>
+        <View style={styles.centeredRowLayout}>
+          <Text style={styles.formLabel}>Vertical:</Text>
+          <TilesField value='2' options={[null, 'Ortho']} />
+          <TilesField value='Hyperphoria OD' options={[null, 'Hyperphoria OD']} />
+        </View>
       </View>
     </View>
   }
@@ -409,17 +409,17 @@ export class PupilDistance extends Component {
         <Text style={styles.formTableColumnHeader}>Near</Text>
       </View >
       <View style={styles.formRow}>
-        <Text style={styles.formTableRowHeader}>OD</Text>
+        <Text style={styles.formTableRowHeader}>OD:</Text>
         <PD />
         <PD />
       </View >
       <View style={styles.formRow}>
-        <Text style={styles.formTableRowHeader}>OS</Text>
+        <Text style={styles.formTableRowHeader}>OS:</Text>
         <PD />
         <PD />
       </View >
       <View style={styles.formRow}>
-        <Text style={styles.formTableRowHeader}>OU</Text>
+        <Text style={styles.formTableRowHeader}>OU:</Text>
         <PD />
         <PD />
       </View >
@@ -432,8 +432,8 @@ export class CoverTestScreen extends Component {
     return <View style={styles.flow}>
       <HirschbergTest />
       <CoverTest title='Cover Test Far' />
-      <CoverTest title='Cover Test Near' />
       <Stereopsis />
+      <CoverTest title='Cover Test Near' />
       <PupilDistance />
     </View>
   }
