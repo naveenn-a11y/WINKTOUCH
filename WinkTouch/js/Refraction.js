@@ -247,9 +247,9 @@ export class GlassesDetail extends Component {
 
   componentWillReceiveProps(nextProps: any) {
     this.setState({
-      astigmatism: isAstigmatic(this.props.glassesRx),
-      multiFocal: isMultiFocal(this.props.glassesRx),
-      prism: isPrism(this.props.glassesRx)
+      astigmatism: isAstigmatic(nextProps.glassesRx),
+      multiFocal: isMultiFocal(nextProps.glassesRx),
+      prism: isPrism(nextProps.glassesRx)
     });
   }
 

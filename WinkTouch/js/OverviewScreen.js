@@ -136,7 +136,7 @@ class OverviewNavigator extends Component {
                   onUpdatePatientInfo={(patientInfo: PatientInfo) => this.props.onUpdate('PatientInfo', patientInfo)} />
             case 'exam':
                 let exam: Exam = sceneProps.scene.route.exam;
-                return <ExamScreen exam={exam} onNavigationChange={this.props.onNavigationChange} onUpdateExam={(exam: Exam) => this.props.onUpdate('exam',exam)} />
+                return <ExamScreen exam={exam} onNavigationChange={this.props.onNavigationChange} onUpdateExam={(exam: Exam) => this.props.onUpdate('Exam',exam)} />
         }
     }
 }
@@ -277,11 +277,20 @@ export class DoctorApp extends Component {
         if (this.state.navigationState.routes[1].scene==='appointment') {
           this.state.navigationState.routes[1].appointment.patient = {patientId: patientInfo.patientId, accountsId: patientInfo.accountsId, firstName: patientInfo.firstName, lastName: patientInfo.lastName};
           this.state.navigationState.routes[1].patientInfo = {...patientInfo};
+          //TODO: update patient firstname and lastname in visit.exams
         }
         if (this.state.navigationState.routes.length>=3) {
           if (this.state.navigationState.routes[2].scene==='patient') {
               this.state.navigationState.routes[2].patientInfo = {...patientInfo};
           }
+        }
+      } else if (itemType==='Exam' && this.state.navigationState.routes.length>=2) {
+        const exam : Exam = item;
+        if (this.state.navigationState.routes[1].scene==='appointment') {
+          //TODO: update exam in selectedVisit
+        }
+        if (this.state.navigationState.routes[2].scene==='exam') {
+            this.state.navigationState.routes[2].exam = {...exam};
         }
       } else {
         console.log('TODO: update '+itemType);

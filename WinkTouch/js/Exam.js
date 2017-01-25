@@ -150,40 +150,6 @@ function newExamCardSpecifics(examType: string, isExpanded: boolean) {
   return null;
 }
 
-function newExamScreenSpecifics(examType: string, exam: Exam, updateExam: (exam: Exam) => void) {
-  switch (examType) {
-    case 'Complaint':
-      return <ComplaintScreen exam={exam} />;
-    case 'VisualAcuityTest':
-      return <VisualAcuityTest exam={exam} />;
-    case 'CoverTest':
-      return <CoverTestScreen exam={exam} />
-    case 'ReviewOfSystems':
-      return <ReviewOfSystemsScreen exam={exam} />
-    case 'WearingRx':
-      return <WearingRxScreen exam={exam} onChangeExam={updateExam} />
-    case 'RefractionTest':
-      return <RefractionScreen exam={exam} onChangeExam={updateExam} />
-    case 'SlitLampExam':
-      return <SlitLampScreen exam={exam} />
-    case 'VisualFieldTest':
-      return <VisualFieldTestScreen exam={exam} />
-    case 'GlaucomaExam':
-      return <GlaucomaScreen exam={exam} />
-    case 'Medications':
-      return <MedicationsScreen exam={exam} />
-    case 'Allergies':
-      return <AllergiesScreen exam={exam} />
-    case 'SocialHistory':
-      return <SocialHistoryScreen exam={exam} />
-    case 'FamilyHistory':
-      return <FamilyHistoryScreen exam={exam} />
-    case 'MedicalHistory':
-      return <MedicalHistoryScreen exam={exam} />
-  }
-  return <Text style={styles.screenTitle}>{examType}</Text>
-}
-
 export class ExamCard extends Component {
   props: {
     exam: Exam,
@@ -316,51 +282,60 @@ export class ExamScreen extends Component {
     onNavigationChange: (action: string, data: any) => void,
     onUpdateExam: (exam: Exam) => void
   }
-  state: {
-    exam: Exam
-  }
-  lastFetch: number = 0;
-  cancelFetch: boolean = false;
 
   constructor(props: any) {
     super(props);
-    this.state = {
-      exam: this.props.exam
-    }
-    this.fetchSpecificExam(this.props.exam);
+    this.refreshExam();
   }
 
-  updateExam = (exam: Exam) => {
-    if (!this.cancelFetch) this.setState({exam});
-    this.props.onUpdateExam(exam);
-  }
-
-  async fetchSpecificExam(exam: Exam) {
-    const now : number = Date.now();
-    if (now-this.lastFetch<5000 && exam.id===this.props.exam.id) {
-      return;
-    }
-    this.lastFetch = now;
+  async refreshExam() {
+    const exam : Exam = this.props.exam;
     if (exam.type==='WearingRx' || exam.type==='RefractionTest') {
       const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
       exam.refractions = refractions;
     }
-    !this.cancelFetch && this.setState({exam: exam});
+    this.props.onUpdateExam(exam);
   }
 
-  componentWillReceiveProps(nextProps: any) {
-      this.fetchSpecificExam(nextProps.exam);
+  renderExam() {
+    switch (this.props.exam.type) {
+      case 'Complaint':
+        return <ComplaintScreen exam={this.props.exam} />;
+      case 'VisualAcuityTest':
+        return <VisualAcuityTest exam={this.props.exam} />;
+      case 'CoverTest':
+        return <CoverTestScreen exam={this.props.exam} />
+      case 'ReviewOfSystems':
+        return <ReviewOfSystemsScreen exam={this.props.exam} />
+      case 'WearingRx':
+        return <WearingRxScreen exam={this.props.exam} onChangeExam={this.props.onUpdateExam} />
+      case 'RefractionTest':
+        return <RefractionScreen exam={this.props.exam} onChangeExam={this.props.onUpdateExam} />
+      case 'SlitLampExam':
+        return <SlitLampScreen exam={this.props.exam} />
+      case 'VisualFieldTest':
+        return <VisualFieldTestScreen exam={this.props.exam} />
+      case 'GlaucomaExam':
+        return <GlaucomaScreen exam={this.props.exam} />
+      case 'Medications':
+        return <MedicationsScreen exam={this.props.exam} />
+      case 'Allergies':
+        return <AllergiesScreen exam={this.props.exam} />
+      case 'SocialHistory':
+        return <SocialHistoryScreen exam={this.props.exam} />
+      case 'FamilyHistory':
+        return <FamilyHistoryScreen exam={this.props.exam} />
+      case 'MedicalHistory':
+        return <MedicalHistoryScreen exam={this.props.exam} />
+    }
+    return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>
   }
 
-  componentWillUnmount() {
-    this.cancelFetch = true;
-  }
 
   render() {
-    let specificExam = newExamScreenSpecifics(this.props.exam.type, this.state.exam, this.updateExam);
     return <View style={styles.centeredScreenLayout}>
       <View style={styles.centeredColumnLayout}>
-        {specificExam}
+        {this.renderExam()}
       </View>
     </View >
   }
