@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {GlassesRx, Refractions, Patient, Exam} from './Types';
+import type {GlassesRx, RefractionExam, Refractions, Patient, Exam} from './Types';
 import { RulerField, TilesField, WinkButton } from './Widgets';
 import { Anesthetics } from './EntranceTest';
 
@@ -49,23 +49,26 @@ export async function fetchRefractions(patient: Patient, visitId: number) : Refr
     const types = ['previousRx','wearingRx'];
     const eyeExams : [] = json.eyeExams;
     for (let i=0; i<eyeExams.length && i<types.length; i++) {
+        const eyeExam = eyeExams[i];
         const glassesRx : GlassesRx = {
-          id: eyeExams[i].eyeExamId,
+          eyeExam: {...eyeExam},
+          id: eyeExam.eyeExamId,
+          version: eyeExam.version,
           od: {
-            sphere: eyeExams[i].OD.sph,
-            cylinder: eyeExams[i].OD.cyl,
-            axis: eyeExams[i].OD.axis,
+            sphere: eyeExam.OD.sph,
+            cylinder: eyeExam.OD.cyl,
+            axis: eyeExam.OD.axis,
             base: undefined,
-            prism: eyeExams[i].OD.prism1,
-            add: eyeExams[i].OD.add
+            prism: eyeExam.OD.prism1,
+            add: eyeExam.OD.add
           },
           os: {
-            sphere: eyeExams[i].OS.sph,
-            cylinder: eyeExams[i].OS.cyl,
-            axis: eyeExams[i].OS.axis,
+            sphere: eyeExam.OS.sph,
+            cylinder: eyeExam.OS.cyl,
+            axis: eyeExam.OS.axis,
             base: undefined,
-            prism: eyeExams[i].OS.prism1,
-            add: eyeExams[i].OS.add
+            prism: eyeExam.OS.prism1,
+            add: eyeExam.OS.add
           },
         }
         refractions[types[i]]=glassesRx;
@@ -75,6 +78,29 @@ export async function fetchRefractions(patient: Patient, visitId: number) : Refr
     alert(error);
     console.log(error);
     alert('Something went wrong fetching the refractions from the server. You can try again.');
+  }
+}
+
+export async function storeRefraction(patient: Patient, glassesRx: GlassesRx) : GlassesRx {
+  if (!glassesRx) return undefined;
+  let eyeExam = glassesRx.eyeExam;
+  eyeExam.OD.sph = glassesRx.od.sphere;
+  eyeExam.OS.sph = glassesRx.os.sphere;
+  try {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/EyeExam/update', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eyeExam)
+    });
+    //const restResponse : RestResponse = await response.json();
+    return glassesRx;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to store the patient information on the server. Please try again.');
+    //TODO: signal error to the waiting thread so it can clean up ?
   }
 }
 
@@ -354,13 +380,26 @@ export class GlassesDetail extends Component {
 export class WearingRxScreen extends Component {
   props: {
     exam: RefractionExam,
-    onChangeExam: (exam: Exam) => void
+    onUpdateExam: (Exam: Exam) => void
   }
 
-  updateRefraction(refractionType: string, value: GlassesRx) {
+  constructor(props: any) {
+    super(props);
+    this.refreshRefractions();
+  }
+
+  async refreshRefractions() {
+    const exam : RefractionExam = this.props.exam;
+    const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
+    exam.refractions = refractions;
+    this.props.onUpdateExam(exam);
+  }
+
+  updateRefraction(refractionType: string, refraction: GlassesRx) {
     let refractions: Refractions = this.props.exam.refractions;
-    refractions[refractionType] = value;
-    this.props.onChangeExam(this.props.exam);
+    refractions[refractionType] = refraction;
+    storeRefraction(this.props.exam.patient, refraction);
+    this.props.onUpdateExam(this.props.exam);
   }
 
   render() {
@@ -376,7 +415,7 @@ export class WearingRxScreen extends Component {
 export class RefractionScreen extends Component {
   props: {
     exam: RefractionExam,
-    onChangeExam: (exam: RefractionExam) => void
+    onUpdateExam: (exam: RefractionExam) => void
   }
   state: {
     scrollEnabled: boolean
@@ -386,14 +425,23 @@ export class RefractionScreen extends Component {
     this.state = {
       scrollEnabled: true
     }
+    this.refreshRefractions();
   }
 
-  updateRefraction(refractionType: string, value: GlassesRx) {
+  async refreshRefractions() {
+    const exam : RefractionExam = this.props.exam;
+    const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
+    exam.refractions = refractions;
+    this.props.onUpdateExam(exam);
+  }
+
+  updateRefraction(refractionType: string, refraction: GlassesRx) {
     let refractions: Refractions = this.props.exam.refractions;
-    refractions[refractionType] = value;
-    this.props.onChangeExam(this.props.exam);
+    refractions[refractionType] = refraction;
+    storeRefraction(this.props.exam.patient, refraction);
+    this.props.onUpdateExam(this.props.exam);
   }
-
+  
   enableScroll = (scrollEnable: boolean) => {
       if (scrollEnable!==this.state.scrollEnabled)
         this.setState({scrollEnabled: scrollEnable});

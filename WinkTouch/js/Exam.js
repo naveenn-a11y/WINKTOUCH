@@ -285,16 +285,6 @@ export class ExamScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.refreshExam();
-  }
-
-  async refreshExam() {
-    const exam : Exam = this.props.exam;
-    if (exam.type==='WearingRx' || exam.type==='RefractionTest') {
-      const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
-      exam.refractions = refractions;
-    }
-    this.props.onUpdateExam(exam);
   }
 
   renderExam() {
@@ -308,9 +298,9 @@ export class ExamScreen extends Component {
       case 'ReviewOfSystems':
         return <ReviewOfSystemsScreen exam={this.props.exam} />
       case 'WearingRx':
-        return <WearingRxScreen exam={this.props.exam} onChangeExam={this.props.onUpdateExam} />
+        return <WearingRxScreen exam={this.props.exam} onUpdateExam={this.props.onUpdateExam} />
       case 'RefractionTest':
-        return <RefractionScreen exam={this.props.exam} onChangeExam={this.props.onUpdateExam} />
+        return <RefractionScreen exam={this.props.exam} onUpdateExam={this.props.onUpdateExam} />
       case 'SlitLampExam':
         return <SlitLampScreen exam={this.props.exam} />
       case 'VisualFieldTest':
