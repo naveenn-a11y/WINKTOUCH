@@ -14,6 +14,7 @@ if (isAndroid) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+export const backgroundColor = undefined;
 export const selectionColor = '#ddddffdd';
 export const selectionFontColor = '#4444ff';
 
@@ -22,6 +23,7 @@ export const styles = StyleSheet.create({
         flex: 100,
         flexDirection: 'row',
         alignItems: 'stretch',
+        backgroundColor: backgroundColor,
     },
     centeredScreenLayout: {
         flex: 100,
@@ -32,6 +34,7 @@ export const styles = StyleSheet.create({
     page: {
         flex: 100,
         flexDirection: 'column',
+        backgroundColor: backgroundColor,
     },
     sideMenu: {
         padding: 15 * fontScale,
@@ -258,6 +261,10 @@ export const styles = StyleSheet.create({
         fontSize: 20 * fontScale,
         textAlign: 'center',
         margin: 10 * fontScale
+    },
+    cardColumn: {
+        marginHorizontal: 1 * fontScale,
+        alignItems: 'center'
     },
     popup: {
         padding: 20 * fontScale,

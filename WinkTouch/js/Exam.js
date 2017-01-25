@@ -18,7 +18,7 @@ import { AllergiesScreen } from './Allergies';
 import { SocialHistoryScreen } from './SocialHistory';
 import { FamilyHistoryScreen } from './FamilyHistory';
 import { MedicalHistoryScreen } from './MedicalHistory';
-import { WearingRxScreen, RefractionScreen } from './Refraction';
+import { WearingRxScreen, RefractionScreen, GlassesSummary } from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
 import { fetchRefractions} from './Refraction';
@@ -110,44 +110,9 @@ export function fetchExams(patient: Patient): Exam[] {
 
 export class ExamCardSpecifics extends Component {
   props: {
-    isExpanded: boolean
+    isExpanded: boolean,
+    exam: Exam
   }
-}
-
-function newExamCardSpecifics(examType: string, isExpanded: boolean) {
-  switch (examType) {
-    case 'Complaint':
-      return <ComplaintCard isExpanded={isExpanded} />
-    case 'VisualAcuityTest':
-      return <VisualAcuityTestCard isExpanded={isExpanded} />
-    case 'CoverTest':
-      return <CoverTestCard isExpanded={isExpanded} />
-    case 'ReviewOfSystems':
-      return <ReviewOfSystemsCard isExpanded={isExpanded} />
-    case 'RetinoscopyTest':
-      return <RetinoscopyTestCard isExpanded={isExpanded} />
-    case 'RefractionTest':
-      return <RefractionTestCard isExpanded={isExpanded} />
-    case 'SlitLampExam':
-      return <SlitLampExamCard isExpanded={isExpanded} />
-    case 'VisualFieldTest':
-      return <VisualFieldTestCard isExpanded={isExpanded} />
-    case 'GlaucomaExam':
-      return <GlaucomaExamCard isExpanded={isExpanded} />
-    case 'WearingRx':
-      return <WearingRxCard isExpanded={isExpanded} />
-    case 'Medications':
-      return <PatientMedicationsCard isExpanded={isExpanded} />
-    case 'MedicalHistory':
-      return <PatientMedicalHistoryCard isExpanded={isExpanded} />
-    case 'Allergies':
-      return <PatientAllergiesCard isExpanded={isExpanded} />
-    case 'FamilyHistory':
-      return <PatientFamilyHistoryCard isExpanded={isExpanded} />
-    case 'SocialHistory':
-      return <PatientSocialHistoryCard isExpanded={isExpanded} />
-  }
-  return null;
 }
 
 export class ExamCard extends Component {
@@ -161,8 +126,43 @@ export class ExamCard extends Component {
     super(props);
   }
 
+  renderExamCardSpecifics() {
+    switch (this.props.exam.type) {
+      case 'Complaint':
+        return <ComplaintCard isExpanded={this.props.isExpanded} />
+      case 'VisualAcuityTest':
+        return <VisualAcuityTestCard isExpanded={this.props.isExpanded} />
+      case 'CoverTest':
+        return <CoverTestCard isExpanded={this.props.isExpanded} />
+      case 'ReviewOfSystems':
+        return <ReviewOfSystemsCard isExpanded={this.props.isExpanded} />
+      case 'RetinoscopyTest':
+        return <RetinoscopyTestCard isExpanded={this.props.isExpanded} />
+      case 'RefractionTest':
+        return <RefractionTestCard isExpanded={this.props.isExpanded} />
+      case 'SlitLampExam':
+        return <SlitLampExamCard isExpanded={this.props.isExpanded} />
+      case 'VisualFieldTest':
+        return <VisualFieldTestCard isExpanded={this.props.isExpanded} />
+      case 'GlaucomaExam':
+        return <GlaucomaExamCard isExpanded={this.props.isExpanded} />
+      case 'WearingRx':
+        return <WearingRxCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
+      case 'Medications':
+        return <PatientMedicationsCard isExpanded={this.props.isExpanded} />
+      case 'MedicalHistory':
+        return <PatientMedicalHistoryCard isExpanded={this.props.isExpanded} />
+      case 'Allergies':
+        return <PatientAllergiesCard isExpanded={this.props.isExpanded} />
+      case 'FamilyHistory':
+        return <PatientFamilyHistoryCard isExpanded={this.props.isExpanded} />
+      case 'SocialHistory':
+        return <PatientSocialHistoryCard isExpanded={this.props.isExpanded} />
+    }
+    return null;
+  }
+
   render() {
-    const specificCard = newExamCardSpecifics(this.props.exam.type, this.props.isExpanded);
     let style: string = styles.todoExamCard;
     if (this.props.isExpanded) {
       style = styles.todoExamCardExpanded;
@@ -183,16 +183,22 @@ export class ExamCard extends Component {
       onPress={() => this.props.onSelect()}
       delayLongPress={300}>
       <View style={style}>
-        {specificCard}
+        {this.renderExamCardSpecifics()}
       </View>
     </TouchableOpacity>
   }
 }
 
 class WearingRxCard extends ExamCardSpecifics {
+  props: {
+    isExpanded: boolean,
+    exam: RefractionExam
+  }
   render() {
     if (!this.props.isExpanded)
-      return <Text style={styles.text}>Wearing Rx</Text>
+      return <View>
+        <GlassesSummary title="Wearing Rx" glassesRx={this.props.exam.refractions.wearingRx} />
+      </View>
     return <View>
       <Text style={styles.text}>Wearing Rx</Text>
     </View>

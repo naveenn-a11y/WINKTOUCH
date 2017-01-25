@@ -229,6 +229,8 @@ export class ContactsSummary extends Component {
 
 export class GlassesSummary extends Component {
   props: {
+    glassesRx: GlassesRx,
+    title?: string,
     visible?: boolean
   }
   static defaultProps = {
@@ -237,10 +239,49 @@ export class GlassesSummary extends Component {
   render() {
     if (!this.props.visible)
       return null;
+    if (!this.props.glassesRx)
+      return <View style={styles.centeredColumnLayout}>
+          <Text style={styles.cardTitle}>{this.props.title}</Text>
+        </View>
     return <View style={styles.centeredColumnLayout}>
-      <Text style={styles.text}>   Sphere  Cyl  Axis   Add  Prism</Text>
-      <Text style={styles.text}>OD    -2.5    DS  173  +.50  1/2 BU</Text>
-      <Text style={styles.text}>OS    -2.5    DS  173  +.50             </Text>
+      <Text style={styles.cardTitle}>{this.props.title}</Text>
+      <View style={styles.centeredRowLayout}>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}></Text>
+          <Text>OD:</Text>
+          <Text>OS:</Text>
+        </View>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}>Sphere</Text>
+          <Text> {this.props.glassesRx.od.sphere}</Text>
+          <Text> {this.props.glassesRx.os.sphere}</Text>
+        </View>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}>Cyl</Text>
+          <Text> {this.props.glassesRx.od.cylinder}</Text>
+          <Text> {this.props.glassesRx.os.cylinder}</Text>
+        </View>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}>Axis</Text>
+          <Text> {this.props.glassesRx.od.axis}</Text>
+          <Text> {this.props.glassesRx.os.axis}</Text>
+        </View>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}>Add</Text>
+          <Text> {this.props.glassesRx.od.add}</Text>
+          <Text> {this.props.glassesRx.os.add}</Text>
+        </View>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}>Base</Text>
+          <Text> {this.props.glassesRx.od.base}</Text>
+          <Text> {this.props.glassesRx.os.base}</Text>
+        </View>
+        <View style={styles.cardColumn}>
+          <Text style={styles.text}>Prism</Text>
+          <Text> {this.props.glassesRx.od.prism}</Text>
+          <Text> {this.props.glassesRx.os.prism}</Text>
+        </View>
+    </View>
     </View>
   }
 }
@@ -254,7 +295,6 @@ export class GlassesDetail extends Component {
     onEnableScroll?: (enableScroll: boolean) => void
   }
   state: {
-    astigmatism: boolean,
     multiFocal: boolean,
     prism:boolean,
   }
@@ -265,7 +305,6 @@ export class GlassesDetail extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      astigmatism: isAstigmatic(this.props.glassesRx),
       multiFocal: isMultiFocal(this.props.glassesRx),
       prism: isPrism(this.props.glassesRx)
     }
@@ -273,7 +312,6 @@ export class GlassesDetail extends Component {
 
   componentWillReceiveProps(nextProps: any) {
     this.setState({
-      astigmatism: isAstigmatic(nextProps.glassesRx),
       multiFocal: isMultiFocal(nextProps.glassesRx),
       prism: isPrism(nextProps.glassesRx)
     });
@@ -329,8 +367,8 @@ export class GlassesDetail extends Component {
           <View style={styles.formRow500}>
             <Text style={styles.formTableRowHeader}></Text>
             <Text style={styles.formTableColumnHeader}>Sph</Text>
-            {this.state.astigmatism?<Text style={styles.formTableColumnHeader}>Cyl</Text>:null}
-            {this.state.astigmatism?<Text style={styles.formTableColumnHeader}>Axis</Text>:null}
+            <Text style={styles.formTableColumnHeader}>Cyl</Text>
+            <Text style={styles.formTableColumnHeader}>Axis</Text>
             {this.state.prism?<Text style={styles.formTableColumnHeader}>Base</Text>:null}
             {this.state.prism?<Text style={styles.formTableColumnHeader}>Prism</Text>:null}
             {this.state.multiFocal?<Text style={styles.formTableColumnHeader}>Add</Text>:null}
@@ -339,9 +377,9 @@ export class GlassesDetail extends Component {
             <Text style={styles.formTableRowHeader}>OD</Text>
             <DiopterScrollField value={this.props.glassesRx.od.sphere} editable={this.props.editable}
               onChangeValue={(value: number) => this.updateGlassesRx('od','sphere', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField visible={this.state.astigmatism} value={this.props.glassesRx.od.cylinder}
+            <DiopterScrollField value={this.props.glassesRx.od.cylinder}
               onChangeValue={(value: number) => this.updateGlassesRx('od','cylinder', value)}onEnableScroll={this.props.onEnableScroll} />
-            <DegreeScrollField visible={this.state.astigmatism} value={this.props.glassesRx.od.axis}
+            <DegreeScrollField value={this.props.glassesRx.od.axis}
               onChangeValue={(value: number) => this.updateGlassesRx('od','axis', value)} onEnableScroll={this.props.onEnableScroll} />
             <BaseScrollField visible={this.state.prism} value={this.props.glassesRx.od.base}
               onChangeValue={(value: string) => this.updateGlassesRx('od','base', value)} onEnableScroll={this.props.onEnableScroll} />
@@ -354,9 +392,9 @@ export class GlassesDetail extends Component {
             <Text style={styles.formTableRowHeader}>OS</Text>
             <DiopterScrollField value={this.props.glassesRx.os.sphere}
               onChangeValue={(value: number) => this.updateGlassesRx('os','sphere', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField visible={this.state.astigmatism} value={this.props.glassesRx.os.cylinder}
+            <DiopterScrollField value={this.props.glassesRx.os.cylinder}
               onChangeValue={(value: number) => this.updateGlassesRx('os','cylinder', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DegreeScrollField visible={this.state.astigmatism} value={this.props.glassesRx.os.axis}
+            <DegreeScrollField value={this.props.glassesRx.os.axis}
               onChangeValue={(value: number) => this.updateGlassesRx('os','axis', value)} onEnableScroll={this.props.onEnableScroll} />
             <BaseScrollField visible={this.state.prism} value={this.props.glassesRx.os.base}
               onChangeValue={(value: string) => this.updateGlassesRx('os','base', value)} onEnableScroll={this.props.onEnableScroll} />
@@ -367,7 +405,6 @@ export class GlassesDetail extends Component {
           </View >
         </View>
         {this.props.editable?<View style={styles.buttonsRowLayout}>
-          <WinkButton title='Astigmatism' onPress={() => this.toggle('astigmatism')}/>
           <WinkButton title='Multifocal' onPress={() => this.toggle('multiFocal')}/>
           <WinkButton title='Prism' onPress={() => this.toggle('prism')}/>
           <WinkButton title='OS=OD' onPress={() => this.copyOsOd()}/>
@@ -441,7 +478,7 @@ export class RefractionScreen extends Component {
     storeRefraction(this.props.exam.patient, refraction);
     this.props.onUpdateExam(this.props.exam);
   }
-  
+
   enableScroll = (scrollEnable: boolean) => {
       if (scrollEnable!==this.state.scrollEnabled)
         this.setState({scrollEnabled: scrollEnable});
