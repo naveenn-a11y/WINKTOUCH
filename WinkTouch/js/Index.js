@@ -9,7 +9,7 @@ import DeviceInfoTest from './DeviceInfoTest';
 import LoginScreen from './LoginScreen';
 import RegisterScreen from './RegisterScreen';
 import PatientDetails from './PatientDetails';
-import {DoctorApp} from './OverviewScreen';
+import {DoctorApp} from './DoctorApp';
 import EhrApp from './EhrApp';
 
 export default class Index extends Component {

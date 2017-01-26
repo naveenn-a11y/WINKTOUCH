@@ -13,7 +13,7 @@ import { ExamCard, allExams, allPreExams, fetchExams } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
 
 export function fetchVisitHistory(patient: Patient): Visit[] {
-  let visit1: Visit = {
+    let visit1: Visit = {
       id: 4,
       appointmentId: patient.patientId===2?1:undefined,
       type: 'Patient Complaint',
@@ -25,7 +25,7 @@ export function fetchVisitHistory(patient: Patient): Visit[] {
       preExams: patient.patientId===2?allPreExams(patient):[],
       exams: [],
       assessment: {prescription: {id: 1, od: {sphere: 2}, os: {sphere: 2}}}
-  };
+    };
     let visit2: Visit = {
         id: 3,
         type: 'Pickup new glasses',
@@ -82,8 +82,8 @@ function createVisit(appointment: Appointment) : Visit {
 
 class VisitButton extends Component {
     props: {
-        visit?: Visit,
-        isSelected?: boolean,
+        visit: ?Visit,
+        isSelected: ?boolean,
         onPress: () => void
     }
 
@@ -188,24 +188,31 @@ export class VisitWorkFlow extends Component {
 export class VisitHistory extends Component {
     props: {
         appointment: Appointment,
-        visitHistory?: Visit[],
-        onNavigationChange: (action: string, data: any) => void
+        visitHistory: Visit[],
+        onNavigationChange: (action: string, data: any) => void,
+        onUpdate: (itemType: string, item: any) => void
     }
     state: {
-        visitHistory: Visit[],
-        appointmentsVisit?: Visit,
-        selectedVisit?: Visit
+        appointmentsVisit: ?Visit,
+        selectedVisit: ?Visit
     }
 
     constructor(props: any) {
         super(props);
-        const visitHistory : Visit[] = this.props.visitHistory?this.props.visitHistory:[];
-        const appointmentsVisit : ?Visit = this.findAppointmentsVisit(visitHistory);
+        const appointmentsVisit : ?Visit = this.findAppointmentsVisit(this.props.visitHistory);
         this.state = {
-            visitHistory: visitHistory,
             appointmentsVisit: appointmentsVisit,
             selectedVisit: appointmentsVisit?appointmentsVisit:(this.props.visitHistory&&this.props.visitHistory.length>0)?this.props.visitHistory[0]:undefined
         }
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+          const appointmentsVisit: ?Visit = this.findAppointmentsVisit(nextProps.visitHistory);
+          let selectedVisit: ?Visit = appointmentsVisit;
+          if (!selectedVisit && nextProps.visitHistory && nextProps.visitHistory.length>0) {
+            selectedVisit = nextProps.visitHistory[0];
+          }
+          this.setState({  appointmentsVisit, selectedVisit });
     }
 
     showVisit(visit: Visit) {
@@ -244,24 +251,13 @@ export class VisitHistory extends Component {
         return visitHistory.find(visit => visit.appointmentId && visit.appointmentId === this.props.appointment.id);
     }
 
-    componentDidMount() {
-        const visitHistory = fetchVisitHistory(this.props.appointment.patient);
-        const appointmentsVisit: ?Visit = this.findAppointmentsVisit(visitHistory);
-        let selectedVisit: ?Visit = appointmentsVisit;
-        if (!selectedVisit && visitHistory && visitHistory.length>0) {
-          selectedVisit = visitHistory[0];
-        }
-        LayoutAnimation.easeInEaseOut();
-        this.setState({ visitHistory, appointmentsVisit, selectedVisit });
-    }
-
     render() {
         return <View>
             <View style={styles.tabHeader}>
               <VisitButton isSelected={this.state.selectedVisit === this.state.appointmentsVisit}
                 visit={this.state.appointmentsVisit} onPress={() => this.state.appointmentsVisit?this.showVisit(this.state.appointmentsVisit):this.startPreVisit()} />
               <ScrollView horizontal={true}>
-                    {this.state.visitHistory && this.state.visitHistory.map((visit: Visit, index: number) => {
+                    {this.props.visitHistory && this.props.visitHistory.map((visit: Visit, index: number) => {
                         if (visit === this.state.appointmentsVisit) return null;
                         return <VisitButton isSelected={this.state.selectedVisit === visit}
                             key={index} visit={visit} onPress={() => this.showVisit(visit)} />
@@ -276,6 +272,4 @@ export class VisitHistory extends Component {
                 onStartVisit={(visitType: string) => this.startVisit(visitType)} />:null}
         </View>
     }
-
-
 }

@@ -82,8 +82,8 @@ export class PatientCard extends Component {
                             <View style={{ flex: 40 }}>
                                 <Text style={styles.text}>Married with children</Text>
                                 <Text style={styles.text}>Insured by RAMQ</Text>
-                                <Text style={styles.text}>5147978008 Montreal</Text>
-                                <Text style={styles.text}>samuel@downloadwink.com</Text>
+                                <Text style={styles.text}>{this.props.patientInfo.cell?(this.props.patientInfo.cell+' '):null}{this.props.patientInfo.city}</Text>
+                                <Text style={styles.text}>{this.props.patientInfo.email}</Text>
                             </View>
                         </View>
                     </View>

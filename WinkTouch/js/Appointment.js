@@ -7,13 +7,13 @@ import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, TextInput, LayoutAnimation } from 'react-native';
 import dateFormat from 'dateformat';
 import { styles, fontScale } from './Styles';
-import type {PatientInfo, Patient, Appointment} from './Types';
+import type {PatientInfo, Patient, Appointment, Visit} from './Types';
 import { PatientCard } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
-import { VisitHistory } from './Visit';
+import { VisitHistory, fetchVisitHistory } from './Visit';
 import { fetchPatientInfo } from './Patient';
 
-export let fetchAppointments = () :Appointment[] => {
+export function fetchAppointments() :Appointment[] {
     let appointment1: Appointment = {
         id: 1,
         type: 'Patient complaint',
@@ -181,25 +181,32 @@ export class AppointmentScreen extends Component {
     props: {
         appointment: Appointment,
         patientInfo: PatientInfo,
+        visitHistory: Visit[],
         onNavigationChange: (action: string, data: any) => void,
         onUpdate: (itemType: string, item: any) => void
     }
     constructor(props: any) {
         super(props);
         this.refreshPatientInfo();
+        this.refreshVisitHistory();
     }
 
     async refreshPatientInfo() {
       const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patient);
-      this.props.onUpdate("PatientInfo", patientInfo);
+      this.props.onUpdate('PatientInfo', patientInfo);
+    }
+
+    refreshVisitHistory() {
+      const visitHistory : Visit[] = fetchVisitHistory(this.props.appointment.patient);    
+      this.props.onUpdate('VisitHistory', visitHistory);
     }
 
     render() {
         return <ScrollView>
             <AppointmentDetails appointment={this.props.appointment} />
             <PatientCard patientInfo={this.props.patientInfo} onNavigationChange={this.props.onNavigationChange} />
-            <VisitHistory appointment={this.props.appointment}
-                onNavigationChange={this.props.onNavigationChange} />
+            <VisitHistory appointment={this.props.appointment} visitHistory={this.props.visitHistory}
+                onNavigationChange={this.props.onNavigationChange} onUpdate={this.props.onUpdate} />
         </ScrollView>
     }
 }
