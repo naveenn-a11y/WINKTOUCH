@@ -94,9 +94,9 @@ export function allExams(patient: Patient, visitType: string): Exam[] {
 
 export function allPreExams(patient: Patient): Exam[] {
   return [
-    constructExam(patient,'WearingRx', true, true), constructExam(patient,'Medications', true, true),
-    constructExam(patient,'Allergies', true, true), constructExam(patient,'MedicalHistory', true, true),
-    constructExam(patient,'FamilyHistory', true, true), constructExam(patient,'SocialHistory', true)
+    constructExam(patient,'WearingRx', false, false), constructExam(patient,'Medications', true, false),
+    constructExam(patient,'Allergies', false, false), constructExam(patient,'MedicalHistory', true, true),
+    constructExam(patient,'FamilyHistory', true, false), constructExam(patient,'SocialHistory', true)
   ]
 }
 

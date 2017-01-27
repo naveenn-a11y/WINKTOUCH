@@ -4,10 +4,12 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView, Modal, Dimensions } from 'react-native';
+import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView, Modal, Dimensions, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
 import { styles, fontScale, selectionColor, windowWidth, windowHeight, selectionFontColor } from './Styles';
 import { FormRow, FormTextInput } from './Form';
 import { ComplaintDetails } from './Complaint'
+
+const margin : number = 40;
 
 export class RulerField extends Component {
   props: {
@@ -23,6 +25,7 @@ export class RulerField extends Component {
   }
   state: {
     pageX: number,
+    oldPageX: number,
     isActive: boolean,
     value: number
   }
@@ -30,40 +33,38 @@ export class RulerField extends Component {
     editable: true,
     decimals: 0
   }
-  margin: number;
-  oldPageX: number;
+
 
   constructor(props: any) {
     super(props);
-    this.margin = 50 * fontScale;
-    this.oldPageX = this.toPageX(this.toPercentage(this.props.value))
+    const pageX : number = this.toPageX(this.toPercentage(this.props.value));
     this.state = {
       value: this.props.value,
-      pageX: 0,
+      oldPageX: pageX,
+      pageX: pageX,
       isActive: false,
     }
   }
 
   componentWillReceiveProps(nextProps: any) {
+    const pageX: number = this.toPageX(this.toPercentage(nextProps.value));
     this.setState({
-      value: nextProps.value
+      value: nextProps.value,
+      oldPageX: pageX,
+      pageX: pageX
     });
-    this.oldPageX = this.toPageX(this.toPercentage(nextProps.value))
   }
 
-  startEditing(event: any) {
+  startEditing = () => {
     if (!this.props.editable)
       return;
     if (this.props.onEnableScroll) {
       this.props.onEnableScroll(false);
     }
-    this.updateValue(event);
-    LayoutAnimation.easeInEaseOut();
     this.setState({ isActive: true })
   }
 
-  commitEdit() {
-    LayoutAnimation.easeInEaseOut();
+  commitEdit() : void {
     this.setState({ isActive: false });
     if (this.props.onChangeValue)
       this.props.onChangeValue(this.state.value);
@@ -72,12 +73,15 @@ export class RulerField extends Component {
     }
   }
 
-  cancelEdit() {
+  cancelEdit = () : void => {
     this.setState({ isActive: false });
+    if (this.props.onEnableScroll) {
+        this.props.onEnableScroll(true);
+    }
   }
 
   toPageX(percentageValue: number) : number {
-    const pageX: number = percentageValue * (windowWidth-2*this.margin) + this.margin;
+    const pageX: number = percentageValue * (windowWidth-2*margin) + margin;
     return pageX;
   }
 
@@ -112,7 +116,7 @@ export class RulerField extends Component {
 
   updateValue(event: any) : void {
     const pageX: number = event.nativeEvent.pageX;
-    const percentage: number = Math.max(0, Math.min(1, (pageX-this.margin)/(windowWidth-2*this.margin)));
+    const percentage: number = Math.max(0, Math.min(1, (pageX-margin)/(windowWidth-2*margin)));
     let newValue: number = this.toValue(percentage);
     if (this.props.stepSize && this.props.stepSize>0) {
       newValue = Math.round(newValue/this.props.stepSize)*this.props.stepSize;
@@ -125,23 +129,34 @@ export class RulerField extends Component {
 
   renderPopup(formattedValue: string) {
     let pageX: number = this.state.pageX;
-    pageX = Math.max(pageX, this.margin);
-    pageX = Math.min(pageX, windowWidth-this.margin);
-    return <View style={[{left: this.margin, width: windowWidth-this.margin*2}, styles.scrollPopup]}>
-        <View style={{position: 'absolute', left:pageX-this.margin, width:3*fontScale, height:40*fontScale, backgroundColor: selectionFontColor}} />
-        <Text style={{position: 'absolute', left:pageX-this.margin-20*fontScale, top: 50*fontScale, fontSize: 32*fontScale, color: selectionFontColor}}>{formattedValue}</Text>
-        <View style={{position: 'absolute', left:this.oldPageX-this.margin, width:2*fontScale, height:90*fontScale, backgroundColor: 'green'}} />
-        <Text style={{position: 'absolute', left:this.oldPageX-this.margin-20*fontScale, top: 90*fontScale, fontSize: 24*fontScale, color: 'green'}}>{this.format(this.props.value)}</Text>
-        {this.props.range.map((pillar: number, index: number) => {
-          const percentagePillar : number = index/(this.props.range.length-1);
-          const pageX: number = this.toPageX(percentagePillar);
-          const labelOffset: number = (pillar<0?12:6)*fontScale;
-          return <View key={index}>
-            <Text style={{position: 'absolute', left:pageX-this.margin-labelOffset, top: 8*fontScale, fontSize: 24*fontScale}}>{pillar}</Text>
-            <View style={{position: 'absolute', left:pageX-this.margin, top: 2*fontScale, width:1*fontScale, height:8*fontScale, backgroundColor: 'black'}} />
+    pageX = Math.max(pageX, margin);
+    pageX = Math.min(pageX, windowWidth-margin);
+    return <TouchableWithoutFeedback onPress={this.cancelEdit}>
+        <View style={{flex: 100, backgroundColor: '#ffffff00'}}>
+          <View style={styles.scrollPopup} onStartShouldSetResponder={(event) => true}
+              onResponderGrant={(event) => this.updateValue(event)}
+              onResponderReject={(event) => this.setState({ isActive: false })}
+              onMoveShouldSetResponder={(event) => false}
+              onResponderTerminationRequest={(event) => false}
+              onResponderMove={(event) => this.updateValue(event)}
+              onResponderRelease={(event) => this.commitEdit()}
+              onResponderTerminate={(event) => this.cancelEdit()}>
+            <View style={{position: 'absolute', left:pageX-margin, width:3*fontScale, height:30*fontScale, backgroundColor: selectionFontColor}} />
+            <Text style={{position: 'absolute', left:pageX-margin-20*fontScale, top: 24*fontScale, fontSize: 32*fontScale, color: selectionFontColor}}>{formattedValue}</Text>
+            <View style={{position: 'absolute', left:this.state.oldPageX-margin, width:2*fontScale, height:50*fontScale, backgroundColor: 'green'}} />
+            <Text style={{position: 'absolute', left:this.state.oldPageX-margin-20*fontScale, top: 50*fontScale, fontSize: 24*fontScale, color: 'green'}}>{this.format(this.props.value)}</Text>
+            {this.props.range.map((pillar: number, index: number) => {
+              const percentagePillar : number = index/(this.props.range.length-1);
+              const pageX: number = this.toPageX(percentagePillar);
+              const labelOffset: number = (pillar<0?14:8)*fontScale;
+              return <View key={index}>
+                <Text style={{position: 'absolute', left:pageX-margin-labelOffset, top: 80*fontScale, fontSize: 24*fontScale}}>{pillar}</Text>
+                <View style={{position: 'absolute', left:pageX-margin, top: 2*fontScale, width:1*fontScale, height: 12*fontScale, backgroundColor: 'black'}} />
+              </View>
+            })}
           </View>
-        })}
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   }
 
   render() {
@@ -155,18 +170,13 @@ export class RulerField extends Component {
         <Text style={style}>{this.props.prefix}{formattedValue}</Text>
       </View>
     }
-    return <View style={{flex:100}} onStartShouldSetResponder={(event) => true}
-        onResponderGrant={(event) => this.startEditing(event)}
-        onResponderReject={(event) => this.setState({ isActive: false })}
-        onMoveShouldSetResponder={(event) => false}
-        onResponderTerminationRequest={(event) => false}
-        onResponderMove={(event) => this.updateValue(event)}
-        onResponderRelease={(event) => this.commitEdit()}
-        onResponderTerminate={(event) => this.cancelEdit()}>
-      <Text style={style}>{this.state.isActive ? '' : this.props.prefix}{formattedValue}</Text>
-      <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={() => { console.log('TODO: onRequestClose RulerField popup') } }>
-        {this.renderPopup(formattedValue)}
-      </Modal>
+    return <View style={{flex: 100}}>
+        <TouchableOpacity style={{flex: 100}} onPress={this.startEditing}>
+          <Text style={style}>{this.state.isActive ? '' : this.props.prefix}{formattedValue}</Text>
+        </TouchableOpacity>
+        {this.state.isActive?<Modal transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
+            {this.renderPopup(formattedValue)}
+        </Modal>:null}
       </View>
   }
 }
@@ -183,7 +193,6 @@ export class TilesField extends Component {
   state: {
     isActive: boolean,
     value: string,
-    position: number,
     popupWidth: number,
     optionLayout: {x: number, y:number, width: number, height:number}[]
   }
@@ -196,7 +205,6 @@ export class TilesField extends Component {
     this.state = {
       value: this.props.value,
       isActive: false,
-      position: 200,
       popupWidth: 0,
       optionLayout: this.initOptionLayout(this.props.options.length)
     }
@@ -217,21 +225,15 @@ export class TilesField extends Component {
     });
   }
 
-  startEditing(event: any) {
+  startEditing = () => {
     if (!this.props.editable) return;
     if (this.props.onEnableScroll) {
         this.props.onEnableScroll(false);
     }
-    const pageX: number = event.nativeEvent.pageX;
-    this.updateValue(event);
-    LayoutAnimation.easeInEaseOut();
-    this.setState({
-      isActive: true,
-      position: pageX});
+    this.setState({isActive: true});
   }
 
-  commitEdit() {
-    LayoutAnimation.easeInEaseOut();
+  commitEdit = () => {
     this.setState({ isActive: false });
     if (this.props.onChangeValue)
       this.props.onChangeValue(this.state.value);
@@ -240,27 +242,15 @@ export class TilesField extends Component {
     }
   }
 
-  cancelEdit() {
+  cancelEdit = () => {
     this.setState({ isActive: false });
   }
 
-  updateValue(event: any) : void {
-    const y: number = event.nativeEvent.pageY;
-    let newValue: string = this.state.value;
-    if (y<this.state.optionLayout[0].y ||
-      y>(this.state.optionLayout[this.props.options.length-1].y + this.state.optionLayout[this.props.options.length-1].height)) {
-      newValue = this.props.value;
-    } else {
-      for (let i = 0; i<this.props.options.length; i++) {
-          if (this.state.optionLayout[i].y<=y && y<=(this.state.optionLayout[i].y + this.state.optionLayout[i].height)) {
-            newValue = this.props.options[i];
-            break;
-          }
-      }
-    }
+  updateValue (newValue: string) : void {
     if (newValue!==this.state.value) {
       this.setState({value: newValue});
     }
+    this.commitEdit();
   }
 
   onLayoutPopup(event: any) : void {
@@ -276,19 +266,23 @@ export class TilesField extends Component {
   }
 
   renderPopup() {
-    let position = this.state.position - this.state.popupWidth - 50*fontScale;
-    if (position<0) position = this.state.position + 100 * fontScale;
-    return <View onLayout={(event: any) => this.onLayoutPopup(event)} style={{position:'absolute', left:position}}>
-        <View style={styles.centeredColumnLayout}>
-        {this.props.options.map((option: string, index: number) => {
-            const isSelected: boolean = option === this.state.value;
-            return <View onLayout={(event: any) => this.onLayoutOption(event, index)} style={isSelected?styles.popupTileSelected:styles.popupTile} key={index}>
-                <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
-            </View>
-          })
-        }
+    return <TouchableWithoutFeedback onPress={this.cancelEdit}>
+        <View style={{flex: 100, backgroundColor: '#ffffff00'}}>
+          <View onLayout={(event: any) => this.onLayoutPopup(event)} style={{position:'absolute', left:40*fontScale}}>
+            <View style={styles.centeredColumnLayout}>
+              {this.props.options.map((option: string, index: number) => {
+                  const isSelected: boolean = option === this.state.value;
+                  return <TouchableOpacity onPress={() => this.updateValue(option)} key={index}>
+                    <View onLayout={(event: any) => this.onLayoutOption(event, index)} style={isSelected?styles.popupTileSelected:styles.popupTile}>
+                      <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
+                    </View>
+                  </TouchableOpacity>
+                })
+              }
+          </View>
         </View>
       </View>
+    </TouchableWithoutFeedback>
   }
 
   render() {
@@ -302,20 +296,14 @@ export class TilesField extends Component {
         <Text style={style}>{formattedValue}</Text>
       </View>
     }
-    return <View style={{flex:100}}
-        onStartShouldSetResponder={(event) => true}
-        onResponderGrant={(event) => this.startEditing(event)}
-        onResponderReject={(event) => this.setState({ isActive: false })}
-        onMoveShouldSetResponder={(event) => false}
-        onResponderTerminationRequest={(event) => false}
-        onResponderMove={(event) => this.updateValue(event)}
-        onResponderRelease={(event) => this.commitEdit()}
-        onResponderTerminate={(event) => this.cancelEdit()}>
-      <Text style={style}>{formattedValue}</Text>
-      <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={() => { console.log('TODO: onRequestClose TilesField') } }>
+    return <View style={{flex:100}}>
+      <TouchableOpacity style={{flex: 100}} onPress={this.startEditing}>
+        <Text style={style}>{formattedValue}</Text>
+      </TouchableOpacity>
+      {this.state.isActive?<Modal visible={this.state.isActive} transparent={true} animationType={'none'} onRequestClose={this.cancelEdit }>
         {this.renderPopup()}
-      </Modal>
-      </View>
+      </Modal>:null}
+    </View>
   }
 }
 

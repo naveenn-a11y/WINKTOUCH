@@ -422,7 +422,9 @@ export const styles = StyleSheet.create({
     scrollPopup: {
         position: 'absolute',
         top: 10 * fontScale,
-        height: 40 * fontScale,
+        height: 140 * fontScale,
+        left: 40,
+        width: windowWidth-40*2,
         borderRadius: 4 * fontScale,
         backgroundColor: '#ffffffee',
         shadowRadius: 4 * fontScale,

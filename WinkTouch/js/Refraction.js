@@ -231,7 +231,8 @@ export class GlassesSummary extends Component {
   props: {
     glassesRx: GlassesRx,
     title?: string,
-    visible?: boolean
+    visible?: boolean,
+    showHeaders?: boolean
   }
   static defaultProps = {
     visible: true

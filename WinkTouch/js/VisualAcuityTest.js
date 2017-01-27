@@ -33,9 +33,7 @@ class AcuityTest extends Component {
   }
   render() {
     return <View style={styles.board}>
-      <Text style={styles.screenTitle}>{this.props.type} {}Acuities</Text>
-      <GlassesSummary visible={this.props.type === 'Glasses'} />
-      <ContactsSummary visible={this.props.type === 'Contacts'} />
+      <Text style={styles.screenTitle}>{this.props.type} Acuities</Text>
       <Text style={styles.text}>Conducted after application of anesthetics</Text>
       <View style={styles.formRow}>
         <Text style={styles.formTableRowHeader}></Text>
