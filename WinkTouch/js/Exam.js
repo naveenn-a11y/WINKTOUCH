@@ -288,41 +288,52 @@ export class ExamScreen extends Component {
     onNavigationChange: (action: string, data: any) => void,
     onUpdateExam: (exam: Exam) => void
   }
+  state: {
+    exam: Exam
+  }
 
   constructor(props: any) {
     super(props);
+    this.state = {
+      exam: this.props.exam
+    }
+  }
+
+  updateExam = (exam: Exam) : void => {
+    this.setState({exam});
+    this.props.onUpdateExam(exam);
   }
 
   renderExam() {
     switch (this.props.exam.type) {
       case 'Complaint':
-        return <ComplaintScreen exam={this.props.exam} />;
+        return <ComplaintScreen exam={this.state.exam} />;
       case 'VisualAcuityTest':
-        return <VisualAcuityTest exam={this.props.exam} />;
+        return <VisualAcuityTest exam={this.state.exam} />;
       case 'CoverTest':
-        return <CoverTestScreen exam={this.props.exam} />
+        return <CoverTestScreen exam={this.state.exam} />
       case 'ReviewOfSystems':
-        return <ReviewOfSystemsScreen exam={this.props.exam} />
+        return <ReviewOfSystemsScreen exam={this.state.exam} />
       case 'WearingRx':
-        return <WearingRxScreen exam={this.props.exam} onUpdateExam={this.props.onUpdateExam} />
+        return <WearingRxScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'RefractionTest':
-        return <RefractionScreen exam={this.props.exam} onUpdateExam={this.props.onUpdateExam} />
+        return <RefractionScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'SlitLampExam':
-        return <SlitLampScreen exam={this.props.exam} />
+        return <SlitLampScreen exam={this.state.exam} />
       case 'VisualFieldTest':
-        return <VisualFieldTestScreen exam={this.props.exam} />
+        return <VisualFieldTestScreen exam={this.state.exam} />
       case 'GlaucomaExam':
-        return <GlaucomaScreen exam={this.props.exam} />
+        return <GlaucomaScreen exam={this.state.exam} />
       case 'Medications':
-        return <MedicationsScreen exam={this.props.exam} />
+        return <MedicationsScreen exam={this.state.exam} />
       case 'Allergies':
-        return <AllergiesScreen exam={this.props.exam} />
+        return <AllergiesScreen exam={this.state.exam} />
       case 'SocialHistory':
-        return <SocialHistoryScreen exam={this.props.exam} />
+        return <SocialHistoryScreen exam={this.state.exam} />
       case 'FamilyHistory':
-        return <FamilyHistoryScreen exam={this.props.exam} />
+        return <FamilyHistoryScreen exam={this.state.exam} />
       case 'MedicalHistory':
-        return <MedicalHistoryScreen exam={this.props.exam} />
+        return <MedicalHistoryScreen exam={this.state.exam} />
     }
     return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>
   }

@@ -4,12 +4,180 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView, Modal, Dimensions, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
+import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView, Modal, Dimensions,
+  TouchableOpacity, TouchableWithoutFeedback, InteractionManager} from 'react-native';
 import { styles, fontScale, selectionColor, windowWidth, windowHeight, selectionFontColor } from './Styles';
 import { FormRow, FormTextInput } from './Form';
 import { ComplaintDetails } from './Complaint'
 
 const margin : number = 40;
+
+export class NumberField extends Component {
+    props: {
+      value: number,
+      label?: string,
+      prefix?: string,
+      range: number[],
+      width?: number,
+      stepSize: number,
+      groupSize: number,
+      decimals?: number,
+      editable?: boolean,
+      onChangeValue?: (newvalue: ?number) => void
+    }
+    state: {
+      isActive: boolean,
+      editedValue: string[],
+    }
+    static defaultProps = {
+      editable: true,
+      stepSize: 1,
+      groupSize: 10
+    }
+
+    constructor(props: any) {
+      super(props);
+      this.state = {
+        editedValue: [undefined,undefined,undefined,undefined],
+        isActive: false,
+      }
+    }
+
+    startEditing = () => {
+      if (!this.props.editable) return;
+      this.setState({
+          editedValue: [undefined,undefined,undefined,undefined],
+          isActive: true
+      });
+    }
+
+    commitEdit = () => {
+      const editedValue : ?number = this.editedValue();
+      if (this.props.onChangeValue)
+        this.props.onChangeValue(editedValue);
+      this.setState({ isActive: false });
+    }
+
+    cancelEdit = () => {
+      this.setState({ isActive: false });
+    }
+
+    editedValue() : ?number {
+      if (this.state.editedValue[0]===undefined && this.state.editedValue[1]===undefined && this.state.editedValue[2]===undefined && this.state.editedValue[3]===undefined)
+        return undefined;
+      let editedValue : number = 0;
+      if (this.state.editedValue[1]!==undefined)
+        editedValue += Number(this.state.editedValue[1]);
+      if (this.state.editedValue[2]!==undefined)
+        editedValue+=Number(this.state.editedValue[2]);
+      if (this.state.editedValue[3]!==undefined)
+        editedValue+=Number(this.state.editedValue[3]);
+      if (this.state.editedValue[0]==='-')
+        editedValue = -editedValue;
+      return editedValue;
+    }
+
+    updateValue(column: number, newValue: string) : void {
+      let editedValue: string[] = this.state.editedValue;
+      if (newValue===this.state.editedValue[column])
+        newValue = undefined;
+      editedValue[column] = newValue;
+      this.setState({editedValue});
+    }
+
+    format(value: ?number): string {
+      if (isNaN(value) || value===undefined) return '';
+      return (this.props.decimals && this.props.decimals>1) ? Number(value).toFixed(this.props.decimals) : String(value);
+    }
+
+    generateFractions() : string[][] {
+      let fractions : string[][] = [[],[],[],[]];
+      //sign + -
+      if (this.props.range[0]<0) {
+        if (this.props.range[1]<=0)
+          fractions[0].push('-')
+        else
+          fractions[0].push('+','-');
+      }
+      //integer group
+      if (this.props.groupSize && this.props.groupSize>1) {
+        const minGroup : number = Math.abs(Math.max(this.props.range[0],this.props.groupSize));
+        const maxGroup : number = this.props.range[1];
+        for (let i = minGroup; i<=maxGroup; i+=this.props.groupSize) {
+          fractions[1].push(String(i));
+        }
+      }
+      //integer
+      let minInt : number = this.props.groupSize>1?0:Math.abs(Math.max(this.props.range[0],0));
+      let maxInt : number = this.props.groupSize>1?Math.min(this.props.range[1], this.props.groupSize-1):this.props.range[1];
+      for (let i = minInt; i<=maxInt; i++) {
+        fractions[2].push(String(i));
+      }
+      //decimals .25
+      if (this.props.decimals && this.props.decimals>0) {
+        for (let i = 0; i<1; i+=this.props.stepSize) {
+          fractions[3].push(this.format(i).substring(1));
+        }
+      }
+      return fractions;
+    }
+
+    renderPopup() {
+      const fractions : string[][] = this.generateFractions();
+      let formattedValue = this.format(this.editedValue());
+      return <TouchableWithoutFeedback onPress={this.cancelEdit}>
+          <View style={{flex: 100, backgroundColor: '#00000099', padding:30 * fontScale}}>
+            <Text style={styles.modalTitle}>{this.props.label}: {formattedValue}</Text>
+            <View>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return <View style={styles.modalColumn} key={column}>
+                    {options.map((option: string, row: number) => {
+                      let isSelected : boolean = this.state.editedValue[column]===option;
+                      return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)}>
+                        <View style={styles.popupNumberTile}>
+                          <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    })}
+                  </View>
+              })}
+              <View style={styles.modalColumn}>
+                <TouchableOpacity onPress={this.commitEdit}>
+                  <View style={styles.popupNumberTile}>
+                    <Text style={styles.screenTitle}>Update</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    }
+
+    render() {
+      let style = this.state.isActive ? styles.scrollFieldActive : styles.scrollField;
+      if (this.props.width) {
+        style = [{ width: this.props.width }, style];
+      }
+      const formattedValue : string = this.format(this.props.value);
+      if (!this.props.editable) {
+        return <View style={{flex:100}}>
+          <Text style={style}>{formattedValue}</Text>
+        </View>
+      }
+      return <View style={{flex:100}}>
+        <TouchableOpacity style={{flex: 100}} onPress={this.startEditing}>
+          <Text style={style}>{formattedValue}</Text>
+        </TouchableOpacity>
+        {this.state.isActive?<Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
+          {this.renderPopup()}
+        </Modal>:null}
+      </View>
+    }
+  }
+
+
 
 export class RulerField extends Component {
   props: {
@@ -132,35 +300,35 @@ export class RulerField extends Component {
     pageX = Math.max(pageX, margin);
     pageX = Math.min(pageX, windowWidth-margin);
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
-        <View style={{flex: 100, backgroundColor: '#ffffff00'}}>
+        <View style={{flex: 100, backgroundColor: '#00000055'}}>
           <View style={styles.scrollPopup} onStartShouldSetResponder={(event) => true}
-              onResponderGrant={(event) => this.updateValue(event)}
-              onResponderReject={(event) => this.setState({ isActive: false })}
-              onMoveShouldSetResponder={(event) => false}
-              onResponderTerminationRequest={(event) => false}
-              onResponderMove={(event) => this.updateValue(event)}
-              onResponderRelease={(event) => this.commitEdit()}
-              onResponderTerminate={(event) => this.cancelEdit()}>
-            <View style={{position: 'absolute', left:pageX-margin, width:3*fontScale, height:30*fontScale, backgroundColor: selectionFontColor}} />
-            <Text style={{position: 'absolute', left:pageX-margin-20*fontScale, top: 24*fontScale, fontSize: 32*fontScale, color: selectionFontColor}}>{formattedValue}</Text>
-            <View style={{position: 'absolute', left:this.state.oldPageX-margin, width:2*fontScale, height:50*fontScale, backgroundColor: 'green'}} />
-            <Text style={{position: 'absolute', left:this.state.oldPageX-margin-20*fontScale, top: 50*fontScale, fontSize: 24*fontScale, color: 'green'}}>{this.format(this.props.value)}</Text>
-            {this.props.range.map((pillar: number, index: number) => {
-              const percentagePillar : number = index/(this.props.range.length-1);
-              const pageX: number = this.toPageX(percentagePillar);
-              const labelOffset: number = (pillar<0?14:8)*fontScale;
-              return <View key={index}>
-                <Text style={{position: 'absolute', left:pageX-margin-labelOffset, top: 80*fontScale, fontSize: 24*fontScale}}>{pillar}</Text>
-                <View style={{position: 'absolute', left:pageX-margin, top: 2*fontScale, width:1*fontScale, height: 12*fontScale, backgroundColor: 'black'}} />
-              </View>
-            })}
-          </View>
+            onResponderGrant={(event) => this.updateValue(event)}
+            onResponderReject={(event) => this.setState({ isActive: false })}
+            onMoveShouldSetResponder={(event) => false}
+            onResponderTerminationRequest={(event) => false}
+            onResponderMove={(event) => this.updateValue(event)}
+            onResponderRelease={(event) => this.commitEdit()}
+            onResponderTerminate={(event) => this.cancelEdit()}>
+          <View style={{position: 'absolute', left:pageX-margin, width:3*fontScale, height:30*fontScale, backgroundColor: selectionFontColor}} />
+          <Text style={{position: 'absolute', left:pageX-margin-20*fontScale, top: 24*fontScale, fontSize: 32*fontScale, color: selectionFontColor}}>{formattedValue}</Text>
+          <View style={{position: 'absolute', left:this.state.oldPageX-margin, width:2*fontScale, height:50*fontScale, backgroundColor: 'green'}} />
+          <Text style={{position: 'absolute', left:this.state.oldPageX-margin-20*fontScale, top: 50*fontScale, fontSize: 24*fontScale, color: 'green'}}>{this.format(this.props.value)}</Text>
+          {this.props.range.map((pillar: number, index: number) => {
+            const percentagePillar : number = index/(this.props.range.length-1);
+            const pageX: number = this.toPageX(percentagePillar);
+            const labelOffset: number = (pillar<0?14:8)*fontScale;
+            return <View key={index}>
+              <Text style={{position: 'absolute', left:pageX-margin-labelOffset, top: 80*fontScale, fontSize: 24*fontScale}}>{pillar}</Text>
+              <View style={{position: 'absolute', left:pageX-margin, top: 2*fontScale, width:1*fontScale, height: 12*fontScale, backgroundColor: 'black'}} />
+            </View>
+          })}
+        </View>
       </View>
     </TouchableWithoutFeedback>
   }
 
   render() {
-    let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
+    let style = this.state.isActive ? styles.scrollFieldActive : styles.scrollField;
     if (this.props.width) {
       style = [{ width: this.props.width }, style];
     }
@@ -184,17 +352,14 @@ export class RulerField extends Component {
 export class TilesField extends Component {
   props: {
     value: string,
+    label?: string,
     options: string[],
     width?: number,
     editable?: boolean,
-    onChangeValue?: (newvalue: string) => void,
-    onEnableScroll?: (enableScroll: boolean) => void
+    onChangeValue?: (newvalue: string) => void
   }
   state: {
-    isActive: boolean,
-    value: string,
-    popupWidth: number,
-    optionLayout: {x: number, y:number, width: number, height:number}[]
+    isActive: boolean
   }
   static defaultProps = {
     editable: true
@@ -203,94 +368,67 @@ export class TilesField extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      value: this.props.value,
       isActive: false,
-      popupWidth: 0,
-      optionLayout: this.initOptionLayout(this.props.options.length)
     }
-  }
-
-  initOptionLayout(size: number) : {x: number, y:number, width: number, height:number}[] {
-    const optionLayout: {x: number, y:number, width: number, height:number}[] = [];
-    for (let i = 0; i<size; i++) {
-      optionLayout.push({x:0, y:0, width:0, height:0});
-    }
-    return optionLayout;
   }
 
   componentWillReceiveProps(nextProps: any) {
     this.setState({
-      value: nextProps.value,
-      optionLayout: this.initOptionLayout(nextProps.options.length)
+      editedValue: nextProps.value
     });
   }
 
   startEditing = () => {
     if (!this.props.editable) return;
-    if (this.props.onEnableScroll) {
-        this.props.onEnableScroll(false);
-    }
     this.setState({isActive: true});
   }
 
-  commitEdit = () => {
-    this.setState({ isActive: false });
-    if (this.props.onChangeValue)
-      this.props.onChangeValue(this.state.value);
-    if (this.props.onEnableScroll) {
-      this.props.onEnableScroll(true);
+  commitEdit = (newValue: string) => {
+    if (newValue===this.props.value) {
+      newValue = undefined;
     }
+    if (this.props.onChangeValue)
+      this.props.onChangeValue(newValue);
+    this.setState({ isActive: false });
   }
 
   cancelEdit = () => {
     this.setState({ isActive: false });
   }
 
-  updateValue (newValue: string) : void {
-    if (newValue!==this.state.value) {
-      this.setState({value: newValue});
-    }
-    this.commitEdit();
-  }
-
-  onLayoutPopup(event: any) : void {
-    if (this.state.popupWidth>0) return;
-    const popupWidth: number = event.nativeEvent.layout.width;
-    if (popupWidth!=this.state.popupWidth)
-      this.setState({popupWidth});
-  }
-
-  onLayoutOption(event: any, optionIndex: number) : void {
-    const optionLayout = event.nativeEvent.layout;
-    this.state.optionLayout[optionIndex] = optionLayout;
+  format(value: ?string) : string {
+    if (value===undefined) return '';
+    return value;
   }
 
   renderPopup() {
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
-        <View style={{flex: 100, backgroundColor: '#ffffff00'}}>
-          <View onLayout={(event: any) => this.onLayoutPopup(event)} style={{position:'absolute', left:40*fontScale}}>
-            <View style={styles.centeredColumnLayout}>
-              {this.props.options.map((option: string, index: number) => {
-                  const isSelected: boolean = option === this.state.value;
-                  return <TouchableOpacity onPress={() => this.updateValue(option)} key={index}>
-                    <View onLayout={(event: any) => this.onLayoutOption(event, index)} style={isSelected?styles.popupTileSelected:styles.popupTile}>
-                      <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
-                    </View>
-                  </TouchableOpacity>
-                })
-              }
-          </View>
+        <View style={{flex: 100, backgroundColor: '#00000099', padding:30 * fontScale}}>
+          <Text style={styles.modalTitle}>{this.props.label}</Text>
+          <View>
+            <View style={styles.centeredRowLayout}>
+                <View style={styles.modalColumn}>
+                  {this.props.options.map((option: string, row: number) => {
+                    let isSelected : boolean = this.props.value===option;
+                    return <TouchableOpacity key={row} onPress={() => this.commitEdit(option)}>
+                      <View style={styles.popupNumberTile}>
+                        <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  })}
+                </View>
+            </View>
         </View>
       </View>
     </TouchableWithoutFeedback>
   }
 
   render() {
-    let style = this.state.isActive ? (this.state.value !== this.props.value ? styles.scrollFieldActiveChanged : styles.scrollFieldActive) : styles.scrollField;
+    let style = this.state.isActive ? styles.scrollFieldActive : styles.scrollField;
     if (this.props.width) {
       style = [{ width: this.props.width }, style];
     }
-    const formattedValue = this.state.value;
+    const formattedValue : string = this.format(this.props.value);
     if (!this.props.editable) {
       return <View style={{flex:100}}>
         <Text style={style}>{formattedValue}</Text>
@@ -300,7 +438,7 @@ export class TilesField extends Component {
       <TouchableOpacity style={{flex: 100}} onPress={this.startEditing}>
         <Text style={style}>{formattedValue}</Text>
       </TouchableOpacity>
-      {this.state.isActive?<Modal visible={this.state.isActive} transparent={true} animationType={'none'} onRequestClose={this.cancelEdit }>
+      {this.state.isActive?<Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
         {this.renderPopup()}
       </Modal>:null}
     </View>

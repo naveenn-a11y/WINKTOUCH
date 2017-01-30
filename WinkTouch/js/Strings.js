@@ -33,7 +33,7 @@ export const strings = new LocalizedStrings({
       lastName: 'Nom',
       firstName: 'Prénom',
       streetName: 'Rue',
-      minLengthError: 'La longueur maximale est de {0} caractères.'
+      minLengthError: 'La longueur minimale est de {0} caractères.'
     },
 });
 

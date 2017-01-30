@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
 import type {GlassesRx, RefractionExam, Refractions, Patient, Exam} from './Types';
-import { RulerField, TilesField, WinkButton } from './Widgets';
+import { NumberField, TilesField, WinkButton } from './Widgets';
 import { Anesthetics } from './EntranceTest';
 
 export async function fetchRefractions(patient: Patient, visitId: number) : Refractions {
@@ -144,70 +144,72 @@ export class VA extends Component {
   render() {
     return <RulerField prefix='20/' range={[10,600]} stepSize={5}
       value={this.state.value}
-      scrollMethod='quadratic'
       onChangeValue={(newValue: number) => this.setState({ value: newValue })} />
   }
 }
 
-export class DiopterScrollField extends Component {
+export class DiopterField extends Component {
   props: {
     value: number,
+    label: string,
     visible?: boolean,
     editable?: boolean,
-    onChangeValue: (newvalue: number) => void,
-    onEnableScroll?: (enableScroll: boolean) => void
+    onChangeValue: (newvalue: ?number) => void,
   }
   static defaultProps = {
     visible: true,
-    editable: true,
+    editable: true
   }
   render() {
     if (!this.props.visible) return null;
-    return <RulerField range={[-20,-10,-7,-5,-4,-3,-2,-1,0,1,2,3,4,5,7,10,20]} stepSize={.25} decimals={2}
+    return <NumberField range={[-20,20]} stepSize={.25} decimals={2}
       value={this.props.value}
+      label={this.props.label}
       editable = {this.props.editable}
       onChangeValue={this.props.onChangeValue}
-      onEnableScroll = {this.props.onEnableScroll}
     />
   }
 }
 
-export class BaseScrollField extends Component {
+export class BaseField extends Component {
   props: {
     value: string,
+    label: string,
     visible?: boolean,
-    onChangeValue: (newvalue: string) => void,
-    onEnableScroll?: (enableScroll: boolean) => void
+    editable?: boolean,
+    onChangeValue: (newvalue: string) => void
   }
   static defaultProps = {
-    visible: true
+    visible: true,
+    editable: true
   }
   render() {
     if (!this.props.visible) return null;
     return <TilesField options={['Up','Down','In','Out']}
       value={this.props.value}
+      editable={this.props.editable}
       onChangeValue={this.props.onChangeValue}
-      onEnableScroll = {this.props.onEnableScroll}
     />
   }
 }
 
-export class DegreeScrollField extends Component {
+export class DegreeField extends Component {
   props: {
     value: number,
+    label: string,
     visible?: boolean,
-    onChangeValue: (newvalue: number) => void,
-    onEnableScroll?: (enableScroll: boolean) => void
+    editable?: boolean,
+    onChangeValue: (newvalue: ?number) => void,
   }
   static defaultProps = {
     visible: true
   }
   render() {
     if (!this.props.visible) return null;
-    return <RulerField range={[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180]} stepSize={1} decimals={0}
-      value={this.props.value}
+    return <NumberField range={[0,180]} stepSize={1} decimals={0}
+      value={this.props.value} label={this.props.label}
+      editable = {this.props.editable}
       onChangeValue={this.props.onChangeValue}
-      onEnableScroll = {this.props.onEnableScroll}
     />
   }
 }
@@ -248,37 +250,37 @@ export class GlassesSummary extends Component {
       <Text style={styles.cardTitle}>{this.props.title}</Text>
       <View style={styles.centeredRowLayout}>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}></Text>
+          {this.props.showHeaders?<Text style={styles.text}></Text>:null}
           <Text>OD:</Text>
           <Text>OS:</Text>
         </View>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}>Sphere</Text>
+          {this.props.showHeaders?<Text style={styles.text}>Sphere</Text>:null}
           <Text> {this.props.glassesRx.od.sphere}</Text>
           <Text> {this.props.glassesRx.os.sphere}</Text>
         </View>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}>Cyl</Text>
+          {this.props.showHeaders?<Text style={styles.text}>Cyl</Text>:null}
           <Text> {this.props.glassesRx.od.cylinder}</Text>
           <Text> {this.props.glassesRx.os.cylinder}</Text>
         </View>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}>Axis</Text>
+          {this.props.showHeaders?<Text style={styles.text}>Axis</Text>:null}
           <Text> {this.props.glassesRx.od.axis}</Text>
           <Text> {this.props.glassesRx.os.axis}</Text>
         </View>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}>Add</Text>
+          {this.props.showHeaders?<Text style={styles.text}>Add</Text>:null}
           <Text> {this.props.glassesRx.od.add}</Text>
           <Text> {this.props.glassesRx.os.add}</Text>
         </View>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}>Base</Text>
+          {this.props.showHeaders?<Text style={styles.text}>Base</Text>:null}
           <Text> {this.props.glassesRx.od.base}</Text>
           <Text> {this.props.glassesRx.os.base}</Text>
         </View>
         <View style={styles.cardColumn}>
-          <Text style={styles.text}>Prism</Text>
+          {this.props.showHeaders?<Text style={styles.text}>Prism</Text>:null}
           <Text> {this.props.glassesRx.od.prism}</Text>
           <Text> {this.props.glassesRx.os.prism}</Text>
         </View>
@@ -292,8 +294,7 @@ export class GlassesDetail extends Component {
     glassesRx: GlassesRx,
     title: string,
     editable?: boolean,
-    onChangeGlassesRx?: (glassesRx: GlassesRx) => void,
-    onEnableScroll?: (enableScroll: boolean) => void
+    onChangeGlassesRx?: (glassesRx: GlassesRx) => void
   }
   state: {
     multiFocal: boolean,
@@ -318,7 +319,7 @@ export class GlassesDetail extends Component {
     });
   }
 
-  updateGlassesRx(oculus: string, propertyName: string, value: number | string) : void {
+  updateGlassesRx(oculus: string, propertyName: string, value: ?number | string) : void {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx[oculus][propertyName] = value;
     if (this.props.onChangeGlassesRx)
@@ -376,33 +377,33 @@ export class GlassesDetail extends Component {
           </View >
           <View style={styles.formRow500}>
             <Text style={styles.formTableRowHeader}>OD</Text>
-            <DiopterScrollField value={this.props.glassesRx.od.sphere} editable={this.props.editable}
-              onChangeValue={(value: number) => this.updateGlassesRx('od','sphere', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField value={this.props.glassesRx.od.cylinder}
-              onChangeValue={(value: number) => this.updateGlassesRx('od','cylinder', value)}onEnableScroll={this.props.onEnableScroll} />
-            <DegreeScrollField value={this.props.glassesRx.od.axis}
-              onChangeValue={(value: number) => this.updateGlassesRx('od','axis', value)} onEnableScroll={this.props.onEnableScroll} />
-            <BaseScrollField visible={this.state.prism} value={this.props.glassesRx.od.base}
-              onChangeValue={(value: string) => this.updateGlassesRx('od','base', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField visible={this.state.prism} value={this.props.glassesRx.od.prism}
-              onChangeValue={(value: number) => this.updateGlassesRx('od','prism', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField visible={this.state.multiFocal} value={this.props.glassesRx.od.add}
-              onChangeValue={(value: number) => this.updateGlassesRx('od','add', value)} onEnableScroll={this.props.onEnableScroll} />
+            <DiopterField value={this.props.glassesRx.od.sphere} label={'OD Sphere'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','sphere', value)} />
+            <DiopterField value={this.props.glassesRx.od.cylinder} label={'OD Cylinder'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','cylinder', value)} />
+            <DegreeField value={this.props.glassesRx.od.axis} label={'OD Axis'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','axis', value)} />
+            <BaseField visible={this.state.prism} value={this.props.glassesRx.od.base} label={'OD Base'}
+              onChangeValue={(value: ?string) => this.updateGlassesRx('od','base', value)} />
+            <DiopterField visible={this.state.prism} value={this.props.glassesRx.od.prism} label={'OD Prism'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','prism', value)} />
+            <DiopterField visible={this.state.multiFocal} value={this.props.glassesRx.od.add} label={'OD Add'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','add', value)} />
           </View >
           <View style={styles.formRow500}>
             <Text style={styles.formTableRowHeader}>OS</Text>
-            <DiopterScrollField value={this.props.glassesRx.os.sphere}
-              onChangeValue={(value: number) => this.updateGlassesRx('os','sphere', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField value={this.props.glassesRx.os.cylinder}
-              onChangeValue={(value: number) => this.updateGlassesRx('os','cylinder', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DegreeScrollField value={this.props.glassesRx.os.axis}
-              onChangeValue={(value: number) => this.updateGlassesRx('os','axis', value)} onEnableScroll={this.props.onEnableScroll} />
-            <BaseScrollField visible={this.state.prism} value={this.props.glassesRx.os.base}
-              onChangeValue={(value: string) => this.updateGlassesRx('os','base', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField visible={this.state.prism} value={this.props.glassesRx.os.prism}
-              onChangeValue={(value: number) => this.updateGlassesRx('os','prism', value)} onEnableScroll={this.props.onEnableScroll} />
-            <DiopterScrollField visible={this.state.multiFocal} value={this.props.glassesRx.os.add}
-              onChangeValue={(value: number) => this.updateGlassesRx('os','add', value)} onEnableScroll={this.props.onEnableScroll} />
+            <DiopterField value={this.props.glassesRx.os.sphere} label={'OS Sphere'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','sphere', value)} />
+            <DiopterField value={this.props.glassesRx.os.cylinder} label={'OS Cylinder'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','cylinder', value)} />
+            <DegreeField value={this.props.glassesRx.os.axis} label={'OS Axis'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','axis', value)} />
+            <BaseField visible={this.state.prism} value={this.props.glassesRx.os.base} label={'OS Base'}
+              onChangeValue={(value: ?string) => this.updateGlassesRx('os','base', value)} />
+            <DiopterField visible={this.state.prism} value={this.props.glassesRx.os.prism} label={'OS Prism'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','prism', value)} />
+            <DiopterField visible={this.state.multiFocal} value={this.props.glassesRx.os.add} label={'OS Add'}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','add', value)} />
           </View >
         </View>
         {this.props.editable?<View style={styles.buttonsRowLayout}>
@@ -455,14 +456,8 @@ export class RefractionScreen extends Component {
     exam: RefractionExam,
     onUpdateExam: (exam: RefractionExam) => void
   }
-  state: {
-    scrollEnabled: boolean
-  }
   constructor(props: any) {
     super(props);
-    this.state = {
-      scrollEnabled: true
-    }
     this.refreshRefractions();
   }
 
@@ -480,21 +475,16 @@ export class RefractionScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
-  enableScroll = (scrollEnable: boolean) => {
-      if (scrollEnable!==this.state.scrollEnabled)
-        this.setState({scrollEnabled: scrollEnable});
-  }
-
   render() {
-    return <ScrollView scrollEnabled={this.state.scrollEnabled}>
+    return <ScrollView>
       <View style={styles.flow}>
-        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Phoropter' glassesRx={this.props.exam.refractions.phoropter} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('phoropter',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Auto-refractor'glassesRx={this.props.exam.refractions.autoRefractor} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('autoRefractor',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Retinoscope' glassesRx={this.props.exam.refractions.retinoscope} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('retinoscope',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Cyclopegic' glassesRx={this.props.exam.refractions.cyclopegic} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('cyclopegic',glassesRx)} onEnableScroll={this.enableScroll}/>
-        <GlassesDetail title='Final Rx' glassesRx={this.props.exam.refractions.finalRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('finalRx',glassesRx)} onEnableScroll={this.enableScroll}/>
+        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)} />
+        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)} />
+        <GlassesDetail title='Phoropter' glassesRx={this.props.exam.refractions.phoropter} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('phoropter',glassesRx)} />
+        <GlassesDetail title='Auto-refractor'glassesRx={this.props.exam.refractions.autoRefractor} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('autoRefractor',glassesRx)} />
+        <GlassesDetail title='Retinoscope' glassesRx={this.props.exam.refractions.retinoscope} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('retinoscope',glassesRx)} />
+        <GlassesDetail title='Cyclopegic' glassesRx={this.props.exam.refractions.cyclopegic} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('cyclopegic',glassesRx)} />
+        <GlassesDetail title='Final Rx' glassesRx={this.props.exam.refractions.finalRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('finalRx',glassesRx)} />
       </View>
     </ScrollView>
   }

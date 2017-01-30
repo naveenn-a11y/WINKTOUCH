@@ -77,6 +77,19 @@ export const styles = StyleSheet.create({
         margin: 8 * fontScale,
         color: selectionFontColor
     },
+    modalTitle: {
+        fontSize: 46 * fontScale,
+        textAlign: 'center',
+        margin: 8 * fontScale,
+        color: 'white'
+    },
+    modalColumn: {
+        flexDirection: 'column',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 12 * fontScale
+    },
     text: {
         fontSize: 17 * fontScale,
     },
@@ -305,6 +318,21 @@ export const styles = StyleSheet.create({
             width: 3 * fontScale
         }
     },
+    popupNumberTile: {
+        padding: 13 * fontScale,
+        marginHorizontal: 5 * fontScale,
+        minWidth: 150 * fontScale,
+        marginVertical: 5 * fontScale,
+        backgroundColor: 'white',
+        borderRadius: 10 * fontScale,
+        shadowRadius: 4 * fontScale,
+        shadowColor: 'black',
+        shadowOpacity: 0.3,
+        shadowOffset: {
+            height: 10 * fontScale,
+            width: 3 * fontScale
+        }
+    },
     tabHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -346,6 +374,12 @@ export const styles = StyleSheet.create({
     },
     flow: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    verticalFlow: {
+        flexDirection: 'column',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center'
