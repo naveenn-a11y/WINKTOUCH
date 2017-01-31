@@ -161,7 +161,7 @@ export class VisitWorkFlow extends Component {
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
                 {exams.map((exam: Exam, index: number) => {
-                    return <ExamCard key={index} exam={exam} isExpanded={this.isExpanded(exam)} exam={exam}
+                    return <ExamCard key={index} exam={exam} isExpanded={this.isExpanded(exam)} 
                         onSelect={() => this.props.onNavigationChange('showExam', exam)}
                         onToggleExpand={() => this.toggleExpand(exam)} />
                 })}

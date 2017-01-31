@@ -52,7 +52,7 @@ export class NumberField extends Component {
     }
 
     commitEdit = () => {
-      const editedValue : ?number = this.editedValue();
+      const editedValue : ?number = this.combinedValue();
       if (this.props.onChangeValue)
         this.props.onChangeValue(editedValue);
       this.setState({ isActive: false });
@@ -62,26 +62,27 @@ export class NumberField extends Component {
       this.setState({ isActive: false });
     }
 
-    editedValue() : ?number {
+    combinedValue() : ?number {
       if (this.state.editedValue[0]===undefined && this.state.editedValue[1]===undefined && this.state.editedValue[2]===undefined && this.state.editedValue[3]===undefined)
         return undefined;
-      let editedValue : number = 0;
+      let combinedValue : number = 0;
       if (this.state.editedValue[1]!==undefined)
-        editedValue += Number(this.state.editedValue[1]);
+        combinedValue += Number(this.state.editedValue[1]);
       if (this.state.editedValue[2]!==undefined)
-        editedValue+=Number(this.state.editedValue[2]);
+        combinedValue+=Number(this.state.editedValue[2]);
       if (this.state.editedValue[3]!==undefined)
-        editedValue+=Number(this.state.editedValue[3]);
+        combinedValue+=Number(this.state.editedValue[3]);
       if (this.state.editedValue[0]==='-')
-        editedValue = -editedValue;
-      return editedValue;
+        combinedValue = -combinedValue;
+      if (combinedValue<this.props.range[0]) combinedValue = this.props.range[0];
+      else if (combinedValue>this.props.range[1]) combinedValue = this.props.range[1];
+      return combinedValue;
     }
 
-    updateValue(column: number, newValue: string) : void {
+    updateValue(column: number, newColumnValue: string) : void {
       let editedValue: string[] = this.state.editedValue;
-      if (newValue===this.state.editedValue[column])
-        newValue = undefined;
-      editedValue[column] = newValue;
+      if (newColumnValue===this.state.editedValue[column]) newColumnValue = undefined;
+      editedValue[column] = newColumnValue;
       this.setState({editedValue});
     }
 
@@ -124,7 +125,7 @@ export class NumberField extends Component {
 
     renderPopup() {
       const fractions : string[][] = this.generateFractions();
-      let formattedValue = this.format(this.editedValue());
+      let formattedValue = this.format(this.combinedValue());
       return <TouchableWithoutFeedback onPress={this.cancelEdit}>
           <View style={{flex: 100, backgroundColor: '#00000099', padding:30 * fontScale}}>
             <Text style={styles.modalTitle}>{this.props.label}: {formattedValue}</Text>
@@ -136,7 +137,7 @@ export class NumberField extends Component {
                       let isSelected : boolean = this.state.editedValue[column]===option;
                       return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)}>
                         <View style={styles.popupNumberTile}>
-                          <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
+                          <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                         </View>
                       </TouchableOpacity>
                     })}
@@ -412,7 +413,7 @@ export class TilesField extends Component {
                     let isSelected : boolean = this.props.value===option;
                     return <TouchableOpacity key={row} onPress={() => this.commitEdit(option)}>
                       <View style={styles.popupNumberTile}>
-                        <Text style={isSelected?styles.screenTitleSelected:styles.screenTitle}>{option}</Text>
+                        <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                       </View>
                     </TouchableOpacity>
                   })}

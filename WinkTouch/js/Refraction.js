@@ -188,6 +188,7 @@ export class BaseField extends Component {
     return <TilesField options={['Up','Down','In','Out']}
       value={this.props.value}
       editable={this.props.editable}
+      label={this.props.label}
       onChangeValue={this.props.onChangeValue}
     />
   }
@@ -206,7 +207,7 @@ export class DegreeField extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <NumberField range={[0,180]} stepSize={1} decimals={0}
+    return <NumberField range={[0,180]} stepSize={1} groupSize={10} decimals={0}
       value={this.props.value} label={this.props.label}
       editable = {this.props.editable}
       onChangeValue={this.props.onChangeValue}

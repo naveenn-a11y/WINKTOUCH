@@ -15,6 +15,7 @@ if (isAndroid) {
 }
 
 export const backgroundColor = undefined;
+export const fontColor = undefined;
 export const selectionColor = '#ddddffdd';
 export const selectionFontColor = '#4444ff';
 
@@ -90,6 +91,8 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         marginHorizontal: 12 * fontScale
     },
+    modalTileLabel: modalTileLabel(false),
+    modalTileLabelSelected: modalTileLabel(true),
     text: {
         fontSize: 17 * fontScale,
     },
@@ -574,5 +577,15 @@ function scrollFieldStyle(isActive: boolean, hasNewValue: boolean) {
             height: 1,
             width: 0.3
         }
+    }
+}
+
+function modalTileLabel(isSelected: boolean) {
+    return {
+        fontSize: 26 * fontScale,
+        textAlign: 'center',
+        margin: 8 * fontScale,
+        color: isSelected?selectionFontColor:fontColor,
+        fontWeight: isSelected?'bold':'normal'
     }
 }
