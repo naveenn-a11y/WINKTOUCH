@@ -4,8 +4,9 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, Image, LayoutAnimation, Button, TouchableHighlight, ScrollView, Modal, Dimensions,
+import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
   TouchableOpacity, TouchableWithoutFeedback, InteractionManager} from 'react-native';
+import NativeBase from 'native-base';
 import { styles, fontScale, selectionColor, windowWidth, windowHeight, selectionFontColor } from './Styles';
 import { FormRow, FormTextInput } from './Form';
 import { ComplaintDetails } from './Complaint'
@@ -157,7 +158,7 @@ export class NumberField extends Component {
     }
 
     render() {
-      let style = this.state.isActive ? styles.scrollFieldActive : styles.scrollField;
+      let style = this.state.isActive ? styles.inputFieldActive : styles.inputField;
       if (this.props.width) {
         style = [{ width: this.props.width }, style];
       }
@@ -329,7 +330,7 @@ export class RulerField extends Component {
   }
 
   render() {
-    let style = this.state.isActive ? styles.scrollFieldActive : styles.scrollField;
+    let style = this.state.isActive ? styles.inputFieldActive : styles.inputField;
     if (this.props.width) {
       style = [{ width: this.props.width }, style];
     }
@@ -425,7 +426,7 @@ export class TilesField extends Component {
   }
 
   render() {
-    let style = this.state.isActive ? styles.scrollFieldActive : styles.scrollField;
+    let style = this.state.isActive ? styles.inputFieldActive : styles.inputField;
     if (this.props.width) {
       style = [{ width: this.props.width }, style];
     }
@@ -461,7 +462,7 @@ export class Clock extends Component {
   }
 }
 
-export class WinkButton extends Component {
+export class Button extends Component {
   props: {
     title: string,
     visible?: boolean,
@@ -472,7 +473,50 @@ export class WinkButton extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <Button {...this.props} />
+    return <NativeBase.Button block style={styles.button} {...this.props}>{this.props.title}</NativeBase.Button>
+  }
+}
+
+export class BackButton extends Component {
+  props: {
+    onNavigationChange: (action: string, data: any) => void,
+    visible? :boolean
+  }
+  static defaultProps = {
+    visible: true
+  }
+  render() {
+    if (!this.props.visible) return null;
+    return <NativeBase.Button block large style={styles.backButton} onPress={() => this.props.onNavigationChange('back')}><NativeBase.Icon name='md-arrow-back'/></NativeBase.Button>
+  }
+}
+
+export class FloatingButton extends Component {
+  props: {
+    options: string[]
+  }
+  state: {
+    active: boolean,
+  }
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      active: false
+    }
+  }
+
+  toggleActive = () => {
+    this.setState({active: !this.state.active});
+  }
+
+  render() {
+    return <NativeBase.Fab active={this.state.active} onPress={this.toggleActive} direction='up'
+        position='bottomRight' style={{backgroundColor: '#f0ad4e'}} containerStyle={{width:140*fontScale}}>
+      <NativeBase.Icon name='md-add'/>
+      {this.props.options.map((option: string, index: number) => {
+        return <NativeBase.Button style={{flex:1, width:null, height:null, backgroundColor: '#f0ad4e'}} key={index}>{option}</NativeBase.Button>
+      })}
+    </NativeBase.Fab>
   }
 }
 
@@ -488,7 +532,7 @@ export class SelectionListRow extends Component {
   }
 
   render() {
-    const textStyle = this.props.selected ? styles.tabTextSelected : styles.tabText;
+    const textStyle = this.props.selected ? styles.listTextSelected : styles.listText;
     return <TouchableHighlight underlayColor={selectionColor} onPress={() => this.toggleSelect()}>
       <View style={styles.listRow}>
         <Text style={textStyle}>{this.props.label}</Text>
@@ -745,16 +789,16 @@ class ItemsList<ItemType> extends Component {
   renderButtons() {
     if (this.props.onAddItem) {
       return <View style={styles.buttonsRowLayout}>
-        <WinkButton title='Add' onPress={() => this.props.onAddItem()} />
-        <WinkButton title='Remove' onPress={() => this.props.onRemoveSelectedItem()} />
+        <Button title='Add' onPress={() => this.props.onAddItem()} />
+        <Button title='Remove' onPress={() => this.props.onRemoveSelectedItem()} />
       </View>
     }
     return <View style={styles.buttonsRowLayout}>
       <View style={styles.buttonsRowStartLayout}>
-        <WinkButton title='All normal' onPress={() => { this.allNormal() } } />
-        <WinkButton title='Others normal' onPress={() => { this.othersNormal() } } />
+        <Button title='All normal' onPress={() => { this.allNormal() } } />
+        <Button title='Others normal' onPress={() => { this.othersNormal() } } />
       </View>
-      <WinkButton title='Clear' onPress={() => { this.clear() } } />
+      <Button title='Clear' onPress={() => { this.clear() } } />
     </View>
   }
 

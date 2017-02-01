@@ -102,9 +102,9 @@ export function allPreExams(patient: Patient): Exam[] {
 
 export function fetchExams(patient: Patient): Exam[] {
   return [
-    constructExam(patient,'Complaint', true, true), constructExam(patient,'CoverTest', true, true), constructExam(patient,'ReviewOfSystems', true, true),
-    constructExam(patient,'VisualAcuityTest', true, false), constructExam(patient,'AutorefractorTest'),
-    constructExam(patient,'VisualFieldTest', true, true)
+    constructExam(patient,'Complaint', true, true), constructExam(patient,'CoverTest', true, true),
+    constructExam(patient,'ReviewOfSystems', true, true), constructExam(patient,'VisualAcuityTest', true, false),
+    constructExam(patient,'RefractionTest'),  constructExam(patient,'VisualFieldTest', true, true)
   ]
 }
 

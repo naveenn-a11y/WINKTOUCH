@@ -33,7 +33,7 @@ export class StrabismusWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.strabismus} options={[null, ...strabismusTypes]} {...this.props}
+    return <TilesField value={this.state.strabismus} options={strabismusTypes} {...this.props}
       onChangeValue={(strabismus: string) => this.setState({ strabismus: strabismus })} />
   }
 }
@@ -54,7 +54,7 @@ export class OculusWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.oculus} options={[null, ...oculusTypes]} {...this.props}
+    return <TilesField value={this.state.oculus} options={oculusTypes} {...this.props}
       onChangeValue={(oculus: string) => this.setState({ oculus: oculus })} />
   }
 }
@@ -75,7 +75,7 @@ export class HandednessWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.handedness} options={[null, ...handednessTypes]} {...this.props}
+    return <TilesField value={this.state.handedness} options={handednessTypes} {...this.props}
       onChangeValue={(handedness: string) => this.setState({ handedness: handedness })} />
   }
 }
@@ -96,7 +96,7 @@ export class VisualFieldWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.visualField} options={[null, ...visualFieldTypes]} {...this.props}
+    return <TilesField value={this.state.visualField} options={visualFieldTypes} {...this.props}
       onChangeValue={(visualField: string) => this.setState({ visualField: visualField })} />
   }
 }
@@ -116,7 +116,7 @@ export class PupilDiagnoseWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.pupilDiagnose} options={[null, ...pupilDiagnoseTypes]} {...this.props}
+    return <TilesField value={this.state.pupilDiagnose} options={pupilDiagnoseTypes} {...this.props}
       onChangeValue={(pupilDiagnose: string) => this.setState({ pupilDiagnose: pupilDiagnose })} />
   }
 }
@@ -136,7 +136,7 @@ export class IrisColorWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.irisColor} options={[null, ...irisColorTypes]} {...this.props}
+    return <TilesField value={this.state.irisColor} options={irisColorTypes} {...this.props}
       onChangeValue={(irisColor: string) => this.setState({ irisColor: irisColor })} />
   }
 }
@@ -156,7 +156,7 @@ export class EOMWheel extends Component {
   }
 
   render() {
-    return <TilesField value={this.state.eom} options={[null, ...eomTypes]} {...this.props}
+    return <TilesField value={this.state.eom} options={eomTypes} {...this.props}
       onChangeValue={(eom: string) => this.setState({ eom: eom })} />
   }
 }
@@ -203,13 +203,13 @@ class CoverTest extends Component {
       <View style={styles.centeredColumnLayout}>
         <View style={styles.formRow500}>
           <Text style={styles.formLabel}>Lateral:</Text>
-          <TilesField value='Ortho' options={[null, 'Ortho']} />
-          <TilesField value='EsoPhoria' options={[null, 'EsoPhoria']} />
+          <TilesField value='Ortho' options={['Ortho']} />
+          <TilesField value='EsoPhoria' options={['EsoPhoria']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Vertical:</Text>
-          <TilesField value='2' options={[null, 'Ortho']} />
-          <TilesField value='Hyperphoria OD' options={[null, 'Hyperphoria OD']} />
+          <TilesField value='2' options={['Ortho']} />
+          <TilesField value='Hyperphoria OD' options={['Hyperphoria OD','Hyperphoria OS']} />
         </View>
       </View>
     </View>

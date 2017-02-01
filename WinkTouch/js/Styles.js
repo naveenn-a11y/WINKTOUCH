@@ -18,6 +18,7 @@ export const backgroundColor = undefined;
 export const fontColor = undefined;
 export const selectionColor = '#ddddffdd';
 export const selectionFontColor = '#4444ff';
+export const selectionBackgroundColor = '#5067ff';
 
 export const styles = StyleSheet.create({
     screeen: {
@@ -40,10 +41,10 @@ export const styles = StyleSheet.create({
     sideMenu: {
         padding: 15 * fontScale,
         backgroundColor: '#F7F7F9',
-        //backgroundColor: '#EBEBEF',
         shadowColor: 'gray',
         shadowOpacity: 0.7,
         alignItems: 'center',
+        justifyContent: 'flex-start'
     },
     findResults: {
         flex: 0,
@@ -69,6 +70,7 @@ export const styles = StyleSheet.create({
     },
     screenTitle: {
         fontSize: 26 * fontScale,
+        fontWeight: '500',
         textAlign: 'center',
         margin: 8 * fontScale
     },
@@ -138,10 +140,19 @@ export const styles = StyleSheet.create({
         borderWidth: 0
     },
     button: {
-        textAlign: 'center',
-        fontSize: 26 * fontScale,
         padding: 13 * fontScale,
-        marginHorizontal: 13 * fontScale
+        marginHorizontal: 13 * fontScale,
+        marginVertical: 6 * fontScale,
+        backgroundColor: selectionBackgroundColor
+    },
+    backButton: {
+      width: 130*fontScale,
+      height: 130*fontScale,
+      borderRadius: 65*fontScale,
+      padding: 13 * fontScale,
+      marginHorizontal: 13 * fontScale,
+      marginVertical: 100 * fontScale,
+      backgroundColor: '#5bc0de'
     },
     centeredRowLayout: {
         flexDirection: 'row',
@@ -223,9 +234,9 @@ export const styles = StyleSheet.create({
         textAlign: 'right',
         backgroundColor: '#ffffff99'
     },
-    scrollField: scrollFieldStyle(false, false),
-    scrollFieldActive: scrollFieldStyle(true, false),
-    scrollFieldActiveChanged: scrollFieldStyle(true, true),
+    inputField: inputFieldStyle(false, false),
+    inputFieldActive: inputFieldStyle(true, false),
+    inputFieldActiveChanged: inputFieldStyle(true, true),
     formTableColumnHeader: {
         fontSize: 20 * fontScale,
         paddingHorizontal: 6 * fontScale,
@@ -348,7 +359,6 @@ export const styles = StyleSheet.create({
     },
     tab: tabStyle(false),
     selectedTab: tabStyle(true),
-    roundTab: tabStyle(false, true),
     tabText: {
         fontSize: 18 * fontScale,
         flexWrap: 'nowrap'
@@ -356,13 +366,13 @@ export const styles = StyleSheet.create({
     tabTextSelected: {
         fontSize: 18 * fontScale,
         flexWrap: 'nowrap',
-        color: '#AAAAAA',
-        textShadowColor: 'blue',
-        textShadowRadius: 1,
+        color: 'orange',
+        textShadowColor: 'orange',
+        textShadowRadius: 0 * fontScale,
         textShadowOffset: {
-            height: 0.3,
-            width: 0.5
-        }
+        height: 0.3 * fontScale,
+        width: 0.5 * fontScale
+      }
     },
     tabCard: {
         padding: 10 * fontScale,
@@ -387,12 +397,12 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    todoExamCard: examCardStyle('blue', false),
+    todoExamCard: examCardStyle('red', false),
     todoExamCardExpanded: examCardStyle('blue', true),
-    startedExamCard: examCardStyle('green', false),
-    startedExamCardExpanded: examCardStyle('green', true),
-    finishedExamCard: examCardStyle('black', false),
-    finishedExamCardExpanded: examCardStyle('black', true),
+    startedExamCard: examCardStyle('orange', false),
+    startedExamCardExpanded: examCardStyle('orange', true),
+    finishedExamCard: examCardStyle('green', false),
+    finishedExamCardExpanded: examCardStyle('green', true),
     board: boardStyle('white'),
     boardTodo: boardStyle('#ffaabb'),
     store: {
@@ -456,6 +466,12 @@ export const styles = StyleSheet.create({
         backgroundColor: selectionColor,
         margin: 3 * fontScale
     },
+    listTextSelected: {
+        fontSize: 18 * fontScale,
+        fontWeight: 'bold',
+        flexWrap: 'nowrap',
+        color: selectionFontColor,
+    },
     scrollPopup: {
         position: 'absolute',
         top: 10 * fontScale,
@@ -479,38 +495,20 @@ export const styles = StyleSheet.create({
     }
 });
 
-function tabStyle(isSelected: boolean, isRound: ?boolean) {
-    if (isRound) {
-        return {
-            width: 130 * fontScale,
-            height: 130 * fontScale,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: 14 * fontScale,
-            paddingVertical: 6 * fontScale,
-            borderRadius: 65 * fontScale,
-            margin: 6 * fontScale,
-            backgroundColor: 'white',
-            shadowRadius: isSelected ? 5 : 3,
-            shadowColor: isSelected ? 'blue' : 'white',
-            shadowOpacity: 0.3,
-            shadowOffset: {
-                height: isSelected ? 0.5 : 1,
-                width: isSelected ? 0.3 : 0.5
-            }
-        }
-    }
+function tabStyle(isSelected: boolean) {
     return {
         minWidth: 130 * fontScale,
+        minHeight: 30 * fontScale,
         alignItems: 'center',
         paddingHorizontal: 14 * fontScale,
         paddingVertical: 6 * fontScale,
         borderRadius: 30 * fontScale,
-        margin: 6 * fontScale,
-        backgroundColor: 'white',
-        shadowRadius: isSelected ? 5 : 3,
-        shadowColor: isSelected ? 'blue' : 'white',
-        shadowOpacity: 0.3,
+        marginVertical: 10 * fontScale,
+        marginHorizontal: 6 * fontScale,
+        backgroundColor: isSelected?'white':undefined,
+        shadowRadius: isSelected ? 8 * fontScale : 3 * fontScale,
+        shadowColor: isSelected ? 'orange' : 'green',
+        shadowOpacity: 0.9,
         shadowOffset: {
             height: isSelected ? 0.5 : 1,
             width: isSelected ? 0.3 : 0.5
@@ -548,7 +546,7 @@ function examCardStyle(shadowColor: Color, isExpanded: boolean) {
         backgroundColor: 'white',
         shadowRadius: 5,
         shadowColor: shadowColor,
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.6,
         shadowOffset: {
             height: 1,
             width: 0.3
@@ -556,7 +554,7 @@ function examCardStyle(shadowColor: Color, isExpanded: boolean) {
     };
 }
 
-function scrollFieldStyle(isActive: boolean, hasNewValue: boolean) {
+function inputFieldStyle(isActive: boolean, hasNewValue: boolean) {
     return {
         fontSize: 20 * fontScale,
         minHeight: 32 * fontScale,

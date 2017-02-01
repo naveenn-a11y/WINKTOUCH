@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { WinkButton, TilesField, SelectionList, ItemsEditor } from './Widgets';
+import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import type {ItemDefinition } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
 

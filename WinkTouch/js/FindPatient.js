@@ -4,13 +4,12 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Image, View, TouchableHighlight, Text, Button, ScrollView, TextInput, Modal, LayoutAnimation } from 'react-native';
+import { Image, View, TouchableHighlight, Text, Button, ScrollView, TextInput, Modal, LayoutAnimation, InteractionManager} from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
 import type {Patient, PatientInfo, RestResponse } from './Types';
 import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo } from './Patient';
 import { PrescriptionCard } from './Assessment';
-import { WinkButton } from './Widgets';
 
 export async function searchPatients(accountsId: number, searchText: string) : Patient[] {
   try {
@@ -101,7 +100,7 @@ export class FindPatient extends Component {
   newPatient() {
     this.setState({ showPatientList: false, showNewPatientButton:false, patients: []});
     this.props.onNewPatient();
-    LayoutAnimation.easeInEaseOut();
+    InteractionManager.runAfterInteractions(() => LayoutAnimation.easeInEaseOut());
   }
 
   render() {
@@ -114,7 +113,7 @@ export class FindPatient extends Component {
         patients={this.state.patients}
         visible={this.state.showPatientList}
         onSelect={this.props.onSelectPatient} />
-      <WinkButton title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/>
+      {this.state.showNewPatientButton?<Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/>:null}
     </View>
   }
 }

@@ -4,10 +4,10 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
+import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
 import { styles, fontScale } from './Styles';
 import type {Patient, Exam, GlassesRx, Visit, Appointment, Assessment } from './Types';
-import {WinkButton} from './Widgets';
+import {Button, FloatingButton} from './Widgets';
 import { formatMoment } from './Util';
 import { ExamCard, allExams, allPreExams, fetchExams } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
@@ -156,17 +156,17 @@ export class VisitWorkFlow extends Component {
         </View>
     }
 
-    renderExams(exams?: Exam[]) {
+    renderExams(exams?: Exam[], examOptions?: Exam[]) {
         if (!exams) return null;
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
                 {exams.map((exam: Exam, index: number) => {
-                    return <ExamCard key={index} exam={exam} isExpanded={this.isExpanded(exam)} 
+                    return <ExamCard key={index} exam={exam} isExpanded={this.isExpanded(exam)}
                         onSelect={() => this.props.onNavigationChange('showExam', exam)}
                         onToggleExpand={() => this.toggleExpand(exam)} />
                 })}
             </View>
-            <View style={styles.hover}><Text style={styles.h2}>+</Text></View>
+            <FloatingButton options={['ROS','Glaucoma']} />
         </View>
     }
 
@@ -254,9 +254,9 @@ export class VisitHistory extends Component {
     render() {
         return <View>
             <View style={styles.tabHeader}>
+              <ScrollView horizontal={true}>
               <VisitButton isSelected={this.state.selectedVisit === this.state.appointmentsVisit}
                 visit={this.state.appointmentsVisit} onPress={() => this.state.appointmentsVisit?this.showVisit(this.state.appointmentsVisit):this.startPreVisit()} />
-              <ScrollView horizontal={true}>
                     {this.props.visitHistory && this.props.visitHistory.map((visit: Visit, index: number) => {
                         if (visit === this.state.appointmentsVisit) return null;
                         return <VisitButton isSelected={this.state.selectedVisit === visit}

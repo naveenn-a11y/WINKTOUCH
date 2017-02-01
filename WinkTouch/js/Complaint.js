@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { FormTextInput } from './Form';
-import { WinkButton, ItemsEditor } from './Widgets';
+import { Button, ItemsEditor } from './Widgets';
 
 export type Complaint = {
   date: Date,

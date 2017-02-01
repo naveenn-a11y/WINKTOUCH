@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
 import type {GlassesRx, RefractionExam, Refractions, Patient, Exam} from './Types';
-import { NumberField, TilesField, WinkButton } from './Widgets';
+import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EntranceTest';
 
 export async function fetchRefractions(patient: Patient, visitId: number) : Refractions {
@@ -408,9 +408,9 @@ export class GlassesDetail extends Component {
           </View >
         </View>
         {this.props.editable?<View style={styles.buttonsRowLayout}>
-          <WinkButton title='Multifocal' onPress={() => this.toggle('multiFocal')}/>
-          <WinkButton title='Prism' onPress={() => this.toggle('prism')}/>
-          <WinkButton title='OS=OD' onPress={() => this.copyOsOd()}/>
+          <Button title='Multifocal' onPress={() => this.toggle('multiFocal')}/>
+          <Button title='Prism' onPress={() => this.toggle('prism')}/>
+          <Button title='OS=OD' onPress={() => this.copyOsOd()}/>
         </View>:null}
       </View>
     </View>

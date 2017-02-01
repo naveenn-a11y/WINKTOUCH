@@ -4,7 +4,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
+import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
 import { styles, fontScale } from './Styles';
 import {GlassesRx} from './Styles';
 import {GlassesDetail} from './Refraction';
