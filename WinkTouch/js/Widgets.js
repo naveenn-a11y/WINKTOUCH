@@ -8,6 +8,7 @@ import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, Sc
   TouchableOpacity, TouchableWithoutFeedback, InteractionManager} from 'react-native';
 import NativeBase from 'native-base';
 import { styles, fontScale, selectionColor, windowWidth, windowHeight, selectionFontColor } from './Styles';
+import { strings} from './Strings';
 import { FormRow, FormTextInput } from './Form';
 import { ComplaintDetails } from './Complaint'
 
@@ -493,7 +494,8 @@ export class BackButton extends Component {
 
 export class FloatingButton extends Component {
   props: {
-    options: string[]
+    options: string[],
+    onPress: (option: string) => void
   }
   state: {
     active: boolean,
@@ -511,10 +513,11 @@ export class FloatingButton extends Component {
 
   render() {
     return <NativeBase.Fab active={this.state.active} onPress={this.toggleActive} direction='up'
-        position='bottomRight' style={{backgroundColor: '#f0ad4e'}} containerStyle={{width:140*fontScale}}>
+       position='bottomRight' style={{backgroundColor: '#f0ad4e'}} containerStyle={{width:140*fontScale}}>
       <NativeBase.Icon name='md-add'/>
       {this.props.options.map((option: string, index: number) => {
-        return <NativeBase.Button style={{flex:1, width:null, height:null, backgroundColor: '#f0ad4e'}} key={index}>{option}</NativeBase.Button>
+         return <NativeBase.Button style={{flex:1,width:null,minHeight: 45* fontScale,backgroundColor: '#f0ad4e'}}
+            onPress={() => {this.setState({active: false}); this.props.onPress(option)}} key={index}>{strings[option]}</NativeBase.Button>
       })}
     </NativeBase.Fab>
   }

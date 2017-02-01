@@ -6,7 +6,8 @@
 import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {Exam, Patient, GlassesRx, RefractionExam, Refractions} from './Types';
+import { strings} from './Strings';
+import type {Exam, Patient, GlassesRx, RefractionExam, Refractions, Visit} from './Types';
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen } from './Complaint';
@@ -24,7 +25,7 @@ import { SlitLampScreen } from './SlitLamp';
 import { fetchRefractions} from './Refraction';
 
 function constructExam(patient: Patient, type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
-  if (type==='WearingRx' || type==='RefractionTest') {
+  if (type==='wearingRx' || type==='refractionTest') {
     return {
       type: type,
       visitId: 1,
@@ -72,39 +73,46 @@ function constructExam(patient: Patient, type: string, hasStarted?: boolean = fa
   }
 }
 
-export function allExams(patient: Patient, visitType: string): Exam[] {
+export function allExamTypes(visitType: string) : string[] {
+    return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
+}
+
+export function createExam(visit: Visit, examType: string) {
+    return  constructExam(visit.patient, examType, false, false);
+}
+
+export function createExams(patient: Patient, visitType: string): Exam[] {
   if (visitType && visitType === 'followUp') {
-    return [constructExam(patient, 'Complaint', true, true), constructExam(patient, 'VisualAcuityTest', true, true),
-    constructExam(patient, 'RefractionTest', true, true)]
+    return [constructExam(patient, 'complaint', true, true), constructExam(patient, 'visualAcuityTest', true, true),
+    constructExam(patient, 'refractionTest', true, true)]
   }
   if (visitType && visitType === 'fitting') {
     return [
-      constructExam(patient, 'Complaint', true, true), constructExam(patient, 'VisualAcuityTest', true, true),
-      constructExam(patient, 'RefractionTest', true, true), constructExam(patient, 'SlitLampExam', true),
+      constructExam(patient, 'complaint', true, true), constructExam(patient, 'visualAcuityTest', true, true),
+      constructExam(patient, 'refractionTest', true, true), constructExam(patient, 'slitLampExam', true),
     ]
   }
   return [
-    constructExam(patient,'Complaint', true, true), constructExam(patient,'VisualAcuityTest', true, true),
-    constructExam(patient,'VisualFieldTest', true, true), constructExam(patient,'CoverTest', true, true),
-    constructExam(patient,'ReviewOfSystems', true, true),
-    constructExam(patient,'RefractionTest', true, true), constructExam(patient,'GlaucomaExam', true),
-    constructExam(patient,'SlitLampExam', true),
+    constructExam(patient,'complaint', true, true), constructExam(patient,'visualAcuityTest', true, true),
+    constructExam(patient,'visualFieldTest', true, true), constructExam(patient,'coverTest', true, true),
+    constructExam(patient,'reviewOfSystems', true, true),
+    constructExam(patient,'refractionTest', true, true),
   ]
 }
 
 export function allPreExams(patient: Patient): Exam[] {
   return [
-    constructExam(patient,'WearingRx', false, false), constructExam(patient,'Medications', true, false),
-    constructExam(patient,'Allergies', false, false), constructExam(patient,'MedicalHistory', true, true),
-    constructExam(patient,'FamilyHistory', true, false), constructExam(patient,'SocialHistory', true)
+    constructExam(patient,'wearingRx', false, false), constructExam(patient,'medications', true, false),
+    constructExam(patient,'allergies', false, false), constructExam(patient,'medicalHistory', true, true),
+    constructExam(patient,'familyHistory', true, false), constructExam(patient,'socialHistory', true)
   ]
 }
 
 export function fetchExams(patient: Patient): Exam[] {
   return [
-    constructExam(patient,'Complaint', true, true), constructExam(patient,'CoverTest', true, true),
-    constructExam(patient,'ReviewOfSystems', true, true), constructExam(patient,'VisualAcuityTest', true, false),
-    constructExam(patient,'RefractionTest'),  constructExam(patient,'VisualFieldTest', true, true)
+    constructExam(patient,'complaint', true, true), constructExam(patient,'coverTest', true, true),
+    constructExam(patient,'reviewOfSystems', true, true), constructExam(patient,'visualAcuityTest', true, false),
+    constructExam(patient,'refractionTest'),  constructExam(patient,'visualFieldTest', true, true)
   ]
 }
 
@@ -128,35 +136,35 @@ export class ExamCard extends Component {
 
   renderExamCardSpecifics() {
     switch (this.props.exam.type) {
-      case 'Complaint':
+      case 'complaint':
         return <ComplaintCard isExpanded={this.props.isExpanded} />
-      case 'VisualAcuityTest':
+      case 'visualAcuityTest':
         return <VisualAcuityTestCard isExpanded={this.props.isExpanded} />
-      case 'CoverTest':
+      case 'coverTest':
         return <CoverTestCard isExpanded={this.props.isExpanded} />
-      case 'ReviewOfSystems':
+      case 'reviewOfSystems':
         return <ReviewOfSystemsCard isExpanded={this.props.isExpanded} />
-      case 'RetinoscopyTest':
+      case 'retinoscopyTest':
         return <RetinoscopyTestCard isExpanded={this.props.isExpanded} />
-      case 'RefractionTest':
+      case 'refractionTest':
         return <RefractionTestCard isExpanded={this.props.isExpanded} />
-      case 'SlitLampExam':
+      case 'slitLampExam':
         return <SlitLampExamCard isExpanded={this.props.isExpanded} />
-      case 'VisualFieldTest':
+      case 'visualFieldTest':
         return <VisualFieldTestCard isExpanded={this.props.isExpanded} />
-      case 'GlaucomaExam':
+      case 'glaucomaExam':
         return <GlaucomaExamCard isExpanded={this.props.isExpanded} />
-      case 'WearingRx':
+      case 'wearingRx':
         return <WearingRxCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
-      case 'Medications':
+      case 'medications':
         return <PatientMedicationsCard isExpanded={this.props.isExpanded} />
-      case 'MedicalHistory':
+      case 'medicalHistory':
         return <PatientMedicalHistoryCard isExpanded={this.props.isExpanded} />
-      case 'Allergies':
+      case 'allergies':
         return <PatientAllergiesCard isExpanded={this.props.isExpanded} />
-      case 'FamilyHistory':
+      case 'familyHistory':
         return <PatientFamilyHistoryCard isExpanded={this.props.isExpanded} />
-      case 'SocialHistory':
+      case 'socialHistory':
         return <PatientSocialHistoryCard isExpanded={this.props.isExpanded} />
     }
     return null;
@@ -197,10 +205,10 @@ class WearingRxCard extends ExamCardSpecifics {
   render() {
     if (!this.props.isExpanded)
       return <View>
-        <GlassesSummary title="Wearing Rx" glassesRx={this.props.exam.refractions.wearingRx} />
+        <GlassesSummary title={strings.wearingRx} glassesRx={this.props.exam.refractions.wearingRx} />
       </View>
     return <View>
-      <Text style={styles.text}>Wearing Rx</Text>
+      <Text style={styles.text}>{strings.wearingRx}</Text>
     </View>
   }
 }
@@ -235,49 +243,43 @@ class VisualAcuityTestCard extends ExamCardSpecifics {
 
 class CoverTestCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>Cover</Text>
+    return <Text style={styles.text}>{strings.coverTest}</Text>
   }
 }
 
 class ReviewOfSystemsCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>ROS</Text>
+    return <Text style={styles.text}>{strings.reviewOfSystems}</Text>
   }
 }
 
 class RetinoscopyTestCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>Retinoscopy</Text>
+    return <Text style={styles.text}>{strings.retinoscopyTest}</Text>
   }
 }
 
 class RefractionTestCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>Refraction</Text>
+    return <Text style={styles.text}>{strings.refractionTest}</Text>
   }
 }
 
 class SlitLampExamCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>Slit Lamp</Text>
-  }
-}
-
-class PupilDilationExamCard extends ExamCardSpecifics {
-  render() {
-    return <Text style={styles.text}>Pupil Dilation</Text>
+    return <Text style={styles.text}>{strings.slitLampExam}</Text>
   }
 }
 
 class VisualFieldTestCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>Visual Field</Text>
+    return <Text style={styles.text}>{strings.visualFieldTest}</Text>
   }
 }
 
 class GlaucomaExamCard extends ExamCardSpecifics {
   render() {
-    return <Text style={styles.text}>Glaucoma</Text>
+    return <Text style={styles.text}>{strings.glaucomaExam}</Text>
   }
 }
 
@@ -306,33 +308,33 @@ export class ExamScreen extends Component {
 
   renderExam() {
     switch (this.props.exam.type) {
-      case 'Complaint':
+      case 'complaint':
         return <ComplaintScreen exam={this.state.exam} />;
-      case 'VisualAcuityTest':
+      case 'visualAcuityTest':
         return <VisualAcuityTest exam={this.state.exam} />;
-      case 'CoverTest':
+      case 'coverTest':
         return <CoverTestScreen exam={this.state.exam} />
-      case 'ReviewOfSystems':
+      case 'reviewOfSystems':
         return <ReviewOfSystemsScreen exam={this.state.exam} />
-      case 'WearingRx':
+      case 'wearingRx':
         return <WearingRxScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
-      case 'RefractionTest':
+      case 'refractionTest':
         return <RefractionScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
-      case 'SlitLampExam':
+      case 'slitLampExam':
         return <SlitLampScreen exam={this.state.exam} />
-      case 'VisualFieldTest':
+      case 'visualFieldTest':
         return <VisualFieldTestScreen exam={this.state.exam} />
-      case 'GlaucomaExam':
+      case 'glaucomaExam':
         return <GlaucomaScreen exam={this.state.exam} />
-      case 'Medications':
+      case 'medications':
         return <MedicationsScreen exam={this.state.exam} />
-      case 'Allergies':
+      case 'allergies':
         return <AllergiesScreen exam={this.state.exam} />
-      case 'SocialHistory':
+      case 'socialHistory':
         return <SocialHistoryScreen exam={this.state.exam} />
-      case 'FamilyHistory':
+      case 'familyHistory':
         return <FamilyHistoryScreen exam={this.state.exam} />
-      case 'MedicalHistory':
+      case 'medicalHistory':
         return <MedicalHistoryScreen exam={this.state.exam} />
     }
     return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>

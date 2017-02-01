@@ -7,23 +7,14 @@ import React, { Component } from 'react';
 import { View, Text, Switch } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { ItemsEditor } from './Widgets';
-import type {ItemDefinition } from './Widgets';
+import type {ItemDefinition, SlitLampFindings } from './Types';
 import { PerimetryTest } from './EntranceTest';
-
-export type SlitLampFindings = {
-  label: string,
-  conjunctiva: string,
-  cornea: string,
-  eyelids: string,
-  iris: string,
-  lens: string,
-  sclera: string
-}
 
 function fetchSlitLampFindings(oculus: string): SlitLampFindings {
   const slitLampFindings: SlitLampFindings = {
     label: oculus,
-    lens: 'Cataract anterior cortical 3+',
+    conjunctiva: 'Cyst',
+    lens: 'Something not on the list',
     conjutiva: 'Normal'
   }
   return slitLampFindings;

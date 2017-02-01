@@ -6,6 +6,7 @@
 import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
+import { strings} from './Strings';
 import type {GlassesRx, RefractionExam, Refractions, Patient, Exam} from './Types';
 import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EntranceTest';
@@ -445,8 +446,8 @@ export class WearingRxScreen extends Component {
   render() {
     return <View>
       <View style={styles.flow}>
-        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
-        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
+        <GlassesDetail title={strings.previousRefraction} glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
+        <GlassesDetail title={strings.wearingRefraction} glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
       </View>
     </View>
   }
@@ -479,13 +480,13 @@ export class RefractionScreen extends Component {
   render() {
     return <ScrollView>
       <View style={styles.flow}>
-        <GlassesDetail title='Previous Rx' glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)} />
-        <GlassesDetail title='Wearing glasses Refraction' glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)} />
-        <GlassesDetail title='Phoropter' glassesRx={this.props.exam.refractions.phoropter} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('phoropter',glassesRx)} />
-        <GlassesDetail title='Auto-refractor'glassesRx={this.props.exam.refractions.autoRefractor} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('autoRefractor',glassesRx)} />
-        <GlassesDetail title='Retinoscope' glassesRx={this.props.exam.refractions.retinoscope} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('retinoscope',glassesRx)} />
-        <GlassesDetail title='Cyclopegic' glassesRx={this.props.exam.refractions.cyclopegic} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('cyclopegic',glassesRx)} />
-        <GlassesDetail title='Final Rx' glassesRx={this.props.exam.refractions.finalRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('finalRx',glassesRx)} />
+        <GlassesDetail title={strings.previousRefraction} glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
+        <GlassesDetail title={strings.wearingRefraction} glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
+        <GlassesDetail title={strings.phoropterRefraction} glassesRx={this.props.exam.refractions.phoropter} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('phoropter',glassesRx)} />
+        <GlassesDetail title={strings.autoRefraction} glassesRx={this.props.exam.refractions.autoRefractor} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('autoRefractor',glassesRx)} />
+        <GlassesDetail title={strings.retinoscopeRefraction} glassesRx={this.props.exam.refractions.retinoscope} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('retinoscope',glassesRx)} />
+        <GlassesDetail title={strings.cyclopegicRefraction} glassesRx={this.props.exam.refractions.cyclopegic} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('cyclopegic',glassesRx)} />
+        <GlassesDetail title={strings.finalRefraction} glassesRx={this.props.exam.refractions.finalRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('finalRx',glassesRx)} />
       </View>
     </ScrollView>
   }

@@ -286,6 +286,7 @@ export const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 20 * fontScale,
+        fontWeight: '500',
         textAlign: 'center',
         margin: 10 * fontScale
     },
@@ -432,24 +433,6 @@ export const styles = StyleSheet.create({
         bottom: 15 * fontScale,
         right: 20 * fontScale
     },
-    hover: {
-        backgroundColor: 'white',
-        height: 60 * fontScale,
-        width: 60 * fontScale,
-        borderRadius: 30 * fontScale,
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'absolute',
-        bottom: 15 * fontScale,
-        right: 15 * fontScale,
-        shadowColor: "#000000",
-        shadowOpacity: 0.5,
-        shadowRadius: 2 * fontScale,
-        shadowOffset: {
-            height: 3 * fontScale,
-            width: 1 * fontScale
-        }
-    },
     listRow: {
         flex: 10,
         flexDirection: 'row',
@@ -505,7 +488,7 @@ function tabStyle(isSelected: boolean) {
         borderRadius: 30 * fontScale,
         marginVertical: 10 * fontScale,
         marginHorizontal: 6 * fontScale,
-        backgroundColor: isSelected?'white':undefined,
+        backgroundColor: isSelected?'white':'white',
         shadowRadius: isSelected ? 8 * fontScale : 3 * fontScale,
         shadowColor: isSelected ? 'orange' : 'green',
         shadowOpacity: 0.9,

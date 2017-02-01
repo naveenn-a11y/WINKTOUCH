@@ -167,9 +167,8 @@ export class PD extends Component {
     onChangeValue: (newvalue: number) => void
   }
   render() {
-    return <RulerField range={[30,35,40,50,55,60,65,70,75,80,85,90,95,100]} stepSize={1} decimals={0}
+    return <RulerField range={[30,100]} stepSize={1} decimals={0}
       value={this.props.value}
-      scrollMethod='quadratic'
       onChangeValue={this.props.onChangeValue} />
   }
 }
@@ -270,7 +269,7 @@ export class PerimetryTest extends Component {
 export class Anesthetics extends Component {
   props: {
     drug: ?string,
-    administered: ?date,
+    administered: ?Date,
     onAdminister: (drug: string) => void
   }
   state: {
@@ -364,12 +363,12 @@ export class Stereopsis extends Component {
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Dist:</Text>
           <RulerField value={25} range={[10,200]} stepSize={5} />
-          <TilesField value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
+          <TilesField value='Keystone' options={['Keystone', 'Stereo fly']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Near:</Text>
           <RulerField value={25} range={[10,200]} stepSize={5} />
-          <TilesField value='Keystone' options={[null, 'Keystone', 'Stereo fly']} />
+          <TilesField value='Keystone' options={['Keystone', 'Stereo fly']} />
         </View>
       </View>
     </View>
@@ -383,15 +382,15 @@ export class ColorVision extends Component {
       <View style={styles.centeredColumnLayout}>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>Test:</Text>
-          <TilesField value='Famsworth D-15' options={[null, 'Famsworth D-15']} />
+          <TilesField value='Famsworth D-15' options={['Famsworth D-15']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>OD:</Text>
-          <TilesField value='Normal' options={[null, 'Normal']} />
+          <TilesField value='Normal' options={['Normal']} />
         </View>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.formLabel}>OS:</Text>
-          <TilesField value='Normal' options={[null, 'Normal']} />
+          <TilesField value='Normal' options={['Normal']} />
         </View>
       </View>
     </View>

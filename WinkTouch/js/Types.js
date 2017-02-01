@@ -127,3 +127,13 @@
       reaction: string[],
       status: string
   }
+
+  export type SlitLampFindings = {
+    label: string,
+    conjunctiva: string,
+    cornea: string,
+    eyelids: string,
+    iris: string,
+    lens: string,
+    sclera: string
+  }

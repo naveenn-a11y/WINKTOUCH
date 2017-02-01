@@ -9,7 +9,7 @@ import { styles, fontScale } from './Styles';
 import type {Patient, Exam, GlassesRx, Visit, Appointment, Assessment } from './Types';
 import {Button, FloatingButton} from './Widgets';
 import { formatMoment } from './Util';
-import { ExamCard, allExams, allPreExams, fetchExams } from './Exam';
+import { ExamCard, createExams, allExamTypes, allPreExams, fetchExams, createExam } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
 
 export function fetchVisitHistory(patient: Patient): Visit[] {
@@ -117,15 +117,18 @@ export class VisitWorkFlow extends Component {
         visit: Visit,
         onNavigationChange: (action: string, data: any) => void,
         onStartVisit: (type: string) => void,
+        onAddExam: (type: string) => void,
         onUpdatePrescription: (prescription: GlassesRx) => void
     }
     state: {
-        expandedExamTypes: string[]
+        expandedExamTypes: string[],
+        addableExamTypes: string[]
     }
     constructor(props: any) {
         super(props);
         this.state = {
-            expandedExamTypes: []
+            expandedExamTypes: [],
+            addableExamTypes: this.unstartedExamTypes(this.props.visit.type)
         }
     }
 
@@ -146,7 +149,20 @@ export class VisitWorkFlow extends Component {
         return (index !== -1);
     }
 
-    renderStartExamsButtons() {
+    unstartedExamTypes(visitType: string) : string[] {
+      const allTypes : string[] = allExamTypes(visitType);
+      if (!this.props.visit.exams || this.props.visit.exams.length===0)
+        return allTypes;
+      let unstartedExamTypes : string[] = [];
+      for (let i=0;i<allTypes.length;i++) {
+        const examType: string = allTypes[i];
+        let existingExamInex = this.props.visit.exams.findIndex((exam : Exam) => exam.type === examType);
+        if (existingExamInex<0) unstartedExamTypes.push(examType);
+      }
+      return unstartedExamTypes;
+    }
+
+    renderStartVisitButtons() {
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
                 <Button title='Comprehensive exam' onPress={() => this.props.onStartVisit('comprehensive')} />
@@ -156,7 +172,7 @@ export class VisitWorkFlow extends Component {
         </View>
     }
 
-    renderExams(exams?: Exam[], examOptions?: Exam[]) {
+    renderExams(exams: ?Exam[], addableExamOptions: ?string[]) {
         if (!exams) return null;
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
@@ -166,20 +182,21 @@ export class VisitWorkFlow extends Component {
                         onToggleExpand={() => this.toggleExpand(exam)} />
                 })}
             </View>
-            <FloatingButton options={['ROS','Glaucoma']} />
-        </View>
+            {addableExamOptions && addableExamOptions.length>0?<FloatingButton options={addableExamOptions} onPress={this.props.onAddExam}/>:null}
+         </View>
     }
 
     render() {
         if (this.props.visit.exams === undefined || this.props.visit.exams.length === 0) {
             return <View>
                 {this.renderExams(this.props.visit.preExams)}
-                {this.renderStartExamsButtons()}
+                {this.renderStartVisitButtons()}
             </View>
         }
+        const unstartedExamTypes : string[] = this.unstartedExamTypes(this.props.visit.type);
         return <View>
             {this.renderExams(this.props.visit.preExams)}
-            {this.renderExams(this.props.visit.exams)}
+            {this.renderExams(this.props.visit.exams, unstartedExamTypes)}
             <AssessmentCard />
         </View>
     }
@@ -200,19 +217,25 @@ export class VisitHistory extends Component {
     constructor(props: any) {
         super(props);
         const appointmentsVisit : ?Visit = this.findAppointmentsVisit(this.props.visitHistory);
-        this.state = {
-            appointmentsVisit: appointmentsVisit,
-            selectedVisit: appointmentsVisit?appointmentsVisit:(this.props.visitHistory&&this.props.visitHistory.length>0)?this.props.visitHistory[0]:undefined
+        let selectedVisit: ?Visit = appointmentsVisit;
+        if (!selectedVisit && this.props.visitHistory && this.props.visitHistory.length>0) {
+          selectedVisit = this.props.visitHistory[0];
         }
+        this.state = {
+          appointmentsVisit,
+          selectedVisit
+        };
     }
 
     componentWillReceiveProps(nextProps: any) {
-          const appointmentsVisit: ?Visit = this.findAppointmentsVisit(nextProps.visitHistory);
-          let selectedVisit: ?Visit = appointmentsVisit;
-          if (!selectedVisit && nextProps.visitHistory && nextProps.visitHistory.length>0) {
-            selectedVisit = nextProps.visitHistory[0];
-          }
-          this.setState({  appointmentsVisit, selectedVisit });
+      if (this.state.selectedVisit)
+        return;
+      const appointmentsVisit: ?Visit = this.findAppointmentsVisit(nextProps.visitHistory);
+      let selectedVisit: ?Visit = appointmentsVisit;
+      if (!selectedVisit && nextProps.visitHistory && nextProps.visitHistory.length>0) {
+        selectedVisit = nextProps.visitHistory[0];
+      }
+      this.setState({  appointmentsVisit, selectedVisit });
     }
 
     showVisit(visit: Visit) {
@@ -229,14 +252,25 @@ export class VisitHistory extends Component {
       const selectedVisit : ?Visit = appointmentsVisit;
       LayoutAnimation.easeInEaseOut();
       this.setState({ selectedVisit, appointmentsVisit});
+      this.props.onUpdate(itemType, item)
     }
 
     startVisit(visitType: string) {
         const selectedVisit : ?Visit = this.state.selectedVisit;
         if (!selectedVisit) return;
-        selectedVisit.exams = allExams(this.props.appointment.patient, visitType);
+        selectedVisit.exams = createExams(this.props.appointment.patient, visitType);
         LayoutAnimation.easeInEaseOut();
         this.setState({ selectedVisit });
+    }
+
+    addExam = (examType: string) : void => {
+        const selectedVisit : ?Visit = this.state.selectedVisit;
+        if (!selectedVisit) return;
+        const newExam : Exam = createExam(selectedVisit.id, examType);
+        selectedVisit.exams.push(newExam);
+        this.setState({selectedVisit});
+        //TODO check if exams in visit history got also updated
+        this.props.onUpdate('appointment', this.props.appointment);
     }
 
     updatePrescription(prescription: GlassesRx) {
@@ -244,6 +278,7 @@ export class VisitHistory extends Component {
         if (!selectedVisit) return;
         selectedVisit.assessment.prescription = prescription;
         this.setState({selectedVisit});
+        //TODO: onUpdate visit
     }
 
     findAppointmentsVisit(visitHistory: Visit[]) : ?Visit {
@@ -269,7 +304,8 @@ export class VisitHistory extends Component {
                 visit={this.state.selectedVisit}
                 onNavigationChange={this.props.onNavigationChange}
                 onUpdatePrescription={(prescription: GlassesRx) => this.updatePrescription(prescription)}
-                onStartVisit={(visitType: string) => this.startVisit(visitType)} />:null}
+                onStartVisit={(visitType: string) => this.startVisit(visitType)}
+                onAddExam={this.addExam} />:null}
         </View>
     }
 }
