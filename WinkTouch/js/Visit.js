@@ -252,7 +252,7 @@ export class VisitHistory extends Component {
       const selectedVisit : ?Visit = appointmentsVisit;
       LayoutAnimation.easeInEaseOut();
       this.setState({ selectedVisit, appointmentsVisit});
-      this.props.onUpdate(itemType, item)
+      this.props.onUpdate('Visit', selectedVisit);
     }
 
     startVisit(visitType: string) {
@@ -270,7 +270,7 @@ export class VisitHistory extends Component {
         selectedVisit.exams.push(newExam);
         this.setState({selectedVisit});
         //TODO check if exams in visit history got also updated
-        this.props.onUpdate('appointment', this.props.appointment);
+        this.props.onUpdate('Appointment', this.props.appointment);
     }
 
     updatePrescription(prescription: GlassesRx) {

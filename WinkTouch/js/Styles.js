@@ -271,19 +271,12 @@ export const styles = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 1
     },
-    card: {
-        padding: 10 * fontScale,
-        borderRadius: 1,
-        margin: 10 * fontScale,
-        backgroundColor: 'white',
-        shadowRadius: 3,
-        shadowColor: '#000000',
-        shadowOpacity: 0.3,
-        shadowOffset: {
-            height: 1,
-            width: 0.3
-        }
-    },
+    card: cardStyle('white'),
+    cardBooked: cardStyle('purple'),
+    cardConfirmed: cardStyle('blue'),
+    cardLate: cardStyle('red'),
+    cardStarted: cardStyle('orange'),
+    cardDone: cardStyle('green'),
     cardTitle: {
         fontSize: 20 * fontScale,
         fontWeight: '500',
@@ -477,6 +470,22 @@ export const styles = StyleSheet.create({
       backgroundColor: 'red'
     }
 });
+
+function cardStyle(color: Color) {
+  return {
+      padding: 10 * fontScale,
+      borderRadius: 3 * fontScale,
+      margin: 10 * fontScale,
+      backgroundColor: 'white',
+      shadowRadius: 3 * fontScale,
+      shadowColor: color,
+      shadowOpacity: 0.3,
+      shadowOffset: {
+          height: 1 * fontScale,
+          width: 0.3 * fontScale
+      }
+  }
+}
 
 function tabStyle(isSelected: boolean) {
     return {

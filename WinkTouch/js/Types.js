@@ -49,6 +49,7 @@
 
   export type Appointment = {
       id: number,
+      visit?: Visit,
       patient: Patient,
       type: string,
       scheduledStart: Date,

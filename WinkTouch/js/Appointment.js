@@ -6,66 +6,48 @@
 import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, TextInput, LayoutAnimation } from 'react-native';
 import dateFormat from 'dateformat';
+import base64 from 'base-64';
 import { styles, fontScale } from './Styles';
 import type {PatientInfo, Patient, Appointment, Visit} from './Types';
 import { PatientCard } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
 import { fetchPatientInfo } from './Patient';
+import { restUrl } from './CouchDb';
 
-export function fetchAppointments() :Appointment[] {
-    let appointment1: Appointment = {
-        id: 1,
-        type: 'Patient complaint',
-        scheduledStart: new Date(2016, 11, 14, 10, 30),
-        scheduledEnd: new Date(2016, 11, 14, 10, 50),
-        bookingStatus: 'confirmed',
-        location: 'The oval office',
-        patient: {
-            patientId: 2,
-            accountsId: 2,
-            firstName: 'Demo',
-            lastName: 'HARRAR',
-            birthDate: new Date(1979, 12, 29)
-        },
-        patientPresence: 'In waiting room',
-        doctor: 'Conrad Murray'
-    };
-    let appointment2: Appointment = {
-        id: 2,
-        type: 'Take in new patient',
-        scheduledStart: new Date(2016, 11, 14, 11, 0),
-        scheduledEnd: new Date(2016, 11, 14, 11, 30),
-        bookingStatus: 'confirmed',
-        location: 'The oval office',
-        patient: {
-            patientId: 6,
-            accountsId: 2,
-            firstName: 'Wais',
-            lastName: 'Nice',
-            birthDate: new Date(1976, 2, 17)
-        },
-        patientPresence: 'Patient will be late',
-        doctor: 'Conrad Murray'
-    };
-    let appointment3: Appointment = {
-        id: 3,
-        type: 'Patient complaint',
-        scheduledStart: new Date(2016, 11, 14, 11, 30),
-        scheduledEnd: new Date(2016, 11, 14, 10, 45),
-        bookingStatus: 'confirmed',
-        location: 'The oval office',
-        patient: {
-            patientId: 9,
-            accountsId: 2,
-            firstName: 'Wais',
-            lastName: 'Khedri',
-            birthDate: new Date(1974, 2, 21)
-        },
-        patientPresence: 'Checked in',
-        doctor: 'The spin doctor'
-    };
-    return [appointment1, appointment2, appointment3, appointment3, appointment3, appointment3];
+export async function fetchAppointments(accountsId: number, searchText: string) : Appointment[] {
+  try {
+    let response = await fetch(restUrl+'/_design/views/_view/appointments?include_docs=true', {
+        method: 'get',
+    });
+    let json = await response.json();
+    const appointments = json.rows.map((row: any) => row.doc);
+    return appointments;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to get the appointments list from the server. You can try again anytime.');
+  }
+}
+
+export async function createAppointment(appointment: Appointment) {
+  appointment.datatype = 'appointment';
+  try {
+      let response = await fetch(restUrl, {
+          method: 'post',
+          headers: {
+            'Authorization': 'Basic ' + base64.encode('ehr:ehr'),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(appointment)
+      });
+      let json = await response.json();
+      alert(JSON.stringify(json));
+      console.log(JSON.stringify(json));
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to store the appointment on the server. You can try again anytime.');
+  }
 }
 
 export default class AppointmentSummary extends Component {
@@ -77,9 +59,16 @@ export default class AppointmentSummary extends Component {
         super(props);
     }
 
+    apointmentStatus() : string {
+      const statuses : string[] = ['Booked','Confirmed','Late','Started','Done'];
+      const status : string = statuses[Math.random()*statuses.length];
+      return status;
+    }
+
     render() {
+        let style = styles.cardBooked;
         return <TouchableOpacity onPress={this.props.onPress}>
-            <View style={styles.card}>
+            <View style={style}>
                 <Text>{this.props.appointment.patient.firstName} {this.props.appointment.patient.lastName}</Text>
                 <Text>{dateFormat(this.props.appointment.scheduledStart, 'h:MM')}till {dateFormat(this.props.appointment.scheduledEnd, 'h:MM')}</Text>
                 <Text>{this.props.appointment.type}</Text>
@@ -99,7 +88,6 @@ export class AppointmentsSummary extends Component {
     }
 
     render() {
-
         return <View style={{
             flexDirection: 'row',
             justifyContent: 'space-between'
@@ -197,7 +185,7 @@ export class AppointmentScreen extends Component {
     }
 
     refreshVisitHistory() {
-      const visitHistory : Visit[] = fetchVisitHistory(this.props.appointment.patient);    
+      const visitHistory : Visit[] = fetchVisitHistory(this.props.appointment.patient);
       this.props.onUpdate('VisitHistory', visitHistory);
     }
 

@@ -61,9 +61,6 @@ export class OverviewScreen extends Component {
         return <View style={styles.page}>
             <AppointmentsSummary appointments={this.props.appointments} onNavigationChange={this.props.onNavigationChange} />
             <WorkFlow />
-            {/** <FindPatient popupResults={true}
-                onSelectPatient={(patient: Patient) => this.props.onNavigationChange('showPatient', patient)}
-                onNewPatient={(searchCriterium: string) => this.props.onNavigationChange('newPatient', searchCriterium)} />*/}
             <View style={styles.buttonsRowLayout}>
                 <View style={[styles.flow]}>
                     <View style={styles.tabCard}><Text style={styles.h3}>Agenda</Text></View>

@@ -199,6 +199,7 @@ export class DoctorApp extends Component {
       } else if (itemType==='VisitHistory') {
         const visitHistory : Visit[] = item;
         this.state.navigationState.routes[1].visitHistory = visitHistory;
+        this.state.navigationState.routes[0].appointments[0].visitHistory = visitHistory;
       } else if (itemType==='PatientInfo' && this.state.navigationState.routes.length>=2) {
         const patientInfo : PatientInfo = item;
         if (this.state.navigationState.routes[1].scene==='appointment') {
