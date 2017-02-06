@@ -24,9 +24,12 @@ import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
 import { fetchRefractions} from './Refraction';
 
+let id = 0;
+
 function constructExam(patient: Patient, type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
   if (type==='wearingRx' || type==='refractionTest') {
     return {
+      _id: 'Exam'+String(++id),
       type: type,
       visitId: 1,
       patient: patient,
@@ -65,6 +68,7 @@ function constructExam(patient: Patient, type: string, hasStarted?: boolean = fa
     }
   }
   return {
+    _id: 'Exam'+String(++id),
     type: type,
     patient: patient,
     visitId: 2,

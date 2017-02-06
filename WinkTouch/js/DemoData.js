@@ -4,6 +4,7 @@
 'use strict';
 
 import type {Appointment, Medication, Medications} from './Types';
+import {storeDocument} from './CouchDb';
 import {createAppointment} from './Appointment';
 import {createMedications} from './Medication';
 
@@ -76,10 +77,12 @@ function createExamMedications() {
     instructions: ['Shake well before using', 'Take with food', 'Avoid taking with diary']
   };
   let medications: Medications = {
-    examId: 'Exam1',
+    dataType: 'ExamItem',
+    itemType: 'Medications',
+    examId: 'Exam1',    
     medications: [medication1]
   }
-  createMedications(medications);
+  storeDocument(medications);
 }
 
 export function createDemoData() {

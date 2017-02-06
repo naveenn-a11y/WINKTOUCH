@@ -7,28 +7,34 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition, Medication } from './Types';
+import type {Exam, ItemDefinition, Medication } from './Types';
 import { FormRow, FormTextInput } from './Form';
 import { createExamItem } from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
+export function createMedications(examId: string) : Medications {
+  const newMedications : Medications = {
+    examId,
+    medications: []
+  };
+  return createExamItem('Medications', newMedications);
+}
 
-export async function fetchMedications(examId: number) : Medications {
+export async function fetchMedications(examId: string) : Medications {
   try {
-    let response = await fetch(restUrl+'/_design/views/_view/examitems?startkey='+encodeURIComponent('["medication"]'), {
+    let response = await fetch(restUrl+'/_design/views/_view/examitems?startkey='+
+      encodeURIComponent('["Medications","'+examId+'"]')+'&endkey='+
+      encodeURIComponent('["Medications","'+examId+'"]'), {
         method: 'get'
     });
     let json = await response.json();
-    const medications = json.rows[0].value;
+    const medications = json.rows.length===0?await createMedications(examId):json.rows[0].value;
     return medications;
   } catch (error) {
     console.error(error);
     alert('Something went wrong trying to get the medication list from the server. You can try again anytime.');
+    return undefined;
   }
-}
-
-export function createMedications(medications: Medications) {
-  return createExamItem('Medications', medications);
 }
 
 const medicationDefinition: ItemDefinition = {
@@ -78,7 +84,7 @@ export class MedicationsScreen extends Component {
     this.unmounted = false;
     this.state = {
       medications: {
-        examId: this.props.exam.id,
+        examId: this.props.exam._id,
         medications: []
       }
     }
@@ -86,11 +92,23 @@ export class MedicationsScreen extends Component {
   }
 
   async refreshMedications() {
-      const medications: Medications = await fetchMedications(this.props.exam.examId);
+      const medications: Medications = await fetchMedications(this.props.exam._id);
       if (medications.medications===undefined || medications.medications===null) {
         medications.medications=[];
       }
       this.setState({medications});
+  }
+
+  async storeMedications() {
+    try {
+      let medications = await storeDocument(this.state.medications);
+      if (!this.unmounted)
+        this.setState({medications});
+    } catch (error) {
+      alert(error);
+      if (this.unmounted)
+        this.props.onNavigationChange('showExam', this.props.exam);
+    }
   }
 
   newMedication(): Medication {
@@ -108,26 +126,9 @@ export class MedicationsScreen extends Component {
   }
 
   isMedicationEmpty = (medication: Medication) : boolean => {
-    console.log('isempty ?:'+JSON.stringify(medication));
     if (medication === undefined || medication===null) return true;
-    if (medication.label === undefined || medication.label==null || medication.label.trim()==='') {
-      console.log(medication.label+' is empty');
-      return true;
-    }
-    console.log(medication.label+' is not empty');
+    if (medication.label === undefined || medication.label==null || medication.label.trim()==='') return true;
     return false;
-  }
-
-  async storeMedications() {
-    try {
-      let medications = await storeDocument(this.state.medications);
-      if (!this.unmounted)
-        this.setState({medications});
-    } catch (error) {
-      alert(error);
-      if (this.unmounted)
-        this.props.onNavigationChange('showExam', this.props.exam);
-    }
   }
 
   componentWillUnmount() {

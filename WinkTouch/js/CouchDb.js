@@ -11,6 +11,7 @@ export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
 let idCounter : number = 0;
 
 function newId() : string {
+  //https://wiki.apache.org/couchdb/HttpGetUuids
   const newId : string = String(++idCounter);
   return newId;
 }

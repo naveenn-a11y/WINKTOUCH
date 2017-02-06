@@ -9,11 +9,29 @@ import { styles, fontScale } from './Styles';
 import type {ItemDefinition, Allergy } from './Types';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
+import { restUrl, storeDocument } from './CouchDb';
 
-function fetchAllergies(): Allergy[] {
-  const allergies: Allergy[] = [
-  ];
-  return allergies;
+export function createAllergies(examId: string) : Allergies {
+  const newAllergies : Allergies = {
+    examId,
+    allergies: []
+  };
+  return createExamItem('Allergies', newAllergies);
+}
+
+export async function fetchAllergies(): Allergies {
+  try {
+    let response = await fetch(restUrl+'/_design/views/_view/examitems?startkey='+encodeURIComponent('["Allergies"]')+'&endkey='+encodeURIComponent('["Allergies"]'), {
+        method: 'get'
+    });
+    let json = await response.json();
+    const allergies = json.total_rows===0?[]:json.rows[0].value;
+    return allergies;
+  } catch (error) {
+    console.error(error);
+    alert('Something went wrong trying to get the medication list from the server. You can try again anytime.');
+    return [];
+  }
 }
 
 const allergyDefinition: ItemDefinition = {

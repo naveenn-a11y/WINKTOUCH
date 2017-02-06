@@ -95,7 +95,7 @@
   }
 
   export type Exam = {
-      id?: number,
+      _id?: string,
       patient: Patient,
       visitId: number,
       type: string,
@@ -114,19 +114,13 @@
   }
 
   export type RefractionExam = {
-      id?: number,
+      _id?: string,
       patient: Patient,
       visitId: number,
       type: string,
       hasStarted: boolean,
       hasEnded: boolean,
       refractions: Refractions
-  }
-
-  export type Allergy = {
-      allergy: string,
-      reaction: string[],
-      status: string
   }
 
   export type SlitLampFindings = {
@@ -153,4 +147,15 @@
   export type Medications = {
     examId: string,
     medications: Medication[]
+  }
+
+  export type Allergy = {
+      allergy: string,
+      reaction: string[],
+      status: string
+  }
+
+  export type Allergies = {
+      examId: string,
+      allergies: Allergy[]
   }

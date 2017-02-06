@@ -852,7 +852,6 @@ export class ItemsEditor<ItemType> extends Component {
   }
 
   componentWillReceiveProps(nextProps: any) {
-    console.log('received '+nextProps.items);
     let items: ItemType[] = nextProps.items;
     if (items.length === 0 && this.props.newItem!==undefined)
       items.push(this.props.newItem());
