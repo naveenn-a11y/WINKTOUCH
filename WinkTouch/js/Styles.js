@@ -477,12 +477,12 @@ function cardStyle(color: Color) {
       borderRadius: 3 * fontScale,
       margin: 10 * fontScale,
       backgroundColor: 'white',
-      shadowRadius: 3 * fontScale,
+      shadowRadius: 8 * fontScale,
       shadowColor: color,
       shadowOpacity: 0.3,
       shadowOffset: {
-          height: 1 * fontScale,
-          width: 0.3 * fontScale
+          height: 3 * fontScale,
+          width: 1 * fontScale
       }
   }
 }

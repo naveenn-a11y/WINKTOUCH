@@ -36,7 +36,7 @@ export class MenuBar extends Component {
         hidden: boolean,
         backable: boolean,
         appointment?: Appointment,
-        onNavigationChange: (action: string, data: any) => void
+        onNavigationChange: (action: string, data: any) => void,
     }
 
     render() {

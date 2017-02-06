@@ -138,3 +138,19 @@
     lens: string,
     sclera: string
   }
+
+  export type Medication = {
+    label: string,
+    rxDate: Date,
+    strength: string,
+    dosage: string,
+    route: string,
+    frequency: string,
+    duration: string,
+    instructions: string[]
+  }
+
+  export type Medications = {
+    examId: string,
+    medications: Medication[]
+  }

@@ -4,66 +4,37 @@
 'use strict';
 
 import base64 from 'base-64';
-import type {Appointment} from './Types';
-import {createAppointment} from './Appointment';
+import {createDemoData} from './DemoData';
 
 export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
 
-function createFewAppointments() {
-  let appointment1: Appointment = {
-      id: 1,
-      type: 'Patient complaint',
-      scheduledStart: new Date(2016, 11, 14, 10, 30),
-      scheduledEnd: new Date(2016, 11, 14, 10, 50),
-      bookingStatus: 'confirmed',
-      location: 'The oval office',
-      patient: {
-          patientId: 2,
-          accountsId: 2,
-          firstName: 'Demo',
-          lastName: 'HARRAR',
-          birthDate: new Date(1979, 12, 29)
+let idCounter : number = 0;
+
+function newId() : string {
+  const newId : string = String(++idCounter);
+  return newId;
+}
+
+export async function storeDocument(document: Object) {
+    if (document._id === undefined) {
+      document._id = document.dataType+newId()
+    }
+    let response = await fetch(restUrl+document._id, {
+      method: 'put',
+      headers: {
+        'Authorization': 'Basic ' + base64.encode('ehr:ehr'),
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
-      patientPresence: 'In waiting room',
-      doctor: 'Conrad Murray'
-  };
-  let appointment2: Appointment = {
-      id: 2,
-      type: 'Take in new patient',
-      scheduledStart: new Date(2016, 11, 14, 11, 0),
-      scheduledEnd: new Date(2016, 11, 14, 11, 30),
-      bookingStatus: 'confirmed',
-      location: 'The oval office',
-      patient: {
-          patientId: 6,
-          accountsId: 2,
-          firstName: 'Wais',
-          lastName: 'Nice',
-          birthDate: new Date(1976, 2, 17)
-      },
-      patientPresence: 'Patient will be late',
-      doctor: 'Conrad Murray'
-  };
-  let appointment3: Appointment = {
-      id: 3,
-      type: 'Patient complaint',
-      scheduledStart: new Date(2016, 11, 14, 11, 30),
-      scheduledEnd: new Date(2016, 11, 14, 10, 45),
-      bookingStatus: 'confirmed',
-      location: 'The oval office',
-      patient: {
-          patientId: 9,
-          accountsId: 2,
-          firstName: 'Wais',
-          lastName: 'Khedri',
-          birthDate: new Date(1974, 2, 21)
-      },
-      patientPresence: 'Checked in',
-      doctor: 'The spin doctor'
-  };
-  createAppointment(appointment1);
-  createAppointment(appointment2);
-  createAppointment(appointment3);
+      body: JSON.stringify(document)
+    });
+    let responseJson = await response.json();
+    if (responseJson.ok!==true) {
+      console.log(JSON.stringify(responseJson));
+      throw 'The server could not save your changes because of a '+responseJson.reason+'. Please redo your changes.';
+    }
+    document._rev = responseJson.rev;
+    return document;
 }
 
 async function deleteEhrDatabase() {
@@ -101,11 +72,24 @@ async function createEhrDatabase() {
 }
 
 async function createViews() {
-    const viewDesign = {
-      "views": {
-        "appointments": { "map": "function (doc) {emit(doc._id, 2);}" }
+    const viewsDesign = {
+      views: {
+        appointments: {
+          map: `function (doc) {
+            if (doc.dataType==='Appointment') {
+              emit(doc.scheduledStart, doc);
+            }
+          }`
+        },
+        examitems: {
+          map: `function (doc) {
+            if (doc.dataType==='ExamItem') {
+              emit([doc.itemType, doc.examId], doc);
+            }
+          }`
+        }
       },
-      "language": "javascript"
+      language: 'javascript'
     };
     try {
         let response = await fetch(restUrl+'_design/views', {
@@ -114,9 +98,8 @@ async function createViews() {
                 'Accept': 'application/json',
                 'Authorization': 'Basic ' + base64.encode('ehr:ehr')
             },
-            body: JSON.stringify(viewDesign)
+            body: JSON.stringify(viewsDesign)
         });
-        alert(JSON.stringify(response));
         //todo check if suckseeded
     } catch (error) {
       console.log(error);
@@ -124,9 +107,9 @@ async function createViews() {
     }
 }
 
-export async function recreateDatabase() : void {
+export async function recreateDatabase() {
   await deleteEhrDatabase();
   await createEhrDatabase();
   await createViews();
-  createFewAppointments();
+  await createDemoData();
 }

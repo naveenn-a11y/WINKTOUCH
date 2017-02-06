@@ -14,7 +14,7 @@ import { ComplaintScreen } from './Complaint';
 import type {Complaint } from './Complaint';
 import { ReviewOfSystemsScreen } from './ReviewOfSystems';
 import { PatientMedicationsCard, PatientMedicalHistoryCard, PatientAllergiesCard, PatientFamilyHistoryCard, PatientSocialHistoryCard } from './Patient';
-import { MedicationsScreen } from './Medications';
+import { MedicationsScreen } from './Medication';
 import { AllergiesScreen } from './Allergies';
 import { SocialHistoryScreen } from './SocialHistory';
 import { FamilyHistoryScreen } from './FamilyHistory';
@@ -327,7 +327,7 @@ export class ExamScreen extends Component {
       case 'glaucomaExam':
         return <GlaucomaScreen exam={this.state.exam} />
       case 'medications':
-        return <MedicationsScreen exam={this.state.exam} />
+        return <MedicationsScreen exam={this.state.exam} onNavigationChange={this.props.onNavigationChange} />
       case 'allergies':
         return <AllergiesScreen exam={this.state.exam} />
       case 'socialHistory':

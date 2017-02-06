@@ -13,15 +13,16 @@ import { PatientCard } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
 import { fetchPatientInfo } from './Patient';
-import { restUrl } from './CouchDb';
+import { storeDocument, restUrl } from './CouchDb';
 
 export async function fetchAppointments(accountsId: number, searchText: string) : Appointment[] {
   try {
-    let response = await fetch(restUrl+'/_design/views/_view/appointments?include_docs=true', {
-        method: 'get',
+
+    let response = await fetch(restUrl+'/_design/views/_view/appointments?startkey="2016-12-13T16"', {
+        method: 'get'
     });
     let json = await response.json();
-    const appointments = json.rows.map((row: any) => row.doc);
+    const appointments = json.rows.map((row: any) => row.value);
     return appointments;
   } catch (error) {
     console.log(error);
@@ -29,21 +30,11 @@ export async function fetchAppointments(accountsId: number, searchText: string) 
   }
 }
 
-export async function createAppointment(appointment: Appointment) {
-  appointment.datatype = 'appointment';
+export async function createAppointment(appointment: Appointment) : Appointment {
   try {
-      let response = await fetch(restUrl, {
-          method: 'post',
-          headers: {
-            'Authorization': 'Basic ' + base64.encode('ehr:ehr'),
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(appointment)
-      });
-      let json = await response.json();
-      alert(JSON.stringify(json));
-      console.log(JSON.stringify(json));
+      appointment.dataType = 'Appointment';
+      appointment = await storeDocument(appointment);
+      return appointment;
   } catch (error) {
     console.log(error);
     alert('Something went wrong trying to store the appointment on the server. You can try again anytime.');
@@ -59,14 +50,15 @@ export default class AppointmentSummary extends Component {
         super(props);
     }
 
-    apointmentStatus() : string {
+    appointmentStatus() : string {
       const statuses : string[] = ['Booked','Confirmed','Late','Started','Done'];
-      const status : string = statuses[Math.random()*statuses.length];
+      const status : string = statuses[Math.floor(Math.random()*statuses.length)];
       return status;
     }
 
     render() {
-        let style = styles.cardBooked;
+        const status : string = this.appointmentStatus();
+        let style = styles['card'+status];
         return <TouchableOpacity onPress={this.props.onPress}>
             <View style={style}>
                 <Text>{this.props.appointment.patient.firstName} {this.props.appointment.patient.lastName}</Text>

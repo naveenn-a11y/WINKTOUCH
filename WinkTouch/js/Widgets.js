@@ -639,11 +639,9 @@ class ItemSummary<ItemType> extends Component {
     itemDefinition: ItemDefinition,
     orientation?: string
   }
-  constructor(props: any) {
-    super(props);
-  }
 
   render() {
+    if (!this.props.item) return null;
     const propertyNames: string[] = Object.keys(this.props.itemDefinition);
     if (this.props.orientation !== 'horizontal') {
       let description = '';
@@ -829,35 +827,37 @@ class ItemsList<ItemType> extends Component {
 
 export class ItemsEditor<ItemType> extends Component {
   props: {
-    items?: ItemType[],
+    items: ItemType[],
     newItem?: () => ItemType,
+    isEmpty?: (item: ItemType) => boolean,
     itemDefinition: ItemDefinition,
     itemView?: string,
-    orientation?: string
+    orientation?: string,
+    onUpdate?: () => void
   }
   state: {
-    items: ItemType[],
-    selectedItem: ItemType
+    selectedItem: ItemType,
+    isDirty: boolean
   }
 
   constructor(props: any) {
     super(props);
-    let items: ItemType[] = this.props.items ? this.props.items : [];
+    let items: ItemType[] = this.props.items;
     if (items.length === 0 && this.props.newItem!==undefined)
-      items = [this.props.newItem()];
+      items.push(this.props.newItem());
     this.state = {
-      items: items,
-      selectedItem: items[0]
+      selectedItem: items[0],
+      isDirty : false
     };
   }
 
   componentWillReceiveProps(nextProps: any) {
-    let items: ItemType[] = nextProps.items ? nextProps.items : [];
+    console.log('received '+nextProps.items);
+    let items: ItemType[] = nextProps.items;
     if (items.length === 0 && this.props.newItem!==undefined)
-      items = [this.props.newItem()];
+      items.push(this.props.newItem());
     this.setState({
-      items: items,
-      selectedItem: items[0]
+      selectedItem: items[0],
     });
   }
 
@@ -875,16 +875,18 @@ export class ItemsEditor<ItemType> extends Component {
     }
     item[propertyName] = value;
     this.setState({
-      selectedItem: item
+      selectedItem: item,
+      isDirty: true
     });
+
   }
 
   addItem() {
     const newItem: ItemType = this.props.newItem();
-    this.state.items.push(newItem);
+    this.props.items.push(newItem);
     this.setState({
-      items: this.state.items,
-      selectedItem: newItem
+      selectedItem: newItem,
+      isDirty: true
     });
   }
 
@@ -895,26 +897,45 @@ export class ItemsEditor<ItemType> extends Component {
   }
 
   removeSelectedItem() {
-    let index: number = this.state.items.indexOf(this.state.selectedItem);
+    let index: number = this.props.items.indexOf(this.state.selectedItem);
     if (index < 0) {
       return;
     }
-    let items: ItemType[] = this.state.items;
+    let items: ItemType[] = this.props.items;
     items.splice(index, 1);
     if (items.length === 0)
-      items = [this.props.newItem()];
+      items.push(this.props.newItem());
     if (index >= items.length) index = items.length - 1;
     this.setState({
-      items: items,
-      selectedItem: items[index]
+      selectedItem: items[index],
+      isDirty: true
     })
+  }
+
+  removeEmptyItems() {
+    if (!this.props.isEmpty) return;
+    let items: ItemType[] = this.props.items;
+    let i: number = 0;
+    while (i<items.length) {
+      if (this.props.isEmpty(items[i]))
+        items.splice(i,1);
+      else
+        i++
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.state.isDirty && this.props.onUpdate) {
+      this.removeEmptyItems();
+      this.props.onUpdate();
+    }
   }
 
   render() {
     const propertyNames: string[] = Object.keys(this.props.itemDefinition);
     return <View>
       <ItemsList
-        items={this.state.items}
+        items={this.props.items}
         itemDefinition={this.props.itemDefinition}
         onAddItem={this.props.newItem?() => this.addItem():undefined}
         onUpdateItem={(propertyName: string, value: any) => this.updateItem(propertyName, value)}
