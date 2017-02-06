@@ -174,3 +174,14 @@
     examId: string,
     medicalProcedures: MedicalProcedure[]
   }
+
+  export type SiblingsDisease = {
+    disease: string,
+    since: string,
+    relation: string[]
+  }
+
+  export type FamilyHistory = {
+    examId: string,
+    siblingsDiseases: SiblingsDisease[]
+  }
