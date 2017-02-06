@@ -6,32 +6,20 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
-import type {ItemDefinition, Allergy } from './Types';
+import type {Exam, ItemDefinition, Allergy, Allergies } from './Types';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import { FormRow, FormTextInput } from './Form';
+import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
-export function createAllergies(examId: string) : Allergies {
-  const newAllergies : Allergies = {
-    examId,
-    allergies: []
-  };
-  return createExamItem('Allergies', newAllergies);
+
+export async function fetchAllergies(examId: string): Allergies {
+  let allergies : Allergies = await fetchExamItems(examId, 'Allergies');
+  return allergies;
 }
 
-export async function fetchAllergies(): Allergies {
-  try {
-    let response = await fetch(restUrl+'/_design/views/_view/examitems?startkey='+encodeURIComponent('["Allergies"]')+'&endkey='+encodeURIComponent('["Allergies"]'), {
-        method: 'get'
-    });
-    let json = await response.json();
-    const allergies = json.total_rows===0?[]:json.rows[0].value;
-    return allergies;
-  } catch (error) {
-    console.error(error);
-    alert('Something went wrong trying to get the medication list from the server. You can try again anytime.');
-    return [];
-  }
+export async function storeAllergies(allergies: Allergies) :Allergies {
+  return await storeDocument(allergies);
 }
 
 const allergyDefinition: ItemDefinition = {
@@ -53,20 +41,78 @@ const allergyDefinition: ItemDefinition = {
 };
 
 export class AllergiesScreen extends Component {
-  newAllergy(): Allergy {
+  props: {
+    exam: Exam,
+    onNavigationChange: (action: string, data: any) => void,
+  }
+  state: {
+    allergies: Allergies
+  }
+  unmounted: boolean
+
+  constructor(props: any) {
+    super(props);
+    this.unmounted = false;
+    this.state = {
+      allergies: this.newAllergies()
+    }
+    this.refreshAllergies();
+  }
+
+  async refreshAllergies() {
+      let allergies: Allergies = await fetchAllergies(this.props.exam._id);
+      if (allergies===undefined) {
+        allergies = await createExamItem('Allergies', this.newAllergies());
+      }
+      this.setState({allergies});
+  }
+
+  async storeAllergies() {
+    try {
+      let allergies : Allergies = await storeDocument(this.state.allergies);
+      if (!this.unmounted)
+        this.setState({allergies});
+    } catch (error) {
+      alert(error);
+      if (this.unmounted) {
+        this.props.onNavigationChange('showExam', this.props.exam);
+      } else {
+        this.refreshAllergies();
+      }
+    }
+  }
+
+  newAllergies = () => {
+    const newAllergies : Allergies = newExamItems(this.props.exam._id, 'Allergies');
+    newAllergies.allergies = [];
+    return newAllergies;
+  }
+
+  newAllergy = () => {
     return {
-      type: '',
       allergy: '',
       reaction: [],
-      status: 'Active'
+      status: ''
     };
+  }
+
+  isAllergyEmpty = (allergy: Allergy) => {
+    if (allergy === undefined || allergy===null) return true;
+    if (allergy.allergy === undefined || allergy.allergy==null || allergy.allergy.trim()==='') return true;
+    return false;
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
   }
 
   render() {
     return <ItemsEditor
-      items={fetchAllergies()}
-      newItem={() => this.newAllergy()}
-      itemDefinition={allergyDefinition}
+    items={this.state.allergies.allergies}
+    newItem={this.newAllergy}
+    isEmpty={this.isAllergyEmpty}
+    itemDefinition={allergyDefinition}
+    onUpdate = {() => this.storeAllergies()}
     />
   }
 }

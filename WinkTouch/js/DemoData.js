@@ -79,7 +79,7 @@ function createExamMedications() {
   let medications: Medications = {
     dataType: 'ExamItem',
     itemType: 'Medications',
-    examId: 'Exam1',    
+    examId: 'Exam1',
     medications: [medication1]
   }
   storeDocument(medications);
@@ -87,5 +87,5 @@ function createExamMedications() {
 
 export function createDemoData() {
   createFewAppointments();
-  createExamMedications();
+  //createExamMedications();
 }

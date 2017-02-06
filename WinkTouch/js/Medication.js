@@ -9,32 +9,16 @@ import { styles, fontScale } from './Styles';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import type {Exam, ItemDefinition, Medication } from './Types';
 import { FormRow, FormTextInput } from './Form';
-import { createExamItem } from './ExamItem';
+import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
-export function createMedications(examId: string) : Medications {
-  const newMedications : Medications = {
-    examId,
-    medications: []
-  };
-  return createExamItem('Medications', newMedications);
+export async function fetchMedications(examId: string) : Medications {
+  let medications : Medications = await fetchExamItems(examId, 'Medications');
+  return medications;
 }
 
-export async function fetchMedications(examId: string) : Medications {
-  try {
-    let response = await fetch(restUrl+'/_design/views/_view/examitems?startkey='+
-      encodeURIComponent('["Medications","'+examId+'"]')+'&endkey='+
-      encodeURIComponent('["Medications","'+examId+'"]'), {
-        method: 'get'
-    });
-    let json = await response.json();
-    const medications = json.rows.length===0?await createMedications(examId):json.rows[0].value;
-    return medications;
-  } catch (error) {
-    console.error(error);
-    alert('Something went wrong trying to get the medication list from the server. You can try again anytime.');
-    return undefined;
-  }
+export async function storeMedications(medications: Medications) :Medications {
+  return await storeDocument(medications);
 }
 
 const medicationDefinition: ItemDefinition = {
@@ -79,22 +63,20 @@ export class MedicationsScreen extends Component {
     medications: Medications
   }
   unmounted: boolean
+
   constructor(props: any) {
     super(props);
     this.unmounted = false;
     this.state = {
-      medications: {
-        examId: this.props.exam._id,
-        medications: []
-      }
+      medications: this.newMedications()
     }
     this.refreshMedications();
   }
 
   async refreshMedications() {
-      const medications: Medications = await fetchMedications(this.props.exam._id);
-      if (medications.medications===undefined || medications.medications===null) {
-        medications.medications=[];
+      let medications: Medications = await fetchMedications(this.props.exam._id);
+      if (medications.medications===undefined) {
+        medications = await createExamItem('Medications', this.newMedications())
       }
       this.setState({medications});
   }
@@ -106,12 +88,22 @@ export class MedicationsScreen extends Component {
         this.setState({medications});
     } catch (error) {
       alert(error);
-      if (this.unmounted)
+      if (this.unmounted) {
         this.props.onNavigationChange('showExam', this.props.exam);
+      } else {
+        this.refreshMedications();
+      }
     }
   }
 
-  newMedication(): Medication {
+  newMedications = ()  => {
+    const newMedications : Medications = newExamItems(this.props.exam._id, 'Medications');
+    newMedications.medications = [];
+    return newMedications;
+  }
+
+
+  newMedication = ()  => {
     let medication : Medication = {
       label: '',
       rxDate: new Date(),
@@ -125,7 +117,7 @@ export class MedicationsScreen extends Component {
     return medication;
   }
 
-  isMedicationEmpty = (medication: Medication) : boolean => {
+  isMedicationEmpty = (medication: Medication)  => {
     if (medication === undefined || medication===null) return true;
     if (medication.label === undefined || medication.label==null || medication.label.trim()==='') return true;
     return false;
@@ -138,7 +130,7 @@ export class MedicationsScreen extends Component {
   render() {
     return <ItemsEditor
       items={this.state.medications.medications}
-      newItem={() => this.newMedication()}
+      newItem={this.newMedication}
       isEmpty={this.isMedicationEmpty}
       itemDefinition={medicationDefinition}
       onUpdate = {() => this.storeMedications()}

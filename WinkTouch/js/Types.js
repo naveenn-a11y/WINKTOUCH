@@ -144,6 +144,10 @@
     instructions: string[]
   }
 
+  export type ExamItems = {
+    examId: string
+  }
+
   export type Medications = {
     examId: string,
     medications: Medication[]
