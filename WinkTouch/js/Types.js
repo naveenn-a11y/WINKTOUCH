@@ -163,3 +163,14 @@
       examId: string,
       allergies: Allergy[]
   }
+
+  export type MedicalProcedure = {
+    procedure: string,
+    date: Date,
+    route: string
+  }
+
+  export type MedicalHistory = {
+    examId: string,
+    medicalProcedures: MedicalProcedure[]
+  }

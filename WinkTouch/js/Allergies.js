@@ -8,7 +8,6 @@ import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'rea
 import { styles, fontScale } from './Styles';
 import type {Exam, ItemDefinition, Allergy, Allergies } from './Types';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import { FormRow, FormTextInput } from './Form';
 import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 

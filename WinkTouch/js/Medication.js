@@ -8,7 +8,6 @@ import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'rea
 import { styles, fontScale } from './Styles';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import type {Exam, ItemDefinition, Medication } from './Types';
-import { FormRow, FormTextInput } from './Form';
 import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
@@ -75,7 +74,7 @@ export class MedicationsScreen extends Component {
 
   async refreshMedications() {
       let medications: Medications = await fetchMedications(this.props.exam._id);
-      if (medications.medications===undefined) {
+      if (medications===undefined) {
         medications = await createExamItem('Medications', this.newMedications())
       }
       this.setState({medications});
