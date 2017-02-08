@@ -200,31 +200,6 @@ export class PatientOcularHistoryCard extends ExamCardSpecifics {
         return <Text style={styles.text}>Ocular History</Text>
     }
 }
-export class PatientMedicalHistoryCard extends ExamCardSpecifics {
-    render() {
-        return <Text style={styles.text}>Medical History</Text>
-    }
-}
-export class PatientMedicationsCard extends ExamCardSpecifics {
-    render() {
-        return <Text style={styles.text}>Medications</Text>
-    }
-}
-export class PatientAllergiesCard extends ExamCardSpecifics {
-    render() {
-        return <Text style={styles.text}>Allergies</Text>
-    }
-}
-export class PatientFamilyHistoryCard extends ExamCardSpecifics {
-    render() {
-        return <Text style={styles.text}>Family History</Text>
-    }
-}
-export class PatientSocialHistoryCard extends ExamCardSpecifics {
-    render() {
-        return <Text style={styles.text}>Social History</Text>
-    }
-}
 
 export class PatientScreen extends Component {
     props: {

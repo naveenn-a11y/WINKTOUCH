@@ -6,10 +6,12 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
+import { strings } from './Strings';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import type {Exam, ItemDefinition, Medication } from './Types';
-import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
+import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
+import { ExamCardSpecifics} from './Exam';
 
 export async function fetchMedications(examId: string) : Medications {
   let medications : Medications = await fetchExamItems(examId, 'Medications');
@@ -53,10 +55,22 @@ const medicationDefinition: ItemDefinition = {
   }
 };
 
+export class MedicationsCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemsCard  itemType='medications' itemProperties={['route','label','strength']}{...this.props}/>
+  }
+}
+
 export class MedicationsScreen extends Component {
   props: {
     exam: Exam,
     onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
   }
   state: {
     medications: Medications
@@ -66,18 +80,21 @@ export class MedicationsScreen extends Component {
   constructor(props: any) {
     super(props);
     this.unmounted = false;
-    this.state = {
-      medications: this.newMedications()
-    }
+    let medications: Medications = this.props.exam.medications;
+    if (medications===undefined) medications = this.newMedications();
+    this.state = {medications};
     this.refreshMedications();
   }
 
   async refreshMedications() {
-      let medications: Medications = await fetchMedications(this.props.exam._id);
+      let exam : Exam = this.props.exam;
+      let medications: Medications = await fetchMedications(exam._id);
       if (medications===undefined) {
         medications = await createExamItem('Medications', this.newMedications())
       }
       this.setState({medications});
+      exam.medications = medications;
+      this.props.onUpdateExam(exam);
   }
 
   async storeMedications() {

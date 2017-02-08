@@ -8,7 +8,7 @@ import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'rea
 import { styles, fontScale } from './Styles';
 import type {Exam, ItemDefinition, Allergy, Allergies } from './Types';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
+import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
 
@@ -39,10 +39,22 @@ const allergyDefinition: ItemDefinition = {
   },
 };
 
+export class AllegiesCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemsCard  itemType='allergies' itemProperties={['allergy']}{...this.props}/>
+  }
+}
+
 export class AllergiesScreen extends Component {
   props: {
     exam: Exam,
     onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
   }
   state: {
     allergies: Allergies
@@ -52,18 +64,21 @@ export class AllergiesScreen extends Component {
   constructor(props: any) {
     super(props);
     this.unmounted = false;
-    this.state = {
-      allergies: this.newAllergies()
-    }
+    let allergies: Allergies = this.props.exam.allergies;
+    if (allergies===undefined) allergies = this.newAllergies();
+    this.state = {allergies};
     this.refreshAllergies();
   }
 
   async refreshAllergies() {
-      let allergies: Allergies = await fetchAllergies(this.props.exam._id);
+      let exam : Exam = this.props.exam;
+      let allergies: Allergies = await fetchAllergies(exam._id);
       if (allergies===undefined) {
         allergies = await createExamItem('Allergies', this.newAllergies());
       }
       this.setState({allergies});
+      exam.allergies = allergies;
+      this.props.onUpdateExam(exam);
   }
 
   async storeAllergies() {
@@ -89,9 +104,9 @@ export class AllergiesScreen extends Component {
 
   newAllergy = () => {
     return {
-      allergy: '',
+      allergy: undefined,
       reaction: [],
-      status: ''
+      status: undefined
     };
   }
 

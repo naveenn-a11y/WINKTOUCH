@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
-import type {GlassesRx, RefractionExam, Refractions, Patient, Exam} from './Types';
+import type {GlassesRx, Refractions, Patient, Exam} from './Types';
 import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EntranceTest';
 
@@ -420,7 +420,7 @@ export class GlassesDetail extends Component {
 
 export class WearingRxScreen extends Component {
   props: {
-    exam: RefractionExam,
+    exam: Exam,
     onUpdateExam: (Exam: Exam) => void
   }
 
@@ -430,7 +430,7 @@ export class WearingRxScreen extends Component {
   }
 
   async refreshRefractions() {
-    const exam : RefractionExam = this.props.exam;
+    const exam : Exam = this.props.exam;
     const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
     exam.refractions = refractions;
     this.props.onUpdateExam(exam);
@@ -455,8 +455,8 @@ export class WearingRxScreen extends Component {
 
 export class RefractionScreen extends Component {
   props: {
-    exam: RefractionExam,
-    onUpdateExam: (exam: RefractionExam) => void
+    exam: Exam,
+    onUpdateExam: (exam: Exam) => void
   }
   constructor(props: any) {
     super(props);
@@ -464,7 +464,7 @@ export class RefractionScreen extends Component {
   }
 
   async refreshRefractions() {
-    const exam : RefractionExam = this.props.exam;
+    const exam : Exam = this.props.exam;
     const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
     exam.refractions = refractions;
     this.props.onUpdateExam(exam);

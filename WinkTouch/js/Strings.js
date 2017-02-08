@@ -45,7 +45,11 @@ export const strings = new LocalizedStrings({
       autoRefraction: 'Auto Refractor',
       retinoscopeRefraction: 'Retinoscope',
       cyclopegicRefraction: 'Cyclopegic',
-      finalRefraction: 'Final refraction'
+      finalRefraction: 'Final refraction',
+      medications: 'Medications',
+      allergies: 'Allergies',
+      medicalProcedures: 'Medical History',
+      relationDiseases: 'Family History'
     },
     fr: {
       today: 'Aujourd\'hui',
@@ -59,6 +63,8 @@ export const strings = new LocalizedStrings({
       wearingRx: 'Lunettes portants',
       previousRefraction: 'Dernière prescription',
       wearingRefraction: 'Lunettes portants',
+      medications: 'Médicaments',
+      allergies: 'Allergies'
     },
 });
 

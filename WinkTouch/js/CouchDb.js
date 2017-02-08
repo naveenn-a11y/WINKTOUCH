@@ -32,7 +32,7 @@ export async function storeDocument(document: Object) {
     let responseJson = await response.json();
     if (responseJson.ok!==true) {
       console.log(JSON.stringify(responseJson));
-      throw 'The server could not save your changes because of a '+responseJson.reason+'. Please redo your changes.';
+      throw 'The server could not save your changes because of a '+responseJson.reason+' Please redo your changes.';
     }
     document._rev = responseJson.rev;
     return document;

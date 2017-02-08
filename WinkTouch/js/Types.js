@@ -65,6 +65,7 @@
   }
 
   export type Visit = {
+      _id: string,
       id?: number,
       patient: Patient,
       appointmentId?: number,
@@ -101,6 +102,12 @@
       type: string,
       hasStarted: boolean,
       hasEnded: boolean,
+      refractions? : Refractions,
+      medications? : Medications,
+      allergies?: Allergies,
+      medicalProcedures?: MedicalHistory,
+      relationDiseases?: FamilyHistory,
+      socialHistory?: SocialHistory
   };
 
   export type Refractions = {
@@ -113,16 +120,6 @@
       finalRx: GlassesRx
   }
 
-  export type RefractionExam = {
-      _id?: string,
-      patient: Patient,
-      visitId: number,
-      type: string,
-      hasStarted: boolean,
-      hasEnded: boolean,
-      refractions: Refractions
-  }
-
   export type SlitLampFindings = {
     label: string,
     conjunctiva: string,
@@ -131,6 +128,10 @@
     iris: string,
     lens: string,
     sclera: string
+  }
+
+  export type ExamItems = {
+    examId: string
   }
 
   export type Medication = {
@@ -142,10 +143,6 @@
     frequency: string,
     duration: string,
     instructions: string[]
-  }
-
-  export type ExamItems = {
-    examId: string
   }
 
   export type Medications = {
@@ -175,7 +172,7 @@
     medicalProcedures: MedicalProcedure[]
   }
 
-  export type SiblingsDisease = {
+  export type RelationDisease = {
     disease: string,
     since: string,
     relation: string[]
@@ -183,5 +180,37 @@
 
   export type FamilyHistory = {
     examId: string,
-    siblingsDiseases: SiblingsDisease[]
+    relationDiseases: RelationDisease[]
+  }
+
+  export type SocialHistory = {
+    examId: string,
+    smokerType: string,
+    smokedLastMonth: string,
+    smokelessUsedLastMonth: string,
+    drugUse: string[],
+    alcoholUse: string[],
+    other: string[],
+    tobaccoCounseling: string,
+    physicalActivityCounseling: string,
+    nutritionCounseling: string
+  }
+
+  export type Complaint = {
+    date: Date,
+    isChief: boolean,
+    symptom: string[],
+    location?: string[],
+    quality?: string[],
+    severity?: string[],
+    timing?: string[],
+    duration?: string[],
+    context?: string[],
+    modifyingFactor?: string[],
+    associatedSign?: string[]
+  }
+
+  export type Complaints = {
+    examId: string,
+    complaints: Complaint[]
   }

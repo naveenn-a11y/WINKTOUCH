@@ -633,9 +633,9 @@ function constructItemView(itemView: string, item: any, itemDefinition: ItemDefi
 
 }
 
-class ItemSummary<ItemType> extends Component {
+class ItemSummary<T> extends Component {
   props: {
-    item: ItemType,
+    item: T,
     itemDefinition: ItemDefinition,
     orientation?: string
   }
@@ -668,9 +668,9 @@ class ItemSummary<ItemType> extends Component {
   }
 }
 
-class EditableItem<ItemType> extends Component {
+class EditableItem<T> extends Component {
   props: {
-    item: ItemType,
+    item: Text,
     itemDefinition: ItemDefinition,
     isSelected: boolean,
     orientation?: string,
@@ -733,14 +733,14 @@ class EditableItem<ItemType> extends Component {
   }
 }
 
-class ItemsList<ItemType> extends Component {
+class ItemsList<T> extends Component {
   props: {
-    items: ItemType[],
+    items: T[],
     itemDefinition: Defintion,
-    selectedItem: ?ItemType,
+    selectedItem?: T,
     onAddItem: () => void,
     onUpdateItem: (propertyName: string, value: any) => void,
-    onSelectItem: (item: ItemType) => void,
+    onSelectItem: (item: T) => void,
     onRemoveSelectedItem: () => void,
     orientation: string,
     itemView: string
@@ -808,7 +808,7 @@ class ItemsList<ItemType> extends Component {
     const itemOrientation : string = this.props.orientation === 'vertical' ? 'horizontal' : 'vertical';
     return <View style={styles.board}>
       <View>
-        {this.props.items.map((item: ItemType, index: number) => {
+        {this.props.items.map((item: T, index: number) => {
           const isSelected: boolean = this.props.selectedItem === item && this.props.items.length>1;
           const itemView = constructItemView(this.props.itemView, item, this.props.itemDefinition, isSelected, this.props.onUpdateItem, itemOrientation)
           return <TouchableHighlight key={index} underlayColor='#bbbbffbb'
@@ -825,24 +825,24 @@ class ItemsList<ItemType> extends Component {
 }
 
 
-export class ItemsEditor<ItemType> extends Component {
+export class ItemsEditor<T> extends Component {
   props: {
-    items: ItemType[],
-    newItem?: () => ItemType,
-    isEmpty?: (item: ItemType) => boolean,
+    items: T[],
+    newItem?: () => T,
+    isEmpty?: (item: T) => boolean,
     itemDefinition: ItemDefinition,
     itemView?: string,
     orientation?: string,
     onUpdate?: () => void
   }
   state: {
-    selectedItem: ItemType,
+    selectedItem: T,
     isDirty: boolean
   }
 
   constructor(props: any) {
     super(props);
-    let items: ItemType[] = this.props.items;
+    let items: T[] = this.props.items;
     if (items.length === 0 && this.props.newItem!==undefined)
       items.push(this.props.newItem());
     this.state = {
@@ -852,7 +852,7 @@ export class ItemsEditor<ItemType> extends Component {
   }
 
   componentWillReceiveProps(nextProps: any) {
-    let items: ItemType[] = nextProps.items;
+    let items: T[] = nextProps.items;
     if (items.length === 0 && this.props.newItem!==undefined)
       items.push(this.props.newItem());
     this.setState({
@@ -862,7 +862,7 @@ export class ItemsEditor<ItemType> extends Component {
 
   updateItem(propertyName: string, value: any) {
     if (!this.state.selectedItem) return;
-    let item: ItemType = this.state.selectedItem;
+    let item: T = this.state.selectedItem;
     const propertyDefinition = this.props.itemDefinition[propertyName];
     if (propertyDefinition.normalValue) {
       if (value && value.length == 2 && value[0].toLowerCase() === propertyDefinition.normalValue.toLowerCase()) {
@@ -881,7 +881,7 @@ export class ItemsEditor<ItemType> extends Component {
   }
 
   addItem() {
-    const newItem: ItemType = this.props.newItem();
+    const newItem: T = this.props.newItem();
     this.props.items.push(newItem);
     this.setState({
       selectedItem: newItem,
@@ -889,7 +889,7 @@ export class ItemsEditor<ItemType> extends Component {
     });
   }
 
-  selectItem(item: ItemType) {
+  selectItem(item: T) {
     this.setState({
       selectedItem: item
     });
@@ -900,7 +900,7 @@ export class ItemsEditor<ItemType> extends Component {
     if (index < 0) {
       return;
     }
-    let items: ItemType[] = this.props.items;
+    let items: T[] = this.props.items;
     items.splice(index, 1);
     if (items.length === 0)
       items.push(this.props.newItem());
@@ -913,7 +913,7 @@ export class ItemsEditor<ItemType> extends Component {
 
   removeEmptyItems() {
     if (!this.props.isEmpty) return;
-    let items: ItemType[] = this.props.items;
+    let items: T[] = this.props.items;
     let i: number = 0;
     while (i<items.length) {
       if (this.props.isEmpty(items[i]))
@@ -939,7 +939,7 @@ export class ItemsEditor<ItemType> extends Component {
         onAddItem={this.props.newItem?() => this.addItem():undefined}
         onUpdateItem={(propertyName: string, value: any) => this.updateItem(propertyName, value)}
         selectedItem={this.state.selectedItem}
-        onSelectItem={(item: ItemType) => this.selectItem(item)}
+        onSelectItem={(item: T) => this.selectItem(item)}
         onRemoveSelectedItem={() => this.removeSelectedItem()}
         itemView={this.props.itemView}
         orientation = {this.props.orientation}

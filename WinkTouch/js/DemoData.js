@@ -6,7 +6,6 @@
 import type {Appointment, Medication, Medications} from './Types';
 import {storeDocument} from './CouchDb';
 import {createAppointment} from './Appointment';
-import {createMedications} from './Medication';
 
 function createFewAppointments() {
   let appointment1: Appointment = {

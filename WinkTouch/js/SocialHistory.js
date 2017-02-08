@@ -7,29 +7,18 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition } from './Widgets';
-import { FormRow, FormTextInput } from './Form';
+import type {ItemDefinition, SocialHistory, MedicalProcedure } from './Types';
+import { createExamItem, fetchExamItems, newExamItems, ExamItemCard} from './ExamItem';
+import { restUrl, storeDocument } from './CouchDb';
 
-export type SocialHistory = {
-  smokerType: string,
-  smokedLastMonth: string,
-  smokelessUsedLastMonth: string,
-  drugUse: string[],
-  alcoholUse: string[],
-  other: string[],
-  tobaccoCounseling: string,
-  physicalActivityCounseling: string,
-  nutritionCounseling: string
-}
-
-function fetchSocialHistory(): SocialHistory {
-  const socialHistory: SocialHistory = {
-    smokerType: 'Never smoker',
-    drugUse: ['Denies']
-  }
+export async function fetchSocialHistory(examId: string) : SocialHistory {
+  let socialHistory : SocialHistory = await fetchExamItems(examId, 'SocialHistory');
   return socialHistory;
 }
 
+export async function storeSocialHistory(socialHistory: SocialHistory) :SocialHistory {
+  return await storeDocument(socialHistory);
+}
 
 const socialHistoryDefinition: ItemDefinition = {
   smokerType: {
@@ -91,27 +80,77 @@ const socialHistoryDefinition: ItemDefinition = {
   }
 };
 
+export class SocialHistoryCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemCard  itemType='socialHistory' itemProperties={['smokerType','alcoholUse']} itemDefinition={socialHistoryDefinition} {...this.props}/>
+  }
+}
+
 export class SocialHistoryScreen extends Component {
+  props: {
+    exam: Exam,
+    onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
+  }
   state: {
     socialHistory: SocialHistory
   }
+  unmounted: boolean
+
   constructor(props: any) {
     super(props);
-    this.state = {
-      socialHistory: {
+    this.unmounted = false;
+    let socialHistory: SocialHistory = this.props.exam.SocialHistory;
+    if (socialHistory===undefined) socialHistory = this.newSocialHistory();
+    this.state = {socialHistory};
+    this.refreshSocialHistory();
+  }
+
+  async refreshSocialHistory() {
+      let exam : Exam = this.props.exam;
+      let socialHistory: SocialHistory = await fetchSocialHistory(exam._id);
+      if (socialHistory===undefined) {
+        socialHistory = await createExamItem('SocialHistory', this.newSocialHistory())
+      }
+      this.setState({socialHistory});
+      exam.socialHistory = socialHistory;
+      this.props.onUpdateExam(exam);
+  }
+
+  async storeSocialHistory() {
+    try {
+      let socialHistory = await storeDocument(this.state.socialHistory);
+      if (!this.unmounted)
+        this.setState({socialHistory});
+    } catch (error) {
+      alert(error);
+      if (this.unmounted) {
+        this.props.onNavigationChange('showExam', this.props.exam);
+      } else {
+        this.refreshSocialHistory();
       }
     }
   }
 
-  componentDidMount() {
-    const socialHistory: SocialHistory = fetchSocialHistory();
-    this.setState({ socialHistory });
+  newSocialHistory = ()  => {
+    const newSocialHistory : SocialHistory = newExamItems(this.props.exam._id, 'SocialHistory');
+    return newSocialHistory;
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
   }
 
   render() {
     return <ItemsEditor
       items={[this.state.socialHistory]}
       itemDefinition={socialHistoryDefinition}
+      onUpdate = {() => this.storeSocialHistory()}
       itemView='EditableItem'
       orientation='horizontal'
       />

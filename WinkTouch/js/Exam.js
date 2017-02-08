@@ -7,18 +7,16 @@ import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
-import type {Exam, Patient, GlassesRx, RefractionExam, Refractions, Visit} from './Types';
+import type {Exam, Patient, GlassesRx, RefractionExam, Refractions, Visit, Complaint} from './Types';
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen } from './Complaint';
-import type {Complaint } from './Complaint';
 import { ReviewOfSystemsScreen } from './ReviewOfSystems';
-import { PatientMedicationsCard, PatientMedicalHistoryCard, PatientAllergiesCard, PatientFamilyHistoryCard, PatientSocialHistoryCard } from './Patient';
-import { MedicationsScreen } from './Medication';
-import { AllergiesScreen } from './Allergies';
-import { SocialHistoryScreen } from './SocialHistory';
-import { FamilyHistoryScreen } from './FamilyHistory';
-import { MedicalHistoryScreen } from './MedicalHistory';
+import { MedicationsScreen, MedicationsCard } from './Medication';
+import { AllergiesScreen, AllegiesCard } from './Allergies';
+import { SocialHistoryScreen, SocialHistoryCard } from './SocialHistory';
+import { FamilyHistoryScreen, FamilyHistoryCard } from './FamilyHistory';
+import { MedicalHistoryScreen, MedicalHistoryCard } from './MedicalHistory';
 import { WearingRxScreen, RefractionScreen, GlassesSummary } from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
@@ -134,42 +132,39 @@ export class ExamCard extends Component {
     onSelect: () => void,
     onToggleExpand: () => void
   }
-  constructor(props: any) {
-    super(props);
-  }
 
   renderExamCardSpecifics() {
     switch (this.props.exam.type) {
       case 'complaint':
-        return <ComplaintCard isExpanded={this.props.isExpanded} />
+        return <ComplaintCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'visualAcuityTest':
-        return <VisualAcuityTestCard isExpanded={this.props.isExpanded} />
+        return <VisualAcuityTestCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'coverTest':
-        return <CoverTestCard isExpanded={this.props.isExpanded} />
+        return <CoverTestCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'reviewOfSystems':
-        return <ReviewOfSystemsCard isExpanded={this.props.isExpanded} />
+        return <ReviewOfSystemsCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'retinoscopyTest':
-        return <RetinoscopyTestCard isExpanded={this.props.isExpanded} />
+        return <RetinoscopyTestCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'refractionTest':
-        return <RefractionTestCard isExpanded={this.props.isExpanded} />
+        return <RefractionTestCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'slitLampExam':
-        return <SlitLampExamCard isExpanded={this.props.isExpanded} />
+        return <SlitLampExamCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'visualFieldTest':
-        return <VisualFieldTestCard isExpanded={this.props.isExpanded} />
+        return <VisualFieldTestCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'glaucomaExam':
-        return <GlaucomaExamCard isExpanded={this.props.isExpanded} />
+        return <GlaucomaExamCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'wearingRx':
         return <WearingRxCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'medications':
-        return <PatientMedicationsCard isExpanded={this.props.isExpanded} />
+        return <MedicationsCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'medicalHistory':
-        return <PatientMedicalHistoryCard isExpanded={this.props.isExpanded} />
+        return <MedicalHistoryCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'allergies':
-        return <PatientAllergiesCard isExpanded={this.props.isExpanded} />
+        return <AllegiesCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'familyHistory':
-        return <PatientFamilyHistoryCard isExpanded={this.props.isExpanded} />
+        return <FamilyHistoryCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'socialHistory':
-        return <PatientSocialHistoryCard isExpanded={this.props.isExpanded} />
+        return <SocialHistoryCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
     }
     return null;
   }
@@ -313,33 +308,33 @@ export class ExamScreen extends Component {
   renderExam() {
     switch (this.props.exam.type) {
       case 'complaint':
-        return <ComplaintScreen exam={this.state.exam} />;
+        return <ComplaintScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'visualAcuityTest':
-        return <VisualAcuityTest exam={this.state.exam} />;
+        return <VisualAcuityTest exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'coverTest':
-        return <CoverTestScreen exam={this.state.exam} />
+        return <CoverTestScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'reviewOfSystems':
-        return <ReviewOfSystemsScreen exam={this.state.exam} />
+        return <ReviewOfSystemsScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'wearingRx':
-        return <WearingRxScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
+        return <WearingRxScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'refractionTest':
-        return <RefractionScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
+        return <RefractionScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'slitLampExam':
-        return <SlitLampScreen exam={this.state.exam} />
+        return <SlitLampScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'visualFieldTest':
-        return <VisualFieldTestScreen exam={this.state.exam} />
+        return <VisualFieldTestScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'glaucomaExam':
-        return <GlaucomaScreen exam={this.state.exam} />
+        return <GlaucomaScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'medications':
-        return <MedicationsScreen exam={this.state.exam} onNavigationChange={this.props.onNavigationChange} />
+        return <MedicationsScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'allergies':
-        return <AllergiesScreen exam={this.state.exam} />
+        return <AllergiesScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'socialHistory':
-        return <SocialHistoryScreen exam={this.state.exam} />
+        return <SocialHistoryScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'familyHistory':
-        return <FamilyHistoryScreen exam={this.state.exam} />
+        return <FamilyHistoryScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
       case 'medicalHistory':
-        return <MedicalHistoryScreen exam={this.state.exam} />
+        return <MedicalHistoryScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
     }
     return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>
   }

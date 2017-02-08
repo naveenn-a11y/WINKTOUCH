@@ -4,23 +4,20 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, ScrollView, TouchableHighlight } from 'react-native';
+import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { FormTextInput } from './Form';
-import { Button, ItemsEditor } from './Widgets';
+import type {Exam, ItemDefinition, Complaints, Complaint } from './Types';
+import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
+import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
+import { restUrl, storeDocument } from './CouchDb';
 
-export type Complaint = {
-  date: Date,
-  isChief: boolean,
-  symptom: string[],
-  location?: string[],
-  quality?: string[],
-  severity?: string[],
-  timing?: string[],
-  duration?: string[],
-  context?: string[],
-  modifyingFactor?: string[],
-  associatedSign?: string[]
+export async function fetchComplaints(examId: string): Complaints {
+  let complaints : Complaints = await fetchExamItems(examId, 'Complaints');
+  return complaints;
+}
+
+export async function storeComplaints(complaints: Complaints) :Complaints {
+  return await storeDocument(complaints);
 }
 
 const symptoms: string[] = ['Dryness', 'Itchy', 'Stinging, burning sensation', 'Gritty or sandy sensation', 'Sensitiviy to light', 'Excessive tearing', 'Blurry vision', 'Dificulty seeing at night', 'Headaches', 'Redness', 'Black spots in vision', 'Double vision', 'Eye pain', 'Eye irritation', 'Flashes of light', 'Loss of vision', 'Dilated pupils', 'Watery eyes'];
@@ -101,22 +98,59 @@ export class ComplaintDetails extends Component {
   }
 }
 
+
 export class ComplaintScreen extends Component {
-  state: {
-    complaints: Complaint[]
+  props: {
+    exam: Exam,
+    onNavigationChange: (action: string, data: any) => void,
   }
+  state: {
+    complaints: Complaints
+  }
+  unmounted: boolean
+
   constructor(props: any) {
     super(props);
+    this.unmounted = false;
     this.state = {
-      complaints: []
+      complaints: this.newComplaints()
+    }
+    this.refreshComplaints();
+  }
+
+  async refreshComplaints() {
+      let complaints: Complaints = await fetchComplaints(this.props.exam._id);
+      if (complaints===undefined) {
+        complaints = await createExamItem('Complaints', this.newComplaints());
+      }
+      this.setState({complaints});
+  }
+
+  async storeComplaints() {
+    try {
+      let complaints : Complaints = await storeDocument(this.state.complaints);
+      if (!this.unmounted)
+        this.setState({complaints});
+    } catch (error) {
+      alert(error);
+      if (this.unmounted) {
+        this.props.onNavigationChange('showExam', this.props.exam);
+      } else {
+        await this.refreshComplaints();
+      }
     }
   }
 
+  newComplaints = () => {
+    const newComplaints : Complaints = newExamItems(this.props.exam._id, 'Complaints');
+    newComplaints.complaints = [];
+    return newComplaints;
+  }
 
-  newComplaint(isChief: boolean): Complaint {
+  newComplaint = () => {
     const newComplaint: Complaint = {
       date: new Date(),
-      isChief: isChief,
+      isChief: false,
       symptom: [],
       location: [],
       quality: [],
@@ -130,12 +164,24 @@ export class ComplaintScreen extends Component {
     return newComplaint;
   }
 
+  isComplaintEmpty = (complaint: Complaint) => {
+    if (complaint === undefined || complaint===null) return true;
+    if (complaint.symptom === undefined || complaint.symptom==null || complaint.symptom.length===0) return true;
+    return false;
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+  }
+
   render() {
     return <ItemsEditor
-      items={this.state.complaints}
-      newItem={() => this.newComplaint(false)}
+      items={this.state.complaints.complaints}
+      newItem={this.newComplaint}
+      isEmpty={this.isComplaintEmpty}
       itemDefinition={complaintDefinition}
+      onUpdate = {() => this.storeComplaints()}
       itemView='ComplaintDetails'
-      />
+    />
   }
 }

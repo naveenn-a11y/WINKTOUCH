@@ -7,8 +7,8 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition, FamilyHistory, SiblingsDisease } from './Types';
-import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
+import type {ItemDefinition, FamilyHistory, RelationDisease } from './Types';
+import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
 export async function fetchFamilyHistory(examId: string) : FamilyHistory {
@@ -20,7 +20,7 @@ export async function storeFamilyHistory(familyHistory: FamilyHistory) :FamilyHi
   return await storeDocument(familyHistory);
 }
 
-const siblingsDiseaseDefinition: ItemDefinition = {
+const relationDiseaseDefinition: ItemDefinition = {
   disease: {
     label: 'Disease / Problem',
     options: ['Blindness','Cataract','Crossd eye','Glaucoma','Macular degeneratino','Retinal detachment','Arthritis','Cancer','Diabetis','Heart disease','High blood presure','High cholesterol','Heart disease','Kidney disease','Lupus','Thyroid disease'],
@@ -38,10 +38,23 @@ const siblingsDiseaseDefinition: ItemDefinition = {
  }
 };
 
+export class FamilyHistoryCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemsCard  itemType='relationDiseases' itemProperties={['relation','disease']}{...this.props}/>
+  }
+}
+
+
 export class FamilyHistoryScreen extends Component {
   props: {
     exam: Exam,
     onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
   }
   state: {
     familyHistory: FamilyHistory
@@ -51,18 +64,21 @@ export class FamilyHistoryScreen extends Component {
   constructor(props: any) {
     super(props);
     this.unmounted = false;
-    this.state = {
-      familyHistory: this.newFamilyHistory()
-    }
+    let familyHistory: FamilyHistory = this.props.exam.FamilyHistory;
+    if (familyHistory===undefined) familyHistory = this.newFamilyHistory();
+    this.state = {familyHistory};
     this.refreshFamilyHistory();
   }
 
   async refreshFamilyHistory() {
-      let familyHistory: FamilyHistory = await fetchFamilyHistory(this.props.exam._id);
+      let exam : Exam = this.props.exam;
+      let familyHistory: FamilyHistory = await fetchFamilyHistory(exam._id);
       if (familyHistory===undefined) {
         familyHistory = await createExamItem('FamilyHistory', this.newFamilyHistory())
       }
       this.setState({familyHistory});
+      exam.relationDiseases = familyHistory;
+      this.props.onUpdateExam(exam);
   }
 
   async storeFamilyHistory() {
@@ -82,11 +98,11 @@ export class FamilyHistoryScreen extends Component {
 
   newFamilyHistory = ()  => {
     const newFamilyHistory : FamilyHistory = newExamItems(this.props.exam._id, 'FamilyHistory');
-    newFamilyHistory.siblingsDiseases = [];
+    newFamilyHistory.relationDiseases = [];
     return newFamilyHistory;
   }
 
-  newSiblingsDisease(): SiblingsDisease {
+  newRelationDisease(): RelationDisease {
     return {
       disease: '',
       since: '',
@@ -94,9 +110,9 @@ export class FamilyHistoryScreen extends Component {
     };
   }
 
-  isSiblingsDiseaseEmpty = (siblingsDisease: SiblingsDisease)  => {
-    if (siblingsDisease === undefined || siblingsDisease===null) return true;
-    if (siblingsDisease.disease === undefined || siblingsDisease.disease==null || siblingsDisease.disease.trim()==='') return true;
+  isRelationDiseaseEmpty = (relationDisease: RelationDisease)  => {
+    if (relationDisease === undefined || relationDisease===null) return true;
+    if (relationDisease.disease === undefined || relationDisease.disease==null || relationDisease.disease.trim()==='') return true;
     return false;
   }
 
@@ -106,10 +122,10 @@ export class FamilyHistoryScreen extends Component {
 
   render() {
     return <ItemsEditor
-      items={this.state.familyHistory.siblingsDiseases}
-      newItem={this.newSiblingsDisease}
-      isEmpty={this.isSiblingsDiseaseEmpty}
-      itemDefinition={siblingsDiseaseDefinition}
+      items={this.state.familyHistory.relationDiseases}
+      newItem={this.newRelationDisease}
+      isEmpty={this.isRelationDiseaseEmpty}
+      itemDefinition={relationDiseaseDefinition}
       onUpdate = {() => this.storeFamilyHistory()}
       />
   }

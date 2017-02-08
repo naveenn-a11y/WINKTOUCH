@@ -8,7 +8,7 @@ import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'rea
 import { styles, fontScale } from './Styles';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import type {ItemDefinition, MedicalHistory, MedicalProcedure } from './Types';
-import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
+import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
 export async function fetchMedicalHistory(examId: string) : MedicalHistory {
@@ -39,10 +39,22 @@ const medicalProcedureDefinition: ItemDefinition = {
   }
 };
 
+export class MedicalHistoryCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemsCard  itemType='medicalProcedures' itemProperties={['route','procedure']}{...this.props}/>
+  }
+}
+
 export class MedicalHistoryScreen extends Component {
   props: {
     exam: Exam,
     onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
   }
   state: {
     medicalHistory: MedicalHistory
@@ -52,18 +64,21 @@ export class MedicalHistoryScreen extends Component {
   constructor(props: any) {
     super(props);
     this.unmounted = false;
-    this.state = {
-      medicalHistory: this.newMedicalHistory()
-    }
+    let medicalHistory: MedicalHistory = this.props.exam.medicalHistory;
+    if (medicalHistory===undefined) medicalHistory = this.newMedicalHistory();
+    this.state = {medicalHistory};
     this.refreshMedicalHistory();
   }
 
   async refreshMedicalHistory() {
-      let medicalHistory: MedicalHistory = await fetchMedicalHistory(this.props.exam._id);
+      let exam : Exam = this.props.exam;
+      let medicalHistory: MedicalHistory = await fetchMedicalHistory(exam._id);
       if (medicalHistory===undefined) {
         medicalHistory = await createExamItem('MedicalHistory', this.newMedicalHistory())
       }
       this.setState({medicalHistory});
+      exam.medicalProcedures = medicalHistory;
+      this.props.onUpdateExam(exam);
   }
 
   async storeMedicalHistory() {
