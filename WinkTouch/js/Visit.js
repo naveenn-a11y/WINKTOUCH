@@ -11,73 +11,25 @@ import {Button, FloatingButton} from './Widgets';
 import { formatMoment } from './Util';
 import { ExamCard, createExams, allExamTypes, allPreExams, fetchExams, createExam } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
+import { storeDocument } from './CouchDb';
 
-export function fetchVisitHistory(patient: Patient): Visit[] {
-    let visit1: Visit = {
-      id: 4,
-      appointmentId: patient.patientId===2?1:undefined,
-      type: 'Patient Complaint',
-      start: patient.patientId===2?new Date():new Date(2017, 0, 18, 10, 30),
-      end:  patient.patientId===2?undefined:new Date(2017, 0, 18, 10, 45),
-      location: 'the oval office',
-      patient: patient,
-      doctor: 'Conrad Murray',
-      preExams: patient.patientId===2?allPreExams(patient):[],
-      exams: [],
-      assessment: {prescription: {id: 1, od: {sphere: 2}, os: {sphere: 2}}}
-    };
-    let visit2: Visit = {
-        id: 3,
-        type: 'Pickup new glasses',
-        start: new Date(2016, 10, 14, 10, 30),
-        end: new Date(2016, 10, 15, 10, 50),
-        location: 'the oval office',
-        patient: patient,
-        doctor: 'Conrad Murray',
-        preExams: allPreExams(patient),
-        exams: fetchExams(patient),
-        assessment: {prescription: {id: 1, od: {sphere: 2}, os: {sphere: 2}}}
-    };
-    let visit3: Visit = {
-        id: 2,
-        type: 'Control visit',
-        start: new Date(2016, 10, 2, 10, 30),
-        end: new Date(2016, 10, 10, 10, 50),
-        location: 'the oval office',
-        patient: patient,
-        doctor: 'Conrad Murray',
-        preExams: allPreExams(patient),
-        exams: fetchExams(patient),
-        assessment: {prescription: {id:2, od: {sphere: 1.5}, os: {sphere: 1.5}}}
-    };
-    let visit4: Visit = {
-        id: 1,
-        type: 'New patient',
-        start: new Date(2014, 9, 26, 10, 30),
-        end: new Date(2014, 9, 2, 10, 50),
-        location: 'the oval office',
-        patient: patient,
-        preExams: allPreExams(patient),
-        doctor: 'Conrad Murray',
-        assessment: {prescription: {id: 3, od: {sphere: 1}, os: {sphere: 1}}}
-    };
-    return [visit1, visit2, visit3];
+export async function fetchVisitHistory(patientId: string) : Visit[] {
+  const startKey: string[] = patientId;
+  const endKey: string[] = patientId;
+  let visits : Visits[] = await fetchViewDocuments('visits', startKey, endKey);
+  return visits;
 }
 
-function createVisit(appointment: Appointment) : Visit {
-  let newVisit: Visit = {
-      id: 10,
-      type: appointment.type,
-      start: new Date(),
-      end: undefined,
-      location: undefined,
-      patient: appointment.patient,
-      doctor: appointment.doctor,
-      preExams: allPreExams(appointment.patient),
-      exams: [],
-      assessment: undefined
-  };
-  return newVisit;
+
+export async function createVisit(visit: Visit) : Visit {
+  try {
+      visit.dataType = 'Visit';
+      visit = storeDocument(visit);
+      return visit;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to store a patient visit on the server. You can try again anytime.');
+  }
 }
 
 class VisitButton extends Component {
@@ -243,10 +195,26 @@ export class VisitHistory extends Component {
         this.setState({ selectedVisit: visit });
     }
 
+    newVisit() : Visit {
+      let newVisit: Visit = {
+          appointmentId: this.props.appointment.id,
+          patientId: this.props.appointment.patientId,
+          doctorId: this.props.appointment.doctorId,
+          type: this.props.appointment.type,
+          start: new Date(),
+          end: undefined,
+          location: undefined,
+          preExams: [],
+          exams: [],
+          assessment: {}
+      };
+      return newVisit;
+    }
+
     startPreVisit() {
       let appointmentsVisit : ?Visit = this.state.appointmentsVisit;
       if (!appointmentsVisit) {
-         appointmentsVisit = createVisit(this.props.appointment);
+         appointmentsVisit = createVisit(this.newVisit(this.props.appointment));
       }
       appointmentsVisit.preExams = allPreExams(this.props.appointment.patient);
       const selectedVisit : ?Visit = appointmentsVisit;
@@ -283,7 +251,7 @@ export class VisitHistory extends Component {
 
     findAppointmentsVisit(visitHistory: Visit[]) : ?Visit {
         if (!visitHistory || visitHistory.length===0) return undefined;
-        return visitHistory.find(visit => visit.appointmentId && visit.appointmentId === this.props.appointment.id);
+        return visitHistory.find(visit => visit.appointmentId && visit.appointmentId == this.props.appointment._id);
     }
 
     render() {

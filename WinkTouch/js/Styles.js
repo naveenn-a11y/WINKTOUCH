@@ -158,13 +158,13 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 6 * fontScale
+        margin: 6 * fontScale
     },
     centeredColumnLayout: {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 6 * fontScale
+        margin: 6 * fontScale
     },
     form: {
         minHeight: 170 * fontScale,
@@ -278,7 +278,7 @@ export const styles = StyleSheet.create({
     cardStarted: cardStyle('orange'),
     cardDone: cardStyle('green'),
     cardTitle: {
-        fontSize: 20 * fontScale,
+        fontSize: 18 * fontScale,
         fontWeight: '500',
         textAlign: 'center',
         margin: 10 * fontScale
@@ -532,7 +532,7 @@ function examCardStyle(shadowColor: Color, isExpanded: boolean) {
         justifyContent: 'center',
         padding: 10 * fontScale,
         minWidth: (isExpanded ? 260 : 120) * fontScale,
-        height: 120 * fontScale,
+        minHeight: 120 * fontScale,
         borderRadius: 10,
         margin: 10,
         backgroundColor: 'white',

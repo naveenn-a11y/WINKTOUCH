@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { Image, Text, TextInput, View, Dimensions, Button,  NavigationExperimental, ScrollView} from 'react-native';
 import {styles} from './Styles';
-import type {Appointment} from './Types';
+import type {Appointment, Doctor} from './Types';
 import {AppointmentsSummary, fetchAppointments} from './Appointment';
 
 class WorkFlow extends Component {
@@ -49,17 +49,24 @@ class WorkFlow extends Component {
 export class OverviewScreen extends Component {
     props: {
         appointments: Appointment[],
+        doctorId: string,
         onNavigationChange: (action: string, data: any) => void,
         onUpdate: (itemType: string, item: any) => void
     }
+    state: {
+        appointments: Appointment[]
+    }
     constructor(props: any) {
         super(props);
+        this.state = {
+          appointments: this.props.appointments
+        }
         this.refreshAppointments();
     }
 
     render() {
         return <View style={styles.page}>
-            <AppointmentsSummary appointments={this.props.appointments} onNavigationChange={this.props.onNavigationChange} />
+            <AppointmentsSummary appointments={this.state.appointments} onNavigationChange={this.props.onNavigationChange} />
             <WorkFlow />
             <View style={styles.buttonsRowLayout}>
                 <View style={[styles.flow]}>
@@ -73,7 +80,8 @@ export class OverviewScreen extends Component {
     }
 
     async refreshAppointments() {
-        const appointments = await fetchAppointments();
+        const appointments = await fetchAppointments(this.props.doctorId);
+        this.setState({appointments});
         this.props.onUpdate('Appointments', appointments);
     }
 }

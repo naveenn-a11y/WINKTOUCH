@@ -11,8 +11,14 @@ import { strings } from './Strings';
 import { FormRow, FormEmailInput, FormTextInput } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import type {Patient, PatientInfo} from './Types';
+import { cacheItem, getCachedItem } from './DataCache';
 
-export async function fetchPatientInfo(patient: Patient) : PatientInfo {
+function cachePatient(patient: Patient) {
+  cacheItem('Patient'+patient.patientId+"Account"+patient.accountsId, patient);
+}
+
+export async function fetchPatientInfo(patientId: string) : PatientInfo {
+  let patient: Patient = getCachedItem(patientId);
   if (!patient) return undefined;
   try {
     let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patient.patientId, {
@@ -20,6 +26,7 @@ export async function fetchPatientInfo(patient: Patient) : PatientInfo {
     });
     const restResponse : RestResponse = await response.json();
     const patientInfo: PatientInfo = restResponse.response;
+    cachePatient(patientInfo);
     return patientInfo;
   } catch (error) {
     console.log(error);
@@ -40,6 +47,7 @@ export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
         body: JSON.stringify(patientInfo)
     });
     //const restResponse : RestResponse = await response.json();
+    cachePatient(patientInfo);
     return patientInfo;
   } catch (error) {
     console.log(error);

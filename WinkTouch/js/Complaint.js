@@ -8,7 +8,7 @@ import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'rea
 import { styles, fontScale } from './Styles';
 import type {Exam, ItemDefinition, Complaints, Complaint } from './Types';
 import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import { createExamItem, fetchExamItems, newExamItems} from './ExamItem';
+import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
 export async function fetchComplaints(examId: string): Complaints {
@@ -79,6 +79,18 @@ const complaintDefinition: ItemDefinition = {
   },
 };
 
+export class ComplaintCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemsCard  itemType='complaints' itemProperties={['location','severity','symptom']}{...this.props}/>
+  }
+}
+
+
 export class ComplaintDetails extends Component {
   props: {
     complaint: Complaint,
@@ -103,6 +115,7 @@ export class ComplaintScreen extends Component {
   props: {
     exam: Exam,
     onNavigationChange: (action: string, data: any) => void,
+    onUpdateExam: (exam: Exam) => void
   }
   state: {
     complaints: Complaints
@@ -112,18 +125,21 @@ export class ComplaintScreen extends Component {
   constructor(props: any) {
     super(props);
     this.unmounted = false;
-    this.state = {
-      complaints: this.newComplaints()
-    }
+    let complaints: complaints = this.props.exam.complaints;
+    if (complaints===undefined) complaints = this.newComplaints();
+    this.state = {complaints};
     this.refreshComplaints();
   }
 
   async refreshComplaints() {
-      let complaints: Complaints = await fetchComplaints(this.props.exam._id);
+      let exam : Exam = this.props.exam;
+      let complaints: Complaints = await fetchComplaints(exam._id);
       if (complaints===undefined) {
         complaints = await createExamItem('Complaints', this.newComplaints());
       }
       this.setState({complaints});
+      exam.complaints = complaints;
+      this.props.onUpdateExam(exam);
   }
 
   async storeComplaints() {

@@ -13,21 +13,14 @@ import { PatientCard } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
 import { fetchPatientInfo } from './Patient';
-import { storeDocument, restUrl } from './CouchDb';
+import { storeDocument, fetchViewDocuments } from './CouchDb';
+import { getCachedItem} from './DataCache';
 
-export async function fetchAppointments(accountsId: number, searchText: string) : Appointment[] {
-  try {
-
-    let response = await fetch(restUrl+'/_design/views/_view/appointments?startkey="2016-12-13T16"', {
-        method: 'get'
-    });
-    let json = await response.json();
-    const appointments = json.rows.map((row: any) => row.value);
-    return appointments;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to get the appointments list from the server. You can try again anytime.');
-  }
+export async function fetchAppointments(doctorId: string) : Appointment[] {
+  const startKey: string[] = [doctorId,'2016-12-13T9'];
+  const endKey: string[] = [doctorId,'2018'];
+  let appointments : Appointment[] = await fetchViewDocuments('appointments', startKey, endKey);
+  return appointments;
 }
 
 export async function createAppointment(appointment: Appointment) : Appointment {
@@ -45,9 +38,16 @@ export default class AppointmentSummary extends Component {
     props: {
         appointment: Appointment,
         onPress: () => void
-    }
+    };
+    patient: Patient;
+
     constructor(props: any) {
         super(props);
+        this.patient = getCachedItem(this.props.appointment.patientId);
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+      this.patient = getCachedItem(this.props.appointment.patientId);
     }
 
     appointmentStatus() : string {
@@ -61,7 +61,7 @@ export default class AppointmentSummary extends Component {
         let style = styles['card'+status];
         return <TouchableOpacity onPress={this.props.onPress}>
             <View style={style}>
-                <Text>{this.props.appointment.patient.firstName} {this.props.appointment.patient.lastName}</Text>
+                <Text>{this.patient.firstName} {this.patient.lastName}</Text>
                 <Text>{dateFormat(this.props.appointment.scheduledStart, 'h:MM')}till {dateFormat(this.props.appointment.scheduledEnd, 'h:MM')}</Text>
                 <Text>{this.props.appointment.type}</Text>
                 <Text>{this.props.appointment.patientPresence}</Text>
@@ -129,7 +129,7 @@ class AppointmentDetails extends Component {
                     <Text style={styles.screenTitle}>{this.props.appointment.type}</Text>
                     <Text style={styles.text}>Visit is scheduled to start in 5 minutes and finish after 20 minutes</Text>
                     <Text style={styles.text}>Patient is in wating room since 10 minutes</Text>
-                    <Text style={styles.text}>The exam will take place in {this.props.appointment.location}by Doctor {this.props.appointment.doctor}</Text>
+                    <Text style={styles.text}>The exam will take place in {this.props.appointment.location}by Doctor {this.props.appointment.doctorId}</Text>
                 </View>
             </TouchableOpacity>
         }
@@ -147,7 +147,7 @@ class AppointmentDetails extends Component {
                 <FormTextInput labelWidth={labelWidth} label='Location' value={this.props.appointment.location} />
             </FormRow>
             <FormRow>
-                <FormTextInput labelWidth={labelWidth} label='Doctor' value={this.props.appointment.doctor} />
+                <FormTextInput labelWidth={labelWidth} label='Doctor' value={this.props.appointment.doctorId} />
             </FormRow>
             <View style={styles.buttonsRowLayout}>
                 <Button title='Cancel' onPress={() => this.cancelEdit()} />
@@ -172,12 +172,12 @@ export class AppointmentScreen extends Component {
     }
 
     async refreshPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patient);
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patientId);
       this.props.onUpdate('PatientInfo', patientInfo);
     }
 
-    refreshVisitHistory() {
-      const visitHistory : Visit[] = fetchVisitHistory(this.props.appointment.patient);
+    async refreshVisitHistory() {
+      const visitHistory : Visit[] = await fetchVisitHistory(this.props.appointment.patientId);
       this.props.onUpdate('VisitHistory', visitHistory);
     }
 

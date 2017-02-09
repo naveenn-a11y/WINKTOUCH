@@ -3,6 +3,12 @@
  */
 'use strict';
 
+  export type Doctor = {
+    _id: string,
+    firstName: string,
+    lastName: string
+  }
+
   export type RestResponse = {
       response: any
   }
@@ -22,14 +28,14 @@
 
   export type Patient = {
       patientId: number,
-      accountsId: number,
+      accountsId: string,
       firstName: string,
       lastName: string
   }
 
   export type PatientInfo = {
       patientId: number,
-      accountsId: number,
+      accountsId: string,
       firstName: string,
       lastName: string,
       dateOfBirth: Date,
@@ -48,36 +54,16 @@
   }
 
   export type Appointment = {
-      id: number,
-      visit?: Visit,
-      patient: Patient,
+      _id: string,
+      patientId?: string,
+      doctorId?: string,
       type: string,
       scheduledStart: Date,
       scheduledEnd: Date,
       bookingStatus: string,
       location: string,
-      patientPresence: string,
-      doctor: string
-  };
-
-  export type Assessment = {
-    prescription: GlassesRx
+      patientPresence: string
   }
-
-  export type Visit = {
-      _id: string,
-      id?: number,
-      patient: Patient,
-      appointmentId?: number,
-      type: string,
-      start: Date,
-      end?: Date,
-      location: string,
-      doctor: string,
-      preExams?: Exam[],
-      exams?: Exam[],
-      assessment: Assessment
-  };
 
   export type GlassRx = {
       sphere: number,
@@ -88,6 +74,23 @@
       add?: number
   }
 
+  export type Assessment = {
+    prescription: GlassesRx
+  }
+
+  export type Visit = {
+      appointmentId?: string,
+      patientId: string,
+      doctorId?: string,
+      type: string,
+      start: Date,
+      end?: Date,
+      location?: string,
+      preExams: string[],
+      exams: string[],
+      assessment: Assessment
+  }
+
   export type GlassesRx = {
       id: number,
       version: number,
@@ -96,7 +99,6 @@
   }
 
   export type Exam = {
-      _id?: string,
       patient: Patient,
       visitId: number,
       type: string,
@@ -107,8 +109,9 @@
       allergies?: Allergies,
       medicalProcedures?: MedicalHistory,
       relationDiseases?: FamilyHistory,
-      socialHistory?: SocialHistory
-  };
+      socialHistory?: SocialHistory,
+      complaints?: Complaints
+  }
 
   export type Refractions = {
       previousRx: GlassesRx,

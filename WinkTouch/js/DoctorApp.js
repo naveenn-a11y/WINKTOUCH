@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import {  NavigationExperimental,  StatusBar, ScrollView, View} from 'react-native';
 const {CardStack: NavigationCardStack, StateUtils: NavigationStateUtils} = NavigationExperimental;
-import type {Appointment, PatientInfo, Exam, Visit} from './Types';
+import type {Appointment, PatientInfo, Exam, Visit, Doctor} from './Types';
 import {styles} from './Styles';
 import {OverviewScreen} from './OverviewScreen';
 import { AppointmentScreen, AppointmentsSummary } from './Appointment';
@@ -49,7 +49,8 @@ class DoctorNavigator extends Component {
         switch (scene) {
             case 'overview':
                 let appointments: Appointment[] = sceneProps.scene.route.appointments;
-                return <OverviewScreen onNavigationChange={this.props.onNavigationChange} onUpdate={this.props.onUpdate} appointments={appointments}/>;
+                let doctor: Doctor = sceneProps.scene.route.doctor;
+                return <OverviewScreen onNavigationChange={this.props.onNavigationChange} onUpdate={this.props.onUpdate} appointments={appointments} doctorId={doctor._id}/>;
             case 'findPatient':
                 return <FindPatientScreen onNavigationChange={this.props.onNavigationChange}
                   onUpdatePatientInfo={(patientInfo: PatientInfo) => this.props.onUpdate('PatientInfo', patientInfo)} />;
@@ -75,21 +76,24 @@ class DoctorNavigator extends Component {
 }
 
 export class DoctorApp extends Component {
+    props: {
+      doctor: Doctor
+    }
     state: {
         statusMessage: string,
         navigationState: {
             index: number,
-            routes: { key: string, scene: string, menuHidden?: boolean, appointments?: Appointment[], appointment?: Appointment }[]
+            routes: { key: string, scene: string, menuHidden?: boolean, doctor?: Doctor, appointments?: Appointment[], appointment?: Appointment }[]
         }
 
     }
     constructor(props: any) {
         super(props);
         this.state = {
-            statusMessage: "Welcome to Wink EHR Dr. " + this.props.user.lastName + ".",
+            statusMessage: "Welcome to Wink EHR Dr. " + this.props.doctor.lastName + ".",
             navigationState: {
                 index: 0,
-                routes: [{ key: '0', scene: 'overview', appointments:[], menuHidden: false }],
+                routes: [{ key: '0', scene: 'overview', appointments:[], doctor: this.props.doctor, menuHidden: false }]
             }
         }
     }

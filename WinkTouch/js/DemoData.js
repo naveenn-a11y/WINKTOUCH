@@ -3,66 +3,97 @@
  */
 'use strict';
 
-import type {Appointment, Medication, Medications} from './Types';
+import type {Appointment, Doctor, Patient, Medication, Medications} from './Types';
 import {storeDocument} from './CouchDb';
+import {createDoctor, createPatient} from './User';
 import {createAppointment} from './Appointment';
+import {createVisit} from './Visit';
 
-function createFewAppointments() {
+export let doctorMurray : Doctor = {_id: 'DrConrad', firstName: 'Conrad', lastName: 'Murray'};
+export let spinDoctor : Doctor = {_id: 'TheSpinDoctor', firstName: 'Spin', lastName: 'Doctor'};
+export let patient1 : Patient = {_id: 'Patient1Account2', "lastName": "HARRAR","patientId": 1,"firstName": "Demo", "accountsId": "2"};
+export let patient2 : Patient = {_id: 'Patient2Account2', "lastName": "Harrarar","patientId": 2,"firstName": "Ted", "accountsId": "2"};
+export let patient3 : Patient = {_id: 'Patient6Account2', "lastName": "Harrar","patientId": 6,"firstName": "Ted", "accountsId": "2"};
+export let patient4 : Patient = {_id: 'Patient7Account2', "lastName": "khedrihhh", "patientId": 7,  "firstName": "wais",  "accountsId": "2"};
+export let patient5 : Patient = {_id: 'Patient9Account2', "lastName": "khedriii","patientId": 9,"firstName": "waisk","accountsId": "2"};
+
+function createUsers() {
+    createDoctor(doctorMurray);
+    createDoctor(spinDoctor);
+    createPatient(patient1);
+    createPatient(patient2);
+    createPatient(patient3);
+    createPatient(patient4);
+    createPatient(patient5);
+}
+
+function createAppointments() {
   let appointment1: Appointment = {
-      id: 1,
       type: 'Patient complaint',
       scheduledStart: new Date(2016, 11, 14, 10, 30),
       scheduledEnd: new Date(2016, 11, 14, 10, 50),
       bookingStatus: 'confirmed',
       location: 'The oval office',
-      patient: {
-          patientId: 2,
-          accountsId: 2,
-          firstName: 'Demo',
-          lastName: 'HARRAR',
-          birthDate: new Date(1979, 12, 29)
-      },
+      patientId: patient1._id,
       patientPresence: 'In waiting room',
-      doctor: 'Conrad Murray'
+      doctorId: doctorMurray._id
   };
   let appointment2: Appointment = {
-      id: 2,
       type: 'Take in new patient',
       scheduledStart: new Date(2016, 11, 14, 11, 0),
       scheduledEnd: new Date(2016, 11, 14, 11, 30),
       bookingStatus: 'confirmed',
       location: 'The oval office',
-      patient: {
-          patientId: 6,
-          accountsId: 2,
-          firstName: 'Wais',
-          lastName: 'Nice',
-          birthDate: new Date(1976, 2, 17)
-      },
+      patientId: patient2._id,
       patientPresence: 'Patient will be late',
-      doctor: 'Conrad Murray'
+      doctorId: doctorMurray._id
   };
   let appointment3: Appointment = {
-      id: 3,
       type: 'Patient complaint',
       scheduledStart: new Date(2016, 11, 14, 11, 30),
       scheduledEnd: new Date(2016, 11, 14, 10, 45),
       bookingStatus: 'confirmed',
       location: 'The oval office',
-      patient: {
-          patientId: 9,
-          accountsId: 2,
-          firstName: 'Wais',
-          lastName: 'Khedri',
-          birthDate: new Date(1974, 2, 21)
-      },
+      patientId: patient3._id,
       patientPresence: 'Checked in',
-      doctor: 'The spin doctor'
+      doctorId: doctorMurray._id
   };
-  createAppointment(appointment1);
-  createAppointment(appointment2);
-  createAppointment(appointment3);
+  let appointment4: Appointment = {
+      type: 'Take in new patient',
+      scheduledStart: new Date(2016, 11, 14, 11, 0),
+      scheduledEnd: new Date(2016, 11, 14, 11, 30),
+      bookingStatus: 'confirmed',
+      location: 'The oval office',
+      patientId: patient4._id,
+      patientPresence: 'Patient will be late',
+      doctorId: spinDoctor._id
+  };
+  let appointments: Appointment[] = [];
+  appointments.push(createAppointment(appointment1));
+  appointments.push(createAppointment(appointment2));
+  appointments.push(createAppointment(appointment3));
+  appointments.push(createAppointment(appointment4));
+  return appointments;
 }
+
+export function createVisits(appointment: Appointment, hasStarted: boolean, historyCount: number): Visit[] {
+    let visit1: Visit = {
+      appointmentId: appointment._id,
+      patientId: appointment.patientId,
+      doctorId: appointment.doctorId,
+      type: appointment.type,
+      start: hasStarted?new Date():undefined,
+      end: undefined,
+      location: appointment.location,
+      preExams: [],
+      exams: [],
+      assessment: {}
+    };
+    let visits: Visit[] = [];
+    visits.push(createVisit(visit1));
+    return visits;
+}
+
 
 function createExamMedications() {
   let medication1: Medication = {
@@ -85,6 +116,8 @@ function createExamMedications() {
 }
 
 export function createDemoData() {
-  createFewAppointments();
-  //createExamMedications();
+  createUsers();
+  let appointments: Appointment[] = createAppointments();
+  for (let i=0;i<appointments.length;i++)
+    createVisits(appointments[i], i==0, i);  
 }

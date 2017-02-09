@@ -20,7 +20,7 @@ export async function searchPatients(accountsId: number, searchText: string) : P
     const patients : Patient[] = json.response;
     return patients;
   } catch (error) {
-    console.log(error);
+    console.log('Error in searchPatients: '+error);
     alert('Something went wrong trying to get the patient list from the server. You can try again.');
   }
 }

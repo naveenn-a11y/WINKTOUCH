@@ -10,7 +10,7 @@ import { strings} from './Strings';
 import type {Exam, Patient, GlassesRx, RefractionExam, Refractions, Visit, Complaint} from './Types';
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
-import { ComplaintScreen } from './Complaint';
+import { ComplaintScreen, ComplaintCard } from './Complaint';
 import { ReviewOfSystemsScreen } from './ReviewOfSystems';
 import { MedicationsScreen, MedicationsCard } from './Medication';
 import { AllergiesScreen, AllegiesCard } from './Allergies';
@@ -208,16 +208,6 @@ class WearingRxCard extends ExamCardSpecifics {
       </View>
     return <View>
       <Text style={styles.text}>{strings.wearingRx}</Text>
-    </View>
-  }
-}
-
-class ComplaintCard extends ExamCardSpecifics {
-  render() {
-    if (!this.props.isExpanded)
-      return <Text style={styles.text}>Blurred{'\n'}Vision</Text>
-    return <View>
-      <Text style={styles.text}>Blurry vision in both eyes.</Text>
     </View>
   }
 }

@@ -5,6 +5,7 @@
 
 import base64 from 'base-64';
 import {createDemoData} from './DemoData';
+import { cacheItem } from './DataCache'
 
 export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
 
@@ -14,6 +15,54 @@ function newId() : string {
   //https://wiki.apache.org/couchdb/HttpGetUuids
   const newId : string = String(++idCounter);
   return newId;
+}
+
+function encodeKey(key: string | string[]) : string {
+  if (key instanceof Array) {
+    let keys : string[] = key;
+    let url : string = '[';
+    for (let i=0; i<keys.length;) {
+      if (keys[i])
+        url = url + '"' + encodeURIComponent(keys[i]) + '"';
+      else
+        url = url + '""';
+      if (++i <keys.length) {
+        url = url + ',';
+      }
+    }
+    url = url + ']';
+    return url;
+  } else {
+    return encodeURIComponent(key);
+  }
+}
+
+function cacheDocument(doc: any) {
+  if (!doc || !doc._id) return;
+  cacheItem(doc._id, doc);
+}
+
+export async function fetchViewDocuments(view: string, startKey: any, endKey: any) {
+  try {
+    const requestUrl = restUrl+'_design/views/_view/'+view+'?startkey='+encodeKey(startKey)+'&endkey='+encodeKey(endKey)+'&include_docs=true';
+    let response = await fetch(requestUrl);
+    let responseJson = await response.json();
+    if (responseJson.ok && responseJson.ok!==true) throw responseJson.reason;
+    let documents : [] = [];
+    let rows : [] = responseJson.rows;
+    for (let i=0; i<rows.length; i++) {
+       const row = rows[i];
+       const doc = row.doc;
+       if (row.id==doc._id) {
+         documents.push(doc);
+       }
+       cacheDocument(doc);
+    }
+    return documents;
+  } catch (error) {
+    console.log('Error in fetch view '+view+' documents: '+error);
+    alert('Something went wrong trying to get the '+view+' data from the server. You can try again anytime.');
+  }
 }
 
 export async function storeDocument(document: Object) {
@@ -35,6 +84,7 @@ export async function storeDocument(document: Object) {
       throw 'The server could not save your changes because of a '+responseJson.reason+' Please redo your changes.';
     }
     document._rev = responseJson.rev;
+    cacheDocument(document);
     return document;
 }
 
@@ -75,10 +125,25 @@ async function createEhrDatabase() {
 async function createViews() {
     const viewsDesign = {
       views: {
+        users: {
+          map: `function (doc) {
+            if (doc.dataType==='User') {
+              emit([doc.firstName+' '+doc.lastName, doc.userType]);
+            }
+          }`
+        },
         appointments: {
           map: `function (doc) {
             if (doc.dataType==='Appointment') {
-              emit(doc.scheduledStart, doc);
+                emit([doc.doctorId,doc.scheduledStart]);
+                emit([doc.doctorId,doc.scheduledStart], {_id: doc.patientId});
+            }
+          }`
+        },
+        visits: {
+          map: `function (doc) {
+            if (doc.dataType==='Visit') {
+              emit([doc.patientId, start], doc);
             }
           }`
         },
