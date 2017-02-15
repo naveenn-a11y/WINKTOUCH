@@ -7,7 +7,7 @@ import base64 from 'base-64';
 import {createDemoData} from './DemoData';
 import { cacheItem } from './DataCache'
 
-export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
+export const restUrl : string = 'http://192.168.2.47:5984/ehr/';
 
 let idCounter : number = 0;
 

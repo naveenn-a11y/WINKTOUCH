@@ -24,7 +24,7 @@ export async function fetchVisitHistory(patientId: string) : Visit[] {
 export async function createVisit(visit: Visit) : Visit {
   try {
       visit.dataType = 'Visit';
-      visit = storeDocument(visit);
+      visit = await storeDocument(visit);
       return visit;
   } catch (error) {
     console.log(error);

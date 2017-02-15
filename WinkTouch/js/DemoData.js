@@ -27,7 +27,7 @@ function createUsers() {
     createPatient(patient5);
 }
 
-function createAppointments() {
+async function createAppointments() {
   let appointment1: Appointment = {
       type: 'Patient complaint',
       scheduledStart: new Date(2016, 11, 14, 10, 30),
@@ -69,10 +69,10 @@ function createAppointments() {
       doctorId: spinDoctor._id
   };
   let appointments: Appointment[] = [];
-  appointments.push(createAppointment(appointment1));
-  appointments.push(createAppointment(appointment2));
-  appointments.push(createAppointment(appointment3));
-  appointments.push(createAppointment(appointment4));
+  appointments.push(await createAppointment(appointment1));
+  appointments.push(await createAppointment(appointment2));
+  appointments.push(await createAppointment(appointment3));
+  appointments.push(await createAppointment(appointment4));
   return appointments;
 }
 
@@ -85,13 +85,30 @@ export function createVisits(appointment: Appointment, hasStarted: boolean, hist
       start: hasStarted?new Date():undefined,
       end: undefined,
       location: appointment.location,
-      preExams: [],
-      exams: [],
+      preExamIds: [],
+      examIds: [],
+      assessment: {}
+    };
+    let visit2: Visit = {
+      appointmentId: appointment._id,
+      patientId: appointment.patientId,
+      doctorId: appointment.doctorId,
+      type: appointment.type,
+      start: new Date(2017,2,14),
+      end: undefined,
+      location: appointment.location,
+      preExamIds: [],
+      examIds: [],
       assessment: {}
     };
     let visits: Visit[] = [];
-    visits.push(createVisit(visit1));
+    visits.push(await createVisit(visit1));
+    visits.push(await createVisit(visit2));
     return visits;
+}
+
+function createPreExams() {
+
 }
 
 
@@ -115,9 +132,10 @@ function createExamMedications() {
   storeDocument(medications);
 }
 
-export function createDemoData() {
+export async function createDemoData() {
   createUsers();
-  let appointments: Appointment[] = createAppointments();
-  for (let i=0;i<appointments.length;i++)
-    createVisits(appointments[i], i==0, i);  
+  let appointments: Appointment[] = await createAppointments();
+  for (let i=0;i<appointments.length;i++) {
+    let visits : Visit[] = createVisits(appointments[i], i==0, i);
+  }
 }

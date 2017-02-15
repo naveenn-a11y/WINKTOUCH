@@ -4,7 +4,6 @@
 'use strict';
 
   export type Doctor = {
-    _id: string,
     firstName: string,
     lastName: string
   }
@@ -54,7 +53,6 @@
   }
 
   export type Appointment = {
-      _id: string,
       patientId?: string,
       doctorId?: string,
       type: string,
@@ -86,8 +84,8 @@
       start: Date,
       end?: Date,
       location?: string,
-      preExams: string[],
-      exams: string[],
+      preExamIds: string[],
+      examIds: string[],
       assessment: Assessment
   }
 
