@@ -3,23 +3,11 @@
  */
 'use strict';
 
+
+import type {Exam, ItemDefinition, Allergy} from './Types';
 import React, { Component } from 'react';
-import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
-import { styles, fontScale } from './Styles';
-import type {Exam, ItemDefinition, Allergy, Allergies } from './Types';
-import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
-import { restUrl, storeDocument } from './CouchDb';
-
-
-export async function fetchAllergies(examId: string): Allergies {
-  let allergies : Allergies = await fetchExamItems(examId, 'Allergies');
-  return allergies;
-}
-
-export async function storeAllergies(allergies: Allergies) :Allergies {
-  return await storeDocument(allergies);
-}
+import { ItemsEditor} from './Widgets';
+import { ExamItemsCard } from './ExamItem';
 
 const allergyDefinition: ItemDefinition = {
   allergy: {
@@ -46,63 +34,17 @@ export class AllegiesCard extends Component {
   }
 
   render() {
-    return <ExamItemsCard  itemType='allergies' itemProperties={['allergy']}{...this.props}/>
+    return <ExamItemsCard itemType='allergies' itemProperties={['allergy']} {...this.props}/>
   }
 }
 
 export class AllergiesScreen extends Component {
   props: {
     exam: Exam,
-    onNavigationChange: (action: string, data: any) => void,
     onUpdateExam: (exam: Exam) => void
   }
-  state: {
-    allergies: Allergies
-  }
-  unmounted: boolean
 
-  constructor(props: any) {
-    super(props);
-    this.unmounted = false;
-    let allergies: Allergies = this.props.exam.allergies;
-    if (allergies===undefined) allergies = this.newAllergies();
-    this.state = {allergies};
-    this.refreshAllergies();
-  }
-
-  async refreshAllergies() {
-      let exam : Exam = this.props.exam;
-      let allergies: Allergies = await fetchAllergies(exam._id);
-      if (allergies===undefined) {
-        allergies = await createExamItem('Allergies', this.newAllergies());
-      }
-      this.setState({allergies});
-      exam.allergies = allergies;
-      this.props.onUpdateExam(exam);
-  }
-
-  async storeAllergies() {
-    try {
-      let allergies : Allergies = await storeDocument(this.state.allergies);
-      if (!this.unmounted)
-        this.setState({allergies});
-    } catch (error) {
-      alert(error);
-      if (this.unmounted) {
-        this.props.onNavigationChange('showExam', this.props.exam);
-      } else {
-        this.refreshAllergies();
-      }
-    }
-  }
-
-  newAllergies = () => {
-    const newAllergies : Allergies = newExamItems(this.props.exam._id, 'Allergies');
-    newAllergies.allergies = [];
-    return newAllergies;
-  }
-
-  newAllergy = () => {
+  newAllergy = ()  => {
     return {
       allergy: undefined,
       reaction: [],
@@ -116,17 +58,13 @@ export class AllergiesScreen extends Component {
     return false;
   }
 
-  componentWillUnmount() {
-    this.unmounted = true;
-  }
-
   render() {
     return <ItemsEditor
-    items={this.state.allergies.allergies}
-    newItem={this.newAllergy}
-    isEmpty={this.isAllergyEmpty}
-    itemDefinition={allergyDefinition}
-    onUpdate = {() => this.storeAllergies()}
+      items={this.props.exam.allergies}
+      newItem={this.newAllergy}
+      isEmpty={this.isAllergyEmpty}
+      itemDefinition={allergyDefinition}
+      onUpdate = {() => this.props.onUpdateExam(this.props.exam)}
     />
   }
 }

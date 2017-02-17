@@ -9,14 +9,17 @@ import { styles, fontScale } from './Styles';
 import type {Patient, Exam, GlassesRx, Visit, Appointment, Assessment } from './Types';
 import {Button, FloatingButton} from './Widgets';
 import { formatMoment } from './Util';
-import { ExamCard, createExams, allExamTypes, allPreExams, fetchExams, createExam } from './Exam';
+import { ExamCard, createExams, allExamTypes, fetchExams, createExam } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
-import { storeDocument } from './CouchDb';
+import { storeDocument, fetchViewDocuments } from './CouchDb';
+import { cacheItem, getCachedItem, getCachedItems } from './DataCache';
 
 export async function fetchVisitHistory(patientId: string) : Visit[] {
-  const startKey: string[] = patientId;
-  const endKey: string[] = patientId;
-  let visits : Visits[] = await fetchViewDocuments('visits', startKey, endKey);
+  const startKey: string[] = [patientId];
+  const endKey: string[] = [patientId+'0'];
+  let visits : Visit[] = await fetchViewDocuments('visits', startKey, endKey);
+  let visitIds : string[] = visits.map((visit: Visit, index: number) => visit._id);
+  cacheItem('visitHistory'+patientId, visitIds);
   return visits;
 }
 
@@ -65,7 +68,7 @@ class ExamWorkFlow extends Component {
 }
 export class VisitWorkFlow extends Component {
     props: {
-        patient: Patient,
+        patientId: string,
         visit: Visit,
         onNavigationChange: (action: string, data: any) => void,
         onStartVisit: (type: string) => void,
@@ -103,13 +106,13 @@ export class VisitWorkFlow extends Component {
 
     unstartedExamTypes(visitType: string) : string[] {
       const allTypes : string[] = allExamTypes(visitType);
-      if (!this.props.visit.exams || this.props.visit.exams.length===0)
+      if (!this.props.visit.examIds || this.props.visit.examIds.length===0)
         return allTypes;
       let unstartedExamTypes : string[] = [];
       for (let i=0;i<allTypes.length;i++) {
         const examType: string = allTypes[i];
-        let existingExamInex = this.props.visit.exams.findIndex((exam : Exam) => exam.type === examType);
-        if (existingExamInex<0) unstartedExamTypes.push(examType);
+        let existingExamIndex = this.props.visit.examIds.findIndex((examId : string) => getCachedItem(examId).type === examType);
+        if (existingExamIndex<0) unstartedExamTypes.push(examType);
       }
       return unstartedExamTypes;
     }
@@ -125,10 +128,9 @@ export class VisitWorkFlow extends Component {
     }
 
     renderExams(exams: ?Exam[], addableExamOptions: ?string[]) {
-        if (!exams) return null;
         return <View style={styles.tabCard}>
             <View style={styles.flow}>
-                {exams.map((exam: Exam, index: number) => {
+                {exams && exams.map((exam: Exam, index: number) => {
                     return <ExamCard key={index} exam={exam} isExpanded={this.isExpanded(exam)}
                         onSelect={() => this.props.onNavigationChange('showExam', exam)}
                         onToggleExpand={() => this.toggleExpand(exam)} />
@@ -139,16 +141,16 @@ export class VisitWorkFlow extends Component {
     }
 
     render() {
-        if (this.props.visit.exams === undefined || this.props.visit.exams.length === 0) {
+        if (this.props.visit.examIds === undefined || this.props.visit.examIds.length === 0) {
             return <View>
-                {this.renderExams(this.props.visit.preExams)}
+                {this.renderExams(getCachedItems(this.props.visit.preExamIds))}
                 {this.renderStartVisitButtons()}
             </View>
         }
         const unstartedExamTypes : string[] = this.unstartedExamTypes(this.props.visit.type);
         return <View>
-            {this.renderExams(this.props.visit.preExams)}
-            {this.renderExams(this.props.visit.exams, unstartedExamTypes)}
+            {this.renderExams(getCachedItems(this.props.visit.preExamIds))}
+            {this.renderExams(getCachedItems(this.props.visit.examIds, unstartedExamTypes))}
             <AssessmentCard />
         </View>
     }
@@ -204,8 +206,8 @@ export class VisitHistory extends Component {
           start: new Date(),
           end: undefined,
           location: undefined,
-          preExams: [],
-          exams: [],
+          preExamIds: [],
+          examIds: [],
           assessment: {}
       };
       return newVisit;
@@ -268,7 +270,7 @@ export class VisitHistory extends Component {
                 </ScrollView>
             </View>
             {this.state.selectedVisit?
-              <VisitWorkFlow patient={this.props.appointment.patient}
+              <VisitWorkFlow patientId={this.props.appointment.patientId}
                 visit={this.state.selectedVisit}
                 onNavigationChange={this.props.onNavigationChange}
                 onUpdatePrescription={(prescription: GlassesRx) => this.updatePrescription(prescription)}

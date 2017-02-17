@@ -8,6 +8,7 @@ import {storeDocument} from './CouchDb';
 import {createDoctor, createPatient} from './User';
 import {createAppointment} from './Appointment';
 import {createVisit} from './Visit';
+import {createPreExams} from './Exam';
 
 export let doctorMurray : Doctor = {_id: 'DrConrad', firstName: 'Conrad', lastName: 'Murray'};
 export let spinDoctor : Doctor = {_id: 'TheSpinDoctor', firstName: 'Spin', lastName: 'Doctor'};
@@ -17,19 +18,19 @@ export let patient3 : Patient = {_id: 'Patient6Account2', "lastName": "Harrar","
 export let patient4 : Patient = {_id: 'Patient7Account2', "lastName": "khedrihhh", "patientId": 7,  "firstName": "wais",  "accountsId": "2"};
 export let patient5 : Patient = {_id: 'Patient9Account2', "lastName": "khedriii","patientId": 9,"firstName": "waisk","accountsId": "2"};
 
-function createUsers() {
-    createDoctor(doctorMurray);
-    createDoctor(spinDoctor);
-    createPatient(patient1);
-    createPatient(patient2);
-    createPatient(patient3);
-    createPatient(patient4);
-    createPatient(patient5);
+async function createUsers() {
+    await createDoctor(doctorMurray);
+    await createDoctor(spinDoctor);
+    await createPatient(patient1);
+    await createPatient(patient2);
+    await createPatient(patient3);
+    await createPatient(patient4);
+    await createPatient(patient5);
 }
 
 async function createAppointments() {
   let appointment1: Appointment = {
-      type: 'Patient complaint',
+      type: 'New patient',
       scheduledStart: new Date(2016, 11, 14, 10, 30),
       scheduledEnd: new Date(2016, 11, 14, 10, 50),
       bookingStatus: 'confirmed',
@@ -39,7 +40,7 @@ async function createAppointments() {
       doctorId: doctorMurray._id
   };
   let appointment2: Appointment = {
-      type: 'Take in new patient',
+      type: 'Glasses pickup',
       scheduledStart: new Date(2016, 11, 14, 11, 0),
       scheduledEnd: new Date(2016, 11, 14, 11, 30),
       bookingStatus: 'confirmed',
@@ -49,7 +50,7 @@ async function createAppointments() {
       doctorId: doctorMurray._id
   };
   let appointment3: Appointment = {
-      type: 'Patient complaint',
+      type: 'Control visit',
       scheduledStart: new Date(2016, 11, 14, 11, 30),
       scheduledEnd: new Date(2016, 11, 14, 10, 45),
       bookingStatus: 'confirmed',
@@ -76,41 +77,72 @@ async function createAppointments() {
   return appointments;
 }
 
-export function createVisits(appointment: Appointment, hasStarted: boolean, historyCount: number): Visit[] {
-    let visit1: Visit = {
+export async function createVisits(appointment: Appointment, hasStarted: boolean, historyCount: number): Visit[] {
+    let visits: Visit[] = [{
       appointmentId: appointment._id,
       patientId: appointment.patientId,
       doctorId: appointment.doctorId,
       type: appointment.type,
-      start: hasStarted?new Date():undefined,
+      start: hasStarted?new Date(2017,1,14,10,0):undefined,
       end: undefined,
       location: appointment.location,
       preExamIds: [],
       examIds: [],
       assessment: {}
-    };
-    let visit2: Visit = {
-      appointmentId: appointment._id,
+    },
+    {
+      appointmentId: undefined,
       patientId: appointment.patientId,
       doctorId: appointment.doctorId,
-      type: appointment.type,
-      start: new Date(2017,2,14),
+      type: 'Glasses pick up',
+      start: new Date(2017,1,14,10,20),
       end: undefined,
       location: appointment.location,
       preExamIds: [],
       examIds: [],
       assessment: {}
-    };
-    let visits: Visit[] = [];
-    visits.push(await createVisit(visit1));
-    visits.push(await createVisit(visit2));
+    }, {
+      appointmentId: undefined,
+      patientId: appointment.patientId,
+      doctorId: appointment.doctorId,
+      type: 'Control Visit',
+      start: new Date(2017,0,30,10,20),
+      end: undefined,
+      location: appointment.location,
+      preExamIds: [],
+      examIds: [],
+      assessment: {}
+    }, {
+      appointmentId: undefined,
+      patientId: appointment.patientId,
+      doctorId: appointment.doctorId,
+      type: 'Glasses pick up',
+      start: new Date(2016,2,14,10,20),
+      end: undefined,
+      location: appointment.location,
+      preExamIds: [],
+      examIds: [],
+      assessment: {}
+    }, {
+      appointmentId: undefined,
+      patientId: appointment.patientId,
+      doctorId: appointment.doctorId,
+      type: 'New client',
+      start: new Date(2016,1,14,10,20),
+      end: undefined,
+      location: appointment.location,
+      preExamIds: [],
+      examIds: [],
+      assessment: {}
+    }];
+    visits = visits.slice(visits.length-historyCount);
+    for (let i=0;i<visits.length;i++) {
+      visits[i] = await createVisit(visits[i]);
+      if (historyCount>0)
+        visits[i]= await createPreExams(visits[i]);
+    }
     return visits;
 }
-
-function createPreExams() {
-
-}
-
 
 function createExamMedications() {
   let medication1: Medication = {
@@ -133,9 +165,10 @@ function createExamMedications() {
 }
 
 export async function createDemoData() {
-  createUsers();
+  await createUsers();
   let appointments: Appointment[] = await createAppointments();
   for (let i=0;i<appointments.length;i++) {
-    let visits : Visit[] = createVisits(appointments[i], i==0, i);
+    let visits : Visit[] = await createVisits(appointments[i], i==0, i);
   }
+  alert('CouchDb demo database rereceated');
 }

@@ -7,12 +7,12 @@ import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
-import type {Exam, Patient, GlassesRx, RefractionExam, Refractions, Visit, Complaint} from './Types';
+import type {Exam, Patient, GlassesRx, RefractionTest, Visit, Complaint} from './Types';
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen, ComplaintCard } from './Complaint';
 import { ReviewOfSystemsScreen } from './ReviewOfSystems';
-import { MedicationsScreen, MedicationsCard } from './Medication';
+import { MedicationsScreen, MedicationsCard } from './Medications';
 import { AllergiesScreen, AllegiesCard } from './Allergies';
 import { SocialHistoryScreen, SocialHistoryCard } from './SocialHistory';
 import { FamilyHistoryScreen, FamilyHistoryCard } from './FamilyHistory';
@@ -21,101 +21,55 @@ import { WearingRxScreen, RefractionScreen, GlassesSummary } from './Refraction'
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
 import { fetchRefractions} from './Refraction';
+import { fetchDocument, storeDocument, getRevision } from './CouchDb';
 
-let id = 0;
+export async function fetchExam(examId: string) : Exam {
+  const exam: Exam = await fetchDocument(examId);
+  return exam;
+}
 
-function constructExam(patient: Patient, type: string, hasStarted?: boolean = false, hasEnded?: boolean = false): Exam {
-  if (type==='wearingRx' || type==='refractionTest') {
-    return {
-      _id: 'Exam'+String(++id),
-      type: type,
-      visitId: 1,
-      patient: patient,
-      hasStarted: hasStarted,
-      hasEnded: hasEnded,
-      refractions: {
-        previousRx: {
-          od: {sphere: 0.5},
-          os: {sphere: 0.25, add: 0.75}
-        },
-        wearingRx: {
-          od: {sphere: 0.25},
-          os: {sphere: 0.25, add: 0.75}
-        },
-        phoropter: {
-          od: {sphere: 0.25},
-          os: {sphere: 0.25, add: 0.75}
-        },
-        autoRefractor: {
-          od: {sphere: 0.25},
-          os: {sphere: 0.25, add: 0.75}
-        },
-        retinoscope: {
-          od: {sphere: 0.25},
-          os: {sphere: 0.25, add: 0.75}
-        },
-        cyclopegic: {
-          od: {sphere: 0.25},
-          os: {sphere: 0.25, add: 0.75}
-        },
-        finalRx: {
-          od: {sphere: 0.25},
-          os: {sphere: 0.25, add: 0.75}
-        }
-      }
-    }
+export async function createExam(exam: Exam) : Exam {
+  try {
+      exam.dataType = 'Exam';
+      exam = await storeDocument(exam);
+      return exam;
+  } catch (error) {
+    console.log(error);
+    alert('Something went wrong trying to store an exam on the server. You can try again anytime.');
   }
-  return {
-    _id: 'Exam'+String(++id),
-    type: type,
-    patient: patient,
-    visitId: 2,
-    hasStarted: hasStarted,
-    hasEnded: hasEnded
+}
+
+function newExam(type: string) {
+  let exam : Exam = {type, hasStarted: false, hasEnded: false, [type]: []};
+  if (type === 'socialHistory' || type === 'wearingRx') {
+    exam[type] = {}
   }
+  return exam;
+}
+
+export async function createPreExams(visit: Visit): Visit {
+  if (!visit || !visit._id) return [];
+  if (visit.preExamIds && visit.preExamIds.length>0) {
+    throw new Error('I can not start the pre examination twice.');
+  }
+  if (!visit.preExamIds) visit.preExamIds = [];
+  let examTypes: string[] = allPreExamTypes(visit.type);
+  let exams = examTypes.map((type: string) => newExam(type));
+  //TODO: bulk insert
+  for (let i=0; i<exams.length;i++) {
+    let exam: Exam = await createExam(exams[i]);
+    visit.preExamIds.push(exam._id);
+  }
+  visit = await storeDocument(visit);
+  return visit;
 }
 
 export function allExamTypes(visitType: string) : string[] {
     return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
 }
 
-export function createExam(visit: Visit, examType: string) {
-    return  constructExam(visit.patient, examType, false, false);
-}
-
-export function createExams(patient: Patient, visitType: string): Exam[] {
-  if (visitType && visitType === 'followUp') {
-    return [constructExam(patient, 'complaint', true, true), constructExam(patient, 'visualAcuityTest', true, true),
-    constructExam(patient, 'refractionTest', true, true)]
-  }
-  if (visitType && visitType === 'fitting') {
-    return [
-      constructExam(patient, 'complaint', true, true), constructExam(patient, 'visualAcuityTest', true, true),
-      constructExam(patient, 'refractionTest', true, true), constructExam(patient, 'slitLampExam', true),
-    ]
-  }
-  return [
-    constructExam(patient,'complaint', true, true), constructExam(patient,'visualAcuityTest', true, true),
-    constructExam(patient,'visualFieldTest', true, true), constructExam(patient,'coverTest', true, true),
-    constructExam(patient,'reviewOfSystems', true, true),
-    constructExam(patient,'refractionTest', true, true),
-  ]
-}
-
-export function allPreExams(patient: Patient): Exam[] {
-  return [
-    constructExam(patient,'wearingRx', false, false), constructExam(patient,'medications', true, false),
-    constructExam(patient,'allergies', false, false), constructExam(patient,'medicalHistory', true, true),
-    constructExam(patient,'familyHistory', true, false), constructExam(patient,'socialHistory', true)
-  ]
-}
-
-export function fetchExams(patient: Patient): Exam[] {
-  return [
-    constructExam(patient,'complaint', true, true), constructExam(patient,'coverTest', true, true),
-    constructExam(patient,'reviewOfSystems', true, true), constructExam(patient,'visualAcuityTest', true, false),
-    constructExam(patient,'refractionTest'),  constructExam(patient,'visualFieldTest', true, true)
-  ]
+export function allPreExamTypes(visitType: string) : string[] {
+    return ['wearingRx', 'medications',  'allergies', 'medicalProcedures',  'familyHistory', 'socialHistory'];
 }
 
 export class ExamCardSpecifics extends Component {
@@ -157,7 +111,7 @@ export class ExamCard extends Component {
         return <WearingRxCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'medications':
         return <MedicationsCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
-      case 'medicalHistory':
+      case 'medicalProcedures':
         return <MedicalHistoryCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'allergies':
         return <AllegiesCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
@@ -199,16 +153,18 @@ export class ExamCard extends Component {
 class WearingRxCard extends ExamCardSpecifics {
   props: {
     isExpanded: boolean,
-    exam: RefractionExam
+    exam: Exam
   }
   render() {
-    if (!this.props.isExpanded)
+    if (!this.props.exam.wearingRx) {
       return <View>
-        <GlassesSummary title={strings.wearingRx} glassesRx={this.props.exam.refractions.wearingRx} />
+        <Text style={styles.cardTitle}>{strings.wearingRx}</Text>
       </View>
+    }
     return <View>
-      <Text style={styles.text}>{strings.wearingRx}</Text>
-    </View>
+        <GlassesSummary title={strings.wearingRx} glassesRx={this.props.exam.wearingRx.wearingRx} />
+      </View>
+
   }
 }
 
@@ -272,7 +228,6 @@ class GlaucomaExamCard extends ExamCardSpecifics {
   }
 }
 
-
 export class ExamScreen extends Component {
   props: {
     exam: Exam,
@@ -282,49 +237,82 @@ export class ExamScreen extends Component {
   state: {
     exam: Exam
   }
+  unmounted: boolean
 
   constructor(props: any) {
     super(props);
+    this.props.exam.hasStarted = true;
     this.state = {
       exam: this.props.exam
+    }
+    this.refreshExam();
+  }
+
+  async refreshExam() {
+    let latestRevision :string = await getRevision(this.state.exam._id);
+    const upToDate : boolean = this.props.exam._rev === latestRevision;
+    if (!upToDate) {
+      const exam: Exam = fetchExam(this.props.exam._id);
+      exam.hasStarted = true;
+      this.setState({exam});
+    }
+  }
+
+  async storeExam(exam: Exam) {
+    try {
+      exam = await storeDocument(exam);
+      this.props.onUpdateExam(exam);
+      if (!this.unmounted)
+        this.setState({exam});
+    } catch (error) {
+      alert(error);
+      if (this.unmounted) {
+        this.props.onNavigationChange('showExam', this.props.exam);
+      } else {
+        this.refreshExam();
+      }
     }
   }
 
   updateExam = (exam: Exam) : void => {
-    this.setState({exam});
-    this.props.onUpdateExam(exam);
+    this.storeExam(exam);
   }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+  }
+
 
   renderExam() {
     switch (this.props.exam.type) {
       case 'complaint':
-        return <ComplaintScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <ComplaintScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'visualAcuityTest':
-        return <VisualAcuityTest exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <VisualAcuityTest exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'coverTest':
-        return <CoverTestScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <CoverTestScreen exam={this.state.exam} onUpdateExam={this.updateExam}  />
       case 'reviewOfSystems':
-        return <ReviewOfSystemsScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <ReviewOfSystemsScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'wearingRx':
-        return <WearingRxScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <WearingRxScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'refractionTest':
-        return <RefractionScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <RefractionScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'slitLampExam':
-        return <SlitLampScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <SlitLampScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'visualFieldTest':
-        return <VisualFieldTestScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <VisualFieldTestScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'glaucomaExam':
-        return <GlaucomaScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <GlaucomaScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'medications':
-        return <MedicationsScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <MedicationsScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'allergies':
-        return <AllergiesScreen exam={this.state.exam} onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <AllergiesScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'socialHistory':
-        return <SocialHistoryScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <SocialHistoryScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'familyHistory':
-        return <FamilyHistoryScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
-      case 'medicalHistory':
-        return <MedicalHistoryScreen exam={this.state.exam}  onUpdateExam={this.updateExam}  onNavigationChange={this.props.onNavigationChange} />
+        return <FamilyHistoryScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
+      case 'medicalProcedures':
+        return <MedicalHistoryScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
     }
     return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>
   }

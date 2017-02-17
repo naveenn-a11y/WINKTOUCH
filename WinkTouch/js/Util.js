@@ -49,6 +49,7 @@ export function weekDifference(d1: Date, d2: Date) : number {
 
 export function formatMoment(date: Date): string {
   if (!date) return '';
+  date = new Date(date);
   const now = new Date();
   if (isSameDay(date, today()))
     return 'Today';

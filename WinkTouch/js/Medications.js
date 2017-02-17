@@ -3,39 +3,10 @@
  */
 'use strict';
 
+import type {Exam, ItemDefinition, Medication } from './Types';
 import React, { Component } from 'react';
-import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
-import { styles, fontScale } from './Styles';
-import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition } from './Widgets';
-import { FormRow, FormTextInput } from './Form';
-
-export type Medication = {
-  label: string,
-  rxDate: Date,
-  strength: string,
-  dosage: string,
-  route: string,
-  frequency: string,
-  duration: string,
-  instructions: string[]
-}
-
-function fetchMedications(): Medication[] {
-  const medications: Medication[] = [
-    {
-      label: 'Xalatan',
-      rxDate: new Date(),
-      strength: '20 mg',
-      dosage: '1 drop',
-      route: 'OS',
-      frequency: '5 x daily',
-      duration: '2 weeks',
-      instructions: ['Shake well before using', 'Take with food', 'Avoid taking with diary']
-    }
-  ];
-  return medications;
-}
+import { ItemsEditor} from './Widgets';
+import { ExamItemsCard } from './ExamItem';
 
 const medicationDefinition: ItemDefinition = {
   label: {
@@ -70,9 +41,25 @@ const medicationDefinition: ItemDefinition = {
   }
 };
 
+export class MedicationsCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    return <ExamItemsCard  itemType='medications' itemProperties={['route','label','strength']}{...this.props}/>
+  }
+}
+
 export class MedicationsScreen extends Component {
-  newMedication(): Medication {
-    return {
+  props: {
+    exam: Exam,
+    onUpdateExam: (exam: Exam) => void
+  }
+
+  newMedication = ()  => {
+    let medication : Medication = {
       label: '',
       rxDate: new Date(),
       strength: '',
@@ -82,13 +69,22 @@ export class MedicationsScreen extends Component {
       duration: '',
       instructions: []
     };
+    return medication;
+  }
+
+  isMedicationEmpty = (medication: Medication)  => {
+    if (medication === undefined || medication===null) return true;
+    if (medication.label === undefined || medication.label==null || medication.label.trim()==='') return true;
+    return false;
   }
 
   render() {
     return <ItemsEditor
-      items={fetchMedications()}
-      newItem={() => this.newMedication()}
+      items={this.props.exam.medications}
+      newItem={this.newMedication}
+      isEmpty={this.isMedicationEmpty}
       itemDefinition={medicationDefinition}
+      onUpdate = {() => this.props.onUpdateExam(this.props.exam)}
       />
   }
 }

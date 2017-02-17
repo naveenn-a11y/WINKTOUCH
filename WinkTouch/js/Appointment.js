@@ -14,7 +14,7 @@ import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
 import { fetchPatientInfo } from './Patient';
 import { storeDocument, fetchViewDocuments } from './CouchDb';
-import { getCachedItem} from './DataCache';
+import { getCachedItem, getCachedItems} from './DataCache';
 
 export async function fetchAppointments(doctorId: string) : Appointment[] {
   const startKey: string[] = [doctorId,'2016-12-13T9'];
@@ -160,32 +160,46 @@ class AppointmentDetails extends Component {
 export class AppointmentScreen extends Component {
     props: {
         appointment: Appointment,
-        patientInfo: PatientInfo,
-        visitHistory: Visit[],
         onNavigationChange: (action: string, data: any) => void,
         onUpdate: (itemType: string, item: any) => void
     }
+    state: {
+        patientInfo: PatientInfo,
+        visitHistory: Visit[]
+    }
     constructor(props: any) {
         super(props);
+        this.state = {
+          patientInfo: getCachedItem(this.props.appointment.patientId),
+          visitHistory: getCachedItems(getCachedItem('visitHistory'+this.props.appointment.patientId))
+        }
         this.refreshPatientInfo();
         this.refreshVisitHistory();
     }
 
+    /**
+    componentWillReceiveProps(nextProps: any) {
+      this.setState({
+        patientInfo: getCachedItem(nextProps.appointment.patientId),
+        visitHistory: getCachedItems(getCachedItem('visitHistory'+nextProps.appointment.patientId))
+      });
+    }*/
+
     async refreshPatientInfo() {
       const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patientId);
-      this.props.onUpdate('PatientInfo', patientInfo);
+      this.setState({patientInfo});
     }
 
     async refreshVisitHistory() {
       const visitHistory : Visit[] = await fetchVisitHistory(this.props.appointment.patientId);
-      this.props.onUpdate('VisitHistory', visitHistory);
+      this.setState({visitHistory});
     }
 
     render() {
         return <ScrollView>
             <AppointmentDetails appointment={this.props.appointment} />
-            <PatientCard patientInfo={this.props.patientInfo} onNavigationChange={this.props.onNavigationChange} />
-            <VisitHistory appointment={this.props.appointment} visitHistory={this.props.visitHistory}
+            <PatientCard patientInfo={this.state.patientInfo} onNavigationChange={this.props.onNavigationChange} />
+            <VisitHistory appointment={this.props.appointment} visitHistory={this.state.visitHistory}
                 onNavigationChange={this.props.onNavigationChange} onUpdate={this.props.onUpdate} />
         </ScrollView>
     }

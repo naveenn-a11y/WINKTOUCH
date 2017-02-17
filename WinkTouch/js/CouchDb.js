@@ -7,7 +7,7 @@ import base64 from 'base-64';
 import {createDemoData} from './DemoData';
 import { cacheItem } from './DataCache'
 
-export const restUrl : string = 'http://192.168.2.47:5984/ehr/';
+export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
 
 let idCounter : number = 0;
 
@@ -42,12 +42,44 @@ function cacheDocument(doc: any) {
   cacheItem(doc._id, doc);
 }
 
+export async function fetchDocument(documentId: string) {
+  try {
+    const requestUrl = restUrl+encodeURIComponent(documentId);
+    let response = await fetch(requestUrl, {
+      method: 'get',
+      headers: {
+        'Authorization': 'Basic ' + base64.encode('ehr:ehr'),
+        'Accept': 'application/json'
+      }});
+    if (!response.ok) throw response.reason;
+    const document = await response.json();
+    return document;
+  } catch (error) {
+    console.log('Error in fetchDocument for document '+documentId+': '+error);
+    alert('Something went wrong trying to get data from the server. You can try again anytime.');
+  }
+}
+
+export async function getRevision(documentId: string) : string {
+  try {
+    const requestUrl = restUrl+encodeURIComponent(documentId);
+    let response = await fetch(requestUrl, {  method: 'head' });
+    if (!response.ok) throw response.reason;
+    const revisionInQuotes : string = response.headers.map.etag[0];
+    const revision : string = revisionInQuotes.substring(1, revisionInQuotes.length-1);
+    return revision;
+  } catch (error) {
+    console.log('Error in getRevision for document '+documentId+': '+error);
+    alert('Something went wrong trying to get the newest revision data from the server. You can try again anytime.');
+  }
+}
+
 export async function fetchViewDocuments(view: string, startKey: any, endKey: any) {
   try {
     const requestUrl = restUrl+'_design/views/_view/'+view+'?startkey='+encodeKey(startKey)+'&endkey='+encodeKey(endKey)+'&include_docs=true';
     let response = await fetch(requestUrl);
+    if (!response.ok) throw response.reason;
     let responseJson = await response.json();
-    if (responseJson.ok && responseJson.ok!==true) throw responseJson.reason;
     let documents : [] = [];
     let rows : [] = responseJson.rows;
     for (let i=0; i<rows.length; i++) {
@@ -69,7 +101,8 @@ export async function storeDocument(document: Object) {
     if (document._id === undefined) {
       document._id = document.dataType+newId()
     }
-    let response = await fetch(restUrl+document._id, {
+    const requestUrl = restUrl+encodeURIComponent(document._id);
+    let response = await fetch(requestUrl, {
       method: 'put',
       headers: {
         'Authorization': 'Basic ' + base64.encode('ehr:ehr'),
@@ -143,14 +176,19 @@ async function createViews() {
         visits: {
           map: `function (doc) {
             if (doc.dataType==='Visit') {
-              emit([doc.patientId, start], doc);
+              emit([doc.patientId, start]);
+              if (doc.preExamIds && doc.preExamIds.length>0) {
+                for (var i=0; i<doc.preExamIds.length; i++) {
+                  emit([doc.patientId, start], {_id: doc.preExamIds[i]});
+                }
+              }
             }
           }`
         },
-        examitems: {
+        test: {
           map: `function (doc) {
-            if (doc.dataType==='ExamItem') {
-              emit([doc.itemType, doc.examId], doc);
+            if (doc.type && doc[doc.type] && doc[doc.type].length>0) {
+              emit(doc.type, doc[doc.type]);
             }
           }`
         }

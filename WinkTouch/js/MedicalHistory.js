@@ -3,22 +3,10 @@
  */
 'use strict';
 
+import type {Exam, ItemDefinition, MedicalProcedure } from './Types';
 import React, { Component } from 'react';
-import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
-import { styles, fontScale } from './Styles';
-import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition, MedicalHistory, MedicalProcedure } from './Types';
-import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
-import { restUrl, storeDocument } from './CouchDb';
-
-export async function fetchMedicalHistory(examId: string) : MedicalHistory {
-  let medicalHistory : MedicalHistory = await fetchExamItems(examId, 'MedicalHistory');
-  return medicalHistory;
-}
-
-export async function storeMedicalHistory(medicalHistory: MedicalHistory) :MedicalHistory {
-  return await storeDocument(medicalHistory);
-}
+import { ItemsEditor} from './Widgets';
+import { ExamItemsCard } from './ExamItem';
 
 const medicalProcedureDefinition: ItemDefinition = {
   procedure: {
@@ -46,60 +34,14 @@ export class MedicalHistoryCard extends Component {
   }
 
   render() {
-    return <ExamItemsCard  itemType='medicalProcedures' itemProperties={['route','procedure']}{...this.props}/>
+    return <ExamItemsCard  itemType='medicalProcedures' itemProperties={['route','procedure']} {...this.props}/>
   }
 }
 
 export class MedicalHistoryScreen extends Component {
   props: {
     exam: Exam,
-    onNavigationChange: (action: string, data: any) => void,
     onUpdateExam: (exam: Exam) => void
-  }
-  state: {
-    medicalHistory: MedicalHistory
-  }
-  unmounted: boolean
-
-  constructor(props: any) {
-    super(props);
-    this.unmounted = false;
-    let medicalHistory: MedicalHistory = this.props.exam.medicalHistory;
-    if (medicalHistory===undefined) medicalHistory = this.newMedicalHistory();
-    this.state = {medicalHistory};
-    this.refreshMedicalHistory();
-  }
-
-  async refreshMedicalHistory() {
-      let exam : Exam = this.props.exam;
-      let medicalHistory: MedicalHistory = await fetchMedicalHistory(exam._id);
-      if (medicalHistory===undefined) {
-        medicalHistory = await createExamItem('MedicalHistory', this.newMedicalHistory())
-      }
-      this.setState({medicalHistory});
-      exam.medicalProcedures = medicalHistory;
-      this.props.onUpdateExam(exam);
-  }
-
-  async storeMedicalHistory() {
-    try {
-      let medicalHistory = await storeDocument(this.state.medicalHistory);
-      if (!this.unmounted)
-        this.setState({medicalHistory});
-    } catch (error) {
-      alert(error);
-      if (this.unmounted) {
-        this.props.onNavigationChange('showExam', this.props.exam);
-      } else {
-        this.refreshMedicalHistory();
-      }
-    }
-  }
-
-  newMedicalHistory = ()  => {
-    const newMedicalHistory : MedicalHistory = newExamItems(this.props.exam._id, 'MedicalHistory');
-    newMedicalHistory.medicalProcedures = [];
-    return newMedicalHistory;
   }
 
   newMedicalProcedure(): MedicalProcedure {
@@ -116,17 +58,13 @@ export class MedicalHistoryScreen extends Component {
     return false;
   }
 
-  componentWillUnmount() {
-    this.unmounted = true;
-  }
-
   render() {
     return <ItemsEditor
-      items={this.state.medicalHistory.medicalProcedures}
+      items={this.props.exam.medicalProcedures}
       newItem={this.newMedicalProcedure}
       isEmpty={this.isMedicalProcedureEmpty}
       itemDefinition={medicalProcedureDefinition}
-      onUpdate = {() => this.storeMedicalHistory()}
+      onUpdate = {() => this.props.onUpdateExam(this.props.exam)}
       />
   }
 }

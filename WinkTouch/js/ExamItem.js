@@ -7,10 +7,10 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
-import type {Exam, ExamItems, ItemDefinition} from './Types';
+import type {Exam, ItemDefinition} from './Types';
 import { restUrl, storeDocument } from './CouchDb';
 
-export function newExamItems(examId: string, itemType: string) : ExamItems {
+export function newExamItems(examId: string, itemType: string) : Exam {
   return {
     dataType: 'ExamItem',
     itemType,
@@ -56,13 +56,13 @@ export class ExamItemsCard extends Component {
   }
 
   render() {
-    if (!this.props.exam[this.props.itemType] || this.props.exam[this.props.itemType][this.props.itemType].length===0)
+    if (!this.props.exam[this.props.itemType] || this.props.exam[this.props.itemType].length===0)
       return <View style={styles.centeredColumnLayout}>
           <Text style={styles.cardTitle}>{strings[this.props.itemType]}</Text>
         </View>
     return <View style={styles.centeredColumnLayout}>
           <Text style={styles.cardTitle}>{strings[this.props.itemType]}</Text>
-          {this.props.exam[this.props.itemType][this.props.itemType].map((examItem: any, index: number) => {
+          {this.props.exam[this.props.itemType].map((examItem: any, index: number) => {
             return <View style={styles.centeredRowLayout} key={index}>
               {this.props.itemProperties.map((property: string, index: number) => {
                 return <Text style={styles.text} key={index}>{examItem[property]} </Text>
@@ -93,7 +93,7 @@ export class ExamItemCard extends Component {
             {this.props.itemProperties.map((property: string, index: number) => {
               let value = this.props.exam[this.props.itemType][property];
               let itemDefinition = this.props.itemDefinition[property];
-              if (itemDefinition.normalValue==value) return null;
+              if (itemDefinition.normalValue==value || !value || value.length===0) return null;
               return <Text style={styles.text} key={index}>{itemDefinition.label}: {value}</Text>
             })}
       </View>

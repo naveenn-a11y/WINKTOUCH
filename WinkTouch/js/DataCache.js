@@ -15,3 +15,9 @@ export function getCachedItem(key: string) : any {
   const cachedData = cache.get(key);
   return cachedData;
 }
+
+export function getCachedItems(keys: string[]) : [] {
+    if (!keys) return [];
+    let items = keys.map(key => getCachedItem(key));
+    return items;
+}

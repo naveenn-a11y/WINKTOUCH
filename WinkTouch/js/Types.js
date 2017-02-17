@@ -29,7 +29,7 @@
       patientId: number,
       accountsId: string,
       firstName: string,
-      lastName: string
+      lastName: string,
   }
 
   export type PatientInfo = {
@@ -97,23 +97,25 @@
   }
 
   export type Exam = {
-      patient: Patient,
-      visitId: number,
       type: string,
       hasStarted: boolean,
       hasEnded: boolean,
-      refractions? : Refractions,
-      medications? : Medications,
-      allergies?: Allergies,
-      medicalProcedures?: MedicalHistory,
-      relationDiseases?: FamilyHistory,
+      wearingRx?: WearingRx,
+      medications?: Medication[],
+      allergies?: Allergy[],
+      medicalProcedures?: MedicalProcedure[],
+      relationDiseases?: RelationDisease[],
       socialHistory?: SocialHistory,
-      complaints?: Complaints
+      complaints?: Complaint[],
+      refractionTest?: RefractionTest
   }
 
-  export type Refractions = {
+  export type WearingRx = {
       previousRx: GlassesRx,
-      wearingRx: GlassesRx,
+      wearingRx: GlassesRx
+  }
+
+  export type RefractionTest = {
       phoropter: GlassesRx,
       autoRefractor: GlassesRx,
       retinoscope: GlassesRx,
@@ -131,10 +133,6 @@
     sclera: string
   }
 
-  export type ExamItems = {
-    examId: string
-  }
-
   export type Medication = {
     label: string,
     rxDate: Date,
@@ -146,20 +144,10 @@
     instructions: string[]
   }
 
-  export type Medications = {
-    examId: string,
-    medications: Medication[]
-  }
-
   export type Allergy = {
       allergy: string,
       reaction: string[],
       status: string
-  }
-
-  export type Allergies = {
-      examId: string,
-      allergies: Allergy[]
   }
 
   export type MedicalProcedure = {
@@ -168,24 +156,13 @@
     route: string
   }
 
-  export type MedicalHistory = {
-    examId: string,
-    medicalProcedures: MedicalProcedure[]
-  }
-
-  export type RelationDisease = {
+  export type FamilyDisease = {
     disease: string,
     since: string,
     relation: string[]
   }
 
-  export type FamilyHistory = {
-    examId: string,
-    relationDiseases: RelationDisease[]
-  }
-
   export type SocialHistory = {
-    examId: string,
     smokerType: string,
     smokedLastMonth: string,
     smokelessUsedLastMonth: string,
@@ -209,9 +186,4 @@
     context?: string[],
     modifyingFactor?: string[],
     associatedSign?: string[]
-  }
-
-  export type Complaints = {
-    examId: string,
-    complaints: Complaint[]
   }

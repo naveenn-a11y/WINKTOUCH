@@ -3,22 +3,10 @@
  */
 'use strict';
 
+import type {ItemDefinition, FamilyDisease } from './Types';
 import React, { Component } from 'react';
-import { View, Text, ScrollView, LayoutAnimation, TouchableHighlight } from 'react-native';
-import { styles, fontScale } from './Styles';
-import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
-import type {ItemDefinition, FamilyHistory, RelationDisease } from './Types';
-import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
-import { restUrl, storeDocument } from './CouchDb';
-
-export async function fetchFamilyHistory(examId: string) : FamilyHistory {
-  let familyHistory : FamilyHistory = await fetchExamItems(examId, 'FamilyHistory');
-  return familyHistory;
-}
-
-export async function storeFamilyHistory(familyHistory: FamilyHistory) :FamilyHistory {
-  return await storeDocument(familyHistory);
-}
+import { ItemsEditor} from './Widgets';
+import { ExamItemsCard } from './ExamItem';
 
 const relationDiseaseDefinition: ItemDefinition = {
   disease: {
@@ -45,7 +33,7 @@ export class FamilyHistoryCard extends Component {
   }
 
   render() {
-    return <ExamItemsCard  itemType='relationDiseases' itemProperties={['relation','disease']}{...this.props}/>
+    return <ExamItemsCard itemType='familyHistory' itemProperties={['relation','disease']} {...this.props}/>
   }
 }
 
@@ -53,80 +41,31 @@ export class FamilyHistoryCard extends Component {
 export class FamilyHistoryScreen extends Component {
   props: {
     exam: Exam,
-    onNavigationChange: (action: string, data: any) => void,
     onUpdateExam: (exam: Exam) => void
   }
-  state: {
-    familyHistory: FamilyHistory
-  }
-  unmounted: boolean
 
-  constructor(props: any) {
-    super(props);
-    this.unmounted = false;
-    let familyHistory: FamilyHistory = this.props.exam.FamilyHistory;
-    if (familyHistory===undefined) familyHistory = this.newFamilyHistory();
-    this.state = {familyHistory};
-    this.refreshFamilyHistory();
-  }
-
-  async refreshFamilyHistory() {
-      let exam : Exam = this.props.exam;
-      let familyHistory: FamilyHistory = await fetchFamilyHistory(exam._id);
-      if (familyHistory===undefined) {
-        familyHistory = await createExamItem('FamilyHistory', this.newFamilyHistory())
-      }
-      this.setState({familyHistory});
-      exam.relationDiseases = familyHistory;
-      this.props.onUpdateExam(exam);
-  }
-
-  async storeFamilyHistory() {
-    try {
-      let familyHistory = await storeDocument(this.state.familyHistory);
-      if (!this.unmounted)
-        this.setState({familyHistory});
-    } catch (error) {
-      alert(error);
-      if (this.unmounted) {
-        this.props.onNavigationChange('showExam', this.props.exam);
-      } else {
-        this.refreshFamilyHistory();
-      }
-    }
-  }
-
-  newFamilyHistory = ()  => {
-    const newFamilyHistory : FamilyHistory = newExamItems(this.props.exam._id, 'FamilyHistory');
-    newFamilyHistory.relationDiseases = [];
-    return newFamilyHistory;
-  }
-
-  newRelationDisease(): RelationDisease {
-    return {
+  newRelationDisease = () => {
+    let familyDisease : FamilyDisease ={
       disease: '',
       since: '',
       relation: []
     };
+    return familyDisease;
   }
 
-  isRelationDiseaseEmpty = (relationDisease: RelationDisease)  => {
-    if (relationDisease === undefined || relationDisease===null) return true;
-    if (relationDisease.disease === undefined || relationDisease.disease==null || relationDisease.disease.trim()==='') return true;
+  isRelationDiseaseEmpty = (familyDisease: FamilyDisease)  => {
+    if (familyDisease === undefined || familyDisease===null) return true;
+    if (familyDisease.disease === undefined || familyDisease.disease==null || familyDisease.disease.trim()==='') return true;
     return false;
-  }
-
-  componentWillUnmount() {
-    this.unmounted = true;
   }
 
   render() {
     return <ItemsEditor
-      items={this.state.familyHistory.relationDiseases}
+      items={this.props.exam.familyHistory}
       newItem={this.newRelationDisease}
       isEmpty={this.isRelationDiseaseEmpty}
       itemDefinition={relationDiseaseDefinition}
-      onUpdate = {() => this.storeFamilyHistory()}
-      />
+      onUpdate = {() => this.props.onUpdateExam(this.props.exam)}
+    />
   }
 }

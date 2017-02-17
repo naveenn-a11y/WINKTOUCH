@@ -17,6 +17,7 @@ import { ExamScreen } from './Exam';
 import { MenuBar, Notifications } from './MenuBar';
 import { FindPatient } from './FindPatient';
 import { FindPatientScreen } from './FindPatient';
+import { getCachedItem } from './DataCache';
 
 class DoctorNavigator extends Component {
     props: {
@@ -159,9 +160,7 @@ export class DoctorApp extends Component {
                 const appointmentRoute = {
                     key: navigationState.routes.length.toString(),
                     scene: 'appointment',
-                    appointment: data,
-                    patientInfo: data.patient,
-                    visitHistory: [] //TODO get visitHistory from cache
+                    appointment: data
                 };
                 navigationState = NavigationStateUtils.push(navigationState, appointmentRoute);
                 break;
@@ -220,9 +219,6 @@ export class DoctorApp extends Component {
         const exam : Exam = item;
         if (this.state.navigationState.routes[1].scene==='appointment') {
           //TODO: update exam in selectedVisit
-        }
-        if (this.state.navigationState.routes[2].scene==='exam') {
-            this.state.navigationState.routes[2].exam = {...exam};
         }
       } else {
         console.log('TODO: update '+itemType);
