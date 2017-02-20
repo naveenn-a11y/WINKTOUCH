@@ -84,8 +84,8 @@ export async function createExams(visit: Visit, examTypes?: string[]): Visit {
 
 export function allExamTypes(visitType?: string) : string[] {
     if (!visitType)
-      return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
-    return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest'];
+      return ['complaints', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
+    return ['complaints', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest'];
 }
 
 export function allPreExamTypes(visitType: string) : string[] {
@@ -109,7 +109,7 @@ export class ExamCard extends Component {
 
   renderExamCardSpecifics() {
     switch (this.props.exam.type) {
-      case 'complaint':
+      case 'complaints':
         return <ComplaintCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
       case 'visualAcuityTest':
         return <VisualAcuityTestCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
@@ -287,7 +287,7 @@ export class ExamScreen extends Component {
 
   renderExam() {
     switch (this.props.exam.type) {
-      case 'complaint':
+      case 'complaints':
         return <ComplaintScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'visualAcuityTest':
         return <VisualAcuityTest exam={this.state.exam} onUpdateExam={this.updateExam} />

@@ -11,14 +11,6 @@ import { Button, TilesField, SelectionList, ItemsEditor } from './Widgets';
 import { createExamItem, fetchExamItems, newExamItems, ExamItemsCard} from './ExamItem';
 import { restUrl, storeDocument } from './CouchDb';
 
-export async function fetchComplaints(examId: string): Complaints {
-  let complaints : Complaints = await fetchExamItems(examId, 'Complaints');
-  return complaints;
-}
-
-export async function storeComplaints(complaints: Complaints) :Complaints {
-  return await storeDocument(complaints);
-}
 
 const symptoms: string[] = ['Dryness', 'Itchy', 'Stinging, burning sensation', 'Gritty or sandy sensation', 'Sensitiviy to light', 'Excessive tearing', 'Blurry vision', 'Dificulty seeing at night', 'Headaches', 'Redness', 'Black spots in vision', 'Double vision', 'Eye pain', 'Eye irritation', 'Flashes of light', 'Loss of vision', 'Dilated pupils', 'Watery eyes'];
 const locations: string[] = ['Left eye', 'Right eye', 'Both eyes', 'Left temple', 'Right temple', 'Both temples', 'Across forehead', 'Back of head', 'Top of head'];
@@ -114,53 +106,7 @@ export class ComplaintDetails extends Component {
 export class ComplaintScreen extends Component {
   props: {
     exam: Exam,
-    onNavigationChange: (action: string, data: any) => void,
     onUpdateExam: (exam: Exam) => void
-  }
-  state: {
-    complaints: Complaints
-  }
-  unmounted: boolean
-
-  constructor(props: any) {
-    super(props);
-    this.unmounted = false;
-    let complaints: complaints = this.props.exam.complaints;
-    if (complaints===undefined) complaints = this.newComplaints();
-    this.state = {complaints};
-    this.refreshComplaints();
-  }
-
-  async refreshComplaints() {
-      let exam : Exam = this.props.exam;
-      let complaints: Complaints = await fetchComplaints(exam._id);
-      if (complaints===undefined) {
-        complaints = await createExamItem('Complaints', this.newComplaints());
-      }
-      this.setState({complaints});
-      exam.complaints = complaints;
-      this.props.onUpdateExam(exam);
-  }
-
-  async storeComplaints() {
-    try {
-      let complaints : Complaints = await storeDocument(this.state.complaints);
-      if (!this.unmounted)
-        this.setState({complaints});
-    } catch (error) {
-      alert(error);
-      if (this.unmounted) {
-        this.props.onNavigationChange('showExam', this.props.exam);
-      } else {
-        await this.refreshComplaints();
-      }
-    }
-  }
-
-  newComplaints = () => {
-    const newComplaints : Complaints = newExamItems(this.props.exam._id, 'Complaints');
-    newComplaints.complaints = [];
-    return newComplaints;
   }
 
   newComplaint = () => {
@@ -186,17 +132,13 @@ export class ComplaintScreen extends Component {
     return false;
   }
 
-  componentWillUnmount() {
-    this.unmounted = true;
-  }
-
   render() {
     return <ItemsEditor
-      items={this.state.complaints.complaints}
+      items={this.props.exam.complaints}
       newItem={this.newComplaint}
       isEmpty={this.isComplaintEmpty}
       itemDefinition={complaintDefinition}
-      onUpdate = {() => this.storeComplaints()}
+      onUpdate = {() => this.props.onUpdateExam(this.props.exam)}
       itemView='ComplaintDetails'
     />
   }
