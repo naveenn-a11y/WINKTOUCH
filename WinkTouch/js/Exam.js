@@ -11,7 +11,7 @@ import type {Exam, Patient, GlassesRx, RefractionTest, Visit, Complaint} from '.
 import { VisualAcuityTest } from './VisualAcuityTest';
 import { CoverTestScreen, VisualFieldTestScreen } from './EntranceTest';
 import { ComplaintScreen, ComplaintCard } from './Complaint';
-import { ReviewOfSystemsScreen } from './ReviewOfSystems';
+import { ReviewOfSystemsScreen, ReviewOfSystemsCard } from './ReviewOfSystems';
 import { MedicationsScreen, MedicationsCard } from './Medications';
 import { AllergiesScreen, AllegiesCard } from './Allergies';
 import { SocialHistoryScreen, SocialHistoryCard } from './SocialHistory';
@@ -35,7 +35,7 @@ async function createExam(exam: Exam) : Exam {
 
 function newExam(type: string) {
   let exam : Exam = {type, hasStarted: false, hasEnded: false, [type]: []};
-  if (type === 'socialHistory' || type === 'wearingRx') {
+  if (type === 'socialHistory' || type === 'wearingRx' || type === 'reviewOfSystems') {
     exam[type] = {}
   }
   return exam;
@@ -191,12 +191,6 @@ class VisualAcuityTestCard extends ExamCardSpecifics {
 class CoverTestCard extends ExamCardSpecifics {
   render() {
     return <Text style={styles.text}>{strings.coverTest}</Text>
-  }
-}
-
-class ReviewOfSystemsCard extends ExamCardSpecifics {
-  render() {
-    return <Text style={styles.text}>{strings.reviewOfSystems}</Text>
   }
 }
 

@@ -80,7 +80,11 @@ export class ExamItemCard extends Component {
     exam: Exam,
     itemType: string,
     itemProperties: string[],
-    itemDefinition: ItemDefinition
+    itemDefinition: ItemDefinition,
+    showLabels?: boolean
+  }
+  static defaultProps = {
+    showLabels: true
   }
 
   render() {
@@ -94,7 +98,7 @@ export class ExamItemCard extends Component {
               let value = this.props.exam[this.props.itemType][property];
               let itemDefinition = this.props.itemDefinition[property];
               if (itemDefinition.normalValue==value || !value || value.length===0) return null;
-              return <Text style={styles.text} key={index}>{itemDefinition.label}: {value}</Text>
+              return <Text style={styles.text} key={index}>{this.props.showLabels?itemDefinition.label+': ':null}{value}</Text>
             })}
       </View>
   }

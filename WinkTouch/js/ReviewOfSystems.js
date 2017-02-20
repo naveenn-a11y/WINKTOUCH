@@ -3,27 +3,10 @@
  */
 'use strict';
 
+import type {ItemDefinition, ReviewOfSystems } from './Types';
 import React, { Component } from 'react';
-import { View, Text, ScrollView, LayoutAnimation } from 'react-native';
-import { styles, fontScale } from './Styles';
-import { ItemsEditor } from './Widgets';
-import type {ItemDefinition } from './Widgets';
-
-export type ReviewOfSystems = {
-    general: string[],
-    earsNoseMouth: string[],
-    cardiovascular: string[],
-    respiratory: string[],
-    gastrointestinal: string[],
-    genitourinary: string[],
-    musculosketletal: string[],
-    integumentary: string[],
-    neurological: string[],
-    pshychiatric: string[],
-    endocrine: string[],
-    myphaticHematological: string[],
-    allergicImmunologic: string[]
-}
+import { ItemsEditor} from './Widgets';
+import { ExamItemCard } from './ExamItem';
 
 function fetchReviewOfSystems(): ReviewOfSystems {
     const reviewOfSystems: ReviewOfSystems = {
@@ -114,27 +97,30 @@ function fetchReviewOfSystems(): ReviewOfSystems {
     }
 }
 
-export class ReviewOfSystemsScreen extends Component {
-  state: {
-    reviewOfSystems: ReviewOfSystems
-  }
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      reviewOfSystems: {}
-    }
+export class ReviewOfSystemsCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
   }
 
-  componentDidMount() {
-    const reviewOfSystems: ReviewOfSystem[] = fetchReviewOfSystems();
-    this.setState({ reviewOfSystems });
+  render() {
+    return <ExamItemCard itemType='reviewOfSystems' itemProperties={Object.keys(reviewOfSystemsDefinition)} itemDefinition={reviewOfSystemsDefinition} showLables={false} {...this.props}/>
+  }
+}
+
+
+export class ReviewOfSystemsScreen extends Component {
+  props: {
+    exam: Exam,
+    onUpdateExam: (exam: Exam) => void
   }
 
   render() {
     return <ItemsEditor
-          items={[this.state.reviewOfSystems]}
-          itemDefinition={reviewOfSystemsDefinition}
-          itemView='EditableItem'
-          />
+      items={[this.props.exam.reviewOfSystems]}
+      itemDefinition={reviewOfSystemsDefinition}
+      itemView='EditableItem'
+      onUpdate = {() => this.props.onUpdateExam(this.props.exam)}
+      />
   }
 }

@@ -185,3 +185,19 @@
     modifyingFactor?: string[],
     associatedSign?: string[]
   }
+
+  export type ReviewOfSystems = {
+      general: string[],
+      earsNoseMouth: string[],
+      cardiovascular: string[],
+      respiratory: string[],
+      gastrointestinal: string[],
+      genitourinary: string[],
+      musculosketletal: string[],
+      integumentary: string[],
+      neurological: string[],
+      pshychiatric: string[],
+      endocrine: string[],
+      myphaticHematological: string[],
+      allergicImmunologic: string[]
+  }
