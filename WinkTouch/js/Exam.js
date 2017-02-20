@@ -17,10 +17,9 @@ import { AllergiesScreen, AllegiesCard } from './Allergies';
 import { SocialHistoryScreen, SocialHistoryCard } from './SocialHistory';
 import { FamilyHistoryScreen, FamilyHistoryCard } from './FamilyHistory';
 import { MedicalHistoryScreen, MedicalHistoryCard } from './MedicalHistory';
-import { WearingRxScreen, RefractionScreen, GlassesSummary } from './Refraction';
+import { WearingRxScreen, RefractionScreen, GlassesSummary, WearingRxCard } from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
-import { fetchRefractions} from './Refraction';
 import { fetchDocument, storeDocument, getRevision } from './CouchDb';
 
 export async function fetchExam(examId: string) : Exam {
@@ -147,24 +146,6 @@ export class ExamCard extends Component {
         {this.renderExamCardSpecifics()}
       </View>
     </TouchableOpacity>
-  }
-}
-
-class WearingRxCard extends ExamCardSpecifics {
-  props: {
-    isExpanded: boolean,
-    exam: Exam
-  }
-  render() {
-    if (!this.props.exam.wearingRx) {
-      return <View>
-        <Text style={styles.cardTitle}>{strings.wearingRx}</Text>
-      </View>
-    }
-    return <View>
-        <GlassesSummary title={strings.wearingRx} glassesRx={this.props.exam.wearingRx.wearingRx} />
-      </View>
-
   }
 }
 

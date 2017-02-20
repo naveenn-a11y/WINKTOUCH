@@ -7,101 +7,18 @@ import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
-import type {GlassesRx, Patient, Exam} from './Types';
+import type {GlassesRx, Patient, Exam, WearingRx} from './Types';
 import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EntranceTest';
 
-export async function fetchRefractions(patient: Patient) : Refractions {
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/EyeExam?accountsId='+patient.accountsId+'&patientId='+patient.patientId, {
-        method: 'get',
-    });
-    let refractions : Refractions = {
-      previousRx: {
-        od: {sphere: 0.5},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      wearingRx: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      phoropter: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      autoRefractor: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      retinoscope: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      cyclopegic: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      },
-      finalRx: {
-        od: {sphere: 0.25},
-        os: {sphere: 0.25, add: 0.75}
-      }
-    };
-    let json = await response.json();
-    const types = ['previousRx','wearingRx'];
-    const eyeExams : [] = json.eyeExams;
-    for (let i=0; i<eyeExams.length && i<types.length; i++) {
-        const eyeExam = eyeExams[i];
-        const glassesRx : GlassesRx = {
-          eyeExam: {...eyeExam},
-          id: eyeExam.eyeExamId,
-          version: eyeExam.version,
-          od: {
-            sphere: eyeExam.OD.sph,
-            cylinder: eyeExam.OD.cyl,
-            axis: eyeExam.OD.axis,
-            base: undefined,
-            prism: eyeExam.OD.prism1,
-            add: eyeExam.OD.add
-          },
-          os: {
-            sphere: eyeExam.OS.sph,
-            cylinder: eyeExam.OS.cyl,
-            axis: eyeExam.OS.axis,
-            base: undefined,
-            prism: eyeExam.OS.prism1,
-            add: eyeExam.OS.add
-          },
-        }
-        refractions[types[i]]=glassesRx;
+function newRefraction() : GlassesRx {
+  return {
+    od: {
+      sphere: undefined
+    },
+    os: {
+      sphere: undefined
     }
-    return refractions;
-  } catch (error) {
-    alert(error);
-    console.log(error);
-    alert('Something went wrong fetching the refractions from the server. You can try again.');
-  }
-}
-
-export async function storeRefraction(patient: Patient, glassesRx: GlassesRx) : GlassesRx {
-  if (!glassesRx) return undefined;
-  let eyeExam = glassesRx.eyeExam;
-  eyeExam.OD.sph = glassesRx.od.sphere;
-  eyeExam.OS.sph = glassesRx.os.sphere;
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/EyeExam/update', {
-        method: 'post',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(eyeExam)
-    });
-    //const restResponse : RestResponse = await response.json();
-    return glassesRx;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to store the patient information on the server. Please try again.');
-    //TODO: signal error to the waiting thread so it can clean up ?
   }
 }
 
@@ -418,6 +335,24 @@ export class GlassesDetail extends Component {
   }
 }
 
+export class WearingRxCard extends Component {
+  props: {
+    isExpanded: boolean,
+    exam: Exam
+  }
+
+  render() {
+    if (!this.props.exam.wearingRx) {
+      return <View>
+        <Text style={styles.cardTitle}>{strings.wearingRx}</Text>
+      </View>
+    }
+    return <View>
+        <GlassesSummary title={strings.wearingRx} glassesRx={this.props.exam.wearingRx.wearingRx} />
+      </View>
+  }
+}
+
 export class WearingRxScreen extends Component {
   props: {
     exam: Exam,
@@ -426,28 +361,22 @@ export class WearingRxScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.refreshRefractions();
-  }
-
-  async refreshRefractions() {
-    const exam : Exam = this.props.exam;
-    const refractions : Refractions = await fetchRefractions(exam.patient);
-    exam.wearingRx = refractions;
-    this.props.onUpdateExam(exam);
+    if (!this.props.exam.wearingRx) this.props.exam.wearingRx = {};
+    if (!this.props.exam.wearingRx.previousRx) this.props.exam.wearingRx.previousRx = newRefraction();
+    if (!this.props.exam.wearingRx.wearingRx) this.props.exam.wearingRx.wearingRx = newRefraction();
   }
 
   updateRefraction(refractionType: string, refraction: GlassesRx) {
-    let refractions: Refractions = this.props.exam.refractions;
-    refractions[refractionType] = refraction;
-    storeRefraction(this.props.exam.patient, refraction);
+    let wearingRx: WearingRx = this.props.exam.wearingRx;
+    wearingRx[refractionType] = refraction;
     this.props.onUpdateExam(this.props.exam);
   }
 
   render() {
     return <View>
       <View style={styles.flow}>
-        <GlassesDetail title={strings.previousRefraction} glassesRx={this.props.exam.previousRx.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
-        <GlassesDetail title={strings.wearingRefraction} glassesRx={this.props.exam.previousRx.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
+        <GlassesDetail title={strings.previousRefraction} glassesRx={this.props.exam.wearingRx.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
+        <GlassesDetail title={strings.wearingRefraction} glassesRx={this.props.exam.wearingRx.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
       </View>
     </View>
   }

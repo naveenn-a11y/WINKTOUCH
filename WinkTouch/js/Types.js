@@ -90,8 +90,6 @@
   }
 
   export type GlassesRx = {
-      id: number,
-      version: number,
       od: GlassRx,
       os: GlassRx
   }
