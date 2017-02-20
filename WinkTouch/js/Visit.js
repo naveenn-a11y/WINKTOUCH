@@ -9,7 +9,7 @@ import { styles, fontScale } from './Styles';
 import type {Patient, Exam, GlassesRx, Visit, Appointment, Assessment } from './Types';
 import {Button, FloatingButton} from './Widgets';
 import { formatMoment } from './Util';
-import { ExamCard, createExams, allExamTypes, fetchExams, createExam } from './Exam';
+import { ExamCard, createPreExams, createExams, allExamTypes } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
 import { storeDocument, fetchViewDocuments } from './CouchDb';
 import { cacheItem, getCachedItem, getCachedItems } from './DataCache';
@@ -28,10 +28,14 @@ export async function createVisit(visit: Visit) : Visit {
   try {
       visit.dataType = 'Visit';
       visit = await storeDocument(visit);
+      let visitIds :string[] = getCachedItem('visitHistory'+visit.patientId);
+      if (!visitIds) visitIds = [];
+      visitIds.unshift(visit._id);
+      cacheItem('visitHistory'+visit.patientId, visitIds);
       return visit;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to store a patient visit on the server. You can try again anytime.');
+    alert('Something went wrong trying to store the patient\'s visit on the server. You can try again anytime.');
   }
 }
 
@@ -105,7 +109,7 @@ export class VisitWorkFlow extends Component {
     }
 
     unstartedExamTypes(visitType: string) : string[] {
-      const allTypes : string[] = allExamTypes(visitType);
+      const allTypes : string[] = allExamTypes(undefined);
       if (!this.props.visit.examIds || this.props.visit.examIds.length===0)
         return allTypes;
       let unstartedExamTypes : string[] = [];
@@ -147,10 +151,10 @@ export class VisitWorkFlow extends Component {
                 {this.renderStartVisitButtons()}
             </View>
         }
-        const unstartedExamTypes : string[] = this.unstartedExamTypes(this.props.visit.type);
+        let unstartedExamTypes : string[] = this.unstartedExamTypes(this.props.visit.type);
         return <View>
             {this.renderExams(getCachedItems(this.props.visit.preExamIds))}
-            {this.renderExams(getCachedItems(this.props.visit.examIds, unstartedExamTypes))}
+            {this.renderExams(getCachedItems(this.props.visit.examIds), unstartedExamTypes)}
             <AssessmentCard />
         </View>
     }
@@ -199,7 +203,7 @@ export class VisitHistory extends Component {
 
     newVisit() : Visit {
       let newVisit: Visit = {
-          appointmentId: this.props.appointment.id,
+          appointmentId: this.props.appointment._id,
           patientId: this.props.appointment.patientId,
           doctorId: this.props.appointment.doctorId,
           type: this.props.appointment.type,
@@ -213,34 +217,34 @@ export class VisitHistory extends Component {
       return newVisit;
     }
 
-    startPreVisit() {
+    async startPreVisit() {
       let appointmentsVisit : ?Visit = this.state.appointmentsVisit;
       if (!appointmentsVisit) {
-         appointmentsVisit = createVisit(this.newVisit(this.props.appointment));
+        appointmentsVisit = await createVisit(this.newVisit(this.props.appointment));
+        this.props.visitHistory.unshift(appointmentsVisit);
       }
-      appointmentsVisit.preExams = allPreExams(this.props.appointment.patient);
+      appointmentsVisit = await createPreExams(appointmentsVisit);
       const selectedVisit : ?Visit = appointmentsVisit;
-      LayoutAnimation.easeInEaseOut();
       this.setState({ selectedVisit, appointmentsVisit});
+      LayoutAnimation.easeInEaseOut();
       this.props.onUpdate('Visit', selectedVisit);
     }
 
-    startVisit(visitType: string) {
-        const selectedVisit : ?Visit = this.state.selectedVisit;
+    async startVisit(visitType: string) {
+        let selectedVisit : ?Visit = this.state.selectedVisit;
         if (!selectedVisit) return;
-        selectedVisit.exams = createExams(this.props.appointment.patient, visitType);
+        selectedVisit = await createExams(selectedVisit);
+        //TODO: udpate appointmentsVisit ?
         LayoutAnimation.easeInEaseOut();
         this.setState({ selectedVisit });
     }
 
-    addExam = (examType: string) : void => {
-        const selectedVisit : ?Visit = this.state.selectedVisit;
+    async addExam(examType: string) {
+        let selectedVisit : ?Visit = this.state.selectedVisit;
         if (!selectedVisit) return;
-        const newExam : Exam = createExam(selectedVisit.id, examType);
-        selectedVisit.exams.push(newExam);
+        selectedVisit = await createExams(selectedVisit, [examType]);
         this.setState({selectedVisit});
         //TODO check if exams in visit history got also updated
-        this.props.onUpdate('Appointment', this.props.appointment);
     }
 
     updatePrescription(prescription: GlassesRx) {
@@ -253,18 +257,19 @@ export class VisitHistory extends Component {
 
     findAppointmentsVisit(visitHistory: Visit[]) : ?Visit {
         if (!visitHistory || visitHistory.length===0) return undefined;
-        return visitHistory.find(visit => visit.appointmentId && visit.appointmentId == this.props.appointment._id);
+        let appointmentsVisit :?Visit = visitHistory.find(visit => visit.appointmentId && visit.appointmentId == this.props.appointment._id);
+        return appointmentsVisit;
     }
 
     render() {
         return <View>
             <View style={styles.tabHeader}>
               <ScrollView horizontal={true}>
-              <VisitButton isSelected={this.state.selectedVisit === this.state.appointmentsVisit}
+              <VisitButton isSelected={this.state.appointmentsVisit && this.state.selectedVisit._id === this.state.appointmentsVisit._id}
                 visit={this.state.appointmentsVisit} onPress={() => this.state.appointmentsVisit?this.showVisit(this.state.appointmentsVisit):this.startPreVisit()} />
                     {this.props.visitHistory && this.props.visitHistory.map((visit: Visit, index: number) => {
-                        if (visit === this.state.appointmentsVisit) return null;
-                        return <VisitButton isSelected={this.state.selectedVisit === visit}
+                        if (this.state.appointmentsVisit && visit._id === this.state.appointmentsVisit._id) return null;
+                        return <VisitButton isSelected={this.state.selectedVisit._id === visit._id}
                             key={index} visit={visit} onPress={() => this.showVisit(visit)} />
                     })}
                 </ScrollView>
@@ -275,7 +280,7 @@ export class VisitHistory extends Component {
                 onNavigationChange={this.props.onNavigationChange}
                 onUpdatePrescription={(prescription: GlassesRx) => this.updatePrescription(prescription)}
                 onStartVisit={(visitType: string) => this.startVisit(visitType)}
-                onAddExam={this.addExam} />:null}
+                onAddExam={(examType: string) => this.addExam(examType)} />:null}
         </View>
     }
 }

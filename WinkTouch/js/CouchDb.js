@@ -9,7 +9,7 @@ import { cacheItem } from './DataCache'
 
 export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
 
-let idCounter : number = 0;
+let idCounter : number = 100;
 
 function newId() : string {
   //https://wiki.apache.org/couchdb/HttpGetUuids
@@ -183,6 +183,11 @@ async function createViews() {
                   emit([doc.patientId, start], {_id: doc.preExamIds[i]});
                 }
               }
+              if (doc.examIds && doc.examIds.length>0) {
+                for (var i=0; i<doc.examIds.length; i++) {
+                  emit([doc.patientId, start], {_id: doc.examIds[i]});
+                }
+              }
             }
           }`
         },
@@ -213,8 +218,10 @@ async function createViews() {
 }
 
 export async function recreateDatabase() {
+  idCounter = 0;
   await deleteEhrDatabase();
   await createEhrDatabase();
   await createViews();
   await createDemoData();
+  idCounter = 100;
 }

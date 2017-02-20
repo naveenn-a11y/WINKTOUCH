@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import type {Appointment, Doctor, Patient, Medication, Medications} from './Types';
+import type {Appointment, Doctor, Patient, Medication} from './Types';
 import {storeDocument} from './CouchDb';
 import {createDoctor, createPatient} from './User';
 import {createAppointment} from './Appointment';

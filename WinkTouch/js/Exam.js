@@ -27,15 +27,10 @@ export async function fetchExam(examId: string) : Exam {
   return exam;
 }
 
-export async function createExam(exam: Exam) : Exam {
-  try {
-      exam.dataType = 'Exam';
-      exam = await storeDocument(exam);
-      return exam;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to store an exam on the server. You can try again anytime.');
-  }
+async function createExam(exam: Exam) : Exam {
+  exam.dataType = 'Exam';
+  exam = await storeDocument(exam);
+  return exam;
 }
 
 function newExam(type: string) {
@@ -47,24 +42,50 @@ function newExam(type: string) {
 }
 
 export async function createPreExams(visit: Visit): Visit {
-  if (!visit || !visit._id) return [];
-  if (visit.preExamIds && visit.preExamIds.length>0) {
-    throw new Error('I can not start the pre examination twice.');
+  try {
+    if (!visit || !visit._id) return [];
+    if (visit.preExamIds && visit.preExamIds.length>0) {
+      throw new Error('I can not start the pre examination twice.');
+    }
+    if (!visit.preExamIds) visit.preExamIds = [];
+    let examTypes: string[] = allPreExamTypes(visit.type);
+    let exams = examTypes.map((type: string) => newExam(type));
+    //TODO: bulk insert
+    for (let i=0; i<exams.length;i++) {
+      let exam: Exam = await createExam(exams[i]);
+      visit.preExamIds.push(exam._id);
+    }
+    visit = await storeDocument(visit);
+    return visit;
+  } catch (error) {
+    console.log(error);
+    alert(error);
   }
-  if (!visit.preExamIds) visit.preExamIds = [];
-  let examTypes: string[] = allPreExamTypes(visit.type);
-  let exams = examTypes.map((type: string) => newExam(type));
-  //TODO: bulk insert
-  for (let i=0; i<exams.length;i++) {
-    let exam: Exam = await createExam(exams[i]);
-    visit.preExamIds.push(exam._id);
-  }
-  visit = await storeDocument(visit);
-  return visit;
 }
 
-export function allExamTypes(visitType: string) : string[] {
-    return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
+export async function createExams(visit: Visit, examTypes?: string[]): Visit {
+  try {
+    if (!visit.examIds) visit.examIds = [];
+    if (!examTypes) examTypes = allExamTypes(visit.type);
+    let exams = examTypes.map((type: string) => newExam(type));
+    //TODO: bulk insert
+    for (let i=0; i<exams.length;i++) {
+      let exam: Exam = await createExam(exams[i]);
+      visit.examIds.push(exam._id);
+    }
+    visit = await storeDocument(visit);
+    return visit;
+  } catch (error) {
+    console.log(error);
+    alert(error);
+  }
+}
+
+
+export function allExamTypes(visitType?: string) : string[] {
+    if (!visitType)
+      return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
+    return ['complaint', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest'];
 }
 
 export function allPreExamTypes(visitType: string) : string[] {
