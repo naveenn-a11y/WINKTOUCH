@@ -196,6 +196,7 @@ export class DoctorApp extends Component {
     }
 
     onUpdate(itemType: string, item: any) :void {
+      /**
       if (itemType==='Appointments') {
         const appointments : Appointment[] = item;
         this.state.navigationState.routes[0].appointments = appointments;
@@ -220,9 +221,8 @@ export class DoctorApp extends Component {
         if (this.state.navigationState.routes[1].scene==='appointment') {
           //TODO: update exam in selectedVisit
         }
-      } else {
+      } else {*/
         console.log('TODO: update '+itemType);
-      }
     }
 
     render() {

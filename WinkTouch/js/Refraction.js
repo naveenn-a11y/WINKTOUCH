@@ -7,11 +7,11 @@ import React, { Component } from 'react';
 import { View, Text, Switch, ScrollView } from 'react-native';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
-import type {GlassesRx, Refractions, Patient, Exam} from './Types';
+import type {GlassesRx, Patient, Exam} from './Types';
 import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EntranceTest';
 
-export async function fetchRefractions(patient: Patient, visitId: number) : Refractions {
+export async function fetchRefractions(patient: Patient) : Refractions {
   try {
     let response = await fetch('https://dev1.downloadwink.com/Wink/EyeExam?accountsId='+patient.accountsId+'&patientId='+patient.patientId, {
         method: 'get',
@@ -431,8 +431,8 @@ export class WearingRxScreen extends Component {
 
   async refreshRefractions() {
     const exam : Exam = this.props.exam;
-    const refractions : Refractions = await fetchRefractions(exam.patient, exam.visitId);
-    exam.refractions = refractions;
+    const refractions : Refractions = await fetchRefractions(exam.patient);
+    exam.wearingRx = refractions;
     this.props.onUpdateExam(exam);
   }
 
@@ -446,8 +446,8 @@ export class WearingRxScreen extends Component {
   render() {
     return <View>
       <View style={styles.flow}>
-        <GlassesDetail title={strings.previousRefraction} glassesRx={this.props.exam.refractions.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
-        <GlassesDetail title={strings.wearingRefraction} glassesRx={this.props.exam.refractions.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
+        <GlassesDetail title={strings.previousRefraction} glassesRx={this.props.exam.previousRx.previousRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('previousRx',glassesRx)}/>
+        <GlassesDetail title={strings.wearingRefraction} glassesRx={this.props.exam.previousRx.wearingRx} onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction('wearingRx',glassesRx)}/>
       </View>
     </View>
   }

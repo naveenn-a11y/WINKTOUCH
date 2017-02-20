@@ -12,21 +12,33 @@ import { FormRow, FormEmailInput, FormTextInput } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import type {Patient, PatientInfo} from './Types';
 import { cacheItem, getCachedItem } from './DataCache';
+import { fetchDocument } from './CouchDb';
 
-function cachePatient(patient: Patient) {
-  cacheItem('Patient'+patient.patientId+"Account"+patient.accountsId, patient);
+function cachePatientInfo(patientInfo: PatientInfo) {
+  cacheItem('Patient'+patientInfo.patientId+"Account"+patientInfo.accountsId, patientInfo);
 }
 
-export async function fetchPatientInfo(patientId: string) : PatientInfo {
+export function getCachedPatientInfo(patient: Patient) : PatientInfo {
+  let patientInfo : PatientInfo = getCachedItem('Patient'+patient.patientId+"Account"+patient.accountsId);
+  if (!patientInfo) patientInfo = patient;
+  return patientInfo;
+}
+
+export async function fetchPatient(patientId: string) : Patient {
   let patient: Patient = getCachedItem(patientId);
-  if (!patient) return undefined;
+  if (!patient)
+    patient = await fetchDocument(patientId);
+  return patient;
+}
+
+export async function fetchPatientInfo(patient: Patient) : PatientInfo {
   try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId=2&patientId='+patient.patientId, {
+    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId='+encodeURIComponent(patient.accountsId)+'&patientId='+encodeURIComponent(patient.patientId), {
         method: 'get',
     });
     const restResponse : RestResponse = await response.json();
     const patientInfo: PatientInfo = restResponse.response;
-    cachePatient(patientInfo);
+    cachePatientInfo(patientInfo);
     return patientInfo;
   } catch (error) {
     console.log(error);
@@ -47,7 +59,7 @@ export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
         body: JSON.stringify(patientInfo)
     });
     //const restResponse : RestResponse = await response.json();
-    cachePatient(patientInfo);
+    cachePatientInfo(patientInfo);
     return patientInfo;
   } catch (error) {
     console.log(error);
@@ -215,31 +227,38 @@ export class PatientScreen extends Component {
         onNavigationChange: (action: string, data: any) => void,
         onUpdatePatientInfo: (patientInfo: PatientInfo) => void
     }
+    state: {
+      patientInfo: PatientInfo
+    }
 
     constructor(props: any) {
       super(props);
+      this.state = {
+        patientInfo: getCachedPatientInfo(this.props.patientInfo)
+      };
       this.refreshPatientInfo()
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+      this.setState({patientInfo: getCachedPatientInfo(nextProps.patientInfo)});
     }
 
     async refreshPatientInfo() {
       const patientInfo : PatientInfo = await fetchPatientInfo(this.props.patientInfo);
+      this.setState({patientInfo});
+      this.props.onUpdatePatientInfo(patientInfo);
+    }
+
+    updatePatientInfo = (patientInfo: PatientInfo) => {
+      this.setState({patientInfo});
       this.props.onUpdatePatientInfo(patientInfo);
     }
 
     render() {
         return <ScrollView>
-            <PatientTitle patientInfo={this.props.patientInfo} />
-            <PatientContact patientInfo={this.props.patientInfo} onUpdatePatientInfo={this.props.onUpdatePatientInfo} />
-            <PatientBillingInfo patient={this.props.patientInfo} />
-            {/**
-            <PatientHealth patient={this.state.patient} />
-            <PatientOcularHistory patient={this.state.patient} />
-            <PatientMedicalHistory patient={this.state.patient} />
-            <PatientMedications patient={this.state.patient} />
-            <PatientAllergies patient={this.state.patient} />
-            <PatientFamilyHistory patient={this.state.patient} />
-            <PatientSocialHistory patient={this.state.patient} />
-            */}
+            <PatientTitle patientInfo={this.state.patientInfo} />
+            <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo} />
+            <PatientBillingInfo patient={this.state.patientInfo} />
         </ScrollView>
     }
 }

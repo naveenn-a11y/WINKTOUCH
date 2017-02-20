@@ -53,6 +53,7 @@ export async function fetchDocument(documentId: string) {
       }});
     if (!response.ok) throw response.reason;
     const document = await response.json();
+    cacheDocument(document);
     return document;
   } catch (error) {
     console.log('Error in fetchDocument for document '+documentId+': '+error);

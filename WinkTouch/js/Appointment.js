@@ -9,10 +9,10 @@ import dateFormat from 'dateformat';
 import base64 from 'base-64';
 import { styles, fontScale } from './Styles';
 import type {PatientInfo, Patient, Appointment, Visit} from './Types';
-import { PatientCard } from './Patient';
+import { PatientCard, getCachedPatientInfo } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
-import { fetchPatientInfo } from './Patient';
+import { fetchPatient, fetchPatientInfo } from './Patient';
 import { storeDocument, fetchViewDocuments } from './CouchDb';
 import { getCachedItem, getCachedItems} from './DataCache';
 
@@ -170,23 +170,23 @@ export class AppointmentScreen extends Component {
     constructor(props: any) {
         super(props);
         this.state = {
-          patientInfo: getCachedItem(this.props.appointment.patientId),
+          patientInfo: getCachedPatientInfo(getCachedItem(this.props.appointment.patientId)),
           visitHistory: getCachedItems(getCachedItem('visitHistory'+this.props.appointment.patientId))
         }
         this.refreshPatientInfo();
         this.refreshVisitHistory();
     }
 
-    /**
     componentWillReceiveProps(nextProps: any) {
       this.setState({
-        patientInfo: getCachedItem(nextProps.appointment.patientId),
+        patientInfo: getCachedPatientInfo(getCachedItem(nextProps.appointment.patientId)),
         visitHistory: getCachedItems(getCachedItem('visitHistory'+nextProps.appointment.patientId))
       });
-    }*/
+    }
 
     async refreshPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.appointment.patientId);
+      let patient = await fetchPatient(this.props.appointment.patientId);
+      const patientInfo : PatientInfo = await fetchPatientInfo(patient);
       this.setState({patientInfo});
     }
 

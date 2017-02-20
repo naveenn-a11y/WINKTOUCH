@@ -144,26 +144,6 @@ export async function createVisits(appointment: Appointment, hasStarted: boolean
     return visits;
 }
 
-function createExamMedications() {
-  let medication1: Medication = {
-    label: 'Xalatan',
-    rxDate: new Date(),
-    strength: '20 mg',
-    dosage: '1 drop',
-    route: 'OS',
-    frequency: '5 x daily',
-    duration: '2 weeks',
-    instructions: ['Shake well before using', 'Take with food', 'Avoid taking with diary']
-  };
-  let medications: Medications = {
-    dataType: 'ExamItem',
-    itemType: 'Medications',
-    examId: 'Exam1',
-    medications: [medication1]
-  }
-  storeDocument(medications);
-}
-
 export async function createDemoData() {
   await createUsers();
   let appointments: Appointment[] = await createAppointments();

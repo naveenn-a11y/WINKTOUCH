@@ -75,7 +75,7 @@ export class SocialHistoryCard extends Component {
   }
 
   render() {
-    return <ExamItemCard  itemType='socialHistory' itemProperties={['smokerType','alcoholUse']} itemDefinition={socialHistoryDefinition} {...this.props}/>
+    return <ExamItemCard itemType='socialHistory' itemProperties={['smokerType','alcoholUse']} itemDefinition={socialHistoryDefinition} {...this.props}/>
   }
 }
 

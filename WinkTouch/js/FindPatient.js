@@ -25,27 +25,6 @@ export async function searchPatients(accountsId: number, searchText: string) : P
   }
 }
 
-export async function createPatient() : PatientInfo {
-  return  {
-      "dateOfBirth": "",
-      "lastName": "",
-      "phone": "",
-      "cell": "",
-      "streetName": "",
-      "city": "",
-      "country": "",
-      "id": 2,
-      "medicalCard": "",
-      "medicalCardExp": "",
-      "postalCode": "",
-      "email": "",
-      "province": "",
-      "gender": 0,
-      "streetNumber": "",
-      "firstName": ""
-    };
-}
-
 class PatientList extends Component {
   props: {
     visible: boolean,
@@ -134,7 +113,7 @@ export class FindPatientScreen extends Component {
   }
 
   async selectPatient(patient: Patient) {
-    const patientInfo : PatientInfo = await fetchPatientInfo(patient);
+    const patientInfo : PatientInfo = patient?await fetchPatientInfo(patient):undefined;
     this.setState({
       patientInfo: patientInfo
     });
