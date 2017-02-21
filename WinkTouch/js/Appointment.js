@@ -12,7 +12,7 @@ import type {PatientInfo, Patient, Appointment, Visit} from './Types';
 import { PatientCard, getCachedPatientInfo } from './Patient';
 import { FormRow, FormTextInput, FormDateInput } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
-import { fetchPatient, fetchPatientInfo } from './Patient';
+import { fetchPatient, fetchPatientInfo, PatientTypes } from './Patient';
 import { storeDocument, fetchViewDocuments } from './CouchDb';
 import { getCachedItem, getCachedItems} from './DataCache';
 
@@ -34,20 +34,50 @@ export async function createAppointment(appointment: Appointment) : Appointment 
   }
 }
 
+class AppointmentStatus extends Component {
+  render() {
+    return <View>
+      <View style={{backgroundColor: 'red', padding:10*fontScale}}></View>
+      <View style={{backgroundColor: 'purple', padding:10*fontScale}}></View>
+    </View>
+  }
+}
+
+class AppointmentIcons extends Component {
+  render() {
+    return <View>
+      <Image source={require('./image/calendar/waitingx2.png')} style={{
+        width: 20 * fontScale,
+        height: 20 * fontScale,
+        resizeMode: 'contain'
+      }} />
+      <Image source={require('./image/calendar/existingPatientx2.png')} style={{
+        width: 20 * fontScale,
+        height: 20 * fontScale,
+        resizeMode: 'contain'
+      }} />
+      <Image source={require('./image/calendar/readReplyx2.png')} style={{
+        width: 20 * fontScale,
+        height: 20 * fontScale,
+        resizeMode: 'contain'
+      }} />
+      <Image source={require('./image/calendar/paidx2.png')} style={{
+        width: 20 * fontScale,
+        height: 20 * fontScale,
+        resizeMode: 'contain'
+      }} />
+    </View>
+  }
+}
+
 export default class AppointmentSummary extends Component {
     props: {
         appointment: Appointment,
         onPress: () => void
     };
-    patient: Patient;
 
     constructor(props: any) {
         super(props);
-        this.patient = getCachedItem(this.props.appointment.patientId);
-    }
-
-    componentWillReceiveProps(nextProps: any) {
-      this.patient = getCachedItem(this.props.appointment.patientId);
     }
 
     appointmentStatus() : string {
@@ -58,13 +88,20 @@ export default class AppointmentSummary extends Component {
 
     render() {
         const status : string = this.appointmentStatus();
-        let style = styles['card'+status];
+        const patient : Patient = getCachedItem(this.props.appointment.patientId);
+        let cardStyle = styles['card'+status];
         return <TouchableOpacity onPress={this.props.onPress}>
-            <View style={style}>
-                <Text>{this.patient.firstName} {this.patient.lastName}</Text>
-                <Text>{dateFormat(this.props.appointment.scheduledStart, 'h:MM')}till {dateFormat(this.props.appointment.scheduledEnd, 'h:MM')}</Text>
-                <Text>{this.props.appointment.type}</Text>
-                <Text>{this.props.appointment.patientPresence}</Text>
+            <View style={cardStyle}>
+              <View style={{flexDirection: 'row'}}>
+                <AppointmentStatus />
+                <AppointmentIcons />
+                <View style={{marginHorizontal: 5*fontScale}} >
+                  <Text style={styles.text}>{dateFormat(this.props.appointment.scheduledStart, 'h:MM')} till {dateFormat(this.props.appointment.scheduledEnd, 'h:MM')}</Text>
+                  <Text style={styles.text}>{patient.firstName} {patient.lastName}</Text><PatientTypes />
+                  <Text style={styles.text}>{this.props.appointment.type}</Text>
+                  <Text style={styles.text}>{this.props.appointment.patientPresence}</Text>
+                </View>
+              </View>
             </View>
         </TouchableOpacity>
     }

@@ -14,7 +14,7 @@ export let doctorMurray : Doctor = {_id: 'DrConrad', firstName: 'Conrad', lastNa
 export let spinDoctor : Doctor = {_id: 'TheSpinDoctor', firstName: 'Spin', lastName: 'Doctor'};
 export let patient1 : Patient = {_id: 'Patient1Account2', "lastName": "HARRAR","patientId": 1,"firstName": "Demo", "accountsId": "2"};
 export let patient2 : Patient = {_id: 'Patient2Account2', "lastName": "Harrarar","patientId": 2,"firstName": "Ted", "accountsId": "2"};
-export let patient3 : Patient = {_id: 'Patient6Account2', "lastName": "Harrar","patientId": 6,"firstName": "Ted", "accountsId": "2"};
+export let patient3 : Patient = {_id: 'Patient6Account2', "lastName": "Khedri","patientId": 6,"firstName": "Wais", "accountsId": "2"};
 export let patient4 : Patient = {_id: 'Patient7Account2', "lastName": "khedrihhh", "patientId": 7,  "firstName": "wais",  "accountsId": "2"};
 export let patient5 : Patient = {_id: 'Patient9Account2', "lastName": "khedriii","patientId": 9,"firstName": "waisk","accountsId": "2"};
 

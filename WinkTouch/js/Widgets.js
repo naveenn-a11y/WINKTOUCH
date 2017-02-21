@@ -528,7 +528,7 @@ export class FloatingButton extends Component {
 
   render() {
     return <NativeBase.Fab active={this.state.active} onPress={this.toggleActive} direction='up'
-       position='bottomRight' style={{backgroundColor: '#f0ad4e'}} containerStyle={{width:140*fontScale}}>
+       position='bottomRight' style={{backgroundColor: 'orange'}} containerStyle={{width:140*fontScale}}>
       <NativeBase.Icon name='md-add'/>
       {this.props.options.map((option: string, index: number) => {
          return <NativeBase.Button style={{flex:1,width:null,minHeight: 45* fontScale,backgroundColor: '#f0ad4e'}}

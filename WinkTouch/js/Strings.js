@@ -48,7 +48,9 @@ export const strings = new LocalizedStrings({
       allergies: 'Allergies',
       medicalProcedures: 'Medical History',
       relationDiseases: 'Family History',
-      complaints: 'Complaints'
+      complaints: 'Complaints',
+      preExams:'Pre Exams',
+      exams: 'Exams'
     },
     fr: {
       today: 'Aujourd\'hui',

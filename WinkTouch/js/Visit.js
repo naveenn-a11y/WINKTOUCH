@@ -5,12 +5,13 @@
 
 import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
-import { styles, fontScale } from './Styles';
 import type {Patient, Exam, GlassesRx, Visit, Appointment, Assessment } from './Types';
+import { styles, fontScale } from './Styles';
+import { strings } from './Strings';
 import {Button, FloatingButton, AddButton} from './Widgets';
 import { formatMoment } from './Util';
 import { ExamCard, createPreExams, createExams, allExamTypes } from './Exam';
-import { AssessmentCard, PrescriptionCard } from './Assessment';
+import { DiagnoseCard, ReferralCard, RecallCard, PrescriptionCard } from './Assessment';
 import { storeDocument, fetchViewDocuments } from './CouchDb';
 import { cacheItem, getCachedItem, getCachedItems } from './DataCache';
 
@@ -124,8 +125,9 @@ export class VisitWorkFlow extends Component {
         </View>
     }
 
-    renderExams(exams: ?Exam[], addableExamOptions: ?string[]) {
+    renderExams(title: string, exams: ?Exam[], addableExamOptions: ?string[]) {
         return <View style={styles.tabCard}>
+            <Text style={styles.screenTitle}>{strings[title]}</Text>
             <View style={styles.flow}>
                 {exams && exams.map((exam: Exam, index: number) => {
                     return <ExamCard key={index} exam={exam} isExpanded={this.isExpanded(exam)}
@@ -140,15 +142,22 @@ export class VisitWorkFlow extends Component {
     render() {
         if (this.props.visit.examIds === undefined || this.props.visit.examIds.length === 0) {
             return <View>
-                {this.renderExams(getCachedItems(this.props.visit.preExamIds))}
+                {this.renderExams('preExams', getCachedItems(this.props.visit.preExamIds))}
                 {this.renderStartVisitButtons()}
             </View>
         }
         let unstartedExamTypes : string[] = this.unstartedExamTypes(this.props.visit.type);
         return <View>
-            {this.renderExams(getCachedItems(this.props.visit.preExamIds))}
-            {this.renderExams(getCachedItems(this.props.visit.examIds), unstartedExamTypes)}
-            <AssessmentCard />
+            {this.renderExams('preExams', getCachedItems(this.props.visit.preExamIds))}
+            {this.renderExams('exams', getCachedItems(this.props.visit.examIds), unstartedExamTypes)}
+            <View style={styles.flow}>
+              <DiagnoseCard />
+              <PrescriptionCard prescription={{od: {}, os: {}}}/>
+            </View>
+            <View style={styles.flow}>
+              <ReferralCard />
+              <RecallCard />
+            </View>
         </View>
     }
 }

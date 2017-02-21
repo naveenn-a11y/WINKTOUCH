@@ -68,6 +68,14 @@ export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
   }
 }
 
+export class PatientTypes extends Component {
+    render() {
+      return <View style={{flexDirection: 'row'}}>
+        <Text>(T,</Text><Text>M,</Text><Text>X)</Text>
+      </View>
+    }
+}
+
 export class PatientCard extends Component {
     props: {
         patientInfo?: PatientInfo,

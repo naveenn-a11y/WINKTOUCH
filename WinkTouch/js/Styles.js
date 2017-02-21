@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions, Platform, UIManager } from 'react-native';
 export const windowWidth : number = Dimensions.get('window').width;
 export const windowHeight : number = Dimensions.get('window').height;
 
-export const fontScale = 0.8 * Math.min(windowWidth / 1024,
+export const fontScale = 0.85 * Math.min(windowWidth / 1024,
   windowHeight / 768)
 
 
