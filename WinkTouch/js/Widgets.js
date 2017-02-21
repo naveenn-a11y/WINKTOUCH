@@ -492,6 +492,21 @@ export class BackButton extends Component {
   }
 }
 
+export class AddButton extends Component {
+  props: {
+    onPress: () => void,
+    visible?: boolean
+  }
+  static defaultProps = {
+    visible: true
+  }
+
+  render() {
+    if (!this.props.visible) return null;
+    return <NativeBase.Button block style={styles.addButton} onPress={this.props.onPress}><NativeBase.Icon name='md-add'/></NativeBase.Button>
+  }
+}
+
 export class FloatingButton extends Component {
   props: {
     options: string[],

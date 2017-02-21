@@ -65,17 +65,19 @@ export class OverviewScreen extends Component {
     }
 
     render() {
+      /**
+      <WorkFlow />
+      <View style={styles.buttonsRowLayout}>
+          <View style={[styles.flow]}>
+              <View style={styles.tabCard}><Text style={styles.h3}>Agenda</Text></View>
+              <View style={styles.tabCard}><Text style={styles.h3}>Reminders</Text></View>
+              <View style={styles.tabCard}><Text style={styles.h3}>Configuration</Text></View>
+              <View style={styles.tabCard}><Text style={styles.h3}>Customisation</Text></View>
+          </View>
+      </View>
+      */
         return <View style={styles.page}>
             <AppointmentsSummary appointments={this.state.appointments} onNavigationChange={this.props.onNavigationChange} />
-            <WorkFlow />
-            <View style={styles.buttonsRowLayout}>
-                <View style={[styles.flow]}>
-                    <View style={styles.tabCard}><Text style={styles.h3}>Agenda</Text></View>
-                    <View style={styles.tabCard}><Text style={styles.h3}>Reminders</Text></View>
-                    <View style={styles.tabCard}><Text style={styles.h3}>Configuration</Text></View>
-                    <View style={styles.tabCard}><Text style={styles.h3}>Customisation</Text></View>
-                </View>
-            </View>
         </View >
     }
 

@@ -16,16 +16,7 @@ export class Notifications extends Component {
         return <View style={styles.bottomRight}>
             <Clock />
             <View style={styles.centeredRowLayout} >
-                <Image source={require('./image/service.png')} style={{
-                    width: 60 * fontScale,
-                    height: 60 * fontScale,
-                    resizeMode: 'contain',
-                }} />
-                <Image source={require('./image/nophone.png')} style={{
-                    width: 60 * fontScale,
-                    height: 60 * fontScale,
-                    resizeMode: 'contain',
-                }} />
+  
             </View>
         </View>
     }

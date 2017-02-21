@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
 import { styles, fontScale } from './Styles';
 import type {Patient, Exam, GlassesRx, Visit, Appointment, Assessment } from './Types';
-import {Button, FloatingButton} from './Widgets';
+import {Button, FloatingButton, AddButton} from './Widgets';
 import { formatMoment } from './Util';
 import { ExamCard, createPreExams, createExams, allExamTypes } from './Exam';
 import { AssessmentCard, PrescriptionCard } from './Assessment';
@@ -47,14 +47,7 @@ class VisitButton extends Component {
     }
 
     render() {
-        if (!this.props.visit) {
-          return <TouchableOpacity onPress={this.props.onPress}>
-              <View style={styles.tab}>
-                  <Text style={styles.tabText}>Start</Text>
-                  <Text style={styles.tabText}>Pre Visit</Text>
-              </View>
-          </TouchableOpacity>
-        }
+        if (!this.props.visit) return null;
         return <TouchableOpacity onPress={this.props.onPress}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatMoment(this.props.visit.start)}</Text>
@@ -265,14 +258,15 @@ export class VisitHistory extends Component {
         return <View>
             <View style={styles.tabHeader}>
               <ScrollView horizontal={true}>
-              <VisitButton isSelected={this.state.appointmentsVisit && this.state.selectedVisit._id === this.state.appointmentsVisit._id}
-                visit={this.state.appointmentsVisit} onPress={() => this.state.appointmentsVisit?this.showVisit(this.state.appointmentsVisit):this.startPreVisit()} />
-                    {this.props.visitHistory && this.props.visitHistory.map((visit: Visit, index: number) => {
-                        if (this.state.appointmentsVisit && visit._id === this.state.appointmentsVisit._id) return null;
-                        return <VisitButton isSelected={this.state.selectedVisit._id === visit._id}
-                            key={index} visit={visit} onPress={() => this.showVisit(visit)} />
-                    })}
-                </ScrollView>
+                <VisitButton isSelected={this.state.appointmentsVisit && this.state.selectedVisit._id === this.state.appointmentsVisit._id}
+                  visit={this.state.appointmentsVisit} onPress={() => this.showVisit(this.state.appointmentsVisit)} />
+                {this.props.visitHistory && this.props.visitHistory.map((visit: Visit, index: number) => {
+                    if (this.state.appointmentsVisit && visit._id === this.state.appointmentsVisit._id) return null;
+                    return <VisitButton isSelected={this.state.selectedVisit._id === visit._id}
+                      key={index} visit={visit} onPress={() => this.showVisit(visit)} />
+                })}
+              </ScrollView>
+              <AddButton onPress={() => this.startPreVisit()} />
             </View>
             {this.state.selectedVisit?
               <VisitWorkFlow patientId={this.props.appointment.patientId}

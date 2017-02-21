@@ -242,7 +242,7 @@ export class ExamScreen extends Component {
     let latestRevision :string = await getRevision(this.state.exam._id);
     const upToDate : boolean = this.props.exam._rev === latestRevision;
     if (!upToDate) {
-      const exam: Exam = fetchExam(this.props.exam._id);
+      const exam: Exam = await fetchExam(this.props.exam._id);
       exam.hasStarted = true;
       this.setState({exam});
     }

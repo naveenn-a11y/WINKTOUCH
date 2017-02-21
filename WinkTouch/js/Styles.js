@@ -154,6 +154,15 @@ export const styles = StyleSheet.create({
       marginVertical: 100 * fontScale,
       backgroundColor: '#5bc0de'
     },
+    addButton: {
+      width: 60*fontScale,
+      height: 60*fontScale,
+      borderRadius: 30*fontScale,
+      padding: 5 * fontScale,
+      marginHorizontal: 20 * fontScale,
+      marginVertical: 3 * fontScale,
+      backgroundColor: 'orange'
+    },
     centeredRowLayout: {
         flexDirection: 'row',
         alignItems: 'center',
