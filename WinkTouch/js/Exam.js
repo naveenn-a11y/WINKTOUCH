@@ -17,7 +17,7 @@ import { AllergiesScreen, AllegiesCard } from './Allergies';
 import { SocialHistoryScreen, SocialHistoryCard } from './SocialHistory';
 import { FamilyHistoryScreen, FamilyHistoryCard } from './FamilyHistory';
 import { MedicalHistoryScreen, MedicalHistoryCard } from './MedicalHistory';
-import { WearingRxScreen, RefractionScreen, GlassesSummary, WearingRxCard } from './Refraction';
+import { WearingRxScreen, RefractionScreen, GlassesSummary, WearingRxCard, RefractionTestCard } from './Refraction';
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
 import { fetchDocument, storeDocument, getRevision } from './CouchDb';
@@ -35,7 +35,7 @@ async function createExam(exam: Exam) : Exam {
 
 function newExam(type: string) {
   let exam : Exam = {type, hasStarted: false, hasEnded: false, [type]: []};
-  if (type === 'socialHistory' || type === 'wearingRx' || type === 'reviewOfSystems') {
+  if (type === 'socialHistory' || type === 'wearingRx' || type === 'reviewOfSystems' || type === 'refractionTest') {
     exam[type] = {}
   }
   return exam;
@@ -200,12 +200,6 @@ class RetinoscopyTestCard extends ExamCardSpecifics {
   }
 }
 
-class RefractionTestCard extends ExamCardSpecifics {
-  render() {
-    return <Text style={styles.text}>{strings.refractionTest}</Text>
-  }
-}
-
 class SlitLampExamCard extends ExamCardSpecifics {
   render() {
     return <Text style={styles.text}>{strings.slitLampExam}</Text>
@@ -312,7 +306,6 @@ export class ExamScreen extends Component {
     }
     return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>
   }
-
 
   render() {
     return <View style={styles.centeredScreenLayout}>

@@ -196,6 +196,8 @@ async function createViews() {
             if (doc.type && doc[doc.type] && doc[doc.type].length>0) {
               emit(doc.type, doc[doc.type]);
             }
+            if (doc.type === 'refractionTest')
+              emit(doc.type, doc);
           }`
         }
       },
