@@ -266,7 +266,7 @@ export class VisitHistory extends Component {
                       key={index} visit={visit} onPress={() => this.showVisit(visit)} />
                 })}
               </ScrollView>
-              <AddButton onPress={() => this.startPreVisit()} />
+              {(!this.state.appointmentsVisit)?<AddButton onPress={() => this.startPreVisit()} />:null}
             </View>
             {this.state.selectedVisit?
               <VisitWorkFlow patientId={this.props.appointment.patientId}
