@@ -71,7 +71,7 @@ export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
 export class PatientTypes extends Component {
     render() {
       return <View style={{flexDirection: 'row'}}>
-        <Text>(T,</Text><Text>M,</Text><Text>X)</Text>
+        <Text style={styles.text}>(T, M, X)</Text>
       </View>
     }
 }

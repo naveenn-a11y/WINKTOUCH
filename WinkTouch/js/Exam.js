@@ -21,6 +21,7 @@ import { WearingRxScreen, RefractionScreen, GlassesSummary, WearingRxCard, Refra
 import { GlaucomaScreen } from './Glaucoma';
 import { SlitLampScreen } from './SlitLamp';
 import { fetchDocument, storeDocument, getRevision } from './CouchDb';
+import { PaperFormScreen} from './PaperForm';
 
 export async function fetchExam(examId: string) : Exam {
   const exam: Exam = await fetchDocument(examId);
@@ -84,7 +85,7 @@ export async function createExams(visit: Visit, examTypes?: string[]): Visit {
 
 export function allExamTypes(visitType?: string) : string[] {
     if (!visitType)
-      return ['complaints', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam'];
+      return ['complaints', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest','glaucomaExam',  'slitLampExam', 'paperForm'];
     return ['complaints', 'visualAcuityTest', 'visualFieldTest','coverTest', 'reviewOfSystems', 'refractionTest'];
 }
 
@@ -140,7 +141,7 @@ export class ExamCard extends Component {
       case 'socialHistory':
         return <SocialHistoryCard isExpanded={this.props.isExpanded} exam={this.props.exam}/>
     }
-    return null;
+    return <Text>{this.props.exam.type}</Text>;
   }
 
   render() {
@@ -303,6 +304,8 @@ export class ExamScreen extends Component {
         return <FamilyHistoryScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
       case 'medicalProcedures':
         return <MedicalHistoryScreen exam={this.state.exam} onUpdateExam={this.updateExam} />
+      case 'paperForm':
+        return <PaperFormScreen exam={this.state.exam} />
     }
     return <Text style={styles.screenTitle}>{this.props.exam.type}</Text>
   }

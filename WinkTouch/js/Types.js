@@ -18,6 +18,7 @@
       options?: string[],
       normalValue?: string,
       required?: boolean,
+      multiValue?: boolean,
       minValue?: number,
       maxValue?: number,
       stepSize?: number,

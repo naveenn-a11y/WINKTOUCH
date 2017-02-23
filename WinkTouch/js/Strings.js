@@ -50,7 +50,8 @@ export const strings = new LocalizedStrings({
       relationDiseases: 'Family History',
       complaints: 'Complaints',
       preExams:'Pre Exams',
-      exams: 'Exams'
+      exams: 'Exams',
+      paperForm: 'Paper Form'
     },
     fr: {
       today: 'Aujourd\'hui',

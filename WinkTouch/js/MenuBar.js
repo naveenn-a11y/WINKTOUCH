@@ -10,14 +10,13 @@ import { styles, fontScale } from './Styles';
 import type {Appointment } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
 import { recreateDatabase} from './CouchDb';
+import { UpcomingAppointments} from './Appointment';
 
 export class Notifications extends Component {
     render() {
-        return <View style={styles.bottomRight}>
-            <Clock />
-            <View style={styles.centeredRowLayout} >
-  
-            </View>
+        return <View style={{flex: 100, justifyContent: 'flex-end', alignItems: 'flex-start'}}>
+          <UpcomingAppointments />
+          <Clock />
         </View>
     }
 }

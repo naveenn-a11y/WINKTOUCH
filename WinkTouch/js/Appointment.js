@@ -35,10 +35,17 @@ export async function createAppointment(appointment: Appointment) : Appointment 
 }
 
 class AppointmentStatus extends Component {
+  props: {
+    orientation?: string
+  }
+  static defaultProps = {
+    orientation: 'vertical'
+  }
   render() {
-    return <View>
-      <View style={{backgroundColor: 'red', padding:10*fontScale}}></View>
-      <View style={{backgroundColor: 'purple', padding:10*fontScale}}></View>
+    const boxSize :number = (this.props.orientation==='horizontal'?6:11)*fontScale;
+    return <View style={{flexDirection: (this.props.orientation==='horizontal'?'row':'column'), margin:3*fontScale}}>
+      <View style={{backgroundColor: 'red', padding:boxSize}}></View>
+      <View style={{backgroundColor: 'purple', padding:boxSize}}></View>
     </View>
   }
 }
@@ -47,30 +54,57 @@ class AppointmentIcons extends Component {
   render() {
     return <View>
       <Image source={require('./image/calendar/waitingx2.png')} style={{
-        width: 20 * fontScale,
-        height: 20 * fontScale,
+        width: 22 * fontScale,
+        height: 22 * fontScale,
         resizeMode: 'contain'
       }} />
       <Image source={require('./image/calendar/existingPatientx2.png')} style={{
-        width: 20 * fontScale,
-        height: 20 * fontScale,
+        width: 22 * fontScale,
+        height: 22 * fontScale,
         resizeMode: 'contain'
       }} />
       <Image source={require('./image/calendar/readReplyx2.png')} style={{
-        width: 20 * fontScale,
-        height: 20 * fontScale,
+        width: 22 * fontScale,
+        height: 22 * fontScale,
         resizeMode: 'contain'
       }} />
       <Image source={require('./image/calendar/paidx2.png')} style={{
-        width: 20 * fontScale,
-        height: 20 * fontScale,
+        width: 22 * fontScale,
+        height: 22 * fontScale,
         resizeMode: 'contain'
       }} />
     </View>
   }
 }
 
-export default class AppointmentSummary extends Component {
+export class AppointmentNotification extends Component {
+  props: {
+    patient: Patient
+  }
+  render() {
+    return <View style={styles.rowLayout}>
+        <Image source={require('./image/calendar/waitingx2.png')} style={{
+          width: 18 * fontScale,
+          height: 18 * fontScale,
+          resizeMode: 'contain',
+          marginVertical: 3 * fontScale
+        }} />
+        <AppointmentStatus orientation='horizontal'/>
+        <Text style={styles.text}>{this.props.patient.lastName}</Text>
+    </View>
+  }
+}
+
+export class UpcomingAppointments extends Component {
+  render() {
+    return <View style={styles.sideMenuList}>
+      <AppointmentNotification patient={{lastName: 'Lastname'}}/>
+      <AppointmentNotification patient={{lastName: 'Last name very long'}}/>
+    </View>
+  }
+}
+
+export class AppointmentSummary extends Component {
     props: {
         appointment: Appointment,
         onPress: () => void

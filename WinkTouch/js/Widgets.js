@@ -458,7 +458,8 @@ export class Clock extends Component {
     return <Image source={require('./image/clock.png')} style={{
       width: 140 * fontScale,
       height: 140 * fontScale,
-      resizeMode: 'contain',
+      alignSelf: 'center',
+      resizeMode: 'contain'
     }} />
   }
 }

@@ -9,7 +9,7 @@ import { cacheItem } from './DataCache'
 
 export const restUrl : string = 'http://192.168.2.44:5984/ehr/';
 
-let idCounter : number = 100;
+let idCounter : number = Math.round(Math.random()*1236878991214);
 
 function newId() : string {
   //https://wiki.apache.org/couchdb/HttpGetUuids
@@ -225,5 +225,4 @@ export async function recreateDatabase() {
   await createEhrDatabase();
   await createViews();
   await createDemoData();
-  idCounter = 100;
 }

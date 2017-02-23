@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions, Platform, UIManager } from 'react-native';
 export const windowWidth : number = Dimensions.get('window').width;
 export const windowHeight : number = Dimensions.get('window').height;
 
-export const fontScale = 0.85 * Math.min(windowWidth / 1024,
+export const fontScale = 0.80 * Math.min(windowWidth / 1024,
   windowHeight / 768)
 
 
@@ -39,12 +39,18 @@ export const styles = StyleSheet.create({
         backgroundColor: backgroundColor,
     },
     sideMenu: {
-        padding: 15 * fontScale,
+        padding: 10 * fontScale,
+        width: 180 * fontScale,
         backgroundColor: '#F7F7F9',
         shadowColor: 'gray',
         shadowOpacity: 0.7,
-        alignItems: 'center',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    },
+    sideMenuList: {
+      padding: 6 * fontScale,
+      maxWidth: 160 * fontScale,
+      justifyContent: 'flex-start'
     },
     findResults: {
         flex: 0,
@@ -96,7 +102,7 @@ export const styles = StyleSheet.create({
     modalTileLabel: modalTileLabel(false),
     modalTileLabelSelected: modalTileLabel(true),
     text: {
-        fontSize: 17 * fontScale,
+        fontSize: 18 * fontScale,
     },
     label: {
         fontSize: 28 * fontScale,
@@ -149,9 +155,8 @@ export const styles = StyleSheet.create({
       width: 130*fontScale,
       height: 130*fontScale,
       borderRadius: 65*fontScale,
-      padding: 13 * fontScale,
-      marginHorizontal: 13 * fontScale,
       marginVertical: 100 * fontScale,
+      alignSelf: 'center',
       backgroundColor: '#5bc0de'
     },
     addButton: {
@@ -162,6 +167,9 @@ export const styles = StyleSheet.create({
       marginHorizontal: 20 * fontScale,
       marginVertical: 3 * fontScale,
       backgroundColor: 'orange'
+    },
+    rowLayout: {
+        flexDirection: 'row'
     },
     centeredRowLayout: {
         flexDirection: 'row',
@@ -287,7 +295,7 @@ export const styles = StyleSheet.create({
     cardStarted: cardStyle('orange'),
     cardDone: cardStyle('green'),
     cardTitle: {
-        fontSize: 18 * fontScale,
+        fontSize: 20 * fontScale,
         fontWeight: '500',
         textAlign: 'center',
         margin: 10 * fontScale
@@ -433,7 +441,7 @@ export const styles = StyleSheet.create({
     bottomRight: {
         position: 'absolute',
         bottom: 15 * fontScale,
-        right: 20 * fontScale
+        right: 8 * fontScale
     },
     listRow: {
         flex: 10,
