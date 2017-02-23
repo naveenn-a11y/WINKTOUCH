@@ -11,17 +11,21 @@ import { ContactsSummary, GlassesSummary } from './Refraction';
 import { Anesthetics } from './EntranceTest';
 
 export class VA extends Component {
+  props: {
+    value: number,
+    style?: any
+  }
   state: {
     value: number
   }
-  constructor() {
-    super();
+  constructor(props: any) {
+    super(props);
     this.state = {
-      value: 20
+      value: this.props.value
     }
   }
   render() {
-    return <RulerField prefix='20/' range={[10,15,20,25,30,35,40,50,60,70,100,200,600]} stepSize={5}
+    return <RulerField prefix='20/&#8203;' style={this.props.style} range={[10,15,20,25,30,35,40,50,60,70,100,200,600]} stepSize={5}
       value={this.state.value}
       onChangeValue={(newValue: number) => this.setState({ value: newValue })} />
   }

@@ -72,6 +72,7 @@ export class DiopterField extends Component {
     label: string,
     visible?: boolean,
     editable?: boolean,
+    style?: any,
     onChangeValue: (newvalue: ?number) => void,
   }
   static defaultProps = {
@@ -85,6 +86,7 @@ export class DiopterField extends Component {
       label={this.props.label}
       editable = {this.props.editable}
       onChangeValue={this.props.onChangeValue}
+      style={this.props.style}
     />
   }
 }
@@ -95,6 +97,7 @@ export class BaseField extends Component {
     label: string,
     visible?: boolean,
     editable?: boolean,
+    style?: any,
     onChangeValue: (newvalue: string) => void
   }
   static defaultProps = {
@@ -107,6 +110,7 @@ export class BaseField extends Component {
       value={this.props.value}
       editable={this.props.editable}
       label={this.props.label}
+      style={this.props.style}
       onChangeValue={this.props.onChangeValue}
     />
   }
@@ -118,6 +122,7 @@ export class DegreeField extends Component {
     label: string,
     visible?: boolean,
     editable?: boolean,
+    style?: any,
     onChangeValue: (newvalue: ?number) => void,
   }
   static defaultProps = {
@@ -127,7 +132,9 @@ export class DegreeField extends Component {
     if (!this.props.visible) return null;
     return <NumberField range={[0,180]} stepSize={1} groupSize={10} decimals={0}
       value={this.props.value} label={this.props.label}
+      suffix='&#176;'
       editable = {this.props.editable}
+      style = {this.props.style}
       onChangeValue={this.props.onChangeValue}
     />
   }

@@ -19,12 +19,14 @@ export class NumberField extends Component {
       value: number,
       label?: string,
       prefix?: string,
+      suffix?: string,
       range: number[],
       width?: number,
       stepSize: number,
       groupSize: number,
       decimals?: number,
       editable?: boolean,
+      style?: any,
       onChangeValue?: (newvalue: ?number) => void
     }
     state: {
@@ -130,7 +132,7 @@ export class NumberField extends Component {
       let formattedValue = this.format(this.combinedValue());
       return <TouchableWithoutFeedback onPress={this.cancelEdit}>
           <View style={{flex: 100, backgroundColor: '#00000099', padding:30 * fontScale}}>
-            <Text style={styles.modalTitle}>{this.props.label}: {formattedValue}</Text>
+            <Text style={styles.modalTitle}>{this.props.label}: {this.props.prefix}{formattedValue}{this.props.suffix}</Text>
             <View>
               <View style={styles.centeredRowLayout}>
                 {fractions.map((options: string[], column: number) => {
@@ -159,7 +161,7 @@ export class NumberField extends Component {
     }
 
     render() {
-      let style = this.state.isActive ? styles.inputFieldActive : styles.inputField;
+      let style = this.props.style ? this.props.style: this.state.isActive ? styles.inputFieldActive : styles.inputField;
       if (this.props.width) {
         style = [{ width: this.props.width }, style];
       }
@@ -169,9 +171,9 @@ export class NumberField extends Component {
           <Text style={style}>{formattedValue}</Text>
         </View>
       }
-      return <View style={{flex:100}}>
-        <TouchableOpacity style={{flex: 100}} onPress={this.startEditing}>
-          <Text style={style}>{formattedValue}</Text>
+      return <View style={{flex:100, flexDirection: 'row'}}>
+        <TouchableOpacity style={{flex: 100, flexDirection: 'row'}} onPress={this.startEditing}>
+          <Text style={style}>{this.props.prefix}{formattedValue}{this.props.suffix}</Text>
         </TouchableOpacity>
         {this.state.isActive?<Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
           {this.renderPopup()}
@@ -192,7 +194,8 @@ export class RulerField extends Component {
     decimals?: number,
     editable?: boolean,
     onChangeValue?: (newvalue: number) => void,
-    onEnableScroll?: (enableScroll: boolean) => void
+    onEnableScroll?: (enableScroll: boolean) => void,
+    style?: any
   }
   state: {
     pageX: number,
@@ -331,19 +334,19 @@ export class RulerField extends Component {
   }
 
   render() {
-    let style = this.state.isActive ? styles.inputFieldActive : styles.inputField;
+    let style = this.props.style?this.props.style:this.state.isActive ? styles.inputFieldActive : styles.inputField;
     if (this.props.width) {
       style = [{ width: this.props.width }, style];
     }
     const formattedValue = this.format(this.state.value);
     if (!this.props.editable) {
-      return <View style={{flex:100}}>
+      return <View style={{flex:100, flexDirection: 'row'}}>
         <Text style={style}>{this.props.prefix}{formattedValue}</Text>
       </View>
     }
-    return <View style={{flex: 100}}>
-        <TouchableOpacity style={{flex: 100}} onPress={this.startEditing}>
-          <Text style={style}>{this.state.isActive ? '' : this.props.prefix}{formattedValue}</Text>
+    return <View style={{flex: 100, flexDirection:'row'}}>
+        <TouchableOpacity style={{flex: 100, flexDirection:'row'}} onPress={this.startEditing}>
+          <Text style={style}>{this.props.prefix}{formattedValue}</Text>
         </TouchableOpacity>
         {this.state.isActive?<Modal transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
             {this.renderPopup(formattedValue)}
@@ -479,6 +482,27 @@ export class Button extends Component {
   }
 }
 
+export class CheckButton extends Component {
+  props: {
+    isChecked: boolean,
+    prefix?: string,
+    postfix?: string,
+    visible?: boolean,
+    onSelect: () => void,
+    onDeselect: () => void,
+    style?: any
+  }
+  static defaultProps = {
+    visible: true
+  }
+  render() {
+    if (!this.props.visible) return null;
+    return <TouchableOpacity activeOpacity={1} onPress={this.props.isChecked==true?this.props.onDeselect:this.props.onSelect}>
+      <Text style={this.props.style}>{this.props.prefix}<NativeBase.Icon name={this.props.isChecked?'md-checkbox':'md-checkbox-outline'} style={this.props.style}/>{this.props.postfix}</Text>
+    </TouchableOpacity>
+  }
+}
+
 export class BackButton extends Component {
   props: {
     onNavigationChange: (action: string, data: any) => void,
@@ -538,6 +562,8 @@ export class FloatingButton extends Component {
     </NativeBase.Fab>
   }
 }
+
+
 
 export class SelectionListRow extends Component {
   props: {
