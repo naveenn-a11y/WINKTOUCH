@@ -4,74 +4,64 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, ScrollView, LayoutAnimation} from 'react-native';
-import dateFormat from 'dateformat';
+import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, LayoutAnimation} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import type {Patient, PatientInfo, FieldDefinition, CodeDefinition, PatientTag } from './Types';
 import { styles, fontScale} from './Styles';
 import { strings } from './Strings';
-import { FormRow, FormEmailInput, FormTextInput } from './Form';
+import { FormRow, FormTextInput, FormInput, FormField } from './Form';
 import { ExamCardSpecifics } from './Exam';
-import type {Patient, PatientInfo} from './Types';
-import { cacheItem, getCachedItem } from './DataCache';
-import { fetchDocument } from './CouchDb';
+import { cacheItemById, getCachedItem, getCachedItems } from './DataCache';
+import { fetchItemById, storeItem } from './Rest';
+import { getFieldDefinitions, getFieldDefinition } from './Items';
+import { deepClone, formatAge } from './Util';
+import { formatOption } from './Codes';
+import { PatientMedication} from './Medication';
+import { getDoctor } from './DoctorApp';
 
-function cachePatientInfo(patientInfo: PatientInfo) {
-  cacheItem('Patient'+patientInfo.patientId+"Account"+patientInfo.accountsId, patientInfo);
-}
-
-export function getCachedPatientInfo(patient: Patient) : PatientInfo {
-  let patientInfo : PatientInfo = getCachedItem('Patient'+patient.patientId+"Account"+patient.accountsId);
-  if (!patientInfo) patientInfo = patient;
+export async function fetchPatientInfo(patientId: string, ignoreCache?: boolean = false) : PatientInfo {
+  let patientInfo = await fetchItemById(patientId, ignoreCache);
   return patientInfo;
 }
 
-export async function fetchPatient(patientId: string) : Patient {
-  let patient: Patient = getCachedItem(patientId);
-  if (!patient)
-    patient = await fetchDocument(patientId);
-  return patient;
-}
-
-export async function fetchPatientInfo(patient: Patient) : PatientInfo {
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/?accountsId='+encodeURIComponent(patient.accountsId)+'&patientId='+encodeURIComponent(patient.patientId), {
-        method: 'get',
-    });
-    const restResponse : RestResponse = await response.json();
-    const patientInfo: PatientInfo = restResponse.response;
-    cachePatientInfo(patientInfo);
-    return patientInfo;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to get the patient information from the server. Please try again.');
-    //TODO: signal error to the waiting thread so it can clean up ?
-  }
-}
-
 export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
-  if (!patientInfo) return undefined;
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/', {
-        method: 'post',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(patientInfo)
-    });
-    //const restResponse : RestResponse = await response.json();
-    cachePatientInfo(patientInfo);
-    return patientInfo;
-  } catch (error) {
-    console.log(error);
-    alert('Something went wrong trying to store the patient information on the server. Please try again.');
-    //TODO: signal error to the waiting thread so it can clean up ?
-  }
+  patientInfo = await storeItem(patientInfo);
+  return patientInfo;
 }
 
-export class PatientTypes extends Component {
-    render() {
-      return <View style={{flexDirection: 'row'}}>
-        <Text style={styles.text}>(T, M, X)</Text>
+export class PatientTags extends Component {
+  props: {
+    patient: Patient
+  }
+  state: {
+    patientTags: ?PatientTag[]
+  }
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      patientTags: getCachedItems(this.props.patient.patientTags)
+    }
+  }
+
+  componentWillMount() {
+    if (this.state.patientTags===undefined || this.state.patientTags.includes(undefined)) {
+      this.refreshPatientTags();
+    }
+  }
+
+  async refreshPatientTags() {
+    let patient = await fetchPatientInfo(this.props.patient.id, true); //TODO Wais PatientTag controller
+    this.setState({
+      patientTags: getCachedItems(patient.patientTags)
+    })
+  }
+
+  render() {
+      if (!this.state.patientTags || this.state.patientTags.length===0) return null;
+      return <View style={styles.rowLayout}>
+        <Text style={styles.text}>(</Text>
+        {this.state.patientTags && this.state.patientTags.map((patientTag: PatientTag, index: number) => <Text key={index}>{patientTag && patientTag.letter}</Text>)}
+        <Text>)</Text>
       </View>
     }
 }
@@ -79,16 +69,23 @@ export class PatientTypes extends Component {
 export class PatientCard extends Component {
     props: {
         patientInfo?: PatientInfo,
-        onNavigationChange: (action: string, data: any) => void
+        navigation: any
     }
+    genderOptions: CodeDefinition[];
+    gender: string;
 
     constructor(props: any) {
         super(props);
+        this.gender = formatOption('patient','gender', this.props.patientInfo.gender);
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+        this.gender = formatOption('patient','gender', nextProps.patientInfo.gender);
     }
 
     render() {
         if (!this.props.patientInfo) return null;
-        return <TouchableOpacity onPress={() => this.props.onNavigationChange('showPatient', this.props.patientInfo)}>
+        return <TouchableOpacity onPress={() => this.props.navigation.navigate('patient', {patientInfo: this.props.patientInfo})}>
             <View style={styles.card}>
                 <View style={styles.formRow}>
                     <View>
@@ -101,17 +98,15 @@ export class PatientCard extends Component {
                     <View style={{ flex: 100 }}>
                         <Text style={styles.cardTitle}>{this.props.patientInfo.firstName + ' ' + this.props.patientInfo.lastName}</Text>
                         <View style={styles.formRow}>
-                            <View style={{ flex: 40 }}>
-                                <Text style={styles.text}>Male age 40</Text>
-                                <Text style={styles.text}>Diabetis patient for 4 years</Text>
-                                <Text style={styles.text}>Diagnosed crosseyed retard</Text>
-                                <Text style={styles.text}>Wears contacts and bifocal glasses</Text>
+                            <View style={styles.columnLayout}>
+                                <Text style={styles.text}>{this.gender} {this.props.patientInfo.gender===0?strings.ageM:strings.ageF} {formatAge(this.props.patientInfo.dateOfBirth)}</Text>
+                                <PatientTags patient={this.props.patientInfo} />
+                                {__DEV__ && <Text style={styles.text}>Patient ocular summary TODO</Text>}
                             </View>
-                            <View style={{ flex: 40 }}>
-                                <Text style={styles.text}>Married with children</Text>
-                                <Text style={styles.text}>Insured by RAMQ</Text>
+                            <View style={styles.columnLayout}>
                                 <Text style={styles.text}>{this.props.patientInfo.cell?(this.props.patientInfo.cell+' '):null}{this.props.patientInfo.city}</Text>
                                 <Text style={styles.text}>{this.props.patientInfo.email}</Text>
+                                {__DEV__ && <Text style={styles.text}>Insured by TODO</Text>}
                             </View>
                         </View>
                     </View>
@@ -134,106 +129,121 @@ export class PatientTitle extends Component {
 
 export class PatientBillingInfo extends Component {
     props: {
-        patient: Patient
+        patient: PatientInfo
     }
     render() {
         if (!this.props.patient)
             return null;
         return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Insurance and Billing</Text>
+            <Text style={styles.cardTitle}>Insurance and Billing</Text>
         </View>
     }
 }
 
+export class PatientOcularHistoryCard extends Component {
+  props: {
+      patient: PatientInfo
+  }
+  render() {
+      if (!this.props.patient)
+          return null;
+      return <View style={styles.tabCard}>
+          <Text style={styles.cardTitle}>Ocular Diagnose History</Text>
+      </View>
+  }
+}
 
 export class PatientContact extends Component {
     props: {
       patientInfo: PatientInfo,
-      editable?: boolean,
+      editable: ?boolean,
       onUpdatePatientInfo?: (patientInfo: PatientInfo) => void
     }
     state: {
-      editedPatientInfo: PatientInfo
+      editedPatientInfo: PatientInfo,
     }
     static defaultProps = {
       editable: true
     }
     constructor(props: any) {
         super(props);
-        const editedPatientInfo: PatientInfo = JSON.parse(JSON.stringify(this.props.patientInfo));
-        this.state = {editedPatientInfo: editedPatientInfo};
+        const editedPatientInfo: PatientInfo = deepClone(this.props.patientInfo);
+        this.state = {
+          editedPatientInfo,
+        };
     }
 
     componentWillReceiveProps(nextProps: any) {
-      this.setState({editedPatientInfo: JSON.parse(JSON.stringify(nextProps.patientInfo))});
+      const editedPatientInfo: PatientInfo = deepClone(nextProps.patientInfo);
+      this.setState({editedPatientInfo});
     }
 
-    update(propertyName: string, value: string) {
+    updatePatientInfo = (editedPatientInfo: PatientInfo) => {
       if (!this.props.editable) return;
-      if (this.state.editedPatientInfo[propertyName]===value)
-        return;
-      this.state.editedPatientInfo[propertyName] = value
-      this.setState({editedPatientInfo:  this.state.editedPatientInfo});
+      this.setState({editedPatientInfo});
     }
 
     cancelEdit() {
-      const editedPatientInfo: PatientInfo = JSON.parse(JSON.stringify(this.props.patientInfo));
+      const editedPatientInfo: PatientInfo = deepClone(this.props.patientInfo);
       LayoutAnimation.easeInEaseOut();
       this.setState({editedPatientInfo: editedPatientInfo});
     }
 
-    saveEdit() {
-      storePatientInfo(this.state.editedPatientInfo);
-      if (this.props.onUpdatePatientInfo)
-        this.props.onUpdatePatientInfo(this.state.editedPatientInfo);
+    async saveEdit() {
+      const editedPatientInfo : PatientInfo = await storePatientInfo(this.state.editedPatientInfo);
+      if (this.props.onUpdatePatientInfo) {
+        this.props.onUpdatePatientInfo(editedPatientInfo);
+      } else {
+        this.setState({editedPatientInfo});
+      }
     }
 
     render() {
         return <View style={styles.tabCard}>
-            <Text style={styles.screenTitle}>Contact</Text>
+            <Text style={styles.cardTitle}>Contact</Text>
             <View style={styles.form}>
               <FormRow>
-                <FormTextInput label={strings.firstName} value={this.state.editedPatientInfo.firstName} onChangeText={(text: string) => this.update('firstName', text)}/>
-                <FormTextInput label={strings.lastName} value={this.state.editedPatientInfo.lastName} onChangeText={(text: string) => this.update('lastName', text)} />
+                <FormField value={this.state.editedPatientInfo} fieldName='firstName' onChangeValue={this.updatePatientInfo} autoCapitalize='words'/>
+                <FormField value={this.state.editedPatientInfo} fieldName='lastName' onChangeValue={this.updatePatientInfo} autoCapitalize='words'/>
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.streetName} value={this.state.editedPatientInfo.streetName} onChangeText={(text: string) => this.update('streetName', text)} />
-                <FormTextInput label={strings.streetNumber} value={this.state.editedPatientInfo.streetNumber} onChangeText={(text: string) => this.update('streetNumber', text)} />
+                <FormField value={this.state.editedPatientInfo} fieldName='streetName' onChangeValue={this.updatePatientInfo} autoCapitalize='words'/>
+                <FormField value={this.state.editedPatientInfo} fieldName='streetNumber' onChangeValue={this.updatePatientInfo} type='numeric' />
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.city} value={this.state.editedPatientInfo.city} onChangeText={(text: string) => this.update('city', text)} />
-                <FormTextInput label={strings.postalCode} value={this.state.editedPatientInfo.postalCode} onChangeText={(text: string) => this.update('postalCode', text)} />
+                <FormField value={this.state.editedPatientInfo} fieldName='city' onChangeValue={this.updatePatientInfo} autoCapitalize='words'/>
+                <FormField value={this.state.editedPatientInfo} fieldName='postalCode' onChangeValue={this.updatePatientInfo} autoCapitalize='characters'/>
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.country} value={this.state.editedPatientInfo.country} onChangeText={(text: string) => this.update('country', text)} />
+                <FormTextInput value={this.state.editedPatientInfo.province} label={getFieldDefinition('patient.province').label} autoCapitalize='words' readonly={true}/>
+                <FormField value={this.state.editedPatientInfo} fieldName='country' onChangeValue={this.updatePatientInfo} autoCapitalize='characters' readonly={true}/>
               </FormRow>
               <FormRow>
-                <FormTextInput label={strings.phoneNr} value={this.state.editedPatientInfo.phone} onChangeText={(text: string) => this.update('phone', text)} />
-                <FormTextInput label={strings.cellPhoneNr} value={this.state.editedPatientInfo.cell} onChangeText={(text: string) => this.update('cell', text)} />
+                <FormField value={this.state.editedPatientInfo} fieldName='phone' onChangeValue={this.updatePatientInfo} type='phone-pad'/>
+                <FormField value={this.state.editedPatientInfo} fieldName='cell' onChangeValue={this.updatePatientInfo} type='phone-pad'/>
               </FormRow>
               <FormRow>
-                <FormEmailInput label={strings.email} value={this.state.editedPatientInfo.email} onChangeText={(text: string) => this.update('email', text)} />
+                <FormField value={this.state.editedPatientInfo} fieldName='dateOfBirth' onChangeValue={this.updatePatientInfo} type='pastDate'/>
+                <FormField value={this.state.editedPatientInfo} fieldName='gender' onChangeValue={this.updatePatientInfo}/>
               </FormRow>
-              {this.props.editable?<View style={styles.buttonsRowLayout}>
-                <Button title='Cancel' onPress={() => this.cancelEdit()} />
-                <Button title='Update' onPress={() => this.saveEdit()} />
-              </View>:null}
+              <FormRow>
+                <FormField value={this.state.editedPatientInfo} fieldName='email' onChangeValue={this.updatePatientInfo} type='email-address'/>
+              </FormRow>
+              {this.props.editable && <View style={styles.buttonsRowLayout}>
+                <Button title='Cancel' color={'#1db3b3'} onPress={() => this.cancelEdit()} />
+                <Button title='Update' color={'#1db3b3'} onPress={() => this.saveEdit()} />
+              </View>}
             </View>
         </View>
     }
 }
 
-export class PatientOcularHistoryCard extends ExamCardSpecifics {
-    render() {
-        return <Text style={styles.text}>Ocular History</Text>
-    }
-}
-
 export class PatientScreen extends Component {
     props: {
+        navigation: any
+    }
+    params: {
         patientInfo: PatientInfo,
-        onNavigationChange: (action: string, data: any) => void,
-        onUpdatePatientInfo: (patientInfo: PatientInfo) => void
     }
     state: {
       patientInfo: PatientInfo
@@ -241,32 +251,34 @@ export class PatientScreen extends Component {
 
     constructor(props: any) {
       super(props);
+      this.params = this.props.navigation.state.params;
       this.state = {
-        patientInfo: getCachedPatientInfo(this.props.patientInfo)
+        patientInfo: getCachedItem(this.params.patientInfo.id)
       };
       this.refreshPatientInfo()
     }
 
     componentWillReceiveProps(nextProps: any) {
-      this.setState({patientInfo: getCachedPatientInfo(nextProps.patientInfo)});
+      this.params = nextProps.navigation.state.params;
     }
 
     async refreshPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.patientInfo);
-      this.setState({patientInfo});
-      this.props.onUpdatePatientInfo(patientInfo);
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.params.patientInfo.id, true);
+      //if (patientInfo.version!==this.state.patientInfo.version)
+        this.setState({patientInfo});
     }
 
     updatePatientInfo = (patientInfo: PatientInfo) => {
-      this.setState({patientInfo});
-      this.props.onUpdatePatientInfo(patientInfo);
+      this.setState({patientInfo: patientInfo});
     }
 
     render() {
-        return <ScrollView>
+        return <KeyboardAwareScrollView>
             <PatientTitle patientInfo={this.state.patientInfo} />
-            <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo} />
-            <PatientBillingInfo patient={this.state.patientInfo} />
-        </ScrollView>
+            <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
+            {__DEV__  && <PatientMedication patientInfo={this.state.patientInfo} editable={false}/>}
+            {__DEV__ && <PatientOcularHistoryCard patient={this.state.patientInfo} />}
+            {__DEV__ && <PatientBillingInfo patient={this.state.patientInfo} />}
+        </KeyboardAwareScrollView>
     }
 }
