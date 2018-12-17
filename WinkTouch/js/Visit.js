@@ -553,7 +553,7 @@ export class VisitHistory extends Component {
                 horizontal={true}
                 extraData={this.state.selectedVisitId}
                 data={data}
-                keyExtractor={(visitId: string, index :number) => index}
+                keyExtractor={(visitId: string, index :number) => index.toString()}
                 renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedVisitId === data.item} visitId={data.item} onPress={() => this.showVisit(data.item)} />}
               />
               </View>

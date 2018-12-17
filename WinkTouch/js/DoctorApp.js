@@ -4,7 +4,7 @@
 'use strict';
 import React, { Component } from 'react';
 import {  StatusBar, ScrollView, View} from 'react-native';
-import { createAppContainer, createStackNavigator, NavigationActions } from 'react-navigation';
+import { createAppContainer, createStackNavigator, NavigationActions, StackActions } from 'react-navigation';
 import type {Appointment, PatientInfo, Exam, Visit, User, Store, ExamDefinition, Scene} from './Types';
 import {styles} from './Styles';
 import {OverviewScreen} from './Overview';
@@ -60,16 +60,16 @@ const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
 const replaceRoutes: string[] = ['today','findPatient','walkin','templates','examHistory','examGraph'];
+
+
+
 DoctorNavigator.router.getStateForAction = (action, state) => {
   if (state && action.type === NavigationActions.NAVIGATE) {
-    if (state.routes[state.index].routeName===action.routeName) //Yo smartass, we are doing this to prevent double navigation, but it doesn't seem to work stupid
-      return null;
     if (replaceRoutes.includes(state.routes[state.index].routeName)) {
-      state.routes.splice(state.routes.length-1);
-      state.index = state.index -1;
+        action.type = StackActions.REPLACE;
     }
   }
-  let newState = defaultGetStateForAction(action, state);
+  let newState = defaultGetStateForAction(action, state);  
   if (state && action.type === NavigationActions.BACK) {
       if (state.index===1) {
         newState.routes[0].params={refreshAppointments: true};
@@ -144,7 +144,7 @@ export class DoctorApp extends Component {
       }
       if (!this.navigator) return;
       if (routeName==='back')
-        this.navigator.dispatch({type: NavigationActions.BACK})
+        this.navigator.dispatch({type: NavigationActions.BACK});
       else
         this.navigator.dispatch({type: NavigationActions.NAVIGATE, routeName, params})
     }
