@@ -77,6 +77,7 @@ export class PaperFormScreen extends Component {
     }
 
     async storeExam(exam: Exam) {
+      //TODO: why don't we call this.props.onUpdateExam? 
       if (!this.props.appointmentStateKey || !this.props.navigation) return;
       try {
         await storeExam(exam, this.props.appointmentStateKey, this.props.navigation);

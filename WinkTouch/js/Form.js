@@ -41,6 +41,7 @@ export class FormRow extends Component {
 export class FormTextInput extends Component {
     props: {
         value: ?string,
+        errorMessage?: string,
         validation?: string,
         label?: string,
         showLabel?: boolean,
@@ -70,13 +71,13 @@ export class FormTextInput extends Component {
         super(props);
         this.state = {
             value: this.props.value,
-            errorMessage: undefined
+            errorMessage: this.props.errorMessage
         }
     }
 
     componentWillReceiveProps(nextProps: any) {
-        if (nextProps.value !== this.state.value)
-            this.setState({ value: nextProps.value, errorMessage: undefined });
+        if (nextProps.value !== this.state.value || nextProps.errorMessage !== this.state.errorMessage)
+            this.setState({ value: nextProps.value, errorMessage: nextProps.errorMessage });
     }
 
     validate(value: string) {
@@ -568,6 +569,7 @@ export class FormSelectionArray extends Component {
 export class FormInput extends Component {
   props: {
     value: ?string|?number,
+    errorMessage?: string,
     definition: FieldDefinition,
     type?: string,
     autoCapitalize?: string,
@@ -620,7 +622,7 @@ export class FormInput extends Component {
     const type : ?string = this.props.type?this.props.type:this.props.definition.type;
     const style : ?any = this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formField;
     const readonly : boolean = this.props.readonly===true||this.props.definition.readonly===true;
-    if (!this.props.definition  || !this.props.visible) return null;
+    if (!this.props.definition || !this.props.visible) return null;
     if (isNumericField(this.props.definition)) {
       return <FormNumberInput value={this.props.value} {...this.props.definition} readonly={readonly} onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} style={this.props.style}/>
     } else if (this.props.definition.options && this.props.definition.options.length>0) {
@@ -638,7 +640,7 @@ export class FormInput extends Component {
     } else if (this.props.definition.image!==undefined) {
       return <ImageField value={this.props.value} image={this.props.definition.image} readonly={readonly} onChangeValue={this.props.onChangeValue} scale={1.5} style={this.props.style}/>
     }
-    return <FormTextInput value={this.props.value} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
+    return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100} style={this.props.style}/>//TODO keyboardType from definition type
   }
 
@@ -701,6 +703,20 @@ export class FormField extends Component {
     return value;
   }
 
+  getErrorMessage() : ?string {
+    let value = this.props.value;
+    let errorMessage = undefined;
+    for (let i : number = 0; i<this.fieldNames.length; i++) {
+      const propertyName : string = this.fieldNames[i];
+      if (i+1==this.fieldNames.length) {
+        errorMessage = value[propertyName+'Error'];
+      } else {
+        value = value[propertyName];
+      }
+    }
+    return errorMessage;
+  }
+
   setFieldValue = (value: ?string|?number) => {
     if (this.props.readonly) return;
     let valueContainer : {} = this.props.value;
@@ -716,7 +732,7 @@ export class FormField extends Component {
 
   render() {
     if (this.fieldDefinition===undefined) return null;
-    return <FormInput value={this.getFieldValue()} definition={this.fieldDefinition} showLabel={this.props.showLabel} readonly={this.props.readonly} label={this.props.label}
+    return <FormInput value={this.getFieldValue()} errorMessage={this.getErrorMessage()} definition={this.fieldDefinition} showLabel={this.props.showLabel} readonly={this.props.readonly} label={this.props.label}
       type={this.props.type} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline}
       onChangeValue={this.setFieldValue}  />
   }

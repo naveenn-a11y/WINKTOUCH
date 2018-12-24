@@ -44,7 +44,7 @@ export class MenuBar extends PureComponent {
         const scene: ?string = this.props.navigation.state && this.props.navigation.state.routeName;
         return <View style={styles.sideMenu}>
           <Image source={require('./image/menulogo.png')} />
-          <Button title={strings.today} onPress={() => this.props.navigation.navigate('today')} />
+          <Button title={strings.agenda} onPress={() => this.props.navigation.navigate('agenda')} />
           <Button title={strings.patients} onPress={() => this.props.navigation.navigate('findPatient', {showAppointments: true, showBilling: true})} />
           {exam && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
           {exam && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}

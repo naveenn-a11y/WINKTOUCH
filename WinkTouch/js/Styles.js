@@ -64,6 +64,11 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         backgroundColor: backgroundColor,
     },
+    paragraph: {
+        flex: 100,
+        flexDirection: 'column',
+        marginHorizontal: 10 * fontScale,
+    },
     sideMenu: {
         padding: 10 * fontScale,
         width: 180 * fontScale,
@@ -447,6 +452,12 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         margin: 10 * fontScale
     },
+    cardTitleLeft: {
+        fontSize: 21 * fontScale,
+        fontWeight: '500',
+        textAlign: 'left',
+        margin: 0 * fontScale
+    },
     cardColumn: {
         marginHorizontal: 1 * fontScale,
         alignItems: 'center'
@@ -781,6 +792,9 @@ export const styles = StyleSheet.create({
       backgroundColor: '#ff000000',
       flexDirection: 'row'
     },
+    separator: {
+      marginTop: 10*fontScale
+    }
 });
 
 function cardStyle(color: Color) {

@@ -536,6 +536,7 @@ export class VisitHistory extends Component {
 
     findAppointmentsVisitId(visitHistory: Visit[]) : ?string {
         if (!visitHistory || visitHistory.length===0) return 'visit';
+        if (this.props.appointment.id==undefined) return 'visit';
         let appointmentsVisitId :?Visit = visitHistory.find((visitId: string) => {
           const visit : ?Visit = getCachedItem(visitId);
           return visit && visit.appointmentId == this.props.appointment.id

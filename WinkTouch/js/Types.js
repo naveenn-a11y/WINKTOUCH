@@ -3,6 +3,14 @@
  */
 'use strict';
 
+export type RestResponse = {
+  patient?: PatientInfo,
+  exam?: Exam,
+  errors?: string[],
+  hasValidationError?: boolean,
+  hasConcurrencyConflict?: boolean
+}
+
 export type Registration = {
   email: string,
   bundle: string,
@@ -75,7 +83,7 @@ export type PatientDrug = {
 export type PatientTag = {
   id: string,
   letter: string,
-  color: string, //TODO wais
+  color: string,
   name: string,
   version: number
 }
@@ -96,7 +104,8 @@ export type Appointment = {
   start: string,
   end: string,
   status: number,
-  appointmentTypes?: string[]
+  appointmentTypes?: string[],
+  indicators?: string[]
 }
 
 export type VisitProcedure = {

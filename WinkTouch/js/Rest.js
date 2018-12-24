@@ -3,13 +3,13 @@
  */
 'use strict';
 
-import type { FieldDefinitions } from './Types';
+import type { FieldDefinitions, RestResponse } from './Types';
 import { capitalize } from './Util';
 import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
-//export const restUrl : string = 'https://test1.downloadwink.com/Wink/';
-export const restUrl : string = 'https://ws-touch.downloadwink.com/Web/';
+export const restUrl : string = 'http://127.0.0.1:8080/Web/';
+//export const restUrl : string = 'https://ws-touch.downloadwink.com/Web/';
 
 let token : string;
 
@@ -50,7 +50,18 @@ function constructTypeUrl(id: string) {
   return url;
 }
 
-export function handleHttpError(httpResponse: any, httpBody: Object) {
+function clearErrors(item: Object) {
+  if (!(item instanceof Object)) return;
+  Object.keys(item).forEach(key => {
+    if (key.endsWith('rror') || key.endsWith('rrors')) {
+      delete item[key];
+    } else {
+      clearErrors(item[key]);
+    }
+  });
+}
+
+export function handleHttpError(httpResponse: any, httpBody?: Object) {
   console.log('HTTP response error '+httpResponse.status+': '+ httpResponse.url);
   console.log(httpResponse);
   if (httpBody && httpBody.errors) throw httpBody.errors;
@@ -143,11 +154,19 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
   }
 }
 
+/**
+* Returns the saved object when the save was successfull (it will have a new version number).
+* Returns the original object with validation error messages per field in case the the object did not pass validation.
+* Returns the original object with a list of business errors in case they happened.
+* Shows a popup and returns the orriginal object in case of a system error.
+* Shows a popup and Returns the latest object from the server in case there was a concurrency conflict.
+*/
 export async function storeItem(item: any) : any {
   if (!item || !item.id) return undefined;
+  clearErrors(item);
   const httpMethod :string = item.id.indexOf('-')>0?'put':'post';
   const url = constructTypeUrl(item.id);
-  __DEV__ && console.log(httpMethod+' '+url+' json body: '+JSON.stringify(item));
+  __DEV__ && console.log('Request '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
   try {
     let httpResponse = await fetch(url, {
         method: httpMethod,
@@ -160,14 +179,19 @@ export async function storeItem(item: any) : any {
         body: JSON.stringify(item)
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
-    const restResponse = await httpResponse.json();
-    //alert(JSON.stringify(restResponse));
+    const restResponse : RestResponse = await httpResponse.json();
+    __DEV__ && console.log('Response '+httpMethod+' '+url+' json body: '+JSON.stringify(restResponse));
     let updatedItem;
-    if (restResponse.errors) {
-      alert(restResponse.errors);
-      console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
+    if (restResponse.hasValidationError || restResponse.errors) {
+      if (restResponse.errors) {
+        console.log('restResponse contains business errors: '+ JSON.stringify(restResponse));
+        alert(restResponse.errors);
+      } else {
+        restResponse.errors = [];
+      }
       clearCachedItemById(item);
-      updatedItem = await fetchItemById(item.id);
+      await fetchItemById(item.id);
+      return restResponse;
     } else {
       updatedItem = restResponse[getItemFieldName(item.id)];
       if (!updatedItem) {
@@ -175,13 +199,14 @@ export async function storeItem(item: any) : any {
         throw new Error('The server did not return a '+getItemFieldName(item.id)+' after '+(httpMethod==='put'?'updating.':'creating.'));
       }
       cacheLists(restResponse);
-      cacheItemById(updatedItem); //TODO Only cache when no validation errors and warnings?
+      cacheItemById(updatedItem);
     }
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to store '+getDataType(item.id).toLowerCase()+' data on the server. Please try again.');
-    throw(error);
+    alert('Something went terribly wrong trying to save '+getDataType(item.id).toLowerCase()+' data on the server.');
+    item.errors = ['Something went terribly wrong trying to save '+getDataType(item.id).toLowerCase()+' data on the server.'];
+    return item;
   }
 }
 

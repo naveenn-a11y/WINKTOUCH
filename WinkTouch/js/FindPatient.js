@@ -204,8 +204,8 @@ export class FindPatientScreen extends Component {
   render() {
     return <ScrollView>
       <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={()=>this.newPatient()} />
-      {this.state.patientInfo && <View>
-        <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
+      {this.state.patientInfo && <View style={styles.separator}>
+        <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} />
         {this.params.showBilling && <PatientBillingInfo patient={this.state.patientInfo} />}
         <PrescriptionCard visit={this.state.lastPrescriptionVisit} editable={false}/>
         {this.renderNextAction()}

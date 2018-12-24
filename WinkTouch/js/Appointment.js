@@ -10,22 +10,21 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import type {PatientInfo, Patient, Appointment, Visit, User, AppointmentType} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
-import { formatDate, time24Format, dateTimeFormat, dayDateTime24Format, dayYearDateTime24Format, now, isToday, formatMoment, capitalize, parseDate, formatDuration, jsonDateTimeFormat, jsonDateFormat, today, dayYearDateTimeFormat } from './Util';
-import { PatientCard } from './Patient';
+import { formatDate, timeFormat, time24Format, dateTimeFormat, dayDateTime24Format, dayYearDateTime24Format, now, isToday, formatMoment, capitalize, parseDate, formatDuration, jsonDateTimeFormat, jsonDateFormat, today, dayYearDateTimeFormat } from './Util';
 import { FormRow, FormTextInput, FormDateInput, FormDateTimeInput, FormDurationInput, FormCode } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
-import { fetchPatientInfo, PatientTags } from './Patient';
+import { PatientCard, fetchPatientInfo, PatientTags } from './Patient';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById, clearCachedItemById} from './DataCache';
 import { searchItems, fetchItemById, stripDataType } from './Rest';
 import { putRest } from './WinkRest';
 import { formatCode, parseCode } from './Codes';
 
-export async function fetchAppointment(appointmentId: string) : Appointment {
+export async function fetchAppointment(appointmentId: string) : Promise<Appointment> {
   let appointment : Appointment = await fetchItemById(appointmentId);
   return appointment;
 }
 
-export async function fetchAppointments(storeId: ?string, doctorId: ?string, maxDays: number, patientId?: string) : Appointment[] {
+export async function fetchAppointments(storeId: ?string, doctorId: ?string, maxDays: number, patientId?: string) : Promise<Appointment[]> {
     console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
     const searchCriteria = {
       storeId: storeId,
@@ -70,11 +69,89 @@ class AppointmentTypes extends Component {
   }
   render() {
     const boxSize :number = (this.props.orientation==='horizontal'?10:10)*fontScale;
-    return <View style={{flexDirection: (this.props.orientation==='horizontal'?'row':'column'), marginHorizontal:3*fontScale}}>
+    const isHorizontal : boolean = this.props.orientation==='horizontal';
+    return <View style={{flexDirection: (isHorizontal?'row':'column'), marginHorizontal:3*fontScale, marginTop:(isHorizontal?20*fontScale:0)}}>
       {this.props.appointment.appointmentTypes && getCachedItems(this.props.appointment.appointmentTypes).map((appointmentType: AppointmentType, index: number) =>
-          {appointmentType && <View style={{backgroundColor: appointmentType.color, padding:boxSize, height:boxSize, width:boxSize}} key={index}><Text></Text></View>}
+          <View style={{backgroundColor: appointmentType.color, padding:boxSize, height:boxSize, width:boxSize, margin:1*fontScale}} key={index}></View>
       ) }
     </View>
+  }
+}
+
+class AppointmentIcon extends Component {
+  props: {
+    name: string
+  }
+  render() {
+    const boxSize :number = 22*fontScale;
+    if ('invoiced'===this.props.name) return <Image source={require('./image/calendar/paidx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('lastNoShow'===this.props.name) return <Image source={require('./image/calendar/lastNoShowx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('existingPatient'===this.props.name) return <Image source={require('./image/calendar/existingPatientx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('newPatient'===this.props.name) return <Image source={require('./image/calendar/newPatientx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('leftWithRx'===this.props.name) return <Image source={require('./image/calendar/leftWithRxx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('unconfirmed'===this.props.name) return <Image source={require('./image/calendar/unconfirmedx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('confirmed'===this.props.name) return <Image source={require('./image/calendar/confirmedx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('noShow'===this.props.name) return <Image source={require('./image/calendar/noShowx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('waiting'===this.props.name) return <Image source={require('./image/calendar/waitingx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('completed'===this.props.name) return <Image source={require('./image/calendar/completedx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if ('family'===this.props.name) return <Image source={require('./image/calendar/familyx2.png')} style={{
+      width: boxSize,
+      height: boxSize,
+      margin:1*fontScale,
+      resizeMode: 'contain'
+    }} />
+    else if (__DEV__) return <Text style={styles.text}>{this.props.name}</Text>
+    return null;
   }
 }
 
@@ -87,27 +164,13 @@ class AppointmentIcons extends Component {
     orientation: 'vertical'
   }
   render() {
-    return <View style={this.props.orientation==='horizontal'?styles.rowLayout:undefined}>
-      <Image source={require('./image/calendar/waitingx2.png')} style={{
-        width: 22 * fontScale,
-        height: 22 * fontScale,
-        resizeMode: 'contain'
-      }} />
-      <Image source={require('./image/calendar/existingPatientx2.png')} style={{
-        width: 22 * fontScale,
-        height: 22 * fontScale,
-        resizeMode: 'contain'
-      }} />
-      <Image source={require('./image/calendar/readReplyx2.png')} style={{
-        width: 22 * fontScale,
-        height: 22 * fontScale,
-        resizeMode: 'contain'
-      }} />
-      <Image source={require('./image/calendar/paidx2.png')} style={{
-        width: 22 * fontScale,
-        height: 22 * fontScale,
-        resizeMode: 'contain'
-      }} />
+    if (!this.props.appointment || !this.props.appointment.indicators || this.props.appointment.indicators.length==0)
+      return null;
+    const isHorizontal : boolean = this.props.orientation==='horizontal';
+    return <View style={{flexDirection: (isHorizontal?'row':'column'), marginHorizontal:3*fontScale, marginTop:(isHorizontal?20*fontScale:0)}}>
+    {this.props.appointment.indicators.map((indicator: string, index: number) => {
+      return <AppointmentIcon name={indicator} key={index}/>
+    })}
     </View>
   }
 }
@@ -153,17 +216,20 @@ export class AppointmentSummary extends Component {
     render() {
         const patient : Patient = getCachedItem(this.props.appointment.patientId);
         let cardStyle = styles['card'+capitalize(this.props.appointment.status.toString())];
+        const date : string = this.props.appointment.start;
         return <TouchableOpacity onPress={this.props.onPress}>
             <View style={cardStyle}>
               <View style={{flexDirection: 'row'}}>
                 <AppointmentTypes appointment={this.props.appointment}/>
-                <AppointmentIcons />
+                <AppointmentIcons appointment={this.props.appointment}/>
                 <View style={{marginHorizontal: 5*fontScale}} >
-                  <Text style={styles.text}>{formatDate(this.props.appointment.start, dayYearDateTimeFormat)}</Text>
+                  <Text style={styles.text}>{isToday(date)?formatDate(date, timeFormat):formatDate(date, dayYearDateTimeFormat)}</Text>
                   <Text style={styles.text}>{this.props.appointment.title}</Text>
-                  <Text style={styles.text}>{patient && patient.firstName} {patient && patient.lastName}</Text>
-                  <PatientTags patient={patient} />
-                  <Text style={styles.text}>{formatCode('appointmentStatusCode', this.props.appointment.status)}</Text>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.text}>{patient && patient.firstName} {patient && patient.lastName}</Text>
+                    <PatientTags patient={patient} />
+                  </View>
+                {/**<Text style={styles.text}>{formatCode('appointmentStatusCode', this.props.appointment.status)}</Text>*/}
                 </View>
               </View>
             </View>
@@ -205,6 +271,27 @@ export class AppointmentsSummary extends Component {
                 })}
         </View>
         </ScrollView>
+    }
+}
+
+export class AppointmentTitle extends Component {
+  props: {
+      appointment: Appointment
+  }
+
+  render() {
+      if (!this.props.appointment || !this.props.appointment.id) return null;
+      const date : string = this.props.appointment.start;
+      return  <View>
+            <View style={styles.centeredRowLayout}>
+              <Text style={styles.screenTitle}>{this.props.appointment.title}</Text>
+              <AppointmentTypes appointment={this.props.appointment} orientation='horizontal'/>
+              <AppointmentIcons appointment={this.props.appointment} orientation='horizontal'/>
+            </View>
+            <View style={styles.centeredRowLayout}>
+              <Text style={styles.text}>{strings.scheduledAt} {isToday(date)?formatDate(date, timeFormat):formatDate(date, dayYearDateTimeFormat)} {strings.forDuration} {formatDuration(this.props.appointment.end, date)}.</Text>
+            </View>
+        </View>
     }
 }
 
@@ -388,7 +475,7 @@ export class AppointmentScreen extends Component {
 
     render() { //TODO FlatList
         return <KeyboardAwareScrollView>
-            {this.state.appointment && <AppointmentDetails appointment={this.state.appointment} onUpdateAppointment={this.updateAppointment} />}
+            {this.state.appointment && <AppointmentTitle appointment={this.state.appointment} />}
             <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} />
             <VisitHistory appointment={this.params.appointment} visitHistory={this.state.visitHistory}
               navigation={this.props.navigation} onAddVisit={this.updateHistory} appointmentStateKey={this.props.navigation.state.key}/>

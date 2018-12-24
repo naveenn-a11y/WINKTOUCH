@@ -36,6 +36,9 @@ export async function storeExam(exam: Exam, appointmentStateKey: string, navigat
   exam = deepClone(exam);
   exam.definition = undefined;
   exam = await storeItem(exam);
+  if (exam.errors) {
+    return exam;
+  }
   overwriteExamDefinition(exam);
   if (exam.definition.name==='RxToOrder' || exam.definition.name==='Refraction' || exam.definition.name==='Diagnose') {//TODO check if exam has mapped visit fields
     let visit = await fetchVisit(exam.visitId);

@@ -10,7 +10,7 @@ import {styles} from './Styles';
 import {OverviewScreen} from './Overview';
 import { AppointmentScreen, AppointmentsSummary } from './Appointment';
 import { Reminders } from './Reminders';
-import { TodayScreen } from './Today';
+import { AgendaScreen } from './Agenda';
 import { PatientScreen } from './Patient';
 import { ExamScreen, ExamHistoryScreen } from './Exam';
 import { MenuBar, Notifications } from './MenuBar';
@@ -41,7 +41,7 @@ function setStore(selectedStore: Store) : void {
 
 const DoctorNavigator = createStackNavigator({
     overview: {screen: OverviewScreen},
-    today: {screen: TodayScreen},
+    agenda: {screen: AgendaScreen},
     walkin: {screen: FindPatientScreen},
     findPatient: {screen: FindPatientScreen},
     appointment: {screen: AppointmentScreen},
@@ -59,7 +59,7 @@ const DoctorNavigator = createStackNavigator({
 const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
-const replaceRoutes: string[] = ['today','findPatient','walkin','templates','examHistory','examGraph'];
+const replaceRoutes: string[] = ['agenda','findPatient','walkin','templates','examHistory','examGraph'];
 
 
 
@@ -69,7 +69,7 @@ DoctorNavigator.router.getStateForAction = (action, state) => {
         action.type = StackActions.REPLACE;
     }
   }
-  let newState = defaultGetStateForAction(action, state);  
+  let newState = defaultGetStateForAction(action, state);
   if (state && action.type === NavigationActions.BACK) {
       if (state.index===1) {
         newState.routes[0].params={refreshAppointments: true};

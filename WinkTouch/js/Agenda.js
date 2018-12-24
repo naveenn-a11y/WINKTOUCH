@@ -27,14 +27,14 @@ class NewApointment extends Component {
     }
 }
 
-export class TodayScreen extends Component {
+export class AgendaScreen extends Component {
     constructor(props: any) {
         super(props);
     }
 
     render() {
         return <View>
-            <Text style={styles.h1}>{strings.today}</Text>
+            <Text style={styles.h1}>{strings.agenda}</Text>
             <Agenda />
             <NewApointment />
         </View>

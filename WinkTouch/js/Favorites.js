@@ -136,6 +136,15 @@ export class Plus extends PureComponent {
   }
 }
 
+export class Refresh extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name="refresh" style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
 
 
 export class Favorites extends PureComponent {

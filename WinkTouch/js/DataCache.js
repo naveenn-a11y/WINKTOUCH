@@ -35,6 +35,7 @@ export function cacheItemsById(items: []) {
 }
 
 export function getCachedItem(id: string) : any {
+  if (id==undefined) return undefined;
   const cachedData = cache.get(id);
   return cachedData;
 }
