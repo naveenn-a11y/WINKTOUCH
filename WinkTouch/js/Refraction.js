@@ -4,16 +4,35 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, Text, Switch, ScrollView } from 'react-native';
-import type {GlassesRx, Patient, Exam, GroupDefinition, FieldDefinition, GlassRx, Prism} from './Types';
+import { View, Text, Switch, ScrollView, LayoutAnimation, TouchableOpacity } from 'react-native';
+import type {GlassesRx, Patient, Exam, GroupDefinition, FieldDefinition, GlassRx, Prism, Visit} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
 import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EyeTest';
-import { formatDegree, formatDiopter, deepClone, isEmpty} from './Util';
+import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, formatLabel } from './Items';
 import { formatCode, formatAllCodes, parseCode } from './Codes';
+import { getVisitHistory, fetchVisitHistory } from './Visit';
+import { CopyRow, Garbage } from './Favorites';
+
+function getRecentRefraction(patientId: string) : ?GlassesRx[] {
+  let visitHistory : ?Visit[] = getVisitHistory(patientId);
+  if (!visitHistory) return undefined;
+  let refractions : GlassesRx[] = [];
+  visitHistory.forEach((visit: Visit) => {
+    if (visit.prescription) {
+      const refraction : GlassesRx = visit.prescription;
+      if (!refraction.prescriptionDate) {
+        refraction.prescriptionDate = visit.date;
+      }
+      refractions = [...refractions, refraction];
+    }}
+  );
+  if (refractions.length>3) refractions = refractions.slice(0, 3);
+  return refractions;
+}
 
 export function newRefraction() : GlassesRx {
   return {
@@ -252,41 +271,41 @@ export class GlassesSummary extends Component {
     if (!this.props.visible)
       return null;
     if (isEmpty(this.props.glassesRx))
-      return <View style={styles.columnLayout}>
+      return <View style={styles.columnLayout} key={this.props.title}>
           <Text style={this.props.titleStyle}>{this.props.title}</Text>
         </View>
-    return <View style={styles.columnLayout}>
+    return <View style={styles.columnLayout} key={this.props.title}>
       {this.props.title && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
       <View style={styles.centeredRowLayout}>
         <View style={styles.cardColumn}>
           {this.props.showHeaders?<Text style={styles.text}></Text>:null}
-          <Text>{strings.od}:</Text>
-          <Text>{strings.os}:</Text>
+          <Text style={styles.text}>{strings.od}:</Text>
+          <Text style={styles.text}>{strings.os}:</Text>
         </View>
-        <View style={styles.cardColumn}>
+        <View style={styles.cardColumn} key='sph'>
           {this.props.showHeaders?<Text style={styles.text}>Sphere</Text>:null}
-          <Text> {formatDiopter(this.props.glassesRx.od.sph)}</Text>
-          <Text> {formatDiopter(this.props.glassesRx.os.sph)}</Text>
+          <Text style={styles.text} key='od.sph'> {formatDiopter(this.props.glassesRx.od.sph)}</Text>
+          <Text style={styles.text} key='os.sph'> {formatDiopter(this.props.glassesRx.os.sph)}</Text>
         </View>
         <View style={styles.cardColumn}>
           {this.props.showHeaders?<Text style={styles.text}>Cyl</Text>:null}
-          <Text> {formatDiopter(this.props.glassesRx.od.cyl)}</Text>
-          <Text> {formatDiopter(this.props.glassesRx.os.cyl)}</Text>
+          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.od.cyl)}</Text>
+          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.os.cyl)}</Text>
         </View>
         <View style={styles.cardColumn}>
           {this.props.showHeaders?<Text style={styles.text}>Axis</Text>:null}
-          <Text> {formatDegree(this.props.glassesRx.od.axis)}</Text>
-          <Text> {formatDegree(this.props.glassesRx.os.axis)}</Text>
+          <Text style={styles.text}> {formatDegree(this.props.glassesRx.od.axis)}</Text>
+          <Text style={styles.text}> {formatDegree(this.props.glassesRx.os.axis)}</Text>
         </View>
         <View style={styles.cardColumn}>
           {this.props.showHeaders?<Text style={styles.text}>Add</Text>:null}
-          <Text> {formatDiopter(this.props.glassesRx.od.add)}</Text>
-          <Text> {formatDiopter(this.props.glassesRx.os.add)}</Text>
+          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.od.add)}</Text>
+          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.os.add)}</Text>
         </View>
         <View style={styles.cardColumn}>
           {this.props.showHeaders?<Text style={styles.text}>Prism</Text>:null}
-          <Text> {formatPrism(this.props.glassesRx.od)}</Text>
-          <Text> {formatPrism(this.props.glassesRx.os)}</Text>
+          <Text style={styles.text}> {formatPrism(this.props.glassesRx.od)}</Text>
+          <Text style={styles.text}> {formatPrism(this.props.glassesRx.os)}</Text>
         </View>
     </View>
     </View>
@@ -300,6 +319,7 @@ export class GlassesDetail extends PureComponent {
     editable?: boolean,
     onCopy?: (glassesRx: GlassesRx) => void,
     hasVA?: boolean,
+    hasAdd?: boolean,
     titleStyle?: string,
     style?: string,
     onChangeGlassesRx?: (glassesRx: GlassesRx) => void
@@ -375,16 +395,26 @@ export class GlassesDetail extends PureComponent {
     }
   }
 
-//  copyOsOd() : void
-//    let glassesRx: GlassesRx = this.props.glassesRx;
-//    glassesRx.os = {...glassesRx.od};
-//    if (this.props.onChangeGlassesRx)
-//      this.props.onChangeGlassesRx(glassesRx);
-//  }
+  copyOdOs = () : void => {
+    let glassesRx: GlassesRx = this.props.glassesRx;
+    glassesRx.os = {...glassesRx.od};
+    if (this.props.onChangeGlassesRx)
+      this.props.onChangeGlassesRx(glassesRx);
+  }
+
+  clear = () : void => {
+    let glassesRx: GlassesRx = this.props.glassesRx;
+    glassesRx.os = {};
+    glassesRx.od = {};
+    if (this.props.onChangeGlassesRx)
+      this.props.onChangeGlassesRx(glassesRx);
+  }
 
   transferFocus = (fieldRef: string) => {
     this.refs[fieldRef].startEditing();
   }
+
+
 
   render() {
     if (!this.props.glassesRx)
@@ -399,8 +429,9 @@ export class GlassesDetail extends PureComponent {
             <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.axis'))}</Text>
             {this.state.prism && <Text style={styles.formTableColumnHeaderWide}>{formatLabel(getFieldDefinition('visit.prescription.od.prism1'))}</Text>}
             {this.props.hasVA && <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA'))}</Text>}
-            <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.add'))}</Text>
-            {this.props.hasVA && <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA'))}</Text>}
+            {this.props.hasAdd && <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.add'))}</Text>}
+            {this.props.hasVA && this.props.hasAdd && <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA'))}</Text>}
+            {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
           </View>
           <View style={styles.formRow}>
             <Text style={styles.formTableRowHeader}>{formatLabel(getFieldDefinition('visit.prescription.od'))}:</Text>
@@ -414,10 +445,12 @@ export class GlassesDetail extends PureComponent {
               onChangeValue={(value: ?Prism) => this.updatePrism('od', value)}/></View>}
             {this.props.hasVA===true && <FormInput value={this.props.glassesRx.od.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD')} label={formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA'))} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('od','va', value)}/>}
-            <FormInput value={this.props.glassesRx.od.add} definition={getFieldDefinition('visit.prescription.od.add')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('od','add', value)}/>
-            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.od.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD')} label={formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA'))} showLabel={false} readonly={!this.props.editable}
+            {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.od.add} definition={getFieldDefinition('visit.prescription.od.add')} showLabel={false} readonly={!this.props.editable}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','add', value)}/>}
+            {this.props.hasVA===true && this.props.hasAdd===true && <FormInput value={this.props.glassesRx.od.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD')} label={formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA'))} showLabel={false} readonly={!this.props.editable}
                 onChangeValue={(value: ?number) => this.updateGlassesRx('od','addVa', value)}/>}
+            {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
+            {this.props.editable && <CopyRow onPress={this.copyOdOs}/>}
           </View>
           <View style={styles.formRow}>
             <Text style={styles.formTableRowHeader}>{formatLabel(getFieldDefinition('visit.prescription.os'))}:</Text>
@@ -431,16 +464,20 @@ export class GlassesDetail extends PureComponent {
               onChangeValue={(value: ?Prism) => this.updatePrism('os', value)}/></View>}
             {this.props.hasVA===true && <FormInput value={this.props.glassesRx.os.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS')} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('os','va', value)}/>}
-            <FormInput value={this.props.glassesRx.os.add} definition={getFieldDefinition('visit.prescription.os.add')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('os','add', value)}/>
-            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.os.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS')} showLabel={false} readonly={!this.props.editable}
+            {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.os.add} definition={getFieldDefinition('visit.prescription.os.add')} showLabel={false} readonly={!this.props.editable}
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','add', value)}/>}
+            {this.props.hasVA===true && this.props.hasAdd===true && <FormInput value={this.props.glassesRx.os.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS')} showLabel={false} readonly={!this.props.editable}
                 onChangeValue={(value: ?number) => this.updateGlassesRx('os','addVa', value)}/>}
+            {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
           </View>
-        {this.props.editable && <View style={styles.buttonsRowLayout}>
+        {this.props.editable && this.props.hasAdd && <View style={styles.buttonsRowLayout}>
           <Button title={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} onPress={() => this.toggle('prism')}/>
           {false && <Button title={formatLabel(getFieldDefinition('visit.prescription.os'))+'='+formatLabel(getFieldDefinition('visit.prescription.od'))} onPress={() => this.copyOsOd()}/>}
           {this.props.onCopy && <Button title={strings.copyToFinal} onPress={() => this.props.onCopy(this.props.glassesRx)}/>}
         </View>}
+      </View>
+      <View style={styles.groupIcons}>
+          {this.props.editable && <TouchableOpacity onPress={this.clear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
       </View>
     </View>
   }
@@ -610,6 +647,48 @@ export class ContactsDetail extends PureComponent {
           {this.props.onCopy && <Button title={strings.copyToFinal} onPress={() => this.props.onCopy(this.props.glassesRx)}/>}
         </View>}
       </View>
+    </View>
+  }
+}
+
+export class PatientRefractionCard extends Component {
+  props: {
+    patientInfo: PatientInfo,
+  }
+  state: {
+    refractions : ?GlassesRx[];
+  }
+
+
+  constructor(props: any) {
+      super(props);
+      this.state = {
+        refractions: getRecentRefraction(props.patientInfo.id)
+      }
+      this.refreshPatientInfo();
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({refractions: getRecentRefraction(nextProps.patientInfo.id)}, this.refreshPatientInfo);
+  }
+
+  async refreshPatientInfo(patientId: string) {
+    if ( this.state.refractions) return;
+    let refractions : ?GlassesRx[] = getRecentRefraction(this.props.patientInfo.id);
+    if (refractions===undefined) {
+      await fetchVisitHistory(this.props.patientInfo.id);
+      refractions = getRecentRefraction(this.props.patientInfo.id);
+    }
+    this.setState({refractions});
+  }
+
+
+  render() {
+    if (!this.state.refractions) return null;
+    return <View style={styles.tabCard}>
+      {(!this.state.refractions || this.state.refractions.length===0) &&  <Text style={styles.cardTitle}>{strings.finalRx}</Text>}
+      {this.state.refractions.map((refraction: GlassesRx, index: number) =>
+        <GlassesSummary showHeaders={false} title={strings.refractionTitle + ' '+formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
     </View>
   }
 }

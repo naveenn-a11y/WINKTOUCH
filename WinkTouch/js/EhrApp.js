@@ -3,20 +3,16 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {View, TextInput, StatusBar, AsyncStorage} from 'react-native';
+import {View, TextInput, StatusBar, AsyncStorage, AppState, InteractionManager} from 'react-native';
 import codePush , { SyncStatus } from 'react-native-code-push';
-import DeviceInfo from 'react-native-device-info';
 import type { Registration , Store, User} from './Types';
 import { LoginScreen } from './LoginScreen';
 import { DoctorApp } from './DoctorApp';
 import { RegisterScreen } from './Registration';
+import { setDeploymentVersion } from './Version';
+import { getVisitTypes, fetchVisitTypes } from './Visit';
 
-export let deploymentVersion: string = 'vx';
-export const dbVersion : string = '1187'; //TODO move to plist
-export const touchVersion: string = DeviceInfo.getVersion();
-export const bundleVersion: string = DeviceInfo.getBuildNumber(); //
-
-codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) deploymentVersion = currentPackage.label});
+codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) setDeploymentVersion(currentPackage.label)});
 
 function logUpdateStatus(status: number) {
   switch (status) {
@@ -52,10 +48,17 @@ function logUpdateStatus(status: number) {
     }
 }
 
+let lastUpdateCheck : ?Date = undefined;
+
 export async function checkAndUpdateDeployment(registration: ?Registration) {
-  if (__DEV__) return;
+  if (__DEV__) {
+    console.log("Checking and updating bundle (not on dev).");
+    return;
+  }
+  if (lastUpdateCheck!==undefined && ((new Date()).getTime()-lastUpdateCheck.getTime())<5*60000) return; //Prevent hammering code-push servers
   if (registration===undefined || registration===null || registration.bundle===undefined) return;
-  //console.log('checking deployment key:' + registration.bundle);
+  __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
+  lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
   //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
   codePush.sync({ updateDialog: false, deploymentKey: registration.bundle, installMode: codePush.InstallMode.IMMEDIATE}, logUpdateStatus);
@@ -70,7 +73,8 @@ export class EhrApp extends Component {
         registration: ?Registration,
         user: ?User,
         store: ?Store,
-        token: ?string
+        token: ?string,
+        updateTimer: ?any
     };
 
     constructor() {
@@ -82,7 +86,8 @@ export class EhrApp extends Component {
             registration: undefined,
             user: undefined,
             store: undefined,
-            token: undefined
+            token: undefined,
+            updateTimer: undefined,
         };
     }
 
@@ -134,11 +139,18 @@ export class EhrApp extends Component {
     }
 
     userLoggedOn(user: User, store: Store, token: string) {
+        this.checkForUpdate();
         this.setState({isLoggedOn: user!==undefined && token!==undefined && store!==undefined, user, store, token});
+        if (!getVisitTypes()) fetchVisitTypes();
     }
 
     logout = () => {
         this.setState({isLoggedOn: false, token: undefined, store: undefined});
+        lastUpdateCheck = undefined;
+        this.checkForUpdate();
+    }
+
+    checkForUpdate() {
         checkAndUpdateDeployment(this.state.registration);
     }
 
@@ -159,6 +171,26 @@ export class EhrApp extends Component {
         this.loadRegistration();
         this.startLockingDog();
     }
+
+    componentDidMount() {
+      let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
+      this.setState({updateTimer});
+      AppState.addEventListener('change', this.onAppStateChange.bind(this));
+    }
+
+    componentWillUnmount() {
+      if (this.state.updateTimer) {
+        clearInterval(this.state.updateTimer);
+      }
+      AppState.removeEventListener('change', this.onAppStateChange.bind(this));
+    }
+
+    onAppStateChange(nextState: any) {
+      __DEV__ && console.log('next app state ='+nextState);
+      if (nextState==='active') {
+        this.checkForUpdate();
+      }
+     }
 
     render() {
         if (!this.state.isRegistered) {

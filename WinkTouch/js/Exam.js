@@ -14,16 +14,17 @@ import { SelectionListsScreen, ItemsCard, GroupedFormScreen, ItemsList, GroupedF
 import { PaperFormScreen} from './PaperForm';
 import { fetchItemById, storeItem, searchItems } from './Rest';
 import { cacheItemById, getCachedItem, cacheItem, getCachedItems } from './DataCache';
-import { deepClone, formatMoment } from './Util';
+import { deepClone, formatMoment, getValue, stripIndex } from './Util';
 import { allExamIds, fetchVisit, visitHasEnded } from './Visit';
 import { GlassesDetail } from './Refraction';
-import { getFavorites, addFavorite, removeFavorite, Star } from './Favorites';
-import { overwriteExamDefinition } from './ExamDefinition';
+import { getFavorites, addFavorite, removeFavorite, Star, Refresh } from './Favorites';
+//import { overwriteExamDefinition } from './ExamDefinition';
 import { Lock } from './Widgets';
+import { ErrorCard } from './Form';
 
-export async function fetchExam(examId: string) : Exam {
-  let exam = await fetchItemById(examId);
-  overwriteExamDefinition(exam);
+export async function fetchExam(examId: string, ignoreCache?: boolean) : Exam {
+  let exam = await fetchItemById(examId, ignoreCache);
+  //overwriteExamDefinition(exam);
   return exam;
 }
 
@@ -32,19 +33,19 @@ export async function createExam(exam: Exam) : Exam {
   return exam;
 }
 
-export async function storeExam(exam: Exam, appointmentStateKey: string, navigation: any) : Exam {
+export async function storeExam(exam: Exam, refreshStateKey: ?string, navigation: ?any) : Exam {
   exam = deepClone(exam);
   exam.definition = undefined;
   exam = await storeItem(exam);
   if (exam.errors) {
     return exam;
   }
-  overwriteExamDefinition(exam);
-  if (exam.definition.name==='RxToOrder' || exam.definition.name==='Refraction' || exam.definition.name==='Diagnose') {//TODO check if exam has mapped visit fields
+  //overwriteExamDefinition(exam);
+  if (exam.definition.name==='RxToOrder' || exam.definition.name==='Refraction') {//TODO check if exam has mapped visit fields
     let visit = await fetchVisit(exam.visitId);
     const setParamsAction = NavigationActions.setParams({
       params: { refresh: true },
-      key: appointmentStateKey
+      key: refreshStateKey
     })
     navigation.dispatch(setParamsAction);
   }
@@ -55,6 +56,11 @@ export function getVisit(exam: Exam) : Visit {
   return getCachedItem(exam.visitId);
 }
 
+export function getPatient(exam: Exam) : Patient {
+  const visit : Visit = getVisit(exam);
+  return getCachedItem(visit.patientId);
+}
+
 export function getExam(examName: string, visit: Visit) : Exam {
   let examId = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
   if (!examId) examId = visit.preCustomExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
@@ -62,50 +68,25 @@ export function getExam(examName: string, visit: Visit) : Exam {
   return exam;
 }
 
-function stripIndex(identifier: string) : string {
-  if (identifier.endsWith(']')) {
-    identifier = identifier.substring(0,identifier.indexOf('['));
-  }
-  return identifier;
-}
-
-function getIndex(identifier: string) : ?number {
-  if (identifier.endsWith(']')) {
-    let index = identifier.substring(identifier.indexOf('[')+1, identifier.indexOf(']'));
-    return parseInt(index);
-  }
-  return undefined;
-}
-
-function subValue(value, identifier: string) {
-  if (value===undefined || value===null) return value;
-  let subValue = value[stripIndex(identifier)];
-  const index : ?number = getIndex(identifier);
-  if (index!==undefined) {
-    subValue = subValue[index];
-  }
-  return subValue;
-}
-
 export function getFieldValue(fieldIdentifier: string, exam: Exam) : any {
   const fieldSrc : string = fieldIdentifier.split('.');
   if (fieldSrc[0]==='exam') {//A field of another exam
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0,examIdentifier.indexOf('.'));
-    exam = getExam(examName, getVisit(exam))[examName];
-    const identifiers : string[] = examIdentifier.substring(examName.length+1).split('.');
-    let value : any = exam;
-    for (const identifier: string of identifiers) {
-      value = subValue(value, identifier);
-    }
+    exam = getExam(examName, getVisit(exam));
+    if (!exam) return undefined;
+    let examValue = exam[examName];
+    const identifier : string = examIdentifier.substring(examName.length+1);
+    let value = getValue(examValue, identifier);
     return value;
-  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient') {//A non exam field
-    console.error('unsupported value field src: '+fieldSrc);
+  } else if (fieldSrc[0]==='patient') {
+    let patient = getPatient(exam);
+    if (!patient) return undefined;
+    return patient[fieldSrc[1]];
+  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='clFitting') {//A non exam field
+    __DEV__ && console.error('unsupported value field src: '+fieldSrc);
   } else {//A regular exam field
-    let value : any = exam[exam.definition.name];
-    for (const identifier: string of fieldSrc) {
-      value = subValue(value, identifier);
-    }
+    let value = getValue(exam[exam.definition.name], fieldIdentifier);
     return value;
   }
 }
@@ -115,7 +96,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   if (fieldSrc[0]==='exam') {//A field of another exam
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0,examIdentifier.indexOf('.'));
-    const examDefinition : ExamDefinition = getExam(examName, getVisit(exam)).definition;
+    const otherExam = getExam(examName, getVisit(exam));
+    if (!otherExam) return undefined;
+    const examDefinition : ExamDefinition = otherExam.definition;
     const identifiers : string[] = examIdentifier.substring(examName.length+1).split('.');
     let fields : (FieldDefinition|GroupDefinition)[] = examDefinition.fields;
     let fieldDefinition;
@@ -129,10 +112,10 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
       return undefined;
     }
     if (fieldDefinition.mappedField) {
-      fieldDefinition = getFieldDefinition(fieldDefinition.mappedField, getVisit(exam));
+      fieldDefinition = fieldDefinition=Object.assign({}, getFieldDefinition(fieldDefinition.mappedField, getVisit(exam)), fieldDefinition);
     }
     return fieldDefinition;
-  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient') {//A non exam field
+  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient' || fieldSrc[0]==='clFitting') {//A non exam field
     return getItemFieldDefinition(fieldIdentifier);
   } else {//A regular exam field
     let fieldDefinition : FieldDefinition;
@@ -152,7 +135,7 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
       return undefined;
     }
     if (fieldDefinition.mappedField) {
-      fieldDefinition = getFieldDefinition(fieldDefinition.mappedField, getVisit(exam));
+      fieldDefinition = Object.assign({}, getFieldDefinition(fieldDefinition.mappedField, getVisit(exam)), fieldDefinition);
     }
     return fieldDefinition;
   }
@@ -160,7 +143,6 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
 
 export class ExamCardSpecifics extends Component {
   props: {
-    isExpanded: boolean,
     exam: Exam
   }
 }
@@ -168,20 +150,26 @@ export class ExamCardSpecifics extends Component {
 export class ExamCard extends Component {
   props: {
     exam: Exam,
-    isExpanded?: boolean,
     onSelect?: () => void,
-    onToggleExpand?: () => void
+    onHide?: () => void,
+    disabled?: boolean,
+    enableScroll: () => void,
+    disableScroll: () => void
   }
 
   renderExamCardSpecifics() {
     let exam : Exam = this.props.exam;
-    switch (this.props.exam.definition.type) {
-      case 'selectionLists':
-        return <ItemsCard isExpanded={this.props.isExpanded} exam={exam} />
-      case 'groupedForm':
-        return <GroupedCard isExpanded={this.props.isExpanded} exam={exam} />
+    if (exam.definition.card===false) {
+      return <ExamScreen exam={exam} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
+      //return <PaperFormScreen exam={exam} editable={true} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} />
     }
-    return  <View style={styles.columnLayout} key={this.props.exam.definition.name}>
+    switch (exam.definition.type) {
+      case 'selectionLists':
+        return <ItemsCard exam={exam} key={exam.definition.name}/>
+      case 'groupedForm':
+        return <GroupedCard exam={exam} key={exam.definition.name}/>
+    }
+    return  <View style={styles.flexColumnLayout} key={this.props.exam.definition.name}>
       <Text style={styles.cardTitle}>{exam.definition.name}</Text>
     </View>
   }
@@ -189,27 +177,13 @@ export class ExamCard extends Component {
   getStyle() : any {
     let style: string = this.props.style;
     if (style) return style;
-    style = styles.todoExamCard;
-    if (this.props.isExpanded) {
-      style = styles.todoExamCardExpanded;
-      if (this.props.exam.hasEnded) {
-        style = styles.finishedExamCardExpanded;
-      } else if (this.props.exam.hasStarted) {
-        style = styles.startedExamCardExpanded;
-      }
-    } else {
-      if (this.props.exam.hasEnded) {
-        style = styles.finishedExamCard;
-      } else if (this.props.exam.hasStarted) {
-        style = styles.startedExamCard;
-      }
-    }
+    style = this.props.exam.definition.card===false?styles.page:this.props.exam.hasEnded?styles.finishedExamCard:styles.todoExamCard;
     return style;
   }
 
   render() {
-    return <TouchableOpacity disabled={this.props.onSelect===undefined}
-      onLongPress={this.props.onToggleExpand}
+    return <TouchableOpacity disabled={this.props.disabled || this.props.onSelect===undefined || this.props.exam.definition.card===false}
+      onLongPress={this.props.onHide}
       onPress={this.props.onSelect}
       delayLongPress={300}>
       <View style={this.getStyle()}>
@@ -342,7 +316,10 @@ function examIsLocked(exam: Exam) : boolean {
 
 export class ExamScreen extends Component {
   props: {
-    navigation: any
+    exam: ?Exam,
+    navigation: any,
+    enableScroll: () => void,
+    disableScroll: () => void
   }
   params: {
     exam: Exam,
@@ -357,9 +334,15 @@ export class ExamScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.params = this.props.navigation.state.params;
+    if (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params) {
+        this.params = this.props.navigation.state.params;
+    } else {
+      this.params = {
+        exam: this.props.exam,
+      }
+    }
+    this.params.exam.hasStarted=true;
     this.unmounted = false;
-    this.params.exam.hasStarted = true;
     this.state = {
       exam: this.params.exam,
       locked: examIsLocked(this.params.exam),
@@ -368,29 +351,38 @@ export class ExamScreen extends Component {
   }
 
   componentDidMount() {
-    if (this.params.exam.id) this.refreshExam();
+    if (this.params.exam.id && this.params.exam.errors===undefined) this.fetchExam();
   }
 
   componentWillReceiveProps(nextProps: any) {
-    this.params = nextProps.navigation.state.params;
+    if (nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params) {
+        this.params = nextProps.navigation.state.params;
+    } else {
+      this.params = {
+        exam: nextProps.exam,
+      }
+    }
+  }
+
+  async fetchExam() {
+    const exam: Exam = await fetchExam(this.params.exam.id);
+    if (exam!=undefined) exam.hasStarted = true;
+    this.setState({exam});
   }
 
   async refreshExam() {
-    const exam: Exam = await fetchExam(this.params.exam.id);
+    const exam: Exam = await fetchExam(this.params.exam.id, true);
     exam.hasStarted = true;
     this.setState({exam});
   }
 
   async storeExam(exam: Exam) {
-    try {
-      exam = await storeExam(exam, this.params.appointmentStateKey, this.props.navigation);
-      if (!this.unmounted)
-        this.setState({exam});
-    } catch (error) {
-      if (this.unmounted) {
-        this.props.navigation.navigate('exam', {exam: this.params.exam});
-      } else {
-        await this.refreshExam();
+    exam = await storeExam(exam, this.params.appointmentStateKey, this.props.navigation);
+    if (!this.unmounted) {
+      this.setState({exam});
+    } else {
+      if (exam.errors) {
+        this.props.navigation.navigate('exam', {exam: exam});
       }
     }
   }
@@ -443,7 +435,7 @@ export class ExamScreen extends Component {
       case 'groupedForm':
           return <GroupedFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} favorites={this.state.favorites} onAddFavorite={this.params.exam.definition.starable?this.addFavorite:undefined} onRemoveFavorite={(favorite: ExamPredefinedValue) => this.removeFavorite(favorite)}/>
       case 'paperForm':
-        return <PaperFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} appointmentStateKey={this.params.appointmentStateKey} navigation={this.props.navigation}/>
+        return <PaperFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} appointmentStateKey={this.params.appointmentStateKey} navigation={this.props.navigation} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
     }
     return <Text style={styles.screenTitle}>{this.params.exam.definition.type} {this.params.exam.definition.name} Exam</Text>;
   }
@@ -458,8 +450,14 @@ export class ExamScreen extends Component {
     return <TouchableOpacity onPress={this.addExamAsFavorite}><Star style={styles.screenIcon}/></TouchableOpacity>
   }
 
+  renderRefreshIcon() {
+    if (this.state.locked) return null;
+    return <TouchableOpacity onPress={() => this.refreshExam()}><Refresh style={styles.screenIcon}/></TouchableOpacity>
+  }
+
   renderExamIcons() {
     return <View style={styles.examIcons}>
+      {this.renderRefreshIcon()}
       {this.renderFavoriteIcon()}
       {this.renderLockIcon()}
     </View>
@@ -476,17 +474,25 @@ export class ExamScreen extends Component {
   }
 
   render() {
-    if (this.params.exam.definition.scrollable===true) return <KeyboardAwareScrollView style={styles.page} scrollable={true}>
+    if (this.params.exam.definition.scrollable===true && this.props.disableScroll===undefined) return <KeyboardAwareScrollView style={styles.page} scrollable={true}>
+                <ErrorCard errors={this.state.exam.errors} />
                 {this.renderRelatedExams()}
                 {this.renderExam()}
                 {this.renderExamIcons()}
-    </KeyboardAwareScrollView>
-    return<View style={styles.centeredScreenLayout}>
+                </KeyboardAwareScrollView>
+    if (this.props.disableScroll) return <View style={styles.centeredColumnLayout}>
+        <ErrorCard errors={this.state.exam.errors} />
+        {this.renderRelatedExams()}
+        {this.renderExam()}
+        {this.renderExamIcons()}
+        </View>
+    return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollable={false}>
         <View style={styles.centeredColumnLayout}>
+          <ErrorCard errors={this.state.exam.errors} />
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
         {this.renderExamIcons()}
-      </View >
+      </KeyboardAwareScrollView >
   }
 }

@@ -4,30 +4,47 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, LayoutAnimation} from 'react-native';
+import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, LayoutAnimation, ScrollView} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import type {Patient, PatientInfo, FieldDefinition, CodeDefinition, PatientTag, RestResponse } from './Types';
+import { NavigationActions } from 'react-navigation';
+import type {Patient, PatientInfo, FieldDefinition, CodeDefinition, PatientTag, RestResponse, PatientDocument, Upload } from './Types';
 import { styles, fontScale} from './Styles';
 import { strings } from './Strings';
-import { FormRow, FormTextInput, FormInput, FormField } from './Form';
+import { FormRow, FormTextInput, FormInput, FormField, ErrorCard } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import { cacheItemById, getCachedItem, getCachedItems } from './DataCache';
-import { fetchItemById, storeItem } from './Rest';
+import { fetchItemById, storeItem, searchItems } from './Rest';
 import { getFieldDefinitions, getFieldDefinition } from './Items';
 import { deepClone, formatAge } from './Util';
 import { formatOption, formatCode } from './Codes';
-import { PatientMedication} from './Medication';
+import { PatientMedicationCard} from './Medication';
 import { getDoctor } from './DoctorApp';
 import { Refresh } from './Favorites';
+import { PatientRefractionCard } from './Refraction';
+import { Pdf } from './Document';
+import { fetchUpload, getMimeType } from './Upload';
+import { VisitHistoryCard } from './Visit';
+import { FindPatient } from './FindPatient';
 
 export async function fetchPatientInfo(patientId: string, ignoreCache?: boolean = false) : PatientInfo {
-  let patientInfo = await fetchItemById(patientId, ignoreCache);
+  let patientInfo : PatientInfo = await fetchItemById(patientId, ignoreCache);
   return patientInfo;
 }
 
 export async function storePatientInfo(patientInfo: PatientInfo) : PatientInfo {
   patientInfo = await storeItem(patientInfo);
   return patientInfo;
+}
+
+export async function searchPatientDocuments(patientId: string, category: string) {
+  const searchCriteria = { patientId, category };
+  let restResponse = await searchItems('PatientDocument/list', searchCriteria);
+  return restResponse;
+}
+
+export async function storePatientDocument(patientDocument: PatientDocument) {
+  patientDocument = await storeItem(patientDocument);
+  return patientDocument;
 }
 
 export class PatientTags extends Component {
@@ -59,7 +76,9 @@ export class PatientTags extends Component {
   }
 
   render() {
-      let genderShort : string = this.props.patient.gender?formatCode('genderCode', this.props.patient.gender):'';
+      if (!this.props.patient)
+        return null;
+      let genderShort : string = formatCode('genderCode', this.props.patient.gender);
       if (genderShort.length>0) genderShort = genderShort.substring(0,1);
       if (!this.state.patientTags || this.state.patientTags.length===0) {
         if (this.props.showDescription) return null;
@@ -72,7 +91,7 @@ export class PatientTags extends Component {
       </View>:<View style={styles.rowLayout}>
         <Text style={styles.text}> ({genderShort}</Text>
         {this.state.patientTags && this.state.patientTags.map((patientTag: PatientTag, index: number) => <Text key={index} style={styles.text}>{patientTag && patientTag.letter}</Text>)}
-        <Text>)</Text>
+        <Text style={styles.text}>)</Text>
       </View>
     }
 }
@@ -80,24 +99,33 @@ export class PatientTags extends Component {
 export class PatientCard extends Component {
     props: {
         patientInfo?: PatientInfo,
-        navigation: any
+        navigation: any,
+        navigate?: string,
+        refreshStateKey: string,
+        style?: any
+    }
+    static defaultProps = {
+      navigate: 'patient'
+    }
+
+    componentWillReceiveProps() {
+      this.forceUpdate();
     }
 
     render() {
         if (!this.props.patientInfo) return null;
-        return <TouchableOpacity onPress={() => this.props.navigation.navigate('patient', {patientInfo: this.props.patientInfo})}>
-                  <View style={styles.paragraph}>
+        return <TouchableOpacity onPress={() => this.props.navigation.navigate(this.props.navigate, {patientInfo: this.props.patientInfo, refreshStateKey: this.props.refreshStateKey})}>
+                  <View style={this.props.style?this.props.style:styles.paragraph}>
                       <Text style={styles.cardTitleLeft}>{this.props.patientInfo.firstName + ' ' + this.props.patientInfo.lastName}</Text>
                       <View style={styles.formRow}>
-                          <View style={styles.columnLayout}>
+                          <View style={styles.flexColumnLayout}>
                               <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth):''}</Text>
                               <PatientTags patient={this.props.patientInfo} showDescription={true}/>
-                              {__DEV__ && <Text style={styles.text}>Patient ocular summary TODO</Text>}
                           </View>
-                          <View style={styles.columnLayout}>
-                              <Text style={styles.text}>{this.props.patientInfo.cell?(this.props.patientInfo.cell+' '):null}{this.props.patientInfo.city}</Text>
+                          <View style={styles.flexColumnLayout}>
+                              <Text style={styles.text}>{this.props.patientInfo.cell?(this.props.patientInfo.cell+' '):this.props.patientInfo.phone}</Text>
+                              <Text style={styles.text}>{this.props.patientInfo.streetNumber} {this.props.patientInfo.streetName?this.props.patientInfo.streetName+',':''} {this.props.patientInfo.province} {this.props.patientInfo.postalCode} {this.props.patientInfo.city}</Text>
                               <Text style={styles.text}>{this.props.patientInfo.email}</Text>
-                              {__DEV__ && <Text style={styles.text}>Insured by TODO</Text>}
                           </View>
                       </View>
               </View>
@@ -127,19 +155,6 @@ export class PatientBillingInfo extends Component {
             <Text style={styles.cardTitle}>Insurance and Billing</Text>
         </View>
     }
-}
-
-export class PatientOcularHistoryCard extends Component {
-  props: {
-      patient: PatientInfo
-  }
-  render() {
-      if (!this.props.patient)
-          return null;
-      return <View style={styles.tabCard}>
-          <Text style={styles.cardTitle}>Ocular Diagnose History</Text>
-      </View>
-  }
 }
 
 export class PatientContact extends Component {
@@ -188,12 +203,60 @@ export class PatientContact extends Component {
     }
 }
 
+export class PatientDocumentPage extends Component {
+  props: {
+    id: string
+  }
+  state: {
+    upload: ?Upload
+  }
+
+  constructor(props: any) {
+    super(props);
+    const patientDocument: PatientDocument = getCachedItem(props.id);
+    const uploadId : ?string = patientDocument.uploadId;
+    this.state = {
+      upload: getCachedItem(uploadId)
+    };
+    this.loadUpload(uploadId);
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    if (nextProps.id===this.props.id) return;
+    const patientDocument: PatientDocument = getCachedItem(nextProps.id);
+    const uploadId : ?string = patientDocument.uploadId;
+    this.setState({
+      upload: getCachedItem(uploadId)
+    });
+    this.loadUpload(uploadId);
+  }
+
+  async loadUpload(uploadId: ?string) {
+    if (!uploadId) return;
+    let upload : Upload = await fetchUpload(uploadId);
+    this.setState({upload});
+  }
+
+  render() {
+    if (!this.state.upload) return null;
+    const mimeType : string = getMimeType(this.state.upload);
+    if (mimeType==='application/pdf;base64')
+      return <Pdf upload={this.state.upload} style={styles.patientDocument}/>
+    if (mimeType==='image/jpeg;base64' || mimeType==='image/png;base64')
+      return <ScrollView style={styles.patientDocument} maximumZoomScale={2} minimumZoomScale={.5}>
+          <Image source={{ uri: `data:${mimeType},${this.state.upload.data}`}} style={styles.patientDocument}/>
+        </ScrollView>
+    return <View style={styles.errorCard}><Text style={styles.cardTitle}>{strings.formatString(strings.unsupportedDocumentError, this.state.upload.name)}</Text></View>
+  }
+}
+
 export class PatientScreen extends Component {
     props: {
-        navigation: any
+        navigation: any,
     }
     params: {
         patientInfo: PatientInfo,
+        refreshStateKey?: string
     }
     state: {
       patientInfo: PatientInfo,
@@ -214,7 +277,6 @@ export class PatientScreen extends Component {
     }
 
     componentWillReceiveProps(nextProps: any) {
-
     }
 
     componentWillUnmount() {
@@ -227,6 +289,12 @@ export class PatientScreen extends Component {
       let patientInfo: RestResponse = await storePatientInfo(this.state.patientInfo);
       if (patientInfo.errors) {
           this.props.navigation.navigate('patient', {patientInfo: patientInfo});
+      } else if (this.params.refreshStateKey) {
+        const setParamsAction = NavigationActions.setParams({
+          params: { refresh: true },
+          key: this.params.refreshStateKey
+        })
+        this.props.navigation.dispatch(setParamsAction);
       }
     }
 
@@ -239,25 +307,66 @@ export class PatientScreen extends Component {
         this.setState({patientInfo: patientInfo, isDirty: true});
     }
 
-    renderFavoriteIcon() {
+    renderRefreshIcon() {
       if (!this.state.isDirty) return null;
       return <TouchableOpacity onPress={() => this.refreshPatientInfo()}><Refresh style={styles.screenIcon}/></TouchableOpacity>
     }
 
     renderIcons() {
       return <View style={styles.examIcons}>
-        {this.renderFavoriteIcon()}
+        {this.renderRefreshIcon()}
       </View>
     }
 
+
     render() {
-        return <KeyboardAwareScrollView>
+        return <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
             {this.renderIcons()}
             <PatientTitle patientInfo={this.state.patientInfo} />
+            <ErrorCard errors={this.state.patientInfo.errors} />
             <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
-            {__DEV__  && <PatientMedication patientInfo={this.state.patientInfo} editable={false}/>}
-            {__DEV__ && <PatientOcularHistoryCard patient={this.state.patientInfo} />}
-            {__DEV__ && <PatientBillingInfo patient={this.state.patientInfo} />}
         </KeyboardAwareScrollView>
     }
 }
+
+export class CabinetScreen extends Component {
+    props: {
+        navigation: any,
+    }
+    state: {
+      patientInfo: ?PatientInfo,
+    }
+
+    constructor(props: any) {
+      super(props);
+      this.params = this.props.navigation.state.params;
+      this.state = {
+        patientInfo: undefined,
+      }
+    }
+
+    async selectPatient(patient: Patient) {
+      if (!patient) {
+        if (!this.state.patientInfo) return;
+        LayoutAnimation.easeInEaseOut();
+        this.setState({patientInfo: undefined});
+        return;
+      }
+      let patientInfo : ?PatientInfo = getCachedItem(patient.id);
+      LayoutAnimation.easeInEaseOut();
+      this.setState({patientInfo});
+      patientInfo = await fetchPatientInfo(patient.id);
+      if (this.state.patientInfo===undefined || patient.id!==this.state.patientInfo.id)
+        return;
+      this.setState({patientInfo});
+    }
+
+    render() {
+        return <ScrollView keyboardShouldPersistTaps="handled">
+          <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} />
+          {this.state.patientInfo && <View style={styles.separator}>
+            <PatientCard patientInfo={this.state.patientInfo} navigate='appointment' navigation={this.props.navigation} style={styles.tabCardS}/>
+          </View>}
+        </ScrollView>
+    }
+  }

@@ -7,7 +7,6 @@ require('moment/locale/fr.js');
 require('moment/locale/fr-ca.js');
 import { strings } from './Strings';
 
-//const timezoneOffset : number = new Date().getTimezoneOffset() / 60;
 export const shortTimeFormat : string = 'H:mm';
 export const timeFormat : string ='h:mm a';
 export const time24Format: string = 'HH:mm';
@@ -51,6 +50,11 @@ export function tomorrow(): Date {
   const nu: Date = now();
   const tomorrow: Date = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() + 1);
   return tomorrow;
+}
+
+export function addDays(date: Date, dayCount: number) {
+  const newDate : Date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayCount);
+  return newDate;
 }
 
 export function yesterday(): Date {
@@ -129,7 +133,26 @@ export function formatDate(date: ?Date|?string, format: string): string {
     date = parseDate(date);
   }
   const formattedDate : string = Moment(date).format(format);
+  if (formattedDate==='Invalid date') return date;
   return formattedDate;
+}
+
+export function formatTime(time: ?string) : string {
+  if (time===null|| time===undefined || time.toString().trim()==='') return '';
+  const formattedTime : string = Moment(time, time24Format).format('LT');
+  if (formattedTime==='Invalid date') return time;
+  return formattedTime;
+}
+
+export function formatHour(time: ?string) : string {
+  if (time===null|| time===undefined || time.toString().trim()==='') return '';
+  const formattedTime : string = formatTime(time);
+  const hour = formattedTime.substring(0, formattedTime.indexOf(':'));
+  const suffix : ?string = formattedTime.includes(' ')?formattedTime.substring(formattedTime.indexOf(' ')):undefined;
+  if (suffix) {
+    return hour + suffix;
+  }
+  return hour;
 }
 
 export function formatDuration(date: Date|string|number, startDate?: Date|string) : string {
@@ -184,12 +207,7 @@ export function formatMoment(date: Date|string): string {
       date = parseDate(date);
     const nu = now();
     if (isSameDay(date, nu)) {
-      const minuteCount = minuteDifference(nu, date);
-      if (minuteCount<5) return strings.now;
-      if (minuteCount<60) return minuteCount+' minutes ago';//TODO: french
-      const hourCount = hourDifference(nu, date);
-      if (hourCount<9) return hourCount+(hourCount===1?' hour ago':' hours ago'); //TODO: french
-      return strings.today;
+      return formatTime(date);
     }
     const dayCount : number = dayDifference(nu, date);
     if (dayCount<-100) return formatDate(date, farDateFormat);
@@ -292,8 +310,11 @@ export function deepAssign(value: Object, newValue: Object) : Object {
     } else if (subNewValue instanceof Array) {
         if (isEmpty(subValue))
           subValue[subValue.length-1] = deepClone(subNewValue[0]);
-        else
+        else if (subValue instanceof Array) {
           subValue.push(...subNewValue);
+        } else {
+          //silently ignore setting an array on non array
+        }
     } else if (subNewValue instanceof Object) {
         deepAssign(subValue, subNewValue);
     } else {
@@ -337,4 +358,52 @@ export function combine(value : string[]) : ?string {
   });
   if (combinedValue!==undefined) combinedValue = combinedValue.trim();
   return combinedValue;
+}
+
+export function passesFilter(value: Object, filter: {}) : boolean {
+  if (filter===undefined) return true;
+  const filterEntries : [][] = Object.entries(filter);
+  for (let i : number=0; i<filterEntries.length; i++) {
+      const filterKey : string = filterEntries[i][0];
+      const filterValue: string = filterEntries[i][1];
+      if (filterKey!==undefined && filterValue!==undefined && filterValue.trim()!=='') {
+          const subValue = value[filterKey];
+          const passesFilter : boolean = subValue === filterValue;
+          if (!passesFilter) return false;
+      }
+  }
+  return true;
+}
+
+export function stripIndex(identifier: string) : string {
+  if (identifier.endsWith(']')) {
+    identifier = identifier.substring(0,identifier.indexOf('['));
+  }
+  return identifier;
+}
+
+function getIndex(identifier: string) : ?number {
+  if (identifier.endsWith(']')) {
+    let index = identifier.substring(identifier.indexOf('[')+1, identifier.indexOf(']'));
+    return parseInt(index);
+  }
+  return undefined;
+}
+
+function subValue(value, identifier: string) {
+  if (value===undefined || value===null) return value;
+  let subValue = value[stripIndex(identifier)];
+  const index : ?number = getIndex(identifier);
+  if (index!==undefined) {
+    subValue = subValue[index];
+  }
+  return subValue;
+}
+
+export function getValue(value, identifierNames: string) {
+  let identifiers = identifierNames.split('.');
+  for (const identifier: string of identifiers) {
+    value = subValue(value, identifier);
+  }
+  return value;
 }

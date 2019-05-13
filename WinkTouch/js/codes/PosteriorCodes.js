@@ -17,14 +17,22 @@ export const posteriorLensCodes = [[
 export const vitreousCodes = [
 {"code":"Clear"},
 {"code":"PVD"},
-{"code":"Floaters"}
+{"code":"Floaters"},
+{"code":"Syneresis"}
 ];
 
-export const opticDiscCodes = [
-{"code":"Pink and distinct"},
-{"code":"Pallor"},
-{"code":"Drusen"},
-];
+export const opticDiscCodes = [[
+  {"code":"Pink"},
+  {"code":"Pale"},
+  {"code":"Drusen"},
+],[
+  {"code":" / Normal size"},
+  {"code":" / Small"},
+  {"code":" / Large"}
+],[
+  {"code":" / ISNT"},
+  {"code":" / No ISNT"}
+]];
 
 export const cdrCodes = [
 {"code":"WNL"}
@@ -32,30 +40,39 @@ export const cdrCodes = [
 
 export const vesselsCodes = [
 {"code":"WNL"},
-{"code":"Venous beading"},
+{"code":"A/V crossing change"},
 {"code":"Dilation"},
-{"code":"Tortuosity"},
-{"code":"A/V crossing change"}
+{"code":"Venous beading"},
+{"code":"Tortuosity"}
 ];
 
 export const maculaCodes = [
-{"code":"Clear"},
-{"code":"RPE changes"},
-{"code":"Dot Hemes"},
+{"code":"No diabetic maculopathy"},
 {"code":"Microaneurysms"},
+{"code":"Dot and Blot hemorrhages"},
+{"code":"Flame haemorrhages"},
 {"code":"Hard Exudates"},
-{"code":"Soft Exudates"},
-{"code":"CSME"},
+{"code":"Soft Exudates/CWS"},
+{"code":"DME"},
+{"code":"RPE changes"},
+{"code":"Macular hole"},
 {"code":"CME"},
-{"code":"DME"}
+{"code":"CSME"}
+];
+
+export const retinaCodes = [
+{"code":"WNL"},
+{"code":"No diabetic maculopathy"},
+{"code":"Drusen"},
 ];
 
 export const peripheryCodes = [
 {"code":"WNL"},
+{"code":"Choroidal Nevus"},
+{"code":"Pavingstone degeneration"},
+{"code":"WWP"},
 {"code":"Lattice degeneration"},
 {"code":"Retinal hole"},
 {"code":"Retinal tear"},
-{"code":"Retinal detachment"},
-{"code":"WWP"},
-{"code":"Blot hemorrhages"}
+{"code":"Retinal detachment"}
 ];

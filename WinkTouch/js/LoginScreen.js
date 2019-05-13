@@ -5,13 +5,14 @@
 
 import React, {Component} from 'react';
 import {Image,Text,TextInput,View, TouchableOpacity,ScrollView, AsyncStorage, PanResponder, StatusBar, KeyboardAvoidingView, InteractionManager } from 'react-native';
+import codePush from 'react-native-code-push';
 import type { Account, Store , User , Registration } from './Types';
 import base64 from 'base-64';
 import {styles, fontScale} from './Styles';
 import { Button, TilesField } from './Widgets';
-import { strings, switchLanguage, getUserLanguage } from './Strings';
+import { strings, switchLanguage, getUserLanguage, getUserLanguageIcon } from './Strings';
 import { restUrl, searchItems, handleHttpError } from './Rest';
-import { dbVersion, touchVersion, bundleVersion, deploymentVersion} from './EhrApp';
+import { dbVersion, touchVersion, bundleVersion, deploymentVersion} from './Version';
 import { fetchCodeDefinitions} from './Codes';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';
@@ -59,7 +60,7 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__?'12345':undefined
+      password: __DEV__?'test':undefined
     };
   }
 
@@ -175,7 +176,11 @@ export class LoginScreen extends Component {
     const account: ?Account = this.getAccount();
     const store: ?Store = this.getStore();
     if (!account || !store) return;
-    let loginData = {accountsId: (account.id).toString(), storeId: (store.storeId).toString()};
+    let loginData = {
+      accountsId: (account.id).toString(),
+      storeId: (store.storeId).toString(),
+      expiration : 24 * 365
+    }
     try {
         let httpResponse = await fetch(doctorLoginUrl, {
             method: 'POST',
@@ -183,7 +188,6 @@ export class LoginScreen extends Component {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'Accept-language': getUserLanguage(),
-                'expiration' : (24 * 31 * 12).toString(), //1 year
                 'Authorization': 'Basic ' + base64.encode(userName + ':' + password)
             },
             body: JSON.stringify(loginData)
@@ -234,8 +238,8 @@ export class LoginScreen extends Component {
             </View>
           </KeyboardAvoidingView>
         </View>
-        <TouchableOpacity style={styles.flag} onPress={this.switchLanguage}><Text style={styles.flagFont}>{strings.getLanguage()==='fr'?'🇫🇷':'🇺🇸'}</Text></TouchableOpacity>
-        <Text style={{position: 'absolute', bottom:20 * fontScale, right:  20 * fontScale, fontSize: 14 * fontScale}}>Version {deploymentVersion}.{touchVersion}.{bundleVersion}.{dbVersion}</Text>
+        <TouchableOpacity style={styles.flag} onPress={this.switchLanguage}><Text style={styles.flagFont}>{getUserLanguageIcon()}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.version} onLongPress={() => codePush.restartApp()}><Text style={styles.versionFont}>Version {deploymentVersion}.{touchVersion}.{bundleVersion}.{dbVersion}</Text></TouchableOpacity>
       </View>
   }
 }

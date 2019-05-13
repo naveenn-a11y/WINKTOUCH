@@ -17,4 +17,5 @@ export const colorVisionDiagnoseCodes = [
 {"code":"Protanopia"},
 {"code":"Tritanomaly"},
 {"code":"Tritanopia"},
+{"code":"Monochromacy"}
 ];

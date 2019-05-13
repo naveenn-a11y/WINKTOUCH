@@ -12,10 +12,12 @@ import { Button } from './Widgets';
 import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo } from './Patient';
 import { PrescriptionCard } from './Assessment';
 import { searchItems } from './Rest';
-import { cacheItemsById } from './DataCache';
+import { cacheItemsById, getCachedItem } from './DataCache';
 import { fetchAppointments, AppointmentSummary, rescheduleAppointment } from './Appointment';
 import { hourDifference, parseDate, now } from './Util';
-import { getVisitHistory } from './Visit';
+import { VisitHistoryCard, fetchVisitHistory, VisitHistory } from './Visit';
+import { PatientMedicationCard } from './Medication';
+import { PatientRefractionCard } from './Refraction';
 
 const maxPatientListSize : number = 40;
 
@@ -26,6 +28,7 @@ export async function searchPatients(searchText: string) : Patient[] {
     let restResponse = await searchItems('Patient/list', searchCriteria);
     let patients: Patient[] = restResponse.patientList;
     if (patients && patients.length>40) patients=patients.slice(0, maxPatientListSize);
+    cacheItemsById(patients);
     return patients;
 }
 
@@ -73,12 +76,12 @@ export class FindPatient extends Component {
       this.props.onSelectPatient(undefined);
       this.setState({showPatientList: false, patients: []});
       const patients : Patient[] = await searchPatients(this.state.searchCriterium);
+      LayoutAnimation.spring();
       this.setState({
         showPatientList: patients!=undefined && patients.length>0,
         showNewPatientButton: patients===undefined || patients.length<maxPatientListSize,
         patients
       });
-      LayoutAnimation.spring();
   }
 
   newPatient() {
@@ -97,19 +100,10 @@ export class FindPatient extends Component {
         patients={this.state.patients}
         visible={this.state.showPatientList}
         onSelect={this.props.onSelectPatient} />
-      {this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
+      {__DEV__ && this.state.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
     </View>
   }
 }
-
-function getLastPrescriptionVisit(patientId: string) : ?Visit {
-  if (patientId===undefined) return undefined;
-  const visitHistory : ?Visit[] = getVisitHistory(patientId);
-  if (!visitHistory) return undefined;
-  const lastPrescriptionVisit :?Visit = visitHistory.find((visit: Visit) => visit.prescription!==undefined);
-  return lastPrescriptionVisit;
-}
-
 
 export class FindPatientScreen extends Component {
   props: {
@@ -121,9 +115,10 @@ export class FindPatientScreen extends Component {
     nextNavigation?: {action: string, params: any}
   }
   state: {
-    patientInfo?: PatientInfo,
-    appointments?: Appointment[],
-    lastPrescriptionVisit?: Visit
+    patientInfo: ?PatientInfo,
+    appointments: ?Appointment[],
+    visitHistory: ?string[],
+    patientDocumentHistory: ?string[]
   }
 
   constructor(props: any) {
@@ -132,7 +127,8 @@ export class FindPatientScreen extends Component {
     this.state = {
       patientInfo: undefined,
       appointments: undefined,
-      lastPrescriptionVisit: undefined
+      visitHistory: undefined,
+      patientDocumentHistory: undefined,
     }
   }
 
@@ -140,25 +136,40 @@ export class FindPatientScreen extends Component {
     this.params = nextProps.navigation.state.params;
   }
 
-
-  async selectPatient(patient: Patient) {
-    const patientInfo : ?PatientInfo = patient?await fetchPatientInfo(patient.id):undefined;
-    const lastPrescriptionVisit :?Visit = patient && getLastPrescriptionVisit(patient.id);
-    if (this.params.showAppointments && patient && patient.id) {
-      let appointments = await fetchAppointments(undefined, undefined, 100, patient.id);
-      this.setState({patientInfo, appointments, lastPrescriptionVisit}, this.refreshPatientVisits);
-    } else {
-      this.setState({patientInfo, lastPrescriptionVisit}, this.refreshPatientVisits);
+  async showVisitHistory(patientId: string) : void {
+    let visitHistory : ?string[] = getCachedItem('visitHistory-'+patientId);
+    if (!visitHistory) {
+      visitHistory = await fetchVisitHistory(patientId);
+    }
+    if (this.state.patientInfo===undefined || patientId!==this.state.patientInfo.id) {
+      return;
+    }
+    LayoutAnimation.easeInEaseOut();
+    const patientDocumentHistory : ?string[] = getCachedItem('patientDocumentHistory-'+patientId);
+    this.setState({visitHistory, patientDocumentHistory});
+    if (this.params.showAppointments) {
+      let appointments : ?Appointment[] = await fetchAppointments(undefined, undefined, 1, patientId);
+      if (this.state.patientInfo===undefined || patientId!==this.state.patientInfo.id)
+        return;
+      LayoutAnimation.easeInEaseOut();
+      this.setState({appointments});
     }
   }
 
-  async refreshPatientVisits() {
-    if (!this.state.patientInfo) return;
-
-  }
-
-  updatePatientInfo = (patientInfo: PatientInfo) : void => {
-    this.setState({patientInfo});
+  async selectPatient(patient: Patient) {
+    if (!patient) {
+      if (!this.state.patientInfo) return;
+      LayoutAnimation.easeInEaseOut();
+      this.setState({patientInfo: undefined, appointments: undefined, visitHistory: undefined, patientDocumentHistory: undefined});
+      return;
+    }
+    let patientInfo : ?PatientInfo = getCachedItem(patient.id);
+    LayoutAnimation.easeInEaseOut();
+    this.setState({patientInfo, appointments: undefined, visitHistory: undefined, patientDocumentHistory: undefined});
+    patientInfo = await fetchPatientInfo(patient.id);
+    if (this.state.patientInfo===undefined || patient.id!==this.state.patientInfo.id)
+      return;
+    this.setState({patientInfo}, () => this.showVisitHistory(patient.id));
   }
 
   createPatient() {
@@ -195,20 +206,20 @@ export class FindPatientScreen extends Component {
 
   renderNextAction() {
     if (!this.params.nextNavigation) return null;
-    return <View style={styles.tabCard}>
+    return <View>
         {this.renderAppointments()}
         <View style={styles.centeredRowLayout}><Button title={strings.startNewVisit} onPress={() => this.startVisit()} /></View>
     </View>
   }
 
   render() {
-    return <ScrollView>
+    return <ScrollView keyboardShouldPersistTaps="handled">
       <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={()=>this.newPatient()} />
       {this.state.patientInfo && <View style={styles.separator}>
-        <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} />
-        {this.params.showBilling && <PatientBillingInfo patient={this.state.patientInfo} />}
-        <PrescriptionCard visit={this.state.lastPrescriptionVisit} editable={false}/>
+        <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} style={styles.tabCardS}/>
         {this.renderNextAction()}
+        <VisitHistory patientInfo={this.state.patientInfo} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
+                      readonly={true} navigation={this.props.navigation} />
       </View>}
     </ScrollView>
   }

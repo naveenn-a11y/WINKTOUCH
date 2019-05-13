@@ -24,7 +24,7 @@ const examDefinitionDefinition : FieldDefinition[] = [
 
 const mappedFields : string[] = ['patient.lastName', 'patient.firstName', 'visit.prescription.od.sph', 'visit.prescription.os.sph','visit.prescription.od.cyl','visit.prescription.os.cyl',
   'visit.prescription.od.axis','visit.prescription.os.axis','visit.prescrition.od.add','visit.prescription.os.add','visit.purchase.add'];
-const types : string[] = ['email-address','numeric','phone','pastDate','futureDate','futureDateTime'];
+const types : string[] = ['email-address','numeric','phone','pastDate','recentDate','futureDate','futureDateTime'];
 
 export async function fetchExamDefinition(examDefintionId: string) : ExamDefinition {
   let examDefinition = await fetchItemById(examDefintionId);
@@ -59,12 +59,13 @@ export function getExamDefinition(examName: string) : ExamDefinition {
   return examDefinition;
 }
 
-export function overwriteExamDefinition(exam: Exam) : void { //TODO remove after beta
-    if (!exam || !exam.customExamDefinitionId) return;
-    const definition : ?ExamDefinition = getCachedItem(exam.customExamDefinitionId);
-    if (!definition) return;
-    exam.definition = definition;
-}
+//export function overwriteExamDefinition(exam: Exam) : void { //TODO remove after beta
+//    //if (__DEV__) return;
+//    if (!exam || !exam.customExamDefinitionId) return;
+//    const definition : ?ExamDefinition = getCachedItem(exam.customExamDefinitionId);
+//    if (!definition) return;
+//    exam.definition = definition;
+//}
 
 function newGroupDefinition(label: string) : GroupDefinition {
     return {name: label, fields: []}
@@ -664,7 +665,7 @@ export class TemplatesScreen extends Component {
 
   render() {
     return <View style={styles.centeredScreenLayout}>
-      <View style={styles.columnLayout}>
+      <View style={styles.flexColumnLayout}>
         <Text style={styles.screenTitle}>Templates</Text>
         <View style={styles.flexRow}>
           <ItemsList title='Pre Tests' items={this.state.preExamDefinitions.filter(this.isEditable)} fieldDefinitions={examDefinitionDefinition}

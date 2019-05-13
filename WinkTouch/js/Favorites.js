@@ -5,7 +5,8 @@
 
 import React , {PureComponent} from 'react';
 import {AlertIOS, View, Text, Button, TouchableOpacity} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/AntDesign';
+import RNBeep from 'react-native-a-beep';
 import type { ExamDefinition, ExamPredefinedValue, Exam, Visit} from './Types';
 import { styles, selectionFontColor } from './Styles';
 import { strings } from './Strings';
@@ -114,7 +115,7 @@ export class Star extends PureComponent {
     style: any
   }
   render() {
-    return <Icon name="star-border" style={this.props.style} color={selectionFontColor}/>
+    return <Icon name='staro' style={this.props.style} color={selectionFontColor}/>
   }
 }
 
@@ -123,7 +124,16 @@ export class Cross extends PureComponent {
     style: any
   }
   render() {
-    return <Icon name="clear" style={this.props.style} color={selectionFontColor}/>
+    return <Icon name='clear' style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
+export class Garbage extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name='delete' style={this.props.style} color={selectionFontColor}/>
   }
 }
 
@@ -132,7 +142,7 @@ export class Plus extends PureComponent {
     style: any
   }
   render() {
-    return <Icon name="add" style={this.props.style} color={selectionFontColor}/>
+    return <Icon name='plus' style={this.props.style} color={selectionFontColor}/>
   }
 }
 
@@ -141,10 +151,85 @@ export class Refresh extends PureComponent {
     style: any
   }
   render() {
-    return <Icon name="refresh" style={this.props.style} color={selectionFontColor}/>
+    return <Icon name='reload1' style={this.props.style} color={selectionFontColor}/>
   }
 }
 
+export class Undo extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name='back' style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
+export class Camera extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name='camerao' style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
+export class DrawingIcon extends PureComponent {
+  props: {
+    style: any,
+    color: string
+  }
+  static defaultProps = {
+    color: selectionFontColor
+  }
+
+  render() {
+    //return <Icon name='show-chart' style={this.props.style} color={this.props.color}/>
+    return <Icon name='picture' style={this.props.style} color={this.props.color}/>
+  }
+}
+
+export class PaperClip extends PureComponent {
+  props: {
+    style: any,
+    color: string
+  }
+  static defaultProps = {
+    color: selectionFontColor
+  }
+  render() {
+    return <Icon name='paperclip' style={this.props.style} color={this.props.color}/>
+  }
+}
+
+export class CopyRow extends PureComponent {
+  props: {
+    onPress: () => void,
+    style: any,
+    color: string
+  }
+  static defaultProps = {
+    color: selectionFontColor
+  }
+
+  render() {
+    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
+  }
+}
+
+export class CopyColumn extends PureComponent {
+  props: {
+    onPress: () => void,
+    style: any,
+    color: string
+  }
+  static defaultProps = {
+    color: selectionFontColor
+  }
+
+  render() {
+    return  <TouchableOpacity onPress={this.props.onPress}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
+  }
+}
 
 
 export class Favorites extends PureComponent {
@@ -162,7 +247,7 @@ export class Favorites extends PureComponent {
             <TouchableOpacity key={index}
               onPress={() => {this.props.onSelectFavorite(favorite)}}
               onLongPress={() => this.props.onRemoveFavorite(favorite)}>
-              <Text color={selectionFontColor} key={index} style={styles.linkButton}>{favorite.name}</Text>
+              <Text key={index} style={styles.linkButton}>{favorite.name}</Text>
             </TouchableOpacity>
           )}
         </View>

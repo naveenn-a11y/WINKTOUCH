@@ -4,9 +4,9 @@
 'use strict';
 
 export const iopDrugCodes = [
-{"code":"Fluress"},
-{"code":"Fluorcein sodium"},
-{"code":"Alcaine"}
+{"code":"Benoxinate + Fluorescein"},
+{"code":"Proparacaine + Fluorescein"},
+{"code":"Proparacaine"}
 ];
 
 export const tonometryTestCodes = [

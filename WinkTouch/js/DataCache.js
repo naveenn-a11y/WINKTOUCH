@@ -14,6 +14,14 @@ export function cacheItem(id: string, data: any) {
     //__DEV__ && console.log('Removing cached '+id+'.');
   }
   else {
+    let existingData = getCachedItem(id);
+    if (existingData) {
+      if (existingData.version) {
+        if (data.version===undefined || data.version<existingData.version) {
+          return;
+        }
+      }
+    }
     cache.set(id, data);
     //__DEV__ && console.log('Caching '+id+': '+JSON.stringify(data).substr(0, 80)+'...');
   }

@@ -1,10 +1,10 @@
 import { StyleSheet, Dimensions, Platform, UIManager } from 'react-native';
 
-export const windowWidth : number = Dimensions.get('window').width;
-export const windowHeight : number = Dimensions.get('window').height;
+export const windowWidth : number = Dimensions.get('window').width<Dimensions.get('window').height?Dimensions.get('window').height:Dimensions.get('window').width;
+export const windowHeight : number = Dimensions.get('window').height<Dimensions.get('window').width?Dimensions.get('window').height:Dimensions.get('window').width;
 
-export const fontScale = 0.80 * Math.min(windowWidth / 1024,
-  windowHeight / 768)
+export const fontScale = 0.75 * Math.min(1, Math.min(windowWidth / 1024, windowHeight / 768));
+__DEV__ && console.log('Device resolution: '+windowWidth+'x'+windowHeight+' -> scale='+fontScale);
 
 export const isIos = Platform.OS === 'ios';
 export const isAndroid = Platform.OS === 'android';
@@ -14,6 +14,7 @@ if (isAndroid) {
 }
 
 export const backgroundColor = 'white';
+export const sectionBackgroundColor = '#f2f2f2'
 export const fontColor = undefined;
 export const selectionColor = '#5ed4d4';
 export const selectionFontColor : string = '#1db3b3';
@@ -22,7 +23,10 @@ export const selectionBackgroundColor = '#1db3b3';
 const fieldMinWidth = 100;
 
 const tile = {
-    padding: 13 * fontScale,
+    height: 70 * fontScale,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5 * fontScale,
     marginHorizontal: 5 * fontScale,
     minWidth: 150 * fontScale,
     marginVertical: 5 * fontScale,
@@ -65,6 +69,11 @@ export const styles = StyleSheet.create({
         backgroundColor: backgroundColor,
     },
     paragraph: {
+        flex: 100,
+        flexDirection: 'column',
+        marginHorizontal: 10 * fontScale,
+    },
+    paragraphBorder: {
         flex: 100,
         flexDirection: 'column',
         marginHorizontal: 10 * fontScale,
@@ -161,6 +170,22 @@ export const styles = StyleSheet.create({
         fontSize: 28 * fontScale,
         padding: 10 * fontScale
     },
+    checkButtonLayout: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 0 * fontScale
+    },
+    checkButtonLabel: {
+      fontSize: 18 * fontScale,
+      textAlign: 'center',
+      color: fontColor
+    },
+    checkButtonIcon: {
+        fontSize: 36 * fontScale,
+        textAlign: 'center',
+        marginHorizontal: 5 * fontScale,
+    },
     instructionText: {
         fontSize: 24 * fontScale,
         padding: 10 * fontScale,
@@ -250,9 +275,6 @@ export const styles = StyleSheet.create({
       marginVertical: 3 * fontScale,
       backgroundColor: 'orange'
     },
-    checkButton: {
-      paddingLeft: 4 * fontScale
-    },
     rowLayout: {
         flexDirection: 'row'
     },
@@ -272,8 +294,10 @@ export const styles = StyleSheet.create({
         flex: 200,
         flexDirection: 'row',
     },
-    flexColumn: {
-        flex: 100
+    flexColumnLayout: {
+        flex: 100,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
     },
     centeredRowLayout: {
         flexDirection: 'row',
@@ -282,9 +306,9 @@ export const styles = StyleSheet.create({
         margin: 0 * fontScale
     },
     columnLayout: {
-        flex: 100,
+        flex: 0,
         flexDirection: 'column',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
     },
     centeredColumnLayout: {
         flexDirection: 'column',
@@ -320,7 +344,14 @@ export const styles = StyleSheet.create({
         padding: 3 * fontScale
     },
     formRow500: {
-        width: 500 * fontScale,
+        width: 520 * fontScale,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        padding: 3 * fontScale
+    },
+    formRowL: {
+        width: 680 * fontScale,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -375,6 +406,37 @@ export const styles = StyleSheet.create({
         borderColor: '#dddddd',
         margin: 3 * fontScale
     },
+    formFieldError: {
+        flex: 100,
+        fontSize: 20 * fontScale,
+        height: 36 * fontScale,
+        paddingTop: 6 * fontScale,
+        paddingBottom: 4 * fontScale,
+        paddingLeft: 6 * fontScale,
+        paddingRight: 3 * fontScale,
+        textAlign: 'left',
+        backgroundColor: 'white',
+        borderWidth: 2 * fontScale,
+        borderRadius: 6 * fontScale,
+        borderColor: '#ff0000',
+        margin: 3 * fontScale
+    },
+    formFieldReadOnly: {
+        flex: 100,
+        color: '#aaaaaa',
+        fontSize: 20 * fontScale,
+        height: 36 * fontScale,
+        paddingTop: 6 * fontScale,
+        paddingBottom: 4 * fontScale,
+        paddingLeft: 6 * fontScale,
+        paddingRight: 3 * fontScale,
+        textAlign: 'left',
+        backgroundColor: 'white',
+        borderWidth: 1 * fontScale,
+        borderRadius: 6 * fontScale,
+        borderColor: '#eeeeee',
+        margin: 3 * fontScale
+    },
     formFieldLines: {
         flex: 100,
         fontSize: 20 * fontScale,
@@ -414,14 +476,24 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         fontSize: 20 * fontScale,
         textAlign: 'center',
-        margin: 4 * fontScale
+        margin: 4 * fontScale,
+        marginTop: 20 * fontScale,
+        marginBottom: 0 * fontScale
     },
     formTableColumnHeaderWide: {
         flex: 240,
         flexDirection: 'row',
         fontSize: 20 * fontScale,
         textAlign: 'center',
-        margin: 4 * fontScale
+        margin: 4 * fontScale,
+        marginTop: 20 * fontScale,
+        marginBottom: 0 * fontScale
+    },
+    formTableColumnHeaderSmall: {
+        width:30*fontScale
+    },
+    formTableColumnHeaderFlat: {
+        width:0*fontScale
     },
     buttonsRowLayout: {
         flex: 0,
@@ -482,37 +554,7 @@ export const styles = StyleSheet.create({
       paddingBottom: 20 *fontScale
     },
     popupTile: {
-        padding: 20 * fontScale,
-        margin: 10 * fontScale,
-        backgroundColor: 'white',
-        borderRadius: 10 * fontScale,
-        shadowRadius: 4 * fontScale,
-        shadowColor: '#000000',
-        shadowOpacity: 0.3,
-        shadowOffset: {
-            height: 10 * fontScale,
-            width: 3 * fontScale
-        }
-    },
-    popupTileSelected: {
-        shadowColor: 'blue',
-        padding: 20 * fontScale,
-        margin: 10 * fontScale,
-        backgroundColor: 'white',
-        borderRadius: 10 * fontScale,
-        shadowRadius: 10 * fontScale,
-        shadowOpacity: 0.3,
-        shadowOffset: {
-            height: 3 * fontScale,
-            width: 3 * fontScale
-        }
-    },
-    popupNumberTile: {
         ...tile
-    },
-    popupClearTile: {
-        ...tile,
-        padding: 11.5 * fontScale
     },
     nextTile: {
         position: 'absolute',
@@ -540,19 +582,19 @@ export const styles = StyleSheet.create({
     selectedTab: tabStyle(true),
     tabText: {
         fontSize: 18 * fontScale,
-        color: 'white',
-        flexWrap: 'nowrap'
-    },
-    tabTextSelected: {
-        fontSize: 18 * fontScale,
         flexWrap: 'nowrap',
         color: selectionFontColor,
         textShadowColor: selectionColor,
         textShadowRadius: 0 * fontScale,
         textShadowOffset: {
-        height: 0.3 * fontScale,
-        width: 0.5 * fontScale
-      }
+          height: 0.3 * fontScale,
+          width: 0.5 * fontScale
+        }
+    },
+    tabTextSelected: {
+        fontSize: 18 * fontScale,
+        color: 'white',
+        flexWrap: 'nowrap'
     },
     tabCard: {
         flexGrow: 100,
@@ -561,26 +603,57 @@ export const styles = StyleSheet.create({
         minHeight: 260 * fontScale,
         borderRadius: 30 * fontScale,
         borderColor: selectionFontColor,
-        borderWidth: 3,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale,
+    },
+    tabCardS: {
+        flexGrow: 100,
+        padding: 20 * fontScale,
+        minHeight: 100 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale,
+    },
+    errorCard: {
+        flexGrow: 0,
+        padding: 15 * fontScale,
+        paddingLeft: 50 * fontScale,
+        minHeight: 40 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: 'red',
+        borderWidth: 3 * fontScale,
+        margin: 7 * fontScale,
+    },
+    buttonsCard: {
+        padding: 10 * fontScale,
+        paddingBottom: 40 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
         margin: 7 * fontScale,
     },
     examsBoard: {
+        backgroundColor: sectionBackgroundColor,
         flexGrow: 100,
+        minWidth: 150 * fontScale,
+        minHeight: 185 * fontScale,
         padding: 10 * fontScale,
         paddingLeft: 50 * fontScale,
         borderRadius: 30 * fontScale,
         borderColor: selectionFontColor,
-        borderWidth: 3,
+        borderWidth: 2*fontScale,
         margin: 7 * fontScale,
     },
     startVisitCard: {
+      backgroundColor: sectionBackgroundColor,
       flexGrow: 100,
       padding: 10 * fontScale,
       paddingBottom: 40 * fontScale,
       minHeight: 160 * fontScale,
       borderRadius: 30 * fontScale,
       borderColor: selectionFontColor,
-      borderWidth: 3,
+      borderWidth: 2*fontScale,
       margin: 7 * fontScale,
     },
     flow: flow,
@@ -616,13 +689,9 @@ export const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'flex-start'
     },
-    examCard: examCardStyle('gray', false),
-    todoExamCard: examCardStyle('red', false),
-    todoExamCardExpanded: examCardStyle('blue', true),
-    startedExamCard: examCardStyle('orange', false),
-    startedExamCardExpanded: examCardStyle('orange', true),
-    finishedExamCard: examCardStyle('green', false),
-    finishedExamCardExpanded: examCardStyle('green', true),
+    examCard: examCardStyle('gray'),
+    todoExamCard: examCardStyle('orange'),
+    finishedExamCard: examCardStyle('green'),
     board: boardStyle('#dddddd'),
     boardSelected: boardStyle(selectionBackgroundColor),
     boardS: boardStyle('#dddddd','S'),
@@ -729,6 +798,11 @@ export const styles = StyleSheet.create({
         backgroundColor: selectionColor,
         margin: 3 * fontScale
     },
+    listText: {
+        fontSize: 18 * fontScale,
+        flexWrap: 'nowrap',
+        textAlign: 'left',
+    },
     listTextSelected: {
         fontSize: 18 * fontScale,
         fontWeight: 'bold',
@@ -770,12 +844,37 @@ export const styles = StyleSheet.create({
       fontSize: 30 * fontScale,
       padding:20 * fontScale
     },
+    version: {
+      position: 'absolute',
+      bottom:20 * fontScale,
+      right:  20 * fontScale,
+      fontSize: 14 * fontScale
+    },
+    versionFont: {
+      fontSize: 14 * fontScale
+    },
     screenIcon: {
       padding: 20 * fontScale,
       fontSize: 30 * fontScale
     },
     groupIcon: {
       padding: 15 * fontScale,
+      fontSize: 25 * fontScale
+    },
+    voiceIconMulti: {
+      padding: 25 * fontScale,
+      paddingVertical: 40 * fontScale,
+      fontSize: 45 * fontScale,
+      margin: -20 * fontScale,
+    },
+    voiceIcon: {
+      padding: 25 * fontScale,
+      paddingVertical: 20 * fontScale,
+      fontSize: 45 * fontScale,
+      margin: -20 * fontScale,
+    },
+    textIcon: {
+      padding: 0 * fontScale,
       fontSize: 25 * fontScale
     },
     examIcons: {
@@ -794,6 +893,88 @@ export const styles = StyleSheet.create({
     },
     separator: {
       marginTop: 10*fontScale
+    },
+    popupFullScreen: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5FCFF',
+    },
+    scanner: {
+      width: 600 * fontScale,
+      height: 800 * fontScale,
+      borderColor: 'orange',
+      borderWidth: 1
+    },
+    bigImage: {
+      width: 1000 * fontScale,
+      height: 750 * fontScale
+    },
+    floatingContainer: {
+      position: 'absolute',
+      bottom: 0 * fontScale,
+      right: 0 * fontScale,
+      width:210*fontScale
+    },
+    floatingButton: {
+      position: 'absolute',
+      bottom: 0 * fontScale,
+      right: 0 * fontScale,
+      backgroundColor: 'orange'
+    },
+    floatingSubButton: {
+      flex:1,
+      width: null,
+      shadowOpacity: 0.3,
+      shadowOffset: {
+          height: 6 * fontScale,
+          width: 2 * fontScale
+      },
+      backgroundColor: 'orange'
+    },
+    bottomEndOfRow: {
+      position: 'absolute',
+      bottom: 0 * fontScale,
+      right: 0 * fontScale
+    },
+    copyRow: {
+      position: 'absolute',
+      bottom: -20 * fontScale,
+      right: -5 * fontScale,
+      fontSize: 28 * fontScale,
+      fontWeight: 'normal',
+      padding: 5*fontScale,
+      transform: [{rotate: '90deg'}]
+    },
+    copyColumn: {
+      position: 'absolute',
+      left: -25 * fontScale,
+      top: -12 * fontScale,
+      fontSize: 28 * fontScale,
+      fontWeight: 'normal',
+      borderWidth: 0,
+      padding: 8*fontScale,
+      paddingHorizontal: 15 * fontScale
+    },
+    patientDocument: {
+      flex:1,
+      height: 1000*fontScale,
+      margin: 10 * fontScale,
+      marginRight: 15 * fontScale,
+      backgroundColor: sectionBackgroundColor
+    },
+    assessmentCard: {
+      padding: 10 * fontScale,
+      borderRadius: 3 * fontScale,
+      margin: 10 * fontScale,
+      backgroundColor: sectionBackgroundColor,
+      shadowRadius: 8 * fontScale,
+      shadowColor: selectionColor,
+      shadowOpacity: 0.3,
+      shadowOffset: {
+          height: 3 * fontScale,
+          width: 1 * fontScale
+      }
     }
 });
 
@@ -825,13 +1006,13 @@ function tabStyle(isSelected: boolean) {
         marginBottom: 8 * fontScale,
         marginLeft: 12 * fontScale,
         marginRight: 4 * fontScale,
-        backgroundColor: isSelected?'white':selectionColor,
-        shadowRadius: isSelected ? 3 * fontScale : 3 * fontScale,
-        shadowColor: isSelected ? selectionColor : 'gray',
+        backgroundColor: !isSelected?'white':selectionColor,
+        shadowRadius: !isSelected ? 3 * fontScale : 3 * fontScale,
+        shadowColor: !isSelected ? selectionColor : 'gray',
         shadowOpacity: 0.9,
         shadowOffset: {
-            height: isSelected ? 0.5 : 1,
-            width: isSelected ? 0.3 : 0.5
+            height: !isSelected ? 0.5 : 1,
+            width: !isSelected ? 0.3 : 0.5
         }
     };
 }
@@ -841,8 +1022,9 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
     return {
         flex: 0,
         backgroundColor: 'white',
-        alignSelf: 'center',
+        alignSelf: 'flex-start',
         padding: 10 * fontScale,
+        paddingTop: (size==='S'?36:10) * fontScale,
         minWidth: minWidth * fontScale,
         minHeight: minHeight *fontScale,
         borderRadius: 30 * fontScale,
@@ -859,13 +1041,23 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
     }
 }
 
-function examCardStyle(shadowColor: Color, isExpanded: boolean) {
+export function imageStyle(size: string, aspecRatio: number) {
+  const width : number = size === 'XL'?1110:size==='L'?680:size==='M'?520:size==='S'?340:340;
+  return {
+    width: width*fontScale,
+    height: width*fontScale/aspecRatio,
+    resizeMode: 'contain'
+  }
+
+}
+
+function examCardStyle(shadowColor: Color) {
     return {
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         paddingHorizontal: 14 * fontScale,
         paddingBottom: 8 * fontScale,
-        minWidth: (isExpanded ? 390 : 130) * fontScale,
+        minWidth: 130 * fontScale,
         minHeight: 130 * fontScale,
         borderRadius: 10,
         margin: 10,

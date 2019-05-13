@@ -12,19 +12,26 @@ import {GlassesDetail} from './Refraction';
 import { FormRow, FormField, FormTextInput } from './Form';
 import { getCachedItem } from './DataCache';
 import { ItemsCard, GroupedCard, formatLabel } from './Items';
-import { deepClone} from './Util';
+import { storeExam } from './Exam';
+import { Microphone } from './Voice';
+import { getDataType } from './Rest';
 
 export class AssessmentCard extends PureComponent {
   props: {
     exam: Exam,
     navigation: any,
-    appointmentStateKey: string
+    appointmentStateKey: string,
+    disabled: ?boolean
+  }
+
+  componentWillReceiveProps(){
+    this.forceUpdate(); //This is to force redraw when returning to overview screen after exam got updated
   }
 
   render() {
     if (!this.props.exam) return null;
-    return <TouchableOpacity onPress={() => this.props.navigation.navigate('exam', {exam: this.props.exam, appointmentStateKey: this.props.appointmentStateKey})}>
-      <View style={styles.card}>
+    return <TouchableOpacity disabled={this.props.disabled} onPress={() => this.props.navigation.navigate('exam', {exam: this.props.exam, appointmentStateKey: this.props.appointmentStateKey})}>
+      <View style={styles.assessmentCard}>
         <View style={styles.centeredRowLayout}>
             <Text style={styles.sectionTitle}>{formatLabel(this.props.exam.definition)}</Text>
         </View>
@@ -46,13 +53,13 @@ export class PrescriptionCard extends Component {
 
   render() {
     if (this.props.visit===undefined) return null;
-    return <View style={styles.card}>
+    return <View style={styles.assessmentCard}>
         {this.props.title && <View style={styles.centeredRowLayout}>
           <Text style={styles.sectionTitle}>{this.props.title}</Text>
         </View>}
         <View style={styles.formRow500}>
           <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} glassesRx={this.props.visit.prescription}
-            style={styles.columnLayout} editable={false}/>
+            style={styles.flexColumnLayout} editable={false} hasAdd={true}/>
         </View>
       </View>
   }
@@ -69,7 +76,7 @@ export class RecallCard extends Component {
   }
 
   render() {
-    return <View><View style={styles.card}>
+    return <View><View style={styles.assessmentCard}>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.sectionTitle}>{strings.recall}</Text>
         </View>
@@ -88,7 +95,7 @@ export class RecallCard extends Component {
 
 export class ReferralCard extends Component {
   render() {
-    return <View><View style={styles.card}>
+    return <View><View style={styles.assessmentCard}>
         <View style={styles.centeredRowLayout}>
           <Text style={styles.sectionTitle}>{strings.referral}</Text>
         </View>
@@ -98,6 +105,63 @@ export class ReferralCard extends Component {
             </View>
             <View style={styles.formRow500}>
               <FormTextInput label='Summary' multiline={true} />
+            </View>
+        </View>
+    </View></View>
+  }
+}
+
+export class VisitSummaryCard extends Component {
+  props: {
+    exam: Exam,
+    editable?: boolean,
+  }
+  static defaultProps = {
+    editable: true
+  }
+
+  state: {
+    exam: Exam
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      exam: this.props.exam
+    }
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({
+      exam: nextProps.exam
+    });
+  }
+
+  async storeExam(exam: Exam) {
+    this.setState({exam});
+    exam = await storeExam(exam, undefined, undefined);
+    if (exam.errors) {
+      alert(strings.formatString(strings.storeItemError, getDataType(this.props.exam.id).toLowerCase()));
+    } else {
+      this.setState({exam});
+    }
+  }
+
+  async updateSummary(resume: string) {
+    let exam : Exam = this.state.exam;
+    exam.resume = resume;
+    this.storeExam(exam);
+  }
+
+  render() {
+    if (!this.state.exam) return null;
+    return <View><View style={styles.assessmentCard}>
+        <View style={styles.centeredRowLayout}>
+          <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
+        </View>
+        <View style={styles.columnLayout}>
+            <View style={styles.formRowL}>
+              <FormTextInput label='' multiline={true} readonly={!this.props.editable}  value={this.state.exam.resume} onChangeText={(text: ?string) => this.updateSummary(text)} />
             </View>
         </View>
     </View></View>

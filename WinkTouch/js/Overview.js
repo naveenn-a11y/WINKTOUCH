@@ -12,18 +12,31 @@ import {Button} from './Widgets';
 import { StartVisitButtons } from './Visit';
 import { getStore } from './DoctorApp';
 import { now } from './Util';
+import { strings } from './Strings';
 
 class MainActivities extends Component {
   props: {
-      navigation: any
+      navigation: any,
+      onLogout: () => void
   }
 
-  startWalkinVisit = (visitType: string, isPrevisit: boolean) => {
-      this.props.navigation.navigate('walkin', {visitType, nextNavigation: {action: 'appointment', title: visitType}, showAppointments: true});
+  startWalkinVisit = () => {
+    this.props.navigation.navigate('walkin', {nextNavigation: {action: 'appointment', showAppointments: true}});
+  }
+
+  openPatientFile = (visitType: string, isPrevisit: boolean) => {
+    this.props.navigation.navigate('cabinet');
   }
 
   render() {
-    return <StartVisitButtons isPreVisit={true} title='Walk in' onStartVisit={this.startWalkinVisit}/>
+
+    return <View style={styles.startVisitCard}>
+        <View style={styles.flow}>
+            <Button title={strings.openFile} onPress={this.openPatientFile} />
+            <Button title={strings.walkIn} onPress={this.startWalkinVisit} />
+            <Button title={strings.logout} onPress={this.props.onLogout} />
+        </View>
+    </View>
   }
 }
 
@@ -39,6 +52,7 @@ export class OverviewScreen extends PureComponent {
         screenProps: {
           doctorId: string,
           storeId: string,
+          onLogout: () => void
         }
     }
     state: {
@@ -71,7 +85,7 @@ export class OverviewScreen extends PureComponent {
         }
         this.lastRefresh=now().getTime();
         InteractionManager.runAfterInteractions(() => this.props.navigation.setParams({refreshAppointments: false}));
-        const appointments = await fetchAppointments(this.props.screenProps.storeId, this.props.screenProps.doctorId, 30);
+        const appointments = await fetchAppointments(this.props.screenProps.storeId, this.props.screenProps.doctorId, 1);
         //appointments && appointments.sort(compareByStart);
         this.setState({appointments});
     }
@@ -79,7 +93,7 @@ export class OverviewScreen extends PureComponent {
     render() {
         return <View style={styles.page}>
             <AppointmentsSummary appointments={this.state.appointments} navigation={this.props.navigation} onRefreshAppointments={() => this.refreshAppointments()}/>
-            <View><MainActivities navigation={this.props.navigation}/></View>
+            <View><MainActivities navigation={this.props.navigation} onLogout={this.props.screenProps.onLogout}/></View>
         </View >
     }
 }

@@ -10,7 +10,7 @@ import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
     en: {
-      enterRegisteredEmail: 'Please enter the email adres you used to register Wink PMS',
+      enterRegisteredEmail: 'Please enter the email adress you used to register Wink PMS',
       emailAdres: 'Email adress',
       submitEmail: 'Send',
       answerSecurityQuestion: 'Please answer the security question before submitting',
@@ -29,13 +29,15 @@ export const strings = new LocalizedStrings({
       fetchAccountsError: 'Something went wrong trying to get the accounts from the server. Please try again.',
       loginFailed: 'Login failed',
       agenda: 'Agenda',
-      patients: 'Patients',
+      patients: 'Patient',
       back: 'Back',
       graph: 'Graph',
       history: 'History',
       template: 'Template',
       templates: 'Templates',
       settings: 'Settings',
+      walkIn: 'Walk-in',
+      openFile: 'Patient file',
       logout: 'Logout',
       bookNewAppointment: 'Book new appointment',
       newPatient: 'New patient',
@@ -64,8 +66,8 @@ export const strings = new LocalizedStrings({
       large: 'Large',
       extraLarge: 'Extra large',
       duplicate: 'Duplicate',
-      startNewVisit: 'Start new visit',
-      existingAppointmentWarning: 'Select the existing appointment for the patient to start the visit, or create a new visit.',
+      startNewVisit: 'Start new consultation',
+      existingAppointmentWarning: 'Select the existing appointment for the patient to start the consultation, or create a new consultation.',
       serverError: 'Something went wrong on the server. Please try again.',
       pending: 'Pending',
       confirmed: 'Confirmed',
@@ -88,7 +90,12 @@ export const strings = new LocalizedStrings({
       status: 'Status',
       doctor: 'Doctor',
       now: 'Now',
-      endVisit: 'End visit',
+      today: 'Today',
+      yesterday: 'Yesterday',
+      beforeYesterday: 'Before yesterday',
+      tomorrow: 'Tomorrow',
+      in2Days: 'In 2 days',
+      endVisit: 'End consultation',
       years: '',
       ageM: 'age',
       ageF: 'age',
@@ -99,6 +106,7 @@ export const strings = new LocalizedStrings({
       referral: 'Referral',
       finalRx: 'Final Rx',
       printRx: 'Print Rx',
+      printClRx: 'Print Cl',
       printReferral: 'Print Referral',
       add: 'Add',
       remove: 'Remove',
@@ -114,7 +122,19 @@ export const strings = new LocalizedStrings({
       favorites: 'Common',
       notStarted: 'Not started',
       copyToFinal: 'Final Rx',
-      update: 'Update'
+      update: 'Update',
+      errorTitle: 'Error',
+      errorsTitle: 'Errors',
+      validationErrorMessage: 'Please verify all fields contain valid values.',
+      refractionTitle: 'Rx',
+      removeExamError: 'Please clear all the exam data before removing an exam.',
+      unsupportedDocumentError: 'Document {0} can not be displayed.',
+      documentTrailTitle: '{0} documents',
+      medicationRxTitle: 'Medication Rx',
+      summaryTitle: 'Summary',
+      fetchItemError: 'Something went wrong trying to get {0} data from the server. Please try again.',
+      storeItemError:  'Something went wrong trying to save {0} data on the server.',
+      maximumAddableGroupError: 'You can not add more then {0} {1}.',
     },
     fr: {
       enterRegisteredEmail: 'Veuillez mettre l\'adresse e-mail que vous avez utilisée pour enregistrer votre compte chez Wink',
@@ -136,18 +156,20 @@ export const strings = new LocalizedStrings({
       fetchAccountsError: 'Une erreur interne s\'est produite en cherchant vos comptes. Veuillez réessayer.',
       loginFailed: 'Erreur d\'authentification',
       agenda: 'Agenda',
-      patients: 'Patients',
+      patients: 'Patient',
       back: 'Back',
       graph: 'Graphique',
       history: 'Historique',
       template: 'Modèle',
       templates: 'Modèles',
       settings: 'Paramètres',
+      walkIn: 'Sans rendez-vous',
+      openFile: 'Dossier patient',
       logout: 'Déconnect',
-      startNewVisit: 'Commence une nouvelle visite',
+      startNewVisit: 'Commence une nouvelle consultation',
       preExams:'Prétests',
       exams:'Examens',
-      existingAppointmentWarning: 'Commencez le rendez-vous existant ou créez une nouvelle visite.',
+      existingAppointmentWarning: 'Commencez le rendez-vous existant ou créez une nouvelle consultation.',
       serverError: 'Une erreur s\'est produite sur le serveur. Veuillez réessayer.',
       pending: 'En attente',
       confirmed: 'confirmé',
@@ -170,7 +192,12 @@ export const strings = new LocalizedStrings({
       status: 'Statut',
       doctor: 'Docteur',
       now: 'Maintenant',
-      endVisit: 'Conclure la visite',
+      today: 'Aujourd\'hui',
+      yesterday: 'Hier',
+      beforeYesterday: 'Avant hier',
+      tomorrow: 'Demain',
+      in2Days: 'Dans 2 jours',
+      endVisit: 'Conclure la consultation',
       years: 'ans',
       ageM: 'âgé de',
       ageF: 'âgée de',
@@ -180,6 +207,7 @@ export const strings = new LocalizedStrings({
       diagnosis: 'Diagnostique',
       referral: 'Référence',
       printRx: 'Imprimer Rx',
+      printClRx: 'Imprimer LC',
       printReferral: 'Imprimer Référence',
       add: 'Ajouter',
       remove: 'Suprimer',
@@ -196,29 +224,53 @@ export const strings = new LocalizedStrings({
       favorites: 'Populaire',
       notStarted: 'Pas commencé',
       copyToFinal: 'Rx finale',
-      update: 'Confirmer'
+      update: 'Confirmer',
+      errorTitle: 'Erreur',
+      errorsTitle: 'Erreurs',
+      validationErrorMessage: 'Veuillez vèrifier que tout les champs ont des valeurs valide.',
+      refractionTitle: 'Rx',
+      removeExamError: 'Veuillez effacer tout les données avant de supprimer l\'exam',
+      unsupportedDocumentError: 'Document {0} n\'est pas supporté.',
+      documentTrailTitle: 'Documents {0}',
+      medicationRxTitle: 'Medication Rx',
+      summaryTitle: 'Résumé',
+      fetchItemError: 'Something went wrong trying to get {0} data from the server. Please try again.',
+      storeItemError:  'Something went wrong trying to save {0} data on the server.',
+      maximumAddableGroupError: 'Vous ne pouvez pas ajouter plus que {0} {1}.',
     },
 });
 
 //console.log('Interface language is: '+strings.getInterfaceLanguage());
 
+const supportedLanguages : string[] = ['en-US','🇺🇸','en-CA','🇨🇦','fr-CA','🇫🇷'];
+
+let userLanguage : string;
+
 export function getUserLanguage() : string {
-  return strings.getLanguage();
+  //return strings.getLanguage();
+  return userLanguage;
 }
 
-async function setUserLanguage(userLanguage: string) {
-  strings.setLanguage(userLanguage);
-  Moment.locale(userLanguage);
+export function getUserLanguageIcon() : string {
+  let languageIndex : number = supportedLanguages.indexOf(getUserLanguage());
+  return supportedLanguages[languageIndex+1];
+}
+
+async function setUserLanguage(locale: string) {
+  console.log('Switching language to '+locale);
+  userLanguage = locale;
+  strings.setLanguage(userLanguage.substring(0, 2));
+  Moment.locale(userLanguage.substring(0, 2));
   //TODO: set number formatting localised
   cacheDefinitions(userLanguage);
 }
 
 export function switchLanguage() {
-  let language = strings.getLanguage();
-  if (language.startsWith('en'))
-    language = 'fr';
-  else
-    language = 'en';
+  let language = getUserLanguage();
+  console.log('current language = '+language);
+  let languageIndex = supportedLanguages.indexOf(language);
+  languageIndex = (languageIndex+2)%supportedLanguages.length;
+  language = supportedLanguages[languageIndex];
   AsyncStorage.setItem('userLanguage', language);
   setUserLanguage(language);
 }
@@ -226,6 +278,7 @@ export function switchLanguage() {
 AsyncStorage.getItem('userLanguage').then(
   userLanguage => {
     if (userLanguage===null || userLanguage===undefined) userLanguage = strings.getInterfaceLanguage();
-    setUserLanguage(userLanguage.substring(0, 2));
+    //setUserLanguage(userLanguage.substring(0, 2));
+    setUserLanguage(userLanguage);
   }
 );

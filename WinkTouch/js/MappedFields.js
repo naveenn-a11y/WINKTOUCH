@@ -16,7 +16,5 @@ export const MappedFields : string[] = [
     'prescription.OS.add',
     'patient.firstName',
     'patient.lastName',
-    'visit.start',
-    'drugs[x].dose',
-    'drugs[x].datePrescribed'
+    'visit.start'
   ];

@@ -10,14 +10,14 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import type {PatientInfo, Patient, Appointment, Visit, User, AppointmentType} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
-import { formatDate, timeFormat, time24Format, dateTimeFormat, dayDateTime24Format, dayYearDateTime24Format, now, isToday, formatMoment, capitalize, parseDate, formatDuration, jsonDateTimeFormat, jsonDateFormat, today, dayYearDateTimeFormat } from './Util';
+import { formatDate, timeFormat, time24Format, dateTimeFormat, dayDateTime24Format, dayYearDateTime24Format, now, isToday, formatMoment, capitalize, formatDuration, jsonDateTimeFormat, jsonDateFormat, today, dayYearDateTimeFormat } from './Util';
 import { FormRow, FormTextInput, FormDateInput, FormDateTimeInput, FormDurationInput, FormCode } from './Form';
 import { VisitHistory, fetchVisitHistory } from './Visit';
 import { PatientCard, fetchPatientInfo, PatientTags } from './Patient';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById, clearCachedItemById} from './DataCache';
 import { searchItems, fetchItemById, stripDataType } from './Rest';
 import { putRest } from './WinkRest';
-import { formatCode, parseCode } from './Codes';
+import { formatCode } from './Codes';
 
 export async function fetchAppointment(appointmentId: string) : Promise<Appointment> {
   let appointment : Appointment = await fetchItemById(appointmentId);
@@ -25,7 +25,7 @@ export async function fetchAppointment(appointmentId: string) : Promise<Appointm
 }
 
 export async function fetchAppointments(storeId: ?string, doctorId: ?string, maxDays: number, patientId?: string) : Promise<Appointment[]> {
-    console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
+    //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
     const searchCriteria = {
       storeId: storeId,
       doctorId: doctorId,
@@ -390,9 +390,12 @@ export class AppointmentScreen extends Component {
         appointment: Appointment,
     }
     state: {
-        appointment: Appointment,
+        appointment: ?Appointment,
         patientInfo: PatientInfo,
-        visitHistory: string[]
+        visitHistory: string[],
+        patientDocumentHistory: string[],
+        showAddVisit: boolean,
+        scrollEnabled: boolean,
     }
     unmounted: boolean;
 
@@ -400,10 +403,15 @@ export class AppointmentScreen extends Component {
         super(props);
         this.params = this.props.navigation.state.params;
         this.unmounted = false;
+        const appointment: ?Appointment = (this.params.appointment&&this.params.appointment.id!=undefined)?getCachedItem(this.params.appointment.id):this.params.appointment;
+        const patientId : string = appointment?appointment.patientId:this.params.patientInfo.id;
         this.state = {
-          appointment: getCachedItem(this.params.appointment.id),
-          patientInfo: getCachedItem(this.params.appointment.patientId),
-          visitHistory: getCachedItem('visitHistory-'+this.params.appointment.patientId)
+          appointment,
+          patientInfo: getCachedItem(patientId),
+          visitHistory: getCachedItem('visitHistory-'+patientId),
+          patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId),
+          showAddVisit: this.isNewVisit(appointment),
+          scrollEnabled: true
         }
     }
 
@@ -413,8 +421,8 @@ export class AppointmentScreen extends Component {
     componentDidMount() {
       InteractionManager.runAfterInteractions(() => {
         this.refreshVisitHistory();
-        this.refreshAppointment();
         this.refreshPatientInfo();
+        this.refreshAppointment();
       });
     }
 
@@ -422,14 +430,38 @@ export class AppointmentScreen extends Component {
       this.params = nextProps.navigation.state.params;
       if (this.params.refresh===true) {
         this.props.navigation.setParams({refresh: false});
-        this.setState({visitHistory: getCachedItem('visitHistory-'+this.params.appointment.patientId)});
+        const appointment: ?Appointment = (this.params.appointment&&this.params.appointment.id!=undefined)?getCachedItem(this.params.appointment.id):this.params.appointment;
+        const patientId : string = appointment?appointment.patientId:this.params.patientInfo.id;
+        const visitHistory: ?string[] = getCachedItem('visitHistory-'+patientId);
+        this.setState({
+          visitHistory,
+          patientInfo: getCachedItem(patientId),
+          patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId),
+          showAddVisit: this.isNewVisit(this.state.appointment, visitHistory)
+        });
         this.forceUpdate();
       }
     }
 
-    updateHistory = (visit: Visit) => {
+    isNewVisit(appointment: ?Appointment, visitHistory: ?string[]) : boolean {
+      if (appointment===undefined) return false;
+      if (appointment.id === undefined) return true;
+      if (!visitHistory) return false;
+      let appointmentsVisitId :?Visit = visitHistory.find((visitId: string) => {
+        const visit : ?Visit = getCachedItem(visitId);
+        return visit && visit.appointmentId == appointment.id
+      });
+      return appointmentsVisitId===undefined;
+    }
+
+    getPatientId() : string {
+      return this.params.appointment?this.params.appointment.patientId:this.params.patientInfo.id;
+    }
+
+    startedVisit = (visit: Visit) => {
       this.setState({
-        visitHistory: getCachedItem('visitHistory-'+this.params.appointment.patientId)
+        visitHistory: getCachedItem('visitHistory-'+this.getPatientId()),
+        showAddVisit: false
       });
     }
 
@@ -453,32 +485,48 @@ export class AppointmentScreen extends Component {
     }
 
     async refreshAppointment() {
+      if (this.params.appointment===undefined || this.params.appointment.id===undefined) return;
       let appointment = await fetchAppointment(this.params.appointment.id);
       if (this.state.appointment && appointment.version!==this.state.appointment.version)
         this.setState({appointment});
     }
 
     async refreshPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.params.appointment.patientId);
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.getPatientId());
       if (patientInfo.version!==this.state.patientInfo.version)
         this.setState({patientInfo});
     }
 
     async refreshVisitHistory() {
-      const visitHistory : string[] = await fetchVisitHistory(this.params.appointment.patientId);
-      this.setState({visitHistory});
+      const visitHistory : string[] = await fetchVisitHistory(this.getPatientId());
+      this.setState({
+        visitHistory,
+        patientDocumentHistory: getCachedItem('patientDocumentHistory-'+this.getPatientId()),
+        showAddVisit: this.isNewVisit(this.state.appointment, visitHistory)
+      });
     }
 
     componentWillUnmount() {
       this.unmounted = true;
     }
 
-    render() { //TODO FlatList
-        return <KeyboardAwareScrollView>
+    enableScroll = () => {
+      if (this.state.scrollEnabled===true) return;
+      this.setState({scrollEnabled: true});
+    }
+
+    disableScroll = () => {
+      if (this.state.scrollEnabled===false) return;
+      this.setState({scrollEnabled: false});
+    }
+
+    render() {
+        return <KeyboardAwareScrollView scrollEnabled={this.state.scrollEnabled}>
             {this.state.appointment && <AppointmentTitle appointment={this.state.appointment} />}
-            <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} />
-            <VisitHistory appointment={this.params.appointment} visitHistory={this.state.visitHistory}
-              navigation={this.props.navigation} onAddVisit={this.updateHistory} appointmentStateKey={this.props.navigation.state.key}/>
+            <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} refreshStateKey={this.props.navigation.state.key}/>
+            <VisitHistory patientInfo={this.state.patientInfo} appointment={this.params.appointment} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
+              showAddVisit={this.state.showAddVisit} navigation={this.props.navigation} onAddVisit={this.startedVisit} appointmentStateKey={this.props.navigation.state.key}
+              enableScroll={this.enableScroll} disableScroll={this.disableScroll} />
         </KeyboardAwareScrollView>
     }
 }

@@ -41,18 +41,21 @@ export type Patient = {
     id: string,
     firstName: string,
     lastName: string,
+    phone: ?string,
+    cell: ?string,
     patientTags: string[]
 }
 
 export type PatientInfo = {
     id: string,
     version: number,
+    errors?: string[],
     firstName: string,
     lastName: string,
     dateOfBirth: string,
     gender: number,
-    phone: string,
-    cell: string,
+    phone: ?string,
+    cell: ?string,
     streetName: string,
     countryId: number,
     medicalCard: string,
@@ -149,6 +152,7 @@ export type GlassesRx = {
     od: GlassRx,
     os: GlassRx,
     expiry?: string,
+    prescriptionDate?: string,
     vaFar?: string,
     vaNear?: string
 }
@@ -179,7 +183,7 @@ export type Visit = {
 export type CodeDefinition = {
   code: string|number,
   description?: string,
-  key?: string
+  key?: string //this is a reference to the Strings.js constants
 }|string
 
 export type FieldLayout = {
@@ -198,7 +202,9 @@ export type FieldDefinition = {
   label?: string,
   multiValue?: boolean, //Can contain more then 1 value
   options?: CodeDefinition[][]|CodeDefinition[]|string,
+  autoSelect?: boolean, //Overwrite user selection when filtered options change
   popularOptions?: CodeDefinition[],
+  filter?: {},
   defaultValue?: boolean|string|number,
   normalValue?: string,
   freestyle?: boolean, //Allow keyboard input when there are fe options, stepsize, date type
@@ -214,16 +220,18 @@ export type FieldDefinition = {
   minLengthError?: string,
   maxLength?: number,
   maxLengthError?: string,
-  prefix?: string,
+  prefix?: string|string[],
   suffix?: string,
   validation?: string,
   mappedField?: string,
   layout?: FieldLayout,
-  type?: 'email-address'|'numeric'|'phone'|'pastDate'|'futureDate'|'futureDateTime',
+  size?: string,
+  resolution?: string,
+  type?: 'email-address'|'numeric'|'phone'|'pastDate'|'recentDate'|'partialPastDate'|'futureDate'|'futureDateTime'|'time'|'pastTime'|'futureTime',
   capitalize?: 'words'|'characters'|'sentences'|'none',
   image?: string,
   simpleSelect?: boolean,
-  newLine?: boolean
+  newLine?: boolean,
 }
 
 export type FieldDefinitions = (FieldDefinition|GroupDefinition)[]
@@ -232,13 +240,17 @@ export type GroupDefinition = {
     name: string,
     label?: string,
     size?: string, //XS S M L XL
+    optional?: boolean,
     columns?: string[][],
     rows?: string[][],
     multiValue?: boolean,
+    options?: CodeDefinition[][]|CodeDefinition[]|string,
     maxLength?: number,
     mappedField?: string,
     canBeCopied?: boolean,
+    clone?: string[],
     hasVA?: boolean,
+    hasAdd?: boolean,
     fields: (FieldDefinition|GroupDefinition)[],
 }
 
@@ -246,8 +258,10 @@ export type ExamDefinition = {
     id: string,
     version: number,
     name: string,
+    label?: string,
     fields?: (FieldDefinition|GroupDefinition)[],
     type: string, //GroupedForm || SelectionLists
+    card?: boolean,
     cardFields?: string[]|string[][],
     cardGroup?: string,
     essentialFields: string[],
@@ -258,11 +272,12 @@ export type ExamDefinition = {
     isAssessment: boolean,
     image?: string,
     graph?: GraphDefinition,
-    section: string, //Pre tests.3
+    section: string, //History.3
     order?: string, //order used for pre tests
     starable?: boolean,
     relatedExams?: string[],
-    scrollable?: boolean
+    scrollable?: boolean,
+    layout?: any
 }
 
 export type ExamPredefinedValue = {
@@ -278,10 +293,12 @@ export type Exam = {
     id: string,
     visitId: string,
     version: number,
+    errors?: string[],
     definition: ExamDefinition,
     hasStarted: boolean,
     hasEnded: boolean,
-    isDirty?: boolean
+    isDirty?: boolean,
+    isHidden?: boolean
 }
 
 export type Scene = {
@@ -294,4 +311,23 @@ export type Scene = {
   patientInfo?: PatientInfo,
   exam?: Exam,
   examDefinition?: ExamDefinition
+}
+
+export type Upload = {
+  id: string,
+  data: string,
+  name: string,
+  date?: string,
+  mimeType: string,
+  argument1?: string,
+  argument2?: string,
+}
+
+export type PatientDocument = {
+  id: string,
+  patientId: string,
+  postedOn: string,
+  name: string,
+  category: string,
+  uploadId: string,
 }

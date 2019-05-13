@@ -11,7 +11,7 @@ import {OverviewScreen} from './Overview';
 import { AppointmentScreen, AppointmentsSummary } from './Appointment';
 import { Reminders } from './Reminders';
 import { AgendaScreen } from './Agenda';
-import { PatientScreen } from './Patient';
+import { PatientScreen, CabinetScreen} from './Patient';
 import { ExamScreen, ExamHistoryScreen } from './Exam';
 import { MenuBar, Notifications } from './MenuBar';
 import { FindPatient } from './FindPatient';
@@ -47,6 +47,7 @@ const DoctorNavigator = createStackNavigator({
     appointment: {screen: AppointmentScreen},
     exam: {screen: ExamScreen},
     patient: {screen: PatientScreen},
+    cabinet: {screen: CabinetScreen},
     examGraph: {screen: ExamChartScreen},
     examHistory: {screen: ExamHistoryScreen},
     examTemplate: {screen: ExamDefinitionScreen},
@@ -60,8 +61,6 @@ const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
 const replaceRoutes: string[] = ['agenda','findPatient','walkin','templates','examHistory','examGraph'];
-
-
 
 DoctorNavigator.router.getStateForAction = (action, state) => {
   if (state && action.type === NavigationActions.NAVIGATE) {
@@ -134,12 +133,17 @@ export class DoctorApp extends Component {
       this.initialseAppForDoctor();
     }
 
-    navigate = (routeName: string, params: any) => {
+    logout = () : void => {
+      __DEV__ && console.log('Logging out');
+      setDoctor(undefined);
+      setToken(undefined);
+      setStore(undefined);
+      this.props.onLogout();
+    }
+
+    navigate = (routeName: string, params: any) : void => {
       if (routeName==='logout') {
-        setDoctor(undefined);
-        setToken(undefined);
-        setStore(undefined);
-        this.props.onLogout();
+        this.logout();
         return;
       }
       if (!this.navigator) return;
@@ -149,7 +153,7 @@ export class DoctorApp extends Component {
         this.navigator.dispatch({type: NavigationActions.NAVIGATE, routeName, params})
     }
 
-    navigationStateChanged = (prevState: any, currentState: any) => {
+    navigationStateChanged = (prevState: any, currentState: any) : void => {
         const currentRoute = getCurrentRoute(currentState);
         this.setState({currentRoute});
     }
@@ -157,7 +161,7 @@ export class DoctorApp extends Component {
     render() {
         return <View style={styles.screeen}>
             <StatusBar hidden={true} />
-            <DocatorAppContainer ref={navigator => this.navigator = navigator} screenProps={{doctorId: this.props.user.id, storeId: this.props.store.storeId}} onNavigationStateChange={this.navigationStateChanged}/>
+            <DocatorAppContainer ref={navigator => this.navigator = navigator} screenProps={{doctorId: this.props.user.id, storeId: this.props.store.storeId, onLogout: this.logout}} onNavigationStateChange={this.navigationStateChanged}/>
             <MenuBar scene={{}} navigation={{state: this.state.currentRoute, navigate: this.navigate}} />
         </View>
     }

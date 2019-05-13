@@ -45,15 +45,14 @@ export class MenuBar extends PureComponent {
         return <View style={styles.sideMenu}>
           <Image source={require('./image/menulogo.png')} />
           <Button title={strings.agenda} onPress={() => this.props.navigation.navigate('agenda')} />
-          <Button title={strings.patients} onPress={() => this.props.navigation.navigate('findPatient', {showAppointments: true, showBilling: true})} />
+          {exam && <Button title={strings.patients} onPress={() => this.props.navigation.navigate('findPatient', {showAppointments: false, showBilling: true})} />}
           {exam && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
           {exam && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
           {__DEV__ && false && exam && <Button title={strings.template} onPress={() => this.props.navigation.navigate('examTemplate', {examDefinition: this.extractExamDefinition(exam)})}/>}
           {__DEV__ && <Button title={strings.templates} onPress={() => this.props.navigation.navigate('templates')}/>}
-          {scene ==='overview'  && <Button title={strings.settings} onPress={() => {}} />}
+          {__DEV__ && scene ==='overview'  && <Button title={strings.settings} onPress={() => {}} />}
           <BackButton navigation={this.props.navigation} />
-          <Button title={strings.logout} onPress={() => this.props.navigation.navigate('logout')}/>
-          <Button title={strings.restart} onPress={() => codePush.restartApp()}/>
+          {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}
           {__DEV__ && <Notifications />}
         </View>
     }

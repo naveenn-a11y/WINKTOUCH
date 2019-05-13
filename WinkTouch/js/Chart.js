@@ -24,7 +24,9 @@ class LineChart extends Component {
   }
 
   render() {
-      var conf={
+      if (this.props.series===undefined) return null;
+      //__DEV__ && console.log('series='+ JSON.stringify(this.props.series));
+      let conf={
               chart: {
                   type: 'line',
                   animation: Highcharts.svg,
@@ -41,7 +43,10 @@ class LineChart extends Component {
                       value: 0,
                       width: 1,
                       color: '#808080'
-                  }]
+                  }],
+                  title: {
+                    text: ''
+                  }
               },
               legend: {
                   enabled: true
@@ -50,7 +55,8 @@ class LineChart extends Component {
                 line: {
                   dataLabels: {
                     enabled: true
-                  }
+                  },
+                  connectNulls: true
                 }
               },
               exporting: {
@@ -58,7 +64,7 @@ class LineChart extends Component {
               },
               series: this.props.series
           };
-      return <ChartView style={{width:windowWidth *0.85, height:windowHeight }} config={conf} stock={false}></ChartView>
+      return <ChartView style={{width:windowWidth *0.85, height:windowHeight }} config={conf} stock={false} originWhitelist={['file://']} javaScriptEnabled={true} domStorageEnabled={true}></ChartView>
   }
 }
 
@@ -98,7 +104,16 @@ export class ExamChartScreen extends Component {
     let series : number[] = [];
     examHistory.map((exam: Exam) => {
       let data = exam?exam[this.params.exam.definition.name]:undefined;
-      fieldTree.forEach(fieldName => {if (data!==undefined) data = data[fieldName]});
+      fieldTree.forEach(fieldName => {if (data!==undefined) {
+        if (data instanceof Array) {
+          if (data.length>0) {
+            data = data[0];
+          } else {
+            data = undefined;
+          }
+        }
+        data = data[fieldName];
+      }});
       series.push(data);
     });
     return {

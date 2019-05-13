@@ -48,7 +48,7 @@ export const pupilColorCodes = [
 
 export const pupilDiagnoseCodes = [
 {"code":"PERRLA"},
-{"code":"PERRL(-)APD"},
+{"code":"PERRLA(-)APD"},
 {"code":"Argyl Roberson"},
 {"code":"Adie"},
 {"code":"Homer"},

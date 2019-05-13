@@ -4,5 +4,5 @@
 'use strict';
 
 export const extraOcularMotilityCodes = [
-{"code":"Smooth and full"}
+{"code":"Smooth and full"},
 ]

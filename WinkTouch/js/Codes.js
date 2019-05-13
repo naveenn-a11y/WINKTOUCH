@@ -9,17 +9,24 @@ import { restUrl, handleHttpError } from './Rest';
 import { getFieldDefinitions } from './Items';
 import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
+import { passesFilter } from './Util';
 
-export function formatCodeDefinition(option: ?CodeDefinition) : string {
+export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: string) : string {
   if (option===undefined || option===null) return '';
   if (option.description !== undefined)
     option = option.description;
   else if (option.key!==undefined)
     option = strings[option.key];
-  else if (option.code!==undefined)
-    option = option.code;
-  else option = option.toString();
+  else {
+    if (codeIdentifier===undefined || codeIdentifier===null) {
+      codeIdentifier = 'code';
+    }
+    if (option[codeIdentifier]!==undefined) {
+      option = option[codeIdentifier];
+    }
+  }
   if (option===undefined || option===null) return '';
+  option = option.toString();
   return option;
 }
 
@@ -47,28 +54,67 @@ export function formatOption(dataType: string, field: string, code: ?string|?num
   }
 }
 
-export function getAllCodes(codeType: string) : CodeDefinition[] {
-  const allCodes : CodeDefinition[] = codeDefinitions[codeType];
-  if (allCodes===undefined) console.error('No codes defined for '+codeType);
+export function formatOptions(options: CodeDefinition[][]|CodeDefinition[], descriptionIdentifier?: string) : (string[]|string)[] {
+  if (!options || options.length===0) return [];
+  let formattedOptions : (string[]|string)[] = [];
+  if (options[0] instanceof Array) {
+    formattedOptions = options.map(subOptions => formatOptions(subOptions, descriptionIdentifier));
+  } else {
+    const includedOptions = new Set();
+    options.forEach(option => {
+      const formattedOption :string = formatCodeDefinition(option, descriptionIdentifier);
+      if (!includedOptions.has(formattedOption.trim().toLowerCase())) {
+        includedOptions.add(formattedOption.trim().toLowerCase());
+        formattedOptions.push(formattedOption);
+      }
+    });
+  }
+  return formattedOptions;
+}
+
+export function getAllCodes(codeType: string, filter?: {}) : CodeDefinition[] {
+  if (codeType.includes('.')) {
+    const identifiers : string = codeType.split('.');
+    codeType = identifiers[0];
+  }
+  let allCodes : CodeDefinition[] = codeDefinitions[codeType];
+  if (allCodes===undefined) {
+    __DEV__ && console.error('No codes defined for '+codeType);
+  } else {
+    if (filter) {
+       allCodes = allCodes.filter((codeDefinition: CodeDefinition) => passesFilter(codeDefinition, filter));
+    }
+  }
   return allCodes;
 }
 
-export function formatAllCodes(codeType: string) : string[] {
-  let formattedCodes :string[] = getAllCodes(codeType).map((codeDefinition : CodeDefinition|CodeDefinition[]) =>
-    (codeDefinition instanceof Array)?codeDefinition.map((subCodeDefinition: CodeDefinition)=>
-    subCodeDefinition.description!==undefined?subCodeDefinition.description:subCodeDefinition.key?strings[subCodeDefinition.key]:subCodeDefinition.code):
-    codeDefinition.description!==undefined?codeDefinition.description:codeDefinition.key?strings[codeDefinition.key]:codeDefinition.code);
+export function formatAllCodes(codeType: string, filter?: {}) : string[] {
+  let codeIdentifier = 'code';
+  if (codeType.includes('.')) {
+    const identifiers : string = codeType.split('.');
+    codeType = identifiers[0];
+    codeIdentifier = identifiers[1];
+  }
+  const options = getAllCodes(codeType, filter);
+  const formattedCodes : (string[]|string)[] = formatOptions(options, codeIdentifier);
   return formattedCodes;
 }
 
-export function parseCode(codeType: string, input?: string): ?(string|number) {
+export function parseCode(codeType: string, input: string, codeIdentifier?: string): ?(string|number) {
   if (input===undefined || input===null) return undefined;
   let trimmedInput = input.trim().toLowerCase();
+  if (codeIdentifier===undefined || codeIdentifier===null) {
+    codeIdentifier = 'code';
+  }
   let codeDefinition : CodeDefinition = getAllCodes(codeType).find((codeDefinition: CodeDefinition) =>
-    formatCodeDefinition(codeDefinition).trim().toLowerCase() === trimmedInput);
+    formatCodeDefinition(codeDefinition, codeIdentifier).trim().toLowerCase() === trimmedInput);
   let code = input;
   if (codeDefinition!==undefined && codeDefinition!==null) {
-    code = codeDefinition.code;
+    if (codeDefinition instanceof Object) {
+      code = codeDefinition[codeIdentifier];
+    } else {
+      code  = codeDefinition;
+    }
   }
   return code;
 }

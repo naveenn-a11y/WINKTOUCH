@@ -9,11 +9,12 @@ import { PhoneNumberUtil } from 'google-libphonenumber';
 import type { FieldDefinition, FieldDefinitions, CodeDefinition, GroupDefinition } from './Types';
 import { styles, scaleStyle } from './Styles';
 import { strings } from './Strings';
-import { DateField, DurationField, TilesField, TextArrayField, ButtonArray, NumberField, ListField, ImageField, CheckButton } from './Widgets';
+import { DateField, DurationField, TimeField, TilesField, TextArrayField, ButtonArray, NumberField, ListField, ImageField, ImageUploadField, CheckButton } from './Widgets';
 import { getFieldDefinitions } from './Items';
-import { formatAllCodes, formatCode, formatCodeDefinition, parseCode } from './Codes';
-import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat } from './Util';
+import { formatAllCodes, formatCode, formatCodeDefinition, parseCode, formatOptions } from './Codes';
+import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue } from './Util';
 import { isNumericField, formatLabel } from './Items';
+import { Microphone } from './Voice';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -53,6 +54,7 @@ export class FormTextInput extends Component {
         suffix?: string,
         multiline?: boolean,
         readonly?: boolean,
+        speakable?: boolean,
         style?: any,
         containerStyle?: any,
     }
@@ -113,6 +115,30 @@ export class FormTextInput extends Component {
         this.setState({ errorMessage: undefined });
     }
 
+    appendText(text: string) {
+      if (text===undefined || text===null || text==='')
+        return;
+      let value : string = this.state.value;
+      if ('undo'===text.toLowerCase() || 'remove'===text.toLowerCase() || 'delete'===text.toLowerCase()) {//TODO: french
+        if (!value) return;
+        let lines = value.split('\n');
+        lines.splice(lines.length-1,1);
+        value = lines.join('\n');
+      } else if ('clear'===text.toLowerCase()) {//TODO: french
+              if (value===undefined) return;
+              value = '';
+      } else {
+        if (value===undefined || value===null || value==='') {
+          value = text;
+        } else {
+          value = value + '\n';
+          value = value + text;
+        }
+      }
+      //this.setState({value});
+      this.commit(value);
+    }
+
     render() {
         return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined}>
           <View style={this.props.containerStyle?this.props.containerStyle:styles.formElement}>
@@ -120,14 +146,14 @@ export class FormTextInput extends Component {
             {this.props.prefix && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
             <View style={styles.fieldFlexContainer}>
               {this.props.readonly===true?
-                <Text style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formField}>{this.props.value}</Text>
+                <Text style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:this.props.readonly?styles.formFieldReadOnly:styles.formField}>{this.props.value}</Text>
                 :
                 <TextInput
                     value={this.state.value}
                     autoCapitalize={this.props.autoCapitalize}
                     autoCorrect={false}
                     keyboardType={this.props.type}
-                    style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formField}
+                    style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:this.props.readonly?styles.formFieldReadOnly:styles.formField}
                     onFocus={this.dismissError}
                     onChangeText={(text: string) => this.setState({value: text })}
                     onEndEditing={(event) => this.commit(event.nativeEvent.text)}
@@ -135,7 +161,7 @@ export class FormTextInput extends Component {
                     multiline={this.props.multiline}
                     />
               }
-
+              {!this.props.readonly && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
               </View>
             {this.props.suffix && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
             {this.state.errorMessage && <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>}
@@ -147,6 +173,7 @@ export class FormTextInput extends Component {
 export class FormNumberInput extends Component {
     props: {
         value?: number,
+        errorMessage?: string,
         label: string,
         showLabel?: boolean,
         labelWidth?: number,
@@ -166,7 +193,6 @@ export class FormNumberInput extends Component {
     static defaultProps = {
       readonly: false,
       showLabel: true,
-      style: styles.formField
     }
 
     state: {
@@ -178,12 +204,12 @@ export class FormNumberInput extends Component {
         super(props);
         this.state = {
             text: this.format(this.props.value),
-            errorMessage: undefined
+            errorMessage: this.props.errorMessage
         }
     }
 
     componentWillReceiveProps(nextProps: any) {
-        this.setState({ text: this.format(nextProps.value), errorMessage: undefined });
+        this.setState({ text: this.format(nextProps.value), errorMessage: nextProps.errorMessage });
     }
 
     validate(value: string) {//TODO
@@ -237,10 +263,11 @@ export class FormNumberInput extends Component {
     }
 
     render() {
+        const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField;
         return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined || this.state.errorMessage===null || this.state.errorMessage.trim()===''}>
           <View style={styles.formElement}>
             {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-            <NumberField range={this.getRange()} style={styles.formField}  {...this.props} onChangeValue={(newValue: any) => this.commit(newValue)} />
+            <NumberField {...this.props} range={this.getRange()} style={style} onChangeValue={(newValue: any) => this.commit(newValue)} />
             {this.state.errorMessage && <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>}
           </View>
         </TouchableWithoutFeedback>
@@ -250,6 +277,7 @@ export class FormNumberInput extends Component {
 export class FormDateInput extends Component {
     props: {
         value: ?string,
+        errorMessage?: string,
         label?: string,
         labelWidth?: number,
         showLabel?: boolean,
@@ -273,7 +301,49 @@ export class FormDateInput extends Component {
     render() {
         return <View style={styles.formElement}>
             {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-            <DateField label={this.props.label} value={parseDate(this.props.value)} readonly={this.props.readonly} type={this.props.type} style={styles.formField}
+            <DateField label={this.props.label} value={parseDate(this.props.value)}
+              readonly={this.props.readonly}
+              past={this.props.type?this.props.type.includes('past'):undefined}
+              future={this.props.type?this.props.type.includes('future'):undefined}
+              recent={this.props.type?this.props.type.includes('recent'):undefined}
+              partial={this.props.type?this.props.type.includes('partial'):undefined}
+              style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField}
+              onChangeValue={this.updateValue}/>
+        </View>
+    }
+}
+
+export class FormTimeInput extends Component {
+    props: {
+        value: ?string,
+        errorMessage?: string,
+        label?: string,
+        labelWidth?: number,
+        showLabel?: boolean,
+        readonly?: boolean,
+        type?: string,
+        onChangeValue?: (time: ?string) => void
+    }
+    static defaultProps= {
+      showLabel: true
+    }
+    constructor(props: any) {
+        super(props);
+    }
+
+    updateValue = (newTime: ?string) : void => {
+      if (this.props.readonly) return;
+      this.props.onChangeValue && this.props.onChangeValue(newTime);
+    }
+
+    render() {
+        return <View style={styles.formElement}>
+            {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
+            <TimeField label={this.props.label} value={this.props.value}
+              readonly={this.props.readonly}
+              past={this.props.type?this.props.type.includes('past'):undefined}
+              future={this.props.type?this.props.type.includes('future'):undefined}
+              style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField}
               onChangeValue={this.updateValue}/>
         </View>
     }
@@ -282,6 +352,7 @@ export class FormDateInput extends Component {
 export class FormDateTimeInput extends Component {
     props: {
         value: ?string,
+        errorMessage?: string,
         includeDay?: boolean,
         label?: string,
         labelWidth?: number,
@@ -305,7 +376,8 @@ export class FormDateTimeInput extends Component {
     render() {
         return <View style={styles.formElement}>
             {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-            <DateField includeTime={true} includeDay={this.props.includeDay} label={this.props.label} value={parseDate(this.props.value)} style={styles.formField} readonly={this.props.readonly}
+            <DateField includeTime={true} includeDay={this.props.includeDay} label={this.props.label} value={parseDate(this.props.value)}
+              style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} readonly={this.props.readonly}
               onChangeValue={this.updateValue}/>
         </View>
     }
@@ -314,6 +386,7 @@ export class FormDateTimeInput extends Component {
 export class FormDurationInput extends Component {
     props: {
         value?: string,
+        errorMessage:? string,
         startDate: string,
         label: string,
         labelWidth?: number,
@@ -337,7 +410,7 @@ export class FormDurationInput extends Component {
     render() {
         return <View style={styles.formElement}>
             {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-            <DurationField label={this.props.label} value={parseDate(this.props.value)} startDate={parseDate(this.props.startDate)} readonly={this.props.readonly} style={styles.formField}
+            <DurationField label={this.props.label} value={parseDate(this.props.value)} startDate={parseDate(this.props.startDate)} readonly={this.props.readonly} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField}
               onChangeValue={this.updateValue}/>
         </View>
     }
@@ -367,6 +440,7 @@ export class FormSwitch extends Component {
 export class FormOptions extends Component {
   props: {
     value: ?string|?number,
+    errorMessage?: string,
     options: CodeDefinition[][]|CodeDefinition[],
     label?: string,
     labelWidth?: number,
@@ -384,15 +458,11 @@ export class FormOptions extends Component {
   }
   constructor(props: any) {
     super(props);
-    this.formattedOptions = this.formatOptions(this.props.options);
+    this.formattedOptions = formatOptions(this.props.options);
   }
 
   componentWillReceiveProps(nextProps: any) {
-    this.formattedOptions = this.formatOptions(nextProps.options);
-  }
-
-  formatOptions(options: CodeDefinition[][]|CodeDefinition[]) : (string[]|string)[] {
-    return options.map(option => (option instanceof Array)?option.map(subOption => formatCodeDefinition(subOption)):formatCodeDefinition(option));
+    this.formattedOptions = formatOptions(nextProps.options);
   }
 
   isMultiOption() : boolean {
@@ -438,9 +508,9 @@ export class FormOptions extends Component {
     return <View style={styles.formElement}>
         {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
         {manyOptions?
-            <ListField label={this.props.label} style={styles.formField} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix}/>
+            <ListField label={this.props.label} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} />
           :
-            <TilesField label={this.props.label} style={styles.formField} readonly={this.props.readonly} options={this.formattedOptions} combineOptions={this.isMultiOption()}
+            <TilesField label={this.props.label} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} readonly={this.props.readonly} options={this.formattedOptions} combineOptions={this.isMultiOption()}
               value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix}/>
         }
 
@@ -484,10 +554,10 @@ export class FormCheckBox extends Component {
     return <View style={styles.formElement}>
         {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
         {this.props.prefix!==undefined && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
-        <CheckButton prefix={this.props.prefix} suffix={this.props.suffix} isChecked={this.isChecked()}
+        <CheckButton isChecked={this.isChecked()}
           onSelect={this.select}
           onDeselect={this.deSelect}
-          style={this.props.style?this.props.style:styles.checkButton} />
+          style={this.props.style?this.props.style:styles.checkButtonLabel} />
         {this.props.suffix!==undefined && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
     </View>
   }
@@ -496,7 +566,9 @@ export class FormCheckBox extends Component {
 export class FormCode extends Component {
   props: {
     value: ?string|?number,
+    errorMessage?: string,
     code: string,
+    filter: {},
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
@@ -504,6 +576,7 @@ export class FormCode extends Component {
     suffix?: string,
     readonly?: boolean,
     freestyle?: boolean,
+    autoSelect?: boolean,
     style?: any,
     onChangeValue?: (newvalue: ?string|?number) => void
   }
@@ -511,20 +584,46 @@ export class FormCode extends Component {
     showLabel: true
   }
 
+  componentWillReceiveProps(nextProps: any) {
+    //TODO or not TODO
+  }
+
+  getCodeIdentifier() {
+    if (this.props.code.includes('.')) {
+      return this.props.code.split('.')[1];
+    }
+    return undefined;
+  }
+
   updateValue = (newValue: ?string) => {
-    let newCode : ?string|?number = parseCode(this.props.code, newValue);
+    let newCode : ?string|?number = parseCode(this.props.code, newValue, this.getCodeIdentifier());
     this.props.onChangeValue && this.props.onChangeValue(newCode);
   }
 
+  selectedDescription(allDescriptions: string[]) : string {
+    if (this.props.autoSelect) {
+      if (allDescriptions===undefined || allDescriptions.length!=1) return '';
+      let description : string = formatCode(this.props.code, this.props.value);
+      if (!allDescriptions.includes(description)) {
+        return allDescriptions[0];
+      }
+      return description;
+    }
+    return formatCode(this.props.code, this.props.value);
+  }
+
   render() {
-    return <FormOptions labelWidth={this.props.labelWidth} label={this.props.label} showLabel={this.props.showLabel} readonly={this.props.readonly} freestyle={this.props.freestyle}
-      options={formatAllCodes(this.props.code)} value={formatCode(this.props.code, this.props.value)} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style}/>
+    const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
+    let selectedDescription: string = this.selectedDescription(allDescriptions);
+    return <FormOptions labelWidth={this.props.labelWidth} label={this.props.label} showLabel={this.props.showLabel} readonly={this.props.readonly} freestyle={this.props.freestyle} errorMessage={this.props.errorMessage}
+      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style}/>
   }
 }
 
 export class FormTextArrayInput extends Component {
   props: {
     value: ?string[],
+    errorMessage?: string,
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
@@ -538,7 +637,7 @@ export class FormTextArrayInput extends Component {
   render() {
     return <View style={styles.formElement}>
         {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-        <TextArrayField value={this.props.value} style={styles.formField} onChangeValue={this.props.onChangeValue} />
+        <TextArrayField value={this.props.value} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} onChangeValue={this.props.onChangeValue} />
       </View>
   }
 }
@@ -546,6 +645,7 @@ export class FormTextArrayInput extends Component {
 export class FormSelectionArray extends Component {
   props: {
     value: ?string[],
+    errorMessage?: string,
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
@@ -561,7 +661,7 @@ export class FormSelectionArray extends Component {
   render() {
     return <View style={styles.formElement}>
         {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-        <ButtonArray value={this.props.value} style={styles.formField} onAdd={this.props.onAdd} onRemove={this.props.onRemove} onSelect={this.props.onSelect} />
+        <ButtonArray value={this.props.value} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} onAdd={this.props.onAdd} onRemove={this.props.onRemove} onSelect={this.props.onSelect} />
       </View>
   }
 }
@@ -579,7 +679,10 @@ export class FormInput extends Component {
     showLabel?: boolean,
     visible?: boolean,
     style?: any,
-    onChangeValue: (value: ?string|?number) => void
+    onChangeValue: (value: ?string|?number) => void,
+    patientId: string,
+    examId: string,
+    filterValue: {}
   }
   state: {
     validation?: string
@@ -599,8 +702,28 @@ export class FormInput extends Component {
   componentWillReceiveProps(nextProps: any) {
     if (this.state.validation===undefined) {
       let validation = this.generateValidationCode(nextProps.value, nextProps.definition);
-      this.setState({validation});
+      this.setState({ validation });
     }
+  }
+
+  getFilterValue() : ?{} {
+    if (this.props.definition.filter instanceof Object && this.props.filterValue instanceof Object) {
+      let filledFilter = undefined;
+      const filterEntries : [][] = Object.entries(this.props.definition.filter);
+      for (let i : number=0; i<filterEntries.length; i++) {
+        const filterKey : string = filterEntries[i][0];
+        const filterValue: string = filterEntries[i][1];
+        if (filterValue!==undefined && filterValue!==null && filterValue.startsWith('[') && filterValue.endsWith(']')) {
+          if (filledFilter===undefined) {
+            filledFilter = deepClone(this.props.definition.filter);
+          }
+          const filledValue = getValue(this.props.filterValue, filterValue.substring(1, filterValue.length-1));
+          filledFilter[filterKey] = filledValue;
+        }
+      }
+      return filledFilter!=undefined?filledFilter:this.props.definition.filter;
+    }
+    return this.props.definition.filter;
   }
 
   generateValidationCode(value: string, definition: FieldDefinition) : ?string {
@@ -620,31 +743,36 @@ export class FormInput extends Component {
   renderFormInput() {
     const label : string = this.props.label?this.props.label:formatLabel(this.props.definition);
     const type : ?string = this.props.type?this.props.type:this.props.definition.type;
-    const style : ?any = this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formField;
+    const style : ?any = this.props.style?this.props.style:(this.props.multiline===true || this.props.definition.maxLength>100)?styles.formFieldLines:styles.formField;
     const readonly : boolean = this.props.readonly===true||this.props.definition.readonly===true;
     if (!this.props.definition || !this.props.visible) return null;
     if (isNumericField(this.props.definition)) {
-      return <FormNumberInput value={this.props.value} {...this.props.definition} readonly={readonly} onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} style={this.props.style}/>
+      return <FormNumberInput value={this.props.value} {...this.props.definition} errorMessage={this.props.errorMessage} readonly={readonly} onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} style={style}/>
     } else if (this.props.definition.options && this.props.definition.options.length>0) {
       const options = this.props.definition.options;
       if (!(options instanceof Array)) {
-        return <FormCode code={options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly}
-          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} onChangeValue={this.props.onChangeValue} style={this.props.style}/>
+        return <FormCode code={options} filter={this.getFilterValue()} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} errorMessage={this.props.errorMessage}
+          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style}/>
       }
       if (options.length===2 && (options[0]===undefined || options[0]===null || options[0]===false || options[0].toString().trim()==='' || this.props.definition.defaultValue===options[0]))
-        return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={this.props.style}/>
-      return <FormOptions options={this.props.definition.options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel}
-        readonly={readonly} onChangeValue={this.props.onChangeValue} style={this.props.style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} />
-    } else if ('pastDate'===type) {
-      return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={this.props.style}/>
+        return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage}/>
+      return <FormOptions options={this.props.definition.options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
+        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} />
+    } else if (type && type.includes('Date')) {
+      return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
+    } else if (type==='time' || type==='pastTime' || type==='futureTime') {
+      return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
+    } else if (this.props.definition.image==='upload') {
+      return <ImageUploadField value={this.props.value} fileName={this.props.definition.name} readonly={readonly} onChangeValue={this.props.onChangeValue} size={this.props.definition.size} style={style} patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage}/>
     } else if (this.props.definition.image!==undefined) {
-      return <ImageField value={this.props.value} image={this.props.definition.image} readonly={readonly} onChangeValue={this.props.onChangeValue} scale={1.5} style={this.props.style}/>
+      return <ImageField value={this.props.value} image={this.props.definition.image} resolution={this.props.definition.resolution} size={this.props.definition.size} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage}/>
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
-      type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100} style={this.props.style}/>//TODO keyboardType from definition type
+      type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100} style={style}/>//TODO keyboardType from definition type
   }
 
   render() {
+    if (!this.props.definition) return null;
     if (this.props.definition.layout) return  <View style={scaleStyle(this.props.definition.layout)}>
       {this.renderFormInput()}
     </View>
@@ -661,7 +789,9 @@ export class FormField extends Component {
     showLabel?: boolean,
     readonly?: boolean,
     multiline?: boolean,
-    onChangeValue: (value: {id: string}) => void
+    onChangeValue: (value: {id: string}) => void,
+    patientId: string,
+    examId: string
   }
   fieldNames: string[];
   fieldDefinition: ?FieldDefinition;
@@ -679,7 +809,7 @@ export class FormField extends Component {
     if (!this.props.value || !this.props.value.id) return null;
     let fieldDefinitions : ?FieldDefinitions = getFieldDefinitions(this.props.value.id);
     if (fieldDefinitions===undefined)    {
-      console.error('No fieldDefinitions exists for '+this.props.value.id);
+      //__DEV__ && console.warn('No fieldDefinitions exists for '+this.props.value.id);
       return undefined;
     }
     let fieldDefinition : ?FieldDefinition|?GroupDefinition;
@@ -688,8 +818,7 @@ export class FormField extends Component {
       if (fieldDefinition.fields) fieldDefinitions = fieldDefinition.fields;
     }
     if (fieldDefinition===undefined) {
-      __DEV__ && console.error('No fieldDefinition \''+this.props.fieldName+'\' exists for '+this.props.value.id);
-      return undefined;
+      //__DEV__ && console.warn('No fieldDefinition \''+this.props.fieldName+'\' exists for '+this.props.value.id);
     }
     return fieldDefinition;
   }
@@ -732,8 +861,23 @@ export class FormField extends Component {
 
   render() {
     if (this.fieldDefinition===undefined) return null;
-    return <FormInput value={this.getFieldValue()} errorMessage={this.getErrorMessage()} definition={this.fieldDefinition} showLabel={this.props.showLabel} readonly={this.props.readonly} label={this.props.label}
+    return <FormInput value={this.getFieldValue()} filterValue={this.props.value} errorMessage={this.getErrorMessage()} definition={this.fieldDefinition} showLabel={this.props.showLabel} readonly={this.props.readonly} label={this.props.label}
       type={this.props.type} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline}
-      onChangeValue={this.setFieldValue}  />
+      onChangeValue={this.setFieldValue} patientId={this.props.patientId} examId={this.props.examId} />
+  }
+}
+
+export class ErrorCard extends Component {
+  props: {
+    errors? : string[]
+  }
+
+  render() {
+    if (!this.props.errors || this.props.errors.length==0)
+      return null;
+    return <View style={styles.errorCard}>
+        <Text style={styles.cardTitle}>{(this.props.errors.length>1)?strings.errorsTitle:strings.errorTitle}</Text>
+        {this.props.errors.map((error: string, index: number) => <Text style={styles.text} key={index}>{error}</Text>)}
+    </View>
   }
 }

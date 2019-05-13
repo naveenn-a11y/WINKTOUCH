@@ -4,12 +4,12 @@
 'use strict';
 
 import type { FieldDefinitions, RestResponse } from './Types';
-import { capitalize } from './Util';
+import { capitalize, deepClone } from './Util';
 import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
-export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-//export const restUrl : string = 'https://ws-touch.downloadwink.com/Web/';
+//export const restUrl : string = 'http://127.0.0.1:8080/Web/';
+export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR/';
 
 let token : string;
 
@@ -22,7 +22,7 @@ export function getToken() : string {
   return token;
 }
 
-function getDataType(id: string) :string {
+export function getDataType(id: string) :string {
   if (!id) return id;
   const dashIndex = id.indexOf('-');
   const dataType : string = capitalize(dashIndex>=0?id.substring(0, dashIndex):id);
@@ -68,17 +68,18 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
   throw 'HTTP error '+httpResponse.status;
 }
 
-export function getDefinitionCacheKey(id: string) : string {
-    const cacheKey : string = getDataType(id)+'Definition-'+getUserLanguage();
+export function getDefinitionCacheKey(id: string, language: string = getUserLanguage()) : string {
+    const cacheKey : string = getDataType(id)+'Definition-'+language;
     return cacheKey;
 }
 
 export async function fetchItemDefinition(id: string, language: string) : FieldDefinitions {
   if (!id) return undefined;
-  const cacheKey : string = getDefinitionCacheKey(id);
+  const cacheKey : string = getDefinitionCacheKey(id, language);
   let definition : FieldDefinitions = getCachedItem(cacheKey);
   if (definition!==null && definition!==undefined) return definition;
   const url = constructTypeUrl(id)+'FieldDefinition';
+  __DEV__ && console.log('Fetching definition for '+cacheKey+'.');
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -94,7 +95,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
     return definition;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to get '+getDataType(id).toLowerCase()+' definition data from the server. Please try again.');
+    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase()));
     throw(error);
   }
 }
@@ -149,7 +150,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
     return item;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to get '+getDataType(id).toLowerCase()+' data from the server. Please try again.');
+    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase()));
     throw(error);
   }
 }
@@ -159,11 +160,12 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
 * Returns the original object with validation error messages per field in case the the object did not pass validation.
 * Returns the original object with a list of business errors in case they happened.
 * Shows a popup and returns the orriginal object in case of a system error.
-* Shows a popup and Returns the latest object from the server in case there was a concurrency conflict.
+* Shows a popup and Returns the latest object from the server in case there was a concurrency conflict. //TODO
 */
 export async function storeItem(item: any) : any {
   if (!item || !item.id) return undefined;
   clearErrors(item);
+  item.definition = undefined;
   const httpMethod :string = item.id.indexOf('-')>0?'put':'post';
   const url = constructTypeUrl(item.id);
   __DEV__ && console.log('Request '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
@@ -180,17 +182,20 @@ export async function storeItem(item: any) : any {
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
     const restResponse : RestResponse = await httpResponse.json();
-    __DEV__ && console.log('Response '+httpMethod+' '+url+' json body: '+JSON.stringify(restResponse));
+    if (__DEV__) {
+      let cleanedResponse = deepClone(restResponse);
+      cleanedResponse.fields = 'field definition omitted in print';
+      console.log('Response '+httpMethod+' '+url+' json body: '+JSON.stringify(cleanedResponse));
+    }
     let updatedItem;
     if (restResponse.hasValidationError || restResponse.errors) {
       if (restResponse.errors) {
-        console.log('restResponse contains business errors: '+ JSON.stringify(restResponse));
-        alert(restResponse.errors);
-      } else {
-        restResponse.errors = [];
+        __DEV__ && console.log('restResponse contains business errors: '+ JSON.stringify(restResponse));
+      } else if (restResponse.hasValidationError) {
+        restResponse.errors=[strings.validationErrorMessage];
       }
       clearCachedItemById(item);
-      await fetchItemById(item.id);
+      await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
       return restResponse;
     } else {
       updatedItem = restResponse[getItemFieldName(item.id)];
@@ -204,8 +209,8 @@ export async function storeItem(item: any) : any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert('Something went terribly wrong trying to save '+getDataType(item.id).toLowerCase()+' data on the server.');
-    item.errors = ['Something went terribly wrong trying to save '+getDataType(item.id).toLowerCase()+' data on the server.'];
+    alert(strings.formatString(strings.storeItemError, getDataType(id).toLowerCase()));
+    item.errors = [strings.formatString(strings.storeItemError, getDataType(id).toLowerCase())];
     return item;
   }
 }
@@ -236,7 +241,7 @@ export async function deleteItem(item: any) : any {
     }
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to store '+getDataType(item.id).toLowerCase()+' data on the server. Please try again.');
+    alert(strings.formatString(strings.storeItemError, getDataType(id).toLowerCase()));
     throw(error);
   }
 }
@@ -262,6 +267,7 @@ export function appendParameters(url: string, searchCritera: Object) : string {
 
 export async function searchItems(list: string, searchCritera: Object) : any {
   let url : string = restUrl + list;
+  __DEV__ && console.log('GET '+url+": "+JSON.stringify(searchCritera));
   try {
     url = appendParameters(url, searchCritera);
     let httpResponse = await fetch(url, {

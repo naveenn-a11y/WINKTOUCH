@@ -7,7 +7,7 @@ import {styles, fontScale} from './Styles';
 import { strings, getUserLanguage, switchLanguage } from './Strings';
 import { Button } from './Widgets';
 import { handleHttpError } from './Rest';
-import { dbVersion, touchVersion, bundleVersion, deploymentVersion } from './EhrApp';
+import { dbVersion, touchVersion, bundleVersion, deploymentVersion } from './Version';
 
 //const securityQuestionUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationEmail?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch';
 //const touchVersionUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationSecurity?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch&touchVersion=true';
