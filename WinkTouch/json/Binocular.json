@@ -1,0 +1,482 @@
+{
+  "name": "Binocular",
+  "scrollable": true,
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Vision testing.5",
+  "fields": [
+    {
+      "name": "Phorias",
+      "columns": [
+        [
+          "Distant vision",
+          "Near vision"
+        ]
+      ],
+      "size": "M",
+      "fields": [
+        {
+          "name": "Distant vision",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Horizontal",
+              "suffix": [
+                " Eso",
+                " Exo"
+              ],
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Vertical",
+              "suffix": [
+                " Hyper",
+                " Hypo"
+              ],
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 20
+            }
+          ]
+        },
+        {
+          "name": "Near vision",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Horizontal",
+              "suffix": [
+                " Eso",
+                " Exo"
+              ],
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Vertical",
+              "suffix": [
+                " Hyper",
+                " Hypo"
+              ],
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vergence BI",
+      "columns": [
+        [
+          "Distant",
+          "Near"
+        ]
+      ],
+      "size": "S",
+      "fields": [
+        {
+          "name": "Distant",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        },
+        {
+          "name": "Near",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vergence BO",
+      "columns": [
+        [
+          "Distant",
+          "Near"
+        ]
+      ],
+      "size": "S",
+      "fields": [
+        {
+          "name": "Distant",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        },
+        {
+          "name": "Near",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vergence BU",
+      "optional": true,
+      "columns": [
+        [
+          "Distant",
+          "Near"
+        ]
+      ],
+      "size": "S",
+      "fields": [
+        {
+          "name": "Distant",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        },
+        {
+          "name": "Near",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vergence BD",
+      "optional": true,
+      "columns": [
+        [
+          "Distant",
+          "Near"
+        ]
+      ],
+      "size": "S",
+      "fields": [
+        {
+          "name": "Distant",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        },
+        {
+          "name": "Near",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Blur",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50,
+              "options": [
+                "X"
+              ]
+            },
+            {
+              "minValue": 0,
+              "name": "Break",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            },
+            {
+              "minValue": 0,
+              "name": "Recov.",
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Accomodation",
+      "optional": false,
+      "columns": [
+        [
+          "OD",
+          "OS"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "name": "Amp.",
+              "minValue": 1,
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 20
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "name": "Amp.",
+              "minValue": 1,
+              "suffix": " cm",
+              "freestyle": true,
+              "maxValue": 20
+            }
+          ]
+        },
+        {
+          "name": "AC/A ratio",
+          "minValue": 1,
+          "suffix": ":1",
+          "freestyle": true,
+          "maxValue": 20
+        },
+        {
+          "decimals": 2,
+          "minValue": 0,
+          "name": "NRA",
+          "stepSize": 0.25,
+          "freestyle": true,
+          "maxValue": 10
+        },
+        {
+          "decimals": 2,
+          "minValue": 0,
+          "name": "PRA",
+          "stepSize": 0.25,
+          "freestyle": true,
+          "maxValue": 10
+        }
+      ]
+    },
+    {
+      "name": "Pursuits",
+      "optional": true,
+      "fields": [
+        {
+          "normalValue": "Smooth and precise",
+          "name": "OD",
+          "freestyle": true,
+          "options": [
+            "Smooth and precise"
+          ]
+        },
+        {
+          "normalValue": "Smooth and precise",
+          "name": "OS",
+          "freestyle": true,
+          "options": [
+            "Smooth and precise"
+          ]
+        }
+      ],
+      "size": "S"
+    },
+    {
+      "name": "Saccades",
+      "optional": true,
+      "fields": [
+        {
+          "normalValue": "Smooth and precise",
+          "name": "OD",
+          "freestyle": true,
+          "options": [
+            "Smooth and precise"
+          ]
+        },
+        {
+          "normalValue": "Smooth and precise",
+          "name": "OS",
+          "freestyle": true,
+          "options": [
+            "Smooth and precise"
+          ]
+        }
+      ],
+      "size": "S"
+    },
+    {
+      "name": "Notes",
+      "optional": true,
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "label": "",
+          "freestyle": true
+        }
+      ],
+      "size": "L"
+    }
+  ],
+  "relatedExams": [
+    "Cover test"
+  ]
+}

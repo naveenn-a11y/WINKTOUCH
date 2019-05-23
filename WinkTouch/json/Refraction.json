@@ -1,0 +1,146 @@
+{
+  "name": "Refraction",
+  "cardGroup": "Subjective refraction",
+  "graph": {
+    "fields": [
+      "Subjective refraction.od.sph",
+      "Subjective refraction.os.sph"
+    ]
+  },
+  "scrollable": true,
+  "type": "groupedForm",
+  "section": "Vision testing.6",
+  "relatedExams": [
+    "Auto refractor",
+    "Lensometry",
+    "Binocular"
+  ],
+  "fields": [
+    {
+      "hasVA": true,
+      "canBeCopied": true,
+      "hasAdd": true,
+      "name": "Subjective refraction",
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "name": "Maximum VA refraction",
+      "optional": true,
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "name": "Compensated refraction",
+      "optional": true,
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "name": "Duochrome",
+      "optional": true,
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": true,
+      "name": "Final Rx",
+      "type": "SRx",
+      "fields": [
+        {
+          "name": "od",
+          "fields": [
+            {
+              "mappedField": "visit.prescription.od.sph",
+              "name": "sph"
+            },
+            {
+              "mappedField": "visit.prescription.od.cyl",
+              "name": "cyl"
+            },
+            {
+              "mappedField": "visit.prescription.od.axis",
+              "name": "axis"
+            },
+            {
+              "mappedField": "visit.prescription.od.prism1",
+              "name": "prism1"
+            },
+            {
+              "mappedField": "visit.prescription.od.prism1b",
+              "name": "prism1b"
+            },
+            {
+              "mappedField": "visit.prescription.od.prism2",
+              "name": "prism2"
+            },
+            {
+              "mappedField": "visit.prescription.od.prism2b",
+              "name": "prism2b"
+            },
+            {
+              "mappedField": "visit.prescription.od.add",
+              "name": "add"
+            },
+            {
+              "mappedField": "visit.prescription.od.va",
+              "name": "va"
+            },
+            {
+              "mappedField": "visit.prescription.od.addVa",
+              "name": "addVa"
+            }
+          ]
+        },
+        {
+          "name": "os",
+          "fields": [
+            {
+              "mappedField": "visit.prescription.os.sph",
+              "name": "sph"
+            },
+            {
+              "mappedField": "visit.prescription.os.cyl",
+              "name": "cyl"
+            },
+            {
+              "mappedField": "visit.prescription.os.axis",
+              "name": "axis"
+            },
+            {
+              "mappedField": "visit.prescription.os.prism1",
+              "name": "prism1"
+            },
+            {
+              "mappedField": "visit.prescription.os.prism1b",
+              "name": "prism1b"
+            },
+            {
+              "mappedField": "visit.prescription.os.prism2",
+              "name": "prism2"
+            },
+            {
+              "mappedField": "visit.prescription.os.prism2b",
+              "name": "prism2b"
+            },
+            {
+              "mappedField": "visit.prescription.os.add",
+              "name": "add"
+            },
+            {
+              "mappedField": "visit.prescription.os.va",
+              "name": "va"
+            },
+            {
+              "mappedField": "visit.prescription.os.addVa",
+              "name": "addVa"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

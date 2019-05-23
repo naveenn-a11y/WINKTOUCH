@@ -1,0 +1,178 @@
+{
+  "name": "Biomicroscopy",
+  "scrollable": true,
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Anterior exam.3",
+  "relatedExams": [
+    "Tonometry",
+    "Chief complaint",
+    "Pupils"
+  ],
+  "fields": [
+    {
+      "name": "OD",
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/anteriorOD.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "OS",
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/anteriorOS.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "Notations",
+      "optional": true,
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/notations.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "Anterior",
+      "columns": [
+        [
+          "OD",
+          "\u003e\u003e",
+          "OS"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "normalValue": "WNL",
+              "name": "Lid/Lashes",
+              "freestyle": true,
+              "options": "lidLashesCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Conjunctiva",
+              "freestyle": true,
+              "options": "conjunctivaCodes"
+            },
+            {
+              "normalValue": "Clear",
+              "name": "Cornea",
+              "freestyle": true,
+              "options": "corneaCodes"
+            },
+            {
+              "normalValue": "D\u0026Q",
+              "name": "AC",
+              "minValue": 1,
+              "freestyle": true,
+              "suffix": "aCSuffixCodes",
+              "maxValue": 4
+            },
+            {
+              "normalValue": "Flat/Clear",
+              "name": "Iris",
+              "freestyle": true,
+              "options": "irisCodes"
+            },
+            {
+              "normalValue": "Clear",
+              "name": "Lens",
+              "freestyle": true,
+              "options": "lensCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "TBUT",
+              "minValue": 0,
+              "suffix": " s",
+              "freestyle": true,
+              "maxValue": 8,
+              "options": [
+                "WNL"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "normalValue": "WNL",
+              "name": "Lid/Lashes",
+              "freestyle": true,
+              "options": "lidLashesCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Conjunctiva",
+              "freestyle": true,
+              "options": "conjunctivaCodes"
+            },
+            {
+              "normalValue": "Clear",
+              "name": "Cornea",
+              "freestyle": true,
+              "options": "corneaCodes"
+            },
+            {
+              "normalValue": "D\u0026Q",
+              "name": "AC",
+              "minValue": 1,
+              "freestyle": true,
+              "suffix": "aCSuffixCodes",
+              "maxValue": 4
+            },
+            {
+              "normalValue": "Flat/Clear",
+              "name": "Iris",
+              "freestyle": true,
+              "options": "irisCodes"
+            },
+            {
+              "normalValue": "Clear",
+              "name": "Lens",
+              "freestyle": true,
+              "options": "lensCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "TBUT",
+              "minValue": 0,
+              "suffix": " s",
+              "freestyle": true,
+              "maxValue": 8,
+              "options": [
+                "WNL"
+              ]
+            }
+          ]
+        }
+      ],
+      "size": "L"
+    },
+    {
+      "name": "Notes",
+      "optional": true,
+      "size": "L",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "label": ""
+        }
+      ]
+    }
+  ]
+}

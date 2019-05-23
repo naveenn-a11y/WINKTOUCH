@@ -1,0 +1,33 @@
+{
+  "name": "Treatment",
+  "isAssessment": true,
+  "scrollable": false,
+  "cardFields": [
+    [
+      "Treatment plan.Recommendation",
+      "Treatment plan.Treatment"
+    ]
+  ],
+  "type": "groupedForm",
+  "relatedExams": [
+    "Diagnose"
+  ],
+  "fields": [
+    {
+      "name": "Treatment plan",
+      "fields": [
+        {
+          "name": "Recommendation",
+          "freestyle": true,
+          "options": "resumeRecommandationCode"
+        },
+        {
+          "maxLength": 250,
+          "name": "Treatment",
+          "freestyle": false
+        }
+      ],
+      "size": "M"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "name": "Review of systems",
+  "addable": false,
+  "cardFields": [],
+  "starable": false,
+  "type": "selectionLists",
+  "section": "History.41",
+  "editable": true,
+  "fields": [
+    {
+      "normalValue": "Normal",
+      "name": "General/Constitutional",
+      "multiValue": true,
+      "options": [
+        "Normal",
+        "Weight loss",
+        "Weight gain",
+        "Fever",
+        "Chills",
+        "Insomnia",
+        "Fatigue",
+        "Weakness"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Ears/Nose/Mouth/Throat",
+      "multiValue": true,
+      "options": [
+        "Normal",
+        "Cough",
+        "Stuffy nose",
+        "Hay fever",
+        "Nosebleeds",
+        "Sinus congestion",
+        "Dry mouth",
+        "Sore throat",
+        "Hoarseness",
+        "Thrush",
+        "Mouth sores",
+        "Dentures",
+        "Decreased hearing",
+        "Earache",
+        "Ear drainage"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Cardiovascular",
+      "multiValue": true,
+      "options": [
+        "Normal",
+        "Arrhythmia",
+        "Chest pain or discmfort (Angina)",
+        "Difficulty breathing lying down (orthopnea)",
+        "History of Heart disease",
+        "High cholesterol",
+        "Murmur",
+        "Pacemaker",
+        "Shortness of breath with activity (dyspnea)",
+        "Stint",
+        "Szelling",
+        "Valve defect"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Respiratory",
+      "multiValue": true,
+      "options": [
+        "Normal",
+        "Bronchitis",
+        "Emphysema",
+        "COPD",
+        "Hemoptosis",
+        "Lung cancer",
+        "Pneumonia",
+        "Tuberculosis"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Gastrointestinal",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Genitourinary",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Musculosketletal",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Integumentary",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Neurological",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Endocrine",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Myphatic/Hematological",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Allergic/Immunologic",
+      "multiValue": true,
+      "options": [
+        "Normal"
+      ]
+    }
+  ]
+}

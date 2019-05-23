@@ -1,0 +1,36 @@
+{
+  "name": "Diagnose",
+  "addable": true,
+  "isAssessment": true,
+  "cardFields": [
+    "procedureCode",
+    "icdCode",
+    "comment"
+  ],
+  "label": "Diagnosis",
+  "starable": false,
+  "type": "selectionLists",
+  "fields": [
+    {
+      "name": "procedureCode",
+      "label": "Procedure",
+      "simpleSelect": true,
+      "options": "procedureCodes"
+    },
+    {
+      "name": "icdCode",
+      "label": "Diagnosis",
+      "multiValue": false,
+      "simpleSelect": true,
+      "newLine": true,
+      "options": "icdCodes"
+    },
+    {
+      "maxLength": 500,
+      "name": "comment",
+      "label": "Comment",
+      "freestyle": true,
+      "options": []
+    }
+  ]
+}

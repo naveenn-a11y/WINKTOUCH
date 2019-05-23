@@ -1,0 +1,32 @@
+{
+  "name": "Lensometry",
+  "order": "4",
+  "type": "groupedForm",
+  "section": "Vision testing.4",
+  "fields": [
+    {
+      "name": "Lens Type",
+      "fields": [
+        {
+          "name": "Lens Type",
+          "label": "",
+          "options": "lensTypeCodes"
+        },
+        {
+          "normalValue": "Glasses",
+          "name": "No glasses",
+          "defaultValue": "Glasses",
+          "options": [
+            "Glasses",
+            "No glasses"
+          ]
+        }
+      ]
+    },
+    {
+      "hasAdd": true,
+      "name": "Lensometry",
+      "type": "SRx"
+    }
+  ]
+}

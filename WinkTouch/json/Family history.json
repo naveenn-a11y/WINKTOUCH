@@ -1,0 +1,34 @@
+{
+  "name": "Family history",
+  "addable": true,
+  "cardFields": [
+    "Disease / Condition"
+  ],
+  "starable": true,
+  "essentialFields": [
+    "Disease / Condition"
+  ],
+  "type": "selectionLists",
+  "editable": false,
+  "section": "History.31",
+  "fields": [
+    {
+      "name": "Disease / Condition",
+      "required": true,
+      "freestyle": true,
+      "options": "familyDiseaseCodes"
+    },
+    {
+      "name": "Relation",
+      "multiValue": true,
+      "required": true,
+      "freestyle": true,
+      "options": "familyRelationCodes"
+    },
+    {
+      "maxLength": 500,
+      "name": "Notes",
+      "freestyle": false
+    }
+  ]
+}

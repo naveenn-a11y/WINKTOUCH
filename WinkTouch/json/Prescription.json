@@ -1,0 +1,88 @@
+{
+  "name": "Prescription",
+  "addable": true,
+  "isAssessment": true,
+  "cardFields": [
+    "Label",
+    "Strength"
+  ],
+  "label": "Medication",
+  "starable": true,
+  "type": "selectionLists",
+  "essentialFields": [
+    "Label"
+  ],
+  "fields": [
+    {
+      "name": "Label",
+      "required": true,
+      "freestyle": true,
+      "options": "santeMedicament2Code"
+    },
+    {
+      "name": "Strength",
+      "required": true,
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": [
+        "10 mg",
+        "20 mg",
+        "30 mg",
+        "50 mg",
+        "100 mg",
+        "200 mg"
+      ]
+    },
+    {
+      "name": "Dosage",
+      "freestyle": true,
+      "options": [
+        "1 drop",
+        "2 drops",
+        "3 drops",
+        "1 capsule",
+        "2 capsules",
+        "1 tablet",
+        "2 tablets",
+        "1 tablespoon"
+      ]
+    },
+    {
+      "name": "Frequency",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": "frequencyCodes"
+    },
+    {
+      "name": "Duration",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": [
+        "1 day",
+        "2 days",
+        "3 days",
+        "4 days",
+        "1 week",
+        "2 weeks",
+        "1 month",
+        "2 months",
+        "1 year"
+      ]
+    },
+    {
+      "name": "Instructions",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": [
+        "Take before food",
+        "Take after food",
+        "Shake well before use"
+      ]
+    },
+    {
+      "maxLength": 500,
+      "name": "Comment",
+      "freestyle": true
+    }
+  ]
+}

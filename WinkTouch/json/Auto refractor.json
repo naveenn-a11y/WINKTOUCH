@@ -1,0 +1,31 @@
+{
+  "name": "Auto refractor",
+  "graph": {
+    "fields": [
+      "Auto refractor.od.sph",
+      "Auto refractor.os.sph"
+    ]
+  },
+  "order": "4",
+  "type": "groupedForm",
+  "section": "Vision testing.3",
+  "fields": [
+    {
+      "hasAdd": false,
+      "name": "Auto refractor",
+      "type": "SRx"
+    },
+    {
+      "name": "Scan",
+      "fields": [
+        {
+          "name": "AR scan",
+          "image": "upload",
+          "label": "",
+          "type": "Testresult scan"
+        }
+      ],
+      "size": "M"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "name": "Pupils",
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Entrance testing.1",
+  "fields": [
+    {
+      "name": "Pupils",
+      "columns": [
+        [
+          "OD",
+          "\u003e\u003e",
+          "OS"
+        ]
+      ],
+      "size": "L",
+      "fields": [
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "name": "Diameter",
+              "suffix": " mm",
+              "freestyle": true,
+              "options": "pupilDiameterCodes"
+            },
+            {
+              "name": "Form",
+              "freestyle": true,
+              "options": "pupilFormCodes"
+            },
+            {
+              "name": "Reaction",
+              "freestyle": true,
+              "options": "pupilReactionCodes"
+            },
+            {
+              "name": "M.Gunn",
+              "freestyle": true,
+              "options": "pupilMGunnCodes"
+            },
+            {
+              "name": "Accom.",
+              "freestyle": true,
+              "options": "pupilAccomodationCodes"
+            },
+            {
+              "name": "Eye color",
+              "freestyle": true,
+              "options": "pupilColorCodes"
+            },
+            {
+              "name": "Diagnose",
+              "freestyle": true,
+              "options": "pupilDiagnoseCodes"
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "name": "Diameter",
+              "suffix": " mm",
+              "freestyle": true,
+              "options": "pupilDiameterCodes"
+            },
+            {
+              "name": "Form",
+              "freestyle": true,
+              "options": "pupilFormCodes"
+            },
+            {
+              "name": "Reaction",
+              "freestyle": true,
+              "options": "pupilReactionCodes"
+            },
+            {
+              "name": "M.Gunn",
+              "freestyle": true,
+              "options": "pupilMGunnCodes"
+            },
+            {
+              "name": "Accom.",
+              "freestyle": true,
+              "options": "pupilAccomodationCodes"
+            },
+            {
+              "name": "Eye color",
+              "freestyle": true,
+              "options": "pupilColorCodes"
+            },
+            {
+              "name": "Diagnose",
+              "freestyle": true,
+              "options": "pupilDiagnoseCodes"
+            }
+          ]
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "freestyle": true
+        }
+      ]
+    }
+  ]
+}

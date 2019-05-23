@@ -1,0 +1,72 @@
+{
+  "name": "Chief complaint",
+  "addable": true,
+  "cardFields": [],
+  "starable": true,
+  "type": "selectionLists",
+  "essentialFields": [
+    "Chief complaint"
+  ],
+  "section": "Chief complaint.2",
+  "fields": [
+    {
+      "name": "Chief complaint",
+      "multiValue": false,
+      "required": true,
+      "freestyle": true,
+      "options": "chiefComplaintCodes"
+    },
+    {
+      "name": "Location",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintLocationCodes"
+    },
+    {
+      "name": "Quality",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintQualityCodes"
+    },
+    {
+      "name": "Severity",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintSeverityCodes"
+    },
+    {
+      "name": "Timing",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintTimingCodes"
+    },
+    {
+      "name": "Duration",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintDurationCodes"
+    },
+    {
+      "name": "Context",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintContextCodes"
+    },
+    {
+      "name": "Modifying factor",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintFactorCodes"
+    },
+    {
+      "name": "Associated Sign",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "complaintSignCodes"
+    },
+    {
+      "maxLength": 500,
+      "name": "Notes"
+    }
+  ]
+}

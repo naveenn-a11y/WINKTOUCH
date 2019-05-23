@@ -1,0 +1,300 @@
+{
+  "name": "Fundus exam",
+  "scrollable": true,
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Posterior exam.2",
+  "relatedExams": [
+    "Dilation",
+    "Chief complaint"
+  ],
+  "fields": [
+    {
+      "name": "OD",
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/posteriorOD.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "OS",
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/posteriorOS.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "Posterior",
+      "columns": [
+        [
+          "OD",
+          "\u003e\u003e",
+          "OS"
+        ]
+      ],
+      "multiValue": false,
+      "rows": [
+        [
+          "Lens",
+          "Dilated"
+        ]
+      ],
+      "size": "L",
+      "fields": [
+        {
+          "name": "Dilated",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Dilated"
+          ]
+        },
+        {
+          "name": "Lens",
+          "suffix": [
+            " ",
+            ""
+          ],
+          "freestyle": true,
+          "options": "posteriorLensCodes"
+        },
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "normalValue": "Clear",
+              "name": "Vitreous",
+              "freestyle": true,
+              "options": "vitreousCodes"
+            },
+            {
+              "normalValue": "Pink and distinct",
+              "name": "Optic Disc",
+              "freestyle": true,
+              "options": "opticDiscCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "C/D Ratio",
+              "combineOptions": true,
+              "suffix": [
+                " ",
+                " ",
+                " "
+              ],
+              "freestyle": true,
+              "options": [
+                [
+                  "0.30 H",
+                  "0.35 H",
+                  "0.40 H",
+                  "0.45 H",
+                  "0.50 H",
+                  "0.55 H",
+                  "0.60 H",
+                  "0.65 H",
+                  "0.70 H",
+                  "0.75 H",
+                  "0.80 H",
+                  "0.85 H",
+                  "0.90 H",
+                  "0.95 H"
+                ],
+                [
+                  "0.30 V",
+                  "0.35 V",
+                  "0.40 V",
+                  "0.45 V",
+                  "0.50 V",
+                  "0.55 V",
+                  "0.60 V",
+                  "0.65 V",
+                  "0.70 V",
+                  "0.75 V",
+                  "0.80 V",
+                  "0.85 V",
+                  "0.90 V",
+                  "0.95 V"
+                ],
+                [
+                  "Pink and flat",
+                  "Total cupping",
+                  "WNL"
+                ]
+              ]
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Vessels",
+              "freestyle": true,
+              "options": "vesselsCodes"
+            },
+            {
+              "normalValue": "No diabetic maculopathy",
+              "name": "Macula",
+              "freestyle": true,
+              "options": "maculaCodes"
+            },
+            {
+              "normalValue": "Yes",
+              "name": "Foveal reflex",
+              "defaultValue": "No",
+              "options": [
+                "No",
+                "Yes"
+              ]
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Retina",
+              "freestyle": true,
+              "options": "retinaCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Posterior Pole",
+              "freestyle": true,
+              "options": [
+                "WNL"
+              ]
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Periphery",
+              "freestyle": true,
+              "options": "peripheryCodes"
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "normalValue": "Clear",
+              "name": "Vitreous",
+              "freestyle": true,
+              "options": "vitreousCodes"
+            },
+            {
+              "normalValue": "Pink and distinct",
+              "name": "Optic Disc",
+              "freestyle": true,
+              "options": "opticDiscCodes"
+            },
+            {
+              "normalValue": [
+                "WNL"
+              ],
+              "name": "C/D Ratio",
+              "combineOptions": true,
+              "suffix": [
+                " ",
+                " ",
+                " "
+              ],
+              "freestyle": true,
+              "options": [
+                [
+                  "0.30 H",
+                  "0.35 H",
+                  "0.40 H",
+                  "0.45 H",
+                  "0.50 H",
+                  "0.55 H",
+                  "0.60 H",
+                  "0.65 H",
+                  "0.70 H",
+                  "0.75 H",
+                  "0.80 H",
+                  "0.85 H",
+                  "0.90 H",
+                  "0.95 H"
+                ],
+                [
+                  "0.30 V",
+                  "0.35 V",
+                  "0.40 V",
+                  "0.45 V",
+                  "0.50 V",
+                  "0.55 V",
+                  "0.60 V",
+                  "0.65 V",
+                  "0.70 V",
+                  "0.75 V",
+                  "0.80 V",
+                  "0.85 V",
+                  "0.90 V",
+                  "0.95 V"
+                ],
+                [
+                  "Pink and flat",
+                  "Total cupping",
+                  "WNL"
+                ]
+              ]
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Vessels",
+              "freestyle": true,
+              "options": "vesselsCodes"
+            },
+            {
+              "normalValue": "No diabetic maculopathy",
+              "name": "Macula",
+              "freestyle": true,
+              "options": "maculaCodes"
+            },
+            {
+              "normalValue": "Yes",
+              "name": "Foveal reflex",
+              "defaultValue": "No",
+              "options": [
+                "No",
+                "Yes"
+              ]
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Retina",
+              "freestyle": true,
+              "options": "retinaCodes"
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Posterior Pole",
+              "freestyle": true,
+              "options": [
+                "WNL"
+              ]
+            },
+            {
+              "normalValue": "WNL",
+              "name": "Periphery",
+              "freestyle": true,
+              "options": "peripheryCodes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notes",
+      "optional": true,
+      "size": "L",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "label": ""
+        }
+      ]
+    }
+  ]
+}

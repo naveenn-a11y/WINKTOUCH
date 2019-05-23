@@ -1,0 +1,32 @@
+{
+  "name": "Dominance",
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Entrance testing.1.1",
+  "fields": [
+    {
+      "name": "Dominance",
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Method",
+          "freestyle": false,
+          "options": [
+            "Alignment",
+            "Lens fogging"
+          ]
+        },
+        {
+          "name": "Dominant eye",
+          "freestyle": false,
+          "options": "dominantEyeCodes"
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "freestyle": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Paper form",
+  "image": "./image/ToulchExam.pdf",
+  "type": "paperForm",
+  "section": "Form.1",
+  "card": false
+}
