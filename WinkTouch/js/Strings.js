@@ -135,6 +135,7 @@ export const strings = new LocalizedStrings({
       fetchItemError: 'Something went wrong trying to get {0} data from the server. Please try again.',
       storeItemError:  'Something went wrong trying to save {0} data on the server.',
       maximumAddableGroupError: 'You can not add more then {0} {1}.',
+      doctorWithoutVisitTypeError: 'Doctor {0} is not set up for the EHR yet in the database.'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez mettre l\'adresse e-mail que vous avez utilisée pour enregistrer votre compte chez Wink',
@@ -237,6 +238,7 @@ export const strings = new LocalizedStrings({
       fetchItemError: 'Something went wrong trying to get {0} data from the server. Please try again.',
       storeItemError:  'Something went wrong trying to save {0} data on the server.',
       maximumAddableGroupError: 'Vous ne pouvez pas ajouter plus que {0} {1}.',
+      doctorWithoutVisitTypeError: 'Docteur {0} n\'est pas encore configuré pour utiliser l\'application mobile.'      
     },
 });
 

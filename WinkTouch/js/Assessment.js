@@ -47,49 +47,21 @@ export class AssessmentCard extends PureComponent {
 
 export class PrescriptionCard extends Component {
   props: {
-    visit: Visit,
+    exam: Exam,
     title?: string
   }
 
   render() {
-    if (this.props.visit===undefined) return null;
+    if (this.props.exam===undefined) return null;
     return <View style={styles.assessmentCard}>
         {this.props.title && <View style={styles.centeredRowLayout}>
           <Text style={styles.sectionTitle}>{this.props.title}</Text>
         </View>}
         <View style={styles.formRow500}>
-          <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} glassesRx={this.props.visit.prescription}
+          <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} glassesRx={this.props.exam.RxToOrder['Final Rx']}
             style={styles.flexColumnLayout} editable={false} hasAdd={true}/>
         </View>
       </View>
-  }
-}
-
-export class RecallCard extends Component {
-  props: {
-    visit: Visit,
-    editable?: boolean,
-    onUpdateVisit : (visit: Visit) => void
-  }
-  static defaultProps = {
-    editable: true
-  }
-
-  render() {
-    return <View><View style={styles.assessmentCard}>
-        <View style={styles.centeredRowLayout}>
-          <Text style={styles.sectionTitle}>{strings.recall}</Text>
-        </View>
-        <View style={styles.columnLayout}>
-            <View style={styles.formRow500}>
-              <FormField value={this.props.visit} fieldName='recall.amount' onChangeValue={this.props.onUpdateVisit} />
-              <FormField value={this.props.visit} fieldName='recall.unit' onChangeValue={this.props.onUpdateVisit} />
-            </View>
-            <View style={styles.formRow500}>
-              <FormField value={this.props.visit} fieldName='recall.notes' onChangeValue={this.props.onUpdateVisit} multiline={true} />
-            </View>
-        </View>
-    </View></View>
   }
 }
 

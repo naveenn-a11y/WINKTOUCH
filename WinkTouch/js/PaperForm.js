@@ -5,14 +5,16 @@
 
 import React, { Component } from 'react';
 import { View, Text, Image, ScrollView, TextInput, StyleSheet} from 'react-native';
-import type {Exam, GlassesRx, FieldDefinition, ExamDefinition, GroupDefinition } from './Types';
+import type {Exam, GlassesRx, FieldDefinition, ExamDefinition, GroupDefinition, PatientInfo} from './Types';
 import { styles, fontScale, imageStyle} from './Styles';
 import { DiopterField, DegreeField } from './Refraction';
 import { CheckButton, DateField, ImageField, NumberField, TilesField } from './Widgets';
 import { FormInput } from './Form';
 import { formatLabel } from './Items';
 import { getCachedItem } from './DataCache';
-import { storeExam, getFieldDefinition, getFieldValue, getVisit, getExam } from './Exam';
+import { deepClone } from './Util';
+import { storeExam, getFieldDefinition, getFieldValue, getVisit, getExam, getPatient } from './Exam';
+import { storePatientInfo } from './Patient';
 
 const textStyle = StyleSheet.create({textStyle: {backgroundColor: 'white', alignSelf: 'center', flex:100, textAlign:'right', fontSize: 21 * fontScale, padding: 5*fontScale, margin: 0.5*fontScale}}).textStyle;
 const textLeftStyle = StyleSheet.create({textStyle: {backgroundColor: 'white', alignSelf: 'center', flex:100, textAlign:'left', fontSize: 21 * fontScale, padding: 5*fontScale, margin: 0.5*fontScale}}).textStyle;
@@ -79,15 +81,29 @@ export class PaperFormScreen extends Component {
       }
     }
 
-    async storeExam(exam: Exam) {
-      //TODO: why don't we call this.props.onUpdateExam?
-      if (!this.props.appointmentStateKey || !this.props.navigation) return;
+    async storeOtherExam(exam: Exam) {
+      //if (!this.props.appointmentStateKey || !this.props.navigation) return;
       try {
         await storeExam(exam, this.props.appointmentStateKey, this.props.navigation);
       } catch (error) {
         alert(error); //TODO
       }
       this.forceUpdate();
+    }
+
+    async storePatient(patient: PatientInfo) {
+      try {
+        await storePatientInfo(patient);
+      } catch (error) {
+        alert(error); //TODO
+      }
+      this.forceUpdate();
+    }
+
+    componentWillUnmount() {
+      if (this.state.isDirty && this.props.onUpdateExam) {
+        this.props.onUpdateExam(this.props.exam);
+      }
     }
 
     updateFieldValue(fieldIdentifier: string, newValue: any) {
@@ -111,9 +127,18 @@ export class PaperFormScreen extends Component {
           }
         }
         this.forceUpdate();
-        this.storeExam(exam);
-      } else {
-        console.error('unsupported paperform field src: '+fieldSrc);
+        this.storeOtherExam(exam);
+      } else if (fieldSrc==='patient') {
+          let fieldName = fieldIdentifier.substring('patient.'.length);
+          let patient: PatientInfo = getPatient(this.props.exam);
+          patient[fieldName]=newValue;
+          this.forceUpdate();
+          this.storePatient(patient);
+     } else {
+        if (fieldIdentifier.indexOf('.')!==-1) console.error('Can not update paperform field: '+fieldIdentifier);
+        const exam: Exam = this.props.exam;
+        exam[fieldIdentifier] = newValue;
+        this.setState({isDirty: true});
       }
     }
 
@@ -123,27 +148,71 @@ export class PaperFormScreen extends Component {
       this.setState({glassesRx});
     }
 
-    renderToulchExamFront() {
+    renderToulchExam() {
+      if (!this.props.exam) return null;
       return <View>
-          <ImageField image='./image/ToulchExamFront.jpg' resolution='810x1068' size='XL'  popup={false}
+          <ImageField image='./image/ToulchExamFront.jpg' resolution='810x1068' size='XL'  popup={false} value={this.props.exam['Exam Front Page']}
             disableScroll={this.props.disableScroll} enableScroll={this.props.enableScroll}
             onChangeValue={(value: ?string) => this.updateFieldValue('Exam Front Page', value)}
           />
+          <ImageField image='./image/ToulchExamBack.jpg' resolution='811x1071' size='XL'  popup={false} value={this.props.exam['Exam Back Page']}
+            disableScroll={this.props.disableScroll} enableScroll={this.props.enableScroll}
+            onChangeValue={(value: ?string) => this.updateFieldValue('Exam Back Page', value)}
+          />
+          <ImageField image='./image/ToulchMeds.jpg' resolution='600x826' size='L'  popup={false} value={this.props.exam['Medication Rx']}
+            disableScroll={this.props.disableScroll} enableScroll={this.props.enableScroll}
+            onChangeValue={(value: ?string) => this.updateFieldValue('Medication Rx', value)}
+          />
 
-          <View style={{position: 'absolute', top:10 * fontScale, left: 410 * fontScale, width: 300*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+          <View style={{position: 'absolute', top:10 * fontScale, left: 415 * fontScale, width: 300*fontScale, height: 40*fontScale, justifyContent:'center'}}>
             <FormInput value={getFieldValue('patient.firstName', this.props.exam)+' '+getFieldValue('patient.lastName', this.props.exam)} definition={getFieldDefinition('patient.lastName', this.props.exam)} showLabel={false} readonly={true}  style={textLeftStyle} />
           </View>
+          <View style={{position: 'absolute', top:52 * fontScale, left: 415 * fontScale, width: 680*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('patient.streetNumber', this.props.exam)+' '+getFieldValue('patient.streetName', this.props.exam)+
+              ', '+getFieldValue('patient.postalCode', this.props.exam)+' '+getFieldValue('patient.city', this.props.exam)}
+              definition={getFieldDefinition('patient.lastName', this.props.exam)} showLabel={false} readonly={true}  style={textLeftStyle} />
+          </View>
+          <View style={{position: 'absolute', top:135 * fontScale, left: 485 * fontScale, width: 170*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('patient.dateOfBirth', this.props.exam)} definition={getFieldDefinition('patient.dateOfBirth', this.props.exam)} showLabel={false} readonly={false}  style={textLeftStyle}
+              onChangeValue={(value: ?number) => this.updateFieldValue('patient.dateOfBirth', value)}
+            />
+          </View>
+
           <View style={{position: 'absolute', top:956 * fontScale, left: 111 * fontScale, width: 76*fontScale, height: 40*fontScale, justifyContent:'center'}}>
             <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.od.sph', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.od.sph', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
               onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.od.sph', value)}  style={textStyle} />
           </View>
+          <View style={{position: 'absolute', top:956 * fontScale, left: 189 * fontScale, width: 76*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.od.cyl', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.od.cyl', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.od.cyl', value)}  style={textStyle} />
+          </View>
+          <View style={{position: 'absolute', top:956 * fontScale, left: 267 * fontScale, width: 76*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.od.axis', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.od.axis', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.od.axis', value)}  style={textStyle} />
+          </View>
+          <View style={{position: 'absolute', top:957 * fontScale, left: 345 * fontScale, width: 75*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.od.add', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.od.add', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.od.add', value)}  style={textStyle} />
+          </View>
 
-          <ImageField image='./image/ToulchExamBack.jpg' resolution='811x1071' size='XL'  popup={false} disableScroll={this.props.disableScroll} enableScroll={this.props.enableScroll}/>
+          <View style={{position: 'absolute', top:997 * fontScale, left: 111 * fontScale, width: 76*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.os.sph', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.os.sph', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.os.sph', value)}  style={textStyle} />
+          </View>
+          <View style={{position: 'absolute', top:997 * fontScale, left: 189 * fontScale, width: 76*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.os.cyl', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.os.cyl', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.os.cyl', value)}  style={textStyle} />
+          </View>
+          <View style={{position: 'absolute', top:997 * fontScale, left: 267 * fontScale, width: 76*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.os.axis', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.os.axis', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.os.axis', value)}  style={textStyle} />
+          </View>
+          <View style={{position: 'absolute', top:997 * fontScale, left: 345 * fontScale, width: 75*fontScale, height: 40*fontScale, justifyContent:'center'}}>
+            <FormInput value={getFieldValue('exam.RxToOrder.Final Rx.os.add', this.props.exam)} definition={getFieldDefinition('exam.RxToOrder.Final Rx.os.add', this.props.exam)} showLabel={false} readonly={this.props.editable!==true}
+              onChangeValue={(value: ?number) => this.updateFieldValue('exam.RxToOrder.Final Rx.os.add', value)}  style={textStyle} />
+          </View>
+
         </View>
-    }
-
-    renderToulchExamBack() {
-      return <Image source={require('./image/ToulchExamBack.jpg')} style={imageStyle('XL',1623/2143)} />
     }
 
     renderEyeExamTemplate() {
@@ -215,7 +284,7 @@ export class PaperFormScreen extends Component {
       if (this.props.exam.definition.image === './image/eyeexamtemplate.png')
          return this.renderEyeExamTemplate();
       if (this.props.exam.definition.image === './image/ToulchExam.pdf')
-        return this.renderToulchExamFront();
+        return this.renderToulchExam();
       return null;
     }
 }

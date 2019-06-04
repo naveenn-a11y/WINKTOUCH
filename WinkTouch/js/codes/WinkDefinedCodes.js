@@ -72,6 +72,7 @@ import { alcoholUseCodes } from './SocialHistoryCodes';
 import { drugUseCodes } from './SocialHistoryCodes';
 import { clGoodToBadCodes, clRotationCodes, clMovementCodes, clCentrationCodes, clNormalTo5Codes, clSolutionCodes, contactLenses, clFittingTypeCodes } from './ContactLensCodes';
 import { lensTypeCodes } from './RefractionCodes';
+import { prescriptionCodes } from './PrescriptionCodes';
 
 export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.icdCodes = icdCodes;
@@ -155,4 +156,5 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.contactLenses = contactLenses;
   codeDefinitions.lensTypeCodes = lensTypeCodes;
   codeDefinitions.clFittingTypeCodes = clFittingTypeCodes;
+  codeDefinitions.prescriptionCodes = prescriptionCodes;
 }

@@ -312,7 +312,7 @@ export class GlassesSummary extends Component {
   }
 }
 
-export class GlassesDetail extends PureComponent {
+export class GlassesDetail extends Component {
   props: {
     glassesRx: GlassesRx,
     title: string,
@@ -436,7 +436,7 @@ export class GlassesDetail extends PureComponent {
           <View style={styles.formRow}>
             <Text style={styles.formTableRowHeader}>{formatLabel(getFieldDefinition('visit.prescription.od'))}:</Text>
             <FormInput value={this.props.glassesRx.od.sph} definition={getFieldDefinition('visit.prescription.od.sph')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('od','sph', value)}  />
+              onChangeValue={(value: ?number) => this.updateGlassesRx('od','sph', value)} errorMessage={this.props.glassesRx.od.sphError} />
             <FormInput value={this.props.glassesRx.od.cyl} definition={getFieldDefinition('visit.prescription.od.cyl')} showLabel={false} readonly={!this.props.editable}
               onChangeValue={(value: ?number) => this.updateGlassesRx('od','cyl', value)}/>
             <FormInput value={this.props.glassesRx.od.axis} definition={getFieldDefinition('visit.prescription.od.axis')} showLabel={false} readonly={!this.props.editable}
@@ -455,7 +455,7 @@ export class GlassesDetail extends PureComponent {
           <View style={styles.formRow}>
             <Text style={styles.formTableRowHeader}>{formatLabel(getFieldDefinition('visit.prescription.os'))}:</Text>
             <FormInput value={this.props.glassesRx.os.sph} definition={getFieldDefinition('visit.prescription.os.sph')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('os','sph', value)}  />
+              onChangeValue={(value: ?number) => this.updateGlassesRx('os','sph', value)} errorMessage={this.props.glassesRx.os.sphError} />
             <FormInput value={this.props.glassesRx.os.cyl} definition={getFieldDefinition('visit.prescription.os.cyl')} showLabel={false} readonly={!this.props.editable}
               onChangeValue={(value: ?number) => this.updateGlassesRx('os','cyl', value)}/>
             <FormInput value={this.props.glassesRx.os.axis} definition={getFieldDefinition('visit.prescription.os.axis')} showLabel={false} readonly={!this.props.editable}

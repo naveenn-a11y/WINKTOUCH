@@ -14,7 +14,7 @@ import { SelectionListsScreen, ItemsCard, GroupedFormScreen, ItemsList, GroupedF
 import { PaperFormScreen} from './PaperForm';
 import { fetchItemById, storeItem, searchItems } from './Rest';
 import { cacheItemById, getCachedItem, cacheItem, getCachedItems } from './DataCache';
-import { deepClone, formatMoment, getValue, stripIndex } from './Util';
+import { deepClone, formatMoment, getValue, stripIndex, setValue } from './Util';
 import { allExamIds, fetchVisit, visitHasEnded } from './Visit';
 import { GlassesDetail } from './Refraction';
 import { getFavorites, addFavorite, removeFavorite, Star, Refresh } from './Favorites';
@@ -41,8 +41,9 @@ export async function storeExam(exam: Exam, refreshStateKey: ?string, navigation
     return exam;
   }
   //overwriteExamDefinition(exam);
-  if (exam.definition.name==='RxToOrder' || exam.definition.name==='Refraction') {//TODO check if exam has mapped visit fields
-    let visit = await fetchVisit(exam.visitId);
+  if (exam.definition.name==='Refraction' && refreshStateKey && navigation) {//TODO check if exam has mapped visit fields
+    __DEV__ && console.log('Time to refresh referred exams after successfull save');
+  //  let visit = await fetchVisit(exam.visitId);
     const setParamsAction = NavigationActions.setParams({
       params: { refresh: true },
       key: refreshStateKey
@@ -51,6 +52,43 @@ export async function storeExam(exam: Exam, refreshStateKey: ?string, navigation
   }
   return exam;
 }
+
+function updateMappedExamFields(fieldDefinitions : (FieldDefinition|GroupDefinition)[], value) {
+    if (!fieldDefinitions) return;
+    fieldDefinitions.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
+        const fieldValue = (value===undefined||value===null)?undefined:value[fieldDefinition.name];
+        if (fieldDefinition.fields) {
+          updateMappedExamFields(fieldDefinition.fields, fieldValue);
+        } else {
+          if (fieldDefinition.mappedField && fieldDefinition.mappedField.startsWith('exam.')) {
+            __DEV__ && console.log('update mapped field '+fieldDefinition.name+' to '+fieldDefinition.mappedField);
+            let fieldIdentifier : string = fieldDefinition.mappedField.substring('exam.'.length());
+            let examName : string = fieldIdentifier.substring(0, fieldIndifier.indexOf('.'));
+            fieldIdentifier = fieldIndifier.substring(examName.length+1);
+            let referredExam = getExam(examName, getCachedItem(exam.visitId));
+            setValue(referredExam, fieldIdentifier, fieldValue);
+            updatedMappedExams(referredExam);
+
+          }
+        }
+    });
+}
+
+export function updateMappedExams(exam: Exam) {
+  if (!exam) return;
+  __DEV__ && console.log('starting updatedMappedExams');
+  //if (exam.definition.name==='Refraction' && refreshStateKey && navigation) {
+  let fieldDefinitions : GroupDefinition[] = exam.definition.fields;
+  let examValue = exam[exam.definition.name];
+  updateMappedExamFields(fieldDefinitions, examValue);
+
+  //  let referredExam = getExam("RxToOrder", getCachedItem(exam.visitId));
+  //  referredExam.RxToOrder['Final Rx'].od.sph='123';
+  //  console.log('\nNew RxToOrder = '+JSON.stringify(referredExam));
+  //}
+  __DEV__ && console.log('Ended updatedMappedExams');
+}
+
 
 export function getVisit(exam: Exam) : Visit {
   return getCachedItem(exam.visitId);
@@ -367,7 +405,9 @@ export class ExamScreen extends Component {
   async fetchExam() {
     const exam: Exam = await fetchExam(this.params.exam.id);
     if (exam!=undefined) exam.hasStarted = true;
-    this.setState({exam});
+    if (this.params.exam!==exam) {
+      this.setState({exam});
+    }
   }
 
   async refreshExam() {
@@ -456,6 +496,7 @@ export class ExamScreen extends Component {
   }
 
   renderExamIcons() {
+    if (this.params.exam.definition.card===false) return;
     return <View style={styles.examIcons}>
       {this.renderRefreshIcon()}
       {this.renderFavoriteIcon()}

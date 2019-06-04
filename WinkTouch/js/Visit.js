@@ -13,7 +13,7 @@ import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, 
 import { ExamCard, createExam, storeExam } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
-import { ReferralCard, RecallCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
+import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
 import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
 import { fetchAppointment } from './Appointment';
@@ -21,6 +21,7 @@ import { printRx, printClRx } from './Print';
 import { PatientDocumentPage } from './Patient';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
+import { getDoctor } from './DoctorApp';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form'];
 
@@ -33,6 +34,10 @@ export async function fetchVisitTypes() : string[] {
     const searchCriteria = {};
     let restResponse = await searchItems('VisitType/list', searchCriteria);
     let visitTypes : string[] = restResponse.visitTypeNameList;
+    if (!visitTypes || visitTypes.length==0) {
+      alert(strings.formatString(strings.doctorWithoutVisitTypeError, getDoctor().lastName));
+      visitTypes = [];
+    }
     cacheItem('visitTypes', visitTypes);
     return visitTypes;
 }
@@ -101,10 +106,12 @@ export async function createVisit(visit: Visit) : Visit {
     return visit;
 }
 
+
 export async function updateVisit(visit: Visit) : Visit {
     visit = await storeItem(visit);
     return visit;
 }
+
 
 function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -245,7 +252,7 @@ class VisitWorkFlow extends Component {
         onStartVisit: (type: string, isPreVisit: boolean) => void,
         readonly: ?boolean,
         enableScroll: () => void,
-        disableScroll: () => void        
+        disableScroll: () => void
     }
     state: {
         visit: Visit,
@@ -368,9 +375,10 @@ class VisitWorkFlow extends Component {
     }
 
     async addExam(examLabel: string) {
+      if (examLabel===undefined) return; //Weird this happens, floating buttons are shitty
       if (this.props.readonly) return;
-      let examDefinition: ?ExamDefinition = (await allExamDefinitions(false)).find((examDefinition: ExamDefinition) => examDefinition.label?examDefinition.label:examDefinition.name === examLabel);
-      if (!examDefinition) examDefinition = (await allExamDefinitions(true)).find((examDefinition: ExamDefinition) => examDefinition.label?examDefinition.label:examDefinition.name === examLabel);
+      let examDefinition: ?ExamDefinition = (await allExamDefinitions(false)).find((examDefinition: ExamDefinition) => (examDefinition.label?examDefinition.label:examDefinition.name) === examLabel);
+      if (!examDefinition) examDefinition = (await allExamDefinitions(true)).find((examDefinition: ExamDefinition) => (examDefinition.label?examDefinition.label:examDefinition.name) === examLabel);
       if (!examDefinition) return;
       let existingExam : ?Exam = this.state.visit.preCustomExamIds?getCachedItem(this.state.visit.preCustomExamIds[this.state.visit.preCustomExamIds.findIndex((examId : string) => getCachedItem(examId).definition.name === examDefinition.name)]):undefined;
       if (!existingExam && this.state.visit.customExamIds) existingExam = getCachedItem(this.state.visit.customExamIds[this.state.visit.customExamIds.findIndex((examId : string) => getCachedItem(examId).definition.name === examDefinition.name)]);
@@ -466,7 +474,7 @@ class VisitWorkFlow extends Component {
        return assessments.map((exam: Exam, index: number) => {
          if (exam.definition.name==='RxToOrder') {
            return  <TouchableOpacity key={index} disabled={this.props.readonly} onPress={() => this.state.rxToOrder && this.props.navigation.navigate('exam', {exam: this.state.rxToOrder, appointmentStateKey: this.props.appointmentStateKey}) }>
-                    <PrescriptionCard title={strings.finalRx} visit={this.state.visit} editable={false} />
+                    <PrescriptionCard title={strings.finalRx} exam={this.state.rxToOrder} editable={false} />
                   </TouchableOpacity>
          } else if (exam.definition.name==='Consultation summary') {
             return  <VisitSummaryCard exam={exam} editable={!this.state.locked && !this.props.readonly} key={index} />

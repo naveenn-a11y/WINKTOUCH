@@ -54,43 +54,43 @@
           "name": "od",
           "fields": [
             {
-              "mappedField": "visit.prescription.od.sph",
+              "mappedField": "exam.RxToOrder.Final Rx.od.sph",
               "name": "sph"
             },
             {
-              "mappedField": "visit.prescription.od.cyl",
+              "mappedField": "exam.RxToOrder.Final Rx.od.cyl",
               "name": "cyl"
             },
             {
-              "mappedField": "visit.prescription.od.axis",
+              "mappedField": "exam.RxToOrder.Final Rx.od.axis",
               "name": "axis"
             },
             {
-              "mappedField": "visit.prescription.od.prism1",
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism1",
               "name": "prism1"
             },
             {
-              "mappedField": "visit.prescription.od.prism1b",
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism1b",
               "name": "prism1b"
             },
             {
-              "mappedField": "visit.prescription.od.prism2",
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism2",
               "name": "prism2"
             },
             {
-              "mappedField": "visit.prescription.od.prism2b",
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism2b",
               "name": "prism2b"
             },
             {
-              "mappedField": "visit.prescription.od.add",
+              "mappedField": "exam.RxToOrder.Final Rx.od.add",
               "name": "add"
             },
             {
-              "mappedField": "visit.prescription.od.va",
+              "mappedField": "exam.RxToOrder.Final Rx.od.va",
               "name": "va"
             },
             {
-              "mappedField": "visit.prescription.od.addVa",
+              "mappedField": "exam.RxToOrder.Final Rx.od.addVa",
               "name": "addVa"
             }
           ]
@@ -99,43 +99,43 @@
           "name": "os",
           "fields": [
             {
-              "mappedField": "visit.prescription.os.sph",
+              "mappedField": "exam.RxToOrder.Final Rx.os.sph",
               "name": "sph"
             },
             {
-              "mappedField": "visit.prescription.os.cyl",
+              "mappedField": "exam.RxToOrder.Final Rx.os.cyl",
               "name": "cyl"
             },
             {
-              "mappedField": "visit.prescription.os.axis",
+              "mappedField": "exam.RxToOrder.Final Rx.os.axis",
               "name": "axis"
             },
             {
-              "mappedField": "visit.prescription.os.prism1",
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism1",
               "name": "prism1"
             },
             {
-              "mappedField": "visit.prescription.os.prism1b",
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism1b",
               "name": "prism1b"
             },
             {
-              "mappedField": "visit.prescription.os.prism2",
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism2",
               "name": "prism2"
             },
             {
-              "mappedField": "visit.prescription.os.prism2b",
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism2b",
               "name": "prism2b"
             },
             {
-              "mappedField": "visit.prescription.os.add",
+              "mappedField": "exam.RxToOrder.Final Rx.os.add",
               "name": "add"
             },
             {
-              "mappedField": "visit.prescription.os.va",
+              "mappedField": "exam.RxToOrder.Final Rx.os.va",
               "name": "va"
             },
             {
-              "mappedField": "visit.prescription.os.addVa",
+              "mappedField": "exam.RxToOrder.Final Rx.os.addVa",
               "name": "addVa"
             }
           ]

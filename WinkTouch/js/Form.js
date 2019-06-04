@@ -802,12 +802,19 @@ export class FormField extends Component {
   constructor(props: any) {
     super(props);
     this.fieldNames = this.props.fieldName.split('.');
-    this.fieldDefinition = this.findFieldDefinition();
+    this.fieldDefinition = this.findFieldDefinition(props);
   }
 
-  findFieldDefinition() : ?FieldDefinition {
-    if (!this.props.value || !this.props.value.id) return null;
-    let fieldDefinitions : ?FieldDefinitions = getFieldDefinitions(this.props.value.id);
+  componentWillReceiveProps(nextProps: any) {
+    if (this.props.fieldName!==nextProps.fieldName) {
+      this.fieldNames = nextProps.fieldName.split('.');
+      this.fieldDefinition = this.findFieldDefinition(nextProps);
+    }
+  }
+
+  findFieldDefinition(props: any) : ?FieldDefinition {
+    if (!props.value || !props.value.id) return null;
+    let fieldDefinitions : ?FieldDefinitions = getFieldDefinitions(props.value.id);
     if (fieldDefinitions===undefined)    {
       //__DEV__ && console.warn('No fieldDefinitions exists for '+this.props.value.id);
       return undefined;

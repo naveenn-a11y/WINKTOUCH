@@ -18,7 +18,7 @@ import { getCachedItem, cacheItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn } from './Favorites';
 import { GlassesDetail, GlassesSummary, newRefraction, ContactsDetail } from './Refraction';
 import { getExamDefinition } from './ExamDefinition';
-import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue } from './Exam';
+import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, updateMappedExams } from './Exam';
 import { CheckButton } from './Widgets';
 
 export function getFieldDefinitions(itemId: string) : ?FieldDefinitions {
@@ -857,7 +857,7 @@ export class ItemsEditor extends Component {
   renderSelectionLists() {
     if (!this.props.fieldDefinitions) return null;
     return this.props.fieldDefinitions.map((fieldDefinition: FieldDefinition, index: number) => {
-      if (fieldDefinition.options && fieldDefinition.options.length>0) {
+      if (fieldDefinition.options && fieldDefinition.options.length>2) {
         const propertyName :string = fieldDefinition.name;
         let selection = this.state.selectedItem?this.state.selectedItem[propertyName]:undefined;
         let options : CodeDefinition[]|string = fieldDefinition.options
@@ -889,7 +889,7 @@ export class ItemsEditor extends Component {
 
   renderNonOptionFields() {
     if (!this.props.fieldDefinitions || !this.state.selectedItem) return null;
-    let fields : FieldDefinition[] = this.props.fieldDefinitions.filter((fieldDefinition: FieldDefinition) => fieldDefinition.options===undefined || fieldDefinition.options.length===0);
+    let fields : FieldDefinition[] = this.props.fieldDefinitions.filter((fieldDefinition: FieldDefinition) => fieldDefinition.options===undefined || fieldDefinition.options.length<=2);
     if (fields.length===0) return null;
     let form = this.state.selectedItem;
     let groupDefinition : GroupDefinition = {'name':'nonSelectables','label':'','fields':fields};
@@ -1216,7 +1216,8 @@ export class CheckList extends PureComponent {
   render() {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style}>
-        <Text style={styles.sectionTitle}>{formatLabel(this.props.definition)}</Text>
+            <Text style={styles.sectionTitle}>{formatLabel(this.props.definition)}</Text>
+          <View style={styles.wrapBoard}>
         {this.formattedOptions.map((option: string) => {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');
@@ -1225,11 +1226,13 @@ export class CheckList extends PureComponent {
             </View>
           }
         )}
-        {this.props.definition.freestyle && this.props.editable && <View style={styles.formRow} key='freestyle'>
-            <FormTextInput speakable={true} onChangeText={this.addValue}/>
-          </View>
-        }
-        {this.props.editable && this.props.onClear && <View style={styles.groupIcons}><TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity></View>}
+    </View>
+    {this.props.definition.freestyle && this.props.editable && <View style={styles.formRow} key='freestyle'>
+        <FormTextInput speakable={true} onChangeText={this.addValue}/>
+      </View>
+    }
+    {this.props.editable && this.props.onClear && <View style={styles.groupIcons}><TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity></View>}
+
     </View>
   }
 }
@@ -1441,7 +1444,11 @@ export class GroupedFormScreen extends Component {
   }
 
   componentWillReceiveProps(nextProps: any) {
+    if (nextProps.exam===this.props.exam) {
+      return;
+    }
     this.initialiseExam(nextProps.exam, nextProps.editable);
+    this.setState({isDirty: nextProps.exam.errors!==undefined});
   }
 
   initialiseExam(exam: Exam, editable?: boolean) {
@@ -1595,6 +1602,7 @@ export class GroupedFormScreen extends Component {
   componentWillUnmount() {
     if (this.state.isDirty && this.props.onUpdateExam) {
       this.cleanExam();
+      updateMappedExams(this.props.exam);
       this.props.onUpdateExam(this.props.exam);
     }
   }

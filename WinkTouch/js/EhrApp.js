@@ -141,7 +141,7 @@ export class EhrApp extends Component {
     userLoggedOn(user: User, store: Store, token: string) {
         this.checkForUpdate();
         this.setState({isLoggedOn: user!==undefined && token!==undefined && store!==undefined, user, store, token});
-        if (!getVisitTypes()) fetchVisitTypes();
+        fetchVisitTypes();
     }
 
     logout = () => {

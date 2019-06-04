@@ -400,10 +400,26 @@ function subValue(value, identifier: string) {
   return subValue;
 }
 
-export function getValue(value, identifierNames: string) {
-  let identifiers = identifierNames.split('.');
+export function getValue(value, fieldIdentifier: string) {
+  let identifiers : string[] = fieldIdentifier.split('.');
   for (const identifier: string of identifiers) {
     value = subValue(value, identifier);
   }
   return value;
+}
+
+export function setValue(value : {}, fieldIdentifier: string, fieldValue : any) {
+  let identifiers : string[] = fieldIdentifier.split('.');
+  for (let i = 0; i<identifiers.length-1;i++) {
+    const identifier : string = identifiers[i];
+    let childValue = subValue(value, identifier);
+    if (childValue===undefined) {
+      if (childValue===undefined) return;
+      childValue = {};
+      value[identifier] = childValue;
+    }
+    value = childValue;
+  }
+  const identifier : string = identifiers[identifiers.length-1];
+  value[identifier] = fieldValue;
 }

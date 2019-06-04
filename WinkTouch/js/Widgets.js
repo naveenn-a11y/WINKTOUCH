@@ -2133,6 +2133,7 @@ export class ImageField extends Component {
 
   commitEdit = () : void => {
     this.setState({ isActive: false });
+    __DEV__ && console.log('Committing edit');
     if (this.props.onChangeValue) {
       let value = this.state.lines;
       if (value===undefined || value===null || value.length<=1) {
@@ -2194,6 +2195,7 @@ export class ImageField extends Component {
 
   penDown(event, scale) {
     if (this.props.enableScroll) {
+      this.startEditing();
       if (this.state.enableScrollTimer) {
         clearTimeout(this.state.enableScrollTimer);
       }
@@ -2233,7 +2235,7 @@ export class ImageField extends Component {
       lastLine = this.simplify(lastLine);
       this.state.lines[lastLineIndex] = lastLine;
     }
-    this.setState({lines:this.state.lines, penDown:false});
+    this.setState({lines:this.state.lines, penDown:false}, this.props.enableScroll && this.commitEdit());
   }
 
   updatePosition(event: any, scale: number) : void {
@@ -2303,7 +2305,7 @@ export class ImageField extends Component {
     console.log('lines='+lines);
     if (lines===undefined || lines.length===0) return;
     lines.splice(lines.length-1, 1);
-    this.setState({lines, selectedLineIndex: -1});
+    this.setState({lines, selectedLineIndex: -1}, this.commitEdit);
   }
 
   requireImage() {
@@ -2324,6 +2326,7 @@ export class ImageField extends Component {
     if (this.props.image==='./image/d15.jpg') return require('./image/d15.jpg');
     if (this.props.image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
     if (this.props.image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
+    if (this.props.image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
     return {uri: this.props.image};
   }
 
@@ -2416,18 +2419,18 @@ export class ImageField extends Component {
 
   renderIcons() {
     if (this.props.readonly) return null;
-    return <View style={styles.groupIcons} key='icons'>
+    return <View style={styles.examIcons} key='icons'>
       <TouchableOpacity onPress={this.undo}><Undo style={styles.screenIcon}/></TouchableOpacity>
     </View>
   }
 
   render() {
     if (this.props.popup===false) {
-      const style : {width: number, height :number} = imageStyle('XL',this.aspectRatio());
+      const style : {width: number, height :number} = imageStyle(this.props.size,this.aspectRatio());
       const scale : number = style.width/this.resolution()[0];
       return <View style={styles.centeredColumnLayout}>
                 <View style={styles.solidWhite} onStartShouldSetResponder={(event) => true}
-                  onResponderGrant={(event) => {this.startEditing();this.penDown(event, scale)}}
+                  onResponderGrant={(event) => {this.penDown(event, scale)}}
                   onResponderReject={(event) => this.setState({ isActive: false })}
                   onMoveShouldSetResponder={(event) => false}
                   onResponderTerminationRequest={(event) => false}
@@ -2435,7 +2438,7 @@ export class ImageField extends Component {
                   onResponderRelease={(event) => this.liftPen()}
                   onResponderTerminate={(event) => this.liftPen()}>
                   <Image source={this.requireImage()} style={style} />
-                  {this.renderGraph(this.state.isActive?this.state.lines:this.props.line, style, scale)}
+                  {this.renderGraph(this.state.isActive?this.state.lines:this.props.value, style, scale)}
                 </View>
                 {this.renderIcons()}
             </View>

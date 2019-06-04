@@ -738,6 +738,16 @@ export const styles = StyleSheet.create({
           width: 0.3
       }
     },
+    wrapBoard: {
+      flex: 0,
+      flexDirection: 'column',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      maxHeight: 245 * fontScale,
+      padding: 5 * fontScale,
+      margin: 0 * fontScale
+    },
     wideFavorites: {
       flexShrink: 1,
       width: 1080*fontScale,
@@ -881,14 +891,12 @@ export const styles = StyleSheet.create({
       position: 'absolute',
       top:0 * fontScale,
       right:  18 * fontScale,
-      backgroundColor: '#ff000000',
       flexDirection: 'row'
     },
     groupIcons: {
       position: 'absolute',
       top:0 * fontScale,
       right:  15 * fontScale,
-      backgroundColor: '#ff000000',
       flexDirection: 'row'
     },
     separator: {
