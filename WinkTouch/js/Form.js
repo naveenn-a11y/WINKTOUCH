@@ -146,7 +146,7 @@ export class FormTextInput extends Component {
             {this.props.prefix && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
             <View style={styles.fieldFlexContainer}>
               {this.props.readonly===true?
-                <Text style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:this.props.readonly?styles.formFieldReadOnly:styles.formField}>{this.props.value}</Text>
+                <Text style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formFieldReadOnly}>{this.props.value}</Text>
                 :
                 <TextInput
                     value={this.state.value}
@@ -447,6 +447,7 @@ export class FormOptions extends Component {
     showLabel?: boolean,
     readonly?: boolean,
     freestyle?: boolean,
+    multiline?: boolean,
     prefix?: string,
     suffix?: string,
     onChangeValue: (newvalue: ?string|?number) => void
@@ -455,6 +456,7 @@ export class FormOptions extends Component {
   static defaultProps = {
     showLabel: true,
     freestyle: false,
+    multiline: false
   }
   constructor(props: any) {
     super(props);
@@ -505,13 +507,14 @@ export class FormOptions extends Component {
 
   render() {
     const manyOptions : boolean = this.props.options.length > 30;
+    const style = this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
     return <View style={styles.formElement}>
         {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
         {manyOptions?
-            <ListField label={this.props.label} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} />
+            <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline}/>
           :
-            <TilesField label={this.props.label} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} readonly={this.props.readonly} options={this.formattedOptions} combineOptions={this.isMultiOption()}
-              value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix}/>
+            <TilesField label={this.props.label} style={style} readonly={this.props.readonly} options={this.formattedOptions} combineOptions={this.isMultiOption()}
+              value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline}/>
         }
 
       </View>
@@ -575,6 +578,7 @@ export class FormCode extends Component {
     prefix?: string,
     suffix?: string,
     readonly?: boolean,
+    multiline?: boolean,
     freestyle?: boolean,
     autoSelect?: boolean,
     style?: any,
@@ -616,7 +620,7 @@ export class FormCode extends Component {
     const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
     let selectedDescription: string = this.selectedDescription(allDescriptions);
     return <FormOptions labelWidth={this.props.labelWidth} label={this.props.label} showLabel={this.props.showLabel} readonly={this.props.readonly} freestyle={this.props.freestyle} errorMessage={this.props.errorMessage}
-      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style}/>
+      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline}/>
   }
 }
 
@@ -752,12 +756,12 @@ export class FormInput extends Component {
       const options = this.props.definition.options;
       if (!(options instanceof Array)) {
         return <FormCode code={options} filter={this.getFilterValue()} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} errorMessage={this.props.errorMessage}
-          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style}/>
+          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style} multiline={this.props.multiline===true || this.props.definition.maxLength>100}/>
       }
       if (options.length===2 && (options[0]===undefined || options[0]===null || options[0]===false || options[0].toString().trim()==='' || this.props.definition.defaultValue===options[0]))
         return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage}/>
       return <FormOptions options={this.props.definition.options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
-        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} />
+        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>100}/>
     } else if (type && type.includes('Date')) {
       return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {

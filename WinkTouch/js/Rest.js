@@ -9,9 +9,11 @@ import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR/';
+export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.0/';
 
 let token : string;
+
+let requestNumber: number = 0;
 
 export function setToken(newToken: string) {
   if (newToken!==undefined) console.log('Token:' + newToken);
@@ -124,7 +126,8 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
   if (!id) return undefined;
   const cachedVersion : number = ignoreCache?-1:getCachedVersionNumber(id);
   const url = constructTypeUrl(id)+encodeURIComponent(id)+(cachedVersion>=0?('?version='+cachedVersion):'');
-  __DEV__ && console.log('GET '+url);
+  const requestNr = ++requestNumber;
+  __DEV__ && console.log('REQ '+requestNr+' GET '+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -137,6 +140,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
     if (!httpResponse.ok) handleHttpError(httpResponse);
     const restResponse = await httpResponse.json();
     if (restResponse.upToDate) {
+      __DEV__ && console.log('RES '+requestNr+' GET '+url+': is up to date.');
       return getCachedItem(id);
     }
     if (restResponse.errors) {
@@ -144,6 +148,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
       console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
       return;
     }
+    __DEV__ && console.log('RES '+requestNr+' GET '+url+': '+JSON.stringify(restResponse));
     const item : any = restResponse[getItemFieldName(id)];
     if (!item) throw new Error('The server did not return a '+getItemFieldName(id)+' for id '+id+".");
     cacheResponseItems(restResponse);
@@ -165,10 +170,12 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
 export async function storeItem(item: any) : any {
   if (!item || !item.id) return undefined;
   clearErrors(item);
+  const definition = item.definition;
   item.definition = undefined;
-  const httpMethod :string = item.id.indexOf('-')>0?'put':'post';
+  const httpMethod :string = item.id.indexOf('-')>0?'PUT':'POST';
   const url = constructTypeUrl(item.id);
-  __DEV__ && console.log('Request '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
+  const requestNr = ++requestNumber;
+  __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
   try {
     let httpResponse = await fetch(url, {
         method: httpMethod,
@@ -184,8 +191,12 @@ export async function storeItem(item: any) : any {
     const restResponse : RestResponse = await httpResponse.json();
     if (__DEV__) {
       let cleanedResponse = deepClone(restResponse);
-      cleanedResponse.fields = 'field definition omitted in print';
-      console.log('Response '+httpMethod+' '+url+' json body: '+JSON.stringify(cleanedResponse));
+      if (restResponse.hasValidationError || restResponse.errors) {
+        cleanedResponse.definition='{...}';
+      } else {
+        cleanedResponse[getItemFieldName(item.id)].definition='{...}';
+      }
+      console.log('RES '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(cleanedResponse));
     }
     let updatedItem;
     if (restResponse.hasValidationError || restResponse.errors) {
@@ -209,8 +220,9 @@ export async function storeItem(item: any) : any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.storeItemError, getDataType(id).toLowerCase()));
-    item.errors = [strings.formatString(strings.storeItemError, getDataType(id).toLowerCase())];
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase()));
+    item.errors = [strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase())];
+    item.definition = definition;
     return item;
   }
 }
@@ -267,7 +279,8 @@ export function appendParameters(url: string, searchCritera: Object) : string {
 
 export async function searchItems(list: string, searchCritera: Object) : any {
   let url : string = restUrl + list;
-  __DEV__ && console.log('GET '+url+": "+JSON.stringify(searchCritera));
+  const requestNr : number = ++requestNumber;
+  __DEV__ && console.log('REQ '+requestNr+' GET '+url+": "+JSON.stringify(searchCritera));
   try {
     url = appendParameters(url, searchCritera);
     let httpResponse = await fetch(url, {
@@ -280,6 +293,7 @@ export async function searchItems(list: string, searchCritera: Object) : any {
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
     const restResponse = await httpResponse.json();
+    __DEV__ && console.log('RES '+requestNr+' GET '+url+": "+JSON.stringify(Object.keys(restResponse)));
     if (restResponse.errors) {
       alert(restResponse.errors);
       console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));

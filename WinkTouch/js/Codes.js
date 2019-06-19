@@ -79,7 +79,8 @@ export function getAllCodes(codeType: string, filter?: {}) : CodeDefinition[] {
   }
   let allCodes : CodeDefinition[] = codeDefinitions[codeType];
   if (allCodes===undefined) {
-    __DEV__ && console.error('No codes defined for '+codeType);
+    __DEV__ && console.warn('No codes defined for '+codeType);
+    return [];
   } else {
     if (filter) {
        allCodes = allCodes.filter((codeDefinition: CodeDefinition) => passesFilter(codeDefinition, filter));

@@ -19,7 +19,8 @@
         {
           "name": "Recommendation",
           "freestyle": true,
-          "options": "resumeRecommandationCode"
+          "options": "treatmentRecommendationCodes",
+          "maxLength": 250
         },
         {
           "maxLength": 250,

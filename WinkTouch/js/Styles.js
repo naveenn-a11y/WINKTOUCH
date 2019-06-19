@@ -18,7 +18,8 @@ export const sectionBackgroundColor = '#f2f2f2'
 export const fontColor = undefined;
 export const selectionColor = '#5ed4d4';
 export const selectionFontColor : string = '#1db3b3';
-export const selectionBackgroundColor = '#1db3b3';
+export const selectionBorderColor = '#1db3b3';
+export const selectionBackgroundColor = '#c9ffff'
 
 const fieldMinWidth = 100;
 
@@ -38,8 +39,10 @@ const tile = {
     shadowOffset: {
         height: 10 * fontScale,
         width: 3 * fontScale
-    }
-};
+    },
+    borderWidth: 2 * fontScale,
+    borderColor: backgroundColor
+  };
 
 const flow = {
     flexDirection: 'row',
@@ -147,6 +150,9 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         marginHorizontal: 9 * fontScale,
         marginBottom: 10 * fontScale, //Weird for scroll list
+        borderRightWidth: 3 * fontScale,
+        borderColor: 'white',
+        paddingRight: 10 * fontScale
     },
     modalKeypadColumn: {
         flexDirection: 'column',
@@ -556,6 +562,11 @@ export const styles = StyleSheet.create({
     popupTile: {
         ...tile
     },
+    popupTileSelected: {
+        ...tile,
+        backgroundColor: selectionBackgroundColor,
+        borderColor: selectionBorderColor
+    },
     nextTile: {
         position: 'absolute',
         bottom: 0 * fontScale,
@@ -693,7 +704,7 @@ export const styles = StyleSheet.create({
     todoExamCard: examCardStyle('orange'),
     finishedExamCard: examCardStyle('green'),
     board: boardStyle('#dddddd'),
-    boardSelected: boardStyle(selectionBackgroundColor),
+    boardSelected: boardStyle(selectionBorderColor),
     boardS: boardStyle('#dddddd','S'),
     boardM: boardStyle('#dddddd','M'),
     boardL: boardStyle('#dddddd','L'),
@@ -704,7 +715,7 @@ export const styles = StyleSheet.create({
     boardTodoL: boardStyle('#ffaabb','L'),
     boardTodoL: boardStyle('#ffaabb','XL'),
     historyBoard: boardStyle(backgroundColor,'L', 278),
-    historyBoardSelected: boardStyle(selectionBackgroundColor,'L', 278),
+    historyBoardSelected: boardStyle(selectionBorderColor,'L', 278),
     boardStretch: {
       width: 530*fontScale,
       height: 285 * fontScale,

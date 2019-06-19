@@ -340,6 +340,7 @@ export class GlassesDetail extends Component {
   }
 
   componentWillReceiveProps(props: any) {
+    //__DEV__ && console.log('received glassesrx: '+JSON.stringify(this.props.glassesRx));
     this.setState({
       prism: isPrism(props.glassesRx)
     });

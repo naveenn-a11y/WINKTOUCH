@@ -41,8 +41,8 @@ export async function storeExam(exam: Exam, refreshStateKey: ?string, navigation
     return exam;
   }
   //overwriteExamDefinition(exam);
+  __DEV__ && console.log('Time to refresh referred exams after successfull save');
   if (exam.definition.name==='Refraction' && refreshStateKey && navigation) {//TODO check if exam has mapped visit fields
-    __DEV__ && console.log('Time to refresh referred exams after successfull save');
   //  let visit = await fetchVisit(exam.visitId);
     const setParamsAction = NavigationActions.setParams({
       params: { refresh: true },
@@ -53,21 +53,20 @@ export async function storeExam(exam: Exam, refreshStateKey: ?string, navigation
   return exam;
 }
 
-function updateMappedExamFields(fieldDefinitions : (FieldDefinition|GroupDefinition)[], value) {
+function updateMappedExamFields(fieldDefinitions : (FieldDefinition|GroupDefinition)[], value, visitId: string) {
     if (!fieldDefinitions) return;
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
         const fieldValue = (value===undefined||value===null)?undefined:value[fieldDefinition.name];
         if (fieldDefinition.fields) {
-          updateMappedExamFields(fieldDefinition.fields, fieldValue);
+          updateMappedExamFields(fieldDefinition.fields, fieldValue, visitId);
         } else {
           if (fieldDefinition.mappedField && fieldDefinition.mappedField.startsWith('exam.')) {
-            __DEV__ && console.log('update mapped field '+fieldDefinition.name+' to '+fieldDefinition.mappedField);
-            let fieldIdentifier : string = fieldDefinition.mappedField.substring('exam.'.length());
-            let examName : string = fieldIdentifier.substring(0, fieldIndifier.indexOf('.'));
-            fieldIdentifier = fieldIndifier.substring(examName.length+1);
-            let referredExam = getExam(examName, getCachedItem(exam.visitId));
+            let fieldIdentifier : string = fieldDefinition.mappedField.substring('exam.'.length);
+            let examName : string = fieldIdentifier.substring(0, fieldIdentifier.indexOf('.'));
+            let referredExam = getExam(examName, getCachedItem(visitId));
             setValue(referredExam, fieldIdentifier, fieldValue);
-            updatedMappedExams(referredExam);
+            //__DEV__ && console.log('Updated mapped exam field '+fieldIdentifier+' to '+fieldValue+': '+JSON.stringify(referredExam));
+            updateMappedExams(referredExam);
 
           }
         }
@@ -76,17 +75,9 @@ function updateMappedExamFields(fieldDefinitions : (FieldDefinition|GroupDefinit
 
 export function updateMappedExams(exam: Exam) {
   if (!exam) return;
-  __DEV__ && console.log('starting updatedMappedExams');
-  //if (exam.definition.name==='Refraction' && refreshStateKey && navigation) {
   let fieldDefinitions : GroupDefinition[] = exam.definition.fields;
   let examValue = exam[exam.definition.name];
-  updateMappedExamFields(fieldDefinitions, examValue);
-
-  //  let referredExam = getExam("RxToOrder", getCachedItem(exam.visitId));
-  //  referredExam.RxToOrder['Final Rx'].od.sph='123';
-  //  console.log('\nNew RxToOrder = '+JSON.stringify(referredExam));
-  //}
-  __DEV__ && console.log('Ended updatedMappedExams');
+  updateMappedExamFields(fieldDefinitions, examValue, exam.visitId);
 }
 
 

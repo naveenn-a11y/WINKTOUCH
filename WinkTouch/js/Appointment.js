@@ -72,8 +72,11 @@ class AppointmentTypes extends Component {
     const isHorizontal : boolean = this.props.orientation==='horizontal';
     return <View style={{flexDirection: (isHorizontal?'row':'column'), marginHorizontal:3*fontScale, marginTop:(isHorizontal?20*fontScale:0)}}>
       {this.props.appointment.appointmentTypes && getCachedItems(this.props.appointment.appointmentTypes).map((appointmentType: AppointmentType, index: number) =>
-          <View style={{backgroundColor: appointmentType.color, padding:boxSize, height:boxSize, width:boxSize, margin:1*fontScale}} key={index}></View>
-      ) }
+          {
+            if (appointmentType===null || appointmentType===undefined || appointmentType.color===undefined || appointmentType.color===null) return null;
+            return <View style={{backgroundColor: appointmentType.color, padding:boxSize, height:boxSize, width:boxSize, margin:1*fontScale}} key={index}></View>
+          }
+      )}
     </View>
   }
 }

@@ -332,7 +332,7 @@ export function split(value: ?string, options: string[][]) : string[] {
   let splittedValue : ?string[] = options.map((columnOptions: string[]) => {
     let option : ?string = columnOptions.find((option: string) => value!==undefined && value.toLowerCase().startsWith(option.trim().toLowerCase()));
     if (option !== undefined) {
-      value = value.slice(option.length);
+      value = value.slice(option.trim().length);
       value = value.trim();
     }
     return option;
@@ -414,7 +414,7 @@ export function setValue(value : {}, fieldIdentifier: string, fieldValue : any) 
     const identifier : string = identifiers[i];
     let childValue = subValue(value, identifier);
     if (childValue===undefined) {
-      if (childValue===undefined) return;
+      if (value===undefined) return;
       childValue = {};
       value[identifier] = childValue;
     }
