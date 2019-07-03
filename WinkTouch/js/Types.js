@@ -111,23 +111,6 @@ export type Appointment = {
   indicators?: string[]
 }
 
-export type VisitProcedure = {
-  id: string,
-  visitId: string,
-  procedureCode: string,
-  quantity: number,
-  unitPrice: number,
-  icds: {code: string, comment: ?string}[]
-}
-
-export type Diagnose = {
-  id: string,
-  procedureCode: string,
-  unitPrice: number,
-  quantity: number,
-  comment: ?string
-}
-
 export type Prism = {
   prism1?: number,
   prism1b?: number,

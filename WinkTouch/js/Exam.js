@@ -7,7 +7,7 @@ import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button, Animated, Easing} from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, FieldDefinition, GroupDefinition, VisitProcedure, Diagnose } from './Types';
+import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, FieldDefinition, GroupDefinition } from './Types';
 import { styles, fontScale, selectionFontColor } from './Styles';
 import { strings} from './Strings';
 import { SelectionListsScreen, ItemsCard, GroupedFormScreen, ItemsList, GroupedForm, GroupedCard, formatLabel, getFieldDefinition as getItemFieldDefinition} from './Items';
@@ -35,7 +35,6 @@ export async function createExam(exam: Exam) : Exam {
 
 export async function storeExam(exam: Exam, refreshStateKey: ?string, navigation: ?any) : Exam {
   exam = deepClone(exam);
-  exam.definition = undefined;
   exam = await storeItem(exam);
   if (exam.errors) {
     return exam;
@@ -428,8 +427,8 @@ export class ExamScreen extends Component {
   }
 
   addFavorite = (favorite: any) => {
-    addFavorite(favorite, this.state.exam.customExamDefinitionId,
-      () => this.setState({favorites: getFavorites(this.params.exam)})); //TODO customExamDefinitionId should be added as exam.definition.id by backend on get or at create exam time?
+    addFavorite(favorite, this.state.exam.definition.id,
+      () => this.setState({favorites: getFavorites(this.params.exam)}));
   }
 
   async removeFavorite(favorite: ExamPredefinedValue) {

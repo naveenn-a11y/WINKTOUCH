@@ -11,6 +11,7 @@
       "normalValue": "Normal",
       "name": "General/Constitutional",
       "multiValue": true,
+      "freestyle": true,
       "options": [
         "Normal",
         "Weight loss",
@@ -24,55 +25,137 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Ears/Nose/Mouth/Throat",
+      "name": "Ears",
       "multiValue": true,
+      "freestyle": true,
       "options": [
         "Normal",
-        "Cough",
-        "Stuffy nose",
+        "Change in hearing",
+        "Ear pain",
+        "Ear discharge",
+        "Riging",
+        "Dizziness"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Nose/Sinuses",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Nose bleeds",
+        "Nasal stuffiness",
+        "Sinus congestion"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Allergic",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Hives",
+        "Swelling of lips or tongue",
         "Hay fever",
-        "Nosebleeds",
-        "Sinus congestion",
+        "Asthma",
+        "Eczema/Sensitive",
+        "Sensitivity to drugs/food/pollen/dander"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Mouth/Throat",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
         "Dry mouth",
         "Sore throat",
+        "Sore Tongue",
         "Hoarseness",
-        "Thrush",
         "Mouth sores",
         "Dentures",
-        "Decreased hearing",
-        "Earache",
-        "Ear drainage"
+        "Bleeding gums"
       ]
     },
     {
       "normalValue": "Normal",
-      "name": "Cardiovascular",
+      "name": "Skin",
       "multiValue": true,
+      "freestyle": true,
       "options": [
         "Normal",
-        "Arrhythmia",
-        "Chest pain or discmfort (Angina)",
-        "Difficulty breathing lying down (orthopnea)",
-        "History of Heart disease",
-        "High cholesterol",
-        "Murmur",
+        "Rashes",
+        "Itching",
+        "Change in hair or nails"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Head",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Headaches",
+        "Head injury"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Neck",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Lumps",
+        "Swollen glands",
+        "Goiter",
+        "Stiffness"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Breast",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Lumps",
+        "Nipple discharge",
+        "BSE"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Respiratory/Cardiac",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Shortness of breath",
+        "Cough",
+        "Production of phlegm, color",
+        "Wheezing",
+        "Coughing up blood",
+        "Chest pain",
         "Pacemaker",
-        "Shortness of breath with activity (dyspnea)",
-        "Stint",
-        "Szelling",
-        "Valve defect"
-      ]
-    },
-    {
-      "normalValue": "Normal",
-      "name": "Respiratory",
-      "multiValue": true,
-      "options": [
-        "Normal",
-        "Bronchitis",
-        "Emphysema",
+        "Fever",
+        "Night sweats",
+        "Swelling in hands/feet",
+        "Blue fingers/toes",
+        "High blood pressure",
+        "Difficulty breathing lying down (orthopnea)",
+        "HX of heart medication",
+        "High cholesterol",
+        "Heart Murmur",
+        "Skipping heart beats",
+        "Bronchitis/emphysema",
+        "Rheumatic heart disease",
         "COPD",
-        "Hemoptosis",
+        "Hemoptysis",
         "Lung cancer",
         "Pneumonia",
         "Tuberculosis"
@@ -82,65 +165,141 @@
       "normalValue": "Normal",
       "name": "Gastrointestinal",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
+        "Normal",
+        "Change of appetite",
+        "Change of weight",
+        "Problems swallowing",
+        "Nausea",
+        "Vomiting",
+        "Vomiting blood",
+        "Constipation",
+        "Diarrhea",
+        "Change in bowel habits",
+        "Abdominal pain",
+        "Excessive belching",
+        "Excessive flatus",
+        "Yellow color of skin (jaundice/hepatitis)",
+        "Food intolerance",
+        "Rectal bleeding/Hemorrhoids"
       ]
     },
     {
       "normalValue": "Normal",
-      "name": "Genitourinary",
+      "name": "Urinary",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
+        "Normal",
+        "Difficulty in urination",
+        "Pain or burning on urination",
+        "Frequent urination at night",
+        "Urgent need to urinate",
+        "Incontinence of urine",
+        "Dribbling",
+        "Decreased urine stream",
+        "Blood in urine",
+        "UTI/stones/prostate infection"
       ]
     },
     {
       "normalValue": "Normal",
       "name": "Musculosketletal",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
+        "Normal",
+        "Pain",
+        "Swelling",
+        "Stiffness",
+        "Decreased joint motion",
+        "Broken bone",
+        "Serious sprains",
+        "Arthtritis",
+        "Gout"
       ]
     },
     {
       "normalValue": "Normal",
-      "name": "Integumentary",
+      "name": "Neurologic",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
-      ]
-    },
-    {
-      "normalValue": "Normal",
-      "name": "Neurological",
-      "multiValue": true,
-      "options": [
-        "Normal"
+        "Normal",
+        "Headaches",
+        "Seizures",
+        "Loss of consciousness/Fainting",
+        "Paralysis",
+        "Weakness",
+        "Loss of muscle size",
+        "Muscle spasm",
+        "Tremor",
+        "Involuntary movement",
+        "Incoordination",
+        "Numbness",
+        "Feeling of pins and needles/tingles"
       ]
     },
     {
       "normalValue": "Normal",
       "name": "Endocrine",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
+        "Normal",
+        "Abnormal growth",
+        "Increased appetite",
+        "Increased thirst",
+        "Increased urine production",
+        "Thyroid trouble",
+        "Heat intolerance",
+        "Cold intolerance",
+        "Excessive sweating",
+        "Diabetes"
       ]
     },
     {
       "normalValue": "Normal",
-      "name": "Myphatic/Hematological",
+      "name": "Hematologic",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
+        "Normal",
+        "Anemia",
+        "Easy bruising/bleeding",
+        "Past transfusions"
       ]
     },
     {
       "normalValue": "Normal",
-      "name": "Allergic/Immunologic",
+      "name": "Peripheral/Vascular",
       "multiValue": true,
+      "freestyle": true,
       "options": [
-        "Normal"
+        "Normal",
+        "Leg cramps",
+        "Varicose veins",
+        "Clots in veins"
+      ]
+    },
+    {
+      "normalValue": "Normal",
+      "name": "Psychiatric",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Normal",
+        "Tension/Anxiety",
+        "Depression/suicide ideation",
+        "Memory problems",
+        "Tension/Anxiety",
+        "Depression/suicide ideation",
+        "Memory problems"
       ]
     }
   ]
 }
+
+
+

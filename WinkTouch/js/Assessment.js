@@ -5,7 +5,7 @@
 
 import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
-import type { Recall, GlassesRx, Visit, Exam } from './Types';
+import type { GlassesRx, Visit, Exam } from './Types';
 import { strings } from './Strings';
 import { styles, fontScale } from './Styles';
 import {GlassesDetail} from './Refraction';

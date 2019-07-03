@@ -452,19 +452,36 @@ export class FormOptions extends Component {
     suffix?: string,
     onChangeValue: (newvalue: ?string|?number) => void
   }
-  formattedOptions: string[];
+  state: {
+    dismissedError: boolean,
+  }
+
   static defaultProps = {
     showLabel: true,
     freestyle: false,
     multiline: false
   }
+  static defaultProps = {
+    showLabel: true
+  }
+
+  formattedOptions: string[];
+
   constructor(props: any) {
     super(props);
     this.formattedOptions = formatOptions(this.props.options);
+    this.state = {
+      dismissedError: false
+    }
   }
 
   componentWillReceiveProps(nextProps: any) {
-    this.formattedOptions = formatOptions(nextProps.options);
+    if (!this.props.options || !nextProps.options || this.props.options.length!=nextProps.options.length) {
+      this.formattedOptions = formatOptions(nextProps.options);
+      if (this.state.dismissedError) {
+        this.setState({dismissedError: false});
+      }
+    }
   }
 
   isMultiOption() : boolean {
@@ -505,19 +522,25 @@ export class FormOptions extends Component {
     this.props.onChangeValue(newValue);
   }
 
+  dismissError = () => {
+    this.setState({dismissedError: true});
+  }
+
   render() {
     const manyOptions : boolean = this.props.options.length > 30;
     const style = this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
-    return <View style={styles.formElement}>
-        {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
-        {manyOptions?
-            <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline}/>
-          :
-            <TilesField label={this.props.label} style={style} readonly={this.props.readonly} options={this.formattedOptions} combineOptions={this.isMultiOption()}
-              value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline}/>
-        }
-
-      </View>
+    return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.dismissedError==true || !this.props.errorMessage}>
+        <View style={styles.formElement}>
+          {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
+          {manyOptions?
+              <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline}/>
+            :
+              <TilesField label={this.props.label} style={style} readonly={this.props.readonly} options={this.formattedOptions} combineOptions={this.isMultiOption()} errorMessage={this.props.errorMessage}
+                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline}/>
+          }
+          {this.props.errorMessage && !this.state.dismissedError && <Text style={styles.formValidationError}> {this.props.errorMessage}  {'\u274c'}</Text>}
+        </View>
+      </TouchableWithoutFeedback>
   }
 }
 
@@ -583,13 +606,6 @@ export class FormCode extends Component {
     autoSelect?: boolean,
     style?: any,
     onChangeValue?: (newvalue: ?string|?number) => void
-  }
-  static defaultProps = {
-    showLabel: true
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    //TODO or not TODO
   }
 
   getCodeIdentifier() {

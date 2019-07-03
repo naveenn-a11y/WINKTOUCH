@@ -1,36 +1,76 @@
 {
-  "name": "Diagnose",
-  "addable": true,
+  "name": "Diagnosis",
   "isAssessment": true,
-  "cardFields": [
-    "procedureCode",
-    "icdCode",
-    "comment"
-  ],
-  "label": "Diagnosis",
   "starable": false,
-  "type": "selectionLists",
+  "type": "groupedForm",
   "fields": [
     {
-      "name": "procedureCode",
-      "label": "Procedure",
-      "simpleSelect": true,
-      "options": "procedureCodes"
+      "name": "Procedure",
+      "multiValue": true,
+      "size": "M",
+      "entity": "procedure",
+      "fields": [
+        {
+          "name": "procedureCode",
+          "label": "Procedure",
+          "mappedField": "procedure.productId",
+          "simpleSelect": true,
+          "options": "procedureCodes"
+        },
+        {
+          "name": "icd1Code",
+          "label": "ICD 1",
+          "mappedField": "procedure.icd1Code",
+          "simpleSelect": true,
+          "options": "icdCodes"
+        },
+        {
+          "name": "icd2Code",
+          "label": "ICD 2",
+          "mappedField": "procedure.icd2Code",
+          "simpleSelect": true,
+          "options": "icdCodes"
+        },
+        {
+          "name": "icd3Code",
+          "label": "ICD 3",
+          "mappedField": "procedure.icd3Code",
+          "simpleSelect": true,
+          "options": "icdCodes"
+        },
+        {
+          "name": "icd4Code",
+          "label": "ICD 4",
+          "mappedField": "procedure.icd4Code",
+          "simpleSelect": true,
+          "options": "icdCodes"
+        },
+        {
+          "name": "icd5Code",
+          "label": "ICD 5",
+          "mappedField": "procedure.icd5Code",
+          "simpleSelect": true,
+          "options": "icdCodes"
+        },
+        {
+          "name": "notes",
+          "mappedField": "procedure.notes",
+          "maxLength": 500,
+          "label": "Notes",
+          "freestyle": true
+        }
+      ]
     },
     {
-      "name": "icdCode",
-      "label": "Diagnosis",
-      "multiValue": false,
-      "simpleSelect": true,
-      "newLine": true,
-      "options": "icdCodes"
-    },
-    {
-      "maxLength": 500,
-      "name": "comment",
-      "label": "Comment",
-      "freestyle": true,
-      "options": []
+      "name": "Diagnosis",
+      "size": "M",
+      "fields": [
+        {
+          "name": "Notes",
+          "maxLength": 500,
+          "freestyle": true
+        }
+      ]
     }
   ]
 }

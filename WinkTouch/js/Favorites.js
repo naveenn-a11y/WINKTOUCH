@@ -86,7 +86,6 @@ export function getFavorites(exam: Exam) : ExamPredefinedValue[] {
     return [];
   }
   let examDefinitionId: string = exam.definition.id;
-  if (examDefinitionId===undefined) examDefinitionId = exam.customExamDefinitionId; //TODO Wais. this should not be the case. only happens after the start of a visit. backend should give back id in definition.
   let visitTypes : string[] = getVisitTypes();
   if (visitTypes===null || visitTypes===undefined) visitTypes = [];
   let favorites : ExamPredefinedValue[] = examPredefinedValues.filter((examPredefinedValue : ExamPredefinedValue) => examPredefinedValue.customExamDefinitionId === examDefinitionId && visitTypes.includes(examPredefinedValue.name)===false);

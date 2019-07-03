@@ -563,7 +563,7 @@ export class NumberField extends Component {
           fractions[0].push('+','-');
       }
       //integer group
-      if (props.groupSize && props.groupSize>1) {
+      if (props.groupSize && props.groupSize>1 && (props.range[0]<-props.groupSize || props.range[1]>props.groupSize)) {
         let minGroup : number = Math.abs(props.range[0]);
         let maxGroup : number = Math.abs(props.range[1]);
         if (minGroup>maxGroup) {
@@ -574,13 +574,36 @@ export class NumberField extends Component {
         if (props.range[0]<0 && props.range[1]>0) {
           minGroup = 0;
         }
-        if (minGroup===0) minGroup = props.groupSize;
+        minGroup = minGroup-minGroup%props.groupSize;
+        if (minGroup<props.groupSize) minGroup = props.groupSize;
+
         for (let i = minGroup; i<=maxGroup; i+= props.groupSize) {
           fractions[1].push(String(i));
         }
       }
       //integer
-      let minInt : number = props.groupSize>1 && (props.stepSize instanceof Array === false) ?0:Math.abs(Math.max(props.range[0],0));
+      let minInt : number = 0;
+      if (props.range[0]<0 && props.range[1]>0) {//Range includes 0
+        minInt = 0;
+      } else {//All positive or All negative range
+        if (props.groupSize>1) {//Grouped range
+          if (props.range[0]>=0) {//Only positive range
+            if (props.groupSize>props.range[1]) {//Unused group size
+              minInt = props.range[0];
+            }
+          } else {//Only negative range
+            if (props.groupSize>-props.range[0]) {//Unused group size
+              minInt = -props.range[1];
+            }
+          }
+        } else {//All positive or negative with no group
+          if (props.range[0]>=0) {//Only positive range
+            minInt = props.range[0];
+          } else {//Only negative range
+            minInt = -props.range[1];
+          }
+        }
+      }
       let maxInt : number = props.groupSize>1?Math.min(Math.max(Math.abs(props.range[0]), Math.abs(props.range[1])), props.groupSize-1):props.range[1];
       if (this.props.stepSize instanceof Array) {
         let c = 0;

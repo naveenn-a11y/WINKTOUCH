@@ -11,6 +11,7 @@ import { DoctorApp } from './DoctorApp';
 import { RegisterScreen } from './Registration';
 import { setDeploymentVersion } from './Version';
 import { getVisitTypes, fetchVisitTypes } from './Visit';
+import { fetchUserDefinedCodes } from './Codes';
 
 codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) setDeploymentVersion(currentPackage.label)});
 
@@ -142,6 +143,7 @@ export class EhrApp extends Component {
         this.checkForUpdate();
         this.setState({isLoggedOn: user!==undefined && token!==undefined && store!==undefined, user, store, token});
         fetchVisitTypes();
+        fetchUserDefinedCodes();
     }
 
     logout = () => {

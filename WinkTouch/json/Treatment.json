@@ -5,7 +5,8 @@
   "cardFields": [
     [
       "Treatment plan.Recommendation",
-      "Treatment plan.Treatment"
+      "Treatment plan.Treatment",
+      "Recall.Notes"
     ]
   ],
   "type": "groupedForm",
@@ -15,6 +16,7 @@
   "fields": [
     {
       "name": "Treatment plan",
+      "multiValue": true,
       "fields": [
         {
           "name": "Recommendation",
@@ -26,6 +28,32 @@
           "maxLength": 250,
           "name": "Treatment",
           "freestyle": false
+        }
+      ],
+      "size": "M"
+    },
+    {
+      "name": "Recall",
+      "rows": [
+        [
+          "Amount",
+          "Unit"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "Amount",
+          "label": "Recall in",
+          "mappedField": "visit.recall.amount"
+        },
+        {
+          "name": "Unit",
+          "label": "",
+          "mappedField": "visit.recall.unit"
+        },
+        {
+          "name": "Notes",
+          "mappedField": "visit.recall.notes"
         }
       ],
       "size": "M"

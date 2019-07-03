@@ -5,7 +5,7 @@
 
 import type { CodeDefinition, FieldDefinition, FieldDefinitions, GroupDefinition } from './Types';
 import { strings, getUserLanguage } from './Strings';
-import { restUrl, handleHttpError } from './Rest';
+import { restUrl, handleHttpError, searchItems } from './Rest';
 import { getFieldDefinitions } from './Items';
 import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
@@ -33,7 +33,9 @@ export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: s
 export function formatCode(codeType: string, code?: string|number) : string {
   if (code===undefined || code===null) return '';
   let codeDefinition :?CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
-  if (codeDefinition===undefined) return code.toString();
+  if (codeDefinition===undefined) {
+    return code.toString();
+  }
   return formatCodeDefinition(codeDefinition);
 }
 
@@ -139,6 +141,20 @@ export async function fetchCodeDefinitions(language: string, accountId: number) 
     alert('Something went wrong trying to get code descriptions from the server. Please restart the app.');
     throw(error);
   }
+}
+
+export async function fetchUserDefinedCodes() : void {
+  const searchCriteria = {};
+  let restResponse = await searchItems('Code/UserDefined/list', searchCriteria);
+  Object.keys(restResponse).forEach((codeName: string) => {
+      if (codeName!='errors') {
+        codeDefinitions[codeName]=restResponse[codeName];
+      }
+    });
+
+  //let userDefinedCodes : string[] = restResponse.codes;
+
+  //cacheItem('visitTypes', visitTypes);
 }
 
 let codeDefinitions = {

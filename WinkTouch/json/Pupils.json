@@ -19,13 +19,25 @@
           "name": "OD",
           "fields": [
             {
-              "name": "Diameter",
+              "name": "Size in light",
               "suffix": " mm",
               "freestyle": true,
-              "options": "pupilDiameterCodes"
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
             },
             {
-              "name": "Form",
+              "name": "Size in dark",
+              "suffix": " mm",
+              "freestyle": true,
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
+            },
+            {
+              "name": "Shape",
               "freestyle": true,
               "options": "pupilFormCodes"
             },
@@ -43,11 +55,6 @@
               "name": "Accom.",
               "freestyle": true,
               "options": "pupilAccomodationCodes"
-            },
-            {
-              "name": "Eye color",
-              "freestyle": true,
-              "options": "pupilColorCodes"
             },
             {
               "name": "Diagnose",
@@ -60,10 +67,22 @@
           "name": "OS",
           "fields": [
             {
-              "name": "Diameter",
+              "name": "Size in light",
               "suffix": " mm",
               "freestyle": true,
-              "options": "pupilDiameterCodes"
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
+            },
+            {
+              "name": "Size in dark",
+              "suffix": " mm",
+              "freestyle": true,
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
             },
             {
               "name": "Form",
@@ -84,11 +103,6 @@
               "name": "Accom.",
               "freestyle": true,
               "options": "pupilAccomodationCodes"
-            },
-            {
-              "name": "Eye color",
-              "freestyle": true,
-              "options": "pupilColorCodes"
             },
             {
               "name": "Diagnose",

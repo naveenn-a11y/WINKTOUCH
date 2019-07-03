@@ -87,6 +87,11 @@
               "options": "irisCodes"
             },
             {
+              "name": "Eye color",
+              "freestyle": true,
+              "options": "eyeColorCodes"
+            },
+            {
               "normalValue": "Clear",
               "name": "Lens",
               "freestyle": true,
@@ -139,6 +144,11 @@
               "name": "Iris",
               "freestyle": true,
               "options": "irisCodes"
+            },
+            {
+              "name": "Eye color",
+              "freestyle": true,
+              "options": "eyeColorCodes"
             },
             {
               "normalValue": "Clear",
