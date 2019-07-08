@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>4</string>
 	<key>CodePushDeploymentKey</key>
 	<string>o8Ad5vPqlx-x9bOrvsejrXL5T-C5b99414bd-11b8-4bb3-bbb3-8b32aaf3da86</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -41,8 +41,10 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>To enable the WinkTouch app to take pictures from documents you want to upload to Wink.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Wink does not record your location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Wink does not record your location</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>To enable the dictation function in the WinkTouch app so you can talk to type your exam summaries fe. </string>
 	<key>NSPhotoLibraryUsageDescription</key>
