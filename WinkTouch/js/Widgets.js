@@ -12,6 +12,7 @@ import { Svg, Path, Polyline, Circle} from 'react-native-svg';
 import {line,curveBasis, curveCardinal} from 'd3-shape';
 import simplify from 'simplify-js';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+//import KeyEvent from 'react-native-keyevent';
 import { styles, fontScale, selectionColor, selectionFontColor, imageStyle } from './Styles';
 import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
@@ -22,7 +23,7 @@ import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDate
   formatTime, formatHour, time24Format, today, dayDifference, addDays} from './Util';
 import { Camera, PaperClip, Undo } from './Favorites';
 import { DocumentScanner } from './DocumentScanner';
-import { fetchUpload, getMimeType } from './Upload';
+import { fetchUpload, getMimeType, getAspectRatio } from './Upload';
 import { getCachedItem } from './DataCache';
 import { searchPatientDocuments, storePatientDocument } from './Patient';
 
@@ -299,6 +300,8 @@ export class NumberField extends Component {
       decimals?: number,
       readonly?: boolean,
       freestyle?: boolean,
+      isTyping?: boolean,
+      autoFocus?: boolean,
       style?: any,
       onChangeValue?: (newvalue: ?number) => void,
       transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void }
@@ -307,8 +310,8 @@ export class NumberField extends Component {
       isActive: boolean,
       isDirty: boolean,
       isTyping: boolean,
-      editedValue: (?string)[]|string,
-      fractions: string[][]
+      editedValue: (?string)[]|?string,
+      fractions: ?string[][]
     }
     static defaultProps = {
       stepSize: 1,
@@ -318,41 +321,58 @@ export class NumberField extends Component {
     constructor(props: any) {
       super(props);
       this.state = {
-        editedValue: [undefined,undefined,undefined,undefined,undefined],
+        editedValue: props.isTyping?props.value:[undefined,undefined,undefined,undefined,undefined],
         isActive: false,
         isDirty: false,
-        isTyping: false,
+        isTyping: props.isTyping===false,
         fractions: undefined
       }
     }
 
     componentWillReceiveProps(nextProps: any) {
       this.setState({
-        editedValue: [undefined,undefined,undefined,undefined,undefined],
+        editedValue: nextProps.isTyping?nextProps.value:[undefined,undefined,undefined,undefined,undefined],
         isActive: false,
         isDirty: false,
-        isTyping: false
+        isTyping: nextProps.isTyping===true
       });
+    }
+
+    componentWillUnmount() {
+      if (this.state.isActive) {
+        this.cancelEdit();
+      }
     }
 
     startEditing = () => {
       if (this.props.readonly) return;
       const fractions = this.generateFractions(this.props);
+      //KeyEvent.onKeyUpListener((keyEvent) => {
+      //  console.log(`onKeyUp keyCode: ${keyEvent.keyCode}`);
+      //  console.log(`Action: ${keyEvent.action}`);
+      //  console.log(`Key: ${keyEvent.pressedKey}`);
+      //});
       this.setState({
           editedValue: fractions?this.splitValue(this.props.value, fractions):undefined,
           isActive: true,
           isDirty: false,
           fractions
       });
+
     }
 
     startTyping = () => {
       if (this.props.readonly) return;
+      //KeyEvent.removeKeyUpListener();
       this.setState({isActive: false, isTyping: true});
     }
 
     commitTyping = (newValue: string) : void => {
-      this.setState({isActive: false, isDirty: true, isTyping: false}, this.props.onChangeValue(newValue));
+      if (this.state.isActive) {
+        this.setState({isActive: false}, this.props.onChangeValue(newValue));
+      } else {
+        this.props.onChangeValue(newValue);
+      }
     }
 
     commitEdit = (nextFocusField?: string) => {
@@ -360,13 +380,15 @@ export class NumberField extends Component {
         const combinedValue : ?number = this.combinedValue();
         this.props.onChangeValue(combinedValue);
       }
-      this.setState({ isActive: false });
+      //KeyEvent.removeKeyUpListener();
+      this.setState({ isActive: false, isTyping: false });
       if (nextFocusField && this.props.transferFocus) {
         this.props.transferFocus.onTransferFocus(nextFocusField);
       }
     }
 
     cancelEdit = () => {
+      //KeyEvent.removeKeyUpListener();
       this.setState({ isActive: false });
     }
 
@@ -640,7 +662,7 @@ export class NumberField extends Component {
         }
       }
       //Update Button
-      fractions[4].push('\u2714');
+      //fractions[4].push('\u2714');
       //Clear Button
       fractions[4].push('\u2715');
       //Refresh Button
@@ -665,7 +687,7 @@ export class NumberField extends Component {
     renderPopup() {
       const formattedValue = this.format(this.state.isDirty?this.combinedValue():this.props.value);
       const isKeypad : boolean = this.state.fractions===undefined;
-      const fractions : any [][] = !isKeypad?this.state.fractions:[[7,4,1,'-'],[8,5,2,0],[9,6,3,'.'],this.props.freestyle===true?['\u2714','\u2715','\u27f3','\u2328']:['\u2714','\u2715','\u27f3']]; //TODO: localize
+      const fractions : any [][] = !isKeypad?this.state.fractions:[[7,4,1,'-'],[8,5,2,0],[9,6,3,'.'],this.props.freestyle===true?['\u2715','\u27f3','\u2328']:['\u2715','\u27f3']]; //TODO: localize
       const columnStyle = this.state.fractions?styles.modalColumn:styles.modalKeypadColumn;
       return <TouchableWithoutFeedback onPress={this.commitEdit}>
           <View style={styles.popupBackground}>
@@ -705,7 +727,14 @@ export class NumberField extends Component {
           <Text style={style}>{formattedValue}</Text>
         </View>
       }
-      if (this.state.isTyping) return <TextField value={this.props.value?this.props.value.toString():undefined} autoFocus={true} style={style} onChangeValue={newValue => this.commitTyping(newValue)}/>
+      if (this.state.isTyping) {
+        const formattedValue = this.props.value?this.props.value.toString():'';
+        return <TextField value={formattedValue} ref='field'
+          autoFocus={this.props.autoFocus || this.props.isTyping!==true}
+          style={style}
+          selectTextOnFocus={true} //TODO why is this not working?
+          onChangeValue={newValue => this.commitTyping(newValue)}/>
+      }
       return <View style={styles.fieldFlexContainer}>
         <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly}>
           <Text style={style}>{formattedValue}</Text>
@@ -1637,7 +1666,7 @@ export class Button extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity onPress={this.props.onPress} enable={!this.props.disabled} ><View style={styles.button}><Text style={styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
+    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} ><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
   }
 }
 
@@ -2002,7 +2031,6 @@ export class ImageUploadField extends Component {
       patientDocuments: undefined
     }
     this.loadImage(this.props.value);
-    if (this.props.type && !this.props.readonly) this.loadDocuments(this.props.type);
   }
 
   componentWillReceiveProps(nextProps: any) {
@@ -2013,10 +2041,6 @@ export class ImageUploadField extends Component {
       upload: getCachedItem(nextProps.value)
     });
     this.loadImage(nextProps.value);
-    if (!this.props.readonly && this.props.type!==nextProps.type) {
-      this.loadDocuments(nextProps.type);
-    }
-
   }
 
   showCamera = () => {
@@ -2045,6 +2069,7 @@ export class ImageUploadField extends Component {
 
   showDocuments = () => {
     if (!this.props.type) return;
+    if (!this.state.documents) this.loadDocuments(this.props.type);
     this.setState({cameraOn:false, attachOn: true});
   }
 
@@ -2092,15 +2117,16 @@ export class ImageUploadField extends Component {
   }
 
   render() {
-    const style : {width: number, height :number} = imageStyle(this.props.size, 300/200);
+    const aspectRatio : number = this.state.upload?getAspectRatio(this.state.upload):300/200;
+    const style : {width: number, height :number} = imageStyle(this.props.size, aspectRatio);
     return <View style={styles.fieldContainer}>
       <View>
         <TouchableOpacity style={styles.fieldContainer} onPress={this.props.type?this.showDocuments:this.showCamera} disabled={this.props.readonly}>
-          {!this.props.value && <TouchableOpacity onPress={this.showCamera}><Camera style={styles.screenIcon}/></TouchableOpacity>}
-          {!this.props.value && this.props.type && <TouchableOpacity onPress={this.showDocuments}><PaperClip style={styles.screenIcon}/></TouchableOpacity>}
+          {!this.props.value && !this.props.readonly && <TouchableOpacity onPress={this.showCamera}><Camera style={styles.screenIcon}/></TouchableOpacity>}
+          {!this.props.value && !this.props.readonly && this.props.type && <TouchableOpacity onPress={this.showDocuments}><PaperClip style={styles.screenIcon}/></TouchableOpacity>}
           {this.state.upload && <Image source={{ uri: `data:${getMimeType(this.state.upload)},${this.state.upload.data}`}} style={style}/>}
         </TouchableOpacity>
-        {this.state.cameraOn?<Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value}
+        {this.state.cameraOn?<Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value} size={this.props.size}
           fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
         </Modal>:null}
         {this.state.attachOn?<Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>:null}
@@ -2345,6 +2371,8 @@ export class ImageField extends Component {
     if (this.props.image==='./image/H.png') return require('./image/H.png');
     if (this.props.image==='./image/anteriorOD.png') return require('./image/anteriorOD.png');
     if (this.props.image==='./image/anteriorOS.png') return require('./image/anteriorOS.png');
+    if (this.props.image==='./image/anteriorSegOD.png') return require('./image/anteriorSegOD.png');
+    if (this.props.image==='./image/anteriorSegOS.png') return require('./image/anteriorSegOS.png');
     if (this.props.image==='./image/posteriorOD.png') return require('./image/posteriorOD.png');
     if (this.props.image==='./image/posteriorOS.png') return require('./image/posteriorOS.png');
     if (this.props.image==='./image/gonioscopyOD.png') return require('./image/gonioscopyOD.png');
@@ -2365,7 +2393,8 @@ export class ImageField extends Component {
     if (resolutionText==undefined) resolutionText = this.props.resolution;
     const resolution : string[] = resolutionText.split('x');
     if (resolution.length!=2) {
-      console.error('Image resolution is corrupt: '+resolutionText);
+      console.warn('Image resolution is corrupt: '+resolutionText);
+      return [640,480];
     }
     const width : number = Number.parseInt(resolution[0]);
     const height : number = Number.parseInt(resolution[1]);

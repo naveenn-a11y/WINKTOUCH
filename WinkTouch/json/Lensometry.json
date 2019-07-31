@@ -5,26 +5,30 @@
   "section": "Vision testing.4",
   "fields": [
     {
-      "name": "Lens Type",
+      "name": "Current wear",
+      "label": "",
       "fields": [
         {
-          "name": "Lens Type",
-          "label": "",
-          "options": "lensTypeCodes"
-        },
-        {
+          "name": "Current wear",
           "normalValue": "Glasses",
-          "name": "No glasses",
           "defaultValue": "Glasses",
           "options": [
             "Glasses",
-            "No glasses"
+            "No glasses",
+            "Did not bring glasses",
+            "Lost glasses"
           ]
+        },
+        {
+          "name": "Since",
+          "type": "pastDate"
         }
       ]
     },
     {
       "hasAdd": true,
+      "hasLensType": true,
+      "multiValue": true,
       "name": "Lensometry",
       "type": "SRx"
     }

@@ -53,6 +53,7 @@ export class FormTextInput extends Component {
         prefix?: string,
         suffix?: string,
         multiline?: boolean,
+        required?: boolean,
         readonly?: boolean,
         speakable?: boolean,
         style?: any,
@@ -69,28 +70,43 @@ export class FormTextInput extends Component {
         value: ?string,
         errorMessage: ?string
     }
+
     constructor(props: any) {
         super(props);
         this.state = {
-            value: this.props.value,
+            text: this.format(this.props.value),
             errorMessage: this.props.errorMessage
         }
     }
 
     componentWillReceiveProps(nextProps: any) {
-        if (nextProps.value !== this.state.value || nextProps.errorMessage !== this.state.errorMessage)
-            this.setState({ value: nextProps.value, errorMessage: nextProps.errorMessage });
+      const text : string = this.format(nextProps.value);
+      if (this.state.text===text) {
+        this.setState({errorMessage: nextProps.errorMessage});
+      } else {
+        this.setState({ text });
+        this.validate(text);
+      }
     }
 
     validate(value: string) {
-        if (!this.props.validation)
-            return;
-        let errorMessage :?string = undefined;
+        if (value===undefined || value===null || (value.trim && value.trim().length===0)) {
+          if (this.props.required) {
+            this.setState({ errorMessage: strings.requiredError});
+          } else {
+            if (this.state.errorMessage) this.setState({ errorMessage: undefined});
+          }
+          return;
+        }
+        if (!this.props.validation) {
+          this.setState({ errorMessage: undefined });
+          return;
+        }
         const errorMessages = strings;
+        let validationError: ?string;
         eval(this.props.validation);
-        if (errorMessage)
-          errorMessage = errorMessage + ' \u274c';
-        this.setState({ errorMessage });
+        if (validationError) validationError = validationError + ' \u274c';
+        this.setState({ errorMessage: validationError });
     }
 
     format(input: string) : string {
@@ -105,10 +121,11 @@ export class FormTextInput extends Component {
     }
 
     commit(input: string) {
-        input = this.format(input);
-        this.validate(input);
+        const text : string = this.format(input);
+        this.setState({text});
+        this.validate(text);
         if (this.props.onChangeText)
-            this.props.onChangeText(input);
+            this.props.onChangeText(text);
     }
 
     dismissError = () => {
@@ -118,7 +135,7 @@ export class FormTextInput extends Component {
     appendText(text: string) {
       if (text===undefined || text===null || text==='')
         return;
-      let value : string = this.state.value;
+      let value : string = this.state.text;
       if ('undo'===text.toLowerCase() || 'remove'===text.toLowerCase() || 'delete'===text.toLowerCase()) {//TODO: french
         if (!value) return;
         let lines = value.split('\n');
@@ -135,7 +152,6 @@ export class FormTextInput extends Component {
           value = value + text;
         }
       }
-      //this.setState({value});
       this.commit(value);
     }
 
@@ -149,13 +165,13 @@ export class FormTextInput extends Component {
                 <Text style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formFieldReadOnly}>{this.props.value}</Text>
                 :
                 <TextInput
-                    value={this.state.value}
+                    value={this.state.text}
                     autoCapitalize={this.props.autoCapitalize}
                     autoCorrect={false}
                     keyboardType={this.props.type}
                     style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:this.props.readonly?styles.formFieldReadOnly:styles.formField}
                     onFocus={this.dismissError}
-                    onChangeText={(text: string) => this.setState({value: text })}
+                    onChangeText={(text: string) => this.setState({text: text })}
                     onEndEditing={(event) => this.commit(event.nativeEvent.text)}
                     editable={this.props.readonly!==true}
                     multiline={this.props.multiline}
@@ -189,6 +205,8 @@ export class FormNumberInput extends Component {
         decimals?: number,
         style?: any,
         options: CodeDefinition[]|string,
+        isTyping?: boolean,
+        autoFocus?: boolean
     }
     static defaultProps = {
       readonly: false,
@@ -209,16 +227,46 @@ export class FormNumberInput extends Component {
     }
 
     componentWillReceiveProps(nextProps: any) {
-        this.setState({ text: this.format(nextProps.value), errorMessage: nextProps.errorMessage });
+        const text : string = this.format(nextProps.value);
+        if (this.state.text===text) {
+          this.setState({errorMessage: nextProps.errorMessage});
+        } else {
+          this.setState({ text });
+          this.validate(text);
+        }
     }
 
     validate(value: string) {//TODO
-        if (!this.props.validation)
-            return;
+        if (this.props.freestyle || (this.props.options && this.props.options.includes(value)) || value===undefined || value===null || (value.trim && value.trim().length===0)) {
+          if (this.state.errorMessage) this.setState({ errorMessage: undefined});
+          return;
+        }
+        if (isNaN(value)) {
+          this.setState({errorMessage: 'Not a number'}); //TODO
+          return;
+        }
+        const numberValue : ?number|string = this.parse(value);
+        if (this.props.minValue!==undefined && this.props.minValue > numberValue) {
+          this.setState({ errorMessage: 'Too litle'}); //TODO
+          return;
+        }
+        if (this.props.maxValue!==undefined && this.props.maxValue < numberValue) {
+          this.setState({ errorMessage: 'Too big'}); //TODO
+          return;
+        }
+        if (this.props.stepSize!==undefined && (numberValue*1000)%(this.props.stepSize*1000)!==0 ) {
+          this.setState({ errorMessage: 'Not right rounded'}); //TODO
+          return;
+        }
+
+        if (!this.props.validation) {
+          this.setState({ errorMessage: undefined });
+          return;
+        }
+        const errorMessages = strings;
         let validationError: ?string;
         eval(this.props.validation);
-        if (validationError)
-          validationError = validationError + ' \u274c';
+        if (validationError) validationError = validationError + ' \u274c';
         this.setState({ errorMessage: validationError });
     }
 
@@ -226,18 +274,9 @@ export class FormNumberInput extends Component {
         this.setState({text});
         this.validate(text);
         if (this.props.onChangeValue) {
-          const value : ?number = this.parse(text);
-          if (Number.isNaN(value)) {
-            this.setState({errorMessage: 'Not a number'});
-          } else {
-            this.props.onChangeValue(value);
-          }
+          const value : ?number|string = this.parse(text);
+          this.props.onChangeValue(value);
         }
-    }
-
-    dismissError = () => {
-      if (this.state.errorMessage)
-        this.setState({ errorMessage: undefined });
     }
 
     format(value: ?number) : string {
@@ -246,7 +285,7 @@ export class FormNumberInput extends Component {
       return value.toString(); //TODO
     }
 
-    parse(text: string) : ?number {
+    parse(text: string|number) : ?number {
       if (typeof text === 'number') return text;
       if (text===undefined || text===null || text.trim()==='') return undefined;
       if (isFinite(text)) {
@@ -263,14 +302,11 @@ export class FormNumberInput extends Component {
     }
 
     render() {
-        const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField;
-        return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined || this.state.errorMessage===null || this.state.errorMessage.trim()===''}>
-          <View style={styles.formElement}>
+        const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.state.errorMessage?styles.formFieldError:styles.formField;
+        return <View style={styles.formElement}>
             {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
             <NumberField {...this.props} range={this.getRange()} style={style} onChangeValue={(newValue: any) => this.commit(newValue)} />
-            {this.state.errorMessage && <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>}
           </View>
-        </TouchableWithoutFeedback>
     }
 }
 
@@ -528,7 +564,7 @@ export class FormOptions extends Component {
 
   render() {
     const manyOptions : boolean = this.props.options.length > 30;
-    const style = this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
+    const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
     return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.dismissedError==true || !this.props.errorMessage}>
         <View style={styles.formElement}>
           {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
@@ -702,7 +738,9 @@ export class FormInput extends Component {
     onChangeValue: (value: ?string|?number) => void,
     patientId: string,
     examId: string,
-    filterValue: {}
+    filterValue: {},
+    isTyping?: boolean,
+    autoFocus?: boolean
   }
   state: {
     validation?: string
@@ -763,11 +801,14 @@ export class FormInput extends Component {
   renderFormInput() {
     const label : string = this.props.label?this.props.label:formatLabel(this.props.definition);
     const type : ?string = this.props.type?this.props.type:this.props.definition.type;
-    const style : ?any = this.props.style?this.props.style:(this.props.multiline===true || this.props.definition.maxLength>100)?styles.formFieldLines:styles.formField;
+    const style : ?any = this.props.style?this.props.style:(this.props.readonly||this.props.definition.readonly)?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:(this.props.multiline===true || this.props.definition.maxLength>100)?styles.formFieldLines:styles.formField;
+
     const readonly : boolean = this.props.readonly===true||this.props.definition.readonly===true;
     if (!this.props.definition || !this.props.visible) return null;
     if (isNumericField(this.props.definition)) {
-      return <FormNumberInput value={this.props.value} {...this.props.definition} errorMessage={this.props.errorMessage} readonly={readonly} onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} style={style}/>
+      return <FormNumberInput value={this.props.value} {...this.props.definition} errorMessage={this.props.errorMessage} readonly={readonly}
+        onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix}
+        isTyping={this.props.isTyping} autoFocus={this.props.autoFocus}/>
     } else if (this.props.definition.options && this.props.definition.options.length>0) {
       const options = this.props.definition.options;
       if (!(options instanceof Array)) {
@@ -878,10 +919,12 @@ export class FormField extends Component {
     let valueContainer : {} = this.props.value;
     for (let i : number = 0; i<this.fieldNames.length; i++) {
       const propertyName : string = this.fieldNames[i];
-      if (i===this.fieldNames.length-1)
+      if (i===this.fieldNames.length-1) {
         valueContainer[propertyName] = value;
-      else
+        valueContainer[propertyName+"Error"] = undefined;
+      } else {
         valueContainer = valueContainer[propertyName];
+      }
     }
     this.props.onChangeValue(this.props.value);
   }

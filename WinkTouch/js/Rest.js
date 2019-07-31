@@ -9,7 +9,7 @@ import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.0/';
+export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.1/';
 
 let token : string;
 
@@ -148,7 +148,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
       console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
       return;
     }
-    __DEV__ && console.log('RES '+requestNr+' GET '+url+': '+JSON.stringify(restResponse));
+    __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET');
     const item : any = restResponse[getItemFieldName(id)];
     if (!item) throw new Error('The server did not return a '+getItemFieldName(id)+' for id '+id+".");
     cacheResponseItems(restResponse);
@@ -158,6 +158,16 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
     alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase()));
     throw(error);
   }
+}
+
+function logRestResponse(restResponse, id, requestNr: number, method: string, url) {
+  let cleanedResponse = deepClone(restResponse);
+  if (!cleanedResponse.hasValidationError && !cleanedResponse.errors) {
+    cleanedResponse = cleanedResponse[getItemFieldName(id)];
+  }
+  cleanedResponse.definition='{...}';
+  if (cleanedResponse.data) cleanedResponse.data = '...';
+  console.log('RES '+requestNr+' '+method+' '+url+' json body: '+JSON.stringify(cleanedResponse));
 }
 
 /**
@@ -189,34 +199,26 @@ export async function storeItem(item: any) : any {
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
     const restResponse : RestResponse = await httpResponse.json();
-    if (__DEV__) {
-      let cleanedResponse = deepClone(restResponse);
-      if (restResponse.hasValidationError || restResponse.errors) {
-        cleanedResponse.definition='{...}';
-      } else {
-        cleanedResponse[getItemFieldName(item.id)].definition='{...}';
-      }
-      console.log('RES '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(cleanedResponse));
-    }
-    let updatedItem;
+    __DEV__ && logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
     if (restResponse.hasValidationError || restResponse.errors) {
       if (restResponse.errors) {
         __DEV__ && console.log('restResponse contains business errors: '+ JSON.stringify(restResponse));
       } else if (restResponse.hasValidationError) {
         restResponse.errors=[strings.validationErrorMessage];
       }
-      clearCachedItemById(item);
-      await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
-      return restResponse;
-    } else {
-      updatedItem = restResponse[getItemFieldName(item.id)];
-      if (!updatedItem) {
-        console.log('Missing '+getItemFieldName(item.id)+' key in restresponse :' + JSON.stringify(restResponse));
-        throw new Error('The server did not return a '+getItemFieldName(item.id)+' after '+(httpMethod==='put'?'updating.':'creating.'));
+      if (item.id.includes('-')) {
+        clearCachedItemById(item);
+        await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
       }
-      cacheLists(restResponse);
-      cacheItemById(updatedItem);
+      return restResponse;
     }
+    const updatedItem = restResponse[getItemFieldName(item.id)];
+    if (!updatedItem) {
+      console.log('Missing '+getItemFieldName(item.id)+' key in restresponse :' + JSON.stringify(restResponse));
+      throw new Error('The server did not return a '+getItemFieldName(item.id)+' after '+(httpMethod==='put'?'updating.':'creating.'));
+    }
+    cacheLists(restResponse);
+    cacheItemById(updatedItem);
     return updatedItem;
   } catch (error) {
     console.log(error);
@@ -280,9 +282,9 @@ export function appendParameters(url: string, searchCritera: Object) : string {
 export async function searchItems(list: string, searchCritera: Object) : any {
   let url : string = restUrl + list;
   const requestNr : number = ++requestNumber;
-  __DEV__ && console.log('REQ '+requestNr+' GET '+url+": "+JSON.stringify(searchCritera));
   try {
     url = appendParameters(url, searchCritera);
+  __DEV__ && console.log('REQ '+requestNr+' GET '+url);
     let httpResponse = await fetch(url, {
         method: 'get',
         headers: {
@@ -308,9 +310,12 @@ export async function searchItems(list: string, searchCritera: Object) : any {
 
 export async function performActionOnItem(action: string, item: any) : any {
   let url : string = restUrl + getDataType(item.id) + '/' + encodeURIComponent(action);
+  const httpMethod = 'put';
+  const requestNr = ++requestNumber;
+  __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
   try {
     let httpResponse = await fetch(url, {
-        method: 'post',
+        method: httpMethod,
         headers: {
           'Content-Type': 'application/json',
           'token':  token,
@@ -321,12 +326,27 @@ export async function performActionOnItem(action: string, item: any) : any {
     });
     if (!httpResponse.ok) handleHttpError(httpResponse, await httpResponse.text());
     const restResponse = await httpResponse.json();
-    if (restResponse.errors) {
-      alert(restResponse.errors);
-      console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
+    __DEV__ && logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
+    if (restResponse.hasValidationError || restResponse.errors) {
+      if (restResponse.errors) {
+        __DEV__ && console.log('restResponse contains business errors: '+ JSON.stringify(restResponse));
+      } else if (restResponse.hasValidationError) {
+        restResponse.errors=[strings.validationErrorMessage];
+      }
+      if (item.id.includes('-')) {
+        clearCachedItemById(item);
+        await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
+      }
+      return restResponse;
     }
-    cacheResponseItems(restResponse);
-    return restResponse;
+    const updatedItem = restResponse[getItemFieldName(item.id)];
+    if (!updatedItem) {
+      console.log('Missing '+getItemFieldName(item.id)+' key in restresponse :' + JSON.stringify(restResponse));
+      throw new Error('The server did not return a '+getItemFieldName(item.id)+' after '+(httpMethod==='put'?'updating.':'creating.'));
+    }
+    cacheLists(restResponse);
+    cacheItemById(updatedItem);
+    return updatedItem;
   } catch (error) {
     console.log(error);
     alert('Something went wrong trying to '+action+' a '+getDataType(item.id)+'. Please try again.');

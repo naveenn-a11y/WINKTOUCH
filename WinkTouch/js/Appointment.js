@@ -5,7 +5,6 @@
 
 import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, Button, ScrollView, TouchableOpacity, TextInput, LayoutAnimation, InteractionManager, RefreshControl} from 'react-native';
-import base64 from 'base-64';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import type {PatientInfo, Patient, Appointment, Visit, User, AppointmentType} from './Types';
 import { styles, fontScale } from './Styles';

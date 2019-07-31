@@ -5,11 +5,11 @@
 
 import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, ScrollView, TextInput, Modal, LayoutAnimation, InteractionManager} from 'react-native';
-import type {Patient, PatientInfo, Appointment, Visit} from './Types';
+import type {Patient, PatientInfo, Appointment, Visit, Store} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
 import { Button } from './Widgets';
-import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo } from './Patient';
+import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo, storePatientInfo } from './Patient';
 import { PrescriptionCard } from './Assessment';
 import { searchItems } from './Rest';
 import { cacheItemsById, getCachedItem } from './DataCache';
@@ -18,10 +18,15 @@ import { hourDifference, parseDate, now } from './Util';
 import { VisitHistoryCard, fetchVisitHistory, VisitHistory } from './Visit';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
+import { getFieldDefinitions } from './Items';
+import { getStore } from './DoctorApp';
 
 const maxPatientListSize : number = 40;
 
 export async function searchPatients(searchText: string) : Patient[] {
+    if (!searchText || searchText.trim().length===0) {
+      return [];
+    }
     const searchCriteria = {
       searchData: searchText
     };
@@ -75,7 +80,17 @@ export class FindPatient extends Component {
   async searchPatients() {
       this.props.onSelectPatient(undefined);
       this.setState({showPatientList: false, patients: []});
+      if (!this.state.searchCriterium || this.state.searchCriterium.trim().length===0) {
+        alert(strings.searchCriteriumMissingError);
+        return;
+      }
       const patients : Patient[] = await searchPatients(this.state.searchCriterium);
+      if (!patients || patients.length===0) {
+        if (!this.props.onNewPatient) {
+          alert(strings.noPatientsFound);
+          return;
+        }
+      }
       LayoutAnimation.spring();
       this.setState({
         showPatientList: patients!=undefined && patients.length>0,
@@ -100,7 +115,7 @@ export class FindPatient extends Component {
         patients={this.state.patients}
         visible={this.state.showPatientList}
         onSelect={this.props.onSelectPatient} />
-      {__DEV__ && this.state.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
+      {this.props.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
     </View>
   }
 }
@@ -118,7 +133,8 @@ export class FindPatientScreen extends Component {
     patientInfo: ?PatientInfo,
     appointments: ?Appointment[],
     visitHistory: ?string[],
-    patientDocumentHistory: ?string[]
+    patientDocumentHistory: ?string[],
+    isNewPatient: boolean
   }
 
   constructor(props: any) {
@@ -129,6 +145,7 @@ export class FindPatientScreen extends Component {
       appointments: undefined,
       visitHistory: undefined,
       patientDocumentHistory: undefined,
+      isNewPatient: false
     }
   }
 
@@ -160,27 +177,26 @@ export class FindPatientScreen extends Component {
     if (!patient) {
       if (!this.state.patientInfo) return;
       LayoutAnimation.easeInEaseOut();
-      this.setState({patientInfo: undefined, appointments: undefined, visitHistory: undefined, patientDocumentHistory: undefined});
+      this.setState({patientInfo: undefined, appointments: undefined, visitHistory: undefined, patientDocumentHistory: undefined, isNewPatient:false});
       return;
     }
     let patientInfo : ?PatientInfo = getCachedItem(patient.id);
     LayoutAnimation.easeInEaseOut();
-    this.setState({patientInfo, appointments: undefined, visitHistory: undefined, patientDocumentHistory: undefined});
+    this.setState({patientInfo, appointments: undefined, visitHistory: undefined, patientDocumentHistory: undefined, isNewPatient: false});
     patientInfo = await fetchPatientInfo(patient.id);
     if (this.state.patientInfo===undefined || patient.id!==this.state.patientInfo.id)
       return;
-    this.setState({patientInfo}, () => this.showVisitHistory(patient.id));
+    this.setState({patientInfo, isNewPatient:false}, () => this.showVisitHistory(patient.id));
   }
 
-  createPatient() {
-    alert('Create patient not yet implemented.');
+  updatePatientInfo = (patientInfo: PatientInfo) : void => {
+    this.setState({patientInfo});
   }
 
   newPatient() {
-    let patientInfo : ?PatientInfo = this.createPatient();
-    this.setState({
-      patientInfo: patientInfo
-    });
+    const store : Store = getStore();
+    const newPatient : PatientInfo = {firstName:undefined, lastName:undefined, cell: undefined, id: 'patient', countryId:store.country, province: store.pr, gender: 0};
+    this.setState({isNewPatient: true, patientInfo: newPatient});
   }
 
   async startVisit(appointment?: Appointment) {
@@ -188,7 +204,15 @@ export class FindPatientScreen extends Component {
       if (Math.abs(hourDifference(parseDate(appointment.start), now()))>1)
         appointment = await rescheduleAppointment(appointment);
     } else {
-      appointment = {id: undefined, patientId: this.state.patientInfo.id, title: this.params.nextNavigation.title};
+      let patientInfo : PatientInfo = this.state.patientInfo;
+      if (this.state.isNewPatient) {
+        patientInfo = await storePatientInfo(this.state.patientInfo);
+        if (patientInfo.errors) {
+            this.setState({patientInfo});
+            return;
+        }
+      }
+      appointment = {id: undefined, patientId: patientInfo.id, title: this.params.nextNavigation.title};
     }
     this.props.navigation.navigate("appointment", {appointment});
   }
@@ -204,6 +228,13 @@ export class FindPatientScreen extends Component {
     </View>
   }
 
+  renderPatientInfo() {
+    if (this.state.isNewPatient) {
+      return <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
+    }
+    return <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} style={styles.tabCardS}/>
+  }
+
   renderNextAction() {
     if (!this.params.nextNavigation) return null;
     return <View>
@@ -216,10 +247,10 @@ export class FindPatientScreen extends Component {
     return <ScrollView keyboardShouldPersistTaps="handled">
       <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={()=>this.newPatient()} />
       {this.state.patientInfo && <View style={styles.separator}>
-        <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} style={styles.tabCardS}/>
+        {this.renderPatientInfo()}
         {this.renderNextAction()}
-        <VisitHistory patientInfo={this.state.patientInfo} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
-                      readonly={true} navigation={this.props.navigation} />
+        {!this.state.isNewPatient && <VisitHistory patientInfo={this.state.patientInfo} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
+          readonly={true} navigation={this.props.navigation} />}
       </View>}
     </ScrollView>
   }

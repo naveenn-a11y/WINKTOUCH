@@ -16,9 +16,14 @@
     {
       "hasVA": true,
       "hasAdd": true,
+      "hasNotes": true,
       "name": "Final Rx",
       "type": "SRx",
       "fields": [
+        {
+          "name":"notes",
+          "mappedField": "visit.prescription.notes"
+        },
         {
           "name": "od",
           "fields": [
@@ -114,6 +119,7 @@
     {
       "name": "PD",
       "optional": true,
+      "keyboardEnabled": true,
       "columns": [
         [
           "Far",
@@ -127,18 +133,12 @@
             {
               "decimals": 1,
               "name": "OD",
-              "stepSize": 0.1,
-              "minValue": 0,
-              "suffix": "mm",
-              "maxValue": 40
+              "mappedField":"visit.prescription.od.farPD"
             },
             {
               "decimals": 1,
               "name": "OS",
-              "stepSize": 0.1,
-              "minValue": 0,
-              "suffix": "mm",
-              "maxValue": 40
+              "mappedField":"visit.prescription.os.farPD"
             }
           ]
         },
@@ -148,18 +148,12 @@
             {
               "decimals": 1,
               "name": "OD",
-              "stepSize": 0.1,
-              "minValue": 0,
-              "suffix": "mm",
-              "maxValue": 40
+              "mappedField":"visit.prescription.od.closePD"
             },
             {
               "decimals": 1,
               "name": "OS",
-              "stepSize": 0.1,
-              "minValue": 0,
-              "suffix": "mm",
-              "maxValue": 40
+              "mappedField":"visit.prescription.os.closePD"
             }
           ]
         }

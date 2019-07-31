@@ -42,19 +42,12 @@
       "rows": [
         [
           "Lens",
+          "Ophtalmoscopy",
           "Dilated"
         ]
       ],
       "size": "L",
       "fields": [
-        {
-          "name": "Dilated",
-          "defaultValue": "No",
-          "options": [
-            "No",
-            "Dilated"
-          ]
-        },
         {
           "name": "Lens",
           "suffix": [
@@ -65,8 +58,26 @@
           "options": "posteriorLensCodes"
         },
         {
+          "name": "Dilated",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Dilated"
+          ]
+        },
+        {
+          "name": "Ophtalmoscopy",
+          "options": ["Direct","Indirect"]
+        },
+        {
           "name": "OD",
           "fields": [
+            {
+              "normalValue": "Clear",
+              "name": "Pupillary reflex",
+              "freestyle": true,
+              "options": "pupillaryReflexCodes"
+            },
             {
               "normalValue": "Clear",
               "name": "Vitreous",
@@ -125,6 +136,8 @@
                 [
                   "Pink and flat",
                   "Total cupping",
+                  "Sloping cup",
+                  "Deep cup",
                   "WNL"
                 ]
               ]
@@ -157,11 +170,13 @@
               "options": "retinaCodes"
             },
             {
-              "normalValue": "WNL",
-              "name": "Posterior Pole",
+              "normalValue": "Clear",
+              "name": "Posterior pole",
               "freestyle": true,
               "options": [
-                "WNL"
+                "Clear",
+                "No breaks",
+                "Tears noted"
               ]
             },
             {
@@ -175,6 +190,12 @@
         {
           "name": "OS",
           "fields": [
+            {
+              "normalValue": "Clear",
+              "name": "Pupillary reflex",
+              "freestyle": true,
+              "options": "pupillaryReflexCodes"
+            },
             {
               "normalValue": "Clear",
               "name": "Vitreous",
@@ -235,6 +256,8 @@
                 [
                   "Pink and flat",
                   "Total cupping",
+                  "Sloping cup",
+                  "Deep cup",
                   "WNL"
                 ]
               ]
@@ -246,7 +269,7 @@
               "options": "vesselsCodes"
             },
             {
-              "normalValue": "No diabetic maculopathy",
+              "normalValue": "No maculopathy",
               "name": "Macula",
               "freestyle": true,
               "options": "maculaCodes"
@@ -267,11 +290,13 @@
               "options": "retinaCodes"
             },
             {
-              "normalValue": "WNL",
-              "name": "Posterior Pole",
+              "normalValue": "Clear",
+              "name": "Posterior pole",
               "freestyle": true,
               "options": [
-                "WNL"
+                "Clear",
+                "No breaks",
+                "Tears noted"
               ]
             },
             {

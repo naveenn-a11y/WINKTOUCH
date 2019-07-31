@@ -20,6 +20,7 @@ export const selectionColor = '#5ed4d4';
 export const selectionFontColor : string = '#1db3b3';
 export const selectionBorderColor = '#1db3b3';
 export const selectionBackgroundColor = '#c9ffff'
+export const disabledFontColor : string = '#b3b3b3';
 
 const fieldMinWidth = 100;
 
@@ -154,6 +155,12 @@ export const styles = StyleSheet.create({
         borderColor: 'white',
         paddingRight: 10 * fontScale
     },
+    modalCamera: {
+        flexDirection: 'column',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+    },
     modalKeypadColumn: {
         flexDirection: 'column',
         flexWrap: 'wrap',
@@ -249,9 +256,21 @@ export const styles = StyleSheet.create({
         backgroundColor: '#1db3b3',
         borderRadius: 30 * fontScale
     },
+    buttonDisabled: {
+        padding: 16 * fontScale,
+        marginHorizontal: 13 * fontScale,
+        marginVertical: 6 * fontScale,
+        backgroundColor: '#90e0e0',
+        borderRadius: 30 * fontScale
+    },
     buttonText: {
         fontSize: 20 * fontScale,
         backgroundColor: '#1db3b3',
+        color: 'white',
+    },
+    buttonDisabledText: {
+        fontSize: 20 * fontScale,
+        backgroundColor: '#90e0e0',
         color: 'white',
     },
     fabButtonText: {

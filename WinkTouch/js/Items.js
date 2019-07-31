@@ -15,7 +15,7 @@ import { formatDate, dateFormat, dateTimeFormat, yearDateFormat, yearDateTimeFor
 import { formatAllCodes, parseCode, formatCode} from './Codes';
 import { getDefinitionCacheKey, fetchItemDefinition } from './Rest';
 import { getCachedItem, cacheItem } from './DataCache';
-import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn } from './Favorites';
+import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
 import { GlassesDetail, GlassesSummary, newRefraction, ContactsDetail } from './Refraction';
 import { getExamDefinition } from './ExamDefinition';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, updateMappedExams } from './Exam';
@@ -438,6 +438,11 @@ export class GroupedCard extends Component {
   renderGlassesSummary(groupDefinition: GroupDefinition) {
     if (groupDefinition===undefined || groupDefinition===null) return null;
     if (this.props.exam[this.props.exam.definition.name]===undefined || this.props.exam[this.props.exam.definition.name][groupDefinition.name]===undefined) return null;
+    if (groupDefinition.multiValue) {
+        return this.props.exam[this.props.exam.definition.name][groupDefinition.name].map((rx : GlassesRx) =>
+            <GlassesSummary showHeaders={false} glassesRx={rx} key={groupDefinition.name}/>
+        );
+    }
     return <GlassesSummary showHeaders={false} glassesRx={this.props.exam[this.props.exam.definition.name][groupDefinition.name]} key={groupDefinition.name}/>
   }
 
@@ -446,15 +451,15 @@ export class GroupedCard extends Component {
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign({}, getFieldDefinition(groupDefinition.mappedField), groupDefinition);
     }
-    if (groupDefinition.multiValue===true && groupDefinition.options===undefined) {
+    if (groupDefinition.type==='SRx') {
+      return this.renderGlassesSummary(groupDefinition);
+    } else if (groupDefinition.multiValue===true && groupDefinition.options===undefined) {
       const value = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (value===undefined || value===null || (value instanceof Array) === false || value.length===0) return null;
       return value.map((groupValue: any, groupIndex: number)=> {
         if (groupValue===undefined || groupValue===null || Object.keys(groupValue).length===0) return null;
         return this.renderRows(groupDefinition, groupIndex);
       });
-    } else if (groupDefinition.type==='SRx') {
-      return this.renderGlassesSummary(groupDefinition);
     } else if (groupDefinition.fields===undefined && groupDefinition.options) {//A CheckList
       return this.renderCheckListItem(groupDefinition);
     } else {
@@ -1250,9 +1255,23 @@ export class GroupedForm extends Component {
     patientId: string,
     examId: string
   }
+  state: {
+    isTyping: boolean
+  }
 
   static defaultProps = {
     editable: true
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      isTyping: false
+    }
+  }
+
+  toggleTyping = () : void => {
+    this.setState({isTyping: this.state.isTyping?false:true});
   }
 
   formatColumnLabel(column: string) : string {
@@ -1270,7 +1289,7 @@ export class GroupedForm extends Component {
     const error = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name+'Error']:undefined:this.props.form[fieldDefinition.name+'Error']:undefined;
     const label : string = formatLabel(this.props.definition)+(column!==undefined?' '+this.formatColumnLabel(column)+' ':' ')+formatLabel(fieldDefinition);
     return <FormInput value={value} filterValue={this.props.form} label={label} showLabel={false} readonly={!this.props.editable} definition={fieldDefinition}
-      onChangeValue={(newValue: string) => this.props.onChangeField(fieldDefinition.name, newValue, column)} errorMessage={error}
+      onChangeValue={(newValue: string) => this.props.onChangeField(fieldDefinition.name, newValue, column)} errorMessage={error} isTyping={this.state.isTyping}
       patientId={this.props.patientId} examId={this.props.examId} key={fieldDefinition.name+(column===undefined?'':column)}/>
   }
 
@@ -1402,9 +1421,10 @@ export class GroupedForm extends Component {
   }
 
   renderIcons() {
-    if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear)) return null;
+    if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
     return <View style={styles.groupIcons} key='icons'>
       {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
       {this.props.onAddFavorite && <TouchableOpacity onPress={this.props.onAddFavorite}><Star style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.onClear && <TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
     </View>
@@ -1467,7 +1487,11 @@ export class GroupedFormScreen extends Component {
           if (groupDefinition.optional===true) {
             this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
           } else {
-            exam[exam.definition.name][groupDefinition.name] = newRefraction();
+            if (groupDefinition.multiValue) {
+              exam[exam.definition.name][groupDefinition.name] = [newRefraction()];
+            } else {
+              exam[exam.definition.name][groupDefinition.name] = newRefraction();
+            }
           }
         } else if (groupDefinition.multiValue===true) {
           exam[exam.definition.name][groupDefinition.name] = [];
@@ -1514,7 +1538,7 @@ export class GroupedFormScreen extends Component {
     if (groupDefinition.maxLength!==undefined && values.length>=groupDefinition.maxLength) {
       alert(strings.formatString(strings.maximumAddableGroupError, groupDefinition.maxLength-1, groupDefinition.name.toLowerCase()));
     } else {
-      let newValue = {};
+      let newValue = groupDefinition.type==='SRx'?newRefraction():{};
       groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
         if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
             newValue[fieldDefinition.name] = {}
@@ -1579,7 +1603,7 @@ export class GroupedFormScreen extends Component {
 
   updateRefraction(refractionType: string, refraction: GlassesRx) {
     if (!this.props.editable) return;
-    this.props.exam[this.props.exam.definition.name][refractionType] = refraction;
+    //this.props.exam[this.props.exam.definition.name][refractionType] = refraction;
     if (!this.state.isDirty)
       this.setState({isDirty: true});
     this.forceUpdate();
@@ -1591,10 +1615,13 @@ export class GroupedFormScreen extends Component {
   }
 
   clear(groupName: string, index?: number) : void {
-    if (index!==undefined)
+    if (index!==undefined) {
       this.props.exam[this.props.exam.definition.name][groupName].splice(index, 1);
-    else
+      if (this.props.exam[this.props.exam.definition.name][groupName].length===0)
+        this.props.exam[this.props.exam.definition.name][groupName]=undefined;
+    } else {
       this.props.exam[this.props.exam.definition.name][groupName] = undefined;
+    }
     this.initialiseExam(this.props.exam, this.props.editable);
     this.setState({isDirty: true});
   }
@@ -1627,7 +1654,11 @@ export class GroupedFormScreen extends Component {
     if (!groupDefinition) return;
     if (exam[exam.definition.name][groupDefinition.name]===undefined) {
       if (groupDefinition.type==='SRx') {
-        exam[exam.definition.name][groupDefinition.name] = newRefraction();
+        if (groupDefinition.multiValue===true) {
+          exam[exam.definition.name][groupDefinition.name] = [newRefraction()];
+        } else {
+          exam[exam.definition.name][groupDefinition.name] = newRefraction();
+        }
       } else if (groupDefinition.multiValue===true) {
         exam[exam.definition.name][groupDefinition.name] = [];
       } else {
@@ -1648,20 +1679,29 @@ export class GroupedFormScreen extends Component {
       groupDefinition = deepClone(groupDefinition);
       groupDefinition.multiValue = false;
       if (value instanceof Array === false) return null;
-      return value.map((childValue: any, subIndex: number)=> <GroupedForm definition={groupDefinition} editable={this.props.editable} key={index+'.'+subIndex}
+      return value.map((childValue: any, subIndex: number)=> groupDefinition.type==='SRx'?
+        <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={childValue} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
+          onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name}
+          onAdd={() => this.addGroupItem(groupDefinition)}
+          onClear={() => this.clear(groupDefinition.name, subIndex)}
+          key={'Rx'+index+'.'+subIndex}
+        />
+        :<GroupedForm definition={groupDefinition} editable={this.props.editable} key={index+'.'+subIndex}
             form={childValue}
             onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column, subIndex)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
+            patientId={this.patientId}
+            examId={this.props.exam.id}
           />
       );
     } else if (groupDefinition.type==='SRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} key={groupDefinition.name}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition}/>
     } else if (groupDefinition.type==='CRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} key={groupDefinition.name}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
@@ -1670,8 +1710,10 @@ export class GroupedFormScreen extends Component {
     } else {
       return  <GroupedForm definition={groupDefinition} editable={this.props.editable} form={value} key={groupDefinition.name+"-"+index}
         onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column)}
-        onClear={() => this.clear(groupDefinition.name)} patientId={this.patientId} examId={this.props.exam.id}
-        onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined} />
+        onClear={() => this.clear(groupDefinition.name)}
+        onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
+        patientId={this.patientId}
+        examId={this.props.exam.id}/>
     }
   }
 

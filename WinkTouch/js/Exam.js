@@ -178,6 +178,7 @@ export class ExamCardSpecifics extends Component {
 export class ExamCard extends Component {
   props: {
     exam: Exam,
+    unlocked?: boolean,
     onSelect?: () => void,
     onHide?: () => void,
     disabled?: boolean,
@@ -188,8 +189,7 @@ export class ExamCard extends Component {
   renderExamCardSpecifics() {
     let exam : Exam = this.props.exam;
     if (exam.definition.card===false) {
-      return <ExamScreen exam={exam} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
-      //return <PaperFormScreen exam={exam} editable={true} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} />
+      return <ExamScreen exam={exam} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} unlocked={this.props.unlocked}/>
     }
     switch (exam.definition.type) {
       case 'selectionLists':
@@ -289,7 +289,7 @@ export class ExamHistoryScreen extends Component {
       if (value instanceof Array === false || value.length===0) return null;
       return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
     } else if (groupDefinition.type==='SRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition}/>
     } else if (groupDefinition.type==='CRx') {
       return <ContactsDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
     }
@@ -346,6 +346,7 @@ export class ExamScreen extends Component {
   props: {
     exam: ?Exam,
     navigation: any,
+    unlocked?: boolean,
     enableScroll: () => void,
     disableScroll: () => void
   }
@@ -373,13 +374,9 @@ export class ExamScreen extends Component {
     this.unmounted = false;
     this.state = {
       exam: this.params.exam,
-      locked: examIsLocked(this.params.exam),
+      locked: !this.props.unlocked && examIsLocked(this.params.exam),
       favorites: this.params.exam.definition.starable?getFavorites(this.params.exam):undefined //TODO don't get favourirtes for locked exam. exam.definition.id
     }
-  }
-
-  componentDidMount() {
-    if (this.params.exam.id && this.params.exam.errors===undefined) this.fetchExam();
   }
 
   componentWillReceiveProps(nextProps: any) {
@@ -388,8 +385,19 @@ export class ExamScreen extends Component {
     } else {
       this.params = {
         exam: nextProps.exam,
-      }
+      };
     }
+    this.params.exam.hasStarted=true;
+    this.unmounted = false;
+    this.setState({
+      exam: this.params.exam,
+      locked: !this.props.unlocked && examIsLocked(this.params.exam),
+      favorites: this.params.exam.definition.starable?getFavorites(this.params.exam):undefined //TODO don't get favourirtes for locked exam. exam.definition.id
+    });
+  }
+
+  componentDidMount() {
+    if (this.params.exam.id && this.params.exam.errors===undefined) this.fetchExam();
   }
 
   async fetchExam() {
@@ -499,7 +507,7 @@ export class ExamScreen extends Component {
     return <View style={styles.flow}>
       {this.params.exam.definition.relatedExams.map((relatedExamName: string, index: number) => {
         const relatedExam : Exam = this.getRelatedExam(relatedExamName);
-        return relatedExam && <ExamCard exam={relatedExam} style={styles.examCard} key={index}/>
+        return relatedExam && <ExamCard exam={relatedExam} style={styles.examCard} key={index} />
       })}
     </View>
   }

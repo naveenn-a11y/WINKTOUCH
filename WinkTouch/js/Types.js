@@ -21,6 +21,8 @@ export type Store = {
   storeId: number, //TODO Chris
   name: string,
   city: string,
+  country: number,
+  pr: string
 }
 
 export type Account = {
@@ -136,8 +138,11 @@ export type GlassesRx = {
     os: GlassRx,
     expiry?: string,
     prescriptionDate?: string,
+    signedDate?: string,
     vaFar?: string,
-    vaNear?: string
+    vaNear?: string,
+    lensType?: string,
+    notes?: string
 }
 
 export type Recall = {
@@ -156,6 +161,7 @@ export type Visit = {
     customExamIds: string[],
     date: string,
     duration: number,
+    locked: boolean,
     typeName: string,
     location?: string,
     prescription: GlassesRx,
@@ -231,9 +237,12 @@ export type GroupDefinition = {
     maxLength?: number,
     mappedField?: string,
     canBeCopied?: boolean,
+    keyboardEnabled?: boolean,
     clone?: string[],
     hasVA?: boolean,
     hasAdd?: boolean,
+    hasLensType?: boolean,
+    hasNotes?: boolean,
     fields: (FieldDefinition|GroupDefinition)[],
 }
 

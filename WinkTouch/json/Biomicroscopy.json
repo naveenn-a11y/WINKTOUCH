@@ -31,6 +31,28 @@
       ]
     },
     {
+      "name": "OD Seg",
+      "optional": true,
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/anteriorSegOD.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "OS Seg",
+      "optional": true,
+      "fields": [
+        {
+          "name": "Image",
+          "image": "./image/anteriorSegOS.png",
+          "label": ""
+        }
+      ]
+    },
+    {
       "name": "Notations",
       "optional": true,
       "fields": [
@@ -81,6 +103,12 @@
               "maxValue": 4
             },
             {
+              "normalValue": "Clear",
+              "name": "Vitreous",
+              "freestyle": true,
+              "options": "vitreousCodes"
+            },
+            {
               "normalValue": "Flat/Clear",
               "name": "Iris",
               "freestyle": true,
@@ -106,6 +134,19 @@
               "maxValue": 8,
               "options": [
                 "WNL"
+              ]
+            },
+            {
+              "name": "TVOL",
+              "suffix": " mm / 5 min",
+              "freestyle": true,
+              "stepSize": 5,
+              "options": [
+                "0",
+                "5",
+                "10",
+                "15",
+                "20"
               ]
             }
           ]
@@ -140,6 +181,12 @@
               "maxValue": 4
             },
             {
+              "normalValue": "Clear",
+              "name": "Vitreous",
+              "freestyle": true,
+              "options": "vitreousCodes"
+            },
+            {
               "normalValue": "Flat/Clear",
               "name": "Iris",
               "freestyle": true,
@@ -165,6 +212,19 @@
               "maxValue": 8,
               "options": [
                 "WNL"
+              ]
+            },
+            {
+              "name": "TVOL",
+              "suffix": " mm / 5 min",
+              "freestyle": true,
+              "stepSize": 5,
+              "options": [
+                "0",
+                "5",
+                "10",
+                "15",
+                "20"
               ]
             }
           ]

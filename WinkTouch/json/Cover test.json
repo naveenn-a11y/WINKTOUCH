@@ -54,6 +54,7 @@
             {
               "minValue": 0,
               "name": "Lateral",
+              "label": "U Lateral",
               "suffix": "lateralTropiaCodes",
               "freestyle": false,
               "options": [
@@ -64,6 +65,7 @@
             {
               "minValue": 0,
               "name": "Vertical",
+              "label": "U Vertical",
               "suffix": "verticalTropiaCodes",
               "options": [
                 "Ortho"
@@ -71,10 +73,10 @@
               "maxValue": 40
             },
             {
-              "name": "Noncomitant",
+              "name": "U Noncomitant",
               "options": [
                 "",
-                "Noncomitant"
+                "U Noncomitant"
               ]
             }
           ]
@@ -102,10 +104,10 @@
               "maxValue": 40
             },
             {
-              "name": "Noncomitant",
+              "name": "U Noncomitant",
               "options": [
                 "",
-                "Noncomitant"
+                "U Noncomitant"
               ]
             }
           ]
@@ -128,6 +130,7 @@
             {
               "minValue": 0,
               "name": "Lateral",
+              "label": "A Lateral",
               "suffix": "lateralPhoriaCodes",
               "options": [
                 "Ortho"
@@ -137,6 +140,7 @@
             {
               "minValue": 0,
               "name": "Vertical",
+              "label": "A Lateral",
               "suffix": "verticalPhoriaCodes",
               "options": [
                 "Ortho"
@@ -144,10 +148,10 @@
               "maxValue": 40
             },
             {
-              "name": "Noncomitant",
+              "name": "A Noncomitant",
               "options": [
                 "",
-                "Noncomitant"
+                "A Noncomitant"
               ]
             }
           ]
@@ -174,10 +178,10 @@
               "maxValue": 40
             },
             {
-              "name": "Noncomitant",
+              "name": "A Noncomitant",
               "options": [
                 "",
-                "Noncomitant"
+                "A Noncomitant"
               ]
             }
           ]

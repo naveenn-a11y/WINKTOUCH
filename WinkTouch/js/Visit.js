@@ -23,7 +23,7 @@ import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getDoctor } from './DoctorApp';
 
-const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form'];
+const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 
 export async function fetchVisit(visitId: string) : Visit {
   let visit : Visit = await fetchItemById(visitId);
@@ -48,15 +48,11 @@ export function getVisitTypes() : string[] {
 }
 
 export function visitHasEnded(visit: string|Visit) : boolean {
-  return false; //TODO: remove temporary fix to allow Dr to continue exams after patient walked out the office.
   if (visit instanceof Object === false) {
      visit = getCachedItem(visit);
   }
   if (visit===null || visit===undefined) return false;
-  if (visit.appointmentId===null || visit.appointmentId===undefined) return false;
-  const appointment = getCachedItem(visit.appointmentId);
-  if (appointment===null || appointment===undefined) return false;
-  return appointment.status===2 || appointment.status===3 || appointment.status===5;
+  return visit.locked===true;
 }
 
 export function visitHasStarted(visit: string|Visit) : boolean {
@@ -258,7 +254,6 @@ class VisitWorkFlow extends Component {
         visit: Visit,
         addableExamTypes: ExamDefinition[],
         addableSections: string[],
-        visitHasEnded: boolean,
         locked: boolean,
         rxToOrder: ?Exam
     }
@@ -266,13 +261,12 @@ class VisitWorkFlow extends Component {
     constructor(props: any) {
         super(props);
         const visit :Visit = getCachedItem(this.props.visitId);
-        const visitEnded: boolean = visitHasEnded(visit);
+        const locked: boolean = visitHasEnded(visit);
         this.state = {
             visit: visit,
             addableExamTypes: [],
             addableSections: [],
-            visitHasEnded: visitEnded,
-            locked: visitEnded,
+            locked: locked,
             rxToOrder: this.findRxToOrder(visit)
         };
         visit && this.loadUnstartedExamTypes(visit);
@@ -281,11 +275,10 @@ class VisitWorkFlow extends Component {
     componentWillReceiveProps(nextProps: any) {
         //TODO: optimize performance, might want to use componentShouldUpdate
         const visit :Visit = getCachedItem(nextProps.visitId);
-        const visitEnded: boolean = visitHasEnded(visit);
+        const locked: boolean = visitHasEnded(visit);
         this.setState({
           visit: visit,
-          visitHasEnded: visitEnded,
-          locked: visitEnded,
+          locked: locked,
           rxToOrder: this.findRxToOrder(visit)
         });
         visit && this.loadUnstartedExamTypes(visit);
@@ -294,11 +287,10 @@ class VisitWorkFlow extends Component {
     async storeVisit(visit: Visit) {
       if (this.props.readonly) return;
       visit = await storeItem(visit);
-      const visitEnded: boolean = visitHasEnded(visit);
+      const locked: boolean = visitHasEnded(visit);
       this.setState({
         visit: visit,
-        visitHasEnded: visitEnded,
-        locked: visitEnded,
+        locked: locked,
         rxToOrder: this.findRxToOrder(visit)
       });
       visit && this.loadUnstartedExamTypes(visit);
@@ -318,11 +310,8 @@ class VisitWorkFlow extends Component {
       let appointment : Appointment = getCachedItem(visit.appointmentId);
       if (!appointment) {
         await fetchAppointment(visit.appointmentId);
-        const visitEnded: boolean = visitHasEnded(visit);
-        this.setState({
-          visitHasEnded: visitEnded,
-          locked: visitEnded
-        });
+        const locked: boolean = visitHasEnded(visit);
+        this.setState({locked});
       }
       return appointment;
     }
@@ -389,16 +378,25 @@ class VisitWorkFlow extends Component {
       }
     }
 
-    async closeAppointment(appointmentId: string) : void {
-      await performActionOnItem('close', getCachedItem(appointmentId));
-    }
-
     async endVisit() {
       if (this.props.readonly) return;
       const visit : Visit = this.state.visit;
       try {
-        await this.closeAppointment(visit.appointmentId);
         this.props.navigation.goBack();
+        visit.locked = true;
+        await updateVisit(visit);
+      } catch (error) {
+        console.log(error);
+        alert(strings.serverError);
+      }
+    }
+
+    async signVisit()  {
+      if (this.props.readonly) return;
+      let visit : Visit = this.state.visit;
+      try {
+        visit = await performActionOnItem('sign',visit);
+        this.setState({visit});
       } catch (error) {
         console.log(error);
         alert(strings.serverError);
@@ -440,6 +438,7 @@ class VisitWorkFlow extends Component {
       this.loadUnstartedExamTypes(this.state.visit);
     }
 
+
     renderExams(section: string, exams: ?Exam[], isPreExam: boolean) {
         if (exams) {
           if (!isPreExam) {
@@ -448,23 +447,22 @@ class VisitWorkFlow extends Component {
           exams = exams.filter((exam: Exam) => !exam.definition.isAssessment && exam.isHidden!==true && (exam.hasStarted || (this.state.locked!==true && this.props.readonly!==true)));
           exams.sort(this.compareExams);
         }
-        if (this.props.readonly && (!exams || exams.length===0))
+        if (!exams || exams.length===0)
           return null;
-        if (isPreExam===false && (!exams || exams.length===0))
-          return <View style={styles.examsBoard} key={section}>
-            <SectionTitle title={section} />
+        const view =  <View style={styles.flow}>
+              {exams && exams.map((exam: Exam, index: number) => {
+                  return <ExamCard key={exam.definition.name} exam={exam} disabled={this.props.readonly}
+                      onSelect={() => this.props.navigation.navigate('exam', {exam, appointmentStateKey: this.props.appointmentStateKey})}
+                      onHide={() => this.hideExam(exam)} unlocked={this.state.locked!==true} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
+              })}
               {this.renderAddableExamButton(section)}
           </View>
+        if ("Document"===section) {
+          return view;
+        }
         return <View style={styles.examsBoard} key={section}>
             <SectionTitle title={section} />
-            <View style={styles.flow}>
-                {exams && exams.map((exam: Exam, index: number) => {
-                    return <ExamCard key={exam.definition.name} exam={exam} disabled={this.props.readonly}
-                        onSelect={() => this.props.navigation.navigate('exam', {exam, appointmentStateKey: this.props.appointmentStateKey})}
-                        onHide={() => this.hideExam(exam)} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
-                })}
-                {this.renderAddableExamButton(section)}
-            </View>
+            {view}
         </View>
     }
 
@@ -488,11 +486,12 @@ class VisitWorkFlow extends Component {
     renderActionButtons() {
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
-            {__DEV__ && !this.state.visitHasEnded && <Button title={strings.sign} onPress={() => {}}/>}
+            {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
+            {!this.state.locked && !this.state.visit.prescription.signedDate && <Button title={strings.sign} onPress={() => this.signVisit()}/>}
             <Button title={strings.printRx} onPress={() => {printRx(this.props.visitId)}}/>
             {this.hasClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
-            {__DEV__ && !this.state.visitHasEnded && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
+            {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
     }
@@ -508,7 +507,7 @@ class VisitWorkFlow extends Component {
     }
 
     renderLockIcon() {
-      if (this.state.visitHasEnded!==true) return null;
+      if (this.state.locked!==true) return null;
       return <View style={styles.examIcons}>
         <TouchableOpacity onPress={this.switchLock}><Lock style={styles.screenIcon} locked={this.state.locked===true}/></TouchableOpacity>
       </View>
@@ -523,11 +522,13 @@ class VisitWorkFlow extends Component {
             {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} />}
           </View>
         }
+        const preExamDefinitions : ExamDefinition[] = getCachedItems(getCachedItem('preExamDefinitions'));
         if (!visitHasStarted(this.state.visit)) {
+            const hasPreTests = preExamDefinitions==undefined || preExamDefinitions.length>0;
             return <View>
-              <View style={styles.flow}>
+              {hasPreTests && <View style={styles.flow}>
                 {this.renderExams('Pre tests', getCachedItems(this.state.visit.preCustomExamIds), true)}
-              </View>
+                </View>}
               {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit} />}
             </View>
         }

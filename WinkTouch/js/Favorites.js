@@ -6,9 +6,10 @@
 import React , {PureComponent} from 'react';
 import {AlertIOS, View, Text, Button, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNBeep from 'react-native-a-beep';
 import type { ExamDefinition, ExamPredefinedValue, Exam, Visit} from './Types';
-import { styles, selectionFontColor } from './Styles';
+import { styles, selectionFontColor, disabledFontColor } from './Styles';
 import { strings } from './Strings';
 import { storeItem, searchItems, deleteItem } from './Rest';
 import { cacheItem, getCachedItem } from './DataCache';
@@ -135,6 +136,28 @@ export class Garbage extends PureComponent {
     return <Icon name='delete' style={this.props.style} color={selectionFontColor}/>
   }
 }
+
+export class Pencil extends PureComponent {
+  props: {
+    style: any,
+    disabled?: boolean
+  }
+  render() {
+    return <Icon name='edit' style={this.props.style} color={this.props.disabled?disabledFontColor:selectionFontColor}/>
+  }
+}
+
+export class Keyboard extends PureComponent {
+  props: {
+    style: any,
+    disabled?: boolean
+  }
+  render() {
+    return <MaterialIcon name='keyboard' style={this.props.style} color={this.props.disabled?disabledFontColor:selectionFontColor}/>
+  }
+}
+
+
 
 export class Plus extends PureComponent {
   props: {

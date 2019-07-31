@@ -76,8 +76,9 @@
           "options": [
             "Full",
             "Nasal step",
-            "Tempori wedge",
+            "Temporal wedge",
             "Superior arcuate defect",
+            "Inferior arcuate defect",
             "Tunnel vision",
             "Enlarged blind spot",
             "Homonymous hemianopia",
@@ -93,8 +94,9 @@
           "options": [
             "Full",
             "Nasal step",
-            "Tempori wedge",
+            "Temporal wedge",
             "Superior arcuate defect",
+            "Inferior arcuate defect",
             "Tunnel vision",
             "Enlarged blind spot",
             "Homonymous hemianopia",
@@ -104,9 +106,14 @@
           ]
         },
         {
-          "name": "VF scan",
+          "name": "VF scan OD",
           "image": "upload",
-          "label": ""
+          "label": "OD"
+        },
+        {
+          "name": "VF scan OS",
+          "image": "upload",
+          "label": "OS"
         }
       ],
       "size": "M"

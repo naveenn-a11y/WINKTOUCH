@@ -1,0 +1,180 @@
+{
+  "name": "Chart",
+  "type": "groupedForm",
+  "section": "Document.1",
+  "card": false,
+  "fields": [
+    {
+      "name": "Chart front",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "XL"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Chart back",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "XL"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Auto refractor",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "M"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Visual field",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "M"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "OCT",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "M"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Optomap",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "M"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Fundus",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "S"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Referral",
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "XL",
+          "type": "Referral"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "SAAQ",
+      "multiValue":true,
+      "fields": [
+        {
+          "name": "SAAQ scan",
+          "image": "upload",
+          "label": "",
+          "size": "M",
+          "type": "Patient Documents"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "multiValue":true,
+      "fields": [
+        {
+          "name": "Other scan",
+          "image": "upload",
+          "label": "",
+          "size": "M",
+          "type": "Patient Documents"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Medication",
+      "multiValue":true,
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "size": "M"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    }
+  ]
+}

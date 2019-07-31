@@ -22,6 +22,7 @@ const doctorLoginUrl = restUrl+'login/doctors';
 async function fetchAccounts(path: string) {
   if (!path) return;
   const url = accountsUrl + '?dbVersion='+encodeURIComponent(dbVersion)+'&path='+encodeURIComponent(path)+'&biggerThen=true&priviliged=false';
+  __DEV__ && console.log('Fetching accounts: '+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -31,7 +32,7 @@ async function fetchAccounts(path: string) {
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
     let accounts : Account[] = await httpResponse.json();
-    accounts = accounts.filter((account: Account) => account.isDemo!==true);
+    //accounts = accounts.filter((account: Account) => account.isDemo!==true);
     return accounts;
   } catch (error) {
     console.log(error);
@@ -230,7 +231,7 @@ export class LoginScreen extends Component {
               <View style={styles.fieldContainer}><TextInput placeholder={strings.userName} autoCapitalize='none' autoCorrect={false} returnKeyType='next' style={styles.field400} value={this.state.userName}
                   onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField}/></View>
               <View style={styles.fieldContainer}><TextInput placeholder={strings.password} autoCapitalize='none' autoCorrect={false} returnKeyType='go' secureTextEntry={true} ref='focusField'
-                  style={styles.field400} value={this.state.password}
+                  style={styles.field400} value={this.state.password} selectTextOnFocus={true}
                   onChangeText={this.setPassword} onSubmitEditing={() => this.login()}/></View>
               <View style={styles.buttonsRowLayout}>
                 <Button title={strings.submitLogin} disabled={account===undefined} onPress={() => this.login()} />

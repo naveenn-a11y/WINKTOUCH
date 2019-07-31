@@ -6,11 +6,15 @@
 import React, { Component } from 'react';
 import { Text, Image, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import Scanner from 'react-native-document-scanner';
+import base64 from 'base-64';
+import ImageResizer from 'react-native-image-resizer';
+import RNFS from 'react-native-fs';
 import type { Upload } from './Types';
 import { ClearTile, UpdateTile, CameraTile, RefreshTile, CloseTile } from './Widgets';
-import { styles } from './Styles';
-import { storeUpload } from './Upload';
+import { styles, fontScale, imageStyle } from './Styles';
+import { storeUpload, getJpeg64Dimension } from './Upload';
 import { getCachedItem } from './DataCache';
+
 
 export class DocumentScanner extends Component {
   props: {
@@ -21,14 +25,16 @@ export class DocumentScanner extends Component {
     examId: string,
     onSave: (uploadId: string) => void,
     onCancel: () => void,
+    size: string,
   }
   state: {
     image: ?string,
     saving: boolean,
-    isDirty: boolean,
-    flashEnabled: boolean,
-    useFrontCam: boolean,
-    lastDetectionType: string,
+    isDirty: boolean
+  }
+
+  static defaultProps = {
+    size: 'M'
   }
 
   constructor(props) {
@@ -38,23 +44,8 @@ export class DocumentScanner extends Component {
     this.state = {
       image: image,
       saving: false,
-      isDirty: false,
-      flashEnabled: false,
-      useFrontCam: false,
+      isDirty: false
     };
-  }
-
-  renderDetectionType() {
-    switch (this.state.lastDetectionType) {
-      case 0:
-        return "Correct rectangle found"
-      case 1:
-        return "Bad angle found";
-      case 2:
-        return "Rectangle too far";
-      default:
-        return "No rectangle detected yet";
-    }
   }
 
   async saveImage() : Upload {
@@ -69,7 +60,7 @@ export class DocumentScanner extends Component {
     };
     upload = await storeUpload(upload);
     if (this.props.category) {
-
+      //TODO?
     }
     this.setState({
       saving: false,
@@ -78,7 +69,18 @@ export class DocumentScanner extends Component {
     this.props.onSave(upload.id);
   }
 
-  tookPicture(image: string) {
+  async tookPicture(image: string) {
+    const dimension : {width: number, height: number} = getJpeg64Dimension(image);
+    const maxSize: number = Math.round(imageStyle(this.props.size).width/fontScale*1.1);
+    console.log('maxWidth='+maxSize+' dimension='+JSON.stringify(dimension));
+    if (dimension.width>maxSize || dimension.height>maxSize) {
+      const tempFolder = 'temp';
+      let resizedImage = await ImageResizer.createResizedImage('data:image/jpeg;base64,'+image, maxSize, maxSize, 'JPEG', 60, 0, tempFolder);
+      image = await RNFS.readFile(resizedImage.path, 'base64');
+      const dimensionAfter = getJpeg64Dimension(image);
+      __DEV__ && console.log('Resized image to '+dimensionAfter.width+'x'+dimensionAfter.height+' '+Math.round(resizedImage.size/1024)+' kbytes.');
+      RNFS.unlink(RNFS.DocumentDirectoryPath+'/' + tempFolder);
+    }
     this.setState({ image, isDirty: true });
   }
 
@@ -90,36 +92,36 @@ export class DocumentScanner extends Component {
     return (
       <View style={styles.popupFullScreen}>
         <TouchableWithoutFeedback onPress={this.props.onCancel}>
-          <View style={styles.modalColumn}>
+          <View style={styles.modalCamera}>
           {this.state.image ?
             <Image style={styles.bigImage} source={{ uri: `data:image/jpeg;base64,${this.state.image}`}} resizeMode="contain" /> :
             <Scanner
-              useBase64
+              useBase64={true}
               onPictureTaken={data => this.tookPicture(data.croppedImage)}
+              captureMultiple={false}
               overlayColor="rgba(255,130,0, 0.7)"
-              enableTorch={this.state.flashEnabled}
-              useFrontCam={this.state.useFrontCam}
-              brightness={0.15}
-              saturation={0}
-              quality={0.5}
-              contrast={1.2}
-              onRectangleDetect={({ stableCounter, lastDetectionType }) => this.setState({ stableCounter, lastDetectionType })}
-              detectionCountBeforeCapture={3}
-              detectionRefreshRateInMS={50}
+              enableTorch={false}
+              useFrontCam={false}
+              brightness={0.2}
+              saturation={-0.1}
+              quality={1.0}
+              contrast={1.5}
+              detectionCountBeforeCapture={2}
+              detectionRefreshRateInMS={100}
               style={styles.scanner}
             />
           }
-            {this.state.image && !this.state.saving ?
-              <View style={styles.rowLayout}>
-                <CameraTile commitEdit={() => this.setState({ image: '' })} />
-                <ClearTile commitEdit={this.clear} />
-                <RefreshTile commitEdit={this.props.onCancel} />
-                {this.state.isDirty  && <UpdateTile commitEdit={() => this.saveImage()} />}
-              </View>:
-              <View style={styles.rowLayout}>
-                <CloseTile commitEdit={this.props.onCancel} />
-              </View>
-            }
+          {this.state.image && !this.state.saving ?
+            <View style={styles.rowLayout}>
+              <CameraTile commitEdit={() => this.setState({ image: '' })} />
+              <ClearTile commitEdit={this.clear} />
+              <RefreshTile commitEdit={this.props.onCancel} />
+              {this.state.isDirty  && <UpdateTile commitEdit={() => this.saveImage()} />}
+            </View>:
+            <View style={styles.rowLayout}>
+              <CloseTile commitEdit={this.props.onCancel} />
+            </View>
+          }
           </View>
         </TouchableWithoutFeedback>
       </View>

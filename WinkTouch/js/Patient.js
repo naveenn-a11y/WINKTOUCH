@@ -184,8 +184,8 @@ export class PatientContact extends Component {
                 <FormField value={this.props.patientInfo} fieldName='postalCode' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters'/>
               </FormRow>
               <FormRow>
-                <FormTextInput value={this.props.patientInfo.province} label={getFieldDefinition('patient.province').label} autoCapitalize='words' readonly={true}/>
-                <FormField value={this.props.patientInfo} fieldName='country' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters' readonly={true}/>
+                <FormField value={this.props.patientInfo} fieldName='province' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters' />                
+                <FormField value={this.props.patientInfo} fieldName='countryId' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters' />
               </FormRow>
               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='phone' onChangeValue={this.props.onUpdatePatientInfo} type='phone-pad'/>

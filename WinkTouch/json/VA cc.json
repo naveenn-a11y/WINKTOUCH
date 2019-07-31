@@ -7,15 +7,34 @@
     {
       "multivalue": true,
       "name": "Aided acuities",
+      "rows": [
+        ["Aide", "Scale"]
+      ],
       "columns": [
         [
           "DVA",
           "PH",
-          "NVA"
+          "NVA",
+          ">>"
         ]
       ],
       "size": "M",
       "fields": [
+        {
+          "name": "Aide",
+          "freestyle": true,
+          "options": [
+            "Spectacles",
+            "CL",
+            "Spectacles over CL"
+          ]
+        },
+        {
+          "normalValue": "Snellen",
+          "name": "Scale",
+          "freestyle": true,
+          "options": "vaScaleCodes"
+        },
         {
           "name": "DVA",
           "fields": [
@@ -44,7 +63,8 @@
               "freestyle": true,
               "maxValue": 60,
               "options": [
-                "NLP"
+                "NLP",
+                "Prothesis"
               ]
             },
             {
@@ -72,7 +92,8 @@
               "freestyle": true,
               "maxValue": 60,
               "options": [
-                "NLP"
+                "NLP",
+                "Prothesis"
               ]
             },
             {
@@ -254,12 +275,6 @@
               ]
             }
           ]
-        },
-        {
-          "normalValue": "Snellen",
-          "name": "Scale",
-          "freestyle": true,
-          "options": "vaScaleCodes"
         },
         {
           "maxLength": 500,

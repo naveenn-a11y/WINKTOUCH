@@ -43,8 +43,7 @@ async function fetchExamDefinitions(isPreExam: boolean, isAssessment: boolean) :
 
 export async function allExamDefinitions(isPreExam: boolean, isAssessment: boolean = false) : ExamDefinition[] {
   let examDefinitions : ExamDefinition[] = getCachedItems(getCachedItem(isPreExam?'preExamDefinitions':isAssessment?'assessmentDefinitions':'examDefinitions'));
-  if (!examDefinitions || examDefinitions.length===0)
-    examDefinitions = await fetchExamDefinitions(isPreExam, isAssessment);
+  if (!examDefinitions) examDefinitions = await fetchExamDefinitions(isPreExam, isAssessment);
   if (!examDefinitions) examDefinitions = [];
   return examDefinitions;
 }

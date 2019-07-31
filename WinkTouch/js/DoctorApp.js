@@ -31,6 +31,7 @@ export function getDoctor() : User {
 function setDoctor(user: User) : void {
   doctor = user;
 }
+
 export function getStore() : Store {
   return store;
 }
