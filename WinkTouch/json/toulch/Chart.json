@@ -6,9 +6,10 @@
   "fields": [
     {
       "name": "Chart front",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Chart front scan",
           "image": "upload",
           "label": "",
           "size": "XL"
@@ -21,9 +22,10 @@
     },
     {
       "name": "Chart back",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Chart back scan",
           "image": "upload",
           "label": "",
           "size": "XL"
@@ -36,12 +38,14 @@
     },
     {
       "name": "Auto refractor",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Auto refractor scan",
           "image": "upload",
           "label": "",
-          "size": "M"
+          "size": "L",
+          "type": "Auto Refractor"
         },
         {
           "name": "Notes",
@@ -51,12 +55,14 @@
     },
     {
       "name": "Visual field",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Visual field scan",
           "image": "upload",
           "label": "",
-          "size": "M"
+          "size": "L",
+          "type": "Visual Field"
         },
         {
           "name": "Notes",
@@ -66,12 +72,14 @@
     },
     {
       "name": "OCT",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "OCT scan",
           "image": "upload",
           "label": "",
-          "size": "M"
+          "size": "L",
+          "type": "OCT"
         },
         {
           "name": "Notes",
@@ -81,12 +89,14 @@
     },
     {
       "name": "Optomap",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Optomap scan",
           "image": "upload",
           "label": "",
-          "size": "M"
+          "size": "L",
+          "type": "Other"
         },
         {
           "name": "Notes",
@@ -96,12 +106,14 @@
     },
     {
       "name": "Fundus",
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Fundus scan",
           "image": "upload",
           "label": "",
-          "size": "S"
+          "size": "L",
+          "type": "Fundus"
         },
         {
           "name": "Notes",
@@ -114,7 +126,7 @@
       "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Referral scan",
           "image": "upload",
           "label": "",
           "size": "XL",
@@ -127,15 +139,32 @@
       ]
     },
     {
-      "name": "SAAQ",
-      "multiValue":true,
+      "name": "SAAQ front",
+      "multiValue": true,
       "fields": [
         {
-          "name": "SAAQ scan",
+          "name": "SAAQ front scan",
           "image": "upload",
           "label": "",
-          "size": "M",
-          "type": "Patient Documents"
+          "size": "XL",
+          "type": "SAAQ"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "SAAQ back",
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "SAAQ back scan",
+          "image": "upload",
+          "label": "",
+          "size": "XL",
+          "type": "SAAQ"
         },
         {
           "name": "Notes",
@@ -145,14 +174,14 @@
     },
     {
       "name": "Other",
-      "multiValue":true,
+      "multiValue": true,
       "fields": [
         {
           "name": "Other scan",
           "image": "upload",
           "label": "",
-          "size": "M",
-          "type": "Patient Documents"
+          "size": "XL",
+          "type": "Other"
         },
         {
           "name": "Notes",
@@ -162,13 +191,14 @@
     },
     {
       "name": "Medication",
-      "multiValue":true,
+      "multiValue": true,
       "fields": [
         {
-          "name": "Scan",
+          "name": "Medication scan",
           "image": "upload",
           "label": "",
-          "size": "M"
+          "size": "L",
+          "type": "Medication"
         },
         {
           "name": "Notes",
