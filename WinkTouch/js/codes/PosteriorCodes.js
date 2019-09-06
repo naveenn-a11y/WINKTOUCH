@@ -41,13 +41,15 @@ export const cdrCodes = [
 export const vesselsCodes = [
 {"code":"WNL"},
 {"code":"A/V crossing change"},
+{"code":"2:3 A/V Ratio"},
 {"code":"Dilation"},
 {"code":"Venous beading"},
 {"code":"Tortuosity"}
 ];
 
 export const maculaCodes = [
-{"code":"No diabetic maculopathy"},
+{"code":"No maculopathy"},
+{"code":"Diabetic maculopathy"},
 {"code":"Microaneurysms"},
 {"code":"Dot and Blot hemorrhages"},
 {"code":"Flame haemorrhages"},
@@ -75,4 +77,10 @@ export const peripheryCodes = [
 {"code":"Retinal hole"},
 {"code":"Retinal tear"},
 {"code":"Retinal detachment"}
+];
+
+export const pupillaryReflexCodes = [
+{"code":"Clear"},
+{"code":"Dull"},
+{"code":"None"}
 ];

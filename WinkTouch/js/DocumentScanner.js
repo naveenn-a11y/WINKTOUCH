@@ -4,7 +4,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Text, Image, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
+import { Text, Image, TouchableOpacity, View, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import Scanner from 'react-native-document-scanner';
 import base64 from 'base-64';
 import ImageResizer from 'react-native-image-resizer';
@@ -50,6 +50,7 @@ export class DocumentScanner extends Component {
 
   async saveImage() : Upload {
     if (!this.state.image) return;
+    this.setState({ saving: true });
     let upload : Upload = {
       id: 'upload',
       data: this.state.image,
@@ -72,10 +73,9 @@ export class DocumentScanner extends Component {
   async tookPicture(image: string) {
     const dimension : {width: number, height: number} = getJpeg64Dimension(image);
     const maxSize: number = Math.round(imageStyle(this.props.size).width/fontScale*1.1);
-    console.log('maxWidth='+maxSize+' dimension='+JSON.stringify(dimension));
-    if (dimension.width>maxSize || dimension.height>maxSize) {
+    if (dimension.width>maxSize) {
       const tempFolder = 'temp';
-      let resizedImage = await ImageResizer.createResizedImage('data:image/jpeg;base64,'+image, maxSize, maxSize, 'JPEG', 60, 0, tempFolder);
+      let resizedImage = await ImageResizer.createResizedImage('data:image/jpeg;base64,'+image, maxSize, dimension.height, 'JPEG', 70, 0, tempFolder);
       image = await RNFS.readFile(resizedImage.path, 'base64');
       const dimensionAfter = getJpeg64Dimension(image);
       __DEV__ && console.log('Resized image to '+dimensionAfter.width+'x'+dimensionAfter.height+' '+Math.round(resizedImage.size/1024)+' kbytes.');
@@ -93,11 +93,11 @@ export class DocumentScanner extends Component {
       <View style={styles.popupFullScreen}>
         <TouchableWithoutFeedback onPress={this.props.onCancel}>
           <View style={styles.modalCamera}>
-          {this.state.image ?
-            <Image style={styles.bigImage} source={{ uri: `data:image/jpeg;base64,${this.state.image}`}} resizeMode="contain" /> :
-            <Scanner
+          {this.state.saving===true && <ActivityIndicator ize="large" />}
+          {this.state.saving===false && this.state.image!==undefined && <Image style={styles.bigImage} source={{ uri: `data:image/jpeg;base64,${this.state.image}`}} resizeMode="contain" />}
+          {this.state.saving===false && this.state.image===undefined && <Scanner
               useBase64={true}
-              onPictureTaken={data => this.tookPicture(data.croppedImage)}
+              onPictureTaken={data => this.setState({image: data.croppedImage}, () => this.tookPicture(data.croppedImage))}
               captureMultiple={false}
               overlayColor="rgba(255,130,0, 0.7)"
               enableTorch={false}
@@ -107,13 +107,13 @@ export class DocumentScanner extends Component {
               quality={1.0}
               contrast={1.5}
               detectionCountBeforeCapture={2}
-              detectionRefreshRateInMS={100}
+              detectionRefreshRateInMS={60}
               style={styles.scanner}
             />
           }
-          {this.state.image && !this.state.saving ?
+          {(this.state.image!==undefined && this.state.saving===false) ?
             <View style={styles.rowLayout}>
-              <CameraTile commitEdit={() => this.setState({ image: '' })} />
+              <CameraTile commitEdit={() => this.setState({ image: undefined })} />
               <ClearTile commitEdit={this.clear} />
               <RefreshTile commitEdit={this.props.onCancel} />
               {this.state.isDirty  && <UpdateTile commitEdit={() => this.saveImage()} />}

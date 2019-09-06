@@ -3,12 +3,13 @@
  */
 'use strict';
 
-import type { FieldDefinition, CodeDefinition, PatientDocument } from './Types';
+import type { FieldDefinition, CodeDefinition, PatientDocument, ImageDrawing } from './Types';
 import React, { Component, PureComponent } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
   TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList} from 'react-native';
 import { Button as NativeBaseButton, Icon as NativeBaseIcon, Fab as NativeBaseFab, Container } from 'native-base';
 import { Svg, Path, Polyline, Circle} from 'react-native-svg';
+import RNBeep from 'react-native-a-beep';
 import {line,curveBasis, curveCardinal} from 'd3-shape';
 import simplify from 'simplify-js';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,8 +21,8 @@ import { FormRow, FormTextInput } from './Form';
 import { ItemsList } from './Items';
 import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, capitalize,
   minuteDifference, dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, jsonDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays} from './Util';
-import { Camera, PaperClip, Undo } from './Favorites';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, deepClone} from './Util';
+import { Camera, PaperClip, Undo, Pencil, Garbage } from './Favorites';
 import { DocumentScanner } from './DocumentScanner';
 import { fetchUpload, getMimeType, getAspectRatio } from './Upload';
 import { getCachedItem } from './DataCache';
@@ -2121,11 +2122,11 @@ export class ImageUploadField extends Component {
     const style : {width: number, height :number} = imageStyle(this.props.size, aspectRatio);
     return <View style={styles.fieldContainer}>
       <View>
-        <TouchableOpacity style={styles.fieldContainer} onPress={this.props.type?this.showDocuments:this.showCamera} disabled={this.props.readonly}>
           {!this.props.value && !this.props.readonly && <TouchableOpacity onPress={this.showCamera}><Camera style={styles.screenIcon}/></TouchableOpacity>}
           {!this.props.value && !this.props.readonly && this.props.type && <TouchableOpacity onPress={this.showDocuments}><PaperClip style={styles.screenIcon}/></TouchableOpacity>}
-          {this.state.upload && <Image source={{ uri: `data:${getMimeType(this.state.upload)},${this.state.upload.data}`}} style={style}/>}
-        </TouchableOpacity>
+          {this.state.upload && <ScrollView minimumZoomScale={1.0} maximumZoomScale={3.0} bounces={false} bouncesZoom={false}>
+            <Image source={{ uri: `data:${getMimeType(this.state.upload)},${this.state.upload.data}`}} style={style}/>
+          </ScrollView>}
         {this.state.cameraOn?<Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value} size={this.props.size}
           fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
         </Modal>:null}
@@ -2137,13 +2138,16 @@ export class ImageUploadField extends Component {
 
 export class ImageField extends Component {
   props: {
-    value: string[],
+    value: ImageDrawing,
     label?: string,
     readonly?: boolean,
     style?: any,
     image?: string,
     size?: string,
     resolution: string,
+    fileName?: string,
+    patientId: string,
+    examId: string,
     popup?: boolean,
     onChangeValue?: (lines: string[]) => void,
     enableScroll?: () => void,
@@ -2152,15 +2156,14 @@ export class ImageField extends Component {
   state: {
     isActive: boolean,
     penDown: boolean,
-    penDownTime:?number,
-    penDownY: ?number,
-    scrolling: ?boolean,
     lines: string[],
     selectedLineIndex: number,
-    enableScrollTimer: ?any,
-    disableScrollTimer: ?any
+    cameraOn: boolean,
+    attachOn: boolean,
+    upload: Upload,
+    patientDocuments: PatientDocument[]
   }
-
+  lastTap: number
   static defaultProps = {
     size:'M',
     popup: true,
@@ -2169,34 +2172,206 @@ export class ImageField extends Component {
 
   constructor(props: any) {
     super(props);
+    this.lastTap = 0;
     this.state = {
       isActive: false,
       penDown: false,
-      penDownTime: undefined,
-      penDownY: undefined,
-      scrolling: undefined,
       lines: [],
-      selectedLineIndex: -1
+      selectedLineIndex: -1,
+      cameraOn: false,
+      attachOn: false,
+      upload: (this.props.value&&this.props.value.image)?getCachedItem(this.props.value.image):undefined,
+      patientDocuments: undefined
+    }
+    this.loadImage(this.props.value);
+  }
+
+  componentWillUnmount() {
+    if (this.state.isActive) {
+      alert(strings.drawingNotSavedWarning);
     }
   }
+
+  componentWillReceiveProps(nextProps: any) {
+    if (this.state.isActive && this.props.popup===false) {
+      if (((nextProps.value===undefined || nextProps.value.lines===undefined) && (this.state.lines!==undefined && this.state.lines.length>1)) ||
+          (nextProps.value!==undefined && nextProps.value.lines!==undefined &&
+            (nextProps.value.lines.length!==this.state.lines.length || nextProps.value.lines[nextProps.value.lines.length-1]!=this.state.lines[this.state.lines.length-1])
+          )
+        ) {
+        alert(strings.drawingNotSavedWarning);
+        this.setState({
+          isActive: false,
+          penDown: false,
+          lines: [],
+          selectedLineIndex: -1,
+        });
+        //this.props.enableScroll && this.props.enableScroll();
+      }
+    }
+    if (this.props.value===nextProps.value) {
+      if (this.props.readOnly===nextProps.readOnly) return;
+    }
+    if (this.props.value && nextProps.value && nextProps.value.image && this.props.value.image && nextProps.value.image===this.props.value.image) return;
+    this.setState({
+      cameraOn:false,
+      attachOn:false,
+      upload: (nextProps.value&&nextProps.value.image)?getCachedItem(nextProps.value.image):undefined
+    });
+    this.loadImage(nextProps.value);
+  }
+
+  async loadImage(imageDrawing: ImageDrawing) {
+    if (this.state.upload) return; //image came from cash. Should we check its the right one?
+    if (!imageDrawing || !imageDrawing.image || !imageDrawing.image.startsWith('upload-')) return;
+    let upload : Upload = await fetchUpload(imageDrawing.image);
+    this.setState({upload, cameraOn: false, attachOn: false});
+  }
+
+  shouldComponentUpdate(nextProps, nextState) : boolean {
+    if (nextProps.value!=this.props.value) return true;
+    if (nextProps.value && nextProps.value===this.props.value && nextProps.value.image!==this.props.image) return true;
+    if (nextProps.label!=this.props.label) return true;
+    if (nextProps.readonly!=this.props.readonly) return true;
+    if (nextProps.style!=this.props.style) return true;
+    if (nextProps.image!=this.props.image) return true;
+    if (nextProps.size!=this.props.size) return true;
+    if (nextProps.resolution!=this.props.resolution) return true;
+    if (nextProps.popup!=this.props.popup) return true;
+    if (nextProps.patientId!=this.props.patientId) return true;
+    if (nextProps.examId!=this.props.examId) return true;
+    if (nextState.isActive!=this.state.isActive) return true;
+    if (nextState.penDown!=this.state.penDown) return true;
+    if (nextState.upload!=this.state.upload) return true;
+    if (nextState.attachOn!=this.state.attachOn) return true;
+    if (nextState.patientDocuments!=this.state.patientDocuments) return true;
+    if (nextState.lines!=this.state.lines) return true;
+    if (nextState.selectedLineIndex!=this.state.selectedLineIndex) return true;
+    if (nextState.lines===undefined || this.state.lines===undefined) return true;
+    if (nextState.lines.length<1 || this.state.lines.length<1) return true;
+    if (nextState.lines[nextState.lines.length-1]!==this.state.lines[this.state.lines.length-1]) return true;
+    return false;
+  }
+
+  /**
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.value && this.props.value && nextProps.value.length===this.props.value.length && nextState===this.state) {
+      __DEV__ && console.log('no need to redraw');
+      return false;
+    }
+    return true;
+  }
+ */
 
   startEditing = () => {
     if (this.props.readonly) return;
     __DEV__ && console.log('Starting edit');
-    let lines : string[] = this.props.value?this.props.value.slice(0):[this.props.resolution];
+    let lines : string[] = (this.props.value && this.props.value.lines)?this.props.value.lines.slice(0):[this.props.resolution];
     this.setState({ isActive: true, lines, selectedLineIndex: -1 });
   }
 
   commitEdit = () : void => {
     this.setState({ isActive: false });
-    __DEV__ && console.log('Committing edit');
+    __DEV__ && console.log('Committing line edit');
     if (this.props.onChangeValue) {
-      let value = this.state.lines;
-      if (value===undefined || value===null || value.length<=1) {
-        value = undefined;
+      let value = this.props.value;
+      if (value===undefined || value===null) {
+        value = {};
+        if (this.props.image && this.props.image!='upload') value.image = this.props.image;
+      }
+      let lines : ?string[] = this.state.lines;
+      if (lines===undefined || lines===null || lines.length<=1) {
+        lines = undefined;
+      }
+      value.lines = lines;
+      if (value.lines===undefined && value.image===undefined) {
+        value=undefined;
       }
       this.props.onChangeValue(value);
     }
+  }
+
+  toggleEdit = () => {
+    this.lastTap = 0;
+    if (!this.props.enableScroll || !this.props.disableScroll) return;
+    if (this.state.isActive) {
+      RNBeep.beep(false);
+      //RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.ScreenLocked);
+      this.props.enableScroll();
+      this.commitEdit();
+    } else {
+      RNBeep.beep();
+      //RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.ScreenLocked);
+      this.props.disableScroll();
+      this.startEditing();
+    }
+  }
+
+  showCamera = () => {
+    this.setState({cameraOn:true, attachOn: false});
+  }
+
+  cancelCamera = () => {
+    this.setState({cameraOn: false});
+  }
+
+  savedCameraImage = (uploadId: string) => {
+    this.setState({cameraOn: false});
+    if (this.props.type) {
+      const patientDocument :PatientDocument = {
+        id: 'patientDocument',
+        patientId: this.props.patientId,
+        postedOn: formatDate(now(), jsonDateFormat),
+        name: this.props.fileName,
+        category: this.props.type,
+        uploadId
+      };
+      storePatientDocument(patientDocument);
+    }
+    this.props.onChangeValue({image: uploadId});
+  }
+
+
+  showDocuments = () => {
+    if (!this.props.type) return;
+    if (!this.state.documents) this.loadDocuments(this.props.type);
+    this.setState({cameraOn:false, attachOn: true});
+  }
+
+  hideDocuments = () => {
+    if (!this.props.type) return;
+    this.setState({attachOn: false});
+  }
+
+  async loadDocuments(type: string) {
+    if (!type) return;
+    let restResponse : RestResponse = await searchPatientDocuments(this.props.patientId, type);
+    const patientDocuments : PatientDocument[] = restResponse.patientDocumentList;
+    this.setState({patientDocuments});
+  }
+
+
+  renderDocumentTrailPopup() {
+    return <TouchableWithoutFeedback onPress={this.hideDocuments}>
+        <View style={styles.popupBackground}>
+          <Text style={styles.modalTitle}>{strings.formatString(strings.documentTrailTitle, this.props.type)}</Text>
+          <View style={styles.flexColumnLayout}>
+            <View style={styles.centeredRowLayout}>
+                <View style={styles.modalColumn}>
+                  {this.state.patientDocuments &&
+                    this.state.patientDocuments.map((patientDocument: PatientDocument, row: number) => {
+                    const isSelected: boolean = false;
+                    return <TouchableOpacity key={row} onPress={() => this.props.onChangeValue({image: patientDocument.uploadId})}>
+                        <View style={isSelected?styles.popupTileSelected:styles.popupTile}>
+                          <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{patientDocument.name+' '+formatDate(patientDocument.postedOn, yearDateFormat)}</Text>
+                        </View>
+                      </TouchableOpacity>
+                  })}
+                </View>
+            </View>
+          </View>
+        </View>
+    </TouchableWithoutFeedback>
   }
 
   simplify(line: string) : string {
@@ -2209,7 +2384,7 @@ export class ImageField extends Component {
       return {x,y};
     });
     let sizeBefore = points.length;
-    points = simplify(points, 0.75, true);
+    points = simplify(points, 0.6, true);
     let sizeAfter = points.length;
     coordinates = points.map((point : {x:number, y:number}) => {
       return point.x+','+point.y;
@@ -2217,28 +2392,6 @@ export class ImageField extends Component {
     __DEV__ && console.log('reduce '+sizeBefore+' -> '+sizeAfter);
     line = coordinates.join(' ');
     return line;
-  }
-
-  enableScroll = () => {
-    __DEV__ && console.log('Reenabling scroll in timer');
-    this.setState({scrolling: undefined});
-    this.props.enableScroll();
-  }
-
-  disableScroll = () => {
-    __DEV__ && console.log('Disabling scroll in timer');
-    this.setState({scrolling: false});
-    this.props.disableScroll();
-  }
-
-  componentWillUnmount() {
-    if (this.state.enableScrollTimer) {
-      clearTimeout(this.state.enableScrollTimer);
-      this.props.enableScroll && this.props.enableScroll();
-    }
-    if (this.state.disableScrollTimer) {
-      clearTimeout(this.state.disableScrollTimer);
-    }
   }
 
   cancelEdit = () : void => {
@@ -2250,40 +2403,16 @@ export class ImageField extends Component {
   }
 
   penDown(event, scale) {
-    if (this.props.enableScroll) {
-      this.startEditing();
-      if (this.state.enableScrollTimer) {
-        clearTimeout(this.state.enableScrollTimer);
-      }
-      __DEV__ && console.log('Pen down: Starting disable scroll timer');
-      let disableScrollTimer = setTimeout(this.disableScroll.bind(this), 300);
-      this.setState({disableScrollTimer, enableScrollTimer: undefined});
-    }
     this.updatePosition(event, scale);
   }
 
   liftPen() {
     __DEV__ && console.log('Pen up');
-    if (this.props.enableScroll) {
-      if (this.state.disableScrollTimer!==undefined) {
-        clearTimeout(this.state.disableScrollTimer);
-      }
-      if (this.state.scrolling===true) {
-        this.setState({scrolling:undefined, penDown: false, pendownY: undefined, penDownTime: undefined, disableScrollTimer: undefined});
-        return;
-      }
-      this.setState({penDown: false, pendownY: undefined, penDownTime: undefined, disableScrollTimer: undefined});
-      if (this.props.enableScroll) {
-        if (this.state.enableScrollTimer) {//Should never happen with an active one but ya never know
-          __DEV__ && console.log('Cancelling previous enable scroll timer just in case.');
-          clearTimeout(this.state.enableScrollTimer);
-        }
-        if (this.state.scrolling!==true) {
-          __DEV__ && console.log('Starting enable scroll timer');
-          let enableScrollTimer = setTimeout(this.enableScroll.bind(this), 2000);
-          this.setState({enableScrollTimer});
-        }
-      }
+    if ((this.props.popup===false || this.props.image==='upload') && this.tap()==2 && (this.state.lines[this.state.lines.length-1].length<40 && this.state.lines[this.state.lines.length-2].length<40)) {
+      this.state.lines.splice(this.state.lines.length-2, 2);
+      this.setState({lines:this.state.lines, penDown:false});
+      this.toggleEdit();
+      return;
     }
     const lastLineIndex = this.state.lines.length-1;
     if (lastLineIndex>0) {
@@ -2291,44 +2420,18 @@ export class ImageField extends Component {
       lastLine = this.simplify(lastLine);
       this.state.lines[lastLineIndex] = lastLine;
     }
-    this.setState({lines:this.state.lines, penDown:false}, this.props.enableScroll && this.commitEdit());
+    this.setState({lines:this.state.lines, penDown:false});
   }
 
   updatePosition(event: any, scale: number) : void {
-    //__DEV__ && console.log('scrolling ='+this.state.scrolling+' pen down='+this.state.penDown+' @'+this.state.penDownTime);
-    if (this.props.enableScroll && this.props.disableScroll) {
-      if (this.state.scrolling===true) return;
-      if (this.state.scrolling===undefined) {
-        if (this.state.penDownTime===undefined) {
-          this.setState({penDownTime:event.nativeEvent.timestamp, penDownY: event.nativeEvent.locationY});
-          return;
-        } else if (event.nativeEvent.timestamp-this.state.penDownTime<250) {
-            if (Math.abs(this.state.penDownY-event.nativeEvent.locationY)>30) {//We are scrolling
-              __DEV__ && console.log('Decided we are scrolling');
-              if (this.state.disableScrollTimer!==undefined) {
-                __DEV__ && console.log('Cancelling disable scroll timer');
-                clearTimeout(this.state.disableScrollTimer);
-              }
-              this.setState({disableScrollTimer: undefined, scrolling:true});
-            }
-            return;
-        } else {
-          __DEV__ && console.log('Decided we are not scrolling, disabling scroll immediately and cancelling timer');
-          this.props.disableScroll();
-          if (this.state.disableScrollTimer) {
-            clearTimeout(this.state.disableScrollTimer);
-          }
-          this.setState({scrolling:false, disableScrollTimer: undefined});
-        }
-      }
-    }
     const x: number = event.nativeEvent.locationX/scale;
     const y: number = event.nativeEvent.locationY/scale;
-    let lines : string[] = this.state.lines;
+    let lines : string[] = this.state.lines.slice();
     let firstPoint : boolean = false;
     if (!this.state.penDown) {
       lines.push('');
       firstPoint = true;
+      __DEV__ && console.log('Pen down');
     }
     const lineIndex : number = lines.length-1;
     let line :string = lines[lineIndex];
@@ -2345,10 +2448,23 @@ export class ImageField extends Component {
       this.setState({lines});
   }
 
+  clearImage = () => {
+    if (this.state.isActive) {
+      this.setState({ isActive: false});
+      RNBeep.beep(false);
+    }
+    if (this.props.enableScroll) {
+      this.props.enableScroll();
+    }
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
+  }
+
   clear = () => {
     const selectedLineIndex : number = this.state.selectedLineIndex;
     if (selectedLineIndex>=0) {
-      let lines: string[] = this.state.lines;
+      let lines: string[] = this.state.lines.slice();
       lines.splice(selectedLineIndex, 1);
       this.setState({lines, selectedLineIndex: -1});
     } else {
@@ -2357,39 +2473,55 @@ export class ImageField extends Component {
   }
 
   undo = () => {
-    let lines: string[] = this.state.lines;
-    console.log('lines='+lines);
-    if (lines===undefined || lines.length===0) return;
+    if (!this.state.isActive) return;
+    let lines: string[] = this.state.lines.slice();
+    if (lines===undefined || lines.length===1) return;
     lines.splice(lines.length-1, 1);
-    this.setState({lines, selectedLineIndex: -1}, this.commitEdit);
+    this.setState({lines, selectedLineIndex: -1});
+  }
+
+
+
+  tap = () : number => {
+    if (new Date().getTime()-this.lastTap<200) {//Double tap
+      return 2;
+    }
+    this.lastTap = new Date().getTime();
+    return 1;
   }
 
   requireImage() {
-    if (this.props.image===undefined) return null;
-    if (this.props.image==='./image/perimetry.png') return require('./image/perimetry.png');
-    if (this.props.image==='./image/champvisuel.png') return require('./image/champvisuel.png');
-    if (this.props.image==='./image/H.png') return require('./image/H.png');
-    if (this.props.image==='./image/anteriorOD.png') return require('./image/anteriorOD.png');
-    if (this.props.image==='./image/anteriorOS.png') return require('./image/anteriorOS.png');
-    if (this.props.image==='./image/anteriorSegOD.png') return require('./image/anteriorSegOD.png');
-    if (this.props.image==='./image/anteriorSegOS.png') return require('./image/anteriorSegOS.png');
-    if (this.props.image==='./image/posteriorOD.png') return require('./image/posteriorOD.png');
-    if (this.props.image==='./image/posteriorOS.png') return require('./image/posteriorOS.png');
-    if (this.props.image==='./image/gonioscopyOD.png') return require('./image/gonioscopyOD.png');
-    if (this.props.image==='./image/gonioscopyOS.png') return require('./image/gonioscopyOS.png');
-    if (this.props.image==='./image/notations.png') return require('./image/notations.png');
-    if (this.props.image==='./image/contactlensOD.png') return require('./image/contactlensOD.png');
-    if (this.props.image==='./image/contactlensOS.png') return require('./image/contactlensOS.png');
-    if (this.props.image==='./image/amsler.png') return require('./image/amsler.png');
-    if (this.props.image==='./image/d15.jpg') return require('./image/d15.jpg');
-    if (this.props.image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
-    if (this.props.image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
-    if (this.props.image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
-    return {uri: this.props.image};
+    if (this.state.upload) {
+      return {uri: `data:${getMimeType(this.state.upload)},${this.state.upload.data}`};
+    }
+    const image : string = (this.props.value&&this.props.value.image)?this.props.value.image:this.props.image;
+    if (image===undefined || image==='upload') return undefined;
+    if (image==='./image/perimetry.png') return require('./image/perimetry.png');
+    if (image==='./image/champvisuel.png') return require('./image/champvisuel.png');
+    if (image==='./image/H.png') return require('./image/H.png');
+    if (image==='./image/anteriorOD.png') return require('./image/anteriorOD.png');
+    if (image==='./image/anteriorOS.png') return require('./image/anteriorOS.png');
+    if (image==='./image/anteriorSegOD.png') return require('./image/anteriorSegOD.png');
+    if (image==='./image/anteriorSegOS.png') return require('./image/anteriorSegOS.png');
+    if (image=='./image/posteriorOD.png') return require('./image/posteriorOD.png');
+    if (image==='./image/posteriorOS.png') return require('./image/posteriorOS.png');
+    if (image==='./image/gonioscopyOD.png') return require('./image/gonioscopyOD.png');
+    if (image==='./image/gonioscopyOS.png') return require('./image/gonioscopyOS.png');
+    if (image==='./image/notations.png') return require('./image/notations.png');
+    if (image==='./image/contactlensOD.png') return require('./image/contactlensOD.png');
+    if (image==='./image/contactlensOS.png') return require('./image/contactlensOS.png');
+    if (image==='./image/amsler.png') return require('./image/amsler.png');
+    if (image==='./image/d15.jpg') return require('./image/d15.jpg');
+    if (image==='./image/eyeexamtemplate.png') return require('./image/eyeexamtemplate.png');
+    if (image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
+    if (image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
+    if (image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
+    if (!(image.startsWith('http:'))) return undefined;
+    return {uri: image};
   }
 
   resolution() : number[] {
-    let resolutionText : ?string = (this.props.value!=undefined && this.props.value.length>0)?this.props.value[0]:undefined;
+    let resolutionText : ?string = (this.props.value!=undefined && this.props.value.lines!=undefined && this.props.value.lines.length>0)?this.props.value.lines[0]:undefined;
     if (resolutionText==undefined) resolutionText = this.props.resolution;
     const resolution : string[] = resolutionText.split('x');
     if (resolution.length!=2) {
@@ -2402,6 +2534,9 @@ export class ImageField extends Component {
   }
 
   aspectRatio() : number {
+    if (this.state.upload) {
+      return getAspectRatio(this.state.upload);
+    }
     const resolution : number[] = this.resolution();
     const aspectRatio : number = resolution[0]/resolution[1];
     return aspectRatio;
@@ -2461,7 +2596,7 @@ export class ImageField extends Component {
               <View style={styles.solidWhite} onStartShouldSetResponder={(event) => true}
                 onResponderGrant={(event) => this.penDown(event, scale)}
                 onResponderReject={(event) => this.setState({ isActive: false })}
-                onMoveShouldSetResponder={(event) => false}
+                onMoveShouldSetResponder={(event) => true}
                 onResponderTerminationRequest={(event) => false}
                 onResponderMove={(event) => this.updatePosition(event, scale)}
                 onResponderRelease={(event) => this.liftPen()}
@@ -2469,7 +2604,6 @@ export class ImageField extends Component {
                 <Image source={this.requireImage()} style={style} />
                 {this.renderGraph(this.state.lines, style, scale)}
               </View>
-
             </View>
           </View>
         </View>
@@ -2478,43 +2612,65 @@ export class ImageField extends Component {
 
   renderIcons() {
     if (this.props.readonly) return null;
-    return <View style={styles.examIcons} key='icons'>
-      <TouchableOpacity onPress={this.undo}><Undo style={styles.screenIcon}/></TouchableOpacity>
-    </View>
+    if ( this.props.image==='upload' && (!this.props.value || !this.props.value.image)) {
+      return <View style={styles.flowLeft} key={'fieldIcons'}>
+        <TouchableOpacity onPress={this.showCamera}><Camera style={styles.screenIcon}/></TouchableOpacity>
+        {this.props.type && <TouchableOpacity onPress={this.showDocuments}><PaperClip style={styles.screenIcon}/></TouchableOpacity>}
+      </View>
+    }
+    if (this.props.popup===false || this.props.image==='upload') {
+      return <View style={styles.drawingIcons} key={'drawingIcons'}>
+        <TouchableOpacity onPress={this.clearImage}><Garbage style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
+        <TouchableOpacity onPress={this.toggleEdit}><Pencil style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
+        {this.state.isActive  && <TouchableOpacity onPress={this.undo}><Undo style={styles.drawIcon}/></TouchableOpacity>}
+      </View>
+    }
   }
 
   render() {
-    if (this.props.popup===false) {
-      const style : {width: number, height :number} = imageStyle(this.props.size,this.aspectRatio());
-      const scale : number = style.width/this.resolution()[0];
+    const style : {width: number, height :number} = imageStyle(this.props.size,this.aspectRatio());
+    const scale : number = style.width/this.resolution()[0];
+    const image = this.requireImage();
+    if (this.props.popup===false || this.props.image==='upload') {
       return <View style={styles.centeredColumnLayout}>
-                <View style={styles.solidWhite} onStartShouldSetResponder={(event) => true}
+              <View style={styles.solidWhite} onStartShouldSetResponder={(event) => this.state.isActive}
                   onResponderGrant={(event) => {this.penDown(event, scale)}}
-                  onResponderReject={(event) => this.setState({ isActive: false })}
+                  onResponderReject={(event) => this.setState({ isActive: false })} //TODO: toggleEdit in stead?
                   onMoveShouldSetResponder={(event) => false}
                   onResponderTerminationRequest={(event) => false}
                   onResponderMove={(event) => this.updatePosition(event, scale)}
                   onResponderRelease={(event) => this.liftPen()}
                   onResponderTerminate={(event) => this.liftPen()}>
-                  <Image source={this.requireImage()} style={style} />
-                  {this.renderGraph(this.state.isActive?this.state.lines:this.props.value, style, scale)}
+                  {image && <TouchableWithoutFeedback onPressOut={()=> {if (this.tap()===2) this.toggleEdit();}} disabled={this.state.isActive}>
+                    <View>
+                      <Image source={image} style={style} />
+                      {this.renderGraph(this.state.isActive?this.state.lines:(this.props.value&&this.props.value.lines)?this.props.value.lines:undefined, style, scale)}
+                    </View>
+                  </TouchableWithoutFeedback>}
                 </View>
                 {this.renderIcons()}
+                {this.state.cameraOn && <Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value&&this.props.value.image?this.props.value.image:undefined} size={this.props.size}
+                    fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
+                  </Modal>}
+                {this.state.attachOn && <Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>}
             </View>
     }
-    const style : {width: number, height :number} = imageStyle(this.props.size,this.aspectRatio());
-    const scale : number = style.width/this.resolution()[0];
     return <View style={styles.fieldContainer}>
       <View>
         <TouchableOpacity style={styles.fieldContainer} onPress={this.startEditing} disabled={this.props.readonly}>
           <View>
-            <Image source={this.requireImage()} style={style} />
-            {this.renderGraph(this.props.value, style, scale)}
+            {image && <Image source={image} style={style} />}
+            {this.props.value && this.renderGraph(this.props.value.lines, style, scale)}
           </View>
         </TouchableOpacity>
-        {this.state.isActive?<Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
-          {this.renderPopup()}
-        </Modal>:null}
+        {this.renderIcons()}
+        {this.state.isActive && <Modal visible={this.state.isActive} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
+            {this.renderPopup()}
+          </Modal>}
+        {this.state.cameraOn && <Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value&&this.props.value.image?this.props.value.image:undefined} size={this.props.size}
+            fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
+          </Modal>}
+        {this.state.attachOn && <Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>}
       </View>
     </View>
   }

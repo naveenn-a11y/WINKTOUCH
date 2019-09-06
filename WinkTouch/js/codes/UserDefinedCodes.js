@@ -59,12 +59,12 @@ import { binoculaireSubjVPHCodes } from './BinoculaireSubjVPHCodes';
 import { binoculaireSubjVLVCodes } from './BinoculaireSubjVLVCodes';
 import { binoculaireSubjVPVCodes } from './BinoculaireSubjVPVCodes';
 import { binoculaireObjVLCodes } from './BinoculaireObjVLCodes';
-import { resumeRecommandationCodes } from './ResumeRecommandationCodes';
 import { resumeTestCodes } from './ResumeTestCodes';
 import { resumeVerificationCodes } from './ResumeVerificationCodes';
 import { resumeResultatCodes } from './ResumeResultatCodes';
 import { ocularSurgeryProcedureCodes } from './OcularSurgeryProcedureCodes';
 import { vaScaleCodes } from './VAScaleCodes';
+import { treatmentRecommendationCodes } from './TreatmentCodes';
 
 export function initialiseUserCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.occupationPrincipaleCode = occupationPrincipaleCodes;
@@ -122,10 +122,10 @@ export function initialiseUserCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.binoculaireSubjVLVCode = binoculaireSubjVLVCodes;
   codeDefinitions.binoculaireSubjVPVCode = binoculaireSubjVPVCodes;
   codeDefinitions.binoculaireObjVLCode = binoculaireObjVLCodes;
-  codeDefinitions.resumeRecommandationCode = resumeRecommandationCodes;
   codeDefinitions.resumeTestCode = resumeTestCodes;
   codeDefinitions.resumeVerificationCode = resumeVerificationCodes;
   codeDefinitions.resumeResultatCode = resumeResultatCodes;
   codeDefinitions.ocularSurgeryProcedureCodes = ocularSurgeryProcedureCodes;
   codeDefinitions.vaScaleCodes = vaScaleCodes;
+  codeDefinitions.treatmentRecommendationCodes = treatmentRecommendationCodes;
 }

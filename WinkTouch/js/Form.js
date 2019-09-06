@@ -172,7 +172,7 @@ export class FormTextInput extends Component {
                     style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:this.props.readonly?styles.formFieldReadOnly:styles.formField}
                     onFocus={this.dismissError}
                     onChangeText={(text: string) => this.setState({text: text })}
-                    onEndEditing={(event) => this.commit(event.nativeEvent.text)}
+                    onBlur={(event) => this.commit(event.nativeEvent.text)}
                     editable={this.props.readonly!==true}
                     multiline={this.props.multiline}
                     />
@@ -241,6 +241,10 @@ export class FormNumberInput extends Component {
           if (this.state.errorMessage) this.setState({ errorMessage: undefined});
           return;
         }
+        if (this.props.suffix && (this.props.suffix instanceof String) && this.props.suffix.endsWith("Codes")) {//TODO: strip suffix and continue with number validation
+          if (this.state.errorMessage) this.setState({ errorMessage: undefined});
+          return;
+        }
         if (isNaN(value)) {
           this.setState({errorMessage: 'Not a number'}); //TODO
           return;
@@ -254,7 +258,7 @@ export class FormNumberInput extends Component {
           this.setState({ errorMessage: 'Too big'}); //TODO
           return;
         }
-        if (this.props.stepSize!==undefined && (numberValue*1000)%(this.props.stepSize*1000)!==0 ) {
+        if (this.props.stepSize!==undefined && Number.isInteger(this.props.stepSize*1000) && ((numberValue*1000)%(this.props.stepSize*1000))!==0 ) {
           this.setState({ errorMessage: 'Not right rounded'}); //TODO
           return;
         }
@@ -740,7 +744,9 @@ export class FormInput extends Component {
     examId: string,
     filterValue: {},
     isTyping?: boolean,
-    autoFocus?: boolean
+    autoFocus?: boolean,
+    enableScroll?: () => void,
+    disableScroll?: () => void
   }
   state: {
     validation?: string
@@ -823,10 +829,11 @@ export class FormInput extends Component {
       return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {
       return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
-    } else if (this.props.definition.image==='upload') {
-      return <ImageUploadField value={this.props.value} fileName={this.props.definition.name} readonly={readonly} onChangeValue={this.props.onChangeValue} size={this.props.definition.size} style={style} patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage}/>
+    //} else if (this.props.definition.image==='upload') {
+    //  return <ImageUploadField value={this.props.value} fileName={this.props.definition.name} readonly={readonly} onChangeValue={this.props.onChangeValue} size={this.props.definition.size} style={style} patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage}/>
     } else if (this.props.definition.image!==undefined) {
-      return <ImageField value={this.props.value} image={this.props.definition.image} resolution={this.props.definition.resolution} size={this.props.definition.size} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage}/>
+      return <ImageField value={this.props.value} image={this.props.definition.image} fileName={this.props.definition.name} resolution={this.props.definition.resolution} size={this.props.definition.size} popup={this.props.definition.popup} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style}
+        patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100} style={style}/>//TODO keyboardType from definition type
@@ -852,7 +859,9 @@ export class FormField extends Component {
     multiline?: boolean,
     onChangeValue: (value: {id: string}) => void,
     patientId: string,
-    examId: string
+    examId: string,
+    enableScroll?: () => void,
+    disableScroll?: () => void    
   }
   fieldNames: string[];
   fieldDefinition: ?FieldDefinition;
@@ -933,7 +942,8 @@ export class FormField extends Component {
     if (this.fieldDefinition===undefined) return null;
     return <FormInput value={this.getFieldValue()} filterValue={this.props.value} errorMessage={this.getErrorMessage()} definition={this.fieldDefinition} showLabel={this.props.showLabel} readonly={this.props.readonly} label={this.props.label}
       type={this.props.type} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline}
-      onChangeValue={this.setFieldValue} patientId={this.props.patientId} examId={this.props.examId} />
+      onChangeValue={this.setFieldValue} patientId={this.props.patientId} examId={this.props.examId}
+      enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} />
   }
 }
 

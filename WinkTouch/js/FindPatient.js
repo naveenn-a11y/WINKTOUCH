@@ -32,7 +32,7 @@ export async function searchPatients(searchText: string) : Patient[] {
     };
     let restResponse = await searchItems('Patient/list', searchCriteria);
     let patients: Patient[] = restResponse.patientList;
-    if (patients && patients.length>40) patients=patients.slice(0, maxPatientListSize);
+    if (patients && patients.length>maxPatientListSize) patients=patients.slice(0, maxPatientListSize);
     cacheItemsById(patients);
     return patients;
 }

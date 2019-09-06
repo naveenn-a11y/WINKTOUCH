@@ -36,19 +36,18 @@ import { vesselsCodes }  from './PosteriorCodes';
 import { maculaCodes }  from './PosteriorCodes';
 import { retinaCodes }  from './PosteriorCodes';
 import { peripheryCodes }  from './PosteriorCodes';
+import { pupillaryReflexCodes } from './PosteriorCodes';
 import { dilationDrugCodes } from './DilationCodes';
 import { dilationEyeCodes } from './DilationCodes';
 import { colorVisionTestCodes } from './ColorVisionCodes';
 import { colorVisionDiagnoseCodes } from './ColorVisionCodes';
-import { pupilDiameterCodes } from './PupilCodes';
 import { pupilFormCodes } from './PupilCodes';
 import { pupilReactionCodes } from './PupilCodes';
 import { pupilMGunnCodes } from './PupilCodes';
 import { pupilAccomodationCodes } from './PupilCodes';
-import { pupilColorCodes } from './PupilCodes';
-import { pupilDiagnoseCodes } from './PupilCodes';
 import { hirschbergCodes } from './PupilCodes';
 import { brucknerCodes } from './PupilCodes';
+import { pupilDiagnoseCodes } from './PupilCodes';
 import { iopDrugCodes } from './IopCodes';
 import { tonometryTestCodes } from './IopCodes';
 import { medicationStrengthCodes } from './MedicationCodes';
@@ -73,6 +72,7 @@ import { drugUseCodes } from './SocialHistoryCodes';
 import { clGoodToBadCodes, clRotationCodes, clMovementCodes, clCentrationCodes, clNormalTo5Codes, clSolutionCodes, contactLenses, clFittingTypeCodes } from './ContactLensCodes';
 import { lensTypeCodes } from './RefractionCodes';
 import { prescriptionCodes } from './PrescriptionCodes';
+import { eyeColorCodes } from './BiomicroscopyCodes';
 
 export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.icdCodes = icdCodes;
@@ -112,12 +112,10 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.dilationEyeCodes = dilationEyeCodes;
   codeDefinitions.colorVisionTestCodes = colorVisionTestCodes;
   codeDefinitions.colorVisionDiagnoseCodes = colorVisionDiagnoseCodes;
-  codeDefinitions.pupilDiameterCodes = pupilDiameterCodes;
   codeDefinitions.pupilFormCodes = pupilFormCodes;
   codeDefinitions.pupilReactionCodes = pupilReactionCodes;
   codeDefinitions.pupilMGunnCodes = pupilMGunnCodes;
   codeDefinitions.pupilAccomodationCodes = pupilAccomodationCodes;
-  codeDefinitions.pupilColorCodes = pupilColorCodes;
   codeDefinitions.pupilDiagnoseCodes = pupilDiagnoseCodes;
   codeDefinitions.hirschbergCodes = hirschbergCodes;
   codeDefinitions.brucknerCodes = brucknerCodes;
@@ -157,4 +155,6 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.lensTypeCodes = lensTypeCodes;
   codeDefinitions.clFittingTypeCodes = clFittingTypeCodes;
   codeDefinitions.prescriptionCodes = prescriptionCodes;
+  codeDefinitions.eyeColorCodes = eyeColorCodes;
+  codeDefinitions.pupillaryReflexCodes = pupillaryReflexCodes;
 }

@@ -3,18 +3,10 @@
  */
 'use strict';
 
-export const pupilDiameterCodes = [
-{"code":"2"},
-{"code":"3"},
-{"code":"4"},
-{"code":"5"},
-{"code":"6"},
-{"code":"7"}
-];
-
 export const pupilFormCodes = [
 {"code":"Round"},
 {"code":"Oval"},
+{"code":"Irregular"}
 ];
 
 export const pupilReactionCodes = [
@@ -35,23 +27,14 @@ export const pupilAccomodationCodes = [
 {"code":"Non reactive"}
 ];
 
-export const pupilColorCodes = [
-{"code":"Brown"},
-{"code":"Hazel"},
-{"code":"Gray"},
-{"code":"Blue"},
-{"code":"Amber"},
-{"code":"Violet/Red"},
-{"code":"Green"},
-{"code":"Heterochromia"}
-];
-
 export const pupilDiagnoseCodes = [
 {"code":"PERRLA"},
-{"code":"PERRLA(-)APD"},
-{"code":"Argyl Roberson"},
-{"code":"Adie"},
-{"code":"Homer"},
+{"code":"PERRLA (-)RAPD"},
+{"code":"RAPD / Marcus Gunn"},
+{"code":"Argyll Robertson"},
+{"code":"Adie's tonic pupil syndrome"},
+{"code":"Horner's syndrome"},
+{"code":"Pharmacologically dilated pupil"},
 {"code":"Anisocoria"}
 ];
 

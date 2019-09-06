@@ -168,6 +168,15 @@ export class Plus extends PureComponent {
   }
 }
 
+export class Copy extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name='copy1' style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
 export class Refresh extends PureComponent {
   props: {
     style: any

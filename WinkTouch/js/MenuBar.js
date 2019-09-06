@@ -27,10 +27,12 @@ export class MenuBar extends PureComponent {
         navigation: any
     }
 
+    /**
     async restart() {
       await resetDatabase();
       this.props.navigation.navigate("restart");
     }
+    */
 
     extractExamDefinition(exam: Exam) : ExamDefinition {
       let examDefinition = exam.definition;
@@ -45,7 +47,7 @@ export class MenuBar extends PureComponent {
         return <View style={styles.sideMenu}>
           <Image source={require('./image/menulogo.png')} />
           <Button title={strings.agenda} onPress={() => this.props.navigation.navigate('agenda')} />
-          {exam && <Button title={strings.patients} onPress={() => this.props.navigation.navigate('findPatient', {showAppointments: false, showBilling: true})} />}
+          {(scene==='appointment' || exam) && <Button title={strings.patient} onPress={() => this.props.navigation.navigate('findPatient', {showAppointments: false, showBilling: true})} />}
           {exam && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
           {exam && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
           {__DEV__ && false && exam && <Button title={strings.template} onPress={() => this.props.navigation.navigate('examTemplate', {examDefinition: this.extractExamDefinition(exam)})}/>}

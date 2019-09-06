@@ -127,14 +127,24 @@ export class RegisterScreen extends Component {
         this.setState({securityQuestions});
     }
 
-    async submitEmail() {
+    async submitEmail(isRegistered: boolean) {
         const email : ?string = this.state.email;
         if (email === undefined || email === null || email.trim().length < 3) {
             alert(strings.enterRegisteredEmail);
             return;
         }
+        if (!isRegistered) {
+          //TODO: log trial email
+          const trialRegistration : Registration = {
+            email: 'DemoCustomer@downloadwink.com',
+            bundle: 'aJlnFTJv0FBp--NZ8a-epxcISJ69b99414bd-11b8-4bb3-bbb3-8b32aaf3da86',
+            path: '/webstart/1904_FCTMZKCLM1_BC'
+          }
+          this.props.onRegistered(trialRegistration);
+          return;
+        }
         let securityQuestionIndex : number = await fetchSecurityQuestionIndex(email);
-        if (securityQuestionIndex==-1) securityQuestionIndex = undefined;
+        if (securityQuestionIndex<0) securityQuestionIndex = undefined;
         if (securityQuestionIndex===undefined) {
           alert(strings.unRegisteredEmail);
         }
@@ -171,11 +181,11 @@ export class RegisterScreen extends Component {
                 {this.state.securityQuestionIndex===undefined && <View style={styles.centeredColumnLayout}>
                   <Text style={styles.label}>{strings.enterRegisteredEmail}</Text>
                   <View style={{flexDirection:'row'}}><View style={{flex: 100}}>
-                    <TextInput placeholder={strings.emailAdres} keyboardType='email-address' autoCapitalize='none' autoCorrect={false} returnKeyType='send' style={styles.searchField} value={this.state.email}
-                      onChangeText={(email: string) => this.setState({email})} onSubmitEditing={() => this.submitEmail()}/></View>
+                    <TextInput placeholder={strings.emailAdres} keyboardType='email-address' autoCapitalize='none' autoCorrect={false} returnKeyType='done' style={styles.searchField} value={this.state.email}
+                      onChangeText={(email: string) => this.setState({email})} /></View>
                   </View>
                   <View style={styles.buttonsRowLayout}>
-                    <Button title={strings.submitEmail} onPress={() => this.submitEmail()} />
+                    <Button title={strings.connectToPms} onPress={() => this.submitEmail(true)} /><Button title={strings.tryForFree} onPress={() => this.submitEmail(false)} />
                   </View>
                 </View>}
                 {this.state.securityQuestionIndex!==undefined && <View style={styles.centeredColumnLayout}>

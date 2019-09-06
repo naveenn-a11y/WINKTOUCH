@@ -1,5 +1,6 @@
 {
   "name": "Auto refractor",
+  "scrollable": true,
   "graph": {
     "fields": [
       "Auto refractor.od.sph",
@@ -17,15 +18,19 @@
     },
     {
       "name": "Scan",
+      "multiValue": true,
+      "size": "S",
       "fields": [
         {
           "name": "AR scan",
           "image": "upload",
+          "popup": false,
+          "drawable": true,
+          "size": "S",
           "label": "",
-          "type": "Testresult scan"
+          "type": "EHR"
         }
-      ],
-      "size": "M"
+      ]
     }
   ]
 }

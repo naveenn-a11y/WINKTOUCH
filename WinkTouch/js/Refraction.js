@@ -12,10 +12,10 @@ import { NumberField, TilesField, Button } from './Widgets';
 import { Anesthetics } from './EyeTest';
 import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear} from './Util';
 import { FormInput } from './Form';
-import { getFieldDefinition, formatLabel } from './Items';
+import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
 import { formatCode, formatAllCodes, parseCode } from './Codes';
 import { getVisitHistory, fetchVisitHistory } from './Visit';
-import { CopyRow, Garbage, Keyboard, Plus } from './Favorites';
+import { CopyRow, Garbage, Keyboard, Plus, Copy } from './Favorites';
 
 function getRecentRefraction(patientId: string) : ?GlassesRx[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -320,6 +320,7 @@ export class GlassesDetail extends Component {
     title: string,
     editable?: boolean,
     onCopy?: (glassesRx: GlassesRx) => void,
+    onPaste?: (glassesRx: GlassesRX) => void,
     hasVA?: boolean,
     hasAdd?: boolean,
     hasLensType?: boolean,
@@ -436,7 +437,7 @@ export class GlassesDetail extends Component {
       {this.props.title && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
       <View style={styles.centeredColumnLayout}>
           {this.props.hasLensType && <View style={styles.formRow}>
-            <FormInput value={this.props.glassesRx.lensType} definition={getFieldDefinition('visit.prescription.lensType')} readonly={!this.props.editable}
+            <FormInput value={this.props.glassesRx.lensType} definition={filterFieldDefinition(this.props.definition.fields, "lensType")} readonly={!this.props.editable}
               onChangeValue={(value: ?string) => this.updateGlassesRx(undefined, 'lensType', value)} errorMessage={this.props.glassesRx.lensTypeError}/>
           </View>}
           <View style={styles.formRow}>
@@ -499,6 +500,7 @@ export class GlassesDetail extends Component {
       </View>
       <View style={styles.groupIcons}>
           {this.props.editable && this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
+          {this.props.editable && this.props.onPaste && <TouchableOpacity onPress={() => this.props.onPaste(this.props.glassesRx)}><Copy style={styles.groupIcon}/></TouchableOpacity>}
           {this.props.editable && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
           {this.props.editable && <TouchableOpacity onPress={this.props.onClear?this.props.onClear:this.clear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
       </View>

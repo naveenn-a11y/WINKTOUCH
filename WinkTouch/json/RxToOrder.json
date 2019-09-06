@@ -1,5 +1,6 @@
 {
   "name": "RxToOrder",
+  "scrollable": true,
   "addable": false,
   "isAssessment": true,
   "cardGroup": "Final Rx",

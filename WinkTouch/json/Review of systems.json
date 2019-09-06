@@ -291,10 +291,11 @@
       "options": [
         "Normal",
         "Tension/Anxiety",
-        "Depression/suicide ideation",
+        "Depression",
+        "Suicide ideation",
         "Memory problems",
-        "Depression/suicide ideation",
-        "Memory problems"
+        "Sleep problems",
+        "Past treatment with psychiatrist"
       ]
     }
   ]

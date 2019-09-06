@@ -899,7 +899,7 @@ export const styles = StyleSheet.create({
     },
     groupIcon: {
       padding: 15 * fontScale,
-      fontSize: 25 * fontScale
+      fontSize: 27 * fontScale
     },
     voiceIconMulti: {
       padding: 25 * fontScale,
@@ -922,6 +922,16 @@ export const styles = StyleSheet.create({
       top:0 * fontScale,
       right:  18 * fontScale,
       flexDirection: 'row'
+    },
+    drawingIcons: {
+      position: 'absolute',
+      top:0 * fontScale,
+      right: -5 * fontScale,
+      flexDirection: 'column'
+    },
+    drawIcon: {
+      padding: 20 * fontScale,
+      fontSize: 27 * fontScale
     },
     groupIcons: {
       position: 'absolute',
@@ -1062,7 +1072,7 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
         backgroundColor: 'white',
         alignSelf: 'flex-start',
         padding: 10 * fontScale,
-        paddingTop: (size==='S'?36:10) * fontScale,
+        paddingTop: ((size==='S'||size==='M')?36:10) * fontScale,
         minWidth: minWidth * fontScale,
         minHeight: minHeight *fontScale,
         borderRadius: 30 * fontScale,

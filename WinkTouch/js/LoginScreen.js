@@ -4,7 +4,7 @@
 'use strict';
 
 import React, {Component} from 'react';
-import {Image,Text,TextInput,View, TouchableOpacity,ScrollView, AsyncStorage, PanResponder, StatusBar, KeyboardAvoidingView, InteractionManager } from 'react-native';
+import {Button as RnButton, Image,Text,TextInput,View, TouchableOpacity,ScrollView, AsyncStorage, PanResponder, StatusBar, KeyboardAvoidingView, InteractionManager, Linking} from 'react-native';
 import codePush from 'react-native-code-push';
 import type { Account, Store , User , Registration } from './Types';
 import base64 from 'base-64';
@@ -52,7 +52,8 @@ export class LoginScreen extends Component {
     account: ?string,
     store: ?string,
     userName: ?string,
-    password: ?string
+    password: ?string,
+    isTrial: boolean
   }
   constructor(props: any) {
     super(props);
@@ -61,7 +62,8 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__?'test':undefined
+      password: __DEV__?'test':undefined,
+      isTrial: false
     };
   }
 
@@ -90,14 +92,24 @@ export class LoginScreen extends Component {
       if (accounts.length===0) {
         alert(strings.noAccountsWarning);
       }
+      const isTrial = registration.email==='DemoCustomer@downloadwink.com';
+      if (!isTrial && accounts.length>1) accounts = accounts.slice(1);
       let account = this.state.account;
       if (account===undefined && accounts.length>0) {
         account = this.formatAccount(accounts[0]);
         let store = (accounts.length>0 && accounts[0].stores && accounts[0].stores.length>0)?this.formatStore(accounts[0].stores[0]):undefined;
         this.setStore(store);
-        this.setState({accounts}, this.setAccount(account));
+        if (isTrial) {
+          this.setState({accounts, userName: 'Henry', password: 'Lomb', isTrial}, this.setAccount(account));
+        } else {
+          this.setState({accounts, isTrial}, this.setAccount(account));
+        }
       } else {
-        this.setState({accounts}, this.fetchCodes());
+        if (isTrial) {
+          this.setState({accounts, userName: 'Henry', password: 'Lomb', isTrial}, this.fetchCodes());
+        } else {
+          this.setState({accounts, isTrial}, this.fetchCodes());
+        }
       }
     }
   }
@@ -223,16 +235,21 @@ export class LoginScreen extends Component {
         <View style={styles.centeredColumnLayout}>
           <KeyboardAvoidingView behavior='position'>
             <View style={styles.centeredColumnLayout}>
-              <Text style={styles.h1}>{strings.loginscreenTitle}</Text>
-              <View><TouchableOpacity onLongPress={this.reset}><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>
+              {!this.state.isTrial && <Text style={styles.h1}>{strings.loginscreenTitle}</Text>}
+              {this.state.isTrial && <View>
+                <TouchableOpacity onPress={this.reset}><Text style={styles.h1}>{strings.loginscreenTitle}</Text></TouchableOpacity>
+                <Text style={{fontSize:25*fontScale, color: 'red'}}>{strings.trialWarning}</Text>
+                <RnButton title={strings.winkLink} onPress={ ()=>{ Linking.openURL('http://www.downloadwink.com')}}/>
+              </View>}
+              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset}><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
               <Image source={require('./image/winklogo-big.png')} style={{width: 250 *fontScale, height: 250 *fontScale, margin: 20 * fontScale}}/>
               <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount}/></View>
               <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore}/></View>
-              <View style={styles.fieldContainer}><TextInput placeholder={strings.userName} autoCapitalize='none' autoCorrect={false} returnKeyType='next' style={styles.field400} value={this.state.userName}
-                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField}/></View>
-              <View style={styles.fieldContainer}><TextInput placeholder={strings.password} autoCapitalize='none' autoCorrect={false} returnKeyType='go' secureTextEntry={true} ref='focusField'
+              {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.userName} autoCapitalize='none' autoCorrect={false} returnKeyType='next' style={styles.field400} value={this.state.userName}
+                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField}/></View>}
+              {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.password} autoCapitalize='none' autoCorrect={false} returnKeyType='go' secureTextEntry={true} ref='focusField'
                   style={styles.field400} value={this.state.password} selectTextOnFocus={true}
-                  onChangeText={this.setPassword} onSubmitEditing={() => this.login()}/></View>
+                  onChangeText={this.setPassword} onSubmitEditing={() => this.login()}/></View>}
               <View style={styles.buttonsRowLayout}>
                 <Button title={strings.submitLogin} disabled={account===undefined} onPress={() => this.login()} />
               </View>

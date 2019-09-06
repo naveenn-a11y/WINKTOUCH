@@ -30,7 +30,15 @@
       "hasLensType": true,
       "multiValue": true,
       "name": "Lensometry",
-      "type": "SRx"
+      "type": "SRx",
+      "fields": [
+        {
+          "name": "lensType",
+          "label": "Lens type",
+          "options": "lensTypeCodes",
+          "freestyle": true
+        }
+      ]
     }
   ]
 }

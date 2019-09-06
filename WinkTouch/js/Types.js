@@ -151,6 +151,11 @@ export type Recall = {
   notes: string
 }
 
+export type ImageDrawing = {
+  lines: string[],
+  image?: string //"upload-123" | "./image/amsler.png" | "http://anywhere.com/image.png"
+}
+
 export type Visit = {
     id: string,
     version: number,
@@ -221,6 +226,7 @@ export type FieldDefinition = {
   image?: string,
   simpleSelect?: boolean,
   newLine?: boolean,
+  popup?: boolean
 }
 
 export type FieldDefinitions = (FieldDefinition|GroupDefinition)[]
@@ -237,6 +243,7 @@ export type GroupDefinition = {
     maxLength?: number,
     mappedField?: string,
     canBeCopied?: boolean,
+    canBePaste?: boolean,
     keyboardEnabled?: boolean,
     clone?: string[],
     hasVA?: boolean,

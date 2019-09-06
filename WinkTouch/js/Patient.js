@@ -13,7 +13,7 @@ import { strings } from './Strings';
 import { FormRow, FormTextInput, FormInput, FormField, ErrorCard } from './Form';
 import { ExamCardSpecifics } from './Exam';
 import { cacheItemById, getCachedItem, getCachedItems } from './DataCache';
-import { fetchItemById, storeItem, searchItems } from './Rest';
+import { fetchItemById, storeItem, searchItems, stripDataType } from './Rest';
 import { getFieldDefinitions, getFieldDefinition } from './Items';
 import { deepClone, formatAge } from './Util';
 import { formatOption, formatCode } from './Codes';
@@ -120,6 +120,7 @@ export class PatientCard extends Component {
                       <View style={styles.formRow}>
                           <View style={styles.flexColumnLayout}>
                               <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth):''}</Text>
+                              <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}</Text>
                               <PatientTags patient={this.props.patientInfo} showDescription={true}/>
                           </View>
                           <View style={styles.flexColumnLayout}>
@@ -184,7 +185,7 @@ export class PatientContact extends Component {
                 <FormField value={this.props.patientInfo} fieldName='postalCode' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters'/>
               </FormRow>
               <FormRow>
-                <FormField value={this.props.patientInfo} fieldName='province' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters' />                
+                <FormField value={this.props.patientInfo} fieldName='province' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters' />
                 <FormField value={this.props.patientInfo} fieldName='countryId' onChangeValue={this.props.onUpdatePatientInfo} autoCapitalize='characters' />
               </FormRow>
               <FormRow>
