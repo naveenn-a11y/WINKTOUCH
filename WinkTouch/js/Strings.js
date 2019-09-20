@@ -142,7 +142,11 @@ export const strings = new LocalizedStrings({
       doctorWithoutVisitTypeError: 'Doctor {0} is not set up for the EHR yet in the database.',
       searchCriteriumMissingError: 'Please enter a search criterium.',
       noPatientsFound: 'No patients found',
-      drawingNotSavedWarning: 'Attention: Your last drawing was not saved.'
+      drawingNotSavedWarning: 'Attention: Your last drawing was not saved.',
+      scanEmailTitle: 'Patient file {0}',
+      scanEmailBody: '<p>Please find attached the {0} for patient {1}.</p>'+
+        '<p>Have a nice day</p><p>{2}</p>',
+      emailAppUnavailableError:'Please configure the iPad email app.'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez mettre votre adresse e-mail pour vous connecter à vrote base de donées WINK\n ou commencer un essai gratuit',
@@ -252,7 +256,11 @@ export const strings = new LocalizedStrings({
       doctorWithoutVisitTypeError: 'Docteur {0} n\'est pas encore configuré pour utiliser l\'application mobile.',
       searchCriteriumMissingError: 'Veuillez entrez un critère pour la recherche.',
       noPatientsFound: 'Aucun patient trouvé',
-      drawingNotSavedWarning: 'Attention: Votre dernier dessin n\'a pas été sauvegardé.'
+      drawingNotSavedWarning: 'Attention: Votre dernier dessin n\'a pas été sauvegardé.',
+      scanEmailTitle: 'Dossier patient {0}',
+      scanEmailBody: '<p>Veuillez trouvez le {0} pour patient {1}.</p>'+
+        '<p>Cordialement</p><p>{2}</p>',
+      emailAppUnavailableError:'Veuillez configure l\'application courriel sur la tablet svp.'
     },
 });
 

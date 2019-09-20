@@ -28,7 +28,7 @@
           "drawable": true,
           "size": "S",
           "label": "",
-          "type": "EHR"
+          "type": "EMR"
         }
       ]
     }

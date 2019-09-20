@@ -17,7 +17,7 @@
           "popup": false,
           "drawable": true,
           "size": "XL",
-          "type": "EHR"
+          "type": "EMR"
         }
       ]
     },
@@ -33,7 +33,7 @@
           "popup": false,
           "drawable": true,
           "size": "S",
-          "type": "EHR"
+          "type": "EMR"
         }
       ]
     }

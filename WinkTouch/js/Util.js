@@ -423,3 +423,12 @@ export function setValue(value : {}, fieldIdentifier: string, fieldValue : any) 
   const identifier : string = identifiers[identifiers.length-1];
   value[identifier] = fieldValue;
 }
+
+export function replaceFileExtension(fileName : string, extension: string) : string {
+  if (fileName===null || fileName===undefined || extension===null || extension===undefined) return fileName;
+  const dotIndex : number = fileName.lastIndexOf('.');
+  if (dotIndex<=0) return fileName;
+  if (extension.startsWith('.')) extension = extension.substring(1);
+  fileName = fileName.substring(0, dotIndex+1)+extension;
+  return fileName;
+}

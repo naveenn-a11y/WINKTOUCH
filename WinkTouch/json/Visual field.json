@@ -109,14 +109,14 @@
           "name": "VF scan OD",
           "image": "upload",
           "popup": false,
-          "type": "EHR",
+          "type": "EMR",
           "label": "OD"
         },
         {
           "name": "VF scan OS",
           "image": "upload",
           "popup": false,
-          "type": "EHR",
+          "type": "EMR",
           "label": "OS"
         }
       ],

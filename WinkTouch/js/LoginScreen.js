@@ -32,7 +32,6 @@ async function fetchAccounts(path: string) {
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
     let accounts : Account[] = await httpResponse.json();
-    //accounts = accounts.filter((account: Account) => account.isDemo!==true);
     return accounts;
   } catch (error) {
     console.log(error);
@@ -93,7 +92,9 @@ export class LoginScreen extends Component {
         alert(strings.noAccountsWarning);
       }
       const isTrial = registration.email==='DemoCustomer@downloadwink.com';
-      if (!isTrial && accounts.length>1) accounts = accounts.slice(1);
+      if (!isTrial && accounts.length>1) {
+        accounts = accounts.filter((account: Account) => account.isDemo!==true);
+      }
       let account = this.state.account;
       if (account===undefined && accounts.length>0) {
         account = this.formatAccount(accounts[0]);

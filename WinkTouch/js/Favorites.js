@@ -204,6 +204,26 @@ export class Camera extends PureComponent {
   }
 }
 
+
+export class Printer extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name='printer' style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
+export class Mail extends PureComponent {
+  props: {
+    style: any
+  }
+  render() {
+    return <Icon name='mail' style={this.props.style} color={selectionFontColor}/>
+  }
+}
+
+
 export class DrawingIcon extends PureComponent {
   props: {
     style: any,

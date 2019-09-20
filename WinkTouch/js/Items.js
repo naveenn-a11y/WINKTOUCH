@@ -1677,7 +1677,7 @@ export class GroupedFormScreen extends Component {
             onClear={() => this.clear(groupDefinition.name, subIndex)}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
-            enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}            
+            enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
             patientId={this.patientId}
             examId={this.props.exam.id}
           />

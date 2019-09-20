@@ -438,8 +438,7 @@ export class AppointmentScreen extends Component {
         this.setState({
           visitHistory,
           patientInfo: getCachedItem(patientId),
-          patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId),
-          showAddVisit: this.isNewVisit(this.state.appointment, visitHistory)
+          patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId)
         });
         this.forceUpdate();
       }
@@ -451,7 +450,7 @@ export class AppointmentScreen extends Component {
       if (!visitHistory) return false;
       let appointmentsVisitId :?Visit = visitHistory.find((visitId: string) => {
         const visit : ?Visit = getCachedItem(visitId);
-        return visit && visit.appointmentId == appointment.id
+        return visit && (visit.appointmentId === appointment.id);
       });
       return appointmentsVisitId===undefined;
     }

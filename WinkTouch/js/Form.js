@@ -323,6 +323,7 @@ export class FormDateInput extends Component {
         showLabel?: boolean,
         readonly?: boolean,
         type?: string,
+        style?: any,
         onChangeValue?: (newValue: ?string) => void
     }
     static defaultProps= {
@@ -339,6 +340,7 @@ export class FormDateInput extends Component {
     }
 
     render() {
+        const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.state.errorMessage?styles.formFieldError:styles.formField;
         return <View style={styles.formElement}>
             {this.props.showLabel && <FormLabel width={this.props.labelWidth} value={this.props.label} />}
             <DateField label={this.props.label} value={parseDate(this.props.value)}
@@ -347,7 +349,7 @@ export class FormDateInput extends Component {
               future={this.props.type?this.props.type.includes('future'):undefined}
               recent={this.props.type?this.props.type.includes('recent'):undefined}
               partial={this.props.type?this.props.type.includes('partial'):undefined}
-              style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField}
+              style={style}
               onChangeValue={this.updateValue}/>
         </View>
     }
@@ -814,7 +816,7 @@ export class FormInput extends Component {
     if (isNumericField(this.props.definition)) {
       return <FormNumberInput value={this.props.value} {...this.props.definition} errorMessage={this.props.errorMessage} readonly={readonly}
         onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix}
-        isTyping={this.props.isTyping} autoFocus={this.props.autoFocus}/>
+        isTyping={this.props.isTyping} autoFocus={this.props.autoFocus} style={style} />
     } else if (this.props.definition.options && this.props.definition.options.length>0) {
       const options = this.props.definition.options;
       if (!(options instanceof Array)) {
@@ -861,7 +863,7 @@ export class FormField extends Component {
     patientId: string,
     examId: string,
     enableScroll?: () => void,
-    disableScroll?: () => void    
+    disableScroll?: () => void
   }
   fieldNames: string[];
   fieldDefinition: ?FieldDefinition;

@@ -894,7 +894,7 @@ export const styles = StyleSheet.create({
       fontSize: 14 * fontScale
     },
     screenIcon: {
-      padding: 20 * fontScale,
+      padding: 25 * fontScale,
       fontSize: 30 * fontScale
     },
     groupIcon: {
@@ -927,7 +927,9 @@ export const styles = StyleSheet.create({
       position: 'absolute',
       top:0 * fontScale,
       right: -5 * fontScale,
-      flexDirection: 'column'
+      flexDirection: 'column',
+      backgroundColor: '#ffffffbb'
+
     },
     drawIcon: {
       padding: 20 * fontScale,
@@ -1089,8 +1091,13 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
     }
 }
 
-export function imageStyle(size: string, aspecRatio: number) {
+export function imageWidth(size: string) : number {
   const width : number = size === 'XL'?1110:size==='L'?680:size==='M'?520:size==='S'?340:340;
+  return width;
+}
+
+export function imageStyle(size: string, aspecRatio: number) {
+  const width : number = imageWidth(size);
   return {
     width: width*fontScale,
     height: width*fontScale/aspecRatio,

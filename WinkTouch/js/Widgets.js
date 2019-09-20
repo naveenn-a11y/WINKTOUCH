@@ -3,26 +3,29 @@
  */
 'use strict';
 
-import type { FieldDefinition, CodeDefinition, PatientDocument, ImageDrawing } from './Types';
+import type { FieldDefinition, CodeDefinition, PatientDocument, ImageDrawing, PatientInfo } from './Types';
 import React, { Component, PureComponent } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
-  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList} from 'react-native';
+  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
 import { Button as NativeBaseButton, Icon as NativeBaseIcon, Fab as NativeBaseFab, Container } from 'native-base';
+import mailer from 'react-native-mail';
 import { Svg, Path, Polyline, Circle} from 'react-native-svg';
 import RNBeep from 'react-native-a-beep';
 import {line,curveBasis, curveCardinal} from 'd3-shape';
 import simplify from 'simplify-js';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-//import KeyEvent from 'react-native-keyevent';
-import { styles, fontScale, selectionColor, selectionFontColor, imageStyle } from './Styles';
+import ViewShot from 'react-native-view-shot';
+import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
+import { styles, fontScale, selectionColor, selectionFontColor, imageStyle, imageWidth } from './Styles';
 import { strings} from './Strings';
+import { getDoctor } from './DoctorApp';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
 import { FormRow, FormTextInput } from './Form';
 import { ItemsList } from './Items';
 import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, capitalize,
   minuteDifference, dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, jsonDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays, deepClone} from './Util';
-import { Camera, PaperClip, Undo, Pencil, Garbage } from './Favorites';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, deepClone, replaceFileExtension} from './Util';
+import { Camera, PaperClip, Undo, Pencil, Garbage, Printer, Mail} from './Favorites';
 import { DocumentScanner } from './DocumentScanner';
 import { fetchUpload, getMimeType, getAspectRatio } from './Upload';
 import { getCachedItem } from './DataCache';
@@ -2146,6 +2149,7 @@ export class ImageField extends Component {
     size?: string,
     resolution: string,
     fileName?: string,
+    type?: string,
     patientId: string,
     examId: string,
     popup?: boolean,
@@ -2265,15 +2269,14 @@ export class ImageField extends Component {
 
   startEditing = () => {
     if (this.props.readonly) return;
-    __DEV__ && console.log('Starting edit');
+    //__DEV__ && console.log('Starting edit');
     let lines : string[] = (this.props.value && this.props.value.lines)?this.props.value.lines.slice(0):[this.props.resolution];
     this.setState({ isActive: true, lines, selectedLineIndex: -1 });
   }
 
   commitEdit = () : void => {
-    this.setState({ isActive: false });
-    __DEV__ && console.log('Committing line edit');
-    if (this.props.onChangeValue) {
+      this.setState({ isActive: false });
+      if (this.props.onChangeValue) {
       let value = this.props.value;
       if (value===undefined || value===null) {
         value = {};
@@ -2287,6 +2290,7 @@ export class ImageField extends Component {
       if (value.lines===undefined && value.image===undefined) {
         value=undefined;
       }
+      //__DEV__ && console.log('Committing line edit: '+JSON.stringify(value));
       this.props.onChangeValue(value);
     }
   }
@@ -2330,7 +2334,6 @@ export class ImageField extends Component {
     }
     this.props.onChangeValue({image: uploadId});
   }
-
 
   showDocuments = () => {
     if (!this.props.type) return;
@@ -2389,7 +2392,7 @@ export class ImageField extends Component {
     coordinates = points.map((point : {x:number, y:number}) => {
       return point.x+','+point.y;
     });
-    __DEV__ && console.log('reduce '+sizeBefore+' -> '+sizeAfter);
+    __DEV__ && console.log('reduced '+sizeBefore+' -> '+sizeAfter);
     line = coordinates.join(' ');
     return line;
   }
@@ -2407,7 +2410,7 @@ export class ImageField extends Component {
   }
 
   liftPen() {
-    __DEV__ && console.log('Pen up');
+    //__DEV__ && console.log('Pen up');
     if ((this.props.popup===false || this.props.image==='upload') && this.tap()==2 && (this.state.lines[this.state.lines.length-1].length<40 && this.state.lines[this.state.lines.length-2].length<40)) {
       this.state.lines.splice(this.state.lines.length-2, 2);
       this.setState({lines:this.state.lines, penDown:false});
@@ -2431,7 +2434,7 @@ export class ImageField extends Component {
     if (!this.state.penDown) {
       lines.push('');
       firstPoint = true;
-      __DEV__ && console.log('Pen down');
+      //__DEV__ && console.log('Pen down');
     }
     const lineIndex : number = lines.length-1;
     let line :string = lines[lineIndex];
@@ -2480,14 +2483,71 @@ export class ImageField extends Component {
     this.setState({lines, selectedLineIndex: -1});
   }
 
-
-
   tap = () : number => {
     if (new Date().getTime()-this.lastTap<200) {//Double tap
       return 2;
     }
     this.lastTap = new Date().getTime();
     return 1;
+  }
+
+  async generatePdf() : string {
+    const pageWidth : number = 1110;
+    const pageAspectRatio : number = 216/279;  //TODO: This is US letter aspect (in stead of A4), we should know from the printer or make it a setting, or link it to the locale
+    const pageHeight : number = pageWidth/pageAspectRatio;
+    const imageUri = await this.refs.viewShot.capture();
+    const aspectRatio = this.aspectRatio();
+    let width = imageWidth(this.props.size);
+    let height = width / aspectRatio;
+    if (height>pageHeight) {
+      height = pageHeight;
+      width = pageHeight * aspectRatio;
+    }
+    //__DEV__ && console.log('imagesize = '+width+'x'+height+' pageSize='+pageWidth+'x'+pageHeight);
+    const page1 = PDFPage
+      .create()
+      .setMediaBox(pageWidth, pageHeight)
+      .drawImage(imageUri, 'jpg', {
+        x: 0,
+        y: pageHeight-height+0/pageAspectRatio,
+        width: width,
+        height: height
+      });
+    const docsDir = await PDFLib.getDocumentsDirectory();
+    const pdfPath = `${docsDir}/print.pdf`;
+    let path = await PDFDocument.create(pdfPath).addPages(page1).write();
+    return path;
+  }
+
+  async print() {
+    const path: string = await this.generatePdf();
+    await NativeModules.RNPrint.print({filePath: path});
+  }
+
+  async email() {
+    const path: string = await this.generatePdf();
+    const patient : PatientInfo = getCachedItem(this.props.patientId);
+    const doctorName : string = getDoctor().firstName+' '+getDoctor().lastName;
+    const body : string = strings.formatString(strings.scanEmailBody, this.props.type, patient.firstName+' '+patient.lastName, doctorName);
+    const fileName : string = replaceFileExtension(this.props.fileName, 'pdf');
+    mailer.mail({
+      recipients: [patient.email],
+      subject: strings.formatString(strings.scanEmailTitle, patient.firstName+' '+patient.lastName, doctorName) ,
+      body,
+      isHTML: true,
+      attachment: {
+        path: path,
+        type: 'pdf',
+        name: fileName,
+        }
+      },
+      (error, event) => {
+        error && console.log('Error opening email app:', error);
+        if (error==='not_available') {
+          alert(strings.emailAppUnavailableError);
+        }
+      }
+    );
   }
 
   requireImage() {
@@ -2620,6 +2680,8 @@ export class ImageField extends Component {
     }
     if (this.props.popup===false || this.props.image==='upload') {
       return <View style={styles.drawingIcons} key={'drawingIcons'}>
+        <TouchableOpacity onPress={() => this.print()}><Printer style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
+        <TouchableOpacity onPress={() => this.email()}><Mail style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
         <TouchableOpacity onPress={this.clearImage}><Garbage style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
         <TouchableOpacity onPress={this.toggleEdit}><Pencil style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
         {this.state.isActive  && <TouchableOpacity onPress={this.undo}><Undo style={styles.drawIcon}/></TouchableOpacity>}
@@ -2633,21 +2695,24 @@ export class ImageField extends Component {
     const image = this.requireImage();
     if (this.props.popup===false || this.props.image==='upload') {
       return <View style={styles.centeredColumnLayout}>
-              <View style={styles.solidWhite} onStartShouldSetResponder={(event) => this.state.isActive}
-                  onResponderGrant={(event) => {this.penDown(event, scale)}}
-                  onResponderReject={(event) => this.setState({ isActive: false })} //TODO: toggleEdit in stead?
-                  onMoveShouldSetResponder={(event) => false}
-                  onResponderTerminationRequest={(event) => false}
-                  onResponderMove={(event) => this.updatePosition(event, scale)}
-                  onResponderRelease={(event) => this.liftPen()}
-                  onResponderTerminate={(event) => this.liftPen()}>
-                  {image && <TouchableWithoutFeedback onPressOut={()=> {if (this.tap()===2) this.toggleEdit();}} disabled={this.state.isActive}>
-                    <View>
-                      <Image source={image} style={style} />
-                      {this.renderGraph(this.state.isActive?this.state.lines:(this.props.value&&this.props.value.lines)?this.props.value.lines:undefined, style, scale)}
-                    </View>
-                  </TouchableWithoutFeedback>}
-                </View>
+                <ViewShot ref='viewShot' options={{format: 'jpg', quality:0.9}}>
+                  <View style={styles.solidWhite} onStartShouldSetResponder={(event) => this.state.isActive}
+                    onResponderGrant={(event) => {this.penDown(event, scale)}}
+                    onResponderReject={(event) => this.setState({ isActive: false })} //TODO: toggleEdit in stead?
+                    onMoveShouldSetResponder={(event) => false}
+                    onResponderTerminationRequest={(event) => false}
+                    onResponderMove={(event) => this.updatePosition(event, scale)}
+                    onResponderRelease={(event) => this.liftPen()}
+                    onResponderTerminate={(event) => this.liftPen()}>
+                    {image && <TouchableWithoutFeedback onPressOut={()=> {if (this.tap()===2) this.toggleEdit();}} disabled={this.state.isActive}>
+                      <View>
+                        <Image source={image} style={style} />
+                        {this.renderGraph(this.state.isActive?this.state.lines:(this.props.value&&this.props.value.lines)?this.props.value.lines:undefined, style, scale)}
+                      </View>
+                    </TouchableWithoutFeedback>}
+                  </View>
+                  {this.props.children}
+                </ViewShot>
                 {this.renderIcons()}
                 {this.state.cameraOn && <Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value&&this.props.value.image?this.props.value.image:undefined} size={this.props.size}
                     fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
@@ -2672,6 +2737,7 @@ export class ImageField extends Component {
           </Modal>}
         {this.state.attachOn && <Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>}
       </View>
+      {this.props.children}
     </View>
   }
 }

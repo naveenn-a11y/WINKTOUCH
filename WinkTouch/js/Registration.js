@@ -13,9 +13,14 @@ import { dbVersion, touchVersion, bundleVersion, deploymentVersion } from './Ver
 //const touchVersionUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationSecurity?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch&touchVersion=true';
 //const securityQuestionsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationQuestions';
 
-const securityQuestionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch';
-const touchVersionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch&touchVersion=true';
+const securityQuestionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?mac=EMRFree&source=touch';
+const touchVersionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const securityQuestionsUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationQuestions';
+
+async function fetchIp() : string {
+  const ip = await(DeviceInfo.getIPAddress());
+  return ip;
+}
 
 async function fetchSecurityQuestions() {
   const url = securityQuestionsUrl;
@@ -41,7 +46,8 @@ async function fetchSecurityQuestions() {
 
 async function fetchSecurityQuestionIndex(email: string) {
   if (!email) return undefined;
-  const url = securityQuestionUrl + '&email=' + encodeURIComponent(email);
+  const ip : string = await fetchIp();
+  const url = securityQuestionUrl + '&email=' + encodeURIComponent(email)+'&ip='+ip;
   try {
     let httpResponse = await fetch(url);
     if (!httpResponse.ok) handleHttpError(httpResponse);
@@ -57,7 +63,8 @@ async function fetchSecurityQuestionIndex(email: string) {
 
 async function fetchRegistration(email: string, securityQuestionIndex: number, securityAnswer: string) {
   if (!email || !securityAnswer) return undefined;
-  const url = touchVersionUrl + '&email=' + encodeURIComponent(email) + '&securityQuestion='+ encodeURIComponent(securityQuestionIndex) + '&answer=' + encodeURIComponent(securityAnswer);
+  const ip : string = await fetchIp();
+  const url = touchVersionUrl + '&email=' + encodeURIComponent(email) + '&securityQuestion='+ encodeURIComponent(securityQuestionIndex) + '&answer=' + encodeURIComponent(securityAnswer)+'&ip='+ip;
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -100,7 +107,7 @@ export class RegisterScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          email: this.props.email,
+          email: this.props.email==='DemoCustomer@downloadwink.com'?undefined:this.props.email,
           securityQuestions: [],
           securityQuestionIndex: undefined,
           securityAnswer: undefined
@@ -134,7 +141,7 @@ export class RegisterScreen extends Component {
             return;
         }
         if (!isRegistered) {
-          //TODO: log trial email
+          fetchSecurityQuestionIndex(email);
           const trialRegistration : Registration = {
             email: 'DemoCustomer@downloadwink.com',
             bundle: 'aJlnFTJv0FBp--NZ8a-epxcISJ69b99414bd-11b8-4bb3-bbb3-8b32aaf3da86',

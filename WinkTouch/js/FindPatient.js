@@ -5,6 +5,7 @@
 
 import React, { Component } from 'react';
 import { Image, View, TouchableHighlight, Text, ScrollView, TextInput, Modal, LayoutAnimation, InteractionManager} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import type {Patient, PatientInfo, Appointment, Visit, Store} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
@@ -244,7 +245,7 @@ export class FindPatientScreen extends Component {
   }
 
   render() {
-    return <ScrollView keyboardShouldPersistTaps="handled">
+    return <KeyboardAwareScrollView scrollEnable={true}  keyboardShouldPersistTaps="handled">
       <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={()=>this.newPatient()} />
       {this.state.patientInfo && <View style={styles.separator}>
         {this.renderPatientInfo()}
@@ -252,6 +253,6 @@ export class FindPatientScreen extends Component {
         {!this.state.isNewPatient && <VisitHistory patientInfo={this.state.patientInfo} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
           readonly={true} navigation={this.props.navigation} />}
       </View>}
-    </ScrollView>
+    </KeyboardAwareScrollView>
   }
 }

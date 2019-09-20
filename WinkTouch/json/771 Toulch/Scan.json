@@ -17,7 +17,7 @@
           "popup": false,
           "drawable": true,
           "size": "XL",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Chart back scan",
@@ -26,7 +26,7 @@
           "popup": false,
           "drawable": true,
           "size": "XL",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Notes",
@@ -46,7 +46,7 @@
           "popup": false,
           "drawable": true,
           "size": "S",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Notes",
@@ -66,7 +66,7 @@
           "popup": false,
           "drawable": true,
           "size": "L",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "OCT scan",
@@ -75,7 +75,7 @@
           "popup": false,
           "drawable": true,
           "size": "L",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Optomap scan",
@@ -84,7 +84,7 @@
           "popup": false,
           "drawable": true,
           "size": "L",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Fundus scan",
@@ -93,7 +93,7 @@
           "popup": false,
           "drawable": true,
           "size": "L",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Referral scan",
@@ -102,7 +102,7 @@
           "popup": false,
           "drawable": true,
           "size": "XL",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Medication",
@@ -111,7 +111,7 @@
           "popup": false,
           "drawable": true,
           "size": "L",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Other",
@@ -120,7 +120,7 @@
           "popup": false,
           "drawable": true,
           "size": "L",
-          "type": "EHR"
+          "type": "EMR"
         },
         {
           "name": "Notes",

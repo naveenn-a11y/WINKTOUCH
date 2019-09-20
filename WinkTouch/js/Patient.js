@@ -322,10 +322,10 @@ export class PatientScreen extends Component {
 
     render() {
         return <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-            {this.renderIcons()}
             <PatientTitle patientInfo={this.state.patientInfo} />
             <ErrorCard errors={this.state.patientInfo.errors} />
             <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
+            {this.renderIcons()}
         </KeyboardAwareScrollView>
     }
 }
