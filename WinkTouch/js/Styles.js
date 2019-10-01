@@ -277,6 +277,13 @@ export const styles = StyleSheet.create({
         fontSize: 20 * fontScale,
         color: 'white',
     },
+    pickerLinkButton: {
+      color: selectionFontColor,
+      textAlign: 'center',
+      padding: 10 * fontScale,
+      fontSize: 26 * fontScale,
+      fontWeight: 'bold'
+    },
     linkButton: {
        color: selectionFontColor,
        textAlign: 'center',

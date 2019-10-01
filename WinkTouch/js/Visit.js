@@ -4,7 +4,8 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, TouchableHighlight, Text, TouchableOpacity, ListView, LayoutAnimation, Modal, TouchableWithoutFeedback, FlatList } from 'react-native';
+import { View, TouchableHighlight, Text, TouchableOpacity, ListView, LayoutAnimation, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
+import DateTimePicker from "react-native-modal-datetime-picker";
 import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
@@ -72,7 +73,6 @@ export function allExamIds(visit: Visit) : string[] {
 }
 
 export async function fetchVisitHistory(patientId: string) : string[] {
-    __DEV__ && console.log('Fetching history for '+patientId);
     const searchCriteria = {patientId: patientId};
     let restResponse = await searchItems('Visit/list', searchCriteria);
     const customExams : Exam[] = restResponse.customExamList;
@@ -98,7 +98,13 @@ export function getVisitHistory(patientId: string) : ?Visit[] {
 export async function createVisit(visit: Visit) : Visit {
     visit.id = 'visit';
     visit = await storeItem(visit);
-    await fetchVisitHistory(visit.patientId);
+    let visitHistory : ?Visit[] = getCachedItem('visitHistory-'+visit.patientId);
+    if (visitHistory===undefined) {
+      visitHistory=[];
+      cacheItem('visitHistory-'+visit.patientId, visitHistory);
+    }
+    visitHistory.unshift(visit.id);
+    fetchVisitHistory(visit.patientId);
     return visit;
 }
 
@@ -132,20 +138,15 @@ class VisitButton extends PureComponent {
     props: {
         id: string,
         isSelected: ?boolean,
-        onPress: () => void
+        onPress: () => void,
+        onLongPress?: () => void
     }
 
     render() {
-        if (this.props.id==='visit') return <TouchableOpacity onPress={this.props.onPress}>
-           <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
-               <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.today}</Text>
-               <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.notStarted}</Text>
-           </View>
-        </TouchableOpacity>
         const visitOrNote : ?(Visit|PatientDocument) = getCachedItem(this.props.id);
         const date : string = visitOrNote.date?visitOrNote.date:visitOrNote.postedOn;
         const type : string = visitOrNote.typeName?visitOrNote.typeName:visitOrNote.category;
-        return <TouchableOpacity onPress={this.props.onPress}>
+        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatMoment(date)}</Text>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{type}</Text>
@@ -201,7 +202,11 @@ export class StartVisitButtons extends Component {
 
   startVisit(visitType: string) {
     if (this.state.clicked) return;
-    this.setState({clicked: true}, () => this.props.onStartVisit(visitType, this.props.isPreVisit));
+    this.setState({clicked: true}, () => {
+        this.props.onStartVisit(visitType, this.props.isPreVisit);
+        this.setState({clicked:false});
+      }
+    );
   }
 
   render() {
@@ -548,156 +553,6 @@ class VisitWorkFlow extends Component {
     }
 }
 
-export class VisitHistory extends Component {
-    props: {
-        appointment: Appointment,
-        patientInfo: PatientInfo,
-        visitHistory: string[],
-        patientDocumentHistory: string[],
-        navigation: any,
-        appointmentStateKey: string,
-        onAddVisit: (visit: Visit) => void,
-        readonly: ?boolean,
-        showAddVisit: ?boolean,
-        enableScroll: () => void,
-        disableScroll: () => void
-    }
-    state: {
-        selectedId: ?string,
-        history: ?string[]
-    }
-
-    constructor(props: any) {
-        super(props);
-        this.state = {
-          selectedId: undefined,
-          history: this.combineHistory(props.patientDocumentHistory, props.visitHistory)
-        };
-    }
-
-    componentWillReceiveProps(nextProps: any) {
-      if (nextProps.patientInfo.id !== this.props.patientInfo.id) {
-        this.setState({selectedId: undefined, history: this.combineHistory(nextProps.patientDocumentHistory, nextProps.visitHistory)});
-      } else {
-        this.setState({history: this.combineHistory(nextProps.patientDocumentHistory, nextProps.visitHistory)});
-      }
-    }
-
-    showVisit(id: ?string) {
-        this.setState({ selectedId: id });
-    }
-
-    newVisit() : Visit {
-      let newVisit: Visit = {
-          id: 'visit',
-          version: -1,
-          appointmentId: this.props.appointment.id,
-          patientId: this.props.appointment.patientId,
-          userId: this.props.appointment.userId,
-          typeName: '',
-          date: formatDate(now(), jsonDateTimeFormat),
-          duration: 15, //TODO userpreference?
-          location: undefined,
-          preExamIds: [],
-          examIds: [],
-          recall: {},
-          prescription: {},
-          customExamIds: [],
-          preCustomExamIds: []
-      };
-      return newVisit;
-    }
-
-    async startVisit(visitId: ?string, visitType: string, isPrevisit: boolean) {
-      if (this.props.readonly) return;
-      let visit : ?Visit = getCachedItem(visitId);
-      if (!visit || !visit.id) {
-        visit = this.newVisit();
-        visit.typeName = visitType;
-        visit = await createVisit(visit);
-        this.props.onAddVisit(visit);
-      } else {
-        visit.typeName = visitType;
-        visit = await updateVisit(visit);
-      }
-      this.setState({
-        selectedId: visit.id
-      });
-    }
-
-    combineHistory(patientDocumentHistory: ?string[], visitHistory: ?string[]) : string[] {
-        if (!patientDocumentHistory && !visitHistory) {
-          return undefined;
-        }
-        let history: string[] = [];
-        if (!patientDocumentHistory || patientDocumentHistory.length===0) {
-          history = visitHistory;
-        } else if (!visitHistory || visitHistory.length===0) {
-          history = patientDocumentHistory;
-        } else {
-          let visitIndex: number = 0;
-          let patientDocumentIndex: number = 0;
-          while (visitIndex<visitHistory.length || patientDocumentIndex<patientDocumentHistory.length) {
-            let visit : ?Visit = visitIndex<visitHistory.length?getCachedItem(visitHistory[visitIndex]):undefined;
-            let patientDocument : ?PatientDocument = patientDocumentIndex<patientDocumentHistory.length?getCachedItem(patientDocumentHistory[patientDocumentIndex]):undefined;
-            if (!visit) {
-              history.push(patientDocument.id);
-              patientDocumentIndex++;
-            } else if (!patientDocument) {
-              history.push(visit.id);
-              visitIndex++;
-            } else {
-              let visitDate : ?string = visit.date;
-              let patientDocumentDate : ?string = patientDocument.postedOn;
-              if (compareDates(visitDate, patientDocumentDate)>=0) {
-                history.push(visit.id);
-                visitIndex++;
-              } else {
-                history.push(patientDocument.id);
-                patientDocumentIndex++;
-              }
-            }
-          }
-        }
-        return history;
-    }
-
-    render() {
-        if (!this.state.history) return null;
-        return <View>
-            <View style={styles.tabHeader}>
-              <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
-              {this.props.showAddVisit && <VisitButton key={'visit'} isSelected={this.state.selectedId==='visit'} id={'visit'} onPress={() => this.showVisit('visit')} />}
-              <FlatList
-                horizontal={true}
-                extraData={this.state.selectedId}
-                data={this.state.history}
-                keyExtractor={(visitId: string, index :number) => index.toString()}
-                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item} onPress={() => this.showVisit(data.item)}
-                keyboardShouldPersistTaps="handled"
-                />}
-              />
-            </View>
-            {this.state.selectedId===undefined && <View style={styles.topFlow}>
-              <PatientRefractionCard patientInfo={this.props.patientInfo} />
-              <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
-              <VisitHistoryCard patientInfo={this.props.patientInfo} />
-            </View>
-            }
-            {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientId={this.props.patientInfo.id}
-                visitId={this.state.selectedId}
-                navigation={this.props.navigation}
-                appointmentStateKey={this.props.appointmentStateKey}
-                onStartVisit={(visitType: string, isPreVisit: boolean) => {this.startVisit(this.state.selectedId, visitType, isPreVisit)}}
-                readonly={this.props.readonly}
-                enableScroll={this.props.enableScroll}
-                disableScroll={this.props.disableScroll}
-              />}
-            {this.state.selectedId && this.state.selectedId.startsWith('patientDocument') && <PatientDocumentPage id={this.state.selectedId}/>}
-        </View>
-    }
-}
-
 export class VisitHistoryCard extends Component {
   props: {
     patientInfo: PatientInfo,
@@ -742,4 +597,235 @@ export class VisitHistoryCard extends Component {
       )}
     </View>
   }
+}
+
+export class VisitHistory extends Component {
+    props: {
+        appointment: Appointment,
+        patientInfo: PatientInfo,
+        visitHistory: string[],
+        patientDocumentHistory: string[],
+        navigation: any,
+        appointmentStateKey: string,
+        onRefresh: () => void,
+        readonly: ?boolean,
+        enableScroll: () => void,
+        disableScroll: () => void
+    }
+    state: {
+        selectedId: ?string,
+        history: ?string[],
+        showingDatePicker: boolean
+    }
+
+    constructor(props: any) {
+        super(props);
+        this.state = {
+          selectedId: undefined,
+          history: this.combineHistory(props.patientDocumentHistory, props.visitHistory),
+          showingDatePicker: false
+        };
+    }
+
+    componentWillReceiveProps(nextProps: any) {
+      if (nextProps.patientInfo.id !== this.props.patientInfo.id) {
+        this.setState({selectedId: undefined, history: this.combineHistory(nextProps.patientDocumentHistory, nextProps.visitHistory), showingDatePicker: false});
+      } else {
+        this.setState({history: this.combineHistory(nextProps.patientDocumentHistory, nextProps.visitHistory)});
+      }
+    }
+
+    showVisit(id: ?string) {
+      this.setState({ selectedId: id });
+    }
+
+    async deleteVisit(visitId: ?string) {
+      if (!visitId.startsWith('visit-')) return; //TODO: We don't support deleting notes yet
+      const visit : Visit = getCachedItem(visitId);
+      Alert.alert(
+        strings.deleteVisitTitle,
+        strings.formatString(strings.deleteVisitQuestion, visit.typeName.toLowerCase(), formatMoment(visit.date)),
+        [
+          {
+            text: strings.cancel,
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',            
+          },
+          {text: strings.confirm, onPress: () => console.log('OK Pressed')},
+        ],
+        {cancelable: false},
+      );
+    }
+
+    isNewAppointment() : boolean {
+      const appointment : Appointment = this.props.appointment;
+      const visitHistory : string[] = this.props.visitHistory;
+      if (appointment===undefined) return false;
+      if (appointment.id === undefined) return true;
+      if (!visitHistory) return false;
+      let appointmentsVisitId :?Visit = visitHistory.find((visitId: string) => {
+        const visit : ?Visit = getCachedItem(visitId);
+        return visit && (visit.appointmentId === appointment.id);
+      });
+      return appointmentsVisitId===undefined;
+    }
+
+    newVisit(date: Date, appointmentId : string, patientId: string, userId: string) : Visit {
+      let newVisit: Visit = {
+          id: 'visit',
+          version: -1,
+          appointmentId: appointmentId,
+          patientId: patientId,
+          userId: userId,
+          typeName: '',
+          date: formatDate(date, jsonDateTimeFormat),
+          duration: 15, //TODO userpreference?
+          location: undefined,
+          preExamIds: [],
+          examIds: [],
+          recall: {},
+          prescription: {},
+          customExamIds: [],
+          preCustomExamIds: []
+      };
+      return newVisit;
+    }
+
+    async startVisit(visitId: string, visitType: string) {
+      if (this.props.readonly) return;
+      let visit = getCachedItem(visitId);
+      visit.typeName = visitType;
+      visit = await updateVisit(visit);
+      this.props.onRefresh();
+      this.setState({
+        selectedId: visit.id
+      });
+    }
+
+    async startAppointment() {
+      if (this.props.readonly) return;
+      const appointmentId : string = this.props.appointment.id;
+      const patientId: string = this.props.patientInfo.id;
+      const userId: string = getDoctor().id;
+      const date: Date = now();
+      let visit = this.newVisit(date, appointmentId, patientId, userId);
+      visit = await createVisit(visit);
+      this.props.onRefresh();
+      this.setState({
+        selectedId: visit.id
+      });
+    }
+
+    async addVisit(date: Date) {
+      if (this.props.readonly) return;
+      const appointmentId : string = null;
+      const patientId: string = this.props.patientInfo.id;
+      const userId: string = getDoctor().id;
+      let visit = this.newVisit(date, appointmentId, patientId, userId);
+      visit = await createVisit(visit);
+      this.props.onRefresh();
+      this.setState({
+        selectedId: visit.id
+      });
+    }
+
+    combineHistory(patientDocumentHistory: ?string[], visitHistory: ?string[]) : string[] {
+        if (!patientDocumentHistory && !visitHistory) {
+          return undefined;
+        }
+        let history: string[] = [];
+        if (!patientDocumentHistory || patientDocumentHistory.length===0) {
+          history = visitHistory;
+        } else if (!visitHistory || visitHistory.length===0) {
+          history = patientDocumentHistory;
+        } else {
+          let visitIndex: number = 0;
+          let patientDocumentIndex: number = 0;
+          while (visitIndex<visitHistory.length || patientDocumentIndex<patientDocumentHistory.length) {
+            let visit : ?Visit = visitIndex<visitHistory.length?getCachedItem(visitHistory[visitIndex]):undefined;
+            let patientDocument : ?PatientDocument = patientDocumentIndex<patientDocumentHistory.length?getCachedItem(patientDocumentHistory[patientDocumentIndex]):undefined;
+            if (!visit) {
+              history.push(patientDocument.id);
+              patientDocumentIndex++;
+            } else if (!patientDocument) {
+              history.push(visit.id);
+              visitIndex++;
+            } else {
+              let visitDate : ?string = visit.date;
+              let patientDocumentDate : ?string = patientDocument.postedOn;
+              if (compareDates(visitDate, patientDocumentDate)>=0) {
+                history.push(visit.id);
+                visitIndex++;
+              } else {
+                history.push(patientDocument.id);
+                patientDocumentIndex++;
+              }
+            }
+          }
+        }
+        return history;
+    }
+
+    showDatePicker = () => {
+      this.setState({showingDatePicker: true});
+    }
+
+    hideDatePicker = () => {
+      this.setState({showingDatePicker: false});
+    }
+
+    selectDate = (date : Date) => {
+      this.setState({showingDatePicker: false}, () => this.addVisit(date));
+    }
+
+    renderSummary() {
+      let isNewAppointment : boolean = this.isNewAppointment();
+      return <View style={styles.topFlow}>
+        <PatientRefractionCard patientInfo={this.props.patientInfo} />
+        <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
+        <VisitHistoryCard patientInfo={this.props.patientInfo} />
+        {!this.props.readonly && <View style={styles.startVisitCard}>
+            <View style={styles.flow}>
+                {isNewAppointment && <Button title={strings.startAppointment} onPress={() => this.startAppointment()} />}
+                {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
+                {__DEV__ && <Button title={strings.printRx} />}
+                {__DEV__ && <Button title='Book appointment' />}
+                {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker isVisible={this.state.showingDatePicker} hideTitleContainerIOS={true}
+                  onConfirm={this.selectDate} onCancel={this.hideDatePicker} confirmTextIOS={strings.confirm} confirmTextStyle={styles.pickerLinkButton} cancelTextIOS={strings.cancel} cancelTextStyle={styles.pickerLinkButton}
+        />}
+            </View>
+        </View>}
+
+      </View>
+    }
+
+    render() {
+        if (!this.state.history) return null;
+        return <View>
+            <View style={styles.tabHeader}>
+              <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
+              <FlatList
+                horizontal={true}
+                extraData={this.state.selectedId}
+                data={this.state.history}
+                keyExtractor={(visitId: string, index :number) => index.toString()}
+                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item}
+                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.deleteVisit(data.item)}
+                />}
+              />
+            </View>
+            {this.state.selectedId===undefined && this.renderSummary()}
+
+            {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientId={this.props.patientInfo.id}
+                visitId={this.state.selectedId}
+                navigation={this.props.navigation}
+                appointmentStateKey={this.props.appointmentStateKey}
+                onStartVisit={(visitType: string, isPreVisit: boolean) => {this.startVisit(this.state.selectedId, visitType)}}
+                readonly={this.props.readonly}
+                enableScroll={this.props.enableScroll}
+                disableScroll={this.props.disableScroll}
+              />}
+            {this.state.selectedId && this.state.selectedId.startsWith('patientDocument') && <PatientDocumentPage id={this.state.selectedId}/>}
+        </View>
+    }
 }

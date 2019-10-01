@@ -20,10 +20,6 @@ class MainActivities extends Component {
       onLogout: () => void
   }
 
-  startWalkinVisit = () => {
-    this.props.navigation.navigate('walkin', {nextNavigation: {action: 'appointment', showAppointments: true}});
-  }
-
   openPatientFile = (visitType: string, isPrevisit: boolean) => {
     this.props.navigation.navigate('cabinet');
   }
@@ -33,7 +29,6 @@ class MainActivities extends Component {
     return <View style={styles.startVisitCard}>
         <View style={styles.flow}>
             <Button title={strings.openFile} onPress={this.openPatientFile} />
-            <Button title={strings.walkIn} onPress={this.startWalkinVisit} />
             <Button title={strings.logout} onPress={this.props.onLogout} />
         </View>
     </View>

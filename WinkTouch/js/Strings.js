@@ -39,10 +39,11 @@ export const strings = new LocalizedStrings({
       template: 'Template',
       templates: 'Templates',
       settings: 'Settings',
-      walkIn: 'Walk-in',
       openFile: 'Patient file',
+      startAppointment: 'Start visit',
+      addVisit: 'Add consultation',
+      createPatient: 'Create patient',
       logout: 'Logout',
-      bookNewAppointment: 'Book new appointment',
       newPatient: 'New patient',
       preExams:'Pre test',
       exams: 'Exams',
@@ -69,8 +70,6 @@ export const strings = new LocalizedStrings({
       large: 'Large',
       extraLarge: 'Extra large',
       duplicate: 'Duplicate',
-      startNewVisit: 'Start new consultation',
-      existingAppointmentWarning: 'Select the existing appointment for the patient to start the consultation, or create a new consultation.',
       serverError: 'Something went wrong on the server. Please try again.',
       pending: 'Pending',
       confirmed: 'Confirmed',
@@ -146,7 +145,12 @@ export const strings = new LocalizedStrings({
       scanEmailTitle: 'Patient file {0}',
       scanEmailBody: '<p>Please find attached the {0} for patient {1}.</p>'+
         '<p>Have a nice day</p><p>{2}</p>',
-      emailAppUnavailableError:'Please configure the iPad email app.'
+      emailAppUnavailableError:'Please configure the iPad email app.',
+      updateAppStore:'Please update the WINKemr app in the apple appstore.',
+      cancel: 'Cancel',
+      confirm: 'Confirm',
+      deleteVisitTitle: 'Delete consultation',
+      deleteVisitQuestion: 'Are you sure you want to permanently delete the {0} of {1} ?',
     },
     fr: {
       enterRegisteredEmail: 'Veuillez mettre votre adresse e-mail pour vous connecter à vrote base de donées WINK\n ou commencer un essai gratuit',
@@ -178,13 +182,13 @@ export const strings = new LocalizedStrings({
       template: 'Modèle',
       templates: 'Modèles',
       settings: 'Paramètres',
-      walkIn: 'Sans rendez-vous',
       openFile: 'Dossier patient',
+      startAppointment: 'Commence ',
+      addVisit: 'Ajoute consultation',
+      createPatient: 'Ajoute patient',
       logout: 'Déconnect',
-      startNewVisit: 'Commence une nouvelle consultation',
       preExams:'Prétests',
       exams:'Examens',
-      existingAppointmentWarning: 'Commencez le rendez-vous existant ou créez une nouvelle consultation.',
       serverError: 'Une erreur s\'est produite sur le serveur. Veuillez réessayer.',
       pending: 'En attente',
       confirmed: 'confirmé',
@@ -260,8 +264,13 @@ export const strings = new LocalizedStrings({
       scanEmailTitle: 'Dossier patient {0}',
       scanEmailBody: '<p>Veuillez trouvez le {0} pour patient {1}.</p>'+
         '<p>Cordialement</p><p>{2}</p>',
-      emailAppUnavailableError:'Veuillez configure l\'application courriel sur la tablet svp.'
-    },
+      emailAppUnavailableError:'Veuillez configure l\'application courriel sur la tablet svp.',
+      updateAppStore:'Please update the WINKemr app in the apple appstore.',
+      cancel: 'Annuler',
+      confirm: 'Confirmer',
+      deleteVisitTitle: 'Supprimer une consultation',
+      deleteVisitQuestion: 'Est-ce que vous êtes sure de vouloir supprimer {0} du {1} de façon permanente ?'
+    }
 });
 
 //console.log('Interface language is: '+strings.getInterfaceLanguage());

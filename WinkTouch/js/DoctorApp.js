@@ -43,7 +43,6 @@ function setStore(selectedStore: Store) : void {
 const DoctorNavigator = createStackNavigator({
     overview: {screen: OverviewScreen},
     agenda: {screen: AgendaScreen},
-    walkin: {screen: FindPatientScreen},
     findPatient: {screen: FindPatientScreen},
     appointment: {screen: AppointmentScreen},
     exam: {screen: ExamScreen},
@@ -61,7 +60,7 @@ const DoctorNavigator = createStackNavigator({
 const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
-const replaceRoutes: string[] = ['agenda','findPatient','walkin','templates','examHistory','examGraph'];
+const replaceRoutes: string[] = ['agenda','findPatient','templates','examHistory','examGraph'];
 
 DoctorNavigator.router.getStateForAction = (action, state) => {
   if (state && action.type === NavigationActions.NAVIGATE) {

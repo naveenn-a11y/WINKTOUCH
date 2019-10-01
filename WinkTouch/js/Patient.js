@@ -4,7 +4,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Image, View, TouchableHighlight, Text, Button, TouchableOpacity, LayoutAnimation, ScrollView} from 'react-native';
+import { Image, View, TouchableHighlight, Text, TouchableOpacity, LayoutAnimation, ScrollView} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationActions } from 'react-navigation';
 import type {Patient, PatientInfo, FieldDefinition, CodeDefinition, PatientTag, RestResponse, PatientDocument, Upload } from './Types';
@@ -18,13 +18,15 @@ import { getFieldDefinitions, getFieldDefinition } from './Items';
 import { deepClone, formatAge } from './Util';
 import { formatOption, formatCode } from './Codes';
 import { PatientMedicationCard} from './Medication';
-import { getDoctor } from './DoctorApp';
+import { getDoctor, getStore } from './DoctorApp';
 import { Refresh } from './Favorites';
 import { PatientRefractionCard } from './Refraction';
 import { Pdf } from './Document';
 import { fetchUpload, getMimeType } from './Upload';
 import { VisitHistoryCard } from './Visit';
 import { FindPatient } from './FindPatient';
+import { Button } from './Widgets';
+import { fetchAppointments, AppointmentSummary } from './Appointment';
 
 export async function fetchPatientInfo(patientId: string, ignoreCache?: boolean = false) : PatientInfo {
   let patientInfo : PatientInfo = await fetchItemById(patientId, ignoreCache);
@@ -336,6 +338,7 @@ export class CabinetScreen extends Component {
     }
     state: {
       patientInfo: ?PatientInfo,
+      appointments: ?Appointment[]
     }
 
     constructor(props: any) {
@@ -343,6 +346,7 @@ export class CabinetScreen extends Component {
       this.params = this.props.navigation.state.params;
       this.state = {
         patientInfo: undefined,
+        appointments: undefined
       }
     }
 
@@ -350,24 +354,74 @@ export class CabinetScreen extends Component {
       if (!patient) {
         if (!this.state.patientInfo) return;
         LayoutAnimation.easeInEaseOut();
-        this.setState({patientInfo: undefined});
+        this.setState({patientInfo: undefined, appointments: undefined});
         return;
       }
       let patientInfo : ?PatientInfo = getCachedItem(patient.id);
       LayoutAnimation.easeInEaseOut();
-      this.setState({patientInfo});
+      this.setState({patientInfo, appointments: undefined});
       patientInfo = await fetchPatientInfo(patient.id);
       if (this.state.patientInfo===undefined || patient.id!==this.state.patientInfo.id)
         return;
       this.setState({patientInfo});
+      let appointments : ?Appointment[] = await fetchAppointments(undefined, undefined, 1, patientInfo.id);
+      if (this.state.patientInfo===undefined || patient.id!==this.state.patientInfo.id)
+        return;
+      LayoutAnimation.easeInEaseOut();
+      this.setState({appointments});
+    }
+
+    newPatient = () => {
+      const store : Store = getStore();
+      const newPatient : PatientInfo = {firstName:undefined, lastName:undefined, cell: undefined, id: 'patient', countryId:store.country, province: store.pr, gender: 0};
+      this.setState({patientInfo: newPatient});
+    }
+
+    updatePatientInfo = (patientInfo: PatientInfo) : void => {
+      this.setState({patientInfo});
+    }
+
+    async createPatient() {
+      let patientInfo : PatientInfo = this.state.patientInfo;
+      patientInfo = await storePatientInfo(this.state.patientInfo);
+      if (patientInfo.errors) {
+          this.setState({patientInfo});
+          return;
+      }
+      const appointment : Appointment = {id: undefined, patientId: patientInfo.id};
+      this.props.navigation.navigate("appointment", {appointment});
+    }
+
+    renderAppointments() {
+      if (!this.state.appointments || this.state.appointments.length===0)
+        return null;
+      return <View style={styles.centeredColumnLayout}>
+        <View style={styles.topFlow}>
+          {this.state.appointments.map((appointment: Appointment, index: number) =>
+            <AppointmentSummary key={index} appointment={appointment} onPress={() => this.props.navigation.navigate("appointment", {appointment})}/>
+          )}
+        </View>
+      </View>
+    }
+
+    renderPatientInfo() {
+      if (!this.state.patientInfo) return;
+      if (this.state.patientInfo.id==='patient') {
+        return <View style={styles.separator}>
+          <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
+          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} /></View>
+        </View>
+      }
+      return <View style={styles.separator}>
+        <PatientCard patientInfo={this.state.patientInfo} navigate='appointment' navigation={this.props.navigation} style={styles.tabCardS}/>
+        {this.renderAppointments()}
+      </View>
     }
 
     render() {
-        return <ScrollView keyboardShouldPersistTaps="handled">
-          <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} />
-          {this.state.patientInfo && <View style={styles.separator}>
-            <PatientCard patientInfo={this.state.patientInfo} navigate='appointment' navigation={this.props.navigation} style={styles.tabCardS}/>
-          </View>}
-        </ScrollView>
+        return <KeyboardAwareScrollView scrollEnable={true}  keyboardShouldPersistTaps="handled">
+          <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={this.newPatient} />
+          {this.renderPatientInfo()}
+        </KeyboardAwareScrollView>
     }
   }

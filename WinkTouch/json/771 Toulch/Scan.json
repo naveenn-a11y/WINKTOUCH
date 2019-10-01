@@ -96,6 +96,15 @@
           "type": "EMR"
         },
         {
+          "name": "SAAQ",
+          "image": "upload",
+          "label": "Medication",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
           "name": "Referral scan",
           "image": "upload",
           "label": "Referral",

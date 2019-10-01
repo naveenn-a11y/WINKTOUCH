@@ -44,20 +44,6 @@ export async function fetchAppointments(storeId: ?string, doctorId: ?string, max
     return appointments;
 }
 
-export async function rescheduleAppointment(appointment : Appointment) {
-  let appointmentId : number = stripDataType(appointment.id);
-  const parameters = {
-    status: 2,
-    cancelReason: 2,
-    cancelledComment: 'Walk in',
-    idPatient: stripDataType(appointment.patientId),
-    duration: 15 //TODO
-  };
-  appointment = await putRest('webresources/appointments/ehr/'+appointmentId, parameters);
-  cacheItemById(appointment);
-  return appointment;
-}
-
 class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,
@@ -396,7 +382,6 @@ export class AppointmentScreen extends Component {
         patientInfo: PatientInfo,
         visitHistory: string[],
         patientDocumentHistory: string[],
-        showAddVisit: boolean,
         scrollEnabled: boolean,
     }
     unmounted: boolean;
@@ -412,12 +397,8 @@ export class AppointmentScreen extends Component {
           patientInfo: getCachedItem(patientId),
           visitHistory: getCachedItem('visitHistory-'+patientId),
           patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId),
-          showAddVisit: this.isNewVisit(appointment),
           scrollEnabled: true
         }
-    }
-
-    componentWillMount() {
     }
 
     componentDidMount() {
@@ -434,36 +415,17 @@ export class AppointmentScreen extends Component {
         this.props.navigation.setParams({refresh: false});
         const appointment: ?Appointment = (this.params.appointment&&this.params.appointment.id!=undefined)?getCachedItem(this.params.appointment.id):this.params.appointment;
         const patientId : string = appointment?appointment.patientId:this.params.patientInfo.id;
-        const visitHistory: ?string[] = getCachedItem('visitHistory-'+patientId);
         this.setState({
-          visitHistory,
           patientInfo: getCachedItem(patientId),
+          visitHistory: getCachedItem('visitHistory-'+patientId),
           patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId)
         });
         this.forceUpdate();
       }
     }
 
-    isNewVisit(appointment: ?Appointment, visitHistory: ?string[]) : boolean {
-      if (appointment===undefined) return false;
-      if (appointment.id === undefined) return true;
-      if (!visitHistory) return false;
-      let appointmentsVisitId :?Visit = visitHistory.find((visitId: string) => {
-        const visit : ?Visit = getCachedItem(visitId);
-        return visit && (visit.appointmentId === appointment.id);
-      });
-      return appointmentsVisitId===undefined;
-    }
-
     getPatientId() : string {
       return this.params.appointment?this.params.appointment.patientId:this.params.patientInfo.id;
-    }
-
-    startedVisit = (visit: Visit) => {
-      this.setState({
-        visitHistory: getCachedItem('visitHistory-'+this.getPatientId()),
-        showAddVisit: false
-      });
     }
 
     updateAppointment = (appointment: Appointment) => {
@@ -485,6 +447,24 @@ export class AppointmentScreen extends Component {
       }
     }
 
+    async refreshVisitHistory() {
+      const visitHistory : string[] = await fetchVisitHistory(this.getPatientId());
+      this.setState({
+        visitHistory,
+        patientDocumentHistory: getCachedItem('patientDocumentHistory-'+this.getPatientId())
+      });
+    }
+
+    refreshFromCache = () => {
+      const patientId = this.state.patientInfo.id;
+      this.setState({
+        patientInfo: getCachedItem(patientId),
+        visitHistory: getCachedItem('visitHistory-'+patientId),
+        patientDocumentHistory: getCachedItem('patientDocumentHistory-'+patientId)
+      });
+    }
+
+
     async refreshAppointment() {
       if (this.params.appointment===undefined || this.params.appointment.id===undefined) return;
       let appointment = await fetchAppointment(this.params.appointment.id);
@@ -496,15 +476,6 @@ export class AppointmentScreen extends Component {
       const patientInfo : PatientInfo = await fetchPatientInfo(this.getPatientId());
       if (patientInfo.version!==this.state.patientInfo.version)
         this.setState({patientInfo});
-    }
-
-    async refreshVisitHistory() {
-      const visitHistory : string[] = await fetchVisitHistory(this.getPatientId());
-      this.setState({
-        visitHistory,
-        patientDocumentHistory: getCachedItem('patientDocumentHistory-'+this.getPatientId()),
-        showAddVisit: this.isNewVisit(this.state.appointment, visitHistory)
-      });
     }
 
     componentWillUnmount() {
@@ -526,7 +497,7 @@ export class AppointmentScreen extends Component {
             {this.state.appointment && <AppointmentTitle appointment={this.state.appointment} />}
             <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} refreshStateKey={this.props.navigation.state.key}/>
             <VisitHistory patientInfo={this.state.patientInfo} appointment={this.params.appointment} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
-              showAddVisit={this.state.showAddVisit} navigation={this.props.navigation} onAddVisit={this.startedVisit} appointmentStateKey={this.props.navigation.state.key}
+              navigation={this.props.navigation} onRefresh={this.refreshFromCache} appointmentStateKey={this.props.navigation.state.key}
               enableScroll={this.enableScroll} disableScroll={this.disableScroll} />
         </KeyboardAwareScrollView>
     }

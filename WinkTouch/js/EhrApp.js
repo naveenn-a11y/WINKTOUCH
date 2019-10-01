@@ -9,7 +9,7 @@ import type { Registration , Store, User} from './Types';
 import { LoginScreen } from './LoginScreen';
 import { DoctorApp } from './DoctorApp';
 import { RegisterScreen } from './Registration';
-import { setDeploymentVersion } from './Version';
+import { setDeploymentVersion, checkBinaryVersion } from './Version';
 import { getVisitTypes, fetchVisitTypes } from './Visit';
 import { fetchUserDefinedCodes } from './Codes';
 
@@ -54,8 +54,10 @@ let lastUpdateCheck : ?Date = undefined;
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
     console.log("Checking and updating bundle (not on dev).");
+    checkBinaryVersion();
     return;
   }
+  checkBinaryVersion();
   if (lastUpdateCheck!==undefined && ((new Date()).getTime()-lastUpdateCheck.getTime())<5*60000) return; //Prevent hammering code-push servers
   if (registration===undefined || registration===null || registration.bundle===undefined) return;
   __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
