@@ -1,0 +1,66 @@
+{
+  "name": "Color vision",
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Entrance testing.4",
+  "fields": [
+    {
+      "name": "Color vision",
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Test",
+          "freestyle": true,
+          "options": "colorVisionTestCodes"
+        },
+        {
+          "name": "OU",
+          "freestyle": true,
+          "options": "colorVisionDiagnoseCodes"
+        },
+        {
+          "name": "OD",
+          "freestyle": true,
+          "options": "colorVisionDiagnoseCodes"
+        },
+        {
+          "name": "OS",
+          "freestyle": true,
+          "options": "colorVisionDiagnoseCodes"
+        },
+        {
+          "normalValue": "No",
+          "name": "Aquired",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D 15",
+      "fields": [
+        {
+          "name": "D15 Drawing",
+          "image": "./image/d15.jpg",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "Notes",
+      "optional": true,
+      "size": "L",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "label": "",
+          "freestyle": true
+        }
+      ]
+    }
+  ]
+}

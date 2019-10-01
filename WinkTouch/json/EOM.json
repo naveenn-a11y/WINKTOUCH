@@ -1,0 +1,74 @@
+{
+  "name": "EOM",
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Entrance testing.15",
+  "fields": [
+    {
+      "name": "Extra Ocular Motilities",
+      "size": "M",
+      "fields": [
+        {
+          "name": "OD",
+          "freestyle": true,
+          "options": "extraOcularMotilityCodes"
+        },
+        {
+          "name": "OS",
+          "freestyle": true,
+          "options": "extraOcularMotilityCodes"
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes"
+        }
+      ]
+    },
+    {
+      "name": "NPC",
+      "size": "S",
+      "fields": [
+        {
+          "minValue": 0,
+          "name": "Break",
+          "Options": [
+            "Nose"
+          ],
+          "suffix": " cm",
+          "freestyle": true,
+          "maxValue": 50
+        },
+        {
+          "minValue": 0,
+          "name": "Recovery",
+          "Options": [
+            "Nose"
+          ],
+          "suffix": " cm",
+          "freestyle": true,
+          "maxValue": 50
+        },
+        {
+          "normalValue": "No",
+          "name": "With effort",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Broad H test",
+      "fields": [
+        {
+          "name": "image",
+          "image": "./image/H.png",
+          "label": ""
+        }
+      ],
+      "size": "M"
+    }
+  ]
+}

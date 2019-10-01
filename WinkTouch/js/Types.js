@@ -3,202 +3,330 @@
  */
 'use strict';
 
-  export type Doctor = {
+export type RestResponse = {
+  patient?: PatientInfo,
+  exam?: Exam,
+  errors?: string[],
+  hasValidationError?: boolean,
+  hasConcurrencyConflict?: boolean
+}
+
+export type Registration = {
+  email: string,
+  bundle: string,
+  path: string
+}
+
+export type Store = {
+  storeId: number, //TODO Chris
+  name: string,
+  city: string,
+  country: number,
+  pr: string
+}
+
+export type Account = {
+  id: number,
+  name: string,
+  email: string,
+  stores: Store[],
+  isDemo: boolean
+}
+
+export type User = {
+  id: string,
+  firstName: string,
+  lastName: string
+}
+
+export type Patient = {
+    id: string,
     firstName: string,
-    lastName: string
-  }
+    lastName: string,
+    phone: ?string,
+    cell: ?string,
+    patientTags: string[]
+}
 
-  export type RestResponse = {
-      response: any
-  }
+export type PatientInfo = {
+    id: string,
+    version: number,
+    errors?: string[],
+    firstName: string,
+    lastName: string,
+    dateOfBirth: string,
+    gender: number,
+    phone: ?string,
+    cell: ?string,
+    streetName: string,
+    countryId: number,
+    medicalCard: string,
+    medicalcardExp: string,
+    postalCode: string,
+    email: string,
+    province: string,
+    country: string,
+    gender: number,
+    streetNumber: string,
+    patientTags: string[],
+    patientDrugs: string[] //TODO wais rename patientDrugIds
+}
 
-  export type ItemDefinition = {
-    [propertyName: string]: {
-      label: string,
-      options?: string[],
-      normalValue?: string,
-      required?: boolean,
-      multiValue?: boolean,
-      minValue?: number,
-      maxValue?: number,
-      stepSize?: number,
-      validation?: string
-    }
-  }
+export type PatientDrug = {
+  id: string,
+  patientId: string,
+  userId: string, //TODO Wais rename prescriberId
+  visitId: string,
+  datePrescribed: string,
+  dose: number,
+  doseUnit: number,
+  repeat: number,
+  duration: string,
+  note: string,
+}
 
-  export type Patient = {
-      patientId: number,
-      accountsId: string,
-      firstName: string,
-      lastName: string,
-  }
+export type PatientTag = {
+  id: string,
+  letter: string,
+  color: string,
+  name: string,
+  version: number
+}
 
-  export type PatientInfo = {
-      patientId: number,
-      accountsId: string,
-      firstName: string,
-      lastName: string,
-      dateOfBirth: Date,
-      phone: string,
-      cell: string,
-      streetName: string,
-      city: string,
-      countryId: number,
-      medicalCard: string,
-      medicalcardExp: string,
-      postalCode: string,
-      email: string,
-      province: string,
-      gender: number,
-      streetNumber: string
-  }
+export type AppointmentType = {
+  id: string,
+  color: string,
+  name: string,
+  version: number
+}
 
-  export type Appointment = {
-      patientId?: string,
-      doctorId?: string,
-      type: string,
-      scheduledStart: Date,
-      scheduledEnd: Date,
-      bookingStatus: string,
-      location: string,
-      patientPresence: string
-  }
+export type Appointment = {
+  id: string,
+  version: number,
+  patientId: string,
+  userId: string,
+  title: string,
+  start: string,
+  end: string,
+  status: number,
+  appointmentTypes?: string[],
+  indicators?: string[]
+}
 
-  export type GlassRx = {
-      sphere: number,
-      cylinder?: number,
-      axis?: number,
-      base?: string,
-      prism?: number,
-      add?: number
-  }
+export type Prism = {
+  prism1?: number,
+  prism1b?: number,
+  prism2?: number,
+  prism2b?: number
+}
 
-  export type Assessment = {
-    prescription: GlassesRx
-  }
+export type GlassRx = {
+    sph?: string,
+    cyl?: number,
+    axis?: number,
+    prism1?: number,
+    prism1b?: number,
+    prism2?: number,
+    prism2b?: number,
+    add?: number,
+    va?: string,
+    addVA?: string
+}
 
-  export type Visit = {
-      appointmentId?: string,
-      patientId: string,
-      doctorId?: string,
-      type: string,
-      start: Date,
-      end?: Date,
-      location?: string,
-      preExamIds: string[],
-      examIds: string[],
-      assessment: Assessment
-  }
+export type GlassesRx = {
+    od: GlassRx,
+    os: GlassRx,
+    expiry?: string,
+    prescriptionDate?: string,
+    signedDate?: string,
+    vaFar?: string,
+    vaNear?: string,
+    lensType?: string,
+    notes?: string
+}
 
-  export type GlassesRx = {
-      od: GlassRx,
-      os: GlassRx
-  }
+export type Recall = {
+  amount: number,
+  unit: string,
+  notes: string
+}
 
-  export type Exam = {
-      type: string,
-      hasStarted: boolean,
-      hasEnded: boolean,
-      wearingRx?: WearingRx,
-      medications?: Medication[],
-      allergies?: Allergy[],
-      medicalProcedures?: MedicalProcedure[],
-      relationDiseases?: RelationDisease[],
-      socialHistory?: SocialHistory,
-      complaints?: Complaint[],
-      refractionTest?: RefractionTest
-  }
+export type ImageDrawing = {
+  lines: string[],
+  image?: string //"upload-123" | "./image/amsler.png" | "http://anywhere.com/image.png"
+}
 
-  export type WearingRx = {
-      previousRx: GlassesRx,
-      wearingRx: GlassesRx
-  }
+export type Visit = {
+    id: string,
+    version: number,
+    appointmentId?: string,
+    patientId: string,
+    userId?: string,
+    preCustomExamIds: string[],
+    customExamIds: string[],
+    date: string,
+    duration: number,
+    locked: boolean,
+    typeName: string,
+    location?: string,
+    prescription: GlassesRx,
+    recall: Recall,
+    purchase: {add: number, comment: string, purchaseReasonId: string}[]
+}
 
-  export type RefractionTest = {
-      phoropter: GlassesRx,
-      autoRefractor: GlassesRx,
-      retinoscope: GlassesRx,
-      cyclopegic: GlassesRx,
-      finalRx: GlassesRx
-  }
+export type CodeDefinition = {
+  code: string|number,
+  description?: string,
+  key?: string //this is a reference to the Strings.js constants
+}|string
 
-  export type SlitLampFindings = {
-    label: string,
-    conjunctiva: string,
-    cornea: string,
-    eyelids: string,
-    iris: string,
-    lens: string,
-    sclera: string
-  }
+export type FieldLayout = {
+  top: number,
+  left: number,
+  width: number,
+  height: number,
+}
 
-  export type Medication = {
-    label: string,
-    rxDate: Date,
-    strength: string,
-    dosage: string,
-    route: string,
-    frequency: string,
-    duration: string,
-    instructions: string[]
-  }
+export type GraphDefinition = {
+    fields: string[]
+}
 
-  export type Allergy = {
-      allergy: string,
-      reaction: string[],
-      status: string
-  }
+export type FieldDefinition = {
+  name: string,
+  label?: string,
+  multiValue?: boolean, //Can contain more then 1 value
+  options?: CodeDefinition[][]|CodeDefinition[]|string,
+  autoSelect?: boolean, //Overwrite user selection when filtered options change
+  popularOptions?: CodeDefinition[],
+  filter?: {},
+  defaultValue?: boolean|string|number,
+  normalValue?: string,
+  freestyle?: boolean, //Allow keyboard input when there are fe options, stepsize, date type
+  required?: boolean,
+  requiredError?: string,
+  readonly?: boolean,
+  minValue?: number,
+  maxValue?: number,
+  stepSize?: number,
+  groupSize?: number,
+  decimals?: number,
+  minLength?: number,
+  minLengthError?: string,
+  maxLength?: number,
+  maxLengthError?: string,
+  prefix?: string|string[],
+  suffix?: string,
+  validation?: string,
+  mappedField?: string,
+  layout?: FieldLayout,
+  size?: string,
+  resolution?: string,
+  type?: 'email-address'|'numeric'|'phone'|'pastDate'|'recentDate'|'partialPastDate'|'futureDate'|'futureDateTime'|'time'|'pastTime'|'futureTime',
+  capitalize?: 'words'|'characters'|'sentences'|'none',
+  image?: string,
+  simpleSelect?: boolean,
+  newLine?: boolean,
+  popup?: boolean
+}
 
-  export type MedicalProcedure = {
-    procedure: string,
-    date: Date,
-    route: string
-  }
+export type FieldDefinitions = (FieldDefinition|GroupDefinition)[]
 
-  export type FamilyDisease = {
-    disease: string,
-    since: string,
-    relation: string[]
-  }
+export type GroupDefinition = {
+    name: string,
+    label?: string,
+    size?: string, //XS S M L XL
+    optional?: boolean,
+    columns?: string[][],
+    rows?: string[][],
+    multiValue?: boolean,
+    options?: CodeDefinition[][]|CodeDefinition[]|string,
+    maxLength?: number,
+    mappedField?: string,
+    canBeCopied?: boolean,
+    canBePaste?: boolean,
+    keyboardEnabled?: boolean,
+    clone?: string[],
+    hasVA?: boolean,
+    hasAdd?: boolean,
+    hasLensType?: boolean,
+    hasNotes?: boolean,
+    fields: (FieldDefinition|GroupDefinition)[],
+}
 
-  export type SocialHistory = {
-    smokerType: string,
-    smokedLastMonth: string,
-    smokelessUsedLastMonth: string,
-    drugUse: string[],
-    alcoholUse: string[],
-    other: string[],
-    tobaccoCounseling: string,
-    physicalActivityCounseling: string,
-    nutritionCounseling: string
-  }
+export type ExamDefinition = {
+    id: string,
+    version: number,
+    name: string,
+    label?: string,
+    fields?: (FieldDefinition|GroupDefinition)[],
+    type: string, //GroupedForm || SelectionLists
+    card?: boolean,
+    cardFields?: string[]|string[][],
+    cardGroup?: string,
+    essentialFields: string[],
+    titleFields: string[],
+    editable: boolean,
+    addable: boolean,
+    isPreExam: boolean,
+    isAssessment: boolean,
+    image?: string,
+    graph?: GraphDefinition,
+    section: string, //History.3
+    order?: string, //order used for pre tests
+    starable?: boolean,
+    relatedExams?: string[],
+    scrollable?: boolean,
+    layout?: any
+}
 
-  export type Complaint = {
-    date: Date,
-    isChief: boolean,
-    symptom: string[],
-    location?: string[],
-    quality?: string[],
-    severity?: string[],
-    timing?: string[],
-    duration?: string[],
-    context?: string[],
-    modifyingFactor?: string[],
-    associatedSign?: string[]
-  }
+export type ExamPredefinedValue = {
+  id: string,
+  version: number,
+  customExamDefinitionId: string, //TODO: wais
+  name: string,
+  predefinedValue: any,
+  order?: number
+}
 
-  export type ReviewOfSystems = {
-      general: string[],
-      earsNoseMouth: string[],
-      cardiovascular: string[],
-      respiratory: string[],
-      gastrointestinal: string[],
-      genitourinary: string[],
-      musculosketletal: string[],
-      integumentary: string[],
-      neurological: string[],
-      pshychiatric: string[],
-      endocrine: string[],
-      myphaticHematological: string[],
-      allergicImmunologic: string[]
-  }
+export type Exam = {
+    id: string,
+    visitId: string,
+    version: number,
+    errors?: string[],
+    definition: ExamDefinition,
+    hasStarted: boolean,
+    hasEnded: boolean,
+    isDirty?: boolean,
+    isHidden?: boolean
+}
+
+export type Scene = {
+  key: string,
+  scene: string,
+  menuHidden?: boolean,
+  nextNavigation?: any,
+  appointment?: Appointment,
+  patient?: Patient,
+  patientInfo?: PatientInfo,
+  exam?: Exam,
+  examDefinition?: ExamDefinition
+}
+
+export type Upload = {
+  id: string,
+  data: string,
+  name: string,
+  date?: string,
+  mimeType: string,
+  argument1?: string,
+  argument2?: string,
+}
+
+export type PatientDocument = {
+  id: string,
+  patientId: string,
+  postedOn: string,
+  name: string,
+  category: string,
+  uploadId: string,
+}

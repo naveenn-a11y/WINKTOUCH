@@ -1,0 +1,92 @@
+{
+  "name": "Prescription",
+  "addable": true,
+  "isAssessment": true,
+  "cardFields": [
+    "Label",
+    "Strength"
+  ],
+  "label": "Medication",
+  "starable": true,
+  "type": "selectionLists",
+  "essentialFields": [
+    "Label"
+  ],
+  "fields": [
+    {
+      "name": "Label",
+      "required": true,
+      "freestyle": true,
+      "options": "prescriptionCodes"
+    },
+    {
+      "name": "Strength",
+      "required": true,
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "medicationStrengthCodes"
+    },
+    {
+      "name": "Dosage",
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "ocularMedicationDosageCodes"
+    },
+    {
+      "name": "Frequency",
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "frequencyCodes"
+    },
+    {
+      "name": "Duration",
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "medicationDurationCodes"
+    },
+    {
+      "name": "Instructions",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": [
+        "Take before food",
+        "Take after food",
+        "Shake well before use"
+      ]
+    },
+    {
+      "name": "Refill",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": [
+        "No refill",
+        "Refill 1x",
+        "Refill 2x",
+        "Refill 3x",
+        "Refill 4x",
+        "Refill 5x",
+        "Refill 6x",
+        "Refill 7x",
+        "Refill 8x",
+        "Refill 9x",
+        "Refill 10x",
+        "Refill 11x",
+        "Refill 12x",
+      ]
+    },
+    {
+      "name": "Do not substitute",
+      "normalValue": "",
+      "defaultValue": "",
+      "options": [
+        "",
+        "Do not substitute"
+      ]
+    }
+    {
+      "maxLength": 500,
+      "name": "Comment",
+      "freestyle": true
+    }
+  ]
+}

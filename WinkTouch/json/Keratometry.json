@@ -1,0 +1,75 @@
+{
+  "name": "Keratometry",
+  "order": "4.2",
+  "cardFields": [
+    [
+      "OD",
+      "Keratometry.OD.Power H",
+      "Keratometry.OD.Power V",
+      "Keratometry.OD.Meridian"
+    ],
+    [
+      "OS",
+      "Keratometry.OS.Power H",
+      "Keratometry.OS.Power V",
+      "Keratometry.OS.Meridian"
+    ]
+  ],
+  "starable": true,
+  "type": "groupedForm",
+  "section": "CL.1",
+  "fields": [
+    {
+      "name": "Keratometry",
+      "columns": [
+        [
+          "OD",
+          ">>",
+          "OS"
+        ]
+      ],
+      "size": "M",
+      "fields": [
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "mappedField": "visit.keratometry.od.flat",
+              "name": "Power H"
+            },
+            {
+              "mappedField": "visit.keratometry.od.steep",
+              "name": "Power V"
+            },
+            {
+              "mappedField": "visit.keratometry.od.axis",
+              "name": "Meridian"
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "mappedField": "visit.keratometry.os.flat",
+              "name": "Power H"
+            },
+            {
+              "mappedField": "visit.keratometry.os.steep",
+              "name": "Power V"
+            },
+            {
+              "mappedField": "visit.keratometry.os.axis",
+              "name": "Meridian"
+            }
+          ]
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "freestyle": true
+        }
+      ]
+    }
+  ]
+}
