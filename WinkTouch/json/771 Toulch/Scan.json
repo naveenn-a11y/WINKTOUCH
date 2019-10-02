@@ -1,0 +1,141 @@
+{
+  "name": "Scan",
+  "type": "groupedForm",
+  "section": "Document.1",
+  "card": false,
+  "scrollable": true,
+  "fields": [
+    {
+      "name": "Chart",
+      "multiValue": true,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Chart front scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "size": "XL",
+          "type": "EMR"
+        },
+        {
+          "name": "Chart back scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "size": "XL",
+          "type": "EMR"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Auto refractor",
+      "optional": true,
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Auto refractor scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "size": "S",
+          "type": "EMR"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "multiValue": false,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Visual field scan",
+          "image": "upload",
+          "label": "VF",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "OCT scan",
+          "image": "upload",
+          "label": "OCT",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Optomap scan",
+          "image": "upload",
+          "label": "Optomap",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Fundus scan",
+          "image": "upload",
+          "label": "Fundus",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "SAAQ",
+          "image": "upload",
+          "label": "Medication",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Referral scan",
+          "image": "upload",
+          "label": "Referral",
+          "popup": false,
+          "drawable": true,
+          "size": "XL",
+          "type": "EMR"
+        },
+        {
+          "name": "Medication",
+          "image": "upload",
+          "label": "Medication",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Other",
+          "image": "upload",
+          "label": "Other",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    }
+  ]
+}

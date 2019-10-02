@@ -1,0 +1,36 @@
+{
+  "name": "Auto refractor",
+  "scrollable": true,
+  "graph": {
+    "fields": [
+      "Auto refractor.od.sph",
+      "Auto refractor.os.sph"
+    ]
+  },
+  "order": "4",
+  "type": "groupedForm",
+  "section": "Vision testing.3",
+  "fields": [
+    {
+      "hasAdd": false,
+      "name": "Auto refractor",
+      "type": "SRx"
+    },
+    {
+      "name": "Scan",
+      "multiValue": true,
+      "size": "S",
+      "fields": [
+        {
+          "name": "AR scan",
+          "image": "upload",
+          "popup": false,
+          "drawable": true,
+          "size": "S",
+          "label": "",
+          "type": "EMR"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "Allergies",
+  "addable": true,
+  "cardFields": [
+    "Allergy"
+  ],
+  "starable": true,
+  "type": "selectionLists",
+  "essentialFields": [
+    "Allergy"
+  ],
+  "section": "History.24",
+  "fields": [
+    {
+      "name": "Allergy",
+      "required": true,
+      "freestyle": true,
+      "options": "allergyCodes"
+    },
+    {
+      "name": "Reaction",
+      "multiValue": true,
+      "required": true,
+      "freestyle": true,
+      "options": "allergyReactionCodes"
+    }
+  ]
+}

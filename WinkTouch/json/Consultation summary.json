@@ -1,0 +1,12 @@
+{
+  "name": "Consultation summary",
+  "isAssessment": true,
+  "type": "groupedForm",
+  "fields": [
+    {
+      "maxLength": 500,
+      "name": "Resume",
+      "label": ""
+    }
+  ]
+}

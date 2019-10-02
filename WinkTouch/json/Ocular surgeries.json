@@ -1,0 +1,36 @@
+{
+  "name": "Ocular surgeries",
+  "addable": true,
+  "starable": true,
+  "type": "selectionLists",
+  "essentialFields": [
+    "Procedure"
+  ],
+  "editable": false,
+  "section": "History.12",
+  "fields": [
+    {
+      "name": "Procedure",
+      "required": true,
+      "freestyle": true,
+      "options": "ocularSurgeryProcedureCodes"
+    },
+    {
+      "name": "Date of procedure",
+      "type": "pastDate",
+      "options": []
+    },
+    {
+      "name": "Eye",
+      "options": [
+        "OD",
+        "OS",
+        "OU"
+      ]
+    },
+    {
+      "maxLength": 500,
+      "name": "Notes"
+    }
+  ]
+}

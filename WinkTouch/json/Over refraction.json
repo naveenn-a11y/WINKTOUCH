@@ -1,0 +1,34 @@
+{
+  "name": "Over refraction",
+  "cardGroup": "Final Rx",
+  "graph": {
+    "fields": [
+      "Subjective over refraction.od.sph",
+      "Subjective over refraction.os.sph"
+    ]
+  },
+  "scrollable": true,
+  "type": "groupedForm",
+  "section": "Vision testing.6",
+  "relatedExams": [
+    "Auto refractor",
+    "Lensometry",
+    "Binocular"
+  ],
+  "fields": [
+    {
+      "hasVA": true,
+      "canBeCopied": true,
+      "hasAdd": true,
+      "name": "Subjective over refraction",
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": true,
+      "name": "Final Rx",
+      "label": "Final over refraction",
+      "type": "SRx"
+    }
+  ]
+}
