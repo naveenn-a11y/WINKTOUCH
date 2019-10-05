@@ -1,0 +1,64 @@
+{
+  "name": "Medication",
+  "addable": true,
+  "cardFields": [
+    "Label",
+    "Strength",
+    "Dosage",
+    "Frequency"
+  ],
+  "starable": true,
+  "essentialFields": [
+    "Label"
+  ],
+  "type": "selectionLists",
+  "section": "History.23",
+  "fields": [
+    {
+      "name": "Label",
+      "required": true,
+      "freestyle": true,
+      "options": "medicationCodes"
+    },
+    {
+      "name": "Strength",
+      "required": true,
+      "freestyle": true,
+      "options": "medicationStrengthCodes"
+    },
+    {
+      "name": "Dosage",
+      "freestyle": true,
+      "options": "medicationDosageCodes"
+    },
+    {
+      "name": "Frequency",
+      "freestyle": true,
+      "options": "frequencyCodes"
+    },
+    {
+      "name": "Duration",
+      "freestyle": true,
+      "options": [
+        "1 day",
+        "2 days",
+        "3 days",
+        "4 days",
+        "1 week",
+        "2 weeks",
+        "1 month",
+        "2 months",
+        "1 year"
+      ]
+    },
+    {
+      "name": "Rx Date",
+      "required": true,
+      "type": "pastDate"
+    },
+    {
+      "maxLength": 999,
+      "name": "Notes"
+    }
+  ]
+}

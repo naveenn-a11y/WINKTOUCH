@@ -1,0 +1,64 @@
+{
+  "name": "Ocular medication",
+  "addable": true,
+  "cardFields": [
+    "Route",
+    "Label",
+    "Strength",
+    "Dosage",
+    "Frequency"
+  ],
+  "starable": true,
+  "essentialFields": [
+    "Label"
+  ],
+  "type": "selectionLists",
+  "section": "History.11",
+  "fields": [
+    {
+      "name": "Label",
+      "required": true,
+      "freestyle": true,
+      "options": "ocularMedicationCodes"
+    },
+    {
+      "name": "Strength",
+      "required": true,
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "medicationStrengthCodes"
+    },
+    {
+      "name": "Dosage",
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "ocularMedicationDosageCodes"
+    },
+    {
+      "name": "Frequency",
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "frequencyCodes"
+    },
+    {
+      "name": "Duration",
+      "freestyle": true,
+      "simpleSelect": true,
+      "options": "medicationDurationCodes"
+    },
+    {
+      "name": "Route",
+      "simpleSelect": true,
+      "options": "ocularRouteCodes"
+    },
+    {
+      "name": "Rx Date",
+      "required": true,
+      "type": "pastDate"
+    },
+    {
+      "maxLength": 500,
+      "name": "Notes"
+    }
+  ]
+}

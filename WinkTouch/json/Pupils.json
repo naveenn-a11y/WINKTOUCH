@@ -1,0 +1,122 @@
+{
+  "name": "Pupils",
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Entrance testing.1",
+  "fields": [
+    {
+      "name": "Pupils",
+      "columns": [
+        [
+          "OD",
+          "\u003e\u003e",
+          "OS"
+        ]
+      ],
+      "size": "L",
+      "fields": [
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "name": "Size in light",
+              "suffix": " mm",
+              "freestyle": true,
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
+            },
+            {
+              "name": "Size in dark",
+              "suffix": " mm",
+              "freestyle": true,
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
+            },
+            {
+              "name": "Shape",
+              "freestyle": true,
+              "options": "pupilFormCodes"
+            },
+            {
+              "name": "Reaction",
+              "freestyle": true,
+              "options": "pupilReactionCodes"
+            },
+            {
+              "name": "M.Gunn",
+              "freestyle": true,
+              "options": "pupilMGunnCodes"
+            },
+            {
+              "name": "Accom.",
+              "freestyle": true,
+              "options": "pupilAccomodationCodes"
+            },
+            {
+              "name": "Diagnose",
+              "freestyle": true,
+              "options": "pupilDiagnoseCodes"
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "name": "Size in light",
+              "suffix": " mm",
+              "freestyle": true,
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
+            },
+            {
+              "name": "Size in dark",
+              "suffix": " mm",
+              "freestyle": true,
+              "minValue": 2,
+              "maxValue": 7,
+              "stepSize": 0.5,
+              "decimals": 1
+            },
+            {
+              "name": "Form",
+              "freestyle": true,
+              "options": "pupilFormCodes"
+            },
+            {
+              "name": "Reaction",
+              "freestyle": true,
+              "options": "pupilReactionCodes"
+            },
+            {
+              "name": "M.Gunn",
+              "freestyle": true,
+              "options": "pupilMGunnCodes"
+            },
+            {
+              "name": "Accom.",
+              "freestyle": true,
+              "options": "pupilAccomodationCodes"
+            },
+            {
+              "name": "Diagnose",
+              "freestyle": true,
+              "options": "pupilDiagnoseCodes"
+            }
+          ]
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "freestyle": true
+        }
+      ]
+    }
+  ]
+}

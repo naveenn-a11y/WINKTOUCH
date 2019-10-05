@@ -1,0 +1,1031 @@
+{
+  "name": "Fitting",
+  "scrollable": true,
+  "cardFields": [
+    [
+      "Contact Lens Trial.Date",
+      "Contact Lens Trial.Trial type"
+    ],
+    [
+      "OD: ",
+      "Contact Lens Trial.Sph.OD",
+      "Contact Lens Trial.Cyl.OD",
+      "Contact Lens Trial.Axis.OD",
+      "Contact Lens Trial.Manufacturer.OD",
+      "Contact Lens Trial.Brand.OD",
+      "Contact Lens Trial.Design.OD",
+      "Contact Lens Trial.Replacement.OD"
+    ],
+    [
+      "OS: ",
+      "Contact Lens Trial.Sph.OS",
+      "Contact Lens Trial.Cyl.OS",
+      "Contact Lens Trial.Axis.OS",
+      "Contact Lens Trial.Manufacturer.OS",
+      "Contact Lens Trial.Brand.OS",
+      "Contact Lens Trial.Design.OS",
+      "Contact Lens Trial.Replacement.OS"
+    ]
+  ],
+  "type": "groupedForm",
+  "section": "CL.2",
+  "relatedExams": [
+    "Pupils",
+    "Dominance",
+    "Keratometry",
+    "RxToOrder",
+    "Over refraction"
+  ],
+  "fields": [
+    {
+      "clone": [
+        "Manufacturer",
+        "Brand",
+        "Design",
+        "Qty/Box",
+        "Sph",
+        "Cyl",
+        "Axis",
+        "BC",
+        "Dia",
+        "Add",
+        "D/N"
+      ],
+      "maxLength": 8,
+      "name": "Contact Lens Trial",
+      "entity": "clFitting",
+      "columns": [
+        [
+          "Manufacturer",
+          "Brand",
+          "Design",
+          "Qty/Box",
+          ">>"
+        ],
+        [
+          "Type",
+          "Material",
+          "Wearing Period",
+          "Replacement"
+        ],
+        [
+          "Sph",
+          "Cyl",
+          "Axis",
+          "BC",
+          "Dia",
+          "Add",
+          "D/N",
+          ">>"
+        ],
+        [
+          "DVA",
+          "NVA",
+          "Solution"
+        ],
+        [
+          "Comfort",
+          "Vision",
+          "Rotation",
+          "Movement",
+          "Centration",
+          ">>"
+        ],
+        [
+          "Tear",
+          "Sclera",
+          "Limbal",
+          "Cornea",
+          "Lid",
+          ">>"
+        ]
+      ],
+      "multiValue": true,
+      "rows": [
+        [
+          "Date",
+          "Trial type",
+          "Doctor",
+          "Follow-up"
+        ]
+      ],
+      "size": "XL",
+      "fields": [
+        {
+          "mappedField": "clFitting.trialDate",
+          "name": "Date",
+          "type": "recentDate"
+        },
+        {
+          "mappedField": "clFitting.trialType",
+          "name": "Trial type",
+          "label": "",
+          "options": "clFittingTypeCodes"
+        },
+        {
+          "mappedField": "clFitting.doctor",
+          "name": "Doctor",
+          "readonly": true,
+          "options": "doctors"
+        },
+        {
+          "mappedField": "clFitting.followupDate",
+          "name": "Follow-up",
+          "type": "futreDate"
+        },
+        {
+          "name": "Manufacturer",
+          "fields": [
+            {
+              "mappedField": "clFitting.manufacturer.od",
+              "sortOptions": true,
+              "name": "OD",
+              "filter": {
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.manufacturer"
+            },
+            {
+              "mappedField": "clFitting.manufacturer.os",
+              "sortOptions": true,
+              "name": "OS",
+              "filter": {
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.manufacturer"
+            }
+          ]
+        },
+        {
+          "name": "Brand",
+          "fields": [
+            {
+              "mappedField": "clFitting.brand.od",
+              "name": "OD",
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.brand"
+            },
+            {
+              "mappedField": "clFitting.brand.os",
+              "name": "OS",
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.brand"
+            }
+          ]
+        },
+        {
+          "name": "Design",
+          "fields": [
+            {
+              "mappedField": "clFitting.design.od",
+              "name": "OD",
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]"
+              },
+              "options": "contactLenses.design"
+            },
+            {
+              "mappedField": "clFitting.design.os",
+              "name": "OS",
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]"
+              },
+              "options": "contactLenses.design"
+            }
+          ]
+        },
+        {
+          "name": "Qty/Box",
+          "fields": [
+            {
+              "mappedField": "clFitting.boxSize.od",
+              "name": "OD",
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.quantityPerBox"
+            },
+            {
+              "mappedField": "clFitting.boxSize.os",
+              "name": "OS",
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.quantityPerBox"
+            }
+          ]
+        },
+        {
+          "name": "Type",
+          "fields": [
+            {
+              "mappedField": "clFitting.type.od",
+              "autoSelect": true,
+              "name": "OD",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.type"
+            },
+            {
+              "mappedField": "clFitting.type.os",
+              "autoSelect": true,
+              "name": "OS",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.type"
+            }
+          ]
+        },
+        {
+          "name": "Material",
+          "fields": [
+            {
+              "mappedField": "clFitting.material.od",
+              "autoSelect": true,
+              "name": "OD",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.material"
+            },
+            {
+              "mappedField": "clFitting.material.os",
+              "autoSelect": true,
+              "name": "OS",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.material"
+            }
+          ]
+        },
+        {
+          "name": "Wearing Period",
+          "fields": [
+            {
+              "mappedField": "clFitting.wearingPeriod.od",
+              "autoSelect": true,
+              "name": "OD",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.wearingPeriod"
+            },
+            {
+              "mappedField": "clFitting.wearingPeriod.os",
+              "autoSelect": true,
+              "name": "OS",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.wearingPeriod"
+            }
+          ]
+        },
+        {
+          "name": "Replacement",
+          "fields": [
+            {
+              "mappedField": "clFitting.replacement.od",
+              "autoSelect": true,
+              "name": "OD",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "options": "contactLenses.replacement"
+            },
+            {
+              "mappedField": "clFitting.replacement.os",
+              "autoSelect": true,
+              "name": "OS",
+              "readonly": true,
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "options": "contactLenses.replacement"
+            }
+          ]
+        },
+        {
+          "name": "Solution",
+          "fields": [
+            {
+              "mappedField": "clFitting.solution",
+              "name": "OU",
+              "freestyle": true,
+              "options": "clSolutionCodes"
+            }
+          ]
+        },
+        {
+          "name": "Sph",
+          "fields": [
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.sph.od",
+              "name": "OD",
+              "prefix": "+",
+              "minValue": -30,
+              "stepSize": 0.25,
+              "maxValue": 30
+            },
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.sph.os",
+              "name": "OS",
+              "prefix": "+",
+              "minValue": -30,
+              "stepSize": 0.25,
+              "maxValue": 30
+            }
+          ]
+        },
+        {
+          "name": "Cyl",
+          "fields": [
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.cyl.od",
+              "minValueError": "Cannot be less than -10",
+              "decimalsError": "Invalid",
+              "stepSizeError": "Invalid",
+              "name": "OD",
+              "minValue": -10.0,
+              "prefix": "+",
+              "stepSize": 0.25,
+              "maxValueError": "Cannot be more than 10",
+              "required": false,
+              "showPositive": true,
+              "maxValue": 0
+            },
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.cyl.os",
+              "minValueError": "Cannot be less than -10",
+              "decimalsError": "Invalid",
+              "stepSizeError": "Invalid",
+              "name": "OS",
+              "minValue": -10.0,
+              "prefix": "+",
+              "stepSize": 0.25,
+              "maxValueError": "Cannot be more than 10",
+              "required": false,
+              "showPositive": true,
+              "maxValue": 0
+            }
+          ]
+        },
+        {
+          "name": "Axis",
+          "fields": [
+            {
+              "mappedField": "clFitting.axis.od",
+              "name": "OD",
+              "minValue": 0,
+              "suffix": "\u00B0",
+              "maxValue": 180
+            },
+            {
+              "mappedField": "clFitting.axis.os",
+              "name": "OS",
+              "minValue": 0,
+              "suffix": "\u00B0",
+              "maxValue": 180
+            }
+          ]
+        },
+        {
+          "name": "BC",
+          "fields": [
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.bc.od",
+              "name": "OD",
+              "minValue": 5,
+              "stepSize": 0.1,
+              "maxValue": 15
+            },
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.bc.os",
+              "name": "OS",
+              "minValue": 5,
+              "stepSize": 0.1,
+              "maxValue": 15
+            }
+          ]
+        },
+        {
+          "name": "Dia",
+          "fields": [
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.dia.od",
+              "name": "OD",
+              "minValue": 10,
+              "stepSize": 0.1,
+              "maxValue": 15
+            },
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.dia.os",
+              "name": "OS",
+              "minValue": 10,
+              "stepSize": 0.1,
+              "maxValue": 15
+            }
+          ]
+        },
+        {
+          "name": "Add",
+          "fields": [
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.add.od",
+              "name": "OD",
+              "minValue": 0,
+              "stepSize": 0.25,
+              "prefix": "+",
+              "suffix": [
+                " L",
+                " M",
+                " H"
+              ],
+              "maxValue": 20
+            },
+            {
+              "decimals": 2,
+              "mappedField": "clFitting.add.os",
+              "name": "OS",
+              "minValue": 0,
+              "stepSize": 0.25,
+              "prefix": "+",
+              "suffix": [
+                " L",
+                " M",
+                " H"
+              ],
+              "maxValue": 20
+            }
+          ]
+        },
+        {
+          "name": "D/N",
+          "fields": [
+            {
+              "mappedField": "clFitting.dn.od",
+              "name": "OD",
+              "options": "dnCode"
+            },
+            {
+              "mappedField": "clFitting.dn.os",
+              "name": "OS",
+              "options": "dnCode"
+            }
+          ]
+        },
+        {
+          "name": "DVA",
+          "fields": [
+            {
+              "mappedField": "clFitting.va.dist.od",
+              "name": "OD",
+              "prefix": "6/\u200B",
+              "minValue": 4.5,
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "groupSize": 0,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "freestyle": true,
+              "maxValue": 60,
+              "options": [
+                "NLP"
+              ]
+            },
+            {
+              "mappedField": "clFitting.va.dist.os",
+              "name": "OS",
+              "prefix": "6/\u200B",
+              "minValue": 4.5,
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "groupSize": 0,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "freestyle": true,
+              "maxValue": 60,
+              "options": [
+                "NLP"
+              ]
+            },
+            {
+              "mappedField": "clFitting.va.dist.ou",
+              "name": "OU",
+              "prefix": "6/\u200B",
+              "minValue": 4.5,
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "groupSize": 0,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "freestyle": true,
+              "maxValue": 60,
+              "options": [
+                "NLP"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "NVA",
+          "fields": [
+            {
+              "mappedField": "clFitting.va.near.od",
+              "name": "OD",
+              "prefix": "6/\u200B",
+              "minValue": 4.5,
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "groupSize": 0,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "freestyle": true,
+              "maxValue": 60,
+              "options": [
+                "NLP"
+              ]
+            },
+            {
+              "mappedField": "clFitting.va.near.os",
+              "name": "OS",
+              "prefix": "6/\u200B",
+              "minValue": 4.5,
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "groupSize": 0,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "freestyle": true,
+              "maxValue": 60,
+              "options": [
+                "NLP"
+              ]
+            },
+            {
+              "mappedField": "clFitting.va.near.ou",
+              "name": "OU",
+              "prefix": "6/\u200B",
+              "minValue": 4.5,
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "groupSize": 0,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "freestyle": true,
+              "maxValue": 60,
+              "options": [
+                "NLP"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Comfort",
+          "fields": [
+            {
+              "mappedField": "clFitting.comfort.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clComfortCodes"
+            },
+            {
+              "mappedField": "clFitting.comfort.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clComfortCodes"
+            }
+          ]
+        },
+        {
+          "name": "Vision",
+          "fields": [
+            {
+              "mappedField": "clFitting.vision.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clVisionCodes"
+            },
+            {
+              "mappedField": "clFitting.vision.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clVisionCodes"
+            }
+          ]
+        },
+        {
+          "name": "Rotation",
+          "fields": [
+            {
+              "mappedField": "clFitting.rotation.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clRotationCodes"
+            },
+            {
+              "mappedField": "clFitting.rotation.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clRotationCodes"
+            }
+          ]
+        },
+        {
+          "name": "Movement",
+          "fields": [
+            {
+              "mappedField": "clFitting.movement.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clMovementCodes"
+            },
+            {
+              "mappedField": "clFitting.movement.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clMovementCodes"
+            }
+          ]
+        },
+        {
+          "name": "Centration",
+          "fields": [
+            {
+              "mappedField": "clFitting.centration.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clCentrationCodes"
+            },
+            {
+              "mappedField": "clFitting.centration.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clCentrationCodes"
+            }
+          ]
+        },
+        {
+          "name": "Tear",
+          "fields": [
+            {
+              "mappedField": "clFitting.tear.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clTearCodes"
+            },
+            {
+              "mappedField": "clFitting.tear.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clTearCodes"
+            }
+          ]
+        },
+        {
+          "name": "Sclera",
+          "fields": [
+            {
+              "mappedField": "clFitting.sclera.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clScleraCodes"
+            },
+            {
+              "mappedField": "clFitting.sclera.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clScleraCodes"
+            }
+          ]
+        },
+        {
+          "name": "Limbal",
+          "fields": [
+            {
+              "mappedField": "clFitting.limbal.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clLimbalCodes"
+            },
+            {
+              "mappedField": "clFitting.limbal.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clLimbalCodes"
+            }
+          ]
+        },
+        {
+          "name": "Cornea",
+          "fields": [
+            {
+              "mappedField": "clFitting.cornea.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clCorneaCodes"
+            },
+            {
+              "mappedField": "clFitting.cornea.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clCorneaCodes"
+            }
+          ]
+        },
+        {
+          "name": "Lid",
+          "fields": [
+            {
+              "mappedField": "clFitting.lid.od",
+              "name": "OD",
+              "freestyle": true,
+              "options": "clLidCodes"
+            },
+            {
+              "mappedField": "clFitting.lid.os",
+              "name": "OS",
+              "freestyle": true,
+              "options": "clLidCodes"
+            }
+          ]
+        },
+        {
+          "mappedField": "clFitting.notations",
+          "name": "Notations",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/${accountId}/${setting.biomicroscopyImageUpload}/${setting.biomicroscopyImageUpload.uploadName}",
+          "label": "",
+          "resolution": "680x220",
+          "size": "M"
+        },
+        {
+          "mappedField": "clFitting.notes",
+          "maxLength": 500,
+          "name": "Notes"
+        }
+      ]
+    }
+  ],
+  "locale": {
+    "en-US": {
+      "fields": [
+        {
+          "name": "Contact Lens Trial",
+          "fields": [
+            {
+              "name": "DVA",
+              "fields": [
+                {
+                  "name": "OD",
+                  "prefix": "20/\u200B",
+                  "minValue": 15,
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "maxValue": 600
+                },
+                {
+                  "name": "OS",
+                  "prefix": "20/\u200B",
+                  "minValue": 15,
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "maxValue": 600
+                },
+                {
+                  "name": "OU",
+                  "prefix": "20/\u200B",
+                  "minValue": 15,
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "maxValue": 600
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "fields": [
+                {
+                  "name": "OD",
+                  "prefix": "20/\u200B",
+                  "minValue": 15,
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "maxValue": 600
+                },
+                {
+                  "name": "OS",
+                  "prefix": "20/\u200B",
+                  "minValue": 15,
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "maxValue": 600
+                },
+                {
+                  "name": "OU",
+                  "prefix": "20/\u200B",
+                  "minValue": 15,
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "maxValue": 600
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

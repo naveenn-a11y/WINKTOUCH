@@ -1,0 +1,197 @@
+{
+  "name": "Cover test",
+  "scrollable": true,
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Entrance testing.2",
+  "fields": [
+    {
+      "name": "Hirschberg test",
+      "fields": [
+        {
+          "normalValue": "Ortho",
+          "name": "OD",
+          "freestyle": true,
+          "options": "hirschbergCodes"
+        },
+        {
+          "normalValue": "Ortho",
+          "name": "OS",
+          "freestyle": true,
+          "options": "hirschbergCodes"
+        }
+      ]
+    },
+    {
+      "name": "Bruckner test",
+      "fields": [
+        {
+          "normalValue": "Deep red reflex",
+          "name": "OD",
+          "freestyle": true,
+          "options": "brucknerCodes"
+        },
+        {
+          "normalValue": "Deep red reflex",
+          "name": "OS",
+          "freestyle": true,
+          "options": "brucknerCodes"
+        }
+      ]
+    },
+    {
+      "name": "Unilateral Cover Test",
+      "columns": [
+        [
+          "Distant vision",
+          "Near vision"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "Distant vision",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Lateral",
+              "label": "U Lateral",
+              "suffix": "lateralTropiaCodes",
+              "freestyle": false,
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "minValue": 0,
+              "name": "Vertical",
+              "label": "U Vertical",
+              "suffix": "verticalTropiaCodes",
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "name": "U Noncomitant",
+              "options": [
+                "",
+                "U Noncomitant"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Near vision",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Lateral",
+              "suffix": "lateralTropiaCodes",
+              "freestyle": false,
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "minValue": 0,
+              "name": "Vertical",
+              "suffix": "verticalTropiaCodes",
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "name": "U Noncomitant",
+              "options": [
+                "",
+                "U Noncomitant"
+              ]
+            }
+          ]
+        }
+      ],
+      "size": "L"
+    },
+    {
+      "name": "Alternating Cover Test",
+      "columns": [
+        [
+          "Distant vision",
+          "Near vision"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "Distant vision",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Lateral",
+              "label": "A Lateral",
+              "suffix": "lateralPhoriaCodes",
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "minValue": 0,
+              "name": "Vertical",
+              "label": "A Lateral",
+              "suffix": "verticalPhoriaCodes",
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "name": "A Noncomitant",
+              "options": [
+                "",
+                "A Noncomitant"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Near vision",
+          "fields": [
+            {
+              "minValue": 0,
+              "name": "Lateral",
+              "suffix": "lateralPhoriaCodes",
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "minValue": 0,
+              "name": "Vertical",
+              "suffix": "verticalPhoriaCodes",
+              "options": [
+                "Ortho"
+              ],
+              "maxValue": 40
+            },
+            {
+              "name": "A Noncomitant",
+              "options": [
+                "",
+                "A Noncomitant"
+              ]
+            }
+          ]
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes"
+        }
+      ],
+      "size": "L"
+    }
+  ]
+}
