@@ -115,7 +115,7 @@ export async function storeDocument(document: Object) {
     let responseJson = await response.json();
     if (responseJson.ok!==true) {
       console.log(JSON.stringify(responseJson));
-      throw 'The server could not save your changes because of a '+responseJson.reason+' Please redo your changes.';
+      throw new Error('The server could not save your changes because of a '+responseJson.reason+'. Please redo your changes.');
     }
     document._rev = responseJson.rev;
     cacheDocument(document);
@@ -169,8 +169,8 @@ async function createViews() {
         appointments: {
           map: `function (doc) {
             if (doc.dataType==='Appointment') {
-                emit([doc.doctorId,doc.scheduledStart]);
-                emit([doc.doctorId,doc.scheduledStart], {_id: doc.patientId});
+                emit([doc.doctorId,doc.start]);
+                emit([doc.doctorId,doc.start], {_id: doc.patientId});
             }
           }`
         },

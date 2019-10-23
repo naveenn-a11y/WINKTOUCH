@@ -1,0 +1,44 @@
+{
+  "name": "Lensometry",
+  "order": "4",
+  "type": "groupedForm",
+  "section": "Vision testing.4",
+  "fields": [
+    {
+      "name": "Current wear",
+      "label": "",
+      "fields": [
+        {
+          "name": "Current wear",
+          "normalValue": "Glasses",
+          "defaultValue": "Glasses",
+          "options": [
+            "Glasses",
+            "No glasses",
+            "Did not bring glasses",
+            "Lost glasses"
+          ]
+        },
+        {
+          "name": "Since",
+          "type": "pastDate"
+        }
+      ]
+    },
+    {
+      "hasAdd": true,
+      "hasLensType": true,
+      "multiValue": true,
+      "name": "Lensometry",
+      "type": "SRx",
+      "fields": [
+        {
+          "name": "lensType",
+          "label": "Lens type",
+          "options": "lensTypeCodes",
+          "freestyle": true
+        }
+      ]
+    }
+  ]
+}

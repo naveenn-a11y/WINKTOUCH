@@ -1,0 +1,60 @@
+{
+  "name": "Dilation",
+  "order": "5",
+  "cardFields": [
+    [
+      "Dilation.Time",
+      "Dilation.Eye",
+      "Dilation.Drug",
+      "Dilation.Quantity"
+    ],
+    [
+      "Dilation.Informed PT of side effects"
+    ]
+  ],
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Posterior exam.1",
+  "fields": [
+    {
+      "name": "Dilation",
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Drug",
+          "freestyle": true,
+          "options": "dilationDrugCodes"
+        },
+        {
+          "name": "Quantity",
+          "minValue": 1,
+          "suffix": " gtt",
+          "freestyle": true,
+          "maxValue": 3
+        },
+        {
+          "name": "Eye",
+          "freestyle": true,
+          "options": "dilationEyeCodes"
+        },
+        {
+          "name": "Time",
+          "type": "pastTime"
+        },
+        {
+          "normalValue": "Yes",
+          "name": "Informed PT of side effects",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Yes"
+          ]
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes"
+        }
+      ]
+    }
+  ]
+}
