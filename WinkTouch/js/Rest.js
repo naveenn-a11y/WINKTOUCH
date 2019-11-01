@@ -9,7 +9,7 @@ import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.6/';
+export const restUrl : string = __DEV__?'http://192.168.88.24:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.7/';
 
 let token : string;
 
@@ -81,7 +81,8 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
   let definition : FieldDefinitions = getCachedItem(cacheKey);
   if (definition!==null && definition!==undefined) return definition;
   const url = constructTypeUrl(id)+'FieldDefinition';
-  __DEV__ && console.log('Fetching definition for '+cacheKey+'.');
+  const requestNr = ++requestNumber;
+  __DEV__ && console.log('REQ '+requestNr+' Fetching definition for '+cacheKey+' in '+language+'.');
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -91,6 +92,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
+    __DEV__ && console.log('RES '+requestNr+' Fetching definition for '+cacheKey+' in '+language+".");
     let restResponse = await httpResponse.json();
     definition = restResponse.fields;
     cacheItem(cacheKey, definition);
@@ -160,10 +162,12 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
   }
 }
 
-function logRestResponse(restResponse, id, requestNr: number, method: string, url) {
+function logRestResponse(restResponse, id, requestNr: number, method: string, url :string) {
   let cleanedResponse = deepClone(restResponse);
   if (!cleanedResponse.hasValidationError && !cleanedResponse.errors) {
-    cleanedResponse = cleanedResponse[getItemFieldName(id)];
+    if (cleanedResponse[getItemFieldName(id)]) {
+      cleanedResponse = cleanedResponse[getItemFieldName(id)];
+    }
   }
   cleanedResponse.definition='{...}';
   if (cleanedResponse.data) cleanedResponse.data = '...';
@@ -284,7 +288,7 @@ export async function searchItems(list: string, searchCritera: Object) : any {
   const requestNr : number = ++requestNumber;
   try {
     url = appendParameters(url, searchCritera);
-  __DEV__ && console.log('REQ '+requestNr+' GET '+url);
+    __DEV__ && console.log('REQ '+requestNr+' GET '+url);
     let httpResponse = await fetch(url, {
         method: 'get',
         headers: {
@@ -310,7 +314,7 @@ export async function searchItems(list: string, searchCritera: Object) : any {
 
 export async function performActionOnItem(action: string, item: any) : any {
   let url : string = restUrl + getDataType(item.id) + '/' + encodeURIComponent(action);
-  const httpMethod = 'put';
+  const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
   try {

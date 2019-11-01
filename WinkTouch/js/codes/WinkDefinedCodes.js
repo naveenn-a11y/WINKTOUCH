@@ -50,10 +50,7 @@ import { brucknerCodes } from './PupilCodes';
 import { pupilDiagnoseCodes } from './PupilCodes';
 import { iopDrugCodes } from './IopCodes';
 import { tonometryTestCodes } from './IopCodes';
-import { medicationStrengthCodes } from './MedicationCodes';
-import { medicationDosageCodes } from './MedicationCodes';
-import { medicationDurationCodes } from './MedicationCodes';
-import { medicationCodes } from './MedicationCodes';
+import { medicationStrengthCodes, medicationDosageCodes, medicationDurationCodes, medicationInstructionCodes, medicationRefillCodes, medicationCodes } from './MedicationCodes';
 import { gonioscopyLensCodes } from './GonioscopyCodes';
 import { irisPaternCodes } from './GonioscopyCodes';
 import { gonioPigmentCodes } from './GonioscopyCodes';
@@ -69,14 +66,21 @@ import { familyDiseaseSinceCodes } from './FamilyHistoryCodes';
 import { tobaccoUseCodes} from './SocialHistoryCodes';
 import { alcoholUseCodes } from './SocialHistoryCodes';
 import { drugUseCodes } from './SocialHistoryCodes';
-import { clGoodToBadCodes, clRotationCodes, clMovementCodes, clCentrationCodes, clNormalTo5Codes, clSolutionCodes, contactLenses, clFittingTypeCodes } from './ContactLensCodes';
+import { clGoodToBadCodes, clRotationCodes, clMovementCodes, clCentrationCodes, clNormalTo5Codes, clSolutionCodes, contactLenses, clFittingTypeCodes,
+  clReplacementCodes, clComfortCodes, clWearingHabitCodes, clCleaningHabitCodes } from './ContactLensCodes';
 import { lensTypeCodes } from './RefractionCodes';
 import { prescriptionCodes } from './PrescriptionCodes';
 import { eyeColorCodes } from './BiomicroscopyCodes';
+import { diabetesTypeCodes, diabetesControlCodes, diabetesSeverityCodes, diabetesPresentationCodes, diabetesDurationCodes, diabetesTimingCodes, diabetesModifyingFactorCodes} from './DiabetesCodes';
+import { occupationCodes, hobbyCodes, computerUseCodes } from './LifestyleCodes';
+import { rosGeneralCodes, rosEarCodes, rosNoseCodes, rosAllergicCodes, rosMouthCodes, rosSkinCodes, rosHeadCodes, rosNeckCodes, rosRespiratoryCodes, rosGastroCodes,
+rosUrinaryCodes, rosMusculosketletalCodes, rosNeurologicCodes, rosEndocrineCodes, rosHematologicCodes, rosPeripheralCodes, rosPshychiatricCodes } from './ReviewOfSystemCodes';
+import { stereoFlyCodes } from './SteropsisCodes';
+import { confrontationVFCodes, autoPerimetryVFCodes } from './VisualFieldCodes';
 
 export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.icdCodes = icdCodes;
-  codeDefinitions.procedureCodes = [];
+  codeDefinitions.procedureCodes = [] ;
   codeDefinitions.sinceCodes = sinceCodes;
   codeDefinitions.chiefComplaintCodes = chiefComplaintCodes;
   codeDefinitions.complaintLocationCodes = complaintLocationCodes;
@@ -157,4 +161,40 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.prescriptionCodes = prescriptionCodes;
   codeDefinitions.eyeColorCodes = eyeColorCodes;
   codeDefinitions.pupillaryReflexCodes = pupillaryReflexCodes;
+  codeDefinitions.clReplacementCodes = clReplacementCodes,
+  codeDefinitions.clComfortCodes = clComfortCodes,
+  codeDefinitions.clWearingHabitCodes = clWearingHabitCodes,
+  codeDefinitions.clCleaningHabitCodes = clCleaningHabitCodes,
+  codeDefinitions.diabetesTypeCodes = diabetesTypeCodes,
+  codeDefinitions.diabetesControlCodes = diabetesControlCodes,
+  codeDefinitions.diabetesSeverityCodes = diabetesSeverityCodes,
+  codeDefinitions.diabetesPresentationCodes = diabetesPresentationCodes,
+  codeDefinitions.diabetesDurationCodes = diabetesDurationCodes,
+  codeDefinitions.diabetesTimingCodes = diabetesTimingCodes,
+  codeDefinitions.diabetesModifyingFactorCodes = diabetesModifyingFactorCodes,
+  codeDefinitions.occupationCodes = occupationCodes,
+  codeDefinitions.hobbyCodes = hobbyCodes,
+  codeDefinitions.computerUseCodes = computerUseCodes,
+  codeDefinitions.medicationInstructionCodes = medicationInstructionCodes,
+  codeDefinitions.medicationRefillCodes = medicationRefillCodes,
+  codeDefinitions.rosGeneralCodes = rosGeneralCodes,
+  codeDefinitions.rosEarCodes = rosEarCodes,
+  codeDefinitions.rosNoseCodes = rosNoseCodes,
+  codeDefinitions.rosAllergicCodes = rosAllergicCodes,
+  codeDefinitions.rosMouthCodes = rosMouthCodes,
+  codeDefinitions.rosSkinCodes = rosSkinCodes,
+  codeDefinitions.rosHeadCodes = rosHeadCodes,
+  codeDefinitions.rosNeckCodes = rosNeckCodes,
+  codeDefinitions.rosRespiratoryCodes = rosRespiratoryCodes,
+  codeDefinitions.rosGastroCodes = rosGastroCodes,
+  codeDefinitions.rosUrinaryCodes = rosUrinaryCodes,
+  codeDefinitions.rosMusculosketletalCodes = rosMusculosketletalCodes,
+  codeDefinitions.rosNeurologicCodes = rosNeurologicCodes,
+  codeDefinitions.rosEndocrineCodes = rosEndocrineCodes,
+  codeDefinitions.rosHematologicCodes = rosHematologicCodes,
+  codeDefinitions.rosPeripheralCodes = rosPeripheralCodes,
+  codeDefinitions.rosPshychiatricCodes = rosPshychiatricCodes,
+  codeDefinitions.stereoFlyCodes = stereoFlyCodes,
+  codeDefinitions.confrontationVFCodes = confrontationVFCodes,
+  codeDefinitions.autoPerimetryVFCodes = autoPerimetryVFCodes
 }

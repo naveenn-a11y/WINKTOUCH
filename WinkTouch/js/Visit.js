@@ -639,19 +639,39 @@ export class VisitHistory extends Component {
       this.setState({ selectedId: id });
     }
 
-    async deleteVisit(visitId: ?string) {
+    async deleteVisit(visitId: string) {
+      if (this.props.readonly) return;
+      const visit : Visit = getCachedItem(visitId);
+      if (!visit) return;
+      try {
+        visit.inactive = true;
+        await updateVisit(visit);
+        let i : number = this.props.visitHistory.indexOf(visitId);
+        if (i>=0) {
+          this.props.visitHistory.splice(i,1);
+        }
+        if (this.state.selectedId===visitId) {
+          this.setState({selectedId: undefined});
+        }
+        this.props.onRefresh();
+      } catch (error) {
+        console.log(error);
+        alert(strings.serverError);
+      }
+    }
+
+    confirmDeleteVisit(visitId: ?string) {
       if (!visitId.startsWith('visit-')) return; //TODO: We don't support deleting notes yet
       const visit : Visit = getCachedItem(visitId);
       Alert.alert(
         strings.deleteVisitTitle,
-        strings.formatString(strings.deleteVisitQuestion, visit.typeName.toLowerCase(), formatMoment(visit.date)),
+        strings.formatString(strings.deleteVisitQuestion, visit.typeName?visit.typeName.toLowerCase():strings.visit, formatMoment(visit.date)),
         [
           {
             text: strings.cancel,
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',            
+            style: 'cancel',
           },
-          {text: strings.confirm, onPress: () => console.log('OK Pressed')},
+          {text: strings.confirm, onPress: () => this.deleteVisit(visitId)},
         ],
         {cancelable: false},
       );
@@ -810,7 +830,7 @@ export class VisitHistory extends Component {
                 data={this.state.history}
                 keyExtractor={(visitId: string, index :number) => index.toString()}
                 renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item}
-                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.deleteVisit(data.item)}
+                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.confirmDeleteVisit(data.item)}
                 />}
               />
             </View>

@@ -171,7 +171,9 @@ export type Visit = {
     location?: string,
     prescription: GlassesRx,
     recall: Recall,
-    purchase: {add: number, comment: string, purchaseReasonId: string}[]
+    purchase: {add: number, comment: string, purchaseReasonId: string}[],
+    locked: boolean,
+    inactive: boolean
 }
 
 export type CodeDefinition = {

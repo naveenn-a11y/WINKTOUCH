@@ -10,63 +10,28 @@
       "name": "Replacement",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Soft",
-        "RPG",
-        "Quarterly",
-        "Monthly",
-        "Biweekly",
-        "Weekly",
-        "Daily",
-        "Yearly"
-      ]
+      "options": "clReplacementCodes"
     },
     {
       "normalValue": "Good",
       "name": "Comfort",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Good",
-        "Poor",
-        "Bad",
-        "Eyes feel dry",
-        "Bad vision",
-        "Good vision"
-      ]
+      "options": "clComfortCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Wearing habits",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Occasional",
-        "Everyday",
-        "Overnight",
-        "Swimming",
-        "Bathing",
-        "Overusage",
-        "No spectacles"
-      ]
+      "options": "clWearingHabitCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Cleaning habits",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Cleaning with tap water",
-        "Reusing cleaning solution",
-        "Not washing hands",
-        "Rehydrate with saliva",
-        "Peroxyde Solution",
-        "Saline Solution",
-        "Multipurpose solution",
-        "No rub"
-      ]
+      "options": "clCleaningHabitCodes"
     },
     {
       "maxLength": 500,

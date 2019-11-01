@@ -165,5 +165,32 @@
       "name": "Purchase Rx",
       "label": "Dr.\u0027s Recommendation"
     }
-  ]
+  ],
+  "locale": {
+    "fr-CA": {
+      "fields": [
+        {
+          "name": "Final Rx",
+          "label": "Rx finale"
+        },
+        {
+          "name": "Purchase Rx",
+          "label": "Recommandation Docteur"
+        },
+        {
+          "name": "PD",
+          "fields": [
+            {
+              "name": "Far",
+              "label": "Loin"
+            },
+            {
+              "name": "Near",
+              "label": "Pr\u00e8s"
+            }
+          ]
+        }
+      ]
+    }
+  }
 }

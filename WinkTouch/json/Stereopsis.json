@@ -16,13 +16,7 @@
         {
           "normalValue": "Normal stereopsis",
           "name": "Stereo fly",
-          "options": [
-            "Normal stereopsis",
-            "Top of upper wings",
-            "Bottom of lower wings",
-            "Tip of abdomen",
-            "None seen"
-          ]
+          "options": "stereoFlyCodes"
         },
         {
           "normalValue": 9,

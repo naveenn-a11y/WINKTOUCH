@@ -125,6 +125,7 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
 export async function fetchCodeDefinitions(language: string, accountId: number) : {[codeName: string]: CodeDefinition} {
   if (accountId===undefined) return undefined;
   const url = restUrl +'/Code/list?accountId='+accountId.toString();
+  __DEV__ && console.log('REQ fetch codes in '+language+": "+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -134,6 +135,7 @@ export async function fetchCodeDefinitions(language: string, accountId: number) 
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
+    __DEV__ && console.log('RES fetch codes in '+language+": "+url);
     let translatedCodeDefinitions  = await httpResponse.json();
     codeDefinitions = Object.assign(codeDefinitions, translatedCodeDefinitions);
   } catch (error) {

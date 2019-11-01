@@ -53,9 +53,9 @@ export class PrescriptionCard extends Component {
 
   render() {
     if (this.props.exam===undefined) return null;
-    return <View style={styles.assessmentCard}>        
+    return <View style={styles.assessmentCard}>
         <View style={styles.formRow500}>
-          <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} title={'Final Rx'} glassesRx={this.props.exam.RxToOrder['Final Rx']}
+          <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} title={strings.finalRx} glassesRx={this.props.exam.RxToOrder['Final Rx']}
             style={styles.flexColumnLayout} editable={false} hasAdd={true}/>
         </View>
       </View>

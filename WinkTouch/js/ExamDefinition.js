@@ -7,8 +7,9 @@ import React, { Component } from 'react';
 import { View, Text, Modal, TouchableWithoutFeedback, ScrollView, Animated, LayoutAnimation } from 'react-native';
 import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, GroupDefinition, FieldDefinition } from './Types';
 import { styles, fontScale } from './Styles';
-import { strings} from './Strings';
-import { fetchItemById, searchItems, storeItem } from './Rest';
+import { strings, getUserLanguage
+  } from './Strings';
+import { fetchItemById, searchItems, storeItem, performActionOnItem } from './Rest';
 import { cacheItem, cacheItemById, cacheItemsById, getCachedItem, getCachedItems } from './DataCache';
 import { ExamScreen, ExamCard } from './Exam';
 import { GroupedFormScreen, isNumericField, SelectionListsScreen, ItemsList } from './Items';
@@ -18,9 +19,29 @@ import { Button } from './Widgets';
 import { deepClone } from './Util';
 import { PaperFormScreen} from './PaperForm';
 
+let translateMode = false;
+
+export function toggleTranslateMode() {
+  translateMode = !translateMode;
+}
+
+export function isInTranslateMode() : boolean {
+  return translateMode===true;
+}
+
 const examDefinitionDefinition : FieldDefinition[] = [
   {name: 'name', required: true}
 ];
+
+export async function updateLabel(fieldId: string, label: string) {
+  const translation = {
+    id: 'customExamDefinition',
+    language: getUserLanguage(),
+    fieldId: fieldId,
+    label: label
+  };
+  await performActionOnItem('translateLabel', translation);
+}
 
 const mappedFields : string[] = ['patient.lastName', 'patient.firstName', 'visit.prescription.od.sph', 'visit.prescription.os.sph','visit.prescription.od.cyl','visit.prescription.os.cyl',
   'visit.prescription.od.axis','visit.prescription.os.axis','visit.prescrition.od.add','visit.prescription.os.add','visit.purchase.add'];

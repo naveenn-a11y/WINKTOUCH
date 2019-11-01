@@ -1257,7 +1257,8 @@ export class GroupedForm extends Component {
     patientId: string,
     examId: string,
     enableScroll?: () => void,
-    disableScroll?: () => void
+    disableScroll?: () => void,
+    fieldId: string
   }
   state: {
     isTyping: boolean
@@ -1298,12 +1299,11 @@ export class GroupedForm extends Component {
   }
 
   renderSimpleRow(fieldDefinition: FieldDefinition) {
-    let label : string = formatLabel(fieldDefinition);
-    if (label.length>0) label = label + ':';
+    const label : string = formatLabel(fieldDefinition);
     if (fieldDefinition.layout)
       return this.renderField(fieldDefinition);
     return <View style={styles.formRow} key={fieldDefinition.name}>
-        <View style={styles.formRowHeader}><Text style={styles.formLabel}>{label}</Text></View>
+        <View style={styles.formRowHeader}><FormLabel value={label}/></View>
         {this.renderField(fieldDefinition)}
     </View>
   }
@@ -1337,7 +1337,7 @@ export class GroupedForm extends Component {
               const columnDefinition : FieldDefinition = this.props.definition.fields.find((fieldDefinition: FieldDefinition) => fieldDefinition.name === column);
               if (columnDefinition) {
                 const columnLabel : string = formatLabel(columnDefinition);
-                return <Text style={styles.formTableColumnHeader} key={index}>{columnLabel}</Text>
+                return <FormLabel value={columnLabel} style={styles.formTableColumnHeader} key={index} suffix={''}/>
               } else {
                 if (column==='>>') {
                   if (index===columns.length-1) {
@@ -1355,7 +1355,7 @@ export class GroupedForm extends Component {
 
   renderColumnedRow(fieldLabel: string, columns: string[], rowIndex: number, copyRow: () => void) {
     return <View style={styles.formRow} key={'columnedRow-'+rowIndex}>
-        <Text style={styles.formTableRowHeader}>{fieldLabel!==''?fieldLabel+':':''}</Text>
+        <FormLabel value={fieldLabel} style={styles.formTableRowHeader}/>
         {columns.map((column: string, columnIndex: number) => {
             const columnDefinition : GroupDefinition = this.props.definition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
             if (columnDefinition) {
@@ -1436,7 +1436,7 @@ export class GroupedForm extends Component {
   render() {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style} key={this.props.definition.name}>
-        <Text style={styles.sectionTitle} key='title'>{formatLabel(this.props.definition)}</Text>
+        <FormLabel style={styles.sectionTitle} key='title' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
         {this.renderRows()}
         {this.renderIcons()}
     </View>
@@ -1654,6 +1654,7 @@ export class GroupedFormScreen extends Component {
   }
 
   renderGroup(groupDefinition: GroupDefinition, index: number) {
+    const fieldId : string = this.props.exam.definition.id+"."+groupDefinition.name;
     let value : any = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
     if (value===undefined && groupDefinition.options===undefined) return null;
     if (groupDefinition.mappedField) {
@@ -1700,7 +1701,8 @@ export class GroupedFormScreen extends Component {
         onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
         patientId={this.patientId}
-        examId={this.props.exam.id}/>
+        examId={this.props.exam.id}
+        fieldId={fieldId}/>
     }
   }
 

@@ -39,17 +39,7 @@
     {
       "name": "Duration",
       "freestyle": true,
-      "options": [
-        "1 day",
-        "2 days",
-        "3 days",
-        "4 days",
-        "1 week",
-        "2 weeks",
-        "1 month",
-        "2 months",
-        "1 year"
-      ]
+      "options": "medicationDurationCodes"
     },
     {
       "name": "Rx Date",

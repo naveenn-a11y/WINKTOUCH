@@ -469,6 +469,12 @@ export const styles = StyleSheet.create({
         borderColor: '#eeeeee',
         margin: 3 * fontScale
     },
+    translateField: {
+      borderColor: 'purple',
+      borderWidth: 1 * fontScale,
+      padding: 3*fontScale,
+      minWidth: 80*fontScale
+    },
     formFieldLines: {
         flex: 100,
         fontSize: 20 * fontScale,

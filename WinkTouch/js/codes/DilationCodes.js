@@ -11,10 +11,10 @@ export const dilationDrugCodes = [
 {"code":"0.5% Cyclopentolate"},
 {"code":"1.0% Cyclopentolate"},
 {"code":"2.5% Phenylephrine"}
-];
+]
 
 export const dilationEyeCodes = [
 {"code":"OD"},
 {"code":"OS"},
 {"code":"OU"}
-];
+]

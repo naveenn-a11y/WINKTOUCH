@@ -14,22 +14,14 @@
           "name": "OD",
           "required": true,
           "freestyle": true,
-          "options": [
-            "Full",
-            "Diminished",
-            "NLP"
-          ]
+          "options": "confontationVFCodes"
         },
         {
           "normalValue": "Full",
           "name": "OS",
           "required": true,
           "freestyle": true,
-          "options": [
-            "Full",
-            "Diminished",
-            "NLP"
-          ]
+          "options": "confontationVFCodes"
         }
       ]
     },
@@ -73,37 +65,13 @@
           "normalValue": "Full",
           "name": "OD",
           "freestyle": true,
-          "options": [
-            "Full",
-            "Nasal step",
-            "Temporal wedge",
-            "Superior arcuate defect",
-            "Inferior arcuate defect",
-            "Tunnel vision",
-            "Enlarged blind spot",
-            "Homonymous hemianopia",
-            "Bitemporal hemianopia",
-            "Central scotoma",
-            "Centrocaecal scotoma"
-          ]
+          "options": "autoPerimetryVFCodes"
         },
         {
           "normalValue": "Full",
           "name": "OS",
           "freestyle": true,
-          "options": [
-            "Full",
-            "Nasal step",
-            "Temporal wedge",
-            "Superior arcuate defect",
-            "Inferior arcuate defect",
-            "Tunnel vision",
-            "Enlarged blind spot",
-            "Homonymous hemianopia",
-            "Bitemporal hemianopia",
-            "Central scotoma",
-            "Centrocaecal scotoma"
-          ]
+          "options": "autoPerimetryVFCodes"
         },
         {
           "name": "VF scan OD",

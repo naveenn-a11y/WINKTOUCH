@@ -107,7 +107,7 @@ export class FindPatient extends Component {
 
   render() {
     return <View style={styles.tabCard}>
-      <TextInput placeholder='Find patient' returnKeyType='search' autoCorrect={false} autoFocus={true}
+      <TextInput placeholder={strings.findPatient} returnKeyType='search' autoCorrect={false} autoFocus={true}
         style={styles.searchField} value={this.state.searchCriterium}
         onChangeText={(text: string) => this.setState({ searchCriterium: text })}
         onSubmitEditing={() => this.searchPatients()} />

@@ -3,31 +3,59 @@
  */
 'use strict';
 
-import React, { Component } from 'react';
-import { View, TouchableHighlight, Text, TextInput, Button, TouchableWithoutFeedback, Switch } from 'react-native';
+import React, { Component, PureComponent } from 'react';
+import { View, TouchableHighlight, Text, TextInput, Button, TouchableWithoutFeedback, Switch, Modal } from 'react-native';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import type { FieldDefinition, FieldDefinitions, CodeDefinition, GroupDefinition } from './Types';
-import { styles, scaleStyle } from './Styles';
-import { strings } from './Strings';
+import { styles, scaleStyle, selectionBorderColor, fontScale } from './Styles';
+import { strings, getUserLanguage } from './Strings';
 import { DateField, DurationField, TimeField, TilesField, TextArrayField, ButtonArray, NumberField, ListField, ImageField, ImageUploadField, CheckButton } from './Widgets';
 import { getFieldDefinitions } from './Items';
-import { formatAllCodes, formatCode, formatCodeDefinition, parseCode, formatOptions } from './Codes';
+import { formatAllCodes, formatCode, formatCodeDefinition, parseCode, formatOptions, getAllCodes } from './Codes';
 import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue } from './Util';
 import { isNumericField, formatLabel } from './Items';
 import { Microphone } from './Voice';
+import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
-export class FormLabel extends Component {
+export class FormLabel extends PureComponent {
   props: {
     value: string,
-    width?: number
+    width?: number,
+    definition: FieldDefinition,
+    style: style,
+    suffix?: string,
+    fieldId: string
   }
+  state: {
+    newLabel: string
+  }
+  static defaultProps = {
+    suffix: ':'
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      newLabel: this.props.value
+    }
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({newLabel: nextProps.value});
+  }
+
+  saveLabel = () => {
+    if (this.props.value===this.state.newLabel) return;
+    updateLabel(this.props.fieldId, this.state.newLabel);
+  }
+
   render() {
+    if (isInTranslateMode()) return <TextInput style={[this.props.style, styles.translateField]} value={this.state.newLabel} editable={true} onChangeText={(text: string) => this.setState({newLabel: text })} onBlur={this.saveLabel}/>
     if (!this.props.value || this.props.value.length===0) return null;
-    if (this.props.width)
-      return <Text style={[styles.formLabel, { width: this.props.width }]}>{this.props.value}:</Text>
-    return <Text style={styles.formLabel}>{this.props.value}:</Text>
+    const style = this.props.style?this.props.style:this.props.width?[styles.formLabel, {width: this.props.width}]:styles.formLabel;
+    return <Text style={style}>{this.props.value}{this.props.suffix}</Text>
   }
 }
 
@@ -818,21 +846,21 @@ export class FormInput extends Component {
         onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix}
         isTyping={this.props.isTyping} autoFocus={this.props.autoFocus} style={style} />
     } else if (this.props.definition.options && this.props.definition.options.length>0) {
-      const options = this.props.definition.options;
-      if (!(options instanceof Array)) {
+      let options = this.props.definition.options;
+      let isNestedCode = (!(options instanceof Array)) && options.endsWith('Codes') && ((getAllCodes(options)[0]) instanceof Array);
+      if (isNestedCode) {
+        options = getAllCodes(options);
+      } else if (!(options instanceof Array)) {
         return <FormCode code={options} filter={this.getFilterValue()} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} errorMessage={this.props.errorMessage}
           prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style} multiline={this.props.multiline===true || this.props.definition.maxLength>100}/>
-      }
-      if (options.length===2 && (options[0]===undefined || options[0]===null || options[0]===false || options[0].toString().trim()==='' || this.props.definition.defaultValue===options[0]))
+      } else if (options.length===2 && (options[0]===undefined || options[0]===null || options[0]===false || options[0].toString().trim()==='' || this.props.definition.defaultValue===options[0]))
         return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage}/>
-      return <FormOptions options={this.props.definition.options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
+      return <FormOptions options={options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
         readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>100}/>
     } else if (type && type.includes('Date')) {
       return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {
       return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
-    //} else if (this.props.definition.image==='upload') {
-    //  return <ImageUploadField value={this.props.value} fileName={this.props.definition.name} readonly={readonly} onChangeValue={this.props.onChangeValue} size={this.props.definition.size} style={style} patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage}/>
     } else if (this.props.definition.image!==undefined) {
       return <ImageField value={this.props.value} image={this.props.definition.image} fileName={this.props.definition.name} resolution={this.props.definition.resolution} size={this.props.definition.size} popup={this.props.definition.popup} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style}
         patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>

@@ -3,6 +3,7 @@
 import React, {Component} from 'react';
 import {Image, Text, TextInput, View, TouchableOpacity, ScrollView, AsyncStorage, KeyboardAvoidingView, StatusBar } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import publicIp from 'react-native-public-ip';
 import {styles, fontScale} from './Styles';
 import { strings, getUserLanguage, switchLanguage } from './Strings';
 import { Button } from './Widgets';
@@ -21,6 +22,25 @@ async function fetchIp() : string {
   const ip = await(DeviceInfo.getIPAddress());
   return ip;
 }
+
+async function fetchPublicIp() : string {
+  const ip : string = await publicIp();
+  return ip;
+}
+
+export let isAtWink : boolean = undefined;
+
+async function determineIfAtWink() : void {
+    const localIp = await fetchIp();
+    if (localIp && localIp.startsWith('192.168.88.')) {
+      const publicIp : string = await fetchPublicIp();
+      isAtWink = publicIp==='70.25.31.169';
+    } else {
+      isAtWink = false;
+    }
+}
+
+determineIfAtWink();
 
 async function fetchSecurityQuestions() {
   const url = securityQuestionsUrl;
@@ -135,6 +155,7 @@ export class RegisterScreen extends Component {
     }
 
     async submitEmail(isRegistered: boolean) {
+        await fetchPublicIp();
         const email : ?string = this.state.email;
         if (email === undefined || email === null || email.trim().length < 3) {
             alert(strings.enterRegisteredEmail);

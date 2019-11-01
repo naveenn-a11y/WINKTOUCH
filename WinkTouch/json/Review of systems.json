@@ -8,295 +8,130 @@
   "editable": true,
   "fields": [
     {
-      "normalValue": "Normal",
       "name": "General/Constitutional",
+      "normalValue": "Normal",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Weight loss",
-        "Weight gain",
-        "Fever",
-        "Chills",
-        "Insomnia",
-        "Fatigue",
-        "Weakness"
-      ]
+      "options": "rosGeneralCodes"
     },
     {
-      "normalValue": "Normal",
       "name": "Ears",
+      "normalValue": "Normal",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Change in hearing",
-        "Ear pain",
-        "Ear discharge",
-        "Ringing",
-        "Dizziness"
-      ]
+      "options": "rosEarCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Nose/Sinuses",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Nose bleeds",
-        "Nasal stuffiness",
-        "Sinus congestion"
-      ]
+      "options": "rosNoseCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Allergic",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Hives",
-        "Swelling of lips or tongue",
-        "Hay fever",
-        "Asthma",
-        "Eczema/Sensitive",
-        "Sensitivity to drugs/food/pollen/dander"
-      ]
+      "options": "rosAllergicCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Mouth/Throat",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Dry mouth",
-        "Sore throat",
-        "Sore Tongue",
-        "Hoarseness",
-        "Mouth sores",
-        "Dentures",
-        "Bleeding gums"
-      ]
+      "options": "rosMouthCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Skin",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Rashes",
-        "Itching",
-        "Change in hair or nails"
-      ]
+      "options": "rosSkinCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Head",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Headaches",
-        "Head injury"
-      ]
+      "options": "rosHeadCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Neck",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Lumps",
-        "Swollen glands",
-        "Goiter",
-        "Stiffness"
-      ]
+      "options": "rosNeckCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Breast",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Lumps",
-        "Nipple discharge",
-        "BSE"
-      ]
+      "options": "rosBreastCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Respiratory/Cardiac",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Shortness of breath",
-        "Cough",
-        "Production of phlegm, color",
-        "Wheezing",
-        "Coughing up blood",
-        "Chest pain",
-        "Pacemaker",
-        "Fever",
-        "Night sweats",
-        "Swelling in hands/feet",
-        "Blue fingers/toes",
-        "High blood pressure",
-        "Difficulty breathing lying down (orthopnea)",
-        "HX of heart medication",
-        "High cholesterol",
-        "Heart Murmur",
-        "Skipping heart beats",
-        "Bronchitis/emphysema",
-        "Rheumatic heart disease",
-        "COPD",
-        "Hemoptysis",
-        "Lung cancer",
-        "Pneumonia",
-        "Tuberculosis"
-      ]
+      "options": "rosRespiratoryCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Gastrointestinal",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Change of appetite",
-        "Change of weight",
-        "Problems swallowing",
-        "Nausea",
-        "Vomiting",
-        "Vomiting blood",
-        "Constipation",
-        "Diarrhea",
-        "Change in bowel habits",
-        "Abdominal pain",
-        "Excessive belching",
-        "Excessive flatus",
-        "Yellow color of skin (jaundice/hepatitis)",
-        "Food intolerance",
-        "Rectal bleeding/Hemorrhoids"
-      ]
+      "options": "rosGastroCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Urinary",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Difficulty in urination",
-        "Pain or burning on urination",
-        "Frequent urination at night",
-        "Urgent need to urinate",
-        "Incontinence of urine",
-        "Dribbling",
-        "Decreased urine stream",
-        "Blood in urine",
-        "UTI/stones/prostate infection"
-      ]
+      "options": "rosUrinaryCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Musculosketletal",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Pain",
-        "Swelling",
-        "Stiffness",
-        "Decreased joint motion",
-        "Broken bone",
-        "Serious sprains",
-        "Arthtritis",
-        "Gout"
-      ]
+      "options": "rosMusculosketletalCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Neurologic",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Headaches",
-        "Seizures",
-        "Loss of consciousness/Fainting",
-        "Paralysis",
-        "Weakness",
-        "Loss of muscle size",
-        "Muscle spasm",
-        "Tremor",
-        "Involuntary movement",
-        "Incoordination",
-        "Numbness",
-        "Feeling of pins and needles/tingles"
-      ]
+      "options": "rosNeurologicCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Endocrine",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Abnormal growth",
-        "Increased appetite",
-        "Increased thirst",
-        "Increased urine production",
-        "Thyroid trouble",
-        "Heat intolerance",
-        "Cold intolerance",
-        "Excessive sweating",
-        "Diabetes"
-      ]
+      "options": "rosEndocrineCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Hematologic",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Anemia",
-        "Easy bruising/bleeding",
-        "Past transfusions"
-      ]
+      "options": "rosHematologicCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Peripheral/Vascular",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Leg cramps",
-        "Varicose veins",
-        "Clots in veins"
-      ]
+      "options": "rosPeripheralCodes"
     },
     {
       "normalValue": "Normal",
       "name": "Psychiatric",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Normal",
-        "Tension/Anxiety",
-        "Depression",
-        "Suicide ideation",
-        "Memory problems",
-        "Sleep problems",
-        "Past treatment with psychiatrist"
-      ]
+      "options": "rosPshychiatricCodes"
     }
   ]
 }
