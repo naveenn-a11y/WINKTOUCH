@@ -15,6 +15,7 @@ import { ItemsCard, GroupedCard, formatLabel } from './Items';
 import { storeExam } from './Exam';
 import { Microphone } from './Voice';
 import { getDataType } from './Rest';
+import { Label } from './Widgets';
 
 export class AssessmentCard extends PureComponent {
   props: {
@@ -33,7 +34,7 @@ export class AssessmentCard extends PureComponent {
     return <TouchableOpacity disabled={this.props.disabled} onPress={() => this.props.navigation.navigate('exam', {exam: this.props.exam, appointmentStateKey: this.props.appointmentStateKey})}>
       <View style={styles.assessmentCard}>
         <View style={styles.centeredRowLayout}>
-            <Text style={styles.sectionTitle}>{formatLabel(this.props.exam.definition)}</Text>
+            <Label suffix='' style={styles.sectionTitle} value={formatLabel(this.props.exam.definition)} fieldId={this.props.exam.definition.id} />
         </View>
         <View style={styles.formRow500}>
             {this.props.exam.definition.type==='groupedForm' && <GroupedCard isExpanded={true} exam={this.props.exam} showTitle={false} />}

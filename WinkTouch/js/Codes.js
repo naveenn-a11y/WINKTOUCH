@@ -5,7 +5,7 @@
 
 import type { CodeDefinition, FieldDefinition, FieldDefinitions, GroupDefinition } from './Types';
 import { strings, getUserLanguage } from './Strings';
-import { restUrl, handleHttpError, searchItems } from './Rest';
+import { restUrl, handleHttpError, searchItems, getNextRequestNumber } from './Rest';
 import { getFieldDefinitions } from './Items';
 import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
@@ -124,8 +124,9 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
 
 export async function fetchCodeDefinitions(language: string, accountId: number) : {[codeName: string]: CodeDefinition} {
   if (accountId===undefined) return undefined;
+  const requestNr : number = getNextRequestNumber();
   const url = restUrl +'/Code/list?accountId='+accountId.toString();
-  __DEV__ && console.log('REQ fetch codes in '+language+": "+url);
+  __DEV__ && console.log('REQ '+requestNr+' fetch codes in '+language+": "+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -135,8 +136,13 @@ export async function fetchCodeDefinitions(language: string, accountId: number) 
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
-    __DEV__ && console.log('RES fetch codes in '+language+": "+url);
+    __DEV__ && console.log('RES '+requestNr+' fetch codes in '+language+": "+url);
+    if (language!=getUserLanguage()) {
+      __DEV__ && console.log('Language changed to '+getUserLanguage()+', discarding '+language+' codes.');
+      return;
+    }
     let translatedCodeDefinitions  = await httpResponse.json();
+    //__DEV__ && console.log(JSON.stringify(translatedCodeDefinitions));
     codeDefinitions = Object.assign(codeDefinitions, translatedCodeDefinitions);
   } catch (error) {
     console.log(error);

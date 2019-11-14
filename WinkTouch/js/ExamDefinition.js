@@ -13,7 +13,7 @@ import { fetchItemById, searchItems, storeItem, performActionOnItem } from './Re
 import { cacheItem, cacheItemById, cacheItemsById, getCachedItem, getCachedItems } from './DataCache';
 import { ExamScreen, ExamCard } from './Exam';
 import { GroupedFormScreen, isNumericField, SelectionListsScreen, ItemsList } from './Items';
-import { FormRow, FormTextInput, FormNumberInput, FormSwitch, FormOptions, FormTextArrayInput, FormLabel, FormSelectionArray } from './Form';
+import { FormRow, FormTextInput, FormNumberInput, FormSwitch, FormOptions, FormTextArrayInput, FormSelectionArray } from './Form';
 import { formatCode, formatAllCodes, parseCode } from './Codes';
 import { Button } from './Widgets';
 import { deepClone } from './Util';

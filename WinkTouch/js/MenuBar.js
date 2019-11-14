@@ -12,8 +12,6 @@ import type {Exam, ExamDefinition, Scene } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
 import { UpcomingAppointments} from './Appointment';
 import { resetDatabase } from './DemoData';
-import { isAtWink } from './Registration';
-import { toggleTranslateMode } from './ExamDefinition';
 
 export class Notifications extends PureComponent {
     render() {
@@ -56,8 +54,7 @@ export class MenuBar extends PureComponent {
           {__DEV__ && <Button title={strings.templates} onPress={() => this.props.navigation.navigate('templates')}/>}
           {__DEV__ && scene ==='overview'  && <Button title={strings.settings} onPress={() => {}} />}
           <BackButton navigation={this.props.navigation} />
-          {isAtWink && <Button title={strings.translate} onPress={toggleTranslateMode}/>}
-          {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}          
+          {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}
           {__DEV__ && <Notifications />}
         </View>
     }

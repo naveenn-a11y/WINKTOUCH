@@ -10,7 +10,7 @@ import type {Exam, ExamDefinition, FieldDefinition, GroupDefinition, FieldDefini
 import { strings } from './Strings';
 import { styles, selectionColor, fontScale } from './Styles';
 import { TilesField, TextField, NumberField, SelectionList, stripSelectionPrefix, selectionPrefix, FloatingButton } from './Widgets';
-import { FormTextInput, FormRow, FormInput, FormLabel } from './Form';
+import { FormTextInput, FormRow, FormInput } from './Form';
 import { formatDate, dateFormat, dateTimeFormat, yearDateFormat, yearDateTimeFormat, isToyear, deepClone, deepAssign, isEmpty, formatTime} from './Util';
 import { formatAllCodes, parseCode, formatCode} from './Codes';
 import { getDefinitionCacheKey, fetchItemDefinition } from './Rest';
@@ -19,7 +19,7 @@ import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyCo
 import { GlassesDetail, GlassesSummary, newRefraction, ContactsDetail } from './Refraction';
 import { getExamDefinition } from './ExamDefinition';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, updateMappedExams } from './Exam';
-import { CheckButton } from './Widgets';
+import { CheckButton, Label } from './Widgets';
 
 export function getFieldDefinitions(itemId: string) : ?FieldDefinitions {
     if (itemId===undefined || itemId===null) return null;
@@ -299,10 +299,10 @@ export class ItemsCard extends Component {
     if (!this.props.exam[this.props.exam.definition.name] || !this.props.exam[this.props.exam.definition.name].length ||
       Object.keys(this.props.exam[this.props.exam.definition.name][0]).length===0 || !this.props.exam.definition.fields)
       return <View style={styles.columnLayout}>
-          {this.props.showTitle && <Text style={styles.cardTitle}>{this.props.exam.definition.label?this.props.exam.definition.label:this.props.exam.definition.name}</Text>}
+          {this.props.showTitle && <Label style={styles.cardTitle} value={this.props.exam.definition.label?this.props.exam.definition.label:this.props.exam.definition.name} suffix='' fieldId={this.props.exam.definition.id}/>}
         </View>
     return <View style={styles.columnLayout}>
-      {this.props.showTitle && <Text style={styles.cardTitle}>{this.props.exam.definition.label?this.props.exam.definition.label:this.props.exam.definition.name}</Text>}
+      {this.props.showTitle && <Label style={styles.cardTitle} value={this.props.exam.definition.label?this.props.exam.definition.label:this.props.exam.definition.name} suffix='' fieldId={this.props.exam.definition.id}/>}
       {this.props.exam[this.props.exam.definition.name].map((examItem: any, index: number) => {
           return this.renderItem(examItem, index);
       })}
@@ -488,7 +488,7 @@ export class GroupedCard extends Component {
 
   renderTitle() {
     if (this.props.showTitle===false) return null;
-    return <Text style={styles.cardTitle} key='cardTitle'>{formatLabel(this.props.exam.definition)}</Text>
+    return <Label style={styles.cardTitle} key='cardTitle' value={formatLabel(this.props.exam.definition)} suffix='' fieldId={this.props.exam.definition.id}/>;
   }
 
   getGroupDefinition(fullFieldName: string) : GroupDefinition {
@@ -682,7 +682,8 @@ export class ItemsEditor extends Component {
     favorites?: ExamPredefinedValue[],
     onAddFavorite?: (item: any) => void,
     onRemoveFavorite: (favorite: ExamPredefinedValue) => void,
-    editable?: boolean
+    editable?: boolean,
+    fieldId: string
   }
   state: {
     selectedItem: any,
@@ -889,7 +890,8 @@ export class ItemsEditor extends Component {
           freestyle={fieldDefinition.freestyle}
           simpleSelect={fieldDefinition.simpleSelect}
           selection={selection}
-          onUpdateSelection={(value) => this.updateItem(propertyName, value)} />
+          onUpdateSelection={(value) => this.updateItem(propertyName, value)}
+          fieldId={this.props.fieldId+'.'+fieldDefinition.name}/>
       }
     });
   }
@@ -900,7 +902,7 @@ export class ItemsEditor extends Component {
     if (fields.length===0) return null;
     let form = this.state.selectedItem;
     let groupDefinition : GroupDefinition = {'name':'nonSelectables','label':'','fields':fields};
-    return <View><GroupedForm form={form} definition={groupDefinition} onChangeField={this.updateItem} /></View>
+    return <View><GroupedForm form={form} definition={groupDefinition} onChangeField={this.updateItem} fieldId={this.props.fieldId} /></View>
   }
 
   addFavorite = () => {
@@ -1000,6 +1002,7 @@ export class SelectionListsScreen extends Component {
         favorites = {this.props.exam.definition.starable?this.props.favorites:undefined}
         onAddFavorite = {this.props.exam.definition.starable?this.props.onAddFavorite:undefined}
         onRemoveFavorite = {this.props.exam.definition.starable?this.props.onRemoveFavorite:undefined}
+        fieldId={this.props.exam.definition.id}
       />
   }
 }
@@ -1303,7 +1306,7 @@ export class GroupedForm extends Component {
     if (fieldDefinition.layout)
       return this.renderField(fieldDefinition);
     return <View style={styles.formRow} key={fieldDefinition.name}>
-        <View style={styles.formRowHeader}><FormLabel value={label}/></View>
+        <View style={styles.formRowHeader}><Label value={label} fieldId={this.props.fieldId+'.'+fieldDefinition.name}/></View>
         {this.renderField(fieldDefinition)}
     </View>
   }
@@ -1315,7 +1318,7 @@ export class GroupedForm extends Component {
     const fieldDefinitions : FieldDefinition[] = row.map((fieldName: string) => this.props.definition.fields.find((field: FieldDefinition) => field.name === fieldName));
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
       let label : string = formatLabel(fieldDefinition);
-      fields.push(<FormLabel value={label} key={fieldDefinition.name+'Label'}/>);
+      fields.push(<Label value={label} key={fieldDefinition.name+'Label'} fieldId={this.props.fieldId+'.'+fieldDefinition.name}/>);
       fields.push(this.renderField(fieldDefinition));
     });
     return <View style={styles.formRow} key={fieldDefinition.name}>
@@ -1337,7 +1340,7 @@ export class GroupedForm extends Component {
               const columnDefinition : FieldDefinition = this.props.definition.fields.find((fieldDefinition: FieldDefinition) => fieldDefinition.name === column);
               if (columnDefinition) {
                 const columnLabel : string = formatLabel(columnDefinition);
-                return <FormLabel value={columnLabel} style={styles.formTableColumnHeader} key={index} suffix={''}/>
+                return <Label value={columnLabel} style={styles.formTableColumnHeader} key={index} suffix={''} fieldId={this.props.fieldId+'.'+columnDefinition.name}/>
               } else {
                 if (column==='>>') {
                   if (index===columns.length-1) {
@@ -1353,9 +1356,9 @@ export class GroupedForm extends Component {
       </View>
   }
 
-  renderColumnedRow(fieldLabel: string, columns: string[], rowIndex: number, copyRow: () => void) {
+  renderColumnedRow(labelId: string, fieldLabel: string, columns: string[], rowIndex: number, copyRow: () => void) {
     return <View style={styles.formRow} key={'columnedRow-'+rowIndex}>
-        <FormLabel value={fieldLabel} style={styles.formTableRowHeader}/>
+        <Label value={fieldLabel} style={styles.formTableRowHeader} fieldId={labelId}/>
         {columns.map((column: string, columnIndex: number) => {
             const columnDefinition : GroupDefinition = this.props.definition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
             if (columnDefinition) {
@@ -1400,7 +1403,7 @@ export class GroupedForm extends Component {
     const columnedFields : FieldDefinition[] = columnDefinition.fields;
     const columns : string[] = this.props.definition.columns.find((columns: string[]) => columns.length>0 && columns[0]===columnDefinition.name);
     for (let i : number = 0; i< columnedFields.length; i++) {
-      rows.push(this.renderColumnedRow(formatLabel(columnedFields[i]), columns, i, () => this.copyRow(columnedFields, i, i+1, columns)));
+      rows.push(this.renderColumnedRow(this.props.fieldId+'.'+columnDefinition.name+'.'+columnedFields[i].name, formatLabel(columnedFields[i]), columns, i, () => this.copyRow(columnedFields, i, i+1, columns)));
     }
     return rows;
   }
@@ -1436,7 +1439,7 @@ export class GroupedForm extends Component {
   render() {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style} key={this.props.definition.name}>
-        <FormLabel style={styles.sectionTitle} key='title' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
+        <Label style={styles.sectionTitle} key='title' suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
         {this.renderRows()}
         {this.renderIcons()}
     </View>
@@ -1671,6 +1674,7 @@ export class GroupedFormScreen extends Component {
           onClear={() => this.clear(groupDefinition.name, subIndex)}
           definition={groupDefinition}
           key={'Rx'+index+'.'+subIndex}
+          fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}          
         />
         :<GroupedForm definition={groupDefinition} editable={this.props.editable} key={groupDefinition.name+"-"+index+'.'+subIndex}
             form={childValue}
@@ -1681,14 +1685,15 @@ export class GroupedFormScreen extends Component {
             enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
             patientId={this.patientId}
             examId={this.props.exam.id}
+            fieldId={fieldId}
           />
       );
     } else if (groupDefinition.type==='SRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.type==='CRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}

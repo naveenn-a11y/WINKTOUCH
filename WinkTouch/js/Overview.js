@@ -13,6 +13,8 @@ import { StartVisitButtons } from './Visit';
 import { getStore } from './DoctorApp';
 import { now } from './Util';
 import { strings } from './Strings';
+import { isAtWink } from './Registration';
+import { toggleTranslateMode, isInTranslateMode } from './ExamDefinition';
 
 class MainActivities extends Component {
   props: {
@@ -20,16 +22,38 @@ class MainActivities extends Component {
       onLogout: () => void
   }
 
+  state: {
+    translating: boolean
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      translating: isInTranslateMode()
+    };
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    if (this.state.translating!=isInTranslateMode()) {
+      this.setState({translating: isIntranslateMode()});
+    }
+  }
+
   openPatientFile = (visitType: string, isPrevisit: boolean) => {
     this.props.navigation.navigate('cabinet');
   }
 
-  render() {
+  switchTranslate = () => {
+    toggleTranslateMode();
+    this.setState({translating: isInTranslateMode()});
+  }
 
+  render() {
     return <View style={styles.startVisitCard}>
         <View style={styles.flow}>
             <Button title={strings.openFile} onPress={this.openPatientFile} />
             <Button title={strings.logout} onPress={this.props.onLogout} />
+            {isAtWink && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
         </View>
     </View>
   }

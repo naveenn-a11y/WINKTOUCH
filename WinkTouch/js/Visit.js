@@ -476,13 +476,13 @@ class VisitWorkFlow extends Component {
          (exam: Exam) => exam.definition.isAssessment);
        return assessments.map((exam: Exam, index: number) => {
          if (exam.definition.name==='RxToOrder') {
-           return  <TouchableOpacity key={index} disabled={this.props.readonly} onPress={() => this.state.rxToOrder && this.props.navigation.navigate('exam', {exam: this.state.rxToOrder, appointmentStateKey: this.props.appointmentStateKey}) }>
+           return  <TouchableOpacity key={strings.finalRx} disabled={this.props.readonly} onPress={() => this.state.rxToOrder && this.props.navigation.navigate('exam', {exam: this.state.rxToOrder, appointmentStateKey: this.props.appointmentStateKey}) }>
                     <PrescriptionCard title={strings.finalRx} exam={this.state.rxToOrder} editable={false} />
                   </TouchableOpacity>
          } else if (exam.definition.name==='Consultation summary') {
-            return  <VisitSummaryCard exam={exam} editable={!this.state.locked && !this.props.readonly} key={index} />
+            return  <VisitSummaryCard exam={exam} editable={!this.state.locked && !this.props.readonly} key={strings.summaryTitle} />
          } else{
-           return <AssessmentCard exam={exam} disabled={this.props.readonly} navigation={this.props.navigation} key={index} appointmentStateKey={this.props.appointmentStateKey}/>
+           return <AssessmentCard exam={exam} disabled={this.props.readonly} navigation={this.props.navigation} key={exam.name} appointmentStateKey={this.props.appointmentStateKey}/>
          }
         }
      );

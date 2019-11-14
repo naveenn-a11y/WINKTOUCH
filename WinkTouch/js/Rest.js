@@ -9,11 +9,15 @@ import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const restUrl : string = __DEV__?'http://192.168.88.24:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.7/';
+export const restUrl : string = __DEV__?'http://192.168.88.106:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.8/';
 
 let token : string;
 
 let requestNumber: number = 0;
+
+export function getNextRequestNumber() : number {
+  return ++requestNumber;
+}
 
 export function setToken(newToken: string) {
   if (newToken!==undefined) console.log('Token:' + newToken);

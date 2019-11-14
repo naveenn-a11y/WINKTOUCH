@@ -30,8 +30,49 @@ import { DocumentScanner } from './DocumentScanner';
 import { fetchUpload, getMimeType, getAspectRatio } from './Upload';
 import { getCachedItem } from './DataCache';
 import { searchPatientDocuments, storePatientDocument } from './Patient';
+import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
 const margin : number = 40;
+
+export class Label extends PureComponent {
+  props: {
+    value: string,
+    width?: number,
+    definition: FieldDefinition,
+    style: style,
+    suffix?: string,
+    fieldId?: string
+  }
+  state: {
+    newLabel: string
+  }
+  static defaultProps = {
+    suffix: ':'
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      newLabel: this.props.value
+    }
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({newLabel: nextProps.value});
+  }
+
+  saveLabel = () => {
+    if (this.props.value===this.state.newLabel) return;
+    updateLabel(this.props.fieldId, this.state.newLabel);
+  }
+
+  render() {
+    if (isInTranslateMode()) return <TextInput style={[this.props.style, styles.translateField]} value={this.state.newLabel} editable={true} onChangeText={(text: string) => this.setState({newLabel: text })} onBlur={this.saveLabel}/>
+    if (!this.props.value || this.props.value.length===0) return null;
+    const style = this.props.style?this.props.style:this.props.width?[styles.formLabel, {width: this.props.width}]:styles.formLabel;
+    return <Text style={style}>{this.props.value}{this.props.suffix}</Text>
+  }
+}
 
 export class UpdateTile extends Component {
   props: {
@@ -1859,7 +1900,8 @@ export class SelectionList extends React.PureComponent {
     multiValue?: boolean,
     freestyle?: boolean,
     simpleSelect?: boolean,
-    onUpdateSelection: (selection: ?(string[] | string)) => void
+    onUpdateSelection: (selection: ?(string[] | string)) => void,
+    fieldId: string
   }
   state: {
     searchable: boolean,
@@ -1989,7 +2031,7 @@ export class SelectionList extends React.PureComponent {
     let style: string = this.props.required && !this.hasSelection() ? styles.boardTodo : styles.board;
     let data : any[] = this.itemsToShow();
     return <View style={style}>
-      {this.props.label && <Text style={styles.screenTitle}>{this.props.label}</Text>}
+      {this.props.label && <Label style={styles.screenTitle} value={this.props.label} suffix='' fieldId={this.props.fieldId}/>}
       {this.renderFilterField()}
       <FlatList
         initialNumToRender={20}

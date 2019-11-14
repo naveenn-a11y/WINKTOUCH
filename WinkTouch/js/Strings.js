@@ -138,7 +138,7 @@ export const strings = new LocalizedStrings({
       fetchItemError: 'Something went wrong trying to get {0} data from the server. Please try again.',
       storeItemError: 'Something went wrong trying to save {0} data on the server.',
       maximumAddableGroupError: 'You can not add more then {0} {1}.',
-      doctorWithoutVisitTypeError: 'Doctor {0} is not set up for the EHR yet in the database.',
+      doctorWithoutVisitTypeError: 'Doctor {0} is not set up for the EMR yet in the database.',
       searchCriteriumMissingError: 'Please enter a search criterium.',
       noPatientsFound: 'No patients found',
       drawingNotSavedWarning: 'Attention: Your last drawing was not saved.',
@@ -153,6 +153,7 @@ export const strings = new LocalizedStrings({
       findPatient: 'Enter the patient name or #Z',
       visit: 'Consultation',
       translate: 'Translate',
+      stopTranslating: 'Stop translating'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
@@ -297,7 +298,8 @@ export const strings = new LocalizedStrings({
       deleteVisitQuestion: 'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
       findPatient: 'Entrer le nom du patient ou le #Z',
       visit: 'Consultation',
-      translate: 'Traduire',      
+      translate: 'Traduire',
+      stopTranslating: 'Arreter de traduire'
     }
 });
 
