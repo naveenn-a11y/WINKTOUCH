@@ -619,8 +619,8 @@ export class ItemsList extends Component {
     if (!this.props.editable || this.props.onAddItem) return null;
     return <View style={styles.buttonsRowLayout}>
       <View style={styles.buttonsRowStartLayout}>
-        <Button title='All normal' color={fontColor} onPress={() => { this.allNormal() } } />
-        <Button title='Others normal' color={fontColor} onPress={() => { this.othersNormal() } } />
+        <Button title={strings.allNormal} color={fontColor} onPress={() => { this.allNormal() } } />
+        <Button title={strings.otherNormal} color={fontColor} onPress={() => { this.othersNormal() } } />
       </View>
     </View>
   }
@@ -1047,7 +1047,8 @@ export class CheckList extends PureComponent {
     onAddFavorite?: () => void,
     onAdd?: () => void,
     patientId: string,
-    examId: string
+    examId: string,
+    fieldId: string
   }
 
   formattedOptions: string[];
@@ -1226,7 +1227,7 @@ export class CheckList extends PureComponent {
   render() {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style}>
-            <Text style={styles.sectionTitle}>{formatLabel(this.props.definition)}</Text>
+            <Label style={styles.sectionTitle} suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
           <View style={styles.wrapBoard}>
         {this.formattedOptions.map((option: string) => {
             const isSelected : boolean|string = this.isSelected(option);
@@ -1674,7 +1675,7 @@ export class GroupedFormScreen extends Component {
           onClear={() => this.clear(groupDefinition.name, subIndex)}
           definition={groupDefinition}
           key={'Rx'+index+'.'+subIndex}
-          fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}          
+          fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}
         />
         :<GroupedForm definition={groupDefinition} editable={this.props.editable} key={groupDefinition.name+"-"+index+'.'+subIndex}
             form={childValue}
@@ -1698,7 +1699,8 @@ export class GroupedFormScreen extends Component {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
         onClear={() => this.clear(groupDefinition.name)} patientId={this.patientId} examId={this.props.exam.id}
-        onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined} />
+        onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
+        fieldId={this.props.exam.definition.id+'.'+groupDefinition.name} />
     } else {
       return  <GroupedForm definition={groupDefinition} editable={this.props.editable} form={value} key={groupDefinition.name+"-"+index}
         onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column)}

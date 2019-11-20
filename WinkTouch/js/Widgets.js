@@ -2268,7 +2268,7 @@ export class ImageField extends Component {
   }
 
   async loadImage(imageDrawing: ImageDrawing) {
-    if (this.state.upload) return; //image came from cash. Should we check its the right one?
+    if (this.state.upload) return; //image came from cache. Should we check its the right one?
     if (!imageDrawing || !imageDrawing.image || !imageDrawing.image.startsWith('upload-')) return;
     let upload : Upload = await fetchUpload(imageDrawing.image);
     this.setState({upload, cameraOn: false, attachOn: false});
@@ -2618,7 +2618,7 @@ export class ImageField extends Component {
     if (image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
     if (image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
     if (image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
-    if (!(image.startsWith('http:'))) return undefined;
+    if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;
     return {uri: image};
   }
 

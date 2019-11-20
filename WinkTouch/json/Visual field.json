@@ -14,14 +14,14 @@
           "name": "OD",
           "required": true,
           "freestyle": true,
-          "options": "confontationVFCodes"
+          "options": "confrontationVFCodes"
         },
         {
           "normalValue": "Full",
           "name": "OS",
           "required": true,
           "freestyle": true,
-          "options": "confontationVFCodes"
+          "options": "confrontationVFCodes"
         }
       ]
     },
