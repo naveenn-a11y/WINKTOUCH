@@ -3,35 +3,81 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {View, TextInput, StatusBar, AsyncStorage} from 'react-native';
-import LoginScreen from './LoginScreen';
-import OverviewScreen from './OverviewScreen';
-import RegisterScreen from './RegisterScreen';
+import {View, TextInput, StatusBar, AsyncStorage, AppState, InteractionManager} from 'react-native';
+import codePush , { SyncStatus } from 'react-native-code-push';
+import type { Registration , Store, User} from './Types';
+import { LoginScreen } from './LoginScreen';
+import { DoctorApp } from './DoctorApp';
+import { RegisterScreen } from './Registration';
+import { setDeploymentVersion, checkBinaryVersion } from './Version';
+import { getVisitTypes, fetchVisitTypes } from './Visit';
+import { fetchUserDefinedCodes } from './Codes';
 
-type Account = {
-    id: string,
-    companyName: string
-};
+codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) setDeploymentVersion(currentPackage.label)});
 
-type User = {
-    firstName: string,
-    lastName: string,
-    language: string
-};
+function logUpdateStatus(status: number) {
+  switch (status) {
+   case SyncStatus.CHECKING_FOR_UPDATE:
+        console.log('CodePush Checking for update')
+       break;
+   case SyncStatus.AWAITING_USER_ACTION:
+        console.log('CodePush Waiting for user action');
+       break;
+   case SyncStatus.DOWNLOADING_PACKAGE:
+       console.log('CodePush Downloading package');
+       break;
+   case SyncStatus.INSTALLING_UPDATE:
+       console.log('CodePush Installing update');
+       break;
+   case SyncStatus.UP_TO_DATE:
+       console.log('CodePush Package up to date');
+   break;
+   case SyncStatus.UPDATE_INSTALLED:
+       console.log('CodePush Package installed');
+   break;
+   case SyncStatus.UPDATE_IGNORED:
+       console.log('CodePush Updated ignored');
+   break;
+   case SyncStatus.UNKNOWN_ERROR:
+       console.log('CodePush Unknown error');
+   break;
+   case SyncStatus.INSTALLING_UPDATE:
+       console.log('CodePush Installing update');
+   break;
+   default:
+      console.log('CodePush Status: '+status);
+    }
+}
 
-type Store = {
-    id: string,
-    storeName: string
-};
+let lastUpdateCheck : ?Date = undefined;
 
-export default class EhrApp extends Component {
+export async function checkAndUpdateDeployment(registration: ?Registration) {
+  if (__DEV__) {
+    console.log("Checking and updating bundle (not on dev).");
+    checkBinaryVersion();
+    return;
+  }
+  checkBinaryVersion();
+  if (lastUpdateCheck!==undefined && ((new Date()).getTime()-lastUpdateCheck.getTime())<5*60000) return; //Prevent hammering code-push servers
+  if (registration===undefined || registration===null || registration.bundle===undefined) return;
+  __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
+  lastUpdateCheck = new Date();
+  //let packageVersion = await codePush.checkForUpdate(registration.bundle);
+  //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
+  codePush.sync({ updateDialog: false, deploymentKey: registration.bundle, installMode: codePush.InstallMode.IMMEDIATE}, logUpdateStatus);
+}
+
+
+export class EhrApp extends Component {
     state : {
         isRegistered: boolean,
         isLoggedOn: boolean,
         isLocked: boolean,
-        account: Account,
-        user: User,
-        store: Store
+        registration: ?Registration,
+        user: ?User,
+        store: ?Store,
+        token: ?string,
+        updateTimer: ?any
     };
 
     constructor() {
@@ -39,81 +85,127 @@ export default class EhrApp extends Component {
         this.state = {
             isRegistered: false,
             isLoggedOn: false,
-            isLocked: false
+            isLocked: false,
+            registration: undefined,
+            user: undefined,
+            store: undefined,
+            token: undefined,
+            updateTimer: undefined,
         };
     }
 
-    async reset() {
-        const companyName = await AsyncStorage.getItem('companyName');
-        AsyncStorage.removeItem("companyName");
+    reset = () => {
+        AsyncStorage.removeItem('path');
+        AsyncStorage.removeItem('bundle');
+        AsyncStorage.removeItem('userName');
+        let registration : ?Registration = this.state.registration;
+        if (registration) {
+          registration.path = undefined,
+          registration.bundle = undefined
+        }
         this.setState({
             isRegistered: false,
             isLoggedOn: false,
-            account: {
-                id: null,
-                companyName: companyName
-            },
+            registration,
             user: null,
             store: null
         });
     }
 
-    async setAccount(account) {
-        AsyncStorage.setItem('companyName', account.companyName);
-        this.setState({isRegistered: true, account: account});
+    setRegistration(registration?: Registration) {
+      const isRegistered : boolean = registration!=undefined && registration!=null && registration.email!=undefined && registration.path!=undefined && registration.bundle!==undefined && registration.bundle!==null && registration.bundle.length>0;
+      this.setState({isRegistered, registration});
+      if (isRegistered===true) checkAndUpdateDeployment(registration);
     }
 
-    userLoggedOn(user) {
-        this.setState({isLoggedOn: true, user: user});
-    }
-
-    startDemo() {
-        this.setState({
-            isRegistered: true,
-            isLoggedOn: true,
-            account: {
-                id: '',
-                companyName: 'Test Optical Store'
-            },
-            user: {
-                firstName: 'Roger',
-                lastName: 'Bacon',
-                language: 'en'
-            },
-            store: {
-                storeName: 'test store'
-            }
-        });
-    }
-
-    async loadAccount() {
-        const companyName = await AsyncStorage.getItem('companyName');
-        console.log('companyName on device is: ' + companyName);
-        if (companyName !== null) {
-            let account = {
-                companyName: companyName
-            };
-            this.setAccount(account);
+    async safeRegistration(registration: Registration) {
+        if (registration===undefined || registration===null) {
+          AsyncStorage.removeItem('bundle');
+        } else {
+          if (registration.email) {
+            AsyncStorage.setItem('email', registration.email);
+          } else {
+            AsyncStorage.removeItem('email');
+          }
+          if (registration.bundle) {
+            AsyncStorage.setItem('bundle', registration.bundle);
+          } else {
+            AsyncStorage.removeItem('bundle');
+          }
+          if (registration.path) {
+            AsyncStorage.setItem('path', registration.path);
+          } else {
+            AsyncStorage.removeItem('path');
+          }
         }
+        this.setRegistration(registration);
+    }
+
+    userLoggedOn(user: User, store: Store, token: string) {
+        this.checkForUpdate();
+        this.setState({isLoggedOn: user!==undefined && token!==undefined && store!==undefined, user, store, token});
+        fetchVisitTypes();
+        fetchUserDefinedCodes();
+    }
+
+    logout = () => {
+        this.setState({isLoggedOn: false, token: undefined, store: undefined});
+        lastUpdateCheck = undefined;
+        this.checkForUpdate();
+    }
+
+    checkForUpdate() {
+        checkAndUpdateDeployment(this.state.registration);
+    }
+
+    async loadRegistration() {
+        const email : string = await AsyncStorage.getItem('email');
+        const bundle : string = await AsyncStorage.getItem('bundle');
+        const path: string = await AsyncStorage.getItem('path');
+        const registration : Registration = {email, bundle, path};
+        console.log('WinkTouch app is registered to : ' + email + ' bundle: '+bundle+ ' path: '+path);
+        this.setRegistration(registration);
     }
 
     startLockingDog() {
         //TODO
     }
 
-    componentDidMount() {
-        this.loadAccount();
+    componentWillMount() {
+        this.loadRegistration();
         this.startLockingDog();
     }
 
-    render() {
-        if (!this.state.isRegistered) {
-            return <RegisterScreen account={this.state.account} onSuccess={(account) => this.setAccount(account)}/>
-        }
-        if (!this.state.isLoggedOn) {
-            return <LoginScreen account={this.state.account} onSuccess={(user) => this.userLoggedOn(user)} onReset={() => this.reset()}/>
-        }
-        return <OverviewScreen account={this.state.account} user={this.state.user}/>
+    componentDidMount() {
+      let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
+      this.setState({updateTimer});
+      AppState.addEventListener('change', this.onAppStateChange.bind(this));
     }
 
+    componentWillUnmount() {
+      if (this.state.updateTimer) {
+        clearInterval(this.state.updateTimer);
+      }
+      AppState.removeEventListener('change', this.onAppStateChange.bind(this));
+    }
+
+    onAppStateChange(nextState: any) {
+      __DEV__ && console.log('next app state ='+nextState);
+      if (nextState==='active') {
+        this.checkForUpdate();
+      }
+     }
+
+    render() {
+        if (!this.state.isRegistered) {
+            return <RegisterScreen email={this.state.registration?this.state.registration.email:undefined} onReset={this.reset}
+              onRegistered={(registration: Registration) => this.safeRegistration(registration)}/>
+        }
+        if (!this.state.isLoggedOn) {
+            return <LoginScreen registration={this.state.registration} onLogin={(user: User, store: Store, token: string) => this.userLoggedOn(user, store, token)} onReset={this.reset}/>
+        }
+        return <DoctorApp registration={this.state.registration} user={this.state.user} token={this.state.token} store={this.state.store} onLogout={this.logout}/>
+    }
 }
+
+EhrApp = codePush({ checkFrequency: codePush.CheckFrequency.MANUAL })(EhrApp);

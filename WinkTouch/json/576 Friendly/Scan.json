@@ -1,0 +1,41 @@
+{
+  "name": "Scan",
+  "type": "groupedForm",
+  "section": "Document.1",
+  "card": false,
+  "scrollable": true,
+  "fields": [
+    {
+      "name": "Chart",
+      "multiValue": true,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Exam chart scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "size": "XL",
+          "type": "EMR"
+        }
+      ]
+    },
+    {
+      "name": "Auto refractor",
+      "optional": true,
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Auto refractor scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "size": "S",
+          "type": "EMR"
+        }
+      ]
+    }
+  ]
+}

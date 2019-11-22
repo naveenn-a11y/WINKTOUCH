@@ -4,26 +4,39 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Image, View, TouchableHighlight, Text, Button, ScrollView, TextInput, Modal, LayoutAnimation, InteractionManager} from 'react-native';
+import { Image, View, TouchableHighlight, Text, ScrollView, TextInput, Modal, LayoutAnimation, InteractionManager} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import type {Patient, PatientInfo, Appointment, Visit, Store} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings } from './Strings';
-import type {Patient, PatientInfo, RestResponse } from './Types';
-import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo } from './Patient';
+import { Button } from './Widgets';
+import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPatientInfo, storePatientInfo } from './Patient';
 import { PrescriptionCard } from './Assessment';
+import { searchItems } from './Rest';
+import { cacheItemsById, getCachedItem } from './DataCache';
+import { hourDifference, parseDate, now } from './Util';
+import { VisitHistoryCard, fetchVisitHistory, VisitHistory } from './Visit';
+import { PatientMedicationCard } from './Medication';
+import { PatientRefractionCard } from './Refraction';
+import { getFieldDefinitions } from './Items';
+import { getStore } from './DoctorApp';
 
-export async function searchPatients(accountsId: number, searchText: string) : Patient[] {
-  try {
-    let response = await fetch('https://dev1.downloadwink.com/Wink/Patient/list?accountsId='+accountsId+'&searchData='+searchText, {
-        method: 'get',
-    });
-    let json = await response.json();
-    const patients : Patient[] = json.response;
+const maxPatientListSize : number = 50;
+
+export async function searchPatients(searchText: string) : Patient[] {
+    if (!searchText || searchText.trim().length===0) {
+      return [];
+    }
+    const searchCriteria = {
+      searchData: searchText
+    };
+    let restResponse = await searchItems('Patient/list', searchCriteria);
+    let patients: Patient[] = restResponse.patientList;
+    if (patients && patients.length>maxPatientListSize) patients=patients.slice(0, maxPatientListSize);
+    cacheItemsById(patients);
     return patients;
-  } catch (error) {
-    console.log('Error in searchPatients: '+error);
-    alert('Something went wrong trying to get the patient list from the server. You can try again.');
-  }
 }
+
 
 class PatientList extends Component {
   props: {
@@ -35,9 +48,9 @@ class PatientList extends Component {
   render() {
     if (!this.props.visible)
       return null;
-    return <View>
+    return <View style={styles.flow}>
         {this.props.patients.map((patient: Patient, index: number) => {
-          return <Button key={index} title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} />
+          return <View style={styles.centeredRowLayout} key={index}><Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} /></View>
         })}
     </View >;
   }
@@ -67,13 +80,23 @@ export class FindPatient extends Component {
   async searchPatients() {
       this.props.onSelectPatient(undefined);
       this.setState({showPatientList: false, patients: []});
-      const patients : Patient[] = await searchPatients(2, this.state.searchCriterium);
+      if (!this.state.searchCriterium || this.state.searchCriterium.trim().length===0) {
+        alert(strings.searchCriteriumMissingError);
+        return;
+      }
+      const patients : Patient[] = await searchPatients(this.state.searchCriterium);
+      if (!patients || patients.length===0) {
+        if (!this.props.onNewPatient) {
+          alert(strings.noPatientsFound);
+          return;
+        }
+      }
+      LayoutAnimation.spring();
       this.setState({
-        showPatientList: (patients && patients.length>0),
-        showNewPatientButton: true,
+        showPatientList: patients!=undefined && patients.length>0,
+        showNewPatientButton: patients===undefined || patients.length<maxPatientListSize,
         patients
       });
-      LayoutAnimation.spring();
   }
 
   newPatient() {
@@ -84,61 +107,84 @@ export class FindPatient extends Component {
 
   render() {
     return <View style={styles.tabCard}>
-      <TextInput placeholder='Find patient' returnKeyType='search' autoCorrect={false}
-        style={styles.textfieldLeft} value={this.state.searchCriterium}
+      <TextInput placeholder='Find patient' returnKeyType='search' autoCorrect={false} autoFocus={true}
+        style={styles.searchField} value={this.state.searchCriterium}
         onChangeText={(text: string) => this.setState({ searchCriterium: text })}
         onSubmitEditing={() => this.searchPatients()} />
       <PatientList
         patients={this.state.patients}
         visible={this.state.showPatientList}
         onSelect={this.props.onSelectPatient} />
-      {this.state.showNewPatientButton?<Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/>:null}
+      {this.props.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
     </View>
   }
 }
 
 export class FindPatientScreen extends Component {
   props: {
-    onNavigationChange: (action: string, data: any) => void,
-    onUpdatePatientInfo: (patientInfo: PatientInfo) => void
+    navigation: any,
+  }
+  params: {
+    showBilling?: boolean,
+    nextNavigation?: {action: string, params: any}
   }
   state: {
-    patientInfo?: PatientInfo
+    patientInfo: ?PatientInfo,
+    visitHistory: ?string[],
+    patientDocumentHistory: ?string[],
   }
+
   constructor(props: any) {
     super(props);
+    this.params = this.props.navigation.state.params;
     this.state = {
-      patientInfo: undefined
+      patientInfo: undefined,
+      visitHistory: undefined,
+      patientDocumentHistory: undefined
     }
   }
 
+  componentWillReceiveProps(nextProps: any) {
+    this.params = nextProps.navigation.state.params;
+  }
+
+  async showVisitHistory(patientId: string) : void {
+    let visitHistory : ?string[] = getCachedItem('visitHistory-'+patientId);
+    if (!visitHistory) {
+      visitHistory = await fetchVisitHistory(patientId);
+    }
+    if (this.state.patientInfo===undefined || patientId!==this.state.patientInfo.id) {
+      return;
+    }
+    LayoutAnimation.easeInEaseOut();
+    const patientDocumentHistory : ?string[] = getCachedItem('patientDocumentHistory-'+patientId);
+    this.setState({visitHistory, patientDocumentHistory});
+  }
+
   async selectPatient(patient: Patient) {
-    const patientInfo : PatientInfo = patient?await fetchPatientInfo(patient):undefined;
-    this.setState({
-      patientInfo: patientInfo
-    });
-  }
-
-  updatePatientInfo = (patientInfo: PatientInfo) : void => {
-    this.setState({patientInfo});
-    this.props.onUpdatePatientInfo(patientInfo);
-  }
-
-  newPatient() {
-    let patientInfo : PatientInfo = createPatient();
-    this.setState({
-      patientInfo: patientInfo
-    });
+    if (!patient) {
+      if (!this.state.patientInfo) return;
+      LayoutAnimation.easeInEaseOut();
+      this.setState({patientInfo: undefined, visitHistory: undefined, patientDocumentHistory: undefined, isNewPatient:false});
+      return;
+    }
+    let patientInfo : ?PatientInfo = getCachedItem(patient.id);
+    LayoutAnimation.easeInEaseOut();
+    this.setState({patientInfo, visitHistory: undefined, patientDocumentHistory: undefined, isNewPatient: false});
+    patientInfo = await fetchPatientInfo(patient.id);
+    if (this.state.patientInfo===undefined || patient.id!==this.state.patientInfo.id)
+      return;
+    this.setState({patientInfo, isNewPatient:false}, () => this.showVisitHistory(patient.id));
   }
 
   render() {
-    return <ScrollView>
-      <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} onNewPatient={()=>this.newPatient()} />
-      {this.state.patientInfo?<View>
-        <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
-        <PatientBillingInfo patient={this.state.patientInfo} />
-        <PrescriptionCard patient={this.state.patientInfo} editable={false}/>
-      </View>:null}
-    </ScrollView>
+    return <KeyboardAwareScrollView scrollEnable={true}  keyboardShouldPersistTaps="handled">
+      <FindPatient onSelectPatient={(patient: Patient) => this.selectPatient(patient)} />
+      {this.state.patientInfo && <View style={styles.separator}>
+        <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} style={styles.tabCardS}/>
+        <VisitHistory patientInfo={this.state.patientInfo} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
+          readonly={true} navigation={this.props.navigation} />
+      </View>}
+    </KeyboardAwareScrollView>
   }
 }

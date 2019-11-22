@@ -1,0 +1,62 @@
+{
+  "name": "Treatment",
+  "isAssessment": true,
+  "scrollable": false,
+  "cardFields": [
+    [
+      "Treatment plan.Recommendation",
+      "Treatment plan.Treatment",
+      "Recall.Notes"
+    ]
+  ],
+  "type": "groupedForm",
+  "relatedExams": [
+    "Diagnose"
+  ],
+  "fields": [
+    {
+      "name": "Treatment plan",
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Recommendation",
+          "freestyle": true,
+          "options": "treatmentRecommendationCodes",
+          "maxLength": 250
+        },
+        {
+          "maxLength": 250,
+          "name": "Treatment",
+          "freestyle": false
+        }
+      ],
+      "size": "M"
+    },
+    {
+      "name": "Recall",
+      "rows": [
+        [
+          "Amount",
+          "Unit"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "Amount",
+          "label": "Recall in",
+          "mappedField": "visit.recall.amount"
+        },
+        {
+          "name": "Unit",
+          "label": "",
+          "mappedField": "visit.recall.unit"
+        },
+        {
+          "name": "Notes",
+          "mappedField": "visit.recall.notes"
+        }
+      ],
+      "size": "M"
+    }
+  ]
+}
