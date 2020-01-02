@@ -1,6 +1,31 @@
 {
-  "name": "Lensometry",
   "order": "4",
+  "locale": {
+    "fr-CA": {
+      "label": "LentimÃ¨tre",
+      "fields": [
+        {
+          "name": "Current wear",
+          "label": "Lunettes",
+          "fields": [
+            {
+              "name": "Current wear",
+              "label": "Actuel"
+            },
+            {
+              "name": "Since",
+              "label": "Depuis"
+            }
+          ]
+        },
+        {
+          "name": "Lensometry",
+          "label": "LentimÃ¨tre"
+        }
+      ]
+    }
+  },
+  "name": "Lensometry",
   "type": "groupedForm",
   "section": "Vision testing.4",
   "fields": [
@@ -9,8 +34,8 @@
       "label": "",
       "fields": [
         {
-          "name": "Current wear",
           "normalValue": "Glasses",
+          "name": "Current wear",
           "defaultValue": "Glasses",
           "options": [
             "Glasses",
@@ -26,17 +51,17 @@
       ]
     },
     {
-      "hasAdd": true,
       "hasLensType": true,
-      "multiValue": true,
+      "hasAdd": true,
       "name": "Lensometry",
+      "multiValue": true,
       "type": "SRx",
       "fields": [
         {
           "name": "lensType",
           "label": "Lens type",
-          "options": "lensTypeCodes",
-          "freestyle": true
+          "freestyle": true,
+          "options": "lensTypeCodes"
         }
       ]
     }

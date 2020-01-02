@@ -4,15 +4,16 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, TouchableHighlight, Text, TextInput, Button, TouchableWithoutFeedback, Switch, Modal } from 'react-native';
+import { View, Text, TextInput, Button, TouchableWithoutFeedback, Switch, Modal } from 'react-native';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import type { FieldDefinition, FieldDefinitions, CodeDefinition, GroupDefinition } from './Types';
 import { styles, scaleStyle, selectionBorderColor, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import { DateField, DurationField, TimeField, TilesField, TextArrayField, ButtonArray, NumberField, ListField, ImageField, ImageUploadField, CheckButton, Label } from './Widgets';
 import { getFieldDefinitions } from './Items';
+import { GroupedForm } from './GroupedForm';
 import { formatAllCodes, formatCode, formatCodeDefinition, parseCode, formatOptions, getAllCodes } from './Codes';
-import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue } from './Util';
+import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue, setValue } from './Util';
 import { isNumericField, formatLabel } from './Items';
 import { Microphone } from './Voice';
 
@@ -717,7 +718,7 @@ export class FormSelectionArray extends Component {
 
 export class FormInput extends Component {
   props: {
-    value: ?string|?number,
+    value: ?string|?number|?{},
     errorMessage?: string,
     definition: FieldDefinition,
     type?: string,
@@ -793,6 +794,15 @@ export class FormInput extends Component {
     return validation;
   }
 
+  updateSubValue(subGroupDefinition: GroupDefinition, field: string, value: any) {
+    let image : ?{} = this.props.value;
+    if (!image) image={}; //TODO: remove this as it should never happen as it should have gotten initialised by the ExamScreen
+    const fieldIdentifier : string = subGroupDefinition.name + '.' + field;
+    setValue(image, fieldIdentifier, value);
+    __DEV__ && console.log(JSON.stringify(image));
+    this.props.onChangeValue(image);
+  }
+
   renderFormInput() {
     const label : string = this.props.label?this.props.label:formatLabel(this.props.definition);
     const type : ?string = this.props.type?this.props.type:this.props.definition.type;
@@ -822,7 +832,12 @@ export class FormInput extends Component {
       return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
     } else if (this.props.definition.image!==undefined) {
       return <ImageField value={this.props.value} image={this.props.definition.image} fileName={this.props.definition.name} resolution={this.props.definition.resolution} size={this.props.definition.size} popup={this.props.definition.popup} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style}
-        patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
+        patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}>
+          {this.props.definition.fields && this.props.definition.fields.map((groupDefinition: GroupDefinition, index: number) =>
+            <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => this.updateSubValue(groupDefinition, field, value )}
+            definition={groupDefinition}
+            form={getValue(this.props.value, groupDefinition.name)}/>)}
+        </ImageField>
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100} style={style}/>//TODO keyboardType from definition type

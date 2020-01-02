@@ -1,11 +1,16 @@
 {
-  "name": "Lifestyle",
   "addable": false,
+  "locale": {
+    "fr-CA": {
+      "label": "Occupation"
+    }
+  },
+  "name": "Lifestyle",
   "scrollable": true,
   "starable": false,
   "type": "groupedForm",
-  "section": "History.12",
   "editable": true,
+  "section": "History.12",
   "fields": [
     {
       "name": "Occupation",

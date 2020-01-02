@@ -1,6 +1,35 @@
 {
-  "name": "Reason for visit",
   "order": "1",
+  "name": "Reason for visit",
+  "locale": {
+    "fr-CA": {
+      "label": "Raison de la visite",
+      "fields": [
+        {
+          "name": "Reason for visit",
+          "label": "Raison de la visite",
+          "fields": [
+            {
+              "name": "Main Reason",
+              "label": "Raison Principale"
+            },
+            {
+              "name": "Secondary Reason",
+              "label": "Raison Secondaire"
+            },
+            {
+              "name": "Last Eye Exam",
+              "label": "Dernier Examen"
+            },
+            {
+              "name": "No show",
+              "label": "Non-prÃ©sentÃ©"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "scrollable": false,
   "starable": true,
   "type": "groupedForm",

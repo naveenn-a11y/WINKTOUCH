@@ -12,7 +12,8 @@ import { strings, getUserLanguage
 import { fetchItemById, searchItems, storeItem, performActionOnItem } from './Rest';
 import { cacheItem, cacheItemById, cacheItemsById, getCachedItem, getCachedItems } from './DataCache';
 import { ExamScreen, ExamCard } from './Exam';
-import { GroupedFormScreen, isNumericField, SelectionListsScreen, ItemsList } from './Items';
+import { SelectionListsScreen, ItemsList, isNumericField } from './Items';
+import { GroupedFormScreen } from './GroupedForm';
 import { FormRow, FormTextInput, FormNumberInput, FormSwitch, FormOptions, FormTextArrayInput, FormSelectionArray } from './Form';
 import { formatCode, formatAllCodes, parseCode } from './Codes';
 import { Button } from './Widgets';

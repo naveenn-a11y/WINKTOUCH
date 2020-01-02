@@ -16,6 +16,7 @@ import simplify from 'simplify-js';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ViewShot from 'react-native-view-shot';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
+import RNFS from 'react-native-fs';
 import { styles, fontScale, selectionColor, selectionFontColor, imageStyle, imageWidth } from './Styles';
 import { strings} from './Strings';
 import { getDoctor } from './DoctorApp';

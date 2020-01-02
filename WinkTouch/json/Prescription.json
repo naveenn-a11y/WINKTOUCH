@@ -1,17 +1,56 @@
 {
-  "name": "Prescription",
   "addable": true,
   "isAssessment": true,
+  "locale": {
+    "fr-CA": {
+      "label": "Rx MÃ©dicaments",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Nom"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentration"
+        },
+        {
+          "name": "Dosage",
+          "label": "Dose"
+        },
+        {
+          "name": "Frequency",
+          "label": "FrÃ©quence"
+        },
+        {
+          "name": "Duration",
+          "label": "DurÃ©e"
+        },
+        {
+          "name": "Do not substitute",
+          "label": "Ne pas substituer"
+        },
+        {
+          "name": "Comment",
+          "label": "Commentaires"
+        },
+        {
+          "name": "Refill",
+          "label": "Renouvellement"
+        }
+      ]
+    }
+  },
+  "name": "Prescription",
+  "label": "Medication",
   "cardFields": [
     "Label",
     "Strength"
   ],
-  "label": "Medication",
   "starable": true,
-  "type": "selectionLists",
   "essentialFields": [
     "Label"
   ],
+  "type": "selectionLists",
   "fields": [
     {
       "name": "Label",
@@ -22,43 +61,43 @@
     {
       "name": "Strength",
       "required": true,
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "medicationStrengthCodes"
     },
     {
       "name": "Dosage",
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "ocularMedicationDosageCodes"
     },
     {
       "name": "Frequency",
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "frequencyCodes"
     },
     {
       "name": "Duration",
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "medicationDurationCodes"
     },
     {
       "name": "Instructions",
-      "simpleSelect": true,
       "freestyle": true,
+      "simpleSelect": true,
       "options": "medicationInstructionCodes"
     },
     {
       "name": "Refill",
-      "simpleSelect": true,
       "freestyle": true,
+      "simpleSelect": true,
       "options": "medicationRefillCodes"
     },
     {
-      "name": "Do not substitute",
       "normalValue": "",
+      "name": "Do not substitute",
       "defaultValue": "",
       "options": [
         "",

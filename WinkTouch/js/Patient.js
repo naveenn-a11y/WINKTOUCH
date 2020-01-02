@@ -356,6 +356,9 @@ export class CabinetScreen extends Component {
         LayoutAnimation.easeInEaseOut();
         this.setState({patientInfo: undefined, appointments: undefined});
         return;
+      } else if (this.state.patientInfo && this.state.patientInfo.id===patient.id) {
+        this.props.navigation.navigate("appointment", {patientInfo: this.state.patientInfo}); //TODO: refreshStateKey: this.props.refreshStateKey?
+        return;
       }
       let patientInfo : ?PatientInfo = getCachedItem(patient.id);
       LayoutAnimation.easeInEaseOut();

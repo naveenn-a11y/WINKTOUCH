@@ -1,6 +1,4 @@
 {
-  "name": "Auto refractor",
-  "scrollable": true,
   "graph": {
     "fields": [
       "Auto refractor.od.sph",
@@ -8,6 +6,19 @@
     ]
   },
   "order": "4",
+  "locale": {
+    "fr-CA": {
+      "label": "Auto-RÃ©fraction",
+      "fields": [
+        {
+          "name": "Auto refractor",
+          "label": "Auto-rÃ©fraction"
+        }
+      ]
+    }
+  },
+  "name": "Auto refractor",
+  "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.3",
   "fields": [
@@ -19,18 +30,18 @@
     {
       "name": "Scan",
       "multiValue": true,
-      "size": "S",
       "fields": [
         {
-          "name": "AR scan",
-          "image": "upload",
           "popup": false,
+          "name": "AR scan",
           "drawable": true,
-          "size": "S",
+          "image": "upload",
           "label": "",
-          "type": "EMR"
+          "type": "EMR",
+          "size": "S"
         }
-      ]
+      ],
+      "size": "S"
     }
   ]
 }

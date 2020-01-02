@@ -1,4 +1,71 @@
 {
+  "locale": {
+    "fr-CA": {
+      "label": "Test Ãcran",
+      "fields": [
+        {
+          "name": "Hirschberg test",
+          "label": "Hirschberg"
+        },
+        {
+          "name": "Bruckner test",
+          "label": "Bruckner"
+        },
+        {
+          "name": "Unilateral Cover Test",
+          "label": "Test Ãcran UnilatÃ©ral",
+          "fields": [
+            {
+              "name": "Distant vision",
+              "label": "Vision de loin ",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "U LatÃ©ral"
+                },
+                {
+                  "name": "U Noncomitant",
+                  "label": "U Non-concomitant"
+                }
+              ]
+            },
+            {
+              "name": "Near vision",
+              "label": "Vision de prÃ¨s "
+            }
+          ]
+        },
+        {
+          "name": "Alternating Cover Test",
+          "label": "Test Ãcran AlternÃ©",
+          "fields": [
+            {
+              "name": "Distant vision",
+              "label": "Vision de loin ",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "A LatÃ©ral"
+                },
+                {
+                  "name": "Vertical",
+                  "label": "A Vertical"
+                },
+                {
+                  "name": "A Noncomitant",
+                  "label": "A Non-concomitant"
+                }
+              ]
+            },
+            {
+              "name": "Near vision",
+              "label": "Vision de prÃ¨s"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "name": "Cover test",
   "scrollable": true,
   "starable": true,
@@ -47,30 +114,31 @@
           "Near vision"
         ]
       ],
+      "size": "L",
       "fields": [
         {
           "name": "Distant vision",
           "fields": [
             {
-              "minValue": 0,
               "name": "Lateral",
+              "minValue": 0,
               "label": "U Lateral",
-              "suffix": "lateralTropiaCodes",
               "freestyle": false,
+              "suffix": "lateralTropiaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
-              "minValue": 0,
               "name": "Vertical",
+              "minValue": 0,
               "label": "U Vertical",
               "suffix": "verticalTropiaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
               "name": "U Noncomitant",
@@ -85,23 +153,23 @@
           "name": "Near vision",
           "fields": [
             {
-              "minValue": 0,
               "name": "Lateral",
-              "suffix": "lateralTropiaCodes",
+              "minValue": 0,
               "freestyle": false,
+              "suffix": "lateralTropiaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
-              "minValue": 0,
               "name": "Vertical",
+              "minValue": 0,
               "suffix": "verticalTropiaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
               "name": "U Noncomitant",
@@ -112,8 +180,7 @@
             }
           ]
         }
-      ],
-      "size": "L"
+      ]
     },
     {
       "name": "Alternating Cover Test",
@@ -123,29 +190,30 @@
           "Near vision"
         ]
       ],
+      "size": "L",
       "fields": [
         {
           "name": "Distant vision",
           "fields": [
             {
-              "minValue": 0,
               "name": "Lateral",
+              "minValue": 0,
               "label": "A Lateral",
               "suffix": "lateralPhoriaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
-              "minValue": 0,
               "name": "Vertical",
+              "minValue": 0,
               "label": "A Lateral",
               "suffix": "verticalPhoriaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
               "name": "A Noncomitant",
@@ -160,22 +228,22 @@
           "name": "Near vision",
           "fields": [
             {
-              "minValue": 0,
               "name": "Lateral",
+              "minValue": 0,
               "suffix": "lateralPhoriaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
-              "minValue": 0,
               "name": "Vertical",
+              "minValue": 0,
               "suffix": "verticalPhoriaCodes",
+              "maxValue": 40,
               "options": [
                 "Ortho"
-              ],
-              "maxValue": 40
+              ]
             },
             {
               "name": "A Noncomitant",
@@ -190,8 +258,7 @@
           "maxLength": 500,
           "name": "Notes"
         }
-      ],
-      "size": "L"
+      ]
     }
   ]
 }

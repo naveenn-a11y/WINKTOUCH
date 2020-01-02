@@ -1,6 +1,38 @@
 {
-  "name": "Dilation",
   "order": "5",
+  "name": "Dilation",
+  "locale": {
+    "fr-CA": {
+      "label": "Dilatation",
+      "fields": [
+        {
+          "name": "Dilation",
+          "fields": [
+            {
+              "name": "Drug",
+              "label": "Goutte"
+            },
+            {
+              "name": "Quantity",
+              "label": "QuantitÃ©"
+            },
+            {
+              "name": "Eye",
+              "label": "Oeil"
+            },
+            {
+              "name": "Time",
+              "label": "Heure"
+            },
+            {
+              "name": "Informed PT of side effects",
+              "label": "Pt informÃ© des effets sec."
+            }
+          ]
+        }
+      ]
+    }
+  },
   "cardFields": [
     [
       "Dilation.Time",

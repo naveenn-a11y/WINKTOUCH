@@ -1,5 +1,4 @@
 {
-  "name": "Refraction",
   "cardGroup": "Subjective refraction",
   "graph": {
     "fields": [
@@ -7,41 +6,60 @@
       "Subjective refraction.os.sph"
     ]
   },
+  "locale": {
+    "fr-CA": {
+      "label": "RÃ©fraction",
+      "fields": [
+        {
+          "name": "Subjective refraction",
+          "label": "Subjectif"
+        },
+        {
+          "name": "Compensated refraction",
+          "label": "MAV"
+        },
+        {
+          "name": "Final Rx",
+          "label": "Rx Finale"
+        },
+        {
+          "name": "Maximum VA refraction",
+          "label": "Max Convexe"
+        }
+      ]
+    }
+  },
+  "name": "Refraction",
   "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.6",
-  "relatedExams": [
-    "Auto refractor",
-    "Lensometry",
-    "Binocular"
-  ],
   "fields": [
     {
       "hasVA": true,
-      "canBeCopied": true,
       "hasAdd": true,
+      "canBeCopied": true,
       "name": "Subjective refraction",
       "type": "SRx"
     },
     {
       "hasVA": true,
       "hasAdd": false,
+      "optional": true,
       "name": "Maximum VA refraction",
-      "optional": true,
       "type": "SRx"
     },
     {
       "hasVA": true,
       "hasAdd": false,
+      "optional": true,
       "name": "Compensated refraction",
-      "optional": true,
       "type": "SRx"
     },
     {
       "hasVA": true,
       "hasAdd": false,
-      "name": "Duochrome",
       "optional": true,
+      "name": "Duochrome",
       "type": "SRx"
     },
     {
@@ -142,5 +160,10 @@
         }
       ]
     }
+  ],
+  "relatedExams": [
+    "Auto refractor",
+    "Lensometry",
+    "Binocular"
   ]
 }

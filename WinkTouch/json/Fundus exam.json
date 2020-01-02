@@ -1,5 +1,67 @@
 {
   "name": "Fundus exam",
+  "locale": {
+    "fr-CA": {
+      "label": "Fond d\u2019oeil",
+      "fields": [
+        {
+          "name": "Posterior",
+          "label": "PostÃ©rieur",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Pupillary reflex",
+                  "label": "Reflexe pupillairs"
+                },
+                {
+                  "name": "Vitreous",
+                  "label": "VitrÃ©"
+                },
+                {
+                  "name": "Optic Disc",
+                  "label": "Disque optique"
+                },
+                {
+                  "name": "Vessels",
+                  "label": "Vaisseaux"
+                },
+                {
+                  "name": "Foveal reflex",
+                  "label": "RÃ©flexe FovÃ©al"
+                },
+                {
+                  "name": "Retina",
+                  "label": "RÃ©tine "
+                },
+                {
+                  "name": "Posterior pole",
+                  "label": "PÃ´le PostÃ©rieur"
+                },
+                {
+                  "name": "Periphery",
+                  "label": "PÃ©ripheries"
+                }
+              ]
+            },
+            {
+              "name": "Ophtalmoscopy",
+              "label": "Ophtalmoscopie"
+            },
+            {
+              "name": "Dilated",
+              "label": "DilatÃ©"
+            },
+            {
+              "name": "Lens",
+              "label": "Lentille"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "scrollable": true,
   "starable": true,
   "type": "groupedForm",
@@ -14,7 +76,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/posteriorOD.png",
+          "image": ".\/image\/posteriorOD.png",
           "label": ""
         }
       ]
@@ -24,7 +86,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/posteriorOS.png",
+          "image": ".\/image\/posteriorOS.png",
           "label": ""
         }
       ]
@@ -34,7 +96,7 @@
       "columns": [
         [
           "OD",
-          "\u003e\u003e",
+          ">>",
           "OS"
         ]
       ],
@@ -67,7 +129,10 @@
         },
         {
           "name": "Ophtalmoscopy",
-          "options": ["Direct","Indirect"]
+          "options": [
+            "Direct",
+            "Indirect"
+          ]
         },
         {
           "name": "OD",
@@ -92,7 +157,7 @@
             },
             {
               "normalValue": "WNL",
-              "name": "C/D Ratio",
+              "name": "C\/D Ratio",
               "combineOptions": true,
               "suffix": [
                 " ",
@@ -212,7 +277,7 @@
               "normalValue": [
                 "WNL"
               ],
-              "name": "C/D Ratio",
+              "name": "C\/D Ratio",
               "combineOptions": true,
               "suffix": [
                 " ",

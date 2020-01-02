@@ -14,6 +14,7 @@ if (isAndroid) {
 }
 
 export const backgroundColor = 'white';
+export const transparantBackgroundColor = '#ffffff00';
 export const sectionBackgroundColor = '#f2f2f2'
 export const fontColor = undefined;
 export const selectionColor = '#5ed4d4';
@@ -21,6 +22,7 @@ export const selectionFontColor : string = '#1db3b3';
 export const selectionBorderColor = '#1db3b3';
 export const selectionBackgroundColor = '#c9ffff'
 export const disabledFontColor : string = '#b3b3b3';
+export const fieldBorderColor = '#ddddddff';
 
 const fieldMinWidth = 100;
 
@@ -222,7 +224,7 @@ export const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderWidth: 1 * fontScale,
         borderRadius: 6 * fontScale,
-        borderColor: '#dddddd',
+        borderColor: fieldBorderColor,
     },
     field400: {
         fontSize: 26 * fontScale,
@@ -234,7 +236,7 @@ export const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderWidth: 1 * fontScale,
         borderRadius: 6 * fontScale,
-        borderColor: '#dddddd',
+        borderColor: fieldBorderColor,
         margin: 3 *fontScale
     },
     dropdownButtonIos: {
@@ -432,10 +434,10 @@ export const styles = StyleSheet.create({
         paddingLeft: 6 * fontScale,
         paddingRight: 3 * fontScale,
         textAlign: 'left',
-        backgroundColor: 'white',
+        backgroundColor: transparantBackgroundColor,
         borderWidth: 1 * fontScale,
         borderRadius: 6 * fontScale,
-        borderColor: '#dddddd',
+        borderColor: fieldBorderColor,
         margin: 3 * fontScale
     },
     formFieldError: {
@@ -455,7 +457,7 @@ export const styles = StyleSheet.create({
     },
     formFieldReadOnly: {
         flex: 100,
-        color: '#aaaaaa',
+        color: 'black',
         fontSize: 20 * fontScale,
         height: 36 * fontScale,
         paddingTop: 6 * fontScale,
@@ -463,10 +465,7 @@ export const styles = StyleSheet.create({
         paddingLeft: 6 * fontScale,
         paddingRight: 3 * fontScale,
         textAlign: 'left',
-        backgroundColor: 'white',
-        borderWidth: 1 * fontScale,
-        borderRadius: 6 * fontScale,
-        borderColor: '#eeeeee',
+        backgroundColor: transparantBackgroundColor,
         margin: 3 * fontScale
     },
     translateField: {
@@ -487,7 +486,7 @@ export const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderWidth: 1 * fontScale,
         borderRadius: 6 * fontScale,
-        borderColor: '#dddddd',
+        borderColor: fieldBorderColor,
         margin: 3 * fontScale
     },
     formValidationError: {
@@ -933,7 +932,7 @@ export const styles = StyleSheet.create({
     examIcons: {
       position: 'absolute',
       top:0 * fontScale,
-      right:  18 * fontScale,
+      right:  -10 * fontScale,
       flexDirection: 'row'
     },
     drawingIcons: {

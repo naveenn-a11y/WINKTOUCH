@@ -1,6 +1,29 @@
 {
-  "name": "CL Habits",
   "addable": false,
+  "name": "CL Habits",
+  "locale": {
+    "fr-CA": {
+      "label": "Habitudes LC",
+      "fields": [
+        {
+          "name": "Replacement",
+          "label": "FrÃ©q. de remplacement"
+        },
+        {
+          "name": "Comfort",
+          "label": "Confort"
+        },
+        {
+          "name": "Wearing habits",
+          "label": "Habitudes de port"
+        },
+        {
+          "name": "Cleaning habits",
+          "label": "Habitudes d\u2019entretien"
+        }
+      ]
+    }
+  },
   "starable": false,
   "type": "selectionLists",
   "section": "History.60",

@@ -19,7 +19,7 @@ const touchVersionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkReg
 const securityQuestionsUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationQuestions';
 
 async function fetchIp() : string {
-  const ip = await(DeviceInfo.getIPAddress());
+  const ip = await(DeviceInfo.getIpAddress());
   return ip;
 }
 

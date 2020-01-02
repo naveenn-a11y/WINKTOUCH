@@ -10,7 +10,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, FieldDefinition, GroupDefinition } from './Types';
 import { styles, fontScale, selectionFontColor } from './Styles';
 import { strings} from './Strings';
-import { SelectionListsScreen, ItemsCard, GroupedFormScreen, ItemsList, GroupedForm, GroupedCard, formatLabel, getFieldDefinition as getItemFieldDefinition} from './Items';
+import { SelectionListsScreen, ItemsCard, formatLabel, ItemsList, getFieldDefinition as getItemFieldDefinition} from './Items';
+import { GroupedFormScreen, GroupedForm, GroupedCard} from './GroupedForm';
 import { PaperFormScreen} from './PaperForm';
 import { fetchItemById, storeItem, searchItems } from './Rest';
 import { cacheItemById, getCachedItem, cacheItem, getCachedItems } from './DataCache';

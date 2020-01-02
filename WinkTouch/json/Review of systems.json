@@ -1,6 +1,81 @@
 {
-  "name": "Review of systems",
   "addable": false,
+  "name": "Review of systems",
+  "locale": {
+    "fr-CA": {
+      "label": "Revue des systÃ¨mes",
+      "fields": [
+        {
+          "name": "General\/Constitutional",
+          "label": "GÃ©nÃ©ral"
+        },
+        {
+          "name": "Ears",
+          "label": "Oreilles"
+        },
+        {
+          "name": "Nose\/Sinuses",
+          "label": "Nez\/Sinus"
+        },
+        {
+          "name": "Allergic",
+          "label": "Allergies"
+        },
+        {
+          "name": "Mouth\/Throat",
+          "label": "Bouche\/Gorge"
+        },
+        {
+          "name": "Skin",
+          "label": "Peau"
+        },
+        {
+          "name": "Head",
+          "label": "TÃªte"
+        },
+        {
+          "name": "Neck",
+          "label": "Cou"
+        },
+        {
+          "name": "Breast",
+          "label": "Seins"
+        },
+        {
+          "name": "Respiratory\/Cardiac",
+          "label": "Respiratoire\/Cardiaque"
+        },
+        {
+          "name": "Urinary",
+          "label": "Urinaire"
+        },
+        {
+          "name": "Neurologic",
+          "label": "Neurologique"
+        },
+        {
+          "name": "Musculosketletal",
+          "label": "Musculosquelettique"
+        },
+        {
+          "name": "Endocrine",
+          "label": "Endocrinien"
+        },
+        {
+          "name": "Hematologic",
+          "label": "HÃ©matologique"
+        },
+        {
+          "name": "Peripheral\/Vascular",
+          "label": "PeriphÃ©rique\/Vasculaire"
+        },
+        {
+          "name": "Psychiatric",
+          "label": "Mental"
+        }
+      ]
+    }
+  },
   "cardFields": [],
   "starable": false,
   "type": "selectionLists",
@@ -8,22 +83,22 @@
   "editable": true,
   "fields": [
     {
-      "name": "General/Constitutional",
       "normalValue": "Normal",
+      "name": "General\/Constitutional",
       "multiValue": true,
       "freestyle": true,
       "options": "rosGeneralCodes"
     },
     {
-      "name": "Ears",
       "normalValue": "Normal",
+      "name": "Ears",
       "multiValue": true,
       "freestyle": true,
       "options": "rosEarCodes"
     },
     {
       "normalValue": "Normal",
-      "name": "Nose/Sinuses",
+      "name": "Nose\/Sinuses",
       "multiValue": true,
       "freestyle": true,
       "options": "rosNoseCodes"
@@ -37,7 +112,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Mouth/Throat",
+      "name": "Mouth\/Throat",
       "multiValue": true,
       "freestyle": true,
       "options": "rosMouthCodes"
@@ -72,7 +147,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Respiratory/Cardiac",
+      "name": "Respiratory\/Cardiac",
       "multiValue": true,
       "freestyle": true,
       "options": "rosRespiratoryCodes"
@@ -121,7 +196,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Peripheral/Vascular",
+      "name": "Peripheral\/Vascular",
       "multiValue": true,
       "freestyle": true,
       "options": "rosPeripheralCodes"
@@ -135,6 +210,3 @@
     }
   ]
 }
-
-
-

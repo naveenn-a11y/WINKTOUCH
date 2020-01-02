@@ -1,6 +1,25 @@
 {
-  "name": "Ocular surgeries",
   "addable": true,
+  "name": "Ocular surgeries",
+  "locale": {
+    "fr-CA": {
+      "label": "Chirurgies Oculaires",
+      "fields": [
+        {
+          "name": "Procedure",
+          "label": "ProcÃ©dure"
+        },
+        {
+          "name": "Eye",
+          "label": "Oeil"
+        },
+        {
+          "name": "Date of procedure",
+          "label": "Date de la procÃ©dure"
+        }
+      ]
+    }
+  },
   "starable": true,
   "type": "selectionLists",
   "essentialFields": [

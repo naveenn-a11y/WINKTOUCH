@@ -1,11 +1,16 @@
 {
-  "name": "Diabetes",
   "addable": false,
+  "locale": {
+    "fr-CA": {
+      "label": "DiabÃ¨te"
+    }
+  },
+  "name": "Diabetes",
   "scrollable": true,
   "starable": false,
   "type": "groupedForm",
-  "section": "History.42",
   "editable": true,
+  "section": "History.42",
   "fields": [
     {
       "name": "Diabetes type",

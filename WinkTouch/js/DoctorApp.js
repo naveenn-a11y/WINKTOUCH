@@ -4,7 +4,8 @@
 'use strict';
 import React, { Component } from 'react';
 import {  StatusBar, ScrollView, View} from 'react-native';
-import { createAppContainer, createStackNavigator, NavigationActions, StackActions } from 'react-navigation';
+import { createAppContainer, NavigationActions, StackActions } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 import type {Appointment, PatientInfo, Exam, Visit, User, Store, ExamDefinition, Scene} from './Types';
 import {styles} from './Styles';
 import {OverviewScreen} from './Overview';
