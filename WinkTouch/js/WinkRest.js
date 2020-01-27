@@ -4,7 +4,7 @@
 'use strict';
 
 import { appendParameters, getToken} from './Rest';
-import { strings, getUserLanguage } from './Strings';
+import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
@@ -61,7 +61,7 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
         headers: {
           'token': getToken(),
           'Content-Type': 'application/json',
-          'Accept-language': getUserLanguage(),
+          'Accept-language': getUserLanguageShort(),
           'Accept':'application/json'
         },
         body: body?JSON.stringify(body):''

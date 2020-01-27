@@ -77,6 +77,7 @@ import { rosGeneralCodes, rosEarCodes, rosNoseCodes, rosAllergicCodes, rosMouthC
 rosUrinaryCodes, rosMusculosketletalCodes, rosNeurologicCodes, rosEndocrineCodes, rosHematologicCodes, rosPeripheralCodes, rosPshychiatricCodes } from './ReviewOfSystemCodes';
 import { stereoFlyCodes } from './SteropsisCodes';
 import { confrontationVFCodes, autoPerimetryVFCodes } from './VisualFieldCodes';
+import { currentWearCodes } from './AutoRefCodes';
 
 export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.icdCodes = icdCodes;
@@ -196,5 +197,8 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.rosPshychiatricCodes = rosPshychiatricCodes,
   codeDefinitions.stereoFlyCodes = stereoFlyCodes,
   codeDefinitions.confrontationVFCodes = confrontationVFCodes,
-  codeDefinitions.autoPerimetryVFCodes = autoPerimetryVFCodes
+  codeDefinitions.autoPerimetryVFCodes = autoPerimetryVFCodes,
+  codeDefinitions.machineTypeCodes = [],
+  codeDefinitions.machines = [],
+  codeDefinitions.currentWearCodes = currentWearCodes
 }

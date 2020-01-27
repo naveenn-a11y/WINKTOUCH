@@ -1,25 +1,24 @@
 {
-  "name": "Consent",
+  "name": "CL Minor Consent",
   "type": "groupedForm",
   "isPreExam": true,
   "section": "CL fitting.0",
   "scrollable": true,
   "fields": [
     {
-      "name": "Parent Consent",
-      "multiValue": false,
+      "name": "CL Minor Consent",
       "size": "XL",
       "fields": [
         {
-          "name": "Parent consent",
-          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/387/Parent%20Consent%20CL%20Minor.png",
+          "name": "CL Minor consent",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/76/1092/Parent%20Consent%20CL%20Minor.png",
           "label": "",
           "popup": false,
           "drawable": true,
           "sync": true,
           "resolution": "1350x1600",
           "size": "XL",
-          "type": "EMR",
+          "type": "Patient Consent Form",
           "fields": [
             {
               "name": "Form",
@@ -27,7 +26,7 @@
               "size": "M",
               "layout": {
                 "position": "absolute",
-                "width": 500,
+                "width": 1000,
                 "justifyContent": "flex-start",
                 "top": 510,
                 "left": 17

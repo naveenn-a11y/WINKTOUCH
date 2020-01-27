@@ -21,6 +21,7 @@ import { ExamDefinitionScreen, TemplatesScreen, allExamDefinitions } from './Exa
 import { ExamChartScreen } from './Chart';
 import { setToken } from './Rest';
 import { allExamPredefinedValues } from './Favorites';
+import { ConfigurationScreen } from './Configuration';
 
 let doctor: User;
 let store : Store;
@@ -52,7 +53,8 @@ const DoctorNavigator = createStackNavigator({
     examGraph: {screen: ExamChartScreen},
     examHistory: {screen: ExamHistoryScreen},
     examTemplate: {screen: ExamDefinitionScreen},
-    templates: {screen: TemplatesScreen}
+    templates: {screen: TemplatesScreen},
+    configuration: {screen: ConfigurationScreen}
   }, {
     headerMode: 'none'
   }
@@ -114,13 +116,17 @@ export class DoctorApp extends Component {
         setStore(this.props.store);
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      this.setState({
+    componentDidUpdate(prevProps: any) {
+      if (this.props.user===prevProps.user &&
+        this.props.store===prevProps.store &&
+        this.props.token===prevProps.token) return;
+        this.setState({
           statusMessage: '',
-      });
-      setDoctor(nextProps.user);
-      setToken(nextProps.token);
-      setStore(nextProps.store);
+          currentRoute: {routeName: 'overview'}
+        });
+        setToken(this.props.token);
+        setDoctor(this.props.user);
+        setStore(this.props.store);
     }
 
     async initialseAppForDoctor() {

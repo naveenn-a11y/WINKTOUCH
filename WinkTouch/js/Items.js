@@ -20,6 +20,7 @@ import { GlassesDetail, GlassesSummary, newRefraction, ContactsDetail } from './
 import { getExamDefinition } from './ExamDefinition';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, updateMappedExams } from './Exam';
 import { CheckButton, Label } from './Widgets';
+import { GroupedForm } from './GroupedForm';
 
 export function getFieldDefinitions(itemId: string) : ?FieldDefinitions {
     if (itemId===undefined || itemId===null) return null;
@@ -55,6 +56,7 @@ export function getFieldDefinition(fullFieldName: string) : ?FieldDefinition {
   let fieldDefinitions : ?FieldDefinition[];
   if (fieldNames[0]==='exam' && fieldNames.length>1) {
     fieldDefinitions = getExamDefinition(fieldNames[1]).fields;
+    fieldNames.splice(0,1);
   } else {
     fieldDefinitions = getFieldDefinitions(fieldNames[0]);
   }
@@ -456,6 +458,7 @@ export class ItemsEditor extends Component {
   }
   state: {
     selectedItem: any,
+    isDirty: boolean
   }
   static defaultProps = {
     editable: true
@@ -479,19 +482,20 @@ export class ItemsEditor extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    let items: T[] = nextProps.items;
-    if (nextProps.editable) {
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.isDirty===this.props.isDirty && prevProps.items===this.props.items) return;
+    let items: T[] = this.props.items;
+    if (this.props.editable) {
       if (items.length === 0 && this.props.newItem!==undefined)
         items.push(this.props.newItem());
       this.setState({
-        selectedItem: items[0]
-        //Don't set dirty false here. Don't you dare. DON'T !
+        selectedItem: items[0],
+        isDirty : this.props.isDirty?this.props.isDirty:false
       });
     } else {
       this.setState({
         selectedItem: undefined,
-        isDirty : false
+        isDirty : this.props.isDirty===true?true:false
       });
     }
   }
@@ -720,19 +724,14 @@ export class SelectionListsScreen extends Component {
 
   constructor(props: any) {
     super(props);
+    //this.initialiseExam();
+  }
+
+  initialiseExam() {
     if (this.props.exam[this.props.exam.definition.name]===undefined || JSON.stringify(this.props.exam[this.props.exam.definition.name])=='{}') {
       this.props.exam[this.props.exam.definition.name] = [];
       if (!this.props.exam.definition.addable) {
         this.props.exam[this.props.exam.definition.name].push({});
-      }
-    }
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.exam[nextProps.exam.definition.name]===undefined || JSON.stringify(nextProps.exam[nextProps.exam.definition.name])=='{}') {
-      nextProps.exam[nextProps.exam.definition.name] = [];
-      if (!nextProps.exam.definition.addable) {
-        nextProps.exam[nextProps.exam.definition.name].push({});
       }
     }
   }
@@ -758,6 +757,7 @@ export class SelectionListsScreen extends Component {
   }
 
   render() {
+    this.initialiseExam();
     return <ItemsEditor
         items={this.props.exam[this.props.exam.definition.name]}
         newItem={this.props.exam.definition.addable?this.newItem:undefined}

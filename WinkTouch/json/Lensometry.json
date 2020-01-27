@@ -1,69 +1,65 @@
 {
-  "order": "4",
-  "locale": {
-    "fr-CA": {
-      "label": "LentimÃ¨tre",
-      "fields": [
-        {
-          "name": "Current wear",
-          "label": "Lunettes",
-          "fields": [
-            {
-              "name": "Current wear",
-              "label": "Actuel"
-            },
-            {
-              "name": "Since",
-              "label": "Depuis"
-            }
-          ]
-        },
-        {
-          "name": "Lensometry",
-          "label": "LentimÃ¨tre"
-        }
-      ]
-    }
-  },
-  "name": "Lensometry",
-  "type": "groupedForm",
-  "section": "Vision testing.4",
-  "fields": [
+  "order":"4",
+  "name":"Lensometry",
+  "type":"groupedForm",
+  "section":"Vision testing.4",
+  "fields":[
     {
-      "name": "Current wear",
-      "label": "",
-      "fields": [
+      "name":"Current wear",
+      "label":"",
+      "fields":[
         {
-          "normalValue": "Glasses",
-          "name": "Current wear",
-          "defaultValue": "Glasses",
-          "options": [
-            "Glasses",
-            "No glasses",
-            "Did not bring glasses",
-            "Lost glasses"
-          ]
+          "normalValue":"Glasses",
+          "name":"Current wear",
+          "defaultValue":"Glasses",
+          "options": "currentWearCodes"
         },
         {
-          "name": "Since",
-          "type": "pastDate"
+          "name":"Since",
+          "type":"pastDate"
         }
       ]
     },
     {
-      "hasLensType": true,
-      "hasAdd": true,
-      "name": "Lensometry",
-      "multiValue": true,
-      "type": "SRx",
-      "fields": [
+      "hasLensType":true,
+      "hasAdd":true,
+      "name":"Lensometry",
+      "multiValue":true,
+      "import": "machine.lensometer",
+      "type":"SRx",
+      "fields":[
         {
-          "name": "lensType",
-          "label": "Lens type",
-          "freestyle": true,
-          "options": "lensTypeCodes"
+          "name":"lensType",
+          "label":"Lens type",
+          "freestyle":true,
+          "options":"lensTypeCodes"
         }
       ]
     }
-  ]
+  ],
+  "locale":{
+    "fr-CA":{
+      "label":"LentimÃ¨tre",
+      "fields":[
+        {
+          "name":"Current wear",
+          "label":"Lunettes",
+          "fields":[
+            {
+              "name":"Current wear",
+              "label":"Actuel"
+            },
+            {
+              "name":"Since",
+              "label":"Depuis"
+            }
+          ]
+        },
+        {
+          "name":"Lensometry",
+          "label":"LentimÃ¨tre"
+        }
+      ]
+    }
+  }
 }

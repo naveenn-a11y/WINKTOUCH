@@ -11,7 +11,7 @@ import base64 from 'base-64';
 import {styles, fontScale} from './Styles';
 import { Button, TilesField } from './Widgets';
 import { strings, switchLanguage, getUserLanguage, getUserLanguageIcon } from './Strings';
-import { restUrl, searchItems, handleHttpError } from './Rest';
+import { restUrl, searchItems, handleHttpError, getNextRequestNumber } from './Rest';
 import { dbVersion, touchVersion, bundleVersion, deploymentVersion} from './Version';
 import { fetchCodeDefinitions} from './Codes';
 
@@ -61,17 +61,17 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__?'test':undefined,
+      password: __DEV__?'1234':undefined,
       isTrial: false
     };
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.registration!==this.props.registration)
-      this.fetchAccountsStores(nextProps.registration);
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.registration!==this.props.registration)
+      this.fetchAccountsStores(this.props.registration);
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     await this.loadDefaultValues();
     this.fetchAccountsStores(this.props.registration);
   }
@@ -195,6 +195,8 @@ export class LoginScreen extends Component {
       storeId: (store.storeId).toString(),
       expiration : 24 * 365
     }
+    const requestNr = getNextRequestNumber();
+    __DEV__ && console.log('REQ '+requestNr+' POST '+doctorLoginUrl+' login for '+userName);
     try {
         let httpResponse = await fetch(doctorLoginUrl, {
             method: 'POST',
@@ -206,6 +208,7 @@ export class LoginScreen extends Component {
             },
             body: JSON.stringify(loginData)
         });
+        console.log('RES '+requestNr+' POST '+doctorLoginUrl+' login OK for '+userName+':'+httpResponse.ok);
         if (!httpResponse.ok) {
           const contentType : ?string = httpResponse.headers.get('Content-Type');
           if (contentType!==undefined && contentType!==null && contentType.startsWith('text/html'))

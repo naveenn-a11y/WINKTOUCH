@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import { Image, View, TouchableHighlight, Text, TouchableOpacity, LayoutAnimation, ScrollView} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationActions } from 'react-navigation';
@@ -17,7 +17,6 @@ import { fetchItemById, storeItem, searchItems, stripDataType } from './Rest';
 import { getFieldDefinitions, getFieldDefinition } from './Items';
 import { deepClone, formatAge } from './Util';
 import { formatOption, formatCode } from './Codes';
-import { PatientMedicationCard} from './Medication';
 import { getDoctor, getStore } from './DoctorApp';
 import { Refresh } from './Favorites';
 import { PatientRefractionCard } from './Refraction';
@@ -64,10 +63,17 @@ export class PatientTags extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.state.patientTags===undefined || this.state.patientTags.includes(undefined)) {
       this.refreshPatientTags();
     }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.patient.id===prevProps.patient.id) return;
+    this.setState ({
+      patientTags: getCachedItems(this.props.patient.patientTags)
+    }, this.refreshPatientTags);
   }
 
   async refreshPatientTags() {
@@ -108,10 +114,6 @@ export class PatientCard extends Component {
     }
     static defaultProps = {
       navigate: 'patient'
-    }
-
-    componentWillReceiveProps() {
-      this.forceUpdate();
     }
 
     render() {
@@ -224,13 +226,13 @@ export class PatientDocumentPage extends Component {
     this.loadUpload(uploadId);
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.id===this.props.id) return;
-    const patientDocument: PatientDocument = getCachedItem(nextProps.id);
+  compomentDidUpdate(prevProps: any) {
+    if (prevProps.id===this.props.id) return;
+    const patientDocument: PatientDocument = getCachedItem(this.props.id);
     const uploadId : ?string = patientDocument.uploadId;
-    this.setState({
+    this.state = {
       upload: getCachedItem(uploadId)
-    });
+    };
     this.loadUpload(uploadId);
   }
 
@@ -268,18 +270,15 @@ export class PatientScreen extends Component {
 
     constructor(props: any) {
       super(props);
-      this.params = this.props.navigation.state.params;
-      const isDirty : boolean = this.params.patientInfo.errors;
+      let params = this.props.navigation.state.params;
+      const isDirty : boolean = params.patientInfo.errors;
       this.state = {
-        patientInfo: isDirty?this.params.patientInfo:getCachedItem(this.params.patientInfo.id),
+        patientInfo: isDirty?params.patientInfo:getCachedItem(params.patientInfo.id),
         isDirty
       };
       if (!isDirty) {
         this.refreshPatientInfo();
       }
-    }
-
-    componentWillReceiveProps(nextProps: any) {
     }
 
     componentWillUnmount() {
@@ -292,17 +291,17 @@ export class PatientScreen extends Component {
       let patientInfo: RestResponse = await storePatientInfo(this.state.patientInfo);
       if (patientInfo.errors) {
           this.props.navigation.navigate('patient', {patientInfo: patientInfo});
-      } else if (this.params.refreshStateKey) {
+      } else if (this.props.navigation.state.params.refreshStateKey) {
         const setParamsAction = NavigationActions.setParams({
           params: { refresh: true },
-          key: this.params.refreshStateKey
+          key: this.props.navigation.state.params.refreshStateKey
         })
         this.props.navigation.dispatch(setParamsAction);
       }
     }
 
     async refreshPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.params.patientInfo.id, this.state.isDirty);
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.navigation.state.params.patientInfo.id, this.state.isDirty);
       this.setState({patientInfo, isDirty:false});
     }
 
@@ -343,7 +342,6 @@ export class CabinetScreen extends Component {
 
     constructor(props: any) {
       super(props);
-      this.params = this.props.navigation.state.params;
       this.state = {
         patientInfo: undefined,
         appointments: undefined

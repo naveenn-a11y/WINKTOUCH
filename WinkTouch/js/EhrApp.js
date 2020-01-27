@@ -170,13 +170,10 @@ export class EhrApp extends Component {
     startLockingDog() {
         //TODO
     }
-
-    componentWillMount() {
-        this.loadRegistration();
-        this.startLockingDog();
-    }
-
+  
     componentDidMount() {
+      this.loadRegistration();
+      this.startLockingDog();
       let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
       this.setState({updateTimer});
       AppState.addEventListener('change', this.onAppStateChange.bind(this));

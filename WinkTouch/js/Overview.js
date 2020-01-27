@@ -33,7 +33,7 @@ class MainActivities extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps: any) {
+  componentDidUpdate(prevProps: any) {
     if (this.state.translating!=isInTranslateMode()) {
       this.setState({translating: isIntranslateMode()});
     }
@@ -91,8 +91,8 @@ export class OverviewScreen extends PureComponent {
       this.refreshAppointments();
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      if ( nextProps.navigation.state.params && nextProps.navigation.state.params.refreshAppointments===true) {
+    componentDidUpdate(prevProps: any) {
+      if ( this.props.navigation.state.params && this.props.navigation.state.params.refreshAppointments===true) {
         this.refreshAppointments();
       }
     }

@@ -8,7 +8,7 @@ import { View, TouchableHighlight, Text, TouchableOpacity, ListView, LayoutAnima
 import DateTimePicker from "react-native-modal-datetime-picker";
 import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo } from './Types';
 import { styles, fontScale } from './Styles';
-import { strings } from './Strings';
+import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
 import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat } from './Util';
 import { ExamCard, createExam, storeExam } from './Exam';
@@ -25,6 +25,17 @@ import { PatientRefractionCard } from './Refraction';
 import { getDoctor } from './DoctorApp';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
+const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
+
+function getSectionTitle(section) : string {
+  const language : string = getUserLanguage();
+  if (language.startsWith('fr')) {
+      if (section==='Pre tests') return 'Pre Tests';
+      const i: number = examSections.indexOf(section, 0);
+      if (i>=0 && i<examSectionsFr.length-1) return examSectionsFr[i];
+  }
+  return section;
+}
 
 export async function fetchVisit(visitId: string) : Visit {
   let visit : Visit = await fetchItemById(visitId);
@@ -144,8 +155,8 @@ class VisitButton extends PureComponent {
 
     render() {
         const visitOrNote : ?(Visit|PatientDocument) = getCachedItem(this.props.id);
-        const date : string = visitOrNote.date?visitOrNote.date:visitOrNote.postedOn;
-        const type : string = visitOrNote.typeName?visitOrNote.typeName:visitOrNote.category;
+        const date : string = (visitOrNote!==undefined&&visitOrNote.date!=undefined)?visitOrNote.date:visitOrNote.postedOn;
+        const type : string = (visitOrNote!==undefined&&visitOrNote.typeName!=undefined)?visitOrNote.typeName:visitOrNote.category;
         return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatMoment(date)}</Text>
@@ -188,7 +199,7 @@ export class StartVisitButtons extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadVisitTypes();
   }
 
@@ -227,21 +238,15 @@ export class StartVisitButtons extends Component {
   }
 }
 
-class SectionTitle extends Component {
+class SectionTitle extends PureComponent {
   props: {
     title: string
   }
-  layout: any;
-
-  onLayout = (layout: any) => {
-      this.layout = layout.nativeEvent.layout;
-      this.forceUpdate();
-  }
 
   render() {
-      const title : string = this.layout?this.props.title.replace(' ','\n'):'';
-      return <View style={{flex: 1, transform : [{rotate : '-90deg'}, {translate: [this.layout?-this.layout.width/2:0, this.layout?-this.layout.width/2+this.layout.height/2:0]}], position: 'absolute'}} onLayout={this.onLayout}>
-        <Text style={styles.sectionTitle}>{title}</Text></View>
+    //const title : string = (this.props.title===undefined || this.props.title===null)?'':this.props.title.replace(' ','\n');
+    const title: string = this.props.title;
+    return <Text style={styles.borderSectionTitle}>{title}</Text>
   }
 }
 
@@ -277,14 +282,17 @@ class VisitWorkFlow extends Component {
         visit && this.loadUnstartedExamTypes(visit);
     }
 
-    componentWillReceiveProps(nextProps: any) {
-        //TODO: optimize performance, might want to use componentShouldUpdate
-        const visit :Visit = getCachedItem(nextProps.visitId);
+    componentDidUpdate(prevProps: any) {
+        const visit :Visit = getCachedItem(this.props.visitId);
+        const rxToOrder = this.findRxToOrder(visit);
+        if (this.props.visitId===prevProps.visitId && visit===this.state.visit && rxToOrder===this.state.rxToOrder) {
+          return;
+        }
         const locked: boolean = visitHasEnded(visit);
         this.setState({
-          visit: visit,
-          locked: locked,
-          rxToOrder: this.findRxToOrder(visit)
+          visit,
+          locked,
+          rxToOrder
         });
         visit && this.loadUnstartedExamTypes(visit);
     }
@@ -465,8 +473,9 @@ class VisitWorkFlow extends Component {
         if ("Document"===section) {
           return view;
         }
+        const sectionTitle :string = getSectionTitle(section);
         return <View style={styles.examsBoard} key={section}>
-            <SectionTitle title={section} />
+            <SectionTitle title={sectionTitle} />
             {view}
         </View>
     }
@@ -482,7 +491,7 @@ class VisitWorkFlow extends Component {
          } else if (exam.definition.name==='Consultation summary') {
             return  <VisitSummaryCard exam={exam} editable={!this.state.locked && !this.props.readonly} key={strings.summaryTitle} />
          } else{
-           return <AssessmentCard exam={exam} disabled={this.props.readonly} navigation={this.props.navigation} key={exam.name} appointmentStateKey={this.props.appointmentStateKey}/>
+           return <AssessmentCard exam={exam} disabled={this.props.readonly} navigation={this.props.navigation} key={exam.definition.name} appointmentStateKey={this.props.appointmentStateKey}/>
          }
         }
      );
@@ -627,12 +636,9 @@ export class VisitHistory extends Component {
         };
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      if (nextProps.patientInfo.id !== this.props.patientInfo.id) {
-        this.setState({selectedId: undefined, history: this.combineHistory(nextProps.patientDocumentHistory, nextProps.visitHistory), showingDatePicker: false});
-      } else {
-        this.setState({history: this.combineHistory(nextProps.patientDocumentHistory, nextProps.visitHistory)});
-      }
+    componentDidUpdate(prevProps: any) {
+      if (this.props.patientInfo.id===prevProps.patientInfo.id && this.props.visitHistory===prevProps.visitHistory && this.props.patientDocumentHistory===prevProps.patientDocumentHistory) return;
+      this.setState({history: this.combineHistory(this.props.patientDocumentHistory, this.props.visitHistory)});
     }
 
     showVisit(id: ?string) {
@@ -810,9 +816,18 @@ export class VisitHistory extends Component {
                 {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
                 {__DEV__ && <Button title={strings.printRx} />}
                 {__DEV__ && <Button title='Book appointment' />}
-                {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker isVisible={this.state.showingDatePicker} hideTitleContainerIOS={true}
-                  onConfirm={this.selectDate} onCancel={this.hideDatePicker} confirmTextIOS={strings.confirm} confirmTextStyle={styles.pickerLinkButton} cancelTextIOS={strings.cancel} cancelTextStyle={styles.pickerLinkButton}
-        />}
+                {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker
+                  isVisible={this.state.showingDatePicker}
+                  hideTitleContainerIOS={true}
+                  date={new Date()}
+                  mode="date"
+                  onConfirm={this.selectDate}
+                  onCancel={this.hideDatePicker}
+                  confirmTextIOS={strings.confirm}
+                  confirmTextStyle={styles.pickerLinkButton}
+                  cancelTextIOS={strings.cancel}
+                  cancelTextStyle={styles.pickerLinkButton}/>
+                }
             </View>
         </View>}
 
@@ -835,7 +850,6 @@ export class VisitHistory extends Component {
               />
             </View>
             {this.state.selectedId===undefined && this.renderSummary()}
-
             {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientId={this.props.patientInfo.id}
                 visitId={this.state.selectedId}
                 navigation={this.props.navigation}

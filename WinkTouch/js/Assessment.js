@@ -4,29 +4,26 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
+import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, LayoutAnimation } from 'react-native';
 import type { GlassesRx, Visit, Exam } from './Types';
 import { strings } from './Strings';
 import { styles, fontScale } from './Styles';
 import {GlassesDetail} from './Refraction';
 import { FormRow, FormField, FormTextInput } from './Form';
 import { getCachedItem } from './DataCache';
-import { ItemsCard, GroupedCard, formatLabel } from './Items';
+import { ItemsCard, formatLabel } from './Items';
+import { GroupedCard } from './GroupedForm';
 import { storeExam } from './Exam';
 import { Microphone } from './Voice';
 import { getDataType } from './Rest';
 import { Label } from './Widgets';
 
-export class AssessmentCard extends PureComponent {
+export class AssessmentCard extends Component {
   props: {
     exam: Exam,
     navigation: any,
     appointmentStateKey: string,
     disabled: ?boolean
-  }
-
-  componentWillReceiveProps(){
-    this.forceUpdate(); //This is to force redraw when returning to overview screen after exam got updated
   }
 
   render() {
@@ -57,6 +54,7 @@ export class PrescriptionCard extends Component {
     return <View style={styles.assessmentCard}>
         <View style={styles.formRow500}>
           <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} title={strings.finalRx} glassesRx={this.props.exam.RxToOrder['Final Rx']}
+            examId={this.props.exam.id}
             style={styles.flexColumnLayout} editable={false} hasAdd={true}/>
         </View>
       </View>
@@ -101,9 +99,10 @@ export class VisitSummaryCard extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps: any) {
+  componentDidUpdate(prevProps: any) {
+    if (this.props.exam===prevProps.exam) return;
     this.setState({
-      exam: nextProps.exam
+      exam: this.props.exam
     });
   }
 

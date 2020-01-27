@@ -136,12 +136,12 @@ export async function fetchCodeDefinitions(language: string, accountId: number) 
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
+    let translatedCodeDefinitions  = await httpResponse.json();
     __DEV__ && console.log('RES '+requestNr+' fetch codes in '+language+": "+url);
     if (language!=getUserLanguage()) {
       __DEV__ && console.log('Language changed to '+getUserLanguage()+', discarding '+language+' codes.');
       return;
     }
-    let translatedCodeDefinitions  = await httpResponse.json();
     //__DEV__ && console.log(JSON.stringify(translatedCodeDefinitions));
     codeDefinitions = Object.assign(codeDefinitions, translatedCodeDefinitions);
   } catch (error) {

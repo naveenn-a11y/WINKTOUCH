@@ -77,48 +77,53 @@ export class CheckList extends PureComponent {
     examId: string,
     fieldId: string
   }
-
-  formattedOptions: string[];
-
+  state: {
+    formattedOptions: string[]
+  }
   static defaultProps = {
     editable: true
   }
 
   constructor(props: any) {
     super(props);
-    this.formatOptions(props.definition.options);
-    this.addValueAsOption(props.value);
+    let formattedOptions : string[] = this.formatOptions(props.definition.options);
+    this.addValueAsOption(formattedOptions, props.value);
+    this.state = {
+      formattedOptions
+    };
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.definition!=this.props.definition) {
-      this.formatOptions(nextProps.definition.options);
-    }
-    if (nextProps.value!=this.props.value || nextProps.value===undefined || this.props.value===undefined || nextProps.value.length !=this.props.value.length) {
-      this.addValueAsOption(nextProps.value);
-    }
+  componentDidUpdate(prevProps: any) {
+    if (this.props.value===prevProps.value && this.props.definition.options===prevProps.definition.options) return;
+    let formattedOptions = this.formatOptions(this.props.definition.options);
+    this.addValueAsOption(formattedOptions, this.props.value);
+    this.setState({
+      formattedOptions
+    });
   }
 
-  formatOptions(options :CodeDefinition[][]|CodeDefinition[]|string) {
+  formatOptions(options :CodeDefinition[][]|CodeDefinition[]|string) : string[] {
+    let formattedOptions : string[] = [];
     if (!(options instanceof Array)) {
-      this.formattedOptions = formatAllCodes(options, undefined);
+      formattedOptions = formatAllCodes(options, undefined);
     } else {
-      this.formattedOptions = [...options];
+      formattedOptions = [...options];
     }
-    if (this.formattedOptions===undefined || this.formattedOptions===null) this.formattedOptions = [];
+    if (formattedOptions===undefined || formattedOptions===null) formattedOptions = [];
+    return formattedOptions;
   }
 
-  addValueAsOption(value: string|string[]) {
+  addValueAsOption(formattedOptions: string[], value: string|string[]) : void {
     if (value===undefined) return;
     if (value instanceof Array) {
       value.forEach((subValue: string) => {
-        if (!this.formattedOptions.includes(subValue)) {
-          this.formattedOptions.push(subValue);
+        if (!formattedOptions.includes(subValue)) {
+          formattedOptions.push(subValue);
         };
       });
     } else {
-      if (!this.formattedOptions.includes(value)) {
-        this.formattedOptions.push(value);
+      if (!formattedOptions.includes(value)) {
+        formattedOptions.push(value);
       }
     }
   }
@@ -230,6 +235,7 @@ export class CheckList extends PureComponent {
   }
 
   addValue = (option: string) => {
+    if (option===undefined || option===null || option==='') return;
     let value : string | string[] = this.props.value;
     if (value instanceof Array) {
       if (this.props.definition.multiValue) {
@@ -256,7 +262,7 @@ export class CheckList extends PureComponent {
     return  <View style={style}>
             <Label style={styles.sectionTitle} suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
           <View style={styles.wrapBoard}>
-        {this.formattedOptions.map((option: string) => {
+        {this.state.formattedOptions.map((option: string) => {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');
             return <View style={styles.formRow} key={option}>
@@ -291,8 +297,9 @@ export class GroupedCard extends Component {
     this.groupDefinition = this.props.exam.definition.fields.find((fieldDefinition: GroupDefinition|FieldDefinition) => fieldDefinition.name === this.props.exam.definition.cardGroup);
   }
 
-  componentWillReceiveProps(nextProps: any) {//Don't delete this dude, it will fuck you up in a weird way.
-    this.groupDefinition = nextProps.exam.definition.fields.find((fieldDefinition: GroupDefinition|FieldDefinition) => fieldDefinition.name === nextProps.exam.definition.cardGroup);
+  componentDidUpdate(prevProps: any) {
+    if (this.props.exam===prevProps.exam) return;
+    this.groupDefinition = this.props.exam.definition.fields.find((fieldDefinition: GroupDefinition|FieldDefinition) => fieldDefinition.name === this.props.exam.definition.cardGroup);
   }
 
   renderField(groupDefinition: GroupDefinition, fieldDefinition: FieldDefinition, showLabel: boolean, groupIndex: number, column?: string = undefined) {
@@ -505,7 +512,7 @@ export class GroupedForm extends Component {
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
     onClear?: () => void,
-    onAddFavorite?: () => void,
+    onAddFavorite?: (favoriteName: string) => void,
     onAdd?: () => void,
     patientId: string,
     examId: string,
@@ -679,10 +686,10 @@ export class GroupedForm extends Component {
   renderIcons() {
     if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
     return <View style={styles.groupIcons} key='icons'>
+      {this.props.onClear && <TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
-      {this.props.onAddFavorite && <TouchableOpacity onPress={this.props.onAddFavorite}><Star style={styles.groupIcon}/></TouchableOpacity>}
-      {this.props.onClear && <TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon}/>}
     </View>
   }
 
@@ -702,7 +709,7 @@ export class GroupedFormScreen extends Component {
     exam: Exam,
     onUpdateExam?: (exam: Exam) => void,
     favorites?: ExamPredefinedValue[],
-    onAddFavorite?: (favorite: any) => void,
+    onAddFavorite?: (favorite: any, name: string) => void,
     editable?: boolean,
     onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
     enableScroll?: () => void,
@@ -716,11 +723,11 @@ export class GroupedFormScreen extends Component {
     this.initialiseExam(this.props.exam, this.props.editable);
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.exam===this.props.exam) {
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.exam===this.props.exam && prevProps.exam[prevProps.exam.definition.name]===this.props.exam[this.props.exam.definition.name] && prevProps.editable===this.props.editable) {
       return;
     }
-    this.initialiseExam(nextProps.exam, nextProps.editable);
+    this.initialiseExam(this.props.exam, this.props.editable);
   }
 
   initialiseExam(exam: Exam, editable?: boolean) {
@@ -880,9 +887,9 @@ export class GroupedFormScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
-  addGroupFavorite = (groupName: string) => {
+  addGroupFavorite = (groupName: string, favoriteName: string) => {
     let group : {} = {[groupName]:this.props.exam[this.props.exam.definition.name][groupName]};
-    this.props.onAddFavorite(group);
+    this.props.onAddFavorite(group, favoriteName);
   }
 
   addGroup(groupType: string) {
@@ -909,7 +916,13 @@ export class GroupedFormScreen extends Component {
 
   renderGroup(groupDefinition: GroupDefinition, index: number) {
     const fieldId : string = this.props.exam.definition.id+"."+groupDefinition.name;
-    let value : any = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
+    //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));
+    let value : any = this.props.exam[this.props.exam.definition.name];
+    if (value===undefined) {
+      this.initialiseExam(this.props.exam);
+      value = this.props.exam[this.props.exam.definition.name];
+    }
+    value = value[groupDefinition.name];
     if (value===undefined && groupDefinition.options===undefined) return null;
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign({}, getFieldDefinition(groupDefinition.mappedField), groupDefinition);
@@ -925,6 +938,7 @@ export class GroupedFormScreen extends Component {
           onClear={() => this.clear(groupDefinition.name, subIndex)}
           definition={groupDefinition}
           key={'Rx'+index+'.'+subIndex}
+          examId={this.props.exam.id}
           fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}
         />
         :<GroupedForm definition={groupDefinition} editable={this.props.editable} key={groupDefinition.name+"-"+index+'.'+subIndex}
@@ -932,7 +946,7 @@ export class GroupedFormScreen extends Component {
             onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column, subIndex)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
             onAdd={() => this.addGroupItem(groupDefinition)}
-            onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
+            onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
             enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
             patientId={this.patientId}
             examId={this.props.exam.id}
@@ -940,22 +954,22 @@ export class GroupedFormScreen extends Component {
           />
       );
     } else if (groupDefinition.type==='SRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}
         onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.type==='CRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}
         onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
         onClear={() => this.clear(groupDefinition.name)} patientId={this.patientId} examId={this.props.exam.id}
-        onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
+        onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         fieldId={this.props.exam.definition.id+'.'+groupDefinition.name} />
     } else {
       return  <GroupedForm definition={groupDefinition} editable={this.props.editable} form={value} key={groupDefinition.name+"-"+index}
         onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column)}
         onClear={() => this.clear(groupDefinition.name)}
-        onAddFavorite={this.props.onAddFavorite?() => this.addGroupFavorite(groupDefinition.name):undefined}
+        onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
         patientId={this.patientId}
         examId={this.props.exam.id}

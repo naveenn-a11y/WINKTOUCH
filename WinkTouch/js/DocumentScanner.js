@@ -106,7 +106,7 @@ export class DocumentScanner extends Component {
               saturation={-0.1}
               quality={1.0}
               contrast={1.5}
-              detectionCountBeforeCapture={2}
+              detectionCountBeforeCapture={3}
               detectionRefreshRateInMS={60}
               style={styles.scanner}
             />

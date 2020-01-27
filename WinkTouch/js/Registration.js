@@ -1,7 +1,7 @@
 'use strict';
 
 import React, {Component} from 'react';
-import {Image, Text, TextInput, View, TouchableOpacity, ScrollView, AsyncStorage, KeyboardAvoidingView, StatusBar } from 'react-native';
+import {Image, Text, TextInput, View, TouchableOpacity, ScrollView, KeyboardAvoidingView, StatusBar } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
 import {styles, fontScale} from './Styles';
@@ -85,6 +85,7 @@ async function fetchRegistration(email: string, securityQuestionIndex: number, s
   if (!email || !securityAnswer) return undefined;
   const ip : string = await fetchIp();
   const url = touchVersionUrl + '&email=' + encodeURIComponent(email) + '&securityQuestion='+ encodeURIComponent(securityQuestionIndex) + '&answer=' + encodeURIComponent(securityAnswer)+'&ip='+ip;
+  __DEV__ && console.log(url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -124,6 +125,7 @@ export class RegisterScreen extends Component {
       securityAnswer: ?string
     }
     unmounted: boolean;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -134,14 +136,15 @@ export class RegisterScreen extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      this.loadSecurityQuestions();
-      this.setState({email: nextProps.email, securityQuestionIndex: undefined, securityAnswer: undefined});
-    }
-
-    componentWillMount() {
+    componentDidMount() {
       this.unmounted = false;
       this.loadSecurityQuestions();
+    }
+
+    componentDidUpdate(prevProps: any) {
+      if (prevProps.email===this.props.email) return;
+      this.loadSecurityQuestions();
+      this.setState({email: this.props.email, securityQuestionIndex: undefined, securityAnswer: undefined});
     }
 
     componentWillUnmount() {

@@ -51,7 +51,7 @@
         },
         {
           "name": "Last Eye Exam",
-          "type": "partialPastDate",
+          "maxLength": 100,
           "freestyle": true
         },
         {

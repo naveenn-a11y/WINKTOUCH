@@ -25,7 +25,8 @@
     {
       "hasAdd": false,
       "name": "Auto refractor",
-      "type": "SRx"
+      "type": "SRx",
+      "import": "autorefractor"
     },
     {
       "name": "Scan",

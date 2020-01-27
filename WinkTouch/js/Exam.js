@@ -18,7 +18,7 @@ import { cacheItemById, getCachedItem, cacheItem, getCachedItems } from './DataC
 import { deepClone, formatMoment, getValue, stripIndex, setValue } from './Util';
 import { allExamIds, fetchVisit, visitHasEnded } from './Visit';
 import { GlassesDetail } from './Refraction';
-import { getFavorites, addFavorite, removeFavorite, Star, Refresh } from './Favorites';
+import { getFavorites, removeFavorite, Star, Refresh, storeFavorite } from './Favorites';
 import { getExamDefinition } from './ExamDefinition';
 import { Lock } from './Widgets';
 import { ErrorCard } from './Form';
@@ -243,16 +243,12 @@ export class ExamHistoryScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.params = this.props.navigation.state.params;
-    let examHistory : Exam[] = getExamHistory(this.params.exam);
+    const params = this.props.navigation.state.params;
+    let examHistory : Exam[] = getExamHistory(params.exam);
     this.state = {
       examHistory,
       zoomScale: new Animated.Value(1)
     };
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    this.params = nextProps.navigation.state.params;
   }
 
   componentDidMount() {
@@ -261,19 +257,20 @@ export class ExamHistoryScreen extends Component {
 
   addItem(item: any) {
     //TODO: check if visit is editable and show a confirmation ?
-    if (this.params.exam.definition.addable) {
-      let items : any[] = this.params.exam[this.params.exam.definition.name];
+    let exam : Exam = this.props.navigation.state.params.exam;
+    if (exam.definition.addable) {
+      let items : any[] = exam[exam.definition.name];
       if (!items.includes(item))
         items.push(deepClone(item));
     } else {
-      let examItem : {} = this.params.exam[this.params.exam.definition.name];
+      let examItem : {} = exam[exam.definition.name];
       if (examItem instanceof Array) {
          if (examItem.length!==1) return;
          examItem = examItem[0];
       }
       Object.assign(examItem, deepClone(item));
     }
-    this.params.exam.isDirty = true;
+    exam.isDirty = true;
     this.forceUpdate(); //TODO update exam
   }
 
@@ -287,7 +284,8 @@ export class ExamHistoryScreen extends Component {
       if (value instanceof Array === false || value.length===0) return null;
       return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
     } else if (groupDefinition.type==='SRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition}/>
+      let exam : Exam = this.props.navigation.state.params.exam;
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition} examId={exam.id}/>
     } else if (groupDefinition.type==='CRx') {
       return <ContactsDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
     }
@@ -308,11 +306,11 @@ export class ExamHistoryScreen extends Component {
                   titleFields = {exam.definition.titleFields}
                   itemView={exam.definition.editable?'EditableItem':'ItemSummary'}
                   key={exam.id}
-                  style={exam.id===this.params.exam.id?styles.historyBoardSelected:styles.historyBoard}
+                  style={exam.id===this.props.navigation.state.params.exam.id?styles.historyBoardSelected:styles.historyBoard}
                   //orientation =
           />
       case 'groupedForm':
-        return <View style={exam.id===this.params.exam.id?styles.historyBoardSelected:styles.historyBoard} key={exam.id}>
+        return <View style={exam.id===this.props.navigation.state.params.exam.id?styles.historyBoardSelected:styles.historyBoard} key={exam.id}>
           <Text style={styles.cardTitle}>{visitDate}</Text>
           <View style={styles.flow}>
           {exam.definition.fields && exam.definition.fields.map((groupDefinition: FieldDefinition|GroupDefinition, index: number) =>
@@ -348,12 +346,9 @@ export class ExamScreen extends Component {
     enableScroll: () => void,
     disableScroll: () => void
   }
-  params: {
-    exam: Exam,
-    appointmentStateKey: string
-  }
   state: {
     exam: Exam,
+    appointmentStateKey: string,
     isDirty: boolean,
     locked: boolean,
     scrollable: boolean,
@@ -362,67 +357,62 @@ export class ExamScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    //__DEV__ && console.log('Examscreen constructed');
-    if (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params) {
-        this.params = this.props.navigation.state.params;
-    } else {
-      this.params = {
-        exam: this.props.exam,
-      }
-    }
-    this.params.exam.hasStarted=true;
+    let exam: Exam =  (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.exam:this.props.exam;
+    exam.hasStarted=true;
     this.state = {
-      exam: this.params.exam,
-      isDirty: this.params.exam.errors!==undefined,
-      locked: !this.props.unlocked && examIsLocked(this.params.exam),
+      exam,
+      appointmentStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.appointmentStateKey:undefined,
+      isDirty: exam.errors!==undefined,
+      locked: this.props.unlocked!==true && examIsLocked(exam),
       scrollable: true,
-      favorites: this.params.exam.definition.starable?getFavorites(this.params.exam):undefined //TODO don't get favourirtes for locked exam. exam.definition.id
+      favorites: exam.definition.starable?getFavorites(exam):undefined //TODO don't get favourirtes for locked exam. exam.definition.id
     }
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    //__DEV__ && console.log('Examscreen receives props');
-    if (nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params) {
-        this.params = nextProps.navigation.state.params;
-    } else {
-      this.params = {
-        exam: nextProps.exam,
-      };
-    }
-    if (this.state.exam.id===this.params.exam.id) {//We ignore the same exam as sliding back overwrites with old data !
-      //__DEV__ && console.log('Examscreen ignoring receiving same exam id');
-      this.setState({locked: !this.props.unlocked && examIsLocked(this.params.exam)});
-      return;
-    }
-    if (this.state.isDirty) {
-      //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
-      this.storePreviousExam(this.state.exam);
-    }
-    this.params.exam.hasStarted=true;
-    this.setState({
-      exam: this.params.exam,
-      isDirty: this.params.exam.errros!==undefined,
-      locked: !this.props.unlocked && examIsLocked(this.params.exam),
-      favorites: this.params.exam.definition.starable?getFavorites(this.params.exam):undefined //TODO don't get favourirtes for locked exam. exam.definition.id
-    });
   }
 
   componentDidMount() {
-    //__DEV__ && console.log('Examscreen did mount');
-    if (this.params.exam.id && this.params.exam.errors===undefined) this.fetchExam();
+    if (this.state.exam.id!=undefined && this.state.exam.errors===undefined) this.fetchExam();
+  }
+
+  componentDidUpdate(prevProps: any) {
+    let exam: Exam =  (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.exam:this.props.exam;
+    if (this.state.exam.id===exam.id) {
+      //__DEV__ && console.log('ExamScreen did update with same exam id '+exam.id);
+      return;
+    }
+    //__DEV__ && console.log('ExamScreen did update after receiving new exam with id '+exam.id);
+    if (this.state.isDirty) {
+      this.storeExam(this.state.exam);
+    }
+    exam.hasStarted=true;
+    this.setState({
+      exam,
+      appointmentStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.appointmentStateKey:undefined,
+      isDirty: exam.errors!==undefined,
+      locked: !this.props.unlocked && examIsLocked(exam),
+      scrollable: true,
+      favorites: exam.definition.starable?getFavorites(exam):undefined //TODO don't get favourirtes for locked exam. exam.definition.id
+    });
+  }
+
+  componentWillUnmount() {
+    //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
+    if (this.state.isDirty) {
+      //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
+      this.storeExam(this.state.exam);
+    }
   }
 
   async fetchExam() {
-    const exam: Exam = await fetchExam(this.params.exam.id);
-    if (this.params.exam!==exam) {
+    const exam: Exam = await fetchExam(this.state.exam.id);
+    if (this.state.exam!==exam) {
       if (exam!=undefined) exam.hasStarted = true;
       this.setState({exam, isDirty: false});
     }
   }
 
   async refreshExam() {
-    let exam: Exam = await fetchExam(this.params.exam.id, true);
-    //__DEV__ && console.log('Refreshed '+JSON.stringify(exam));
+    let exam: Exam = await fetchExam(this.state.exam.id, true);
+    if (exam===undefined) return;
     this.state.exam[exam.definition.name]=undefined;
     exam = Object.assign(this.state.exam, exam);
     exam.hasStarted = true;
@@ -431,7 +421,7 @@ export class ExamScreen extends Component {
 
   async storePreviousExam(exam: Exam) {
     exam.hasEnded = true;
-    exam = await storeExam(exam, this.params.appointmentStateKey, this.props.navigation);
+    exam = await storeExam(exam, this.state.appointmentStateKey, this.props.navigation);
     if (exam.errors===undefined) {
       updateMappedExams(exam);
     } else {
@@ -443,7 +433,7 @@ export class ExamScreen extends Component {
   async storeExam(exam: Exam) {
     //__DEV__ && console.log('Saving exam !');
     exam.hasEnded = true;
-    exam = await storeExam(exam, this.params.appointmentStateKey, this.props.navigation);
+    exam = await storeExam(exam, this.state.appointmentStateKey, this.props.navigation);
     if (exam.errors===undefined) updateMappedExams(exam);
     if (this.props.exam) {
       if (this.state.exam.id===exam.id) {
@@ -456,52 +446,29 @@ export class ExamScreen extends Component {
     }
   }
 
-  /**
-  cleanExam() {
-    let exam = this.state.exam;
-    exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
-      if (groupDefinition.multiValue) {
-        let values : any[] = exam[exam.definition.name][groupDefinition.name];
-        let cleanedValues = values.filter(value => value!==undefined && Object.keys(value).length!==0);
-        if (values.length!==cleanedValues.length) {
-           exam[exam.definition.name][groupDefinition.name] = cleanedValues;
-        }
-      }
-    });
-  }
-  */
-
   updateExam = (exam: Exam) : void => {
     //__DEV__ && console.log('Examscreen updateExam called');
-    if (this.props.exam) {
-      this.setState({exam, isDirty:true});
-      //this.storeExam(exam);
-    } else {
-      if (!this.state.isDirty) this.setState({exam, isDirty:true})
-      else (this.setState({exam}));
-    }
-  }
-
-  componentWillUnmount() {
-    //__DEV__ && console.log('Examscreen will unmount');
-    if (this.state.isDirty) {
-      this.storeExam(this.state.exam);
-    }
-  }
-
-  addFavorite = (favorite: any) => {
-    addFavorite(favorite, this.state.exam.definition.id,
-      () => this.setState({favorites: getFavorites(this.params.exam)}));
+    this.setState({exam, isDirty:true});
   }
 
   async removeFavorite(favorite: ExamPredefinedValue) {
+    let favorites : ExamPredefinedValue[] = this.state.favorites;
+    favorites = favorites.filter((aFavorite: ExamPredefinedValue) => aFavorite!==favorite);
+    this.setState({favorites});
     await removeFavorite(favorite);
-    this.setState({favorites: getFavorites(this.params.exam)});
+    this.setState({favorites: getFavorites(this.state.exam)});
   }
 
-  addExamAsFavorite = () => {
+  addFavorite = async (favorite: any, name: string) => {
+    const exam: ?Exam = this.state.exam;
+    if (exam===undefined) return;
+    await storeFavorite(favorite, exam.definition.id, name);
+    this.setState({favorites: getFavorites(this.state.exam)});
+  }
+
+  addExamFavorite = (name: string) => {
     let exam = this.state.exam[this.state.exam.definition.name];
-    this.addFavorite(exam);
+    this.addFavorite(exam, name);
   }
 
   switchLock = () => {
@@ -509,7 +476,7 @@ export class ExamScreen extends Component {
   }
 
   getVisit() : Visit {
-    return getVisit(this.params.exam);
+    return getVisit(this.state.exam);
   }
 
   getRelatedExam(examName: string) : Exam {
@@ -540,13 +507,13 @@ export class ExamScreen extends Component {
     switch (this.state.exam.definition.type) {
       case 'selectionLists':
           return <SelectionListsScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true}
-            favorites={this.state.favorites} onAddFavorite={this.params.exam.definition.starable?this.addFavorite:undefined} onRemoveFavorite={(favorite: ExamPredefinedValue) => this.removeFavorite(favorite)}/>
+            favorites={this.state.favorites} onAddFavorite={this.state.exam.definition.starable?this.addFavorite:undefined} onRemoveFavorite={(favorite: ExamPredefinedValue) => this.removeFavorite(favorite)}/>
       case 'groupedForm':
-          return <GroupedFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} favorites={this.state.favorites} onAddFavorite={this.params.exam.definition.starable?this.addFavorite:undefined} onRemoveFavorite={(favorite: ExamPredefinedValue) => this.removeFavorite(favorite)} enableScroll={this.enableScroll} disableScroll={this.disableScroll}/>
+          return <GroupedFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} favorites={this.state.favorites} onAddFavorite={this.state.exam.definition.starable?this.addFavorite:undefined} onRemoveFavorite={(favorite: ExamPredefinedValue) => this.removeFavorite(favorite)} enableScroll={this.enableScroll} disableScroll={this.disableScroll}/>
       case 'paperForm':
-        return <PaperFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} appointmentStateKey={this.params.appointmentStateKey} navigation={this.props.navigation} enableScroll={this.enableScroll} disableScroll={this.disableScroll}/>
+        return <PaperFormScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true} appointmentStateKey={this.state.appointmentStateKey} navigation={this.props.navigation} enableScroll={this.enableScroll} disableScroll={this.disableScroll}/>
     }
-    return <Text style={styles.screenTitle}>{this.params.exam.definition.type} {this.params.exam.definition.name} Exam</Text>
+    return <Text style={styles.screenTitle}>{this.state.exam.definition.type} {this.state.exam.definition.name} Exam</Text>
   }
 
   renderLockIcon() {
@@ -556,7 +523,7 @@ export class ExamScreen extends Component {
 
   renderFavoriteIcon() {
     if (this.state.locked || this.state.exam.definition.starable!==true || this.state.exam.definition.starable!==true || (this.state.exam.definition.type!=='selectionLists' && this.state.exam.definition.type!=='groupedForm')) return null;
-    return <TouchableOpacity onPress={this.addExamAsFavorite}><Star style={styles.screenIcon}/></TouchableOpacity>
+    return <Star onAddFavorite={this.addExamFavorite}  style={styles.screenIcon}/>
   }
 
   renderRefreshIcon() {
@@ -565,7 +532,7 @@ export class ExamScreen extends Component {
   }
 
   renderExamIcons() {
-    if (this.params.exam.definition.card===false) return;
+    if (this.state.exam.definition.card===false) return;
     return <View style={styles.examIcons}>
       {this.renderRefreshIcon()}
       {this.renderFavoriteIcon()}
@@ -574,9 +541,9 @@ export class ExamScreen extends Component {
   }
 
   renderRelatedExams() {
-    if (this.params.exam.definition.relatedExams===undefined || this.params.exam.definition.relatedExams===null || this.params.exam.definition.relatedExams.length===0) return null;
+    if (this.state.exam.definition.relatedExams===undefined || this.state.exam.definition.relatedExams===null || this.state.exam.definition.relatedExams.length===0) return null;
     return <View style={styles.flow}>
-      {this.params.exam.definition.relatedExams.map((relatedExamName: string, index: number) => {
+      {this.state.exam.definition.relatedExams.map((relatedExamName: string, index: number) => {
         const relatedExam : Exam = this.getRelatedExam(relatedExamName);
         return relatedExam && <ExamCard exam={relatedExam} style={styles.examCard} key={index} />
       })}
@@ -584,7 +551,7 @@ export class ExamScreen extends Component {
   }
 
   render() {
-    if (this.params.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false} scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable}>
+    if (this.state.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false} scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable}>
                 <ErrorCard errors={this.state.exam.errors} />
                 {this.renderRelatedExams()}
                 {this.renderExam()}

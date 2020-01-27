@@ -21,7 +21,7 @@ export const selectionColor = '#5ed4d4';
 export const selectionFontColor : string = '#1db3b3';
 export const selectionBorderColor = '#1db3b3';
 export const selectionBackgroundColor = '#c9ffff'
-export const disabledFontColor : string = '#b3b3b3';
+export const disabledFieldFontColor : string = '#444444ff';
 export const fieldBorderColor = '#ddddddff';
 
 const fieldMinWidth = 100;
@@ -134,11 +134,21 @@ export const styles = StyleSheet.create({
         color: selectionFontColor
     },
     sectionTitle: {
+         fontSize: 24 * fontScale,
+         color: selectionFontColor,
+         fontWeight: '500',
+         textAlign: 'center',
+         margin: 6 * fontScale
+    },
+    borderSectionTitle: {
+        position: 'absolute',
+        bottom: -12 * fontScale,
+        right: 60 * fontScale,
         fontSize: 24 * fontScale,
         color: selectionFontColor,
         fontWeight: '500',
         textAlign: 'center',
-        margin: 6 * fontScale
+        margin: 10 * fontScale
     },
     modalTitle: {
         fontSize: 46 * fontScale,
@@ -457,7 +467,7 @@ export const styles = StyleSheet.create({
     },
     formFieldReadOnly: {
         flex: 100,
-        color: 'black',
+        color: disabledFieldFontColor,
         fontSize: 20 * fontScale,
         height: 36 * fontScale,
         paddingTop: 6 * fontScale,
@@ -466,6 +476,9 @@ export const styles = StyleSheet.create({
         paddingRight: 3 * fontScale,
         textAlign: 'left',
         backgroundColor: transparantBackgroundColor,
+        borderWidth: 1 * fontScale,
+        borderRadius: 6 * fontScale,
+        borderColor: fieldBorderColor,
         margin: 3 * fontScale
     },
     translateField: {
@@ -681,7 +694,7 @@ export const styles = StyleSheet.create({
         minWidth: 150 * fontScale,
         minHeight: 185 * fontScale,
         padding: 10 * fontScale,
-        paddingLeft: 50 * fontScale,
+        paddingBottom: 20 * fontScale,
         borderRadius: 30 * fontScale,
         borderColor: selectionFontColor,
         borderWidth: 2*fontScale,
@@ -937,7 +950,7 @@ export const styles = StyleSheet.create({
     },
     drawingIcons: {
       position: 'absolute',
-      top:0 * fontScale,
+      top:30 * fontScale,
       right: -5 * fontScale,
       flexDirection: 'column',
       backgroundColor: '#ffffffbb'
@@ -951,6 +964,14 @@ export const styles = StyleSheet.create({
       position: 'absolute',
       top:0 * fontScale,
       right:  15 * fontScale,
+      width: 200 * fontScale,
+      flexDirection: 'row-reverse'
+    },
+    groupExtraIcons: {
+      position: 'absolute',
+      top:0 * fontScale,
+      left:  15 * fontScale,
+      width: 200 * fontScale,
       flexDirection: 'row'
     },
     separator: {
@@ -1086,7 +1107,7 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
         backgroundColor: 'white',
         alignSelf: 'flex-start',
         padding: 10 * fontScale,
-        paddingTop: ((size==='S'||size==='M')?36:10) * fontScale,
+        paddingTop: ((size==='S'||size==='M')?46:10) * fontScale,
         minWidth: minWidth * fontScale,
         minHeight: minHeight *fontScale,
         borderRadius: 30 * fontScale,

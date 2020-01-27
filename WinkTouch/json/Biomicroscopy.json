@@ -179,16 +179,14 @@
               "maxValue": 8
             },
             {
-              "stepSize": 5,
-              "name": "TVOL",
+              "name": "Angle",
               "freestyle": true,
-              "suffix": " mm \/ 5 min",
               "options": [
-                "0",
-                "5",
-                "10",
-                "15",
-                "20"
+                "1",
+                "2",
+                "3",
+                "4",
+                "> 4"
               ]
             }
           ]
@@ -257,16 +255,14 @@
               "maxValue": 8
             },
             {
-              "stepSize": 5,
-              "name": "TVOL",
+              "name": "Angle",
               "freestyle": true,
-              "suffix": " mm \/ 5 min",
               "options": [
-                "0",
-                "5",
-                "10",
-                "15",
-                "20"
+                "1",
+                "2",
+                "3",
+                "4",
+                "> 4"
               ]
             }
           ]

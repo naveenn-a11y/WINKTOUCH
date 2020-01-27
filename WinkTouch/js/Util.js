@@ -212,13 +212,14 @@ export function formatMoment(date: Date|string): string {
     const dayCount : number = dayDifference(nu, date);
     if (dayCount<-100) return formatDate(date, farDateFormat);
     if (dayCount<-14) return formatDate(date, dateFormat);
-    if (dayCount<-1) return formatDate(date, dateTime24Format);
-    if (dayCount===-1) return 'Tomorrow '+formatDate(date, time24Format);
+    if (dayCount<=-1) return formatDate(date, dateTime24Format);
+    //if (dayCount===-1) return 'Tomorrow '+formatDate(date, time24Format);
     if (dayCount===0) return formatDate(date, time24Format);
-    if (dayCount===1) return 'Yesterday';
-    if (dayCount <= 14)  return dayCount+' days ago';
-    const weekCount : number = weekDifference(nu, date);
-    if (weekCount <=8) return weekCount+' weeks ago';
+    //if (dayCount===1) return 'Yesterday';
+    //if (dayCount <= 14)  return dayCount+' days ago';
+    //const weekCount : number = weekDifference(nu, date);
+    //if (weekCount <=8) return weekCount+' weeks ago';
+    if (dayCount<=100) return formatDate(date, dateFormat);
     return formatDate(date, farDateFormat);
   } catch (error) {
     console.log(error);

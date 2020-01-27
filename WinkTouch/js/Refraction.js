@@ -4,18 +4,22 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, Text, Switch, ScrollView, LayoutAnimation, TouchableOpacity } from 'react-native';
-import type {GlassesRx, Patient, Exam, GroupDefinition, FieldDefinition, GlassRx, Prism, Visit} from './Types';
+import { View, Text, Switch, ScrollView, LayoutAnimation, TouchableOpacity, Alert } from 'react-native';
+import type {GlassesRx, Patient, Exam, GroupDefinition, FieldDefinition, GlassRx, Prism, Visit, Measurement} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
 import { NumberField, TilesField, Button, Label } from './Widgets';
 import { Anesthetics } from './EyeTest';
-import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear} from './Util';
+import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
 import { formatCode, formatAllCodes, parseCode } from './Codes';
 import { getVisitHistory, fetchVisitHistory } from './Visit';
-import { CopyRow, Garbage, Keyboard, Plus, Copy } from './Favorites';
+import { CopyRow, Garbage, Keyboard, Plus, Copy, ImportIcon, ExportIcon } from './Favorites';
+import { importData, exportData } from './MappedField';
+import { getCachedItem } from './DataCache';
+import { getConfiguration } from './Configuration';
+import { getPatient } from './Exam';
 
 function getRecentRefraction(patientId: string) : ?GlassesRx[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -198,21 +202,22 @@ export class PrismInput extends Component {
       this.splittedValue = this.splitValue(this.props.value);
   }
 
-  componentWillReceiveProps(nextProps: any) {
-     this.splittedValue = this.splitValue(nextProps.value);
+  componentDidUpdate(prevProps: any) {
+    if (this.props.value===prevProps.value) return;
+    this.splittedValue = this.splitValue(this.props.value);
   }
 
   splitValue(glassRx: ?GlassRx) : string[] {
     let splittedValue : ?string[] =  [undefined,undefined,undefined,undefined,undefined,undefined];
     if (glassRx===undefined || glassRx===null) return splittedValue;
-    splittedValue[0] = isNaN(glassRx.prism1)?undefined:parseInt(glassRx.prism1).toString();
-    splittedValue[1] = isNaN(glassRx.prism1)?undefined:Number(glassRx.prism1).toFixed(2);
-    splittedValue[1] = isNaN(glassRx.prism1)?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
-    splittedValue[2] = isNaN(glassRx.prism1)?undefined:formatCode('prism1b', glassRx.prism1b);
-    splittedValue[3] = isNaN(glassRx.prism2)?undefined:parseInt(glassRx.prism2).toString();
-    splittedValue[4] = isNaN(glassRx.prism2)?undefined:Number(glassRx.prism2).toFixed(2);
-    splittedValue[4] = isNaN(glassRx.prism2)?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
-    splittedValue[5] = isNaN(glassRx.prism2)?undefined:formatCode('prism2b', glassRx.prism2b);
+    splittedValue[0] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:parseInt(glassRx.prism1).toString();
+    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:Number(glassRx.prism1).toFixed(2);
+    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
+    splittedValue[2] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:formatCode('prism1b', glassRx.prism1b);
+    splittedValue[3] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:parseInt(glassRx.prism2).toString();
+    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:Number(glassRx.prism2).toFixed(2);
+    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
+    splittedValue[5] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:formatCode('prism2b', glassRx.prism2b);
     return splittedValue;
   }
 
@@ -246,8 +251,9 @@ export class PrismInput extends Component {
   }
 
   render() {
+    const style : ?any = this.props.style?this.props.style:(this.props.readonly)?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField;
     if (!this.props.visible) return null;
-    return <TilesField style={styles.formField} label={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} options={this.options}
+    return <TilesField style={style} label={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} options={this.options}
       value={this.splittedValue} onChangeValue={this.changeValue} containerStyle={this.props.containerStyle} readonly={this.props.readonly}
       prefix={[undefined,undefined,' ',undefined,undefined,' ']} suffix={[undefined,undefined,' ',undefined,undefined,undefined]} />
   }
@@ -268,43 +274,44 @@ export class GlassesSummary extends Component {
   }
 
   render() {
-    if (!this.props.visible)
+    if (this.props.visible!==true)
       return null;
-    if (isEmpty(this.props.glassesRx))
+    if (isEmpty(this.props.glassesRx)) {
       return <View style={styles.columnLayout} key={this.props.title}>
           <Text style={this.props.titleStyle}>{this.props.title}</Text>
-        </View>
+      </View>
+    }
     return <View style={styles.columnLayout} key={this.props.title}>
-      {this.props.title && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
-      {this.props.glassesRx.lensType && <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>}
+      {this.props.title!==null && this.props.title!==undefined && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
+      {this.props.glassesRx.lensType!=undefined && this.props.glassesRx.lensType!=null && this.props.glassesRx.lensType!='' && <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>}
       <View style={styles.rowLayout}>
         <View style={styles.cardColumn}>
-          {this.props.showHeaders?<Text style={styles.text}></Text>:null}
+          {this.props.showHeaders===true && <Text style={styles.text}></Text>}
           <Text style={styles.text}>{'\t'+strings.od}:</Text>
           <Text style={styles.text}>{'\t'+strings.os}:</Text>
         </View>
         <View style={styles.cardColumn} key='sph'>
-          {this.props.showHeaders?<Text style={styles.text}>Sphere</Text>:null}
+          {this.props.showHeaders===true && <Text style={styles.text}>Sphere</Text>}
           <Text style={styles.text} key='od.sph'> {formatDiopter(this.props.glassesRx.od.sph)}</Text>
           <Text style={styles.text} key='os.sph'> {formatDiopter(this.props.glassesRx.os.sph)}</Text>
         </View>
-        <View style={styles.cardColumn}>
-          {this.props.showHeaders?<Text style={styles.text}>Cyl</Text>:null}
+        <View style={styles.cardColumn} key='cyl'>
+          {this.props.showHeaders===true && <Text style={styles.text}>Cyl</Text>}
           <Text style={styles.text}> {formatDiopter(this.props.glassesRx.od.cyl)}</Text>
           <Text style={styles.text}> {formatDiopter(this.props.glassesRx.os.cyl)}</Text>
         </View>
-        <View style={styles.cardColumn}>
-          {this.props.showHeaders?<Text style={styles.text}>Axis</Text>:null}
+        <View style={styles.cardColumn} key='axis'>
+          {this.props.showHeaders===true && <Text style={styles.text}>Axis</Text>}
           <Text style={styles.text}> {formatDegree(this.props.glassesRx.od.axis)}</Text>
           <Text style={styles.text}> {formatDegree(this.props.glassesRx.os.axis)}</Text>
         </View>
-        <View style={styles.cardColumn}>
-          {this.props.showHeaders?<Text style={styles.text}>Add</Text>:null}
+        <View style={styles.cardColumn} key='add'>
+          {this.props.showHeaders===true && <Text style={styles.text}>Add</Text>}
           <Text style={styles.text}> {formatDiopter(this.props.glassesRx.od.add)}</Text>
           <Text style={styles.text}> {formatDiopter(this.props.glassesRx.os.add)}</Text>
         </View>
-        <View style={styles.cardColumn}>
-          {this.props.showHeaders?<Text style={styles.text}>Prism</Text>:null}
+        <View style={styles.cardColumn} key='prism'>
+          {this.props.showHeaders===true && <Text style={styles.text}>Prism</Text>}
           <Text style={styles.text}> {formatPrism(this.props.glassesRx.od)}</Text>
           <Text style={styles.text}> {formatPrism(this.props.glassesRx.os)}</Text>
         </View>
@@ -330,6 +337,7 @@ export class GlassesDetail extends Component {
     onChangeGlassesRx?: (glassesRx: GlassesRx) => void,
     onAdd?: () => void,
     onClear? : () => void,
+    examId: string,
     fieldId?: string
   }
   state: {
@@ -349,9 +357,10 @@ export class GlassesDetail extends Component {
     }
   }
 
-  componentWillReceiveProps(props: any) {
+  componentDidUpdate(prevProps: any) {
+    if (this.props.glassesRx===prevProps.glassesRx) return;
     this.setState({
-      prism: isPrism(props.glassesRx),
+      prism: isPrism(this.props.glassesRx)
     });
   }
 
@@ -431,6 +440,52 @@ export class GlassesDetail extends Component {
     this.refs[fieldRef].startEditing();
   }
 
+  async importData() {
+    const data = await importData(this.props.definition.import, this.props.examId);
+    if (data===undefined || data===null) return;
+    if (data instanceof Array) {
+      const options = data.map((importData: Measurement) => {
+        return {
+          text: importData.label,
+          onPress: () => {
+            let glassesRx: GlassesRx = this.props.glassesRx;
+            glassesRx.lensType = importData.data.lensType;
+            glassesRx.od = {...importData.data.od};
+            glassesRx.os = {...importData.data.os};
+            if (this.props.onChangeGlassesRx)
+              this.props.onChangeGlassesRx(glassesRx);
+          }
+        }
+      });
+      options.push({text: strings.cancel});
+      Alert.alert(
+          strings.importDataQuestion,
+          undefined,
+          options
+      );
+    } else {
+      let glassesRx: GlassesRx = this.props.glassesRx;
+      glassesRx.lensType = data.data.lensType;
+      glassesRx.od = {...data.data.od};
+      glassesRx.os = {...data.data.os};
+      if (this.props.onChangeGlassesRx)
+        this.props.onChangeGlassesRx(glassesRx);
+    }
+  }
+
+  async exportData() {
+    if (this.props.definition.export===undefined) return;
+    const exam : Exam = getCachedItem(this.props.examId);
+    const patient: Patient = getPatient(exam);
+    let measurement : Measurement = {
+      label: this.props.title?this.props.title:formatLabel(this.props.definition),
+      date: formatDate(now(), jsonDateTimeFormat),
+      patientId: patient.id,
+      data: this.props.glassesRx
+    };
+    const data = await exportData(this.props.definition.export[0], measurement, this.props.examId);
+  }
+
   render() {
     if (!this.props.glassesRx)
       return null;
@@ -489,22 +544,26 @@ export class GlassesDetail extends Component {
                 onChangeValue={(value: ?number) => this.updateGlassesRx('os','addVa', value)} errorMessage={this.props.glassesRx.os.addVaError}/>}
             {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
           </View>
-          {(this.props.hasNotes || (this.props.definition && this.props.definition.hasNotes)) && <View style={styles.formRow}>
+          {(this.props.hasNotes===true || (this.props.definition!==undefined && this.props.definition.hasNotes)) && <View style={styles.formRow}>
             <FormInput value={this.props.glassesRx.notes} definition={getFieldDefinition('visit.prescription.notes')} readonly={!this.props.editable}
               onChangeValue={(value: ?string) => this.updateGlassesRx(undefined, 'notes', value)} errorMessage={this.props.glassesRx.notesError}/>
           </View>}
-        {this.props.editable && this.props.hasAdd && <View style={styles.buttonsRowLayout}>
+        {this.props.editable===true && this.props.hasAdd===true && <View style={styles.buttonsRowLayout}>
           <Button title={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} onPress={() => this.toggle('prism')}/>
           {false && <Button title={formatLabel(getFieldDefinition('visit.prescription.os'))+'='+formatLabel(getFieldDefinition('visit.prescription.od'))} onPress={() => this.copyOsOd()}/>}
-          {this.props.onCopy && <Button title={strings.copyToFinal} onPress={() => this.props.onCopy(this.props.glassesRx)}/>}
+          {this.props.onCopy!==undefined && <Button title={strings.copyToFinal} onPress={() => this.props.onCopy(this.props.glassesRx)}/>}
         </View>}
       </View>
+      <View style={styles.groupExtraIcons}>
+        {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
+        {this.props.editable && this.props.definition.export && getConfiguration().machine.phoropter!==undefined && <TouchableOpacity onPress={() => this.exportData()}><ExportIcon style={styles.groupIcon}/></TouchableOpacity>}
+      </View>
       <View style={styles.groupIcons}>
+          {this.props.editable && <TouchableOpacity onPress={this.props.onClear?this.props.onClear:this.clear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
           {this.props.editable && this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
           {this.props.editable && this.props.onPaste && <TouchableOpacity onPress={() => this.props.onPaste(this.props.glassesRx)}><Copy style={styles.groupIcon}/></TouchableOpacity>}
           {this.props.editable && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
-          {this.props.editable && <TouchableOpacity onPress={this.props.onClear?this.props.onClear:this.clear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
-      </View>
+        </View>
     </View>
   }
 }
@@ -550,9 +609,10 @@ export class ContactsDetail extends PureComponent {
     }
   }
 
-  componentWillReceiveProps(props: any) {
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.glassesRx === this.props.glassesRx) return;
     this.setState({
-      prism: isPrism(props.glassesRx)
+      prism: isPrism(this.props.glassesRx)
     });
   }
 
@@ -694,8 +754,9 @@ export class PatientRefractionCard extends Component {
       this.refreshPatientInfo();
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({refractions: getRecentRefraction(nextProps.patientInfo.id)}, this.refreshPatientInfo);
+  componentDidUpdate(prevProps: any) {
+    if (this.props.patientInfo===prevProps.patientInfo) return;
+    this.setState({refractions: getRecentRefraction(this.props.patientInfo.id)}, this.refreshPatientInfo);
   }
 
   async refreshPatientInfo(patientId: string) {

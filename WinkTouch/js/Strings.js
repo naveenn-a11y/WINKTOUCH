@@ -154,7 +154,11 @@ export const strings = new LocalizedStrings({
       findPatient: 'Enter the patient name or #Z',
       visit: 'Consultation',
       translate: 'Translate',
-      stopTranslating: 'Stop translating'
+      stopTranslating: 'Stop translating',
+      document: 'document',
+      importDataQuestion: 'Please choose to import',
+      configuration: 'Config',
+      nameStar: 'Please give the star a name'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
@@ -301,7 +305,11 @@ export const strings = new LocalizedStrings({
       findPatient: 'Entrer le nom du patient ou le #Z',
       visit: 'Consultation',
       translate: 'Traduire',
-      stopTranslating: 'Arreter de traduire'
+      stopTranslating: 'Arreter de traduire',
+      document: 'document',
+      importDataQuestion: 'Veuillez choisir pour importer',
+      configuration: 'Config',
+      nameStar: 'Please give the star a name'      
     }
 });
 
@@ -319,6 +327,11 @@ export function getUserLanguage() : string {
 export function getUserLanguageIcon() : string {
   let languageIndex : number = supportedLanguages.indexOf(getUserLanguage());
   return supportedLanguages[languageIndex+1];
+}
+
+export function getUserLanguageShort() : string {
+  if (userLanguage===undefined) return undefined;
+  return userLanguage.substring(0,2);
 }
 
 async function setUserLanguage(locale: string) {

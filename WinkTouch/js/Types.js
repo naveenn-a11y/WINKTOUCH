@@ -153,7 +153,19 @@ export type Recall = {
 
 export type ImageDrawing = {
   lines: string[],
-  image?: string //"upload-123" | "./image/amsler.png" | "http://anywhere.com/image.png"
+  image?: string //"upload-123" | "./image/amsler.png" | "http://anywhere.com/image.png",
+}
+
+export type Measurement = {
+  label: string,
+  date?: string,
+  patientId?: string,
+  machineId?: string,
+  data: any
+}
+
+export type Configuration = {
+  machine: {phoropter: string}
 }
 
 export type Visit = {
@@ -228,7 +240,8 @@ export type FieldDefinition = {
   image?: string,
   simpleSelect?: boolean,
   newLine?: boolean,
-  popup?: boolean
+  popup?: boolean,
+  sync?: boolean
 }
 
 export type FieldDefinitions = (FieldDefinition|GroupDefinition)[]
@@ -252,6 +265,8 @@ export type GroupDefinition = {
     hasAdd?: boolean,
     hasLensType?: boolean,
     hasNotes?: boolean,
+    import?: string|string[],
+    export?: string|string[],
     fields: (FieldDefinition|GroupDefinition)[],
 }
 
@@ -287,6 +302,7 @@ export type ExamPredefinedValue = {
   customExamDefinitionId: string, //TODO: wais
   name: string,
   predefinedValue: any,
+  userId?: string,
   order?: number
 }
 
@@ -316,7 +332,7 @@ export type Scene = {
 
 export type Upload = {
   id: string,
-  data: string,
+  data: string, //base64 encoded for binary data
   name: string,
   date?: string,
   mimeType: string,

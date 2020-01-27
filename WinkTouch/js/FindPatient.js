@@ -16,7 +16,6 @@ import { searchItems } from './Rest';
 import { cacheItemsById, getCachedItem } from './DataCache';
 import { hourDifference, parseDate, now } from './Util';
 import { VisitHistoryCard, fetchVisitHistory, VisitHistory } from './Visit';
-import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getFieldDefinitions } from './Items';
 import { getStore } from './DoctorApp';
@@ -124,10 +123,6 @@ export class FindPatientScreen extends Component {
   props: {
     navigation: any,
   }
-  params: {
-    showBilling?: boolean,
-    nextNavigation?: {action: string, params: any}
-  }
   state: {
     patientInfo: ?PatientInfo,
     visitHistory: ?string[],
@@ -136,16 +131,11 @@ export class FindPatientScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.params = this.props.navigation.state.params;
     this.state = {
       patientInfo: undefined,
       visitHistory: undefined,
       patientDocumentHistory: undefined
     }
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    this.params = nextProps.navigation.state.params;
   }
 
   async showVisitHistory(patientId: string) : void {

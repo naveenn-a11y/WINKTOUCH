@@ -9,7 +9,7 @@ import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const restUrl : string = __DEV__?'http://192.168.88.138:8080/Web/':'https://ws-touch.downloadwink.com/EHR-3.0/';
+export const restUrl : string = __DEV__?'http://192.168.88.147:8080/Web/':'https://ws-touch.downloadwink.com/EHR-3.0/';
 
 let token : string;
 
@@ -152,7 +152,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
     if (restResponse.errors) {
       alert(restResponse.errors);
       console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
-      return;
+      return; //TODO: we should also return an object containing the system eroor?
     }
     __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET');
     const item : any = restResponse[getItemFieldName(id)];
