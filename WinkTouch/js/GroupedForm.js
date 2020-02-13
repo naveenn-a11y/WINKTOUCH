@@ -11,12 +11,12 @@ import { strings } from './Strings';
 import { styles, scaleStyle } from './Styles';
 import { FloatingButton } from './Widgets';
 import { FormTextInput, FormRow, FormInput } from './Form';
-import { deepClone, deepAssign, isEmpty} from './Util';
+import { deepClone, deepAssign, isEmpty } from './Util';
 import { formatAllCodes} from './Codes';
 import { getCachedItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
 import { GlassesDetail, GlassesSummary, newRefraction } from './Refraction';
-import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue } from './Exam';
+import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, setMappedFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
 import { formatLabel, formatFieldValue, getFieldDefinition } from './Items';
 
@@ -318,7 +318,10 @@ export class GroupedCard extends Component {
         <PaperClip style={styles.textIcon} color='black' key='paperclip' />
         :
         <DrawingIcon style={styles.textIcon} color='black' key='drawing' />;
-      return <View style={styles.rowLayout} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}><Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: </Text>{icon}</View>
+      if (showLabel===true && label!==undefined && label!==null && label.trim()!=='') {
+        return <View style={styles.rowLayout} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}><Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: </Text>{icon}</View>
+      }
+      return <View style={styles.rowLayout} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{icon}</View>
     }
     const formattedValue : string = formatFieldValue(value, fieldDefinition);
     if (formattedValue==='') return null;
@@ -544,17 +547,35 @@ export class GroupedForm extends Component {
     return formatLabel(columnDefinition);
   }
 
+  changeField(fieldDefinition: FieldDefinition, newValue: any, column: ?string) {
+    if (fieldDefinition.mappedField) {
+      const exam : Exam = getCachedItem(this.props.examId);
+      setMappedFieldValue(fieldDefinition.mappedField, newValue, exam);
+    }
+    if (this.props.onChangeField) {
+      this.props.onChangeField(fieldDefinition.name, newValue, column);
+    }
+  }
+
   renderField(fieldDefinition: FieldDefinition, column?: string) {
     if (fieldDefinition===undefined)
       return <View style={styles.fieldFlexContainer} key={column}><Text style={styles.text}></Text></View>
     if (fieldDefinition.mappedField) {
-      fieldDefinition = Object.assign({}, getFieldDefinition(fieldDefinition.mappedField), fieldDefinition);
+      let exam : Exam = getCachedItem(this.props.examId);
+      fieldDefinition = Object.assign({}, getExamFieldDefinition(fieldDefinition.mappedField, exam), fieldDefinition);
     }
     const value = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name]:undefined:this.props.form[fieldDefinition.name]:undefined;
+    //if (fieldDefinition.mappedField) {
+    //  value = getExamFieldValue(fieldDefinition.mappedField, getCachedItem(this.props.examId));
+    //  __DEV__ && console.log('Got mapped field value '+fieldDefinition.mappedField+' from exam :'+value);
+    //}
+    //if (value===undefined) {
+    //  value = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name]:undefined:this.props.form[fieldDefinition.name]:undefined;
+    //}
     const error = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name+'Error']:undefined:this.props.form[fieldDefinition.name+'Error']:undefined;
     const label : string = formatLabel(this.props.definition)+(column!==undefined?' '+this.formatColumnLabel(column)+' ':' ')+formatLabel(fieldDefinition);
     return <FormInput value={value} filterValue={this.props.form} label={label} showLabel={false} readonly={!this.props.editable} definition={fieldDefinition}
-      onChangeValue={(newValue: string) => this.props.onChangeField(fieldDefinition.name, newValue, column)} errorMessage={error} isTyping={this.state.isTyping}
+      onChangeValue={(newValue: string) => this.changeField(fieldDefinition, newValue, column)} errorMessage={error} isTyping={this.state.isTyping}
       patientId={this.props.patientId} examId={this.props.examId} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} key={fieldDefinition.name+(column===undefined?'':column)}/>
   }
 
@@ -668,6 +689,7 @@ export class GroupedForm extends Component {
   renderRows() {
     let rows : any[] = [];
     const groupDefinition : GroupDefinition = this.props.definition;
+    if (!groupDefinition.fields) return null;
     for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
       const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
       if (columnFieldIndex===0) {
@@ -804,7 +826,7 @@ export class GroupedFormScreen extends Component {
         }
       });
       if (groupDefinition.clone instanceof Array && values.length>0) {
-        const lastValue = values[0];
+        const lastValue = deepClone(values[0]);
         groupDefinition.clone.forEach((fieldName : string) => {
           newValue[fieldName] = lastValue[fieldName];
         });

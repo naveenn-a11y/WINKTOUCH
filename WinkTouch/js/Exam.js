@@ -23,13 +23,13 @@ import { getExamDefinition } from './ExamDefinition';
 import { Lock } from './Widgets';
 import { ErrorCard } from './Form';
 
-export async function fetchExam(examId: string, ignoreCache?: boolean) : Exam {
-  let exam = await fetchItemById(examId, ignoreCache);
+export async function fetchExam(examId: string, ignoreCache?: boolean) : Promise<Exam> {
+  let exam : Exam = await fetchItemById(examId, ignoreCache);
   //overwriteExamDefinition(exam);
   return exam;
 }
 
-export async function createExam(exam: Exam) : Exam {
+export async function createExam(exam: Exam) : Promise<Exam> {
   exam = await storeItem(exam);
   return exam;
 }
@@ -65,6 +65,8 @@ function updateMappedExamFields(fieldDefinitions : (FieldDefinition|GroupDefinit
             //__DEV__ && console.log('Updated mapped exam field '+fieldIdentifier+' to '+fieldValue+': '+JSON.stringify(referredExam));
             updateMappedExams(referredExam);
 
+          } else if (fieldDefinition.mappedField!=undefined){
+            //__DEV__ && console.log('TODO: update non exam mapped field '+fieldDefinition.mappedField);
           }
         }
     });
@@ -95,7 +97,7 @@ export function getExam(examName: string, visit: Visit) : Exam {
 }
 
 export function getFieldValue(fieldIdentifier: string, exam: Exam) : any {
-  const fieldSrc : string = fieldIdentifier.split('.');
+  const fieldSrc : string[] = fieldIdentifier.split('.');
   if (fieldSrc[0]==='exam') {//A field of another exam
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0,examIdentifier.indexOf('.'));
@@ -109,11 +111,43 @@ export function getFieldValue(fieldIdentifier: string, exam: Exam) : any {
     let patient = getPatient(exam);
     if (!patient) return undefined;
     return patient[fieldSrc[1]];
-  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='clFitting') {//A non exam field
-    __DEV__ && console.error('unsupported value field src: '+fieldSrc);
+  } else if (fieldSrc[0]==='visit') {
+    const visit : Visit = getVisit(exam);
+    if (!visit) return undefined;
+    let fieldName : string = fieldSrc[1];
+    for (let i:number=2; i<fieldSrc.length; i++) {
+      fieldName=fieldName+'.'+fieldSrc[i];
+    }
+    if (fieldName==='examDate') {
+      fieldName='date'
+    }
+    return getValue(visit, fieldName);
+  } else if (fieldSrc[0]==='clFitting') {
+      __DEV__ && console.error('unsupported clFitting field: '+fieldSrc);
+      return undefined;
   } else {//A regular exam field
     let value = getValue(exam[exam.definition.name], fieldIdentifier);
     return value;
+  }
+}
+
+export function setMappedFieldValue(fieldIdentifier: string, value: any, exam: Exam) {
+  const fieldSrc : string[] = fieldIdentifier.split('.');
+  if (fieldSrc[0]==='exam') {
+    __DEV__ && console.log('Setting '+fieldIdentifier+' to '+value);
+    let examIdentifier = fieldIdentifier.substring(5);
+    const examName = examIdentifier.substring(0,examIdentifier.indexOf('.'));
+    exam = getExam(examName, getVisit(exam));
+    if (!exam) return undefined;
+    let examValue = exam[examName];
+    const identifier : string = examIdentifier.substring(examName.length+1);
+    setValue(examValue, identifier, value);
+    //getFieldDefinition(fieldIdentifier, exam);  TODO: recursive set mapped fields
+  } else if (fieldSrc[0]==='clFitting') {
+    //TODO: we can ignore clFitting for now
+    return;
+  } else {
+    __DEV__ && console.error('setting mapped field \''+fieldIdentifier+'\' not yet implemented.');
   }
 }
 
@@ -122,7 +156,7 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   if (fieldSrc[0]==='exam') {//A field of another exam
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0,examIdentifier.indexOf('.'));
-    const otherExam = getExam(examName, getVisit(exam));
+    const otherExam : Exam = getExam(examName, getVisit(exam));
     const examDefinition : ExamDefinition = otherExam?otherExam.definition:getExamDefinition(examName);
     if (!examDefinition) return undefined;
     const identifiers : string[] = examIdentifier.substring(examName.length+1).split('.');
@@ -138,7 +172,16 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
       return undefined;
     }
     if (fieldDefinition.mappedField) {
-      fieldDefinition = fieldDefinition=Object.assign({}, getFieldDefinition(fieldDefinition.mappedField, getVisit(exam)), fieldDefinition);
+      const firstMappedFieldName : string = fieldDefinition.mappedField;
+      let mappedFieldDefinition : FieldDefinition = getFieldDefinition(fieldDefinition.mappedField, otherExam);
+      fieldDefinition = fieldDefinition=Object.assign({}, mappedFieldDefinition, fieldDefinition);
+      let endNode: boolean = mappedFieldDefinition.mappedField===undefined || !mappedFieldDefinition.mappedField.startsWith('exam.');
+      while (mappedFieldDefinition.mappedField!==undefined && !endNode) {
+        mappedFieldDefinition = getFieldDefinition(mappedFieldDefinition.mappedField, otherExam);
+        fieldDefinition = fieldDefinition=Object.assign({}, mappedFieldDefinition, fieldDefinition);
+        endNode = mappedFieldDefinition.mappedField===undefined || !mappedFieldDefinition.mappedField.startsWith('exam.');
+      }
+      fieldDefinition.mappedField = firstMappedFieldName;
     }
     return fieldDefinition;
   } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient' || fieldSrc[0]==='clFitting') {//A non exam field
@@ -161,7 +204,18 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
       return undefined;
     }
     if (fieldDefinition.mappedField) {
-      fieldDefinition = Object.assign({}, getFieldDefinition(fieldDefinition.mappedField, getVisit(exam)), fieldDefinition);
+      const firstMappedFieldName : string = fieldDefinition.mappedField;
+      let mappedFieldDefinition : FieldDefinition = getFieldDefinition(fieldDefinition.mappedField, exam);
+      if (mappedFieldDefinition) {
+        fieldDefinition = fieldDefinition=Object.assign({}, mappedFieldDefinition, fieldDefinition);
+        let endNode: boolean = mappedFieldDefinition.mappedField===undefined || !mappedFieldDefinition.mappedField.startsWith('exam.');
+        while (mappedFieldDefinition.mappedField!==undefined && !endNode) {
+          mappedFieldDefinition = getFieldDefinition(mappedFieldDefinition.mappedField, exam);
+          fieldDefinition = fieldDefinition=Object.assign({}, mappedFieldDefinition, fieldDefinition);
+          endNode = mappedFieldDefinition.mappedField===undefined || !mappedFieldDefinition.mappedField.startsWith('exam.');
+        }
+        fieldDefinition.mappedField = firstMappedFieldName;
+      }
     }
     return fieldDefinition;
   }
@@ -431,7 +485,6 @@ export class ExamScreen extends Component {
   }
 
   async storeExam(exam: Exam) {
-    //__DEV__ && console.log('Saving exam !');
     exam.hasEnded = true;
     exam = await storeExam(exam, this.state.appointmentStateKey, this.props.navigation);
     if (exam.errors===undefined) updateMappedExams(exam);
@@ -504,6 +557,7 @@ export class ExamScreen extends Component {
   }
 
   renderExam() {
+    if (!this.state.exam) return null;
     switch (this.state.exam.definition.type) {
       case 'selectionLists':
           return <SelectionListsScreen exam={this.state.exam} onUpdateExam={this.updateExam} editable={this.state.locked!==true}
@@ -522,6 +576,7 @@ export class ExamScreen extends Component {
   }
 
   renderFavoriteIcon() {
+    if (!this.state.exam) return null;
     if (this.state.locked || this.state.exam.definition.starable!==true || this.state.exam.definition.starable!==true || (this.state.exam.definition.type!=='selectionLists' && this.state.exam.definition.type!=='groupedForm')) return null;
     return <Star onAddFavorite={this.addExamFavorite}  style={styles.screenIcon}/>
   }

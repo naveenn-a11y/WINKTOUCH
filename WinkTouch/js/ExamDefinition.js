@@ -75,6 +75,10 @@ export function getExamDefinition(examName: string) : ExamDefinition {
     examDefinitions = getCachedItems(getCachedItem('preExamDefinitions'));
     examDefinition = examDefinitions.find((examDefinition: ExamDefinition) => examDefinition.name === examName);
   }
+  if (examDefinition===undefined) {
+    examDefinitions = getCachedItems(getCachedItem('assessmentDefinitions'));
+    examDefinition = examDefinitions.find((examDefinition: ExamDefinition) => examDefinition.name === examName);
+  }
   if (__DEV__) {
     if (examDefinition===undefined)
       console.log('No exam definition found with name '+examName+'.');

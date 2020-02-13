@@ -20,9 +20,16 @@ export type Registration = {
 export type Store = {
   storeId: number, //TODO Chris
   name: string,
+  companyName: string,
+  streetNumber: string,
+  unit: string,
+  streetName: string,
   city: string,
   country: number,
-  pr: string
+  pr: string,
+  postalCode: string,
+  email: string,
+  telephone: string
 }
 
 export type Account = {
@@ -36,7 +43,9 @@ export type Account = {
 export type User = {
   id: string,
   firstName: string,
-  lastName: string
+  lastName: string,
+  license?: string,
+  signatureId?: string
 }
 
 export type Patient = {
@@ -68,6 +77,7 @@ export type PatientInfo = {
     country: string,
     gender: number,
     streetNumber: string,
+    unit: string,
     patientTags: string[],
     patientDrugs: string[] //TODO wais rename patientDrugIds
 }
@@ -293,7 +303,8 @@ export type ExamDefinition = {
     starable?: boolean,
     relatedExams?: string[],
     scrollable?: boolean,
-    layout?: any
+    layout?: any,
+    signable? :boolean
 }
 
 export type ExamPredefinedValue = {

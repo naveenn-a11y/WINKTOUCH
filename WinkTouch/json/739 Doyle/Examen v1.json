@@ -2,9 +2,9 @@
   "name": "Examen v1",
   "isPreExam": false,
   "scrollable": true,
-  "card": false,
+  "card": true,
   "type": "groupedForm",
-  "section": "Document.1",
+  "section": "Form.1",
   "fields": [
     {
       "name": "Examen recto",
@@ -91,16 +91,16 @@
                   }
                 },
                 {
-                  "name": "Gender",
-                  "mappedField": "patient.gender",
-                  "readonly": true,
-                  "layout": {
-                    "position": "absolute",
-                    "width": 30,
-                    "top": 34,
-                    "left": 965,
-                    "borderWidth": 0,
-                    "fontSize": 20
+                  "name":"Gender",
+                  "readonly":true,
+                  "mappedField":"patient.gender",
+                  "layout":{
+                    "position":"absolute",
+                    "borderWidth":0,
+                    "width":85,
+                    "left":915,
+                    "fontSize":20,
+                    "top":34
                   }
                 },
                 {
@@ -145,7 +145,7 @@
                   }
                 },
                 {
-                  "name": "Address lign 1",
+                  "name": "Address line 1",
                   "mappedField": "patient.address1",
                   "readonly": true,
                   "layout": {
@@ -158,7 +158,7 @@
                   }
                 },
                 {
-                  "name": "Address lign 2",
+                  "name": "Address line 2",
                   "mappedField": "patient.address2",
                   "readonly": true,
                   "layout": {

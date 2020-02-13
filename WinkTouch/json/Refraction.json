@@ -38,7 +38,7 @@
       "hasVA":true,
       "hasAdd":true,
       "canBeCopied":true,
-      "import": ["machine.phoropter", "exam.Lensometry.Lensometry","exam.Auto refractor.Auto refractor"],
+      "import": ["exam.Lensometry.Lensometry","exam.Auto refractor.Auto refractor"],
       "export": ["machine.phoropter"],
       "name":"Subjective refraction",
       "type":"SRx"

@@ -61,7 +61,7 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__?'1234':undefined,
+      password: __DEV__?'test':undefined,
       isTrial: false
     };
   }
@@ -194,7 +194,7 @@ export class LoginScreen extends Component {
       accountsId: (account.id).toString(),
       storeId: (store.storeId).toString(),
       expiration : 24 * 365
-    }
+    };
     const requestNr = getNextRequestNumber();
     __DEV__ && console.log('REQ '+requestNr+' POST '+doctorLoginUrl+' login for '+userName);
     try {

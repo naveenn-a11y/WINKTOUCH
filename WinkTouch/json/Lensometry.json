@@ -3,6 +3,7 @@
   "name":"Lensometry",
   "type":"groupedForm",
   "section":"Vision testing.4",
+  "scrollable": true,
   "fields":[
     {
       "name":"Current wear",
@@ -35,6 +36,22 @@
           "options":"lensTypeCodes"
         }
       ]
+    },
+    {
+      "name": "Scan",
+      "multiValue": true,
+      "fields": [
+        {
+          "popup": false,
+          "name": "LM scan",
+          "drawable": true,
+          "image": "upload",
+          "label": "",
+          "type": "EMR",
+          "size": "S"
+        }
+      ],
+      "size": "S"
     }
   ],
   "locale":{

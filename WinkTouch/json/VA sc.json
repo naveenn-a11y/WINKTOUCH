@@ -13,15 +13,12 @@
               "label": "AVL",
               "fields": [
                 {
-                  "name": "OD"
-                },
-                {
                   "name": "OS",
                   "label": "OG"
                 },
                 {
                   "name": "OU",
-                  "label": "OS"
+                  "label": "ODG"
                 }
               ]
             },
@@ -29,9 +26,6 @@
               "name": "PH",
               "label": "TE",
               "fields": [
-                {
-                  "name": "OD"
-                },
                 {
                   "name": "OS",
                   "label": "OG"
@@ -42,9 +36,6 @@
               "name": "NVA",
               "label": "AVP",
               "fields": [
-                {
-                  "name": "OD"
-                },
                 {
                   "name": "OS",
                   "label": "OG"

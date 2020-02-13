@@ -39,6 +39,7 @@ export class FormTextInput extends Component {
         onChangeText?: (text: ?string) => void,
         autoCapitalize?: string,
         autoFocus?: boolean,
+        freestyle?: boolean,
         type?: string,
         prefix?: string,
         suffix?: string,
@@ -69,7 +70,7 @@ export class FormTextInput extends Component {
     }
 
     componentDidUpdate(prevProps: any, prevState: any) {
-      //__DEV__ && this.props.label==='Last Name'  && console.log('props.value:'+prevProps.value+'->'+this.props.value+' state.text:'+prevState.text+'->'+this.state.text+' props.error:'+prevProps.errorMessage+'->'+this.props.errorMessage+' state.error:'+prevState.errorMessage+'->'+this.state.errorMessage);
+      //__DEV__  && this.props.label===' OD.Sph' && console.log('TEXTINPUT: props.value:'+prevProps.value+'->'+this.props.value+' state.text:'+prevState.text+'->'+this.state.text+' props.error:'+prevProps.errorMessage+'->'+this.props.errorMessage+' state.error:'+prevState.errorMessage+'->'+this.state.errorMessage);
       if (this.props.value===prevProps.value) return;
       let text : ?string = this.format(this.props.value);
       if (text===this.state.text) {
@@ -168,7 +169,7 @@ export class FormTextInput extends Component {
                     multiline={this.props.multiline}
                     />
               }
-              {!this.props.readonly && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
+              {!this.props.readonly && this.props.freestyle!=false && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
               </View>
             {this.props.suffix && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
             {this.state.errorMessage && <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>}
@@ -205,27 +206,21 @@ export class FormNumberInput extends Component {
     }
 
     state: {
-        text: string,
         errorMessage?: string
     }
 
     constructor(props: any) {
         super(props);
         this.state = {
-            text: this.format(this.props.value),
             errorMessage: this.props.errorMessage
         }
     }
 
-    componentDidUpdate(prevProps: any) {
+    componentDidUpdate(prevProps: any, prevState: any) {
+      //__DEV__  && this.props.name==='OD' && console.log('NUMBERINPUT: props.value:'+prevProps.value+'->'+this.props.value+' state.text:'+prevState.text+'->'+this.state.text+' props.error:'+prevProps.errorMessage+'->'+this.props.errorMessage+' state.error:'+prevState.errorMessage+'->'+this.state.errorMessage);
       if (this.props.value===prevProps.value) return;
-      let text : ?string = this.format(this.props.value);
-      if (text===this.state.text) {
-        if (this.props.errorMessage!==prevProps.errorMessage) {
-          this.setState({errorMessage: this.props.errorMessage});
-        }
-      } else {
-        this.setState({text, errorMessage: this.props.errorMessage});
+      if (this.props.errorMessage!==prevProps.errorMessage) {
+        this.setState({errorMessage: this.props.errorMessage});
       }
     }
 
@@ -273,12 +268,6 @@ export class FormNumberInput extends Component {
           const value : ?number|string = this.parse(text);
           this.props.onChangeValue(value);
         }
-    }
-
-    format(value: ?number) : string {
-      if (value===undefined || value===null) return '';
-      if (!value instanceof Number) return value.toString();
-      return value.toString(); //TODO
     }
 
     parse(text: string|number) : ?number {
@@ -820,9 +809,7 @@ export class FormInput extends Component {
       if (this.props.definition.layout.fontSize!==undefined) {
         style = [style, {'fontSize': this.props.definition.layout.fontSize*fontScale}];
       }
-
     }
-
     const readonly : boolean = this.props.readonly===true||this.props.definition.readonly===true;
     if (!this.props.definition || !this.props.visible) return null;
     if (isNumericField(this.props.definition)) {
@@ -846,16 +833,22 @@ export class FormInput extends Component {
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {
       return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
     } else if (this.props.definition.image!==undefined) {
-      return <ImageField value={this.props.value} image={this.props.definition.image} fileName={this.props.definition.name} resolution={this.props.definition.resolution} size={this.props.definition.size} popup={this.props.definition.popup} sync={this.props.definition.sync} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style}
+      return <ImageField ref='imageField' value={this.props.value} image={this.props.definition.image} fileName={this.props.definition.name} resolution={this.props.definition.resolution} size={this.props.definition.size} popup={this.props.definition.popup} sync={this.props.definition.sync} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style}
         patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}>
           {this.props.definition.fields && this.props.definition.fields.map((groupDefinition: GroupDefinition, index: number) =>
-            <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => this.updateSubValue(groupDefinition, field, value )}
-            definition={groupDefinition} editable={!this.props.readonly}
-            form={getValue(this.props.value, groupDefinition.name)}/>)}
+            <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => {
+                  this.updateSubValue(groupDefinition, field, value );
+                  this.refs.imageField.scheduleScreenShot();
+                }}
+              definition={groupDefinition} editable={!this.props.readonly}
+              form={getValue(this.props.value, groupDefinition.name)}
+              examId={this.props.examId}
+            />)}
         </ImageField>
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
-      type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100} style={style}/>//TODO keyboardType from definition type
+      type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
+      style={style}/>//TODO keyboardType from definition type
   }
 
   render() {

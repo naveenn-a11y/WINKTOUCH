@@ -42,8 +42,7 @@
                     "width": 390,
                     "justifyContent": "flex-start",
                     "top": 0,
-                    "left": 25,
-                    "fontSize": 40
+                    "left": 25
                   }
                 }
               ]

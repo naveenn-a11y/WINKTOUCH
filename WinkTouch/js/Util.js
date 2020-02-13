@@ -11,6 +11,7 @@ export const shortTimeFormat : string = 'H:mm';
 export const timeFormat : string ='h:mm a';
 export const time24Format: string = 'HH:mm';
 export const dateFormat: string = 'MMM Do';
+export const officialDateFormat: string = 'YYYY-MM-DD'; //TODO: this should be locale dependent or a setting?
 export const dayDateFormat: string = 'dd MMM Do';
 export const farDateFormat: string = 'MMM YYYY';
 export const yearDateFormat: string = 'MMM Do YYYY';

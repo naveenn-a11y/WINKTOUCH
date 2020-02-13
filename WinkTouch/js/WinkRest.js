@@ -3,6 +3,7 @@
  */
 'use strict';
 
+import type {Exam} from './Types';
 import { appendParameters, getToken} from './Rest';
 import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';

@@ -1,6 +1,9 @@
 {
+  "name": "Prescription",
+  "label": "Medication",
   "addable": true,
   "isAssessment": true,
+  "singable": true,
   "locale": {
     "fr-CA": {
       "label": "Rx MÃ©dicaments",
@@ -27,7 +30,11 @@
         },
         {
           "name": "Do not substitute",
-          "label": "Ne pas substituer"
+          "label": "Ne pas substituer",
+          "options": [
+            "",
+            "Ne pas substituer"
+          ]
         },
         {
           "name": "Comment",
@@ -40,8 +47,6 @@
       ]
     }
   },
-  "name": "Prescription",
-  "label": "Medication",
   "cardFields": [
     "Label",
     "Strength"

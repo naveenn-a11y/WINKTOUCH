@@ -950,7 +950,7 @@ export const styles = StyleSheet.create({
     },
     drawingIcons: {
       position: 'absolute',
-      top:30 * fontScale,
+      top:40 * fontScale,
       right: -5 * fontScale,
       flexDirection: 'column',
       backgroundColor: '#ffffffbb'

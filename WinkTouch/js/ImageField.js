@@ -29,6 +29,20 @@ import { searchPatientDocuments, storePatientDocument } from './Patient';
 import { ClearTile, UpdateTile, RefreshTile } from './Widgets';
 import { storeUpload } from './Upload';
 
+function isCloseBy(point: {x: number, y:nummber}, line: string) {
+  //__DEV__ && console.log('isCloseBy: ('+point.x+','+point.y+') '+line);
+  const points = line.split(' ');
+  for (let i:number = 0; i<points.length;i++) {
+    const splitIndex : number = points[i].indexOf(',');
+    const x : number = parseInt(points[i].substring(0, splitIndex), 10);
+    const y : number = parseInt(points[i].substring(splitIndex+1), 10);
+    if (Math.abs(x-point.x)<10 && Math.abs(y-point.y)<10) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export class ImageField extends Component {
   props: {
     value: ImageDrawing,
@@ -55,6 +69,7 @@ export class ImageField extends Component {
     selectedLineIndex: number,
     cameraOn: boolean,
     attachOn: boolean,
+    eraseMode: boolean,
     upload: Upload,
     patientDocuments: PatientDocument[],
     pdf?: string
@@ -78,6 +93,7 @@ export class ImageField extends Component {
       selectedLineIndex: -1,
       cameraOn: false,
       attachOn: false,
+      eraseMode: false,
       upload: (this.props.value&&this.props.value.image)?getCachedItem(this.props.value.image):undefined,
       patientDocuments: undefined,
       pdf: undefined
@@ -93,14 +109,14 @@ export class ImageField extends Component {
       if ((this.props.value===undefined && prevProps.value===undefined) ||
         (this.props.value && this.props.value.image===undefined && prevProps.value && prevProps.value.image===undefined) ||
         (this.props.value && this.props.value.image && prevProps.value && prevProps.value.image && prevProps.value.image===this.props.value.image)) {
-          __DEV__ && console.log('ImageField did update with ignorable value change '+this.props.value+' previous: '+prevProps.value);
+          //__DEV__ && console.log('ImageField did update with ignorable value change '+this.props.value+' previous: '+prevProps.value);
       } else {
-          __DEV__ && console.log('ImageField did update with new value ' +this.props.value+' previous: '+prevProps.value);
+          //__DEV__ && console.log('ImageField did update with new value ' +this.props.value+' previous: '+prevProps.value);
         this.loadImage();
       }
       return;
     }
-    __DEV__ && console.log('ImageField got reused for a different exam or image');
+    //__DEV__ && console.log('ImageField got reused for a different exam or image');
     //__DEV__ && console.log('ImageField in '+this.props.examId+' did update with new data: '+JSON.stringify(prevProps.value)+'->'+JSON.stringify(this.props.value));
     if (this.state.isActive) {
       this.cancelScrollTimer();
@@ -168,6 +184,7 @@ export class ImageField extends Component {
     if (nextState.lines===undefined || this.state.lines===undefined) return true;
     if (nextState.lines.length<1 || this.state.lines.length<1) return true;
     if (nextState.lines[nextState.lines.length-1]!==this.state.lines[this.state.lines.length-1]) return true;
+    //__DEV__ && console.log('Image field should not update');
     return false;
   }
 
@@ -179,7 +196,7 @@ export class ImageField extends Component {
   }
 
   commitEdit = () : void => {
-      __DEV__ && console.log('Committing image edit');
+      //__DEV__ && console.log('Committing image edit');
       if (this.props.popup) {
         this.setState({ isActive: false });
       }
@@ -215,7 +232,7 @@ export class ImageField extends Component {
     if (this.state.isActive) {
       this.cancelScrollTimer();
       RNBeep.beep(false);
-      this.setState({isActive: false});
+      this.setState({isActive: false, eraseMode: false});
       this.props.enableScroll();
       this.commitEdit();
     } else {
@@ -293,8 +310,36 @@ export class ImageField extends Component {
   }
 
   simplify(line: string) : string {
+    //__DEV__ && console.log('simplifying '+line);
     let coordinates : string[] = line.split(' ');
-    if (coordinates.length<3) return line;
+    if (coordinates.length<=1) return line;
+    if (coordinates.length<5) {
+      let minX=0;
+      let maxX=0;
+      let minY=0;
+      let maxY=0;
+      for(let i=0; i<coordinates.length; i++) {
+        let splitIndex : number = coordinates[i].indexOf(',');
+        const x : number = parseInt(coordinates[i].substring(0, splitIndex), 10);
+        const y : number = parseInt(coordinates[i].substring(splitIndex+1), 10);
+        if (i===0) {
+          minX=x;
+          maxX=x;
+          minY=y;
+          maxY=y;
+        } else {
+          if (x<minX) {minX=x;}
+          else if (x>maxX) {maxX=x;}
+          if (y<minY) {minY=y;}
+          else if (y>maxY) {maxY=y;}
+          if (maxY-minY>5 || maxX-minX>5)
+            break;
+        }
+      }
+      if (maxY-minY<5 && (maxX-minX)<5) {
+        return coordinates[0];
+      }
+    }
     let points : {x: number, y: number}[] = coordinates.map((coordinate: string) => {
       let splitIndex : number = coordinate.indexOf(',');
       const x : number = parseInt(coordinate.substring(0, splitIndex), 10);
@@ -352,7 +397,7 @@ export class ImageField extends Component {
     };
     upload = await storeUpload(upload);
     if (upload.id==='upload' || upload.id===undefined || upload.errors) {
-      alert('Saving the '+this.props.fileName+' in the pms failed.');
+      alert('Saving the '+this.props.fileName+' in the pms failed.'); //TODO: localise
       return;
     }
 
@@ -365,7 +410,7 @@ export class ImageField extends Component {
       uploadId: upload.id
     };
     await storePatientDocument(patientDocument);
-    __DEV__ && console.log('Uploading patient document done: '+upload.id);
+    __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
   }
 
   async takeScreenShot() {
@@ -376,7 +421,7 @@ export class ImageField extends Component {
 
   scheduleScreenShot() {
     if (this.screenShotTimer) clearTimeout(this.screenShotTimer);
-    this.screenShotTimer = setTimeout(this.takeScreenShot.bind(this), 1000);
+    this.screenShotTimer = setTimeout(this.takeScreenShot.bind(this), 1500);
   }
 
   cancelScreenShot() {
@@ -386,9 +431,13 @@ export class ImageField extends Component {
 
   liftPen() {
     //__DEV__ && console.log('Pen up');
-    if ((this.props.popup===false || this.props.image==='upload') && this.tap()==2 && (this.state.lines[this.state.lines.length-1].length<40 && this.state.lines[this.state.lines.length-2].length<40)) {
+    if ((this.props.popup===false || this.props.image==='upload') && this.tap()==2 && this.state.lines.length>2 && (this.state.lines[this.state.lines.length-1].length<40 && this.state.lines[this.state.lines.length-2].length<40)) {
       this.state.lines.splice(this.state.lines.length-2, 2);
       this.setState({lines:this.state.lines, penDown:false});
+      this.toggleEdit();
+      return;
+    }
+    if (this.state.eraseMode) {
       this.toggleEdit();
       return;
     }
@@ -409,9 +458,16 @@ export class ImageField extends Component {
     }
   }
 
-  updatePosition(event: any, scale: number) : void {
-    const x: number = event.nativeEvent.locationX/scale;
-    const y: number = event.nativeEvent.locationY/scale;
+  updatePosition(event: any, scale: numbfer) : void {
+    const x: number = Math.floor(event.nativeEvent.locationX/scale);
+    const y: number = Math.floor(event.nativeEvent.locationY/scale);
+    if (this.state.eraseMode) {
+      let lines = this.state.lines.filter((line, index: number) => index==0 || !isCloseBy({x,y}, line));
+      if (lines.length!==this.state.lines.length) {
+        this.setState({lines, selectedIndex:undefined});
+      }
+      return;
+    }
     let lines : string[] = this.state.lines.slice();
     let firstPoint : boolean = false;
     if (!this.state.penDown) {
@@ -421,7 +477,7 @@ export class ImageField extends Component {
     }
     const lineIndex : number = lines.length-1;
     let line :string = lines[lineIndex];
-    const newPoint : string = Math.floor(x)+','+Math.floor(y);
+    const newPoint : string = x+','+y;
     if (!firstPoint) {
       if (line.endsWith(newPoint)) return; //ignore double points
       line = line + ' ';
@@ -482,24 +538,35 @@ export class ImageField extends Component {
   }
 
   tap = () : number => {
-    if (new Date().getTime()-this.lastTap<300) {//Double tap
+    //__DEV__ && console.log('tap');
+    if (new Date().getTime()-this.lastTap<200) {//Double tap
+      this.lastTap = undefined;
       return 2;
     }
     this.lastTap = new Date().getTime();
     return 1;
   }
 
+  startErasing = () => {
+    this.setState({eraseMode: true}, this.toggleEdit);
+  }
+
   async generatePdf() : string {
-    const pageWidth : number = 1110;
-    const pageAspectRatio : number = 216/279;  //TODO: This is US letter aspect (in stead of A4), we should know from the printer or make it a setting, or link it to the locale
+    //TODO: configuration for paper size they use, fe A4 or USLetter
+    const pageWidth : number = 612; //US Letter portrait 8.5 inch * 72 dpi
+    const pageAspectRatio : number = 8.5/11; //US Letter portrait
     const pageHeight : number = pageWidth/pageAspectRatio;
     const imageUri = await this.refs.viewShot.capture();
     const aspectRatio = this.aspectRatio();
-    let width = imageWidth(this.props.size);
-    let height = width / aspectRatio;
+    let width = Math.floor(imageWidth(this.props.size));
+    let height = Math.floor(width / aspectRatio);
     if (height>pageHeight) {
-      height = pageHeight;
-      width = pageHeight * aspectRatio;
+      height = Math.floor(pageHeight);
+      width = Math.floor(pageHeight * aspectRatio);
+    }
+    if (width>pageWidth) {
+      width = Math.floor(pageWidth);
+      height = Math.floor(width / aspectRatio);
     }
     //__DEV__ && console.log('imagesize = '+width+'x'+height+' pageSize='+pageWidth+'x'+pageHeight);
     const page1 = PDFPage
@@ -507,7 +574,7 @@ export class ImageField extends Component {
       .setMediaBox(pageWidth, pageHeight)
       .drawImage(imageUri, 'jpg', {
         x: 0,
-        y: pageHeight-height+0/pageAspectRatio,
+        y: pageHeight-height,
         width: width,
         height: height
       });
@@ -527,7 +594,7 @@ export class ImageField extends Component {
     const path: string = await this.generatePdf();
     const patient : PatientInfo = getCachedItem(this.props.patientId);
     const doctorName : string = getDoctor().firstName+' '+getDoctor().lastName;
-    const documentName : string = this.props.fileName?this.props.fileName:this.props.type?this.props.type:strins.document;
+    const documentName : string = this.props.fileName?this.props.fileName:this.props.type?this.props.type:strings.document;
     const body : string = strings.formatString(strings.scanEmailBody, documentName.toLowerCase(), patient.firstName+' '+patient.lastName, doctorName);
     const fileName : string = replaceFileExtension(documentName, 'pdf');
     mailer.mail({
@@ -682,7 +749,6 @@ export class ImageField extends Component {
       return <View style={styles.drawingIcons} key={'drawingIcons'}>
         <TouchableOpacity onPress={() => this.print()}><Printer style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
         <TouchableOpacity onPress={() => this.email()}><Mail style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>
-        {!this.props.readonly && <TouchableOpacity onPress={this.clearLines}><Garbage style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>}
         {!this.props.readonly && <TouchableOpacity onPress={this.toggleEdit}><Pencil style={styles.drawIcon} disabled={this.state.isActive}/></TouchableOpacity>}
         {!this.props.readonly && this.state.isActive  && <TouchableOpacity onPress={this.undo}><Undo style={styles.drawIcon}/></TouchableOpacity>}
       </View>
@@ -704,7 +770,7 @@ export class ImageField extends Component {
                     onResponderMove={(event) => this.updatePosition(event, scale)}
                     onResponderRelease={(event) => this.liftPen()}
                     onResponderTerminate={(event) => this.liftPen()}>
-                    {image!==undefined && <TouchableWithoutFeedback onPressOut={()=> {if (this.tap()===2 && !this.props.readonly===true) this.toggleEdit();}} disabled={this.state.isActive}>
+                    {image!==undefined && <TouchableWithoutFeedback onLongPress={this.startErasing} onPressOut={()=> {if (this.tap()===2 && !this.props.readonly===true) this.toggleEdit();}} disabled={this.state.isActive}>
                       <View>
                         <Image source={image} style={style} />
                         {this.renderGraph(this.state.isActive?this.state.lines:(this.props.value&&this.props.value.lines)?this.props.value.lines:undefined, style, scale)}

@@ -38,6 +38,7 @@ export const mappedFields : string[] = [
   'visit.examDate'
   ];
 
+
 async function fetchMachineMeasurements(machineType, patientId) : Measurement[] {
   const searchCriteria = {machineType, patientId};
   let restResponse = await searchItems('Measurement/list', searchCriteria);

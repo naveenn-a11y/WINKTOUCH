@@ -4,8 +4,12 @@
       "label": "Champ Visuel",
       "fields": [
         {
-          "name": "Amsler grid",
-          "label": "Grille d\u2019Amsler"
+          "name": "Amsler grid OD",
+          "label": "Grille d\u2019Amsler OD"
+        },
+        {
+          "name": "Amsler grid OS",
+          "label": "Grille d\u2019Amsler OG"
         },
         {
           "name": "Auto-perimetry",
@@ -71,7 +75,18 @@
       ]
     },
     {
-      "name": "Amsler grid",
+      "name": "Amsler grid OD",
+      "size": "M",
+      "fields": [
+        {
+          "name": "image",
+          "image": ".\/image\/amsler.png",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "Amsler grid OS",
       "size": "M",
       "fields": [
         {
@@ -114,8 +129,8 @@
       ]
     },
     {
-      "optional": true,
       "name": "Notes",
+      "size": "L",
       "fields": [
         {
           "maxLength": 500,
@@ -123,7 +138,6 @@
           "label": ""
         }
       ],
-      "size": "L"
     }
   ]
 }

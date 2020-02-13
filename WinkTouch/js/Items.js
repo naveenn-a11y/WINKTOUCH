@@ -18,7 +18,7 @@ import { getCachedItem, cacheItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
 import { GlassesDetail, GlassesSummary, newRefraction, ContactsDetail } from './Refraction';
 import { getExamDefinition } from './ExamDefinition';
-import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, updateMappedExams } from './Exam';
+import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
 import { GroupedForm } from './GroupedForm';
 

@@ -4,21 +4,21 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, TouchableHighlight, Text, TouchableOpacity, ListView, LayoutAnimation, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
+import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
 import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat } from './Util';
-import { ExamCard, createExam, storeExam } from './Exam';
+import { ExamCard, createExam, storeExam, getExam } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
 import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
 import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
 import { fetchAppointment } from './Appointment';
-import { printRx, printClRx } from './Print';
+import { printRx, printClRx, printMedicalRx } from './Print';
 import { PatientDocumentPage } from './Patient';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
@@ -30,7 +30,7 @@ const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'en
 function getSectionTitle(section) : string {
   const language : string = getUserLanguage();
   if (language.startsWith('fr')) {
-      if (section==='Pre tests') return 'Pre Tests';
+      if (section==='Pre tests') return 'Pré-tests';
       const i: number = examSections.indexOf(section, 0);
       if (i>=0 && i<examSectionsFr.length-1) return examSectionsFr[i];
   }
@@ -91,10 +91,12 @@ export async function fetchVisitHistory(patientId: string) : string[] {
     const visitIds : string[] = visits.map(visit => visit.id);
     const patientDocuments : PatientDocument[] = restResponse.patientDocumentList?restResponse.patientDocumentList:[];
     const patientDocumentIds : string[] = patientDocuments.map(patientDocument => patientDocument.id);
+    const users : User[] = restResponse.userList;
 //    customExams && customExams.forEach((exam: Exam) => overwriteExamDefinition(exam)); //TODO remove after beta
     cacheItemsById(customExams);
     cacheItemsById(visits);
     cacheItemsById(patientDocuments);
+    cacheItemsById(users);
     cacheItem('visitHistory-'+patientId, visitIds);
     cacheItem('patientDocumentHistory-'+patientId, patientDocumentIds);
     return visitIds;
@@ -349,6 +351,13 @@ class VisitWorkFlow extends Component {
       this.setState({addableExamTypes: unstartedExamTypes, addableSections});
     }
 
+    hasMedicalRx() : boolean {
+      const medicationExam : Exam = getExam('Prescription', getCachedItem(this.props.visitId));
+      if (!medicationExam) return false;
+      const value = medicationExam['Prescription'];
+      return !isEmpty(value);
+    }
+
     hasClFitting() : boolean {
       this.state.addableExamTypes.forEach((addableType: ExamDefinition) => {
         if (addableType.name==='Fitting') {
@@ -503,6 +512,7 @@ class VisitWorkFlow extends Component {
             {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
             {!this.state.locked && !this.state.visit.prescription.signedDate && <Button title={strings.sign} onPress={() => this.signVisit()}/>}
             <Button title={strings.printRx} onPress={() => {printRx(this.props.visitId)}}/>
+            {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
             {this.hasClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
@@ -511,7 +521,7 @@ class VisitWorkFlow extends Component {
     }
 
     renderAddableExamButton(section?: string) {
-      if (this.props.readonly) return;
+      if (this.props.readonly || "Document"===section) return;
       const doingPreExam : boolean = !visitHasStarted(this.state.visit);
       const addableExamDefinitions : ExamDefinition[] = this.state.addableExamTypes.filter((examType: ExamDefinition) =>  (doingPreExam===true && examType.isPreExam===true) ||
           (doingPreExam===false && examType.section.substring(0, examType.section.indexOf('.'))===section));
@@ -636,7 +646,7 @@ export class VisitHistory extends Component {
         };
     }
 
-    componentDidUpdate(prevProps: any) {
+    componentDidUpdate(prevProps: any, prevState: any) {
       if (this.props.patientInfo.id===prevProps.patientInfo.id && this.props.visitHistory===prevProps.visitHistory && this.props.patientDocumentHistory===prevProps.patientDocumentHistory) return;
       this.setState({history: this.combineHistory(this.props.patientDocumentHistory, this.props.visitHistory)});
     }

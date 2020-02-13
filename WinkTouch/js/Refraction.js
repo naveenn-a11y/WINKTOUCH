@@ -292,28 +292,28 @@ export class GlassesSummary extends Component {
         </View>
         <View style={styles.cardColumn} key='sph'>
           {this.props.showHeaders===true && <Text style={styles.text}>Sphere</Text>}
-          <Text style={styles.text} key='od.sph'> {formatDiopter(this.props.glassesRx.od.sph)}</Text>
-          <Text style={styles.text} key='os.sph'> {formatDiopter(this.props.glassesRx.os.sph)}</Text>
+          <Text style={styles.text} key='od.sph'> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.sph):''}</Text>
+          <Text style={styles.text} key='os.sph'> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.sph):''}</Text>
         </View>
         <View style={styles.cardColumn} key='cyl'>
           {this.props.showHeaders===true && <Text style={styles.text}>Cyl</Text>}
-          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.od.cyl)}</Text>
-          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.os.cyl)}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.cyl):''}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.cyl):''}</Text>
         </View>
         <View style={styles.cardColumn} key='axis'>
           {this.props.showHeaders===true && <Text style={styles.text}>Axis</Text>}
-          <Text style={styles.text}> {formatDegree(this.props.glassesRx.od.axis)}</Text>
-          <Text style={styles.text}> {formatDegree(this.props.glassesRx.os.axis)}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.od?formatDegree(this.props.glassesRx.od.axis):''}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.os?formatDegree(this.props.glassesRx.os.axis):''}</Text>
         </View>
         <View style={styles.cardColumn} key='add'>
           {this.props.showHeaders===true && <Text style={styles.text}>Add</Text>}
-          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.od.add)}</Text>
-          <Text style={styles.text}> {formatDiopter(this.props.glassesRx.os.add)}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.add):''}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.add):''}</Text>
         </View>
         <View style={styles.cardColumn} key='prism'>
           {this.props.showHeaders===true && <Text style={styles.text}>Prism</Text>}
-          <Text style={styles.text}> {formatPrism(this.props.glassesRx.od)}</Text>
-          <Text style={styles.text}> {formatPrism(this.props.glassesRx.os)}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.od?formatPrism(this.props.glassesRx.od):''}</Text>
+          <Text style={styles.text}> {this.props.glassesRx.os?formatPrism(this.props.glassesRx.os):''}</Text>
         </View>
     </View>
     </View>
@@ -487,7 +487,7 @@ export class GlassesDetail extends Component {
   }
 
   render() {
-    if (!this.props.glassesRx)
+    if (this.props.glassesRx===undefined || this.props.glassesRx.od===undefined || this.props.glassesRx.os===undefined)
       return null;
     return <View style={this.props.style?this.props.style:(this.state.prism&&this.props.hasVA)?styles.boardXL:(this.state.prism||this.props.hasVA)?styles.boardL:styles.boardM}>
       {this.props.title && <Label suffix='' style={this.props.titleStyle} value={this.props.title} fieldId={this.props.fieldId}/>}

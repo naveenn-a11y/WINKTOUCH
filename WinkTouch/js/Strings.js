@@ -112,6 +112,7 @@ export const strings = new LocalizedStrings({
       printRx: 'Print Rx',
       printClRx: 'Print Cl',
       printReferral: 'Print Referral',
+      printMedicalRx: 'Print Medical Rx',
       add: 'Add',
       remove: 'Remove',
       od: 'OD',
@@ -158,7 +159,10 @@ export const strings = new LocalizedStrings({
       document: 'document',
       importDataQuestion: 'Please choose to import',
       configuration: 'Config',
-      nameStar: 'Please give the star a name'
+      nameStar: 'Please give the star a name',
+      during: 'During',
+      drSignature: 'Dr Signature',
+      signedDate: 'Signed Date'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
@@ -263,6 +267,7 @@ export const strings = new LocalizedStrings({
       printRx: 'Imprimer Rx',
       printClRx: 'Imprimer LC',
       printReferral: 'Imprimer Référence',
+      printMedicalRx: 'Imprimer Rx médicale',
       add: 'Ajouter',
       remove: 'Suprimer',
       od: 'OD',
@@ -309,7 +314,10 @@ export const strings = new LocalizedStrings({
       document: 'document',
       importDataQuestion: 'Veuillez choisir pour importer',
       configuration: 'Config',
-      nameStar: 'Please give the star a name'      
+      nameStar: 'Please give the star a name',
+      during: 'Pendant',
+      drSignature: 'Signature Dr',
+      signedDate: 'Signé le'
     }
 });
 
