@@ -962,6 +962,7 @@ export class GroupedFormScreen extends Component {
           key={'Rx'+index+'.'+subIndex}
           examId={this.props.exam.id}
           fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}
+          editable={this.props.editable!==false && groupDefinition.readonly!==true}
         />
         :<GroupedForm definition={groupDefinition} editable={this.props.editable} key={groupDefinition.name+"-"+index+'.'+subIndex}
             form={childValue}
@@ -973,19 +974,21 @@ export class GroupedFormScreen extends Component {
             patientId={this.patientId}
             examId={this.props.exam.id}
             fieldId={fieldId}
+            editable={this.props.editable!==false && groupDefinition.readonly!==true}
           />
       );
     } else if (groupDefinition.type==='SRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}          
         onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.type==='CRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
         onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
         onClear={() => this.clear(groupDefinition.name)} patientId={this.patientId} examId={this.props.exam.id}
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
+        editable={this.props.editable!==false && groupDefinition.readonly!==true}
         fieldId={this.props.exam.definition.id+'.'+groupDefinition.name} />
     } else {
       return  <GroupedForm definition={groupDefinition} editable={this.props.editable} form={value} key={groupDefinition.name+"-"+index}
@@ -995,6 +998,7 @@ export class GroupedFormScreen extends Component {
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
         patientId={this.patientId}
         examId={this.props.exam.id}
+        editable={this.props.editable!==false && groupDefinition.readonly!==true}
         fieldId={fieldId}/>
     }
   }

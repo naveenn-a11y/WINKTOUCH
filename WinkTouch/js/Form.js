@@ -152,9 +152,6 @@ export class FormTextInput extends Component {
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label}/>}
             {this.props.prefix && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
             <View style={styles.fieldFlexContainer}>
-              {this.props.readonly===true?
-                <Text style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:styles.formFieldReadOnly}>{this.props.value}</Text>
-                :
                 <TextInput
                     value={this.state.text}
                     autoCapitalize={this.props.autoCapitalize!=undefined?this.props.autoCapitalize:this.props.multiline===true?'sentences':'none'}
@@ -166,11 +163,10 @@ export class FormTextInput extends Component {
                     onChangeText={(text: string) => this.setState({text: text })}
                     onBlur={(event) => this.commit(event.nativeEvent.text)}
                     editable={this.props.readonly!==true}
-                    multiline={this.props.multiline}
-                    />
-              }
-              {!this.props.readonly && this.props.freestyle!=false && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
-              </View>
+                    multiline={this.props.multiline===true}
+                />
+                {!this.props.readonly && this.props.freestyle!=false && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
+            </View>
             {this.props.suffix && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
             {this.state.errorMessage && <Text style={styles.formValidationError}>{this.state.errorMessage}</Text>}
           </View>
@@ -801,7 +797,15 @@ export class FormInput extends Component {
   renderFormInput() {
     const label : string = this.props.label?this.props.label:formatLabel(this.props.definition);
     const type : ?string = this.props.type?this.props.type:this.props.definition.type;
-    let style : ?any = this.props.style?this.props.style:(this.props.readonly||this.props.definition.readonly)?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:(this.props.multiline===true || this.props.definition.maxLength>100)?styles.formFieldLines:styles.formField;
+    let style : ?any = this.props.style?
+      this.props.style:
+      (this.props.readonly||this.props.definition.readonly)?
+        (this.props.multiline===true || this.props.definition.maxLength>100)?
+          styles.formFieldReadOnlyLines
+          :styles.formFieldReadOnly:
+      this.props.errorMessage?styles.formFieldError:
+      (this.props.multiline===true || this.props.definition.maxLength>100)?styles.formFieldLines:
+      styles.formField;
     if (this.props.definition.layout!==undefined) {
       if (this.props.definition.layout.borderWidth!==undefined) {
         style = [style, {'borderWidth': this.props.definition.layout.borderWidth*fontScale}];

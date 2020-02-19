@@ -10,7 +10,7 @@ import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefiniti
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
-import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat } from './Util';
+import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow } from './Util';
 import { ExamCard, createExam, storeExam, getExam } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
@@ -811,6 +811,10 @@ export class VisitHistory extends Component {
     }
 
     selectDate = (date : Date) => {
+      if (compareDates(date, tomorrow())>=0) {
+        alert(strings.futureVisitDateError);
+        return;
+      }      
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 

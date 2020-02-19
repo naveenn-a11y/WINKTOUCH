@@ -481,6 +481,22 @@ export const styles = StyleSheet.create({
         borderColor: fieldBorderColor,
         margin: 3 * fontScale
     },
+    formFieldReadOnlyLines: {
+        color: disabledFieldFontColor,
+        flex: 100,
+        fontSize: 20 * fontScale,
+        height: 36 * 4.7 * fontScale,
+        paddingTop: 6 * fontScale,
+        paddingBottom: 4 * fontScale,
+        paddingLeft: 6 * fontScale,
+        paddingRight: 3 * fontScale,
+        textAlign: 'left',
+        backgroundColor: transparantBackgroundColor,
+        borderWidth: 1 * fontScale,
+        borderRadius: 6 * fontScale,
+        borderColor: fieldBorderColor,
+        margin: 3 * fontScale
+    },
     translateField: {
       borderColor: 'purple',
       borderWidth: 1 * fontScale,
@@ -496,7 +512,7 @@ export const styles = StyleSheet.create({
         paddingLeft: 6 * fontScale,
         paddingRight: 3 * fontScale,
         textAlign: 'left',
-        backgroundColor: 'white',
+        backgroundColor: transparantBackgroundColor,
         borderWidth: 1 * fontScale,
         borderRadius: 6 * fontScale,
         borderColor: fieldBorderColor,

@@ -162,7 +162,8 @@ export const strings = new LocalizedStrings({
       nameStar: 'Please give the star a name',
       during: 'During',
       drSignature: 'Dr Signature',
-      signedDate: 'Signed Date'
+      signedDate: 'Signed Date',
+      futureVisitDateError: 'You can\'t add a consultation in the future'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
@@ -317,7 +318,8 @@ export const strings = new LocalizedStrings({
       nameStar: 'Please give the star a name',
       during: 'Pendant',
       drSignature: 'Signature Dr',
-      signedDate: 'Signé le'
+      signedDate: 'Signé le',
+      futureVisitDateError: 'Vous ne pouvez pas ajouter une consultation dans le futur.'
     }
 });
 

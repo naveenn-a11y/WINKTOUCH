@@ -11,7 +11,7 @@ import RNFS from 'react-native-fs';
 //import {NativeModules} from 'react-native';
 
 //export const winkRestUrl = 'https://nikon-feasibility.downloadwink.com/WinkRESTvWinkWeb/';
-export const winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
+export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export const winkRestUrl = 'http://192.168.88.22:8080/WinkRESTv4.08.30/';
 
 async function handleHttpError(httpResponse: any) {

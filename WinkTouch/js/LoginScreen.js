@@ -17,7 +17,7 @@ import { fetchCodeDefinitions} from './Codes';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';
 const accountsUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationAccounts';
-const doctorLoginUrl = restUrl+'login/doctors';
+let doctorLoginUrl = restUrl+'login/doctors';
 
 async function fetchAccounts(path: string) {
   if (!path) return;
