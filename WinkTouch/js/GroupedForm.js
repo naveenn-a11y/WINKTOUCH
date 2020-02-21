@@ -287,6 +287,7 @@ export class GroupedCard extends Component {
     showTitle?: boolean,
     exam: Exam
   }
+
   groupDefinition : ?GroupDefinition
   static defaultProps = {
     showTitle: true
@@ -344,14 +345,29 @@ export class GroupedCard extends Component {
   renderColumnedRow(groupDefinition: GroupDefinition, columns: string[], rowIndex: number, groupIndex: number) {
     //__DEV__ && console.log('key='+groupIndex+'-'+groupDefinition.name+'-'+rowIndex);
     return <View style={styles.rowLayout} key={groupIndex+' '+groupDefinition.name+'-'+rowIndex+'-'}>
-      {columns.map((column: string, columnIndex: number) => {
-          if (column!=='>>') {
-            const showLabel : boolean = columnIndex === 0;
-            const columnDefinition : GroupDefinition = groupDefinition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
-            const fieldDefinition : FieldDefinition = columnDefinition.fields[rowIndex];
-            return this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex, column);
-          }
-        })
+      {
+        (() => {
+          let shouldShowLabel = true
+          return columns.map((column: string, columnIndex: number) => {
+            if (column!=='>>') {
+              const showLabel : boolean = shouldShowLabel;
+              const columnDefinition : GroupDefinition = groupDefinition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
+
+              const fieldDefinition : FieldDefinition = columnDefinition.fields[rowIndex];
+
+              const f = this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex, column);
+
+              if(f == null && shouldShowLabel && columnIndex === 0) {
+                shouldShowLabel = true
+              } else if(shouldShowLabel) {
+                shouldShowLabel = false
+              }
+
+              return f
+            }
+          })
+        })()
+
       }
     </View>
   }
