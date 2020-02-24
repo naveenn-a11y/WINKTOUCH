@@ -287,7 +287,6 @@ export class GroupedCard extends Component {
     showTitle?: boolean,
     exam: Exam
   }
-
   groupDefinition : ?GroupDefinition
   static defaultProps = {
     showTitle: true
@@ -346,31 +345,19 @@ export class GroupedCard extends Component {
   }
 
   renderColumnedRow(groupDefinition: GroupDefinition, columns: string[], rowIndex: number, groupIndex: number) {
+    let showLabel : boolean = true;    
     //__DEV__ && console.log('key='+groupIndex+'-'+groupDefinition.name+'-'+rowIndex);
     return <View style={styles.rowLayout} key={groupIndex+' '+groupDefinition.name+'-'+rowIndex+'-'}>
       {
-        (() => {
-          let shouldShowLabel = true
-          return columns.map((column: string, columnIndex: number) => {
-            if (column!=='>>') {
-              const showLabel : boolean = shouldShowLabel;
-              const columnDefinition : GroupDefinition = groupDefinition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
-
-              const fieldDefinition : FieldDefinition = columnDefinition.fields[rowIndex];
-
-              const f = this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex, column);
-
-              if(f == null && shouldShowLabel && columnIndex === 0) {
-                shouldShowLabel = true
-              } else if(shouldShowLabel) {
-                shouldShowLabel = false
-              }
-
-              return f
-            }
-          })
-        })()
-
+        columns.map((column: string, columnIndex: number) => {
+          if (column!=='>>') {
+            const columnDefinition : GroupDefinition = groupDefinition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
+            const fieldDefinition : FieldDefinition = columnDefinition.fields[rowIndex];
+            let field = this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex, column);
+            if (field!=null) showLabel = false;
+            return field;
+          }
+        })
       }
     </View>
   }
@@ -994,7 +981,7 @@ export class GroupedFormScreen extends Component {
           />
       );
     } else if (groupDefinition.type==='SRx') {
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}          
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
         onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
     } else if (groupDefinition.type==='CRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
