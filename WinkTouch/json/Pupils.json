@@ -127,7 +127,7 @@
               "maxValue": 7
             },
             {
-              "name": "Form",
+              "name": "Shape",
               "freestyle": true,
               "options": "pupilFormCodes"
             },
