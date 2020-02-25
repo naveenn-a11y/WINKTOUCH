@@ -101,6 +101,11 @@
       "size": "M",
       "fields": [
         {
+          "name": "Instrument",
+          "freestyle": true,
+          "options": "autoPerimetryInstrumentCodes"
+        },
+        {
           "normalValue": "Full",
           "name": "OD",
           "freestyle": true,

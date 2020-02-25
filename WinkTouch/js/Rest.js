@@ -9,7 +9,7 @@ import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export let restUrl : string = __DEV__?'http://192.168.88.35:8080/Web/':'https://ws-touch.downloadwink.com/EHR-3.2/';
+export let restUrl : string = __DEV__?'http://192.168.88.35:8080/Web/':'https://ws-touch.downloadwink.com/EHR-3.3/';
 
 let token : string;
 
