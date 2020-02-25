@@ -300,6 +300,12 @@ export function isEmpty(value: any) : boolean {
       if (!isEmpty(subValue)) return false;
     }
     return true;
+  } else if(value instanceof Array) {
+    if(value.length === 0) {
+      return true
+    } else {
+      return value.reduce((a, v) => a || v, false)
+    }
   }
   return false;
 }

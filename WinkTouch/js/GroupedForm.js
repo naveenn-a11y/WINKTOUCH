@@ -427,12 +427,13 @@ export class GroupedCard extends Component {
       const value : any = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (value===undefined || value===null || Object.keys(value).length===0) return null;
 
+      let valueRows = this.renderRows(groupDefinition)
       let rows = []
-      if(this.props.exam.definition['showSubtitles']) {
+      if(this.props.exam.definition['showSubtitles'] && !isEmpty(valueRows) && valueRows.length !== 0) {
         rows.push(this.renderSubtitle(groupDefinition.name))
-        rows.push(<View key="w" style={{marginLeft: 10}}>{this.renderRows(groupDefinition)}</View>)
+        rows.push(<View key="w" style={{marginLeft: 10}}>{valueRows}</View>)
       } else {
-        rows.push(this.renderRows(groupDefinition))
+        rows.push(valueRows)
       }
 
       return rows;
