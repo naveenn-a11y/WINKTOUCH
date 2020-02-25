@@ -10,7 +10,7 @@ import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefiniti
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
-import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow } from './Util';
+import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow, yearDateFormat } from './Util';
 import { ExamCard, createExam, storeExam, getExam } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
@@ -161,7 +161,7 @@ class VisitButton extends PureComponent {
         const type : string = (visitOrNote!==undefined&&visitOrNote.typeName!=undefined)?visitOrNote.typeName:visitOrNote.category;
         return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
-                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatMoment(date)}</Text>
+                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatDate(date,yearDateFormat)}</Text>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{type}</Text>
             </View>
         </TouchableOpacity>
