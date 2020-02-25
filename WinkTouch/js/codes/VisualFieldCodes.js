@@ -22,3 +22,11 @@ export const autoPerimetryVFCodes = [
     {"code":"Central scotoma"},
     {"code":"Centrocaecal scotoma"}
 ]
+
+export const autoPerimetryInstrumentCodes = [
+  {"code":"Humphrey"},
+  {"code":"MRF"},
+  {"code":"Medmont"},
+  {"code":"Oculus"},
+  {"code":"Matrix"}
+]
