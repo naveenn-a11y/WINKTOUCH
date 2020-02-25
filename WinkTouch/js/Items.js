@@ -483,7 +483,7 @@ export class ItemsEditor extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.isDirty===this.props.isDirty && prevProps.items===this.props.items) return;
+    if (prevProps.isDirty===this.props.isDirty && prevProps.items===this.props.items && prevProps.editable === this.props.editable) return;
     let items: T[] = this.props.items;
     if (this.props.editable) {
       if (items.length === 0 && this.props.newItem!==undefined)
