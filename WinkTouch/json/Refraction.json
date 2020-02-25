@@ -66,6 +66,13 @@
     },
     {
       "hasVA":true,
+      "hasAdd":false,
+      "optional":true,
+      "name":"Retinoscopy",
+      "type":"SRx"
+    },
+    {
+      "hasVA":true,
       "hasAdd":true,
       "name":"Final Rx",
       "type":"SRx",
