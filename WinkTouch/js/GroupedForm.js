@@ -377,9 +377,14 @@ export class GroupedCard extends Component {
     return this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex);
   }
 
+  renderSubtitle(name) {
+    return <Text style={{marginBottom: 5, marginTop: 5}} key={name}>{name}</Text>
+  }
+
   renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
     let rows : any[] = [];
-    for (let fieldIndex: number =0; fieldIndex<groupDefinition.fields.length; fieldIndex++) {
+
+    for (let fieldIndex: number = 0; fieldIndex < groupDefinition.fields.length; fieldIndex++) {
       const fieldDefinition : FieldDefinition|GroupDefinition = groupDefinition.fields[fieldIndex];
       const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name)
       if (columnFieldIndex===0) {
@@ -421,7 +426,16 @@ export class GroupedCard extends Component {
     } else {
       const value : any = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (value===undefined || value===null || Object.keys(value).length===0) return null;
-      return this.renderRows(groupDefinition);
+
+      let rows = []
+      if(this.props.exam.definition['showSubtitles']) {
+        rows.push(this.renderSubtitle(groupDefinition.name))
+        rows.push(<View key="w" style={{marginLeft: 10}}>{this.renderRows(groupDefinition)}</View>)
+      } else {
+        rows.push(this.renderRows(groupDefinition))
+      }
+
+      return rows;
     }
   }
 

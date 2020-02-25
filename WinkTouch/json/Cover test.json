@@ -69,6 +69,7 @@
   "name": "Cover test",
   "scrollable": true,
   "starable": true,
+  "showSubTitles": true,
   "type": "groupedForm",
   "section": "Entrance testing.2",
   "fields": [
