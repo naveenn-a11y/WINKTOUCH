@@ -378,7 +378,7 @@ export class GroupedCard extends Component {
   }
 
   renderSubtitle(name) {
-    return <Text style={{marginBottom: 5, marginTop: 5}} key={name}>{name}</Text>
+    return <Text style={{marginTop: 2, fontWeight: 'bold'}} key={name}>{name}</Text>
   }
 
   renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
