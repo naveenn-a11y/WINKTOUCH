@@ -450,8 +450,7 @@ export class GroupedCard extends Component {
 
   renderTitle() {
     if (this.props.showTitle===false) return null;
-    const v = formatLabel(this.props.exam.definition)
-    return <Label style={styles.cardTitle} key='cardTitle' value={v} suffix='' fieldId={this.props.exam.definition.id}/>;
+    return <Label style={styles.cardTitle} key='cardTitle' value={formatLabel(this.props.exam.definition)} suffix='' fieldId={this.props.exam.definition.id}/>;
   }
 
   getGroupDefinition(fullFieldName: string) : GroupDefinition {
