@@ -345,7 +345,7 @@ export class GroupedCard extends Component {
   }
 
   renderColumnedRow(groupDefinition: GroupDefinition, columns: string[], rowIndex: number, groupIndex: number) {
-    let showLabel : boolean = true;    
+    let showLabel : boolean = true;
     //__DEV__ && console.log('key='+groupIndex+'-'+groupDefinition.name+'-'+rowIndex);
     return <View style={styles.rowLayout} key={groupIndex+' '+groupDefinition.name+'-'+rowIndex+'-'}>
       {
@@ -378,7 +378,7 @@ export class GroupedCard extends Component {
   }
 
   renderSubtitle(name) {
-    return <Text style={{marginTop: 2, fontWeight: 'bold'}} key={name}>{name}</Text>
+    return <Text style={styles.cardSubTitle} key={'subTitle'}>{name}</Text>
   }
 
   renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
@@ -429,7 +429,7 @@ export class GroupedCard extends Component {
 
       let valueRows = this.renderRows(groupDefinition)
       let rows = []
-      if(this.props.exam.definition['showSubtitles'] && !isEmpty(valueRows) && valueRows.length !== 0) {
+      if(this.props.exam.definition.showSubtitles===true && !isEmpty(valueRows) && valueRows.length !== 0) {
         rows.push(this.renderSubtitle(groupDefinition.name))
         rows.push(<View key="w" style={{marginLeft: 10}}>{valueRows}</View>)
       } else {

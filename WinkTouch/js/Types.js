@@ -303,7 +303,8 @@ export type ExamDefinition = {
     relatedExams?: string[],
     scrollable?: boolean,
     layout?: any,
-    signable? :boolean
+    signable? :boolean,
+    showSubtitles? :boolean
 }
 
 export type ExamPredefinedValue = {

@@ -596,6 +596,11 @@ export const styles = StyleSheet.create({
         textAlign: 'left',
         margin: 0 * fontScale
     },
+    cardSubTitle: {
+      fontSize: 19 * fontScale,
+      fontWeight: '500',
+      marginTop: 3 * fontScale
+    },
     cardColumn: {
         marginHorizontal: 1 * fontScale,
         alignItems: 'center'
