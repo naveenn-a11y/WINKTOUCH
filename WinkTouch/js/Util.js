@@ -294,20 +294,26 @@ export function isEmpty(value: any) : boolean {
   if (value===undefined || value===null) return true;
   if (value==='' || (value.trim!==undefined && value.trim().length===0)) return true;
   if (value.length===0) return true;
-  if (value instanceof Object) {
+  if(value instanceof Array) {
+    if(value.length === 0) {
+      return true
+    } else {
+      return value.reduce((a, v) => a && (v === null || v === undefined), true)
+    }
+  } else if (value instanceof Object) {
     if (Object.keys(value).length===0) return true;
     for (let subValue of Object.values(value)) {
       if (!isEmpty(subValue)) return false;
     }
     return true;
-  } else if(value instanceof Array) {
-    if(value.length === 0) {
-      return true
-    } else {
-      return value.reduce((a, v) => a || v, false)
-    }
   }
+
   return false;
+}
+
+// remove null and undefined
+export function cleanUpArray(a: any[]): any[] {
+  return !isEmpty(a) && a instanceof Array ? a.filter(function(v) { return v !== null && v !== undefined }) : a
 }
 
 export function deepAssign(value: Object, newValue: Object) : Object {
