@@ -330,10 +330,10 @@ export class GroupedCard extends Component {
 
     if (showLabel===true && label!==undefined && label!==null && label.trim()!=='' && fieldName!==value) { //Last condition is for checkboxes
       //__DEV__ && console.log('key='+groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column);
-      return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: {formattedValue} </Text>
+      return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: {formattedValue}   </Text>
     }
     //__DEV__ && console.log('key='+groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column);
-    return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{formattedValue} </Text>
+    return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{formattedValue}   </Text>
   }
 
   renderCheckListItem(fieldDefinition: FieldDefinition) {
