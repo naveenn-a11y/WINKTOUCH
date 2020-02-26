@@ -147,6 +147,7 @@ export class FormTextInput extends Component {
     }
 
     render() {
+        __DEV__ && console.log(this.state.text+' freestyle ='+this.props.freestyle);
         return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined}>
           <View style={this.props.containerStyle?this.props.containerStyle:styles.formElement}>
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label}/>}
@@ -852,7 +853,7 @@ export class FormInput extends Component {
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
-      style={style}/>//TODO keyboardType from definition type
+      freestyle={this.props.definition.freestyle} style={style}/>//TODO keyboardType from definition type
   }
 
   render() {
