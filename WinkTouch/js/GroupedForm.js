@@ -8,7 +8,7 @@ import { View, Text, Button, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx } from './Types';
 import { strings } from './Strings';
-import { styles, scaleStyle } from './Styles';
+import { styles, scaleStyle, fontScale } from './Styles';
 import { FloatingButton } from './Widgets';
 import { FormTextInput, FormRow, FormInput } from './Form';
 import { deepClone, deepAssign, isEmpty, cleanUpArray } from './Util';
@@ -327,7 +327,6 @@ export class GroupedCard extends Component {
     if (formattedValue==='') return null;
     const label : ?string = formatLabel(fieldDefinition);
     if (formattedValue==label) showLabel = false;
-
     if (showLabel===true && label!==undefined && label!==null && label.trim()!=='' && fieldName!==value) { //Last condition is for checkboxes
       //__DEV__ && console.log('key='+groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column);
       return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: {formattedValue}   </Text>
@@ -426,18 +425,18 @@ export class GroupedCard extends Component {
     } else if (groupDefinition.fields===undefined && groupDefinition.options) {//A CheckList
       return this.renderCheckListItem(groupDefinition);
     } else {
+      let showSubtitles : boolean = this.props.exam.definition.showSubtitles; //TODO: can we remove this flag
+      if (this.props.exam.definition.fields.length===1 && this.props.exam.definition.fields[0].multiValue!==true) showSubtitles = false;
       const value : any = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (value===undefined || value===null || Object.keys(value).length===0) return null;
-
-      let valueRows = this.renderRows(groupDefinition)
-      let rows = []
-      if(this.props.exam.definition.showSubtitles===true && !isEmpty(valueRows) && valueRows.length !== 0) {
-        rows.push(this.renderSubtitle(groupDefinition.name))
-        rows.push(<View key="w" style={{marginLeft: 10}}>{valueRows}</View>)
+      let valueRows = this.renderRows(groupDefinition);
+      let rows = [];
+      if(showSubtitles && !isEmpty(valueRows) && valueRows.length !== 0) {
+        rows.push(this.renderSubtitle(formatLabel(groupDefinition)));
+        rows.push(<View key="w" style={{marginLeft: 30 * fontScale}}>{valueRows}</View>);
       } else {
-        rows.push(valueRows)
-      }
-
+        rows.push(valueRows);
+      };
       return rows;
     }
   }
