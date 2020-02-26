@@ -313,7 +313,7 @@ export function isEmpty(value: any) : boolean {
 
 // remove null and undefined
 export function cleanUpArray(a: any[]): any[] {
-  return !isEmpty(a) && a instanceof Array ? a.filter(function(v) { return v !== null || v !== undefined }) : null
+  return !isEmpty(a) && a instanceof Array ? a.filter(function(v) { return v !== null && v !== undefined }) : null
 }
 
 export function deepAssign(value: Object, newValue: Object) : Object {
