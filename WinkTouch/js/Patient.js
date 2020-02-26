@@ -123,7 +123,7 @@ export class PatientCard extends Component {
                       <Text style={styles.cardTitleLeft}>{this.props.patientInfo.firstName + ' ' + this.props.patientInfo.lastName}</Text>
                       <View style={styles.formRow}>
                           <View style={styles.flexColumnLayout}>
-                              <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth):''}</Text>
+                              <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth) +'('+this.props.patientInfo.dateOfBirth+')':''}</Text>
                               <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}  {this.props.patientInfo.medicalCard}</Text>
                               <PatientTags patient={this.props.patientInfo} showDescription={true}/>
                           </View>
@@ -202,6 +202,7 @@ export class PatientContact extends Component {
               </FormRow>
               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='email' onChangeValue={this.props.onUpdatePatientInfo} type='email-address'/>
+                <FormField value={this.props.patientInfo} fieldName='medicalCard' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
               </FormRow>
             </View>
         </View>
