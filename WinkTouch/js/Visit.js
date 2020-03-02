@@ -315,8 +315,17 @@ class VisitWorkFlow extends Component {
       if (!visit) return undefined;
       if (!visit.customExamIds) return undefined;
       let rxToOrderExamId : ?string = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name==='RxToOrder');
-      if (rxToOrderExamId)
-        return getCachedItem(rxToOrderExamId);
+      if (rxToOrderExamId) {
+        let exam : Exam = getCachedItem(rxToOrderExamId);
+        
+        if(exam.RxToOrder['Final Rx']) {
+          exam.RxToOrder['Final Rx'].od.sph = exam.RxToOrder['Final Rx'].od.sph === "" ? undefined : exam.RxToOrder['Final Rx'].od.sph;
+          exam.RxToOrder['Final Rx'].os.sph = exam.RxToOrder['Final Rx'].os.sph === "" ? undefined : exam.RxToOrder['Final Rx'].os.sph;
+        }
+
+        return exam;
+      }
+
       return undefined;
     }
 
@@ -493,6 +502,7 @@ class VisitWorkFlow extends Component {
        let assessments : Exam[] = getCachedItems(this.state.visit.customExamIds).filter(
          (exam: Exam) => exam.definition.isAssessment);
        return assessments.map((exam: Exam, index: number) => {
+
          if (exam.definition.name==='RxToOrder') {
            return  <TouchableOpacity key={strings.finalRx} disabled={this.props.readonly} onPress={() => this.state.rxToOrder && this.props.navigation.navigate('exam', {exam: this.state.rxToOrder, appointmentStateKey: this.props.appointmentStateKey}) }>
                     <PrescriptionCard title={strings.finalRx} exam={this.state.rxToOrder} editable={false} />
