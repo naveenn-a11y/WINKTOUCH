@@ -1,13 +1,13 @@
 {
   "addable": true,
-  "name": "Ocular surgeries",
+  "name": "Ocular history",
   "locale": {
     "fr-CA": {
-      "label": "Chirurgies Oculaires",
+      "label": "Historique oculaire",
       "fields": [
         {
-          "name": "Procedure",
-          "label": "ProcÃ©dure"
+          "name": "Condition",
+          "label": "Condition"
         },
         {
           "name": "Eye",
@@ -29,7 +29,7 @@
   "section": "History.12",
   "fields": [
     {
-      "name": "Procedure",
+      "name": "Condition",
       "required": true,
       "freestyle": true,
       "options": "ocularSurgeryProcedureCodes"
