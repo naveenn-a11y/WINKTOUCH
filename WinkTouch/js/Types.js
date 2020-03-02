@@ -70,7 +70,7 @@ export type PatientInfo = {
     streetName: string,
     countryId: number,
     medicalCard: string,
-    medicalcardExp: string,
+    medicalCardExp: string,
     postalCode: string,
     email: string,
     province: string,

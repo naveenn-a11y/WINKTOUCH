@@ -202,8 +202,15 @@ export class PatientContact extends Component {
               </FormRow>
               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='email' onChangeValue={this.props.onUpdatePatientInfo} type='email-address'/>
+              </FormRow>
+               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='medicalCard' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
               </FormRow>
+              <FormRow>
+                <FormField value={this.props.patientInfo} fieldName='medicalCardExp' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
+                <FormField value={this.props.patientInfo} fieldName='medicalCardVersion' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
+              </FormRow> 
+
             </View>
         </View>
     }
