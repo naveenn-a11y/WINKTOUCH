@@ -13,7 +13,7 @@ import { passesFilter } from './Util';
 
 export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: string) : string {
   if (option===undefined || option===null) return '';
-  if (option.description !== undefined)
+  if (option.description !== undefined && codeIdentifier===undefined)
     option = option.description;
   else if (option.key!==undefined)
     option = strings[option.key];
@@ -30,13 +30,13 @@ export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: s
   return option;
 }
 
-export function formatCode(codeType: string, code?: string|number) : string {
+export function formatCode(codeType: string, code?: string|number, codeIdentifier?: string) : string {
   if (code===undefined || code===null) return '';
   let codeDefinition :?CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
   if (codeDefinition===undefined) {
     return code.toString();
   }
-  return formatCodeDefinition(codeDefinition);
+  return formatCodeDefinition(codeDefinition, codeIdentifier);
 }
 
 export function formatOption(dataType: string, field: string, code: ?string|?number) : string {

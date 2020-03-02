@@ -6,6 +6,7 @@ import React, {Component} from 'react';
 import {View, TextInput, StatusBar, AsyncStorage, AppState, InteractionManager} from 'react-native';
 import codePush , { SyncStatus } from 'react-native-code-push';
 import type { Registration , Store, User} from './Types';
+import { fetchItemById } from './Rest';
 import { LoginScreen } from './LoginScreen';
 import { DoctorApp } from './DoctorApp';
 import { RegisterScreen } from './Registration';
