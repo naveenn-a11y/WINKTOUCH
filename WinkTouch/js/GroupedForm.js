@@ -14,7 +14,9 @@ import { FormTextInput, FormRow, FormInput } from './Form';
 import { deepClone, deepAssign, isEmpty, cleanUpArray } from './Util';
 import { formatAllCodes} from './Codes';
 import { getCachedItem } from './DataCache';
-import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
+import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard, ImportIcon, ExportIcon } from './Favorites';
+import { getConfiguration } from './Configuration';
+import { importData } from './MappedField';
 import { GlassesDetail, GlassesSummary, newRefraction } from './Refraction';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, setMappedFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
@@ -535,6 +537,7 @@ export class GroupedForm extends Component {
     editable?: boolean,
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
+    onUpdateForm? : (form: any) => void,
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
     onAdd?: () => void,
@@ -726,6 +729,53 @@ export class GroupedForm extends Component {
     return rows;
   }
 
+  async importData() {
+
+    if(!this.props.onUpdateForm) return
+
+    const data = await importData(this.props.definition.import, this.props.examId);
+    if (data===undefined || data===null) return;
+
+    const dva = {};
+    const nva = {};
+    const ph = {};
+
+    if (data instanceof Array) {
+      for(let i = 0; i < data.length; i++) {
+        const m = data[i];
+        const d = m.data;
+        if(d.label && (d.label === 'DW' || d.label === 'NW')) { // near
+          nva.OS = d.os.va;
+          nva.OD = d.od.va;
+          nva.OU = d.ou.va;
+        } else if(d.label && (d.label === 'Dw' || d.label === 'Nw')) { // far
+          dva.OS = d.os.va;
+          dva.OD = d.od.va;
+          dva.OU = d.ou.va;
+        }
+
+        if(d.os.vaph) {
+          ph.OS = d.os.vaph;
+        }
+        if(d.od.vaph) {
+          ph.OD = d.od.vaph;
+        }
+      }
+    }
+
+    const o = {
+      DVA: dva,
+      NVA: nva,
+      PH: ph
+    };
+
+    this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  async exportData() {
+    // TODO export data
+  }
+
   renderIcons() {
     if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
     return <View style={styles.groupIcons} key='icons'>
@@ -733,6 +783,9 @@ export class GroupedForm extends Component {
       {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
       {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon}/>}
+      <View style={styles.groupExtraIcons}>
+        {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
+      </View>
     </View>
   }
 
@@ -896,6 +949,11 @@ export class GroupedFormScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
+  updateForm = (groupName: string, form) => {
+    const newValues = Object.assign(this.props.exam, { [this.props.exam.definition.name]: {[groupName]: form}});
+    this.props.onUpdateExam(newValues);
+  }
+
   copyToFinal = (glassesRx : GlassesRx) : void => {
     glassesRx = deepClone(glassesRx);
     this.props.exam[this.props.exam.definition.name]['Final Rx']=glassesRx;
@@ -992,6 +1050,7 @@ export class GroupedFormScreen extends Component {
             onAdd={() => this.addGroupItem(groupDefinition)}
             onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
             enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
+            onUpdateForm={this.updateForm}
             patientId={this.patientId}
             examId={this.props.exam.id}
             fieldId={fieldId}
@@ -1017,6 +1076,7 @@ export class GroupedFormScreen extends Component {
         onClear={() => this.clear(groupDefinition.name)}
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
+        onUpdateForm={this.updateForm}
         patientId={this.patientId}
         examId={this.props.exam.id}
         editable={this.props.editable!==false && groupDefinition.readonly!==true}
