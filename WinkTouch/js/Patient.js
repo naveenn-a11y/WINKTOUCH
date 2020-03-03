@@ -201,16 +201,13 @@ export class PatientContact extends Component {
                 <FormField value={this.props.patientInfo} fieldName='gender' onChangeValue={this.props.onUpdatePatientInfo}/>
               </FormRow>
               <FormRow>
-                <FormField value={this.props.patientInfo} fieldName='email' onChangeValue={this.props.onUpdatePatientInfo} type='email-address'/>
-              </FormRow>
-               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='medicalCard' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
-              </FormRow>
-              <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='medicalCardExp' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
                 <FormField value={this.props.patientInfo} fieldName='medicalCardVersion' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
-              </FormRow> 
-
+              </FormRow>
+              <FormRow>
+                <FormField value={this.props.patientInfo} fieldName='email' onChangeValue={this.props.onUpdatePatientInfo} type='email-address'/>
+              </FormRow>
             </View>
         </View>
     }
