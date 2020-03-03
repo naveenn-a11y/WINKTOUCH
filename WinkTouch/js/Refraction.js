@@ -484,12 +484,10 @@ export class GlassesDetail extends Component {
       data: this.props.glassesRx
     };
     const data = await exportData(this.props.definition.export[0], measurement, this.props.examId);
-    // TODO trigger push to the phoropter
-    const conf = await AsyncStorage.getItem('configuration');
-    const c = JSON.parse(conf);
+    const c = JSON.parse(getConfiguration());
     if(c.machine && c.machine.phoropter) {
       const ip = formatCode('machines', c.machine.phoropter, 'ip');
-      const r = await fetch('http://' + ip + ':5678/m')
+      const r = await fetch('http://' + ip + ':80/m')
     }
 
   }
