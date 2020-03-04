@@ -36,7 +36,6 @@
     },
     {
       "name": "Date of procedure",
-      "type": "pastDate",
       "freestyle": true
     },
     {
