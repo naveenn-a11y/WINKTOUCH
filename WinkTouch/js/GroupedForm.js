@@ -729,13 +729,7 @@ export class GroupedForm extends Component {
     return rows;
   }
 
-  async importData() {
-
-    if(!this.props.onUpdateForm) return
-
-    const data = await importData(this.props.definition.import, this.props.examId);
-    if (data===undefined || data===null) return;
-
+  parseUnaidedAcuities = (data) => {
     const dva = {};
     const nva = {};
     const ph = {};
@@ -770,6 +764,88 @@ export class GroupedForm extends Component {
     };
 
     this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  parseAidedAcuities = (data) => {
+    const dva = {};
+    const nva = {};
+    const ph = {};
+
+    if (data instanceof Array) {
+      for(let i = 0; i < data.length; i++) {
+        const m = data[i];
+        const d = m.data;
+        if(d.label && (d.label === 'DLMNEAR' || d.label === 'NLMNEAR')) { // near
+          nva.OS = d.os.corrVa;
+          nva.OD = d.od.corrVa;
+          nva.OU = d.ou.corrVa;
+        } else if(d.label && (d.label === 'DLMFAR' || d.label === 'NLMFAR')) { // far
+          dva.OS = d.os.corrVa;
+          dva.OD = d.od.corrVa;
+          dva.OU = d.ou.corrVa;
+        }
+
+        if(d.os.corrVaPh) {
+          ph.OS = d.os.corrVaPh;
+        }
+        if(d.od.corrVaPh) {
+          ph.OD = d.od.corrVaPh;
+        }
+      }
+    }
+
+    const o = {
+      DVA: dva,
+      NVA: nva,
+      PH: ph
+    };
+
+    this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  parseIop = (data) => {
+    const os = {};
+    const od = {};
+
+    if (data instanceof Array) {
+      for(let i = 0; i < data.length; i++) {
+        const m = data[i];
+        const d = m.data;
+        os.Tension = d.os.iop;
+        os.Pachymetry = d.os.thickness;
+        od.Tension = d.od.iop;
+        od.Pachymetry = d.od.thickness;
+      }
+    } else {
+      const d = data.data;
+      os.Tension = d.os.iop;
+      os.Pachymetry = d.os.thickness;
+      od.Tension = d.od.iop;
+      od.Pachymetry = d.od.thickness;
+    }
+
+    const o = [{
+      OS: os,
+      OD: od
+    }];
+
+    this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  async importData() {
+    if(!this.props.onUpdateForm) return
+
+    const data = await importData(this.props.definition.import, this.props.examId);
+
+    if (data===undefined || data===null) return;
+
+    if(this.props.definition.name === 'Unaided acuities') {
+      this.parseUnaidedAcuities(data);
+    } else if(this.props.definition.name === 'Aided acuities') {
+      this.parseAidedAcuities(data);
+    } else if(this.props.definition.name === 'IOP') {
+      this.parseIop(data);
+    }
   }
 
   async exportData() {
@@ -950,7 +1026,20 @@ export class GroupedFormScreen extends Component {
   }
 
   updateForm = (groupName: string, form) => {
-    const newValues = Object.assign(this.props.exam, { [this.props.exam.definition.name]: {[groupName]: form}});
+    const v = this.props.exam[this.props.exam.definition.name];
+
+    const keys = Object.keys(v);
+    const newV = {};
+    for(let i = 0; i < keys.length; i++) {
+      const item = v[keys[i]];
+      if(keys[i] === groupName) {
+        newV[keys[i]] = form
+      } else {
+        newV[keys[i]] = item
+      }
+    }
+
+    const newValues = Object.assign(this.props.exam, { [this.props.exam.definition.name]: newV } );
     this.props.onUpdateExam(newValues);
   }
 

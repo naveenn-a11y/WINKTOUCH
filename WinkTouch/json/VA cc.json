@@ -6,6 +6,7 @@
         {
           "name": "Aided acuities",
           "label": "AcuititÃ©s avec aide",
+          "import": ["machine.phoropter"],
           "fields": [
             {
               "name": "DVA",
