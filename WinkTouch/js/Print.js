@@ -13,6 +13,7 @@ import { formatDate, now, officialDateFormat, prefix, postfix} from './Util';
 import { getExam } from './Exam';
 import { getCachedItem } from './DataCache';
 import { getDoctor, getStore } from './DoctorApp';
+import { fetchItemById } from './Rest';
 
 /**
 async function testPrintHtml() {
@@ -52,6 +53,22 @@ export async function printClRx(visitId: string) {
   }
 }
 
+async function listLocalFiles() : string[]{
+  const fileNames : string[] = await RNFS.readdir(RNFS.DocumentDirectoryPath);
+  __DEV__ && fileNames.forEach(fileName => console.log(fileName));
+  return fileNames;
+}
+
+export async function deleteLocalFiles() {
+  console.log('Deleting local files');
+  let fileNames = await listLocalFiles();
+  for (let i=0; i<fileNames.length; i++) {
+    if (fileNames[i].includes('.')) {
+      await RNFS.unlink(RNFS.DocumentDirectoryPath+'/'+fileNames[i]);
+    }
+  }
+}
+
 async function loadLogo() {
   //TODO: only fetch once
   __DEV__ && console.log('Fetching Rx logo');
@@ -64,11 +81,7 @@ async function loadLogo() {
 
 loadLogo(); //TODO: load store logo
 
-async function listLocalFiles() {
-  const fileNames : string[] = await RNFS.readdir(RNFS.DocumentDirectoryPath);
-  console.log('Files in '+RNFS.DocumentDirectoryPath+': ');
-  fileNames.forEach(fileName => console.log(fileName));
-}
+
 
 function addLogo(page: PDFPage, pageHeight: number, border: number) {
   page.drawImage(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg', 'jpg', {x: border, y: pageHeight-border-100, width: 100, height: 100});
@@ -181,15 +194,31 @@ function addMedicalRxLines(visitId: string, page: PDFPage, pageHeight: number, b
   });
 }
 
-function addSignature(visitId: string, page: PDFPage, pageWidth: number, border: number) {
+async function addSignature(visitId: string, page: PDFPage, pageWidth: number, border: number) {
   const visit: Visit = getCachedItem(visitId);
   const signedDate : ?string = visit.prescription && visit.prescription.signedDate?formatDate(visit.prescription.signedDate, officialDateFormat):undefined;
+
   const fontSize : number = 10;
   let x : number = border*3;
   let y : number = border+fontSize*4;
   page.drawText(strings.drSignature+':', {x, y, fontSize});
   x = pageWidth-x-70;
   page.drawText(strings.signedDate+':'+prefix(signedDate,' '), {x, y, fontSize});
+
+  if (signedDate) {
+    let doctor : User = getCachedItem(visit.userId);
+    if (!doctor) {
+      doctor = await fetchItemById(visit.userId); //TODO: This does not work actually
+    }
+    if (!doctor) {
+      __DEV__ && console.error('Failed to fetch doctor '+visit.userId);
+    } else {
+      __DEV__ && console.log('Doctor = '+JSON.stringify(doctor));
+      if (doctor.signatureId) {
+        await getUploadDocument(doctor.signatureId);
+      }
+    }
+  }
 }
 
 export async function printMedicalRx(visitId: string) {
@@ -207,7 +236,7 @@ export async function printMedicalRx(visitId: string) {
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border);
-  addSignature(visitId, rxPage, pageWidth, border);
+  await addSignature(visitId, rxPage, pageWidth, border);
 
 
   const docsDir = await PDFLib.getDocumentsDirectory();

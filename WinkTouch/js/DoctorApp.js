@@ -3,10 +3,10 @@
  */
 'use strict';
 import React, { Component } from 'react';
-import {  StatusBar, ScrollView, View} from 'react-native';
+import {  StatusBar, ScrollView, View, AsyncStorage} from 'react-native';
 import { createAppContainer, NavigationActions, StackActions } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import type {Appointment, PatientInfo, Exam, Visit, User, Store, ExamDefinition, Scene} from './Types';
+import type {Appointment, PatientInfo, Exam, Visit, Account, User, Store, ExamDefinition, Scene} from './Types';
 import {styles} from './Styles';
 import {OverviewScreen} from './Overview';
 import { AppointmentScreen, AppointmentsSummary } from './Appointment';
@@ -22,9 +22,31 @@ import { ExamChartScreen } from './Chart';
 import { setToken } from './Rest';
 import { allExamPredefinedValues } from './Favorites';
 import { ConfigurationScreen } from './Configuration';
+import { deleteLocalFiles } from './Print';
 
+let account: Account;
 let doctor: User;
 let store : Store;
+
+export function getAccount() : Account {
+  return account;
+}
+
+async function setAccount(selectedAccount: Account) {
+  let accountChanged: boolean = true;
+  if (selectedAccount && selectedAccount.id) {
+      const selectedAccountId : number = selectedAccount.id;
+      const accountId : number = await AsyncStorage.getItem('accountId');
+      accountChanged = accountId!=selectedAccountId;
+      if (accountChanged) await AsyncStorage.setItem('accountId', selectedAccountId.toString());
+  }
+  if (accountChanged) {
+      console.log('Account changed to: '+selectedAccount.id+' '+selectedAccount.name);
+      await deleteLocalFiles();
+  } else {
+      __DEV__ && console.log('Account did not change: '+selectedAccount.id+' '+selectedAccount.name);
+  }
+}
 
 export function getDoctor() : User {
   return doctor;
@@ -95,6 +117,7 @@ function getCurrentRoute(navigationState) {
 
 export class DoctorApp extends Component {
     props: {
+      account: Account,
       user: User,
       store: Store,
       token: string,
@@ -112,21 +135,26 @@ export class DoctorApp extends Component {
             currentRoute: {routeName: 'overview'}
         }
         setToken(this.props.token);
+        setAccount(this.props.account);
         setDoctor(this.props.user);
         setStore(this.props.store);
     }
 
     componentDidUpdate(prevProps: any) {
-      if (this.props.user===prevProps.user &&
+      if (this.props.account===prevProps.account &&
+        this.props.user===prevProps.user &&
         this.props.store===prevProps.store &&
-        this.props.token===prevProps.token) return;
-        this.setState({
-          statusMessage: '',
-          currentRoute: {routeName: 'overview'}
-        });
-        setToken(this.props.token);
-        setDoctor(this.props.user);
-        setStore(this.props.store);
+        this.props.token===prevProps.token) {
+        return;
+      }
+      this.setState({
+        statusMessage: '',
+        currentRoute: {routeName: 'overview'}
+      });
+      setAccount(this.props.account);
+      setToken(this.props.token);
+      setDoctor(this.props.user);
+      setStore(this.props.store);
     }
 
     async initialseAppForDoctor() {

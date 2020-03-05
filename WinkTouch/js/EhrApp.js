@@ -58,7 +58,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     return;
   }
   checkBinaryVersion();
-  if (lastUpdateCheck!==undefined && ((new Date()).getTime()-lastUpdateCheck.getTime())<5*60000) return; //Prevent hammering code-push servers
+  if (lastUpdateCheck!==undefined && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
   if (registration===undefined || registration===null || registration.bundle===undefined) return;
   __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
   lastUpdateCheck = new Date();
@@ -74,6 +74,7 @@ export class EhrApp extends Component {
         isLoggedOn: boolean,
         isLocked: boolean,
         registration: ?Registration,
+        account: ?Account,
         user: ?User,
         store: ?Store,
         token: ?string,
@@ -87,6 +88,7 @@ export class EhrApp extends Component {
             isLoggedOn: false,
             isLocked: false,
             registration: undefined,
+            account: undefined,
             user: undefined,
             store: undefined,
             token: undefined,
@@ -107,6 +109,7 @@ export class EhrApp extends Component {
             isRegistered: false,
             isLoggedOn: false,
             registration,
+            account: null,
             user: null,
             store: null
         });
@@ -141,15 +144,20 @@ export class EhrApp extends Component {
         this.setRegistration(registration);
     }
 
-    userLoggedOn(user: User, store: Store, token: string) {
+    userLoggedOn = (account: Account, user: User, store: Store, token: string) => {
         this.checkForUpdate();
-        this.setState({isLoggedOn: user!==undefined && token!==undefined && store!==undefined, user, store, token});
+        this.setState({isLoggedOn: account!==undefined && user!==undefined && token!==undefined && store!==undefined,
+          account,
+          user,
+          store,
+          token
+        });
         fetchVisitTypes();
         fetchUserDefinedCodes();
     }
 
     logout = () => {
-        this.setState({isLoggedOn: false, token: undefined, store: undefined});
+        this.setState({isLoggedOn: false, token: undefined,  user: undefined, account: undefined, store: undefined});
         lastUpdateCheck = undefined;
         this.checkForUpdate();
     }
@@ -170,7 +178,7 @@ export class EhrApp extends Component {
     startLockingDog() {
         //TODO
     }
-  
+
     componentDidMount() {
       this.loadRegistration();
       this.startLockingDog();
@@ -199,9 +207,9 @@ export class EhrApp extends Component {
               onRegistered={(registration: Registration) => this.safeRegistration(registration)}/>
         }
         if (!this.state.isLoggedOn) {
-            return <LoginScreen registration={this.state.registration} onLogin={(user: User, store: Store, token: string) => this.userLoggedOn(user, store, token)} onReset={this.reset}/>
+            return <LoginScreen registration={this.state.registration} onLogin={this.userLoggedOn} onReset={this.reset}/>
         }
-        return <DoctorApp registration={this.state.registration} user={this.state.user} token={this.state.token} store={this.state.store} onLogout={this.logout}/>
+        return <DoctorApp registration={this.state.registration} account={this.state.account} user={this.state.user} token={this.state.token} store={this.state.store} onLogout={this.logout}/>
     }
 }
 
