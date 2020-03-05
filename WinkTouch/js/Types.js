@@ -71,6 +71,7 @@ export type PatientInfo = {
     countryId: number,
     medicalCard: string,
     medicalCardExp: string,
+    medicalCardVersion: string,
     postalCode: string,
     email: string,
     province: string,

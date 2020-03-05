@@ -15,7 +15,7 @@ import { ExamCardSpecifics } from './Exam';
 import { cacheItemById, getCachedItem, getCachedItems } from './DataCache';
 import { fetchItemById, storeItem, searchItems, stripDataType } from './Rest';
 import { getFieldDefinitions, getFieldDefinition } from './Items';
-import { deepClone, formatAge } from './Util';
+import { deepClone, formatAge, prefix } from './Util';
 import { formatOption, formatCode } from './Codes';
 import { getDoctor, getStore } from './DoctorApp';
 import { Refresh } from './Favorites';
@@ -124,7 +124,7 @@ export class PatientCard extends Component {
                       <View style={styles.formRow}>
                           <View style={styles.flexColumnLayout}>
                               <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth) + '  ('+this.props.patientInfo.dateOfBirth+')':''}</Text>
-                              <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}  {this.props.patientInfo.medicalCard}</Text>
+                              <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}{prefix(this.props.patientInfo.medicalCard,'  ')}{prefix(this.props.patientInfo.medicalCardVersion, '-')}{prefix(this.props.patientInfo.medicalCardExp, '-')}</Text>
                               <PatientTags patient={this.props.patientInfo} showDescription={true}/>
                           </View>
                           <View style={styles.flexColumnLayout}>
@@ -202,8 +202,8 @@ export class PatientContact extends Component {
               </FormRow>
               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='medicalCard' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
-                <FormField value={this.props.patientInfo} fieldName='medicalCardExp' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
                 <FormField value={this.props.patientInfo} fieldName='medicalCardVersion' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
+                <FormField value={this.props.patientInfo} fieldName='medicalCardExp' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
               </FormRow>
               <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='email' onChangeValue={this.props.onUpdatePatientInfo} type='email-address'/>
