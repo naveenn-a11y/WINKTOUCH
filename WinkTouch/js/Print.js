@@ -82,7 +82,13 @@ async function loadRxLogo() {
 
 loadRxLogo();
 
-function addLogo(page: PDFPage, pageHeight: number, border: number) {
+async function addLogo(page: PDFPage, pageHeight: number, border: number) {
+  if (!(await RNFS.exists(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg'))) {
+    await loadRxLogo();
+    if (!(await RNFS.exists(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg'))) {
+      return;
+    }
+  }
   page.drawImage(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg', 'jpg', {x: border, y: pageHeight-border-100, width: 100, height: 100});
 }
 
@@ -259,13 +265,12 @@ export async function printMedicalRx(visitId: string) {
     .create()
     .setMediaBox(pageWidth, pageHeight);
 
-  addLogo(rxPage, pageHeight, border);
+  await addLogo(rxPage, pageHeight, border);
   addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border);
   await addSignature(visitId, rxPage, pageWidth, border);
-
 
   const docsDir = await PDFLib.getDocumentsDirectory();
   const pdfPath = `${docsDir}/print.pdf`;
