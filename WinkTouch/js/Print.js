@@ -9,7 +9,7 @@ import type { User,PatientInfo, Visit } from './Types';
 import RNFS from 'react-native-fs';
 import { strings } from './Strings';
 import { createPdf } from './WinkRest';
-import { formatDate, now, officialDateFormat} from './Util';
+import { formatDate, now, officialDateFormat, prefix, postfix} from './Util';
 import { getExam } from './Exam';
 import { getCachedItem } from './DataCache';
 import { getDoctor, getStore } from './DoctorApp';
@@ -137,15 +137,6 @@ function addPatientHeader(visitId: string, page: PDFPage, pageWidth: number, pag
     width: pageWidth-2*border+20,
     height: 1
   });
-}
-
-function prefix(text: ?string, prefix: string) :string {
-  if (text===undefined || text===null || text.trim()==='') return '';
-  return prefix + text;
-}
-function postfix(text: ?string, postfix: string) :string {
-  if (text===undefined || text===null || text.trim()==='') return '';
-  return '' + text + postfix;
 }
 
 function addMedicalRxLines(visitId: string, page: PDFPage, pageHeight: number, border: number) {

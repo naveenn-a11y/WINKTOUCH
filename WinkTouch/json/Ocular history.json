@@ -36,8 +36,7 @@
     },
     {
       "name": "Date of procedure",
-      "type": "pastDate",
-      "options": []
+      "freestyle": true
     },
     {
       "name": "Eye",
