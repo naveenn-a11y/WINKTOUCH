@@ -34,6 +34,7 @@ function logUpdateStatus(status: number) {
    break;
    case SyncStatus.UPDATE_INSTALLED:
        console.log('CodePush Package installed');
+       codePush.notifyAppReady();
    break;
    case SyncStatus.UPDATE_IGNORED:
        console.log('CodePush Updated ignored');
@@ -58,13 +59,15 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     return;
   }
   checkBinaryVersion();
-  if (lastUpdateCheck!==undefined && ((new Date()).getTime()-lastUpdateCheck.getTime())<5*60000) return; //Prevent hammering code-push servers
-  if (registration===undefined || registration===null || registration.bundle===undefined) return;
+  if (!registration || !registration.bundle) return;
+  if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
   __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
   //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  codePush.sync({ updateDialog: false, deploymentKey: registration.bundle, installMode: codePush.InstallMode.IMMEDIATE}, logUpdateStatus);
+  codePush.disallowRestart();
+  await codePush.sync({ updateDialog: false, deploymentKey: registration.bundle, installMode: codePush.InstallMode.IMMEDIATE}, logUpdateStatus);
+  codePush.allowRestart();
 }
 
 
@@ -74,10 +77,10 @@ export class EhrApp extends Component {
         isLoggedOn: boolean,
         isLocked: boolean,
         registration: ?Registration,
+        account: ?Account,
         user: ?User,
         store: ?Store,
-        token: ?string,
-        updateTimer: ?any
+        token: ?string
     };
 
     constructor() {
@@ -87,10 +90,10 @@ export class EhrApp extends Component {
             isLoggedOn: false,
             isLocked: false,
             registration: undefined,
+            account: undefined,
             user: undefined,
             store: undefined,
-            token: undefined,
-            updateTimer: undefined,
+            token: undefined
         };
     }
 
@@ -107,6 +110,7 @@ export class EhrApp extends Component {
             isRegistered: false,
             isLoggedOn: false,
             registration,
+            account: null,
             user: null,
             store: null
         });
@@ -115,7 +119,7 @@ export class EhrApp extends Component {
     setRegistration(registration?: Registration) {
       const isRegistered : boolean = registration!=undefined && registration!=null && registration.email!=undefined && registration.path!=undefined && registration.bundle!==undefined && registration.bundle!==null && registration.bundle.length>0;
       this.setState({isRegistered, registration});
-      if (isRegistered===true) checkAndUpdateDeployment(registration);
+      //if (isRegistered===true) checkAndUpdateDeployment(registration);
     }
 
     async safeRegistration(registration: Registration) {
@@ -141,15 +145,20 @@ export class EhrApp extends Component {
         this.setRegistration(registration);
     }
 
-    userLoggedOn(user: User, store: Store, token: string) {
+    userLoggedOn = (account: Account, user: User, store: Store, token: string) => {
         this.checkForUpdate();
-        this.setState({isLoggedOn: user!==undefined && token!==undefined && store!==undefined, user, store, token});
+        this.setState({isLoggedOn: account!==undefined && user!==undefined && token!==undefined && store!==undefined,
+          account,
+          user,
+          store,
+          token
+        });
         fetchVisitTypes();
         fetchUserDefinedCodes();
     }
 
     logout = () => {
-        this.setState({isLoggedOn: false, token: undefined, store: undefined});
+        this.setState({isLoggedOn: false, token: undefined,  user: undefined, account: undefined, store: undefined});
         lastUpdateCheck = undefined;
         this.checkForUpdate();
     }
@@ -170,19 +179,19 @@ export class EhrApp extends Component {
     startLockingDog() {
         //TODO
     }
-  
+
     componentDidMount() {
       this.loadRegistration();
       this.startLockingDog();
-      let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
-      this.setState({updateTimer});
+      //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
+      //this.setState({updateTimer});
       AppState.addEventListener('change', this.onAppStateChange.bind(this));
     }
 
     componentWillUnmount() {
-      if (this.state.updateTimer) {
-        clearInterval(this.state.updateTimer);
-      }
+      //if (this.state.updateTimer) {
+      //  clearInterval(this.state.updateTimer);
+      //}
       AppState.removeEventListener('change', this.onAppStateChange.bind(this));
     }
 
@@ -199,10 +208,8 @@ export class EhrApp extends Component {
               onRegistered={(registration: Registration) => this.safeRegistration(registration)}/>
         }
         if (!this.state.isLoggedOn) {
-            return <LoginScreen registration={this.state.registration} onLogin={(user: User, store: Store, token: string) => this.userLoggedOn(user, store, token)} onReset={this.reset}/>
+            return <LoginScreen registration={this.state.registration} onLogin={this.userLoggedOn} onReset={this.reset}/>
         }
-        return <DoctorApp registration={this.state.registration} user={this.state.user} token={this.state.token} store={this.state.store} onLogout={this.logout}/>
+        return <DoctorApp registration={this.state.registration} account={this.state.account} user={this.state.user} token={this.state.token} store={this.state.store} onLogout={this.logout}/>
     }
 }
-
-EhrApp = codePush({ checkFrequency: codePush.CheckFrequency.MANUAL })(EhrApp);
