@@ -19,7 +19,7 @@ export const mappedFields : string[] = [
   'patient.phone',
   'patient.cell',
   'patient.medicalCard',
-  'patient.medialcardexpiry',
+  'patient.medicalCardExp',
   'patient.medialcardversion',
   'patient.dateOfBirth',
   'patient.streetNumber',
@@ -36,9 +36,11 @@ export const mappedFields : string[] = [
   'visit.prescription.os.axis',
   'visit.prescrition.od.add',
   'visit.prescription.os.add',
+  'visit.prescription.od.refraction',  
+  'visit.prescription.os.refraction',
   'visit.purchase.add',
   'visit.examDate'
-  ];
+    ];
 
 
 async function fetchMachineMeasurements(machineType, patientId) : Measurement[] {
