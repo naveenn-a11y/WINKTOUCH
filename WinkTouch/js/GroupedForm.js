@@ -8,10 +8,10 @@ import { View, Text, Button, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx } from './Types';
 import { strings } from './Strings';
-import { styles, scaleStyle } from './Styles';
+import { styles, scaleStyle, fontScale } from './Styles';
 import { FloatingButton } from './Widgets';
 import { FormTextInput, FormRow, FormInput } from './Form';
-import { deepClone, deepAssign, isEmpty } from './Util';
+import { deepClone, deepAssign, isEmpty, cleanUpArray } from './Util';
 import { formatAllCodes} from './Codes';
 import { getCachedItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
@@ -329,10 +329,10 @@ export class GroupedCard extends Component {
     if (formattedValue==label) showLabel = false;
     if (showLabel===true && label!==undefined && label!==null && label.trim()!=='' && fieldName!==value) { //Last condition is for checkboxes
       //__DEV__ && console.log('key='+groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column);
-      return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: {formattedValue} </Text>
+      return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{label}: {formattedValue}   </Text>
     }
     //__DEV__ && console.log('key='+groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column);
-    return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{formattedValue} </Text>
+    return <Text style={styles.textLeft} key={groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column}>{formattedValue}   </Text>
   }
 
   renderCheckListItem(fieldDefinition: FieldDefinition) {
@@ -346,20 +346,18 @@ export class GroupedCard extends Component {
 
   renderColumnedRow(groupDefinition: GroupDefinition, columns: string[], rowIndex: number, groupIndex: number) {
     let showLabel : boolean = true;
-    //__DEV__ && console.log('key='+groupIndex+'-'+groupDefinition.name+'-'+rowIndex);
-    return <View style={styles.rowLayout} key={groupIndex+' '+groupDefinition.name+'-'+rowIndex+'-'}>
-      {
-        columns.map((column: string, columnIndex: number) => {
-          if (column!=='>>') {
-            const columnDefinition : GroupDefinition = groupDefinition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
-            const fieldDefinition : FieldDefinition = columnDefinition.fields[rowIndex];
-            let field = this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex, column);
-            if (field!=null) showLabel = false;
-            return field;
-          }
-        })
+    const a = columns.map((column: string, columnIndex: number) => {
+      if (column!=='>>') {
+        const columnDefinition : GroupDefinition = groupDefinition.fields.find((columnDefinition: FieldDefinition) => columnDefinition.name === column);
+        const fieldDefinition : FieldDefinition = columnDefinition.fields[rowIndex];
+        let field = this.renderField(groupDefinition, fieldDefinition, showLabel, groupIndex, column);
+        if (field!=null) showLabel = false;
+        return field;
       }
-    </View>
+    })
+
+    //__DEV__ && console.log('key='+groupIndex+'-'+groupDefinition.name+'-'+rowIndex);
+    return isEmpty(a) ? null :<View style={styles.rowLayout} key={groupIndex+' '+groupDefinition.name+'-'+rowIndex+'-'}>{a}</View>
   }
 
   renderColumnedRows(groupDefinition: GroupDefinition, columnDefinition: GroupDefinition, groupIndex : number) {
@@ -367,7 +365,8 @@ export class GroupedCard extends Component {
     const rowCount : number = columnDefinition.fields.length;
     const columns : string[] = groupDefinition.columns.find((columns: string[]) => columns.length>0 && columns[0]===columnDefinition.name);
     for (let rowIndex : number = 0; rowIndex< rowCount; rowIndex++) {
-      rows.push(this.renderColumnedRow(groupDefinition, columns, rowIndex, groupIndex));
+      const cr = cleanUpArray(this.renderColumnedRow(groupDefinition, columns, rowIndex, groupIndex))
+      if(!isEmpty(cr)) rows.push(cr);
     }
     return rows;
   }
@@ -388,9 +387,11 @@ export class GroupedCard extends Component {
       const fieldDefinition : FieldDefinition|GroupDefinition = groupDefinition.fields[fieldIndex];
       const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name)
       if (columnFieldIndex===0) {
-        rows.push(this.renderColumnedRows(groupDefinition, fieldDefinition, groupIndex));
+        const cr = this.renderColumnedRows(groupDefinition, fieldDefinition, groupIndex)
+        if(!isEmpty(cr)) rows.push(cr);
       } else if (columnFieldIndex<0){
-        rows.push(this.renderSimpleRow(groupDefinition, fieldDefinition, groupIndex));
+        const sr = this.renderSimpleRow(groupDefinition, fieldDefinition, groupIndex);
+        if(sr !== null) rows.push(sr);
       }
     }
     return rows;
@@ -424,18 +425,18 @@ export class GroupedCard extends Component {
     } else if (groupDefinition.fields===undefined && groupDefinition.options) {//A CheckList
       return this.renderCheckListItem(groupDefinition);
     } else {
+      let showSubtitles : boolean = this.props.exam.definition.showSubtitles; //TODO: can we remove this flag
+      if (this.props.exam.definition.fields.length===1 && this.props.exam.definition.fields[0].multiValue!==true) showSubtitles = false;
       const value : any = this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (value===undefined || value===null || Object.keys(value).length===0) return null;
-
-      let valueRows = this.renderRows(groupDefinition)
-      let rows = []
-      if(this.props.exam.definition.showSubtitles===true && !isEmpty(valueRows) && valueRows.length !== 0) {
-        rows.push(this.renderSubtitle(groupDefinition.name))
-        rows.push(<View key="w" style={{marginLeft: 10}}>{valueRows}</View>)
+      let valueRows = this.renderRows(groupDefinition);
+      let rows = [];
+      if(showSubtitles && !isEmpty(valueRows) && valueRows.length !== 0) {
+        rows.push(this.renderSubtitle(formatLabel(groupDefinition)));
+        rows.push(<View key="w" style={{marginLeft: 30 * fontScale}}>{valueRows}</View>);
       } else {
-        rows.push(valueRows)
-      }
-
+        rows.push(valueRows);
+      };
       return rows;
     }
   }
@@ -518,10 +519,11 @@ export class GroupedCard extends Component {
   }
 
   render() {
-     return <View style={styles.columnLayout} key={this.props.exam.definition.name}>
+    return (
+      <View style={styles.columnLayout} key={this.props.exam.definition.name}>
         {this.renderTitle()}
         {isEmpty(this.props.exam[this.props.exam.definition.name])?null:this.props.exam.definition.cardFields?this.renderCardRows():this.groupDefinition?this.renderGroup(this.groupDefinition):this.renderAllGroups()}
-     </View>
+      </View>)
   }
 }
 

@@ -294,20 +294,26 @@ export function isEmpty(value: any) : boolean {
   if (value===undefined || value===null) return true;
   if (value==='' || (value.trim!==undefined && value.trim().length===0)) return true;
   if (value.length===0) return true;
-  if (value instanceof Object) {
+  if(value instanceof Array) {
+    if(value.length === 0) {
+      return true
+    } else {
+      return value.reduce((a, v) => a && (v === null || v === undefined), true)
+    }
+  } else if (value instanceof Object) {
     if (Object.keys(value).length===0) return true;
     for (let subValue of Object.values(value)) {
       if (!isEmpty(subValue)) return false;
     }
     return true;
-  } else if(value instanceof Array) {
-    if(value.length === 0) {
-      return true
-    } else {
-      return value.reduce((a, v) => a || v, false)
-    }
   }
+
   return false;
+}
+
+// remove null and undefined
+export function cleanUpArray(a: any[]): any[] {
+  return !isEmpty(a) && a instanceof Array ? a.filter(function(v) { return v !== null && v !== undefined }) : a
 }
 
 export function deepAssign(value: Object, newValue: Object) : Object {
@@ -439,4 +445,14 @@ export function replaceFileExtension(fileName : string, extension: string) : str
   if (extension.startsWith('.')) extension = extension.substring(1);
   fileName = fileName.substring(0, dotIndex+1)+extension;
   return fileName;
+}
+
+export function prefix(text: ?string, prefix: string) :string {
+  if (text===undefined || text===null || text.trim()==='') return '';
+  return prefix + text;
+}
+
+export function postfix(text: ?string, postfix: string) :string {
+  if (text===undefined || text===null || text.trim()==='') return '';
+  return '' + text + postfix;
 }

@@ -296,6 +296,7 @@
                 {
                   "name": "Treatment",
                   "maxLength": 3000,
+                  "freestyle": false,
                   "layout": {
                     "position": "absolute",
                     "top": 710,

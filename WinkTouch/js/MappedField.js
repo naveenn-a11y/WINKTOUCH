@@ -19,6 +19,8 @@ export const mappedFields : string[] = [
   'patient.phone',
   'patient.cell',
   'patient.medicalCard',
+  'patient.medialcardexpiry',
+  'patient.medialcardversion',
   'patient.dateOfBirth',
   'patient.streetNumber',
   'patient.province',

@@ -147,7 +147,6 @@ export class FormTextInput extends Component {
     }
 
     render() {
-        __DEV__ && console.log(this.state.text+' freestyle ='+this.props.freestyle);
         return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined}>
           <View style={this.props.containerStyle?this.props.containerStyle:styles.formElement}>
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label}/>}
