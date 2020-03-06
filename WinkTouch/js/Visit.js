@@ -317,12 +317,6 @@ class VisitWorkFlow extends Component {
       let rxToOrderExamId : ?string = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name==='RxToOrder');
       if (rxToOrderExamId) {
         let exam : Exam = getCachedItem(rxToOrderExamId);
-        
-        if(exam.RxToOrder['Final Rx']) {
-          exam.RxToOrder['Final Rx'].od.sph = exam.RxToOrder['Final Rx'].od.sph === "" ? undefined : exam.RxToOrder['Final Rx'].od.sph;
-          exam.RxToOrder['Final Rx'].os.sph = exam.RxToOrder['Final Rx'].os.sph === "" ? undefined : exam.RxToOrder['Final Rx'].os.sph;
-        }
-
         return exam;
       }
 
