@@ -184,7 +184,7 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
       fieldDefinition.mappedField = firstMappedFieldName;
     }
     return fieldDefinition;
-  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient' || fieldSrc[0]==='clFitting') {//A non exam field
+  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient' || fieldSrc[0]==='clFitting' || fieldSrc[0]==='store') {//A non exam field
     return getItemFieldDefinition(fieldIdentifier);
   } else {//A regular exam field
     let fieldDefinition : FieldDefinition;
