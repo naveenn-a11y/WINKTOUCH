@@ -122,7 +122,20 @@
               "name": "refraction"
             }
           ]
-        }
+        },
+        {
+          "name": "ou",
+          "fields": [
+              {
+                  "mappedField": "visit.prescription.ou.va",
+                  "name": "va"
+              },
+              {
+                  "mappedField": "visit.prescription.ou.addVa",
+                  "name": "addVa"
+              }
+          ]
+      }
       ]
     },
     {

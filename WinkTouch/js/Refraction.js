@@ -367,6 +367,7 @@ export class GlassesDetail extends Component {
 
   constructor(props: any) {
     super(props);
+    console.log("BBBBBBBBBBBBBBBBBB " + JSON.stringify(props.glassesRx));
     this.state = {
       prism: isPrism(this.props.glassesRx),
       isTyping: false
@@ -513,6 +514,7 @@ export class GlassesDetail extends Component {
   render() {
     if (this.props.glassesRx===undefined || this.props.glassesRx.od===undefined || this.props.glassesRx.os===undefined)
       return null;
+    {console.log("PPPPPPPPPPPP " + JSON.stringify(this.props.glassesRx))}
     return <View style={this.props.style?this.props.style:(this.state.prism&&this.props.hasVA)?styles.boardXL:(this.state.prism||this.props.hasVA)?styles.boardL:styles.boardM}>
       {this.props.title && <Label suffix='' style={this.props.titleStyle} value={this.props.title} fieldId={this.props.fieldId}/>}
       <View style={styles.centeredColumnLayout}>
@@ -566,6 +568,18 @@ export class GlassesDetail extends Component {
               onChangeValue={(value: ?number) => this.updateGlassesRx('os','add', value)} errorMessage={this.props.glassesRx.os.addError} isTyping={this.state.isTyping}/>}
             {this.props.hasVA===true && this.props.hasAdd===true && <FormInput value={this.props.glassesRx.os.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS')} showLabel={false} readonly={!this.props.editable}
                 onChangeValue={(value: ?number) => this.updateGlassesRx('os','addVa', value)} errorMessage={this.props.glassesRx.os.addVaError}/>}
+            {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
+          </View>
+           <View style={styles.formRow}>
+            {this.props.hasVA===true && <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>}
+            {this.props.hasVA===true &&<FormInput  definition={getFieldDefinition('visit.prescription.ou.sph')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.cyl')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.axis')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) => this.updateGlassesRx('ou','va', value)} errorMessage={this.props.glassesRx.ou.vaError}/>}
+            {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.add')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true && this.props.hasAdd===true && <FormInput value={this.props.glassesRx.ou.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU')} showLabel={false} readonly={!this.props.editable}
+                onChangeValue={(value: ?number) => this.updateGlassesRx('ou','addVa', value)} errorMessage={this.props.glassesRx.ou.addVaError}/>}
             {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
           </View>
           {(this.props.hasNotes===true || (this.props.definition!==undefined && this.props.definition.hasNotes)) && <View style={styles.formRow}>
