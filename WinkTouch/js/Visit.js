@@ -609,14 +609,12 @@ export class VisitHistoryCard extends Component {
     return <View style={styles.tabCard}>
       <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
       {this.state.summaries.map((visitSummary: Exam, index: number) =>
-        <View style={styles.paragraphBorder} key={index}>
-          <View style={styles.flexRow}>
+          <View style={styles.rowLayout}>
             <Text style={styles.text}>{formatDate(getCachedItem(visitSummary.visitId).date, isToyear(getCachedItem(visitSummary.visitId).date)?dateFormat:farDateFormat)}: </Text>
             <View style={styles.cardColumn}>
               <Text style={styles.text}>{visitSummary.resume}</Text>
             </View>
           </View>
-        </View>
       )}
     </View>
   }

@@ -55,12 +55,29 @@ export function getJpeg64Dimension(base64jpg : string) : {width: number, height:
   return {width, height};
 }
 
+function toInt32(bytes) : number {
+    return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+}
+
+export function getPng64Dimension(base64png : string) : {width: number, height:number} {
+  let decodedHeader : string = base64.decode(base64png.slice(0,50));
+  let widthBytes = [decodedHeader.charCodeAt(16),decodedHeader.charCodeAt(17),decodedHeader.charCodeAt(18),decodedHeader.charCodeAt(19)];
+  const width : number = toInt32(widthBytes);
+  let heightBytes = [decodedHeader.charCodeAt(20),decodedHeader.charCodeAt(21),decodedHeader.charCodeAt(22),decodedHeader.charCodeAt(23)];
+  const height : number = toInt32(heightBytes);
+  return {width, height};
+}
+
 export function getAspectRatio(upload: ?Upload) : number {
   const defaultRatio : number = 3/4;
   if (!upload) return defaultRatio;
   const mimeType = getMimeType(upload);
   if (mimeType==='image/jpeg;base64') {
     const dimension : {width: number, height:number} = getJpeg64Dimension(upload.data);
+    if (dimension.height===0) return defaultRatio;
+    return dimension.width/dimension.height;
+  } else if (mimeType==='image/png;base64') {
+    const dimension : {width: number, height:number} = getPng64Dimension(upload.data);
     if (dimension.height===0) return defaultRatio;
     return dimension.width/dimension.height;
   } else {

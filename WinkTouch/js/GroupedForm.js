@@ -435,7 +435,6 @@ export class GroupedCard extends Component {
         rows.push(this.renderSubtitle(formatLabel(groupDefinition)));
         rows.push(<View key="w" style={{marginLeft: 30 * fontScale}}>{valueRows}</View>);
       } else {
-        rows.push(this.renderSubtitle(''));
         rows.push(valueRows);
       };
       return rows;
