@@ -34,12 +34,13 @@ const examDefinitionDefinition : FieldDefinition[] = [
   {name: 'name', required: true}
 ];
 
-export async function updateLabel(fieldId: string, label: string) {
+export async function updateLabel(fieldId: string, label: string, normalValue?: string) {
   const translation = {
     id: 'customExamDefinition',
     language: getUserLanguage(),
     fieldId: fieldId,
-    label: label
+    label: label,
+    normalValue: normalValue
   };
   await performActionOnItem('translateLabel', translation);
 }

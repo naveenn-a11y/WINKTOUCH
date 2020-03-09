@@ -32,7 +32,8 @@ export class Label extends PureComponent {
     fieldId?: string
   }
   state: {
-    newLabel: string
+    newLabel: string,
+    showNormal: false
   }
   static defaultProps = {
     suffix: ':'
@@ -41,7 +42,9 @@ export class Label extends PureComponent {
   constructor(props: any) {
     super(props);
     this.state = {
-      newLabel: this.props.value
+      newLabel: this.props.value,
+      showNormal: false,
+      normalValue: this.props.normalValue
     }
   }
 
@@ -55,8 +58,38 @@ export class Label extends PureComponent {
     updateLabel(this.props.fieldId, this.state.newLabel);
   }
 
+  saveNormalValue = async () => {
+    await updateLabel(this.props.fieldId, this.state.newLabel, this.state.normalValue);
+    this.setState({showNormal: false})
+  }
+
   render() {
-    if (isInTranslateMode()) return <TextInput style={[this.props.style, styles.translateField]} value={this.state.newLabel} editable={true} onChangeText={(text: string) => this.setState({newLabel: text })} onBlur={this.saveLabel}/>
+    const components = [];
+    if(this.state.showNormal) {
+      components.push(<TextInput style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                                 value={this.state.normalValue}
+                                 editable={true}
+                                 onChangeText={
+                                   (text: string) => this.setState({normalValue: text })
+                                 }
+                                 onBlur={this.saveNormalValue}/>);
+    } else {
+      components.push(
+          <TouchableOpacity onPress={() => this.setState({showNormal: true})}>
+            <Icon name="check" style={50} />
+          </TouchableOpacity>);
+    }
+    components.push(<TextInput style={[this.props.style, styles.translateField]}
+                               value={this.state.newLabel}
+                               editable={true}
+                               onChangeText = {
+                                 (text: string) => this.setState({newLabel: text })
+                               }
+                               onBlur={this.saveLabel} />);
+
+    if (isInTranslateMode()) {
+      return components;
+    }
     if (!this.props.value || this.props.value.length===0) return null;
     const style = this.props.style?this.props.style:this.props.width?[styles.formLabel, {width: this.props.width}]:styles.formLabel;
     return <Text style={style}>{this.props.value}{this.props.suffix}</Text>

@@ -614,7 +614,7 @@ export class GroupedForm extends Component {
     if (fieldDefinition.layout)
       return this.renderField(fieldDefinition);
     return <View style={styles.formRow} key={fieldDefinition.name}>
-        <View style={styles.formRowHeader}><Label value={label} fieldId={this.props.fieldId+'.'+fieldDefinition.name}/></View>
+        <View style={styles.formRowHeader}><Label value={label} fieldId={this.props.fieldId+'.'+fieldDefinition.name} normalValue={fieldDefinition.normalValue}/></View>
         {this.renderField(fieldDefinition)}
     </View>
   }
