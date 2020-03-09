@@ -46,7 +46,7 @@ export class Label extends PureComponent {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value===this.state.newLabel) return;
+    if (this.props.value===this.state.newLabel || isInTranslateMode()) return;
     this.setState({newLabel: this.props.value});
   }
 
