@@ -13,7 +13,12 @@ import { passesFilter } from './Util';
 
 export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: string) : string {
   if (option===undefined || option===null) return '';
-  if (option.description !== undefined && codeIdentifier===undefined)
+
+  if(typeof option[codeIdentifier] !== 'undefined') {
+    return option[codeIdentifier];
+  }
+
+  if (option.description !== undefined)
     option = option.description;
   else if (option.key!==undefined)
     option = strings[option.key];
