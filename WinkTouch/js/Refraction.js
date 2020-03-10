@@ -45,6 +45,9 @@ export function newRefraction() : GlassesRx {
     },
     os: {
       sph: undefined
+    },
+    ou: {
+      sph: undefined
     }
   }
 }
@@ -367,7 +370,6 @@ export class GlassesDetail extends Component {
 
   constructor(props: any) {
     super(props);
-    console.log("BBBBBBBBBBBBBBBBBB " + JSON.stringify(props.glassesRx));
     this.state = {
       prism: isPrism(this.props.glassesRx),
       isTyping: false
@@ -444,6 +446,7 @@ export class GlassesDetail extends Component {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.os = {};
     glassesRx.od = {};
+    glassesRx.ou={};
     glassesRx.lensType = undefined;
     if (this.props.onChangeGlassesRx)
       this.props.onChangeGlassesRx(glassesRx);
@@ -514,7 +517,6 @@ export class GlassesDetail extends Component {
   render() {
     if (this.props.glassesRx===undefined || this.props.glassesRx.od===undefined || this.props.glassesRx.os===undefined)
       return null;
-    {console.log("PPPPPPPPPPPP " + JSON.stringify(this.props.glassesRx))}
     return <View style={this.props.style?this.props.style:(this.state.prism&&this.props.hasVA)?styles.boardXL:(this.state.prism||this.props.hasVA)?styles.boardL:styles.boardM}>
       {this.props.title && <Label suffix='' style={this.props.titleStyle} value={this.props.title} fieldId={this.props.fieldId}/>}
       <View style={styles.centeredColumnLayout}>
@@ -572,7 +574,7 @@ export class GlassesDetail extends Component {
           </View>
            <View style={styles.formRow}>
             {this.props.hasVA===true && <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>}
-            {this.props.hasVA===true &&<FormInput  definition={getFieldDefinition('visit.prescription.ou.sph')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true &&<FormInput  definition={getFieldDefinition('visit.prescription.ou.sph')} showLabel={false} readonly={true} />}
             {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.cyl')} showLabel={false} readonly={true}/>}
             {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.axis')} showLabel={false} readonly={true}/>}
             {this.props.hasVA===true && <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
