@@ -574,12 +574,12 @@ export class GlassesDetail extends Component {
           </View>
            <View style={styles.formRow}>
             {this.props.hasVA===true && <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>}
-            {this.props.hasVA===true &&<FormInput  definition={getFieldDefinition('visit.prescription.ou.sph')} showLabel={false} readonly={true} />}
-            {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.cyl')} showLabel={false} readonly={true}/>}
-            {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.axis')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true && <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>}
+            {this.props.hasVA===true && <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>}
+            {this.props.hasVA===true && <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>}
             {this.props.hasVA===true && <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('ou','va', value)} errorMessage={this.props.glassesRx.ou.vaError}/>}
-            {this.props.hasVA===true && <FormInput  definition={getFieldDefinition('visit.prescription.ou.add')} showLabel={false} readonly={true}/>}
+            {this.props.hasVA===true && <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>}
             {this.props.hasVA===true && this.props.hasAdd===true && <FormInput value={this.props.glassesRx.ou.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU')} showLabel={false} readonly={!this.props.editable}
                 onChangeValue={(value: ?number) => this.updateGlassesRx('ou','addVa', value)} errorMessage={this.props.glassesRx.ou.addVaError}/>}
             {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
