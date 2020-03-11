@@ -11,45 +11,35 @@ import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
 import { passesFilter } from './Util';
 
-export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: string) : string {
+export function formatCodeDefinition(option: ?CodeDefinition, descriptionIdenfifier?: string) : string {
   if (option===undefined || option===null) return '';
-
-  if(typeof option[codeIdentifier] !== 'undefined') {
-    return option[codeIdentifier];
-  }
-
-  if (option.description !== undefined)
+  if (descriptionIdenfifier!==undefined && descriptionIdenfifier!==null) {
+      option = option[descriptionIdentifier];
+  } else if (option.description!==undefined && option.description!==null) {
     option = option.description;
-  else if (option.key!==undefined)
+  } else if (option.key!==undefined && option.key!==null) {
     option = strings[option.key];
-  else {
-    if (codeIdentifier===undefined || codeIdentifier===null) {
-      codeIdentifier = 'code';
-    }
-    if (option[codeIdentifier]!==undefined) {
-      option = option[codeIdentifier];
-    }
+  } else if (option.code!==undefined && option.code!==null) {
+    option = option.code;
   }
   if (option===undefined || option===null) return '';
   option = option.toString();
   return option;
 }
 
-export function getByKey(codeType: string, code?: string|number, codeIdentifier?: string) : string {
-  if (code === undefined || code === null) return '';
-
+export function getCodeDefinition(codeType: string, code?: string|number) : ?CodeDefinition {
+  if (code === undefined || code === null) return undefined;
   let codeDefinition :? CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
-
-  return codeDefinition ? codeDefinition[codeIdentifier] : undefined;
+  return codeDefinition;
 }
 
-export function formatCode(codeType: string, code?: string|number, codeIdentifier?: string) : string {
+export function formatCode(codeType: string, code?: string|number, descriptionIdentifier?: string) : string {
   if (code===undefined || code===null) return '';
-  let codeDefinition :?CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
+  const codeDefinition :?CodeDefinition = getCodeDefinition(codeType, code);
   if (codeDefinition===undefined) {
     return code.toString();
   }
-  return formatCodeDefinition(codeDefinition, codeIdentifier);
+  return formatCodeDefinition(codeDefinition, descriptionIdentifier);
 }
 
 export function formatOption(dataType: string, field: string, code: ?string|?number) : string {

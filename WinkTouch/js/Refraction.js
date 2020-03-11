@@ -13,7 +13,7 @@ import { Anesthetics } from './EyeTest';
 import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
-import { getByKey, formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
+import { getCodeDefinition, formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
 import { getVisitHistory, fetchVisitHistory } from './Visit';
 import { CopyRow, Garbage, Keyboard, Plus, Copy, ImportIcon, ExportIcon } from './Favorites';
 import { importData, exportData } from './MappedField';
@@ -484,10 +484,12 @@ export class GlassesDetail extends Component {
       data: this.props.glassesRx
     };
     const data = await exportData(this.props.definition.export[0], measurement, this.props.examId);
-    const c = JSON.parse(getConfiguration());
-    if(c.machine && c.machine.phoropter) {
-      const ip = getByKey('machines', c.machine.phoropter, 'ip');
-      await fetch('http://' + ip + ':80/m')
+    const config = getConfiguration();
+    if(config.machine && config.machine.phoropter) {
+      const machineDefinition = getCodeDefinition('machines', config.machine.phoropter);
+      if (machineDefinition.ip) {
+        await fetch('http://' + machineDefinition.ip + ':80/m')
+      }
     }
 
   }
