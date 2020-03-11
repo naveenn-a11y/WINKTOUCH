@@ -425,7 +425,7 @@ export class ImageField extends Component {
   }
 
   cancelScreenShot() {
-      if (this.screenShotTimer) clearTimeout(this.screenShotTimer);
+      if (this.screenShotTimer) clearTimeout(this.screenShotTimer);      
       this.screenShotTimer = undefined;
   }
 
@@ -433,7 +433,10 @@ export class ImageField extends Component {
     //__DEV__ && console.log('Pen up');
     if ((this.props.popup===false || this.props.image==='upload') && this.tap()==2 && this.state.lines.length>2 && (this.state.lines[this.state.lines.length-1].length<40 && this.state.lines[this.state.lines.length-2].length<40)) {
       this.state.lines.splice(this.state.lines.length-2, 2);
-      this.setState({lines:this.state.lines, penDown:false});
+      this.setState({lines:this.state.lines, penDown:false}, () => {
+        if (this.props.sync) this.scheduleScreenShot();
+        this.commitEdit();
+      });
       this.toggleEdit();
       return;
     }
@@ -579,7 +582,8 @@ export class ImageField extends Component {
         height: height
       });
     const docsDir = await PDFLib.getDocumentsDirectory();
-    const pdfPath = `${docsDir}/print.pdf`;
+    const fileName = 'print'+(this.props.fileName?this.props.fileName:'')+'.pdf';
+    const pdfPath = `${docsDir}/${fileName}`;
     let path = await PDFDocument.create(pdfPath).addPages(page1).write();
     //__DEV__ && console.log('PDF = '+path);
     return path;
