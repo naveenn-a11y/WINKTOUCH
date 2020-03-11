@@ -13,7 +13,7 @@ import { Anesthetics } from './EyeTest';
 import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
-import { formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
+import { getByKey, formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
 import { getVisitHistory, fetchVisitHistory } from './Visit';
 import { CopyRow, Garbage, Keyboard, Plus, Copy, ImportIcon, ExportIcon } from './Favorites';
 import { importData, exportData } from './MappedField';
@@ -486,8 +486,8 @@ export class GlassesDetail extends Component {
     const data = await exportData(this.props.definition.export[0], measurement, this.props.examId);
     const c = JSON.parse(getConfiguration());
     if(c.machine && c.machine.phoropter) {
-      const ip = formatCode('machines', c.machine.phoropter, 'ip');
-      const r = await fetch('http://' + ip + ':80/m')
+      const ip = getByKey('machines', c.machine.phoropter, 'ip');
+      await fetch('http://' + ip + ':80/m')
     }
 
   }

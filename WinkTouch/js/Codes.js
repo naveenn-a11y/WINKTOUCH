@@ -35,6 +35,14 @@ export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: s
   return option;
 }
 
+export function getByKey(codeType: string, code?: string|number, codeIdentifier?: string) : string {
+  if (code === undefined || code === null) return '';
+
+  let codeDefinition :? CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
+
+  return codeDefinition ? codeDefinition[codeIdentifier] : undefined;
+}
+
 export function formatCode(codeType: string, code?: string|number, codeIdentifier?: string) : string {
   if (code===undefined || code===null) return '';
   let codeDefinition :?CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
