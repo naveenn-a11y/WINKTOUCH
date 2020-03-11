@@ -11,9 +11,9 @@ import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
 import { passesFilter } from './Util';
 
-export function formatCodeDefinition(option: ?CodeDefinition, descriptionIdenfifier?: string) : string {
+export function formatCodeDefinition(option: ?CodeDefinition, descriptionIdentifier?: string) : string {
   if (option===undefined || option===null) return '';
-  if (descriptionIdenfifier!==undefined && descriptionIdenfifier!==null) {
+  if (descriptionIdentifier!==undefined && descriptionIdentifier!==null) {
       option = option[descriptionIdentifier];
   } else if (option.description!==undefined && option.description!==null) {
     option = option.description;
@@ -95,7 +95,7 @@ export function getAllCodes(codeType: string, filter?: {}) : CodeDefinition[] {
 }
 
 export function formatAllCodes(codeType: string, filter?: {}) : string[] {
-  let codeIdentifier = 'code';
+  let codeIdentifier = undefined;
   if (codeType.includes('.')) {
     const identifiers : string = codeType.split('.');
     codeType = identifiers[0];
