@@ -313,11 +313,14 @@ export class ExamHistoryScreen extends Component {
     examHistory : Exam[],
     zoomScale : number,
   }
+  patientId: String
 
   constructor(props: any) {
     super(props);
     const params = this.props.navigation.state.params;
     let examHistory : Exam[] = getExamHistory(params.exam);
+    let patient : Patient = getPatient(params.exam);
+    this.patientId = patient.id;
     this.state = {
       examHistory,
       zoomScale: new Animated.Value(1)
@@ -368,7 +371,7 @@ export class ExamHistoryScreen extends Component {
     } else if (groupDefinition.type==='CRx') {
       return <ContactsDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
     }
-    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} />
+    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.patientId} />
   }
 
   renderExam(exam: Exam) {
