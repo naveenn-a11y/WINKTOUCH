@@ -853,15 +853,15 @@ export class GroupedForm extends Component {
 
   renderIcons() {
     if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
-    return <View style={styles.groupIcons} key='icons'>
+    return [<View style={styles.groupIcons} key='icons'>
       {this.props.onClear && <TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
       {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon}/>}
-      <View style={styles.groupExtraIcons}>
-        {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
-      </View>
-    </View>
+    </View>,
+    <View style={styles.groupExtraIcons}>
+      {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
+    </View>]
   }
 
   render() {
