@@ -634,6 +634,12 @@ export class GroupedForm extends Component {
     </View>
   }
 
+    renderSimpleRowValue(value: String) {
+    return <View style={styles.formRow}>
+              <View style={styles.formRowHeader}><Text>{value}</Text></View>
+           </View>
+  }
+
   hasColumns() : boolean {
     return hasColumns(this.props.definition);
   }
@@ -719,7 +725,8 @@ export class GroupedForm extends Component {
   renderRows() {
     let rows : any[] = [];
     const groupDefinition : GroupDefinition = this.props.definition;
-    if (!groupDefinition.fields) return null;
+
+    if (groupDefinition.fields) {
     for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
       const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
       if (columnFieldIndex===0) {
@@ -732,6 +739,15 @@ export class GroupedForm extends Component {
         }
       }
     }
+  } else if(this.props.form && groupDefinition.options) {
+    if(this.props.form instanceof Array) {
+       for (const value : String of this.props.form) {
+          rows.push(this.renderSimpleRowValue(value));
+       }
+    }
+ 
+  }
+
     return rows;
   }
 
@@ -873,7 +889,6 @@ export class GroupedForm extends Component {
 
   render() {
     const style = this.props.style?this.props.style:this.props.definition.layout?scaleStyle(this.props.definition.layout):this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
-
     return  <View style={style} key={this.props.definition.name}>
         <Label style={styles.sectionTitle} key='title' suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId} />
         {this.renderRows()}

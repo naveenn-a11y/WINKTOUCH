@@ -348,20 +348,24 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderGroup(groupDefinition: GroupDefinition, value: any, index: number) {
+    
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign({}, getItemFieldDefinition(groupDefinition.mappedField), groupDefinition);
     }
     if (groupDefinition.multiValue===true) {
-      groupDefinition = deepClone(groupDefinition);
-      groupDefinition.multiValue = false;
       if (value instanceof Array === false || value.length===0) return null;
-      return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
+        if(groupDefinition.options == undefined) {
+          groupDefinition = deepClone(groupDefinition);
+          groupDefinition.multiValue = false;
+          return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
+      }
     } else if (groupDefinition.type==='SRx') {
       let exam : Exam = this.props.navigation.state.params.exam;
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition} examId={exam.id}/>
     } else if (groupDefinition.type==='CRx') {
       return <ContactsDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
     }
+
     return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} />
   }
 
