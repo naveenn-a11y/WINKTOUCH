@@ -169,7 +169,8 @@
                                         "borderWidth": 0,
                                         "fontSize": 14
                                     }
-                                },{
+                              },
+                              {
                                     "name": "OD Sph",
                                     "mappedField": "exam.RxToOrder.Final Rx.od.sph",
                                     "layout": {
@@ -199,7 +200,7 @@
                                     "layout": {
                                         "position": "absolute",
                                         "top": 1090,
-                                        "left": 688,
+                                        "left": 687,
                                         "width": 90,
                                         "borderWidth": 0,
                                         "fontSize": 17
@@ -297,8 +298,8 @@
                                     "freestyle": false,
                                     "layout": {
                                         "position": "absolute",
-                                        "top": 167,
-                                        "left": 28,
+                                        "top": 710,
+                                        "left": 545,
                                         "width": 510,
                                         "borderWidth": 1,
                                         "fontSize": 17
