@@ -1024,22 +1024,13 @@ export class GroupedFormScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
-  updateForm = (groupName: string, form) => {
-    const v = this.props.exam[this.props.exam.definition.name];
-
-    const keys = Object.keys(v);
-    const newV = {};
-    for(let i = 0; i < keys.length; i++) {
-      const item = v[keys[i]];
-      if(keys[i] === groupName) {
-        newV[keys[i]] = form
-      } else {
-        newV[keys[i]] = item
-      }
+  updateGroup = (groupName: string, form: any, index?: number) => {
+    if (index!==undefined && index!==null) {
+      this.props.exam[this.props.exam.definition.name][groupName][index]=form;
+    } else {
+      this.props.exam[this.props.exam.definition.name][groupName]=form;
     }
-
-    const newValues = Object.assign(this.props.exam, { [this.props.exam.definition.name]: newV } );
-    this.props.onUpdateExam(newValues);
+    this.props.onUpdateExam(this.props.exam);
   }
 
   copyToFinal = (glassesRx : GlassesRx) : void => {
@@ -1138,7 +1129,7 @@ export class GroupedFormScreen extends Component {
             onAdd={() => this.addGroupItem(groupDefinition)}
             onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
             enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
-            onUpdateForm={this.updateForm}
+            onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue, subIndex)}
             patientId={this.patientId}
             examId={this.props.exam.id}
             fieldId={fieldId}
@@ -1164,7 +1155,7 @@ export class GroupedFormScreen extends Component {
         onClear={() => this.clear(groupDefinition.name)}
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
-        onUpdateForm={this.updateForm}
+        onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue)}
         patientId={this.patientId}
         examId={this.props.exam.id}
         editable={this.props.editable!==false && groupDefinition.readonly!==true}
