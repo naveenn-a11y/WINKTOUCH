@@ -636,7 +636,7 @@ export class GroupedForm extends Component {
 
     renderSimpleRowValue(value: String) {
     return <View style={styles.formRow}>
-              <View style={styles.formRowHeader}><Text>{value}</Text></View>
+              <Text>{value}</Text>
            </View>
   }
 
