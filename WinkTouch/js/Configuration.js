@@ -77,8 +77,9 @@ export class ConfigurationScreen extends Component {
       return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollEnabled={false}>
         <View style={styles.centeredColumnLayout}>
           {
-            configurationScreenDefinition.fields.map(groupDefinition =>
+            configurationScreenDefinition.fields.map((groupDefinition, i) =>
               <GroupedForm
+                key={i}
                 definition={groupDefinition}
                 form={this.state.configuration[groupDefinition.name]}
                 onChangeField={(fieldName: string, newValue: any, column: ?string) => this.changeConfiguration(groupDefinition.name, fieldName, newValue, column)}

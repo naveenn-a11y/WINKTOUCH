@@ -4,7 +4,7 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, Text, Switch, ScrollView, LayoutAnimation, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Switch, ScrollView, LayoutAnimation, TouchableOpacity, Alert, AsyncStorage } from 'react-native';
 import type {GlassesRx, Patient, Exam, GroupDefinition, FieldDefinition, GlassRx, Prism, Visit, Measurement} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
@@ -13,7 +13,7 @@ import { Anesthetics } from './EyeTest';
 import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
-import { formatCode, formatAllCodes, parseCode } from './Codes';
+import { getCodeDefinition, formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
 import { getVisitHistory, fetchVisitHistory } from './Visit';
 import { CopyRow, Garbage, Keyboard, Plus, Copy, ImportIcon, ExportIcon } from './Favorites';
 import { importData, exportData } from './MappedField';
@@ -484,6 +484,14 @@ export class GlassesDetail extends Component {
       data: this.props.glassesRx
     };
     const data = await exportData(this.props.definition.export[0], measurement, this.props.examId);
+    const config = getConfiguration();
+    if(config.machine && config.machine.phoropter) {
+      const machineDefinition = getCodeDefinition('machines', config.machine.phoropter);
+      if (machineDefinition.ip) {
+        await fetch('http://' + machineDefinition.ip + ':80/m')
+      }
+    }
+
   }
 
   render() {
