@@ -864,17 +864,10 @@ export class GroupedForm extends Component {
   async importData() {
     if(!this.props.onUpdateForm) return
 
-    const data = await importData(this.props.definition.import, this.props.examId);
+    const data = await importData(this.props.definition.import, this.props.examId, this.props.definition.name);
 
     if (data===undefined || data===null) return;
-
-    if(this.props.definition.name === 'Unaided acuities') {
-      this.parseUnaidedAcuities(data);
-    } else if(this.props.definition.name === 'Aided acuities') {
-      this.parseAidedAcuities(data);
-    } else if(this.props.definition.name === 'IOP') {
-      this.parseIop(data);
-    }
+    this.props.onUpdateForm(this.props.definition.name, data);
   }
 
   async exportData() {
