@@ -236,7 +236,7 @@ export class GeneralPrismInput extends Component {
       if (prism1===undefined) prism1 = 0;
       prism1 += Number(editedValue[1]);
     }
-    let prism1b : ?number = prism1===undefined?undefined:parseCode('prism1b', editedValue[2]);
+    let prism1b : ?number = prism1===undefined?undefined:editedValue[2] === undefined ? 0 : parseCode('prism1b',editedValue[2]);
     let prism2 : ?number = undefined;
     if (editedValue[3]!==undefined) {
       prism2 = Number(editedValue[3]);
@@ -245,7 +245,7 @@ export class GeneralPrismInput extends Component {
       if (prism2===undefined) prism2 = 0;
       prism2 += Number(editedValue[4]);
     }
-    let prism2b : ?number = prism2===undefined?undefined:parseCode('prism2b', editedValue[5]);
+    let prism2b : ?number = prism2===undefined?undefined:editedValue[5] === undefined ? 0 : parseCode('prism2b',  editedValue[5]);
     let prism = prism1 + dashSeparator + prism1b + dashSeparator + prism2 + dashSeparator + prism2b;
     this.props.onChangeValue(prism);
   }
