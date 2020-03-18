@@ -114,7 +114,6 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
   }
   let codeDefinition : CodeDefinition = getAllCodes(codeType).find((codeDefinition: CodeDefinition) =>
     formatCodeDefinition(codeDefinition).trim().toLowerCase() === trimmedInput);
-
   let code = input;
   if (codeDefinition!==undefined && codeDefinition!==null) {
     if (codeDefinition instanceof Object) {

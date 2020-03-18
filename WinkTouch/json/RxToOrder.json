@@ -71,6 +71,10 @@
             {
               "mappedField": "visit.prescription.od.refraction",
               "name": "refraction"
+            },
+            {
+              "mappedField": "visit.prescription.od.finalPrism",
+              "name": "finalPrism"
             }
           ]
         },
@@ -120,7 +124,12 @@
             {
               "mappedField": "visit.prescription.os.refraction",
               "name": "refraction"
+            },
+            {
+              "mappedField": "visit.prescription.os.finalPrism",
+              "name": "finalPrism"
             }
+
           ]
         },
         {
