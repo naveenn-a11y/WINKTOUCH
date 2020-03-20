@@ -35,7 +35,8 @@
                             "label": "",
                             "fields": [
                                 {
-                                    "mappedField": "store.name",
+                                    "mappedField": "visit.storeName",
+                                    "name": "Store name",
                                     "layout": {
                                         "position": "absolute",
                                         "borderWidth": 0,
@@ -45,11 +46,11 @@
                                         "fontSize": 17,
                                         "top": 10
                                     },
-                                    "name": "Store name",
                                     "readonly": true
                                 },
                                 {
-                                    "mappedField": "store.address",
+                                    "mappedField": "visit.storeAddress",
+                                    "name": "Store address",
                                     "layout": {
                                         "position": "absolute",
                                         "borderWidth": 0,
@@ -59,11 +60,11 @@
                                         "fontSize": 17,
                                         "top": 35
                                     },
-                                    "name": "Store address",
                                     "readonly": true
                                 },
                                 {
-                                    "mappedField": "store.city",
+                                    "mappedField": "visit.storeCity",
+                                    "name": "Store city",
                                     "layout": {
                                         "position": "absolute",
                                         "borderWidth": 0,
@@ -73,11 +74,11 @@
                                         "fontSize": 17,
                                         "top": 60
                                     },
-                                    "name": "Store city",
                                     "readonly": true
                                 },
                                 {
-                                    "mappedField": "store.contact",
+                                    "mappedField": "visit.storeContact",
+                                    "name": "Store contact",
                                     "layout": {
                                         "position": "absolute",
                                         "borderWidth": 0,
@@ -87,7 +88,6 @@
                                         "fontSize": 17,
                                         "top": 60
                                     },
-                                    "name": "Store contact",
                                     "readonly": true
                                 },
                                 {
