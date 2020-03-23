@@ -10,7 +10,7 @@ import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
 import { NumberField, TilesField, Button, Label } from './Widgets';
 import { Anesthetics } from './EyeTest';
-import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat, parsePrism, dashSeparator} from './Util';
+import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat, splitPrism, spaceSeparator} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
 import { getCodeDefinition, formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
@@ -71,13 +71,15 @@ function isMultiFocal(glassesRx: GlassesRx) : boolean {
 
 export function isPrism(glassesRx: GlassesRx) : boolean {
   if (!glassesRx) return false;
-  if (glassesRx.od && glassesRx.od.prism1!=undefined && glassesRx.od.prism1!=null && glassesRx.od.prism1!=0.0)
+  let odPrisms : Prism = glassesRx.od && glassesRx.od.prism ? splitPrism(glassesRx.od.prism) : undefined;
+  let osPrisms : Prism = glassesRx.os && glassesRx.os.prism ? splitPrism(glassesRx.os.prism) : undefined;
+  if (odPrisms && odPrisms.prism1!=undefined && odPrisms.prism1!=null && odPrisms.prism1!=0.0)
     return true;
-  if (glassesRx.od && glassesRx.od.prism2!=undefined && glassesRx.od.prism2!=null && glassesRx.od.prism2!=0.0)
+  if (odPrisms && odPrisms.prism2!=undefined && odPrisms.prism2!=null && odPrisms.prism2!=0.0)
       return true;
-  if (glassesRx.os && glassesRx.os.prism1!=undefined && glassesRx.os.prism1!=null && glassesRx.os.prism1!=0.0)
+  if (osPrisms && osPrisms.prism1!=undefined && osPrisms.prism1!=null && osPrisms.prism1!=0.0)
     return true;
-  if (glassesRx.os && glassesRx.os.prism2!=undefined && glassesRx.os.prism2!=null && glassesRx.os.prism2!=0.0)
+  if (osPrisms && osPrisms.prism2!=undefined && osPrisms.prism2!=null && osPrisms.prism2!=0.0)
       return true;
   return false;
 }
@@ -166,15 +168,17 @@ export class DegreeField extends Component {
 
  export function formatPrism(eyeRx: GlassRx) : string {
   if (eyeRx === undefined) return '';
+  let parsedPrism : Prism = splitPrism(eyeRx.prism);
+  if(parsedPrism === undefined) return '';
+
   let prism : string = '';
-  if (eyeRx.prism1!==undefined && eyeRx.prism1!==0) {
-    prism += eyeRx.prism1 + ' ';
-    prism += formatCode('prism1b', eyeRx.prism1b);
+  if (parsedPrism.prism1!==undefined && parsedPrism.prism1!==null && parsedPrism.prism1!==0) {
+    prism += parsedPrism.prism1 + '';
+    prism += formatCode('prism1b', parsedPrism.prism1b);
   }
-  if (eyeRx.prism2!==undefined && eyeRx.prism2!==0) {
-    prism += isEmpty(prism)? '' : ' ';
-    prism += eyeRx.prism2 + ' ';
-    prism += formatCode('prism2b', eyeRx.prism2b);
+  if (parsedPrism.prism2!==undefined && parsedPrism.prism2!==null && parsedPrism.prism2!==0) {
+    prism += ' '+ parsedPrism.prism2 + '';
+    prism += formatCode('prism2b', parsedPrism.prism2b);
   }
   if (prism!='') prism = '\u25b3'+prism;
   return prism;
@@ -214,15 +218,16 @@ export class GeneralPrismInput extends Component {
   splitValue(value: ?string) : string[] {
     let splittedValue : ?string[] =  [undefined,undefined,undefined,undefined,undefined,undefined];
     if (value===undefined || value===null) return splittedValue;
-    let glassRx = parsePrism(value);
-    splittedValue[0] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:parseInt(glassRx.prism1).toString();
-    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:Number(glassRx.prism1).toFixed(2);
-    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
-    splittedValue[2] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:formatCode('prism1b', isNaN(glassRx.prism1b) ?0 : glassRx.prism1b);
-    splittedValue[3] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:parseInt(glassRx.prism2).toString();
-    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:Number(glassRx.prism2).toFixed(2);
-    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
-    splittedValue[5] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:formatCode('prism2b', isNaN(glassRx.prism2b) ? 0 : glassRx.prism2b);
+    let prism: Prism = splitPrism(value);
+    if (prism===undefined || prism===null) return splittedValue;
+    splittedValue[0] = isNaN(prism.prism1)||prism.prism1==0?undefined:parseInt(prism.prism1).toString();
+    splittedValue[1] = isNaN(prism.prism1)||prism.prism1==0?undefined:Number(prism.prism1).toFixed(2);
+    splittedValue[1] = isNaN(prism.prism1)||prism.prism1==0?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
+    splittedValue[2] = isNaN(prism.prism1)||prism.prism1==0?undefined:formatCode('prism1b', isNaN(prism.prism1b) ?0 : prism.prism1b);
+    splittedValue[3] = isNaN(prism.prism2)||prism.prism2==0?undefined:parseInt(prism.prism2).toString();
+    splittedValue[4] = isNaN(prism.prism2)||prism.prism2==0?undefined:Number(prism.prism2).toFixed(2);
+    splittedValue[4] = isNaN(prism.prism2)||prism.prism2==0?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
+    splittedValue[5] = isNaN(prism.prism2)||prism.prism2==0?undefined:formatCode('prism2b', isNaN(prism.prism2b) ? 0 : prism.prism2b);
     return splittedValue;
   }
 
@@ -246,7 +251,7 @@ export class GeneralPrismInput extends Component {
       prism2 += Number(editedValue[4]);
     }
     let prism2b : ?number = prism2===undefined?undefined:editedValue[5] === undefined ? 0 : parseCode('prism2b',  editedValue[5]);
-    let prism = prism1 + dashSeparator + prism1b + dashSeparator + prism2 + dashSeparator + prism2b;
+    let prism : ?string = prism1 + spaceSeparator + prism1b + spaceSeparator + prism2 + spaceSeparator + prism2b;
     this.props.onChangeValue(prism);
   }
 
@@ -290,17 +295,17 @@ export class PrismInput extends Component {
     this.splittedValue = this.splitValue(this.props.value);
   }
 
-  splitValue(glassRx: ?GlassRx) : string[] {
+  splitValue(prism: ?Prism) : string[] {
     let splittedValue : ?string[] =  [undefined,undefined,undefined,undefined,undefined,undefined];
-    if (glassRx===undefined || glassRx===null) return splittedValue;
-    splittedValue[0] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:parseInt(glassRx.prism1).toString();
-    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:Number(glassRx.prism1).toFixed(2);
-    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
-    splittedValue[2] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:formatCode('prism1b', glassRx.prism1b);
-    splittedValue[3] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:parseInt(glassRx.prism2).toString();
-    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:Number(glassRx.prism2).toFixed(2);
-    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
-    splittedValue[5] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:formatCode('prism2b', glassRx.prism2b);
+    if (prism===undefined || prism===null) return splittedValue;
+    splittedValue[0] = isNaN(prism.prism1)||prism.prism1==0?undefined:parseInt(prism.prism1).toString();
+    splittedValue[1] = isNaN(prism.prism1)||prism.prism1==0?undefined:Number(prism.prism1).toFixed(2);
+    splittedValue[1] = isNaN(prism.prism1)||prism.prism1==0?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
+    splittedValue[2] = isNaN(prism.prism1)||prism.prism1==0?undefined:formatCode('prism1b', prism.prism1b);
+    splittedValue[3] = isNaN(prism.prism2)||prism.prism2==0?undefined:parseInt(prism.prism2).toString();
+    splittedValue[4] = isNaN(prism.prism2)||prism.prism2==0?undefined:Number(prism.prism2).toFixed(2);
+    splittedValue[4] = isNaN(prism.prism2)||prism.prism2==0?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
+    splittedValue[5] = isNaN(prism.prism2)||prism.prism2==0?undefined:formatCode('prism2b', prism.prism2b);
     return splittedValue;
   }
 
@@ -472,27 +477,11 @@ export class GlassesDetail extends Component {
       this.props.onChangeGlassesRx(glassesRx);
   }
 
-  updatePrism(oculus: string, prism: Prism) : void {
-    if (!this.props.editable) return;
-    let glassesRx: GlassesRx = this.props.glassesRx;
-    glassesRx[oculus].prism1 = prism.prism1;
-    glassesRx[oculus].prism1b = prism.prism1b;
-    glassesRx[oculus].prism2 = prism.prism2;
-    glassesRx[oculus].prism2b = prism.prism2b;
-    if (this.props.onChangeGlassesRx)
-      this.props.onChangeGlassesRx(glassesRx);
-  }
 
-    updateFinalPrism(oculus: string, prism: String) : void {
+  updatePrism(oculus: string, prism: String) : void {
     if (!this.props.editable) return;
     let glassesRx: GlassesRx = this.props.glassesRx;
-    console.log
-    glassesRx[oculus].finalPrism = prism;
-    let formattedPrism : Prism = parsePrism(prism);
-    glassesRx[oculus].prism1 = formattedPrism.prism1;
-    glassesRx[oculus].prism1b = formattedPrism.prism1b;
-    glassesRx[oculus].prism2 = formattedPrism.prism2;
-    glassesRx[oculus].prism2b = formattedPrism.prism2b;
+    glassesRx[oculus].prism = prism;
     if (this.props.onChangeGlassesRx)
       this.props.onChangeGlassesRx(glassesRx);
   }
@@ -511,16 +500,16 @@ export class GlassesDetail extends Component {
         glassesRx.os.add = undefined;
         glassesUpdated = true;
     } else if (propertyName==='prism' && this.state.prism) {
+        glassesRx.od.prism = undefined;
+        glassesRx.os.prism = undefined;
         glassesRx.od.prism1 = undefined;
         glassesRx.od.prism1b = undefined;
         glassesRx.od.prism2 = undefined;
         glassesRx.od.prism2b = undefined;
-        glassesRx.od.finalPrism = undefined;
         glassesRx.os.prism1 = undefined;
         glassesRx.os.prism1b = undefined;
         glassesRx.os.prism2 = undefined;
         glassesRx.os.prism2b = undefined;
-        glassesRx.os.finalPrism = undefined;
         glassesUpdated = true;
     }
     this.setState({[propertyName]: !this.state[propertyName]});
@@ -637,8 +626,8 @@ export class GlassesDetail extends Component {
               onChangeValue={(value: ?number) => this.updateGlassesRx('od','cyl', value)} errorMessage={this.props.glassesRx.od.cylError} isTyping={this.state.isTyping}/>
             <FormInput value={this.props.glassesRx.od.axis} definition={getFieldDefinition('visit.prescription.od.axis')} showLabel={false} readonly={!this.props.editable}
               onChangeValue={(value: ?number) => this.updateGlassesRx('od','axis', value)} errorMessage={this.props.glassesRx.od.axisError} isTyping={this.state.isTyping}/>
-            {this.state.prism && <View style={styles.formElement2}><GeneralPrismInput value={this.props.glassesRx.od.finalPrism} visible={this.state.prism} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?String) => this.updateFinalPrism('od', value)}/></View>}
+            {this.state.prism && <View style={styles.formElement2}><GeneralPrismInput value={this.props.glassesRx.od.prism} visible={this.state.prism} showLabel={false} readonly={!this.props.editable}
+              onChangeValue={(value: ?String) => this.updatePrism('od', value)}/></View>}
             {this.props.hasVA===true && <FormInput value={this.props.glassesRx.od.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD')} label={formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA'))} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('od','va', value)} errorMessage={this.props.glassesRx.od.vaError}/>}
             {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.od.add} definition={getFieldDefinition('visit.prescription.od.add')} showLabel={false} readonly={!this.props.editable}
@@ -656,8 +645,8 @@ export class GlassesDetail extends Component {
               onChangeValue={(value: ?number) => this.updateGlassesRx('os','cyl', value)} errorMessage={this.props.glassesRx.os.cylError} isTyping={this.state.isTyping}/>
             <FormInput value={this.props.glassesRx.os.axis} definition={getFieldDefinition('visit.prescription.os.axis')} showLabel={false} readonly={!this.props.editable}
               onChangeValue={(value: ?number) => this.updateGlassesRx('os','axis', value)} errorMessage={this.props.glassesRx.os.axisError} isTyping={this.state.isTyping}/>
-            {this.state.prism && <View style={styles.formElement2}><GeneralPrismInput value={this.props.glassesRx.os.finalPrism} visible={this.state.prism} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?Prism) => this.updateFinalPrism('os', value)}/></View>}
+            {this.state.prism && <View style={styles.formElement2}><GeneralPrismInput value={this.props.glassesRx.os.prism} visible={this.state.prism} showLabel={false} readonly={!this.props.editable}
+              onChangeValue={(value: ?Prism) => this.updatePrism('os', value)}/></View>}
             {this.props.hasVA===true && <FormInput value={this.props.glassesRx.os.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS')} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('os','va', value)} errorMessage={this.props.glassesRx.os.vaError}/>}
             {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.os.add} definition={getFieldDefinition('visit.prescription.os.add')} showLabel={false} readonly={!this.props.editable}
@@ -698,175 +687,6 @@ export class GlassesDetail extends Component {
           {this.props.editable && this.props.onPaste && <TouchableOpacity onPress={() => this.props.onPaste(this.props.glassesRx)}><Copy style={styles.groupIcon}/></TouchableOpacity>}
           {this.props.editable && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
         </View>
-    </View>
-  }
-}
-
-export class ContactsSummary extends Component {
-  props: {
-    hidden?: boolean
-  }
-  render() {
-    if (this.props.hidden)
-      return null;
-    return <View style={styles.centeredColumnLayout}>
-      <Text style={styles.text}>   PWR   BC  DIA  CYL   AXIS ADD</Text>
-      <Text style={styles.text}>OD -2.75 8.7 14.0 -2.25 160  +1.75</Text>
-      <Text style={styles.text}>OS -2.75 8.7 14.0 -2.25 160  +1.75</Text>
-    </View>
-  }
-}
-
-export class ContactsDetail extends PureComponent {
-  props: {
-    glassesRx: GlassesRx,
-    title: string,
-    editable?: boolean,
-    onCopy?: (glassesRx: GlassesRx) => void,
-    hasVA?: boolean,
-    titleStyle?: string,
-    style?: string,
-    onChangeGlassesRx?: (glassesRx: GlassesRx) => void
-  }
-  state: {
-    prism:boolean
-  }
-  static defaultProps = {
-    editable: true,
-    titleStyle: styles.sectionTitle
-  }
-
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      prism: isPrism(this.props.glassesRx)
-    }
-  }
-
-  componentDidUpdate(prevProps: any) {
-    if (prevProps.glassesRx === this.props.glassesRx) return;
-    this.setState({
-      prism: isPrism(this.props.glassesRx)
-    });
-  }
-
-
-  updateGlassesRx(oculus: string, propertyName: string, value: ?number | string) : void {
-    if (!this.props.editable) return;
-    let glassesRx: GlassesRx = this.props.glassesRx;
-    glassesRx[oculus][propertyName] = value;
-    if (this.props.onChangeGlassesRx)
-      this.props.onChangeGlassesRx(glassesRx);
-  }
-
-  updatePrism(oculus: string, prism: Prism) : void {
-    if (!this.props.editable) return;
-    let glassesRx: GlassesRx = this.props.glassesRx;
-    glassesRx[oculus].prism1 = prism.prism1;
-    glassesRx[oculus].prism1b = prism.prism1b;
-    glassesRx[oculus].prism2 = prism.prism2;
-    glassesRx[oculus].prism2b = prism.prism2b;
-    if (this.props.onChangeGlassesRx)
-      this.props.onChangeGlassesRx(glassesRx);
-  }
-
-  toggle(propertyName: string) : void {
-    let glassesUpdated: boolean = false;
-    let glassesRx : GlassesRx = this.props.glassesRx;
-    if (propertyName==='astigmatism' && this.state.astigmatism) {
-        glassesRx.od.cyl = undefined;
-        glassesRx.od.axis = undefined;
-        glassesRx.os.cyl = undefined;
-        glassesRx.os.axis = undefined;
-        glassesUpdated = true;
-    } else if (propertyName==='multiFocal' && this.state.multiFocal) {
-        glassesRx.od.add = undefined;
-        glassesRx.os.add = undefined;
-        glassesUpdated = true;
-    } else if (propertyName==='prism' && this.state.prism) {
-        glassesRx.od.prism1 = undefined;
-        glassesRx.od.prism1b = undefined;
-        glassesRx.od.prism2 = undefined;
-        glassesRx.od.prism2b = undefined;
-        glassesRx.os.prism1 = undefined;
-        glassesRx.os.prism1b = undefined;
-        glassesRx.os.prism2 = undefined;
-        glassesRx.os.prism2b = undefined;
-        glassesUpdated = true;
-    }
-    this.setState({[propertyName]: !this.state[propertyName]});
-    if (glassesUpdated && this.props.onChangeGlassesRx) {
-        this.props.onChangeGlassesRx(glassesRx);
-    }
-  }
-
-//  copyOsOd() : void
-//    let glassesRx: GlassesRx = this.props.glassesRx;
-//    glassesRx.os = {...glassesRx.od};
-//    if (this.props.onChangeGlassesRx)
-//      this.props.onChangeGlassesRx(glassesRx);
-//  }
-
-  transferFocus = (fieldRef: string) => {
-    this.refs[fieldRef].startEditing();
-  }
-
-  render() {
-    if (!this.props.glassesRx)
-      return null;
-    return <View style={this.props.style?this.props.style:(this.state.prism&&this.props.hasVA)?styles.boardXL:(this.state.prism||this.props.hasVA)?styles.boardL:styles.boardM}>
-      <Text style={this.props.titleStyle}>{this.props.title}</Text>
-      <View style={styles.centeredColumnLayout}>
-          <View style={styles.formRow}>
-            <Text style={styles.formTableRowHeader}></Text>
-            <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.sph'))}</Text>
-            <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.cyl'))}</Text>
-            <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.axis'))}</Text>
-            {this.state.prism && <Text style={styles.formTableColumnHeaderWide}>{formatLabel(getFieldDefinition('visit.prescription.od.prism1'))}</Text>}
-            {this.props.hasVA && <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA'))}</Text>}
-            <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('visit.prescription.od.add'))}</Text>
-            {this.props.hasVA && <Text style={styles.formTableColumnHeader}>{formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA'))}</Text>}
-          </View>
-          <View style={styles.formRow}>
-            <Text style={styles.formTableRowHeader}>{formatLabel(getFieldDefinition('visit.prescription.od'))}:</Text>
-            <FormInput value={this.props.glassesRx.od.sph} definition={getFieldDefinition('visit.prescription.od.sph')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('od','sph', value)}  ref='od.sph'/>
-            <FormInput value={this.props.glassesRx.od.cyl} definition={getFieldDefinition('visit.prescription.od.cyl')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('od','cyl', value)} ref='od.cyl'/>
-            <FormInput value={this.props.glassesRx.od.axis} definition={getFieldDefinition('visit.prescription.od.axis')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('od','axis', value)} ref='od.axis'/>
-            {this.state.prism && <View style={styles.formElement2}><PrismInput value={this.props.glassesRx.od} visible={this.state.prism} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?Prism) => this.updatePrism('od', value)}/></View>}
-            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.od.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD')} label={formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA'))} showLabel={false} readonly={!this.props.editable}
-                  onChangeValue={(value: ?number) => this.updateGlassesRx('od','va', value)}/>}
-            <FormInput value={this.props.glassesRx.od.add} definition={getFieldDefinition('visit.prescription.od.add')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('od','add', value)}/>
-            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.od.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD')} label={formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA'))} showLabel={false} readonly={!this.props.editable}
-                onChangeValue={(value: ?number) => this.updateGlassesRx('od','addVa', value)}/>}
-          </View>
-          <View style={styles.formRow}>
-            <Text style={styles.formTableRowHeader}>{formatLabel(getFieldDefinition('visit.prescription.os'))}:</Text>
-            <FormInput value={this.props.glassesRx.os.sph} definition={getFieldDefinition('visit.prescription.os.sph')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('os','sph', value)}  />
-            <FormInput value={this.props.glassesRx.os.cyl} definition={getFieldDefinition('visit.prescription.os.cyl')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('os','cyl', value)}/>
-            <FormInput value={this.props.glassesRx.os.axis} definition={getFieldDefinition('visit.prescription.os.axis')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('os','axis', value)}/>
-            {this.state.prism && <View style={styles.formElement2}><PrismInput value={this.props.glassesRx.os} visible={this.state.prism} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?Prism) => this.updatePrism('os', value)}/></View>}
-            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.os.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS')} showLabel={false} readonly={!this.props.editable}
-                  onChangeValue={(value: ?number) => this.updateGlassesRx('os','va', value)}/>}
-            <FormInput value={this.props.glassesRx.os.add} definition={getFieldDefinition('visit.prescription.os.add')} showLabel={false} readonly={!this.props.editable}
-              onChangeValue={(value: ?number) => this.updateGlassesRx('os','add', value)}/>
-            {this.props.hasVA===true && <FormInput value={this.props.glassesRx.os.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS')} showLabel={false} readonly={!this.props.editable}
-                onChangeValue={(value: ?number) => this.updateGlassesRx('os','addVa', value)}/>}
-          </View>
-        {this.props.editable && <View style={styles.buttonsRowLayout}>
-          <Button title={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} onPress={() => this.toggle('prism')}/>
-          {false && <Button title={formatLabel(getFieldDefinition('visit.prescription.os'))+'='+formatLabel(getFieldDefinition('visit.prescription.od'))} onPress={() => this.copyOsOd()}/>}
-          {this.props.onCopy && <Button title={strings.copyToFinal} onPress={() => this.props.onCopy(this.props.glassesRx)}/>}
-        </View>}
-      </View>
     </View>
   }
 }

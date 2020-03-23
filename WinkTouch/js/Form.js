@@ -851,7 +851,7 @@ export class FormInput extends Component {
             />)}
         </ImageField>
     } else if(type && type === 'prism') {
-        return <GeneralPrismInput value={this.props.value} visible={true} showLabel={true} readonly={false} style={style}
+        return <GeneralPrismInput value={this.props.value}  showLabel={this.props.showLabel} readonly={readonly} style={style}
                 onChangeValue={this.props.onChangeValue}/>
     } 
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}

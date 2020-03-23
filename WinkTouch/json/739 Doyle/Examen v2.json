@@ -233,8 +233,8 @@
                   }
                 },
                 {
-                  "name": "OD FinalPrism",
-                  "mappedField": "exam.RxToOrder.Final Rx.od.finalPrism",
+                  "name": "OD Prism",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.prism",
                   "type": "prism",
                   "layout": {
                       "position": "absolute",
@@ -307,8 +307,8 @@
                   }
                 },
                 {
-                  "name": "OS FinalPrism",
-                  "mappedField": "exam.RxToOrder.Final Rx.os.finalPrism",
+                  "name": "OS Prism",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.prism",
                   "type": "prism",
                   "layout": {
                       "position": "absolute",
