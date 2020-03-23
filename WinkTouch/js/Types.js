@@ -135,10 +135,7 @@ export type GlassRx = {
     sph?: string,
     cyl?: number,
     axis?: number,
-    prism1?: number,
-    prism1b?: number,
-    prism2?: number,
-    prism2b?: number,
+    prism?: string,
     add?: number,
     va?: string,
     addVA?: string
