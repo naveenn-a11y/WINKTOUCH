@@ -199,7 +199,7 @@ export class GeneralPrismInput extends Component {
   static smallNumbers : string[] = ['.00','.25','.50','.75'];
   inOut : string[] = formatAllCodes('prism1b');
   upDown: string[] = formatAllCodes('prism2b');
-  options : string[][] = [PrismInput.bigNumbers, PrismInput.smallNumbers, this.inOut, PrismInput.bigNumbers, PrismInput.smallNumbers, this.upDown];
+  options : string[][] = [GeneralPrismInput.bigNumbers, GeneralPrismInput.smallNumbers, this.inOut, GeneralPrismInput.bigNumbers, GeneralPrismInput.smallNumbers, this.upDown];
   splittedValue: string[];
 
   constructor(props: any) {
