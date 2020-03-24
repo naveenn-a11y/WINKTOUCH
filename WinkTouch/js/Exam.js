@@ -340,9 +340,7 @@ export class ExamHistoryScreen extends Component {
     } else if (groupDefinition.type==='SRx') {
       let exam : Exam = this.props.navigation.state.params.exam;
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition} examId={exam.id}/>
-    } else if (groupDefinition.type==='CRx') {
-      return <ContactsDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
-    }
+    } 
     return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} />
   }
 
