@@ -1047,14 +1047,52 @@ export class GroupedFormScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
+
+  clearSubGroupDefinition(groupDefinition: GroupDefinition|FieldDefinition, groupName: string) : void {
+
+      if(groupDefinition.fields === undefined) {
+        if(groupDefinition.name && !groupDefinition.readonly) {
+           this.clearSubValue(groupDefinition.name);
+        }
+      }
+
+
+      if(groupDefinition.fields) {
+      groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
+      this.clearSubGroupDefinition(fieldDefinition, groupName);
+      });
+      }
+
+    }
+
+  clearSubValue(name: string) : void {
+
+    this.props.exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
+      if (this.props.exam[this.props.exam.definition.name][groupDefinition.name]!==undefined) {
+          groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
+            if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
+                //Remove Readonly elements From Form
+                this.props.exam[this.props.exam.definition.name][groupDefinition.name][fieldDefinition.name]["Form"][name] = undefined; 
+                this.props.exam[this.props.exam.definition.name][groupDefinition.name][fieldDefinition.name]["lines"] = undefined; 
+            }
+          });
+      }
+    });
+  }
+
   clear(groupName: string, index?: number) : void {
+
     if (index!==undefined) {
       this.props.exam[this.props.exam.definition.name][groupName].splice(index, 1);
       if (this.props.exam[this.props.exam.definition.name][groupName].length===0)
-        this.props.exam[this.props.exam.definition.name][groupName]=undefined;
+          this.props.exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
+           this.clearSubGroupDefinition(groupDefinition, groupName);
+            });
     } else {
-      this.props.exam[this.props.exam.definition.name][groupName] = undefined;
-    }
+        this.props.exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
+        this.clearSubGroupDefinition(groupDefinition, groupName);
+        });    
+      }
     this.initialiseExam(this.props.exam, this.props.editable);
     this.props.onUpdateExam(this.props.exam);
   }
