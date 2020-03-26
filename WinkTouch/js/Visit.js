@@ -373,6 +373,10 @@ class VisitWorkFlow extends Component {
         if (!visit || !visit.id) return;
         let exam: Exam = {id: 'customExam', visitId: visit.id, customExamDefinitionId: examDefinitionId, examPredefinedValueId: examPredefinedValueId};
         exam = await createExam(exam);
+        if (exam.errors) {
+          alert(exam.errors);
+          return;
+        }
         if (!visit.preCustomExamIds) visit.preCustomExamIds = [];
         if (!visit.customExamIds) visit.customExamIds = [];
         if (exam.definition.isPreExam) {
@@ -812,7 +816,7 @@ export class VisitHistory extends Component {
       if (compareDates(date, tomorrow())>=0) {
         alert(strings.futureVisitDateError);
         return;
-      }      
+      }
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 
