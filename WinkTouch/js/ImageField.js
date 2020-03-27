@@ -398,9 +398,9 @@ export class ImageField extends Component {
       argument1: this.props.patientId,
       argument2: this.props.examId
     };
-    upload = await storeUpload(upload);
+    upload = await storeUpload(upload);    
     if (upload.id==='upload' || upload.id===undefined || upload.errors) {
-      alert('Saving the '+this.props.fileName+' in the pms failed.'); //TODO: localise
+      alert(strings.formatString(strings.pmsImageSaveError, this.props.fileName));
       return;
     }
 
@@ -412,7 +412,10 @@ export class ImageField extends Component {
       category: this.props.type,
       uploadId: upload.id
     };
-    await storePatientDocument(patientDocument);
+    patientDocument = await storePatientDocument(patientDocument);
+    if (patientDocument.errors) {
+      alert(strings.pmsImageSaveError);
+    }
     __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
   }
 

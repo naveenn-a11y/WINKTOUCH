@@ -164,7 +164,8 @@ export const strings = new LocalizedStrings({
       drSignature: 'Dr Signature',
       signedDate: 'Signed Date',
       futureVisitDateError: 'You can\'t add a consultation in the future',
-      pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.'      
+      saveImageError: 'Something went wrong saving your {0} image in the database. Please try again.',
+      pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
@@ -321,6 +322,7 @@ export const strings = new LocalizedStrings({
       drSignature: 'Signature Dr',
       signedDate: 'Signé le',
       futureVisitDateError: 'Vous ne pouvez pas ajouter une consultation dans le futur.',
+      saveImageError: 'Une erreur s\'est produite en sauvegardant l\'image {0} dans la base de données. Veuillez essayer de nouveau.',
       pmsImageSaveError: 'Une erreur s\'est produite en sauvegardant l\'image dans le PMS'
     }
 });
