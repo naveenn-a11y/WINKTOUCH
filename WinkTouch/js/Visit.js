@@ -376,6 +376,10 @@ class VisitWorkFlow extends Component {
         if (!visit || !visit.id) return;
         let exam: Exam = {id: 'customExam', visitId: visit.id, customExamDefinitionId: examDefinitionId, examPredefinedValueId: examPredefinedValueId};
         exam = await createExam(exam);
+        if (exam.errors) {
+          alert(exam.errors);
+          return;
+        }
         if (!visit.preCustomExamIds) visit.preCustomExamIds = [];
         if (!visit.customExamIds) visit.customExamIds = [];
         if (exam.definition.isPreExam) {
@@ -609,14 +613,12 @@ export class VisitHistoryCard extends Component {
     return <View style={styles.tabCard}>
       <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
       {this.state.summaries.map((visitSummary: Exam, index: number) =>
-        <View style={styles.paragraphBorder} key={index}>
-          <View style={styles.flexRow}>
+          <View style={styles.rowLayout}>
             <Text style={styles.text}>{formatDate(getCachedItem(visitSummary.visitId).date, isToyear(getCachedItem(visitSummary.visitId).date)?dateFormat:farDateFormat)}: </Text>
             <View style={styles.cardColumn}>
               <Text style={styles.text}>{visitSummary.resume}</Text>
             </View>
           </View>
-        </View>
       )}
     </View>
   }
@@ -818,7 +820,7 @@ export class VisitHistory extends Component {
       if (compareDates(date, tomorrow())>=0) {
         alert(strings.futureVisitDateError);
         return;
-      }      
+      }
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 

@@ -86,7 +86,7 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
       }
     });
     await RNFS.writeFile(fullFilename, restResponse['data'], 'base64');
-    __DEV__ && console.log('Wrote file '+fullFilename);
+    __DEV__ && console.log('Created local file '+fullFilename);
     return fullFilename;
   } catch (error) {
     console.log(error);

@@ -44,7 +44,7 @@ export class LoginScreen extends Component {
   props: {
     registration: Registration,
     onReset: () => void,
-    onLogin: (user: User, store: Store, token: string) => void,
+    onLogin: (account: Account, user: User, store: Store, token: string) => void,
   }
   state: {
     accounts: Account[],
@@ -218,7 +218,7 @@ export class LoginScreen extends Component {
         }
         let token : string = httpResponse.headers.map.token;
         let user : User = (await httpResponse.json()).user;
-        this.props.onLogin(user, store, token);
+        this.props.onLogin(account, user, store, token);
     } catch (error) {
         alert(strings.loginFailed+ ': '+error);
     }

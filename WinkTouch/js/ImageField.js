@@ -251,11 +251,11 @@ export class ImageField extends Component {
     this.setState({cameraOn: false});
   }
 
-  savedCameraImage = (uploadId: string) => {
+  async savedCameraImage(uploadId: string) {
     const upload : ?Upload = (uploadId!=undefined)?getCachedItem(uploadId):undefined;
     this.setState({cameraOn: false, upload});
     if (this.props.type) {
-      const patientDocument :PatientDocument = {
+      let patientDocument :PatientDocument = {
         id: 'patientDocument',
         patientId: this.props.patientId,
         postedOn: formatDate(now(), jsonDateFormat),
@@ -263,7 +263,10 @@ export class ImageField extends Component {
         category: this.props.type,
         uploadId
       };
-      storePatientDocument(patientDocument);
+      patientDocument = await storePatientDocument(patientDocument);
+      if (patientDocument.errors) {
+        alert(strings.pmsImageSaveError);
+      }
     }
     this.props.onChangeValue({image: uploadId});
   }
@@ -395,9 +398,9 @@ export class ImageField extends Component {
       argument1: this.props.patientId,
       argument2: this.props.examId
     };
-    upload = await storeUpload(upload);
+    upload = await storeUpload(upload);    
     if (upload.id==='upload' || upload.id===undefined || upload.errors) {
-      alert('Saving the '+this.props.fileName+' in the pms failed.'); //TODO: localise
+      alert(strings.formatString(strings.pmsImageSaveError, this.props.fileName));
       return;
     }
 
@@ -409,7 +412,10 @@ export class ImageField extends Component {
       category: this.props.type,
       uploadId: upload.id
     };
-    await storePatientDocument(patientDocument);
+    patientDocument = await storePatientDocument(patientDocument);
+    if (patientDocument.errors) {
+      alert(strings.pmsImageSaveError);
+    }
     __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
   }
 
@@ -433,7 +439,10 @@ export class ImageField extends Component {
     //__DEV__ && console.log('Pen up');
     if ((this.props.popup===false || this.props.image==='upload') && this.tap()==2 && this.state.lines.length>2 && (this.state.lines[this.state.lines.length-1].length<40 && this.state.lines[this.state.lines.length-2].length<40)) {
       this.state.lines.splice(this.state.lines.length-2, 2);
-      this.setState({lines:this.state.lines, penDown:false});
+      this.setState({lines:this.state.lines, penDown:false}, () => {
+        if (this.props.sync) this.scheduleScreenShot();
+        this.commitEdit();
+      });
       this.toggleEdit();
       return;
     }
@@ -579,7 +588,8 @@ export class ImageField extends Component {
         height: height
       });
     const docsDir = await PDFLib.getDocumentsDirectory();
-    const pdfPath = `${docsDir}/print.pdf`;
+    const fileName = 'print'+(this.props.fileName?this.props.fileName:'')+'.pdf';
+    const pdfPath = `${docsDir}/${fileName}`;
     let path = await PDFDocument.create(pdfPath).addPages(page1).write();
     //__DEV__ && console.log('PDF = '+path);
     return path;
@@ -781,7 +791,7 @@ export class ImageField extends Component {
                 </ViewShot>}
                 {this.renderIcons()}
                 {this.state.cameraOn && <Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value&&this.props.value.image?this.props.value.image:undefined} size={this.props.size}
-                    fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
+                    fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={(uploadId: string) => this.savedCameraImage(uploadId)} patientId={this.props.patientId} examId={this.props.examId}/>
                   </Modal>}
                 {this.state.attachOn && <Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>}
             </View>
@@ -799,7 +809,7 @@ export class ImageField extends Component {
             {this.renderPopup()}
           </Modal>}
         {this.state.cameraOn && <Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value&&this.props.value.image?this.props.value.image:undefined} size={this.props.size}
-            fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={this.savedCameraImage} patientId={this.props.patientId} examId={this.props.examId}/>
+            fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={(uploadId: string) => this.savedCameraImage(uploadId)} patientId={this.props.patientId} examId={this.props.examId}/>
           </Modal>}
         {this.state.attachOn && <Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>}
       </View>

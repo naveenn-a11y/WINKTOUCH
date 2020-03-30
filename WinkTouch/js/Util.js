@@ -446,3 +446,13 @@ export function replaceFileExtension(fileName : string, extension: string) : str
   fileName = fileName.substring(0, dotIndex+1)+extension;
   return fileName;
 }
+
+export function prefix(text: ?string, prefix: string) :string {
+  if (text===undefined || text===null || text.trim()==='') return '';
+  return prefix + text;
+}
+
+export function postfix(text: ?string, postfix: string) :string {
+  if (text===undefined || text===null || text.trim()==='') return '';
+  return '' + text + postfix;
+}

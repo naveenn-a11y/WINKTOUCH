@@ -14,7 +14,9 @@ import { FormTextInput, FormRow, FormInput } from './Form';
 import { deepClone, deepAssign, isEmpty, cleanUpArray } from './Util';
 import { formatAllCodes} from './Codes';
 import { getCachedItem } from './DataCache';
-import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
+import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard, ImportIcon, ExportIcon } from './Favorites';
+import { getConfiguration } from './Configuration';
+import { importData } from './MappedField';
 import { GlassesDetail, GlassesSummary, newRefraction } from './Refraction';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, setMappedFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
@@ -435,7 +437,6 @@ export class GroupedCard extends Component {
         rows.push(this.renderSubtitle(formatLabel(groupDefinition)));
         rows.push(<View key="w" style={{marginLeft: 30 * fontScale}}>{valueRows}</View>);
       } else {
-        rows.push(this.renderSubtitle(''));
         rows.push(valueRows);
       };
       return rows;
@@ -535,6 +536,7 @@ export class GroupedForm extends Component {
     editable?: boolean,
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
+    onUpdateForm? : (form: any) => void,
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
     onAdd?: () => void,
@@ -726,14 +728,140 @@ export class GroupedForm extends Component {
     return rows;
   }
 
+  parseUnaidedAcuities = (data) => {
+    const dva = {};
+    const nva = {};
+    const ph = {};
+
+    if (data instanceof Array) {
+      for(let i = 0; i < data.length; i++) {
+        const m = data[i];
+        const d = m.data;
+        if(d.label && (d.label === 'DW' || d.label === 'NW')) { // near
+          nva.OS = d.os.va;
+          nva.OD = d.od.va;
+          nva.OU = d.ou.va;
+        } else if(d.label && (d.label === 'Dw' || d.label === 'Nw')) { // far
+          dva.OS = d.os.va;
+          dva.OD = d.od.va;
+          dva.OU = d.ou.va;
+        }
+
+        if(d.os.vaph) {
+          ph.OS = d.os.vaph;
+        }
+        if(d.od.vaph) {
+          ph.OD = d.od.vaph;
+        }
+      }
+    }
+
+    const o = {
+      DVA: dva,
+      NVA: nva,
+      PH: ph
+    };
+
+    this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  parseAidedAcuities = (data) => {
+    const dva = {};
+    const nva = {};
+    const ph = {};
+
+    if (data instanceof Array) {
+      for(let i = 0; i < data.length; i++) {
+        const m = data[i];
+        const d = m.data;
+        if(d.label && (d.label === 'DLMNEAR' || d.label === 'NLMNEAR')) { // near
+          nva.OS = d.os.corrVa;
+          nva.OD = d.od.corrVa;
+          nva.OU = d.ou.corrVa;
+        } else if(d.label && (d.label === 'DLMFAR' || d.label === 'NLMFAR')) { // far
+          dva.OS = d.os.corrVa;
+          dva.OD = d.od.corrVa;
+          dva.OU = d.ou.corrVa;
+        }
+
+        if(d.os.corrVaPh) {
+          ph.OS = d.os.corrVaPh;
+        }
+        if(d.od.corrVaPh) {
+          ph.OD = d.od.corrVaPh;
+        }
+      }
+    }
+
+    const o = {
+      DVA: dva,
+      NVA: nva,
+      PH: ph
+    };
+
+    this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  parseIop = (data) => {
+    const os = {};
+    const od = {};
+
+    if (data instanceof Array) {
+      for(let i = 0; i < data.length; i++) {
+        const m = data[i];
+        const d = m.data;
+        os.Tension = d.os.iop;
+        os.Pachymetry = d.os.thickness;
+        od.Tension = d.od.iop;
+        od.Pachymetry = d.od.thickness;
+      }
+    } else {
+      const d = data.data;
+      os.Tension = d.os.iop;
+      os.Pachymetry = d.os.thickness;
+      od.Tension = d.od.iop;
+      od.Pachymetry = d.od.thickness;
+    }
+
+    const o = [{
+      OS: os,
+      OD: od
+    }];
+
+    this.props.onUpdateForm(this.props.definition.name, o)
+  }
+
+  async importData() {
+    if(!this.props.onUpdateForm) return
+
+    const data = await importData(this.props.definition.import, this.props.examId);
+
+    if (data===undefined || data===null) return;
+
+    if(this.props.definition.name === 'Unaided acuities') {
+      this.parseUnaidedAcuities(data);
+    } else if(this.props.definition.name === 'Aided acuities') {
+      this.parseAidedAcuities(data);
+    } else if(this.props.definition.name === 'IOP') {
+      this.parseIop(data);
+    }
+  }
+
+  async exportData() {
+    // TODO export data
+  }
+
   renderIcons() {
     if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
-    return <View style={styles.groupIcons} key='icons'>
+    return [<View style={styles.groupIcons} key='icons'>
       {this.props.onClear && <TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
       {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
       {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon}/>}
-    </View>
+    </View>,
+    <View style={styles.groupExtraIcons}>
+      {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
+    </View>]
   }
 
   render() {
@@ -896,6 +1024,15 @@ export class GroupedFormScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
+  updateGroup = (groupName: string, form: any, index?: number) => {
+    if (index!==undefined && index!==null) {
+      this.props.exam[this.props.exam.definition.name][groupName][index]=form;
+    } else {
+      this.props.exam[this.props.exam.definition.name][groupName]=form;
+    }
+    this.props.onUpdateExam(this.props.exam);
+  }
+
   copyToFinal = (glassesRx : GlassesRx) : void => {
     glassesRx = deepClone(glassesRx);
     this.props.exam[this.props.exam.definition.name]['Final Rx']=glassesRx;
@@ -992,6 +1129,7 @@ export class GroupedFormScreen extends Component {
             onAdd={() => this.addGroupItem(groupDefinition)}
             onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
             enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
+            onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue, subIndex)}
             patientId={this.patientId}
             examId={this.props.exam.id}
             fieldId={fieldId}
@@ -1017,6 +1155,7 @@ export class GroupedFormScreen extends Component {
         onClear={() => this.clear(groupDefinition.name)}
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
+        onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue)}
         patientId={this.patientId}
         examId={this.props.exam.id}
         editable={this.props.editable!==false && groupDefinition.readonly!==true}
