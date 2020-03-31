@@ -1,0 +1,381 @@
+{
+    "name": "Referral Form",
+    "isPreExam": true,
+    "scrollable": true,
+    "card": true,
+    "type": "groupedForm",
+    "section": "Form.2",
+    "cardGroup": "Referral Form",
+    "fields": [
+        {
+            "name": "Referral Form",
+            "label": "",
+            "size": "XL",
+            "fields": [
+                {
+                    "sync": true,
+                    "popup": false,
+                    "name": "Referral Form",
+                    "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/436/ReferralLetter.jpg",
+                    "drawable": true,
+                    "label": "",
+                    "resolution": "1700x2200",
+                    "type": "Patient Consent Form",
+                    "size": "XL",
+                    "fields": [
+                        {
+                            "layout": {
+                                "position": "absolute",
+                                "width": 1000,
+                                "justifyContent": "flex-start",
+                                "left": 0,
+                                "top": 0
+                            },
+                            "name": "Form",
+                            "label": "",
+                            "fields": [
+                                {
+                                    "mappedField": "store.name",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "justifyContent": "flex-end",
+                                        "left": 820,
+                                        "fontSize": 17,
+                                        "top": 10
+                                    },
+                                    "name": "Store name",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "store.address",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 400,
+                                        "justifyContent": "flex-end",
+                                        "left": 820,
+                                        "fontSize": 17,
+                                        "top": 35
+                                    },
+                                    "name": "Store address",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "store.city",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 400,
+                                        "justifyContent": "flex-end",
+                                        "left": 820,
+                                        "fontSize": 17,
+                                        "top": 60
+                                    },
+                                    "name": "Store city",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "store.contact",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 600,
+                                        "justifyContent": "flex-end",
+                                        "left": 64,
+                                        "fontSize": 17,
+                                        "top": 60
+                                    },
+                                    "name": "Store contact",
+                                    "readonly": true
+                                },
+                                {
+                                    "maxLength": 50,
+                                    "name": "Doctor Name",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "width": 343,
+                                        "justifyContent": "flex-start",
+                                        "left": 274,
+                                        "fontSize": 21,
+                                        "top": 449
+                                    },
+                                    "label": "",
+                                    "freestyle": true
+                                },
+                                {
+                                    "maxLength": 200,
+                                    "layout": {
+                                        "position": "absolute",
+                                        "height": 50,
+                                        "borderWidth": 0,
+                                        "width": 986,
+                                        "left": 63,
+                                        "fontSize": 18,
+                                        "top": 1264
+                                    },
+                                    "name": "Clinical History",
+                                    "label": "",
+                                    "freestyle": true
+                                },
+                                {
+                                    "mappedField": "visit.examDate",
+                                    "maxLength": 120,
+                                    "name": "Exam date",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 120,
+                                        "fontSize": 21,
+                                        "top": 177
+                                    },
+                                    "type": "pastDate",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "visit.doctor",
+                                    "maxLength": 100,
+                                    "name": "Doctor",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 330,
+                                        "left": 195,
+                                        "fontSize": 21,
+                                        "top": 200
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.firstName",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 330,
+                                        "left": 225,
+                                        "fontSize": 17,
+                                        "top": 270
+                                    },
+                                    "name": "Patient First Name",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.lastName",
+                                    "name": "Patient Last Name",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 330,
+                                        "left": 670,
+                                        "fontSize": 17,
+                                        "top": 270
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.medicalCard",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 330,
+                                        "left": 180,
+                                        "fontSize": 17,
+                                        "top": 293
+                                    },
+                                    "name": "Medical card",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.medicalCardExp",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 150,
+                                        "left": 423,
+                                        "fontSize": 17,
+                                        "top": 293
+                                    },
+                                    "name": "Medical card exp",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.dateOfBirth",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 730,
+                                        "fontSize": 17,
+                                        "top": 293
+                                    },
+                                    "name": "Date of birth",
+                                    "type": "pastDate",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.phone",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 130,
+                                        "fontSize": 17,
+                                        "top": 316
+                                    },
+                                    "name": "Phone",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.cell",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 448,
+                                        "fontSize": 17,
+                                        "top": 316
+                                    },
+                                    "name": "Cellular",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.email",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 660,
+                                        "fontSize": 17,
+                                        "top": 316
+                                    },
+                                    "name": "Email",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.address1",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 300,
+                                        "left": 130,
+                                        "fontSize": 17,
+                                        "top": 340
+                                    },
+                                    "name": "Address line 1",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.city",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 300,
+                                        "left": 438,
+                                        "fontSize": 17,
+                                        "top": 340
+                                    },
+                                    "name": "City",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.postalCode",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 150,
+                                        "left": 705,
+                                        "fontSize": 17,
+                                        "top": 340
+                                    },
+                                    "name": "PostalCode",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "exam.RxToOrder.Final Rx.od.refraction",
+                                    "name": "OD Refraction",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 300,
+                                        "left": 278,
+                                        "fontSize": 19,
+                                        "top": 1080
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "exam.RxToOrder.Final Rx.os.refraction",
+                                    "name": "OS Refraction",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 300,
+                                        "left": 620,
+                                        "fontSize": 19,
+                                        "top": 1080
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "exam.RxToOrder.Final Rx.od.va",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 278,
+                                        "fontSize": 19,
+                                        "top": 1045
+                                    },
+                                    "name": "OD Va",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "exam.RxToOrder.Final Rx.os.va",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 620,
+                                        "fontSize": 19,
+                                        "top": 1045
+                                    },
+                                    "name": "OS Va",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "exam.Tonometry.IOP.OD.Tension",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 278,
+                                        "fontSize": 19,
+                                        "top": 1120
+                                    },
+                                    "name": "OD Tension",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "exam.Tonometry.IOP.OS.Tension",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 620,
+                                        "fontSize": 19,
+                                        "top": 1120
+                                    },
+                                    "name": "OS Tension",
+                                    "readonly": true
+                                }
+                            ],
+                            "size": "M"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
