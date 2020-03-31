@@ -231,7 +231,7 @@ export class PatientDocumentPage extends Component {
     this.loadUpload(uploadId);
   }
 
-  compomentDidUpdate(prevProps: any) {
+  componentDidUpdate(prevProps: any) {
     if (prevProps.id===this.props.id) return;
     const patientDocument: PatientDocument = getCachedItem(this.props.id);
     const uploadId : ?string = patientDocument.uploadId;
