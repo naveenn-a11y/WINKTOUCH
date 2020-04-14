@@ -3,7 +3,6 @@
  */
 'use strict';
 import {NativeModules} from 'react-native';
-//import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import type { User,PatientInfo, Visit } from './Types';
 import RNFS from 'react-native-fs';
@@ -16,24 +15,19 @@ import { getDoctor, getStore } from './DoctorApp';
 import { fetchItemById } from './Rest';
 import { fetchUpload, getJpeg64Dimension, getPng64Dimension, getMimeType } from './Upload';
 import { winkRestUrl } from './WinkRest';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
-/**
-async function testPrintHtml() {
-  let html = {
-      html: '<h1>Prescription</h1><Table><TR><TD></TD><TD>Sph</TD><TD>Cyl</TD></TR><TR><TD>OD:</TD><TD>+1.25</TD></TR></Table>',
-      fileName: 'test',
-      base64: true,
-  };
 
-  try {
-    const results = await RNHTMLtoPDF.convert(html);
-    const jobName = await NativeModules.RNPrint.print(results.filePath);
-    console.log(`Printing ${jobName} completed!`);
-  } catch (err) {
-    console.error(err)
+
+export async function printPatientFile(visitHtml: string) {
+    const html = visitHtml;
+    let options = {
+      html,
+      fileName: 'Patient Exam File'
+    };
+    let file = await RNHTMLtoPDF.convert(options);
+  await NativeModules.RNPrint.print({filePath: file.filePath});
   }
-}
-*/
 
 export async function printRx(visitId: string) {
   try {
@@ -193,9 +187,7 @@ function addMedicalRxLines(visitId: string, page: PDFPage, pageHeight: number, b
           y-=fontSize*1.15;
         });
       }
-
       y-=fontSize;
-      //
   });
 }
 
@@ -251,7 +243,6 @@ async function addSignature(visitId: string, page: PDFPage, pageWidth: number, b
 
   x = pageWidth-170;
   page.drawText(strings.signedDate+':'+prefix(signedDate,' '), {x, y, fontSize});
-
 
 }
 
