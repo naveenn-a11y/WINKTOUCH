@@ -10,7 +10,7 @@ import { styles, fontScale } from './Styles';
 import { strings} from './Strings';
 import { NumberField, TilesField, Button, Label } from './Widgets';
 import { Anesthetics } from './EyeTest';
-import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat, splitPrism, spaceSeparator} from './Util';
+import { formatDegree, formatDiopter, deepClone, isEmpty, formatDate, dateFormat, farDateFormat, isToyear, now, jsonDateTimeFormat, parsePrism, dashSeparator} from './Util';
 import { FormInput } from './Form';
 import { getFieldDefinition, filterFieldDefinition, formatLabel } from './Items';
 import { getCodeDefinition, formatCode, formatAllCodes, parseCode, getAllCodes } from './Codes';
@@ -185,6 +185,85 @@ export class DegreeField extends Component {
 }
 
 export class GeneralPrismInput extends Component {
+  props: {
+    value: ?string,
+    label?: string,
+    labelWidth?: number,
+    showLabel?: boolean,
+    readonly?: boolean,
+    visible?: boolean,
+    onChangeValue: (newValue: ?string) => void,
+    containerStyle?: any
+  }
+  static defaultProps = {
+    visible: true
+  }
+  static bigNumbers : string[] = ['1','2','3','4','5','6','7','8','9'];
+  static smallNumbers : string[] = ['.00','.25','.50','.75'];
+  inOut : string[] = formatAllCodes('prism1b');
+  upDown: string[] = formatAllCodes('prism2b');
+  options : string[][] = [PrismInput.bigNumbers, PrismInput.smallNumbers, this.inOut, PrismInput.bigNumbers, PrismInput.smallNumbers, this.upDown];
+  splittedValue: string[];
+
+  constructor(props: any) {
+      super(props);
+      this.splittedValue = this.splitValue(this.props.value);
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.value===prevProps.value) return;
+    this.splittedValue = this.splitValue(this.props.value);
+  }
+
+  splitValue(value: ?string) : string[] {
+    let splittedValue : ?string[] =  [undefined,undefined,undefined,undefined,undefined,undefined];
+    if (value===undefined || value===null) return splittedValue;
+    let glassRx = parsePrism(value);
+    splittedValue[0] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:parseInt(glassRx.prism1).toString();
+    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:Number(glassRx.prism1).toFixed(2);
+    splittedValue[1] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:splittedValue[1].substr(splittedValue[1].indexOf('.'));
+    splittedValue[2] = isNaN(glassRx.prism1)||glassRx.prism1==0?undefined:formatCode('prism1b', isNaN(glassRx.prism1b) ?0 : glassRx.prism1b);
+    splittedValue[3] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:parseInt(glassRx.prism2).toString();
+    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:Number(glassRx.prism2).toFixed(2);
+    splittedValue[4] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:splittedValue[4].substr(splittedValue[4].indexOf('.'));
+    splittedValue[5] = isNaN(glassRx.prism2)||glassRx.prism2==0?undefined:formatCode('prism2b', isNaN(glassRx.prism2b) ? 0 : glassRx.prism2b);
+    return splittedValue;
+  }
+
+  changeValue = (editedValue: string[]) => {
+    console.log(editedValue);
+    let prism1 : ?number = undefined;
+    if (editedValue[0]!==undefined) {
+      prism1 = Number(editedValue[0]);
+    }
+    if (editedValue[1]!==undefined && editedValue[1]!=='.00') {
+      if (prism1===undefined) prism1 = 0;
+      prism1 += Number(editedValue[1]);
+    }
+    let prism1b : ?number = prism1===undefined?undefined:parseCode('prism1b', editedValue[2]);
+    let prism2 : ?number = undefined;
+    if (editedValue[3]!==undefined) {
+      prism2 = Number(editedValue[3]);
+    }
+    if (editedValue[4]!==undefined && editedValue[4]!=='.00') {
+      if (prism2===undefined) prism2 = 0;
+      prism2 += Number(editedValue[4]);
+    }
+    let prism2b : ?number = prism2===undefined?undefined:parseCode('prism2b', editedValue[5]);
+    let prism = prism1 + dashSeparator + prism1b + dashSeparator + prism2 + dashSeparator + prism2b;
+    this.props.onChangeValue(prism);
+  }
+
+  render() {
+    const style : ?any = this.props.style?this.props.style:(this.props.readonly)?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField;
+    if (!this.props.visible) return null;
+    return <TilesField style={style} label={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} options={this.options}
+      value={this.splittedValue} onChangeValue={this.changeValue} containerStyle={this.props.containerStyle} readonly={this.props.readonly}
+      prefix={[undefined,undefined,' ',undefined,undefined,' ']} suffix={[undefined,undefined,' ',undefined,undefined,undefined]} />
+  }
+}
+
+export class PrismInput extends Component {
   props: {
     value: ?string,
     label?: string,
@@ -404,6 +483,20 @@ export class GlassesDetail extends Component {
       this.props.onChangeGlassesRx(glassesRx);
   }
 
+    updateFinalPrism(oculus: string, prism: String) : void {
+    if (!this.props.editable) return;
+    let glassesRx: GlassesRx = this.props.glassesRx;
+    console.log
+    glassesRx[oculus].finalPrism = prism;
+    let formattedPrism : Prism = parsePrism(prism);
+    glassesRx[oculus].prism1 = formattedPrism.prism1;
+    glassesRx[oculus].prism1b = formattedPrism.prism1b;
+    glassesRx[oculus].prism2 = formattedPrism.prism2;
+    glassesRx[oculus].prism2b = formattedPrism.prism2b;
+    if (this.props.onChangeGlassesRx)
+      this.props.onChangeGlassesRx(glassesRx);
+  }
+
   toggle(propertyName: string) : void {
     let glassesUpdated: boolean = false;
     let glassesRx : GlassesRx = this.props.glassesRx;
@@ -424,10 +517,12 @@ export class GlassesDetail extends Component {
         glassesRx.od.prism1b = undefined;
         glassesRx.od.prism2 = undefined;
         glassesRx.od.prism2b = undefined;
+        glassesRx.od.finalPrism = undefined;
         glassesRx.os.prism1 = undefined;
         glassesRx.os.prism1b = undefined;
         glassesRx.os.prism2 = undefined;
         glassesRx.os.prism2b = undefined;
+        glassesRx.os.finalPrism = undefined;
         glassesUpdated = true;
     }
     this.setState({[propertyName]: !this.state[propertyName]});

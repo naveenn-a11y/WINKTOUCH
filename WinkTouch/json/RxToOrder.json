@@ -106,6 +106,10 @@
               {
                   "mappedField": "visit.prescription.ou.addVa",
                   "name": "addVa"
+            },
+            {
+              "mappedField": "visit.prescription.os.finalPrism",
+              "name": "finalPrism"
               }
           ]
       }
