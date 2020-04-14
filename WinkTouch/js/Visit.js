@@ -315,8 +315,11 @@ class VisitWorkFlow extends Component {
       if (!visit) return undefined;
       if (!visit.customExamIds) return undefined;
       let rxToOrderExamId : ?string = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name==='RxToOrder');
-      if (rxToOrderExamId)
-        return getCachedItem(rxToOrderExamId);
+      if (rxToOrderExamId) {
+        let exam : Exam = getCachedItem(rxToOrderExamId);
+        return exam;
+      }
+
       return undefined;
     }
 
@@ -373,6 +376,10 @@ class VisitWorkFlow extends Component {
         if (!visit || !visit.id) return;
         let exam: Exam = {id: 'customExam', visitId: visit.id, customExamDefinitionId: examDefinitionId, examPredefinedValueId: examPredefinedValueId};
         exam = await createExam(exam);
+        if (exam.errors) {
+          alert(exam.errors);
+          return;
+        }
         if (!visit.preCustomExamIds) visit.preCustomExamIds = [];
         if (!visit.customExamIds) visit.customExamIds = [];
         if (exam.definition.isPreExam) {
@@ -493,6 +500,7 @@ class VisitWorkFlow extends Component {
        let assessments : Exam[] = getCachedItems(this.state.visit.customExamIds).filter(
          (exam: Exam) => exam.definition.isAssessment);
        return assessments.map((exam: Exam, index: number) => {
+
          if (exam.definition.name==='RxToOrder') {
            return  <TouchableOpacity key={strings.finalRx} disabled={this.props.readonly} onPress={() => this.state.rxToOrder && this.props.navigation.navigate('exam', {exam: this.state.rxToOrder, appointmentStateKey: this.props.appointmentStateKey}) }>
                     <PrescriptionCard title={strings.finalRx} exam={this.state.rxToOrder} editable={false} />
@@ -812,7 +820,7 @@ export class VisitHistory extends Component {
       if (compareDates(date, tomorrow())>=0) {
         alert(strings.futureVisitDateError);
         return;
-      }      
+      }
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 
