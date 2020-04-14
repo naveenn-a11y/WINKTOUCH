@@ -149,7 +149,7 @@ function getRecentVisitSummaries(patientId: string) : ?Exam[] {
 }
 
 
-function printPatientExam(visitId : string) {
+async function printPatientExam(visitId : string) {
    let visitHtml : string = '';
     const visit: Visit = getCachedItem(visitId);
     const allExams : string[] = allExamIds(visit);
@@ -157,7 +157,7 @@ function printPatientExam(visitId : string) {
     visitHtml += printPatientHeader(visit);
     if (allExams) {
         visitHtml +=  `<table><thead><tr><th class="service">EXAM</th><th class="desc">DESCRIPTION</th></tr></thead><tbody>`;
-        allExams.forEach((examId: string) => {
+        for(const examId: string of allExams) {
         const exam: Exam = getCachedItem(examId); 
         let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
         if(xlGroupDefinition && xlGroupDefinition.length >0) {
@@ -165,16 +165,16 @@ function printPatientExam(visitId : string) {
         }
          else {
           if(exam.isHidden!==true && (exam.hasStarted)) {
-              visitHtml += renderExamHtml(exam);
+              visitHtml +=  await renderExamHtml(exam);
           }
          }
-        });
+        }
         visitHtml +=  `</tbody></table>`;
-        xlExams.forEach((exam : Exam) => {
+        for(const exam: string of xlExams) {
           if(exam.isHidden!==true && (exam.hasStarted)) {
-              visitHtml += renderExamHtml(exam);
+              visitHtml += await renderExamHtml(exam);
           }
-        });
+         }
         printPatientFile(getVisitHtml(visitHtml));
     }
 }

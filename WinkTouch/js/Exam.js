@@ -222,7 +222,7 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   }
 }
 
-  export function renderExamHtml(exam : Exam) : any {
+  export async function renderExamHtml(exam : Exam) : any {
     let html : string = '';
     if (exam.definition.card===false) {return html;}
     switch (exam.definition.type) {
@@ -230,7 +230,7 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
         html = renderItemsHtml(exam);
         return html;
       case 'groupedForm':
-        html = renderParentGroupHtml(exam);
+        html = await renderParentGroupHtml(exam);
         return html;
     }
     return html;
