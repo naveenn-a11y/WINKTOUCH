@@ -579,6 +579,8 @@ export class NumberField extends Component {
     format(value: ?number | string): string {
       if (value===undefined || value===null)
         return '';
+      if(value.toString().trim() === '')
+        return '';
       if (isNaN(value)) {
         if (this.props.options instanceof Array && this.props.options.includes(value)) {
           return value;

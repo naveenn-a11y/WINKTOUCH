@@ -67,7 +67,7 @@ function isMultiFocal(glassesRx: GlassesRx) : boolean {
   return false;
 }
 
-function isPrism(glassesRx: GlassesRx) : boolean {
+export function isPrism(glassesRx: GlassesRx) : boolean {
   if (!glassesRx) return false;
   let odPrisms : Prism = glassesRx.od && glassesRx.od.prism ? splitPrism(glassesRx.od.prism) : undefined;
   let osPrisms : Prism = glassesRx.os && glassesRx.os.prism ? splitPrism(glassesRx.os.prism) : undefined;
@@ -164,7 +164,7 @@ export class DegreeField extends Component {
   }
 }
 
-function formatPrism(eyeRx: GlassRx) : string {
+ export function formatPrism(eyeRx: GlassRx) : string {
   if (eyeRx === undefined) return '';
   let parsedPrism : Prism = splitPrism(eyeRx.prism);
   if(parsedPrism === undefined) return '';
@@ -407,10 +407,12 @@ export class GlassesDetail extends Component {
         glassesRx.od.prism1b = undefined;
         glassesRx.od.prism2 = undefined;
         glassesRx.od.prism2b = undefined;
+        glassesRx.od.finalPrism = undefined;
         glassesRx.os.prism1 = undefined;
         glassesRx.os.prism1b = undefined;
         glassesRx.os.prism2 = undefined;
         glassesRx.os.prism2b = undefined;
+        glassesRx.os.finalPrism = undefined;
         glassesUpdated = true;
     }
     this.setState({[propertyName]: !this.state[propertyName]});

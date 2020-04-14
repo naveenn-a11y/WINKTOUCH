@@ -298,6 +298,7 @@ export class ItemsCard extends Component {
     if (fields===undefined || fields.length===0) {
       fields = this.props.exam.definition.fields.map((fieldDefinition :FieldDefinition) => fieldDefinition.name);
     }
+
     let abnormalFields : string[] = fields.filter((field: string) => {
       let value : string|string[] = examItem[field];
       if (value===undefined || value===null || (value instanceof Array && value.length===0)) return false;
@@ -322,6 +323,7 @@ export class ItemsCard extends Component {
   }
 
   render() {
+
     if (!this.props.exam[this.props.exam.definition.name] || !this.props.exam[this.props.exam.definition.name].length ||
       Object.keys(this.props.exam[this.props.exam.definition.name][0]).length===0 || !this.props.exam.definition.fields)
       return <View style={styles.columnLayout}>
