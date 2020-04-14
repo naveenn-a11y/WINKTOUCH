@@ -18,7 +18,7 @@ import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
 import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
 import { fetchAppointment } from './Appointment';
-import { printRx, printClRx, printMedicalRx, printPatientFile } from './Print';
+import { printRx, printClRx, printMedicalRx, printHtml } from './Print';
 import { PatientDocumentPage } from './Patient';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
@@ -149,7 +149,7 @@ function getRecentVisitSummaries(patientId: string) : ?Exam[] {
 }
 
 
-async function printPatientExam(visitId : string) {
+async function printPatientFile(visitId : string) {
    let visitHtml : string = '';
     const visit: Visit = getCachedItem(visitId);
     const allExams : string[] = allExamIds(visit);
@@ -158,7 +158,7 @@ async function printPatientExam(visitId : string) {
     if (allExams) {
         visitHtml +=  `<table><thead><tr><th class="service">EXAM</th><th class="desc">DESCRIPTION</th></tr></thead><tbody>`;
         for(const examId: string of allExams) {
-        const exam: Exam = getCachedItem(examId); 
+        const exam: Exam = getCachedItem(examId);
         let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
         if(xlGroupDefinition && xlGroupDefinition.length >0) {
           xlExams.push(exam);
@@ -175,7 +175,7 @@ async function printPatientExam(visitId : string) {
               visitHtml += await renderExamHtml(exam);
           }
          }
-        printPatientFile(getVisitHtml(visitHtml));
+        printHtml(getVisitHtml(visitHtml));
     }
 }
 
@@ -555,7 +555,7 @@ class VisitWorkFlow extends Component {
             {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
             {this.hasClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
-            {__DEV__ && <Button title={strings.printPatientFile} onPress={() => {printPatientExam(this.props.visitId)}}/>}
+            <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
