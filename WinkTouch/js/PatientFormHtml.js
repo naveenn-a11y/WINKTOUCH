@@ -182,20 +182,20 @@ function renderItemHtml (examItem: any, index: number, exam: Exam): any {
   return html
 }
 
-export function renderParentGroupHtml (exam: Exam): any {
+export async function renderParentGroupHtml (exam: Exam): any {
   let html: string = ''
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL'
   )
   if (xlGroupDefinition && xlGroupDefinition.length > 0) {
     html += `<div>`
-    html += isEmpty(exam[exam.definition.name]) ? '' : renderAllGroupsHtml(exam)
+    html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam)
     html += `</div>`
   } else {
     html += `<tr>`
     html += `<td class="service">${formatLabel(exam.definition)}</td>`
     html += `<td class="desc">`
-    html += isEmpty(exam[exam.definition.name]) ? '' : renderAllGroupsHtml(exam)
+    html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam)
     html += `</td>`
     html += `</tr>`
   }
@@ -203,7 +203,7 @@ export function renderParentGroupHtml (exam: Exam): any {
   return html
 }
 
-function renderAllGroupsHtml (exam: Exam) {
+async function renderAllGroupsHtml (exam: Exam) {
   let html: string = ''
   if (!exam[exam.definition.name]) return null
   if (
@@ -212,16 +212,16 @@ function renderAllGroupsHtml (exam: Exam) {
     exam.definition.fields.length === 0
   )
     return null
-  exam.definition.fields.map((groupDefinition: GroupDefinition) => {
-    const result = renderGroupHtml(groupDefinition, exam)
+  await Promise.all(exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
+    const result = await renderGroupHtml(groupDefinition, exam)
     if (!isEmpty(result)) {
       html += result
     }
-  })
-
+  }));
+ 
   return html
 }
-function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
+async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
   let html: string = ''
   if (exam[exam.definition.name] === undefined) return ''
   if (groupDefinition.mappedField) {
@@ -245,7 +245,7 @@ function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       value.length === 0
     )
       return HTML
-    value.map((groupValue: any, groupIndex: number) => {
+    await Promise.all(value.map(async (groupValue: any, groupIndex: number) => {
       if (
         groupValue === undefined ||
         groupValue === null ||
@@ -253,8 +253,8 @@ function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       )
         return html
 
-      html += renderRowsHtml(groupDefinition, exam, groupIndex)
-    })
+      html += await renderRowsHtml(groupDefinition, exam, groupIndex)
+    }));
   } else if (groupDefinition.fields === undefined && groupDefinition.options) {
     html += renderCheckListItemHtml(exam, groupDefinition)
   } else {
@@ -270,13 +270,13 @@ function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       value === null ||
       Object.keys(value).length === 0
     )
-      return null
-    html += renderRowsHtml(groupDefinition, exam)
+    return null;
+    html += await renderRowsHtml(groupDefinition, exam)
   }
   return html
 }
 
-function renderRowsHtml (
+async function renderRowsHtml (
   groupDefinition: GroupDefinition,
   exam: Exam,
   groupIndex?: number = 0
@@ -291,9 +291,9 @@ function renderRowsHtml (
       fieldDefinition.name
     )
     if (columnFieldIndex === 0) {
-      html += renderColumnedRows(fieldDefinition, groupDefinition, exam, form)
+      html += await renderColumnedRows(fieldDefinition, groupDefinition, exam, form)
     } else if (columnFieldIndex < 0) {
-      const value = renderField(
+      const value = await renderField(
         fieldDefinition,
         groupDefinition,
         exam,
@@ -314,7 +314,7 @@ function renderRowsHtml (
   }
   return html
 }
-function renderColumnedRows (
+async function renderColumnedRows (
   columnDefinition: GroupDefinition,
   definition: GroupDefinition,
   exam: Exam,
@@ -331,7 +331,7 @@ function renderColumnedRows (
   for (let i: number = 0; i < columnedFields.length; i++) {
     html +=
       `<tr>` +
-      renderColumnedRow(
+      await renderColumnedRow(
         formatLabel(columnedFields[i]),
         columns,
         i,
@@ -345,7 +345,7 @@ function renderColumnedRows (
   return html
 }
 
-function renderColumnedRow (
+ async function renderColumnedRow (
   fieldLabel: string,
   columns: string[],
   rowIndex: number,
@@ -356,18 +356,19 @@ function renderColumnedRow (
   let html: string = ''
   html += `<td class="desc">${fieldLabel}</td>`
 
-  columns.map((column: string, columnIndex: number) => {
+  await Promise.all(columns.map(async(column: string, columnIndex: number) => {
     const columnDefinition: GroupDefinition = definition.fields.find(
       (columnDefinition: FieldDefinition) => columnDefinition.name === column
     )
     if (columnDefinition) {
-      const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex]
+      const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
+      const value = await renderField(fieldDefinition, definition, exam, form, column);
       html +=
         `<td class="desc">` +
-        renderField(fieldDefinition, definition, exam, form, column) +
+         value +
         `</td>`
     }
-  })
+  }));
   return html
 }
 function renderColumnsHeader (
@@ -411,7 +412,7 @@ function renderCheckListItemHtml (
   return html
 }
 
-function renderField (
+async function renderField (
   fieldDefinition: FieldDefinition,
   groupDefinition: GroupDefinition,
   exam: Exam,
@@ -451,20 +452,22 @@ function renderField (
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       html += `<span class="img-wrap">`
-      html += renderImage(value, fieldDefinition, exam)
+      html += await renderImage(value, fieldDefinition, exam)
       html += `</span>`
       return html
     }
 
     if (fieldDefinition.type === 'age') {
       html += formatAge(value)
-    } else html += value
+    }
+     else 
+       html += value
   }
 
   return html
 }
 
-function renderImage (
+async function renderImage (
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
   exam?: Exam
@@ -479,11 +482,7 @@ function renderImage (
   )
   const scale: number = style.width / resolutions(value, fieldDefinition)[0]
   if (image.startsWith('upload-')) {
-    ;(async () => {
       filePath = await loadImage(value)
-      html += `<img src="${filePath}" border ="1" width = "${style.width}" height = "${style.height}">`
-      return html
-    })()
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
     const dir = RNFS.MainBundlePath + '/assets/js'
