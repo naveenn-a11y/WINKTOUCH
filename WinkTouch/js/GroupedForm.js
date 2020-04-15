@@ -1055,51 +1055,43 @@ export class GroupedFormScreen extends Component {
   }
 
 
-  clearSubGroupDefinition(groupDefinition: GroupDefinition|FieldDefinition, groupName: string) : void {
-
+  clearSubGroupDefinition(value :  {}, groupDefinition: GroupDefinition|FieldDefinition) : void {
+      if(groupDefinition.image && (groupDefinition.readonly === false || groupDefinition.readonly === undefined)) {
+          value.lines = undefined;
+      }
       if(groupDefinition.fields === undefined) {
-        if(groupDefinition.name && !groupDefinition.readonly) {
-           this.clearSubValue(groupDefinition.name);
+        if(groupDefinition.readonly === false || groupDefinition.readonly === undefined) {
+           value[groupDefinition.name] = undefined;
         }
       }
-
-
-      if(groupDefinition.fields) {
-      groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
-      this.clearSubGroupDefinition(fieldDefinition, groupName);
-      });
-      }
+      else
+       for (const definition: FieldDefinition of groupDefinition.fields) {
+            if(definition.fields) {
+              this.clearSubGroupDefinition(value[definition.name],definition);
+            } else {
+              if(definition.readonly === false || definition.readonly === undefined) {
+                value[definition.name] = undefined;
+              }
+            }
+       }
 
     }
 
-  clearSubValue(name: string) : void {
-
-    this.props.exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
-      if (this.props.exam[this.props.exam.definition.name][groupDefinition.name]!==undefined) {
-          groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
-            if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
-                //Remove Readonly elements From Form
-                this.props.exam[this.props.exam.definition.name][groupDefinition.name][fieldDefinition.name]["Form"][name] = undefined; 
-                this.props.exam[this.props.exam.definition.name][groupDefinition.name][fieldDefinition.name]["lines"] = undefined; 
-            }
-          });
-      }
-    });
-  }
 
   clear(groupName: string, index?: number) : void {
+    
+    const form = this.props.exam[this.props.exam.definition.name][groupName];
+    let groupDefinitions : GroupDefinition[] = this.props.exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.name.toLowerCase()===groupName.toLowerCase());
 
-    if (index!==undefined) {
-      this.props.exam[this.props.exam.definition.name][groupName].splice(index, 1);
-      if (this.props.exam[this.props.exam.definition.name][groupName].length===0)
-          this.props.exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
-           this.clearSubGroupDefinition(groupDefinition, groupName);
-            });
-    } else {
-        this.props.exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
-        this.clearSubGroupDefinition(groupDefinition, groupName);
-        });    
-      }
+    groupDefinitions && groupDefinitions.forEach((definition: GroupDefinition|FieldDefinition) => {
+          definition.fields && definition.fields.map((childGroupDefinition: GroupDefinition) => {
+          const value = form[childGroupDefinition.name];
+          this.clearSubGroupDefinition(value,childGroupDefinition);
+        }
+      )
+      });    
+        
+      
     this.initialiseExam(this.props.exam, this.props.editable);
     this.props.onUpdateExam(this.props.exam);
   }
