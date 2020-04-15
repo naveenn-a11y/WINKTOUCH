@@ -22,6 +22,7 @@ import { getFavorites, removeFavorite, Star, Refresh, storeFavorite } from './Fa
 import { getExamDefinition } from './ExamDefinition';
 import { Lock } from './Widgets';
 import { ErrorCard } from './Form';
+import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 
 export async function fetchExam(examId: string, ignoreCache?: boolean) : Promise<Exam> {
   let exam : Exam = await fetchItemById(examId, ignoreCache);
@@ -221,6 +222,22 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   }
 }
 
+  export async function renderExamHtml(exam : Exam) : any {
+    let html : string = '';
+    if (exam.definition.card===false) {return html;}
+    switch (exam.definition.type) {
+      case 'selectionLists':
+        html = renderItemsHtml(exam);
+        return html;
+      case 'groupedForm':
+        html = await renderParentGroupHtml(exam);
+        return html;
+    }
+    return html;
+  }
+
+
+
 export class ExamCardSpecifics extends Component {
   props: {
     exam: Exam
@@ -238,6 +255,7 @@ export class ExamCard extends Component {
     disableScroll: () => void
   }
 
+
   renderExamCardSpecifics() {
     let exam : Exam = this.props.exam;
     if (exam.definition.card===false) {
@@ -253,6 +271,7 @@ export class ExamCard extends Component {
       <Text style={styles.cardTitle}>{exam.definition.name}</Text>
     </View>
   }
+
 
   getStyle() : any {
     let style: string = this.props.style;
