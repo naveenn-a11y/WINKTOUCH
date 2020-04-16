@@ -1,10 +1,10 @@
 {
-  "name": "Examen",
+  "name": "Doyle Examen v1",
   "isPreExam": false,
   "scrollable": true,
-  "card": false,
+  "card": true,
   "type": "groupedForm",
-  "section": "Document.1",
+  "section": "Form.1",
   "fields": [
     {
       "name": "Examen recto",
@@ -14,11 +14,11 @@
         {
           "sync": true,
           "popup": false,
-          "name": "Examen recto",
-          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/739\/239962\/ExamRecto.jpg",
+          "name": "Examen v1 recto",
+          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/739\/240426\/AncienExamenRecto.jpg",
           "drawable": true,
           "label": "",
-          "resolution": "1574x1771",
+          "resolution": "1691x2197",
           "type": "Examen",
           "size": "XL",
           "fields": [
@@ -42,8 +42,8 @@
                   "type": "pastDate",
                   "layout": {
                     "position": "absolute",
-                    "top": 21,
-                    "left": 160,
+                    "top": 34,
+                    "left": 20,
                     "width": 200,
                     "borderWidth": 0,
                     "fontSize": 20
@@ -56,8 +56,8 @@
                   "readonly": true,
                   "layout": {
                     "position": "absolute",
-                    "top": 21,
-                    "left": 415,
+                    "top": 34,
+                    "left": 200,
                     "width": 200,
                     "borderWidth": 0,
                     "fontSize": 20
@@ -91,16 +91,16 @@
                   }
                 },
                 {
-                  "name": "Gender",
-                  "mappedField": "patient.gender",
-                  "readonly": true,
-                  "layout": {
-                    "position": "absolute",
-                    "width": 30,
-                    "top": 34,
-                    "left": 965,
-                    "borderWidth": 0,
-                    "fontSize": 20
+                  "name":"Gender",
+                  "readonly":true,
+                  "mappedField":"patient.gender",
+                  "layout":{
+                    "position":"absolute",
+                    "borderWidth":0,
+                    "width":85,
+                    "left":915,
+                    "fontSize":20,
+                    "top":34
                   }
                 },
                 {
@@ -145,7 +145,7 @@
                   }
                 },
                 {
-                  "name": "Address lign 1",
+                  "name": "Address line 1",
                   "mappedField": "patient.address1",
                   "readonly": true,
                   "layout": {
@@ -158,7 +158,7 @@
                   }
                 },
                 {
-                  "name": "Address lign 2",
+                  "name": "Address line 2",
                   "mappedField": "patient.address2",
                   "readonly": true,
                   "layout": {
@@ -184,11 +184,11 @@
         {
           "sync": true,
           "popup": false,
-          "name": "Examen Verso",
-          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/739\/239963\/ExamVerso.jpg",
+          "name": "Examen v1 verso",
+          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/739\/240427\/AncienExamenVerso.jpg",
           "drawable": true,
           "label": "",
-          "resolution": "1574x1771",
+          "resolution": "1691x2197",
           "type": "Examen",
           "size": "XL"
         }
