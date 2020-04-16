@@ -273,6 +273,11 @@ export class GlassesSummary extends Component {
     titleStyle: styles.cardTitle
   }
 
+  isSphEmpty() {
+    return isEmpty(this.props.glassesRx.os.sph) && isEmpty(this.props.glassesRx.od.sph);
+  }
+
+
   render() {
     if (this.props.visible!==true)
       return null;
@@ -281,6 +286,9 @@ export class GlassesSummary extends Component {
           <Text style={this.props.titleStyle}>{this.props.title}</Text>
       </View>
     }
+    if(this.isSphEmpty())
+       return null;
+
     return <View style={styles.columnLayout} key={this.props.title}>
       {this.props.title!==null && this.props.title!==undefined && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
       {this.props.glassesRx.lensType!=undefined && this.props.glassesRx.lensType!=null && this.props.glassesRx.lensType!='' && <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>}
@@ -784,7 +792,7 @@ export class PatientRefractionCard extends Component {
      <Text style={styles.cardTitle}>{strings.finalRx}</Text>
       {(!this.state.refractions || this.state.refractions.length===0) &&  <Text style={styles.cardTitle}>{strings.finalRx}</Text>}
       {this.state.refractions.map((refraction: GlassesRx, index: number) =>
-         !(refraction.os.sph === "" && refraction.od.sph === "") && <GlassesSummary showHeaders={false} title={formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
+         <GlassesSummary showHeaders={false} title={formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
     </View>
   }
 }
