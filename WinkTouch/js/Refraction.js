@@ -67,7 +67,7 @@ function isMultiFocal(glassesRx: GlassesRx) : boolean {
   return false;
 }
 
-function isPrism(glassesRx: GlassesRx) : boolean {
+export function isPrism(glassesRx: GlassesRx) : boolean {
   if (!glassesRx) return false;
   if (glassesRx.od && glassesRx.od.prism1!=undefined && glassesRx.od.prism1!=null && glassesRx.od.prism1!=0.0)
     return true;
@@ -162,7 +162,7 @@ export class DegreeField extends Component {
   }
 }
 
-function formatPrism(eyeRx: GlassRx) : string {
+ export function formatPrism(eyeRx: GlassRx) : string {
   if (eyeRx === undefined) return '';
   let prism : string = '';
   if (eyeRx.prism1!==undefined && eyeRx.prism1!==0) {
