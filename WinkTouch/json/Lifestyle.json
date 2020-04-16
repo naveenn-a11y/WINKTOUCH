@@ -1,0 +1,55 @@
+{
+  "name": "Lifestyle",
+  "addable": false,
+  "scrollable": true,
+  "starable": false,
+  "type": "groupedForm",
+  "section": "History.12",
+  "editable": true,
+  "fields": [
+    {
+      "name": "Occupation",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Health care",
+        "School",
+        "Driver",
+        "Engineer",
+        "Laborer",
+        "Computer programmer",
+        "Technician",
+        "Data input",
+        "Secretary",
+        "Student"
+      ]
+    },
+    {
+      "name": "Hobbies",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Needlework",
+        "Painting",
+        "Drawing",
+        "Exercise",
+        "Reading",
+        "Sports"
+      ]
+    },
+    {
+      "name": "Computer use",
+      "multiValue": true,
+      "freestyle": true,
+      "options": [
+        "Occasional use",
+        "<1 hours",
+        "1-2 hours",
+        "2-5 hours",
+        "5-8 hours",
+        "over 8 hours",
+        "Seperate computer glasses used"
+      ]
+    }
+  ]
+}

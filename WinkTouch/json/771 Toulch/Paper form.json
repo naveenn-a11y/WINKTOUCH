@@ -1,0 +1,105 @@
+{
+  "name": "Paper form",
+  "isPreExam": false,
+  "image": "./image/ToulchExam.pdf",
+  "card": false,
+  "type": "paperForm",
+  "section": "Form.1",
+  "fields": [
+    {
+      "name":"Final Rx",
+      "fields": [
+        {
+          "name": "od",
+          "fields": [
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.sph",
+              "name": "sph"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.cyl",
+              "name": "cyl"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.axis",
+              "name": "axis"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism1",
+              "name": "prism1"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism1b",
+              "name": "prism1b"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism2",
+              "name": "prism2"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism2b",
+              "name": "prism2b"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.add",
+              "name": "add"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.va",
+              "name": "va"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.addVa",
+              "name": "addVa"
+            }
+          ]
+        },
+        {
+          "name": "os",
+          "fields": [
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.sph",
+              "name": "sph"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.cyl",
+              "name": "cyl"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.axis",
+              "name": "axis"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism1",
+              "name": "prism1"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism1b",
+              "name": "prism1b"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism2",
+              "name": "prism2"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism2b",
+              "name": "prism2b"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.add",
+              "name": "add"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.va",
+              "name": "va"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.addVa",
+              "name": "addVa"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

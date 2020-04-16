@@ -1,0 +1,40 @@
+{
+  "name": "Reason for visit",
+  "order": "1",
+  "scrollable": false,
+  "starable": true,
+  "type": "groupedForm",
+  "section": "Chief complaint.1",
+  "fields": [
+    {
+      "name": "Reason for visit",
+      "size": "M",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Main Reason",
+          "freestyle": true
+        },
+        {
+          "maxLength": 500,
+          "name": "Secondary Reason",
+          "freestyle": true
+        },
+        {
+          "name": "Last Eye Exam",
+          "type": "partialPastDate",
+          "freestyle": true
+        },
+        {
+          "normalValue": "Show",
+          "name": "No show",
+          "defaultValue": "Show",
+          "options": [
+            "Show",
+            "No show"
+          ]
+        }
+      ]
+    }
+  ]
+}
