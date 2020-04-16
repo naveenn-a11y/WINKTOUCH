@@ -141,7 +141,8 @@ export type GlassRx = {
     prism2b?: number,
     add?: number,
     va?: string,
-    addVA?: string
+    addVA?: string,
+    isEye?: boolean
 }
 
 export type GlassesRx = {
