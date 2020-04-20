@@ -443,7 +443,7 @@ export class GroupedCard extends Component {
       } else {
         rows.push(valueRows);
       };
-      
+
       return rows;
     }
   }
@@ -525,7 +525,7 @@ export class GroupedCard extends Component {
     return rowValues.map((rowValue: string[], index: number) => <Text style={styles.textLeft} key={index}>{rowValue}</Text>);
   }
 
-  render() { 
+  render() {
     return (
       <View style={styles.columnLayout} key={this.props.exam.definition.name}>
         {this.renderTitle()}
@@ -1055,44 +1055,49 @@ export class GroupedFormScreen extends Component {
   }
 
 
-  clearSubGroupDefinition(value :  {}, groupDefinition: GroupDefinition|FieldDefinition) : void {
-      if(groupDefinition.image && (groupDefinition.readonly === false || groupDefinition.readonly === undefined)) {
+  clearNonReadOnlyFields(value :  {}, definition: GroupDefinition|FieldDefinition) : ?{} {
+      if (value===null || value===undefined || definition.readonly) {
+        return value;
+      }
+      if (definition.fields === undefined) {
+        return undefined;
+      }
+      if (definition.image) {
           value.lines = undefined;
+          value.image = undefined;
       }
-      if(groupDefinition.fields === undefined) {
-        if(groupDefinition.readonly === false || groupDefinition.readonly === undefined) {
-           value[groupDefinition.name] = undefined;
-        }
+      for (const fieldDefinition: FieldDefinition of definition.fields) {
+        let fieldValue = value[fieldDefinition.name];
+        fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
+        value[fieldDefinition.name] = fieldValue;
       }
-      else
-       for (const definition: FieldDefinition of groupDefinition.fields) {
-            if(definition.fields) {
-              this.clearSubGroupDefinition(value[definition.name],definition);
-            } else {
-              if(definition.readonly === false || definition.readonly === undefined) {
-                value[definition.name] = undefined;
-              }
-            }
-       }
-
-    }
-
+      return value;
+  }
 
   clear(groupName: string, index?: number) : void {
-    
-    const form = this.props.exam[this.props.exam.definition.name][groupName];
-    let groupDefinitions : GroupDefinition[] = this.props.exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.name.toLowerCase()===groupName.toLowerCase());
+    let formDefinition : GroupDefinition = this.props.exam.definition.fields.find((groupDefinition: GroupDefinition) => groupDefinition.name.toLowerCase()===groupName.toLowerCase());
+    if (!formDefinition) {
+      __DEV__ && console.error('No group definition '+groupName+' found.');
+      return;
+    }
+    //Clearing a grouped form part of a multivalue array
+    if (index!==undefined && index>=0) {
+      const forms : {}[] = this.props.exam[this.props.exam.definition.name][groupName];
+      if (forms===null || forms===undefined || forms.length===0) {
+        return;
+      }
+      if (forms.length===1) {//Last element in the array
+        const form = forms[0];
+        forms[0] = this.clearNonReadOnlyFields(form, formDefinition);
+      } else {//Remove the element from the array
+        forms.splice(index, 1);
+      }
+    } else {
+      //Clearing a single grouped form
+      const form = this.props.exam[this.props.exam.definition.name][groupName];
 
-    groupDefinitions && groupDefinitions.forEach((definition: GroupDefinition|FieldDefinition) => {
-          definition.fields && definition.fields.map((childGroupDefinition: GroupDefinition) => {
-          const value = form[childGroupDefinition.name];
-          this.clearSubGroupDefinition(value,childGroupDefinition);
-        }
-      )
-      });    
-        
-      
-    this.initialiseExam(this.props.exam, this.props.editable);
+      this.clearNonReadOnlyFields(form, formDefinition);
+    }
     this.props.onUpdateExam(this.props.exam);
   }
 
