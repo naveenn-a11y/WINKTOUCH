@@ -603,7 +603,7 @@ export const styles = StyleSheet.create({
     },
     cardColumn: {
         marginHorizontal: 1 * fontScale,
-        alignItems: 'center'
+        alignItems: 'flex-start'
     },
     popup: {
         padding: 20 * fontScale,
