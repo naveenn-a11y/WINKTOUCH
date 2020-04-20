@@ -142,7 +142,7 @@ export type GlassRx = {
     add?: number,
     va?: string,
     addVA?: string,
-    isEye?: boolean
+    isEye?: boolean,
 }
 
 export type GlassesRx = {

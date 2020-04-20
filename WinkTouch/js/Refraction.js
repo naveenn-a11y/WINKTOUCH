@@ -277,7 +277,7 @@ export class GlassesSummary extends Component {
     return isEmpty(this.props.glassesRx.os.sph) && isEmpty(this.props.glassesRx.od.sph);
   }
   isEyeEmpty() {
-    return !(this.props.glassesRx.od.isEye===true || this.props.glassesRx.os.isEye===true);
+    return (this.props.glassesRx.od.isEye===false && this.props.glassesRx.os.isEye===false) ;
   }
 
 
@@ -295,41 +295,27 @@ export class GlassesSummary extends Component {
 
     if(this.isSphEmpty())
        return null;
-    return <View style={styles.columnLayout} key={this.props.title}>
+        return <View style={styles.columnLayout} key={this.props.title}>
       {this.props.title!==null && this.props.title!==undefined && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
       {this.props.glassesRx.lensType!=undefined && this.props.glassesRx.lensType!=null && this.props.glassesRx.lensType!='' && <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>}
-      <View style={styles.rowLayout}>
-        <View style={styles.cardColumn}>
+        <View style={styles.rowLayout}>
           {this.props.showHeaders===true && <Text style={styles.text}></Text>}
-          {this.props.glassesRx.od.isEye===true && <Text style={styles.text}>{'\t'+strings.od}:</Text>}
-          {this.props.glassesRx.os.isEye===true && <Text style={styles.text}>{'\t'+strings.os}:</Text>}
+          { <Text style={styles.text}>{'\t'+strings.od}:</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.sph'> {!isEmpty(this.props.glassesRx.od.sph)?formatDiopter(this.props.glassesRx.od.sph):''}</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.cyl'> {!isEmpty(this.props.glassesRx.od.cyl)?formatDiopter(this.props.glassesRx.od.cyl):''}</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.axis'> {!isEmpty(this.props.glassesRx.od.axis)?formatDegree(this.props.glassesRx.od.axis):''}</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.add'>{!isEmpty(this.props.glassesRx.od.add) ? strings.add + ': ' + formatDiopter(this.props.glassesRx.od.add):''}</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.prism'> {formatPrism(this.props.glassesRx.od)}</Text>}
         </View>
-        <View style={styles.cardColumn} key='sph'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Sphere</Text>}
-          {this.props.glassesRx.od.isEye===true && <Text style={styles.text} key='od.sph'> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.sph):''}</Text>}
-          {this.props.glassesRx.os.isEye===true && <Text style={styles.text} key='os.sph'> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.sph):''}</Text>}
+        <View style={styles.rowLayout}>
+          {this.props.showHeaders===true && <Text style={styles.text}></Text>}
+          {<Text style={styles.text}>{'\t'+strings.os}:</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.sph'> {!isEmpty(this.props.glassesRx.os.sph)?formatDiopter(this.props.glassesRx.os.sph):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.cyl'> {!isEmpty(this.props.glassesRx.os.cyl)?formatDiopter(this.props.glassesRx.os.cyl):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.axis'> {!isEmpty(this.props.glassesRx.os.axis)?formatDegree(this.props.glassesRx.os.axis):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.add'>{!isEmpty(this.props.glassesRx.os.add) ? strings.add + ': ' + formatDiopter(this.props.glassesRx.os.add):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.prism'> {formatPrism(this.props.glassesRx.os)}</Text>}
         </View>
-        <View style={styles.cardColumn} key='cyl'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Cyl</Text>}
-          {this.props.glassesRx.od.isEye===true && <Text style={styles.text}> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.cyl):''}</Text>}
-          {this.props.glassesRx.os.isEye===true &&<Text style={styles.text}> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.cyl):''}</Text>}
-        </View>
-        <View style={styles.cardColumn} key='axis'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Axis</Text>}
-         {this.props.glassesRx.od.isEye===true && <Text style={styles.text}> {this.props.glassesRx.od?formatDegree(this.props.glassesRx.od.axis):''}</Text>}
-        {this.props.glassesRx.os.isEye===true && <Text style={styles.text}> {this.props.glassesRx.os?formatDegree(this.props.glassesRx.os.axis):''}</Text>}
-        </View>
-        <View style={styles.cardColumn} key='add'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Add</Text>}
-          {this.props.glassesRx.od.isEye===true && <Text style={styles.text}> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.add):''}</Text>}
-          {this.props.glassesRx.os.isEye===true && <Text style={styles.text}> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.add):''}</Text>}
-        </View>
-        <View style={styles.cardColumn} key='prism'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Prism</Text>}
-          {this.props.glassesRx.od.isEye===true && <Text style={styles.text}> {this.props.glassesRx.od?formatPrism(this.props.glassesRx.od):''}</Text>}
-          {this.props.glassesRx.os.isEye===true && <Text style={styles.text}> {this.props.glassesRx.os?formatPrism(this.props.glassesRx.os):''}</Text>}
-        </View>
-    </View>
     </View>
   }
 }
