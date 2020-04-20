@@ -174,6 +174,7 @@ export class DegreeField extends Component {
     prism += eyeRx.prism2 + ' ';
     prism += formatCode('prism2b', eyeRx.prism2b);
   }
+  if (prism!='') prism = '\u25b3'+prism;
   return prism;
 }
 
@@ -794,12 +795,10 @@ export class PatientRefractionCard extends Component {
 
 
   render() {
-    if (!this.state.refractions) return null;
     return <View style={styles.tabCard}>
-     <Text style={styles.cardTitle}>{strings.finalRx}</Text>
       {(!this.state.refractions || this.state.refractions.length===0) &&  <Text style={styles.cardTitle}>{strings.finalRx}</Text>}
-      {this.state.refractions.map((refraction: GlassesRx, index: number) =>
-         <GlassesSummary showHeaders={false} title={formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
+      {this.state.refractions && this.state.refractions.map((refraction: GlassesRx, index: number) =>
+         <GlassesSummary showHeaders={false} title={strings.finalRx+' '+formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
     </View>
   }
 }

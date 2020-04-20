@@ -602,8 +602,9 @@ export const styles = StyleSheet.create({
       marginTop: 3 * fontScale
     },
     cardColumn: {
-        marginHorizontal: 1 * fontScale,
-        alignItems: 'flex-start'
+        marginHorizontal: 3 * fontScale,
+        alignItems: 'flex-start',
+        marginBottom: 6 * fontScale,
     },
     popup: {
         padding: 20 * fontScale,
@@ -677,10 +678,11 @@ export const styles = StyleSheet.create({
         padding: 10 * fontScale,
         paddingBottom: 40 * fontScale,
         minHeight: 260 * fontScale,
+        minWidth: 333 * fontScale,
         borderRadius: 30 * fontScale,
         borderColor: selectionFontColor,
         borderWidth: 2*fontScale,
-        margin: 7 * fontScale,
+        margin: 7 * fontScale
     },
     tabCardS: {
         flexGrow: 100,
@@ -727,6 +729,7 @@ export const styles = StyleSheet.create({
       padding: 10 * fontScale,
       paddingBottom: 40 * fontScale,
       minHeight: 160 * fontScale,
+      minWidth: 333 * fontScale,
       borderRadius: 30 * fontScale,
       borderColor: selectionFontColor,
       borderWidth: 2*fontScale,
