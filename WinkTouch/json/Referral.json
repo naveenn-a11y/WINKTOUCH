@@ -1,6 +1,5 @@
 {
     "name": "Referral Form",
-    "isPreExam": true,
     "scrollable": true,
     "card": true,
     "type": "groupedForm",
