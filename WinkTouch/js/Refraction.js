@@ -170,6 +170,7 @@ export class DegreeField extends Component {
     prism += formatCode('prism1b', eyeRx.prism1b);
   }
   if (eyeRx.prism2!==undefined && eyeRx.prism2!==0) {
+    prism += isEmpty(prism)? '' : ' ';
     prism += eyeRx.prism2 + ' ';
     prism += formatCode('prism2b', eyeRx.prism2b);
   }
@@ -321,8 +322,8 @@ export class GlassesSummary extends Component {
         </View>
         <View style={styles.cardColumn} key='add'>
           {this.props.showHeaders===true && <Text style={styles.text}>Add </Text>}
-          {this.props.glassesRx.od && <Text style={styles.text} key='od.add'>{!isEmpty(this.props.glassesRx.od.add) ? strings.add + ': ' + formatDiopter(this.props.glassesRx.od.add):''}</Text>}
-          {this.props.glassesRx.os && <Text style={styles.text} key='os.add'>{!isEmpty(this.props.glassesRx.os.add) ? strings.add + ': ' + formatDiopter(this.props.glassesRx.os.add):''}</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.add'>{!isEmpty(this.props.glassesRx.od.add) ? ' '+ strings.add + ': ' + formatDiopter(this.props.glassesRx.od.add):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.add'>{!isEmpty(this.props.glassesRx.os.add) ? ' '+ strings.add + ': ' + formatDiopter(this.props.glassesRx.os.add):''}</Text>}
         </View>
         <View style={styles.cardColumn} key='prism'>
           {this.props.showHeaders===true && <Text style={styles.text}>Prism </Text>}
