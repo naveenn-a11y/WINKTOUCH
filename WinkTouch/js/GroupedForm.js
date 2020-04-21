@@ -727,27 +727,19 @@ export class GroupedForm extends Component {
     const groupDefinition : GroupDefinition = this.props.definition;
 
     if (groupDefinition.fields) {
-    for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
-      const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
-      if (columnFieldIndex===0) {
-        rows.push(this.renderColumnedRows(fieldDefinition));
-      } else if(columnFieldIndex<0) {
-        if (isRowField(groupDefinition, fieldDefinition.name)!==false) {
-          rows.push(this.renderFieldsRow(fieldDefinition));
-        } else {
-          rows.push(this.renderSimpleRow(fieldDefinition));
+      for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
+        const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
+        if (columnFieldIndex===0) {
+          rows.push(this.renderColumnedRows(fieldDefinition));
+        } else if(columnFieldIndex<0) {
+          if (isRowField(groupDefinition, fieldDefinition.name)!==false) {
+            rows.push(this.renderFieldsRow(fieldDefinition));
+          } else {
+            rows.push(this.renderSimpleRow(fieldDefinition));
+          }
         }
       }
     }
-  } else if(this.props.form && groupDefinition.options) {
-    if(this.props.form instanceof Array) {
-       for (const value : String of this.props.form) {
-          rows.push(this.renderSimpleRowValue(value));
-       }
-    }
- 
-  }
-
     return rows;
   }
 
