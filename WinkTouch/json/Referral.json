@@ -91,6 +91,20 @@
                                 },
                                 {
                                     "maxLength": 50,
+                                    "layout": {
+                                        "position": "absolute",
+                                        "width": 250,
+                                        "justifyContent": "flex-start",
+                                        "left": 750,
+                                        "fontSize": 17,
+                                        "top": 385,
+                                        "borderWidth": 0
+                                    },
+                                    "name": "Spoken Language",
+                                    "label": ""
+                                },
+                                {
+                                    "maxLength": 50,
                                     "name": "Doctor Name",
                                     "layout": {
                                         "position": "absolute",
@@ -98,7 +112,8 @@
                                         "justifyContent": "flex-start",
                                         "left": 274,
                                         "fontSize": 21,
-                                        "top": 449
+                                        "top": 449,
+                                        "borderWidth": 0
                                     },
                                     "label": "",
                                     "freestyle": true
