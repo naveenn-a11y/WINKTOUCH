@@ -46,8 +46,7 @@ export function newRefraction() : GlassesRx {
     os: {
       sph: undefined
     },
-    ou: {
-      sph: undefined
+    ou: {      
     }
   }
 }
