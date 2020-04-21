@@ -634,6 +634,12 @@ export class GroupedForm extends Component {
     </View>
   }
 
+    renderSimpleRowValue(value: String) {
+    return <View style={styles.formRow}>
+              <Text>{value}</Text>
+           </View>
+  }
+
   hasColumns() : boolean {
     return hasColumns(this.props.definition);
   }
@@ -719,16 +725,18 @@ export class GroupedForm extends Component {
   renderRows() {
     let rows : any[] = [];
     const groupDefinition : GroupDefinition = this.props.definition;
-    if (!groupDefinition.fields) return null;
-    for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
-      const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
-      if (columnFieldIndex===0) {
-        rows.push(this.renderColumnedRows(fieldDefinition));
-      } else if(columnFieldIndex<0) {
-        if (isRowField(groupDefinition, fieldDefinition.name)!==false) {
-          rows.push(this.renderFieldsRow(fieldDefinition));
-        } else {
-          rows.push(this.renderSimpleRow(fieldDefinition));
+
+    if (groupDefinition.fields) {
+      for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
+        const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
+        if (columnFieldIndex===0) {
+          rows.push(this.renderColumnedRows(fieldDefinition));
+        } else if(columnFieldIndex<0) {
+          if (isRowField(groupDefinition, fieldDefinition.name)!==false) {
+            rows.push(this.renderFieldsRow(fieldDefinition));
+          } else {
+            rows.push(this.renderSimpleRow(fieldDefinition));
+          }
         }
       }
     }
@@ -873,7 +881,6 @@ export class GroupedForm extends Component {
 
   render() {
     const style = this.props.style?this.props.style:this.props.definition.layout?scaleStyle(this.props.definition.layout):this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
-
     return  <View style={style} key={this.props.definition.name}>
         <Label style={styles.sectionTitle} key='title' suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId} />
         {this.renderRows()}
