@@ -647,9 +647,8 @@ export class VisitHistoryCard extends Component {
       <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
       {this.state.summaries.map((visitSummary: Exam, index: number) =>
           <View style={styles.rowLayout}>
-            <Text style={styles.text}>{formatDate(getCachedItem(visitSummary.visitId).date, isToyear(getCachedItem(visitSummary.visitId).date)?dateFormat:farDateFormat)}: </Text>
             <View style={styles.cardColumn}>
-              <Text style={styles.text}>{visitSummary.resume}</Text>
+              <Text style={styles.text}>{formatDate(getCachedItem(visitSummary.visitId).date, isToyear(getCachedItem(visitSummary.visitId).date)?dateFormat:farDateFormat)}: {visitSummary.resume}{"\n"}</Text>
             </View>
           </View>
       )}
