@@ -45,6 +45,8 @@ export function newRefraction() : GlassesRx {
     },
     os: {
       sph: undefined
+    },
+    ou: {
     }
   }
 }
@@ -443,6 +445,7 @@ export class GlassesDetail extends Component {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.os = {};
     glassesRx.od = {};
+    glassesRx.ou={};
     glassesRx.lensType = undefined;
     if (this.props.onChangeGlassesRx)
       this.props.onChangeGlassesRx(glassesRx);
@@ -568,6 +571,18 @@ export class GlassesDetail extends Component {
                 onChangeValue={(value: ?number) => this.updateGlassesRx('os','addVa', value)} errorMessage={this.props.glassesRx.os.addVaError}/>}
             {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
           </View>
+          {this.props.hasVA===true && this.props.glassesRx.ou!==undefined && <View style={styles.formRow}>
+            <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) => this.updateGlassesRx('ou','va', value)} errorMessage={this.props.glassesRx.ou.vaError}/>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.ou.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU')} showLabel={false} readonly={!this.props.editable}
+                onChangeValue={(value: ?number) => this.updateGlassesRx('ou','addVa', value)} errorMessage={this.props.glassesRx.ou.addVaError}/>}
+            {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
+          </View>}
           {(this.props.hasNotes===true || (this.props.definition!==undefined && this.props.definition.hasNotes)) && <View style={styles.formRow}>
             <FormInput value={this.props.glassesRx.notes} definition={getFieldDefinition('visit.prescription.notes')} readonly={!this.props.editable}
               onChangeValue={(value: ?string) => this.updateGlassesRx(undefined, 'notes', value)} errorMessage={this.props.glassesRx.notesError}/>

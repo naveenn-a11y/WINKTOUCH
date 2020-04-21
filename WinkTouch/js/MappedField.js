@@ -36,11 +36,13 @@ export const mappedFields : string[] = [
   'visit.prescription.os.axis',
   'visit.prescrition.od.add',
   'visit.prescription.os.add',
-  'visit.prescription.od.refraction',  
+  'visit.prescription.od.refraction',
   'visit.prescription.os.refraction',
   'visit.purchase.add',
-  'visit.examDate'
-    ];
+  'visit.examDate',
+  'visit.prescription.ou.add',
+  'visit.prescription.ou.addVA',
+];
 
 
 async function fetchMachineMeasurements(machineType, patientId) : Measurement[] {

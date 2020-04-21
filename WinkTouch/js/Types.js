@@ -148,6 +148,7 @@ export type GlassRx = {
 export type GlassesRx = {
     od: GlassRx,
     os: GlassRx,
+    ou: GlassRx,
     expiry?: string,
     prescriptionDate?: string,
     signedDate?: string,
