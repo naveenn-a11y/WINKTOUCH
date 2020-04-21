@@ -244,7 +244,7 @@
                                     "layout": {
                                         "position": "absolute",
                                         "borderWidth": 0,
-                                        "width": 200,
+                                        "width": 350,
                                         "left": 660,
                                         "fontSize": 17,
                                         "top": 316
