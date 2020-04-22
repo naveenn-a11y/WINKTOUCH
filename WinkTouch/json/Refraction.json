@@ -166,6 +166,19 @@
               "name":"addVa"
             }
           ]
+        },
+        {
+          "name": "ou",
+          "fields": [
+              {
+                  "mappedField": "exam.RxToOrder.Final Rx.ou.va",
+                  "name": "va"
+              },
+              {
+                  "mappedField": "exam.RxToOrder.Final Rx.ou.addVa",
+                  "name": "addVa"
+              }
+          ]
         }
       ]
     }

@@ -1,3 +1,8 @@
+/**
+ * @flow
+ */
+'use strict';
+
 import type {
   FieldDefinition,
   GroupDefinition,

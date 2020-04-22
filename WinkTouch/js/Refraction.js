@@ -45,6 +45,8 @@ export function newRefraction() : GlassesRx {
     },
     os: {
       sph: undefined
+    },
+    ou: {
     }
   }
 }
@@ -170,9 +172,11 @@ export class DegreeField extends Component {
     prism += formatCode('prism1b', eyeRx.prism1b);
   }
   if (eyeRx.prism2!==undefined && eyeRx.prism2!==0) {
+    prism += isEmpty(prism)? '' : ' ';
     prism += eyeRx.prism2 + ' ';
     prism += formatCode('prism2b', eyeRx.prism2b);
   }
+  if (prism!='') prism = '\u25b3'+prism;
   return prism;
 }
 
@@ -273,47 +277,61 @@ export class GlassesSummary extends Component {
     titleStyle: styles.cardTitle
   }
 
+  isSphEmpty() {
+    return isEmpty(this.props.glassesRx.os.sph) && isEmpty(this.props.glassesRx.od.sph);
+  }
+  isEyeEmpty() {
+    return (this.props.glassesRx.od.isEye===false && this.props.glassesRx.os.isEye===false) ;
+  }
+
+
   render() {
     if (this.props.visible!==true)
       return null;
+
     if (isEmpty(this.props.glassesRx)) {
       return <View style={styles.columnLayout} key={this.props.title}>
           <Text style={this.props.titleStyle}>{this.props.title}</Text>
       </View>
     }
+    if(this.isEyeEmpty())
+       return null;
+
+    if(this.isSphEmpty())
+       return null;
     return <View style={styles.columnLayout} key={this.props.title}>
       {this.props.title!==null && this.props.title!==undefined && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
       {this.props.glassesRx.lensType!=undefined && this.props.glassesRx.lensType!=null && this.props.glassesRx.lensType!='' && <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>}
       <View style={styles.rowLayout}>
         <View style={styles.cardColumn}>
           {this.props.showHeaders===true && <Text style={styles.text}></Text>}
-          <Text style={styles.text}>{'\t'+strings.od}:</Text>
-          <Text style={styles.text}>{'\t'+strings.os}:</Text>
+          {<Text style={styles.text}>{'\t'+strings.od}:</Text>}
+          {<Text style={styles.text}>{'\t'+strings.os}:</Text>}
         </View>
         <View style={styles.cardColumn} key='sph'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Sphere</Text>}
-          <Text style={styles.text} key='od.sph'> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.sph):''}</Text>
-          <Text style={styles.text} key='os.sph'> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.sph):''}</Text>
+          {this.props.showHeaders===true && <Text style={styles.text}>Sphere </Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.sph'> {!isEmpty(this.props.glassesRx.od.sph)?formatDiopter(this.props.glassesRx.od.sph):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.sph'> {!isEmpty(this.props.glassesRx.os.sph)?formatDiopter(this.props.glassesRx.os.sph):''}</Text>}
         </View>
         <View style={styles.cardColumn} key='cyl'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Cyl</Text>}
-          <Text style={styles.text}> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.cyl):''}</Text>
-          <Text style={styles.text}> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.cyl):''}</Text>
+          {this.props.showHeaders===true && <Text style={styles.text}>Cyl </Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.cyl'> {!isEmpty(this.props.glassesRx.od.cyl)?formatDiopter(this.props.glassesRx.od.cyl):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.cyl'> {!isEmpty(this.props.glassesRx.os.cyl)?formatDiopter(this.props.glassesRx.os.cyl):''}</Text>}
         </View>
         <View style={styles.cardColumn} key='axis'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Axis</Text>}
-          <Text style={styles.text}> {this.props.glassesRx.od?formatDegree(this.props.glassesRx.od.axis):''}</Text>
-          <Text style={styles.text}> {this.props.glassesRx.os?formatDegree(this.props.glassesRx.os.axis):''}</Text>
+          {this.props.showHeaders===true && <Text style={styles.text}>Axis </Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.axis'> {!isEmpty(this.props.glassesRx.od.axis)?formatDegree(this.props.glassesRx.od.axis):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.axis'> {!isEmpty(this.props.glassesRx.os.axis)?formatDegree(this.props.glassesRx.os.axis):''}</Text>}
         </View>
         <View style={styles.cardColumn} key='add'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Add</Text>}
-          <Text style={styles.text}> {this.props.glassesRx.od?formatDiopter(this.props.glassesRx.od.add):''}</Text>
-          <Text style={styles.text}> {this.props.glassesRx.os?formatDiopter(this.props.glassesRx.os.add):''}</Text>
+          {this.props.showHeaders===true && <Text style={styles.text}>Add </Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.add'>{!isEmpty(this.props.glassesRx.od.add) ? ' '+ strings.add + ': ' + formatDiopter(this.props.glassesRx.od.add):''}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.add'>{!isEmpty(this.props.glassesRx.os.add) ? ' '+ strings.add + ': ' + formatDiopter(this.props.glassesRx.os.add):''}</Text>}
         </View>
         <View style={styles.cardColumn} key='prism'>
-          {this.props.showHeaders===true && <Text style={styles.text}>Prism</Text>}
-          <Text style={styles.text}> {this.props.glassesRx.od?formatPrism(this.props.glassesRx.od):''}</Text>
-          <Text style={styles.text}> {this.props.glassesRx.os?formatPrism(this.props.glassesRx.os):''}</Text>
+          {this.props.showHeaders===true && <Text style={styles.text}>Prism </Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.prism'> {formatPrism(this.props.glassesRx.od)}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.prism'> {formatPrism(this.props.glassesRx.os)}</Text>}
         </View>
     </View>
     </View>
@@ -427,6 +445,7 @@ export class GlassesDetail extends Component {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.os = {};
     glassesRx.od = {};
+    glassesRx.ou={};
     glassesRx.lensType = undefined;
     if (this.props.onChangeGlassesRx)
       this.props.onChangeGlassesRx(glassesRx);
@@ -552,6 +571,18 @@ export class GlassesDetail extends Component {
                 onChangeValue={(value: ?number) => this.updateGlassesRx('os','addVa', value)} errorMessage={this.props.glassesRx.os.addVaError}/>}
             {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
           </View>
+          {this.props.hasVA===true && this.props.glassesRx.ou!==undefined && <View style={styles.formRow}>
+            <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) => this.updateGlassesRx('ou','va', value)} errorMessage={this.props.glassesRx.ou.vaError}/>
+            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.ou.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU')} showLabel={false} readonly={!this.props.editable}
+                onChangeValue={(value: ?number) => this.updateGlassesRx('ou','addVa', value)} errorMessage={this.props.glassesRx.ou.addVaError}/>}
+            {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}
+          </View>}
           {(this.props.hasNotes===true || (this.props.definition!==undefined && this.props.definition.hasNotes)) && <View style={styles.formRow}>
             <FormInput value={this.props.glassesRx.notes} definition={getFieldDefinition('visit.prescription.notes')} readonly={!this.props.editable}
               onChangeValue={(value: ?string) => this.updateGlassesRx(undefined, 'notes', value)} errorMessage={this.props.glassesRx.notesError}/>
@@ -779,11 +810,10 @@ export class PatientRefractionCard extends Component {
 
 
   render() {
-    if (!this.state.refractions) return null;
     return <View style={styles.tabCard}>
       {(!this.state.refractions || this.state.refractions.length===0) &&  <Text style={styles.cardTitle}>{strings.finalRx}</Text>}
-      {this.state.refractions.map((refraction: GlassesRx, index: number) =>
-        <GlassesSummary showHeaders={false} title={strings.refractionTitle + ' '+formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
+      {this.state.refractions && this.state.refractions.map((refraction: GlassesRx, index: number) =>
+         <GlassesSummary showHeaders={false} title={strings.finalRx+' '+formatDate(refraction.prescriptionDate, isToyear(refraction.prescriptionDate)?dateFormat:farDateFormat)} glassesRx={refraction} key={index}/>)}
     </View>
   }
 }
