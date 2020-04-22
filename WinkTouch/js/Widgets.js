@@ -581,6 +581,10 @@ export class NumberField extends Component {
         return '';
       if(value.toString().trim() === '')
         return '';
+
+      if(value instanceof Array) {
+        value = value.toString().replace(',',' / ');
+      } 
       if (isNaN(value)) {
         if (this.props.options instanceof Array && this.props.options.includes(value)) {
           return value;
@@ -593,6 +597,7 @@ export class NumberField extends Component {
         }
         return value.toString();
       }
+
       let formattedValue: string = (this.props.decimals!=undefined && this.props.decimals>0) ? Number(value).toFixed(this.props.decimals) : String(value);
       if (formattedValue=='') return '';
       if (this.props.prefix) {
