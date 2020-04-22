@@ -114,6 +114,7 @@ export const strings = new LocalizedStrings({
       printReferral: 'Print Referral',
       printMedicalRx: 'Print Medical Rx',
       printPatientFile: 'Print Patient File',
+      patientFile: 'Patient File',
       add: 'Add',
       remove: 'Remove',
       od: 'OD',
@@ -164,7 +165,10 @@ export const strings = new LocalizedStrings({
       during: 'During',
       drSignature: 'Dr Signature',
       signedDate: 'Signed Date',
-      futureVisitDateError: 'You can\'t add a consultation in the future'
+      futureVisitDateError: 'You can\'t add a consultation in the future',
+      saveImageError: 'Something went wrong saving your {0} image in the database. Please try again.',
+      pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.',
+      date: 'Date'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
@@ -184,9 +188,9 @@ export const strings = new LocalizedStrings({
       loginscreenTitle: 'Se connecter à WINKemr',
       account: 'Compte',
       store: 'Magasin',
-      securityQuestionsError: 'Une erreur interne s\'est produite en validant la question de sécurité. Veuillez réessayer.',
-      registrationError: 'Une erreur interne s\'est produite en cherchant la version de l\'application mobile. Veuillez réessayer.',
-      fetchAccountsError: 'Une erreur interne s\'est produite en cherchant vos comptes. Veuillez réessayer.',
+      securityQuestionsError: 'Une erreur s\'est produite en validant la question de sécurité. Veuillez réessayer.',
+      registrationError: 'Une erreur s\'est produite en cherchant la version de l\'application mobile. Veuillez réessayer.',
+      fetchAccountsError: 'Une erreur s\'est produite en cherchant vos comptes. Veuillez réessayer.',
       loginFailed: 'Erreur d\'authentification',
       agenda: 'Agenda',
       patient: 'Patient',
@@ -270,7 +274,8 @@ export const strings = new LocalizedStrings({
       printClRx: 'Imprimer LC',
       printReferral: 'Imprimer Référence',
       printMedicalRx: 'Imprimer Rx médicale',
-      printPatientFile: 'Imprimer la fiche patient',
+      printPatientFile: 'Imprimer Dossier Patient',
+      patientFile: 'Dossier Patient',
       add: 'Ajouter',
       remove: 'Suprimer',
       od: 'OD',
@@ -321,7 +326,10 @@ export const strings = new LocalizedStrings({
       during: 'Pendant',
       drSignature: 'Signature Dr',
       signedDate: 'Signé le',
-      futureVisitDateError: 'Vous ne pouvez pas ajouter une consultation dans le futur.'
+      futureVisitDateError: 'Vous ne pouvez pas ajouter une consultation dans le futur.',
+      saveImageError: 'Une erreur s\'est produite en sauvegardant l\'image {0} dans la base de données. Veuillez essayer de nouveau.',
+      pmsImageSaveError: 'Une erreur s\'est produite en sauvegardant l\'image dans le PMS',
+      date: 'Date'
     }
 });
 

@@ -55,31 +55,25 @@ export function printPatientHeader (visit: Visit) {
 
   html +=
     `    <header class="clearfix">` +
-    `      <h1>Patient Overview</h1>` +
+    `      <h1>${strings.patientFile}</h1>` +
     `      <div id="company" class="clearfix">` +
     `        <div>${store.companyName}</div>` +
-    `        <div>${store.streetName + prefix(store.unit, ', ')}<br />${
-      store.postalCode
-    } ${store.city}</div>` +
+    `        <div>${store.streetName + prefix(store.unit, ', ')}<br />${store.postalCode} ${store.city}</div>` +
     `        <div>${store.telephone}</div>` +
-    `        <div><a href="mailto:${store.email}">${store.email}</a></div>` +
+    `        <div>${store.email}</div>` +
     `      </div>` +
     `      <div id="client">` +
-    `        <div><span>CLIENT</span>${patient.firstName} ${patient.lastName}</div>` +
-    `        <div><span>DOCTOR</span>${doctor.firstName} ${doctor.lastName}</div>` +
-    `        <div><span>ADDRESS</span>${postfix(patient.streetNumber, ', ') +
+    `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
+    `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
+    `        <div><span></span>${postfix(patient.streetNumber, ', ') +
       patient.streetName +
       prefix(patient.unit, ', ') +
       prefix(patient.postalCode, ', ') +
       prefix(patient.city, ', ') +
       prefix(patient.province, ', ') +
       prefix(patient.country, ', ')}</div>` +
-    `        <div><span>EMAIL</span> <a href="mailto:${patient.email}">${patient.email}</a></div>` +
-    `        <div><span>DATE</span>${formatDate(
-      now(),
-      officialDateFormat
-    )}</div>` +
-    `      </div>` +
+    `        <div><span></span>${patient.email}</div>` +
+    `        <div><span>${strings.date}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
     `    </header>`
 
   return html
@@ -218,7 +212,6 @@ async function renderAllGroupsHtml (exam: Exam) {
       html += result
     }
   }));
- 
   return html
 }
 async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
@@ -460,7 +453,7 @@ async function renderField (
     if (fieldDefinition.type === 'age') {
       html += formatAge(value)
     }
-     else 
+     else
        html += value
   }
 

@@ -19,19 +19,19 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
 
 
-export async function printPatientFile(visitHtml: string) {
-    const html = visitHtml;
-    const pageWidth : number = 612; 
+export async function printHtml(html: string) {
+    const pageWidth : number = 612;
     const pageAspectRatio : number = 8.5/11;
     const pageHeight : number = pageWidth/pageAspectRatio;
     let options = {
       html,
-      fileName: 'Patient Exam File',
+      fileName: 'Print',
       width: pageWidth,
       height: pageHeight
     };
-  let file = await RNHTMLtoPDF.convert(options);
-  await NativeModules.RNPrint.print({filePath: file.filePath});
+    let file = await RNHTMLtoPDF.convert(options);
+    await NativeModules.RNPrint.print({filePath: file.filePath});
+    await RNFS.unlink(file.filePath);
   }
 
 export async function printRx(visitId: string) {
