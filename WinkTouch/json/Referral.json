@@ -104,6 +104,20 @@
                                     "label": ""
                                 },
                                 {
+                                    "maxLength": 100,
+                                    "layout": {
+                                        "position": "absolute",
+                                        "width": 700,
+                                        "justifyContent": "flex-start",
+                                        "left": 225,
+                                        "fontSize": 17,
+                                        "top": 928,
+                                        "borderWidth": 0
+                                    },
+                                    "name": "Other",
+                                    "label": ""
+                                },
+                                {
                                     "maxLength": 50,
                                     "name": "Doctor Name",
                                     "layout": {
