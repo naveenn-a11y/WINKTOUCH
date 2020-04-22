@@ -10,19 +10,20 @@ import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefiniti
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
-import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow, yearDateFormat } from './Util';
-import { ExamCard, createExam, storeExam, getExam } from './Exam';
+import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow, yearDateFormat, officialDateFormat, prefix, postfix } from './Util';
+import { ExamCard, createExam, storeExam, getExam,  renderExamHtml } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
 import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
 import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
 import { fetchAppointment } from './Appointment';
-import { printRx, printClRx, printMedicalRx } from './Print';
+import { printRx, printClRx, printMedicalRx, printHtml } from './Print';
 import { PatientDocumentPage } from './Patient';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
-import { getDoctor } from './DoctorApp';
+import { getDoctor, getStore } from './DoctorApp';
+import {getVisitHtml, printPatientHeader} from './PatientFormHtml';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -145,6 +146,37 @@ function getRecentVisitSummaries(patientId: string) : ?Exam[] {
     }
   });
   return visitSummaries;
+}
+
+
+async function printPatientFile(visitId : string) {
+   let visitHtml : string = '';
+    const visit: Visit = getCachedItem(visitId);
+    const allExams : string[] = allExamIds(visit);
+    let xlExams : Exam[] = [];
+    visitHtml += printPatientHeader(visit);
+    if (allExams) {
+        visitHtml +=  `<table><thead><tr><th class="service">EXAM</th><th class="desc">DESCRIPTION</th></tr></thead><tbody>`;
+        for(const examId: string of allExams) {
+        const exam: Exam = getCachedItem(examId);
+        let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
+        if(xlGroupDefinition && xlGroupDefinition.length >0) {
+          xlExams.push(exam);
+        }
+         else {
+          if(exam.isHidden!==true && (exam.hasStarted)) {
+              visitHtml +=  await renderExamHtml(exam);
+          }
+         }
+        }
+        visitHtml +=  `</tbody></table>`;
+        for(const exam: string of xlExams) {
+          if(exam.isHidden!==true && (exam.hasStarted)) {
+              visitHtml += await renderExamHtml(exam);
+          }
+         }
+        printHtml(getVisitHtml(visitHtml));
+    }
 }
 
 class VisitButton extends PureComponent {
@@ -315,8 +347,11 @@ class VisitWorkFlow extends Component {
       if (!visit) return undefined;
       if (!visit.customExamIds) return undefined;
       let rxToOrderExamId : ?string = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name==='RxToOrder');
-      if (rxToOrderExamId)
-        return getCachedItem(rxToOrderExamId);
+      if (rxToOrderExamId) {
+        let exam : Exam = getCachedItem(rxToOrderExamId);
+        return exam;
+      }
+
       return undefined;
     }
 
@@ -373,6 +408,10 @@ class VisitWorkFlow extends Component {
         if (!visit || !visit.id) return;
         let exam: Exam = {id: 'customExam', visitId: visit.id, customExamDefinitionId: examDefinitionId, examPredefinedValueId: examPredefinedValueId};
         exam = await createExam(exam);
+        if (exam.errors) {
+          alert(exam.errors);
+          return;
+        }
         if (!visit.preCustomExamIds) visit.preCustomExamIds = [];
         if (!visit.customExamIds) visit.customExamIds = [];
         if (exam.definition.isPreExam) {
@@ -493,6 +532,7 @@ class VisitWorkFlow extends Component {
        let assessments : Exam[] = getCachedItems(this.state.visit.customExamIds).filter(
          (exam: Exam) => exam.definition.isAssessment);
        return assessments.map((exam: Exam, index: number) => {
+
          if (exam.definition.name==='RxToOrder') {
            return  <TouchableOpacity key={strings.finalRx} disabled={this.props.readonly} onPress={() => this.state.rxToOrder && this.props.navigation.navigate('exam', {exam: this.state.rxToOrder, appointmentStateKey: this.props.appointmentStateKey}) }>
                     <PrescriptionCard title={strings.finalRx} exam={this.state.rxToOrder} editable={false} />
@@ -515,6 +555,7 @@ class VisitWorkFlow extends Component {
             {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
             {this.hasClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
+            <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
@@ -812,7 +853,7 @@ export class VisitHistory extends Component {
       if (compareDates(date, tomorrow())>=0) {
         alert(strings.futureVisitDateError);
         return;
-      }      
+      }
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 

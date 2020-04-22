@@ -14,6 +14,7 @@ import { ClearTile, UpdateTile, CameraTile, RefreshTile, CloseTile } from './Wid
 import { styles, fontScale, imageStyle } from './Styles';
 import { storeUpload, getJpeg64Dimension } from './Upload';
 import { getCachedItem } from './DataCache';
+import { strings } from './Strings';
 
 
 export class DocumentScanner extends Component {
@@ -60,6 +61,13 @@ export class DocumentScanner extends Component {
       argument2: this.props.examId
     };
     upload = await storeUpload(upload);
+    if (upload.errors) {
+      alert(strings.formatString(strings.pmsImageSaveError, this.props.fileName));
+      this.setState({
+        saving: false
+      });            
+      return upload;
+    }
     if (this.props.category) {
       //TODO?
     }

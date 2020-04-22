@@ -3,7 +3,6 @@
  */
 'use strict';
 import {NativeModules} from 'react-native';
-//import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import type { User,PatientInfo, Visit } from './Types';
 import RNFS from 'react-native-fs';
@@ -13,24 +12,27 @@ import { formatDate, now, officialDateFormat, prefix, postfix} from './Util';
 import { getExam } from './Exam';
 import { getCachedItem } from './DataCache';
 import { getDoctor, getStore } from './DoctorApp';
+import { fetchItemById } from './Rest';
+import { fetchUpload, getJpeg64Dimension, getPng64Dimension, getMimeType } from './Upload';
+import { winkRestUrl } from './WinkRest';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
-/**
-async function testPrintHtml() {
-  let html = {
-      html: '<h1>Prescription</h1><Table><TR><TD></TD><TD>Sph</TD><TD>Cyl</TD></TR><TR><TD>OD:</TD><TD>+1.25</TD></TR></Table>',
-      fileName: 'test',
-      base64: true,
-  };
 
-  try {
-    const results = await RNHTMLtoPDF.convert(html);
-    const jobName = await NativeModules.RNPrint.print(results.filePath);
-    console.log(`Printing ${jobName} completed!`);
-  } catch (err) {
-    console.error(err)
+
+export async function printHtml(html: string) {
+    const pageWidth : number = 612;
+    const pageAspectRatio : number = 8.5/11;
+    const pageHeight : number = pageWidth/pageAspectRatio;
+    let options = {
+      html,
+      fileName: 'Print',
+      width: pageWidth,
+      height: pageHeight
+    };
+    let file = await RNHTMLtoPDF.convert(options);
+    await NativeModules.RNPrint.print({filePath: file.filePath});
+    await RNFS.unlink(file.filePath);
   }
-}
-*/
 
 export async function printRx(visitId: string) {
   try {
@@ -52,25 +54,40 @@ export async function printClRx(visitId: string) {
   }
 }
 
-async function loadLogo() {
+async function listLocalFiles() : string[]{
+  const fileNames : string[] = await RNFS.readdir(RNFS.DocumentDirectoryPath);
+  __DEV__ && fileNames.forEach(fileName => console.log(fileName));
+  return fileNames;
+}
+
+export async function deleteLocalFiles() {
+  console.log('Deleting local files');
+  let fileNames = await listLocalFiles();
+  for (let i=0; i<fileNames.length; i++) {
+    if (fileNames[i].includes('.')) {
+      await RNFS.unlink(RNFS.DocumentDirectoryPath+'/'+fileNames[i]);
+    }
+  }
+}
+
+async function loadRxLogo() {
   //TODO: only fetch once
   __DEV__ && console.log('Fetching Rx logo');
   await RNFS.downloadFile({
-    fromUrl: 'https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/431/Rx.jpg',
+    fromUrl: winkRestUrl+'/webresources/attachement/845/431/Rx.jpg',
     toFile: RNFS.DocumentDirectoryPath+'/Rx-logo.jpg'
   });
 }
 
+loadRxLogo();
 
-loadLogo(); //TODO: load store logo
-
-async function listLocalFiles() {
-  const fileNames : string[] = await RNFS.readdir(RNFS.DocumentDirectoryPath);
-  console.log('Files in '+RNFS.DocumentDirectoryPath+': ');
-  fileNames.forEach(fileName => console.log(fileName));
-}
-
-function addLogo(page: PDFPage, pageHeight: number, border: number) {
+async function addLogo(page: PDFPage, pageHeight: number, border: number) {
+  if (!(await RNFS.exists(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg'))) {
+    await loadRxLogo();
+    if (!(await RNFS.exists(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg'))) {
+      return;
+    }
+  }
   page.drawImage(RNFS.DocumentDirectoryPath+'/Rx-logo.jpg', 'jpg', {x: border, y: pageHeight-border-100, width: 100, height: 100});
 }
 
@@ -175,21 +192,63 @@ function addMedicalRxLines(visitId: string, page: PDFPage, pageHeight: number, b
           y-=fontSize*1.15;
         });
       }
-
       y-=fontSize;
-      //
   });
 }
 
-function addSignature(visitId: string, page: PDFPage, pageWidth: number, border: number) {
+
+
+async function addSignature(visitId: string, page: PDFPage, pageWidth: number, border: number) {
   const visit: Visit = getCachedItem(visitId);
   const signedDate : ?string = visit.prescription && visit.prescription.signedDate?formatDate(visit.prescription.signedDate, officialDateFormat):undefined;
+
   const fontSize : number = 10;
   let x : number = border*3;
   let y : number = border+fontSize*4;
   page.drawText(strings.drSignature+':', {x, y, fontSize});
-  x = pageWidth-x-70;
+  x+=60;
+  if (signedDate) {
+    let doctor : User = getCachedItem(visit.userId);
+    if (!doctor) {
+      doctor = await fetchItemById(visit.userId); //TODO: This does not work actually
+    }
+    if (!doctor) {
+      __DEV__ && console.error('Failed to fetch doctor '+visit.userId);
+    } else {
+      if (doctor.signatureId) {
+        const fullFilename : string = RNFS.DocumentDirectoryPath+'/' + doctor.signatureId+'.base64';
+        let signature : Upload = getCachedItem(doctor.signatureId);
+        if (!signature) {
+          signature = await fetchUpload(doctor.signatureId);
+          if (!signature) {
+            __DEV__ && console.warn('failed to download singature '+doctor.signatureId);
+            return;
+          }
+          await RNFS.writeFile(fullFilename, signature.data, 'base64');
+          __DEV__ && console.log('Created local file '+fullFilename);
+        } else {
+          if (!(await RNFS.exists(fullFilename))) {
+            await RNFS.writeFile(fullFilename, signature.data, 'base64');
+            __DEV__ && console.log('Created local file '+fullFilename);
+          }
+        }
+        const mimeType : string = getMimeType(signature);
+        if (mimeType==='image/jpeg;base64') {
+          let dimension = getJpeg64Dimension(signature.data);
+          page.drawImage(fullFilename, 'jpg', {x, y: border, width: 150, height: dimension.height/dimension.width*150});
+        } else if (mimeType==='image/png;base64') {
+          let dimension = getPng64Dimension(signature.data);
+          page.drawImage(fullFilename, 'png', {x, y: border, width: 150, height: dimension.height/dimension.width*150});
+        } else {
+          __DEV__ && console.log('Unsupported signature image type:'+ signature.name+' '+signature.mimeType);
+        }
+      }
+    }
+  }
+
+  x = pageWidth-170;
   page.drawText(strings.signedDate+':'+prefix(signedDate,' '), {x, y, fontSize});
+
 }
 
 export async function printMedicalRx(visitId: string) {
@@ -202,13 +261,12 @@ export async function printMedicalRx(visitId: string) {
     .create()
     .setMediaBox(pageWidth, pageHeight);
 
-  addLogo(rxPage, pageHeight, border);
+  await addLogo(rxPage, pageHeight, border);
   addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border);
-  addSignature(visitId, rxPage, pageWidth, border);
-
+  await addSignature(visitId, rxPage, pageWidth, border);
 
   const docsDir = await PDFLib.getDocumentsDirectory();
   const pdfPath = `${docsDir}/print.pdf`;
