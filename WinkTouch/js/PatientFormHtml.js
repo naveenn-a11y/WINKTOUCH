@@ -493,14 +493,13 @@ async function renderImage (
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
-      fieldDefinition.fields.map(
-        (childGroupDefinition: GroupDefinition, index: number) => {
+      await Promise.all(fieldDefinition.fields.map(async (childGroupDefinition: GroupDefinition, index: number) => {
           let parentScaledStyle: Object = undefined
           if (childGroupDefinition.layout)
             parentScaledStyle = scaleStyle(childGroupDefinition.layout)
           for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
             let fieldScaledStyle = undefined
-            const pfValue = renderField(
+            const pfValue = await renderField(
               childFieldDefinition,
               childGroupDefinition,
               exam,
@@ -524,7 +523,7 @@ async function renderImage (
             }
           }
         }
-      )
+      ))
   }
   return html
 }
