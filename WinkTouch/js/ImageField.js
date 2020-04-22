@@ -211,9 +211,6 @@ export class ImageField extends Component {
         lines = undefined;
       }
       value.lines = lines;
-      if (value.lines===undefined && value.image===undefined) {
-        value=undefined;
-      }
       //__DEV__ && console.log('Committing line edit: '+JSON.stringify(value));
       this.props.onChangeValue(value);
   }
@@ -398,7 +395,7 @@ export class ImageField extends Component {
       argument1: this.props.patientId,
       argument2: this.props.examId
     };
-    upload = await storeUpload(upload);    
+    upload = await storeUpload(upload);
     if (upload.id==='upload' || upload.id===undefined || upload.errors) {
       alert(strings.formatString(strings.pmsImageSaveError, this.props.fileName));
       return;
