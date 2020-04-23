@@ -78,6 +78,11 @@ export function printPatientHeader (visit: Visit) {
       prefix(patient.province, ', ') +
       prefix(patient.country, ', ')}</div>` +
     `        <div><span></span>${patient.email}</div>` +
+    `        <div><span></span>${patient.cell?(patient.cell+' '):patient.phone}</div>` +
+    `        <div><span></span>${patient.dateOfBirth}</div>` +
+    `        <div><span></span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
+
+
     `        <div><span>${strings.date}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
     `    </header>`
 
