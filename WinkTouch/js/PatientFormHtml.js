@@ -242,16 +242,18 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       value instanceof Array === false ||
       value.length === 0
     )
-      return HTML
+      return html;
     await Promise.all(value.map(async (groupValue: any, groupIndex: number) => {
       if (
         groupValue === undefined ||
         groupValue === null ||
         Object.keys(groupValue).length === 0
       )
-        return html
+      return html;
 
-      html += await renderRowsHtml(groupDefinition, exam, groupIndex)
+
+      const rowValue = await renderRowsHtml(groupDefinition, exam, groupIndex);
+      html += rowValue;
     }));
   } else if (groupDefinition.fields === undefined && groupDefinition.options) {
     html += renderCheckListItemHtml(exam, groupDefinition)
@@ -269,7 +271,8 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       Object.keys(value).length === 0
     )
     return null;
-    html += await renderRowsHtml(groupDefinition, exam)
+    const rowValue = await renderRowsHtml(groupDefinition, exam);
+    html += rowValue;
   }
   return html
 }
@@ -281,15 +284,17 @@ async function renderRowsHtml (
 ) {
   let rows: any[] = []
   let html: string = ''
-  const form = exam[exam.definition.name][groupDefinition.name]
+  const form = exam[exam.definition.name][groupDefinition.name];
   if (!groupDefinition.fields) return null
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
     const columnFieldIndex: number = getColumnFieldIndex(
       groupDefinition,
       fieldDefinition.name
     )
+
     if (columnFieldIndex === 0) {
-      html += await renderColumnedRows(fieldDefinition, groupDefinition, exam, form)
+      const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, groupIndex);
+      html += value;
     } else if (columnFieldIndex < 0) {
       const value = await renderField(
         fieldDefinition,
@@ -297,7 +302,7 @@ async function renderRowsHtml (
         exam,
         form,
         groupIndex
-      )
+      );
       if (!isEmpty(value)) {
         const label: string = formatLabel(fieldDefinition)
         if (label !== undefined && label !== null && label.trim() !== '') {
@@ -316,31 +321,36 @@ async function renderColumnedRows (
   columnDefinition: GroupDefinition,
   definition: GroupDefinition,
   exam: Exam,
-  form: {}
+  form: {},
+  groupIndex?: number = 0
 ) {
   let html: string = ''
   html += `<table style="margin-top:10px;">`
-  html += renderColumnsHeader(columnDefinition, definition)
+  html += renderColumnsHeader(columnDefinition, definition);
+
   const columnedFields: FieldDefinition[] = columnDefinition.fields
   const columns: string[] = definition.columns.find(
     (columns: string[]) =>
       columns.length > 0 && columns[0] === columnDefinition.name
-  )
-  for (let i: number = 0; i < columnedFields.length; i++) {
-    html +=
-      `<tr>` +
+  );
+
+  await Promise.all(columnedFields.map(async(column: string, i: number) => {
+    const value =
       await renderColumnedRow(
         formatLabel(columnedFields[i]),
         columns,
         i,
         definition,
         exam,
-        form
-      ) +
-      `</tr>`
-  }
+        form,
+        groupIndex
+      );
+      html +=`<tr>${value}</tr>`;
+  }));
+
   html += `</table>`
-  return html
+
+  return html;
 }
 
  async function renderColumnedRow (
@@ -349,9 +359,10 @@ async function renderColumnedRows (
   rowIndex: number,
   definition: GroupDefinition,
   exam: Exam,
-  form: {}
+  form: {},
+  groupIndex?: number = 0
 ) {
-  let html: string = ''
+  let html: string = '';
   html += `<td class="desc">${fieldLabel}</td>`
 
   await Promise.all(columns.map(async(column: string, columnIndex: number) => {
@@ -360,11 +371,8 @@ async function renderColumnedRows (
     )
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
-      const value = await renderField(fieldDefinition, definition, exam, form, column);
-      html +=
-        `<td class="desc">` +
-         value +
-        `</td>`
+      const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
+      html +=`<td class="desc">${value}</td>`;
     }
   }));
   return html
@@ -458,8 +466,15 @@ async function renderField (
     if (fieldDefinition.type === 'age') {
       html += formatAge(value)
     }
-     else
-       html += value
+     else {
+       if(value instanceof Array) {
+         const formattedValue : string = value.toString().replace(',',' / ');
+          html += formattedValue;
+       } else {
+          html += value;
+       }
+
+     }
   }
 
   return html
