@@ -644,7 +644,7 @@ function renderRxTable (
 
   html += `<table>`
   html += `<thead><tr>`
-  html += `<th class="service">${formatLabel(groupDefinition)}</th>`
+  html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(groupDefinition)}</th>`
   html += `<th class="service">Sph</th>`
   html += `<th class="service">Cyl</th>`
   html += `<th class="service">Axis</th>`
@@ -654,7 +654,7 @@ function renderRxTable (
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
     html += `<th class="service">NVA</th>`
   html += `</thead></tr><tbody><tr>`
-  html += `<td class="desc">${strings.od}</td>`
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.od}</td>`
   html += `<td class="desc">${
     glassesRx.od ? formatDiopter(glassesRx.od.sph) : ''
   }</td>`
@@ -682,7 +682,7 @@ function renderRxTable (
     }</td>`
   html += `</tr>`
   html += `<tr>`
-  html += `<td class="desc">${strings.os}</td>`
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.os}</td>`
   html += `<td class="desc">${
     glassesRx.os ? formatDiopter(glassesRx.os.sph) : ''
   }</td>`
@@ -798,6 +798,7 @@ export function patientHeader () {
     `table td {` +
     `padding: 5px 20px;` +
     `text-align: center;` +
+    `font-size:11px;`+
     `}` +
     `table th {` +
     `  padding: 5px 20px;` +
