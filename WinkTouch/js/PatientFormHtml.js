@@ -329,9 +329,9 @@ async function renderColumnedRows (
   form: {},
   groupIndex?: number = 0
 ) {
+  let rows: string[][] = [];
   let html: string = ''
-  html += `<table style="margin-top:10px;">`
-  html += renderColumnsHeader(columnDefinition, definition);
+
 
   const columnedFields: FieldDefinition[] = columnDefinition.fields
   const columns: string[] = definition.columns.find(
@@ -350,10 +350,37 @@ async function renderColumnedRows (
         form,
         groupIndex
       );
-      html +=`<tr>${value}</tr>`;
+      rows.push(value);
   }));
 
-  html += `</table>`
+  let allRowsEmpty : boolean = false;
+  for(let i=0; i<rows.length; i++) {
+      let rowValues = rows[i].slice(1); 
+      for(let j=0; j<rowValues.length;j++) {
+          if(!isEmpty(rowValues[j])) {
+            allRowsEmpty = false;
+            break;
+          }
+      else
+      allRowsEmpty = true;
+      }
+    if(allRowsEmpty == false)
+      break;
+  }
+
+
+  if(allRowsEmpty == false) {
+      html += `<table style="margin-top:10px;">`
+      html += renderColumnsHeader(columnDefinition, definition);
+      rows.forEach((column: string[]) => {
+        html +=`<tr>`;
+        column.forEach((value: string) => {
+        html +=`<td class="desc">${value}</td>`;
+        });
+        html +=`</tr>`
+      });
+      html += `</table>`
+  }
 
   return html;
 }
@@ -367,9 +394,9 @@ async function renderColumnedRows (
   form: {},
   groupIndex?: number = 0
 ) {
-  let html: string = '';
-  html += `<td class="desc">${fieldLabel}</td>`
 
+  let columnValues : string[] = [];
+  columnValues.push(fieldLabel);
   await Promise.all(columns.map(async(column: string, columnIndex: number) => {
     const columnDefinition: GroupDefinition = definition.fields.find(
       (columnDefinition: FieldDefinition) => columnDefinition.name === column
@@ -377,10 +404,10 @@ async function renderColumnedRows (
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
       const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
-      html +=`<td class="desc">${value}</td>`;
+      columnValues.push(value);
     }
   }));
-  return html
+  return columnValues;
 }
 function renderColumnsHeader (
   columnDefinition: GroupDefinition,
@@ -638,12 +665,13 @@ function renderGlassesSummary (groupDefinition: GroupDefinition, exam: Exam) {
   }
 }
 
+
 function renderRxTable (
   glassesRx: GlassesRx,
   groupDefinition: GroupDefinition
 ) {
-  let html: string = ''
-  if (isEmpty(glassesRx)) {
+  let html: string = '';
+  if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html
   }
 
