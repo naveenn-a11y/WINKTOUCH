@@ -264,13 +264,8 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
   } else if (groupDefinition.fields === undefined && groupDefinition.options) {
     html += renderCheckListItemHtml(exam, groupDefinition)
   } else {
-    let showSubtitles: boolean = exam.definition.showSubtitles //NO IDEA
-    if (
-      exam.definition.fields.length === 1 &&
-      exam.definition.fields[0].multiValue !== true
-    )
-      showSubtitles = false
-    const value: any = exam[exam.definition.name][groupDefinition.name]
+
+    const value: any = exam[exam.definition.name][groupDefinition.name];
     if (
       value === undefined ||
       value === null ||
@@ -310,7 +305,7 @@ async function renderRowsHtml (
         groupIndex
       );
       if (!isEmpty(value)) {
-        const label: string = formatLabel(fieldDefinition)
+        const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
           html += `<div><span>${label}:</span> <span>${value}</span></div>`
         } else {
@@ -504,7 +499,8 @@ async function renderField (
          const formattedValue : string = value.toString().replace(',',' / ');
           html += formattedValue;
        } else {
-          html += value;
+            const formattedValue : string = formatFieldValue(value, fieldDefinition);
+             html += formattedValue;
        }
 
      }
