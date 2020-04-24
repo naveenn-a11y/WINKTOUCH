@@ -30,6 +30,7 @@ import {
   postfix,
   cleanUpArray,
   formatDiopter,
+  formatDegree,
   getValue,
   formatAge
 } from './Util'
@@ -695,7 +696,7 @@ function renderRxTable (
     glassesRx.od ? formatDiopter(glassesRx.od.cyl) : ''
   }</td>`
   html += `<td class="desc">${
-    glassesRx.od ? formatDiopter(glassesRx.od.axis) : ''
+    glassesRx.od ? formatDegree(glassesRx.od.axis) : ''
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
@@ -723,7 +724,7 @@ function renderRxTable (
     glassesRx.os ? formatDiopter(glassesRx.os.cyl) : ''
   }</td>`
   html += `<td class="desc">${
-    glassesRx.os ? formatDiopter(glassesRx.os.axis) : ''
+    glassesRx.os ? formatDegree(glassesRx.os.axis) : ''
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
