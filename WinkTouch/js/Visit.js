@@ -164,14 +164,14 @@ async function printPatientFile(visitId : string) {
           xlExams.push(exam);
         }
          else {
-          if(exam.isHidden!==true && (exam.hasStarted)) {
+          if((exam.isHidden!==true && exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
               visitHtml +=  await renderExamHtml(exam);
           }
          }
         }
         visitHtml +=  `</tbody></table>`;
         for(const exam: string of xlExams) {
-          if(exam.isHidden!==true && (exam.hasStarted)) {
+          if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
               visitHtml += await renderExamHtml(exam);
           }
          }
