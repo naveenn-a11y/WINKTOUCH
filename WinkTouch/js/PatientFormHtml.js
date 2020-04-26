@@ -509,7 +509,10 @@ async function renderField (
           html += formattedValue;
        } else {
             const formattedValue : string = formatFieldValue(value, fieldDefinition);
-             html += formattedValue;
+            if(isEmpty(formattedValue))
+              html += value;
+            else
+              html += formattedValue;
        }
 
      }
