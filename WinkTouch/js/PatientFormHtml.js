@@ -99,8 +99,8 @@ export function renderItemsHtml (exam: Exam): any {
   ) {
     const value: any = exam.definition.label
       ? exam.definition.label
-      : exam.definition.name
-    html += `<div style="display:none;">${value}</div>`
+      : exam.definition.name;
+    html += `<div style="display:none;">${value}</div>`;
   } else {
     const value: any = exam.definition.label
       ? exam.definition.label
@@ -109,7 +109,7 @@ export function renderItemsHtml (exam: Exam): any {
     html += `<td class="service">${value}</td>`
     html += `<td class="desc">`
     exam[exam.definition.name].map((examItem: any, index: number) => {
-      let item: any = renderItemHtml(examItem, index, exam)
+      let item: any = renderItemHtml(examItem, index, exam);
       html += `<div>${item}</div>`
     })
     html += `</td>`
@@ -118,74 +118,31 @@ export function renderItemsHtml (exam: Exam): any {
   return html
 }
 
-function renderItemHtml (examItem: any, index: number, exam: Exam): any {
-  let html: String = ''
-  if (exam.definition.fields === undefined) return
-  let fields = exam.definition.cardFields
-  if (fields === undefined || fields.length === 0) {
-    fields = exam.definition.fields.map(
-      (fieldDefinition: FieldDefinition) => fieldDefinition.name
-    )
-  }
-
-  let abnormalFields: string[] = fields.filter((field: string) => {
-    let value: string | string[] = examItem[field]
-    if (
-      value === undefined ||
-      value === null ||
-      (value instanceof Array && value.length === 0)
-    )
-      return false
-    const fieldDefinition:
-      | ?GroupDefinition
-      | FieldDefinition = exam.definition.fields.find(
-      (fieldDefinition: GroupDefinition | FieldDefinition) =>
-        fieldDefinition.name === field
-    )
-    if (fieldDefinition === undefined || fieldDefinition === null) return true
-    if (fieldDefinition.normalValue == String(value)) return false
-    if (String(value).startsWith('(-)')) return false
-    return true
-  })
-
-  {
-    exam.definition.titleFields &&
-      exam.definition.titleFields.map((titleField: string) => {
-        html += `<div>${examItem[titleField]}</div>`
-      })
-  }
-
-  let isFirstField: boolean = true
-  {
-    abnormalFields.map((field: string, subIndex: number) => {
-      let value: string | string[] = examItem[field]
-      if (exam.definition.fields === undefined) return null
-      const fieldDefinition:
-        | ?GroupDefinition
-        | FieldDefinition = exam.definition.fields.find(
-        (fieldDefinition: GroupDefinition | FieldDefinition) =>
-          fieldDefinition.name === field
-      )
-
-      if (fieldDefinition === null || fieldDefinition === undefined) return null
-      const title: any = exam.definition.editable
-        ? fieldDefinition.label
-          ? fieldDefinition.label
-          : fieldDefinition.name + ': '
-        : ''
-      const fieldValue: any = formatFieldValue(value, fieldDefinition)
-      if (isEmpty(title)) {
-        if (!isFirstField) html += `<span>,</span>`
-        html += `<span>${fieldValue}</span>`
-        isFirstField = false
-      } else {
-        html += `<div><span>${title}</span><span>${fieldValue}</span></div>`
+function renderItemHtml(examItem: any, index: number, exam: Exam) {
+      let html: String = ''
+      if (exam.definition.fields === undefined) return html;
+      let isFirstField = true;
+      const fieldDefinitions : FieldDefinition[] = exam.definition.fields;
+      for (let i: number = 0; i < fieldDefinitions.length; i++) {
+        const fieldDefinition : FieldDefinition = fieldDefinitions[i];
+        const propertyName: string = fieldDefinition.name;
+        const value :?string|?number = examItem[propertyName];
+        if (value!==undefined && value!==null) {
+          let formattedValue: string = formatFieldValue(value, fieldDefinition);
+          if (formattedValue && formattedValue !== '') {
+            if (isEmpty(fieldDefinition.label)) {
+              if (!isFirstField) html += `<span>,</span>`
+            html += `<span>${formattedValue}</span>`
+            isFirstField = false
+             } else {
+                html += `<div><span>${fieldDefinition.label}</span><span>${formattedValue}</span></div>`
+            }
+          }
+        }
       }
-    })
-  }
-
-  return html
+      return html;
 }
+
 
 export async function renderParentGroupHtml (exam: Exam): any {
   let html: string = '';
