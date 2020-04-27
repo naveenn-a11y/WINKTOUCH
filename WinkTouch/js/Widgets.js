@@ -16,7 +16,7 @@ import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
 import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge} from './Util';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty} from './Util';
 import { Camera } from './Favorites';
 import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
@@ -583,8 +583,13 @@ export class NumberField extends Component {
         return '';
 
       if(value instanceof Array) {
-        value = value.toString().replace(',',' / ');
-      } 
+        let formattedValue :string = '';
+        value.forEach((subValue : number | string) => {
+          formattedValue += subValue + ' / ';
+        });
+        if(!isEmpty(formattedValue))
+          value = formattedValue.replace(/\/\s*$/, "");
+       } 
       if (isNaN(value)) {
         if (this.props.options instanceof Array && this.props.options.includes(value)) {
           return value;
