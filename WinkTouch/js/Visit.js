@@ -23,7 +23,7 @@ import { PatientDocumentPage } from './Patient';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
-import {getVisitHtml, printPatientHeader} from './PatientFormHtml';
+import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -154,6 +154,7 @@ async function printPatientFile(visitId : string) {
     const visit: Visit = getCachedItem(visitId);
     const allExams : string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
+    setScannedFiles(visitHtml);
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
     if (exams) {
@@ -185,8 +186,8 @@ async function printPatientFile(visitId : string) {
             }
           }
         }
-
         visitHtml +=  `</tbody></table>`;
+        visitHtml += getScannedFiles();
         for(const exam: string of xlExams) {
           if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
               visitHtml += await renderExamHtml(exam);

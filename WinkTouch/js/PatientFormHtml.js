@@ -53,6 +53,15 @@ import {
 } from './DataCache'
 import { getDoctor, getStore } from './DoctorApp'
 
+let scannedFilesHtml : string = '';
+
+export function getScannedFiles() {
+ return scannedFilesHtml;
+} 
+
+export function setScannedFiles(html : string) {
+  scannedFilesHtml = html;
+}
 export function printPatientHeader (visit: Visit) {
   let html: string = ''
   const patient: PatientInfo = getCachedItem(visit.patientId)
@@ -486,11 +495,11 @@ async function renderImage (
   exam?: Exam
 ) {
   let html: string = ''
-  let filePath = null
-  const image: string =
-    value && value.image ? value.image : fieldDefinition.image;
-  const fieldAspectRatio =  aspectRatio(value, fieldDefinition);
+  let filePath = null;
+  const image: string = value && value.image ? value.image : fieldDefinition.image;
+  let fieldAspectRatio =   aspectRatio(value, fieldDefinition);
   let style: { width: number, height: number } = imageStyle(fieldDefinition.size, fieldAspectRatio);
+  let upload : Upload = undefined;
   const pageWidth : number = 612; 
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
@@ -502,20 +511,28 @@ async function renderImage (
       style.width = Math.floor(pageWidth);
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
-  const scale: number = style.width / resolutions(value, fieldDefinition)[0];
-  if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-      style.width = style.width * 0.85;
-      style.height = style.height * 0.85;
-  }
+  let scale: number = style.width / resolutions(value, fieldDefinition)[0];
 
   if (image.startsWith('upload-')) {
-      filePath = await loadImage(value)
+      upload = await loadImage(value);
+      if(upload) {
+        filePath = `data:${getMimeType(upload)},${upload.data}`;
+        fieldAspectRatio = getAspectRatio(upload);
+        style = imageStyle(fieldDefinition.size, fieldAspectRatio);
+        scale = style.width / resolutions(value, fieldDefinition)[0];
+        html += `<div class="uploadForm">${formatLabel(exam.definition)}</div>`;
+      }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
     const dir = RNFS.MainBundlePath + '/assets/js'
     filePath = `${dir}/${arr[arr.length - 1]}`
   } else {
     filePath = image
+  }
+  if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
+      console.log("LLLLLL & XLLLLL " + JSON.stringify(formatLabel(exam.definition)));
+      style.width = style.width * 0.85;
+      style.height = style.height * 0.85;
   }
   if (filePath) {
     html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt">`;
@@ -560,14 +577,19 @@ async function renderImage (
         }
       ))
   }
-  return html
+  if(upload) {
+    scannedFilesHtml += html;
+    return '';
+  } else {
+    return html;
+  }
 }
 async function loadImage (value: ImageDrawing) {
   if (!value || !value.image || !value.image.startsWith('upload-')) {
     return
   }
-  let upload: Upload = await fetchUpload(value.image)
-  return `data:${getMimeType(upload)},${upload.data}`
+  let upload: Upload = await fetchUpload(value.image);
+  return upload;
 }
 function renderGraph (
   value: ImageDrawing,
@@ -752,6 +774,12 @@ export function patientHeader () {
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
+    `.uploadForm {display: block; page-break-before: always;}` +
+    `}` +
+
+    `.uploadForm {` +
+    `  font-weight: bold;` +
+    `  text-decoration: underline;` +
     `}` +
     `.clearfix:after {` +
     `  content: "";` +
@@ -909,5 +937,6 @@ export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
   let htmlEnd: string = `</main></body>`;
   let finalHtml: string = htmlHeader + html + htmlEnd;
+  console.log(finalHtml);
   return finalHtml
 }
