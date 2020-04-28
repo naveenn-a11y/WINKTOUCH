@@ -74,6 +74,10 @@
               "name": "cyl"
             },
             {
+              "mappedField": "visit.prescription.os.axis",
+              "name": "axis"
+            },
+            {
               "mappedField": "visit.prescription.os.add",
               "name": "add"
             },
