@@ -503,15 +503,7 @@ async function renderImage (
   const pageWidth : number = 612; 
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
-  if (style.height>pageHeight) {
-      style.height = Math.floor(pageHeight);
-      style.width = Math.floor(pageHeight * fieldAspectRatio);
-    }
-  if (style.width>pageWidth) {
-      style.width = Math.floor(pageWidth);
-      style.height = Math.floor(style.width / fieldAspectRatio);
-    }
-  let scale: number = style.width / resolutions(value, fieldDefinition)[0];
+
 
   if (image.startsWith('upload-')) {
       upload = await loadImage(value);
@@ -519,7 +511,6 @@ async function renderImage (
         filePath = `data:${getMimeType(upload)},${upload.data}`;
         fieldAspectRatio = getAspectRatio(upload);
         style = imageStyle(fieldDefinition.size, fieldAspectRatio);
-        scale = style.width / resolutions(value, fieldDefinition)[0];
         html += `<div class="uploadForm">${formatLabel(exam.definition)}</div>`;
       }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
@@ -529,11 +520,21 @@ async function renderImage (
   } else {
     filePath = image
   }
+
+  if (style.height>pageHeight) {
+      style.height = Math.floor(pageHeight);
+      style.width = Math.floor(pageHeight * fieldAspectRatio);
+    }
+  if (style.width>pageWidth) {
+      style.width = Math.floor(pageWidth);
+      style.height = Math.floor(style.width / fieldAspectRatio);
+    }
+  let scale: number = style.width / resolutions(value, fieldDefinition)[0];
   if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-      console.log("LLLLLL & XLLLLL " + JSON.stringify(formatLabel(exam.definition)));
       style.width = style.width * 0.85;
       style.height = style.height * 0.85;
   }
+
   if (filePath) {
     html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt">`;
     html += renderGraph(value, fieldDefinition, style, scale)
