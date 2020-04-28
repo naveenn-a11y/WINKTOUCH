@@ -53,6 +53,15 @@ import {
 } from './DataCache'
 import { getDoctor, getStore } from './DoctorApp'
 
+let scannedFilesHtml : string = '';
+
+export function getScannedFiles() {
+ return scannedFilesHtml;
+} 
+
+export function setScannedFiles(html : string) {
+  scannedFilesHtml = html;
+}
 export function printPatientHeader (visit: Visit) {
   let html: string = ''
   const patient: PatientInfo = getCachedItem(visit.patientId)
@@ -81,10 +90,10 @@ export function printPatientHeader (visit: Visit) {
     `        <div><span></span>${patient.email}</div>` +
     `        <div><span></span>${patient.cell?(patient.cell+' '):patient.phone}</div>` +
     `        <div><span></span>${patient.dateOfBirth}</div>` +
-    `        <div><span></span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
+    `        <div><span>${strings.healthCard}</span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
 
 
-    `        <div><span>${strings.date}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
+    `        <div><span>${strings.examDate}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
     `    </header>`
 
   return html
@@ -130,12 +139,13 @@ function renderItemHtml(examItem: any, index: number, exam: Exam) {
         if (value!==undefined && value!==null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
-            if (isEmpty(fieldDefinition.label)) {
+            const label = exam.definition.editable?fieldDefinition.label?fieldDefinition.label:fieldDefinition.name:'';
+            if (isEmpty(label)) {
               if (!isFirstField) html += `<span>,</span>`
             html += `<span>${formattedValue}</span>`
-            isFirstField = false
+            isFirstField = false;
              } else {
-                html += `<div><span>${fieldDefinition.label}</span><span>${formattedValue}</span></div>`
+                html += `<div><span>${label}: </span><span>${formattedValue}</span></div>`
             }
           }
         }
@@ -332,7 +342,7 @@ async function renderColumnedRows (
 
 
   if(allRowsEmpty == false) {
-      html += `<table style="margin-top:10px;">`
+      html += `<table style="margin-top:10px; width:50%">`
       html += renderColumnsHeader(columnDefinition, definition);
       rows.forEach((column: string[]) => {
         html +=`<tr>`;
@@ -452,7 +462,7 @@ async function renderField (
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       html += `<span class="img-wrap">`
-      html += await renderImage(value, fieldDefinition, exam)
+      html += await renderImage(value, fieldDefinition, groupDefinition, exam)
       html += `</span>`
       return html
     }
@@ -481,19 +491,28 @@ async function renderField (
 async function renderImage (
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
+  groupDefinition: GroupDefinition,
   exam?: Exam
 ) {
   let html: string = ''
-  let filePath = null
-  const image: string =
-    value && value.image ? value.image : fieldDefinition.image
-  const style: { width: number, height: number } = imageStyle(
-    fieldDefinition.size,
-    aspectRatio(value, fieldDefinition)
-  )
-  const scale: number = style.width / resolutions(value, fieldDefinition)[0]
+  let filePath = null;
+  const image: string = value && value.image ? value.image : fieldDefinition.image;
+  let fieldAspectRatio =   aspectRatio(value, fieldDefinition);
+  let style: { width: number, height: number } = imageStyle(fieldDefinition.size, fieldAspectRatio);
+  let upload : Upload = undefined;
+  const pageWidth : number = 612; 
+  const pageAspectRatio : number = 8.5/11;
+  const pageHeight : number = pageWidth/pageAspectRatio;
+
+
   if (image.startsWith('upload-')) {
-      filePath = await loadImage(value)
+      upload = await loadImage(value);
+      if(upload) {
+        filePath = `data:${getMimeType(upload)},${upload.data}`;
+        fieldAspectRatio = getAspectRatio(upload);
+        style = imageStyle(fieldDefinition.size, fieldAspectRatio);
+        html += `<div class="uploadForm">${formatLabel(exam.definition)}</div>`;
+      }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
     const dir = RNFS.MainBundlePath + '/assets/js'
@@ -501,15 +520,30 @@ async function renderImage (
   } else {
     filePath = image
   }
+
+  if (style.height>pageHeight) {
+      style.height = Math.floor(pageHeight);
+      style.width = Math.floor(pageHeight * fieldAspectRatio);
+    }
+  if (style.width>pageWidth) {
+      style.width = Math.floor(pageWidth);
+      style.height = Math.floor(style.width / fieldAspectRatio);
+    }
+  let scale: number = style.width / resolutions(value, fieldDefinition)[0];
+  if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
+      style.width = style.width * 0.85;
+      style.height = style.height * 0.85;
+  }
+
   if (filePath) {
-    html += `<img src="${filePath}" border ="1" width = "${style.width}" height = "${style.height}">`
+    html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt">`;
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
       await Promise.all(fieldDefinition.fields.map(async (childGroupDefinition: GroupDefinition, index: number) => {
           let parentScaledStyle: Object = undefined
           if (childGroupDefinition.layout)
-            parentScaledStyle = scaleStyle(childGroupDefinition.layout)
+            parentScaledStyle = scaleStyle(childGroupDefinition.layout);
           for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
             let fieldScaledStyle = undefined
             const pfValue = await renderField(
@@ -521,16 +555,22 @@ async function renderImage (
 
             if (!isEmpty(pfValue)) {
               if (childFieldDefinition.layout)
-                fieldScaledStyle = scaleStyle(childFieldDefinition.layout)
-              const x =
+                fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+              
+              let x =
                 (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                 (parentScaledStyle ? parentScaledStyle.left : 0) +
-                styles.textfield.fontSize
-              const y =
+                styles.textfield.fontSize;
+              let y =
                 (fieldScaledStyle ? fieldScaledStyle.top : 0) +
                 (parentScaledStyle ? parentScaledStyle.top : 0) +
-                styles.textfield.fontSize
-              html += `<svg width="${style.width}" height="${style.height}">`
+                styles.textfield.fontSize;
+
+                //x&y not scaling properly, need to be fixed ! Ratio is hardcoded now !
+                x-=x*0.01;
+                y-=y*0.01;
+
+              html += `<svg style="width:${style.width}pt; height:${style.height}pt">`
               html += `<text x="${x}" y="${y}">${pfValue}</text>`
               html += `</svg>`
             }
@@ -538,14 +578,19 @@ async function renderImage (
         }
       ))
   }
-  return html
+  if(upload) {
+    scannedFilesHtml += html;
+    return '';
+  } else {
+    return html;
+  }
 }
 async function loadImage (value: ImageDrawing) {
   if (!value || !value.image || !value.image.startsWith('upload-')) {
     return
   }
-  let upload: Upload = await fetchUpload(value.image)
-  return `data:${getMimeType(upload)},${upload.data}`
+  let upload: Upload = await fetchUpload(value.image);
+  return upload;
 }
 function renderGraph (
   value: ImageDrawing,
@@ -557,7 +602,7 @@ function renderGraph (
   if (!value.lines || value.lines.length === 0) return ''
   const strokeWidth: number = (3 * fontScale) / scale
   const resolution: number[] = resolutions(value, definition)
-  html += `<svg viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${style.width}" height="${style.height}">`
+  html += `<svg viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return ''
     if (lijn.indexOf(' ') > 0) {
@@ -591,6 +636,7 @@ function resolutions (
   value: ImageDrawing,
   definition: FieldDefinition
 ): number[] {
+
   let resolutionText: ?string =
     value != undefined && value.lines != undefined && value.lines.length > 0
       ? value.lines[0]
@@ -603,7 +649,7 @@ function resolutions (
   if (resolution.length != 2) {
     console.warn('Image resolution is corrupt: ' + resolutionText)
     return [640, 480]
-  }
+  };
   const width: number = Number.parseInt(resolution[0])
   const height: number = Number.parseInt(resolution[1])
   return [width, height]
@@ -729,6 +775,12 @@ export function patientHeader () {
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
+    `.uploadForm {display: block; page-break-before: always;}` +
+    `}` +
+
+    `.uploadForm {` +
+    `  font-weight: bold;` +
+    `  text-decoration: underline;` +
     `}` +
     `.clearfix:after {` +
     `  content: "";` +
@@ -741,8 +793,6 @@ export function patientHeader () {
     `}` +
     `body {` +
     `  position: relative;` +
-    `  width: 21cm;` +
-    `  height: 29.7cm;` +
     `  margin: 0 auto;` +
     `  color: #001028;` +
     `  background: #FFFFFF;` +
@@ -779,7 +829,7 @@ export function patientHeader () {
     `  color: #5D6975;` +
     `  text-align: right;` +
     `  width: 52px;` +
-    `  margin-right: 10px;` +
+    `  margin-right: 18px;` +
     `  display: inline-block;` +
     `  font-size: 0.8em;` +
     `}` +
@@ -870,7 +920,7 @@ export function patientHeader () {
     `.img-wrap {` +
     `  position: relative;` +
     `  display: inline-block;` +
-    ` width:49%;` +
+    `  width:49%;` +
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +
@@ -886,7 +936,8 @@ export function patientHeader () {
 
 export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
-  let htmlEnd: string = `</main></body>`
-  let finalHtml: string = htmlHeader + html + htmlEnd
+  let htmlEnd: string = `</main></body>`;
+  let finalHtml: string = htmlHeader + html + htmlEnd;
+  console.log(finalHtml);
   return finalHtml
 }
