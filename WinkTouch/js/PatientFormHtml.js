@@ -452,7 +452,7 @@ async function renderField (
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       html += `<span class="img-wrap">`
-      html += await renderImage(value, fieldDefinition, exam)
+      html += await renderImage(value, fieldDefinition, groupDefinition, exam)
       html += `</span>`
       return html
     }
@@ -481,6 +481,7 @@ async function renderField (
 async function renderImage (
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
+  groupDefinition: GroupDefinition,
   exam?: Exam
 ) {
   let html: string = ''
@@ -489,7 +490,6 @@ async function renderImage (
     value && value.image ? value.image : fieldDefinition.image;
   const fieldAspectRatio =  aspectRatio(value, fieldDefinition);
   let style: { width: number, height: number } = imageStyle(fieldDefinition.size, fieldAspectRatio);
-
   const pageWidth : number = 612; 
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
@@ -502,8 +502,10 @@ async function renderImage (
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
   const scale: number = style.width / resolutions(value, fieldDefinition)[0];
-
-
+  if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
+      style.width = style.width * 0.85;
+      style.height = style.height * 0.85;
+  }
 
   if (image.startsWith('upload-')) {
       filePath = await loadImage(value)
@@ -888,7 +890,7 @@ export function patientHeader () {
     `.img-wrap {` +
     `  position: relative;` +
     `  display: inline-block;` +
-    ` width:49%;` +
+    `  width:49%;` +
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +
