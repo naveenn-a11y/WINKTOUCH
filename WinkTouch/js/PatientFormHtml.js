@@ -81,10 +81,10 @@ export function printPatientHeader (visit: Visit) {
     `        <div><span></span>${patient.email}</div>` +
     `        <div><span></span>${patient.cell?(patient.cell+' '):patient.phone}</div>` +
     `        <div><span></span>${patient.dateOfBirth}</div>` +
-    `        <div><span></span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
+    `        <div><span>${strings.healthCard}</span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
 
 
-    `        <div><span>${strings.date}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
+    `        <div><span>${strings.examDate}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
     `    </header>`
 
   return html
@@ -800,7 +800,7 @@ export function patientHeader () {
     `  color: #5D6975;` +
     `  text-align: right;` +
     `  width: 52px;` +
-    `  margin-right: 10px;` +
+    `  margin-right: 18px;` +
     `  display: inline-block;` +
     `  font-size: 0.8em;` +
     `}` +
