@@ -153,25 +153,42 @@ async function printPatientFile(visitId : string) {
    let visitHtml : string = '';
     const visit: Visit = getCachedItem(visitId);
     const allExams : string[] = allExamIds(visit);
+    let exams: Exam[] = getCachedItems(allExams);
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
-    if (allExams) {
+    if (exams) {
         visitHtml +=  `<table><thead><tr><th class="service">EXAM</th><th class="desc">DESCRIPTION</th></tr></thead><tbody>`;
-        for(const examId: string of allExams) {
-        const exam: Exam = getCachedItem(examId);
-        let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
-        if(xlGroupDefinition && xlGroupDefinition.length >0) {
-          xlExams.push(exam);
-        }
-         else {
-          if(exam.isHidden!==true && (exam.hasStarted)) {
-              visitHtml +=  await renderExamHtml(exam);
+        for(const section : string of  examSections) {
+          let filteredExams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
+          filteredExams.sort(compareExams);
+          for(const exam: string of filteredExams) {
+            let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
+            if(xlGroupDefinition && xlGroupDefinition.length >0) {
+              xlExams.push(exam);
+            }
+          else {
+            if(exam.isHidden!==true && exam.hasStarted) {
+                visitHtml +=  await renderExamHtml(exam);
+            }
           }
-         }
         }
+        }
+        let assessments: Exam[] = exams.filter((exam: Exam) => exam.definition.isAssessment);
+        for(const exam : Exam of assessments) {
+          let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
+            if(xlGroupDefinition && xlGroupDefinition.length >0) {
+              xlExams.push(exam);
+            }
+          else {
+            if(exam.isHidden!==true) {
+                visitHtml +=  await renderExamHtml(exam);
+            }
+          }
+        }
+
         visitHtml +=  `</tbody></table>`;
         for(const exam: string of xlExams) {
-          if(exam.isHidden!==true && (exam.hasStarted)) {
+          if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
               visitHtml += await renderExamHtml(exam);
           }
          }
@@ -179,6 +196,17 @@ async function printPatientFile(visitId : string) {
     }
 }
 
+
+  function compareExams(a: Exam, b: Exam) : number {
+        if (a.definition.order!==undefined && b.definition.order!==undefined) {
+          if (a.definition.order < b.definition.order) return -10;
+          if (a.definition.order > b.definition.order) return 10;
+        }
+        if (a.definition.section===undefined || b.definition.section===undefined) return -1;
+        if (a.definition.section < b.definition.section) return -1;
+        if (a.definition.section > b.definition.section) return 1;
+        return 0;
+    }
 class VisitButton extends PureComponent {
     props: {
         id: string,
@@ -464,17 +492,6 @@ class VisitWorkFlow extends Component {
       }
     }
 
-    compareExams = (a: Exam, b: Exam) : number => {
-        if (a.definition.order!==undefined && b.definition.order!==undefined) {
-          if (a.definition.order < b.definition.order) return -10;
-          if (a.definition.order > b.definition.order) return 10;
-        }
-        if (a.definition.section===undefined || b.definition.section===undefined) return -1;
-        if (a.definition.section < b.definition.section) return -1;
-        if (a.definition.section > b.definition.section) return 1;
-        return 0;
-    }
-
     switchLock = () => {
       this.setState({locked: this.state.locked===true?false:true}, () => {
         this.loadUnstartedExamTypes(this.state.visit);
@@ -506,7 +523,7 @@ class VisitWorkFlow extends Component {
             exams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
           }
           exams = exams.filter((exam: Exam) => !exam.definition.isAssessment && exam.isHidden!==true && (exam.hasStarted || (this.state.locked!==true && this.props.readonly!==true)));
-          exams.sort(this.compareExams);
+          exams.sort(compareExams);
         }
         if (!exams || exams.length===0)
           return null;
@@ -647,9 +664,8 @@ export class VisitHistoryCard extends Component {
       <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
       {this.state.summaries.map((visitSummary: Exam, index: number) =>
           <View style={styles.rowLayout}>
-            <Text style={styles.text}>{formatDate(getCachedItem(visitSummary.visitId).date, isToyear(getCachedItem(visitSummary.visitId).date)?dateFormat:farDateFormat)}: </Text>
             <View style={styles.cardColumn}>
-              <Text style={styles.text}>{visitSummary.resume}</Text>
+              <Text style={styles.text}>{formatDate(getCachedItem(visitSummary.visitId).date, isToyear(getCachedItem(visitSummary.visitId).date)?dateFormat:farDateFormat)}: {visitSummary.resume}{"\n"}</Text>
             </View>
           </View>
       )}

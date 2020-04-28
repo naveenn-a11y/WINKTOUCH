@@ -53,6 +53,10 @@
               "name": "addVa"
             },
             {
+              "mappedField": "visit.prescription.od.refraction",
+              "name": "refraction"
+            },
+            {
               "mappedField": "visit.prescription.od.prism",
               "name": "prism"
             }
@@ -82,11 +86,29 @@
               "name": "addVa"
             },
             {
+              "mappedField": "visit.prescription.os.refraction",
+              "name": "refraction"
+            },
+            {
               "mappedField": "visit.prescription.os.prism",
               "name": "prism"
             }
+
           ]
-        }
+        },
+        {
+          "name": "ou",
+          "fields": [
+              {
+                  "mappedField": "visit.prescription.ou.va",
+                  "name": "va"
+              },
+              {
+                  "mappedField": "visit.prescription.ou.addVa",
+                  "name": "addVa"
+             }
+          ]
+      }
       ]
     },
     {

@@ -443,7 +443,7 @@ export class GroupedCard extends Component {
       } else {
         rows.push(valueRows);
       };
-      
+
       return rows;
     }
   }
@@ -525,7 +525,7 @@ export class GroupedCard extends Component {
     return rowValues.map((rowValue: string[], index: number) => <Text style={styles.textLeft} key={index}>{rowValue}</Text>);
   }
 
-  render() { 
+  render() {
     return (
       <View style={styles.columnLayout} key={this.props.exam.definition.name}>
         {this.renderTitle()}
@@ -634,6 +634,12 @@ export class GroupedForm extends Component {
     </View>
   }
 
+    renderSimpleRowValue(value: String) {
+    return <View style={styles.formRow}>
+              <Text>{value}</Text>
+           </View>
+  }
+
   hasColumns() : boolean {
     return hasColumns(this.props.definition);
   }
@@ -719,16 +725,18 @@ export class GroupedForm extends Component {
   renderRows() {
     let rows : any[] = [];
     const groupDefinition : GroupDefinition = this.props.definition;
-    if (!groupDefinition.fields) return null;
-    for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
-      const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
-      if (columnFieldIndex===0) {
-        rows.push(this.renderColumnedRows(fieldDefinition));
-      } else if(columnFieldIndex<0) {
-        if (isRowField(groupDefinition, fieldDefinition.name)!==false) {
-          rows.push(this.renderFieldsRow(fieldDefinition));
-        } else {
-          rows.push(this.renderSimpleRow(fieldDefinition));
+
+    if (groupDefinition.fields) {
+      for (const fieldDefinition : FieldDefinition of groupDefinition.fields) {
+        const columnFieldIndex : number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
+        if (columnFieldIndex===0) {
+          rows.push(this.renderColumnedRows(fieldDefinition));
+        } else if(columnFieldIndex<0) {
+          if (isRowField(groupDefinition, fieldDefinition.name)!==false) {
+            rows.push(this.renderFieldsRow(fieldDefinition));
+          } else {
+            rows.push(this.renderSimpleRow(fieldDefinition));
+          }
         }
       }
     }
@@ -873,7 +881,6 @@ export class GroupedForm extends Component {
 
   render() {
     const style = this.props.style?this.props.style:this.props.definition.layout?scaleStyle(this.props.definition.layout):this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
-
     return  <View style={style} key={this.props.definition.name}>
         <Label style={styles.sectionTitle} key='title' suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId} />
         {this.renderRows()}
@@ -1054,15 +1061,50 @@ export class GroupedFormScreen extends Component {
     this.props.onUpdateExam(this.props.exam);
   }
 
+
+  clearNonReadOnlyFields(value :  {}, definition: GroupDefinition|FieldDefinition) : ?{} {
+      if (value===null || value===undefined || definition.readonly) {
+        return value;
+      }
+      if (definition.fields === undefined) {
+        return undefined;
+      }
+      if (definition.image) {
+          value.lines = undefined;
+          value.image = undefined;
+      }
+      for (const fieldDefinition: FieldDefinition of definition.fields) {
+        let fieldValue = value[fieldDefinition.name];
+        fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
+        value[fieldDefinition.name] = fieldValue;
+      }
+      return value;
+  }
+
   clear(groupName: string, index?: number) : void {
-    if (index!==undefined) {
-      this.props.exam[this.props.exam.definition.name][groupName].splice(index, 1);
-      if (this.props.exam[this.props.exam.definition.name][groupName].length===0)
-        this.props.exam[this.props.exam.definition.name][groupName]=undefined;
-    } else {
-      this.props.exam[this.props.exam.definition.name][groupName] = undefined;
+    let formDefinition : GroupDefinition = this.props.exam.definition.fields.find((groupDefinition: GroupDefinition) => groupDefinition.name.toLowerCase()===groupName.toLowerCase());
+    if (!formDefinition) {
+      __DEV__ && console.error('No group definition '+groupName+' found.');
+      return;
     }
-    this.initialiseExam(this.props.exam, this.props.editable);
+    //Clearing a grouped form part of a multivalue array
+    if (index!==undefined && index>=0) {
+      const forms : {}[] = this.props.exam[this.props.exam.definition.name][groupName];
+      if (forms===null || forms===undefined || forms.length===0) {
+        return;
+      }
+      if (forms.length===1) {//Last element in the array
+        const form = forms[0];
+        forms[0] = this.clearNonReadOnlyFields(form, formDefinition);
+      } else {//Remove the element from the array
+        forms.splice(index, 1);
+      }
+    } else {
+      //Clearing a single grouped form
+      const form = this.props.exam[this.props.exam.definition.name][groupName];
+
+      this.clearNonReadOnlyFields(form, formDefinition);
+    }
     this.props.onUpdateExam(this.props.exam);
   }
 

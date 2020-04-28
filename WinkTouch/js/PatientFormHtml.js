@@ -1,3 +1,8 @@
+/**
+ * @flow
+ */
+'use strict';
+
 import type {
   FieldDefinition,
   GroupDefinition,
@@ -25,6 +30,7 @@ import {
   postfix,
   cleanUpArray,
   formatDiopter,
+  formatDegree,
   getValue,
   formatAge
 } from './Util'
@@ -73,6 +79,11 @@ export function printPatientHeader (visit: Visit) {
       prefix(patient.province, ', ') +
       prefix(patient.country, ', ')}</div>` +
     `        <div><span></span>${patient.email}</div>` +
+    `        <div><span></span>${patient.cell?(patient.cell+' '):patient.phone}</div>` +
+    `        <div><span></span>${patient.dateOfBirth}</div>` +
+    `        <div><span></span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
+
+
     `        <div><span>${strings.date}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
     `    </header>`
 
@@ -88,8 +99,8 @@ export function renderItemsHtml (exam: Exam): any {
   ) {
     const value: any = exam.definition.label
       ? exam.definition.label
-      : exam.definition.name
-    html += `<div>${value}</div>`
+      : exam.definition.name;
+    html += `<div style="display:none;">${value}</div>`;
   } else {
     const value: any = exam.definition.label
       ? exam.definition.label
@@ -98,7 +109,7 @@ export function renderItemsHtml (exam: Exam): any {
     html += `<td class="service">${value}</td>`
     html += `<td class="desc">`
     exam[exam.definition.name].map((examItem: any, index: number) => {
-      let item: any = renderItemHtml(examItem, index, exam)
+      let item: any = renderItemHtml(examItem, index, exam);
       html += `<div>${item}</div>`
     })
     html += `</td>`
@@ -107,77 +118,34 @@ export function renderItemsHtml (exam: Exam): any {
   return html
 }
 
-function renderItemHtml (examItem: any, index: number, exam: Exam): any {
-  let html: String = ''
-  if (exam.definition.fields === undefined) return
-  let fields = exam.definition.cardFields
-  if (fields === undefined || fields.length === 0) {
-    fields = exam.definition.fields.map(
-      (fieldDefinition: FieldDefinition) => fieldDefinition.name
-    )
-  }
-
-  let abnormalFields: string[] = fields.filter((field: string) => {
-    let value: string | string[] = examItem[field]
-    if (
-      value === undefined ||
-      value === null ||
-      (value instanceof Array && value.length === 0)
-    )
-      return false
-    const fieldDefinition:
-      | ?GroupDefinition
-      | FieldDefinition = exam.definition.fields.find(
-      (fieldDefinition: GroupDefinition | FieldDefinition) =>
-        fieldDefinition.name === field
-    )
-    if (fieldDefinition === undefined || fieldDefinition === null) return true
-    if (fieldDefinition.normalValue == String(value)) return false
-    if (String(value).startsWith('(-)')) return false
-    return true
-  })
-
-  {
-    exam.definition.titleFields &&
-      exam.definition.titleFields.map((titleField: string) => {
-        html += `<div>${examItem[titleField]}</div>`
-      })
-  }
-
-  let isFirstField: boolean = true
-  {
-    abnormalFields.map((field: string, subIndex: number) => {
-      let value: string | string[] = examItem[field]
-      if (exam.definition.fields === undefined) return null
-      const fieldDefinition:
-        | ?GroupDefinition
-        | FieldDefinition = exam.definition.fields.find(
-        (fieldDefinition: GroupDefinition | FieldDefinition) =>
-          fieldDefinition.name === field
-      )
-
-      if (fieldDefinition === null || fieldDefinition === undefined) return null
-      const title: any = exam.definition.editable
-        ? fieldDefinition.label
-          ? fieldDefinition.label
-          : fieldDefinition.name + ': '
-        : ''
-      const fieldValue: any = formatFieldValue(value, fieldDefinition)
-      if (isEmpty(title)) {
-        if (!isFirstField) html += `<span>,</span>`
-        html += `<span>${fieldValue}</span>`
-        isFirstField = false
-      } else {
-        html += `<div><span>${title}</span><span>${fieldValue}</span></div>`
+function renderItemHtml(examItem: any, index: number, exam: Exam) {
+      let html: String = ''
+      if (exam.definition.fields === undefined) return html;
+      let isFirstField = true;
+      const fieldDefinitions : FieldDefinition[] = exam.definition.fields;
+      for (let i: number = 0; i < fieldDefinitions.length; i++) {
+        const fieldDefinition : FieldDefinition = fieldDefinitions[i];
+        const propertyName: string = fieldDefinition.name;
+        const value :?string|?number = examItem[propertyName];
+        if (value!==undefined && value!==null) {
+          let formattedValue: string = formatFieldValue(value, fieldDefinition);
+          if (formattedValue && formattedValue !== '') {
+            if (isEmpty(fieldDefinition.label)) {
+              if (!isFirstField) html += `<span>,</span>`
+            html += `<span>${formattedValue}</span>`
+            isFirstField = false
+             } else {
+                html += `<div><span>${fieldDefinition.label}</span><span>${formattedValue}</span></div>`
+            }
+          }
+        }
       }
-    })
-  }
-
-  return html
+      return html;
 }
 
+
 export async function renderParentGroupHtml (exam: Exam): any {
-  let html: string = ''
+  let html: string = '';
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL'
   )
@@ -185,39 +153,51 @@ export async function renderParentGroupHtml (exam: Exam): any {
     html += `<div>`
     html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam)
     html += `</div>`
-  } else {
-    html += `<tr>`
-    html += `<td class="service">${formatLabel(exam.definition)}</td>`
-    html += `<td class="desc">`
-    html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam)
-    html += `</td>`
-    html += `</tr>`
   }
+   else {
+    if(exam.definition.name === 'Consultation summary') {
+          if(!isEmpty(exam.resume)) {
+          html += `<tr>`
+          html += `<td class="service">${formatLabel(exam.definition)}</td>`
+          html += `<td class="desc">`
+          html +=  `<div style="white-space: pre-line">${exam.resume}</div>`;
+          html += `</td>`
+          html += `</tr>`
+          }
+      }
+     else {
+      html += `<tr>`
+      html += `<td class="service">${formatLabel(exam.definition)}</td>`
+      html += `<td class="desc">`
+      html +=  await renderAllGroupsHtml(exam)
+      html += `</td>`
+      html += `</tr>`
+    }
+
+   }
+  
 
   return html
 }
 
 async function renderAllGroupsHtml (exam: Exam) {
-  let html: string = ''
-  if (!exam[exam.definition.name]) return null
-  if (
-    exam.definition.fields === null ||
-    exam.definition.fields === undefined ||
-    exam.definition.fields.length === 0
-  )
-    return null
+  let html: string = '';
+
+  if (!exam[exam.definition.name]) return '';
+  if (exam.definition.fields === null || exam.definition.fields === undefined || exam.definition.fields.length === 0)
+    return '';
+
   await Promise.all(exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
-    const result = await renderGroupHtml(groupDefinition, exam)
+    const result = await renderGroupHtml(groupDefinition, exam);
     if (!isEmpty(result)) {
       html += result
     }
   }));
-
   return html
 }
 async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
-  let html: string = ''
-  if (exam[exam.definition.name] === undefined) return ''
+  let html: string = '';
+  if (exam[exam.definition.name] === undefined) return '';
   if (groupDefinition.mappedField) {
     groupDefinition = Object.assign(
       {},
@@ -238,34 +218,28 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       value instanceof Array === false ||
       value.length === 0
     )
-      return HTML
+      return html;
     await Promise.all(value.map(async (groupValue: any, groupIndex: number) => {
       if (
         groupValue === undefined ||
         groupValue === null ||
         Object.keys(groupValue).length === 0
       )
-        return html
+      return html;
 
-      html += await renderRowsHtml(groupDefinition, exam, groupIndex)
+
+      const rowValue = await renderRowsHtml(groupDefinition, exam, groupIndex);
+      html += rowValue;
     }));
   } else if (groupDefinition.fields === undefined && groupDefinition.options) {
     html += renderCheckListItemHtml(exam, groupDefinition)
-  } else {
-    let showSubtitles: boolean = exam.definition.showSubtitles //NO IDEA
-    if (
-      exam.definition.fields.length === 1 &&
-      exam.definition.fields[0].multiValue !== true
-    )
-      showSubtitles = false
-    const value: any = exam[exam.definition.name][groupDefinition.name]
-    if (
-      value === undefined ||
-      value === null ||
-      Object.keys(value).length === 0
-    )
+  }  
+   else {
+    const value: any = exam[exam.definition.name][groupDefinition.name];
+    if (value === undefined || value === null || Object.keys(value).length === 0)
     return null;
-    html += await renderRowsHtml(groupDefinition, exam)
+    const rowValue = await renderRowsHtml(groupDefinition, exam);
+    html += rowValue;
   }
   return html
 }
@@ -277,15 +251,17 @@ async function renderRowsHtml (
 ) {
   let rows: any[] = []
   let html: string = ''
-  const form = exam[exam.definition.name][groupDefinition.name]
+  const form = exam[exam.definition.name][groupDefinition.name];
   if (!groupDefinition.fields) return null
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
     const columnFieldIndex: number = getColumnFieldIndex(
       groupDefinition,
       fieldDefinition.name
     )
+
     if (columnFieldIndex === 0) {
-      html += await renderColumnedRows(fieldDefinition, groupDefinition, exam, form)
+      const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, groupIndex);
+      html += value;
     } else if (columnFieldIndex < 0) {
       const value = await renderField(
         fieldDefinition,
@@ -293,9 +269,9 @@ async function renderRowsHtml (
         exam,
         form,
         groupIndex
-      )
+      );
       if (!isEmpty(value)) {
-        const label: string = formatLabel(fieldDefinition)
+        const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
           html += `<div><span>${label}:</span> <span>${value}</span></div>`
         } else {
@@ -312,31 +288,63 @@ async function renderColumnedRows (
   columnDefinition: GroupDefinition,
   definition: GroupDefinition,
   exam: Exam,
-  form: {}
+  form: {},
+  groupIndex?: number = 0
 ) {
+  let rows: string[][] = [];
   let html: string = ''
-  html += `<table style="margin-top:10px;">`
-  html += renderColumnsHeader(columnDefinition, definition)
+
+
   const columnedFields: FieldDefinition[] = columnDefinition.fields
   const columns: string[] = definition.columns.find(
     (columns: string[]) =>
       columns.length > 0 && columns[0] === columnDefinition.name
-  )
-  for (let i: number = 0; i < columnedFields.length; i++) {
-    html +=
-      `<tr>` +
+  );
+
+  await Promise.all(columnedFields.map(async(column: string, i: number) => {
+    const value =
       await renderColumnedRow(
         formatLabel(columnedFields[i]),
         columns,
         i,
         definition,
         exam,
-        form
-      ) +
-      `</tr>`
+        form,
+        groupIndex
+      );
+      rows.push(value);
+  }));
+
+  let allRowsEmpty : boolean = false;
+  for(let i=0; i<rows.length; i++) {
+      let rowValues = rows[i].slice(1); 
+      for(let j=0; j<rowValues.length;j++) {
+          if(!isEmpty(rowValues[j])) {
+            allRowsEmpty = false;
+            break;
+          }
+      else
+      allRowsEmpty = true;
+      }
+    if(allRowsEmpty == false)
+      break;
   }
-  html += `</table>`
-  return html
+
+
+  if(allRowsEmpty == false) {
+      html += `<table style="margin-top:10px;">`
+      html += renderColumnsHeader(columnDefinition, definition);
+      rows.forEach((column: string[]) => {
+        html +=`<tr>`;
+        column.forEach((value: string) => {
+        html +=`<td class="desc">${value}</td>`;
+        });
+        html +=`</tr>`
+      });
+      html += `</table>`
+  }
+
+  return html;
 }
 
  async function renderColumnedRow (
@@ -345,25 +353,23 @@ async function renderColumnedRows (
   rowIndex: number,
   definition: GroupDefinition,
   exam: Exam,
-  form: {}
+  form: {},
+  groupIndex?: number = 0
 ) {
-  let html: string = ''
-  html += `<td class="desc">${fieldLabel}</td>`
 
+  let columnValues : string[] = [];
+  columnValues.push(fieldLabel);
   await Promise.all(columns.map(async(column: string, columnIndex: number) => {
     const columnDefinition: GroupDefinition = definition.fields.find(
       (columnDefinition: FieldDefinition) => columnDefinition.name === column
     )
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
-      const value = await renderField(fieldDefinition, definition, exam, form, column);
-      html +=
-        `<td class="desc">` +
-         value +
-        `</td>`
+      const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
+      columnValues.push(value);
     }
   }));
-  return html
+  return columnValues;
 }
 function renderColumnsHeader (
   columnDefinition: GroupDefinition,
@@ -454,8 +460,19 @@ async function renderField (
     if (fieldDefinition.type === 'age') {
       html += formatAge(value)
     }
-     else
-       html += value
+     else {
+       if(value instanceof Array) {
+         const formattedValue : string = value.toString().replace(',',' / ');
+          html += formattedValue;
+       } else {
+            const formattedValue : string = formatFieldValue(value, fieldDefinition);
+            if(isEmpty(formattedValue))
+              html += value;
+            else
+              html += formattedValue;
+       }
+
+     }
   }
 
   return html
@@ -489,14 +506,13 @@ async function renderImage (
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
-      fieldDefinition.fields.map(
-        (childGroupDefinition: GroupDefinition, index: number) => {
+      await Promise.all(fieldDefinition.fields.map(async (childGroupDefinition: GroupDefinition, index: number) => {
           let parentScaledStyle: Object = undefined
           if (childGroupDefinition.layout)
             parentScaledStyle = scaleStyle(childGroupDefinition.layout)
           for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
             let fieldScaledStyle = undefined
-            const pfValue = renderField(
+            const pfValue = await renderField(
               childFieldDefinition,
               childGroupDefinition,
               exam,
@@ -520,7 +536,7 @@ async function renderImage (
             }
           }
         }
-      )
+      ))
   }
   return html
 }
@@ -615,18 +631,19 @@ function renderGlassesSummary (groupDefinition: GroupDefinition, exam: Exam) {
   }
 }
 
+
 function renderRxTable (
   glassesRx: GlassesRx,
   groupDefinition: GroupDefinition
 ) {
-  let html: string = ''
-  if (isEmpty(glassesRx)) {
-    return html
+  let html: string = '';
+  if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
+    return html;
   }
 
   html += `<table>`
   html += `<thead><tr>`
-  html += `<th class="service">${formatLabel(groupDefinition)}</th>`
+  html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(groupDefinition)}</th>`
   html += `<th class="service">Sph</th>`
   html += `<th class="service">Cyl</th>`
   html += `<th class="service">Axis</th>`
@@ -636,7 +653,7 @@ function renderRxTable (
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
     html += `<th class="service">NVA</th>`
   html += `</thead></tr><tbody><tr>`
-  html += `<td class="desc">${strings.od}</td>`
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.od}</td>`
   html += `<td class="desc">${
     glassesRx.od ? formatDiopter(glassesRx.od.sph) : ''
   }</td>`
@@ -644,27 +661,30 @@ function renderRxTable (
     glassesRx.od ? formatDiopter(glassesRx.od.cyl) : ''
   }</td>`
   html += `<td class="desc">${
-    glassesRx.od ? formatDiopter(glassesRx.od.axis) : ''
+    glassesRx.od ? formatDegree(glassesRx.od.axis) : ''
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
       glassesRx.od ? formatPrism(glassesRx.od) : ''
     }</td>`
-  if (groupDefinition.hasVA)
-    html += `<td class="desc">${
-      glassesRx.od ? formatDiopter(glassesRx.od.va) : ''
-    }</td>`
+  if (groupDefinition.hasVA) {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD');
+    const formattedValue : string = glassesRx.od ? formatFieldValue(glassesRx.od.va, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+  }
   if (groupDefinition.hasAdd)
     html += `<td class="desc">${
       glassesRx.od ? formatDiopter(glassesRx.od.add) : ''
     }</td>`
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
-    html += `<td class="desc">${
-      glassesRx.od ? formatDiopter(glassesRx.od.addVa) : ''
-    }</td>`
+  {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD');
+    const formattedValue : string = glassesRx.od ? formatFieldValue(glassesRx.od.addVa, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+  }
   html += `</tr>`
   html += `<tr>`
-  html += `<td class="desc">${strings.os}</td>`
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.os}</td>`
   html += `<td class="desc">${
     glassesRx.os ? formatDiopter(glassesRx.os.sph) : ''
   }</td>`
@@ -672,24 +692,28 @@ function renderRxTable (
     glassesRx.os ? formatDiopter(glassesRx.os.cyl) : ''
   }</td>`
   html += `<td class="desc">${
-    glassesRx.os ? formatDiopter(glassesRx.os.axis) : ''
+    glassesRx.os ? formatDegree(glassesRx.os.axis) : ''
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
       glassesRx.os ? formatPrism(glassesRx.os) : ''
     }</td>`
   if (groupDefinition.hasVA)
-    html += `<td class="desc">${
-      glassesRx.os ? formatDiopter(glassesRx.os.va) : ''
-    }</td>`
+  {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS');
+    const formattedValue : string = glassesRx.os ? formatFieldValue(glassesRx.os.va, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+  }
   if (groupDefinition.hasAdd)
     html += `<td class="desc">${
       glassesRx.os ? formatDiopter(glassesRx.os.add) : ''
     }</td>`
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
-    html += `<td class="desc">${
-      glassesRx.os ? formatDiopter(glassesRx.os.addVa) : ''
-    }</td>`
+    {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS');
+    const formattedValue : string = glassesRx.os ? formatFieldValue(glassesRx.os.addVa, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+    }
   html += `</tr></tbody></table>`
   if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes))
     html += `<div>Notes: ${glassesRx.notes}</div>`
@@ -780,6 +804,7 @@ export function patientHeader () {
     `table td {` +
     `padding: 5px 20px;` +
     `text-align: center;` +
+    `font-size:11px;`+
     `}` +
     `table th {` +
     `  padding: 5px 20px;` +

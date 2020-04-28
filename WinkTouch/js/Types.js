@@ -138,12 +138,14 @@ export type GlassRx = {
     prism?: string,
     add?: number,
     va?: string,
-    addVA?: string
+    addVA?: string,
+    isEye?: boolean,
 }
 
 export type GlassesRx = {
     od: GlassRx,
     os: GlassRx,
+    ou: GlassRx,
     expiry?: string,
     prescriptionDate?: string,
     signedDate?: string,

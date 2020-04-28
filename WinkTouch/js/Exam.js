@@ -11,7 +11,7 @@ import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinitio
 import { styles, fontScale, selectionFontColor } from './Styles';
 import { strings} from './Strings';
 import { SelectionListsScreen, ItemsCard, formatLabel, ItemsList, getFieldDefinition as getItemFieldDefinition} from './Items';
-import { GroupedFormScreen, GroupedForm, GroupedCard} from './GroupedForm';
+import { GroupedFormScreen, GroupedForm, GroupedCard, CheckList } from './GroupedForm';
 import { PaperFormScreen} from './PaperForm';
 import { fetchItemById, storeItem, searchItems } from './Rest';
 import { cacheItemById, getCachedItem, cacheItem, getCachedItems } from './DataCache';
@@ -185,7 +185,7 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
       fieldDefinition.mappedField = firstMappedFieldName;
     }
     return fieldDefinition;
-  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient' || fieldSrc[0]==='clFitting') {//A non exam field
+  } else if (fieldSrc[0]==='visit' || fieldSrc[0]==='patient' || fieldSrc[0]==='clFitting' || fieldSrc[0]==='store') {//A non exam field
     return getItemFieldDefinition(fieldIdentifier);
   } else {//A regular exam field
     let fieldDefinition : FieldDefinition;
@@ -351,15 +351,21 @@ export class ExamHistoryScreen extends Component {
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign({}, getItemFieldDefinition(groupDefinition.mappedField), groupDefinition);
     }
+    if (groupDefinition.options!=undefined) {
+      return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} editable={false} />
+    }
     if (groupDefinition.multiValue===true) {
-      groupDefinition = deepClone(groupDefinition);
-      groupDefinition.multiValue = false;
       if (value instanceof Array === false || value.length===0) return null;
-      return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
+        if(groupDefinition.options == undefined) {
+          groupDefinition = deepClone(groupDefinition);
+          groupDefinition.multiValue = false;
+          return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
+      }
     } else if (groupDefinition.type==='SRx') {
       let exam : Exam = this.props.navigation.state.params.exam;
-      return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition} examId={exam.id}/>
-    } 
+      return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition}
+       hasVA={groupDefinition.hasVA} hasAdd={groupDefinition.hasAdd} examId={exam.id}/>
+    }
     return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} />
   }
 
