@@ -486,12 +486,25 @@ async function renderImage (
   let html: string = ''
   let filePath = null
   const image: string =
-    value && value.image ? value.image : fieldDefinition.image
-  const style: { width: number, height: number } = imageStyle(
-    fieldDefinition.size,
-    aspectRatio(value, fieldDefinition)
-  )
-  const scale: number = style.width / resolutions(value, fieldDefinition)[0]
+    value && value.image ? value.image : fieldDefinition.image;
+  const fieldAspectRatio =  aspectRatio(value, fieldDefinition);
+  let style: { width: number, height: number } = imageStyle(fieldDefinition.size, fieldAspectRatio);
+
+  const pageWidth : number = 612; 
+  const pageAspectRatio : number = 8.5/11;
+  const pageHeight : number = pageWidth/pageAspectRatio;
+  if (style.height>pageHeight) {
+      style.height = Math.floor(pageHeight);
+      style.width = Math.floor(pageHeight * fieldAspectRatio);
+    }
+  if (style.width>pageWidth) {
+      style.width = Math.floor(pageWidth);
+      style.height = Math.floor(style.width / fieldAspectRatio);
+    }
+  const scale: number = style.width / resolutions(value, fieldDefinition)[0];
+
+
+
   if (image.startsWith('upload-')) {
       filePath = await loadImage(value)
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
@@ -502,14 +515,14 @@ async function renderImage (
     filePath = image
   }
   if (filePath) {
-    html += `<img src="${filePath}" border ="1" width = "${style.width}" height = "${style.height}">`
+    html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt">`;
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
       await Promise.all(fieldDefinition.fields.map(async (childGroupDefinition: GroupDefinition, index: number) => {
           let parentScaledStyle: Object = undefined
           if (childGroupDefinition.layout)
-            parentScaledStyle = scaleStyle(childGroupDefinition.layout)
+            parentScaledStyle = scaleStyle(childGroupDefinition.layout);
           for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
             let fieldScaledStyle = undefined
             const pfValue = await renderField(
@@ -521,16 +534,22 @@ async function renderImage (
 
             if (!isEmpty(pfValue)) {
               if (childFieldDefinition.layout)
-                fieldScaledStyle = scaleStyle(childFieldDefinition.layout)
-              const x =
+                fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+              
+              let x =
                 (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                 (parentScaledStyle ? parentScaledStyle.left : 0) +
-                styles.textfield.fontSize
-              const y =
+                styles.textfield.fontSize;
+              let y =
                 (fieldScaledStyle ? fieldScaledStyle.top : 0) +
                 (parentScaledStyle ? parentScaledStyle.top : 0) +
-                styles.textfield.fontSize
-              html += `<svg width="${style.width}" height="${style.height}">`
+                styles.textfield.fontSize;
+
+                //x&y not scaling properly, need to be fixed ! Ratio is hardcoded now !
+                x-=x*0.01;
+                y-=y*0.01;
+
+              html += `<svg style="width:${style.width}pt; height:${style.height}pt">`
               html += `<text x="${x}" y="${y}">${pfValue}</text>`
               html += `</svg>`
             }
@@ -557,7 +576,7 @@ function renderGraph (
   if (!value.lines || value.lines.length === 0) return ''
   const strokeWidth: number = (3 * fontScale) / scale
   const resolution: number[] = resolutions(value, definition)
-  html += `<svg viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${style.width}" height="${style.height}">`
+  html += `<svg viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return ''
     if (lijn.indexOf(' ') > 0) {
@@ -591,6 +610,7 @@ function resolutions (
   value: ImageDrawing,
   definition: FieldDefinition
 ): number[] {
+
   let resolutionText: ?string =
     value != undefined && value.lines != undefined && value.lines.length > 0
       ? value.lines[0]
@@ -603,7 +623,7 @@ function resolutions (
   if (resolution.length != 2) {
     console.warn('Image resolution is corrupt: ' + resolutionText)
     return [640, 480]
-  }
+  };
   const width: number = Number.parseInt(resolution[0])
   const height: number = Number.parseInt(resolution[1])
   return [width, height]
@@ -741,8 +761,6 @@ export function patientHeader () {
     `}` +
     `body {` +
     `  position: relative;` +
-    `  width: 21cm;` +
-    `  height: 29.7cm;` +
     `  margin: 0 auto;` +
     `  color: #001028;` +
     `  background: #FFFFFF;` +
@@ -886,7 +904,7 @@ export function patientHeader () {
 
 export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
-  let htmlEnd: string = `</main></body>`
-  let finalHtml: string = htmlHeader + html + htmlEnd
+  let htmlEnd: string = `</main></body>`;
+  let finalHtml: string = htmlHeader + html + htmlEnd;
   return finalHtml
 }
