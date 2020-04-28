@@ -130,12 +130,13 @@ function renderItemHtml(examItem: any, index: number, exam: Exam) {
         if (value!==undefined && value!==null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
-            if (isEmpty(fieldDefinition.label)) {
+            const label = exam.definition.editable?fieldDefinition.label?fieldDefinition.label:fieldDefinition.name:'';
+            if (isEmpty(label)) {
               if (!isFirstField) html += `<span>,</span>`
             html += `<span>${formattedValue}</span>`
-            isFirstField = false
+            isFirstField = false;
              } else {
-                html += `<div><span>${fieldDefinition.label}</span><span>${formattedValue}</span></div>`
+                html += `<div><span>${label}: </span><span>${formattedValue}</span></div>`
             }
           }
         }
