@@ -332,7 +332,7 @@ async function renderColumnedRows (
 
 
   if(allRowsEmpty == false) {
-      html += `<table style="margin-top:10px;">`
+      html += `<table style="margin-top:10px; width:50%">`
       html += renderColumnsHeader(columnDefinition, definition);
       rows.forEach((column: string[]) => {
         html +=`<tr>`;
