@@ -169,7 +169,8 @@
                                         "borderWidth": 0,
                                         "fontSize": 14
                                     }
-                                },{
+                                },
+                                {
                                     "name": "OD Sph",
                                     "mappedField": "exam.RxToOrder.Final Rx.od.sph",
                                     "layout": {
@@ -231,6 +232,19 @@
                                     }
                                 },
                                 {
+                                    "name": "OD Prism",
+                                    "mappedField": "exam.RxToOrder.Final Rx.od.prism",
+                                    "type": "prism",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "top": 1088,
+                                        "left": 878,
+                                        "width": 120,
+                                        "borderWidth": 0,
+                                        "fontSize": 14
+                                    }
+                                },
+                                {
                                     "name": "OS Sph",
                                     "mappedField": "exam.RxToOrder.Final Rx.os.sph",
                                     "layout": {
@@ -289,6 +303,19 @@
                                         "width": 60,
                                         "borderWidth": 0,
                                         "fontSize": 17
+                                    }
+                                },
+                                {
+                                    "name": "OS Prism",
+                                    "mappedField": "exam.RxToOrder.Final Rx.os.prism",
+                                    "type": "prism",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "top": 1116,
+                                        "left": 878,
+                                        "width": 120,
+                                        "borderWidth": 0,
+                                        "fontSize": 14
                                     }
                                 },
                                 {

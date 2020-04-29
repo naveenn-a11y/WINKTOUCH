@@ -17,6 +17,7 @@ import { formatAllCodes, formatCode, formatCodeDefinition, parseCode, formatOpti
 import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue, setValue, formatAge } from './Util';
 import { isNumericField, formatLabel } from './Items';
 import { Microphone } from './Voice';
+import {GeneralPrismInput} from './Refraction';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -849,7 +850,10 @@ export class FormInput extends Component {
               examId={this.props.examId}
             />)}
         </ImageField>
-    }
+    } else if(type && type === 'prism') {
+        return <GeneralPrismInput value={this.props.value}  showLabel={this.props.showLabel} readonly={readonly} style={style}
+                onChangeValue={this.props.onChangeValue}/>
+    } 
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
       freestyle={this.props.definition.freestyle} style={style}/>//TODO keyboardType from definition type

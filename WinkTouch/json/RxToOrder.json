@@ -41,22 +41,6 @@
               "name": "axis"
             },
             {
-              "mappedField": "visit.prescription.od.prism1",
-              "name": "prism1"
-            },
-            {
-              "mappedField": "visit.prescription.od.prism1b",
-              "name": "prism1b"
-            },
-            {
-              "mappedField": "visit.prescription.od.prism2",
-              "name": "prism2"
-            },
-            {
-              "mappedField": "visit.prescription.od.prism2b",
-              "name": "prism2b"
-            },
-            {
               "mappedField": "visit.prescription.od.add",
               "name": "add"
             },
@@ -71,6 +55,10 @@
             {
               "mappedField": "visit.prescription.od.refraction",
               "name": "refraction"
+            },
+            {
+              "mappedField": "visit.prescription.od.prism",
+              "name": "prism"
             }
           ]
         },
@@ -90,22 +78,6 @@
               "name": "axis"
             },
             {
-              "mappedField": "visit.prescription.os.prism1",
-              "name": "prism1"
-            },
-            {
-              "mappedField": "visit.prescription.os.prism1b",
-              "name": "prism1b"
-            },
-            {
-              "mappedField": "visit.prescription.os.prism2",
-              "name": "prism2"
-            },
-            {
-              "mappedField": "visit.prescription.os.prism2b",
-              "name": "prism2b"
-            },
-            {
               "mappedField": "visit.prescription.os.add",
               "name": "add"
             },
@@ -120,7 +92,12 @@
             {
               "mappedField": "visit.prescription.os.refraction",
               "name": "refraction"
+            },
+            {
+              "mappedField": "visit.prescription.os.prism",
+              "name": "prism"
             }
+
           ]
         },
         {
@@ -133,7 +110,7 @@
               {
                   "mappedField": "visit.prescription.ou.addVa",
                   "name": "addVa"
-              }
+             }
           ]
       }
       ]

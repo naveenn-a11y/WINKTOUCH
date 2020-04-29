@@ -16,7 +16,7 @@ import { formatAllCodes, parseCode, formatCode} from './Codes';
 import { getDefinitionCacheKey, fetchItemDefinition } from './Rest';
 import { getCachedItem, cacheItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard } from './Favorites';
-import { GlassesDetail, GlassesSummary, newRefraction, ContactsDetail } from './Refraction';
+import { GlassesDetail, GlassesSummary, newRefraction } from './Refraction';
 import { getExamDefinition } from './ExamDefinition';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
