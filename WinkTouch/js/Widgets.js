@@ -32,8 +32,7 @@ export class Label extends PureComponent {
     fieldId?: string
   }
   state: {
-    newLabel: string,
-    showNormal: false
+    newLabel: string
   }
   static defaultProps = {
     suffix: ':'
@@ -43,8 +42,6 @@ export class Label extends PureComponent {
     super(props);
     this.state = {
       newLabel: this.props.value,
-      showNormal: false,
-      normalValue: this.props.normalValue
     }
   }
 
@@ -58,38 +55,8 @@ export class Label extends PureComponent {
     updateLabel(this.props.fieldId, this.state.newLabel);
   }
 
-  saveNormalValue = async () => {
-    await updateLabel(this.props.fieldId, this.state.newLabel, this.state.normalValue);
-    this.setState({showNormal: false})
-  }
-
   render() {
-    const components = [];
-    if(this.state.showNormal) {
-      components.push(<TextInput style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                                 value={this.state.normalValue}
-                                 editable={true}
-                                 onChangeText={
-                                   (text: string) => this.setState({normalValue: text })
-                                 }
-                                 onBlur={this.saveNormalValue}/>);
-    } else {
-      components.push(
-          <TouchableOpacity onPress={() => this.setState({showNormal: true})}>
-            <Icon name="check" style={50} />
-          </TouchableOpacity>);
-    }
-    components.push(<TextInput style={[this.props.style, styles.translateField]}
-                               value={this.state.newLabel}
-                               editable={true}
-                               onChangeText = {
-                                 (text: string) => this.setState({newLabel: text })
-                               }
-                               onBlur={this.saveLabel} />);
-
-    if (isInTranslateMode()) {
-      return components;
-    }
+    if (isInTranslateMode()) return <TextInput style={[this.props.style, styles.translateField]} value={this.state.newLabel} editable={true} onChangeText={(text: string) => this.setState({newLabel: text })} onBlur={this.saveLabel}/>
     if (!this.props.value || this.props.value.length===0) return null;
     const style = this.props.style?this.props.style:this.props.width?[styles.formLabel, {width: this.props.width}]:styles.formLabel;
     return <Text style={style}>{this.props.value}{this.props.suffix}</Text>
@@ -622,7 +589,7 @@ export class NumberField extends Component {
         });
         if(!isEmpty(formattedValue))
           value = formattedValue.replace(/\/\s*$/, "");
-       } 
+       }
       if (isNaN(value)) {
         if (this.props.options instanceof Array && this.props.options.includes(value)) {
           return value;
