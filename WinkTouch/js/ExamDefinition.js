@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react';
 import { View, Text, Modal, TouchableWithoutFeedback, ScrollView, Animated, LayoutAnimation } from 'react-native';
-import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, GroupDefinition, FieldDefinition } from './Types';
+import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, GroupDefinition, FieldDefinition, TranslationDefinition } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import { fetchItemById, searchItems, storeItem, performActionOnItem } from './Rest';
@@ -34,12 +34,13 @@ const examDefinitionDefinition : FieldDefinition[] = [
   {name: 'name', required: true}
 ];
 
-export async function updateLabel(fieldId: string, label: string) {
-  const translation = {
+export async function updateLabel(fieldId: string, label: string, normalValue?: string) {
+  const translation : TranslationDefinition = {
     id: 'customExamDefinition',
     language: getUserLanguage(),
     fieldId: fieldId,
-    label: label
+    label: label,
+    normalValue: normalValue
   };
   await performActionOnItem('translateLabel', translation);
 }

@@ -362,3 +362,11 @@ export type PatientDocument = {
   category: string,
   uploadId: string,
 }
+
+export type TranslationDefinition = {
+  id: string,
+  fieldId: string,
+  language: string,
+  label: ?string,
+  normalValue: ?string
+}

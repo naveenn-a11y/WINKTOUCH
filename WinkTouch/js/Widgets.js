@@ -41,12 +41,12 @@ export class Label extends PureComponent {
   constructor(props: any) {
     super(props);
     this.state = {
-      newLabel: this.props.value
+      newLabel: this.props.value,
     }
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value===this.state.newLabel) return;
+    if (this.props.value===this.state.newLabel || isInTranslateMode()) return;
     this.setState({newLabel: this.props.value});
   }
 
@@ -589,7 +589,7 @@ export class NumberField extends Component {
         });
         if(!isEmpty(formattedValue))
           value = formattedValue.replace(/\/\s*$/, "");
-       } 
+       }
       if (isNaN(value)) {
         if (this.props.options instanceof Array && this.props.options.includes(value)) {
           return value;
