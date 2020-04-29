@@ -444,8 +444,7 @@ async function renderField (
 ) {
   let html: string = ''
 
-  if (groupDefinition === undefined) return null
-  if (fieldDefinition === undefined) return null
+  if (groupDefinition === undefined || fieldDefinition === undefined) return '';
 
   if (fieldDefinition.mappedField) {
     fieldDefinition = Object.assign(
