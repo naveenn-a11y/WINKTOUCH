@@ -40,7 +40,7 @@ import {
   getFieldDefinition as getExamFieldDefinition,
   getFieldValue as getExamFieldValue
 } from './Exam'
-import { formatLabel, formatFieldValue, getFieldDefinition } from './Items'
+import { formatLabel, formatFieldValue, getFieldDefinition, filterFieldDefinition } from './Items'
 import RNFS from 'react-native-fs'
 import { line, curveBasis } from 'd3-shape'
 import { fetchUpload, getMimeType, getAspectRatio } from './Upload'
@@ -51,7 +51,9 @@ import {
   cacheItem,
   getCachedItems
 } from './DataCache'
-import { getDoctor, getStore } from './DoctorApp'
+import { getDoctor, getStore } from './DoctorApp';
+import { formatCode } from './Codes';
+
 
 let scannedFilesHtml : string = '';
 
@@ -138,7 +140,8 @@ function renderItemHtml(examItem: any, index: number, exam: Exam) {
         const value :?string|?number = examItem[propertyName];
         if (value!==undefined && value!==null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
-          if (formattedValue && formattedValue !== '') {
+          if(isEmpty(formattedValue)) formattedValue = value;
+          if (formattedValue && !isEmpty(formattedValue)) {
             const label = exam.definition.editable?fieldDefinition.label?fieldDefinition.label:fieldDefinition.name:'';
             if (isEmpty(label)) {
               if (!isFirstField) html += `<span>,</span>`
@@ -262,8 +265,13 @@ async function renderRowsHtml (
   let rows: any[] = []
   let html: string = ''
   const form = exam[exam.definition.name][groupDefinition.name];
-  if (!groupDefinition.fields) return null
+  if (!groupDefinition.fields) return null;
+
+  const groupLabel = formatLabel(groupDefinition);
+  const examLabel = formatLabel(exam.definition);
+  let labelDisplayed : boolean = false;
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
+
     const columnFieldIndex: number = getColumnFieldIndex(
       groupDefinition,
       fieldDefinition.name
@@ -273,6 +281,7 @@ async function renderRowsHtml (
       const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, groupIndex);
       html += value;
     } else if (columnFieldIndex < 0) {
+
       const value = await renderField(
         fieldDefinition,
         groupDefinition,
@@ -281,6 +290,10 @@ async function renderRowsHtml (
         groupIndex
       );
       if (!isEmpty(value)) {
+        if(groupLabel !== examLabel && groupDefinition.size !== 'XL' && !fieldDefinition.image) {
+             html += !labelDisplayed ? `<div class="groupLabel">` + formatLabel(groupDefinition) + `</div>` : '';
+             labelDisplayed = true;
+        }
         const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
           html += `<div><span>${label}:</span> <span>${value}</span></div>`
@@ -432,8 +445,7 @@ async function renderField (
 ) {
   let html: string = ''
 
-  if (groupDefinition === undefined) return null
-  if (fieldDefinition === undefined) return null
+  if (groupDefinition === undefined || fieldDefinition === undefined) return '';
 
   if (fieldDefinition.mappedField) {
     fieldDefinition = Object.assign(
@@ -511,7 +523,7 @@ async function renderImage (
         filePath = `data:${getMimeType(upload)},${upload.data}`;
         fieldAspectRatio = getAspectRatio(upload);
         style = imageStyle(fieldDefinition.size, fieldAspectRatio);
-        html += `<div class="uploadForm">${formatLabel(exam.definition)}</div>`;
+        html += `<div>${formatLabel(exam.definition)}</div>`;
       }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
@@ -579,7 +591,7 @@ async function renderImage (
       ))
   }
   if(upload) {
-    scannedFilesHtml += html;
+    scannedFilesHtml += `<div class="uploadForms">${html}</div>`;
     return '';
   } else {
     return html;
@@ -686,7 +698,6 @@ function renderRxTable (
   if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html;
   }
-
   html += `<table>`
   html += `<thead><tr>`
   html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(groupDefinition)}</th>`
@@ -761,8 +772,18 @@ function renderRxTable (
     html += `<td class="desc">${formattedValue}</td>`;
     }
   html += `</tr></tbody></table>`
-  if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes))
-    html += `<div>Notes: ${glassesRx.notes}</div>`
+  if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes)) {
+    html += `<div>Notes: ${glassesRx.notes}</div>`;
+  }
+  if(groupDefinition.hasLensType) {
+      const fieldDefinition : FieldDefinition = filterFieldDefinition(groupDefinition.fields, "lensType");
+      if (fieldDefinition.options && fieldDefinition.options.length>0) {
+         let options = fieldDefinition.options;
+         const value : string = formatCode(options, glassesRx.lensType);
+         html += `<div>${formatLabel(fieldDefinition)}: ${value}</div>`;
+      }
+    }
+
   return html
 }
 
@@ -781,9 +802,17 @@ export function patientHeader () {
     `.uploadForm {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
+    `  display:block;`+
+    `  float: left;`+
+    `  margin-left:10%`+
+    `}` +
+    `.groupLabel {` +
+    `  font-weight: bold;` +
+    `  text-decoration: underline;` +
     `}` +
     `.clearfix:after {` +
     `  content: "";` +
+
     `  display: table;` +
     `  clear: both;` +
     `}` +
@@ -938,6 +967,5 @@ export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
   let htmlEnd: string = `</main></body>`;
   let finalHtml: string = htmlHeader + html + htmlEnd;
-  console.log(finalHtml);
   return finalHtml
 }
