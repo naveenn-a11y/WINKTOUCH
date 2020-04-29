@@ -40,7 +40,7 @@ import {
   getFieldDefinition as getExamFieldDefinition,
   getFieldValue as getExamFieldValue
 } from './Exam'
-import { formatLabel, formatFieldValue, getFieldDefinition } from './Items'
+import { formatLabel, formatFieldValue, getFieldDefinition, filterFieldDefinition } from './Items'
 import RNFS from 'react-native-fs'
 import { line, curveBasis } from 'd3-shape'
 import { fetchUpload, getMimeType, getAspectRatio } from './Upload'
@@ -51,7 +51,9 @@ import {
   cacheItem,
   getCachedItems
 } from './DataCache'
-import { getDoctor, getStore } from './DoctorApp'
+import { getDoctor, getStore } from './DoctorApp';
+import { formatCode } from './Codes';
+
 
 let scannedFilesHtml : string = '';
 
@@ -696,7 +698,6 @@ function renderRxTable (
   if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html;
   }
-
   html += `<table>`
   html += `<thead><tr>`
   html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(groupDefinition)}</th>`
@@ -771,8 +772,18 @@ function renderRxTable (
     html += `<td class="desc">${formattedValue}</td>`;
     }
   html += `</tr></tbody></table>`
-  if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes))
-    html += `<div>Notes: ${glassesRx.notes}</div>`
+  if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes)) {
+    html += `<div>Notes: ${glassesRx.notes}</div>`;
+  }
+  if(groupDefinition.hasLensType) {
+      const fieldDefinition : FieldDefinition = filterFieldDefinition(groupDefinition.fields, "lensType");
+      if (fieldDefinition.options && fieldDefinition.options.length>0) {
+         let options = fieldDefinition.options;
+         const value : string = formatCode(options, glassesRx.lensType);
+         html += `<div>${formatLabel(fieldDefinition)}: ${value}</div>`;
+      }
+    }
+
   return html
 }
 
@@ -956,6 +967,5 @@ export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
   let htmlEnd: string = `</main></body>`;
   let finalHtml: string = htmlHeader + html + htmlEnd;
-  console.log(finalHtml);
   return finalHtml
 }
