@@ -140,7 +140,8 @@ function renderItemHtml(examItem: any, index: number, exam: Exam) {
         const value :?string|?number = examItem[propertyName];
         if (value!==undefined && value!==null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
-          if (formattedValue && formattedValue !== '') {
+          if(isEmpty(formattedValue)) formattedValue = value;
+          if (formattedValue && !isEmpty(formattedValue)) {
             const label = exam.definition.editable?fieldDefinition.label?fieldDefinition.label:fieldDefinition.name:'';
             if (isEmpty(label)) {
               if (!isFirstField) html += `<span>,</span>`
@@ -590,7 +591,7 @@ async function renderImage (
       ))
   }
   if(upload) {
-    scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
+    scannedFilesHtml += `<div class="uploadForms">${html}</div>`;
     return '';
   } else {
     return html;
