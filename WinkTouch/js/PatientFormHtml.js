@@ -262,8 +262,13 @@ async function renderRowsHtml (
   let rows: any[] = []
   let html: string = ''
   const form = exam[exam.definition.name][groupDefinition.name];
-  if (!groupDefinition.fields) return null
+  if (!groupDefinition.fields) return null;
+
+  const groupLabel = formatLabel(groupDefinition);
+  const examLabel = formatLabel(exam.definition);
+  let labelDisplayed : boolean = false;
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
+
     const columnFieldIndex: number = getColumnFieldIndex(
       groupDefinition,
       fieldDefinition.name
@@ -273,6 +278,7 @@ async function renderRowsHtml (
       const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, groupIndex);
       html += value;
     } else if (columnFieldIndex < 0) {
+
       const value = await renderField(
         fieldDefinition,
         groupDefinition,
@@ -281,6 +287,10 @@ async function renderRowsHtml (
         groupIndex
       );
       if (!isEmpty(value)) {
+        if(groupLabel !== examLabel && groupDefinition.size !== 'XL' && !fieldDefinition.image) {
+             html += !labelDisplayed ? `<div class="groupLabel">` + formatLabel(groupDefinition) + `</div>` : '';
+             labelDisplayed = true;
+        }
         const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
           html += `<div><span>${label}:</span> <span>${value}</span></div>`
@@ -511,7 +521,7 @@ async function renderImage (
         filePath = `data:${getMimeType(upload)},${upload.data}`;
         fieldAspectRatio = getAspectRatio(upload);
         style = imageStyle(fieldDefinition.size, fieldAspectRatio);
-        html += `<div class="uploadForm">${formatLabel(exam.definition)}</div>`;
+        html += `<div>${formatLabel(exam.definition)}</div>`;
       }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
@@ -579,7 +589,7 @@ async function renderImage (
       ))
   }
   if(upload) {
-    scannedFilesHtml += html;
+    scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
     return '';
   } else {
     return html;
@@ -781,9 +791,17 @@ export function patientHeader () {
     `.uploadForm {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
+    `  display:block;`+
+    `  float: left;`+
+    `  margin-left:10%`+
+    `}` +
+    `.groupLabel {` +
+    `  font-weight: bold;` +
+    `  text-decoration: underline;` +
     `}` +
     `.clearfix:after {` +
     `  content: "";` +
+
     `  display: table;` +
     `  clear: both;` +
     `}` +
