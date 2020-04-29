@@ -296,7 +296,9 @@ async function renderRowsHtml (
         }
         const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
-          html += `<div><span>${label}:</span> <span>${value}</span></div>`
+          html += `<div>`;
+          if(!fieldDefinition.image) html += `<div><span>${label}:</span>`;
+          html += `<span>${value}</span></div>`;
         } else {
           if (groupDefinition.size === 'XL')
             html += `<div class="xlForm">` + value + `</div>`
