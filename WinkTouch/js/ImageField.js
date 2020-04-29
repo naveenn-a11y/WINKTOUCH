@@ -602,11 +602,11 @@ export class ImageField extends Component {
     const patient : PatientInfo = getCachedItem(this.props.patientId);
     const doctorName : string = getDoctor().firstName+' '+getDoctor().lastName;
     const documentName : string = this.props.fileName?this.props.fileName:this.props.type?this.props.type:strings.document;
-    const body : string = strings.formatString(strings.scanEmailBody, documentName.toLowerCase(), patient.firstName+' '+patient.lastName, doctorName);
+    const body : string = strings.formatString(strings.scanEmailBody, documentName.toLowerCase(), patient?patient.firstName+' '+patient.lastName:'', doctorName);
     const fileName : string = replaceFileExtension(documentName, 'pdf');
     mailer.mail({
-      recipients: [patient.email],
-      subject: strings.formatString(strings.scanEmailTitle, patient.firstName+' '+patient.lastName, doctorName) ,
+      recipients: patient?[patient.email]:undefined,
+      subject: strings.formatString(strings.scanEmailTitle, patient?patient.firstName+' '+patient.lastName:''),
       body,
       isHTML: true,
       attachment: {
