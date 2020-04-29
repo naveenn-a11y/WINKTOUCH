@@ -311,18 +311,18 @@ export class ExamHistoryScreen extends Component {
   }
   state : {
     examHistory : Exam[],
+    patient: ?Patient,
     zoomScale : number,
   }
-  patientId: String
 
   constructor(props: any) {
     super(props);
     const params = this.props.navigation.state.params;
     let examHistory : Exam[] = getExamHistory(params.exam);
     let patient : Patient = getPatient(params.exam);
-    this.patientId = patient.id;
     this.state = {
       examHistory,
+      patient,
       zoomScale: new Animated.Value(1)
     };
   }
@@ -362,7 +362,7 @@ export class ExamHistoryScreen extends Component {
         if(groupDefinition.options == undefined) {
           groupDefinition = deepClone(groupDefinition);
           groupDefinition.multiValue = false;
-          return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} />);
+          return value.map((childValue: any, index: number)=> <GroupedForm definition={groupDefinition} editable={false} key={index} form={childValue} patientId={this.state.patient?this.state.patient.id:undefined} />);
       }
     } else if (groupDefinition.type==='SRx') {
       let exam : Exam = this.props.navigation.state.params.exam;
@@ -371,7 +371,7 @@ export class ExamHistoryScreen extends Component {
     } else if (groupDefinition.type==='CRx') {
       return <ContactsDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name}/>
     }
-    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.patientId} />
+    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.state.patient?this.state.patient.id:undefined} />
   }
 
   renderExam(exam: Exam) {
