@@ -270,6 +270,7 @@ async function renderRowsHtml (
   const groupLabel = formatLabel(groupDefinition);
   const examLabel = formatLabel(exam.definition);
   let labelDisplayed : boolean = false;
+
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
 
     const columnFieldIndex: number = getColumnFieldIndex(
@@ -281,14 +282,15 @@ async function renderRowsHtml (
       const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, groupIndex);
       html += value;
     } else if (columnFieldIndex < 0) {
-
       const value = await renderField(
         fieldDefinition,
         groupDefinition,
         exam,
         form,
+        undefined,
         groupIndex
       );
+
       if (!isEmpty(value)) {
         if(groupLabel !== examLabel && groupDefinition.size !== 'XL' && !fieldDefinition.image) {
              html += !labelDisplayed ? `<div class="groupLabel">` + formatLabel(groupDefinition) + `</div>` : '';
@@ -445,6 +447,7 @@ async function renderField (
   column?: string,
   groupIndex?: number = 0
 ) {
+
   let html: string = ''
 
   if (groupDefinition === undefined || fieldDefinition === undefined) return '';
@@ -471,7 +474,7 @@ async function renderField (
           ? form[column][fieldDefinition.name]
           : undefined
         : form[fieldDefinition.name]
-      : undefined
+      : undefined;
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
