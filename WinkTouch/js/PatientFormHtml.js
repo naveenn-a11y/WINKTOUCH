@@ -771,7 +771,33 @@ function renderRxTable (
     const formattedValue : string = glassesRx.os ? formatFieldValue(glassesRx.os.addVa, fieldDefinition) : '';
     html += `<td class="desc">${formattedValue}</td>`;
     }
-  html += `</tr></tbody></table>`
+  html += `</tr>`;
+ if(groupDefinition.hasVA===true && !isEmpty(glassesRx.ou)) {
+
+  html += `<tr>`
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`
+  html += `<td class="desc"></td>`;
+  html += `<td class="desc"></td>`;
+  html += `<td class="desc"></td>`;
+  if (isPrism(glassesRx))
+    html += `<td class="desc"></td>`;
+
+  if (groupDefinition.hasVA)
+  {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU');
+    const formattedValue : string = glassesRx.ou ? formatFieldValue(glassesRx.ou.va, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+  }
+    html += `<td class="desc"></td>`;
+  if (groupDefinition.hasAdd && groupDefinition.hasVA)
+    {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU');
+    const formattedValue : string = glassesRx.ou ? formatFieldValue(glassesRx.ou.addVa, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+    }
+  html += `</tr>`;
+ }
+  html += `</tbody></table>`;
   if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes)) {
     html += `<div>Notes: ${glassesRx.notes}</div>`;
   }
