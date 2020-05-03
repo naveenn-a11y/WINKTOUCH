@@ -82,17 +82,17 @@ export function printPatientHeader (visit: Visit) {
     `      <div id="client">` +
     `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
     `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
-    `        <div><span></span>${postfix(patient.streetNumber, ', ') +
+    `        <div><span></span>${postfix(patient.unit, '-') +
+      postfix(patient.streetNumber, ', ') +
       patient.streetName +
-      prefix(patient.unit, ', ') +
-      prefix(patient.postalCode, ', ') +
       prefix(patient.city, ', ') +
       prefix(patient.province, ', ') +
+      prefix(patient.postalCode, ', ') +
       prefix(patient.country, ', ')}</div>` +
     `        <div><span></span>${patient.email}</div>` +
     `        <div><span></span>${patient.cell?(patient.cell+' '):patient.phone}</div>` +
     `        <div><span></span>${patient.dateOfBirth}</div>` +
-    `        <div><span>${strings.healthCard}</span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
+    `        <div><span>${strings.healthCard}</span>${patient.medicalCard} ${prefix(patient.medicalCardVersion, 'V:')} ${prefix(patient.medicalCardExp, 'EXP:')}</div>` +
 
 
     `        <div><span>${strings.examDate}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
