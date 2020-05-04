@@ -199,13 +199,14 @@ async function renderAllGroupsHtml (exam: Exam) {
   if (!exam[exam.definition.name]) return '';
   if (exam.definition.fields === null || exam.definition.fields === undefined || exam.definition.fields.length === 0)
     return '';
-
+    
   await Promise.all(exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
     const result = await renderGroupHtml(groupDefinition, exam);
     if (!isEmpty(result)) {
       html += result
     }
   }));
+
   return html
 }
 async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
@@ -240,7 +241,6 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       )
       return html;
 
-
       const rowValue = await renderRowsHtml(groupDefinition, exam, groupIndex);
       html += rowValue;
     }));
@@ -270,9 +270,7 @@ async function renderRowsHtml (
   const groupLabel = formatLabel(groupDefinition);
   const examLabel = formatLabel(exam.definition);
   let labelDisplayed : boolean = false;
-
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
-
     const columnFieldIndex: number = getColumnFieldIndex(
       groupDefinition,
       fieldDefinition.name
@@ -303,13 +301,15 @@ async function renderRowsHtml (
           html += `<span>${value}</span></div>`;
         } else {
           if (groupDefinition.size === 'XL')
-            html += `<div class="xlForm">` + value + `</div>`
-          else html += `<span>` + value + `</span>`
+            html += `<div class="xlForm">` + value + `</div>`;
+          else if(!fieldDefinition.image) html += `<div><span>` + value + `</span></div>`;
+          else html += `<span>` + value + `</span>`;
         }
       }
     }
   }
-  return html
+
+  return html;
 }
 async function renderColumnedRows (
   columnDefinition: GroupDefinition,
