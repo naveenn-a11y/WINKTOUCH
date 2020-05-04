@@ -547,6 +547,7 @@ async function renderImage (
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
   let scale: number = style.width / resolutions(value, fieldDefinition)[0];
+
   if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
       style.width = style.width * 0.85;
       style.height = style.height * 0.85;
@@ -584,8 +585,8 @@ async function renderImage (
                 styles.textfield.fontSize;
 
                 //x&y not scaling properly, need to be fixed ! Ratio is hardcoded now !
-                x-=x*0.01;
-                y-=y*0.01;
+                x-=x*0.042;
+                y-=y*0.021;
 
               html += `<svg style="width:${style.width}pt; height:${style.height}pt">`
               html += `<text x="${x}" y="${y}">${pfValue}</text>`
