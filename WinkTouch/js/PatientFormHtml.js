@@ -488,9 +488,14 @@ async function renderField (
       html += formatAge(value)
     }
      else {
-       if(value instanceof Array) {
-         const formattedValue : string = value.toString().replace(',',' / ');
-          html += formattedValue;
+        if(value instanceof Array) {
+          let formattedValue :string = '';
+          value.forEach((subValue : number | string) => {
+          formattedValue += subValue + ' / ';
+        });
+          if(!isEmpty(formattedValue))
+            formattedValue = formattedValue.replace(/\/\s*$/, "");
+        html += formattedValue;
        } else {
             const formattedValue : string = formatFieldValue(value, fieldDefinition);
             if(isEmpty(formattedValue))
