@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
     borderSectionTitle: {
         position: 'absolute',
         bottom: -12 * fontScale,
-        right: 60 * fontScale,
+        right: 65 * fontScale,
         fontSize: 24 * fontScale,
         color: selectionFontColor,
         fontWeight: '500',
@@ -714,14 +714,14 @@ export const styles = StyleSheet.create({
     examsBoard: {
         backgroundColor: sectionBackgroundColor,
         flexGrow: 100,
-        minWidth: 150 * fontScale,
-        minHeight: 185 * fontScale,
+        minWidth: 250 * fontScale,
+        minHeight: 190 * fontScale,
         padding: 10 * fontScale,
         paddingBottom: 20 * fontScale,
         borderRadius: 30 * fontScale,
         borderColor: selectionFontColor,
         borderWidth: 2*fontScale,
-        margin: 7 * fontScale,
+        margin: 7 * fontScale
     },
     startVisitCard: {
       backgroundColor: sectionBackgroundColor,

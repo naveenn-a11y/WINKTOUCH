@@ -190,6 +190,7 @@ export type Visit = {
     duration: number,
     locked: boolean,
     typeName: string,
+    isDigital: boolean,
     location?: string,
     prescription: GlassesRx,
     recall: Recall,

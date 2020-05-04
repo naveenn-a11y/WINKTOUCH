@@ -526,15 +526,15 @@ class VisitWorkFlow extends Component {
           exams = exams.filter((exam: Exam) => !exam.definition.isAssessment && exam.isHidden!==true && (exam.hasStarted || (this.state.locked!==true && this.props.readonly!==true)));
           exams.sort(compareExams);
         }
-        if (!exams || exams.length===0)
+        if ((!exams || exams.length===0) && this.state.visit && this.state.visit.isDigital!=true) {
           return null;
+        }
         const view =  <View style={styles.flow}>
               {exams && exams.map((exam: Exam, index: number) => {
                   return <ExamCard key={exam.definition.name} exam={exam} disabled={this.props.readonly}
                       onSelect={() => this.props.navigation.navigate('exam', {exam, appointmentStateKey: this.props.appointmentStateKey})}
                       onHide={() => this.hideExam(exam)} unlocked={this.state.locked!==true} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}/>
               })}
-              {this.renderAddableExamButton(section)}
           </View>
         if ("Document"===section) {
           return view;
@@ -543,6 +543,7 @@ class VisitWorkFlow extends Component {
         return <View style={styles.examsBoard} key={section}>
             <SectionTitle title={sectionTitle} />
             {view}
+            {this.renderAddableExamButton(section)}
         </View>
     }
 

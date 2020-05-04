@@ -145,7 +145,7 @@
                                     },
                                     "name": "Clinical History",
                                     "label": "",
-                                    "freestyle": true
+                                    "freestyle": false
                                 },
                                 {
                                     "mappedField": "visit.examDate",
