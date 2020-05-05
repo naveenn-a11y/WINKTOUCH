@@ -25,20 +25,8 @@
               "name": "axis"
             },
             {
-              "mappedField": "exam.RxToOrder.Final Rx.od.prism1",
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism",
               "name": "prism1"
-            },
-            {
-              "mappedField": "exam.RxToOrder.Final Rx.od.prism1b",
-              "name": "prism1b"
-            },
-            {
-              "mappedField": "exam.RxToOrder.Final Rx.od.prism2",
-              "name": "prism2"
-            },
-            {
-              "mappedField": "exam.RxToOrder.Final Rx.od.prism2b",
-              "name": "prism2b"
             },
             {
               "mappedField": "exam.RxToOrder.Final Rx.od.add",
@@ -70,20 +58,8 @@
               "name": "axis"
             },
             {
-              "mappedField": "exam.RxToOrder.Final Rx.os.prism1",
-              "name": "prism1"
-            },
-            {
-              "mappedField": "exam.RxToOrder.Final Rx.os.prism1b",
-              "name": "prism1b"
-            },
-            {
-              "mappedField": "exam.RxToOrder.Final Rx.os.prism2",
-              "name": "prism2"
-            },
-            {
-              "mappedField": "exam.RxToOrder.Final Rx.os.prism2b",
-              "name": "prism2b"
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism",
+              "name": "prism"
             },
             {
               "mappedField": "exam.RxToOrder.Final Rx.os.add",
