@@ -158,7 +158,7 @@ async function printPatientFile(visitId : string) {
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
     if (exams) {
-        visitHtml +=  `<table><thead><tr><th class="service">EXAM</th><th class="desc">DESCRIPTION</th></tr></thead><tbody>`;
+        visitHtml +=  `<table><thead></thead><tbody>`;
         for(const section : string of  examSections) {
           let filteredExams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
           filteredExams.sort(compareExams);

@@ -58,7 +58,7 @@ import { formatCode } from './Codes';
 let scannedFilesHtml : string = '';
 
 export function getScannedFiles() {
- return scannedFilesHtml;
+ return `<div class = "scannedFiles">${scannedFilesHtml}</div>`;
 } 
 
 export function setScannedFiles(html : string) {
@@ -602,7 +602,7 @@ async function renderImage (
       ))
   }
   if(upload) {
-    scannedFilesHtml += `<div class="uploadForms">${html}</div>`;
+    scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
     return '';
   } else {
     return html;
@@ -833,15 +833,18 @@ export function patientHeader () {
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
-    `.uploadForm {display: block; page-break-before: always;}` +
+    `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
 
     `.uploadForm {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
+    `  float:left;`+
     `  display:block;`+
-    `  float: left;`+
-    `  margin-left:10%`+
+    `  width :50%;`+
+    `}` +
+    `.scannedFiles {` +
+    `  padding:10px`+
     `}` +
     `.groupLabel {` +
     `  font-weight: bold;` +
@@ -859,7 +862,7 @@ export function patientHeader () {
     `}` +
     `body {` +
     `  position: relative;` +
-    `  margin: 0 auto;` +
+    `  margin: 0 10px 0 10px;` +
     `  color: #001028;` +
     `  background: #FFFFFF;` +
     `  font-family: Arial, sans-serif;` +
@@ -868,7 +871,7 @@ export function patientHeader () {
     `}` +
     `header {` +
     `  padding: 10px 0;` +
-    `  margin-bottom: 30px;` +
+    `  margin: 0 10px 20px 10px;` +
     `}` +
     `#logo {` +
     `  text-align: center;` +
@@ -933,6 +936,9 @@ export function patientHeader () {
     `table .desc {` +
     `  text-align: left;` +
     `}` +
+    `table .service {` +
+    ` width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;` +
+    `}` +
     `table td {` +
     `  text-align: right;` +
     `  border: solid;` +
@@ -964,9 +970,6 @@ export function patientHeader () {
     `table td.grand {` +
     `  border-top: 1px solid #5D6975;` +
     `}` +
-    `div {` +
-    `page-break-inside: avoid;` +
-    `}` +
     `#forms {` +
     `  color: #5D6975;` +
     `  font-size: 1.2em;` +
@@ -995,6 +998,7 @@ export function patientHeader () {
     `}` +
     `.img-wrap img {` +
     `  display:block;` +
+    ` margin-top:5px;` +
     `}` +
     `</style></head><body><main>`
   return htmlHeader
