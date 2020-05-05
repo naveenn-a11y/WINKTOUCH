@@ -63,6 +63,7 @@ import { allergyReactionCodes } from './AllergyCodes';
 import { familyRelationCodes} from './FamilyHistoryCodes';
 import { familyDiseaseCodes } from './FamilyHistoryCodes';
 import { familyDiseaseSinceCodes } from './FamilyHistoryCodes';
+import { medicalConditionCodes } from './FamilyHistoryCodes';
 import { tobaccoUseCodes} from './SocialHistoryCodes';
 import { alcoholUseCodes } from './SocialHistoryCodes';
 import { drugUseCodes } from './SocialHistoryCodes';
@@ -142,6 +143,7 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]) : void {
   codeDefinitions.familyRelationCodes = familyRelationCodes;
   codeDefinitions.familyDiseaseCodes = familyDiseaseCodes;
   codeDefinitions.familyDiseaseSinceCodes = familyDiseaseSinceCodes;
+  codeDefinitions.medicalConditionCodes = medicalConditionCodes;
   codeDefinitions.tobaccoUseCodes = tobaccoUseCodes;
   codeDefinitions.alcoholUseCodes = alcoholUseCodes;
   codeDefinitions.drugUseCodes = drugUseCodes;
