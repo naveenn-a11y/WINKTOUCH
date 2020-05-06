@@ -727,7 +727,8 @@ export class FormInput extends Component {
     isTyping?: boolean,
     autoFocus?: boolean,
     enableScroll?: () => void,
-    disableScroll?: () => void
+    disableScroll?: () => void,
+    fieldId: string
   }
   state: {
     validation?: string
@@ -838,8 +839,32 @@ export class FormInput extends Component {
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {
       return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
     } else if (this.props.definition.image!==undefined) {
-      return <ImageField ref='imageField' value={this.props.value} image={this.props.definition.image} fileName={this.props.definition.name} resolution={this.props.definition.resolution} size={this.props.definition.size} popup={this.props.definition.popup} sync={this.props.definition.sync} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style}
-        patientId={this.props.patientId} examId={this.props.examId} type={type} errorMessage={this.props.errorMessage} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}>
+      let replaceImage : boolean = true;
+      const arrayStart : number = this.props.fieldId?this.props.fieldId.indexOf('[')+1:-1;
+      const arrayEnd : number = (this.props.fieldId && arrayStart>=0)?this.props.fieldId.indexOf('].', arrayStart):-1;
+      if (this.props.fieldId && arrayStart>=0 && arrayEnd>arrayStart) {//An image in a multivalue group
+        replaceImage = false;
+      }
+      return <ImageField
+          ref='imageField'
+          value={this.props.value}
+          image={this.props.definition.image}
+          fileName={this.props.definition.name}
+          resolution={this.props.definition.resolution}
+          size={this.props.definition.size}
+          popup={this.props.definition.popup}
+          sync={this.props.definition.sync}
+          readonly={readonly}
+          onChangeValue={this.props.onChangeValue}
+          style={style}
+          patientId={this.props.patientId}
+          examId={this.props.examId}
+          type={type}
+          errorMessage={this.props.errorMessage}
+          enableScroll={this.props.enableScroll}
+          disableScroll={this.props.disableScroll}
+          replaceImage={replaceImage}
+          >
           {this.props.definition.fields && this.props.definition.fields.map((groupDefinition: GroupDefinition, index: number) =>
             <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => {
                   this.updateSubValue(groupDefinition, field, value );
@@ -853,7 +878,7 @@ export class FormInput extends Component {
     } else if(type && type === 'prism') {
         return <GeneralPrismInput value={this.props.value}  showLabel={this.props.showLabel} readonly={readonly} style={style}
                 onChangeValue={this.props.onChangeValue}/>
-    } 
+    }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
       freestyle={this.props.definition.freestyle} style={style}/>//TODO keyboardType from definition type
