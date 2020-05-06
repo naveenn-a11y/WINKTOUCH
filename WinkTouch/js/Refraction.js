@@ -518,7 +518,9 @@ export class GlassesDetail extends Component {
   }
 
   render() {
-    if (this.props.glassesRx===undefined || this.props.glassesRx.od===undefined || this.props.glassesRx.os===undefined)
+    if (!this.props.glassesRx)
+      return null;
+    if(!this.props.glassesRx.od || !this.props.glassesRx.os)
       return null;
     return <View style={this.props.style?this.props.style:(this.state.prism&&this.props.hasVA)?styles.boardXL:(this.state.prism||this.props.hasVA)?styles.boardL:styles.boardM}>
       {this.props.title && <Label suffix='' style={this.props.titleStyle} value={this.props.title} fieldId={this.props.fieldId}/>}
