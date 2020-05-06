@@ -256,7 +256,6 @@ export class CheckList extends PureComponent {
     this.props.onChangeField && this.props.onChangeField(value);
   }
 
-  //const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
   render() {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style}>
@@ -266,7 +265,7 @@ export class CheckList extends PureComponent {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');
             return <View style={styles.formRow} key={option}>
-              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)}/>
+              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)} readonly={this.props.editable!=true}/>
             </View>
           }
         )}
