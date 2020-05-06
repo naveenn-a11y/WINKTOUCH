@@ -563,7 +563,7 @@ export class ExamScreen extends Component {
 
   getRelatedExam(examName: string) : Exam {
     const visit : Visit = this.getVisit();
-    let examId = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
+    let examId = visit.customExamIds.find((examId: string) => getCachedItem(examId)!==null && getCachedItem(examId)!==undefined && getCachedItem(examId).definition.name===examName);
     if (!examId) examId = visit.preCustomExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
     const exam : Exam = getCachedItem(examId);
     return exam;
