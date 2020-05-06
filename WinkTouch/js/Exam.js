@@ -82,6 +82,7 @@ export function updateMappedExams(exam: Exam) {
 
 
 export function getVisit(exam: Exam) : Visit {
+  if (!exam) return;
   return getCachedItem(exam.visitId);
 }
 
@@ -91,6 +92,7 @@ export function getPatient(exam: Exam) : Patient {
 }
 
 export function getExam(examName: string, visit: Visit) : Exam {
+  if (!visit) return;
   let examId = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
   if (!examId) examId = visit.preCustomExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
   const exam : Exam = getCachedItem(examId);
