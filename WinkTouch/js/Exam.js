@@ -371,7 +371,8 @@ export class ExamHistoryScreen extends Component {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition}
        hasVA={groupDefinition.hasVA} hasAdd={groupDefinition.hasAdd} examId={exam.id}/>
     }
-    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.state.patient?this.state.patient.id:undefined} />
+    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.state.patient?this.state.patient.id:undefined}  examId={this.props.navigation.state.params.exam.id}
+ />
   }
 
   renderExam(exam: Exam) {
