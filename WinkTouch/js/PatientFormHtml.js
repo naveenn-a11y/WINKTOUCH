@@ -733,7 +733,7 @@ function renderRxTable (
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
-      glassesRx.od ? formatPrism(glassesRx.od) : ''
+      glassesRx.od ? formatPrism(glassesRx.od.prism) : ''
     }</td>`
   if (groupDefinition.hasVA) {
     const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD');
@@ -764,7 +764,7 @@ function renderRxTable (
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
-      glassesRx.os ? formatPrism(glassesRx.os) : ''
+      glassesRx.os ? formatPrism(glassesRx.os.prism) : ''
     }</td>`
   if (groupDefinition.hasVA)
   {
