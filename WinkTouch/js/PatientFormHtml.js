@@ -58,7 +58,7 @@ import { formatCode } from './Codes';
 let scannedFilesHtml : string = '';
 
 export function getScannedFiles() {
- return `<div class = "scannedFiles">${scannedFilesHtml}</div>`;
+ return !isEmpty(scannedFilesHtml) ? `<div class = "scannedFiles">${scannedFilesHtml}</div>` : '';
 } 
 
 export function setScannedFiles(html : string) {
