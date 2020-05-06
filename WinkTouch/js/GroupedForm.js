@@ -590,6 +590,8 @@ export class GroupedForm extends Component {
       return <View style={styles.fieldFlexContainer} key={column}><Text style={styles.text}></Text></View>
     if (fieldDefinition.mappedField) {
       let exam : Exam = getCachedItem(this.props.examId);
+      if(!exam)
+      __DEV__ && console.error('Exam is null:  '+ this.props.examId);
       fieldDefinition = Object.assign({}, getExamFieldDefinition(fieldDefinition.mappedField, exam), fieldDefinition);
     }
     const value = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name]:undefined:this.props.form[fieldDefinition.name]:undefined;

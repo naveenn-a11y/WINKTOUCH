@@ -82,6 +82,7 @@ export function updateMappedExams(exam: Exam) {
 
 
 export function getVisit(exam: Exam) : Visit {
+  if (!exam) return;
   return getCachedItem(exam.visitId);
 }
 
@@ -91,6 +92,7 @@ export function getPatient(exam: Exam) : Patient {
 }
 
 export function getExam(examName: string, visit: Visit) : Exam {
+  if (!visit) return;
   let examId = visit.customExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
   if (!examId) examId = visit.preCustomExamIds.find((examId: string) => getCachedItem(examId).definition.name===examName);
   const exam : Exam = getCachedItem(examId);
@@ -369,7 +371,8 @@ export class ExamHistoryScreen extends Component {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={false} glassesRx={value} key={groupDefinition.name} definition={groupDefinition}
        hasVA={groupDefinition.hasVA} hasAdd={groupDefinition.hasAdd} examId={exam.id}/>
     }
-    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.state.patient?this.state.patient.id:undefined} />
+    return  <GroupedForm definition={groupDefinition} editable={false} form={value} key={index} patientId={this.state.patient?this.state.patient.id:undefined}  examId={this.props.navigation.state.params.exam.id}
+ />
   }
 
   renderExam(exam: Exam) {
