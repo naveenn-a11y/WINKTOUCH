@@ -103,7 +103,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
     return definition;
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase()));
+    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase(), error));
     throw(error);
   }
 }
@@ -231,8 +231,8 @@ export async function storeItem(item: any) : any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase()));
-    item.errors = [strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase())];
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error));
+    item.errors = [strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error)];
     item.definition = definition;
     return item;
   }
@@ -264,7 +264,7 @@ export async function deleteItem(item: any) : any {
     }
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.storeItemError, getDataType(id).toLowerCase()));
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error));
     throw(error);
   }
 }
@@ -312,7 +312,7 @@ export async function searchItems(list: string, searchCritera: Object) : any {
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to get the '+list.substring(0, list.indexOf('/')).toLowerCase()+' list from the server. Please try again.');
+    alert(strings.formatString(strings.fetchItemError, list.substring(0, list.indexOf('/')).toLowerCase(), error));
     throw(error);
   }
 }
@@ -358,7 +358,7 @@ export async function performActionOnItem(action: string, item: any) : any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to '+action+' a '+getDataType(item.id)+'. Please try again.');
+    alert('Something went wrong trying to '+action+' a '+getDataType(item.id)+'. Please try again.\n\n(Internal error = '+error+')');
     throw(error);
   }
 }

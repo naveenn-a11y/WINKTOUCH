@@ -477,7 +477,7 @@ class VisitWorkFlow extends Component {
         await updateVisit(visit);
       } catch (error) {
         console.log(error);
-        alert(strings.serverError);
+        alert(strings.formatString(strings.serverError, error));
       }
     }
 
@@ -489,7 +489,7 @@ class VisitWorkFlow extends Component {
         this.setState({visit});
       } catch (error) {
         console.log(error);
-        alert(strings.serverError);
+        alert(strings.formatString(strings.serverError, error));
       }
     }
 
@@ -729,7 +729,7 @@ export class VisitHistory extends Component {
         this.props.onRefresh();
       } catch (error) {
         console.log(error);
-        alert(strings.serverError);
+        alert(strings.formatString(strings.serverError, error));
       }
     }
 

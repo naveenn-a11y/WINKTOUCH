@@ -48,7 +48,7 @@ export async function putRest(uri: string, parameters: Object, method?: string =
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert(strings.serverError);
+    alert(strings.formatstring(strings.serverError, error));
     throw(error);
   }
 }
@@ -90,7 +90,7 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
     return fullFilename;
   } catch (error) {
     console.log(error);
-    alert(strings.serverError);
+    alert(strings.formatstring(strings.serverError, error));
     throw(error);
   }
 }
