@@ -154,7 +154,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
       console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
       return; //TODO: we should also return an object containing the system eroor?
     }
-    __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET');
+    __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET', url);
     const item : any = restResponse[getItemFieldName(id)];
     if (!item) throw new Error('The server did not return a '+getItemFieldName(id)+' for id '+id+".");
     cacheResponseItems(restResponse);
@@ -218,6 +218,7 @@ export async function storeItem(item: any) : any {
         clearCachedItemById(item);
         await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
       }
+      restResponse.definition = definition;
       return restResponse;
     }
     const updatedItem = restResponse[getItemFieldName(item.id)];
