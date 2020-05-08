@@ -516,7 +516,7 @@ export class ExamDefinitionScreen extends Component {
   }
 
   initExam(examDefinition: ExamDefinition) : Exam {
-    let exam : Exam = {definition: examDefinition, id: undefined, version:undefined, hasStarted:false, hasEnded:false};
+    let exam : Exam = {definition: examDefinition, id: undefined, version:undefined, hasStarted:false};
     if (!examDefinition) {
       return exam;
     }

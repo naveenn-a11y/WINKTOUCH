@@ -521,9 +521,9 @@ class VisitWorkFlow extends Component {
     renderExams(section: string, exams: ?Exam[], isPreExam: boolean) {
         if (exams) {
           if (!isPreExam) {
-            exams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
+            exams = exams.filter((exam: Exam) => exam && exam.definition.section && exam.definition.section.startsWith(section));
           }
-          exams = exams.filter((exam: Exam) => !exam.definition.isAssessment && exam.isHidden!==true && (exam.hasStarted || (this.state.locked!==true && this.props.readonly!==true)));
+          exams = exams.filter((exam: Exam) => exam && !exam.definition.isAssessment && exam.isHidden!==true && (exam.hasStarted || (this.state.locked!==true && this.props.readonly!==true)));
           exams.sort(compareExams);
         }
         if ((!exams || exams.length===0) && this.state.visit && this.state.visit.isDigital!=true) {

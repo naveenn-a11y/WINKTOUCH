@@ -278,7 +278,7 @@ export class ExamCard extends Component {
   getStyle() : any {
     let style: string = this.props.style;
     if (style) return style;
-    style = this.props.exam.definition.card===false?styles.page:this.props.exam.hasEnded?styles.finishedExamCard:styles.todoExamCard;
+    style = this.props.exam.definition.card===false?styles.page:this.props.exam.hasStarted?styles.finishedExamCard:styles.todoExamCard;
     return style;
   }
 
@@ -441,7 +441,6 @@ export class ExamScreen extends Component {
   constructor(props: any) {
     super(props);
     let exam: Exam =  (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.exam:this.props.exam;
-    exam.hasStarted=true;
     this.state = {
       exam,
       appointmentStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.appointmentStateKey:undefined,
@@ -466,7 +465,6 @@ export class ExamScreen extends Component {
     if (this.state.isDirty) {
       this.storeExam(this.state.exam);
     }
-    exam.hasStarted=true;
     this.setState({
       exam,
       appointmentStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.appointmentStateKey:undefined,
@@ -488,7 +486,6 @@ export class ExamScreen extends Component {
   async fetchExam() {
     const exam: Exam = await fetchExam(this.state.exam.id);
     if (this.state.exam!==exam) {
-      if (exam!=undefined) exam.hasStarted = true;
       this.setState({exam, isDirty: false});
     }
   }
@@ -498,12 +495,11 @@ export class ExamScreen extends Component {
     if (exam===undefined) return;
     this.state.exam[exam.definition.name]=undefined;
     exam = Object.assign(this.state.exam, exam);
-    exam.hasStarted = true;
     this.setState({exam, isDirty: false});
   }
 
   async storePreviousExam(exam: Exam) {
-    exam.hasEnded = true;
+    exam.hasStarted = true;
     exam = await storeExam(exam, this.state.appointmentStateKey, this.props.navigation);
     if (exam.errors===undefined) {
       updateMappedExams(exam);
@@ -514,7 +510,7 @@ export class ExamScreen extends Component {
   }
 
   async storeExam(exam: Exam) {
-    exam.hasEnded = true;
+    exam.hasStarted = true;
     exam = await storeExam(exam, this.state.appointmentStateKey, this.props.navigation);
     if (exam.errors===undefined) updateMappedExams(exam);
     if (this.props.exam) {

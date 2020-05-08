@@ -264,7 +264,7 @@ export type GroupDefinition = {
     columns?: string[][],
     rows?: string[][],
     multiValue?: boolean,
-    readonly?: boolean,        
+    readonly?: boolean,
     options?: CodeDefinition[][]|CodeDefinition[]|string,
     maxLength?: number,
     mappedField?: string,
@@ -326,7 +326,6 @@ export type Exam = {
     errors?: string[],
     definition: ExamDefinition,
     hasStarted: boolean,
-    hasEnded: boolean,
     isDirty?: boolean,
     isHidden?: boolean
 }
