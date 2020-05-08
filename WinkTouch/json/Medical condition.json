@@ -1,7 +1,7 @@
 {
   "name": "Medical condition",
   "type": "groupedForm",
-  "section": "History.40",
+  "section": "History.10",
   "starable": false,
   "addable": false,
   "editable": true,
@@ -10,7 +10,7 @@
       "name": "Condition",
       "multiValue": true,
       "freestyle": true,
-      "options": "medicalConditionCodes"
+      "options": "medicalConditionCodes",
     },
     {
       "name": "Notes",
