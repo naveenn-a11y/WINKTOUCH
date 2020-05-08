@@ -264,6 +264,7 @@ export type GroupDefinition = {
     columns?: string[][],
     rows?: string[][],
     multiValue?: boolean,
+    readonly?: boolean,        
     options?: CodeDefinition[][]|CodeDefinition[]|string,
     maxLength?: number,
     mappedField?: string,

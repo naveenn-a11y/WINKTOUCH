@@ -158,7 +158,7 @@ async function printPatientFile(visitId : string) {
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
     if (exams) {
-        visitHtml +=  `<table><thead><tr><th class="service">EXAM</th><th class="desc">DESCRIPTION</th></tr></thead><tbody>`;
+        visitHtml +=  `<table><thead></thead><tbody>`;
         for(const section : string of  examSections) {
           let filteredExams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
           filteredExams.sort(compareExams);
@@ -477,7 +477,7 @@ class VisitWorkFlow extends Component {
         await updateVisit(visit);
       } catch (error) {
         console.log(error);
-        alert(strings.serverError);
+        alert(strings.formatString(strings.serverError, error));
       }
     }
 
@@ -489,7 +489,7 @@ class VisitWorkFlow extends Component {
         this.setState({visit});
       } catch (error) {
         console.log(error);
-        alert(strings.serverError);
+        alert(strings.formatString(strings.serverError, error));
       }
     }
 
@@ -729,7 +729,7 @@ export class VisitHistory extends Component {
         this.props.onRefresh();
       } catch (error) {
         console.log(error);
-        alert(strings.serverError);
+        alert(strings.formatString(strings.serverError, error));
       }
     }
 

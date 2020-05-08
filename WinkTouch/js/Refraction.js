@@ -166,22 +166,22 @@ export class DegreeField extends Component {
   }
 }
 
- export function formatPrism(eyeRx: GlassRx) : string {
-  if (eyeRx === undefined) return '';
-  let parsedPrism : Prism = splitPrism(eyeRx.prism);
+ export function formatPrism(prism: string) : string {
+  if (prism === undefined) return '';
+  let parsedPrism : Prism = splitPrism(prism);
   if(parsedPrism === undefined) return '';
 
-  let prism : string = '';
+  let formattedPrism : string = '';
   if (parsedPrism.prism1!==undefined && parsedPrism.prism1!==null && parsedPrism.prism1!==0) {
-    prism += parsedPrism.prism1 + '';
-    prism += formatCode('prism1b', parsedPrism.prism1b);
+    formattedPrism += parsedPrism.prism1 + '';
+    formattedPrism += formatCode('prism1b', parsedPrism.prism1b);
   }
   if (parsedPrism.prism2!==undefined && parsedPrism.prism2!==null && parsedPrism.prism2!==0) {
-    prism += ' '+ parsedPrism.prism2 + '';
-    prism += formatCode('prism2b', parsedPrism.prism2b);
+    formattedPrism += ' '+ parsedPrism.prism2 + '';
+    formattedPrism += formatCode('prism2b', parsedPrism.prism2b);
   }
-  if (prism!='') prism = '\u25b3'+prism;
-  return prism;
+  if (formattedPrism!='') formattedPrism = '\u25b3'+formattedPrism;
+  return formattedPrism;
 }
 
 export class GeneralPrismInput extends Component {
@@ -332,8 +332,8 @@ export class GlassesSummary extends Component {
         </View>
         <View style={styles.cardColumn} key='prism'>
           {this.props.showHeaders===true && <Text style={styles.text}>Prism </Text>}
-          {this.props.glassesRx.od && <Text style={styles.text} key='od.prism'> {formatPrism(this.props.glassesRx.od)}</Text>}
-          {this.props.glassesRx.os && <Text style={styles.text} key='os.prism'> {formatPrism(this.props.glassesRx.os)}</Text>}
+          {this.props.glassesRx.od && <Text style={styles.text} key='od.prism'> {formatPrism(this.props.glassesRx.od.prism)}</Text>}
+          {this.props.glassesRx.os && <Text style={styles.text} key='os.prism'> {formatPrism(this.props.glassesRx.os.prism)}</Text>}
         </View>
     </View>
     </View>
@@ -518,7 +518,9 @@ export class GlassesDetail extends Component {
   }
 
   render() {
-    if (this.props.glassesRx===undefined || this.props.glassesRx.od===undefined || this.props.glassesRx.os===undefined)
+    if (!this.props.glassesRx)
+      return null;
+    if(!this.props.glassesRx.od || !this.props.glassesRx.os)
       return null;
     return <View style={this.props.style?this.props.style:(this.state.prism&&this.props.hasVA)?styles.boardXL:(this.state.prism||this.props.hasVA)?styles.boardL:styles.boardM}>
       {this.props.title && <Label suffix='' style={this.props.titleStyle} value={this.props.title} fieldId={this.props.fieldId}/>}

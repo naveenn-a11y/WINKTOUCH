@@ -256,7 +256,6 @@ export class CheckList extends PureComponent {
     this.props.onChangeField && this.props.onChangeField(value);
   }
 
-  //const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
   render() {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style}>
@@ -266,7 +265,7 @@ export class CheckList extends PureComponent {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');
             return <View style={styles.formRow} key={option}>
-              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)}/>
+              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)} readonly={this.props.editable!=true}/>
             </View>
           }
         )}
@@ -591,6 +590,8 @@ export class GroupedForm extends Component {
       return <View style={styles.fieldFlexContainer} key={column}><Text style={styles.text}></Text></View>
     if (fieldDefinition.mappedField) {
       let exam : Exam = getCachedItem(this.props.examId);
+      if(!exam)
+      __DEV__ && console.error('Exam is null:  '+ this.props.examId);
       fieldDefinition = Object.assign({}, getExamFieldDefinition(fieldDefinition.mappedField, exam), fieldDefinition);
     }
     const value = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name]:undefined:this.props.form[fieldDefinition.name]:undefined;
@@ -604,9 +605,23 @@ export class GroupedForm extends Component {
 
     const error = this.props.form?column?this.props.form[column]?this.props.form[column][fieldDefinition.name+'Error']:undefined:this.props.form[fieldDefinition.name+'Error']:undefined;
     const label : string = formatLabel(this.props.definition)+(column!==undefined?' '+this.formatColumnLabel(column)+' ':' ')+formatLabel(fieldDefinition);
-    return <FormInput value={value} filterValue={this.props.form} label={label} showLabel={false} readonly={!this.props.editable} definition={fieldDefinition}
-      onChangeValue={(newValue: string) => this.changeField(fieldDefinition, newValue, column)} errorMessage={error} isTyping={this.state.isTyping}
-      patientId={this.props.patientId} examId={this.props.examId} enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} key={fieldDefinition.name+(column===undefined?'':column)}/>
+    return <FormInput
+      value={value}
+      filterValue={this.props.form}
+      label={label}
+      showLabel={false}
+      readonly={!this.props.editable}
+      definition={fieldDefinition}
+      onChangeValue={(newValue: string) => this.changeField(fieldDefinition, newValue, column)}
+      errorMessage={error}
+      isTyping={this.state.isTyping}
+      patientId={this.props.patientId}
+      examId={this.props.examId}
+      enableScroll={this.props.enableScroll}
+      disableScroll={this.props.disableScroll}
+      key={fieldDefinition.name+(column===undefined?'':column)}
+      fieldId={this.props.fieldId+'.'+fieldDefinition.name+(column===undefined?'':column)}
+    />
   }
 
   renderSimpleRow(fieldDefinition: FieldDefinition) {
@@ -1171,7 +1186,8 @@ export class GroupedFormScreen extends Component {
           fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}
           editable={this.props.editable!==false && groupDefinition.readonly!==true}
         />
-        :<GroupedForm definition={groupDefinition} editable={this.props.editable} key={groupDefinition.name+"-"+index+'.'+subIndex}
+        :<GroupedForm definition={groupDefinition} editable={this.props.editable}
+            key={groupDefinition.name+'-'+index+'.'+subIndex}
             form={childValue}
             onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column, subIndex)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -1181,7 +1197,7 @@ export class GroupedFormScreen extends Component {
             onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue, subIndex)}
             patientId={this.patientId}
             examId={this.props.exam.id}
-            fieldId={fieldId}
+            fieldId={fieldId+'['+(value.length-subIndex)+']'}
             editable={this.props.editable!==false && groupDefinition.readonly!==true}
           />
       );

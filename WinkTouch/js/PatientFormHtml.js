@@ -58,7 +58,7 @@ import { formatCode } from './Codes';
 let scannedFilesHtml : string = '';
 
 export function getScannedFiles() {
- return scannedFilesHtml;
+ return !isEmpty(scannedFilesHtml) ? `<div class = "scannedFiles">${scannedFilesHtml}</div>` : '';
 } 
 
 export function setScannedFiles(html : string) {
@@ -82,17 +82,17 @@ export function printPatientHeader (visit: Visit) {
     `      <div id="client">` +
     `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
     `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
-    `        <div><span></span>${postfix(patient.streetNumber, ', ') +
+    `        <div><span></span>${postfix(patient.unit, '-') +
+      postfix(patient.streetNumber, ', ') +
       patient.streetName +
-      prefix(patient.unit, ', ') +
-      prefix(patient.postalCode, ', ') +
       prefix(patient.city, ', ') +
       prefix(patient.province, ', ') +
+      prefix(patient.postalCode, ', ') +
       prefix(patient.country, ', ')}</div>` +
     `        <div><span></span>${patient.email}</div>` +
     `        <div><span></span>${patient.cell?(patient.cell+' '):patient.phone}</div>` +
     `        <div><span></span>${patient.dateOfBirth}</div>` +
-    `        <div><span>${strings.healthCard}</span>${patient.medicalCard}${prefix(patient.medicalCardVersion, '-')}${prefix(patient.medicalCardExp, '-')}</div>` +
+    `        <div><span>${strings.healthCard}</span>${patient.medicalCard} ${prefix(patient.medicalCardVersion, 'V:')} ${prefix(patient.medicalCardExp, 'EXP:')}</div>` +
 
 
     `        <div><span>${strings.examDate}</span>${formatDate(visit.date, officialDateFormat)}</div>` +
@@ -199,13 +199,14 @@ async function renderAllGroupsHtml (exam: Exam) {
   if (!exam[exam.definition.name]) return '';
   if (exam.definition.fields === null || exam.definition.fields === undefined || exam.definition.fields.length === 0)
     return '';
-
+    
   await Promise.all(exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
     const result = await renderGroupHtml(groupDefinition, exam);
     if (!isEmpty(result)) {
       html += result
     }
   }));
+
   return html
 }
 async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
@@ -240,7 +241,6 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
       )
       return html;
 
-
       const rowValue = await renderRowsHtml(groupDefinition, exam, groupIndex);
       html += rowValue;
     }));
@@ -271,7 +271,6 @@ async function renderRowsHtml (
   const examLabel = formatLabel(exam.definition);
   let labelDisplayed : boolean = false;
   for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
-
     const columnFieldIndex: number = getColumnFieldIndex(
       groupDefinition,
       fieldDefinition.name
@@ -281,14 +280,15 @@ async function renderRowsHtml (
       const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, groupIndex);
       html += value;
     } else if (columnFieldIndex < 0) {
-
       const value = await renderField(
         fieldDefinition,
         groupDefinition,
         exam,
         form,
+        undefined,
         groupIndex
       );
+
       if (!isEmpty(value)) {
         if(groupLabel !== examLabel && groupDefinition.size !== 'XL' && !fieldDefinition.image) {
              html += !labelDisplayed ? `<div class="groupLabel">` + formatLabel(groupDefinition) + `</div>` : '';
@@ -296,16 +296,20 @@ async function renderRowsHtml (
         }
         const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
-          html += `<div><span>${label}:</span> <span>${value}</span></div>`
+          html += `<div>`;
+          if(!fieldDefinition.image) html += `<div><span>${label}:</span>`;
+          html += `<span>${value}</span></div>`;
         } else {
           if (groupDefinition.size === 'XL')
-            html += `<div class="xlForm">` + value + `</div>`
-          else html += `<span>` + value + `</span>`
+            html += `<div class="xlForm">` + value + `</div>`;
+          else if(!fieldDefinition.image) html += `<div><span>` + value + `</span></div>`;
+          else html += `<span>` + value + `</span>`;
         }
       }
     }
   }
-  return html
+
+  return html;
 }
 async function renderColumnedRows (
   columnDefinition: GroupDefinition,
@@ -443,6 +447,7 @@ async function renderField (
   column?: string,
   groupIndex?: number = 0
 ) {
+
   let html: string = ''
 
   if (groupDefinition === undefined || fieldDefinition === undefined) return '';
@@ -469,7 +474,7 @@ async function renderField (
           ? form[column][fieldDefinition.name]
           : undefined
         : form[fieldDefinition.name]
-      : undefined
+      : undefined;
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
@@ -483,9 +488,14 @@ async function renderField (
       html += formatAge(value)
     }
      else {
-       if(value instanceof Array) {
-         const formattedValue : string = value.toString().replace(',',' / ');
-          html += formattedValue;
+        if(value instanceof Array) {
+          let formattedValue :string = '';
+          value.forEach((subValue : number | string) => {
+          formattedValue += subValue + ' / ';
+        });
+          if(!isEmpty(formattedValue))
+            formattedValue = formattedValue.replace(/\/\s*$/, "");
+        html += formattedValue;
        } else {
             const formattedValue : string = formatFieldValue(value, fieldDefinition);
             if(isEmpty(formattedValue))
@@ -542,6 +552,7 @@ async function renderImage (
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
   let scale: number = style.width / resolutions(value, fieldDefinition)[0];
+
   if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
       style.width = style.width * 0.85;
       style.height = style.height * 0.85;
@@ -579,8 +590,8 @@ async function renderImage (
                 styles.textfield.fontSize;
 
                 //x&y not scaling properly, need to be fixed ! Ratio is hardcoded now !
-                x-=x*0.01;
-                y-=y*0.01;
+                x-=x*0.042;
+                y-=y*0.021;
 
               html += `<svg style="width:${style.width}pt; height:${style.height}pt">`
               html += `<text x="${x}" y="${y}">${pfValue}</text>`
@@ -591,7 +602,7 @@ async function renderImage (
       ))
   }
   if(upload) {
-    scannedFilesHtml += `<div class="uploadForms">${html}</div>`;
+    scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
     return '';
   } else {
     return html;
@@ -722,7 +733,7 @@ function renderRxTable (
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
-      glassesRx.od ? formatPrism(glassesRx.od) : ''
+      glassesRx.od ? formatPrism(glassesRx.od.prism) : ''
     }</td>`
   if (groupDefinition.hasVA) {
     const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD');
@@ -753,7 +764,7 @@ function renderRxTable (
   }</td>`
   if (isPrism(glassesRx))
     html += `<td class="desc">${
-      glassesRx.os ? formatPrism(glassesRx.os) : ''
+      glassesRx.os ? formatPrism(glassesRx.os.prism) : ''
     }</td>`
   if (groupDefinition.hasVA)
   {
@@ -771,7 +782,33 @@ function renderRxTable (
     const formattedValue : string = glassesRx.os ? formatFieldValue(glassesRx.os.addVa, fieldDefinition) : '';
     html += `<td class="desc">${formattedValue}</td>`;
     }
-  html += `</tr></tbody></table>`
+  html += `</tr>`;
+ if(groupDefinition.hasVA===true && !isEmpty(glassesRx.ou)) {
+
+  html += `<tr>`
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`
+  html += `<td class="desc"></td>`;
+  html += `<td class="desc"></td>`;
+  html += `<td class="desc"></td>`;
+  if (isPrism(glassesRx))
+    html += `<td class="desc"></td>`;
+
+  if (groupDefinition.hasVA)
+  {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU');
+    const formattedValue : string = glassesRx.ou ? formatFieldValue(glassesRx.ou.va, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+  }
+    html += `<td class="desc"></td>`;
+  if (groupDefinition.hasAdd && groupDefinition.hasVA)
+    {
+    const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU');
+    const formattedValue : string = glassesRx.ou ? formatFieldValue(glassesRx.ou.addVa, fieldDefinition) : '';
+    html += `<td class="desc">${formattedValue}</td>`;
+    }
+  html += `</tr>`;
+ }
+  html += `</tbody></table>`;
   if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes)) {
     html += `<div>Notes: ${glassesRx.notes}</div>`;
   }
@@ -796,15 +833,18 @@ export function patientHeader () {
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
-    `.uploadForm {display: block; page-break-before: always;}` +
+    `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
 
     `.uploadForm {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
+    `  float:left;`+
     `  display:block;`+
-    `  float: left;`+
-    `  margin-left:10%`+
+    `  width :50%;`+
+    `}` +
+    `.scannedFiles {` +
+    `  padding:10px`+
     `}` +
     `.groupLabel {` +
     `  font-weight: bold;` +
@@ -822,7 +862,7 @@ export function patientHeader () {
     `}` +
     `body {` +
     `  position: relative;` +
-    `  margin: 0 auto;` +
+    `  margin: 0 10px 0 10px;` +
     `  color: #001028;` +
     `  background: #FFFFFF;` +
     `  font-family: Arial, sans-serif;` +
@@ -831,7 +871,7 @@ export function patientHeader () {
     `}` +
     `header {` +
     `  padding: 10px 0;` +
-    `  margin-bottom: 30px;` +
+    `  margin: 0 10px 20px 10px;` +
     `}` +
     `#logo {` +
     `  text-align: center;` +
@@ -896,6 +936,9 @@ export function patientHeader () {
     `table .desc {` +
     `  text-align: left;` +
     `}` +
+    `table .service {` +
+    ` width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;` +
+    `}` +
     `table td {` +
     `  text-align: right;` +
     `  border: solid;` +
@@ -927,9 +970,6 @@ export function patientHeader () {
     `table td.grand {` +
     `  border-top: 1px solid #5D6975;` +
     `}` +
-    `div {` +
-    `page-break-inside: avoid;` +
-    `}` +
     `#forms {` +
     `  color: #5D6975;` +
     `  font-size: 1.2em;` +
@@ -958,6 +998,7 @@ export function patientHeader () {
     `}` +
     `.img-wrap img {` +
     `  display:block;` +
+    ` margin-top:5px;` +
     `}` +
     `</style></head><body><main>`
   return htmlHeader

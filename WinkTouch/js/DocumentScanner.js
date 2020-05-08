@@ -27,6 +27,7 @@ export class DocumentScanner extends Component {
     onSave: (uploadId: string) => void,
     onCancel: () => void,
     size: string,
+    replaceImage?: boolean
   }
   state: {
     image: ?string,
@@ -58,14 +59,15 @@ export class DocumentScanner extends Component {
       mimeType: 'image/jpeg;base64',
       name: this.props.fileName,
       argument1: this.props.patientId,
-      argument2: this.props.examId
+      argument2: this.props.examId,
+      replace: this.props.replaceImage
     };
     upload = await storeUpload(upload);
     if (upload.errors) {
       alert(strings.formatString(strings.pmsImageSaveError, this.props.fileName));
       this.setState({
         saving: false
-      });            
+      });
       return upload;
     }
     if (this.props.category) {

@@ -60,7 +60,8 @@ export class ImageField extends Component {
     popup?: boolean,
     onChangeValue?: (value: ImageDrawing) => void,
     enableScroll?: () => void,
-    disableScroll?: () => void
+    disableScroll?: () => void,
+    replaceImage?: boolean
   }
   state: {
     isActive: boolean,
@@ -788,7 +789,7 @@ export class ImageField extends Component {
                 </ViewShot>}
                 {this.renderIcons()}
                 {this.state.cameraOn && <Modal visible={this.state.cameraOn} transparant={false} animationType={'slide'}><DocumentScanner uploadId={this.props.value&&this.props.value.image?this.props.value.image:undefined} size={this.props.size}
-                    fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={(uploadId: string) => this.savedCameraImage(uploadId)} patientId={this.props.patientId} examId={this.props.examId}/>
+                    fileName={this.props.fileName} onCancel={this.cancelCamera} onSave={(uploadId: string) => this.savedCameraImage(uploadId)} patientId={this.props.patientId} examId={this.props.examId} replaceImage={this.props.replaceImage}/>
                   </Modal>}
                 {this.state.attachOn && <Modal visible={this.state.attachOn} transparant={true} animationType={'slide'}>{this.renderDocumentTrailPopup()}</Modal>}
             </View>

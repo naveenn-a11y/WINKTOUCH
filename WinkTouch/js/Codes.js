@@ -149,7 +149,7 @@ export async function fetchCodeDefinitions(language: string, accountId: number) 
     codeDefinitions = Object.assign(codeDefinitions, translatedCodeDefinitions);
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to get code descriptions from the server. Please restart the app.');
+    alert(strings.formatString(strings.initialiseError, 'code descriptions', error));
     throw(error);
   }
 }
