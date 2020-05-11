@@ -37,7 +37,6 @@
     "react-native-pdf-lib": "git+https://github.com/Hopding/react-native-pdf-lib.git",
     "react-native-print": "^0.6.0",
     "react-native-public-ip": "^1.0.2",
-    "react-native-screens": "^2.1.0",
     "react-native-svg": "^9.13.3",
     "react-native-touch-id": "^4.4.1",
     "react-native-vector-icons": "^6.6.0",
