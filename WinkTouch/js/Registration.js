@@ -213,10 +213,10 @@ export class RegisterScreen extends Component {
                   <Text style={styles.label}>{strings.enterRegisteredEmail}</Text>
                   <View style={{flexDirection:'row'}}><View style={{flex: 100}}>
                     <TextInput placeholder={strings.emailAdres} keyboardType='email-address' autoCapitalize='none' autoCorrect={false} returnKeyType='done' style={styles.searchField} value={this.state.email}
-                      onChangeText={(email: string) => this.setState({email})} /></View>
+                      onChangeText={(email: string) => this.setState({email})} testId='registration.email'/></View>
                   </View>
                   <View style={styles.buttonsRowLayout}>
-                    <Button title={strings.connectToPms} onPress={() => this.submitEmail(true)} /><Button title={strings.tryForFree} onPress={() => this.submitEmail(false)} />
+                    <Button title={strings.connectToPms} onPress={() => this.submitEmail(true)} testId='connectToPmsButton'/><Button title={strings.tryForFree} onPress={() => this.submitEmail(false)} testId='tryForFreeButton'/>
                   </View>
                 </View>}
                 {this.state.securityQuestionIndex!==undefined && <View style={styles.centeredColumnLayout}>

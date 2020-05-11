@@ -886,7 +886,7 @@ export class FormInput extends Component {
 
   render() {
     if (!this.props.definition) return null;
-    if (this.props.definition.layout) return  <View style={scaleStyle(this.props.definition.layout)}>
+    if (this.props.definition.layout) return  <View style={scaleStyle(this.props.definition.layout)} >
       {this.renderFormInput()}
     </View>
     return this.renderFormInput();
@@ -999,7 +999,8 @@ export class FormField extends Component {
     return <FormInput value={this.getFieldValue()} filterValue={this.props.value} errorMessage={this.getErrorMessage()} definition={this.state.fieldDefinition} showLabel={this.props.showLabel} readonly={this.props.readonly} label={this.props.label}
       type={this.props.type} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline}
       onChangeValue={this.setFieldValue} patientId={this.props.patientId} examId={this.props.examId}
-      enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll} />
+      enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
+      testId={this.state.fieldDefinition.name} />
   }
 }
 
