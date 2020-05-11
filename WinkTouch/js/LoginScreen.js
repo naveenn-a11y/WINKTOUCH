@@ -12,7 +12,7 @@ import {styles, fontScale} from './Styles';
 import { Button, TilesField } from './Widgets';
 import { strings, switchLanguage, getUserLanguage, getUserLanguageIcon } from './Strings';
 import { restUrl, searchItems, handleHttpError, getNextRequestNumber } from './Rest';
-import { dbVersion, touchVersion, bundleVersion, deploymentVersion} from './Version';
+import { dbVersion, touchVersion, bundleVersion, deploymentVersion, restVersion} from './Version';
 import { fetchCodeDefinitions} from './Codes';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';

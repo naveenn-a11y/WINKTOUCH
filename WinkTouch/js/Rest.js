@@ -7,9 +7,10 @@ import type { FieldDefinitions, RestResponse } from './Types';
 import { capitalize, deepClone } from './Util';
 import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
+import { restVersion } from './Version';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export let restUrl : string = __DEV__?'http://192.168.2.53:8080/Web/':'https://ws-touch.downloadwink.com/EHR-3.4/';
+export let restUrl : string = __DEV__?'http://192.168.2.53:8080/Web/':'https://ws-touch.downloadwink.com/'+restVersion+'/';
 
 let token : string;
 

@@ -61,7 +61,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   }
   checkBinaryVersion();
   if (!registration || !registration.bundle) return;
-  if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
+  //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
   __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
@@ -119,8 +119,7 @@ export class EhrApp extends Component {
 
     setRegistration(registration?: Registration) {
       const isRegistered : boolean = registration!=undefined && registration!=null && registration.email!=undefined && registration.path!=undefined && registration.bundle!==undefined && registration.bundle!==null && registration.bundle.length>0;
-      this.setState({isRegistered, registration});
-      //if (isRegistered===true) checkAndUpdateDeployment(registration);
+      this.setState({isRegistered, registration}, () => isRegistered && this.checkForUpdate());
     }
 
     async safeRegistration(registration: Registration) {

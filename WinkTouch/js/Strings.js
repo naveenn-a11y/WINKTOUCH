@@ -10,12 +10,12 @@ import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
     en: {
-      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database or start a free trial',
-      trialWarning: 'This is a trial version that uses a public shared database. Do not enter any real patient data.',
+      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database or start with a demo database',
+      trialWarning: 'This is a demo version that uses a public shared database. Do not enter any real patient data.',
       winkLink: 'Visit www.winksoftware.com to learn more',
       emailAdres: 'Email adress',
       connectToPms: 'Connect',
-      tryForFree: 'Try for free',
+      tryForFree: 'Try it out',
       answerSecurityQuestion: 'Please answer the security question before submitting',
       submitSecurityAnswer: 'Send',
       unRegisteredEmail: 'This email adress was not registered before with Wink',
@@ -174,12 +174,12 @@ export const strings = new LocalizedStrings({
       healthCard: 'Health Card'
     },
     fr: {
-      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai gratuit',
-      trialWarning: 'This is a trial version that uses a public shared database. Do not enter any real patient data.',
+      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai',
+      trialWarning: 'Ceci est la version d\'essai qui utilise une base de données publique partagée. N\'entrez aucune donnée réelle sur le patient. ',
       winkLink: 'Visitez www.winksoftware.com',
       emailAdres: 'Adresse courriel',
       connectToPms: 'Se connecter',
-      tryForFree: 'Essayer gratuitement',
+      tryForFree: 'Essayer',
       answerSecurityQuestion: 'Veuillez répondre à la question de sécurité avant de soumettre la réponse',
       submitSecurityAnswer: 'Soumettre',
       unRegisteredEmail: 'Cette adresse courriel n\'a pas été enregistrée précédemment avec Wink',
