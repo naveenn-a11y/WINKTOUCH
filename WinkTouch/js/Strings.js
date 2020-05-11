@@ -352,6 +352,7 @@ export function getUserLanguage() : string {
 
 export function getUserLanguageIcon() : string {
   let languageIndex : number = supportedLanguages.indexOf(getUserLanguage());
+  if (languageIndex<0) languageIndex = 0;
   return supportedLanguages[languageIndex+1];
 }
 
@@ -382,7 +383,9 @@ export function switchLanguage() {
 AsyncStorage.getItem('userLanguage').then(
   userLanguage => {
     if (userLanguage===null || userLanguage===undefined) userLanguage = strings.getInterfaceLanguage();
-    //setUserLanguage(userLanguage.substring(0, 2));
+    if (supportedLanguages.indexOf(userLanguage)<0) {
+      userLanguage = supportedLanguages[0];
+    }
     setUserLanguage(userLanguage);
   }
 );

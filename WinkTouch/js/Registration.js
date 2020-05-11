@@ -5,7 +5,7 @@ import {Image, Text, TextInput, View, TouchableOpacity, ScrollView, KeyboardAvoi
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
 import {styles, fontScale} from './Styles';
-import { strings, getUserLanguage, switchLanguage } from './Strings';
+import { strings, getUserLanguage, switchLanguage, getUserLanguageIcon } from './Strings';
 import { Button } from './Widgets';
 import { handleHttpError } from './Rest';
 import { dbVersion, touchVersion, bundleVersion, deploymentVersion } from './Version';
@@ -207,38 +207,38 @@ export class RegisterScreen extends Component {
           <View style={styles.centeredColumnLayout}>
             <KeyboardAvoidingView behavior='position'>
               <View style={styles.centeredColumnLayout}>
-                <Text style={styles.h1}>{strings.registrationScreenTitle}</Text>
+                <Text style={styles.h1} testID={'screenTitle'}>{strings.registrationScreenTitle}</Text>
                 <Image source={require('./image/winklogo-big.png')} style={{width: 250 *fontScale, height: 250 *fontScale}}/>
                 {this.state.securityQuestionIndex===undefined && <View style={styles.centeredColumnLayout}>
                   <Text style={styles.label}>{strings.enterRegisteredEmail}</Text>
                   <View style={{flexDirection:'row'}}><View style={{flex: 100}}>
                     <TextInput placeholder={strings.emailAdres} keyboardType='email-address' autoCapitalize='none' autoCorrect={false} returnKeyType='done' style={styles.searchField} value={this.state.email}
-                      onChangeText={(email: string) => this.setState({email})} testId='registration.email'/></View>
+                      onChangeText={(email: string) => this.setState({email})} testID={'registration.emailInput'}/></View>
                   </View>
                   <View style={styles.buttonsRowLayout}>
-                    <Button title={strings.connectToPms} onPress={() => this.submitEmail(true)} testId='connectToPmsButton'/><Button title={strings.tryForFree} onPress={() => this.submitEmail(false)} testId='tryForFreeButton'/>
+                    <Button title={strings.connectToPms} onPress={() => this.submitEmail(true)} testID={'connectToPmsButton'}/><Button title={strings.tryForFree} onPress={() => this.submitEmail(false)} testID={'tryItButton'}/>
                   </View>
                 </View>}
                 {this.state.securityQuestionIndex!==undefined && <View style={styles.centeredColumnLayout}>
                   <View>
-                    <TouchableOpacity onPress={this.resetRegistration}><Text style={styles.label}>{this.state.email}</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={this.resetRegistration} testID={'resetRegistrationButton'}><Text style={styles.label}>{this.state.email}</Text></TouchableOpacity>
                   </View>
                   <View>
-                    <Text style={styles.label}>{this.state.securityQuestions!==undefined?this.state.securityQuestions[this.state.securityQuestionIndex]:''}</Text>
+                    <Text style={styles.label} testID={'securityQuestion'}>{this.state.securityQuestions!==undefined?this.state.securityQuestions[this.state.securityQuestionIndex]:''}</Text>
                   </View>
                   <View >
                     <TextInput autoCapitalize='none' autoCorrect={false} returnKeyType='send' style={styles.field400} value={this.state.securityAnswer}
-                      onChangeText={(securityAnswer: string) => this.setState({securityAnswer})} onSubmitEditing={() => this.submitSecurityAnswer()}/>
+                      onChangeText={(securityAnswer: string) => this.setState({securityAnswer})} onSubmitEditing={() => this.submitSecurityAnswer()} testID={'securityAnswerInput'}/>
                   </View>
                   <View style={styles.buttonsRowLayout}>
-                    <Button title={strings.submitSecurityAnswer} onPress={() => this.submitSecurityAnswer()} />
+                    <Button title={strings.submitSecurityAnswer} onPress={() => this.submitSecurityAnswer()} testID={'submitSecurityAnswerButton'}/>
                   </View>
                 </View>}
               </View>
             </KeyboardAvoidingView>
           </View>
-          <TouchableOpacity style={styles.flag} onPress={() => {switchLanguage();this.loadSecurityQuestions()}}><Text style={styles.flagFont}>{strings.getLanguage()==='fr'?'🇫🇷':'🇺🇸'}</Text></TouchableOpacity>
-          <Text style={{position: 'absolute', bottom:20 * fontScale, right:  20 * fontScale, fontSize: 14 * fontScale}}>Version {deploymentVersion}.{touchVersion}.{bundleVersion}.{dbVersion}</Text>
+          <TouchableOpacity style={styles.flag} onPress={() => {switchLanguage();this.loadSecurityQuestions()}}><Text style={styles.flagFont}>{getUserLanguageIcon()}</Text></TouchableOpacity>
+          <Text style={{position: 'absolute', bottom:20 * fontScale, right:  20 * fontScale, fontSize: 14 * fontScale}} testID={'appVersion'}>Version {deploymentVersion}.{touchVersion}.{bundleVersion}.{dbVersion}</Text>
         </View>
     }
 }

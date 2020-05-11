@@ -1721,7 +1721,7 @@ export class Button extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} ><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
+    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} testID={this.props.testID}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
   }
 }
 
