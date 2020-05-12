@@ -1,10 +1,33 @@
 {
-  "name": "Social history",
   "addable": false,
+  "locale": {
+    "fr-CA": {
+      "label": "Habitudes  Sociales",
+      "fields": [
+        {
+          "name": "Smoking",
+          "label": "Cigarette"
+        },
+        {
+          "name": "Alcohol",
+          "label": "Alcool"
+        },
+        {
+          "name": "Drugs",
+          "label": "Drogues"
+        },
+        {
+          "name": "Other",
+          "label": "Autres"
+        }
+      ]
+    }
+  },
+  "name": "Social history",
   "starable": true,
   "type": "selectionLists",
-  "editable": true,
   "section": "History.32",
+  "editable": true,
   "fields": [
     {
       "normalValue": "Never smoker",

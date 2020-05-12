@@ -96,9 +96,9 @@
           "type": "EMR"
         },
         {
-          "name": "SAAQ",
+          "name": "SAAQ scan",
           "image": "upload",
-          "label": "Medication",
+          "label": "SAAQ",
           "popup": false,
           "drawable": true,
           "size": "L",

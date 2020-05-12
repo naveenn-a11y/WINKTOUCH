@@ -4,19 +4,21 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, ListView, LayoutAnimation } from 'react-native';
+import { View, TouchableHighlight, Text, ScrollView, TouchableOpacity, LayoutAnimation } from 'react-native';
 import type { GlassesRx, Visit, Exam } from './Types';
 import { strings } from './Strings';
 import { styles, fontScale } from './Styles';
 import {GlassesDetail} from './Refraction';
 import { FormRow, FormField, FormTextInput } from './Form';
 import { getCachedItem } from './DataCache';
-import { ItemsCard, GroupedCard, formatLabel } from './Items';
+import { ItemsCard, formatLabel } from './Items';
+import { GroupedCard } from './GroupedForm';
 import { storeExam } from './Exam';
 import { Microphone } from './Voice';
 import { getDataType } from './Rest';
+import { Label } from './Widgets';
 
-export class AssessmentCard extends PureComponent {
+export class AssessmentCard extends Component {
   props: {
     exam: Exam,
     navigation: any,
@@ -24,16 +26,12 @@ export class AssessmentCard extends PureComponent {
     disabled: ?boolean
   }
 
-  componentWillReceiveProps(){
-    this.forceUpdate(); //This is to force redraw when returning to overview screen after exam got updated
-  }
-
   render() {
     if (!this.props.exam) return null;
     return <TouchableOpacity disabled={this.props.disabled} onPress={() => this.props.navigation.navigate('exam', {exam: this.props.exam, appointmentStateKey: this.props.appointmentStateKey})}>
       <View style={styles.assessmentCard}>
         <View style={styles.centeredRowLayout}>
-            <Text style={styles.sectionTitle}>{formatLabel(this.props.exam.definition)}</Text>
+            <Label suffix='' style={styles.sectionTitle} value={formatLabel(this.props.exam.definition)} fieldId={this.props.exam.definition.id} />
         </View>
         <View style={styles.formRow500}>
             {this.props.exam.definition.type==='groupedForm' && <GroupedCard isExpanded={true} exam={this.props.exam} showTitle={false} />}
@@ -53,9 +51,10 @@ export class PrescriptionCard extends Component {
 
   render() {
     if (this.props.exam===undefined) return null;
-    return <View style={styles.assessmentCard}>        
+    return <View style={styles.assessmentCard}>
         <View style={styles.formRow500}>
-          <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} title={'Final Rx'} glassesRx={this.props.exam.RxToOrder['Final Rx']}
+          <GlassesDetail title={strings.RxToOrder} titleStyle={styles.sectionTitle} title={strings.finalRx} glassesRx={this.props.exam.RxToOrder['Final Rx']}
+            examId={this.props.exam.id}
             style={styles.flexColumnLayout} editable={false} hasAdd={true}/>
         </View>
       </View>
@@ -100,9 +99,10 @@ export class VisitSummaryCard extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps: any) {
+  componentDidUpdate(prevProps: any) {
+    if (this.props.exam===prevProps.exam) return;
     this.setState({
-      exam: nextProps.exam
+      exam: this.props.exam
     });
   }
 

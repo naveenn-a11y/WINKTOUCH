@@ -3,14 +3,15 @@
  */
 'use strict';
 
+import type {Exam} from './Types';
 import { appendParameters, getToken} from './Rest';
-import { strings, getUserLanguage } from './Strings';
+import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
 //export const winkRestUrl = 'https://nikon-feasibility.downloadwink.com/WinkRESTvWinkWeb/';
-export const winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
+export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export const winkRestUrl = 'http://192.168.88.22:8080/WinkRESTv4.08.30/';
 
 async function handleHttpError(httpResponse: any) {
@@ -47,7 +48,7 @@ export async function putRest(uri: string, parameters: Object, method?: string =
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert(strings.serverError);
+    alert(strings.formatstring(strings.serverError, error));
     throw(error);
   }
 }
@@ -61,7 +62,7 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
         headers: {
           'token': getToken(),
           'Content-Type': 'application/json',
-          'Accept-language': getUserLanguage(),
+          'Accept-language': getUserLanguageShort(),
           'Accept':'application/json'
         },
         body: body?JSON.stringify(body):''
@@ -85,11 +86,11 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
       }
     });
     await RNFS.writeFile(fullFilename, restResponse['data'], 'base64');
-    __DEV__ && console.log('Wrote file '+fullFilename);
+    __DEV__ && console.log('Created local file '+fullFilename);
     return fullFilename;
   } catch (error) {
     console.log(error);
-    alert(strings.serverError);
+    alert(strings.formatstring(strings.serverError, error));
     throw(error);
   }
 }

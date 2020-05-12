@@ -5,38 +5,41 @@
 
 import type { CodeDefinition, FieldDefinition, FieldDefinitions, GroupDefinition } from './Types';
 import { strings, getUserLanguage } from './Strings';
-import { restUrl, handleHttpError, searchItems } from './Rest';
+import { restUrl, handleHttpError, searchItems, getNextRequestNumber } from './Rest';
 import { getFieldDefinitions } from './Items';
 import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
 import { passesFilter } from './Util';
 
-export function formatCodeDefinition(option: ?CodeDefinition, codeIdentifier?: string) : string {
+export function formatCodeDefinition(option: ?CodeDefinition, descriptionIdentifier?: string) : string {
   if (option===undefined || option===null) return '';
-  if (option.description !== undefined)
+  if (descriptionIdentifier!==undefined && descriptionIdentifier!==null) {
+      option = option[descriptionIdentifier];
+  } else if (option.description!==undefined && option.description!==null) {
     option = option.description;
-  else if (option.key!==undefined)
+  } else if (option.key!==undefined && option.key!==null) {
     option = strings[option.key];
-  else {
-    if (codeIdentifier===undefined || codeIdentifier===null) {
-      codeIdentifier = 'code';
-    }
-    if (option[codeIdentifier]!==undefined) {
-      option = option[codeIdentifier];
-    }
+  } else if (option.code!==undefined && option.code!==null) {
+    option = option.code;
   }
   if (option===undefined || option===null) return '';
   option = option.toString();
   return option;
 }
 
-export function formatCode(codeType: string, code?: string|number) : string {
+export function getCodeDefinition(codeType: string, code?: string|number) : ?CodeDefinition {
+  if (code === undefined || code === null) return undefined;
+  let codeDefinition :? CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
+  return codeDefinition;
+}
+
+export function formatCode(codeType: string, code?: string|number, descriptionIdentifier?: string) : string {
   if (code===undefined || code===null) return '';
-  let codeDefinition :?CodeDefinition = getAllCodes(codeType).find(x => (x.code!==undefined && x.code === code) || (x.code===undefined && x === code));
+  const codeDefinition :?CodeDefinition = getCodeDefinition(codeType, code);
   if (codeDefinition===undefined) {
     return code.toString();
   }
-  return formatCodeDefinition(codeDefinition);
+  return formatCodeDefinition(codeDefinition, descriptionIdentifier);
 }
 
 export function formatOption(dataType: string, field: string, code: ?string|?number) : string {
@@ -92,7 +95,7 @@ export function getAllCodes(codeType: string, filter?: {}) : CodeDefinition[] {
 }
 
 export function formatAllCodes(codeType: string, filter?: {}) : string[] {
-  let codeIdentifier = 'code';
+  let codeIdentifier = undefined;
   if (codeType.includes('.')) {
     const identifiers : string = codeType.split('.');
     codeType = identifiers[0];
@@ -110,7 +113,7 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
     codeIdentifier = 'code';
   }
   let codeDefinition : CodeDefinition = getAllCodes(codeType).find((codeDefinition: CodeDefinition) =>
-    formatCodeDefinition(codeDefinition, codeIdentifier).trim().toLowerCase() === trimmedInput);
+    formatCodeDefinition(codeDefinition).trim().toLowerCase() === trimmedInput);
   let code = input;
   if (codeDefinition!==undefined && codeDefinition!==null) {
     if (codeDefinition instanceof Object) {
@@ -124,7 +127,9 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
 
 export async function fetchCodeDefinitions(language: string, accountId: number) : {[codeName: string]: CodeDefinition} {
   if (accountId===undefined) return undefined;
+  const requestNr : number = getNextRequestNumber();
   const url = restUrl +'/Code/list?accountId='+accountId.toString();
+  __DEV__ && console.log('REQ '+requestNr+' fetch codes in '+language+": "+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -135,10 +140,16 @@ export async function fetchCodeDefinitions(language: string, accountId: number) 
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
     let translatedCodeDefinitions  = await httpResponse.json();
+    __DEV__ && console.log('RES '+requestNr+' fetch codes in '+language+": "+url);
+    if (language!=getUserLanguage()) {
+      __DEV__ && console.log('Language changed to '+getUserLanguage()+', discarding '+language+' codes.');
+      return;
+    }
+    //__DEV__ && console.log(JSON.stringify(translatedCodeDefinitions));
     codeDefinitions = Object.assign(codeDefinitions, translatedCodeDefinitions);
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to get code descriptions from the server. Please restart the app.');
+    alert(strings.formatString(strings.initialiseError, 'code descriptions', error));
     throw(error);
   }
 }
