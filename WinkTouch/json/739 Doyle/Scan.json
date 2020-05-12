@@ -1,0 +1,159 @@
+{
+  "name": "Scan",
+  "type": "groupedForm",
+  "section": "Document.1",
+  "card": false,
+  "scrollable": true,
+  "fields": [
+    {
+      "name": "Dossier recto",
+      "multiValue": true,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Dossier recto",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
+        }
+      ]
+    },
+    {
+      "name": "Dossier verso",
+      "multiValue": true,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Dossier verso",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
+        }
+      ]
+    },
+    {
+      "name": "Auto-refraction",
+      "optional": true,
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Auto-refraction",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "S",
+          "type": "Examen"
+        }
+      ]
+    },
+    {
+      "name": "FDT OD",
+      "optional": true,
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "FDT OD",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "S",
+          "type": "Examen"
+        }
+      ]
+    },
+    {
+      "name": "FDT OS",
+      "optional": true,
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "FDT OS",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "S",
+          "type": "Examen"
+        }
+      ]
+    },
+    {
+      "name": "Autres",
+      "multiValue": false,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Rx externe",
+          "image": "upload",
+          "label": "Rx externe",
+          "popup": false,
+          "drawable": false,
+          "size": "M",
+          "type": "Rx externe"
+        },
+        {
+          "name": "Rx medicaments",
+          "image": "upload",
+          "label": "Rx m\u00e9dicaments",
+          "popup": false,
+          "drawable": false,
+          "size": "M",
+          "type": "Examen"
+        },
+        {
+          "name": "SAAQ",
+          "image": "upload",
+          "label": "SAAQ",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
+        },
+        {
+          "name": "Reference",
+          "image": "upload",
+          "label": "R\u00e9f\u00e9rence",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
+        },
+        {
+          "name": "OCT",
+          "image": "upload",
+          "label": "OCT",
+          "popup": false,
+          "drawable": false,
+          "size": "L",
+          "type": "Examen"
+        },
+        {
+          "name": "Optomap",
+          "image": "upload",
+          "label": "Optomap",
+          "popup": false,
+          "drawable": false,
+          "size": "L",
+          "type": "Examen"
+        },
+        {
+          "name": "Autre scan",
+          "image": "upload",
+          "label": "Autre",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
+        }
+      ]
+    }
+  ]
+}

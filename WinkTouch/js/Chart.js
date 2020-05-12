@@ -4,9 +4,9 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Highcharts from 'highcharts';
-import ChartView from 'react-native-highcharts';
+import HighchartsReactNative from '@highcharts/highcharts-react-native';
 import type { Exam } from './Types';
 import { styles, fontScale, windowWidth, windowHeight } from './Styles.js';
 import { getExamHistory } from './Exam';
@@ -15,6 +15,7 @@ import { getCachedItem } from './DataCache';
 
 type ChartData = {type: string, name: string, data: number[]};
 type ChartSeries = ChartData[];
+
 
 class LineChart extends Component {
   props: {
@@ -25,7 +26,6 @@ class LineChart extends Component {
 
   render() {
       if (this.props.series===undefined) return null;
-      //__DEV__ && console.log('series='+ JSON.stringify(this.props.series));
       let conf={
               chart: {
                   type: 'line',
@@ -64,7 +64,10 @@ class LineChart extends Component {
               },
               series: this.props.series
           };
-      return <ChartView style={{width:windowWidth *0.85, height:windowHeight }} config={conf} stock={false} originWhitelist={['file://']} javaScriptEnabled={true} domStorageEnabled={true}></ChartView>
+      return <HighchartsReactNative useCDN={true} useSSL={true}
+          styles={{top: 0, width:windowWidth *0.85, height: windowHeight}}
+          options={conf}
+        />
   }
 }
 
@@ -81,7 +84,6 @@ export class ExamChartScreen extends Component {
   }
   constructor(props: any) {
     super(props);
-    this.params = this.props.navigation.state.params;
     this.state = {
       series: undefined,
       labels: undefined,
@@ -89,13 +91,8 @@ export class ExamChartScreen extends Component {
   }
 
   componentDidMount() {
-    this.generateGraphSeries(this.params.exam);
+    this.generateGraphSeries(this.props.navigation.state.params.exam);
   }
-
-  componentWillReceiveProps(nextProps: any) {
-    this.params = nextProps.navigation.state.params;
-  }
-
 
   generateChartData(field: string, examHistory: Exam[]) : ChartData {
     const fieldTree: string[] = field.split('.');
@@ -103,7 +100,7 @@ export class ExamChartScreen extends Component {
     //fieldTree.forEach(fieldName => {if (definition!==undefined) definition = definition[fieldName]}); TODO
     let series : number[] = [];
     examHistory.map((exam: Exam) => {
-      let data = exam?exam[this.params.exam.definition.name]:undefined;
+      let data = exam?exam[this.props.navigation.state.params.exam.definition.name]:undefined;
       fieldTree.forEach(fieldName => {if (data!==undefined) {
         if (data instanceof Array) {
           if (data.length>0) {
@@ -134,7 +131,7 @@ export class ExamChartScreen extends Component {
   render() {
     return <View style={styles.centeredScreenLayout}>
       <View style={styles.centeredColumnLayout}>
-        <LineChart series={this.state.series} title={this.params.exam.definition.name} xLabels={this.state.labels}/>
+        <LineChart series={this.state.series} title={this.props.navigation.state.params.exam.definition.name} xLabels={this.state.labels}/>
       </View>
     </View >
   }

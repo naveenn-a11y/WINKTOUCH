@@ -144,42 +144,6 @@ const patientDrugDefinition : FieldDefinition[] = [
 }
   ];
 
-export class PatientMedicationOld extends Component {
-    props: {
-      patientInfo: PatientInfo,
-      editable?: boolean,
-      onUpdatePatient?: (patientInfo: PatientInfo) => void,
-      addPatientDrug?: () => void
-    }
-    state: {
-      patientDrugs: PatientDrug[],
-    }
-    static defaultProps = {
-      editable: true
-    }
-
-    constructor(props: any) {
-        super(props);
-        let patientDrugs : PatientDrug[] = this.getPatientDrugs(props);
-        this.state = {patientDrugs};
-    }
-
-    componentWillReceiveProps(nextProps: any) {
-      let patientDrugs : PatientDrug[] = this.getPatientDrugs(nextProps);
-      this.setState({patientDrugs});
-    }
-
-    getPatientDrugs(props: any) : PatientDrug[] {
-      let patientDrugs: PatientDrug[] = getCachedItems(props.patientInfo.patientDrugs);
-      if (patientDrugs===undefined) patientDrugs = [];
-      return patientDrugs;
-    }
-
-    render() {
-        return <ItemsList title='Medication' items={this.state.patientDrugs} showLabels={true} style={styles.boardM}
-                  fieldDefinitions={patientDrugDefinition} onAddItem={this.props.addPatientDrug} editable={this.props.editable}/>
-    }
-}
 
 export class PatientMedicationCard extends Component {
     props: {
@@ -198,8 +162,10 @@ export class PatientMedicationCard extends Component {
         this.refreshPatientInfo();
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      this.setState({medication: getRecentMedication(nextProps.patientInfo.id)}, this.refreshPatientInfo);
+    componentDidUpdate(prevProps: any) {
+      if (prevProps.patientInfo!==this.props.patientInfo) {
+        this.setState({medication: getRecentMedication(this.props.patientInfo.id)}, this.refreshPatientInfo);
+      }
     }
 
     async refreshPatientInfo() {

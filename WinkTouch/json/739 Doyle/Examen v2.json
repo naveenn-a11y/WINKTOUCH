@@ -1,0 +1,360 @@
+{
+  "name": "Examen v2",
+  "isPreExam": false,
+  "scrollable": true,
+  "card": true,
+  "type": "groupedForm",
+  "section": "Form.2",
+  "cardGroup": "Examen verso",
+  "fields": [
+    {
+      "name": "Examen recto",
+      "label": "",
+      "size": "XL",
+      "fields": [
+        {
+          "sync": true,
+          "popup": false,
+          "name": "Examen v2 recto",
+          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/739\/241457\/ExamRecto.jpg",
+          "drawable": true,
+          "label": "",
+          "resolution": "1400x1771",
+          "type": "Examen",
+          "size": "XL",
+          "fields": [
+            {
+              "name": "Form",
+              "layout": {
+                "position": "absolute",
+                "width": 1000,
+                "justifyContent": "flex-start",
+                "left": 0,
+                "top": 0
+              },
+              "label": "",
+              "size": "M",
+              "fields": [
+                {
+                  "name": "Exam date",
+                  "mappedField": "visit.examDate",
+                  "maxLength": 100,
+                  "readonly": true,
+                  "type": "pastDate",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 26,
+                    "left": 115,
+                    "width": 200,
+                    "borderWidth": 0,
+                    "fontSize": 21
+                  }
+                },
+                {
+                  "name": "Doctor",
+                  "mappedField": "visit.doctor",
+                  "maxLength": 100,
+                  "readonly": true,
+                  "layout": {
+                    "position": "absolute",
+                    "top": 26,
+                    "left": 400,
+                    "width": 200,
+                    "borderWidth": 0,
+                    "fontSize": 21
+                  }
+                },
+                {
+                  "name": "Medical card",
+                  "mappedField": "patient.medicalCard",
+                  "readonly": true,
+                  "layout": {
+                    "position": "absolute",
+                    "justifyContent": "flex-end",
+                    "top": 20,
+                    "left": 625,
+                    "width": 200,
+                    "borderWidth": 0,
+                    "fontSize": 17
+                  }
+                },
+                {
+                  "name": "Patient Name",
+                  "mappedField": "patient.name",
+                  "readonly": true,
+                  "layout": {
+                    "position": "absolute",
+                    "width": 330,
+                    "top": 40,
+                    "left": 625,
+                    "borderWidth": 0,
+                    "fontSize": 22
+                  }
+                },
+                {
+                  "name": "Gender",
+                  "readonly": true,
+                  "mappedField": "patient.gender",
+                  "layout": {
+                    "position": "absolute",
+                    "borderWidth": 0,
+                    "width": 90,
+                    "left": 960,
+                    "fontSize": 22,
+                    "top": 40
+                  }
+                },
+                {
+                  "name": "Cellular",
+                  "mappedField": "patient.cell",
+                  "readonly": true,
+                  "layout": {
+                    "position": "absolute",
+                    "top": 70,
+                    "left": 625,
+                    "width": 170,
+                    "borderWidth": 0,
+                    "fontSize": 17
+                  }
+                },
+                {
+                  "name": "Age",
+                  "mappedField": "patient.dateOfBirth",
+                  "readonly": true,
+                  "type": "age",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 70,
+                    "left": 820,
+                    "width": 100,
+                    "borderWidth": 0,
+                    "fontSize": 17
+                  }
+                },
+                {
+                  "name": "Date of birth",
+                  "mappedField": "patient.dateOfBirth",
+                  "readonly": true,
+                  "type": "pastDate",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 70,
+                    "left": 925,
+                    "width": 140,
+                    "borderWidth": 0,
+                    "fontSize": 17
+                  }
+                },
+                {
+                  "name": "Address line 1",
+                  "mappedField": "patient.address1",
+                  "readonly": true,
+                  "layout": {
+                    "position": "absolute",
+                    "top": 95,
+                    "left": 625,
+                    "width": 300,
+                    "borderWidth": 0,
+                    "fontSize": 14
+                  }
+                },
+                {
+                  "name": "Address line 2",
+                  "mappedField": "patient.address2",
+                  "readonly": true,
+                  "layout": {
+                    "position": "absolute",
+                    "top": 115,
+                    "left": 625,
+                    "width": 300,
+                    "borderWidth": 0,
+                    "fontSize": 14
+                  }
+                },
+                {
+                  "name": "OD Sph",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.sph",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 562,
+                    "left": 90,
+                    "width": 90,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OD Cyl",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.cyl",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 562,
+                    "left": 182,
+                    "width": 90,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OD Axis",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.axis",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 562,
+                    "left": 272,
+                    "width": 80,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OD Add",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.add",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 562,
+                    "left": 352,
+                    "width": 90,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OD Va",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.va",
+                  "prefix": "",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 563,
+                    "left": 643,
+                    "width": 60,
+                    "borderWidth": 0,
+                    "fontSize": 18
+                  }
+                },
+                {
+                  "name": "OD Prism",
+                  "mappedField": "exam.RxToOrder.Final Rx.od.prism",
+                  "type": "prism",
+                  "layout": {
+                      "position": "absolute",
+                      "top": 567,
+                      "left": 433,
+                      "width": 120,
+                      "borderWidth": 0,
+                      "fontSize": 12
+                  }
+              },
+                {
+                  "name": "OS Sph",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.sph",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 599,
+                    "left": 90,
+                    "width": 90,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OS Cyl",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.cyl",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 599,
+                    "left": 182,
+                    "width": 90,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OS Axis",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.axis",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 599,
+                    "left": 272,
+                    "width": 80,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OS Add",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.add",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 599,
+                    "left": 352,
+                    "width": 90,
+                    "borderWidth": 0,
+                    "fontSize": 20
+                  }
+                },
+                {
+                  "name": "OS Va",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.va",
+                  "prefix": "",
+                  "layout": {
+                    "position": "absolute",
+                    "top": 599,
+                    "left": 643,
+                    "width": 60,
+                    "borderWidth": 0,
+                    "fontSize": 18
+                  }
+                },
+                {
+                  "name": "OS Prism",
+                  "mappedField": "exam.RxToOrder.Final Rx.os.prism",
+                  "type": "prism",
+                  "layout": {
+                      "position": "absolute",
+                      "top": 602,
+                      "left": 433,
+                      "width": 120,
+                      "borderWidth": 0,
+                      "fontSize": 12
+                  }
+               },
+                {
+                  "name": "Treatment",
+                  "maxLength": 3000,
+                  "freestyle": false,
+                  "layout": {
+                    "position": "absolute",
+                    "top": 710,
+                    "left": 545,
+                    "width": 510,
+                    "borderWidth": 1,
+                    "fontSize": 17
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Examen verso",
+      "label": "",
+      "size": "XL",
+      "fields": [
+        {
+          "sync": true,
+          "popup": false,
+          "name": "Examen v2 verso",
+          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/739\/241458\/ExamVerso.jpg",
+          "drawable": true,
+          "label": "",
+          "resolution": "1400x1771",
+          "type": "Examen",
+          "size": "XL"
+        }
+      ]
+    }
+  ]
+}

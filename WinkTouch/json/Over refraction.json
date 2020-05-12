@@ -1,11 +1,16 @@
 {
-  "name": "Over refraction",
   "cardGroup": "Final Rx",
   "graph": {
     "fields": [
       "Subjective over refraction.od.sph",
       "Subjective over refraction.os.sph"
     ]
+  },
+  "name": "Over refraction",
+  "locale": {
+    "fr-CA": {
+      "label": "SurrÃ©fraction"
+    }
   },
   "scrollable": true,
   "type": "groupedForm",

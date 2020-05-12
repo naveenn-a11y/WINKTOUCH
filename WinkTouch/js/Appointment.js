@@ -388,10 +388,10 @@ export class AppointmentScreen extends Component {
 
     constructor(props: any) {
         super(props);
-        this.params = this.props.navigation.state.params;
+        let params = this.props.navigation.state.params;
         this.unmounted = false;
-        const appointment: ?Appointment = (this.params.appointment&&this.params.appointment.id!=undefined)?getCachedItem(this.params.appointment.id):this.params.appointment;
-        const patientId : string = appointment?appointment.patientId:this.params.patientInfo.id;
+        const appointment: ?Appointment = (params.appointment && params.appointment.id!=undefined)?getCachedItem(params.appointment.id):params.appointment;
+        const patientId : string = appointment?appointment.patientId:params.patientInfo.id;
         this.state = {
           appointment,
           patientInfo: getCachedItem(patientId),
@@ -409,12 +409,12 @@ export class AppointmentScreen extends Component {
       });
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      this.params = nextProps.navigation.state.params;
-      if (this.params.refresh===true) {
+    componentDidUpdate(prevProps: any) {
+      let params = this.props.navigation.state.params;
+      if (params.refresh===true) {
         this.props.navigation.setParams({refresh: false});
-        const appointment: ?Appointment = (this.params.appointment&&this.params.appointment.id!=undefined)?getCachedItem(this.params.appointment.id):this.params.appointment;
-        const patientId : string = appointment?appointment.patientId:this.params.patientInfo.id;
+        const appointment: ?Appointment = (params.appointment && params.appointment.id!=undefined)?getCachedItem(params.appointment.id):params.appointment;
+        const patientId : string = appointment?appointment.patientId:params.patientInfo.id;
         this.setState({
           patientInfo: getCachedItem(patientId),
           visitHistory: getCachedItem('visitHistory-'+patientId),
@@ -425,7 +425,8 @@ export class AppointmentScreen extends Component {
     }
 
     getPatientId() : string {
-      return this.params.appointment?this.params.appointment.patientId:this.params.patientInfo.id;
+      const params = this.props.navigation.state.params;
+      return params.appointment?params.appointment.patientId:params.patientInfo.id;
     }
 
     updateAppointment = (appointment: Appointment) => {
@@ -440,7 +441,8 @@ export class AppointmentScreen extends Component {
           this.setState({appointment});
       } catch (error) {
         if (this.unmounted) {
-          this.props.navigation.navigate('appointment', this.params.appointment);
+          let params = this.props.navigation.state.params;
+          this.props.navigation.navigate('appointment', params.appointment);
         } else {
           this.refreshAppointment();
         }
@@ -466,15 +468,16 @@ export class AppointmentScreen extends Component {
 
 
     async refreshAppointment() {
-      if (this.params.appointment===undefined || this.params.appointment.id===undefined) return;
-      let appointment = await fetchAppointment(this.params.appointment.id);
+      let params = this.props.navigation.state.params;
+      if (params.appointment===undefined || params.appointment.id===undefined) return;
+      let appointment = await fetchAppointment(params.appointment.id);
       if (this.state.appointment && appointment.version!==this.state.appointment.version)
         this.setState({appointment});
     }
 
-    async refreshPatientInfo() {
+    async refreshPatientInfo() {      
       const patientInfo : PatientInfo = await fetchPatientInfo(this.getPatientId());
-      if (patientInfo.version!==this.state.patientInfo.version)
+      if (patientInfo.version && patientInfo.version!==this.state.patientInfo.version)
         this.setState({patientInfo});
     }
 
@@ -493,10 +496,11 @@ export class AppointmentScreen extends Component {
     }
 
     render() {
+        let params = this.props.navigation.state.params;
         return <KeyboardAwareScrollView scrollEnabled={this.state.scrollEnabled}>
             {this.state.appointment && <AppointmentTitle appointment={this.state.appointment} />}
             <PatientCard patientInfo={this.state.patientInfo} navigation={this.props.navigation} refreshStateKey={this.props.navigation.state.key}/>
-            <VisitHistory patientInfo={this.state.patientInfo} appointment={this.params.appointment} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
+            <VisitHistory patientInfo={this.state.patientInfo} appointment={params.appointment} visitHistory={this.state.visitHistory} patientDocumentHistory={this.state.patientDocumentHistory}
               navigation={this.props.navigation} onRefresh={this.refreshFromCache} appointmentStateKey={this.props.navigation.state.key}
               enableScroll={this.enableScroll} disableScroll={this.disableScroll} />
         </KeyboardAwareScrollView>

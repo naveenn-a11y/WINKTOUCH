@@ -1,44 +1,82 @@
 {
-  "name": "Lensometry",
-  "order": "4",
-  "type": "groupedForm",
-  "section": "Vision testing.4",
-  "fields": [
+  "order":"4",
+  "name":"Lensometry",
+  "type":"groupedForm",
+  "section":"Vision testing.4",
+  "scrollable": true,
+  "fields":[
     {
-      "name": "Current wear",
-      "label": "",
-      "fields": [
+      "name":"Current wear",
+      "label":"",
+      "fields":[
         {
-          "name": "Current wear",
-          "normalValue": "Glasses",
-          "defaultValue": "Glasses",
-          "options": [
-            "Glasses",
-            "No glasses",
-            "Did not bring glasses",
-            "Lost glasses"
-          ]
+          "normalValue":"Glasses",
+          "name":"Current wear",
+          "defaultValue":"Glasses",
+          "options": "currentWearCodes"
         },
         {
-          "name": "Since",
-          "type": "pastDate"
+          "name":"Since",
+          "maxLength": 100
         }
       ]
     },
     {
-      "hasAdd": true,
-      "hasLensType": true,
+      "hasLensType":true,
+      "hasAdd":true,
+      "name":"Lensometry",
+      "multiValue":true,
+      "import": "machine.lensometer",
+      "type":"SRx",
+      "fields":[
+        {
+          "name":"lensType",
+          "label":"Lens type",
+          "freestyle":true,
+          "options":"lensTypeCodes"
+        }
+      ]
+    },
+    {
+      "name": "Scan",
       "multiValue": true,
-      "name": "Lensometry",
-      "type": "SRx",
       "fields": [
         {
-          "name": "lensType",
-          "label": "Lens type",
-          "options": "lensTypeCodes",
-          "freestyle": true
+          "popup": false,
+          "name": "LM scan",
+          "drawable": true,
+          "image": "upload",
+          "label": "",
+          "type": "EMR",
+          "size": "S"
+        }
+      ],
+      "size": "S"
+    }
+  ],
+  "locale":{
+    "fr-CA":{
+      "label":"LentimÃ¨tre",
+      "fields":[
+        {
+          "name":"Current wear",
+          "label":"Lunettes",
+          "fields":[
+            {
+              "name":"Current wear",
+              "label":"Actuel"
+            },
+            {
+              "name":"Since",
+              "label":"Depuis"
+            }
+          ]
+        },
+        {
+          "name":"Lensometry",
+          "label":"LentimÃ¨tre"
         }
       ]
     }
-  ]
+  }
 }

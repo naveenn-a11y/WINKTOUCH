@@ -35,5 +35,4 @@ export const treatmentRecommendationCodes = [
   {"code":"Refer to ophthalmology"},
   {"code":"Medication as directed"},
   {"code":"Co-MGMT"}
-]
-];
+]]
