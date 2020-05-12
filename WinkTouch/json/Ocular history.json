@@ -1,6 +1,25 @@
 {
-  "name": "Ocular surgeries",
   "addable": true,
+  "name": "Ocular history",
+  "locale": {
+    "fr-CA": {
+      "label": "Historique oculaire",
+      "fields": [
+        {
+          "name": "Condition",
+          "label": "Condition"
+        },
+        {
+          "name": "Eye",
+          "label": "Oeil"
+        },
+        {
+          "name": "Date of procedure",
+          "label": "Date de la procÃ©dure"
+        }
+      ]
+    }
+  },
   "starable": true,
   "type": "selectionLists",
   "essentialFields": [
@@ -10,15 +29,14 @@
   "section": "History.12",
   "fields": [
     {
-      "name": "Procedure",
+      "name": "Condition",
       "required": true,
       "freestyle": true,
       "options": "ocularSurgeryProcedureCodes"
     },
     {
       "name": "Date of procedure",
-      "type": "pastDate",
-      "options": []
+      "freestyle": true
     },
     {
       "name": "Eye",

@@ -1,17 +1,61 @@
 {
   "name": "Prescription",
+  "label": "Medication",
   "addable": true,
   "isAssessment": true,
+  "singable": true,
+  "locale": {
+    "fr-CA": {
+      "label": "Rx MÃ©dicaments",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Nom"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentration"
+        },
+        {
+          "name": "Dosage",
+          "label": "Dose"
+        },
+        {
+          "name": "Frequency",
+          "label": "FrÃ©quence"
+        },
+        {
+          "name": "Duration",
+          "label": "DurÃ©e"
+        },
+        {
+          "name": "Do not substitute",
+          "label": "Ne pas substituer",
+          "options": [
+            "",
+            "Ne pas substituer"
+          ]
+        },
+        {
+          "name": "Comment",
+          "label": "Commentaires"
+        },
+        {
+          "name": "Refill",
+          "label": "Renouvellement"
+        }
+      ]
+    }
+  },
   "cardFields": [
     "Label",
     "Strength"
   ],
-  "label": "Medication",
   "starable": true,
-  "type": "selectionLists",
   "essentialFields": [
     "Label"
   ],
+  "type": "selectionLists",
   "fields": [
     {
       "name": "Label",
@@ -22,67 +66,49 @@
     {
       "name": "Strength",
       "required": true,
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "medicationStrengthCodes"
     },
     {
       "name": "Dosage",
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "ocularMedicationDosageCodes"
     },
     {
       "name": "Frequency",
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "frequencyCodes"
     },
     {
       "name": "Duration",
-      "freestyle": true,
       "simpleSelect": true,
+      "freestyle": true,
       "options": "medicationDurationCodes"
     },
     {
       "name": "Instructions",
-      "simpleSelect": true,
       "freestyle": true,
-      "options": [
-        "Take before food",
-        "Take after food",
-        "Shake well before use"
-      ]
+      "simpleSelect": true,
+      "options": "medicationInstructionCodes"
     },
     {
       "name": "Refill",
-      "simpleSelect": true,
       "freestyle": true,
-      "options": [
-        "No refill",
-        "Refill 1x",
-        "Refill 2x",
-        "Refill 3x",
-        "Refill 4x",
-        "Refill 5x",
-        "Refill 6x",
-        "Refill 7x",
-        "Refill 8x",
-        "Refill 9x",
-        "Refill 10x",
-        "Refill 11x",
-        "Refill 12x",
-      ]
+      "simpleSelect": true,
+      "options": "medicationRefillCodes"
     },
     {
-      "name": "Do not substitute",
       "normalValue": "",
+      "name": "Do not substitute",
       "defaultValue": "",
       "options": [
         "",
         "Do not substitute"
       ]
-    }
+    },
     {
       "maxLength": 500,
       "name": "Comment",

@@ -1,6 +1,29 @@
 {
-  "name": "Ocular medication",
   "addable": true,
+  "name": "Ocular medication",
+  "locale": {
+    "fr-CA": {
+      "label": "MÃ©dicaments Oculaires",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Nom"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentration"
+        },
+        {
+          "name": "Frequency",
+          "label": "FrÃ©quence"
+        },
+        {
+          "name": "Duration",
+          "label": "DurÃ©e"
+        }
+      ]
+    }
+  },
   "cardFields": [
     "Route",
     "Label",

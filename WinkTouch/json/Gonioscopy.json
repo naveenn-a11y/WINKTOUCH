@@ -1,4 +1,9 @@
 {
+  "locale": {
+    "fr-CA": {
+      "label": "Gonioscopie"
+    }
+  },
   "name": "Gonioscopy",
   "scrollable": true,
   "cardFields": [
@@ -33,21 +38,29 @@
   "starable": true,
   "type": "groupedForm",
   "section": "Anterior exam.3",
-  "relatedExams": [
-    "Dilation",
-    "Chief complaint"
-  ],
   "fields": [
     {
       "name": "OD",
       "fields": [
         {
           "name": "Image",
-          "image": "./image/gonioscopyOD.png",
+          "image": ".\/image\/gonioscopyOD.png",
           "label": ""
         },
         {
+          "layout": {
+            "position": "absolute",
+            "height": 50,
+            "backgroundColor": "#ffffff00",
+            "width": 50,
+            "justifyContent": "center",
+            "left": 360,
+            "top": 230
+          },
           "name": "Pigment N",
+          "options": "gonioPigmentCodes"
+        },
+        {
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -55,25 +68,12 @@
             "width": 50,
             "justifyContent": "center",
             "left": 360,
-            "top": 230
+            "top": 190
           },
-          "options": "gonioPigmentCodes"
-        },
-        {
           "name": "Insertion N",
-          "layout": {
-            "position": "absolute",
-            "height": 50,
-            "backgroundColor": "#ffffff00",
-            "width": 50,
-            "justifyContent": "center",
-            "left": 360,
-            "top": 190
-          },
           "options": "gonioInsertionCodes"
         },
         {
-          "name": "Pigment T",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -83,10 +83,10 @@
             "left": 90,
             "top": 230
           },
+          "name": "Pigment T",
           "options": "gonioPigmentCodes"
         },
         {
-          "name": "Insertion T",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -96,23 +96,23 @@
             "left": 90,
             "top": 190
           },
+          "name": "Insertion T",
           "options": "gonioInsertionCodes"
         },
         {
+          "layout": {
+            "position": "absolute",
+            "height": 50,
+            "backgroundColor": "#ffffff00",
+            "width": 50,
+            "justifyContent": "center",
+            "left": 240,
+            "top": 85
+          },
           "name": "Pigment U",
-          "layout": {
-            "position": "absolute",
-            "height": 50,
-            "backgroundColor": "#ffffff00",
-            "width": 50,
-            "justifyContent": "center",
-            "left": 240,
-            "top": 85
-          },
           "options": "gonioPigmentCodes"
         },
         {
-          "name": "Insertion U",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -122,10 +122,10 @@
             "left": 192,
             "top": 85
           },
+          "name": "Insertion U",
           "options": "gonioInsertionCodes"
         },
         {
-          "name": "Pigment D",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -135,10 +135,10 @@
             "left": 240,
             "top": 330
           },
+          "name": "Pigment D",
           "options": "gonioPigmentCodes"
         },
         {
-          "name": "Insertion D",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -148,6 +148,7 @@
             "left": 192,
             "top": 330
           },
+          "name": "Insertion D",
           "options": "gonioInsertionCodes"
         },
         {
@@ -171,11 +172,23 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/gonioscopyOS.png",
+          "image": ".\/image\/gonioscopyOS.png",
           "label": ""
         },
         {
+          "layout": {
+            "position": "absolute",
+            "height": 50,
+            "backgroundColor": "#ffffff00",
+            "width": 50,
+            "justifyContent": "center",
+            "left": 360,
+            "top": 230
+          },
           "name": "Pigment N",
+          "options": "gonioPigmentCodes"
+        },
+        {
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -183,25 +196,12 @@
             "width": 50,
             "justifyContent": "center",
             "left": 360,
-            "top": 230
+            "top": 190
           },
-          "options": "gonioPigmentCodes"
-        },
-        {
           "name": "Insertion N",
-          "layout": {
-            "position": "absolute",
-            "height": 50,
-            "backgroundColor": "#ffffff00",
-            "width": 50,
-            "justifyContent": "center",
-            "left": 360,
-            "top": 190
-          },
           "options": "gonioInsertionCodes"
         },
         {
-          "name": "Pigment T",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -211,10 +211,10 @@
             "left": 90,
             "top": 230
           },
+          "name": "Pigment T",
           "options": "gonioPigmentCodes"
         },
         {
-          "name": "Insertion T",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -224,23 +224,23 @@
             "left": 90,
             "top": 190
           },
+          "name": "Insertion T",
           "options": "gonioInsertionCodes"
         },
         {
+          "layout": {
+            "position": "absolute",
+            "height": 50,
+            "backgroundColor": "#ffffff00",
+            "width": 50,
+            "justifyContent": "center",
+            "left": 240,
+            "top": 85
+          },
           "name": "Pigment U",
-          "layout": {
-            "position": "absolute",
-            "height": 50,
-            "backgroundColor": "#ffffff00",
-            "width": 50,
-            "justifyContent": "center",
-            "left": 240,
-            "top": 85
-          },
           "options": "gonioPigmentCodes"
         },
         {
-          "name": "Insertion U",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -250,10 +250,10 @@
             "left": 192,
             "top": 85
           },
+          "name": "Insertion U",
           "options": "gonioInsertionCodes"
         },
         {
-          "name": "Pigment D",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -263,10 +263,10 @@
             "left": 240,
             "top": 330
           },
+          "name": "Pigment D",
           "options": "gonioPigmentCodes"
         },
         {
-          "name": "Insertion D",
           "layout": {
             "position": "absolute",
             "height": 50,
@@ -276,6 +276,7 @@
             "left": 192,
             "top": 330
           },
+          "name": "Insertion D",
           "options": "gonioInsertionCodes"
         },
         {
@@ -294,5 +295,9 @@
         }
       ]
     }
+  ],
+  "relatedExams": [
+    "Dilation",
+    "Chief complaint"
   ]
 }

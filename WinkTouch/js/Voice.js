@@ -31,10 +31,10 @@ export class Microphone extends PureComponent {
 
   async startListening() {
     __DEV__ && console.log('Start listening');
-    Voice.onSpeechResults = this.onSpeechResults.bind(this);    
+    Voice.onSpeechResults = this.onSpeechResults.bind(this);
     this.setState({text: '', isListening:true});
     try {
-      await Voice.start(getUserLanguage()); //TODO: should be extended with locale fe 'en-CA' in stead of 'en'
+      await Voice.start(getUserLanguage());
       RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.BeginRecording);
     } catch (e) {
         console.error(e);

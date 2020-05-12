@@ -1,6 +1,33 @@
 {
-  "name": "Medication",
   "addable": true,
+  "name": "Medication",
+  "locale": {
+    "fr-CA": {
+      "label": "MÃ©dicaments",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Nom"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentration"
+        },
+        {
+          "name": "Frequency",
+          "label": "FrÃ©quence"
+        },
+        {
+          "name": "Duration",
+          "label": "DurÃ©e"
+        },
+        {
+          "name": "Rx Date",
+          "label": "Date Rx"
+        }
+      ]
+    }
+  },
   "cardFields": [
     "Label",
     "Strength",
@@ -39,17 +66,7 @@
     {
       "name": "Duration",
       "freestyle": true,
-      "options": [
-        "1 day",
-        "2 days",
-        "3 days",
-        "4 days",
-        "1 week",
-        "2 weeks",
-        "1 month",
-        "2 months",
-        "1 year"
-      ]
+      "options": "medicationDurationCodes"
     },
     {
       "name": "Rx Date",

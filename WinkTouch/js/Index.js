@@ -8,8 +8,6 @@ import codePush from 'react-native-code-push';
 import {DoctorApp} from './DoctorApp';
 import { EhrApp } from './EhrApp';
 
-let codePushOptions = { updateDialog: true, installMode: codePush.InstallMode.IMMEDIATE };
-
 if ((process.env.NODE_ENV || '').toLowerCase() === 'production') {
   console.log = function () {};
   console.info = function () {};
@@ -24,3 +22,5 @@ export default class Index extends Component {
       //return <DoctorApp account={{companyName: 'Lavue'}} doctorId='user-1'/>
     }
 }
+
+Index = codePush({ checkFrequency: codePush.CheckFrequency.MANUAL })(Index);
