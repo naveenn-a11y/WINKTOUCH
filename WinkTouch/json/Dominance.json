@@ -1,5 +1,24 @@
 {
   "name": "Dominance",
+  "locale": {
+    "fr-CA": {
+      "fields": [
+        {
+          "name": "Dominance",
+          "fields": [
+            {
+              "name": "Method",
+              "label": "MÃ©thode"
+            },
+            {
+              "name": "Dominant eye",
+              "label": "Oeil dominant"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "starable": true,
   "type": "groupedForm",
   "section": "Entrance testing.1.1",

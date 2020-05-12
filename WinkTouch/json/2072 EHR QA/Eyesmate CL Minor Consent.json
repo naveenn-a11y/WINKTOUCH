@@ -1,0 +1,83 @@
+{
+  "name": "Eyesmate CL Minor Consent",
+  "type": "groupedForm",
+  "isPreExam": true,
+  "section": "CL fitting.0",
+  "scrollable": true,
+  "fields": [
+    {
+      "name": "CL Minor Consent",
+      "size": "XL",
+      "fields": [
+        {
+          "name": "CL Minor consent",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/76/1092/Parent%20Consent%20CL%20Minor.png",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "sync": true,
+          "resolution": "1350x1600",
+          "size": "XL",
+          "type": "Patient Consent Form",
+          "fields": [
+            {
+              "name": "Form",
+              "label": "",
+              "size": "M",
+              "layout": {
+                "position": "absolute",
+                "width": 1000,
+                "justifyContent": "flex-start",
+                "top": 510,
+                "left": 17
+              },
+              "fields": [
+                {
+                  "maxLength": 50,
+                  "name": "Parent Name",
+                  "label": "",
+                  "freestyle": true,
+                  "layout": {
+                    "position": "absolute",
+                    "width": 447,
+                    "justifyContent": "flex-start",
+                    "top": 5,
+                    "left": 35
+                  }
+                },
+                {
+                  "maxLength": 100,
+                  "name": "Patient Name",
+                  "freestyle": true,
+                  "readonly": true,
+                  "mappedField": "patient.name",
+                  "layout": {
+                    "position": "absolute",
+                    "width": 371,
+                    "justifyContent": "flex-start",
+                    "top": 41,
+                    "left": 10
+                  }
+                },
+                {
+                  "name": "Birthdate",
+                  "type": "partialPastDate",
+                  "freestyle": true,
+                  "readonly": true,
+                  "mappedField": "patient.dateOfBirth",
+                  "layout": {
+                    "position": "absolute",
+                    "width": 163,
+                    "justifyContent": "flex-start",
+                    "top": 40,
+                    "left": 620
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

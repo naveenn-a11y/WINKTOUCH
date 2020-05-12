@@ -6,14 +6,18 @@
 import DeviceInfo from 'react-native-device-info';
 import { strings } from './Strings';
 
-export let deploymentVersion: string = 'vx';
-export const dbVersion : string = '1460'; //TODO move to plist
+export let deploymentVersion: string = 'v346';
+export let restVersion: string = 'EHR-3.4'
+export const dbVersion : string = '1580'; //TODO move to plist
 export const touchVersion: string = DeviceInfo.getVersion();
 export const bundleVersion: string = DeviceInfo.getBuildNumber();
-const minimalTouchVersion = 2.7;
+const minimalTouchVersion = 3.0;
 
 export function setDeploymentVersion(version: string) : void {
-  deploymentVersion = version;
+  __DEV__ && console.log('Current code push deployment version: '+version);
+  if (deploymentVersion!=version) {
+    __DEV__ && console.log('App is not up to date: '+version);
+  }
 }
 
 export function checkBinaryVersion() :void {

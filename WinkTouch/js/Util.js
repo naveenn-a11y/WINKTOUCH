@@ -6,11 +6,13 @@ import Moment from 'moment';
 require('moment/locale/fr.js');
 require('moment/locale/fr-ca.js');
 import { strings } from './Strings';
+import { Prism } from './Types';
 
 export const shortTimeFormat : string = 'H:mm';
 export const timeFormat : string ='h:mm a';
 export const time24Format: string = 'HH:mm';
 export const dateFormat: string = 'MMM Do';
+export const officialDateFormat: string = 'YYYY-MM-DD'; //TODO: this should be locale dependent or a setting?
 export const dayDateFormat: string = 'dd MMM Do';
 export const farDateFormat: string = 'MMM YYYY';
 export const yearDateFormat: string = 'MMM Do YYYY';
@@ -25,6 +27,7 @@ export const yearDateTime24Format : string = yearDateFormat+ ' '+time24Format;
 export const dayYearDateTime24Format : string = dayYearDateFormat+ ' '+time24Format;
 export const jsonDateTimeFormat : string = 'YYYY-MM-DD[T]HH:mm';
 export const jsonDateFormat: string = 'YYYY-MM-DD';
+export const spaceSeparator: string = ' ';
 
 export function deepClone(object: any) : any {
     if (object===undefined) return undefined;
@@ -212,13 +215,14 @@ export function formatMoment(date: Date|string): string {
     const dayCount : number = dayDifference(nu, date);
     if (dayCount<-100) return formatDate(date, farDateFormat);
     if (dayCount<-14) return formatDate(date, dateFormat);
-    if (dayCount<-1) return formatDate(date, dateTime24Format);
-    if (dayCount===-1) return 'Tomorrow '+formatDate(date, time24Format);
+    if (dayCount<=-1) return formatDate(date, dateTime24Format);
+    //if (dayCount===-1) return 'Tomorrow '+formatDate(date, time24Format);
     if (dayCount===0) return formatDate(date, time24Format);
-    if (dayCount===1) return 'Yesterday';
-    if (dayCount <= 14)  return dayCount+' days ago';
-    const weekCount : number = weekDifference(nu, date);
-    if (weekCount <=8) return weekCount+' weeks ago';
+    //if (dayCount===1) return 'Yesterday';
+    //if (dayCount <= 14)  return dayCount+' days ago';
+    //const weekCount : number = weekDifference(nu, date);
+    //if (weekCount <=8) return weekCount+' weeks ago';
+    if (dayCount<=100) return formatDate(date, dateFormat);
     return formatDate(date, farDateFormat);
   } catch (error) {
     console.log(error);
@@ -292,14 +296,26 @@ export function isEmpty(value: any) : boolean {
   if (value===undefined || value===null) return true;
   if (value==='' || (value.trim!==undefined && value.trim().length===0)) return true;
   if (value.length===0) return true;
-  if (value instanceof Object) {
+  if(value instanceof Array) {
+    if(value.length === 0) {
+      return true
+    } else {
+      return value.reduce((a, v) => a && (v === null || v === undefined), true)
+    }
+  } else if (value instanceof Object) {
     if (Object.keys(value).length===0) return true;
     for (let subValue of Object.values(value)) {
       if (!isEmpty(subValue)) return false;
     }
     return true;
   }
+
   return false;
+}
+
+// remove null and undefined
+export function cleanUpArray(a: any[]): any[] {
+  return !isEmpty(a) && a instanceof Array ? a.filter(function(v) { return v !== null && v !== undefined }) : a
 }
 
 export function deepAssign(value: Object, newValue: Object) : Object {
@@ -431,4 +447,21 @@ export function replaceFileExtension(fileName : string, extension: string) : str
   if (extension.startsWith('.')) extension = extension.substring(1);
   fileName = fileName.substring(0, dotIndex+1)+extension;
   return fileName;
+}
+
+export function prefix(text: ?string, prefix: string) :string {
+  if (text===undefined || text===null || text.trim()==='') return '';
+  return prefix + text;
+}
+
+export function postfix(text: ?string, postfix: string) :string {
+  if (text===undefined || text===null || text.trim()==='') return '';
+  return '' + text + postfix;
+}
+
+export function splitPrism(finalPrism: string) : ?Prism {
+  if (finalPrism===undefined || finalPrism===null || finalPrism.trim().length===0) return undefined;
+  let prismArray : string[] = finalPrism.split(spaceSeparator);
+  const prism : Prism = {prism1: prismArray[0], prism1b: parseInt(prismArray[1]), prism2: prismArray[2], prism2b: parseInt(prismArray[3])};
+  return prism;
 }

@@ -1,6 +1,11 @@
 {
-  "name": "Treatment",
   "isAssessment": true,
+  "locale": {
+    "fr-CA": {
+      "label": "Traitement"
+    }
+  },
+  "name": "Treatment",
   "scrollable": false,
   "cardFields": [
     [
@@ -10,53 +15,53 @@
     ]
   ],
   "type": "groupedForm",
-  "relatedExams": [
-    "Diagnose"
-  ],
   "fields": [
     {
       "name": "Treatment plan",
       "multiValue": true,
+      "size": "M",
       "fields": [
         {
+          "maxLength": 250,
           "name": "Recommendation",
           "freestyle": true,
-          "options": "treatmentRecommendationCodes",
-          "maxLength": 250
+          "options": "treatmentRecommendationCodes"
         },
         {
           "maxLength": 250,
           "name": "Treatment",
           "freestyle": false
         }
-      ],
-      "size": "M"
+      ]
     },
     {
       "name": "Recall",
+      "size": "M",
+      "fields": [
+        {
+          "mappedField": "visit.recall.amount",
+          "name": "Amount",
+          "label": "Recall in"
+        },
+        {
+          "mappedField": "visit.recall.unit",
+          "name": "Unit",
+          "label": ""
+        },
+        {
+          "mappedField": "visit.recall.notes",
+          "name": "Notes"
+        }
+      ],
       "rows": [
         [
           "Amount",
           "Unit"
         ]
-      ],
-      "fields": [
-        {
-          "name": "Amount",
-          "label": "Recall in",
-          "mappedField": "visit.recall.amount"
-        },
-        {
-          "name": "Unit",
-          "label": "",
-          "mappedField": "visit.recall.unit"
-        },
-        {
-          "name": "Notes",
-          "mappedField": "visit.recall.notes"
-        }
-      ],
-      "size": "M"
+      ]
     }
+  ],
+  "relatedExams": [
+    "Diagnose"
   ]
 }

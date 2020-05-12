@@ -4,22 +4,24 @@
 'use strict';
 
 export const posteriorLensCodes = [[
-{"code":"90D"},
-{"code":"78D"},
-{"code":"20D"},
-{"code":"Super 66"},
-],[
+  {"code":"90D"},
+  {"code":"78D"},
+  {"code":"20D"},
+  {"code":"Super 66"},
+],
+[
   {"code":"DO"},  //Direct ophthalmo-scopy
   {"code":"MIO"}, //monucular indirect ophthalmo-scopy
   {"code":"BIO"}  //binocular indirect ophthalmo-scopy
-]];
+]]
+
 
 export const vitreousCodes = [
 {"code":"Clear"},
 {"code":"PVD"},
 {"code":"Floaters"},
 {"code":"Syneresis"}
-];
+]
 
 export const opticDiscCodes = [[
   {"code":"Pink"},
@@ -32,11 +34,11 @@ export const opticDiscCodes = [[
 ],[
   {"code":" / ISNT"},
   {"code":" / No ISNT"}
-]];
+]]
 
 export const cdrCodes = [
 {"code":"WNL"}
-];
+]
 
 export const vesselsCodes = [
 {"code":"WNL"},
@@ -45,7 +47,7 @@ export const vesselsCodes = [
 {"code":"Dilation"},
 {"code":"Venous beading"},
 {"code":"Tortuosity"}
-];
+]
 
 export const maculaCodes = [
 {"code":"No maculopathy"},
@@ -60,13 +62,13 @@ export const maculaCodes = [
 {"code":"Macular hole"},
 {"code":"CME"},
 {"code":"CSME"}
-];
+]
 
 export const retinaCodes = [
 {"code":"WNL"},
 {"code":"No diabetic maculopathy"},
 {"code":"Drusen"},
-];
+]
 
 export const peripheryCodes = [
 {"code":"WNL"},
@@ -77,10 +79,10 @@ export const peripheryCodes = [
 {"code":"Retinal hole"},
 {"code":"Retinal tear"},
 {"code":"Retinal detachment"}
-];
+]
 
 export const pupillaryReflexCodes = [
 {"code":"Clear"},
 {"code":"Dull"},
 {"code":"None"}
-];
+]
