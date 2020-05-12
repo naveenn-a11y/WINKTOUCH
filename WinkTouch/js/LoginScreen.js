@@ -11,13 +11,13 @@ import base64 from 'base-64';
 import {styles, fontScale} from './Styles';
 import { Button, TilesField } from './Widgets';
 import { strings, switchLanguage, getUserLanguage, getUserLanguageIcon } from './Strings';
-import { restUrl, searchItems, handleHttpError } from './Rest';
-import { dbVersion, touchVersion, bundleVersion, deploymentVersion} from './Version';
+import { restUrl, searchItems, handleHttpError, getNextRequestNumber } from './Rest';
+import { dbVersion, touchVersion, bundleVersion, deploymentVersion, restVersion} from './Version';
 import { fetchCodeDefinitions} from './Codes';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';
 const accountsUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationAccounts';
-const doctorLoginUrl = restUrl+'login/doctors';
+let doctorLoginUrl = restUrl+'login/doctors';
 
 async function fetchAccounts(path: string) {
   if (!path) return;
@@ -44,7 +44,7 @@ export class LoginScreen extends Component {
   props: {
     registration: Registration,
     onReset: () => void,
-    onLogin: (user: User, store: Store, token: string) => void,
+    onLogin: (account: Account, user: User, store: Store, token: string) => void,
   }
   state: {
     accounts: Account[],
@@ -66,12 +66,12 @@ export class LoginScreen extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.registration!==this.props.registration)
-      this.fetchAccountsStores(nextProps.registration);
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.registration!==this.props.registration)
+      this.fetchAccountsStores(this.props.registration);
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     await this.loadDefaultValues();
     this.fetchAccountsStores(this.props.registration);
   }
@@ -194,7 +194,9 @@ export class LoginScreen extends Component {
       accountsId: (account.id).toString(),
       storeId: (store.storeId).toString(),
       expiration : 24 * 365
-    }
+    };
+    const requestNr = getNextRequestNumber();
+    __DEV__ && console.log('REQ '+requestNr+' POST '+doctorLoginUrl+' login for '+userName);
     try {
         let httpResponse = await fetch(doctorLoginUrl, {
             method: 'POST',
@@ -206,6 +208,7 @@ export class LoginScreen extends Component {
             },
             body: JSON.stringify(loginData)
         });
+        console.log('RES '+requestNr+' POST '+doctorLoginUrl+' login OK for '+userName+':'+httpResponse.ok);
         if (!httpResponse.ok) {
           const contentType : ?string = httpResponse.headers.get('Content-Type');
           if (contentType!==undefined && contentType!==null && contentType.startsWith('text/html'))
@@ -215,7 +218,7 @@ export class LoginScreen extends Component {
         }
         let token : string = httpResponse.headers.map.token;
         let user : User = (await httpResponse.json()).user;
-        this.props.onLogin(user, store, token);
+        this.props.onLogin(account, user, store, token);
     } catch (error) {
         alert(strings.loginFailed+ ': '+error);
     }

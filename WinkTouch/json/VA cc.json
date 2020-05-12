@@ -1,4 +1,235 @@
 {
+  "locale": {
+    "fr-CA": {
+      "label": "AVcc",
+      "fields": [
+        {
+          "name": "Aided acuities",
+          "label": "AcuititÃ©s avec aide",
+          "fields": [
+            {
+              "name": "DVA",
+              "label": "AVL",
+              "fields": [
+                {
+                  "name": "OS",
+                  "label": "OG"
+                },
+                {
+                  "name": "OU",
+                  "label": "ODG"
+                }
+              ]
+            },
+            {
+              "name": "PH",
+              "label": "TE",
+              "fields": [
+                {
+                  "name": "OS",
+                  "label": "OG"
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "label": "AVP",
+              "fields": [
+                {
+                  "name": "OS",
+                  "label": "OG"
+                },
+                {
+                  "name": "OU",
+                  "label": "ODG"
+                }
+              ]
+            },
+            {
+              "name": "Scale",
+              "label": "Ãchelle"
+            }
+          ]
+        }
+      ]
+    },
+    "en-US": {
+      "fields": [
+        {
+          "name": "Aided acuities",
+          "fields": [
+            {
+              "name": "DVA",
+              "fields": [
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OD",
+                  "maxValue": 600
+                },
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OS",
+                  "maxValue": 600
+                },
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OU",
+                  "maxValue": 600
+                }
+              ]
+            },
+            {
+              "name": "PH",
+              "fields": [
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OD",
+                  "maxValue": 600
+                },
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OS",
+                  "maxValue": 600
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "fields": [
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OD",
+                  "maxValue": 600
+                },
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OS",
+                  "maxValue": 600
+                },
+                {
+                  "stepSize": [
+                    5,
+                    5,
+                    5,
+                    10,
+                    10,
+                    10,
+                    10,
+                    10,
+                    20,
+                    100,
+                    200
+                  ],
+                  "minValue": 15,
+                  "prefix": "20\/\u200B",
+                  "name": "OU",
+                  "maxValue": 600
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
   "name": "VA cc",
   "starable": true,
   "type": "groupedForm",
@@ -7,9 +238,7 @@
     {
       "multivalue": true,
       "name": "Aided acuities",
-      "rows": [
-        ["Aide", "Scale"]
-      ],
+      "import": ["machine.phoropter"],
       "columns": [
         [
           "DVA",
@@ -18,7 +247,6 @@
           ">>"
         ]
       ],
-      "size": "M",
       "fields": [
         {
           "name": "Aide",
@@ -39,9 +267,36 @@
           "name": "DVA",
           "fields": [
             {
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
               "name": "OD",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
+              "groupSize": 0,
+              "freestyle": true,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "-",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "options": [
+                "NLP",
+                "Prothesis"
+              ],
+              "maxValue": 60
+            },
+            {
               "stepSize": [
                 1.5,
                 3,
@@ -51,55 +306,27 @@
                 12,
                 24
               ],
-              "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": [
-                "NLP",
-                "Prothesis"
-              ]
-            },
-            {
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
               "name": "OS",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
               "groupSize": 0,
+              "freestyle": true,
               "suffix": [
                 "-3",
                 "-2",
                 "-1",
+                "-",
                 "+1",
                 "+2",
                 "+3"
               ],
-              "freestyle": true,
-              "maxValue": 60,
               "options": [
                 "NLP",
                 "Prothesis"
-              ]
+              ],
+              "maxValue": 60
             },
             {
-              "name": "OU",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
               "stepSize": [
                 1.5,
                 3,
@@ -109,20 +336,24 @@
                 12,
                 24
               ],
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
+              "name": "OU",
               "groupSize": 0,
+              "freestyle": true,
               "suffix": [
                 "-3",
                 "-2",
                 "-1",
+                "-",
                 "+1",
                 "+2",
                 "+3"
               ],
-              "freestyle": true,
-              "maxValue": 60,
               "options": [
                 "NLP"
-              ]
+              ],
+              "maxValue": 60
             }
           ]
         },
@@ -130,9 +361,6 @@
           "name": "PH",
           "fields": [
             {
-              "name": "OD",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
               "stepSize": [
                 1.5,
                 3,
@@ -142,25 +370,26 @@
                 12,
                 24
               ],
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
+              "name": "OD",
               "groupSize": 0,
+              "freestyle": true,
               "suffix": [
                 "-3",
                 "-2",
                 "-1",
+                "-",
                 "+1",
                 "+2",
                 "+3"
               ],
-              "freestyle": true,
-              "maxValue": 60,
               "options": [
                 "NLP"
-              ]
+              ],
+              "maxValue": 60
             },
             {
-              "name": "OS",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
               "stepSize": [
                 1.5,
                 3,
@@ -170,20 +399,24 @@
                 12,
                 24
               ],
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
+              "name": "OS",
               "groupSize": 0,
+              "freestyle": true,
               "suffix": [
                 "-3",
                 "-2",
                 "-1",
+                "-",
                 "+1",
                 "+2",
                 "+3"
               ],
-              "freestyle": true,
-              "maxValue": 60,
               "options": [
                 "NLP"
-              ]
+              ],
+              "maxValue": 60
             }
           ]
         },
@@ -191,9 +424,35 @@
           "name": "NVA",
           "fields": [
             {
+              "stepSize": [
+                1.5,
+                3,
+                3,
+                6,
+                6,
+                12,
+                24
+              ],
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
               "name": "OD",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
+              "groupSize": 0,
+              "freestyle": true,
+              "suffix": [
+                "-3",
+                "-2",
+                "-1",
+                "-",
+                "+1",
+                "+2",
+                "+3"
+              ],
+              "options": [
+                "NLP"
+              ],
+              "maxValue": 60
+            },
+            {
               "stepSize": [
                 1.5,
                 3,
@@ -203,53 +462,26 @@
                 12,
                 24
               ],
-              "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
-            },
-            {
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
               "name": "OS",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
               "groupSize": 0,
+              "freestyle": true,
               "suffix": [
                 "-3",
                 "-2",
                 "-1",
+                "-",
                 "+1",
                 "+2",
                 "+3"
               ],
-              "freestyle": true,
-              "maxValue": 60,
               "options": [
                 "NLP"
-              ]
+              ],
+              "maxValue": 60
             },
             {
-              "name": "OU",
-              "prefix": "6/\u200B",
-              "minValue": 4.5,
               "stepSize": [
                 1.5,
                 3,
@@ -259,20 +491,24 @@
                 12,
                 24
               ],
+              "minValue": 4.5,
+              "prefix": "6\/\u200B",
+              "name": "OU",
               "groupSize": 0,
+              "freestyle": true,
               "suffix": [
                 "-3",
                 "-2",
                 "-1",
+                "-",
                 "+1",
                 "+2",
                 "+3"
               ],
-              "freestyle": true,
-              "maxValue": 60,
               "options": [
                 "NLP"
-              ]
+              ],
+              "maxValue": 60
             }
           ]
         },
@@ -280,246 +516,14 @@
           "maxLength": 500,
           "name": "Notes"
         }
+      ],
+      "size": "M",
+      "rows": [
+        [
+          "Aide",
+          "Scale"
+        ]
       ]
     }
-  ],
-  "locale": {
-    "en-US": {
-      "fields": [
-        {
-          "name": "Aided acuities",
-          "fields": [
-            {
-              "name": "DVA",
-              "fields": [
-                {
-                  "name": "OD",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                },
-                {
-                  "name": "OS",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                },
-                {
-                  "name": "OU",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                }
-              ]
-            },
-            {
-              "name": "PH",
-              "fields": [
-                {
-                  "name": "OD",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                },
-                {
-                  "name": "OS",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                }
-              ]
-            },
-            {
-              "name": "NVA",
-              "fields": [
-                {
-                  "name": "OD",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                },
-                {
-                  "name": "OS",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                },
-                {
-                  "name": "OU",
-                  "prefix": "20/\u200B",
-                  "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
-                  "maxValue": 600
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "fr-CA": {
-      "label": "AVcc",
-      "fields": [
-        {
-          "name": "Aided acuities",
-          "label": "Acuitit\u00E9s avec aide",
-          "fields": [
-            {
-              "name": "DVA",
-              "label": "AVL",
-              "fields": [
-                {
-                  "name": "OD",
-                  "options": [
-                    "NLP"
-                  ]
-                },
-                {
-                  "name": "OS",
-                  "label": "OG"
-                },
-                {
-                  "name": "OU",
-                  "label": "ODG"
-                }
-              ]
-            },
-            {
-              "name": "PH",
-              "label": "TE",
-              "fields": [
-                {
-                  "name": "OD"
-                },
-                {
-                  "name": "OS",
-                  "label": "OG"
-                }
-              ]
-            },
-            {
-              "name": "NVA",
-              "label": "AVP",
-              "fields": [
-                {
-                  "name": "OD"
-                },
-                {
-                  "name": "OS",
-                  "label": "OG"
-                },
-                {
-                  "name": "OU",
-                  "label": "ODG"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  }
+  ]
 }

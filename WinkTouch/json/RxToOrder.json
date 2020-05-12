@@ -22,7 +22,7 @@
       "type": "SRx",
       "fields": [
         {
-          "name":"notes",
+          "name": "notes",
           "mappedField": "visit.prescription.notes"
         },
         {
@@ -41,22 +41,6 @@
               "name": "axis"
             },
             {
-              "mappedField": "visit.prescription.od.prism1",
-              "name": "prism1"
-            },
-            {
-              "mappedField": "visit.prescription.od.prism1b",
-              "name": "prism1b"
-            },
-            {
-              "mappedField": "visit.prescription.od.prism2",
-              "name": "prism2"
-            },
-            {
-              "mappedField": "visit.prescription.od.prism2b",
-              "name": "prism2b"
-            },
-            {
               "mappedField": "visit.prescription.od.add",
               "name": "add"
             },
@@ -67,6 +51,14 @@
             {
               "mappedField": "visit.prescription.od.addVa",
               "name": "addVa"
+            },
+            {
+              "mappedField": "visit.prescription.od.refraction",
+              "name": "refraction"
+            },
+            {
+              "mappedField": "visit.prescription.od.prism",
+              "name": "prism"
             }
           ]
         },
@@ -86,22 +78,6 @@
               "name": "axis"
             },
             {
-              "mappedField": "visit.prescription.os.prism1",
-              "name": "prism1"
-            },
-            {
-              "mappedField": "visit.prescription.os.prism1b",
-              "name": "prism1b"
-            },
-            {
-              "mappedField": "visit.prescription.os.prism2",
-              "name": "prism2"
-            },
-            {
-              "mappedField": "visit.prescription.os.prism2b",
-              "name": "prism2b"
-            },
-            {
               "mappedField": "visit.prescription.os.add",
               "name": "add"
             },
@@ -112,9 +88,31 @@
             {
               "mappedField": "visit.prescription.os.addVa",
               "name": "addVa"
+            },
+            {
+              "mappedField": "visit.prescription.os.refraction",
+              "name": "refraction"
+            },
+            {
+              "mappedField": "visit.prescription.os.prism",
+              "name": "prism"
             }
+
           ]
-        }
+        },
+        {
+          "name": "ou",
+          "fields": [
+              {
+                  "mappedField": "visit.prescription.ou.va",
+                  "name": "va"
+              },
+              {
+                  "mappedField": "visit.prescription.ou.addVa",
+                  "name": "addVa"
+             }
+          ]
+      }
       ]
     },
     {
@@ -134,12 +132,12 @@
             {
               "decimals": 1,
               "name": "OD",
-              "mappedField":"visit.prescription.od.farPD"
+              "mappedField": "visit.prescription.od.farPD"
             },
             {
               "decimals": 1,
               "name": "OS",
-              "mappedField":"visit.prescription.os.farPD"
+              "mappedField": "visit.prescription.os.farPD"
             }
           ]
         },
@@ -149,12 +147,12 @@
             {
               "decimals": 1,
               "name": "OD",
-              "mappedField":"visit.prescription.od.closePD"
+              "mappedField": "visit.prescription.od.closePD"
             },
             {
               "decimals": 1,
               "name": "OS",
-              "mappedField":"visit.prescription.os.closePD"
+              "mappedField": "visit.prescription.os.closePD"
             }
           ]
         }
@@ -165,5 +163,32 @@
       "name": "Purchase Rx",
       "label": "Dr.\u0027s Recommendation"
     }
-  ]
+  ],
+  "locale": {
+    "fr-CA": {
+      "fields": [
+        {
+          "name": "Final Rx",
+          "label": "Rx finale"
+        },
+        {
+          "name": "Purchase Rx",
+          "label": "Recommandation Docteur"
+        },
+        {
+          "name": "PD",
+          "fields": [
+            {
+              "name": "Far",
+              "label": "Loin"
+            },
+            {
+              "name": "Near",
+              "label": "Pr\u00e8s"
+            }
+          ]
+        }
+      ]
+    }
+  }
 }

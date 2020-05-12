@@ -1,61 +1,82 @@
 {
-  "name": "Diagnosis",
   "isAssessment": true,
+  "name": "Diagnosis",
+  "locale": {
+    "fr-CA": {
+      "label": "Diagnostic",
+      "fields": [
+        {
+          "name": "Procedure",
+          "label": "ProcÃ©dure",
+          "fields": [
+            {
+              "name": "procedureCode",
+              "label": "ProcÃ©dure"
+            }
+          ]
+        },
+        {
+          "name": "Diagnosis",
+          "label": "Diagnostic"
+        }
+      ]
+    }
+  },
   "starable": false,
   "type": "groupedForm",
   "fields": [
     {
       "name": "Procedure",
+      "entity": "procedure",
       "multiValue": true,
       "size": "M",
-      "entity": "procedure",
       "fields": [
         {
+          "mappedField": "procedure.productId",
           "name": "procedureCode",
           "label": "Procedure",
-          "mappedField": "procedure.productId",
           "simpleSelect": true,
           "options": "procedureCodes"
         },
         {
+          "mappedField": "procedure.icd1Code",
           "name": "icd1Code",
           "label": "ICD 1",
-          "mappedField": "procedure.icd1Code",
           "simpleSelect": true,
           "options": "icdCodes"
         },
         {
+          "mappedField": "procedure.icd2Code",
           "name": "icd2Code",
           "label": "ICD 2",
-          "mappedField": "procedure.icd2Code",
           "simpleSelect": true,
           "options": "icdCodes"
         },
         {
+          "mappedField": "procedure.icd3Code",
           "name": "icd3Code",
           "label": "ICD 3",
-          "mappedField": "procedure.icd3Code",
           "simpleSelect": true,
           "options": "icdCodes"
         },
         {
+          "mappedField": "procedure.icd4Code",
           "name": "icd4Code",
           "label": "ICD 4",
-          "mappedField": "procedure.icd4Code",
           "simpleSelect": true,
           "options": "icdCodes"
         },
         {
+          "mappedField": "procedure.icd5Code",
           "name": "icd5Code",
           "label": "ICD 5",
-          "mappedField": "procedure.icd5Code",
           "simpleSelect": true,
           "options": "icdCodes"
         },
         {
-          "name": "notes",
           "mappedField": "procedure.notes",
           "maxLength": 500,
+          "name": "notes",
           "label": "Notes",
           "freestyle": true
         }
@@ -66,8 +87,8 @@
       "size": "M",
       "fields": [
         {
-          "name": "Notes",
           "maxLength": 500,
+          "name": "Notes",
           "freestyle": true
         }
       ]
