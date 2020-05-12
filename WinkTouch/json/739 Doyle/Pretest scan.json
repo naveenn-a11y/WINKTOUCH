@@ -1,0 +1,36 @@
+{
+  "name":"Pretest scan",
+  "type":"groupedForm",
+  "section":"Form.1",
+  "card":true,
+  "scrollable":true,
+  "fields":[
+    {
+      "name":"Pretest scan",
+      "multiValue":true,
+      "size":"XL",
+      "fields":[
+        {
+          "name":"Pretest scan",
+          "image":"upload",
+          "label":"",
+          "popup":false,
+          "drawable":false,
+          "size":"XL",
+          "type":"Examen"
+        }
+      ]
+    }
+  ],
+  "locale":{
+    "fr-CA":{
+      "label":"Scan pr\u00e9-test",
+      "fields":[
+        {
+          "name":"Pretest scan",
+          "label":"Scan pr\u00e9-test"
+        }
+      ]
+    }
+  }
+}

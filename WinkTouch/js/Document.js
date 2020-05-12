@@ -34,16 +34,15 @@ export class Pdf extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.upload) {
-        if (this.props.upload && nextProps.upload.id===this.props.upload.id) return;
-        this.setState({upload: nextProps.upload});
+  componentDidUpdate(prevProps: any) {
+    if (this.props.uploadId===prevProps.uploadId && this.props.upload===prevProps.upload && this.props.style===prevProps.style) return;
+    if (this.props.upload) {
+        this.setState({upload: this.props.upload});
     } else {
-      if (nextProps.uploadId===this.props.uploadId) return;
       this.setState({
-        upload: getCachedItem(nextProps.uploadId)
+        upload: getCachedItem(this.props.uploadId)
       });
-      this.loadUpload(nextProps.uploadId);
+      this.loadUpload(this.props.uploadId);
     }
   }
 

@@ -1,12 +1,55 @@
 {
-  "name": "Chief complaint",
   "addable": true,
+  "locale": {
+    "fr-CA": {
+      "label": "Plainte Principale",
+      "fields": [
+        {
+          "name": "Chief complaint",
+          "label": "Plainte Principale"
+        },
+        {
+          "name": "Location",
+          "label": "Endroit"
+        },
+        {
+          "name": "Quality",
+          "label": "QualitÃ©"
+        },
+        {
+          "name": "Severity",
+          "label": "SÃ©vÃ©ritÃ©"
+        },
+        {
+          "name": "Timing",
+          "label": "FrÃ©quence"
+        },
+        {
+          "name": "Duration",
+          "label": "DurÃ©e"
+        },
+        {
+          "name": "Context",
+          "label": "Contexte"
+        },
+        {
+          "name": "Modifying factor",
+          "label": "Facteurs modificateurs"
+        },
+        {
+          "name": "Associated Sign",
+          "label": "Signes liÃ©s"
+        }
+      ]
+    }
+  },
+  "name": "Chief complaint",
   "cardFields": [],
   "starable": true,
-  "type": "selectionLists",
   "essentialFields": [
     "Chief complaint"
   ],
+  "type": "selectionLists",
   "section": "Chief complaint.2",
   "fields": [
     {

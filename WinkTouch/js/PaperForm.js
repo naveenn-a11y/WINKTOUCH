@@ -8,7 +8,8 @@ import { View, Text, Image, ScrollView, TextInput, StyleSheet} from 'react-nativ
 import type {Exam, GlassesRx, FieldDefinition, ExamDefinition, GroupDefinition, PatientInfo} from './Types';
 import { styles, fontScale, imageStyle} from './Styles';
 import { DiopterField, DegreeField } from './Refraction';
-import { CheckButton, DateField, ImageField, NumberField, TilesField } from './Widgets';
+import { CheckButton, DateField, NumberField, TilesField } from './Widgets';
+import { ImageField } from './ImageField';
 import { FormInput } from './Form';
 import { formatLabel } from './Items';
 import { getCachedItem } from './DataCache';
@@ -157,7 +158,7 @@ export class PaperFormScreen extends Component {
       const examName : string = this.props.exam.definition.name;
       return <ScrollView minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false} scrollEnabled={this.state.scrollEnabled} pinchGestureEnabled={this.state.scrollEnabled}>
         <View>
-          <ImageField image='./image/ToulchExamFront.jpg' resolution='810x1068' size='XL'  popup={false} value={this.props.exam[examName]['Exam Front Page']}
+          <ImageField image='./image/ToulchExamFront.jpg' resolution='810x1068' size='XL'  popup={false} value={this.props.exam[examName]['Exam Front Page']} sync={true}
             disableScroll={this.disableScroll} enableScroll={this.enableScroll} examId={this.props.exam.id} patientId={getPatient(this.props.exam).id}
             fileName='Exam front.jpg' type='examen de la vue' onChangeValue={(value: ?string) => this.updateFieldValue('Exam Front Page', value)}
           >
@@ -230,8 +231,6 @@ export class PaperFormScreen extends Component {
     isFieldReadonly() : boolean {
       return this.props.editable!==true||this.state.scrollEnabled===false;
     }
-
-
 
     renderEyeExamTemplate() {
         if (!this.props.exam) return null;

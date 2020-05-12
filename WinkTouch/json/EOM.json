@@ -1,5 +1,34 @@
 {
   "name": "EOM",
+  "locale": {
+    "fr-CA": {
+      "label": "MEO",
+      "fields": [
+        {
+          "name": "Extra Ocular Motilities",
+          "label": "MotilitÃ©s Oculaires"
+        },
+        {
+          "name": "NPC",
+          "label": "PRC",
+          "fields": [
+            {
+              "name": "Break",
+              "label": "Bris"
+            },
+            {
+              "name": "Recovery",
+              "label": "Recouvrement"
+            },
+            {
+              "name": "With effort",
+              "label": "Avec effort"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "starable": true,
   "type": "groupedForm",
   "section": "Entrance testing.15",
@@ -64,7 +93,7 @@
       "fields": [
         {
           "name": "image",
-          "image": "./image/H.png",
+          "image": ".\/image\/H.png",
           "label": ""
         }
       ],
