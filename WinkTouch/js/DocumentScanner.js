@@ -14,6 +14,7 @@ import { ClearTile, UpdateTile, CameraTile, RefreshTile, CloseTile } from './Wid
 import { styles, fontScale, imageStyle } from './Styles';
 import { storeUpload, getJpeg64Dimension } from './Upload';
 import { getCachedItem } from './DataCache';
+import { strings } from './Strings';
 
 
 export class DocumentScanner extends Component {
@@ -26,6 +27,7 @@ export class DocumentScanner extends Component {
     onSave: (uploadId: string) => void,
     onCancel: () => void,
     size: string,
+    replaceImage?: boolean
   }
   state: {
     image: ?string,
@@ -57,9 +59,17 @@ export class DocumentScanner extends Component {
       mimeType: 'image/jpeg;base64',
       name: this.props.fileName,
       argument1: this.props.patientId,
-      argument2: this.props.examId
+      argument2: this.props.examId,
+      replace: this.props.replaceImage
     };
     upload = await storeUpload(upload);
+    if (upload.errors) {
+      alert(strings.formatString(strings.pmsImageSaveError, this.props.fileName));
+      this.setState({
+        saving: false
+      });
+      return upload;
+    }
     if (this.props.category) {
       //TODO?
     }
@@ -106,7 +116,7 @@ export class DocumentScanner extends Component {
               saturation={-0.1}
               quality={1.0}
               contrast={1.5}
-              detectionCountBeforeCapture={2}
+              detectionCountBeforeCapture={3}
               detectionRefreshRateInMS={60}
               style={styles.scanner}
             />

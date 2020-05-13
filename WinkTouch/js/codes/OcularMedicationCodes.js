@@ -9,13 +9,13 @@ export const ocularMedicationDosageCodes = [
 {"code":"2 gtt"},
 {"code":"3 gtt"},
 {"code":"5 gtt"},
-];
+]
 
 export const ocularRouteCodes = [
 {"code":"OD"},
 {"code":"OS"},
 {"code":"OU"}
-];
+]
 
 export const ocularMedicationCodes = [
 {"code":"Acular"},

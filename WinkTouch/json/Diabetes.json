@@ -1,98 +1,58 @@
 {
-  "name": "Diabetes",
   "addable": false,
+  "locale": {
+    "fr-CA": {
+      "label": "DiabÃ¨te"
+    }
+  },
+  "name": "Diabetes",
   "scrollable": true,
   "starable": false,
   "type": "groupedForm",
-  "section": "History.42",
   "editable": true,
+  "section": "History.42",
   "fields": [
     {
       "name": "Diabetes type",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "No Diabetes",
-        "Type 1",
-        "Type 2",
-        "Insulin dependent",
-        "Non-insulin dependent"
-      ]
+      "options": "diabetesTypeCodes"
     },
     {
       "name": "Control",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Well controlled",
-        "Marginal control",
-        "Poor control",
-        "Uncontrolled",
-        "Newly diagnosed"
-      ]
+      "options": "diabetesControlCodes"
     },
     {
       "name": "Severity",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Mild",
-        "Moderate",
-        "Severe"
-      ]
+      "options": "diabetesSeverityCodes"
     },
     {
       "name": "Initial presentation",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "less then 6 months",
-        "6 - 12 months",
-        "12 - 18 months",
-        "18 - 24 months",
-        "2 years",
-        "3 years",
-        "4 years",
-        "5 years",
-        "5 - 7 years",
-        "7 - 10 years",
-        "10 - 15 years",
-        "15 - 20 years",
-        "20 - 25 years",
-        "Over 25 years",
-        "Since childhood"
-      ]
+      "options": "diabetesPresentationCodes"
     },
     {
       "name": "Duration",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Constant since diagnosis",
-        "Have had periods when glucose is not too high"
-      ]
+      "options": "diabetesDurationCodes"
     },
     {
       "name": "Timing",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "When weight is too high",
-        "Gestational",
-        "Associated with other illnesses"
-      ]
+      "options": "diabetesTimingCodes"
     },
     {
       "name": "Modifying factors",
       "multiValue": true,
       "freestyle": true,
-      "options": [
-        "Diet",
-        "Oral medications",
-        "Insulin",
-        "Insulin pump",
-        "Excercise"
-      ]
+      "options": "diabetesModifyingFactorCodes"
     }
   ]
 }

@@ -30,7 +30,7 @@ export const lidLashesCodes =  [[
   {"code":" GPC"},
   {"code":" Districhiasis"},
   {"code":" Trichiasis"}
-]];
+]]
 
 export const conjunctivaCodes = [[
   {"code":"1+ "},
@@ -43,7 +43,7 @@ export const conjunctivaCodes = [[
   {"code":"Pinguecula"},
   {"code":"Pterygium"},
   {"code":"Chemosis"},
-]];
+]]
 
 export const corneaCodes = [[
   {"code":"1+ "},
@@ -57,19 +57,19 @@ export const corneaCodes = [[
   {"code":"Opacities"},
   {"code":"Neovascularization"},
   {"code":"Dystrophy"}
-]];
+]]
 
 export const aCSuffixCodes = [
 {"code":"D&Q"},
 {"code":"+ Cells"},
 {"code":"+ Flare"}
-];
+]
 
 export const irisCodes = [
 {"code":"Flat/Clear"},
 {"code":"Narrow Periph"},
 {"code":"Anisocoria"}
-];
+]
 
 export const lensCodes = [[
   {"code":"1+ "},
@@ -85,4 +85,4 @@ export const lensCodes = [[
   {"code":"BRUNESCENT"},
   {"code":"PCIOL"},
   {"code":"ACIOL"}
-]];
+]]

@@ -1,0 +1,73 @@
+{
+  "name": "CL Consent",
+  "type": "groupedForm",
+  "isPreExam": true,
+  "section": "CL fitting.0",
+  "scrollable": true,
+  "fields": [
+    {
+      "name": "CL agreement",
+      "size": "XL",
+      "fields": [
+        {
+          "name": "CL agreement",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/76/1096/CL%20Agreement.png",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "sync": true,
+          "resolution": "1450x1700",
+          "size": "XL",
+          "type": "Patient Consent Form",
+          "fields": [
+            {
+              "name": "Form",
+              "label": "",
+              "size": "M",
+              "layout": {
+                "position": "absolute",
+                "width": 1000,
+                "justifyContent": "flex-start",
+                "top": 650,
+                "left": 50
+              },
+              "fields": [
+                {
+                  "maxLength": 50,
+                  "name": "Patient name",
+                  "label": "",
+                  "freestyle": true,
+                  "layout": {
+                    "position": "absolute",
+                    "width": 390,
+                    "justifyContent": "flex-start",
+                    "top": 0,
+                    "left": 25
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CL Consent",
+      "multiValue": false,
+      "size": "XL",
+      "fields": [
+        {
+          "name": "CL Consent",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/76/1097/CL%20Consent.png",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "sync": true,
+          "resolution": "1450x1950",
+          "size": "XL",
+          "type": "Patient Consent Form"
+        }
+      ]
+    }
+  ]
+}
