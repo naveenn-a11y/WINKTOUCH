@@ -582,6 +582,7 @@ export class GlassesDetail extends Component {
             <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
             <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
             <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            {this.state.prism && <View style={styles.formElement2}><Text style={styles.text}></Text></View>}
             <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('ou','va', value)} errorMessage={this.props.glassesRx.ou.vaError}/>
             <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
