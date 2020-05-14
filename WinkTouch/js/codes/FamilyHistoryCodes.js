@@ -61,3 +61,15 @@ export const familyDiseaseCodes = [
 {"code":"Vasculitis"},
 {"code":"Wet AMD"},
 ]
+
+export const medicalConditionCodes = [
+{"code":"Diabetes"},
+{"code":"High blood pressure"},
+{"code":"Heart disease"},
+{"code":"High cholesterol"},
+{"code":"Thyroid problems"},
+{"code":"Arthritis"},
+{"code":"Cancer"},
+{"code":"Headaches/Migraines"},
+{"code":"No medical condition"}
+]

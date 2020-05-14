@@ -10,4 +10,4 @@ export const lensTypeCodes = [
 {"code":"Bifocal"},
 {"code":"Sunglasses"},
 {"code":"Computer"}
-];
+]

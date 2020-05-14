@@ -5,25 +5,46 @@
 
 import React, { Component } from 'react';
 import { View, Text, Modal, TouchableWithoutFeedback, ScrollView, Animated, LayoutAnimation } from 'react-native';
-import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, GroupDefinition, FieldDefinition } from './Types';
+import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, GroupDefinition, FieldDefinition, TranslationDefinition } from './Types';
 import { styles, fontScale } from './Styles';
-import { strings} from './Strings';
-import { fetchItemById, searchItems, storeItem } from './Rest';
+import { strings, getUserLanguage } from './Strings';
+import { fetchItemById, searchItems, storeItem, performActionOnItem } from './Rest';
 import { cacheItem, cacheItemById, cacheItemsById, getCachedItem, getCachedItems } from './DataCache';
 import { ExamScreen, ExamCard } from './Exam';
-import { GroupedFormScreen, isNumericField, SelectionListsScreen, ItemsList } from './Items';
-import { FormRow, FormTextInput, FormNumberInput, FormSwitch, FormOptions, FormTextArrayInput, FormLabel, FormSelectionArray } from './Form';
+import { SelectionListsScreen, ItemsList, isNumericField } from './Items';
+import { GroupedFormScreen } from './GroupedForm';
+import { FormRow, FormTextInput, FormNumberInput, FormSwitch, FormOptions, FormTextArrayInput, FormSelectionArray } from './Form';
 import { formatCode, formatAllCodes, parseCode } from './Codes';
 import { Button } from './Widgets';
 import { deepClone } from './Util';
 import { PaperFormScreen} from './PaperForm';
+import { mappedFields } from './MappedField';
+
+let translateMode = false;
+
+export function toggleTranslateMode() {
+  translateMode = !translateMode;
+}
+
+export function isInTranslateMode() : boolean {
+  return translateMode===true;
+}
 
 const examDefinitionDefinition : FieldDefinition[] = [
   {name: 'name', required: true}
 ];
 
-const mappedFields : string[] = ['patient.lastName', 'patient.firstName', 'visit.prescription.od.sph', 'visit.prescription.os.sph','visit.prescription.od.cyl','visit.prescription.os.cyl',
-  'visit.prescription.od.axis','visit.prescription.os.axis','visit.prescrition.od.add','visit.prescription.os.add','visit.purchase.add'];
+export async function updateLabel(fieldId: string, label: string, normalValue?: string) {
+  const translation : TranslationDefinition = {
+    id: 'customExamDefinition',
+    language: getUserLanguage(),
+    fieldId: fieldId,
+    label: label,
+    normalValue: normalValue
+  };
+  await performActionOnItem('translateLabel', translation);
+}
+
 const types : string[] = ['email-address','numeric','phone','pastDate','recentDate','futureDate','futureDateTime'];
 
 export async function fetchExamDefinition(examDefintionId: string) : ExamDefinition {
@@ -49,11 +70,19 @@ export async function allExamDefinitions(isPreExam: boolean, isAssessment: boole
 }
 
 export function getExamDefinition(examName: string) : ExamDefinition {
-  const examDefinitions : ExamDefinition[] = getCachedItems(getCachedItem('examDefinitions'));
-  const examDefinition : ?ExamDefinition = examDefinitions.find((examDefinition: ExamDefinition) => examDefinition.name === examName);
+  let examDefinitions : ExamDefinition[] = getCachedItems(getCachedItem('examDefinitions'));
+  let examDefinition : ?ExamDefinition = examDefinitions.find((examDefinition: ExamDefinition) => examDefinition.name === examName);
+  if (examDefinition===undefined) {
+    examDefinitions = getCachedItems(getCachedItem('preExamDefinitions'));
+    examDefinition = examDefinitions.find((examDefinition: ExamDefinition) => examDefinition.name === examName);
+  }
+  if (examDefinition===undefined) {
+    examDefinitions = getCachedItems(getCachedItem('assessmentDefinitions'));
+    examDefinition = examDefinitions.find((examDefinition: ExamDefinition) => examDefinition.name === examName);
+  }
   if (__DEV__) {
     if (examDefinition===undefined)
-      console.log('No exam definition found for '+examName);
+      console.log('No exam definition found with name '+examName+'.');
   }
   return examDefinition;
 }
@@ -285,8 +314,9 @@ class GroupDefinitionEditor extends Component {
       }
   }
 
-  componentWillReceiveProps(nextProps: any) : void {
-    this.setState({groupDefinition: nextProps.value});
+  componentDidUpdate(prevProps: any) : void {
+    if (prevProps.value===this.props.value) return;
+    this.setState({groupDefinition: this.props.value});
   }
 
   updateColumns(columns: string[], groupDefinition: GroupDefinition) : void {
@@ -477,20 +507,16 @@ export class ExamDefinitionScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.params = this.props.navigation.state.params;
-    const exam : Exam = this.initExam(this.params.examDefinition);
+    let examDefinition = ExamDefinition = this.props.navigation.state.params.examDefinition;
+    const exam : Exam = this.initExam(examDefinition);
     this.state = {
       exam,
       isDirty: false,
     }
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    this.params = nextProps.navigation.state.params;
-  }
-
   initExam(examDefinition: ExamDefinition) : Exam {
-    let exam : Exam = {definition: examDefinition, id: undefined, version:undefined, hasStarted:false, hasEnded:false};
+    let exam : Exam = {definition: examDefinition, id: undefined, version:undefined, hasStarted:false};
     if (!examDefinition) {
       return exam;
     }
@@ -509,8 +535,8 @@ export class ExamDefinitionScreen extends Component {
   }
 
   async refreshExamDefinition() {
-    if (this.params.examDefinition.id.startsWith('customExamDefinition-')) {
-      const examDefinition: ExamDefinition = await fetchExamDefinition(this.params.examDefinition.id);
+    if (this.props.navigation.state.params.examDefinition.id.startsWith('customExamDefinition-')) {
+      const examDefinition: ExamDefinition = await fetchExamDefinition(this.props.navigation.state.params.examDefinition.id);
       if (examDefinition!==this.state.exam.definition) {
         let exam : Exam = this.initExam(examDefinition);
         this.setState({exam});
@@ -544,7 +570,7 @@ export class ExamDefinitionScreen extends Component {
       }
     } catch (error) {
       if (this.unmounted) {
-        this.props.navigation.navigate('examTemplate', this.params.examDefinition);
+        this.props.navigation.navigate('examTemplate', this.props.navigation.state.params.examDefinition);
       } else {
         await this.refreshExamDefinition();
       }
@@ -637,10 +663,6 @@ export class TemplatesScreen extends Component {
 
   componentWillMount() {
     this.refreshExamDefinitions();
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    //TODO
   }
 
   async refreshExamDefinitions() {
