@@ -422,13 +422,18 @@ class VisitWorkFlow extends Component {
       return !isEmpty(value);
     }
 
-    hasClFitting() : boolean {
-      this.state.addableExamTypes.forEach((addableType: ExamDefinition) => {
-        if (addableType.name==='Fitting') {
-          return false;
-        }
-      });
-      return true;
+    hasFinalClFitting() : boolean {
+      const fittingExam : Exam = getExam('Fitting', getCachedItem(this.props.visitId));
+      if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden) return false;
+      let value = fittingExam['Fitting'];
+      if (value instanceof Object) {
+        value = value['Contact Lens Trial'];
+      }
+      if (value instanceof Array) {
+        value = value.filter(trial => trial['Trial type']==2);
+      }
+      __DEV__ && console.log('trial = '+JSON.stringify(value));
+      return !isEmpty(value);
     }
 
     async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
@@ -572,7 +577,7 @@ class VisitWorkFlow extends Component {
             {!this.state.locked && !this.state.visit.prescription.signedDate && <Button title={strings.sign} onPress={() => this.signVisit()}/>}
             <Button title={strings.printRx} onPress={() => {printRx(this.props.visitId)}}/>
             {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
-            {this.hasClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
+            {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
@@ -875,33 +880,38 @@ export class VisitHistory extends Component {
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 
-    renderSummary() {
+    renderActionButtons() {
       let isNewAppointment : boolean = this.isNewAppointment();
-      return <View style={styles.topFlow}>
-        <PatientRefractionCard patientInfo={this.props.patientInfo} />
-        <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
-        <VisitHistoryCard patientInfo={this.props.patientInfo} />
-        {!this.props.readonly && <View style={styles.startVisitCard}>
-            <View style={styles.flow}>
-                {isNewAppointment && <Button title={strings.startAppointment} onPress={() => this.startAppointment()} />}
-                {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
-                {__DEV__ && <Button title={strings.printRx} />}
-                {__DEV__ && <Button title='Book appointment' />}
-                {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker
-                  isVisible={this.state.showingDatePicker}
-                  hideTitleContainerIOS={true}
-                  date={new Date()}
-                  mode="date"
-                  onConfirm={this.selectDate}
-                  onCancel={this.hideDatePicker}
-                  confirmTextIOS={strings.confirm}
-                  confirmTextStyle={styles.pickerLinkButton}
-                  cancelTextIOS={strings.cancel}
-                  cancelTextStyle={styles.pickerLinkButton}/>
-                }
-            </View>
-        </View>}
+      return <View style={styles.startVisitCard}>
+          <View style={styles.flow}>
+              {isNewAppointment && <Button title={strings.startAppointment} onPress={() => this.startAppointment()} />}
+              {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
+              {__DEV__ && <Button title={strings.printRx} />}
+              {__DEV__ && <Button title='Book appointment' />}
+              {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker
+                isVisible={this.state.showingDatePicker}
+                hideTitleContainerIOS={true}
+                date={new Date()}
+                mode="date"
+                onConfirm={this.selectDate}
+                onCancel={this.hideDatePicker}
+                confirmTextIOS={strings.confirm}
+                confirmTextStyle={styles.pickerLinkButton}
+                cancelTextIOS={strings.cancel}
+                cancelTextStyle={styles.pickerLinkButton}/>
+              }
+          </View>
+      </View>
+    }
 
+    renderSummary() {
+      return <View>
+        <View style={styles.topFlow}>
+          <PatientRefractionCard patientInfo={this.props.patientInfo} />
+          <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
+          <VisitHistoryCard patientInfo={this.props.patientInfo} />
+        </View>
+        {!this.props.readonly && this.renderActionButtons()}
       </View>
     }
 
