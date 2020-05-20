@@ -415,7 +415,7 @@ export class CabinetScreen extends Component {
       if (this.state.patientInfo.id==='patient') {
         return <View style={styles.separator}>
           <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
-          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} /></View>
+          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} testID='createPatientButton'/></View>
         </View>
       }
       return <View style={styles.separator}>
