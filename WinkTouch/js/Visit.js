@@ -175,6 +175,7 @@ async function printPatientFile(visitId : string) {
         }
         }
         let assessments: Exam[] = exams.filter((exam: Exam) => exam.definition.isAssessment);
+        assessments.sort(compareExams);
         for(const exam : Exam of assessments) {
           let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
             if(xlGroupDefinition && xlGroupDefinition.length >0) {
@@ -203,6 +204,8 @@ async function printPatientFile(visitId : string) {
           if (a.definition.order < b.definition.order) return -10;
           if (a.definition.order > b.definition.order) return 10;
         }
+        if(a.definition.isAssessment || b.definition.isAssessment) return 0;
+
         if (a.definition.section===undefined || b.definition.section===undefined) return -1;
         if (a.definition.section < b.definition.section) return -1;
         if (a.definition.section > b.definition.section) return 1;
@@ -555,6 +558,8 @@ class VisitWorkFlow extends Component {
     renderAssessments() {
        let assessments : Exam[] = getCachedItems(this.state.visit.customExamIds).filter(
          (exam: Exam) => exam.definition.isAssessment);
+        assessments.sort(compareExams);
+
        return assessments.map((exam: Exam, index: number) => {
 
          if (exam.definition.name==='RxToOrder') {
