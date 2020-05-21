@@ -1714,14 +1714,15 @@ export class Button extends Component {
     title: string,
     visible?: boolean,
     disabled?: boolean,
-    onPress?: () => void
+    onPress?: () => void,
+    testID?: string
   }
   static defaultProps = {
     visible: true
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} testID={this.props.testID}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
+    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
   }
 }
 
