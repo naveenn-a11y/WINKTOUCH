@@ -17,7 +17,6 @@
         {
           "name":"IOP",
           "label":"PIO",
-          "import": ["machine.tonoref.iop"],
           "fields":[
             {
               "name":"Drug",
@@ -44,7 +43,7 @@
   "fields":[
     {
       "name":"IOP",
-      "import": ["machine.tonoref"],
+      "import": ["machine.tonoref.iop"],
       "columns":[
         [
           "OD",

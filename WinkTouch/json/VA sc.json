@@ -7,7 +7,6 @@
         {
           "name": "Unaided acuities",
           "label": "AcuititÃ©s sans aide",
-          "import": ["machine.phoropter.va.sc"],
           "fields": [
             {
               "name": "DVA",
@@ -239,7 +238,7 @@
     {
       "multivalue": true,
       "name": "Unaided acuities",
-      "import": ["machine.phoropter"],
+      "import": ["machine.phoropter.va.sc"],
       "columns": [
         [
           "DVA",
