@@ -49,7 +49,8 @@ class PatientList extends Component {
       return null;
     return <View style={styles.flow}>
         {this.props.patients.map((patient: Patient, index: number) => {
-          return <View style={styles.centeredRowLayout} key={index}><Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} /></View>
+          return <View style={styles.centeredRowLayout} key={index}>
+            <Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} testID={'patientName'+index}/></View>
         })}
     </View >;
   }
@@ -109,12 +110,15 @@ export class FindPatient extends Component {
       <TextInput placeholder={strings.findPatient} returnKeyType='search' autoCorrect={false} autoFocus={true}
         style={styles.searchField} value={this.state.searchCriterium}
         onChangeText={(text: string) => this.setState({ searchCriterium: text })}
-        onSubmitEditing={() => this.searchPatients()} />
+        onSubmitEditing={() => this.searchPatients()}
+        testID='patientSearchCriterium'/>
       <PatientList
         patients={this.state.patients}
         visible={this.state.showPatientList}
         onSelect={this.props.onSelectPatient} />
-      {this.props.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
+      {this.props.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}>
+        <Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()} testID='newPatientButton'/>
+      </View>:null}
     </View>
   }
 }

@@ -3,6 +3,7 @@
   "scrollable": true,
   "addable": false,
   "isAssessment": true,
+  "order": 1,
   "cardGroup": "Final Rx",
   "graph": {
     "fields": [
