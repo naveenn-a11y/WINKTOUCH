@@ -4,9 +4,9 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, Text, Button, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import type {FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx } from './Types';
+import type {FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx, Measurement } from './Types';
 import { strings } from './Strings';
 import { styles, scaleStyle, fontScale } from './Styles';
 import { FloatingButton } from './Widgets';
@@ -541,7 +541,7 @@ export class GroupedForm extends Component {
     editable?: boolean,
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
-    onUpdateForm? : (form: any) => void,
+    onUpdateForm? : (groupName: string, newValue: any) => void,
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
     onAdd?: () => void,
@@ -758,123 +758,33 @@ export class GroupedForm extends Component {
     return rows;
   }
 
-  parseUnaidedAcuities = (data) => {
-    const dva = {};
-    const nva = {};
-    const ph = {};
-
-    if (data instanceof Array) {
-      for(let i = 0; i < data.length; i++) {
-        const m = data[i];
-        const d = m.data;
-        if(d.label && (d.label === 'DW' || d.label === 'NW')) { // near
-          nva.OS = d.os.va;
-          nva.OD = d.od.va;
-          nva.OU = d.ou.va;
-        } else if(d.label && (d.label === 'Dw' || d.label === 'Nw')) { // far
-          dva.OS = d.os.va;
-          dva.OD = d.od.va;
-          dva.OU = d.ou.va;
-        }
-
-        if(d.os.vaph) {
-          ph.OS = d.os.vaph;
-        }
-        if(d.od.vaph) {
-          ph.OD = d.od.vaph;
-        }
-      }
-    }
-
-    const o = {
-      DVA: dva,
-      NVA: nva,
-      PH: ph
-    };
-
-    this.props.onUpdateForm(this.props.definition.name, o)
-  }
-
-  parseAidedAcuities = (data) => {
-    const dva = {};
-    const nva = {};
-    const ph = {};
-
-    if (data instanceof Array) {
-      for(let i = 0; i < data.length; i++) {
-        const m = data[i];
-        const d = m.data;
-        if(d.label && (d.label === 'DLMNEAR' || d.label === 'NLMNEAR')) { // near
-          nva.OS = d.os.corrVa;
-          nva.OD = d.od.corrVa;
-          nva.OU = d.ou.corrVa;
-        } else if(d.label && (d.label === 'DLMFAR' || d.label === 'NLMFAR')) { // far
-          dva.OS = d.os.corrVa;
-          dva.OD = d.od.corrVa;
-          dva.OU = d.ou.corrVa;
-        }
-
-        if(d.os.corrVaPh) {
-          ph.OS = d.os.corrVaPh;
-        }
-        if(d.od.corrVaPh) {
-          ph.OD = d.od.corrVaPh;
-        }
-      }
-    }
-
-    const o = {
-      DVA: dva,
-      NVA: nva,
-      PH: ph
-    };
-
-    this.props.onUpdateForm(this.props.definition.name, o)
-  }
-
-  parseIop = (data) => {
-    const os = {};
-    const od = {};
-
-    if (data instanceof Array) {
-      for(let i = 0; i < data.length; i++) {
-        const m = data[i];
-        const d = m.data;
-        os.Tension = d.os.iop;
-        os.Pachymetry = d.os.thickness;
-        od.Tension = d.od.iop;
-        od.Pachymetry = d.od.thickness;
-      }
-    } else {
-      const d = data.data;
-      os.Tension = d.os.iop;
-      os.Pachymetry = d.os.thickness;
-      od.Tension = d.od.iop;
-      od.Pachymetry = d.od.thickness;
-    }
-
-    const o = [{
-      OS: os,
-      OD: od
-    }];
-
-    this.props.onUpdateForm(this.props.definition.name, o)
-  }
-
   async importData() {
-    if(!this.props.onUpdateForm) return
-
-    const data = await importData(this.props.definition.import, this.props.examId);
-
-    if (data===undefined || data===null) return;
-
-    if(this.props.definition.name === 'Unaided acuities') {
-      this.parseUnaidedAcuities(data);
-    } else if(this.props.definition.name === 'Aided acuities') {
-      this.parseAidedAcuities(data);
-    } else if(this.props.definition.name === 'IOP') {
-      this.parseIop(data);
+    if(!this.props.onUpdateForm) return;
+    let measurement : Measurement|Measurement[] = await importData(this.props.definition.import, this.props.examId);
+    if (measurement===undefined || measurement===null) return;
+    if (measurement instanceof Array) {
+      const options = measurement.map((measurement: Measurement) => {
+        return {
+          text: measurement.label,
+          onPress: () => {
+            if (measurement.data) {
+              this.props.onUpdateForm(this.props.definition.name, measurement.data);
+            }
+          }
+        }
+      });
+      options.push({text: strings.cancel});
+      Alert.alert(
+          strings.importDataQuestion,
+          undefined,
+          options
+      );
+    } else {
+      if (measurement.data) {
+        this.props.onUpdateForm(this.props.definition.name, measurement.data);
+      }
     }
+
   }
 
   async exportData() {
