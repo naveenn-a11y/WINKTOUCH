@@ -254,9 +254,9 @@ export class LoginScreen extends Component {
               <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount}/></View>
               <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore}/></View>
               {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.userName} autoCapitalize='none' autoCorrect={false} returnKeyType='next' style={styles.field400} value={this.state.userName}
-                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField}/></View>}
+                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField} testID='login.userNameInput'/></View>}
               {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.password} autoCapitalize='none' autoCorrect={false} returnKeyType='go' secureTextEntry={true} ref='focusField'
-                  style={styles.field400} value={this.state.password} selectTextOnFocus={true}
+                  style={styles.field400} value={this.state.password} selectTextOnFocus={true} testID='login.passwordInput'
                   onChangeText={this.setPassword} onSubmitEditing={() => this.login()}/></View>}
               <View style={styles.buttonsRowLayout}>
                 <Button title={strings.submitLogin} disabled={account===undefined} onPress={() => this.login()} />
