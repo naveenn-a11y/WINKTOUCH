@@ -307,8 +307,13 @@ export const styles = StyleSheet.create({
       height: 100*fontScale,
       borderRadius: 65*fontScale,
       marginVertical: 20 * fontScale,
-      alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: '#2dc3c3'
+    },
+    backIcon: {
+      color: 'white',
+      fontSize: 50 * fontScale
     },
     addButton: {
       width: 60*fontScale,

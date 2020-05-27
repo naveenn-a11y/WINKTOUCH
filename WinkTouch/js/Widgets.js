@@ -1758,10 +1758,15 @@ export class BackButton extends Component {
   }
   static defaultProps = {
     visible: true
+  };
+
+  navigateBack = () => {
+    this.props.navigation.navigate('back');
   }
+
   render() {
     if (!this.props.visible) return null;
-    return <NativeBaseButton block large style={styles.backButton} onPress={() => this.props.navigation.navigate('back')}><NativeBaseIcon name='md-arrow-back'/></NativeBaseButton>
+    return <TouchableOpacity onPress={this.navigateBack} enable={this.props.disabled!=true} testID='backButton'><View style={styles.backButton}><Icon name='arrow-left' style={styles.backIcon}/></View></TouchableOpacity>
   }
 }
 
