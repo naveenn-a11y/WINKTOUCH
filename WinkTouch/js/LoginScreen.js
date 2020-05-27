@@ -189,7 +189,7 @@ export class LoginScreen extends Component {
     let password: ?string = this.state.password;
     if (password===null || password===undefined) password = '';
     const account: ?Account = this.getAccount();
-    const store: ?Store = this.getStore();
+    let store: ?Store = this.getStore();
     if (!account || !store) return;
     let loginData = {
       accountsId: (account.id).toString(),
@@ -219,7 +219,9 @@ export class LoginScreen extends Component {
             handleHttpError(httpResponse, await httpResponse.json());
         }
         let token : string = httpResponse.headers.map.token;
-        let user : User = (await httpResponse.json()).user;
+        let responseJson = await httpResponse.json();
+        let user : User =  responseJson.user;
+        store = responseJson.store;
         this.props.onLogin(account, user, store, token);
     } catch (error) {
         alert(strings.loginFailed+ ': '+error);

@@ -6,7 +6,8 @@
 import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo } from './Types';
+import RNBeep from 'react-native-a-beep';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
@@ -16,7 +17,7 @@ import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
 import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
-import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
+import { searchItems, storeItem, performActionOnItem, fetchItemById, stripDataType } from './Rest';
 import { fetchAppointment } from './Appointment';
 import { printRx, printClRx, printMedicalRx, printHtml } from './Print';
 import { PatientDocumentPage } from './Patient';
@@ -24,6 +25,7 @@ import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
 import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
+import { fetchWinkRest } from './WinkRest';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -122,12 +124,10 @@ export async function createVisit(visit: Visit) : Visit {
     return visit;
 }
 
-
 export async function updateVisit(visit: Visit) : Visit {
     visit = await storeItem(visit);
     return visit;
 }
-
 
 function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -147,7 +147,6 @@ function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   });
   return visitSummaries;
 }
-
 
 async function printPatientFile(visitId : string) {
    let visitHtml : string = '';
@@ -198,19 +197,31 @@ async function printPatientFile(visitId : string) {
     }
 }
 
+export async function transferRx(visitId: string) {
+  const store : Store = getStore();
+  let parameters : {} = {
+    'idAccounts': store.winkToWinkId,
+    'email': store.winkToWinkEmail
+  }
+  let response = await fetchWinkRest('webresources/WinkToWinkVisitTransfer/export/'+stripDataType(visitId), parameters);
+  if (response) {
+      RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+  }
+}
 
-  function compareExams(a: Exam, b: Exam) : number {
-        if (a.definition.order!==undefined && b.definition.order!==undefined) {
-          if (a.definition.order < b.definition.order) return -10;
-          if (a.definition.order > b.definition.order) return 10;
-        }
-        if(a.definition.isAssessment || b.definition.isAssessment) return 0;
-
-        if (a.definition.section===undefined || b.definition.section===undefined) return -1;
-        if (a.definition.section < b.definition.section) return -1;
-        if (a.definition.section > b.definition.section) return 1;
-        return 0;
+function compareExams(a: Exam, b: Exam) : number {
+    if (a.definition.order!==undefined && b.definition.order!==undefined) {
+      if (a.definition.order < b.definition.order) return -10;
+      if (a.definition.order > b.definition.order) return 10;
     }
+    if(a.definition.isAssessment || b.definition.isAssessment) return 0;
+
+    if (a.definition.section===undefined || b.definition.section===undefined) return -1;
+    if (a.definition.section < b.definition.section) return -1;
+    if (a.definition.section > b.definition.section) return 1;
+    return 0;
+}
+
 class VisitButton extends PureComponent {
     props: {
         id: string,
@@ -439,6 +450,12 @@ class VisitWorkFlow extends Component {
       return !isEmpty(value);
     }
 
+    canTransfer() : boolean {
+      const store : Store = getStore();
+      __DEV__ && console.log('store = '+JSON.stringify(store));
+      return (store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
+    }
+
     async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
         if (this.props.readonly) return;
         const visit : ?Visit = this.state.visit;
@@ -583,7 +600,7 @@ class VisitWorkFlow extends Component {
             <Button title={strings.printRx} onPress={() => {printRx(this.props.visitId)}}/>
             {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
-            {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
+            {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
