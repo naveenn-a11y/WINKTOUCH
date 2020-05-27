@@ -446,13 +446,11 @@ class VisitWorkFlow extends Component {
       if (value instanceof Array) {
         value = value.filter(trial => trial['Trial type']==2);
       }
-      __DEV__ && console.log('trial = '+JSON.stringify(value));
       return !isEmpty(value);
     }
 
     canTransfer() : boolean {
       const store : Store = getStore();
-      __DEV__ && console.log('store = '+JSON.stringify(store));
       return (store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
     }
 
