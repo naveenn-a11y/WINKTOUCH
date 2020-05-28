@@ -68,7 +68,7 @@ export class UpdateTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='updateIcon'>
       <View style={styles.popupTile}>
         <Icon name='check' style={styles.modalTileIcon} />
       </View>
@@ -81,7 +81,7 @@ export class ClearTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='deleteIcon'>
       <View style={styles.popupTile}>
         <Icon name='delete' style={styles.modalTileIcon} />
       </View>
@@ -94,7 +94,7 @@ export class CloseTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='closeIcon'>
       <View style={styles.popupTile}>
         <Text style={styles.modalTileLabel}>{'\u2715'}</Text>
       </View>
@@ -107,7 +107,7 @@ export class RefreshTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='refreshIcon'>
       <View style={styles.popupTile}>
           <Icon name='refresh' style={styles.modalTileIcon} />
       </View>
@@ -120,7 +120,7 @@ export class KeyboardTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='keyboardIcon'>
       <View style={styles.popupTile}>
         <Icon name='keyboard' style={styles.modalTileIcon} />
       </View>
@@ -133,7 +133,7 @@ export class CameraTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='cameraIcon'>
       <View style={styles.popupTile}>
         <Icon name='camera' style={styles.modalTileIcon} />
       </View>
@@ -812,7 +812,8 @@ export class TilesField extends Component {
     multiValue?: boolean, //TODO
     containerStyle?: any,
     onChangeValue?: (newvalue: ?(string[]|string)) => void,
-    transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void }
+    transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void },
+    testID?: string
   }
   state: {
     isActive: boolean,
@@ -932,7 +933,7 @@ export class TilesField extends Component {
 
   renderPopup() {
     let allOptions : string[][] = this.isMultiColumn()?this.props.options:[this.props.options];
-    return <TouchableWithoutFeedback onPress={this.commitEdit}>
+    return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID='popupBackground'>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>{this.props.label}: {this.format(this.state.editedValue)}</Text>
           <FocusTile type='previous' commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
@@ -944,7 +945,7 @@ export class TilesField extends Component {
                 <View style={styles.modalColumn} key={columnIndex}>
                   {options.map((option: string, rowIndex: number) => {
                     let isSelected : boolean = this.isMultiColumn()?this.state.editedValue[columnIndex]===option:this.state.editedValue===option;
-                    return <TouchableOpacity key={rowIndex} onPress={() => this.updateValue(option, columnIndex)}>
+                    return <TouchableOpacity key={rowIndex} onPress={() => this.updateValue(option, columnIndex)} testID={'option'+(rowIndex+1)}>
                       <View style={isSelected?styles.popupTileSelected:styles.popupTile}>
                         <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                       </View>
@@ -977,7 +978,7 @@ export class TilesField extends Component {
       return <TextField value={this.props.value} autoFocus={true} style={style} multiline={this.props.multiline} onChangeValue={newValue => this.commitTyping(newValue)}/>
     }
     return <View style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer}>
-      <TouchableOpacity style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly}>
+      <TouchableOpacity style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID?this.props.testID:this.props.label?this.props.label+'Selector':undefined} >
         <Text style={style}>{formattedValue}</Text>
       </TouchableOpacity>
       {this.state.isActive===true && <Modal visible={this.state.isActive===true} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
