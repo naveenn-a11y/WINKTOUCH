@@ -451,7 +451,7 @@ class VisitWorkFlow extends Component {
 
     canTransfer() : boolean {
       const store : Store = getStore();
-      return (store && store.winkToWinkId && store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
+      return (store!=undefined && store!=null && store.winkToWinkId!=undefined && store.winkToWinkId!=null && store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
     }
 
     async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
