@@ -171,7 +171,8 @@ export const strings = new LocalizedStrings({
       saveImageError: 'Something went wrong saving your {0} image in the database. Please try again.',
       pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.',
       examDate: 'Date of Exam',
-      healthCard: 'Health Card'
+      healthCard: 'Health Card',
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai',
@@ -335,7 +336,8 @@ export const strings = new LocalizedStrings({
       saveImageError: 'Une erreur s\'est produite en sauvegardant l\'image {0} dans la base de données. Veuillez essayer de nouveau.',
       pmsImageSaveError: 'Une erreur s\'est produite en sauvegardant l\'image dans le PMS',
       examDate: 'Date de l\'exam',
-      healthCard: 'Carte maladie'
+      healthCard: 'Carte maladie',
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
     }
 });
 
