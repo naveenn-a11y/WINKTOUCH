@@ -50,6 +50,7 @@ export class FormTextInput extends Component {
         speakable?: boolean,
         style?: any,
         containerStyle?: any,
+        testID?: string
     }
     static defaultProps = {
       readonly: false,
@@ -148,7 +149,7 @@ export class FormTextInput extends Component {
     }
 
     render() {
-        return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined}>
+        return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined} testID={this.state.errorMessage===undefined?undefined:this.props.testID+'dismissError'} accessible={false}>
           <View style={this.props.containerStyle?this.props.containerStyle:styles.formElement}>
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label}/>}
             {this.props.prefix && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
@@ -165,6 +166,7 @@ export class FormTextInput extends Component {
                     onBlur={(event) => this.commit(event.nativeEvent.text)}
                     editable={this.props.readonly!==true}
                     multiline={this.props.multiline===true}
+                    testID={this.props.testID}
                 />
                 {!this.props.readonly && this.props.freestyle!=false && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
             </View>
@@ -882,7 +884,7 @@ export class FormInput extends Component {
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
-      freestyle={this.props.definition.freestyle} style={style}/>//TODO keyboardType from definition type
+      freestyle={this.props.definition.freestyle} style={style} testID={this.props.testID}/>//TODO keyboardType from definition type
   }
 
   render() {
