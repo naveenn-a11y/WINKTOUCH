@@ -261,20 +261,20 @@ export class CheckList extends PureComponent {
     return  <View style={style}>
             <Label style={styles.sectionTitle} suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
           <View style={styles.wrapBoard}>
-        {this.state.formattedOptions.map((option: string) => {
+        {this.state.formattedOptions.map((option: string, index: number) => {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');
             return <View style={styles.formRow} key={option}>
-              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)} readonly={this.props.editable!=true}/>
+              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)} readonly={this.props.editable!=true} testID={this.props.fieldId+'.option'+(index+1)}/>
             </View>
           }
         )}
     </View>
     {this.props.definition.freestyle && this.props.editable && <View style={styles.formRow} key='freestyle'>
-        <FormTextInput speakable={true} onChangeText={this.addValue}/>
+        <FormTextInput speakable={true} onChangeText={this.addValue} testID={this.props.fieldId+'.speachField'}/>
       </View>
     }
-    {this.props.editable && this.props.onClear && <View style={styles.groupIcons}><TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity></View>}
+    {this.props.editable && this.props.onClear && <View style={styles.groupIcons}><TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId+'.garbageIcon'}><Garbage style={styles.groupIcon}/></TouchableOpacity></View>}
 
     </View>
   }
@@ -795,13 +795,13 @@ export class GroupedForm extends Component {
   renderIcons() {
     if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
     return [<View style={styles.groupIcons} key='icons'>
-      {this.props.onClear && <TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId+'GarbageIcon'}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
-      {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd} testID={this.props.fieldId+'PlusIcon'}><Plus style={styles.groupIcon}/></TouchableOpacity>}
-      {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping} testID={this.props.fieldId+'KeyboardIcon'}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
-      {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon} testID={this.props.fieldId+'StarIcon'}/>}
+      {this.props.onClear && <TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId+'.garbageIcon'}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd} testID={this.props.fieldId+'.plusIcon'}><Plus style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping} testID={this.props.fieldId+'.keyboardIcon'}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
+      {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon} testID={this.props.fieldId+'.starIcon'}/>}
     </View>,
     <View style={styles.groupExtraIcons}>
-      {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()} testID={this.props.fieldId+'ImportIcon'}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()} testID={this.props.fieldId+'.importIcon'}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
     </View>]
   }
 
