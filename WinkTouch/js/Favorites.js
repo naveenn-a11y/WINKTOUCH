@@ -393,7 +393,8 @@ export class Favorites extends PureComponent {
           {this.props.favorites && this.props.favorites.map((favorite: ExamPredefinedValue, index: number) =>
             <TouchableOpacity key={favorite.name}
               onPress={() => {this.props.onSelectFavorite(favorite)}}
-              onLongPress={() => {if (favorite.userId!==undefined) this.props.onRemoveFavorite(favorite)}}>
+              onLongPress={() => {if (favorite.userId!==undefined) this.props.onRemoveFavorite(favorite)}}
+              testID={'favorite'+(index+1)}>
               <Text key={index} style={styles.linkButton}>{favorite.name}{favorite.userId===undefined?' [W]':''}</Text>
             </TouchableOpacity>
           )}
