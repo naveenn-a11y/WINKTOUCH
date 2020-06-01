@@ -249,7 +249,7 @@ export class LoginScreen extends Component {
                 <Text style={{fontSize:25*fontScale, color: 'red'}}>{strings.trialWarning}</Text>
                 <RnButton title={strings.winkLink} onPress={ ()=>{ Linking.openURL('http://www.downloadwink.com')}}/>
               </View>}
-              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset}><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
+              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset} testID='login.registrationEmail'><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
               <Image source={require('./image/winklogo-big.png')} style={{width: 250 *fontScale, height: 250 *fontScale, margin: 20 * fontScale}}/>
               <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount}/></View>
               <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore}/></View>
