@@ -978,7 +978,7 @@ export class TilesField extends Component {
       return <TextField value={this.props.value} autoFocus={true} style={style} multiline={this.props.multiline} onChangeValue={newValue => this.commitTyping(newValue)}/>
     }
     return <View style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer}>
-      <TouchableOpacity style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID?this.props.testID:this.props.label?this.props.label+'Selector':undefined} >
+      <TouchableOpacity style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID?(this.props.testID+'Field'):undefined}>
         <Text style={style}>{formattedValue}</Text>
       </TouchableOpacity>
       {this.state.isActive===true && <Modal visible={this.state.isActive===true} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -1285,7 +1285,8 @@ export class DateField extends Component {
       width?: number,
       readonly?: boolean,
       style?: any,
-      onChangeValue?: (newValue: ?Date) => void
+      onChangeValue?: (newValue: ?Date) => void,
+      testID?: string
     }
     state: {
       isActive: boolean,
@@ -1513,7 +1514,7 @@ export class DateField extends Component {
     renderPopup() {
       const fractions : string[][] = this.state.fractions;
       let formattedValue = this.format(this.state.isDirty?this.combinedValue():this.props.value);
-      return <TouchableWithoutFeedback onPress={this.commitEdit}>
+      return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID='popupBackground'>
             <View style={styles.popupBackground}>
               <Text style={styles.modalTitle}>{this.props.label}: {this.props.prefix}{formattedValue}{this.props.suffix}</Text>
               <ScrollView horizontal={this.props.recent==false} scrollEnabled={this.props.recent==false}>
@@ -1522,7 +1523,7 @@ export class DateField extends Component {
                     return <View style={styles.modalColumn} key={column}>
                       {options.map((option: string, row: number) => {
                         let isSelected : boolean = this.state.editedValue[column]===option;
-                        return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)}>
+                        return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)} testID={'option'+(column+1)+','+(row+1)}>
                           <View style={isSelected?styles.popupTileSelected:styles.popupTile}>
                             <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                           </View>
@@ -1555,7 +1556,7 @@ export class DateField extends Component {
         </View>
       }
       return <View style={styles.fieldFlexContainer}>
-        <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly}>
+        <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID?(this.props.testID+'Field'):undefined} >
           <Text style={style}>{this.props.prefix}{formattedValue}{this.props.suffix}</Text>
         </TouchableOpacity>
         {this.state.isActive===true && <Modal visible={this.state.isActive===true} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>

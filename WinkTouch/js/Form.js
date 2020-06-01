@@ -149,7 +149,7 @@ export class FormTextInput extends Component {
     }
 
     render() {
-        return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined} testID={this.state.errorMessage===undefined?undefined:this.props.testID+'dismissError'} accessible={false}>
+        return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined} testID={this.state.errorMessage===undefined?undefined:this.props.testID+'FieldDismissError'} accessible={false}>
           <View style={this.props.containerStyle?this.props.containerStyle:styles.formElement}>
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label}/>}
             {this.props.prefix && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
@@ -166,7 +166,7 @@ export class FormTextInput extends Component {
                     onBlur={(event) => this.commit(event.nativeEvent.text)}
                     editable={this.props.readonly!==true}
                     multiline={this.props.multiline===true}
-                    testID={this.props.testID}
+                    testID={this.props.testID+'Field'}
                 />
                 {!this.props.readonly && this.props.freestyle!=false && (this.props.multiline || this.props.speakable) && <Microphone onSpoke={(text: string) => this.appendText(text)} style={this.props.multiline?styles.voiceIconMulti:styles.voiceIcon}/>}
             </View>
@@ -304,7 +304,8 @@ export class FormDateInput extends Component {
         readonly?: boolean,
         type?: string,
         style?: any,
-        onChangeValue?: (newValue: ?string) => void
+        onChangeValue?: (newValue: ?string) => void,
+        testID?: string
     }
     static defaultProps= {
       showLabel: true
@@ -331,7 +332,9 @@ export class FormDateInput extends Component {
               partial={this.props.type?this.props.type.includes('partial'):undefined}
               age={this.props.type==='age'}
               style={style}
-              onChangeValue={this.updateValue}/>
+              onChangeValue={this.updateValue}
+              testID={this.props.testID}
+              />
         </View>
     }
 }
@@ -824,7 +827,7 @@ export class FormInput extends Component {
     if (isNumericField(this.props.definition)) {
       return <FormNumberInput value={this.props.value} {...this.props.definition} errorMessage={this.props.errorMessage} readonly={readonly}
         onChangeValue={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix}
-        isTyping={this.props.isTyping} autoFocus={this.props.autoFocus} style={style} />
+        isTyping={this.props.isTyping} autoFocus={this.props.autoFocus} style={style} testID={this.props.testID} />
     } else if (this.props.definition.options && this.props.definition.options.length>0) {
       let options = this.props.definition.options;
       let isNestedCode = (!(options instanceof Array)) && options.endsWith('Codes') && ((getAllCodes(options)[0]) instanceof Array);
@@ -832,15 +835,15 @@ export class FormInput extends Component {
         options = getAllCodes(options);
       } else if (!(options instanceof Array)) {
         return <FormCode code={options} filter={this.getFilterValue()} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} errorMessage={this.props.errorMessage}
-          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style} multiline={this.props.multiline===true || this.props.definition.maxLength>100}/>
+          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style} multiline={this.props.multiline===true || this.props.definition.maxLength>100} testID={this.props.testID}/>
       } else if (options.length===2 && (options[0]===undefined || options[0]===null || options[0]===false || options[0].toString().trim()==='' || this.props.definition.defaultValue===options[0]))
-        return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage}/>
+        return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
       return <FormOptions options={options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
-        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>100}/>
+        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>100} testID={this.props.testID}/>
     } else if (type && type.includes('Date') || type==='age') {
-      return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
+      return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {
-      return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage}/>
+      return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
     } else if (this.props.definition.image!==undefined) {
       let replaceImage : boolean = true;
       const arrayStart : number = this.props.fieldId?this.props.fieldId.indexOf('[')+1:-1;
@@ -867,6 +870,7 @@ export class FormInput extends Component {
           enableScroll={this.props.enableScroll}
           disableScroll={this.props.disableScroll}
           replaceImage={replaceImage}
+          testID={this.props.testID}
           >
           {this.props.definition.fields && this.props.definition.fields.map((groupDefinition: GroupDefinition, index: number) =>
             <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => {
@@ -880,7 +884,7 @@ export class FormInput extends Component {
         </ImageField>
     } else if(type && type === 'prism') {
         return <GeneralPrismInput value={this.props.value}  showLabel={this.props.showLabel} readonly={readonly} style={style}
-                onChangeValue={this.props.onChangeValue}/>
+                onChangeValue={this.props.onChangeValue} testID={this.props.testID}/>
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
       type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
