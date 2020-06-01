@@ -238,7 +238,7 @@
     {
       "multivalue": true,
       "name": "Aided acuities",
-      "import": ["machine.phoropter"],
+      "import": ["machine.phoropter.va.cc"],
       "columns": [
         [
           "DVA",

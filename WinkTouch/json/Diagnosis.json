@@ -1,5 +1,6 @@
 {
   "isAssessment": true,
+  "order": 3,
   "name": "Diagnosis",
   "locale": {
     "fr-CA": {

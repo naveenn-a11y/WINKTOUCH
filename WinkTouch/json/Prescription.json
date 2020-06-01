@@ -3,6 +3,7 @@
   "label": "Medication",
   "addable": true,
   "isAssessment": true,
+  "order": 2,
   "singable": true,
   "locale": {
     "fr-CA": {

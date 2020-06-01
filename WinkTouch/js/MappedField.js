@@ -9,6 +9,7 @@ import { getCachedItem } from './DataCache';
 import { getFieldDefinition, formatLabel } from './Items';
 import { searchItems, storeItem } from './Rest';
 import { getConfiguration } from './Configuration';
+import { strings } from './Strings';
 
 export const mappedFields : string[] = [
   'patient.lastName',
@@ -45,11 +46,11 @@ export const mappedFields : string[] = [
 ];
 
 
-async function fetchMachineMeasurements(machineType, patientId) : Measurement[] {
-  const searchCriteria = {machineType, patientId};
+async function fetchMachineMeasurements(machineType, patientId, filter) : Measurement[] {
+  const searchCriteria = {machineType, patientId, filter};
   let restResponse = await searchItems('Measurement/list', searchCriteria);
-  let measurements : Measurement[] = restResponse.measurementList;
-  return measurements;
+  __DEV__ && console.log('Fetched machine data= '+JSON.stringify(restResponse));
+  return restResponse.measurementList;
 }
 
 export async function importData(dataIdentifier: string|string[], examId: string) : Measurement|Measurement[] {
@@ -60,15 +61,19 @@ export async function importData(dataIdentifier: string|string[], examId: string
     let dataList : Measurement[] = [];
     for (let i=0;i<dataIdentifier.length;i++) {
       const identifier = dataIdentifier[i];
+
       if (identifier.startsWith('machine.')) {
-        const machineType : string = identifier.substring('machine.'.length);
+        const iArr = identifier.split('.');
+        const machineType : string = iArr[1];
         const patientId : string = getPatient(exam).id;
-        let measurements :Measurement[] = await fetchMachineMeasurements(machineType, patientId);
+        const filter = iArr.slice(2).join('.');
+        let measurements = await fetchMachineMeasurements(machineType, patientId, filter);
         if (measurements && measurements.length>0) {
           dataList = [...dataList, ...measurements];
         }
       } else {
         let value = getFieldValue(identifier, exam);
+
         if ((value instanceof Array) && value.length===1) {
           value = value[0];
         }
@@ -96,17 +101,23 @@ export async function importData(dataIdentifier: string|string[], examId: string
 }
 
 async function pushMachineMeasurement(machineId: string, measurement: Measurement) : void {
-  //alert('pushing to '+machineId+': '+JSON.stringify(measurement));
   measurement.id = 'measurement';
   measurement.machineId = machineId;
-  storeItem(measurement);
+  measurement = await storeItem(measurement);  
+  if (measurement.errors) {
+    alert(measurement.errors.toString());
+  }
 }
 
 export async function exportData(destinationIdentifier: string, measurement: Measurement, examId: string) : Measurement {
   if (measurement===undefined || measurement===null) return;
   if (destinationIdentifier.startsWith('machine.')) {
     const machineType : string = destinationIdentifier.substring('machine.'.length);
-    let machineId : number = getConfiguration().machine.phoropter;
+    let machineId : number = getConfiguration()['machine'][machineType];
+    if (machineId===undefined || machineId==null || machineId===0) {
+      alert(strings.formatString(strings.configMissing, machineType));
+      return undefined;
+    }
     measurement = await pushMachineMeasurement('machine-'+machineId, measurement);
     return measurement;
   } else {
