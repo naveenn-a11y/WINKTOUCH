@@ -598,18 +598,18 @@ export class ExamScreen extends Component {
 
   renderLockIcon() {
     if (!this.state.locked) return null;
-    return <TouchableOpacity onPress={this.switchLock}><Lock style={styles.screenIcon} locked={this.state.locked===true}/></TouchableOpacity>
+    return <TouchableOpacity onPress={this.switchLock}><Lock style={styles.screenIcon} locked={this.state.locked===true} testID={this.state.locked===true?'unlockExam':'lockExam'}/></TouchableOpacity>
   }
 
   renderFavoriteIcon() {
     if (!this.state.exam) return null;
     if (this.state.locked || this.state.exam.definition.starable!==true || this.state.exam.definition.starable!==true || (this.state.exam.definition.type!=='selectionLists' && this.state.exam.definition.type!=='groupedForm')) return null;
-    return <Star onAddFavorite={this.addExamFavorite}  style={styles.screenIcon}/>
+    return <Star onAddFavorite={this.addExamFavorite}  style={styles.screenIcon} testID='favoriteExam'/>
   }
 
   renderRefreshIcon() {
     if (this.state.locked) return null;
-    return <TouchableOpacity onPress={() => this.refreshExam()}><Refresh style={styles.screenIcon}/></TouchableOpacity>
+    return <TouchableOpacity onPress={() => this.refreshExam()} testID='refreshExam'><Refresh style={styles.screenIcon}/></TouchableOpacity>
   }
 
   renderExamIcons() {
@@ -632,7 +632,8 @@ export class ExamScreen extends Component {
   }
 
   render() {
-    if (this.state.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false} scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable}>
+    if (this.state.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false}
+      scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable} accessible={false} >
                 <ErrorCard errors={this.state.exam.errors} />
                 {this.renderRelatedExams()}
                 {this.renderExam()}
@@ -644,7 +645,7 @@ export class ExamScreen extends Component {
         {this.renderExam()}
         {this.renderExamIcons()}
         </View>
-    return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollEnabled={false}>
+    return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollEnabled={false} accessible={false}>
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderRelatedExams()}
