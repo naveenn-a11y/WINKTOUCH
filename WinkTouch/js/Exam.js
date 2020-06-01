@@ -286,7 +286,8 @@ export class ExamCard extends Component {
     return <TouchableOpacity disabled={this.props.disabled || this.props.onSelect===undefined || this.props.exam.definition.card===false}
       onLongPress={this.props.onHide}
       onPress={this.props.onSelect}
-      delayLongPress={300}>
+      delayLongPress={300}
+      testID={this.props.exam.definition.name+' Tile'}>
       <View style={this.getStyle()}>
         {this.renderExamCardSpecifics()}
       </View>
