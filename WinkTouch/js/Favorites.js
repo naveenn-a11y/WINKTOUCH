@@ -352,14 +352,15 @@ export class CopyRow extends PureComponent {
   props: {
     onPress: () => void,
     style: any,
-    color: string
+    color: string,
+    testID: string
   }
   static defaultProps = {
     color: selectionFontColor
   }
 
   render() {
-    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
+    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow} testID={this.props.testID}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
   }
 }
 
@@ -367,14 +368,15 @@ export class CopyColumn extends PureComponent {
   props: {
     onPress: () => void,
     style: any,
-    color: string
+    color: string,
+    testID: string
   }
   static defaultProps = {
     color: selectionFontColor
   }
 
   render() {
-    return  <TouchableOpacity onPress={this.props.onPress}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
+    return  <TouchableOpacity onPress={this.props.onPress} testID={this.props.testID}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
   }
 }
 

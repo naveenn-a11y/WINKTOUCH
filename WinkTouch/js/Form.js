@@ -197,7 +197,8 @@ export class FormNumberInput extends Component {
         style?: any,
         options: CodeDefinition[]|string,
         isTyping?: boolean,
-        autoFocus?: boolean
+        autoFocus?: boolean,
+        testID: string
     }
     static defaultProps = {
       readonly: false,
@@ -289,7 +290,7 @@ export class FormNumberInput extends Component {
         const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.state.errorMessage?styles.formFieldError:styles.formField;
         return <View style={styles.formElement}>
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
-            <NumberField {...this.props} range={this.getRange()} style={style} onChangeValue={(newValue: any) => this.commit(newValue)} />
+            <NumberField {...this.props} range={this.getRange()} style={style} onChangeValue={(newValue: any) => this.commit(newValue)} testID={this.props.testID+'Field'}/>
           </View>
     }
 }
@@ -333,7 +334,7 @@ export class FormDateInput extends Component {
               age={this.props.type==='age'}
               style={style}
               onChangeValue={this.updateValue}
-              testID={this.props.testID}
+              testID={this.props.testID+'Field'}
               />
         </View>
     }
@@ -348,7 +349,8 @@ export class FormTimeInput extends Component {
         showLabel?: boolean,
         readonly?: boolean,
         type?: string,
-        onChangeValue?: (time: ?string) => void
+        onChangeValue?: (time: ?string) => void,
+        testID: string
     }
     static defaultProps= {
       showLabel: true
@@ -370,7 +372,8 @@ export class FormTimeInput extends Component {
               past={this.props.type?this.props.type.includes('past'):undefined}
               future={this.props.type?this.props.type.includes('future'):undefined}
               style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField}
-              onChangeValue={this.updateValue}/>
+              onChangeValue={this.updateValue}
+              testID={this.props.testID+'Field'}/>
         </View>
     }
 }
@@ -384,7 +387,8 @@ export class FormDateTimeInput extends Component {
         labelWidth?: number,
         showLabel?: boolean,
         readonly?: boolean,
-        onChangeValue?: (newValue: ?string) => void
+        onChangeValue?: (newValue: ?string) => void,
+        testID: string
     }
     static defaultProps = {
       showLabel: true
@@ -404,7 +408,7 @@ export class FormDateTimeInput extends Component {
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
             <DateField includeTime={true} includeDay={this.props.includeDay} label={this.props.label} value={parseDate(this.props.value)}
               style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} readonly={this.props.readonly}
-              onChangeValue={this.updateValue}/>
+              onChangeValue={this.updateValue} testID={this.props.testID+'Field'}/>
         </View>
     }
 }
@@ -418,7 +422,8 @@ export class FormDurationInput extends Component {
         labelWidth?: number,
         showLabel?: boolean,
         readonly?: boolean,
-        onChangeValue?: (newValue: ?string) => void
+        onChangeValue?: (newValue: ?string) => void,
+        testID: string
     }
     static defaultProps = {
       showLabel: true
@@ -437,7 +442,7 @@ export class FormDurationInput extends Component {
         return <View style={styles.formElement}>
             {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
             <DurationField label={this.props.label} value={parseDate(this.props.value)} startDate={parseDate(this.props.startDate)} readonly={this.props.readonly} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField}
-              onChangeValue={this.updateValue}/>
+              onChangeValue={this.updateValue} testID={this.props.testID+'Field'}/>
         </View>
     }
 }
@@ -448,7 +453,8 @@ export class FormSwitch extends Component {
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
-    onChangeValue: (newvalue: boolean) => void
+    onChangeValue: (newvalue: boolean) => void,
+    testID: string
   }
   static defaultProps = {
     value: false,
@@ -458,7 +464,7 @@ export class FormSwitch extends Component {
   render() {
     return <View style={styles.formElement}>
         {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
-        <Switch value={this.props.value} onValueChange={this.props.onChangeValue}/>
+        <Switch value={this.props.value} onValueChange={this.props.onChangeValue} testID={this.props.testID+'Field'}/>
       </View>
   }
 }
@@ -476,7 +482,8 @@ export class FormOptions extends Component {
     multiline?: boolean,
     prefix?: string,
     suffix?: string,
-    onChangeValue: (newvalue: ?string|?number) => void
+    onChangeValue: (newvalue: ?string|?number) => void,
+    testID: string
   }
   state: {
     dismissedError: boolean,
@@ -555,14 +562,14 @@ export class FormOptions extends Component {
   render() {
     const manyOptions : boolean = this.props.options.length > 30;
     const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
-    return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.dismissedError==true || !this.props.errorMessage}>
+    return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.dismissedError==true || !this.props.errorMessage} accessible={false} testID={this.props.testID+'DismissError'}>
         <View style={styles.formElement}>
           {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
           {manyOptions?
-              <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.state.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline}/>
+              <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.state.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}/>
             :
               <TilesField label={this.props.label} style={style} readonly={this.props.readonly} options={this.state.formattedOptions} combineOptions={this.isMultiOption()} errorMessage={this.props.errorMessage}
-                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline}/>
+                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}/>
           }
           {this.props.errorMessage && !this.state.dismissedError && <Text style={styles.formValidationError}> {this.props.errorMessage}  {'\u274c'}</Text>}
         </View>
@@ -633,7 +640,8 @@ export class FormCode extends Component {
     freestyle?: boolean,
     autoSelect?: boolean,
     style?: any,
-    onChangeValue?: (newvalue: ?string|?number) => void
+    onChangeValue?: (newvalue: ?string|?number) => void,
+    testID: string
   }
 
   getCodeIdentifier() {
@@ -664,7 +672,7 @@ export class FormCode extends Component {
     const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
     let selectedDescription: string = this.selectedDescription(allDescriptions);
     return <FormOptions labelWidth={this.props.labelWidth} label={this.props.label} showLabel={this.props.showLabel} readonly={this.props.readonly} freestyle={this.props.freestyle} errorMessage={this.props.errorMessage}
-      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline}/>
+      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline} testID={this.props.testID}/>
   }
 }
 
@@ -675,7 +683,8 @@ export class FormTextArrayInput extends Component {
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
-    onChangeValue: (newvalue: ?string[]) => void
+    onChangeValue: (newvalue: ?string[]) => void,
+    testID: string
   }
   static defaultProps = {
     value: [],
@@ -685,7 +694,7 @@ export class FormTextArrayInput extends Component {
   render() {
     return <View style={styles.formElement}>
         {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
-        <TextArrayField value={this.props.value} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} onChangeValue={this.props.onChangeValue} />
+        <TextArrayField value={this.props.value} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} onChangeValue={this.props.onChangeValue} testID={this.props.testID+'Field'}/>
       </View>
   }
 }
@@ -709,7 +718,7 @@ export class FormSelectionArray extends Component {
   render() {
     return <View style={styles.formElement}>
         {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
-        <ButtonArray value={this.props.value} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} onAdd={this.props.onAdd} onRemove={this.props.onRemove} onSelect={this.props.onSelect} />
+        <ButtonArray value={this.props.value} style={this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:styles.formField} onAdd={this.props.onAdd} onRemove={this.props.onRemove} onSelect={this.props.onSelect} testID={this.props.testID+'Field'}/>
       </View>
   }
 }

@@ -633,7 +633,7 @@ export class ExamScreen extends Component {
 
   render() {
     if (this.state.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false}
-      scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable} accessible={false} >
+      scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable}>
                 <ErrorCard errors={this.state.exam.errors} />
                 {this.renderRelatedExams()}
                 {this.renderExam()}
@@ -645,7 +645,7 @@ export class ExamScreen extends Component {
         {this.renderExam()}
         {this.renderExamIcons()}
         </View>
-    return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollEnabled={false} accessible={false}>
+    return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollEnabled={false}>
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderRelatedExams()}
