@@ -1866,7 +1866,8 @@ export class SelectionListRow extends React.PureComponent {
     selected: boolean|string,
     onSelect: (select: boolean|string) => void,
     maxLength?: number,
-    simpleSelect?: boolean
+    simpleSelect?: boolean,
+    testID: string
   }
   static defaultProps = {
     maxLength: 60,
@@ -1894,7 +1895,7 @@ export class SelectionListRow extends React.PureComponent {
   render() {
     const textStyle = this.props.selected ? styles.listTextSelected : styles.listText;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
-    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()}>
+    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
       <View style={styles.listRow}>
         <Text style={textStyle}>{prefix}{this.formatLabel()}</Text>
       </View>
@@ -2016,7 +2017,7 @@ export class SelectionList extends React.PureComponent {
   renderFilterField() {
     if (!this.state.searchable) return null;
     return <TextInput returnKeyType='search' autoCorrect={false} autoCapitalize='none' style={styles.searchField}
-      value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})}
+      value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})} testID={this.props.fieldId+'.filter'}
      />
   }
 
@@ -2064,7 +2065,8 @@ export class SelectionList extends React.PureComponent {
         data={data}
         extraData={{filter: this.state.filter, selection: this.props.selection}}
         keyExtractor = {(item, index) => index}
-        renderItem={({item}) => <SelectionListRow label={item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item)} onSelect={(isSelected : boolean|string) => this.select(item, isSelected)}/>}
+        renderItem={(item) => <SelectionListRow label={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)}
+          onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)} testID={this.props.label+'.option'+(item.index+1)}/>}
       />
     </View >
   }
