@@ -1737,14 +1737,15 @@ export class CheckButton extends Component {
     readonly?: boolean,
     onSelect: () => void,
     onDeselect: () => void,
-    style?: any
+    style?: any,
+    testID?: string
   }
   static defaultProps = {
     visible: true
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity activeOpacity={1} disabled={this.props.readonly} onPress={this.props.isChecked==true?this.props.onDeselect:this.props.onSelect}>
+    return <TouchableOpacity activeOpacity={1} disabled={this.props.readonly} onPress={this.props.isChecked==true?this.props.onDeselect:this.props.onSelect} testID={this.props.testID?(this.props.testID+'CheckButton'):'checkButton'}>
       <View style={styles.centeredRowLayout}>
         {this.props.prefix!=undefined && <Text style={this.props.style?this.props.style:styles.checkButtonLabel}>{this.props.prefix}</Text>}
         <Icon name={this.props.isChecked?'checkbox-marked':'checkbox-blank-outline'} style={styles.checkButtonIcon}/>

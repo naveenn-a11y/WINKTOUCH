@@ -581,7 +581,8 @@ export class FormCheckBox extends Component {
     suffix?: string,
     readonly?: boolean,
     onChangeValue?: (newvalue?: number|string) => void,
-    style?: any
+    style?: any,
+    testID?: string
   }
 
   isChecked() : boolean {
@@ -609,7 +610,8 @@ export class FormCheckBox extends Component {
         <CheckButton isChecked={this.isChecked()}
           onSelect={this.select}
           onDeselect={this.deSelect}
-          style={this.props.style?this.props.style:styles.checkButtonLabel} />
+          style={this.props.style?this.props.style:styles.checkButtonLabel}
+          testID={this.props.testID}/>
         {this.props.suffix!==undefined && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
     </View>
   }
