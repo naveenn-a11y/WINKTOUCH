@@ -621,6 +621,7 @@ export class GroupedForm extends Component {
       disableScroll={this.props.disableScroll}
       key={fieldDefinition.name+(column===undefined?'':column)}
       fieldId={this.props.fieldId+'.'+fieldDefinition.name+(column===undefined?'':column)}
+      testID={fieldDefinition.name+(column===undefined?'':column)}
     />
   }
 
