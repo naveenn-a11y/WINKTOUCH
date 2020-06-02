@@ -728,7 +728,8 @@ export class FormInput extends Component {
     autoFocus?: boolean,
     enableScroll?: () => void,
     disableScroll?: () => void,
-    fieldId: string
+    fieldId: string,
+    testID?: string
   }
   state: {
     validation?: string
@@ -1000,7 +1001,7 @@ export class FormField extends Component {
       type={this.props.type} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline}
       onChangeValue={this.setFieldValue} patientId={this.props.patientId} examId={this.props.examId}
       enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
-      testId={this.state.fieldDefinition.name} />
+      testID={this.state.fieldDefinition.name} />
   }
 }
 
