@@ -1087,6 +1087,24 @@ export const styles = StyleSheet.create({
           height: 3 * fontScale,
           width: 1 * fontScale
       }
+    },
+    pageEditor: {
+      flex: 0,
+      backgroundColor: 'white',
+      alignSelf: 'flex-start',
+      padding: 10 * fontScale,
+      minWidth: 800 * fontScale,
+      minHeight: 600 *fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      margin: 7 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
     }
 });
 

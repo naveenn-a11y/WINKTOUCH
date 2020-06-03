@@ -1762,6 +1762,7 @@ export class CheckButton extends Component {
 
 export class BackButton extends Component {
   props: {
+    navigation: any,
     visible? :boolean
   }
   static defaultProps = {
