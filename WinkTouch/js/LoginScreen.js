@@ -6,6 +6,7 @@
 import React, {Component} from 'react';
 import {Button as RnButton, Image,Text,TextInput,View, TouchableOpacity,ScrollView, AsyncStorage, PanResponder, StatusBar, KeyboardAvoidingView, InteractionManager, Linking} from 'react-native';
 import codePush from 'react-native-code-push';
+import DeviceInfo from 'react-native-device-info';
 import type { Account, Store , User , Registration } from './Types';
 import base64 from 'base-64';
 import {styles, fontScale} from './Styles';
@@ -193,7 +194,8 @@ export class LoginScreen extends Component {
     let loginData = {
       accountsId: (account.id).toString(),
       storeId: (store.storeId).toString(),
-      expiration : 24 * 365
+      expiration: 24 * 365,
+      deviceId: DeviceInfo.getUniqueId()
     };
     const requestNr = getNextRequestNumber();
     __DEV__ && console.log('REQ '+requestNr+' POST '+doctorLoginUrl+' login for '+userName);
