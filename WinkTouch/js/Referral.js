@@ -13,11 +13,11 @@ import { FormRow } from './Form';
 import { getAllCodes } from './Codes';
 
 const dynamicFields : Object = {
-  "patient": {
+  "Patient": {
     "firstName": {},
     "lastName": {}
   },
-  "exam": {
+  "Exam": {
     "Reason for visit": {
       "Reason for visit": {
         "Main Reason":{},
@@ -37,7 +37,7 @@ type ReferralScreenProps = {
 
 type ReferralScreenState = {
   template: ?string,
-  selectedField: ?string
+  selectedField: ?string[]
 };
 
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
@@ -45,12 +45,52 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     super(props);
     this.state = {
       template: undefined,
-      selectedField: undefined
+      selectedField: [undefined, undefined, undefined, undefined, undefined]
     }
   }
 
   startReferral(template: string) {
+    //TODO: fetch merged template from backend
     this.setState({template});
+  }
+
+  selectField(level: number, filter: string) {
+    let selectedField : string[] = this.state.selectedField;
+    selectedField[level] = filter;
+    while(++level<selectedField.length) {
+      selectedField[level]=undefined;
+    }
+    this.setState({selectedField});
+
+  }
+
+  renderTemplateTool() {
+    return <View style={styles.form}>
+        {this.state.selectedField.map((fieldName: string, index: number) => {
+          const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
+          if (prevValue===undefined || prevValue===null) return undefined;
+          let options = dynamicFields;
+          for (let i:number =1; i<=index; i++) {
+            if (options) {
+              options = options[this.state.selectedField[i-1]];
+            }
+          }
+          options = Object.keys(options);
+          __DEV__ && console.log('options = '+JSON.stringify(options));
+          if (options===undefined || options===null || options.length===0) return undefined;
+          return <FormRow>
+              <TilesField label='Filter'
+                options={options}
+                value={this.state.selectedField[index]}
+                onChangeValue={(value: string) => this.selectField(index, value)}
+              />
+            </FormRow>
+          })
+        }
+        <FormRow>
+          <Button title='Insert'/>
+        </FormRow>
+      </View>
   }
 
   renderEditor() {
@@ -64,17 +104,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Tools />
           </Provider>
       </View>
-        <View style={styles.form}>
-          <FormRow>
-            <TilesField options={Object.keys(dynamicFields)} label='Field'/>
-          </FormRow>
-          <FormRow>
-            <TilesField options={Object.keys(dynamicFields)}/>
-          </FormRow>
-          <FormRow>
-            <Button title='Insert'/>
-          </FormRow>
-      </View>
+      {this.renderTemplateTool()}
     </View>
   }
 
@@ -83,7 +113,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     return <View style={styles.buttonsRowLayout}>
         {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
         <Button title='Blank' onPress={() => {this.startReferral('')}} />
-
     </View>
   }
 
