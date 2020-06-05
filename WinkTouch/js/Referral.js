@@ -31,6 +31,12 @@ const dynamicFields : Object = {
   }
 };
 
+let refferalHtml : string = "<H2>Hello world!</H2>";
+
+export function setReferralHtml(html: string) {
+  refferalHtml = html;
+}
+
 type ReferralScreenProps = {
   navigation: any
 };
@@ -76,7 +82,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             }
           }
           options = Object.keys(options);
-          __DEV__ && console.log('options = '+JSON.stringify(options));
           if (options===undefined || options===null || options.length===0) return undefined;
           return <FormRow>
               <TilesField label='Filter'
@@ -99,7 +104,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         <Provider>
           <Editor
             ref={ ref => this.editor = ref }
-            value="<H2>Hello world!</H2>"
+            value={referralHtml}
           />
           <Tools />
           </Provider>
