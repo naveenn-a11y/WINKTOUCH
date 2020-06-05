@@ -100,7 +100,7 @@ export function printPatientHeader (visit: Visit) {
 
   return html
 }
-export function renderItemsHtml (exam: Exam): any {
+export function renderItemsHtml (exam: Exam, examKey?: string): any {
   let html: String = ''
   if (
     !exam[exam.definition.name] ||
@@ -113,36 +113,74 @@ export function renderItemsHtml (exam: Exam): any {
       : exam.definition.name;
     html += `<div style="display:none;">${value}</div>`;
   } else {
+    let examKeyFound : boolean = false;
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name
     html += `<tr>`
-    html += `<td class="service">${value}</td>`
-    html += `<td class="desc">`
+    html += `<td class="service">${value}</td>`;
+    html += `<td class="desc">`;
+    let parentDefinitionName = '';
+    if(examKey) {
+       const examSubKeys : string[] = examKey.split('.');
+       if(examSubKeys && examSubKeys.length>=2) {
+          parentDefinitionName = examSubKeys[1].trim().toLowerCase();
+       }
+    }
     exam[exam.definition.name].map((examItem: any, index: number) => {
-      let item: any = renderItemHtml(examItem, index, exam);
-      html += `<div>${item}</div>`
-    })
+      console.log("Exam Item: " + JSON.stringify(examItem));
+      let item: any = renderItemHtml(examItem, index, exam, examKey);
+      if(examKey) {
+        if(exam.definition.name.trim().toLowerCase() === parentDefinitionName) {
+           html += `<div>${item}</div>`;
+        }
+      }
+
+      html += `<div>${item}</div>`;
+    });
     html += `</td>`
     html += `</tr>`
   }
   return html
 }
 
-function renderItemHtml(examItem: any, index: number, exam: Exam) {
-      let html: String = ''
+function renderItemHtml(examItem: any, index: number, exam: Exam, examKey?: string) {
+      let html: String = '';
+      let templateHtml: String = '';
       if (exam.definition.fields === undefined) return html;
       let isFirstField = true;
       const fieldDefinitions : FieldDefinition[] = exam.definition.fields;
       for (let i: number = 0; i < fieldDefinitions.length; i++) {
+
         const fieldDefinition : FieldDefinition = fieldDefinitions[i];
         const propertyName: string = fieldDefinition.name;
+
+        console.log("Property Name: " + propertyName);
         const value :?string|?number = examItem[propertyName];
+         console.log("Value: " + JSON.stringify(value));
+
         if (value!==undefined && value!==null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
+           console.log("formattedValue: " + JSON.stringify(formattedValue));
           if(isEmpty(formattedValue)) formattedValue = value;
           if (formattedValue && !isEmpty(formattedValue)) {
             const label = exam.definition.editable?fieldDefinition.label?fieldDefinition.label:fieldDefinition.name:'';
+
+          if(examKey) {
+            const examSubKeys : string[] = examKey.split('.');
+            const examSubKey = examSubKeys[examSubKeys.length - 1];
+           if(propertyName.trim().toLowerCase() === examSubKey.trim().toLowerCase() || exam.definition.name.trim().toLowerCase() === parentDefinitionName) {
+             let htmlTemplate = '';
+            if (isEmpty(label)) {
+              if (!isFirstField) htmlTemplate += `<span>,</span>`
+                htmlTemplate += `<span>${formattedValue}</span>`
+                isFirstField = false;
+             } else {
+                htmlTemplate += `<div><span>${label}: </span><span>${formattedValue}</span></div>`;
+              }
+              console.log("YYYYYYYYYY: " + htmlTemplate);
+            }
+         }
             if (isEmpty(label)) {
               if (!isFirstField) html += `<span>,</span>`
             html += `<span>${formattedValue}</span>`
@@ -156,8 +194,14 @@ function renderItemHtml(examItem: any, index: number, exam: Exam) {
       return html;
 }
 
+async function mergeHtmlTemplate() {
 
-export async function renderParentGroupHtml (exam: Exam): any {
+}
+
+export async function renderParentGroupHtml (exam: Exam, examKey?: string): any {
+  
+  let testHtml = "<p> hello, your appointment has {Exam.Pays} been scheduled at {Store.ProvinceState} at store {Store.Address}. Thanks</p>";
+ // retreiveKeys(testHtml);
   let html: string = '';
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL'
@@ -192,7 +236,35 @@ export async function renderParentGroupHtml (exam: Exam): any {
 
   return html
 }
+async function mergeFieldsToHtml(html: string, exam: Exam, examKey: string) {
 
+ console.log("hereeeeeeee: " + JSON.stringify(exam));
+}
+
+async function retreiveKeys(html: string) {
+  let subValue = html.split('{');
+  let examKeys : string[] = [];
+  for (var i = 1; i < subValue.length; i++) {
+    const key = subValue[i].split('}')[0];
+    const name = key.split('.')[0];
+    if(name.toLowerCase() === 'exam') {
+      examKeys.push(key);
+    }
+  }
+
+  for(const examKey : string of  examKeys) {
+      const name = examKey.split('.')[1].trim().toLowerCase();
+      let filteredExams = exams.filter((exam: Exam) => exam.definition.name && exam.definition.name.trim().toLowerCase() === name);
+      for(const exam: Exam of filteredExams) {
+        mergeFieldsToHtml(html, exam, examKey);
+      }
+  }
+      let examSubKeys = examKeys.filter((key: string) => (!isAssessment && !definition.isAssessment) || (isAssessment && definition.isAssessment));
+
+      console.log(examKeys);
+
+
+}
 async function renderAllGroupsHtml (exam: Exam) {
   let html: string = '';
 
