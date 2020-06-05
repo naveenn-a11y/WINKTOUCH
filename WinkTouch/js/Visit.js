@@ -26,6 +26,7 @@ import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
 import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
 import { fetchWinkRest } from './WinkRest';
+import { setReferralHtml } from './Referral';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -193,7 +194,9 @@ async function printPatientFile(visitId : string) {
               visitHtml += await renderExamHtml(exam);
           }
          }
-        printHtml(getVisitHtml(visitHtml));
+         visitHtml = getVisitHtml(visitHtml);
+         setReferralHtml(visitHtml);
+        printHtml(visitHtml);
     }
 }
 

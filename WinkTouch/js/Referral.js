@@ -31,10 +31,10 @@ const dynamicFields : Object = {
   }
 };
 
-let refferalHtml : string = "<H2>Hello world!</H2>";
+let referralHtml : string = "<H2>Hello world!</H2>";
 
 export function setReferralHtml(html: string) {
-  refferalHtml = html;
+  referralHtml = html;
 }
 
 type ReferralScreenProps = {
