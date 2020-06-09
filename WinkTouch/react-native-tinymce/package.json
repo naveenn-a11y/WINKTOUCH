@@ -1,0 +1,74 @@
+{
+  "_from": "react-native-tinymce",
+  "_id": "react-native-tinymce@0.1.2",
+  "_inBundle": false,
+  "_integrity": "sha512-d76eZlh/MwyZTuLj/dyRqM2zD1S/AUl+GBxNRbcBE89YhRYGA+8khk199KGjJXxMzNpmXNSz8mRhA2xE4bTW+Q==",
+  "_location": "/react-native-tinymce",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "react-native-tinymce",
+    "name": "react-native-tinymce",
+    "escapedName": "react-native-tinymce",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-native-tinymce/-/react-native-tinymce-0.1.2.tgz",
+  "_shasum": "0642951384bca607211f9c6423dfa416b5cf36e3",
+  "_spec": "react-native-tinymce",
+  "_where": "/Users/samuel/WinkTouch",
+  "bundleDependencies": false,
+  "dependencies": {
+    "@rmccue/sfsymbols": "^0.0.2",
+    "react-native-keyboard-accessory": "^0.1.10",
+    "tinymce": "^5.1.5"
+  },
+  "deprecated": false,
+  "description": "HTML WYSIWYG for React Native, in pure JS. (Works in Expo apps!)",
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@types/react": "~16.9.0",
+    "@types/react-native": "~0.60.23",
+    "babel-preset-expo": "~8.0.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "expo": "~36.0.0",
+    "html-webpack-inline-source-plugin": "^0.0.10",
+    "html-webpack-plugin": "^3.2.0",
+    "react": "~16.9.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
+    "react-native-webview": "7.4.3",
+    "typescript": "~3.6.3",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "files": [
+    "assets/editor/",
+    "Formatter/",
+    "Link/",
+    "Toolbar/",
+    "*.tsx",
+    "*.ts"
+  ],
+  "main": "index.tsx",
+  "name": "react-native-tinymce",
+  "peerDependencies": {
+    "react": "~16.9.0",
+    "react-native": "*",
+    "react-native-webview": "7.4.3"
+  },
+  "scripts": {
+    "android": "expo start --android",
+    "build:editor": "webpack --mode production",
+    "eject": "expo eject",
+    "ios": "expo start --ios",
+    "start": "expo start",
+    "web": "expo start --web"
+  },
+  "version": "0.1.2"
+}

@@ -47,6 +47,8 @@ type ReferralScreenState = {
 };
 
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
+  editor;
+
   constructor(props: ReferralScreenProps) {
     super(props);
     this.state = {
@@ -67,7 +69,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       selectedField[level]=undefined;
     }
     this.setState({selectedField});
+  }
 
+  insertField() : void {
+    this.editor.setContent('lala');
+  }
+
+  async print() : Promise<void> {
+    let html = await this.editor.getContent();
+    alert(html);
   }
 
   renderTemplateTool() {
@@ -94,7 +104,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           })
         }
         <FormRow>
-          <Button title='Insert'/>
+          <Button title='Insert' onPress={() => this.insertField()}/>
         </FormRow>
       </View>
     </View>
@@ -112,7 +122,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       </View>
       {this.renderTemplateTool()}
       <View style={styles.flow}>
-          <Button title='Print'/>
+          <Button title='Print' onPress={() => this.print()}/>
           <Button title='Email'/>
           <Button title='Fax'/>
       </View>

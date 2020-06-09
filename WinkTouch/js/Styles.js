@@ -1111,9 +1111,9 @@ export const styles = StyleSheet.create({
     },
     sideBar: {
       flexDirection: 'column',
-      minWidth:150 * fontScale,
-      maxWidth:200 * fontScale,
-      minHeight: 300 * fontScale,
+      minWidth:200 * fontScale,
+      maxWidth:300 * fontScale,
+      minHeight: 400 * fontScale,
       margin: 7 * fontScale,
       borderColor: fieldBorderColor,
       borderWidth: 3 * fontScale,
