@@ -283,6 +283,11 @@ export type GroupDefinition = {
     fields: (FieldDefinition|GroupDefinition)[],
 }
 
+export type HtmlDefinition = {
+  name : string,
+  html : string,
+  child?: HtmlDefinition|HtmlDefinition[],
+}
 export type ExamDefinition = {
     id: string,
     version: number,

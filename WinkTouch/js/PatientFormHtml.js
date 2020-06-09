@@ -215,14 +215,80 @@ export async function renderParentGroupHtml (exam: Exam, examKey?: string): any 
     }
 
    }
-  console.log("htmlDefinition Group: " + JSON.stringify(parentHtmlDefinition));
 
   return html
 }
 async function mergeFieldsToHtml(html: string, exam: Exam, examKey: string) {
+  await renderExamHtml(exam, keyMap);
 
 }
 
+/**
+This Function accepts 2 parameters : 
+  * examKey: the key to get the equivalent html value for it
+  * keyMap: contain map key -> html value of the current exam
+ */
+async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
+
+  if(examKey === undefined || keyMap === undefined) {
+    return '';
+  }
+
+  let fieldNames : string[] = examKey.split('.');
+
+  if(fieldNames.length <= 1) {
+      let htmlDefinition : HtmlDefinition | HtmlDefinition[] = undefined;
+      if(keyMap instanceof Array) {
+         htmlDefinition  = keyMap.filter((htmlDefinition: HtmlDefinition) => htmlDefinition.name.trim().toLowerCase()=== examKey.trim().toLowerCase());
+       } else {
+         htmlDefinition  = keyMap;
+       }
+      let html : string = '';
+      if(htmlDefinition instanceof Array) {
+        for(const subHtmlDefinition : HtmlDefinition of htmlDefinition) {
+          if(subHtmlDefinition.html !== undefined) {
+              html += subHtmlDefinition.html;
+          }
+        }
+      }
+      else {
+        html += htmlDefinition.html;
+      }
+      return html;
+  }
+    let subHtmlDefinition : HtmlDefinition | HtmlDefinition[] = keyMap.filter((htmlDefinition: HtmlDefinition) => htmlDefinition.name.trim().toLowerCase()=== fieldNames[0].trim().toLowerCase());
+    let subFieldName : string = undefined;
+    if(subHtmlDefinition === undefined ||  subHtmlDefinition.length == 0) {
+         subHtmlDefinition  = keyMap.filter((htmlDefinition: HtmlDefinition) => htmlDefinition.name.trim().toLowerCase()=== fieldNames[1].trim().toLowerCase());
+         subFieldName = examKey.substring(examKey.indexOf('.') + 1);
+          subFieldName = subFieldName.substring(subFieldName.indexOf('.') + 1);
+    } else {
+        subFieldName  = examKey.substring(examKey.indexOf('.') + 1);
+    }
+    if(subHtmlDefinition instanceof Array) {
+       if(subHtmlDefinition.length == 0) {
+         return '';
+       }
+       for(const htmlDefinition : HtmlDefinition of subHtmlDefinition) {
+         if(subFieldName.trim().toLowerCase() === htmlDefinition.name.trim().toLowerCase()) {
+          return await getSubValue(subFieldName, htmlDefinition);
+         } else {
+          return await getSubValue(subFieldName, htmlDefinition.child);
+         }
+        }
+    } else {
+         if(subFieldName.trim().toLowerCase() === htmlDefinition.name.trim().toLowerCase()) {
+          return await getSubValue(subFieldName, htmlDefinition);
+         } else {
+          return await getSubValue(subFieldName, htmlDefinition.child);
+         }
+    }
+
+}
+/**
+This Function receives as parameter html string containing the template text.
+This Function will filter the text containing exam keys and return all keys..
+ */
 async function retreiveKeys(html: string) {
   let subValue = html.split('{');
   let examKeys : string[] = [];
@@ -233,7 +299,7 @@ async function retreiveKeys(html: string) {
       examKeys.push(key);
     }
   }
-
+ /*
   for(const examKey : string of  examKeys) {
       const name = examKey.split('.')[1].trim().toLowerCase();
       let filteredExams = exams.filter((exam: Exam) => exam.definition.name && exam.definition.name.trim().toLowerCase() === name);
@@ -241,11 +307,8 @@ async function retreiveKeys(html: string) {
         mergeFieldsToHtml(html, exam, examKey);
       }
   }
-      let examSubKeys = examKeys.filter((key: string) => (!isAssessment && !definition.isAssessment) || (isAssessment && definition.isAssessment));
-
-      console.log(examKeys);
-
-
+*/
+  return examKeys;
 }
 async function renderAllGroupsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[]) {
   let html: string = '';
@@ -254,14 +317,12 @@ async function renderAllGroupsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[
   if (exam.definition.fields === null || exam.definition.fields === undefined || exam.definition.fields.length === 0)
     return '';
   await Promise.all(exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
-    console.log("GROUP NAMEEE: " + groupDefinition.name);
     const result = await renderGroupHtml(groupDefinition, exam, htmlDefinition);
     htmlDefinition.push({'name': groupDefinition.name, 'html': result});
     if (!isEmpty(result)) {
       html += result
     }
   }));
- // console.log('htmlDefinition parent : ' + JSON.stringify(htmlDefinition));
 
   return html;
 }
@@ -767,7 +828,6 @@ function resolutions (
 
 function renderGlassesSummary (groupDefinition: GroupDefinition, exam: Exam,  htmlDefinition?: HtmlDefinition[]) {
   let html: string = '';
-  console.log("Glass Sumarry: " + JSON.stringify(groupDefinition.name));
   if (groupDefinition === undefined || groupDefinition === null) return html;
   if (
     exam[exam.definition.name] === undefined ||
