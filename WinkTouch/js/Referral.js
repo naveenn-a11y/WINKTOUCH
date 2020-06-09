@@ -71,7 +71,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   renderTemplateTool() {
-    return <View style={styles.sideBar}>
+    return <View>
+      <View style={styles.sideBar}>
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
@@ -96,6 +97,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Button title='Insert'/>
         </FormRow>
       </View>
+    </View>
   }
 
   renderEditor() {
@@ -109,6 +111,11 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         </Provider>
       </View>
       {this.renderTemplateTool()}
+      <View style={styles.flow}>
+          <Button title='Print'/>
+          <Button title='Email'/>
+          <Button title='Fax'/>
+      </View>
     </View>
   }
 
