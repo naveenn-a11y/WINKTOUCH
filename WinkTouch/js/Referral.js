@@ -4,7 +4,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Editor, Provider, Tools } from 'react-native-tinymce';
 import { styles } from './Styles';
@@ -71,7 +71,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   renderTemplateTool() {
-    return <View style={styles.form}>
+    return <View style={styles.sideBar}>
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
@@ -99,15 +99,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   renderEditor() {
-    return <View style={styles.topFlow}>
+    return <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
       <View style={styles.pageEditor}>
         <Provider>
           <Editor
             ref={ ref => this.editor = ref }
             value={referralHtml}
           />
-          <Tools />
-          </Provider>
+        </Provider>
       </View>
       {this.renderTemplateTool()}
     </View>
@@ -115,14 +114,18 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   renderTemplates() {
     const templates : string[] = getAllCodes("referralTemplates");
-    return <View style={styles.buttonsRowLayout}>
-        {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
-        <Button title='Blank' onPress={() => {this.startReferral('')}} />
+    return <View style={styles.topFlow}>
+      <View>
+        <View style={styles.buttonsRowLayout}>
+          {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
+          <Button title='Blank' onPress={() => {this.startReferral('')}} />
+        </View>
+      </View>
     </View>
   }
 
   render() {
-    return <View style={styles.centeredColumnLayout}>
+    return <View style={styles.page}>
       {this.state.template?this.renderEditor():this.renderTemplates()}
     </View>
   }

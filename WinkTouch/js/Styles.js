@@ -1090,15 +1090,33 @@ export const styles = StyleSheet.create({
       }
     },
     pageEditor: {
-      flex: 0,
+      flexDirection: 'column',
+      flex:7,
+      flexGrow: 1,
+      minWidth: 800 * fontScale,
+      minHeight: 1000 * fontScale,
       backgroundColor: 'white',
       alignSelf: 'flex-start',
       padding: 10 * fontScale,
-      minWidth: 800 * fontScale,
-      minHeight: 600 *fontScale,
       borderColor: fieldBorderColor,
       borderWidth: 3 * fontScale,
       margin: 7 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
+    },
+    sideBar: {
+      flexDirection: 'column',
+      flex:1,
+      minWidth:100 * fontScale,
+      maxWidth:200 * fontScale,
+      margin: 7 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
       shadowRadius: 3 * fontScale,
       shadowColor: fieldBorderColor,
       shadowOpacity: 0.9,
