@@ -50,7 +50,7 @@ class PatientList extends Component {
     return <View style={styles.flow}>
         {this.props.patients.map((patient: Patient, index: number) => {
           return <View style={styles.centeredRowLayout} key={index}>
-            <Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} testID={'patientName'+index}/></View>
+            <Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} testID={'patientName'+(index+1)+'Button'}/></View>
         })}
     </View >;
   }

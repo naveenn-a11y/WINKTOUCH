@@ -6,7 +6,8 @@
 import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo } from './Types';
+import RNBeep from 'react-native-a-beep';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
@@ -16,7 +17,7 @@ import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
 import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
-import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
+import { searchItems, storeItem, performActionOnItem, fetchItemById, stripDataType } from './Rest';
 import { fetchAppointment } from './Appointment';
 import { printRx, printClRx, printMedicalRx, printHtml } from './Print';
 import { PatientDocumentPage } from './Patient';
@@ -24,6 +25,7 @@ import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
 import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
+import { fetchWinkRest } from './WinkRest';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -122,12 +124,10 @@ export async function createVisit(visit: Visit) : Visit {
     return visit;
 }
 
-
 export async function updateVisit(visit: Visit) : Visit {
     visit = await storeItem(visit);
     return visit;
 }
-
 
 function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -147,7 +147,6 @@ function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   });
   return visitSummaries;
 }
-
 
 async function printPatientFile(visitId : string) {
    let visitHtml : string = '';
@@ -198,32 +197,45 @@ async function printPatientFile(visitId : string) {
     }
 }
 
+export async function transferRx(visitId: string) {
+  const store : Store = getStore();
+  let parameters : {} = {
+    'idAccounts': store.winkToWinkId,
+    'email': store.winkToWinkEmail
+  }
+  let response = await fetchWinkRest('webresources/WinkToWinkVisitTransfer/export/'+stripDataType(visitId), parameters);
+  if (response) {
+      RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+  }
+}
 
-  function compareExams(a: Exam, b: Exam) : number {
-        if (a.definition.order!==undefined && b.definition.order!==undefined) {
-          if (a.definition.order < b.definition.order) return -10;
-          if (a.definition.order > b.definition.order) return 10;
-        }
-        if(a.definition.isAssessment || b.definition.isAssessment) return 0;
-
-        if (a.definition.section===undefined || b.definition.section===undefined) return -1;
-        if (a.definition.section < b.definition.section) return -1;
-        if (a.definition.section > b.definition.section) return 1;
-        return 0;
+function compareExams(a: Exam, b: Exam) : number {
+    if (a.definition.order!==undefined && b.definition.order!==undefined) {
+      if (a.definition.order < b.definition.order) return -10;
+      if (a.definition.order > b.definition.order) return 10;
     }
+    if(a.definition.isAssessment || b.definition.isAssessment) return 0;
+
+    if (a.definition.section===undefined || b.definition.section===undefined) return -1;
+    if (a.definition.section < b.definition.section) return -1;
+    if (a.definition.section > b.definition.section) return 1;
+    return 0;
+}
+
 class VisitButton extends PureComponent {
     props: {
         id: string,
         isSelected: ?boolean,
         onPress: () => void,
-        onLongPress?: () => void
+        onLongPress?: () => void,
+        testID: string
     }
 
     render() {
         const visitOrNote : ?(Visit|PatientDocument) = getCachedItem(this.props.id);
         const date : string = (visitOrNote!==undefined&&visitOrNote.date!=undefined)?visitOrNote.date:visitOrNote.postedOn;
         const type : string = (visitOrNote!==undefined&&visitOrNote.typeName!=undefined)?visitOrNote.typeName:visitOrNote.category;
-        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress}>
+        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress} testID={this.props.testID}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatDate(date,yearDateFormat)}</Text>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{type}</Text>
@@ -239,7 +251,7 @@ class SummaryButton extends PureComponent {
     }
 
     render() {
-        return <TouchableOpacity onPress={this.props.onPress}>
+        return <TouchableOpacity onPress={this.props.onPress} testID='summaryTab'>
            <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.summaryTitle}</Text>
            </View>
@@ -435,8 +447,12 @@ class VisitWorkFlow extends Component {
       if (value instanceof Array) {
         value = value.filter(trial => trial['Trial type']==2);
       }
-      __DEV__ && console.log('trial = '+JSON.stringify(value));
       return !isEmpty(value);
+    }
+
+    canTransfer() : boolean {
+      const store : Store = getStore();
+      return (store!=undefined && store!=null && store.winkToWinkId!=undefined && store.winkToWinkId!=null && store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
     }
 
     async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
@@ -583,7 +599,7 @@ class VisitWorkFlow extends Component {
             <Button title={strings.printRx} onPress={() => {printRx(this.props.visitId)}}/>
             {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
-            {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
+            {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
@@ -930,7 +946,7 @@ export class VisitHistory extends Component {
                 extraData={this.state.selectedId}
                 data={this.state.history}
                 keyExtractor={(visitId: string, index :number) => index.toString()}
-                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item}
+                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item} testID={'tab'+(data.index+1)}
                   keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.confirmDeleteVisit(data.item)}
                 />}
               />

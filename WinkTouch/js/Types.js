@@ -29,7 +29,9 @@ export type Store = {
   pr: string,
   postalCode: string,
   email: string,
-  telephone: string
+  telephone: string,
+  winkToWinkId?: number,
+  winkToWinkEmail?: string
 }
 
 export type Account = {
