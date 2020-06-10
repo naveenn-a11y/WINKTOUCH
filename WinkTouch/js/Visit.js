@@ -227,14 +227,15 @@ class VisitButton extends PureComponent {
         id: string,
         isSelected: ?boolean,
         onPress: () => void,
-        onLongPress?: () => void
+        onLongPress?: () => void,
+        testID: string
     }
 
     render() {
         const visitOrNote : ?(Visit|PatientDocument) = getCachedItem(this.props.id);
         const date : string = (visitOrNote!==undefined&&visitOrNote.date!=undefined)?visitOrNote.date:visitOrNote.postedOn;
         const type : string = (visitOrNote!==undefined&&visitOrNote.typeName!=undefined)?visitOrNote.typeName:visitOrNote.category;
-        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress}>
+        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress} testID={this.props.testID}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatDate(date,yearDateFormat)}</Text>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{type}</Text>
@@ -250,7 +251,7 @@ class SummaryButton extends PureComponent {
     }
 
     render() {
-        return <TouchableOpacity onPress={this.props.onPress}>
+        return <TouchableOpacity onPress={this.props.onPress} testID='summaryTab'>
            <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.summaryTitle}</Text>
            </View>
@@ -451,7 +452,7 @@ class VisitWorkFlow extends Component {
 
     canTransfer() : boolean {
       const store : Store = getStore();
-      return (store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
+      return (store!=undefined && store!=null && store.winkToWinkId!=undefined && store.winkToWinkId!=null && store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
     }
 
     async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
@@ -945,7 +946,7 @@ export class VisitHistory extends Component {
                 extraData={this.state.selectedId}
                 data={this.state.history}
                 keyExtractor={(visitId: string, index :number) => index.toString()}
-                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item}
+                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item} testID={'tab'+(data.index+1)}
                   keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.confirmDeleteVisit(data.item)}
                 />}
               />

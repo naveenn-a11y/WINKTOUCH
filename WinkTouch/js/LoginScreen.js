@@ -249,14 +249,14 @@ export class LoginScreen extends Component {
                 <Text style={{fontSize:25*fontScale, color: 'red'}}>{strings.trialWarning}</Text>
                 <RnButton title={strings.winkLink} onPress={ ()=>{ Linking.openURL('http://www.downloadwink.com')}}/>
               </View>}
-              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset}><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
+              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset} testID='login.registrationEmail'><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
               <Image source={require('./image/winklogo-big.png')} style={{width: 250 *fontScale, height: 250 *fontScale, margin: 20 * fontScale}}/>
-              <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount}/></View>
-              <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore}/></View>
+              <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount} testID='login.account'/></View>
+              <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore} testID='login.store'/></View>
               {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.userName} autoCapitalize='none' autoCorrect={false} returnKeyType='next' style={styles.field400} value={this.state.userName}
-                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField}/></View>}
+                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField} testID='login.userNameField'/></View>}
               {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.password} autoCapitalize='none' autoCorrect={false} returnKeyType='go' secureTextEntry={true} ref='focusField'
-                  style={styles.field400} value={this.state.password} selectTextOnFocus={true}
+                  style={styles.field400} value={this.state.password} selectTextOnFocus={true} testID='login.passwordField'
                   onChangeText={this.setPassword} onSubmitEditing={() => this.login()}/></View>}
               <View style={styles.buttonsRowLayout}>
                 <Button title={strings.submitLogin} disabled={account===undefined} onPress={() => this.login()} />

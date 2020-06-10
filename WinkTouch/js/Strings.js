@@ -10,7 +10,7 @@ import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
     en: {
-      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database or start with a demo database',
+      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database\nor try with a demo database',
       trialWarning: 'This is a demo version that uses a public shared database. Do not enter any real patient data.',
       winkLink: 'Visit www.winksoftware.com to learn more',
       emailAdres: 'Email adress',
@@ -176,7 +176,7 @@ export const strings = new LocalizedStrings({
       configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
     },
     fr: {
-      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai',
+      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
       trialWarning: 'Ceci est la version d\'essai qui utilise une base de données publique partagée. N\'entrez aucune donnée réelle sur le patient. ',
       winkLink: 'Visitez www.winksoftware.com',
       emailAdres: 'Adresse courriel',

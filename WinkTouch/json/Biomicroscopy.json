@@ -162,21 +162,10 @@
               "options": "eyeColorCodes"
             },
             {
+              "name": "TBUT",
               "normalValue": "Clear",
-              "name": "Lens",
               "freestyle": true,
               "options": "lensCodes"
-            },
-            {
-              "normalValue": "WNL",
-              "minValue": 0,
-              "name": "TBUT",
-              "freestyle": true,
-              "suffix": " s",
-              "options": [
-                "WNL"
-              ],
-              "maxValue": 8
             },
             {
               "name": "Angle",
@@ -188,6 +177,24 @@
                 "4",
                 "> 4"
               ]
+            },
+            {
+              "name": "TBUT",
+              "normalValue": "WNL",
+              "minValue": 0,
+              "freestyle": true,
+              "suffix": " s",
+              "options": [
+                "WNL"
+              ],
+              "maxValue": 8
+            },
+            {
+              "name":"TVOL",
+              "stepSize":5,
+              "freestyle":true,
+              "suffix":" mm \/ 5 min",
+              "options":["0","5","10","15","20"]
             }
           ]
         },
@@ -244,6 +251,17 @@
               "options": "lensCodes"
             },
             {
+              "name": "Angle",
+              "freestyle": true,
+              "options": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "> 4"
+              ]
+            },
+            {
               "normalValue": "WNL",
               "minValue": 0,
               "name": "TBUT",
@@ -255,15 +273,11 @@
               "maxValue": 8
             },
             {
-              "name": "Angle",
-              "freestyle": true,
-              "options": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "> 4"
-              ]
+              "name":"TVOL",
+              "stepSize":5,
+              "freestyle":true,
+              "suffix":" mm \/ 5 min",
+              "options":["0","5","10","15","20"]
             }
           ]
         }
