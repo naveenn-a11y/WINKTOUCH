@@ -195,7 +195,6 @@ async function printPatientFile(visitId : string) {
           }
          }
          visitHtml = getVisitHtml(visitHtml);
-         setReferralHtml(visitHtml);
         printHtml(visitHtml);
     }
 }

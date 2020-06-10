@@ -372,7 +372,6 @@ export const styles = StyleSheet.create({
     },
     form: {
         minHeight: 170 * fontScale,
-        minWidth: 340 * fontScale,
         flexDirection: 'column',
         justifyContent: 'flex-start',
         padding: 10 * fontScale,
