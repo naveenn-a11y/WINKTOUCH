@@ -101,9 +101,8 @@ export function printPatientHeader (visit: Visit) {
 
   return html
 }
-export function renderItemsHtml (exam: Exam, examKey?: string): any {
+export function renderItemsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[]): any {
   let html: String = '';
-  let htmlDefinition : HtmlDefinition[] = [];
   if (
     !exam[exam.definition.name] ||
     !exam[exam.definition.name].length ||
@@ -174,9 +173,8 @@ async function mergeHtmlTemplate() {
 
 }
 
-export async function renderParentGroupHtml (exam: Exam, examKey?: string): any {
+export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: HtmlDefinition[]): any {
   
-  let parentHtmlDefinition : HtmlDefinition[] = [];
   let htmlDefinition : HtmlDefinition[] = [];
 
   let html: string = '';

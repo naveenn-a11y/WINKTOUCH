@@ -603,7 +603,7 @@ class VisitWorkFlow extends Component {
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
-            <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral')}}/>
+            <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId)})}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>

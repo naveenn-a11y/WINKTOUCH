@@ -224,15 +224,15 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   }
 }
 
-  export async function renderExamHtml(exam : Exam, examKey?: string) : any {
+  export async function renderExamHtml(exam : Exam, htmlDefinition?: HtmlDefinition[]) : any {
     let html : string = '';
     if (exam.definition.card===false) {return html;}
     switch (exam.definition.type) {
       case 'selectionLists':
-        html = renderItemsHtml(exam, examKey);
+        html = renderItemsHtml(exam, htmlDefinition);
         return html;
       case 'groupedForm':
-        html = await renderParentGroupHtml(exam, examKey);
+        html = await renderParentGroupHtml(exam, htmlDefinition);
         return html;
     }
     return html;

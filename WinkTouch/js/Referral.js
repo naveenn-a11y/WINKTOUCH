@@ -11,6 +11,14 @@ import { styles } from './Styles';
 import { Button,TilesField } from './Widgets';
 import { FormRow } from './Form';
 import { getAllCodes } from './Codes';
+import { fetchWinkRest } from './WinkRest';
+import type { HtmlDefinition, Referral } from './Types';
+import {allExamIds} from './Visit';
+import { getCachedItems } from './DataCache';
+import { renderExamHtml } from './Exam';
+import { stripDataType } from './Rest';
+
+
 
 const dynamicFields : Object = {
   "Patient": {
@@ -51,15 +59,45 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   constructor(props: ReferralScreenProps) {
     super(props);
+
     this.state = {
       template: undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined]
     }
   }
 
-  startReferral(template: string) {
-    //TODO: fetch merged template from backend
-    this.setState({template});
+  async startReferral(template: string) {
+    console.log("Current Template: " + template);
+    let parameters : {} = {};
+    const visit: Visit = this.props.navigation.state.params.visit;
+    console.log("Current Visit: " + JSON.stringify(visit));
+    const allExams : string[] = allExamIds(visit);
+    let exams: Exam[] = getCachedItems(allExams);
+    if(exams) {
+      let htmlDefinition : HtmlDefinition[] = [];
+      for(const exam : Exam of exams) {
+          if(exam.isHidden!==true && exam.hasStarted) {
+              await renderExamHtml(exam,htmlDefinition);
+            }
+        }
+
+      console.log("KEYMAP: " + JSON.stringify(htmlDefinition));
+      let body : {} = {
+        'htmlDefinition': htmlDefinition,
+        'visitId': stripDataType(visit.id)
+      };
+
+      let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
+      if (response) {
+        const htmlContent : Referral = response;
+        referralHtml = htmlContent.content;
+        console.log("Response: " + JSON.stringify(htmlContent.content));
+        this.setState({template});
+      }
+   
+     this.setState({template});
+    }
+
   }
 
   selectField(level: number, filter: string) {
