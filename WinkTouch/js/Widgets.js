@@ -14,7 +14,7 @@ import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import { styles, fontScale, selectionColor, selectionFontColor, imageStyle, imageWidth } from './Styles';
 import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
-import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, capitalize,
+import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, officialDateFormat, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
   formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty} from './Util';
 import { Camera } from './Favorites';
@@ -1289,6 +1289,7 @@ export class DateField extends Component {
       suffix?: string,
       width?: number,
       readonly?: boolean,
+      dateFormat?: string,
       style?: any,
       onChangeValue?: (newValue: ?Date) => void,
       testID?: string
@@ -1484,9 +1485,15 @@ export class DateField extends Component {
       }
       this.setState({editedValue, isDirty: true});
     }
-
     getFormat(value: ?Date) : string {
+      if (this.props.dateFormat) {
+        if ('yyyy-MM-dd'===this.props.dateFormat) {
+          return officialDateFormat;
+        }
+        return this.props.dateFormat;
+      }
       if (!value) return yearDateFormat;
+
       let sameYear : boolean = isToyear(value);
       if (sameYear) {
         if (this.props.includeDay) {
