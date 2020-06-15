@@ -158,6 +158,7 @@ async function printPatientFile(visitId : string) {
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
     if (exams) {
+        let htmlDefinition : HtmlDefinition[] = [];
         visitHtml +=  `<table><thead></thead><tbody>`;
         for(const section : string of  examSections) {
           let filteredExams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
@@ -169,7 +170,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true && exam.hasStarted) {
-                visitHtml +=  await renderExamHtml(exam);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition);
             }
           }
         }
@@ -183,7 +184,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true) {
-                visitHtml +=  await renderExamHtml(exam);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition);
             }
           }
         }
@@ -191,7 +192,7 @@ async function printPatientFile(visitId : string) {
         visitHtml += getScannedFiles();
         for(const exam: string of xlExams) {
           if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
-              visitHtml += await renderExamHtml(exam);
+              visitHtml += await renderExamHtml(exam, htmlDefinition);
           }
          }
          visitHtml = getVisitHtml(visitHtml);

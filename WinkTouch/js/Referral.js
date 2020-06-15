@@ -67,21 +67,18 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async startReferral(template: string) {
-    console.log("Current Template: " + template);
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
-    console.log("Current Visit: " + JSON.stringify(visit));
     const allExams : string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
     if(exams) {
       let htmlDefinition : HtmlDefinition[] = [];
       for(const exam : Exam of exams) {
-          if(exam.isHidden!==true && exam.hasStarted) {
+          if(exam.isHidden!==true) {
               await renderExamHtml(exam,htmlDefinition);
             }
         }
 
-      console.log("KEYMAP: " + JSON.stringify(htmlDefinition));
       let body : {} = {
         'htmlDefinition': htmlDefinition,
         'visitId': stripDataType(visit.id)
@@ -91,7 +88,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response) {
         const htmlContent : Referral = response;
         referralHtml = htmlContent.content;
-        console.log("Response: " + JSON.stringify(htmlContent.content));
         this.setState({template});
       }
    

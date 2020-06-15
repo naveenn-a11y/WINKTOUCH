@@ -101,8 +101,10 @@ export function printPatientHeader (visit: Visit) {
 
   return html
 }
-export function renderItemsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[]): any {
+export function renderItemsHtml (exam: Exam, parentHtmlDefinition?: HtmlDefinition[]): any {
   let html: String = '';
+  let htmlDefinition : HtmlDefinition[] = [];
+
   if (
     !exam[exam.definition.name] ||
     !exam[exam.definition.name].length ||
@@ -128,7 +130,7 @@ export function renderItemsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[]):
       htmlSubItems += `<div>${item}</div>`;
     });
     html += htmlSubItems;
-    htmlDefinition.push({'name': exam.definition.name, 'html': htmlSubItems});
+    parentHtmlDefinition.push({'name': exam.definition.name, 'html': htmlSubItems, 'child': htmlDefinition});
     html += `</td>`
     html += `</tr>`
   }
@@ -185,7 +187,7 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
   if (xlGroupDefinition && xlGroupDefinition.length > 0) {
     html += `<div>`
     html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam, htmlDefinition);
-    html += `</div>`
+    html += `</div>`;
     parentHtmlDefinition.push({'name': exam.definition.name, 'html': html});
   }
    else {
@@ -216,8 +218,8 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
 
   return html
 }
-async function mergeFieldsToHtml(html: string, exam: Exam, examKey: string) {
-  await renderExamHtml(exam, keyMap);
+async function mergeFieldsToHtml(html: string, exam: Exam, htmlDefinition: HtmlDefinition[]) {
+  await renderExamHtml(exam, htmlDefinition);
 
 }
 
@@ -297,15 +299,6 @@ async function retreiveKeys(html: string) {
       examKeys.push(key);
     }
   }
- /*
-  for(const examKey : string of  examKeys) {
-      const name = examKey.split('.')[1].trim().toLowerCase();
-      let filteredExams = exams.filter((exam: Exam) => exam.definition.name && exam.definition.name.trim().toLowerCase() === name);
-      for(const exam: Exam of filteredExams) {
-        mergeFieldsToHtml(html, exam, examKey);
-      }
-  }
-*/
   return examKeys;
 }
 async function renderAllGroupsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[]) {
@@ -395,9 +388,9 @@ async function renderRowsHtml (
     )
 
     if (columnFieldIndex === 0) {
-      const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, htmlDefinition, groupIndex);
+
+      const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, rowHtmlDefinition, groupIndex);
       html += value;
-    //  htmlDefinition.push({'name': groupDefinition.name, 'html': value});
 
     } else if (columnFieldIndex < 0) {
       const value = await renderField(
@@ -521,21 +514,27 @@ async function renderColumnedRows (
 
   let columnValues : string[] = [];
   let childHtmlDefinition : HtmlDefinition[] = [];
+  let rowHtmlDefinition : HtmlDefinition[] = [];
 
   columnValues.push(fieldLabel);
   await Promise.all(columns.map(async(column: string, columnIndex: number) => {
     const columnDefinition: GroupDefinition = definition.fields.find(
       (columnDefinition: FieldDefinition) => columnDefinition.name === column
     );
-    childHtmlDefinition = [];
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
       const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
-   //   childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
-    //  htmlDefinition.push({'name': columnDefinition.name, 'child': childHtmlDefinition});
+       childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
+       htmlDefinition.push({'name': columnDefinition.name, 'child': childHtmlDefinition});
+       childHtmlDefinition = [];
       columnValues.push(value);
     }
   }));
+  let childHtml: string = '';
+  columnValues.forEach((value: string) => {
+        childHtml +=`<span>${value} </span>`;
+        });
+  htmlDefinition.push({'name': columns[rowIndex], 'html': childHtml});
   return columnValues;
 }
 function renderColumnsHeader (
