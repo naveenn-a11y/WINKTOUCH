@@ -524,9 +524,13 @@ async function renderColumnedRows (
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
       const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
-       childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
-       htmlDefinition.push({'name': columnDefinition.name, 'child': childHtmlDefinition});
-       childHtmlDefinition = [];
+       if(fieldDefinition){
+         childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
+       }
+       if(columnDefinition) {
+         htmlDefinition.push({'name': columnDefinition.name, 'child': childHtmlDefinition});
+       }
+      childHtmlDefinition = [];
       columnValues.push(value);
     }
   }));
