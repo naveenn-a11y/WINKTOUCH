@@ -35,7 +35,8 @@ import {
   formatDegree,
   getValue,
   formatAge
-} from './Util'
+} from './Util';
+
 
 import { formatPrism, isPrism } from './Refraction'
 import {
@@ -55,6 +56,7 @@ import {
 } from './DataCache'
 import { getDoctor, getStore } from './DoctorApp';
 import { formatCode } from './Codes';
+import {getBase64Image} from './ImageField';
 
 let imageBase64Definition : ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
@@ -663,30 +665,7 @@ function extractImageName(image: string) {
     return value;
 }
 
-function getBase64Image(image: string) {
-    if (image===undefined || image==='upload') return undefined;
-    if (image==='./image/perimetry.png') return require('./image/base64/perimetry');
-    if (image==='./image/champvisuel.png') return require('./image/base64/champvisuel');
-    if (image==='./image/anteriorOD.png') return require('./image/base64/anteriorOD');
-    if (image==='./image/anteriorOS.png') return require('./image/base64/anteriorOS');
-    if (image==='./image/anteriorSegOD.png') return require('./image/base64/anteriorSegOD');
-    if (image==='./image/anteriorSegOS.png') return require('./image/base64/anteriorSegOS');
- /*   if (image=='./image/posteriorOD.png') return require('./image/posteriorOD.png');
-    if (image==='./image/posteriorOS.png') return require('./image/posteriorOS.png');
-    if (image==='./image/gonioscopyOD.png') return require('./image/gonioscopyOD.png');
-    if (image==='./image/gonioscopyOS.png') return require('./image/gonioscopyOS.png');
-    if (image==='./image/notations.png') return require('./image/notations.png');
-    if (image==='./image/contactlensOD.png') return require('./image/contactlensOD.png');
-    if (image==='./image/contactlensOS.png') return require('./image/contactlensOS.png');
-    if (image==='./image/amsler.png') return require('./image/amsler.png');
-    if (image==='./image/d15.jpg') return require('./image/d15.jpg');
-    if (image==='./image/eyeexamtemplate.png') return require('./image/eyeexamtemplate.png');
-    if (image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
-    if (image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
-    if (image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
-    if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;*/
-    return undefined;
-}
+
 async function renderImage (
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
@@ -735,12 +714,13 @@ async function renderImage (
   }
 
   if (filePath) {
-    html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
+    const imageValue : string = `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
+    html += imageValue;
     if(image.startsWith('./image')) {
         const base64Image = getBase64Image(image);
         if(base64Image) {
-        imageBase64Definition.push({'key': `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`,
-                                   'value':`<img src="${base64Image}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`});
+        imageBase64Definition.push({'key': imageValue,
+                                   'value':`<img src="${base64Image.data}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`});
         }
 
     }

@@ -17,8 +17,7 @@ import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
 import { stripDataType } from './Rest';
-import {initValues}
-import {initValues, getImageBase64Definition} from './PatientFormHtml';
+import { initValues, getImageBase64Definition } from './PatientFormHtml';
 
 
 
@@ -68,7 +67,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       selectedField: [undefined, undefined, undefined, undefined, undefined]
     }
   }
-
+  mapImageWithBase64() {
+      const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
+      if(imageBase64Definition) {
+          for(const base64Image : ImageBase64Definition of imageBase64Definition) {
+            let regex = new RegExp(base64Image.key, 'g');
+            referralHtml = referralHtml.replace(regex, base64Image.value);
+          }
+        }
+  }
   async startReferral(template: string) {
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -82,8 +89,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               await renderExamHtml(exam,htmlDefinition);
             }
         }
-      const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
-      console.log("BASE6644444444: " + JSON.stringify(imageBase64Definition));
 
       let body : {} = {
         'htmlDefinition': htmlDefinition,
@@ -94,6 +99,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response) {
         const htmlContent : Referral = response;
         referralHtml = htmlContent.content;
+        this.mapImageWithBase64();
+
         this.setState({template});
       }
    
