@@ -12,11 +12,14 @@ import { Button,TilesField } from './Widgets';
 import { FormRow } from './Form';
 import { getAllCodes } from './Codes';
 import { fetchWinkRest } from './WinkRest';
-import type { HtmlDefinition, Referral } from './Types';
+import type { HtmlDefinition, Referral, ImageBase64Definition } from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
 import { stripDataType } from './Rest';
+import {initValues}
+import {initValues, getImageBase64Definition} from './PatientFormHtml';
+
 
 
 
@@ -39,7 +42,7 @@ const dynamicFields : Object = {
   }
 };
 
-let referralHtml : string = "<H2>Hello world!</H2>";
+let referralHtml : string = "Wink";
 
 export function setReferralHtml(html: string) {
   referralHtml = html;
@@ -73,11 +76,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let exams: Exam[] = getCachedItems(allExams);
     if(exams) {
       let htmlDefinition : HtmlDefinition[] = [];
+      initValues();
       for(const exam : Exam of exams) {
           if(exam.isHidden!==true) {
               await renderExamHtml(exam,htmlDefinition);
             }
         }
+      const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
+      console.log("BASE6644444444: " + JSON.stringify(imageBase64Definition));
 
       let body : {} = {
         'htmlDefinition': htmlDefinition,
@@ -155,6 +161,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         </Provider>
       </View>
       {this.renderTemplateTool()}
+
       <View style={styles.flow}>
           <Button title='Print' onPress={() => this.print()}/>
           <Button title='Email'/>

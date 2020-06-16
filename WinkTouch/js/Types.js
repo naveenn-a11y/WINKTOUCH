@@ -289,6 +289,11 @@ export type HtmlDefinition = {
   child?: HtmlDefinition|HtmlDefinition[],
 }
 
+export type ImageBase64Definition = {
+  key: string,
+  value: string
+}
+
 export type Referral = {
   content  :string
 }

@@ -14,7 +14,8 @@ import type {
   Visit,
   ExamDefinition,
   PatientInfo,
-  HtmlDefinition
+  HtmlDefinition,
+  ImageBase64Definition
 } from './Types'
 import { strings } from './Strings'
 import { styles, scaleStyle, fontScale, imageWidth, imageStyle } from './Styles'
@@ -55,6 +56,10 @@ import {
 import { getDoctor, getStore } from './DoctorApp';
 import { formatCode } from './Codes';
 
+let imageBase64Definition : ImageBase64Definition[] = [];
+export function getImageBase64Definition() {
+  return imageBase64Definition;
+}
 
 let scannedFilesHtml : string = '';
 
@@ -653,6 +658,35 @@ async function renderField (
   return html
 }
 
+function extractImageName(image: string) {
+    const value : string = image.substring(image.lastIndexOf("/") + 1, image.lastIndexOf("."));
+    return value;
+}
+
+function getBase64Image(image: string) {
+    if (image===undefined || image==='upload') return undefined;
+    if (image==='./image/perimetry.png') return require('./image/base64/perimetry');
+    if (image==='./image/champvisuel.png') return require('./image/base64/champvisuel');
+    if (image==='./image/anteriorOD.png') return require('./image/base64/anteriorOD');
+    if (image==='./image/anteriorOS.png') return require('./image/base64/anteriorOS');
+    if (image==='./image/anteriorSegOD.png') return require('./image/base64/anteriorSegOD');
+    if (image==='./image/anteriorSegOS.png') return require('./image/base64/anteriorSegOS');
+ /*   if (image=='./image/posteriorOD.png') return require('./image/posteriorOD.png');
+    if (image==='./image/posteriorOS.png') return require('./image/posteriorOS.png');
+    if (image==='./image/gonioscopyOD.png') return require('./image/gonioscopyOD.png');
+    if (image==='./image/gonioscopyOS.png') return require('./image/gonioscopyOS.png');
+    if (image==='./image/notations.png') return require('./image/notations.png');
+    if (image==='./image/contactlensOD.png') return require('./image/contactlensOD.png');
+    if (image==='./image/contactlensOS.png') return require('./image/contactlensOS.png');
+    if (image==='./image/amsler.png') return require('./image/amsler.png');
+    if (image==='./image/d15.jpg') return require('./image/d15.jpg');
+    if (image==='./image/eyeexamtemplate.png') return require('./image/eyeexamtemplate.png');
+    if (image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
+    if (image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
+    if (image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
+    if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;*/
+    return undefined;
+}
 async function renderImage (
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
@@ -668,8 +702,6 @@ async function renderImage (
   const pageWidth : number = 612; 
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
-
-
   if (image.startsWith('upload-')) {
       upload = await loadImage(value);
       if(upload) {
@@ -680,8 +712,8 @@ async function renderImage (
       }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
-    const dir = RNFS.MainBundlePath + '/assets/js'
-    filePath = `${dir}/${arr[arr.length - 1]}`
+    const dir = RNFS.MainBundlePath + '/assets/js';
+    filePath = `${dir}/${arr[arr.length - 1]}`;
   } else {
     filePath = image
   }
@@ -704,6 +736,14 @@ async function renderImage (
 
   if (filePath) {
     html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
+    if(image.startsWith('./image')) {
+        const base64Image = getBase64Image(image);
+        if(base64Image) {
+        imageBase64Definition.push({'key': `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`,
+                                   'value':`<img src="${base64Image}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`});
+        }
+
+    }
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
@@ -1238,5 +1278,11 @@ export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
   let htmlEnd: string = `</main></body>`;
   let finalHtml: string = htmlHeader + html + htmlEnd;
+  initValues();
+
   return finalHtml
+}
+
+export function initValues() {
+  imageBase64Definition = [];
 }
