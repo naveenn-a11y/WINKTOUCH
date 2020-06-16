@@ -14,7 +14,8 @@ import type {
   Visit,
   ExamDefinition,
   PatientInfo,
-  HtmlDefinition
+  HtmlDefinition,
+  ImageBase64Definition
 } from './Types'
 import { strings } from './Strings'
 import { styles, scaleStyle, fontScale, imageWidth, imageStyle } from './Styles'
@@ -34,7 +35,8 @@ import {
   formatDegree,
   getValue,
   formatAge
-} from './Util'
+} from './Util';
+
 
 import { formatPrism, isPrism } from './Refraction'
 import {
@@ -54,7 +56,12 @@ import {
 } from './DataCache'
 import { getDoctor, getStore } from './DoctorApp';
 import { formatCode } from './Codes';
+import {getBase64Image} from './ImageField';
 
+let imageBase64Definition : ImageBase64Definition[] = [];
+export function getImageBase64Definition() {
+  return imageBase64Definition;
+}
 
 let scannedFilesHtml : string = '';
 
@@ -101,9 +108,10 @@ export function printPatientHeader (visit: Visit) {
 
   return html
 }
-export function renderItemsHtml (exam: Exam, examKey?: string): any {
+export function renderItemsHtml (exam: Exam, parentHtmlDefinition?: HtmlDefinition[]): any {
   let html: String = '';
   let htmlDefinition : HtmlDefinition[] = [];
+
   if (
     !exam[exam.definition.name] ||
     !exam[exam.definition.name].length ||
@@ -129,7 +137,7 @@ export function renderItemsHtml (exam: Exam, examKey?: string): any {
       htmlSubItems += `<div>${item}</div>`;
     });
     html += htmlSubItems;
-    htmlDefinition.push({'name': exam.definition.name, 'html': htmlSubItems});
+    parentHtmlDefinition.push({'name': exam.definition.name, 'html': htmlSubItems, 'child': htmlDefinition});
     html += `</td>`
     html += `</tr>`
   }
@@ -174,9 +182,8 @@ async function mergeHtmlTemplate() {
 
 }
 
-export async function renderParentGroupHtml (exam: Exam, examKey?: string): any {
+export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: HtmlDefinition[]): any {
   
-  let parentHtmlDefinition : HtmlDefinition[] = [];
   let htmlDefinition : HtmlDefinition[] = [];
 
   let html: string = '';
@@ -187,7 +194,7 @@ export async function renderParentGroupHtml (exam: Exam, examKey?: string): any 
   if (xlGroupDefinition && xlGroupDefinition.length > 0) {
     html += `<div>`
     html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam, htmlDefinition);
-    html += `</div>`
+    html += `</div>`;
     parentHtmlDefinition.push({'name': exam.definition.name, 'html': html});
   }
    else {
@@ -218,8 +225,8 @@ export async function renderParentGroupHtml (exam: Exam, examKey?: string): any 
 
   return html
 }
-async function mergeFieldsToHtml(html: string, exam: Exam, examKey: string) {
-  await renderExamHtml(exam, keyMap);
+async function mergeFieldsToHtml(html: string, exam: Exam, htmlDefinition: HtmlDefinition[]) {
+  await renderExamHtml(exam, htmlDefinition);
 
 }
 
@@ -299,15 +306,6 @@ async function retreiveKeys(html: string) {
       examKeys.push(key);
     }
   }
- /*
-  for(const examKey : string of  examKeys) {
-      const name = examKey.split('.')[1].trim().toLowerCase();
-      let filteredExams = exams.filter((exam: Exam) => exam.definition.name && exam.definition.name.trim().toLowerCase() === name);
-      for(const exam: Exam of filteredExams) {
-        mergeFieldsToHtml(html, exam, examKey);
-      }
-  }
-*/
   return examKeys;
 }
 async function renderAllGroupsHtml (exam: Exam, htmlDefinition?: HtmlDefinition[]) {
@@ -397,9 +395,9 @@ async function renderRowsHtml (
     )
 
     if (columnFieldIndex === 0) {
-      const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, htmlDefinition, groupIndex);
+
+      const value =  await renderColumnedRows(fieldDefinition, groupDefinition, exam, form, rowHtmlDefinition, groupIndex);
       html += value;
-    //  htmlDefinition.push({'name': groupDefinition.name, 'html': value});
 
     } else if (columnFieldIndex < 0) {
       const value = await renderField(
@@ -523,21 +521,31 @@ async function renderColumnedRows (
 
   let columnValues : string[] = [];
   let childHtmlDefinition : HtmlDefinition[] = [];
+  let rowHtmlDefinition : HtmlDefinition[] = [];
 
   columnValues.push(fieldLabel);
   await Promise.all(columns.map(async(column: string, columnIndex: number) => {
     const columnDefinition: GroupDefinition = definition.fields.find(
       (columnDefinition: FieldDefinition) => columnDefinition.name === column
     );
-    childHtmlDefinition = [];
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
       const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
-   //   childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
-    //  htmlDefinition.push({'name': columnDefinition.name, 'child': childHtmlDefinition});
+       if(fieldDefinition){
+         childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
+       }
+       if(columnDefinition) {
+         htmlDefinition.push({'name': columnDefinition.name, 'child': childHtmlDefinition});
+       }
+      childHtmlDefinition = [];
       columnValues.push(value);
     }
   }));
+  let childHtml: string = '';
+  columnValues.forEach((value: string) => {
+        childHtml +=`<span>${value} </span>`;
+        });
+  htmlDefinition.push({'name': columns[rowIndex], 'html': childHtml});
   return columnValues;
 }
 function renderColumnsHeader (
@@ -652,6 +660,12 @@ async function renderField (
   return html
 }
 
+function extractImageName(image: string) {
+    const value : string = image.substring(image.lastIndexOf("/") + 1, image.lastIndexOf("."));
+    return value;
+}
+
+
 async function renderImage (
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
@@ -667,8 +681,6 @@ async function renderImage (
   const pageWidth : number = 612; 
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
-
-
   if (image.startsWith('upload-')) {
       upload = await loadImage(value);
       if(upload) {
@@ -679,8 +691,8 @@ async function renderImage (
       }
   } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
     let arr = image.split('./')
-    const dir = RNFS.MainBundlePath + '/assets/js'
-    filePath = `${dir}/${arr[arr.length - 1]}`
+    const dir = RNFS.MainBundlePath + '/assets/js';
+    filePath = `${dir}/${arr[arr.length - 1]}`;
   } else {
     filePath = image
   }
@@ -702,7 +714,16 @@ async function renderImage (
   }
 
   if (filePath) {
-    html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
+    const imageValue : string = `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
+    html += imageValue;
+    if(image.startsWith('./image')) {
+        const base64Image = getBase64Image(image);
+        if(base64Image) {
+        imageBase64Definition.push({'key': imageValue,
+                                   'value':`<img src="${base64Image.data}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`});
+        }
+
+    }
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
@@ -1237,5 +1258,11 @@ export function getVisitHtml (html: string): string {
   let htmlHeader = patientHeader()
   let htmlEnd: string = `</main></body>`;
   let finalHtml: string = htmlHeader + html + htmlEnd;
+  initValues();
+
   return finalHtml
+}
+
+export function initValues() {
+  imageBase64Definition = [];
 }

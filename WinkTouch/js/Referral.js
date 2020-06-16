@@ -11,6 +11,16 @@ import { styles } from './Styles';
 import { Button,TilesField } from './Widgets';
 import { FormRow } from './Form';
 import { getAllCodes } from './Codes';
+import { fetchWinkRest } from './WinkRest';
+import type { HtmlDefinition, Referral, ImageBase64Definition } from './Types';
+import {allExamIds} from './Visit';
+import { getCachedItems } from './DataCache';
+import { renderExamHtml } from './Exam';
+import { stripDataType } from './Rest';
+import { initValues, getImageBase64Definition } from './PatientFormHtml';
+
+
+
 
 const dynamicFields : Object = {
   "Patient": {
@@ -31,7 +41,7 @@ const dynamicFields : Object = {
   }
 };
 
-let referralHtml : string = "<H2>Hello world!</H2>";
+let referralHtml : string = "Wink";
 
 export function setReferralHtml(html: string) {
   referralHtml = html;
@@ -51,15 +61,52 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   constructor(props: ReferralScreenProps) {
     super(props);
+
     this.state = {
       template: undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined]
     }
   }
+  mapImageWithBase64() {
+      const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
+      if(imageBase64Definition) {
+          for(const base64Image : ImageBase64Definition of imageBase64Definition) {
+            let regex = new RegExp(base64Image.key, 'g');
+            referralHtml = referralHtml.replace(regex, base64Image.value);
+          }
+        }
+  }
+  async startReferral(template: string) {
+    let parameters : {} = {};
+    const visit: Visit = this.props.navigation.state.params.visit;
+    const allExams : string[] = allExamIds(visit);
+    let exams: Exam[] = getCachedItems(allExams);
+    if(exams) {
+      let htmlDefinition : HtmlDefinition[] = [];
+      initValues();
+      for(const exam : Exam of exams) {
+          if(exam.isHidden!==true) {
+              await renderExamHtml(exam,htmlDefinition);
+            }
+        }
 
-  startReferral(template: string) {
-    //TODO: fetch merged template from backend
-    this.setState({template});
+      let body : {} = {
+        'htmlDefinition': htmlDefinition,
+        'visitId': stripDataType(visit.id)
+      };
+
+      let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
+      if (response) {
+        const htmlContent : Referral = response;
+        referralHtml = htmlContent.content;
+        this.mapImageWithBase64();
+
+        this.setState({template});
+      }
+   
+     this.setState({template});
+    }
+
   }
 
   selectField(level: number, filter: string) {
@@ -121,6 +168,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         </Provider>
       </View>
       {this.renderTemplateTool()}
+
       <View style={styles.flow}>
           <Button title='Print' onPress={() => this.print()}/>
           <Button title='Email'/>

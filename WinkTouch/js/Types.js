@@ -288,6 +288,15 @@ export type HtmlDefinition = {
   html : string,
   child?: HtmlDefinition|HtmlDefinition[],
 }
+
+export type ImageBase64Definition = {
+  key: string,
+  value: string
+}
+
+export type Referral = {
+  content  :string
+}
 export type ExamDefinition = {
     id: string,
     version: number,
