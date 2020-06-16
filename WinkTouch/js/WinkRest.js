@@ -10,7 +10,6 @@ import RNFS from 'react-native-fs';
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
-//export const winkRestUrl = 'https://nikon-feasibility.downloadwink.com/WinkRESTvWinkWeb/';
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 export let winkRestUrl = __DEV__?'http://192.168.2.53:8080/WinkRESTv5.00.01/':'https://ws-touch.downloadwink.com/WinkRESTv5.00.01/';
 

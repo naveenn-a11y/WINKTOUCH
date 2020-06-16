@@ -354,7 +354,8 @@
                     "left": 370,
                     "width": 200,
                     "height": 40,
-                    "borderWidth": 0
+                    "borderWidth": 0,
+                    "fontSize": 18
                   }
                 },
                 {
@@ -368,7 +369,8 @@
                     "left": 60,
                     "width": 400,
                     "height": 40,
-                    "borderWidth": 0
+                    "borderWidth": 0,
+                    "fontSize": 18
                   }
                 }
               ]
