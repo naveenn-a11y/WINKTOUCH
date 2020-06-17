@@ -138,7 +138,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const visit: Visit = this.props.navigation.state.params.visit;
     let body : {} = {
         'htmlReferral': referralHtml,
-        'visitId': stripDataType(visit.id)
+        'visitId': stripDataType(visit.id),
+         'doctorId': 1 // To be replaced with the current selected doctor
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
