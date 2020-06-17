@@ -17,7 +17,7 @@ import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
 import { stripDataType } from './Rest';
-import { initValues, getImageBase64Definition, patientHeader } from './PatientFormHtml';
+import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
 
 
 
