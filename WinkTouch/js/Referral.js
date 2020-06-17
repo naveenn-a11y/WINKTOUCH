@@ -127,6 +127,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async print() : Promise<void> {
     let html = await this.editor.getContent();
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
+    html = htmlHeader + html + htmlEnd;
     await printHtml(html);
   }
 
