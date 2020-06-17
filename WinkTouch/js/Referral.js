@@ -9,7 +9,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Editor, Provider, Tools } from 'react-native-tinymce';
 import { styles } from './Styles';
 import { Button,TilesField, Label } from './Widgets';
-import { FormRow, FormField } from './Form';
+import { FormRow, FormField, FormCode } from './Form';
 import { getAllCodes } from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { HtmlDefinition, Referral, ImageBase64Definition } from './Types';
@@ -204,7 +204,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <View style={styles.boardM}>
             <View style={styles.formRow}>
               <View style={styles.formRowHeader}><Label value={'Referring patient to '}/></View>
-              <TilesField label='Referring to doctor' freestyle={true} options={['Doctor A','Doctor B', 'Doctor C']}/>
+              <FormCode code="doctors" />
             </View>
           </View>
           <View style={styles.buttonsRowStartLayout}>
