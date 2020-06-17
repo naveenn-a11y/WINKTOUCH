@@ -8,8 +8,8 @@ import { View, Text, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Editor, Provider, Tools } from 'react-native-tinymce';
 import { styles } from './Styles';
-import { Button,TilesField } from './Widgets';
-import { FormRow } from './Form';
+import { Button,TilesField, Label } from './Widgets';
+import { FormRow, FormField } from './Form';
 import { getAllCodes } from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { HtmlDefinition, Referral, ImageBase64Definition } from './Types';
@@ -18,9 +18,7 @@ import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
 import { stripDataType } from './Rest';
 import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
-
-
-
+import { printHtml } from './Print';
 
 const dynamicFields : Object = {
   "Patient": {
@@ -106,7 +104,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
         this.setState({template});
       }
-   
+
      this.setState({template});
     }
 
@@ -127,7 +125,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async print() : Promise<void> {
     let html = await this.editor.getContent();
-    alert(html);
+    await printHtml(html);
   }
 
   async email() : Promise<void> {
@@ -144,7 +142,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         console.log("RESPONSE HERE: " + JSON.stringify(response));
         this.setState({template});
       }
-    
+
   }
 
   renderTemplateTool() {
@@ -199,13 +197,22 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   renderTemplates() {
     const templates : string[] = getAllCodes("referralTemplates");
-    return <View style={styles.topFlow}>
+    return <View style={styles.page}>
       <View>
-        <View style={styles.buttonsRowLayout}>
+        <View style={styles.tabCard}>
+          <Text style={styles.cardTitle}>New Referral</Text>
+          <View style={styles.boardM}>
+            <View style={styles.formRow}>
+              <View style={styles.formRowHeader}><Label value={'Referring patient to '}/></View>
+              <TilesField label='Referring to doctor' freestyle={true} options={['Doctor A','Doctor B', 'Doctor C']}/>
+            </View>
+          </View>
+          <View style={styles.buttonsRowStartLayout}>
           {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
           <Button title='Blank' onPress={() => {this.startReferral('')}} />
         </View>
       </View>
+    </View>
     </View>
   }
 
@@ -214,5 +221,4 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       {this.state.template?this.renderEditor():this.renderTemplates()}
     </View>
   }
-
 }
