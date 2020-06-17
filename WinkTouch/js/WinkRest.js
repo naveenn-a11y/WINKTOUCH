@@ -12,8 +12,8 @@ import RNFS from 'react-native-fs';
 
 //export const winkRestUrl = 'https://nikon-feasibility.downloadwink.com/WinkRESTvWinkWeb/';
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
-export let winkRestUrl = __DEV__? 'http://192.168.1.9:8080/WinkRESTv5.00.00/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.00/';
-//export const winkRestUrl = 'http://192.168.2.53:8080/WinkRESTv5.00.00/';
+export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.00/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.00/';
+
 
 export async function fetchWinkRest(uri: string, parameters: Object, httpMethod?: string = 'GET', body?: any = undefined) : any {
   const url :string  = appendParameters(winkRestUrl + uri, parameters);
