@@ -1254,9 +1254,14 @@ export function patientHeader () {
   return htmlHeader
 }
 
+export function patientFooter() {
+    let htmlEnd: string = `</main></body>`;
+    return htmlEnd;
+}
+
 export function getVisitHtml (html: string): string {
-  let htmlHeader = patientHeader()
-  let htmlEnd: string = `</main></body>`;
+  let htmlHeader: string = patientHeader();
+  let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
   initValues();
 

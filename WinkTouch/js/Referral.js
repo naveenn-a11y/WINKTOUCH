@@ -17,7 +17,7 @@ import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
 import { stripDataType } from './Rest';
-import { initValues, getImageBase64Definition } from './PatientFormHtml';
+import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
 
 
 
@@ -98,7 +98,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
       if (response) {
         const htmlContent : Referral = response;
-        referralHtml = htmlContent.content;
+        let htmlHeader: string = patientHeader();
+        let htmlEnd: string = patientFooter();
+
+        referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
 
         this.setState({template});
@@ -125,6 +128,23 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   async print() : Promise<void> {
     let html = await this.editor.getContent();
     alert(html);
+  }
+
+  async email() : Promise<void> {
+    let html = await this.editor.getContent();
+    let parameters : {} = {};
+    const visit: Visit = this.props.navigation.state.params.visit;
+    let body : {} = {
+        'htmlReferral': referralHtml,
+        'visitId': stripDataType(visit.id)
+      };
+
+      let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
+      if (response) {
+        console.log("RESPONSE HERE: " + JSON.stringify(response));
+        this.setState({template});
+      }
+    
   }
 
   renderTemplateTool() {
@@ -171,7 +191,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       <View style={styles.flow}>
           <Button title='Print' onPress={() => this.print()}/>
-          <Button title='Email'/>
+          <Button title='Email' onPress={() => {this.email()}}/>
           <Button title='Fax'/>
       </View>
     </View>
