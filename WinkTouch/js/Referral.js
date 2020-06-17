@@ -56,6 +56,8 @@ type ReferralScreenState = {
   selectedField: ?string[]
 };
 
+
+
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
   editor;
 
@@ -130,7 +132,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     alert(html);
   }
 
-  async email() : Promise<void> {
+  async save() : Promise<void> {
     let html = await this.editor.getContent();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -140,11 +142,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
-      if (response) {
-        console.log("RESPONSE HERE: " + JSON.stringify(response));
-        this.setState({template});
-      }
-    
   }
 
   renderTemplateTool() {
@@ -191,8 +188,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       <View style={styles.flow}>
           <Button title='Print' onPress={() => this.print()}/>
-          <Button title='Email' onPress={() => {this.email()}}/>
+          <Button title='Email' />
           <Button title='Fax'/>
+          <Button title='Save' onPress={() => {this.save()}}/>
       </View>
     </View>
   }
