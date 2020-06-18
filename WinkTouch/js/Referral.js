@@ -122,7 +122,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async insertField() : void {
 
-    const testKey : string = '{exam.RxToOrder.Final Rx}';
+    const testKey : string = '{exam.RxToOrder.Final Rx}'; // THIS IS ONLY FOR TESTING, SHOULD BE REMOVED AFTER THE KEY SELECTION IS DYNAMIC
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
