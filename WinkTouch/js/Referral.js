@@ -64,7 +64,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
     this.state = {
       template: undefined,
-      selectedField: [undefined, undefined, undefined, undefined, undefined]
+      selectedField: [undefined, undefined, undefined, undefined, undefined],
+      htmlDefinition : []
     }
   }
   mapImageWithBase64() {
@@ -104,10 +105,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
 
-        this.setState({template});
+        this.setState({template, htmlDefinition});
       }
-
-     this.setState({template});
     }
 
   }
@@ -121,8 +120,25 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     this.setState({selectedField});
   }
 
-  insertField() : void {
-    this.editor.setContent('lala');
+  async insertField() : void {
+
+    const testKey : string = '{exam.RxToOrder.Final Rx}';
+    let parameters : {} = {};
+    const visit: Visit = this.props.navigation.state.params.visit;
+    let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
+
+      let body : {} = {
+        'htmlDefinition': htmlDefinition,
+        'visitId': stripDataType(visit.id)
+      };
+
+    let response = await fetchWinkRest('webresources/template/key/'+testKey, parameters, 'POST', body);
+    if (response) {
+        const htmlContent : Referral = response;
+        let htmlHeader: string = patientHeader();
+        let htmlEnd: string = patientFooter();
+        this.editor.setContent(htmlHeader + htmlContent.content + htmlEnd);
+      }
   }
 
   async print() : Promise<void> {
