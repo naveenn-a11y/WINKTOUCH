@@ -4,9 +4,9 @@
 'use strict';
 
 import React, { Component, PureComponent } from 'react';
-import { View, Text, Button, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import type {FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx } from './Types';
+import type {FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx, Measurement } from './Types';
 import { strings } from './Strings';
 import { styles, scaleStyle, fontScale } from './Styles';
 import { FloatingButton } from './Widgets';
@@ -261,20 +261,20 @@ export class CheckList extends PureComponent {
     return  <View style={style}>
             <Label style={styles.sectionTitle} suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
           <View style={styles.wrapBoard}>
-        {this.state.formattedOptions.map((option: string) => {
+        {this.state.formattedOptions.map((option: string, index: number) => {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');
             return <View style={styles.formRow} key={option}>
-              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)} readonly={this.props.editable!=true}/>
+              <CheckButton isChecked={isSelected!==false} suffix={prefix+option} onSelect={() => this.select(prefix+option)} onDeselect={() => this.select(prefix+option)} readonly={this.props.editable!=true} testID={this.props.fieldId+'.option'+(index+1)}/>
             </View>
           }
         )}
     </View>
     {this.props.definition.freestyle && this.props.editable && <View style={styles.formRow} key='freestyle'>
-        <FormTextInput speakable={true} onChangeText={this.addValue}/>
+        <FormTextInput speakable={true} onChangeText={this.addValue} testID={this.props.fieldId+'.speachField'}/>
       </View>
     }
-    {this.props.editable && this.props.onClear && <View style={styles.groupIcons}><TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity></View>}
+    {this.props.editable && this.props.onClear && <View style={styles.groupIcons}><TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId+'.garbageIcon'}><Garbage style={styles.groupIcon}/></TouchableOpacity></View>}
 
     </View>
   }
@@ -541,7 +541,7 @@ export class GroupedForm extends Component {
     editable?: boolean,
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
-    onUpdateForm? : (form: any) => void,
+    onUpdateForm? : (groupName: string, newValue: any) => void,
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
     onAdd?: () => void,
@@ -621,6 +621,7 @@ export class GroupedForm extends Component {
       disableScroll={this.props.disableScroll}
       key={fieldDefinition.name+(column===undefined?'':column)}
       fieldId={this.props.fieldId+'.'+fieldDefinition.name+(column===undefined?'':column)}
+      testID={this.props.fieldId+'.'+fieldDefinition.name+(column===undefined?'':column)}
     />
   }
 
@@ -758,123 +759,33 @@ export class GroupedForm extends Component {
     return rows;
   }
 
-  parseUnaidedAcuities = (data) => {
-    const dva = {};
-    const nva = {};
-    const ph = {};
-
-    if (data instanceof Array) {
-      for(let i = 0; i < data.length; i++) {
-        const m = data[i];
-        const d = m.data;
-        if(d.label && (d.label === 'DW' || d.label === 'NW')) { // near
-          nva.OS = d.os.va;
-          nva.OD = d.od.va;
-          nva.OU = d.ou.va;
-        } else if(d.label && (d.label === 'Dw' || d.label === 'Nw')) { // far
-          dva.OS = d.os.va;
-          dva.OD = d.od.va;
-          dva.OU = d.ou.va;
-        }
-
-        if(d.os.vaph) {
-          ph.OS = d.os.vaph;
-        }
-        if(d.od.vaph) {
-          ph.OD = d.od.vaph;
-        }
-      }
-    }
-
-    const o = {
-      DVA: dva,
-      NVA: nva,
-      PH: ph
-    };
-
-    this.props.onUpdateForm(this.props.definition.name, o)
-  }
-
-  parseAidedAcuities = (data) => {
-    const dva = {};
-    const nva = {};
-    const ph = {};
-
-    if (data instanceof Array) {
-      for(let i = 0; i < data.length; i++) {
-        const m = data[i];
-        const d = m.data;
-        if(d.label && (d.label === 'DLMNEAR' || d.label === 'NLMNEAR')) { // near
-          nva.OS = d.os.corrVa;
-          nva.OD = d.od.corrVa;
-          nva.OU = d.ou.corrVa;
-        } else if(d.label && (d.label === 'DLMFAR' || d.label === 'NLMFAR')) { // far
-          dva.OS = d.os.corrVa;
-          dva.OD = d.od.corrVa;
-          dva.OU = d.ou.corrVa;
-        }
-
-        if(d.os.corrVaPh) {
-          ph.OS = d.os.corrVaPh;
-        }
-        if(d.od.corrVaPh) {
-          ph.OD = d.od.corrVaPh;
-        }
-      }
-    }
-
-    const o = {
-      DVA: dva,
-      NVA: nva,
-      PH: ph
-    };
-
-    this.props.onUpdateForm(this.props.definition.name, o)
-  }
-
-  parseIop = (data) => {
-    const os = {};
-    const od = {};
-
-    if (data instanceof Array) {
-      for(let i = 0; i < data.length; i++) {
-        const m = data[i];
-        const d = m.data;
-        os.Tension = d.os.iop;
-        os.Pachymetry = d.os.thickness;
-        od.Tension = d.od.iop;
-        od.Pachymetry = d.od.thickness;
-      }
-    } else {
-      const d = data.data;
-      os.Tension = d.os.iop;
-      os.Pachymetry = d.os.thickness;
-      od.Tension = d.od.iop;
-      od.Pachymetry = d.od.thickness;
-    }
-
-    const o = [{
-      OS: os,
-      OD: od
-    }];
-
-    this.props.onUpdateForm(this.props.definition.name, o)
-  }
-
   async importData() {
-    if(!this.props.onUpdateForm) return
-
-    const data = await importData(this.props.definition.import, this.props.examId);
-
-    if (data===undefined || data===null) return;
-
-    if(this.props.definition.name === 'Unaided acuities') {
-      this.parseUnaidedAcuities(data);
-    } else if(this.props.definition.name === 'Aided acuities') {
-      this.parseAidedAcuities(data);
-    } else if(this.props.definition.name === 'IOP') {
-      this.parseIop(data);
+    if(!this.props.onUpdateForm) return;
+    let measurement : Measurement|Measurement[] = await importData(this.props.definition.import, this.props.examId);
+    if (measurement===undefined || measurement===null) return;
+    if (measurement instanceof Array) {
+      const options = measurement.map((measurement: Measurement) => {
+        return {
+          text: measurement.label,
+          onPress: () => {
+            if (measurement.data) {
+              this.props.onUpdateForm(this.props.definition.name, measurement.data);
+            }
+          }
+        }
+      });
+      options.push({text: strings.cancel});
+      Alert.alert(
+          strings.importDataQuestion,
+          undefined,
+          options
+      );
+    } else {
+      if (measurement.data) {
+        this.props.onUpdateForm(this.props.definition.name, measurement.data);
+      }
     }
+
   }
 
   async exportData() {
@@ -884,13 +795,13 @@ export class GroupedForm extends Component {
   renderIcons() {
     if (!this.props.editable || (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)) return null;
     return [<View style={styles.groupIcons} key='icons'>
-      {this.props.onClear && <TouchableOpacity onPress={this.props.onClear}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
-      {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd}><Plus style={styles.groupIcon}/></TouchableOpacity>}
-      {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
-      {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon}/>}
+      {this.props.onClear && <TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId+'.garbageIcon'}><Garbage style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.onAdd && <TouchableOpacity onPress={this.props.onAdd} testID={this.props.fieldId+'.plusIcon'}><Plus style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.definition.keyboardEnabled && <TouchableOpacity onPress={this.toggleTyping} testID={this.props.fieldId+'.keyboardIcon'}><Keyboard style={styles.groupIcon} disabled={this.state.isTyping}/></TouchableOpacity>}
+      {this.props.onAddFavorite && <Star onAddFavorite={this.props.onAddFavorite} style={styles.groupIcon} testID={this.props.fieldId+'.starIcon'}/>}
     </View>,
     <View style={styles.groupExtraIcons}>
-      {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
+      {this.props.editable && this.props.definition.import && <TouchableOpacity onPress={() => this.importData()} testID={this.props.fieldId+'.importIcon'}><ImportIcon style={styles.groupIcon}/></TouchableOpacity>}
     </View>]
   }
 
@@ -1159,7 +1070,7 @@ export class GroupedFormScreen extends Component {
   }
 
   renderGroup(groupDefinition: GroupDefinition, index: number) {
-    const fieldId : string = this.props.exam.definition.id+"."+groupDefinition.name;
+    const fieldId : string = this.props.exam.definition.name+"."+groupDefinition.name;
     //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));
     let value : any = this.props.exam[this.props.exam.definition.name];
     if (value===undefined) {
@@ -1183,7 +1094,7 @@ export class GroupedFormScreen extends Component {
           definition={groupDefinition}
           key={'Rx'+index+'.'+subIndex}
           examId={this.props.exam.id}
-          fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}
+          fieldId={fieldId+'['+(value.length-subIndex)+']'}
           editable={this.props.editable!==false && groupDefinition.readonly!==true}
         />
         :<GroupedForm definition={groupDefinition} editable={this.props.editable}
@@ -1203,17 +1114,17 @@ export class GroupedFormScreen extends Component {
       );
     } else if (groupDefinition.type==='SRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
     } else if (groupDefinition.type==='CRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={this.props.exam.definition.id+'.'+groupDefinition.name}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
         onClear={() => this.clear(groupDefinition.name)} patientId={this.patientId} examId={this.props.exam.id}
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        fieldId={this.props.exam.definition.id+'.'+groupDefinition.name} />
+        fieldId={fieldId} />
     } else {
       return  <GroupedForm definition={groupDefinition} editable={this.props.editable} form={value} key={groupDefinition.name+"-"+index}
         onChangeField={(fieldName: string, newValue: string, column: ?string) => this.changeField(groupDefinition.name, fieldName, newValue, column)}

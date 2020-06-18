@@ -238,7 +238,7 @@
     {
       "multivalue": true,
       "name": "Unaided acuities",
-      "import": ["machine.phoropter"],
+      "import": ["machine.phoropter.va.sc"],
       "columns": [
         [
           "DVA",

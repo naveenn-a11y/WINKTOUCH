@@ -551,22 +551,25 @@ async function renderImage (
       style.width = Math.floor(pageWidth);
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
+
   let scale: number = style.width / resolutions(value, fieldDefinition)[0];
 
   if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-      style.width = style.width * 0.85;
-      style.height = style.height * 0.85;
+     style.width = style.width * 0.85;
+     style.height = style.height * 0.85;
   }
 
   if (filePath) {
-    html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt">`;
+    html += `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
       await Promise.all(fieldDefinition.fields.map(async (childGroupDefinition: GroupDefinition, index: number) => {
           let parentScaledStyle: Object = undefined
-          if (childGroupDefinition.layout)
+          if (childGroupDefinition.layout) {
             parentScaledStyle = scaleStyle(childGroupDefinition.layout);
+          }
+
           for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
             let fieldScaledStyle = undefined
             const pfValue = await renderField(
@@ -577,8 +580,9 @@ async function renderImage (
             )
 
             if (!isEmpty(pfValue)) {
-              if (childFieldDefinition.layout)
-                fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+              if (childFieldDefinition.layout) {
+                  fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+              }
               
               let x =
                 (fieldScaledStyle ? fieldScaledStyle.left : 0) +
@@ -587,15 +591,13 @@ async function renderImage (
               let y =
                 (fieldScaledStyle ? fieldScaledStyle.top : 0) +
                 (parentScaledStyle ? parentScaledStyle.top : 0) +
-                styles.textfield.fontSize;
+                 styles.textfield.fontSize;
 
-                //x&y not scaling properly, need to be fixed ! Ratio is hardcoded now !
-                x-=x*0.042;
-                y-=y*0.021;
-
-              html += `<svg style="width:${style.width}pt; height:${style.height}pt">`
-              html += `<text x="${x}" y="${y}">${pfValue}</text>`
-              html += `</svg>`
+              html += `<svg style="width:${style.width}pt; height:${style.height}pt">`;
+              html +=` <g transform="scale(0.96 0.98)">`;
+              html += `<text x="${x}" y="${y}">${pfValue}</text>`;
+              html +=` </g>`;
+              html += `</svg>`;
             }
           }
         }
@@ -608,6 +610,8 @@ async function renderImage (
     return html;
   }
 }
+
+
 async function loadImage (value: ImageDrawing) {
   if (!value || !value.image || !value.image.startsWith('upload-')) {
     return
@@ -624,7 +628,7 @@ function renderGraph (
   let html: string = ''
   if (!value.lines || value.lines.length === 0) return ''
   const strokeWidth: number = (3 * fontScale) / scale
-  const resolution: number[] = resolutions(value, definition)
+  const resolution: number[] = resolutions(value, definition);
   html += `<svg viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return ''
@@ -633,12 +637,14 @@ function renderGraph (
       const d = line()
         .x((point: string) => point.substring(0, point.indexOf(',')))
         .y((point: string) => point.substring(point.indexOf(',') + 1))
-        .curve(curveBasis)(points)
+        .curve(curveBasis)(points);
+
       html += `<path d="${d}"  fill="none" stroke="black" stroke-width=${strokeWidth} />`
     } else {
       let commaIndex: number = lijn.indexOf(',')
-      let x: string = lijn.substring(0, commaIndex)
-      let y: string = lijn.substring(commaIndex + 1)
+      let x: string = lijn.substring(0, commaIndex);
+      let y: string = lijn.substring(commaIndex + 1);
+
       html += `<circle cx="${x}" cy="${y}" r="${strokeWidth}" fill="black" />`
     }
   })
@@ -988,8 +994,10 @@ export function patientHeader () {
     `}` +
     `.img-wrap {` +
     `  position: relative;` +
-    `  display: inline-block;` +
+    `  display: block;` +
     `  width:49%;` +
+    `  float: left;` +
+      ` margin-top:5px;` +
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +
@@ -998,7 +1006,6 @@ export function patientHeader () {
     `}` +
     `.img-wrap img {` +
     `  display:block;` +
-    ` margin-top:5px;` +
     `}` +
     `</style></head><body><main>`
   return htmlHeader

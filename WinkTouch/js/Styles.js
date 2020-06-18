@@ -307,8 +307,13 @@ export const styles = StyleSheet.create({
       height: 100*fontScale,
       borderRadius: 65*fontScale,
       marginVertical: 20 * fontScale,
-      alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: '#2dc3c3'
+    },
+    backIcon: {
+      color: 'white',
+      fontSize: 50 * fontScale
     },
     addButton: {
       width: 60*fontScale,
@@ -1227,7 +1232,6 @@ export function scaleStyle(style: Object) : Object {
   if (style.bottom) scaledStyle.bottom = style.bottom * fontScale;
   if (style.width) scaledStyle.width = style.width * fontScale;
   if (style.height) scaledStyle.height = style.height * fontScale;
-  if (style.top) scaledStyle.top = style.top * fontScale;
 
 
 

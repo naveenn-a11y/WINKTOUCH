@@ -10,7 +10,7 @@ import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
     en: {
-      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database or start with a demo database',
+      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database\nor try with a demo database',
       trialWarning: 'This is a demo version that uses a public shared database. Do not enter any real patient data.',
       winkLink: 'Visit www.winksoftware.com to learn more',
       emailAdres: 'Email adress',
@@ -71,7 +71,7 @@ export const strings = new LocalizedStrings({
       large: 'Large',
       extraLarge: 'Extra large',
       duplicate: 'Duplicate',
-      serverError: 'Something went wrong on the server. Please try again.\n\n(Internal error = {1})',
+      serverError: 'Something went wrong on the server. Please try again.\n\n(Internal error = {0})',
       pending: 'Pending',
       confirmed: 'Confirmed',
       cancelled: 'Cancelled',
@@ -110,6 +110,7 @@ export const strings = new LocalizedStrings({
       referral: 'Referral',
       finalRx: 'Final Rx',
       printRx: 'Print Rx',
+      transferRx: 'Transfer Rx',
       printClRx: 'Print Cl',
       printReferral: 'Print Referral',
       printMedicalRx: 'Print Medical Rx',
@@ -171,10 +172,11 @@ export const strings = new LocalizedStrings({
       saveImageError: 'Something went wrong saving your {0} image in the database. Please try again.',
       pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.',
       examDate: 'Date of Exam',
-      healthCard: 'Health Card'
+      healthCard: 'Health Card',
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
     },
     fr: {
-      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai',
+      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
       trialWarning: 'Ceci est la version d\'essai qui utilise une base de données publique partagée. N\'entrez aucune donnée réelle sur le patient. ',
       winkLink: 'Visitez www.winksoftware.com',
       emailAdres: 'Adresse courriel',
@@ -274,6 +276,7 @@ export const strings = new LocalizedStrings({
       referral: 'Référence',
       finalRx: 'Rx Finale',
       printRx: 'Imprimer Rx',
+      transferRx: 'Transférer Rx',
       printClRx: 'Imprimer LC',
       printReferral: 'Imprimer Référence',
       printMedicalRx: 'Imprimer Rx médicale',
@@ -335,7 +338,8 @@ export const strings = new LocalizedStrings({
       saveImageError: 'Une erreur s\'est produite en sauvegardant l\'image {0} dans la base de données. Veuillez essayer de nouveau.',
       pmsImageSaveError: 'Une erreur s\'est produite en sauvegardant l\'image dans le PMS',
       examDate: 'Date de l\'exam',
-      healthCard: 'Carte maladie'
+      healthCard: 'Carte maladie',
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
     }
 });
 
