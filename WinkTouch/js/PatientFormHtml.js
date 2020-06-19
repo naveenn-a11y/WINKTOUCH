@@ -756,11 +756,11 @@ async function renderImage (
                 (parentScaledStyle ? parentScaledStyle.top : 0) +
                  styles.textfield.fontSize;
 
-              html += `<svg style="width:${style.width}pt; height:${style.height}pt">`;
+              html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
               html +=` <g transform="scale(0.96 0.98)">`;
               html += `<text x="${x}" y="${y}">${pfValue}</text>`;
               html +=` </g>`;
-              html += `</svg>`;
+              html += `&nbsp;</svg>`;
             }
           }
         }
@@ -792,7 +792,7 @@ function renderGraph (
   if (!value.lines || value.lines.length === 0) return ''
   const strokeWidth: number = (3 * fontScale) / scale
   const resolution: number[] = resolutions(value, definition);
-  html += `<svg viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
+  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return ''
     if (lijn.indexOf(' ') > 0) {
@@ -811,7 +811,7 @@ function renderGraph (
       html += `<circle cx="${x}" cy="${y}" r="${strokeWidth}" fill="black" />`
     }
   })
-  html += `</svg>`
+  html += `&nbsp;</svg>`
   return html
 }
 
