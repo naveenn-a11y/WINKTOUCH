@@ -20,6 +20,7 @@ import { stripDataType } from './Rest';
 import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
 import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
+import { getStore } from './DoctorApp';
 
 
 const dynamicFields : Object = {
@@ -185,6 +186,28 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       }   
   }
 
+    async fax() : Promise<void> {
+
+       let html = await this.editor.getContent();
+       let htmlHeader: string = patientHeader();
+       let htmlEnd: string = patientFooter();
+       html = htmlHeader + html + htmlEnd;
+       let parameters : {} = {};
+       const visit: Visit = this.props.navigation.state.params.visit;
+       let file = await generatePDF(html, true);
+       let body : {} = {
+            'visitId': stripDataType(visit.id),
+            'doctorId': 1, // To be replaced with the current selected doctor
+            'attachment': file.base64,
+            'isFax': true
+          };
+
+      let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
+      if (response) {
+        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+      }   
+  }
+
   renderTemplateTool() {
     return <View>
       <View style={styles.sideBar}>
@@ -230,7 +253,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       <View style={styles.flow}>
           <Button title='Print' onPress={() => this.print()}/>
           <Button title='Email' onPress={() => this.email()} />
-          <Button title='Fax'/>
+          {getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()}/>}
           <Button title='Save' onPress={() => {this.save()}}/>
       </View>
     </View>
