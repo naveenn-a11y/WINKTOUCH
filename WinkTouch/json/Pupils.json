@@ -1,5 +1,47 @@
 {
   "name": "Pupils",
+  "locale": {
+    "fr-CA": {
+      "label": "Pupillles",
+      "fields": [
+        {
+          "name": "Pupils",
+          "label": "Pupilles",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Size in light",
+                  "label": "Taille Ã  la lumiÃ¨re"
+                },
+                {
+                  "name": "Size in dark",
+                  "label": "Taille dans la noir"
+                },
+                {
+                  "name": "Shape",
+                  "label": "Forme"
+                },
+                {
+                  "name": "Reaction",
+                  "label": "RÃ©action"
+                },
+                {
+                  "name": "Diagnose",
+                  "label": "Diagnostic"
+                },
+                {
+                  "name": "Accom",
+                  "label": "Accomm."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
   "starable": true,
   "type": "groupedForm",
   "section": "Entrance testing.1",
@@ -9,7 +51,7 @@
       "columns": [
         [
           "OD",
-          "\u003e\u003e",
+          ">>",
           "OS"
         ]
       ],
@@ -19,22 +61,22 @@
           "name": "OD",
           "fields": [
             {
+              "decimals": 1,
               "name": "Size in light",
+              "minValue": 2,
+              "stepSize": 0.5,
               "suffix": " mm",
               "freestyle": true,
-              "minValue": 2,
-              "maxValue": 7,
-              "stepSize": 0.5,
-              "decimals": 1
+              "maxValue": 7
             },
             {
+              "decimals": 1,
               "name": "Size in dark",
+              "minValue": 2,
+              "stepSize": 0.5,
               "suffix": " mm",
               "freestyle": true,
-              "minValue": 2,
-              "maxValue": 7,
-              "stepSize": 0.5,
-              "decimals": 1
+              "maxValue": 7
             },
             {
               "name": "Shape",
@@ -67,25 +109,25 @@
           "name": "OS",
           "fields": [
             {
+              "decimals": 1,
               "name": "Size in light",
+              "minValue": 2,
+              "stepSize": 0.5,
               "suffix": " mm",
               "freestyle": true,
-              "minValue": 2,
-              "maxValue": 7,
-              "stepSize": 0.5,
-              "decimals": 1
+              "maxValue": 7
             },
             {
+              "decimals": 1,
               "name": "Size in dark",
+              "minValue": 2,
+              "stepSize": 0.5,
               "suffix": " mm",
               "freestyle": true,
-              "minValue": 2,
-              "maxValue": 7,
-              "stepSize": 0.5,
-              "decimals": 1
+              "maxValue": 7
             },
             {
-              "name": "Form",
+              "name": "Shape",
               "freestyle": true,
               "options": "pupilFormCodes"
             },

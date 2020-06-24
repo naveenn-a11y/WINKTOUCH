@@ -1,0 +1,32 @@
+{
+  "name": "Medical condition",
+  "type": "groupedForm",
+  "section": "History.10",
+  "starable": false,
+  "addable": false,
+  "editable": true,
+  "fields": [
+    {
+      "name": "Condition",
+      "multiValue": true,
+      "freestyle": true,
+      "options": "medicalConditionCodes",
+    },
+    {
+      "name": "Notes",
+      "size": "M",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "freestyle": true
+        }
+      ]
+    }
+  ],
+  "locale": {
+    "fr-CA": {
+      "label": "Conditions mÃ©dicales"
+    }
+  }
+}

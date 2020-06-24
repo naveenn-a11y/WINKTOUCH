@@ -11,7 +11,7 @@ import { styles, fontScale } from './Styles';
 import type {Exam, ExamDefinition, Scene } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
 import { UpcomingAppointments} from './Appointment';
-import { resetDatabase } from './DemoData';
+import { getAllCodes } from './Codes';
 
 export class Notifications extends PureComponent {
     render() {
@@ -27,13 +27,6 @@ export class MenuBar extends PureComponent {
         navigation: any
     }
 
-    /**
-    async restart() {
-      await resetDatabase();
-      this.props.navigation.navigate("restart");
-    }
-    */
-
     extractExamDefinition(exam: Exam) : ExamDefinition {
       let examDefinition = exam.definition;
       examDefinition.id = exam.id;
@@ -44,15 +37,16 @@ export class MenuBar extends PureComponent {
         //if (this.props.scene.menuHidden) return null;
         const exam: ?Exam = this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.exam;
         const scene: ?string = this.props.navigation.state && this.props.navigation.state.routeName;
+        const hasConfig: boolean = getAllCodes('machines')!==undefined && getAllCodes('machines').length>0;
         return <View style={styles.sideMenu}>
           <Image source={require('./image/menulogo.png')} />
           <Button title={strings.agenda} onPress={() => this.props.navigation.navigate('agenda')} />
           {(scene==='appointment' || exam) && <Button title={strings.patient} onPress={() => this.props.navigation.navigate('findPatient', {showAppointments: false, showBilling: true})} />}
-          {exam && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
-          {exam && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
+          {exam!=undefined && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
+          {exam!=undefined && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
           {__DEV__ && false && exam && <Button title={strings.template} onPress={() => this.props.navigation.navigate('examTemplate', {examDefinition: this.extractExamDefinition(exam)})}/>}
           {__DEV__ && <Button title={strings.templates} onPress={() => this.props.navigation.navigate('templates')}/>}
-          {__DEV__ && scene ==='overview'  && <Button title={strings.settings} onPress={() => {}} />}
+          {scene ==='overview'  && hasConfig===true && <Button title={strings.configuration} onPress={() => this.props.navigation.navigate('configuration')} />}
           <BackButton navigation={this.props.navigation} />
           {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}
           {__DEV__ && <Notifications />}

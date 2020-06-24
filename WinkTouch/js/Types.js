@@ -20,9 +20,18 @@ export type Registration = {
 export type Store = {
   storeId: number, //TODO Chris
   name: string,
+  companyName: string,
+  streetNumber: string,
+  unit: string,
+  streetName: string,
   city: string,
   country: number,
-  pr: string
+  pr: string,
+  postalCode: string,
+  email: string,
+  telephone: string,
+  winkToWinkId?: number,
+  winkToWinkEmail?: string
 }
 
 export type Account = {
@@ -36,7 +45,9 @@ export type Account = {
 export type User = {
   id: string,
   firstName: string,
-  lastName: string
+  lastName: string,
+  license?: string,
+  signatureId?: string
 }
 
 export type Patient = {
@@ -61,13 +72,15 @@ export type PatientInfo = {
     streetName: string,
     countryId: number,
     medicalCard: string,
-    medicalcardExp: string,
+    medicalCardExp: string,
+    medicalCardVersion: string,
     postalCode: string,
     email: string,
     province: string,
     country: string,
     gender: number,
     streetNumber: string,
+    unit: string,
     patientTags: string[],
     patientDrugs: string[] //TODO wais rename patientDrugIds
 }
@@ -124,18 +137,17 @@ export type GlassRx = {
     sph?: string,
     cyl?: number,
     axis?: number,
-    prism1?: number,
-    prism1b?: number,
-    prism2?: number,
-    prism2b?: number,
+    prism?: string,
     add?: number,
     va?: string,
-    addVA?: string
+    addVA?: string,
+    isEye?: boolean,
 }
 
 export type GlassesRx = {
     od: GlassRx,
     os: GlassRx,
+    ou: GlassRx,
     expiry?: string,
     prescriptionDate?: string,
     signedDate?: string,
@@ -153,7 +165,19 @@ export type Recall = {
 
 export type ImageDrawing = {
   lines: string[],
-  image?: string //"upload-123" | "./image/amsler.png" | "http://anywhere.com/image.png"
+  image?: string //"upload-123" | "./image/amsler.png" | "http://anywhere.com/image.png",
+}
+
+export type Measurement = {
+  label: string,
+  date?: string,
+  patientId?: string,
+  machineId?: string,
+  data: any
+}
+
+export type Configuration = {
+  machine: {phoropter: string}
 }
 
 export type Visit = {
@@ -168,10 +192,12 @@ export type Visit = {
     duration: number,
     locked: boolean,
     typeName: string,
+    isDigital: boolean,
     location?: string,
     prescription: GlassesRx,
     recall: Recall,
-    purchase: {add: number, comment: string, purchaseReasonId: string}[]
+    purchase: {add: number, comment: string, purchaseReasonId: string}[],
+    inactive: boolean
 }
 
 export type CodeDefinition = {
@@ -226,7 +252,8 @@ export type FieldDefinition = {
   image?: string,
   simpleSelect?: boolean,
   newLine?: boolean,
-  popup?: boolean
+  popup?: boolean,
+  sync?: boolean
 }
 
 export type FieldDefinitions = (FieldDefinition|GroupDefinition)[]
@@ -239,6 +266,7 @@ export type GroupDefinition = {
     columns?: string[][],
     rows?: string[][],
     multiValue?: boolean,
+    readonly?: boolean,
     options?: CodeDefinition[][]|CodeDefinition[]|string,
     maxLength?: number,
     mappedField?: string,
@@ -250,6 +278,8 @@ export type GroupDefinition = {
     hasAdd?: boolean,
     hasLensType?: boolean,
     hasNotes?: boolean,
+    import?: string|string[],
+    export?: string|string[],
     fields: (FieldDefinition|GroupDefinition)[],
 }
 
@@ -276,7 +306,9 @@ export type ExamDefinition = {
     starable?: boolean,
     relatedExams?: string[],
     scrollable?: boolean,
-    layout?: any
+    layout?: any,
+    signable? :boolean,
+    showSubtitles? :boolean
 }
 
 export type ExamPredefinedValue = {
@@ -285,6 +317,7 @@ export type ExamPredefinedValue = {
   customExamDefinitionId: string, //TODO: wais
   name: string,
   predefinedValue: any,
+  userId?: string,
   order?: number
 }
 
@@ -295,7 +328,6 @@ export type Exam = {
     errors?: string[],
     definition: ExamDefinition,
     hasStarted: boolean,
-    hasEnded: boolean,
     isDirty?: boolean,
     isHidden?: boolean
 }
@@ -314,7 +346,7 @@ export type Scene = {
 
 export type Upload = {
   id: string,
-  data: string,
+  data: string, //base64 encoded for binary data
   name: string,
   date?: string,
   mimeType: string,
@@ -329,4 +361,12 @@ export type PatientDocument = {
   name: string,
   category: string,
   uploadId: string,
+}
+
+export type TranslationDefinition = {
+  id: string,
+  fieldId: string,
+  language: string,
+  label: ?string,
+  normalValue: ?string
 }

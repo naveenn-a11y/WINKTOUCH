@@ -7,13 +7,18 @@ import type { FieldDefinitions, RestResponse } from './Types';
 import { capitalize, deepClone } from './Util';
 import { strings, getUserLanguage } from './Strings';
 import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCachedItem, clearCachedItemById } from './DataCache';
+import { restVersion } from './Version';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const restUrl : string = __DEV__?'http://192.168.88.253:8080/Web/':'https://ws-touch.downloadwink.com/EHR-2.6/';
+export let restUrl : string = __DEV__?'http://192.168.2.53:8080/Web/':'https://ws-touch.downloadwink.com/'+restVersion+'/';
 
 let token : string;
 
 let requestNumber: number = 0;
+
+export function getNextRequestNumber() : number {
+  return ++requestNumber;
+}
 
 export function setToken(newToken: string) {
   if (newToken!==undefined) console.log('Token:' + newToken);
@@ -81,7 +86,8 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
   let definition : FieldDefinitions = getCachedItem(cacheKey);
   if (definition!==null && definition!==undefined) return definition;
   const url = constructTypeUrl(id)+'FieldDefinition';
-  __DEV__ && console.log('Fetching definition for '+cacheKey+'.');
+  const requestNr = ++requestNumber;
+  __DEV__ && console.log('REQ '+requestNr+' Fetching definition for '+cacheKey+' in '+language+'.');
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -91,13 +97,14 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
+    __DEV__ && console.log('RES '+requestNr+' Fetching definition for '+cacheKey+' in '+language+".");
     let restResponse = await httpResponse.json();
     definition = restResponse.fields;
     cacheItem(cacheKey, definition);
     return definition;
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase()));
+    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase(), error));
     throw(error);
   }
 }
@@ -146,9 +153,9 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
     if (restResponse.errors) {
       alert(restResponse.errors);
       console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
-      return;
+      return; //TODO: we should also return an object containing the system eroor?
     }
-    __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET');
+    __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET', url);
     const item : any = restResponse[getItemFieldName(id)];
     if (!item) throw new Error('The server did not return a '+getItemFieldName(id)+' for id '+id+".");
     cacheResponseItems(restResponse);
@@ -160,12 +167,14 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
   }
 }
 
-function logRestResponse(restResponse, id, requestNr: number, method: string, url) {
+export function logRestResponse(restResponse, id, requestNr: number, method: string, url :string) {
   let cleanedResponse = deepClone(restResponse);
   if (!cleanedResponse.hasValidationError && !cleanedResponse.errors) {
-    cleanedResponse = cleanedResponse[getItemFieldName(id)];
+    if (cleanedResponse[getItemFieldName(id)]) {
+      cleanedResponse = cleanedResponse[getItemFieldName(id)];
+    }
   }
-  cleanedResponse.definition='{...}';
+  if (cleanedResponse.definition) cleanedResponse.definition='{...}';
   if (cleanedResponse.data) cleanedResponse.data = '...';
   console.log('RES '+requestNr+' '+method+' '+url+' json body: '+JSON.stringify(cleanedResponse));
 }
@@ -210,6 +219,7 @@ export async function storeItem(item: any) : any {
         clearCachedItemById(item);
         await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
       }
+      restResponse.definition = definition;
       return restResponse;
     }
     const updatedItem = restResponse[getItemFieldName(item.id)];
@@ -222,8 +232,8 @@ export async function storeItem(item: any) : any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase()));
-    item.errors = [strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase())];
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error));
+    item.errors = [strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error)];
     item.definition = definition;
     return item;
   }
@@ -255,7 +265,7 @@ export async function deleteItem(item: any) : any {
     }
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.storeItemError, getDataType(id).toLowerCase()));
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error));
     throw(error);
   }
 }
@@ -284,7 +294,7 @@ export async function searchItems(list: string, searchCritera: Object) : any {
   const requestNr : number = ++requestNumber;
   try {
     url = appendParameters(url, searchCritera);
-  __DEV__ && console.log('REQ '+requestNr+' GET '+url);
+    __DEV__ && console.log('REQ '+requestNr+' GET '+url);
     let httpResponse = await fetch(url, {
         method: 'get',
         headers: {
@@ -303,14 +313,14 @@ export async function searchItems(list: string, searchCritera: Object) : any {
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to get the '+list.substring(0, list.indexOf('/')).toLowerCase()+' list from the server. Please try again.');
+    alert(strings.formatString(strings.fetchItemError, list.substring(0, list.indexOf('/')).toLowerCase(), error));
     throw(error);
   }
 }
 
 export async function performActionOnItem(action: string, item: any) : any {
   let url : string = restUrl + getDataType(item.id) + '/' + encodeURIComponent(action);
-  const httpMethod = 'put';
+  const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
   try {
@@ -349,7 +359,7 @@ export async function performActionOnItem(action: string, item: any) : any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert('Something went wrong trying to '+action+' a '+getDataType(item.id)+'. Please try again.');
+    alert('Something went wrong trying to '+action+' a '+getDataType(item.id)+'. Please try again.\n\n(Internal error = '+error+')');
     throw(error);
   }
 }

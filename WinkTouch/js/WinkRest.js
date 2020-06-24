@@ -3,52 +3,39 @@
  */
 'use strict';
 
-import { appendParameters, getToken} from './Rest';
-import { strings, getUserLanguage } from './Strings';
+import type {Exam} from './Types';
+import { appendParameters, getToken, getNextRequestNumber, logRestResponse, handleHttpError} from './Rest';
+import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
 //export const winkRestUrl = 'https://nikon-feasibility.downloadwink.com/WinkRESTvWinkWeb/';
-export const winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
-//export const winkRestUrl = 'http://192.168.88.22:8080/WinkRESTv4.08.30/';
+//export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
+export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTv5.00.00/';
+//export const winkRestUrl = 'http://192.168.2.53:8080/WinkRESTv5.00.00/';
 
-async function handleHttpError(httpResponse: any) {
-  let errorMessage : string =  'HTTP error '+httpResponse.status;
-  try {
-      let httpBody = await httpResponse.json();
-      if (httpBody && httpBody.exception) errorMessage += ': '+httpBody.exception;
-  } catch (error) {
-  }
-  console.log('HTTP response error '+httpResponse.status+': '+ httpResponse.url);
-  throw new Error(errorMessage);
-}
-
-export async function putRest(uri: string, parameters: Object, method?: string = 'put', body?: any = undefined) : any {
+export async function fetchWinkRest(uri: string, parameters: Object, httpMethod?: string = 'GET', body?: any = undefined) : any {
   const url :string  = appendParameters(winkRestUrl + uri, parameters);
-  __DEV__ && console.log(method+' '+url+': '+body?JSON.stringify(body):'');
+  const requestNr = getNextRequestNumber();
+  __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' body: '+body);
   try {
     let httpResponse = await fetch(url, {
-        method: method,
+        method: httpMethod,
         headers: {
           'token': getToken(),
           'Content-Type': 'application/json',
           'Accept-language': getUserLanguage(),
-        },
-        body: body?JSON.stringify(body):''
+        }
     });
-    if (!httpResponse.ok) await handleHttpError(httpResponse);
+    if (!httpResponse.ok) handleHttpError(httpResponse, await httpResponse.text());
     const restResponse = await httpResponse.json();
-    if (restResponse.errors) {
-      alert(restResponse.errors);
-      console.log('restResponse contains a system error: '+ JSON.stringify(restResponse));
-      return;
-    }
+    __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert(strings.serverError);
-    throw(error);
+    alert(strings.formatString(strings.serverError, error));
+    return undefined;
   }
 }
 
@@ -61,7 +48,7 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
         headers: {
           'token': getToken(),
           'Content-Type': 'application/json',
-          'Accept-language': getUserLanguage(),
+          'Accept-language': getUserLanguageShort(),
           'Accept':'application/json'
         },
         body: body?JSON.stringify(body):''
@@ -85,11 +72,11 @@ export async function createPdf(uri: string, filename: string, parameters: Objec
       }
     });
     await RNFS.writeFile(fullFilename, restResponse['data'], 'base64');
-    __DEV__ && console.log('Wrote file '+fullFilename);
+    __DEV__ && console.log('Created local file '+fullFilename);
     return fullFilename;
   } catch (error) {
     console.log(error);
-    alert(strings.serverError);
+    alert(strings.formatString(strings.serverError, error));
     throw(error);
   }
 }
