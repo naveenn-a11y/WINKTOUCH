@@ -31,7 +31,8 @@ export type Store = {
   email: string,
   telephone: string,
   winkToWinkId?: number,
-  winkToWinkEmail?: string
+  winkToWinkEmail?: string,
+  eFaxUsed?: boolean
 }
 
 export type Account = {
