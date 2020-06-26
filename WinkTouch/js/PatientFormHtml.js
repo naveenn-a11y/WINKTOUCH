@@ -35,7 +35,7 @@ import {
   formatAge
 } from './Util'
 
-import { formatPrism, isPrism } from './Refraction'
+import { formatPrism, hasPrism } from './Refraction'
 import {
   getFieldDefinition as getExamFieldDefinition,
   getFieldValue as getExamFieldValue
@@ -59,7 +59,7 @@ let scannedFilesHtml : string = '';
 
 export function getScannedFiles() {
  return !isEmpty(scannedFilesHtml) ? `<div class = "scannedFiles">${scannedFilesHtml}</div>` : '';
-} 
+}
 
 export function setScannedFiles(html : string) {
   scannedFilesHtml = html;
@@ -188,7 +188,7 @@ export async function renderParentGroupHtml (exam: Exam): any {
     }
 
    }
-  
+
 
   return html
 }
@@ -199,7 +199,7 @@ async function renderAllGroupsHtml (exam: Exam) {
   if (!exam[exam.definition.name]) return '';
   if (exam.definition.fields === null || exam.definition.fields === undefined || exam.definition.fields.length === 0)
     return '';
-    
+
   await Promise.all(exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
     const result = await renderGroupHtml(groupDefinition, exam);
     if (!isEmpty(result)) {
@@ -246,7 +246,7 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam) {
     }));
   } else if (groupDefinition.fields === undefined && groupDefinition.options) {
     html += renderCheckListItemHtml(exam, groupDefinition)
-  }  
+  }
    else {
     const value: any = exam[exam.definition.name][groupDefinition.name];
     if (value === undefined || value === null || Object.keys(value).length === 0)
@@ -344,7 +344,7 @@ async function renderColumnedRows (
 
   let allRowsEmpty : boolean = false;
   for(let i=0; i<rows.length; i++) {
-      let rowValues = rows[i].slice(1); 
+      let rowValues = rows[i].slice(1);
       for(let j=0; j<rowValues.length;j++) {
           if(!isEmpty(rowValues[j])) {
             allRowsEmpty = false;
@@ -522,7 +522,7 @@ async function renderImage (
   let fieldAspectRatio =   aspectRatio(value, fieldDefinition);
   let style: { width: number, height: number } = imageStyle(fieldDefinition.size, fieldAspectRatio);
   let upload : Upload = undefined;
-  const pageWidth : number = 612; 
+  const pageWidth : number = 612;
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
 
@@ -583,7 +583,7 @@ async function renderImage (
               if (childFieldDefinition.layout) {
                   fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
               }
-              
+
               let x =
                 (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                 (parentScaledStyle ? parentScaledStyle.left : 0) +
@@ -721,7 +721,7 @@ function renderRxTable (
   html += `<th class="service">Sph</th>`
   html += `<th class="service">Cyl</th>`
   html += `<th class="service">Axis</th>`
-  if (isPrism(glassesRx)) html += `<th class="service">Prism</th>`
+  if (hasPrism(glassesRx)) html += `<th class="service">Prism</th>`
   if (groupDefinition.hasVA) html += `<th class="service">DVA</th>`
   if (groupDefinition.hasAdd) html += `<th class="service">Add</th>`
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
@@ -737,7 +737,7 @@ function renderRxTable (
   html += `<td class="desc">${
     glassesRx.od ? formatDegree(glassesRx.od.axis) : ''
   }</td>`
-  if (isPrism(glassesRx))
+  if (hasPrism(glassesRx))
     html += `<td class="desc">${
       glassesRx.od ? formatPrism(glassesRx.od.prism) : ''
     }</td>`
@@ -768,7 +768,7 @@ function renderRxTable (
   html += `<td class="desc">${
     glassesRx.os ? formatDegree(glassesRx.os.axis) : ''
   }</td>`
-  if (isPrism(glassesRx))
+  if (hasPrism(glassesRx))
     html += `<td class="desc">${
       glassesRx.os ? formatPrism(glassesRx.os.prism) : ''
     }</td>`
@@ -796,7 +796,7 @@ function renderRxTable (
   html += `<td class="desc"></td>`;
   html += `<td class="desc"></td>`;
   html += `<td class="desc"></td>`;
-  if (isPrism(glassesRx))
+  if (hasPrism(glassesRx))
     html += `<td class="desc"></td>`;
 
   if (groupDefinition.hasVA)
