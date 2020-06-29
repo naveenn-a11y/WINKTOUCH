@@ -298,7 +298,8 @@
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
-                  "stepSize": null
+                  "stepSize": null,
+                  "suffix": null
                 },
                 {
                   "name": "OS",
@@ -306,7 +307,8 @@
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
-                  "stepSize": null
+                  "stepSize": null,
+                  "suffix": null
                 },
                 {
                   "name": "OU",
@@ -314,7 +316,8 @@
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
-                  "stepSize": null
+                  "stepSize": null,
+                  "suffix": null
                 }
               ]
             }
