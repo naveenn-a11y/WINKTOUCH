@@ -51,6 +51,16 @@ export function newRefraction() : GlassesRx {
   }
 }
 
+export function clearRefraction(glassesRx: GlassesRx) {
+  if (!glassesRx) return;
+  glassesRx.os = {sph: undefined};
+  glassesRx.od = {sph: undefined};
+  glassesRx.ou = {};
+  glassesRx.lensType = undefined;
+}
+
+
+
 function isAstigmatic(glassesRx: GlassesRx) : boolean {
   if (!glassesRx) return false;
   if (glassesRx.od && glassesRx.od.cylinder!=undefined && glassesRx.od.cylinder!=null && glassesRx.od.cylinder!=0.0)
@@ -454,10 +464,11 @@ export class GlassesDetail extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.glassesRx===prevProps.glassesRx) return;
-    this.setState({
-      prism: hasPrism(this.props.glassesRx)
-    });
+    if (this.props.glassesRx!==prevProps.glassesRx) {
+      this.setState({
+        prism: hasPrism(this.props.glassesRx)
+      });
+    }  
   }
 
   updateGlassesRx(oculus: string, propertyName: string, value: ?number | string) : void {
@@ -512,10 +523,7 @@ export class GlassesDetail extends Component {
 
   clear = () : void => {
     let glassesRx: GlassesRx = this.props.glassesRx;
-    glassesRx.os = {};
-    glassesRx.od = {};
-    glassesRx.ou={};
-    glassesRx.lensType = undefined;
+    clearRefraction(glassesRx);
     if (this.props.onChangeGlassesRx)
       this.props.onChangeGlassesRx(glassesRx);
   }
@@ -660,7 +668,7 @@ export class GlassesDetail extends Component {
               onChangeValue={(value: ?string) => this.updateGlassesRx(undefined, 'notes', value)} errorMessage={this.props.glassesRx.notesError}  testID={this.props.fieldId+'.notes'}/>
           </View>}
         {this.props.editable===true && this.props.hasAdd===true && <View style={styles.buttonsRowLayout}>
-          <Button title={formatLabel(getFieldDefinition('visit.prescription.od.prism1'))} onPress={this.togglePrism} testID={this.props.fieldId+'.prismButton'}/>
+          <Button title={formatLabel(getFieldDefinition('visit.prescription.od.prism'))} onPress={this.togglePrism} testID={this.props.fieldId+'.prismButton'}/>
           {this.props.onCopy!==undefined && <Button title={strings.copyToFinal} onPress={() => this.props.onCopy(this.props.glassesRx)} testID={this.props.fieldId+'.copyOsOdButton'} testID={this.props.fieldId+'.copyFinalRxButton'}/>}
         </View>}
       </View>
