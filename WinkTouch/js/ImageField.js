@@ -16,7 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ViewShot from 'react-native-view-shot';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import RNFS from 'react-native-fs';
-import { styles, fontScale, imageStyle, imageWidth } from './Styles';
+import { styles, fontScale, imageStyle, printWidth } from './Styles';
 import { strings } from './Strings';
 import { getDoctor } from './DoctorApp';
 import { formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, jsonDateFormat, split,
@@ -28,6 +28,7 @@ import { getCachedItem } from './DataCache';
 import { searchPatientDocuments, storePatientDocument } from './Patient';
 import { ClearTile, UpdateTile, RefreshTile } from './Widgets';
 import { storeUpload } from './Upload';
+import { getVisit } from './Exam';
 
 function isCloseBy(point: {x: number, y:nummber}, line: string) {
   //__DEV__ && console.log('isCloseBy: ('+point.x+','+point.y+') '+line);
@@ -388,11 +389,13 @@ export class ImageField extends Component {
     const pdfFileName : ?string = this.state.pdf;
     if (!pdfFileName) return;
     const pdfData : string = await RNFS.readFile(pdfFileName, 'base64');
+    let visitDate : string = getVisit(getCachedItem(this.props.examId)).date;
     let upload : Upload = {
       id: 'upload',
       data: pdfData,
       mimeType: 'application/pdf;base64',
       name: this.props.fileName,
+      date: visitDate,
       argument1: this.props.patientId,
       argument2: this.props.examId
     };
@@ -405,7 +408,7 @@ export class ImageField extends Component {
     let patientDocument :PatientDocument = {
       id: 'patientDocument',
       patientId: this.props.patientId,
-      postedOn: formatDate(now(), jsonDateFormat),
+      postedOn: visitDate,
       name: this.props.fileName,
       category: this.props.type,
       uploadId: upload.id
@@ -565,7 +568,7 @@ export class ImageField extends Component {
     const pageHeight : number = pageWidth/pageAspectRatio;
     const imageUri = await this.refs.viewShot.capture();
     const aspectRatio = this.aspectRatio();
-    let width = Math.floor(imageWidth(this.props.size));
+    let width = Math.floor(printWidth(this.props.size));
     let height = Math.floor(width / aspectRatio);
     if (height>pageHeight) {
       height = Math.floor(pageHeight);
