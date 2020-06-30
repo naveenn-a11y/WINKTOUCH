@@ -468,7 +468,7 @@ export class GlassesDetail extends Component {
       this.setState({
         prism: hasPrism(this.props.glassesRx)
       });
-    }  
+    }
   }
 
   updateGlassesRx(oculus: string, propertyName: string, value: ?number | string) : void {
@@ -548,8 +548,10 @@ export class GlassesDetail extends Component {
             glassesRx.lensType = importData.data.lensType;
             glassesRx.od = {...importData.data.od};
             glassesRx.os = {...importData.data.os};
-            if (this.props.onChangeGlassesRx)
+            if (this.props.onChangeGlassesRx) {
+              this.setState({prism: hasPrism(glassesRx)});
               this.props.onChangeGlassesRx(glassesRx);
+            }
           }
         }
       });
@@ -564,8 +566,10 @@ export class GlassesDetail extends Component {
       glassesRx.lensType = data.data.lensType;
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
-      if (this.props.onChangeGlassesRx)
+      if (this.props.onChangeGlassesRx) {
+        this.setState({prism: hasPrism(glassesRx)});            
         this.props.onChangeGlassesRx(glassesRx);
+      }
     }
   }
 
