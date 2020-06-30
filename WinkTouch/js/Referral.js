@@ -116,14 +116,25 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
-  selectField(level: number, filter: string) {
+  selectField(level: number, filter: string, options: any) {
+
     let selectedField : string[] = this.state.selectedField;
     selectedField[level] = filter;
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
-    let cleanSelectedField = selectedField.filter((field : string) => isEmpty(field) === false);
-    let key = cleanSelectedField.join('.');
+    let cleanSelectedField: string[] = selectedField.filter((field : string) => isEmpty(field) === false);
+    let keyArray : string[] = [];
+    for(const field : string of cleanSelectedField) {
+      const formatted = options[field] === undefined ? options['keySpec'] : options[field]['keySpec'];
+
+    if(formatted)
+       keyArray.push(formatted);
+    else 
+        keyArray.push(field);
+    }
+
+    let key = keyArray.join('.');
     this.setState({selectedField});
     this.setState({key});
 
@@ -228,13 +239,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               options = options[this.state.selectedField[i-1]];
             }
           }
-          options = Object.keys(options);
-          if (options===undefined || options===null || options.length===0) return undefined;
+          let optionsKeys = Object.keys(options);
+          optionsKeys = optionsKeys.filter((oKey: string) => oKey !== 'keySpec');
+          if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
           return <FormRow>
               <TilesField label='Filter'
-                options={options}
+                options={optionsKeys}
                 value={this.state.selectedField[index]}
-                onChangeValue={(value: string) => this.selectField(index, value)}
+                onChangeValue={(value: string) => this.selectField(index, value, options)}
               />
             </FormRow>
           })
