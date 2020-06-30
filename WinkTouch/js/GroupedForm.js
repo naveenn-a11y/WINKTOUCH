@@ -1031,9 +1031,10 @@ export class GroupedFormScreen extends Component {
         forms.splice(index, 1);
       }
     } else {
-      //Clearing a single grouped form
-      const form = this.props.exam[this.props.exam.definition.name][groupName];
-      this.clearNonReadOnlyFields(form, formDefinition);
+      //Clearing a single grouped form or checklist
+      let form = this.props.exam[this.props.exam.definition.name][groupName];
+      form = this.clearNonReadOnlyFields(form, formDefinition);
+      this.props.exam[this.props.exam.definition.name][groupName]=form;
     }
     this.props.onUpdateExam(this.props.exam);
   }
