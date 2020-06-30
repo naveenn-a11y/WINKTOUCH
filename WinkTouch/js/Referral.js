@@ -21,7 +21,7 @@ import { initValues, getImageBase64Definition, patientHeader, patientFooter } fr
 import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
-
+import { isEmpty } from './Util';
 
 const dynamicFields : Object = {
   "Patient": {
@@ -54,7 +54,8 @@ type ReferralScreenProps = {
 
 type ReferralScreenState = {
   template: ?string,
-  selectedField: ?string[]
+  selectedField: ?string[],
+  key: ? string
 };
 
 
@@ -96,7 +97,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let body : {} = {
         'htmlDefinition': htmlDefinition,
-        'visitId': stripDataType(visit.id)
+        'visitId': stripDataType(visit.id),
+        'doctorId': 1 // To be replaced with the current selected doctor
       };
 
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
@@ -120,27 +122,32 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
+    let cleanSelectedField = selectedField.filter((field : string) => isEmpty(field) === false);
+    let key = cleanSelectedField.join('.');
     this.setState({selectedField});
+    this.setState({key});
+
   }
 
   async insertField() : void {
-
-    const testKey : string = '{exam.RxToOrder.Final Rx}'; // THIS IS ONLY FOR TESTING, SHOULD BE REMOVED AFTER THE KEY SELECTION IS DYNAMIC
+    const key  : string =this.state.key;
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
 
       let body : {} = {
         'htmlDefinition': htmlDefinition,
-        'visitId': stripDataType(visit.id)
+        'visitId': stripDataType(visit.id),
+        'doctorId': 1 // To be replaced with the current selected doctor
       };
 
-    let response = await fetchWinkRest('webresources/template/key/'+testKey, parameters, 'POST', body);
+    let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response) {
         const htmlContent : Referral = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
         this.editor.setContent(htmlHeader + htmlContent.content + htmlEnd);
+        //Base64 Image should be mapped as well here... To be done.
       }
   }
 
@@ -159,7 +166,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
-         'doctorId': 1 // To be replaced with the current selected doctor
+        'doctorId': 1 // To be replaced with the current selected doctor
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
@@ -214,7 +221,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
-          let options = dynamicFields;
+          
+          let options  = getAllCodes("dynamicFields");
           for (let i:number =1; i<=index; i++) {
             if (options) {
               options = options[this.state.selectedField[i-1]];
