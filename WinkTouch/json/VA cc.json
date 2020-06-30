@@ -294,7 +294,7 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["N4.5","N5","N6","N8","N10","N10","N12","N14","N18","N24","N36","N48","NLP"],
+                  "options": ["N4.5","N5","N6","N8","N10","N12","N14","N18","N24","N36","N48","NLP"],
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
@@ -303,7 +303,7 @@
                 },
                 {
                   "name": "OS",
-                  "options": ["N4.5","N5","N6","N8","N10","N10","N12","N14","N18","N24","N36","N48","NLP"],
+                  "options": ["N4.5","N5","N6","N8","N10","N12","N14","N18","N24","N36","N48","NLP"],
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
@@ -312,7 +312,7 @@
                 },
                 {
                   "name": "OU",
-                  "options": ["N4.5","N5","N6","N8","N10","N10","N12","N14","N18","N24","N36","N48","NLP"],
+                  "options": ["N4.5","N5","N6","N8","N10","N12","N14","N18","N24","N36","N48","NLP"],
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
