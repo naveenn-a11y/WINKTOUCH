@@ -55,7 +55,8 @@ type ReferralScreenProps = {
 type ReferralScreenState = {
   template: ?string,
   selectedField: ?string[],
-  key: ? string
+  key: ? string,
+  doctorId: ? number | string
 };
 
 
@@ -98,7 +99,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       let body : {} = {
         'htmlDefinition': htmlDefinition,
         'visitId': stripDataType(visit.id),
-        'doctorId': 1 // To be replaced with the current selected doctor
+        'doctorId': this.state.doctorId
       };
 
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
@@ -117,7 +118,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   selectField(level: number, filter: string, options: any) {
-
     let selectedField : string[] = this.state.selectedField;
     selectedField[level] = filter;
     while(++level<selectedField.length) {
@@ -133,12 +133,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     else 
         keyArray.push(field);
     }
-
     let key = keyArray.join('.');
     this.setState({selectedField});
     this.setState({key});
 
   }
+
+    updateValue(newValue: any) {
+      this.setState({doctorId: newValue});
+    }
 
   async insertField() : void {
     const key  : string =this.state.key;
@@ -149,7 +152,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       let body : {} = {
         'htmlDefinition': htmlDefinition,
         'visitId': stripDataType(visit.id),
-        'doctorId': 1 // To be replaced with the current selected doctor
+        'doctorId': this.state.doctorId
       };
 
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
@@ -177,7 +180,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
-        'doctorId': 1 // To be replaced with the current selected doctor
+        'doctorId': this.state.doctorId
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
@@ -194,7 +197,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        let file = await generatePDF(html, true);
        let body : {} = {
             'visitId': stripDataType(visit.id),
-            'doctorId': 1, // To be replaced with the current selected doctor
+            'doctorId': this.state.doctorId,
             'attachment': file.base64
           };
 
@@ -215,7 +218,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        let file = await generatePDF(html, true);
        let body : {} = {
             'visitId': stripDataType(visit.id),
-            'doctorId': 1, // To be replaced with the current selected doctor
+            'doctorId': this.state.doctorId,
             'attachment': file.base64,
             'isFax': true
           };
@@ -288,7 +291,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <View style={styles.boardM}>
             <View style={styles.formRow}>
               <View style={styles.formRowHeader}><Label value={'Referring patient to '}/></View>
-              <FormCode code="doctors" />
+              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
           <View style={styles.buttonsRowStartLayout}>
