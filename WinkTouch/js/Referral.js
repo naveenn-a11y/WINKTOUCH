@@ -12,7 +12,7 @@ import { Button,TilesField, Label } from './Widgets';
 import { FormRow, FormField, FormCode } from './Form';
 import { getAllCodes } from './Codes';
 import { fetchWinkRest } from './WinkRest';
-import type { HtmlDefinition, Referral, ImageBase64Definition } from './Types';
+import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition } from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
@@ -21,7 +21,7 @@ import { initValues, getImageBase64Definition, patientHeader, patientFooter } fr
 import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
-
+import { isEmpty } from './Util';
 
 const dynamicFields : Object = {
   "Patient": {
@@ -54,7 +54,10 @@ type ReferralScreenProps = {
 
 type ReferralScreenState = {
   template: ?string,
-  selectedField: ?string[]
+  selectedField: ?string[],
+  key: ? string,
+  doctorId: ? number | string,
+  id: ? number | string
 };
 
 
@@ -71,14 +74,19 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       htmlDefinition : []
     }
   }
-  mapImageWithBase64() {
+  mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
       if(imageBase64Definition) {
           for(const base64Image : ImageBase64Definition of imageBase64Definition) {
             let regex = new RegExp(base64Image.key, 'g');
-            referralHtml = referralHtml.replace(regex, base64Image.value);
+            if(template) {
+              template = template.replace(regex, base64Image.value);
+            }else{
+              referralHtml = referralHtml.replace(regex, base64Image.value);
+            }
           }
         }
+       return template;
   }
   async startReferral(template: string) {
     let parameters : {} = {};
@@ -96,12 +104,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let body : {} = {
         'htmlDefinition': htmlDefinition,
-        'visitId': stripDataType(visit.id)
+        'visitId': stripDataType(visit.id),
+        'doctorId': this.state.doctorId
       };
 
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
       if (response) {
-        const htmlContent : Referral = response;
+        const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
 
@@ -114,33 +123,51 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
-  selectField(level: number, filter: string) {
+  selectField(level: number, filter: string, options: any) {
     let selectedField : string[] = this.state.selectedField;
     selectedField[level] = filter;
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
+    let cleanSelectedField: string[] = selectedField.filter((field : string) => isEmpty(field) === false);
+    let keyArray : string[] = [];
+    for(const field : string of cleanSelectedField) {
+      const formatted = options[field] === undefined ? options['keySpec'] : options[field]['keySpec'];
+
+    if(formatted)
+       keyArray.push(formatted);
+    else 
+        keyArray.push(field);
+    }
+    let key = keyArray.join('.');
     this.setState({selectedField});
+    this.setState({key});
+
   }
 
-  async insertField() : void {
+    updateValue(newValue: any) {
+      this.setState({doctorId: newValue});
+    }
 
-    const testKey : string = '{exam.RxToOrder.Final Rx}'; // THIS IS ONLY FOR TESTING, SHOULD BE REMOVED AFTER THE KEY SELECTION IS DYNAMIC
+  async insertField() : void {
+    const key  : string =this.state.key;
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
 
       let body : {} = {
         'htmlDefinition': htmlDefinition,
-        'visitId': stripDataType(visit.id)
+        'visitId': stripDataType(visit.id),
+        'doctorId': this.state.doctorId
       };
 
-    let response = await fetchWinkRest('webresources/template/key/'+testKey, parameters, 'POST', body);
+    let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response) {
-        const htmlContent : Referral = response;
+        const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
-        this.editor.setContent(htmlHeader + htmlContent.content + htmlEnd);
+        let html = this.mapImageWithBase64(htmlContent.content);
+        this.editor.setContent(htmlHeader + html + htmlEnd);
       }
   }
 
@@ -150,19 +177,28 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
     await printHtml(html);
+    await this.save(2);   
+
   }
 
-  async save() : Promise<void> {
+  async save(action?: Number) : Promise<void> {
     let html = await this.editor.getContent();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
-         'doctorId': 1 // To be replaced with the current selected doctor
+        'doctorId': this.state.doctorId,
+        'action': action,
+        'id': this.state.id
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
+      if(response) {
+        let referralDefinition: ReferralDefinition = response;
+        let referralId = stripDataType(referralDefinition.id);
+        this.setState({id: referralId});
+      }
   }
 
   async email() : Promise<void> {
@@ -176,14 +212,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        let file = await generatePDF(html, true);
        let body : {} = {
             'visitId': stripDataType(visit.id),
-            'doctorId': 1, // To be replaced with the current selected doctor
+            'doctorId': this.state.doctorId,
             'attachment': file.base64
           };
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
       if (response) {
+        await this.save(0);  
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-      }   
+      }
   }
 
     async fax() : Promise<void> {
@@ -197,13 +234,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        let file = await generatePDF(html, true);
        let body : {} = {
             'visitId': stripDataType(visit.id),
-            'doctorId': 1, // To be replaced with the current selected doctor
+            'doctorId': this.state.doctorId,
             'attachment': file.base64,
             'isFax': true
           };
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
       if (response) {
+        await this.save(1);
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
       }   
   }
@@ -214,19 +252,21 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
-          let options = dynamicFields;
+          
+          let options  = getAllCodes("dynamicFields");
           for (let i:number =1; i<=index; i++) {
             if (options) {
               options = options[this.state.selectedField[i-1]];
             }
           }
-          options = Object.keys(options);
-          if (options===undefined || options===null || options.length===0) return undefined;
+          let optionsKeys = Object.keys(options);
+          optionsKeys = optionsKeys.filter((oKey: string) => oKey !== 'keySpec');
+          if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
           return <FormRow>
               <TilesField label='Filter'
-                options={options}
+                options={optionsKeys}
                 value={this.state.selectedField[index]}
-                onChangeValue={(value: string) => this.selectField(index, value)}
+                onChangeValue={(value: string) => this.selectField(index, value, options)}
               />
             </FormRow>
           })
@@ -268,7 +308,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <View style={styles.boardM}>
             <View style={styles.formRow}>
               <View style={styles.formRowHeader}><Label value={'Referring patient to '}/></View>
-              <FormCode code="doctors" />
+              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
           <View style={styles.buttonsRowStartLayout}>
