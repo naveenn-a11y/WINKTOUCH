@@ -73,14 +73,19 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       htmlDefinition : []
     }
   }
-  mapImageWithBase64() {
+  mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
       if(imageBase64Definition) {
           for(const base64Image : ImageBase64Definition of imageBase64Definition) {
             let regex = new RegExp(base64Image.key, 'g');
-            referralHtml = referralHtml.replace(regex, base64Image.value);
+            if(template) {
+              template = template.replace(regex, base64Image.value);
+            }else{
+              referralHtml = referralHtml.replace(regex, base64Image.value);
+            }
           }
         }
+       return template;
   }
   async startReferral(template: string) {
     let parameters : {} = {};
@@ -160,8 +165,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         const htmlContent : Referral = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
-        this.editor.setContent(htmlHeader + htmlContent.content + htmlEnd);
-        //Base64 Image should be mapped as well here... To be done.
+        let html = this.mapImageWithBase64(htmlContent.content);
+        this.editor.setContent(htmlHeader + html + htmlEnd);
       }
   }
 
@@ -171,16 +176,19 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
     await printHtml(html);
+    await this.save(2);   
+
   }
 
-  async save() : Promise<void> {
+  async save(action?: Number) : Promise<void> {
     let html = await this.editor.getContent();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
-        'doctorId': this.state.doctorId
+        'doctorId': this.state.doctorId,
+        'action': action
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
@@ -203,8 +211,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
       if (response) {
+        await this.save(0);  
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-      }   
+      }
   }
 
     async fax() : Promise<void> {
@@ -225,6 +234,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
       if (response) {
+        await this.save(1);
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
       }   
   }
