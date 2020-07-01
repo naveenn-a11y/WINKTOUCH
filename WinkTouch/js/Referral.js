@@ -12,7 +12,7 @@ import { Button,TilesField, Label } from './Widgets';
 import { FormRow, FormField, FormCode } from './Form';
 import { getAllCodes } from './Codes';
 import { fetchWinkRest } from './WinkRest';
-import type { HtmlDefinition, Referral, ImageBase64Definition } from './Types';
+import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition } from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
@@ -56,7 +56,8 @@ type ReferralScreenState = {
   template: ?string,
   selectedField: ?string[],
   key: ? string,
-  doctorId: ? number | string
+  doctorId: ? number | string,
+  id: ? number | string
 };
 
 
@@ -109,7 +110,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
       if (response) {
-        const htmlContent : Referral = response;
+        const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
 
@@ -162,7 +163,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response) {
-        const htmlContent : Referral = response;
+        const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
         let html = this.mapImageWithBase64(htmlContent.content);
@@ -188,10 +189,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId,
-        'action': action
+        'action': action,
+        'id': this.state.id
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
+      if(response) {
+        let referralDefinition: ReferralDefinition = response;
+        let referralId = stripDataType(referralDefinition.id);
+        this.setState({id: referralId});
+      }
   }
 
   async email() : Promise<void> {

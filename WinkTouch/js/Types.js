@@ -295,9 +295,16 @@ export type ImageBase64Definition = {
   value: string
 }
 
-export type Referral = {
+export type ReferralDocument = {
   content  :string
 }
+
+export type ReferralDefinition = {
+  id: number,
+  visitId  :number,
+  fromDoctorId :number
+}
+
 export type ExamDefinition = {
     id: string,
     version: number,
