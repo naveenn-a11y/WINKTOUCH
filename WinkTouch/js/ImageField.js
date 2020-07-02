@@ -405,19 +405,21 @@ export class ImageField extends Component {
       return;
     }
 
-    let patientDocument :PatientDocument = {
-      id: 'patientDocument',
-      patientId: this.props.patientId,
-      postedOn: visitDate,
-      name: this.props.fileName,
-      category: this.props.type,
-      uploadId: upload.id
-    };
-    patientDocument = await storePatientDocument(patientDocument);
-    if (patientDocument.errors) {
-      alert(strings.pmsImageSaveError);
+    if (this.props.type) {
+      let patientDocument :PatientDocument = {
+        id: 'patientDocument',
+        patientId: this.props.patientId,
+        postedOn: visitDate,
+        name: this.props.fileName,
+        category: this.props.type,
+        uploadId: upload.id
+      };
+      patientDocument = await storePatientDocument(patientDocument);
+      if (patientDocument.errors) {
+        alert(strings.pmsImageSaveError);
+      }
+      __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
     }
-    __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
   }
 
   async takeScreenShot() {
@@ -651,9 +653,6 @@ export class ImageField extends Component {
     if (image==='./image/amsler.png') return require('./image/amsler.png');
     if (image==='./image/d15.jpg') return require('./image/d15.jpg');
     if (image==='./image/eyeexamtemplate.png') return require('./image/eyeexamtemplate.png');
-    if (image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
-    if (image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
-    if (image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
     if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;
     return {uri: image, cache: 'force-cache'};
   }
