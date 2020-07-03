@@ -173,7 +173,10 @@ export const strings = new LocalizedStrings({
       pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.',
       examDate: 'Date of Exam',
       healthCard: 'Health Card',
-      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
+      emailSuccess: 'Email sent successfully to {0}',
+      faxSuccess: 'Fax sent successfully to {0}',
+      referringPatientTo: 'Referring patient to '
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
@@ -339,7 +342,10 @@ export const strings = new LocalizedStrings({
       pmsImageSaveError: 'Une erreur s\'est produite en sauvegardant l\'image dans le PMS',
       examDate: 'Date de l\'exam',
       healthCard: 'Carte maladie',
-      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
+      emailSuccess: 'Email envoyé avec succès à {0}',
+      faxSuccess: 'Fax envoyé succès à {0}',
+      referringPatientTo: 'Référer le patient à '
     }
 });
 
