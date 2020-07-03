@@ -22,6 +22,7 @@ import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
 import { isEmpty } from './Util';
+import { strings } from './Strings';
 
 const dynamicFields : Object = {
   "Patient": {
@@ -57,7 +58,8 @@ type ReferralScreenState = {
   selectedField: ?string[],
   key: ? string,
   doctorId: ? number | string,
-  id: ? number | string
+  id: ? number | string,
+  isActive: ? boolean
 };
 
 
@@ -71,7 +73,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     this.state = {
       template: undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined],
-      htmlDefinition : []
+      htmlDefinition : [],
+      isActive: true
     }
   }
   mapImageWithBase64(template?:string) {
@@ -202,7 +205,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async email() : Promise<void> {
-
+       this.setState({isActive: false});
        let html = await this.editor.getContent();
        let htmlHeader: string = patientHeader();
        let htmlEnd: string = patientFooter();
@@ -220,11 +223,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response) {
         await this.save(0);  
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+        alert(strings.formatString(strings.emailSuccess, response.recipients));
       }
+      this.setState({isActive: true});
   }
 
     async fax() : Promise<void> {
-
+       this.setState({isActive: false});
        let html = await this.editor.getContent();
        let htmlHeader: string = patientHeader();
        let htmlEnd: string = patientFooter();
@@ -243,7 +248,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response) {
         await this.save(1);
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-      }   
+        alert(strings.formatString(strings.faxSuccess, response.recipients));
+      }
+      this.setState({isActive: true});   
   }
 
   renderTemplateTool() {
@@ -275,6 +282,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Button title='Insert' onPress={() => this.insertField()}/>
         </FormRow>
       </View>
+      <View style={styles.sideBar}>
+          <View style={styles.formRow}>
+            <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
+          </View>
+           <View style={styles.formRow}>
+              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+            </View>
+        </View>
+
     </View>
   }
 
@@ -291,10 +307,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       {this.renderTemplateTool()}
 
       <View style={styles.flow}>
-          <Button title='Print' onPress={() => this.print()}/>
-          <Button title='Email' onPress={() => this.email()} />
-          {getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()}/>}
-          <Button title='Save' onPress={() => {this.save()}}/>
+          <Button title='Print' onPress={() => this.print()} disabled={!this.state.isActive}/>
+          <Button title='Email' onPress={() => this.email()} disabled={!this.state.isActive} />
+          {getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
+          <Button title='Save' onPress={() => {this.save()}} disabled={!this.state.isActive}/>
       </View>
     </View>
   }
@@ -307,7 +323,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Text style={styles.cardTitle}>New Referral</Text>
           <View style={styles.boardM}>
             <View style={styles.formRow}>
-              <View style={styles.formRowHeader}><Label value={'Referring patient to '}/></View>
+              <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
               <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
