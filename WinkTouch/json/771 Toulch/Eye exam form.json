@@ -1,26 +1,128 @@
 {
-  "name": "Eye exam form",
+  "name": "Eye exam",
   "isPreExam": false,
   "scrollable": true,
-  "card": false,
+  "card": true,
   "type": "groupedForm",
   "section": "Form.2",
   "cardGroup": "Exam front",
   "fields": [
+    {
+      "name": "Auto refractor",
+      "optional": true,
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Auto refractor scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": true,
+          "size": "S",
+          "type": "EMR"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
+
+    {
+      "name": "Other",
+      "multiValue": false,
+      "size":"XL",
+      "fields": [
+        {
+          "name": "Visual field scan",
+          "image": "upload",
+          "label": "VF",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "OCT scan",
+          "image": "upload",
+          "label": "OCT",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Optomap scan",
+          "image": "upload",
+          "label": "Optomap",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Fundus scan",
+          "image": "upload",
+          "label": "Fundus",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "SAAQ scan",
+          "image": "upload",
+          "label": "SAAQ",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Referral scan",
+          "image": "upload",
+          "label": "Referral",
+          "popup": false,
+          "drawable": true,
+          "size": "XL",
+          "type": "EMR"
+        },
+        {
+          "name": "Medication",
+          "image": "upload",
+          "label": "Medication",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Other",
+          "image": "upload",
+          "label": "Other",
+          "popup": false,
+          "drawable": true,
+          "size": "L",
+          "type": "EMR"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
+    },
     {
       "name": "Exam front",
       "label": "",
       "size": "XL",
       "fields": [
         {
-          "sync": true,
           "popup": false,
           "name": "Exam front page",
           "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/771\/251\/ToulchExamFront.jpg",
           "drawable": true,
           "label": "",
           "resolution": "1620x2137",
-          "type": "EMR",
           "size": "XL",
           "fields": [
             {
@@ -303,14 +405,12 @@
       "size": "XL",
       "fields": [
         {
-          "sync": true,
           "popup": false,
           "name": "Exam back page",
           "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/771\/252\/ToulchExamBack.jpg",
           "drawable": true,
           "label": "",
           "resolution": "1623x2143",
-          "type": "EMR",
           "size": "XL"
         }
       ]
@@ -319,6 +419,7 @@
       "name": "Medication Rx",
       "label": "",
       "size": "L",
+      "multiValue": false,
       "fields": [
         {
           "sync": true,
