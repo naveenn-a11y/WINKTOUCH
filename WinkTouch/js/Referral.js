@@ -231,14 +231,18 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async save() : Promise<void> {
     let html = await this.editor.getContent();
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
+    let file = await generatePDF(htmlHeader + html + htmlEnd, true);
     let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId,
         'action': this.state.command,
-        'id': this.state.id
+        'id': this.state.id,
+        'attachment': file.base64
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
