@@ -167,32 +167,27 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     }
 
    updateFieldCc(newValue: any) {
-     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      if (!emailDefinition) return;
+    let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+    if (!emailDefinition) return;
      emailDefinition.cc = newValue;
-     console.log("Email Definition: " + JSON.stringify(emailDefinition));
-      this.setState({emailDefinition: emailDefinition});
+    this.setState({emailDefinition: emailDefinition});
     }
   updateFieldTo(newValue: any) {
      let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      if (!emailDefinition) return;
+     if (!emailDefinition) return;
      emailDefinition.to = newValue;
-     console.log("Email Definition: " + JSON.stringify(emailDefinition));
-      this.setState({emailDefinition: emailDefinition});
+     this.setState({emailDefinition: emailDefinition});
     }
     updateFieldSubject(newValue: any) {
      let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      if (!emailDefinition) return;
+     if (!emailDefinition) return;
      emailDefinition.subject = newValue;
-         console.log("Email Definition: " + JSON.stringify(emailDefinition));
-
       this.setState({emailDefinition: emailDefinition});
     }
     updateFieldBody(newValue: any) {
-     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      if (!emailDefinition) return;
+    let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+    if (!emailDefinition) return;
      emailDefinition.body = newValue;
-    console.log("Email Definition: " + JSON.stringify(emailDefinition));
     this.setState({emailDefinition: emailDefinition});
     }
     cancelEdit = () => {
@@ -288,7 +283,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const visit: Visit = this.props.navigation.state.params.visit;
     let file = await generatePDF(html, true);
     let body : {} = {};
-    console.log("Email Definition: " + JSON.stringify(this.state.emailDefinition));
     if(this.state.command == COMMAND.EMAIL) {
          body = {
             'visitId': stripDataType(visit.id),
