@@ -4,15 +4,15 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Modal, TouchableWithoutFeedback } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Editor, Provider, Tools } from 'react-native-tinymce';
 import { styles } from './Styles';
-import { Button,TilesField, Label } from './Widgets';
-import { FormRow, FormField, FormCode } from './Form';
-import { getAllCodes } from './Codes';
+import { Button,TilesField, Label, SelectionList } from './Widgets';
+import { FormRow, FormTextInput, FormField, FormCode } from './Form';
+import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
-import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition } from './Types';
+import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition} from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml } from './Exam';
@@ -49,6 +49,12 @@ export function setReferralHtml(html: string) {
   referralHtml = html;
 }
 
+const COMMAND = {
+  EMAIL: 0,
+  FAX: 1,
+  PRINT: 2
+}
+
 type ReferralScreenProps = {
   navigation: any
 };
@@ -59,7 +65,10 @@ type ReferralScreenState = {
   key: ? string,
   doctorId: ? number | string,
   id: ? number | string,
-  isActive: ? boolean
+  isActive: ? boolean,
+  emailDefinition : ? EmailDefinition,
+  command: COMMAND,
+  isPopupVisibile: ? boolean,
 };
 
 
@@ -74,7 +83,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       template: undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined],
       htmlDefinition : [],
-      isActive: true
+      isActive: true,
+      emailDefinition: {},
+      command: undefined,
+      isPopupVisibile: false
     }
   }
   mapImageWithBase64(template?:string) {
@@ -116,11 +128,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
-
         referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
-
         this.setState({template, htmlDefinition});
+        this.updateFieldSubject(htmlContent.subject);
+        this.updateFieldBody(htmlContent.body);
+
+
       }
     }
 
@@ -148,9 +162,39 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
-    updateValue(newValue: any) {
+  updateValue(newValue: any) {
       this.setState({doctorId: newValue});
     }
+
+   updateFieldCc(newValue: any) {
+    let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+    if (!emailDefinition) return;
+     emailDefinition.cc = newValue;
+    this.setState({emailDefinition: emailDefinition});
+    }
+  updateFieldTo(newValue: any) {
+     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+     if (!emailDefinition) return;
+     emailDefinition.to = newValue;
+     this.setState({emailDefinition: emailDefinition});
+    }
+    updateFieldSubject(newValue: any) {
+     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+     if (!emailDefinition) return;
+     emailDefinition.subject = newValue;
+      this.setState({emailDefinition: emailDefinition});
+    }
+    updateFieldBody(newValue: any) {
+    let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+    if (!emailDefinition) return;
+     emailDefinition.body = newValue;
+    this.setState({emailDefinition: emailDefinition});
+    }
+    cancelEdit = () => {
+    this.setState({ isActive: true });
+    this.setState({ isPopupVisibile: false });
+
+  }
 
   async insertField() : void {
     const key  : string =this.state.key;
@@ -175,25 +219,30 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async print() : Promise<void> {
+    this.setState({command: COMMAND.PRINT});
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
     await printHtml(html);
-    await this.save(2);   
+    await this.save();   
 
   }
 
-  async save(action?: Number) : Promise<void> {
+  async save() : Promise<void> {
     let html = await this.editor.getContent();
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
+    let file = await generatePDF(htmlHeader + html + htmlEnd, true);
     let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId,
-        'action': action,
-        'id': this.state.id
+        'action': this.state.command,
+        'id': this.state.id,
+        'attachment': file.base64
       };
 
       let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
@@ -205,52 +254,66 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async email() : Promise<void> {
-       this.setState({isActive: false});
-       let html = await this.editor.getContent();
-       let htmlHeader: string = patientHeader();
-       let htmlEnd: string = patientFooter();
-       html = htmlHeader + html + htmlEnd;
-       let parameters : {} = {};
-       const visit: Visit = this.props.navigation.state.params.visit;
-       let file = await generatePDF(html, true);
-       let body : {} = {
-            'visitId': stripDataType(visit.id),
-            'doctorId': this.state.doctorId,
-            'attachment': file.base64
-          };
-
-      let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
-      if (response) {
-        await this.save(0);  
-        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-        alert(strings.formatString(strings.emailSuccess, response.recipients));
+      if(this.state.doctorId === undefined) {
+          alert(strings.doctorReferralMissing);
+          return;
       }
-      this.setState({isActive: true});
+       this.setState({isPopupVisibile: true});
+       this.setState({command: COMMAND.EMAIL});
+
   }
 
-    async fax() : Promise<void> {
-       this.setState({isActive: false});
-       let html = await this.editor.getContent();
-       let htmlHeader: string = patientHeader();
-       let htmlEnd: string = patientFooter();
-       html = htmlHeader + html + htmlEnd;
-       let parameters : {} = {};
-       const visit: Visit = this.props.navigation.state.params.visit;
-       let file = await generatePDF(html, true);
-       let body : {} = {
+  async fax() : Promise<void> {
+      if(this.state.doctorId === undefined) {
+          alert(strings.doctorReferralMissing);
+          return;
+      }
+       this.setState({isPopupVisibile: true});
+       this.setState({command: COMMAND.FAX});
+
+  }
+
+  async send() : Promise<void> {
+    if(this.state.command === undefined || this.state.emailDefinition === undefined) {
+      return;
+    }
+
+    this.setState({isActive: false});
+    let html = await this.editor.getContent();
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
+    html = htmlHeader + html + htmlEnd;
+    let parameters : {} = {};
+    const visit: Visit = this.props.navigation.state.params.visit;
+    let file = await generatePDF(html, true);
+    let body : {} = {};
+    if(this.state.command == COMMAND.EMAIL) {
+         body = {
             'visitId': stripDataType(visit.id),
             'doctorId': this.state.doctorId,
             'attachment': file.base64,
-            'isFax': true
+            'emailDefinition': this.state.emailDefinition
           };
+    }
+    else if(this.state.command == COMMAND.FAX) {
+          body  = {
+            'visitId': stripDataType(visit.id),
+            'doctorId': this.state.doctorId,
+            'attachment': file.base64,
+            'isFax': true,
+            'emailDefinition': this.state.emailDefinition
+          };
+    }
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
       if (response) {
-        await this.save(1);
+        await this.save();
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-        alert(strings.formatString(strings.faxSuccess, response.recipients));
+        alert(strings.formatString(strings.referralSuccess, response.recipients));
       }
-      this.setState({isActive: true});   
+    this.setState({isActive: true});
+    this.setState({isPopupVisibile: false});
+
   }
 
   renderTemplateTool() {
@@ -309,10 +372,61 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       <View style={styles.flow}>
           <Button title='Print' onPress={() => this.print()} disabled={!this.state.isActive}/>
           <Button title='Email' onPress={() => this.email()} disabled={!this.state.isActive} />
-          {getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
-          <Button title='Save' onPress={() => {this.save()}} disabled={!this.state.isActive}/>
+          {getStore() !== undefined && getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
       </View>
+        {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
+            && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
+        {this.renderPopup()}
+      </Modal>}
     </View>
+  }
+
+  
+  renderPopup() {
+
+        let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
+        let emailDefinition : EmailDefinition = this.state.emailDefinition;
+        const command : COMMAND = this.state.command;
+        if(command == COMMAND.EMAIL) {
+           emailDefinition.to = doctorCode.email;
+        }
+        else if(command == COMMAND.FAX) {
+           emailDefinition.to = doctorCode.fax;
+        }
+        
+    return <TouchableWithoutFeedback onPress={this.cancelEdit}>
+        <View style={styles.popupBackground}>
+          <View style={styles.flowLeft}>
+              <Button title={strings.cancel} onPress={this.cancelEdit} disabled={!this.state.isActive} />
+              <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
+          </View>
+
+          <View style={styles.flexColumnLayout}>
+          <View style={styles.form}>
+              <FormRow>
+              <View style={styles.rowLayout}>
+                <FormTextInput label='To' value={emailDefinition.to} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldTo(newValue)}/>
+              </View>
+            </FormRow>
+               <FormRow>
+              <View style={styles.rowLayout}>
+                <FormTextInput label='Cc' value={emailDefinition.cc}  readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldCc(newValue)}/>
+              </View>
+            </FormRow>  
+            <FormRow>
+              <View style={styles.rowLayout}>
+                <FormTextInput label='Subject' value={emailDefinition.subject} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldSubject(newValue)}/>
+              </View>
+            </FormRow> 
+            <FormRow>
+            <View style={styles.rowLayout}>
+              <FormTextInput multiline={true} label='Body' value={emailDefinition.body} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldBody(newValue)} />
+            </View>
+            </FormRow>       
+          </View>
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
   }
 
   renderTemplates() {
