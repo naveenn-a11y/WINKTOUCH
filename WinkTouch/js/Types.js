@@ -296,13 +296,22 @@ export type ImageBase64Definition = {
 }
 
 export type ReferralDocument = {
-  content  :string
+  content : string,
+  subject?: string,
+  body?: string
 }
 
 export type ReferralDefinition = {
   id: number,
   visitId  :number,
   fromDoctorId :number
+}
+
+export type EmailDefinition = {
+  to  :string,
+  cc?:string,
+  subject?: string,
+  body?: string
 }
 
 export type ExamDefinition = {

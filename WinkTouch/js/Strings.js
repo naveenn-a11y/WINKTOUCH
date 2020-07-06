@@ -155,6 +155,7 @@ export const strings = new LocalizedStrings({
       updateAppStore: 'Please update the WINKemr app in the apple appstore.',
       cancel: 'Cancel',
       confirm: 'Confirm',
+      send: 'Send',
       deleteVisitTitle: 'Delete consultation',
       deleteVisitQuestion: 'Are you sure you want to permanently delete the {0} of {1} ?',
       findPatient: 'Enter the patient name or #Z',
@@ -176,7 +177,9 @@ export const strings = new LocalizedStrings({
       configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
       emailSuccess: 'Email sent successfully to {0}',
       faxSuccess: 'Fax sent successfully to {0}',
-      referringPatientTo: 'Referring patient to '
+      referralSuccess: 'Referral sent successfully to {0}',
+      referringPatientTo: 'Referring patient to ',
+      doctorReferralMissing: 'Please select the doctor'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
@@ -324,6 +327,7 @@ export const strings = new LocalizedStrings({
       updateAppStore: 'Veuillez effectuer les mises à jour pour WINKemr dans l\'App store',
       cancel: 'Annuler',
       confirm: 'Confirmer',
+      send: 'Envoyer',
       deleteVisitTitle: 'Supprimer une consultation',
       deleteVisitQuestion: 'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
       findPatient: 'Entrer le nom du patient ou le #Z',
@@ -344,8 +348,11 @@ export const strings = new LocalizedStrings({
       healthCard: 'Carte maladie',
       configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
       emailSuccess: 'Email envoyé avec succès à {0}',
-      faxSuccess: 'Fax envoyé succès à {0}',
-      referringPatientTo: 'Référer le patient à '
+      faxSuccess: 'Fax envoyé avec succès à {0}',
+      referralSuccess: 'Référence envoyé avec succès à {0}',
+      referringPatientTo: 'Référer le patient à ',
+      doctorReferralMissing: 'Veuillez sélectionner le docteur'
+
     }
 });
 

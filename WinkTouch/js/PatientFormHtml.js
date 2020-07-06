@@ -1083,7 +1083,9 @@ export function patientHeader () {
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
     `.scannedFiles {display: block; page-break-before: always;}` +
+    `body {padding: 0.75in 0.75in 0.75in 0.75in}` +
     `}` +
+
 
     `.uploadForm {` +
     `  font-weight: bold;` +
