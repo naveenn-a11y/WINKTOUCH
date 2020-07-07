@@ -3,10 +3,11 @@
  */
 'use strict';
 
+import type { Visit } from './Types'; 
+
 import React, { Component } from 'react';
 import { View, Text, ScrollView, Modal, TouchableWithoutFeedback } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Editor, Provider, Tools } from 'react-native-tinymce';
 import { styles } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
@@ -23,27 +24,9 @@ import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
 import { isEmpty } from './Util';
 import { strings } from './Strings';
+import { HtmlEditor } from './HtmlEditor';
 
-const dynamicFields : Object = {
-  "Patient": {
-    "firstName": {},
-    "lastName": {}
-  },
-  "Exam": {
-    "Reason for visit": {
-      "Reason for visit": {
-        "Main Reason":{},
-        "Secondary Reason":{}
-      }
-    },
-    "Allergies": {
-      "Allergy": {},
-      "Reaction": {}
-    }
-  }
-};
-
-let referralHtml : string = "Wink";
+let referralHtml : string = "";
 
 export function setReferralHtml(html: string) {
   referralHtml = html;
@@ -153,7 +136,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
     if(formatted)
        keyArray.push(formatted);
-    else 
+    else
         keyArray.push(field);
     }
     let key = keyArray.join('.');
@@ -225,8 +208,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
     await printHtml(html);
-    await this.save();   
-
+    await this.save();
   }
 
   async save() : Promise<void> {
@@ -305,7 +287,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           };
     }
 
-      let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);    
+      let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);
       if (response) {
         await this.save();
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
@@ -322,7 +304,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
-          
+
           let options  = getAllCodes("dynamicFields");
           for (let i:number =1; i<=index; i++) {
             if (options) {
@@ -360,12 +342,11 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   renderEditor() {
     return <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
       <View style={styles.pageEditor}>
-        <Provider>
-          <Editor
-            ref={ ref => this.editor = ref }
+          <HtmlEditor
+            style={styles.page}
+            ref={ref => this.editor = ref}
             value={referralHtml}
           />
-        </Provider>
       </View>
       {this.renderTemplateTool()}
 
@@ -381,9 +362,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     </View>
   }
 
-  
-  renderPopup() {
 
+  renderPopup() {
         let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
         let emailDefinition : EmailDefinition = this.state.emailDefinition;
         const command : COMMAND = this.state.command;
@@ -393,7 +373,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         else if(command == COMMAND.FAX) {
            emailDefinition.to = doctorCode.fax;
         }
-        
+
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
           <View style={styles.flowLeft}>
@@ -412,17 +392,17 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               <View style={styles.rowLayout}>
                 <FormTextInput label='Cc' value={emailDefinition.cc}  readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldCc(newValue)}/>
               </View>
-            </FormRow>  
+            </FormRow>
             <FormRow>
               <View style={styles.rowLayout}>
                 <FormTextInput label='Subject' value={emailDefinition.subject} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldSubject(newValue)}/>
               </View>
-            </FormRow> 
+            </FormRow>
             <FormRow>
             <View style={styles.rowLayout}>
               <FormTextInput multiline={true} label='Body' value={emailDefinition.body} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldBody(newValue)} />
             </View>
-            </FormRow>       
+            </FormRow>
           </View>
         </View>
       </View>
