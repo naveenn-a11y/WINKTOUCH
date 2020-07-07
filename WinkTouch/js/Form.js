@@ -304,6 +304,7 @@ export class FormDateInput extends Component {
         showLabel?: boolean,
         readonly?: boolean,
         type?: string,
+        dateFormat?: string,
         style?: any,
         onChangeValue?: (newValue: ?string) => void,
         testID?: string
@@ -332,6 +333,7 @@ export class FormDateInput extends Component {
               recent={this.props.type?this.props.type.includes('recent'):undefined}
               partial={this.props.type?this.props.type.includes('partial'):undefined}
               age={this.props.type==='age'}
+              dateFormat={this.props.dateFormat}
               style={style}
               onChangeValue={this.updateValue}
               testID={this.props.testID+'Field'}
@@ -852,7 +854,8 @@ export class FormInput extends Component {
       return <FormOptions options={options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
         readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>100} testID={this.props.testID}/>
     } else if (type && type.includes('Date') || type==='age') {
-      return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
+      return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue}
+        type={type} dateFormat={this.props.definition.dateFormat} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
     } else if (type==='time' || type==='pastTime' || type==='futureTime') {
       return <FormTimeInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} type={type} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
     } else if (this.props.definition.image!==undefined) {
@@ -886,7 +889,9 @@ export class FormInput extends Component {
           {this.props.definition.fields && this.props.definition.fields.map((groupDefinition: GroupDefinition, index: number) =>
             <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => {
                   this.updateSubValue(groupDefinition, field, value );
-                  this.refs.imageField.scheduleScreenShot();
+                  if (this.props.definition.sync) {
+                    this.refs.imageField.scheduleScreenShot();
+                  }
                 }}
               definition={groupDefinition} editable={!this.props.readonly}
               form={getValue(this.props.value, groupDefinition.name)}

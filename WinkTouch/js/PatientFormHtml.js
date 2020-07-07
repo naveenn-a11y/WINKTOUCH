@@ -38,7 +38,7 @@ import {
 } from './Util';
 
 
-import { formatPrism, isPrism } from './Refraction'
+import { formatPrism, hasPrism } from './Refraction'
 import {
   getFieldDefinition as getExamFieldDefinition,
   getFieldValue as getExamFieldValue
@@ -221,13 +221,13 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
       parentHtmlDefinition.push({'name': exam.definition.name, 'html': htmlSubItems, 'child': htmlDefinition});
     }
 
-   }
+    }
 
   return html
-}
+   }
 async function mergeFieldsToHtml(html: string, exam: Exam, htmlDefinition: HtmlDefinition[]) {
   await renderExamHtml(exam, htmlDefinition);
-
+  
 }
 
 /**
@@ -289,7 +289,7 @@ async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
          } else {
           return await getSubValue(subFieldName, htmlDefinition.child);
          }
-    }
+}
 
 }
 /**
@@ -890,7 +890,7 @@ function renderRxTable (
   html += `<th class="service">Sph</th>`
   html += `<th class="service">Cyl</th>`
   html += `<th class="service">Axis</th>`
-  if (isPrism(glassesRx)) html += `<th class="service">Prism</th>`
+  if (hasPrism(glassesRx)) html += `<th class="service">Prism</th>`
   if (groupDefinition.hasVA) html += `<th class="service">DVA</th>`
   if (groupDefinition.hasAdd) html += `<th class="service">Add</th>`
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
@@ -918,7 +918,7 @@ function renderRxTable (
   childHtmlDefinition.push({'name': 'axis', 'html': `<span>${htmlChildSubItems} </span>`});
 
 
-  if (isPrism(glassesRx)) {
+  if (hasPrism(glassesRx)) {
   htmlChildSubItems = `${glassesRx.od ? formatPrism(glassesRx.od.prism) : ''}`;
   html += `<td class="desc">${htmlChildSubItems}</td>`;
   htmlSubItems += `<span>${htmlChildSubItems}</span>`;
@@ -974,7 +974,7 @@ function renderRxTable (
   childHtmlDefinition.push({'name': 'axis', 'html': `<span>${htmlChildSubItems} </span>`});
 
 
-  if (isPrism(glassesRx)) {
+  if (hasPrism(glassesRx)) {
   htmlChildSubItems = `${glassesRx.os ? formatPrism(glassesRx.os.prism) : ''}`;
   html += `<td class="desc">${htmlChildSubItems}</td>`;
   htmlSubItems += `<span>${htmlChildSubItems}</span>`;
@@ -999,14 +999,14 @@ function renderRxTable (
   }
 
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
-  {
+    {
     const fieldDefinition : FieldDefinition = getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS');
     const formattedValue : string = glassesRx.os ? formatFieldValue(glassesRx.os.addVa, fieldDefinition) : '';
     htmlChildSubItems = `${isEmpty(formattedValue) ? '' : formattedValue}`;
     html += `<td class="desc">${htmlChildSubItems}</td>`;
     htmlSubItems += `<span>${htmlChildSubItems}</span>`;
     childHtmlDefinition.push({'name': 'addVa', 'html': `<span>${htmlChildSubItems} </span>`});
-  }
+    }
 
   groupHtmlDefinition.push({'name': 'os', 'html': htmlSubItems, 'child': childHtmlDefinition});
   html += `</tr>`;
@@ -1020,8 +1020,8 @@ function renderRxTable (
   html += `<td class="desc"></td>`;
   html += `<td class="desc"></td>`;
   html += `<td class="desc"></td>`;
-  if (isPrism(glassesRx)) {
-      html += `<td class="desc"></td>`;
+  if (hasPrism(glassesRx)) {
+    html += `<td class="desc"></td>`;
   }
 
   if (groupDefinition.hasVA)

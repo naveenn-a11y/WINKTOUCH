@@ -128,10 +128,10 @@ export type Appointment = {
 }
 
 export type Prism = {
-  prism1?: number,
-  prism1b?: number,
-  prism2?: number,
-  prism2b?: number
+  prismH?: number,
+  prismHDirection?: string,
+  prismV?: number,
+  prismVDirection?: string
 }
 
 export type GlassRx = {

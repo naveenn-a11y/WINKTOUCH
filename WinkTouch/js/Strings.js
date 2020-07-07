@@ -358,12 +358,11 @@ export const strings = new LocalizedStrings({
 
 //console.log('Interface language is: '+strings.getInterfaceLanguage());
 
-const supportedLanguages : string[] = ['en-US','🇺🇸','en-CA','🇨🇦','fr-CA','🇫🇷'];
+const supportedLanguages : string[] = ['en-US','🇺🇸','en-CA','🇨🇦','en-UK','🇬🇧','fr-CA','🇫🇷'];
 
 let userLanguage : string;
 
 export function getUserLanguage() : string {
-  //return strings.getLanguage();
   return userLanguage;
 }
 
