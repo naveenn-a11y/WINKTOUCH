@@ -423,7 +423,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           </View>
           <View style={styles.buttonsRowStartLayout}>
           {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
-          <Button title='Blank' onPress={() => {this.startReferral('')}} />
         </View>
       </View>
     </View>
