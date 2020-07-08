@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import type { Visit } from './Types'; 
+import type { Visit } from './Types';
 
 import React, { Component } from 'react';
 import { View, Text, ScrollView, Modal, TouchableWithoutFeedback } from 'react-native';
@@ -192,12 +192,12 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       };
 
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
-    if (response) {
+    if (response && this.editor) {
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
         let html = this.mapImageWithBase64(htmlContent.content);
-        this.editor.setContent(htmlHeader + html + htmlEnd);
+        this.editor.insertContent(html);
       }
   }
 
