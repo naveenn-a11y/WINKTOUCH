@@ -714,13 +714,13 @@ async function renderImage (
   }
 
   if (filePath) {
-    const imageValue : string = `<img src="${filePath}" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain;border:1px"/>`;
+    const imageValue : string = `<img src="${filePath}" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     html += imageValue;
     if(image.startsWith('./image')) {
         const base64Image = getBase64Image(image);
         if(base64Image) {
-        imageBase64Definition.push({'key': imageValue,
-                                   'value':`<img src="${base64Image.data}" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;border:1px"/>`});
+          imageBase64Definition.push({'key': imageValue,
+            'value':`<img src="${base64Image.data}" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`});
         }
 
     }
