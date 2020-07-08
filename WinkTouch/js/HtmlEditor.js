@@ -4,10 +4,11 @@
 'use strict';
 
 import React from 'react';
-import {StyleProp,ViewStyle, StyleSheet } from 'react-native';
+import {StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent} from 'react-native-webview';
 import { styles } from './Styles';
 
+import type {StyleProp, ViewStyle } from 'react-native';
 
 interface EditorProps {
 	/**
@@ -40,23 +41,25 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		return new Promise( ( resolve, reject ) => {
 			this.resolveContent = resolve;
 			this.refs.webref.injectJavaScript(`
-				window.ReactNativeWebView.postMessage( JSON.stringify( {
+				window.ReactNativeWebView.postMessage(JSON.stringify({
 					type: 'getContent',
-					payload: {
-						html: tinymce.activeEditor.getContent(),
-					},
-				} ) );
-			` );
+					html: tinymce.activeEditor.getContent({format: 'raw'})
+				}));
+			`);
 		});
 	}
 
-	setContent(html: string) {
-		this.refs.webref.injectJavaScript(`tinymce.activeEditor.selection.setContent('${html}', {format: 'raw'})`);
+	insertContent(html: string) {
+		__DEV__ && console.log('Inserting raw html: '+html);
+		let javaScript : string = `tinymce.activeEditor.selection.setContent(\`${html}\`, {format: 'raw'})`;
+		this.refs.webref.injectJavaScript(javaScript);
 	}
 
 	webCallback = ( event: WebViewMessageEvent ) => {
-		const data: EditorEvent = JSON.parse( event.nativeEvent.data );
-		this.resolveContent( data.payload.html );
+		const data: any = JSON.parse( event.nativeEvent.data );
+		if (this.resolveContent) {
+			this.resolveContent( data.html );
+		}
 	}
 
 	render() {
@@ -71,7 +74,7 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'    extended_valid_elements: "svg[*],defs[*],pattern[*],desc[*],metadata[*],g[*],mask[*],path[*],line[*],marker[*],rect[*],circle[*],ellipse[*],polygon[*],polyline[*],linearGradient[*],radialGradient[*],stop[*],image[*],view[*],text[*],textPath[*],title[*],tspan[*],glyph[*],symbol[*],switch[*],use[*]",'+
 		'    setup: function (editor) {'+
 		'           editor.on(\'init\', function (e) {'+
-		'            editor.setContent('+JSON.stringify(this.props.value)+');'+
+		'            editor.setContent(`'+this.props.value+'`, {format: \'raw\'});'+
 		'          });'+
 		'      }'+
 		'  });'+
