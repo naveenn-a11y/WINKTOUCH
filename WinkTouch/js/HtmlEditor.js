@@ -60,11 +60,11 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		let html : string = '<!DOCTYPE html>'+
 		'<html>'+
 		'<head>'+
-		'  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>'+ //TODO: deploy tinymce local
+		'  <script src="https://ws-touch.downloadwink.com/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>'+
 		'  <script type="text/javascript">'+
 		'  tinymce.init({'+
 		'    selector: \'#mytextarea\','+
-		'    height: \'640\','+
+		'    height: \'680\','+
 		'    extended_valid_elements: "svg[*],defs[*],pattern[*],desc[*],metadata[*],g[*],mask[*],path[*],line[*],marker[*],rect[*],circle[*],ellipse[*],polygon[*],polyline[*],linearGradient[*],radialGradient[*],stop[*],image[*],view[*],text[*],textPath[*],title[*],tspan[*],glyph[*],symbol[*],switch[*],use[*]",'+
 		'    images_dataimg_filter: function(img) {' +
    	'		    return img.hasAttribute(\'internal-blob\');'+
