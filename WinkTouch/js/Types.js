@@ -31,7 +31,8 @@ export type Store = {
   email: string,
   telephone: string,
   winkToWinkId?: number,
-  winkToWinkEmail?: string
+  winkToWinkEmail?: string,
+  eFaxUsed?: boolean
 }
 
 export type Account = {
@@ -281,6 +282,36 @@ export type GroupDefinition = {
     import?: string|string[],
     export?: string|string[],
     fields: (FieldDefinition|GroupDefinition)[],
+}
+
+export type HtmlDefinition = {
+  name : string,
+  html : string,
+  child?: HtmlDefinition|HtmlDefinition[],
+}
+
+export type ImageBase64Definition = {
+  key: string,
+  value: string
+}
+
+export type ReferralDocument = {
+  content : string,
+  subject?: string,
+  body?: string
+}
+
+export type ReferralDefinition = {
+  id: number,
+  visitId  :number,
+  fromDoctorId :number
+}
+
+export type EmailDefinition = {
+  to  :string,
+  cc?:string,
+  subject?: string,
+  body?: string
 }
 
 export type ExamDefinition = {

@@ -44,6 +44,31 @@ function isCloseBy(point: {x: number, y:nummber}, line: string) {
   return false;
 }
 
+export function getBase64Image(image: string) {
+    if (image===undefined || image==='upload') return undefined;
+    if (image==='./image/perimetry.png') return require('./image/base64/perimetry');
+    if (image==='./image/champvisuel.png') return require('./image/base64/champvisuel');
+    if (image==='./image/anteriorOD.png') return require('./image/base64/anteriorOD');
+    if (image==='./image/anteriorOS.png') return require('./image/base64/anteriorOS');
+    if (image==='./image/anteriorSegOD.png') return require('./image/base64/anteriorSegOD');
+    if (image==='./image/anteriorSegOS.png') return require('./image/base64/anteriorSegOS');
+    if (image=='./image/posteriorOD.png') return require('./image/base64/posteriorOD');
+    if (image==='./image/posteriorOS.png') return require('./image/base64/posteriorOS');
+    if (image==='./image/gonioscopyOD.png') return require('./image/base64/gonioscopyOD');
+    if (image==='./image/gonioscopyOS.png') return require('./image/base64/gonioscopyOS');
+    if (image==='./image/notations.png') return require('./image/base64/notations');
+    if (image==='./image/contactlensOD.png') return require('./image/base64/contactlensOD');
+    if (image==='./image/contactlensOS.png') return require('./image/base64/contactlensOS');
+    if (image==='./image/amsler.png') return require('./image/base64/amsler');
+    if (image==='./image/d15.jpg') return require('./image/base64/d15');
+    if (image==='./image/eyeexamtemplate.png') return require('./image/base64/eyeexamtemplate');
+    if (image==='./image/ToulchExamFront.jpg') return require('./image/base64/ToulchExamFront');
+    if (image==='./image/ToulchExamBack.jpg') return require('./image/base64/ToulchExamBack');
+    if (image==='./image/ToulchMeds.jpg') return require('./image/base64/ToulchMeds');
+    if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;
+    return undefined;
+}
+
 export class ImageField extends Component {
   props: {
     value: ImageDrawing,
@@ -406,20 +431,20 @@ export class ImageField extends Component {
     }
 
     if (this.props.type) {
-      let patientDocument :PatientDocument = {
-        id: 'patientDocument',
-        patientId: this.props.patientId,
+    let patientDocument :PatientDocument = {
+      id: 'patientDocument',
+      patientId: this.props.patientId,
         postedOn: visitDate,
-        name: this.props.fileName,
-        category: this.props.type,
-        uploadId: upload.id
-      };
-      patientDocument = await storePatientDocument(patientDocument);
-      if (patientDocument.errors) {
-        alert(strings.pmsImageSaveError);
-      }
-      __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
+      name: this.props.fileName,
+      category: this.props.type,
+      uploadId: upload.id
+    };
+    patientDocument = await storePatientDocument(patientDocument);
+    if (patientDocument.errors) {
+      alert(strings.pmsImageSaveError);
     }
+    __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
+  }
   }
 
   async takeScreenShot() {

@@ -1087,6 +1087,42 @@ export const styles = StyleSheet.create({
           height: 3 * fontScale,
           width: 1 * fontScale
       }
+    },
+    pageEditor: {
+      flexDirection: 'column',
+      flex:7,
+      flexGrow: 1,
+      minWidth: 800 * fontScale,
+      minHeight: 930 * fontScale,
+      backgroundColor: 'white',
+      alignSelf: 'flex-start',
+      padding: 0 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      margin: 7 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
+    },
+    sideBar: {
+      flexDirection: 'column',
+      minWidth:200 * fontScale,
+      maxWidth:300 * fontScale,
+      minHeight: 400 * fontScale,
+      margin: 7 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
     }
 });
 

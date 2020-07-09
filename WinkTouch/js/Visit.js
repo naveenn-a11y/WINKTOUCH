@@ -157,6 +157,7 @@ async function printPatientFile(visitId : string) {
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
     if (exams) {
+        let htmlDefinition : HtmlDefinition[] = [];
         visitHtml +=  `<table><thead></thead><tbody>`;
         for(const section : string of  examSections) {
           let filteredExams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
@@ -168,7 +169,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true && exam.hasStarted) {
-                visitHtml +=  await renderExamHtml(exam);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition);
             }
           }
         }
@@ -182,7 +183,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true) {
-                visitHtml +=  await renderExamHtml(exam);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition);
             }
           }
         }
@@ -190,10 +191,11 @@ async function printPatientFile(visitId : string) {
         visitHtml += getScannedFiles();
         for(const exam: string of xlExams) {
           if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
-              visitHtml += await renderExamHtml(exam);
+              visitHtml += await renderExamHtml(exam, htmlDefinition);
           }
          }
-        printHtml(getVisitHtml(visitHtml));
+         visitHtml = getVisitHtml(visitHtml);
+        printHtml(visitHtml);
     }
 }
 
@@ -601,6 +603,7 @@ class VisitWorkFlow extends Component {
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
+            <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId)})}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>

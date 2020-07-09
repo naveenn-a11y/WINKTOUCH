@@ -1736,7 +1736,7 @@ export class Button extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
+    return <TouchableOpacity onPress={this.props.onPress} disabled={this.props.disabled} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
   }
 }
 
@@ -1769,6 +1769,7 @@ export class CheckButton extends Component {
 
 export class BackButton extends Component {
   props: {
+    navigation: any,
     visible? :boolean
   }
   static defaultProps = {
