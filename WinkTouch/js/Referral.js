@@ -207,8 +207,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
-    await printHtml(html);
-    await this.save();
+    const job = await printHtml(html);
+    if(job) {
+       await this.save();
+    }
   }
 
   async save() : Promise<void> {
