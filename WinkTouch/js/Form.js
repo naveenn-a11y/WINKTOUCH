@@ -889,7 +889,9 @@ export class FormInput extends Component {
           {this.props.definition.fields && this.props.definition.fields.map((groupDefinition: GroupDefinition, index: number) =>
             <GroupedForm key={groupDefinition.name} onChangeField={(field: string, value: any) => {
                   this.updateSubValue(groupDefinition, field, value );
-                  this.refs.imageField.scheduleScreenShot();
+                  if (this.props.definition.sync) {
+                    this.refs.imageField.scheduleScreenShot();
+                  }
                 }}
               definition={groupDefinition} editable={!this.props.readonly}
               form={getValue(this.props.value, groupDefinition.name)}
