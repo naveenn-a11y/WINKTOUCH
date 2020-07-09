@@ -628,7 +628,11 @@ async function renderField (
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
-      html += `<span class="img-wrap">`
+      if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
+          html += `<span class="img-wrap" style="width:49%">`;
+      } else {
+          html += `<span class="img-wrap" style="width:100%">`;
+      }
       html += await renderImage(value, fieldDefinition, groupDefinition, exam)
       html += `</span>`
       return html
@@ -706,11 +710,10 @@ async function renderImage (
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
 
-  let scale: number = style.width / resolutions(value, fieldDefinition)[0];
 
   if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-     style.width = style.width * 0.85;
-     style.height = style.height * 0.85;
+     style.width = style.width * 0.65;
+     style.height = style.height * 0.65;
   }
 
   if (filePath) {
@@ -724,6 +727,7 @@ async function renderImage (
         }
 
     }
+    let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
@@ -788,9 +792,9 @@ function renderGraph (
   style: { width: number, height: number },
   scale: number
 ) {
-  let html: string = ''
-  if (!value.lines || value.lines.length === 0) return ''
-  const strokeWidth: number = (3 * fontScale) / scale
+  let html: string = '';
+  if (!value.lines || value.lines.length === 0) return '';
+  const strokeWidth: number = fontScale / scale;
   const resolution: number[] = resolutions(value, definition);
   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
@@ -1240,7 +1244,6 @@ export function patientHeader () {
     `.img-wrap {` +
     `  position: relative;` +
     `  display: block;` +
-    `  width:49%;` +
     `  float: left;` +
       ` margin-top:5px;` +
     `}` +
