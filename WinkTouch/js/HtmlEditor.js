@@ -8,7 +8,6 @@ import {StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent} from 'react-native-webview';
 import { styles } from './Styles';
 
-import type {StyleProp, ViewStyle } from 'react-native';
 
 interface EditorProps {
 	/**
@@ -19,14 +18,9 @@ interface EditorProps {
 	contentCss?: string;
 
 	/**
-	 * Placeholder text to show in the field.
-	 */
-	placeholder?: string;
-
-	/**
 	 * Styles to apply to the web view.
 	 */
-	style?: StyleProp<ViewStyle>;
+	style?: any;
 
 	/**
 	 * Initial HTML content for the editor.
@@ -72,6 +66,9 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'    selector: \'#mytextarea\','+
 		'    height: \'640\','+
 		'    extended_valid_elements: "svg[*],defs[*],pattern[*],desc[*],metadata[*],g[*],mask[*],path[*],line[*],marker[*],rect[*],circle[*],ellipse[*],polygon[*],polyline[*],linearGradient[*],radialGradient[*],stop[*],image[*],view[*],text[*],textPath[*],title[*],tspan[*],glyph[*],symbol[*],switch[*],use[*]",'+
+		'    images_dataimg_filter: function(img) {' +
+   	'		    return img.hasAttribute(\'internal-blob\');'+
+  	'		 },'+
 		'    setup: function (editor) {'+
 		'           editor.on(\'init\', function (e) {'+
 		'            editor.setContent(`'+this.props.value+'`, {format: \'raw\'});'+
