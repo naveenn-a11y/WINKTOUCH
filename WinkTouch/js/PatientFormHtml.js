@@ -67,7 +67,7 @@ let scannedFilesHtml : string = '';
 
 export function getScannedFiles() {
  return !isEmpty(scannedFilesHtml) ? `<div class = "scannedFiles">${scannedFilesHtml}</div>` : '';
-} 
+}
 
 export function setScannedFiles(html : string) {
   scannedFilesHtml = html;
@@ -183,7 +183,7 @@ async function mergeHtmlTemplate() {
 }
 
 export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: HtmlDefinition[]): any {
-  
+
   let htmlDefinition : HtmlDefinition[] = [];
 
   let html: string = '';
@@ -227,11 +227,11 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
    }
 async function mergeFieldsToHtml(html: string, exam: Exam, htmlDefinition: HtmlDefinition[]) {
   await renderExamHtml(exam, htmlDefinition);
-  
+
 }
 
 /**
-This Function accepts 2 parameters : 
+This Function accepts 2 parameters :
   * examKey: the key to get the equivalent html value for it
   * keyMap: contain map key -> html value of the current exam
  */
@@ -361,7 +361,7 @@ async function renderGroupHtml (groupDefinition: GroupDefinition, exam: Exam, ht
     }));
   } else if (groupDefinition.fields === undefined && groupDefinition.options) {
     html += renderCheckListItemHtml(exam, groupDefinition);
-  }  
+  }
    else {
     const value: any = exam[exam.definition.name][groupDefinition.name];
     if (value === undefined || value === null || Object.keys(value).length === 0)
@@ -460,7 +460,7 @@ async function renderColumnedRows (
   );
 
   await Promise.all(columnedFields.map(async(column: string, i: number) => {
-    
+
     const value =
       await renderColumnedRow(
         formatLabel(columnedFields[i]),
@@ -478,7 +478,7 @@ async function renderColumnedRows (
 
   let allRowsEmpty : boolean = false;
   for(let i=0; i<rows.length; i++) {
-      let rowValues = rows[i].slice(1); 
+      let rowValues = rows[i].slice(1);
       for(let j=0; j<rowValues.length;j++) {
           if(!isEmpty(rowValues[j])) {
             allRowsEmpty = false;
@@ -678,7 +678,7 @@ async function renderImage (
   let fieldAspectRatio =   aspectRatio(value, fieldDefinition);
   let style: { width: number, height: number } = imageStyle(fieldDefinition.size, fieldAspectRatio);
   let upload : Upload = undefined;
-  const pageWidth : number = 612; 
+  const pageWidth : number = 612;
   const pageAspectRatio : number = 8.5/11;
   const pageHeight : number = pageWidth/pageAspectRatio;
   if (image.startsWith('upload-')) {
@@ -714,13 +714,13 @@ async function renderImage (
   }
 
   if (filePath) {
-    const imageValue : string = `<img src="${filePath}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`;
+    const imageValue : string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     html += imageValue;
     if(image.startsWith('./image')) {
         const base64Image = getBase64Image(image);
         if(base64Image) {
-        imageBase64Definition.push({'key': imageValue,
-                                   'value':`<img src="${base64Image.data}" border ="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain;">`});
+          imageBase64Definition.push({'key': imageValue,
+            'value':`<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`});
         }
 
     }
@@ -746,7 +746,7 @@ async function renderImage (
               if (childFieldDefinition.layout) {
                   fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
               }
-              
+
               let x =
                 (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                 (parentScaledStyle ? parentScaledStyle.left : 0) +
@@ -896,7 +896,7 @@ function renderRxTable (
   if (groupDefinition.hasAdd && groupDefinition.hasVA)
     html += `<th class="service">NVA</th>`;
   html += `</thead></tr><tbody><tr>`;
-  
+
 
   html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.od}</td>`;
   htmlSubItems += `<span>${strings.od}: </span>`;

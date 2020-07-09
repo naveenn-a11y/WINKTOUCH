@@ -1096,7 +1096,7 @@ export const styles = StyleSheet.create({
       minHeight: 930 * fontScale,
       backgroundColor: 'white',
       alignSelf: 'flex-start',
-      padding: 10 * fontScale,
+      padding: 0 * fontScale,
       borderColor: fieldBorderColor,
       borderWidth: 3 * fontScale,
       margin: 7 * fontScale,
