@@ -17,7 +17,7 @@ import { getCachedItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard, ImportIcon, ExportIcon } from './Favorites';
 import { getConfiguration } from './Configuration';
 import { importData } from './MappedField';
-import { GlassesDetail, GlassesSummary, newRefraction } from './Refraction';
+import { GlassesDetail, GlassesSummary, newRefraction, clearRefraction } from './Refraction';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, setMappedFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
 import { formatLabel, formatFieldValue, getFieldDefinition } from './Items';
@@ -984,27 +984,32 @@ export class GroupedFormScreen extends Component {
     const finalRx : GlassesRx = deepClone(this.props.exam[this.props.exam.definition.name]['Final Rx']);
     glassesRx.od = finalRx.od;
     glassesRx.os = finalRx.os;
-    this.props.onUpdateExam(this.props.exam);
+    this.props.onUpdateExam(deepClone(this.props.exam));
   }
 
-
   clearNonReadOnlyFields(value :  {}, definition: GroupDefinition|FieldDefinition) : ?{} {
-      if (value===null || value===undefined || definition.readonly) {
-        return value;
-      }
-      if (definition.fields === undefined) {
-        return undefined;
-      }
-      if (definition.image) {
-          value.lines = undefined;
-          value.image = undefined;
-      }
-      for (const fieldDefinition: FieldDefinition of definition.fields) {
-        let fieldValue = value[fieldDefinition.name];
-        fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
-        value[fieldDefinition.name] = fieldValue;
-      }
+    if (definition.mappedField) {
+      definition = Object.assign({}, getFieldDefinition(definition.mappedField), definition);
+    }
+    if (value===null || value===undefined || definition.readonly) {
       return value;
+    }
+    if (definition.fields === undefined && definition.type!=='SRx') {
+      return undefined;
+    }
+    if (definition.type==='SRx') {
+      clearRefraction(value);
+    }
+    if (definition.image) {
+        value.lines = undefined;
+        value.image = undefined;
+    }
+    for (const fieldDefinition: FieldDefinition of definition.fields) {
+      let fieldValue = value[fieldDefinition.name];
+      fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
+      value[fieldDefinition.name] = fieldValue;
+    }
+    return value;
   }
 
   clear(groupName: string, index?: number) : void {
@@ -1026,10 +1031,10 @@ export class GroupedFormScreen extends Component {
         forms.splice(index, 1);
       }
     } else {
-      //Clearing a single grouped form
-      const form = this.props.exam[this.props.exam.definition.name][groupName];
-
-      this.clearNonReadOnlyFields(form, formDefinition);
+      //Clearing a single grouped form or checklist
+      let form = this.props.exam[this.props.exam.definition.name][groupName];
+      form = this.clearNonReadOnlyFields(form, formDefinition);
+      this.props.exam[this.props.exam.definition.name][groupName]=form;
     }
     this.props.onUpdateExam(this.props.exam);
   }
@@ -1087,8 +1092,12 @@ export class GroupedFormScreen extends Component {
       groupDefinition.multiValue = false;
       if (value instanceof Array === false) return null;
       return value.map((childValue: any, subIndex: number)=> groupDefinition.type==='SRx'?
-        <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={childValue} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} onPaste={groupDefinition.canBePaste===true?this.copyFromFinal:undefined}
-          onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name}
+        <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={childValue} hasVA={groupDefinition.hasVA}
+          onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined}
+          onPaste={groupDefinition.canBePaste===true?this.copyFromFinal:undefined}
+          onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)}
+          hasAdd={groupDefinition.hasAdd}
+          hasLensType={groupDefinition.hasLensType} key={groupDefinition.name}
           onAdd={() => this.addGroupItem(groupDefinition)}
           onClear={() => this.clear(groupDefinition.name, subIndex)}
           definition={groupDefinition}

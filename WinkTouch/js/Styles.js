@@ -1158,6 +1158,10 @@ export function imageWidth(size: string) : number {
   return width;
 }
 
+export function printWidth(size: string): number {
+  return imageWidth(size)/1110*612;
+}
+
 export function imageStyle(size: string, aspecRatio: number) {
   const width : number = imageWidth(size);
   return {
