@@ -435,7 +435,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
-          <View style={styles.buttonsRowStartLayout}>
+          <View style={styles.flow}>
           {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
         </View>
       </View>
