@@ -123,9 +123,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
-  selectField(level: number, filter: string, options: any) {
+  selectField(level: number, value: string, options: any) {
     let selectedField : string[] = this.state.selectedField;
-    selectedField[level] = filter;
+    selectedField[level] = value;
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
@@ -315,6 +315,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           }
           let optionsKeys = Object.keys(options);
           optionsKeys = optionsKeys.filter((oKey: string) => oKey !== 'keySpec');
+          optionsKeys = optionsKeys.sort();
           if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
           return <FormRow>
               <TilesField label='Filter'
