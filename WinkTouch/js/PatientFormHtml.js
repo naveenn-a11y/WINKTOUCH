@@ -1052,7 +1052,6 @@ function renderRxTable (
     html += `<td class="desc">${htmlChildSubItems}</td>`;
     htmlSubItems += `<span>${htmlChildSubItems}</span>`;
     childHtmlDefinition.push({'name': 'addVa', 'html': `<span>${htmlChildSubItems} </span>`});
-    html += `<td class="desc">${formattedValue}</td>`;
     }
   html += `</tr>`;
   groupHtmlDefinition.push({'name': 'ou', 'html': htmlSubItems, 'child': childHtmlDefinition});
