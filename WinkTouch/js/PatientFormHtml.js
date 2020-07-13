@@ -1081,13 +1081,14 @@ export function patientHeader () {
   let htmlHeader: string =
     `<head><style>` +
     `@media print {` +
-    `table { page-break-after:auto }` +
+    `table { page-break-after:auto; page-break-inside: avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
     `.scannedFiles {display: block; page-break-before: always;}` +
     `body {padding: 0.75in 0.75in 0.75in 0.75in}` +
+    `@page  {size: 8.5in 11in; margin: 0.75in}` +
     `}` +
 
 
