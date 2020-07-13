@@ -16,7 +16,7 @@ import { fetchWinkRest } from './WinkRest';
 import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition} from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
-import { renderExamHtml, getExam } from './Exam';
+import { renderExamHtml, getExam, UserAction } from './Exam';
 import { stripDataType } from './Rest';
 import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
 import { printHtml, generatePDF } from './Print';
@@ -96,7 +96,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       initValues();
       for(const exam : Exam of exams) {
           if(exam.isHidden!==true) {
-              await renderExamHtml(exam,htmlDefinition);
+              await renderExamHtml(exam,htmlDefinition, UserAction.REFERRAL);
             }
         }
 

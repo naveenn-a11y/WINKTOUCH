@@ -41,7 +41,9 @@ import {
 import { formatPrism, hasPrism } from './Refraction'
 import {
   getFieldDefinition as getExamFieldDefinition,
-  getFieldValue as getExamFieldValue
+  getFieldValue as getExamFieldValue,
+  getCurrentAction,
+  UserAction
 } from './Exam'
 import { formatLabel, formatFieldValue, getFieldDefinition, filterFieldDefinition } from './Items'
 import RNFS from 'react-native-fs'
@@ -225,10 +227,7 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
 
   return html
    }
-async function mergeFieldsToHtml(html: string, exam: Exam, htmlDefinition: HtmlDefinition[]) {
-  await renderExamHtml(exam, htmlDefinition);
 
-}
 
 /**
 This Function accepts 2 parameters :
@@ -633,7 +632,8 @@ async function renderField (
       } else {
           html += `<span class="img-wrap" style="width:100%">`;
       }
-      html += await renderImage(value, fieldDefinition, groupDefinition, exam)
+      const imageValue =  await renderImage(value, fieldDefinition, groupDefinition, exam);
+      html += imageValue;
       html += `</span>`
       return html
     }
@@ -687,6 +687,7 @@ async function renderImage (
   const pageHeight : number = pageWidth/pageAspectRatio;
   if (image.startsWith('upload-')) {
       upload = await loadImage(value);
+
       if(upload) {
         filePath = `data:${getMimeType(upload)},${upload.data}`;
         fieldAspectRatio = getAspectRatio(upload);
@@ -772,10 +773,15 @@ async function renderImage (
   }
   if(upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
-    return '';
-  } else {
-    return html;
-  }
+    if(getCurrentAction() !== undefined && getCurrentAction() == UserAction.REFERRAL) {
+      return html;
+    }
+    else {
+      return '';
+    }
+  } 
+   return html;
+
 }
 
 
@@ -1269,7 +1275,6 @@ export function getVisitHtml (html: string): string {
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
   initValues();
-
   return finalHtml
 }
 
