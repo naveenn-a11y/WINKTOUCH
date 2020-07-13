@@ -184,6 +184,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async insertField() : void {
     const key  : string =this.state.key;
+    if(isEmpty(key)) {
+      return;
+    }
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
@@ -193,7 +196,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId
       };
-
+  
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response && this.editor) {
         const htmlContent : ReferralDocument = response;
