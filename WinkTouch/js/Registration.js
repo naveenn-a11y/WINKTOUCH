@@ -10,13 +10,10 @@ import { Button } from './Widgets';
 import { handleHttpError } from './Rest';
 import { dbVersion, touchVersion, bundleVersion, deploymentVersion } from './Version';
 
-//const securityQuestionUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationEmail?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch';
-//const touchVersionUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationSecurity?ip=10.6.6.6&mac=66:66:66:66:66:66&source=touch&touchVersion=true';
-//const securityQuestionsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationQuestions';
-
-const securityQuestionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?mac=EMRFree&source=touch';
-const touchVersionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const securityQuestionsUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationQuestions';
+const securityQuestionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?mac=EMRFree&source=touch';
+const registrationUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+const touchVersionUrl = 'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkTouchVersion';
 
 async function fetchIp() : string {
   const ip = await(DeviceInfo.getIpAddress());
@@ -84,7 +81,7 @@ async function fetchSecurityQuestionIndex(email: string) {
 async function fetchRegistration(email: string, securityQuestionIndex: number, securityAnswer: string) {
   if (!email || !securityAnswer) return undefined;
   const ip : string = await fetchIp();
-  const url = touchVersionUrl + '&email=' + encodeURIComponent(email) + '&securityQuestion='+ encodeURIComponent(securityQuestionIndex) + '&answer=' + encodeURIComponent(securityAnswer)+'&ip='+ip;
+  const url = registrationUrl + '&email=' + encodeURIComponent(email) + '&securityQuestion='+ encodeURIComponent(securityQuestionIndex) + '&answer=' + encodeURIComponent(securityAnswer)+'&ip='+ip;
   __DEV__ && console.log(url);
   try {
     let httpResponse = await fetch(url, {
@@ -104,6 +101,30 @@ async function fetchRegistration(email: string, securityQuestionIndex: number, s
       return undefined;
     } */
     return registration;
+  } catch (error) {
+    console.log(error);
+    alert(strings.fetchAccountsError);
+    throw(error);
+  }
+}
+
+export async function fetchTouchVersion(path: string) : string {
+  if (!path) return undefined;
+  const url =  touchVersionUrl + '?path=' + encodeURIComponent(path);
+  __DEV__ && console.log('REQ touch version:'+url);
+  try {
+    let httpResponse = await fetch(url, {
+        method: 'get',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-language': getUserLanguage()
+        },
+    });
+    if (!httpResponse.ok) handleHttpError(httpResponse);
+    let touchVersion : string = await httpResponse.text();
+    //TODO handle error
+    __DEV__ && console.log('RES touch version: '+touchVersion);
+    return touchVersion;
   } catch (error) {
     console.log(error);
     alert(strings.fetchAccountsError);

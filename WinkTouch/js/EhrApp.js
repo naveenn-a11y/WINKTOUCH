@@ -9,7 +9,7 @@ import type { Registration , Store, User} from './Types';
 import { fetchItemById } from './Rest';
 import { LoginScreen } from './LoginScreen';
 import { DoctorApp } from './DoctorApp';
-import { RegisterScreen } from './Registration';
+import { RegisterScreen, fetchTouchVersion } from './Registration';
 import { setDeploymentVersion, checkBinaryVersion } from './Version';
 import { getVisitTypes, fetchVisitTypes } from './Visit';
 import { fetchUserDefinedCodes } from './Codes';
@@ -59,9 +59,23 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     checkBinaryVersion();
     return;
   }
-  checkBinaryVersion();
-  if (!registration || !registration.bundle) return;
-  //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
+  if (!registration || !registration.path) return;
+  checkBinaryVersion();  
+  try {
+    let codePushBundleKey = await fetchTouchVersion(registration.path);
+    //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
+    if (registration.bundle!==codePushBundleKey) {
+      registration.bundle = codePushBundleKey;
+      if (registration.bundle) {
+        AsyncStorage.setItem('bundle', registration.bundle);
+      } else {
+        AsyncStorage.removeItem('bundle');
+      }
+    }
+  } catch (error) {
+    __DEV__ && console.log('Fetching touch version failed: '+error);
+  }
+
   __DEV__ && console.log('checking code-push deployment key:' + registration.bundle);
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
