@@ -161,6 +161,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      if (!emailDefinition) return;
      emailDefinition.to = newValue;
      this.setState({emailDefinition: emailDefinition});
+
   }
 
   updateFieldSubject(newValue: any) {
@@ -266,7 +267,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if(this.state.command === undefined || this.state.emailDefinition === undefined) {
       return;
     }
-
     this.setState({isActive: false});
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
@@ -298,10 +298,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response) {
         await this.save();
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-        alert(strings.formatString(strings.referralSuccess, response.recipients));
+        this.setState({isPopupVisibile: false});
       }
     this.setState({isActive: true});
-    this.setState({isPopupVisibile: false});
 
   }
 
@@ -402,7 +401,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <View style={styles.form}>
               <FormRow>
               <View style={styles.rowLayout}>
-                <FormTextInput label='To' value={emailDefinition.to} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldTo(newValue)}/>
+                <FormTextInput label='To' value={emailDefinition.to} readonly={true} onChangeText={(newValue: string) => this.updateFieldTo(newValue)}/>
               </View>
             </FormRow>
                <FormRow>
