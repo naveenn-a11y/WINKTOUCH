@@ -16,7 +16,7 @@ import { fetchWinkRest } from './WinkRest';
 import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition} from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
-import { renderExamHtml } from './Exam';
+import { renderExamHtml, getExam, UserAction } from './Exam';
 import { stripDataType } from './Rest';
 import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
 import { printHtml, generatePDF } from './Print';
@@ -96,7 +96,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       initValues();
       for(const exam : Exam of exams) {
           if(exam.isHidden!==true) {
-              await renderExamHtml(exam,htmlDefinition);
+              await renderExamHtml(exam,htmlDefinition, UserAction.REFERRAL);
             }
         }
 
@@ -123,9 +123,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
-  selectField(level: number, filter: string, options: any) {
+  selectField(level: number, value: string, options: any) {
     let selectedField : string[] = this.state.selectedField;
-    selectedField[level] = filter;
+    selectedField[level] = value;
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
@@ -146,41 +146,47 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   updateValue(newValue: any) {
-      this.setState({doctorId: newValue});
-    }
+    this.setState({doctorId: newValue});
+  }
 
-   updateFieldCc(newValue: any) {
+  updateFieldCc(newValue: any) {
     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
     if (!emailDefinition) return;
-     emailDefinition.cc = newValue;
+    emailDefinition.cc = newValue;
     this.setState({emailDefinition: emailDefinition});
-    }
+  }
+
   updateFieldTo(newValue: any) {
      let emailDefinition : EmailDefinition =  this.state.emailDefinition;
      if (!emailDefinition) return;
      emailDefinition.to = newValue;
      this.setState({emailDefinition: emailDefinition});
-    }
-    updateFieldSubject(newValue: any) {
-     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-     if (!emailDefinition) return;
-     emailDefinition.subject = newValue;
-      this.setState({emailDefinition: emailDefinition});
-    }
-    updateFieldBody(newValue: any) {
+  }
+
+  updateFieldSubject(newValue: any) {
     let emailDefinition : EmailDefinition =  this.state.emailDefinition;
     if (!emailDefinition) return;
-     emailDefinition.body = newValue;
+    emailDefinition.subject = newValue;
     this.setState({emailDefinition: emailDefinition});
-    }
-    cancelEdit = () => {
+  }
+
+  updateFieldBody(newValue: any) {
+    let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+    if (!emailDefinition) return;
+    emailDefinition.body = newValue;
+    this.setState({emailDefinition: emailDefinition});
+  }
+
+  cancelEdit = () => {
     this.setState({ isActive: true });
     this.setState({ isPopupVisibile: false });
-
   }
 
   async insertField() : void {
     const key  : string =this.state.key;
+    if(isEmpty(key)) {
+      return;
+    }
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
@@ -190,7 +196,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId
       };
-
+  
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response && this.editor) {
         const htmlContent : ReferralDocument = response;
@@ -221,20 +227,19 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const visit: Visit = this.props.navigation.state.params.visit;
     let file = await generatePDF(htmlHeader + html + htmlEnd, true);
     let body : {} = {
-        'htmlReferral': html,
-        'visitId': stripDataType(visit.id),
-        'doctorId': this.state.doctorId,
-        'action': this.state.command,
-        'id': this.state.id,
-        'attachment': file.base64
-      };
-
-      let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
-      if(response) {
-        let referralDefinition: ReferralDefinition = response;
-        let referralId = stripDataType(referralDefinition.id);
-        this.setState({id: referralId});
-      }
+      'htmlReferral': html,
+      'visitId': stripDataType(visit.id),
+      'doctorId': this.state.doctorId,
+      'action': this.state.command,
+      'id': this.state.id,
+      'attachment': file.base64
+    };
+    let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
+    if(response) {
+      let referralDefinition: ReferralDefinition = response;
+      let referralId = stripDataType(referralDefinition.id);
+      this.setState({id: referralId});
+    }
   }
 
   async email() : Promise<void> {
@@ -315,6 +320,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           }
           let optionsKeys = Object.keys(options);
           optionsKeys = optionsKeys.filter((oKey: string) => oKey !== 'keySpec');
+          if (this.state.selectedField[0]==='Exam' && index===1) {
+            const visit: Visit = this.props.navigation.state.params.visit;
+            optionsKeys = optionsKeys.filter((examName: string) => {
+              const exam = getExam(examName, visit);
+              if (!exam) return false;
+              let examValue = exam[examName];
+              return !isEmpty(examValue);
+            });
+          }
+          optionsKeys = optionsKeys.sort();
           if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
           return <FormRow>
               <TilesField label='Filter'
@@ -423,7 +438,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
-          <View style={styles.buttonsRowStartLayout}>
+          <View style={styles.flow}>
           {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
         </View>
       </View>

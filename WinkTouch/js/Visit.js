@@ -12,7 +12,7 @@ import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
 import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow, yearDateFormat, officialDateFormat, prefix, postfix } from './Util';
-import { ExamCard, createExam, storeExam, getExam,  renderExamHtml } from './Exam';
+import { ExamCard, createExam, storeExam, getExam,  renderExamHtml, UserAction } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
 import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
@@ -169,7 +169,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true && exam.hasStarted) {
-                visitHtml +=  await renderExamHtml(exam, htmlDefinition);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition, UserAction.PATIENTFILE);
             }
           }
         }
@@ -183,7 +183,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true) {
-                visitHtml +=  await renderExamHtml(exam, htmlDefinition);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition, UserAction.PATIENTFILE);
             }
           }
         }
@@ -191,7 +191,7 @@ async function printPatientFile(visitId : string) {
         visitHtml += getScannedFiles();
         for(const exam: string of xlExams) {
           if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
-              visitHtml += await renderExamHtml(exam, htmlDefinition);
+              visitHtml += await renderExamHtml(exam, htmlDefinition, UserAction.PATIENTFILE);
           }
          }
          visitHtml = getVisitHtml(visitHtml);
