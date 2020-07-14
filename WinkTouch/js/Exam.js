@@ -224,8 +224,19 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   }
 }
 
-  export async function renderExamHtml(exam : Exam, htmlDefinition?: HtmlDefinition[]) : any {
+
+  export const UserAction = {
+  REFERRAL: 0,
+  PATIENTFILE: 1
+  }
+  let currentAction : UserAction ;
+  export function getCurrentAction() {
+    return currentAction;
+  }
+
+  export async function renderExamHtml(exam : Exam, htmlDefinition?: HtmlDefinition[], userAction: UserAction) : any {
     let html : string = '';
+    currentAction = userAction;
     if (exam.definition.card===false) {return html;}
     switch (exam.definition.type) {
       case 'selectionLists':
