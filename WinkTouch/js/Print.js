@@ -37,10 +37,8 @@ export async function generatePDF(html: string, isBase64: boolean) {
       width: pageWidth,
       height: pageHeight,
       base64: isBase64,
-      paddingLeft: 0,
-      paddingRight: 0,
-      paddingTop: 0,
-      paddingBottom: 0
+      padding: 54,
+      bgColor: '#FFFFFF'
     };
     let file = await RNHTMLtoPDF.convert(options);
     return file;
