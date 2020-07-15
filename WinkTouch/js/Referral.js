@@ -232,10 +232,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let body : {} = {
         'htmlReferral': html,
-        'isSigned': true,
-        'visitId': stripDataType(visit.id),
-        'doctorId': this.state.doctorId
-      };
+        'visitId': stripDataType(visit.id)
+     };
   
     let response = await fetchWinkRest('webresources/template/sign', parameters, 'POST', body);
     if (response && this.editor) {
