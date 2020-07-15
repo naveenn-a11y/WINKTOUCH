@@ -220,7 +220,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async sign() : Promise<void> {
     await this.searchReferralSignatureKey();
-    if(this.state.isSignVisrible === false) {
+    if(this.state.isSignVisible === false) {
        alert(strings.digitalSignatureMissing);
        return;
     }
