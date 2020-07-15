@@ -49,6 +49,12 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		this.refs.webref.injectJavaScript(javaScript);
 	}
 
+	setContent(html: string) {
+		__DEV__ && console.log('Set raw html: '+html);
+		let javaScript : string = `tinymce.activeEditor.setContent(\`${html}\`, {format: 'raw'})`;
+		this.refs.webref.injectJavaScript(javaScript);
+	}
+
 	webCallback = ( event: WebViewMessageEvent ) => {
 		const data: any = JSON.parse( event.nativeEvent.data );
 		if (this.resolveContent) {

@@ -52,6 +52,7 @@ type ReferralScreenState = {
   emailDefinition : ? EmailDefinition,
   command: COMMAND,
   isPopupVisibile: ? boolean,
+  isSignVisible: ? boolean
 };
 
 
@@ -69,7 +70,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       isActive: true,
       emailDefinition: {},
       command: undefined,
-      isPopupVisibile: false
+      isPopupVisibile: false,
+      isSignVisible: false
     }
   }
   mapImageWithBase64(template?:string) {
@@ -116,6 +118,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         this.setState({template, htmlDefinition});
         this.updateFieldSubject(htmlContent.subject);
         this.updateFieldBody(htmlContent.body);
+        this.searchReferralSignatureKey();
 
 
       }
@@ -205,6 +208,40 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let htmlEnd: string = patientFooter();
         let html = this.mapImageWithBase64(htmlContent.content);
         this.editor.insertContent(html);
+        this.searchReferralSignatureKey();
+      }
+  }
+
+  async searchReferralSignatureKey() {
+    let html = await this.editor.getContent();
+    const showSignButton = html.includes(".DigitalSignature");
+    this.setState({isSignVisible: showSignButton});
+  }
+
+  async sign() : Promise<void> {
+    await this.searchReferralSignatureKey();
+    if(this.state.isSignVisrible === false) {
+       alert(strings.digitalSignatureMissing);
+       return;
+    }
+    let html = await this.editor.getContent();
+
+    let parameters : {} = {};
+    const visit: Visit = this.props.navigation.state.params.visit;
+    let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
+
+      let body : {} = {
+        'htmlReferral': html,
+        'isSigned': true,
+        'visitId': stripDataType(visit.id),
+        'doctorId': this.state.doctorId
+      };
+  
+    let response = await fetchWinkRest('webresources/template/sign', parameters, 'POST', body);
+    if (response && this.editor) {
+        const htmlContent : ReferralDocument = response;
+        referralHtml = htmlContent.content;
+        this.editor.setContent(referralHtml);
       }
   }
 
@@ -370,6 +407,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Button title='Print' onPress={() => this.print()} disabled={!this.state.isActive}/>
           <Button title='Email' onPress={() => this.email()} disabled={!this.state.isActive} />
           {getStore() !== undefined && getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
+          {this.state.isSignVisible===true && <Button title={strings.sign} onPress={() => this.sign()}/>}
       </View>
         {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
             && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
