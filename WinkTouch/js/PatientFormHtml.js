@@ -197,7 +197,7 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
     html += `<div>`
     html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam, htmlDefinition);
     html += `</div>`;
-    parentHtmlDefinition.push({'name': exam.definition.name, 'html': html});
+    parentHtmlDefinition.push({'name': exam.definition.name, 'html': html, 'child': htmlDefinition});
   }
    else {
     if(exam.definition.name === 'Consultation summary') {
