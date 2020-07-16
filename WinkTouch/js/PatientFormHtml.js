@@ -492,7 +492,7 @@ async function renderColumnedRows (
 
 
   if(allRowsEmpty == false) {
-      html += `<table style="margin-top:10px; width:50%">`
+      html += `<table style="margin-top:10px; width:50%">`;
       html += renderColumnsHeader(columnDefinition, definition);
       rows.forEach((column: string[]) => {
         html +=`<tr>`;
@@ -501,7 +501,29 @@ async function renderColumnedRows (
         });
         html +=`</tr>`
       });
-      html += `</table>`
+      html += `</table>`;
+
+      if(getCurrentAction() !== undefined && getCurrentAction() == UserAction.REFERRAL) {
+               let customColumns : string[] = columns.filter((header : string) => header !== '>>');
+                customColumns.map((header: string, i: number) => {
+                  let subHtml : string = '';
+                  subHtml += `<table style="margin-top:10px; width:50%">`;
+                  rows.forEach((column: string[]) => {
+                    subHtml +=`<tr>`;
+                    column.map((value: string, j: number) => {
+                      if(j == 0 || j == i+1) {
+                          subHtml +=`<td class="desc">${value}</td>`;
+                      }
+                    });
+                  subHtml +=`</tr>`;
+                });
+                  subHtml += `</table>`;
+                  htmlDefinition.push({'name': header, 'html': subHtml});
+
+                });
+        }
+
+
   }
 
   return html;
@@ -530,6 +552,7 @@ async function renderColumnedRows (
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
       const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
+
        if(fieldDefinition){
          childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
        }
@@ -540,11 +563,7 @@ async function renderColumnedRows (
       columnValues.push(value);
     }
   }));
-  let childHtml: string = '';
-  columnValues.forEach((value: string) => {
-        childHtml +=`<span>${value} </span>`;
-        });
-  htmlDefinition.push({'name': columns[rowIndex], 'html': childHtml});
+
   return columnValues;
 }
 function renderColumnsHeader (
@@ -552,7 +571,7 @@ function renderColumnsHeader (
   definition: GroupDefinition
 ) {
   let html: string = ''
-  if (hasColumns(definition) === false) return null
+  if (hasColumns(definition) === false) return null;
   const columns = definition.columns.find(
     (columns: string[]) => columns[0] === columnDefinition.name
   )
@@ -1072,7 +1091,7 @@ function renderRxTable (
          let options = fieldDefinition.options;
          const value : string = formatCode(options, glassesRx.lensType);
          html += `<div>${formatLabel(fieldDefinition)}: ${value}</div>`;
-         console.log("LENSE TYPEEEEEEEEEEEEEEEEEEEE");
+        groupHtmlDefinition.push({'name': fieldDefinition.name, 'html': value});
       }
     }
 
