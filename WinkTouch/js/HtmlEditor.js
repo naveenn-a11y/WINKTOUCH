@@ -49,6 +49,12 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		this.refs.webref.injectJavaScript(javaScript);
 	}
 
+	setContent(html: string) {
+		__DEV__ && console.log('Set raw html: '+html);
+		let javaScript : string = `tinymce.activeEditor.setContent(\`${html}\`, {format: 'raw'})`;
+		this.refs.webref.injectJavaScript(javaScript);
+	}
+
 	webCallback = ( event: WebViewMessageEvent ) => {
 		const data: any = JSON.parse( event.nativeEvent.data );
 		if (this.resolveContent) {
@@ -65,6 +71,8 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'  tinymce.init({'+
 		'    selector: \'#mytextarea\','+
 		'    height: \'680\','+
+		'	   branding: false,'+
+		'    statusbar: false,'+
 		'    extended_valid_elements: "svg[*],defs[*],pattern[*],desc[*],metadata[*],g[*],mask[*],path[*],line[*],marker[*],rect[*],circle[*],ellipse[*],polygon[*],polyline[*],linearGradient[*],radialGradient[*],stop[*],image[*],view[*],text[*],textPath[*],title[*],tspan[*],glyph[*],symbol[*],switch[*],use[*]",'+
 		'    images_dataimg_filter: function(img) {' +
    	'		    return img.hasAttribute(\'internal-blob\');'+

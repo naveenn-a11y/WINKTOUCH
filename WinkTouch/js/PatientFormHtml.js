@@ -41,7 +41,9 @@ import {
 import { formatPrism, hasPrism } from './Refraction'
 import {
   getFieldDefinition as getExamFieldDefinition,
-  getFieldValue as getExamFieldValue
+  getFieldValue as getExamFieldValue,
+  getCurrentAction,
+  UserAction
 } from './Exam'
 import { formatLabel, formatFieldValue, getFieldDefinition, filterFieldDefinition } from './Items'
 import RNFS from 'react-native-fs'
@@ -195,7 +197,7 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
     html += `<div>`
     html += isEmpty(exam[exam.definition.name]) ? '' : await renderAllGroupsHtml(exam, htmlDefinition);
     html += `</div>`;
-    parentHtmlDefinition.push({'name': exam.definition.name, 'html': html});
+    parentHtmlDefinition.push({'name': exam.definition.name, 'html': html, 'child': htmlDefinition});
   }
    else {
     if(exam.definition.name === 'Consultation summary') {
@@ -225,10 +227,7 @@ export async function renderParentGroupHtml (exam: Exam, parentHtmlDefinition?: 
 
   return html
    }
-async function mergeFieldsToHtml(html: string, exam: Exam, htmlDefinition: HtmlDefinition[]) {
-  await renderExamHtml(exam, htmlDefinition);
 
-}
 
 /**
 This Function accepts 2 parameters :
@@ -493,7 +492,7 @@ async function renderColumnedRows (
 
 
   if(allRowsEmpty == false) {
-      html += `<table style="margin-top:10px; width:50%">`
+      html += `<table style="margin-top:10px; width:50%">`;
       html += renderColumnsHeader(columnDefinition, definition);
       rows.forEach((column: string[]) => {
         html +=`<tr>`;
@@ -502,7 +501,29 @@ async function renderColumnedRows (
         });
         html +=`</tr>`
       });
-      html += `</table>`
+      html += `</table>`;
+
+      if(getCurrentAction() !== undefined && getCurrentAction() == UserAction.REFERRAL) {
+               let customColumns : string[] = columns.filter((header : string) => header !== '>>');
+                customColumns.map((header: string, i: number) => {
+                  let subHtml : string = '';
+                  subHtml += `<table style="margin-top:10px; width:50%">`;
+                  rows.forEach((column: string[]) => {
+                    subHtml +=`<tr>`;
+                    column.map((value: string, j: number) => {
+                      if(j == 0 || j == i+1) {
+                          subHtml +=`<td class="desc">${value}</td>`;
+                      }
+                    });
+                  subHtml +=`</tr>`;
+                });
+                  subHtml += `</table>`;
+                  htmlDefinition.push({'name': header, 'html': subHtml});
+
+                });
+        }
+
+
   }
 
   return html;
@@ -531,6 +552,7 @@ async function renderColumnedRows (
     if (columnDefinition) {
       const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
       const value = await renderField(fieldDefinition, definition, exam, form, column, groupIndex);
+
        if(fieldDefinition){
          childHtmlDefinition.push({'name': fieldDefinition.name, 'html': `<span>${value}</span>`});
        }
@@ -541,11 +563,7 @@ async function renderColumnedRows (
       columnValues.push(value);
     }
   }));
-  let childHtml: string = '';
-  columnValues.forEach((value: string) => {
-        childHtml +=`<span>${value} </span>`;
-        });
-  htmlDefinition.push({'name': columns[rowIndex], 'html': childHtml});
+
   return columnValues;
 }
 function renderColumnsHeader (
@@ -553,7 +571,7 @@ function renderColumnsHeader (
   definition: GroupDefinition
 ) {
   let html: string = ''
-  if (hasColumns(definition) === false) return null
+  if (hasColumns(definition) === false) return null;
   const columns = definition.columns.find(
     (columns: string[]) => columns[0] === columnDefinition.name
   )
@@ -628,8 +646,13 @@ async function renderField (
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
-      html += `<span class="img-wrap">`
-      html += await renderImage(value, fieldDefinition, groupDefinition, exam)
+      if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
+          html += `<span class="img-wrap" style="width:49%">`;
+      } else {
+          html += `<span class="img-wrap" style="width:100%">`;
+      }
+      const imageValue =  await renderImage(value, fieldDefinition, groupDefinition, exam);
+      html += imageValue;
       html += `</span>`
       return html
     }
@@ -683,6 +706,7 @@ async function renderImage (
   const pageHeight : number = pageWidth/pageAspectRatio;
   if (image.startsWith('upload-')) {
       upload = await loadImage(value);
+
       if(upload) {
         filePath = `data:${getMimeType(upload)},${upload.data}`;
         fieldAspectRatio = getAspectRatio(upload);
@@ -706,11 +730,10 @@ async function renderImage (
       style.height = Math.floor(style.width / fieldAspectRatio);
     }
 
-  let scale: number = style.width / resolutions(value, fieldDefinition)[0];
 
   if(!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-     style.width = style.width * 0.85;
-     style.height = style.height * 0.85;
+     style.width = style.width * 0.65;
+     style.height = style.height * 0.65;
   }
 
   if (filePath) {
@@ -724,6 +747,7 @@ async function renderImage (
         }
 
     }
+    let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale)
 
     fieldDefinition.fields &&
@@ -768,10 +792,15 @@ async function renderImage (
   }
   if(upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
-    return '';
-  } else {
-    return html;
-  }
+    if(getCurrentAction() !== undefined && getCurrentAction() == UserAction.REFERRAL) {
+      return html;
+    }
+    else {
+      return '';
+    }
+  } 
+   return html;
+
 }
 
 
@@ -788,9 +817,9 @@ function renderGraph (
   style: { width: number, height: number },
   scale: number
 ) {
-  let html: string = ''
-  if (!value.lines || value.lines.length === 0) return ''
-  const strokeWidth: number = (3 * fontScale) / scale
+  let html: string = '';
+  if (!value.lines || value.lines.length === 0) return '';
+  const strokeWidth: number = fontScale / scale;
   const resolution: number[] = resolutions(value, definition);
   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
@@ -1042,7 +1071,6 @@ function renderRxTable (
     html += `<td class="desc">${htmlChildSubItems}</td>`;
     htmlSubItems += `<span>${htmlChildSubItems}</span>`;
     childHtmlDefinition.push({'name': 'addVa', 'html': `<span>${htmlChildSubItems} </span>`});
-    html += `<td class="desc">${formattedValue}</td>`;
     }
   html += `</tr>`;
   groupHtmlDefinition.push({'name': 'ou', 'html': htmlSubItems, 'child': childHtmlDefinition});
@@ -1063,7 +1091,7 @@ function renderRxTable (
          let options = fieldDefinition.options;
          const value : string = formatCode(options, glassesRx.lensType);
          html += `<div>${formatLabel(fieldDefinition)}: ${value}</div>`;
-         console.log("LENSE TYPEEEEEEEEEEEEEEEEEEEE");
+        groupHtmlDefinition.push({'name': fieldDefinition.name, 'html': value});
       }
     }
 
@@ -1077,13 +1105,12 @@ export function patientHeader () {
   let htmlHeader: string =
     `<head><style>` +
     `@media print {` +
-    `table { page-break-after:auto }` +
+    `table { page-break-after:auto; page-break-inside: avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
     `.scannedFiles {display: block; page-break-before: always;}` +
-    `body {padding: 0.75in 0.75in 0.75in 0.75in}` +
     `}` +
 
 
@@ -1240,7 +1267,6 @@ export function patientHeader () {
     `.img-wrap {` +
     `  position: relative;` +
     `  display: block;` +
-    `  width:49%;` +
     `  float: left;` +
       ` margin-top:5px;` +
     `}` +
@@ -1266,7 +1292,6 @@ export function getVisitHtml (html: string): string {
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
   initValues();
-
   return finalHtml
 }
 
