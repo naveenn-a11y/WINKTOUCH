@@ -110,6 +110,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
       if (response) {
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        } 
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
@@ -203,6 +207,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response && this.editor) {
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        } 
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
@@ -237,9 +245,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   
     let response = await fetchWinkRest('webresources/template/sign', parameters, 'POST', body);
     if (response && this.editor) {
-        const htmlContent : ReferralDocument = response;
-        referralHtml = htmlContent.content;
-        this.editor.setContent(referralHtml);
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        } 
+            const htmlContent : ReferralDocument = response;
+            referralHtml = htmlContent.content;
+            this.editor.setContent(referralHtml);
+        
+
       }
   }
 
@@ -272,9 +286,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     };
     let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
     if(response) {
+      if (response.errors) {
+              alert(response.errors);
+              return;
+       }
+
       let referralDefinition: ReferralDefinition = response;
       let referralId = stripDataType(referralDefinition.id);
       this.setState({id: referralId});
+      
+
     }
   }
 
@@ -331,9 +352,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);
       if (response) {
-        await this.save();
-        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-        this.setState({isPopupVisibile: false});
+          if (response.errors) {
+              alert(response.errors);
+          }
+          else {
+              await this.save();
+              RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+              this.setState({isPopupVisibile: false});
+          }
       }
     this.setState({isActive: true});
 
