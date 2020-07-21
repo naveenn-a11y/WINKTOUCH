@@ -35,7 +35,8 @@ export function setReferralHtml(html: string) {
 const COMMAND = {
   EMAIL: 0,
   FAX: 1,
-  PRINT: 2
+  PRINT: 2,
+  SIGN: 3
 }
 
 type ReferralScreenProps = {
@@ -72,7 +73,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       command: undefined,
       isPopupVisibile: false,
       isSignVisible: false
-    }
+      }
   }
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
@@ -252,7 +253,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             const htmlContent : ReferralDocument = response;
             referralHtml = htmlContent.content;
             this.editor.setContent(referralHtml);
-
+            this.setState({command: COMMAND.SIGN});
+            await this.save();
 
       }
   }
@@ -283,7 +285,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       'action': this.state.command,
       'id': this.state.id,
       'attachment': file.base64
-    };
+     };
     let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
     if(response) {
       if (response.errors) {
