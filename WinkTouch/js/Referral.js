@@ -35,7 +35,8 @@ export function setReferralHtml(html: string) {
 const COMMAND = {
   EMAIL: 0,
   FAX: 1,
-  PRINT: 2
+  PRINT: 2,
+  SIGN: 3
 }
 
 type ReferralScreenProps = {
@@ -52,9 +53,7 @@ type ReferralScreenState = {
   emailDefinition : ? EmailDefinition,
   command: COMMAND,
   isPopupVisibile: ? boolean,
-  isSignVisible: ? boolean,
-  isSigned: ? boolean
-
+  isSignVisible: ? boolean
 };
 
 
@@ -73,9 +72,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       emailDefinition: {},
       command: undefined,
       isPopupVisibile: false,
-      isSignVisible: false,
-      isSigned: false
-    }
+      isSignVisible: false
+      }
   }
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
@@ -250,13 +248,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
-              this.setState({isSigned: false});
               return;
         }
             const htmlContent : ReferralDocument = response;
             referralHtml = htmlContent.content;
             this.editor.setContent(referralHtml);
-            this.setState({isSigned: true});
+            this.setState({command: COMMAND.SIGN});
+            await this.save();
+
       }
   }
 
@@ -285,9 +284,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       'doctorId': this.state.doctorId,
       'action': this.state.command,
       'id': this.state.id,
-      'attachment': file.base64,
-      'isSigned': this.state.isSigned
-    };
+      'attachment': file.base64
+     };
     let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
     if(response) {
       if (response.errors) {
