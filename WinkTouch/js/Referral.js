@@ -409,7 +409,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
           </View>
            <View style={styles.formRow}>
-              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+              <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
         </View>
 
@@ -495,8 +495,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Text style={styles.cardTitle}>New Referral</Text>
           <View style={styles.boardM}>
             <View style={styles.formRow}>
-              <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
-              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+              <FormCode code="doctors" value={this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
           <View style={styles.flow}>
