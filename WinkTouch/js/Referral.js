@@ -22,7 +22,7 @@ import { initValues, getImageBase64Definition, patientHeader, patientFooter } fr
 import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
-import { isEmpty } from './Util';
+import { isEmpty, sort } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 
@@ -113,7 +113,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         if (response.errors) {
               alert(response.errors);
               return;
-        } 
+        }
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
@@ -204,13 +204,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId
       };
-  
+
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
               return;
-        } 
+        }
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
@@ -242,17 +242,17 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'htmlReferral': html,
         'visitId': stripDataType(visit.id)
      };
-  
+
     let response = await fetchWinkRest('webresources/template/sign', parameters, 'POST', body);
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
               return;
-        } 
+        }
             const htmlContent : ReferralDocument = response;
             referralHtml = htmlContent.content;
             this.editor.setContent(referralHtml);
-        
+
 
       }
   }
@@ -294,7 +294,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       let referralDefinition: ReferralDefinition = response;
       let referralId = stripDataType(referralDefinition.id);
       this.setState({id: referralId});
-      
+
 
     }
   }
@@ -389,8 +389,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               return !isEmpty(examValue);
             });
           }
-          optionsKeys = optionsKeys.sort();
           if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
+          sort(optionsKeys);
           return <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
