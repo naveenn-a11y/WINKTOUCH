@@ -167,7 +167,7 @@ function constructItemView(itemView: string, item: any, fieldDefinitions: FieldD
   switch (itemView) {
     case 'EditableItem':
       return <View style={{flex: 10}}>
-        <EditableItem item={item} fieldDefinitions={fieldDefinitions} titleFields={titleFields} isSelected={isSelected} onUpdateItem={onUpdateItem} orientation={orientation} editable={editable}/>
+        <EditableItem item={item} fieldDefinitions={fieldDefinitions} titleFields={titleFields} isSelected={isSelected} onUpdateItem={onUpdateItem} orientation={orientation} editable={editable} />
       </View>
   }
   return <View style={isSelected?styles.listRowSelected:styles.listRow}>
@@ -358,7 +358,8 @@ export class ItemsList extends Component {
     itemView?: string,
     editable?: boolean,
     style?: any,
-    showLabels?: boolean
+    showLabels?: boolean,
+    testID: string
   }
   static defaultProps = {
     editable: true
@@ -395,8 +396,8 @@ export class ItemsList extends Component {
     if (!this.props.editable || this.props.onAddItem) return null;
     return <View style={styles.buttonsRowLayout}>
       <View style={styles.buttonsRowStartLayout}>
-        <Button title={strings.allNormal} color={fontColor} onPress={() => { this.allNormal() } } />
-        <Button title={strings.othersNormal} color={fontColor} onPress={() => { this.othersNormal() } } />
+        <Button title={strings.allNormal} color={fontColor} onPress={() => { this.allNormal() } } testID={this.props.testID+'.normal'}/>
+        <Button title={strings.othersNormal} color={fontColor} onPress={() => { this.othersNormal()}} testID={this.props.testID+'.allNormal'} />
       </View>
     </View>
   }
@@ -404,7 +405,7 @@ export class ItemsList extends Component {
   renderIcons() {
     if (!this.props.editable || this.props.onRemoveAllItems===undefined) return null;
     return <View style={styles.groupIcons}>
-      <TouchableOpacity onPress={this.props.onRemoveAllItems}><Garbage style={styles.groupIcon}/></TouchableOpacity>
+      <TouchableOpacity onPress={this.props.onRemoveAllItems} testID={this.props.testID+'.garbageIcon'}><Garbage style={styles.groupIcon}/></TouchableOpacity>
     </View>
   }
 
@@ -705,6 +706,7 @@ export class ItemsEditor extends Component {
           orientation = {this.props.orientation}
           editable={this.props.editable}
           style={(this.props.onAddFavorite && this.props.editable)?styles.boardStretch:styles.boardStretchL}
+          testID={this.props.fieldId}
         />
         {this.props.onAddFavorite && this.props.editable && <Favorites favorites={this.props.favorites} onSelectFavorite={this.selectFavorite} onAddFavorite={this.addFavorite} onRemoveFavorite={this.props.onRemoveFavorite}/>}
       </View>
@@ -776,7 +778,7 @@ export class SelectionListsScreen extends Component {
         favorites = {this.props.exam.definition.starable?this.props.favorites:undefined}
         onAddFavorite = {this.props.exam.definition.starable?this.props.onAddFavorite:undefined}
         onRemoveFavorite = {this.props.exam.definition.starable?this.props.onRemoveFavorite:undefined}
-        fieldId={this.props.exam.definition.id}
+        fieldId={this.props.exam.definition.name}
       />
   }
 }

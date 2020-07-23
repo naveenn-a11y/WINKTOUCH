@@ -1,8 +1,8 @@
 {
-  "order":"4",
   "name":"Lensometry",
   "type":"groupedForm",
   "section":"Vision testing.4",
+  "order":"4",
   "scrollable": true,
   "fields":[
     {

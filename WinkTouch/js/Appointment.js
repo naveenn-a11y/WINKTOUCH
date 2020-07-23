@@ -15,7 +15,6 @@ import { VisitHistory, fetchVisitHistory } from './Visit';
 import { PatientCard, fetchPatientInfo, PatientTags } from './Patient';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById, clearCachedItemById} from './DataCache';
 import { searchItems, fetchItemById, stripDataType } from './Rest';
-import { putRest } from './WinkRest';
 import { formatCode } from './Codes';
 
 export async function fetchAppointment(appointmentId: string) : Promise<Appointment> {
@@ -475,7 +474,7 @@ export class AppointmentScreen extends Component {
         this.setState({appointment});
     }
 
-    async refreshPatientInfo() {      
+    async refreshPatientInfo() {
       const patientInfo : PatientInfo = await fetchPatientInfo(this.getPatientId());
       if (patientInfo.version && patientInfo.version!==this.state.patientInfo.version)
         this.setState({patientInfo});

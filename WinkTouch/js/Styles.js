@@ -307,8 +307,13 @@ export const styles = StyleSheet.create({
       height: 100*fontScale,
       borderRadius: 65*fontScale,
       marginVertical: 20 * fontScale,
-      alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: '#2dc3c3'
+    },
+    backIcon: {
+      color: 'white',
+      fontSize: 50 * fontScale
     },
     addButton: {
       width: 60*fontScale,
@@ -1082,6 +1087,42 @@ export const styles = StyleSheet.create({
           height: 3 * fontScale,
           width: 1 * fontScale
       }
+    },
+    pageEditor: {
+      flexDirection: 'column',
+      flex:7,
+      flexGrow: 1,
+      minWidth: 800 * fontScale,
+      minHeight: 930 * fontScale,
+      backgroundColor: 'white',
+      alignSelf: 'flex-start',
+      padding: 0 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      margin: 7 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
+    },
+    sideBar: {
+      flexDirection: 'column',
+      minWidth:200 * fontScale,
+      maxWidth:300 * fontScale,
+      minHeight: 400 * fontScale,
+      margin: 7 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
     }
 });
 
@@ -1151,6 +1192,10 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
 export function imageWidth(size: string) : number {
   const width : number = size === 'XL'?1110:size==='L'?680:size==='M'?520:size==='S'?340:340;
   return width;
+}
+
+export function printWidth(size: string): number {
+  return imageWidth(size)/1110*612;
 }
 
 export function imageStyle(size: string, aspecRatio: number) {

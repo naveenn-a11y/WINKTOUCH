@@ -23,6 +23,7 @@ import { setToken } from './Rest';
 import { allExamPredefinedValues } from './Favorites';
 import { ConfigurationScreen } from './Configuration';
 import { deleteLocalFiles } from './Print';
+import { ReferralScreen} from './Referral';
 
 let account: Account;
 let doctor: User;
@@ -76,7 +77,8 @@ const DoctorNavigator = createStackNavigator({
     examHistory: {screen: ExamHistoryScreen},
     examTemplate: {screen: ExamDefinitionScreen},
     templates: {screen: TemplatesScreen},
-    configuration: {screen: ConfigurationScreen}
+    configuration: {screen: ConfigurationScreen},
+    referral: {screen: ReferralScreen}
   }, {
     headerMode: 'none'
   }

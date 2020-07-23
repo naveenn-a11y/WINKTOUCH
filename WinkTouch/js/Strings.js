@@ -10,7 +10,7 @@ import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
     en: {
-      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database or start with a demo database',
+      enterRegisteredEmail: 'Please enter your email adress to connect to your WINK database\nor try with a demo database',
       trialWarning: 'This is a demo version that uses a public shared database. Do not enter any real patient data.',
       winkLink: 'Visit www.winksoftware.com to learn more',
       emailAdres: 'Email adress',
@@ -71,7 +71,7 @@ export const strings = new LocalizedStrings({
       large: 'Large',
       extraLarge: 'Extra large',
       duplicate: 'Duplicate',
-      serverError: 'Something went wrong on the server. Please try again.\n\n(Internal error = {1})',
+      serverError: 'Something went wrong on the server. Please try again.\n\n(Internal error = {0})',
       pending: 'Pending',
       confirmed: 'Confirmed',
       cancelled: 'Cancelled',
@@ -110,6 +110,7 @@ export const strings = new LocalizedStrings({
       referral: 'Referral',
       finalRx: 'Final Rx',
       printRx: 'Print Rx',
+      transferRx: 'Transfer Rx',
       printClRx: 'Print Cl',
       printReferral: 'Print Referral',
       printMedicalRx: 'Print Medical Rx',
@@ -154,6 +155,7 @@ export const strings = new LocalizedStrings({
       updateAppStore: 'Please update the WINKemr app in the apple appstore.',
       cancel: 'Cancel',
       confirm: 'Confirm',
+      send: 'Send',
       deleteVisitTitle: 'Delete consultation',
       deleteVisitQuestion: 'Are you sure you want to permanently delete the {0} of {1} ?',
       findPatient: 'Enter the patient name or #Z',
@@ -172,10 +174,15 @@ export const strings = new LocalizedStrings({
       pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.',
       examDate: 'Date of Exam',
       healthCard: 'Health Card',
-      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
+      emailSuccess: 'Email sent successfully to {0}',
+      faxSuccess: 'Fax sent successfully to {0}',
+      referralSuccess: 'Referral sent successfully to {0}',
+      referringPatientTo: 'Referring patient to ',
+      doctorReferralMissing: 'Please select the doctor'
     },
     fr: {
-      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\n ou pour commencer un essai',
+      enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
       trialWarning: 'Ceci est la version d\'essai qui utilise une base de données publique partagée. N\'entrez aucune donnée réelle sur le patient. ',
       winkLink: 'Visitez www.winksoftware.com',
       emailAdres: 'Adresse courriel',
@@ -275,6 +282,7 @@ export const strings = new LocalizedStrings({
       referral: 'Référence',
       finalRx: 'Rx Finale',
       printRx: 'Imprimer Rx',
+      transferRx: 'Transférer Rx',
       printClRx: 'Imprimer LC',
       printReferral: 'Imprimer Référence',
       printMedicalRx: 'Imprimer Rx médicale',
@@ -319,6 +327,7 @@ export const strings = new LocalizedStrings({
       updateAppStore: 'Veuillez effectuer les mises à jour pour WINKemr dans l\'App store',
       cancel: 'Annuler',
       confirm: 'Confirmer',
+      send: 'Envoyer',
       deleteVisitTitle: 'Supprimer une consultation',
       deleteVisitQuestion: 'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
       findPatient: 'Entrer le nom du patient ou le #Z',
@@ -337,18 +346,23 @@ export const strings = new LocalizedStrings({
       pmsImageSaveError: 'Une erreur s\'est produite en sauvegardant l\'image dans le PMS',
       examDate: 'Date de l\'exam',
       healthCard: 'Carte maladie',
-      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.'
+      configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
+      emailSuccess: 'Email envoyé avec succès à {0}',
+      faxSuccess: 'Fax envoyé avec succès à {0}',
+      referralSuccess: 'Référence envoyé avec succès à {0}',
+      referringPatientTo: 'Référer le patient à ',
+      doctorReferralMissing: 'Veuillez sélectionner le docteur'
+
     }
 });
 
 //console.log('Interface language is: '+strings.getInterfaceLanguage());
 
-const supportedLanguages : string[] = ['en-US','🇺🇸','en-CA','🇨🇦','fr-CA','🇫🇷'];
+const supportedLanguages : string[] = ['en-US','🇺🇸','en-CA','🇨🇦','en-UK','🇬🇧','fr-CA','🇫🇷'];
 
 let userLanguage : string;
 
 export function getUserLanguage() : string {
-  //return strings.getLanguage();
   return userLanguage;
 }
 

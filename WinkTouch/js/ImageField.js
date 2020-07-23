@@ -16,7 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ViewShot from 'react-native-view-shot';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import RNFS from 'react-native-fs';
-import { styles, fontScale, imageStyle, imageWidth } from './Styles';
+import { styles, fontScale, imageStyle, printWidth } from './Styles';
 import { strings } from './Strings';
 import { getDoctor } from './DoctorApp';
 import { formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, jsonDateFormat, split,
@@ -28,6 +28,7 @@ import { getCachedItem } from './DataCache';
 import { searchPatientDocuments, storePatientDocument } from './Patient';
 import { ClearTile, UpdateTile, RefreshTile } from './Widgets';
 import { storeUpload } from './Upload';
+import { getVisit } from './Exam';
 
 function isCloseBy(point: {x: number, y:nummber}, line: string) {
   //__DEV__ && console.log('isCloseBy: ('+point.x+','+point.y+') '+line);
@@ -41,6 +42,31 @@ function isCloseBy(point: {x: number, y:nummber}, line: string) {
     }
   }
   return false;
+}
+
+export function getBase64Image(image: string) {
+    if (image===undefined || image==='upload') return undefined;
+    if (image==='./image/perimetry.png') return require('./image/base64/perimetry');
+    if (image==='./image/champvisuel.png') return require('./image/base64/champvisuel');
+    if (image==='./image/anteriorOD.png') return require('./image/base64/anteriorOD');
+    if (image==='./image/anteriorOS.png') return require('./image/base64/anteriorOS');
+    if (image==='./image/anteriorSegOD.png') return require('./image/base64/anteriorSegOD');
+    if (image==='./image/anteriorSegOS.png') return require('./image/base64/anteriorSegOS');
+    if (image=='./image/posteriorOD.png') return require('./image/base64/posteriorOD');
+    if (image==='./image/posteriorOS.png') return require('./image/base64/posteriorOS');
+    if (image==='./image/gonioscopyOD.png') return require('./image/base64/gonioscopyOD');
+    if (image==='./image/gonioscopyOS.png') return require('./image/base64/gonioscopyOS');
+    if (image==='./image/notations.png') return require('./image/base64/notations');
+    if (image==='./image/contactlensOD.png') return require('./image/base64/contactlensOD');
+    if (image==='./image/contactlensOS.png') return require('./image/base64/contactlensOS');
+    if (image==='./image/amsler.png') return require('./image/base64/amsler');
+    if (image==='./image/d15.jpg') return require('./image/base64/d15');
+    if (image==='./image/eyeexamtemplate.png') return require('./image/base64/eyeexamtemplate');
+    if (image==='./image/ToulchExamFront.jpg') return require('./image/base64/ToulchExamFront');
+    if (image==='./image/ToulchExamBack.jpg') return require('./image/base64/ToulchExamBack');
+    if (image==='./image/ToulchMeds.jpg') return require('./image/base64/ToulchMeds');
+    if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;
+    return undefined;
 }
 
 export class ImageField extends Component {
@@ -388,11 +414,13 @@ export class ImageField extends Component {
     const pdfFileName : ?string = this.state.pdf;
     if (!pdfFileName) return;
     const pdfData : string = await RNFS.readFile(pdfFileName, 'base64');
+    let visitDate : string = getVisit(getCachedItem(this.props.examId)).date;
     let upload : Upload = {
       id: 'upload',
       data: pdfData,
       mimeType: 'application/pdf;base64',
       name: this.props.fileName,
+      date: visitDate,
       argument1: this.props.patientId,
       argument2: this.props.examId
     };
@@ -402,10 +430,11 @@ export class ImageField extends Component {
       return;
     }
 
+    if (this.props.type) {
     let patientDocument :PatientDocument = {
       id: 'patientDocument',
       patientId: this.props.patientId,
-      postedOn: formatDate(now(), jsonDateFormat),
+        postedOn: visitDate,
       name: this.props.fileName,
       category: this.props.type,
       uploadId: upload.id
@@ -415,6 +444,7 @@ export class ImageField extends Component {
       alert(strings.pmsImageSaveError);
     }
     __DEV__ && console.log('Uploading patient document done for upload: '+upload.id);
+  }
   }
 
   async takeScreenShot() {
@@ -565,7 +595,7 @@ export class ImageField extends Component {
     const pageHeight : number = pageWidth/pageAspectRatio;
     const imageUri = await this.refs.viewShot.capture();
     const aspectRatio = this.aspectRatio();
-    let width = Math.floor(imageWidth(this.props.size));
+    let width = Math.floor(printWidth(this.props.size));
     let height = Math.floor(width / aspectRatio);
     if (height>pageHeight) {
       height = Math.floor(pageHeight);
@@ -648,9 +678,6 @@ export class ImageField extends Component {
     if (image==='./image/amsler.png') return require('./image/amsler.png');
     if (image==='./image/d15.jpg') return require('./image/d15.jpg');
     if (image==='./image/eyeexamtemplate.png') return require('./image/eyeexamtemplate.png');
-    if (image==='./image/ToulchExamFront.jpg') return require('./image/ToulchExamFront.jpg');
-    if (image==='./image/ToulchExamBack.jpg') return require('./image/ToulchExamBack.jpg');
-    if (image==='./image/ToulchMeds.jpg') return require('./image/ToulchMeds.jpg');
     if (!(image.startsWith('http:')) && (!image.startsWith('https:'))) return undefined;
     return {uri: image, cache: 'force-cache'};
   }
