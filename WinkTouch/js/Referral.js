@@ -47,7 +47,7 @@ type ReferralScreenState = {
   selectedField: ?string[],
   key: ? string,
   doctorId: ? number | string,
-  id: ? number | string,
+  doctorReferral: ? ReferralDefinition,
   isActive: ? boolean,
   emailDefinition : ? EmailDefinition,
   command: COMMAND,
@@ -67,6 +67,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       template: undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined],
       htmlDefinition : [],
+      doctorReferral: {},
       isActive: true,
       emailDefinition: {},
       command: undefined,
@@ -262,19 +263,26 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let file = await generatePDF(htmlHeader + html + htmlEnd, true);
+    let referralId = undefined;
+    console.log("Referral: " + JSON.stringify(this.state.doctorReferral));
+    if(this.state.doctorReferral !== undefined) {
+      if(stripDataType(this.state.doctorReferral.id) > 0) {
+        referralId = stripDataType(this.state.doctorReferral.id);
+      }
+    }
+
     let body : {} = {
       'htmlReferral': html,
       'visitId': stripDataType(visit.id),
       'doctorId': this.state.doctorId,
       'action': this.state.command,
-      'id': this.state.id,
+      'id': referralId,
       'attachment': file.base64
     };
     let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
     if(response) {
       let referralDefinition: ReferralDefinition = response;
-      let referralId = stripDataType(referralDefinition.id);
-      this.setState({id: referralId});
+      this.setState({doctorReferral: referralDefinition});
     }
   }
 
@@ -303,6 +311,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       return;
     }
     this.setState({isActive: false});
+    await this.save();
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
@@ -316,7 +325,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             'visitId': stripDataType(visit.id),
             'doctorId': this.state.doctorId,
             'attachment': file.base64,
-            'emailDefinition': this.state.emailDefinition
+            'emailDefinition': this.state.emailDefinition,
+            'doctorReferral': this.state.doctorReferral
           };
     }
     else if(this.state.command == COMMAND.FAX) {
@@ -325,13 +335,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             'doctorId': this.state.doctorId,
             'attachment': file.base64,
             'isFax': true,
-            'emailDefinition': this.state.emailDefinition
+            'emailDefinition': this.state.emailDefinition,
+            'doctorReferral': this.state.doctorReferral
           };
     }
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);
       if (response) {
-        await this.save();
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
         this.setState({isPopupVisibile: false});
       }
