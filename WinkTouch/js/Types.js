@@ -302,9 +302,10 @@ export type ReferralDocument = {
 }
 
 export type ReferralDefinition = {
-  id: number,
-  visitId  :number,
-  fromDoctorId :number
+  id: string,
+  visitId  :string,
+  fromDoctorId :string,
+  upload?: Upload
 }
 
 export type EmailDefinition = {
