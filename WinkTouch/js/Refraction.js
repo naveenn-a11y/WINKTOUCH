@@ -604,7 +604,7 @@ export class GlassesDetail extends Component {
       const machineDefinition = getCodeDefinition('machines', config.machine.phoropter);
       if (machineDefinition.ip) {
         __DEV__ && console.log('Kicking controlling wink pc '+machineDefinition.ip+' in the http 80 butt');
-        await fetch('http://' + machineDefinition.ip + ':80/m')
+        fetch('http://' + machineDefinition.ip + ':80/m');
       }
     }
 
