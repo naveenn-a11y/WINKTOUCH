@@ -308,8 +308,8 @@ export type ReferralDefinition = {
 }
 
 export type EmailDefinition = {
-  to  :string,
-  cc?:string,
+  to?: string,
+  cc?: string,
   subject?: string,
   body?: string
 }
