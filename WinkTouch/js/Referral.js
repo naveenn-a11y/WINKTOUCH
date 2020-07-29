@@ -22,7 +22,7 @@ import { initValues, getImageBase64Definition, patientHeader, patientFooter } fr
 import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
-import { isEmpty } from './Util';
+import { isEmpty, sort } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 
@@ -35,7 +35,8 @@ export function setReferralHtml(html: string) {
 const COMMAND = {
   EMAIL: 0,
   FAX: 1,
-  PRINT: 2
+  PRINT: 2,
+  SIGN: 3
 }
 
 type ReferralScreenProps = {
@@ -73,7 +74,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       command: undefined,
       isPopupVisibile: false,
       isSignVisible: false
-    }
+      }
   }
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
@@ -111,6 +112,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
       if (response) {
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        }
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
@@ -201,9 +206,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'visitId': stripDataType(visit.id),
         'doctorId': this.state.doctorId
       };
-  
+
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
     if (response && this.editor) {
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        }
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
@@ -235,12 +244,19 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'htmlReferral': html,
         'visitId': stripDataType(visit.id)
      };
-  
+
     let response = await fetchWinkRest('webresources/template/sign', parameters, 'POST', body);
     if (response && this.editor) {
-        const htmlContent : ReferralDocument = response;
-        referralHtml = htmlContent.content;
-        this.editor.setContent(referralHtml);
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        }
+            const htmlContent : ReferralDocument = response;
+            referralHtml = htmlContent.content;
+            this.editor.setContent(referralHtml);
+            this.setState({command: COMMAND.SIGN});
+            await this.save();
+
       }
   }
 
@@ -278,9 +294,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       'action': this.state.command,
       'id': referralId,
       'attachment': file.base64
-    };
+     };
     let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
     if(response) {
+      if (response.errors) {
+              alert(response.errors);
+              return;
+       }
+
       let referralDefinition: ReferralDefinition = response;
       this.setState({doctorReferral: referralDefinition});
     }
@@ -342,8 +363,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);
       if (response) {
-        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-        this.setState({isPopupVisibile: false});
+          if (response.errors) {
+              alert(response.errors);
+          }
+          else {
+              RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+              this.setState({isPopupVisibile: false});
+          }
       }
     this.setState({isActive: true});
 
@@ -373,8 +399,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               return !isEmpty(examValue);
             });
           }
-          optionsKeys = optionsKeys.sort();
           if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
+          sort(optionsKeys);
           return <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
@@ -393,7 +419,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
           </View>
            <View style={styles.formRow}>
-              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+              <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
         </View>
 
@@ -479,8 +505,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Text style={styles.cardTitle}>New Referral</Text>
           <View style={styles.boardM}>
             <View style={styles.formRow}>
-              <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
-              <FormCode code="doctors" value={this.state.doctorId}  onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+              <FormCode code="doctors" value={this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
           <View style={styles.flow}>

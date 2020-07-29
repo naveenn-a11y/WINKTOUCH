@@ -73,6 +73,7 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'    height: \'680\','+
 		'	   branding: false,'+
 		'    statusbar: false,'+
+		'    removed_menuitems: \'newdocument\','+
 		'    extended_valid_elements: "svg[*],defs[*],pattern[*],desc[*],metadata[*],g[*],mask[*],path[*],line[*],marker[*],rect[*],circle[*],ellipse[*],polygon[*],polyline[*],linearGradient[*],radialGradient[*],stop[*],image[*],view[*],text[*],textPath[*],title[*],tspan[*],glyph[*],symbol[*],switch[*],use[*]",'+
 		'    images_dataimg_filter: function(img) {' +
    	'		    return img.hasAttribute(\'internal-blob\');'+

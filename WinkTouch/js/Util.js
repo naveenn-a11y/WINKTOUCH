@@ -456,3 +456,7 @@ export function postfix(text: ?string, postfix: string) :string {
   if (text===undefined || text===null || text.trim()==='') return '';
   return '' + text + postfix;
 }
+
+export function sort(array: []) : [] {
+  return array.sort((a,b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
+}
