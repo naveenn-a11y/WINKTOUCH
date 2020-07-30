@@ -25,6 +25,7 @@ import { getStore } from './DoctorApp';
 import { isEmpty, sort } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
+import {FollowUpScreen} from './FollowUp';
 
 let referralHtml : string = "";
 
@@ -517,8 +518,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   render() {
-    return <View style={styles.page}>
+ /*   return <View style={styles.page}>
       {this.state.template?this.renderEditor():this.renderTemplates()}
-    </View>
+    </View>*/
+    return <FollowUpScreen navigation = {this.props.navigation} />
   }
 }
