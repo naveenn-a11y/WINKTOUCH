@@ -433,12 +433,9 @@ export class ItemsList extends Component {
     //const listStyle = this.props.orientation === 'horizontal' ? styles.listRow : styles.centeredColumnLayout;
     return <View style={this.props.style?this.props.style:styles.board}>
       {this.props.title && <Text style={styles.cardTitle}>{this.props.title}</Text>}
-      {(this.props.items.length>4 && this.props.editable)?
-        <ScrollView>
-          {this.renderList()}
-        </ScrollView>:
-        this.renderList()
-      }
+      <ScrollView>
+        {this.renderList()}
+      </ScrollView>
       {this.renderButtons()}
       {this.renderIcons()}
     </View >
