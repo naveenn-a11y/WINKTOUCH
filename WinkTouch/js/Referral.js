@@ -63,7 +63,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   constructor(props: ReferralScreenProps) {
     super(props);
-
     this.state = {
       template: undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined],
@@ -73,8 +72,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       command: undefined,
       isPopupVisibile: false,
       isSignVisible: false
-      }
+    };
   }
+
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
       if(imageBase64Definition) {
@@ -89,6 +89,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         }
        return template;
   }
+
   async startReferral(template: string) {
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -128,7 +129,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       }
     }
-
   }
 
   selectField(level: number, value: string, options: any) {
@@ -150,7 +150,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let key = keyArray.join('.');
     this.setState({selectedField});
     this.setState({key});
-
   }
 
   updateValue(newValue: any) {
@@ -169,7 +168,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      if (!emailDefinition) return;
      emailDefinition.to = newValue;
      this.setState({emailDefinition: emailDefinition});
-
   }
 
   updateFieldSubject(newValue: any) {
@@ -368,8 +366,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   renderTemplateTool() {
-    return <View>
-      <View style={styles.sideBar}>
+    return <View style={styles.sideBar}>
+        <View style={styles.formRow}>
+          <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
+        </View>
+         <View style={styles.formRow}>
+            <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+        </View>
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
@@ -405,16 +408,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         <FormRow>
           <Button title='Insert' onPress={() => this.insertField()}/>
         </FormRow>
-      </View>
-      <View style={styles.sideBar}>
-          <View style={styles.formRow}>
-            <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
-          </View>
-           <View style={styles.formRow}>
-              <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-            </View>
-        </View>
-
     </View>
   }
 
