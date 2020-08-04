@@ -26,6 +26,12 @@ import { isEmpty, sort } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 
+export function isReferralsEnabled() : boolean {
+  const referralTemplates: string[] = getAllCodes("referralTemplates");
+  if (referralTemplates===undefined || referralTemplates===null || referralTemplates.length===0) return false;
+  return true;
+}
+
 let referralHtml : string = "";
 
 export function setReferralHtml(html: string) {
@@ -365,6 +371,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
+
   renderTemplateTool() {
     return <View style={styles.sideBar}>
         <View style={styles.formRow}>
@@ -372,6 +379,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         </View>
          <View style={styles.formRow}>
             <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+        </View>
+        <View style={styles.formRow}>
+          <View style={styles.formRowHeader}><Label value={strings.dynamicField}/></View>
         </View>
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
