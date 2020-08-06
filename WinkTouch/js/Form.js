@@ -14,7 +14,7 @@ import { ImageField } from './ImageField';
 import { getFieldDefinitions } from './Items';
 import { GroupedForm } from './GroupedForm';
 import { formatAllCodes, formatCode, formatCodeDefinition, parseCode, formatOptions, getAllCodes } from './Codes';
-import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue, setValue, formatAge } from './Util';
+import { capitalize, parseDate, formatDate, jsonDateFormat, jsonDateTimeFormat, deepClone, getValue, setValue, formatAge, insertNewlines} from './Util';
 import { isNumericField, formatLabel } from './Items';
 import { Microphone } from './Voice';
 import {GeneralPrismInput} from './Refraction';
@@ -148,6 +148,13 @@ export class FormTextInput extends Component {
       this.commit(value);
     }
 
+    updateText = (text:string) => {
+      if (this.props.multiline) {
+        text = insertNewlines(text);
+      }
+      this.setState({ text });
+    }
+
     render() {
         return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.errorMessage===undefined} testID={this.state.errorMessage===undefined?undefined:this.props.testID+'FieldDismissError'} accessible={false}>
           <View style={this.props.containerStyle?this.props.containerStyle:styles.formElement}>
@@ -162,7 +169,7 @@ export class FormTextInput extends Component {
                     keyboardType={this.props.type}
                     style={this.props.style?this.props.style:this.props.multiline?styles.formFieldLines:this.props.readonly?styles.formFieldReadOnly:styles.formField}
                     onFocus={this.dismissError}
-                    onChangeText={(text: string) => this.setState({text: text })}
+                    onChangeText={this.updateText}
                     onBlur={(event) => this.commit(event.nativeEvent.text)}
                     editable={this.props.readonly!==true}
                     multiline={this.props.multiline===true}

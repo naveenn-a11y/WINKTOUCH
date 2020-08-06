@@ -677,7 +677,7 @@ export class ItemsEditor extends Component {
     let fields : FieldDefinition[] = this.props.fieldDefinitions.filter((fieldDefinition: FieldDefinition) => fieldDefinition.options===undefined || fieldDefinition.options.length<=2);
     if (fields.length===0) return null;
     let form = this.state.selectedItem;
-    let groupDefinition : GroupDefinition = {'name':'nonSelectables','label':'','fields':fields};
+    let groupDefinition : GroupDefinition = {'name':'nonSelectables','label':'','fields':fields, 'size':'M'};
     return <View><GroupedForm form={form} definition={groupDefinition} onChangeField={this.updateItem} fieldId={this.props.fieldId} /></View>
   }
 

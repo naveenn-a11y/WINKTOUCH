@@ -16,7 +16,7 @@ import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
 import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, officialDateFormat, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty} from './Util';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty, insertNewlines} from './Util';
 import { Camera } from './Favorites';
 import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
@@ -200,6 +200,13 @@ export class TextField extends Component {
       this.props.onChangeValue(value);
   }
 
+  updateText = (text:string) => {
+    if (this.props.multiline) {
+      text = insertNewlines(text);
+    }
+    this.setState({ value: text });
+  }
+
   render() {
     let style = this.props.style ? this.props.style: this.state.isActive ? styles.inputFieldActive : styles.inputField;
     if (this.props.width) {
@@ -215,7 +222,7 @@ export class TextField extends Component {
           keyboardType={this.props.type}
           style={style}
           onFocus={this.props.onFocus}
-          onChangeText={(text: string) => this.setState({ value: text })}
+          onChangeText={this.updateText}
           onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
           autoFocus={this.props.autoFocus}
           editable={!this.props.readonly}

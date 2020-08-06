@@ -509,8 +509,10 @@ export const styles = StyleSheet.create({
       minWidth: 80*fontScale
     },
     formFieldLines: {
-        flex: 100,
+        flex: 1,
+        paddingRight: 20 * fontScale,
         fontSize: 20 * fontScale,
+        minWidth: 100 * fontScale,
         height: 36 * 4.7 * fontScale,
         paddingTop: 6 * fontScale,
         paddingBottom: 4 * fontScale,
@@ -1175,6 +1177,7 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
         padding: 10 * fontScale,
         paddingTop: ((size==='S'||size==='M')?46:10) * fontScale,
         minWidth: minWidth * fontScale,
+        maxWidth: 1040 * fontScale,
         minHeight: minHeight *fontScale,
         borderRadius: 30 * fontScale,
         borderColor: shadowColor,
