@@ -110,7 +110,8 @@ export async function removeFavorite(favorite: ExamPredefinedValue) {
 export class Star extends PureComponent {
   props: {
     style: any,
-    onAddFavorite: (starName: string) => void
+    onAddFavorite: (starName: string) => void,
+    testID?: string
   }
   state: {
     popupActif: boolean,
@@ -148,7 +149,7 @@ export class Star extends PureComponent {
   }
 
   renderPopup() {
-    return <TouchableWithoutFeedback onPress={this.cancelPopup}>
+    return <TouchableWithoutFeedback onPress={this.cancelPopup} accessible={false} testID='popupBackground'>
         <View style={styles.popupBackground}>
           <View style={styles.flexColumnLayout}>
             <Text style={styles.modalTitle}>{strings.nameStar}</Text>
@@ -156,11 +157,11 @@ export class Star extends PureComponent {
               <View style={styles.modalColumnLayout}>
                 <View style={styles.form}>
                   <FormRow>
-                    <FormTextInput value={this.state.starName} onChangeText={this.changeStarName} autoCapitalize="sentences" autoFocus={true} />
+                    <FormTextInput value={this.state.starName} onChangeText={this.changeStarName} autoCapitalize="sentences" autoFocus={true} testID='star.name'/>
                   </FormRow>
                   <FormRow >
-                    <Button title={strings.cancel} onPress={this.cancelPopup} />
-                    <Button title={strings.addFavorite} onPress={this.addFavorite} />
+                    <Button title={strings.cancel} onPress={this.cancelPopup} testID='cancelButton' />
+                    <Button title={strings.addFavorite} onPress={this.addFavorite} testID='addFavoriteButton'/>
                   </FormRow>
                 </View>
               </View>
@@ -172,7 +173,7 @@ export class Star extends PureComponent {
 
   render() {
     return [
-      <TouchableOpacity disabled={this.props.onAddFavorite===undefined} onPress={this.activatePopup} key="icon">
+      <TouchableOpacity disabled={this.props.onAddFavorite===undefined} onPress={this.activatePopup} key="icon" testID={this.props.testID?this.props.testID:'starIcon'}>
         <Icon name='staro' style={this.props.style} color={selectionFontColor}/>
       </TouchableOpacity>,
       <Modal visible={this.state.popupActif} transparent={true} animationType={'slide'} onRequestClose={this.cancelPopup} key="popup">
@@ -351,14 +352,15 @@ export class CopyRow extends PureComponent {
   props: {
     onPress: () => void,
     style: any,
-    color: string
+    color: string,
+    testID: string
   }
   static defaultProps = {
     color: selectionFontColor
   }
 
   render() {
-    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
+    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow} testID={this.props.testID}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
   }
 }
 
@@ -366,14 +368,15 @@ export class CopyColumn extends PureComponent {
   props: {
     onPress: () => void,
     style: any,
-    color: string
+    color: string,
+    testID: string
   }
   static defaultProps = {
     color: selectionFontColor
   }
 
   render() {
-    return  <TouchableOpacity onPress={this.props.onPress}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
+    return  <TouchableOpacity onPress={this.props.onPress} testID={this.props.testID}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
   }
 }
 
@@ -392,7 +395,8 @@ export class Favorites extends PureComponent {
           {this.props.favorites && this.props.favorites.map((favorite: ExamPredefinedValue, index: number) =>
             <TouchableOpacity key={favorite.name}
               onPress={() => {this.props.onSelectFavorite(favorite)}}
-              onLongPress={() => {if (favorite.userId!==undefined) this.props.onRemoveFavorite(favorite)}}>
+              onLongPress={() => {if (favorite.userId!==undefined) this.props.onRemoveFavorite(favorite)}}
+              testID={'favorite'+(index+1)}>
               <Text key={index} style={styles.linkButton}>{favorite.name}{favorite.userId===undefined?' [W]':''}</Text>
             </TouchableOpacity>
           )}

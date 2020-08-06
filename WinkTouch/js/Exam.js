@@ -224,15 +224,26 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam) : any {
   }
 }
 
-  export async function renderExamHtml(exam : Exam) : any {
+
+  export const UserAction = {
+  REFERRAL: 0,
+  PATIENTFILE: 1
+  }
+  let currentAction : UserAction ;
+  export function getCurrentAction() {
+    return currentAction;
+  }
+
+  export async function renderExamHtml(exam : Exam, htmlDefinition?: HtmlDefinition[], userAction: UserAction) : any {
     let html : string = '';
+    currentAction = userAction;
     if (exam.definition.card===false) {return html;}
     switch (exam.definition.type) {
       case 'selectionLists':
-        html = renderItemsHtml(exam);
+        html = renderItemsHtml(exam, htmlDefinition);
         return html;
       case 'groupedForm':
-        html = await renderParentGroupHtml(exam);
+        html = await renderParentGroupHtml(exam, htmlDefinition);
         return html;
     }
     return html;
@@ -286,7 +297,8 @@ export class ExamCard extends Component {
     return <TouchableOpacity disabled={this.props.disabled || this.props.onSelect===undefined || this.props.exam.definition.card===false}
       onLongPress={this.props.onHide}
       onPress={this.props.onSelect}
-      delayLongPress={300}>
+      delayLongPress={300}
+      testID={this.props.exam.definition.name+' Tile'}>
       <View style={this.getStyle()}>
         {this.renderExamCardSpecifics()}
       </View>
@@ -597,18 +609,18 @@ export class ExamScreen extends Component {
 
   renderLockIcon() {
     if (!this.state.locked) return null;
-    return <TouchableOpacity onPress={this.switchLock}><Lock style={styles.screenIcon} locked={this.state.locked===true}/></TouchableOpacity>
+    return <TouchableOpacity onPress={this.switchLock}><Lock style={styles.screenIcon} locked={this.state.locked===true} testID={this.state.locked===true?'unlockExam':'lockExam'}/></TouchableOpacity>
   }
 
   renderFavoriteIcon() {
     if (!this.state.exam) return null;
     if (this.state.locked || this.state.exam.definition.starable!==true || this.state.exam.definition.starable!==true || (this.state.exam.definition.type!=='selectionLists' && this.state.exam.definition.type!=='groupedForm')) return null;
-    return <Star onAddFavorite={this.addExamFavorite}  style={styles.screenIcon}/>
+    return <Star onAddFavorite={this.addExamFavorite}  style={styles.screenIcon} testID='favoriteExam'/>
   }
 
   renderRefreshIcon() {
     if (this.state.locked) return null;
-    return <TouchableOpacity onPress={() => this.refreshExam()}><Refresh style={styles.screenIcon}/></TouchableOpacity>
+    return <TouchableOpacity onPress={() => this.refreshExam()} testID='refreshExam'><Refresh style={styles.screenIcon}/></TouchableOpacity>
   }
 
   renderExamIcons() {
@@ -631,7 +643,8 @@ export class ExamScreen extends Component {
   }
 
   render() {
-    if (this.state.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false} scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable}>
+    if (this.state.exam.definition.scrollable===true) return <KeyboardAwareScrollView  style={styles.page} minimumZoomScale={1.0} maximumZoomScale={2.0} bounces={false} bouncesZoom={false}
+      scrollEnabled={this.props.disableScroll===undefined && this.state.scrollable} pinchGestureEnabled={this.state.scrollable}>
                 <ErrorCard errors={this.state.exam.errors} />
                 {this.renderRelatedExams()}
                 {this.renderExam()}

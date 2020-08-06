@@ -14,7 +14,7 @@ import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import { styles, fontScale, selectionColor, selectionFontColor, imageStyle, imageWidth } from './Styles';
 import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
-import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, capitalize,
+import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, officialDateFormat, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
   formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty} from './Util';
 import { Camera } from './Favorites';
@@ -68,7 +68,7 @@ export class UpdateTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='updateIcon'>
       <View style={styles.popupTile}>
         <Icon name='check' style={styles.modalTileIcon} />
       </View>
@@ -81,7 +81,7 @@ export class ClearTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='deleteIcon'>
       <View style={styles.popupTile}>
         <Icon name='delete' style={styles.modalTileIcon} />
       </View>
@@ -94,7 +94,7 @@ export class CloseTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='closeIcon'>
       <View style={styles.popupTile}>
         <Text style={styles.modalTileLabel}>{'\u2715'}</Text>
       </View>
@@ -107,7 +107,7 @@ export class RefreshTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='refreshIcon'>
       <View style={styles.popupTile}>
           <Icon name='refresh' style={styles.modalTileIcon} />
       </View>
@@ -120,7 +120,7 @@ export class KeyboardTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='keyboardIcon'>
       <View style={styles.popupTile}>
         <Icon name='keyboard' style={styles.modalTileIcon} />
       </View>
@@ -133,7 +133,7 @@ export class CameraTile extends Component {
     commitEdit: (nextFocusField?: string) => void
   }
   render() {
-    return <TouchableOpacity onPress={() => this.props.commitEdit()}>
+    return <TouchableOpacity onPress={() => this.props.commitEdit()} testID='cameraIcon'>
       <View style={styles.popupTile}>
         <Icon name='camera' style={styles.modalTileIcon} />
       </View>
@@ -172,7 +172,8 @@ export class TextField extends Component {
     style?: any,
     onChangeValue?: (newvalue: string) => void,
     autoFocus?: boolean,
-    onFocus?: () => void
+    onFocus?: () => void,
+    testID: string
   }
   state: {
     value: string
@@ -219,6 +220,7 @@ export class TextField extends Component {
           autoFocus={this.props.autoFocus}
           editable={!this.props.readonly}
           multiline={this.props.multiline}
+          testID={this.props.testID}
           />
       {this.props.suffix!=undefined && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
       </View>
@@ -231,6 +233,7 @@ export class TextArrayField extends Component {
     readonly?: boolean,
     style?: any,
     onChangeValue?: (newValue: ?string[]) => void,
+    testID: string
   }
   state: {
     value: ?string[]
@@ -280,7 +283,7 @@ export class TextArrayField extends Component {
   render() {
     return <View style={styles.flowLeft1}>
         {this.state.value!=undefined && this.value!=null && this.state.value.map((value: string, index: number) => <TextField value={value} key={index} style={this.props.style} editable={!this.props.readonly}
-          onChangeValue={(text: string) => this.changeText(text, index)} />)}
+          onChangeValue={(text: string) => this.changeText(text, index)} testID={this.props.testID+'-'+(index+1)} />)}
         {!this.props.readonly && <Button title=' + ' onPress={this.addItem}/>}
         {!this.props.readonly && <Button title=' - ' onPress={this.removeItem}/>}
       </View>
@@ -294,7 +297,8 @@ export class ButtonArray extends Component {
     style?: any,
     onAdd?: (index?: number) => void,
     onRemove?: (index?: number) => void,
-    onSelect?: (index: number) => void
+    onSelect?: (index: number) => void,
+    testID: string
   }
   state: {
     value: ?string[]
@@ -315,7 +319,7 @@ export class ButtonArray extends Component {
   render() {
     return <View style={styles.flowLeft}>
         {this.state.value!=undefined && this.state.value.map((item: string, index: number) => <Button title={item} key={index}
-          onPress={() => this.props.onSelect && this.props.onSelect(index)}/>)}
+          onPress={() => this.props.onSelect && this.props.onSelect(index)} testID={this.props.testID+'-'+(index+1)}/>)}
         {this.props.onAdd!=undefined && <Button title='  +  ' onPress={() => this.props.onAdd && this.props.onAdd()}/>}
         {this.props.onRemove!=undefined && <Button title='  -  ' onPress={() => this.props.onRemove && this.props.onRemove()}/>}
     </View>
@@ -340,7 +344,8 @@ export class NumberField extends Component {
       autoFocus?: boolean,
       style?: any,
       onChangeValue?: (newvalue: ?number) => void,
-      transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void }
+      transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void },
+      testID: string
     }
     state: {
       isActive: boolean,
@@ -739,7 +744,7 @@ export class NumberField extends Component {
       const isKeypad : boolean = this.state.fractions===undefined;
       const fractions : any [][] = !isKeypad?this.state.fractions:[[7,4,1,'-'],[8,5,2,0],[9,6,3,'.'],this.props.freestyle===true?['\u2715','\u27f3','\u2328']:['\u2715','\u27f3']]; //TODO: localize
       const columnStyle = this.state.fractions?styles.modalColumn:styles.modalKeypadColumn;
-      return <TouchableWithoutFeedback onPress={this.commitEdit}>
+      return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID={'popupBackground'}>
           <View style={styles.popupBackground}>
             <Text style={styles.modalTitle}>{this.props.label}: {formattedValue}</Text>
             <View style={styles.flexColumnLayout}>
@@ -752,7 +757,7 @@ export class NumberField extends Component {
                       if (option==='\u2714') return <UpdateTile commitEdit={this.commitEdit} key={row}/>
                       if (option==='\u2715') return <ClearTile commitEdit={this.clearValue} key={row}/>
                       if (option==='\u27f3') return <RefreshTile commitEdit={this.cancelEdit} key={row}/>
-                      return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)}>
+                      return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)} testID={'option'+(column+1)+'-'+(row+1)}>
                         <View style={isSelected?styles.popupTileSelected:styles.popupTile}>
                           <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                         </View>
@@ -786,7 +791,7 @@ export class NumberField extends Component {
           onChangeValue={newValue => this.commitTyping(newValue)}/>
       }
       return <View style={styles.fieldFlexContainer}>
-        <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly}>
+        <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID}>
           <Text style={style}>{formattedValue}</Text>
         </TouchableOpacity>
         {this.state.isActive===true && <Modal visible={this.state.isActive===true} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -812,7 +817,8 @@ export class TilesField extends Component {
     multiValue?: boolean, //TODO
     containerStyle?: any,
     onChangeValue?: (newvalue: ?(string[]|string)) => void,
-    transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void }
+    transferFocus?: {previousField: string, nextField: string, onTransferFocus: (field: string) => void },
+    testID?: string
   }
   state: {
     isActive: boolean,
@@ -932,7 +938,7 @@ export class TilesField extends Component {
 
   renderPopup() {
     let allOptions : string[][] = this.isMultiColumn()?this.props.options:[this.props.options];
-    return <TouchableWithoutFeedback onPress={this.commitEdit}>
+    return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID='popupBackground'>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>{this.props.label}: {this.format(this.state.editedValue)}</Text>
           <FocusTile type='previous' commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
@@ -944,7 +950,7 @@ export class TilesField extends Component {
                 <View style={styles.modalColumn} key={columnIndex}>
                   {options.map((option: string, rowIndex: number) => {
                     let isSelected : boolean = this.isMultiColumn()?this.state.editedValue[columnIndex]===option:this.state.editedValue===option;
-                    return <TouchableOpacity key={rowIndex} onPress={() => this.updateValue(option, columnIndex)}>
+                    return <TouchableOpacity key={rowIndex} onPress={() => this.updateValue(option, columnIndex)} testID={'option'+(this.isMultiColumn()?(columnIndex+1)+','+(rowIndex+1):(rowIndex+1))}>
                       <View style={isSelected?styles.popupTileSelected:styles.popupTile}>
                         <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                       </View>
@@ -974,10 +980,10 @@ export class TilesField extends Component {
     }
     const formattedValue : string = this.format(this.props.value);
     if (this.state.isTyping) {
-      return <TextField value={this.props.value} autoFocus={true} style={style} multiline={this.props.multiline} onChangeValue={newValue => this.commitTyping(newValue)}/>
+      return <TextField value={this.props.value} autoFocus={true} style={style} multiline={this.props.multiline} onChangeValue={newValue => this.commitTyping(newValue)} testID={this.props.testID?(this.props.testID+'ActiveField'):undefined}/>
     }
     return <View style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer}>
-      <TouchableOpacity style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly}>
+      <TouchableOpacity style={this.props.containerStyle?this.props.containerStyle:styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID?(this.props.testID+'Field'):undefined}>
         <Text style={style}>{formattedValue}</Text>
       </TouchableOpacity>
       {this.state.isActive===true && <Modal visible={this.state.isActive===true} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -1283,8 +1289,10 @@ export class DateField extends Component {
       suffix?: string,
       width?: number,
       readonly?: boolean,
+      dateFormat?: string,
       style?: any,
-      onChangeValue?: (newValue: ?Date) => void
+      onChangeValue?: (newValue: ?Date) => void,
+      testID?: string
     }
     state: {
       isActive: boolean,
@@ -1477,9 +1485,15 @@ export class DateField extends Component {
       }
       this.setState({editedValue, isDirty: true});
     }
-
     getFormat(value: ?Date) : string {
+      if (this.props.dateFormat) {
+        if ('yyyy-MM-dd'===this.props.dateFormat) {
+          return officialDateFormat;
+        }
+        return this.props.dateFormat;
+      }
       if (!value) return yearDateFormat;
+
       let sameYear : boolean = isToyear(value);
       if (sameYear) {
         if (this.props.includeDay) {
@@ -1512,7 +1526,7 @@ export class DateField extends Component {
     renderPopup() {
       const fractions : string[][] = this.state.fractions;
       let formattedValue = this.format(this.state.isDirty?this.combinedValue():this.props.value);
-      return <TouchableWithoutFeedback onPress={this.commitEdit}>
+      return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID='popupBackground'>
             <View style={styles.popupBackground}>
               <Text style={styles.modalTitle}>{this.props.label}: {this.props.prefix}{formattedValue}{this.props.suffix}</Text>
               <ScrollView horizontal={this.props.recent==false} scrollEnabled={this.props.recent==false}>
@@ -1521,7 +1535,7 @@ export class DateField extends Component {
                     return <View style={styles.modalColumn} key={column}>
                       {options.map((option: string, row: number) => {
                         let isSelected : boolean = this.state.editedValue[column]===option;
-                        return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)}>
+                        return <TouchableOpacity key={row} onPress={() => this.updateValue(column, option)} testID={'option'+(column+1)+','+(row+1)}>
                           <View style={isSelected?styles.popupTileSelected:styles.popupTile}>
                             <Text style={isSelected?styles.modalTileLabelSelected:styles.modalTileLabel}>{option}</Text>
                           </View>
@@ -1554,7 +1568,7 @@ export class DateField extends Component {
         </View>
       }
       return <View style={styles.fieldFlexContainer}>
-        <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly}>
+        <TouchableOpacity style={styles.fieldFlexContainer} onPress={this.startEditing} disabled={this.props.readonly} testID={this.props.testID?(this.props.testID+'Field'):undefined} >
           <Text style={style}>{this.props.prefix}{formattedValue}{this.props.suffix}</Text>
         </TouchableOpacity>
         {this.state.isActive===true && <Modal visible={this.state.isActive===true} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -1722,7 +1736,7 @@ export class Button extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
+    return <TouchableOpacity onPress={this.props.onPress} disabled={this.props.disabled} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
   }
 }
 
@@ -1735,14 +1749,15 @@ export class CheckButton extends Component {
     readonly?: boolean,
     onSelect: () => void,
     onDeselect: () => void,
-    style?: any
+    style?: any,
+    testID?: string
   }
   static defaultProps = {
     visible: true
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity activeOpacity={1} disabled={this.props.readonly} onPress={this.props.isChecked==true?this.props.onDeselect:this.props.onSelect}>
+    return <TouchableOpacity activeOpacity={1} disabled={this.props.readonly} onPress={this.props.isChecked==true?this.props.onDeselect:this.props.onSelect} testID={this.props.testID?(this.props.testID+'CheckButton'):'checkButton'}>
       <View style={styles.centeredRowLayout}>
         {this.props.prefix!=undefined && <Text style={this.props.style?this.props.style:styles.checkButtonLabel}>{this.props.prefix}</Text>}
         <Icon name={this.props.isChecked?'checkbox-marked':'checkbox-blank-outline'} style={styles.checkButtonIcon}/>
@@ -1754,14 +1769,20 @@ export class CheckButton extends Component {
 
 export class BackButton extends Component {
   props: {
+    navigation: any,
     visible? :boolean
   }
   static defaultProps = {
     visible: true
+  };
+
+  navigateBack = () => {
+    this.props.navigation.navigate('back');
   }
+
   render() {
     if (!this.props.visible) return null;
-    return <NativeBaseButton block large style={styles.backButton} onPress={() => this.props.navigation.navigate('back')}><NativeBaseIcon name='md-arrow-back'/></NativeBaseButton>
+    return <TouchableOpacity onPress={this.navigateBack} enable={this.props.disabled!=true} testID='backButton'><View style={styles.backButton}><Icon name='arrow-left' style={styles.backIcon}/></View></TouchableOpacity>
   }
 }
 
@@ -1853,7 +1874,8 @@ export class SelectionListRow extends React.PureComponent {
     selected: boolean|string,
     onSelect: (select: boolean|string) => void,
     maxLength?: number,
-    simpleSelect?: boolean
+    simpleSelect?: boolean,
+    testID: string
   }
   static defaultProps = {
     maxLength: 60,
@@ -1881,7 +1903,7 @@ export class SelectionListRow extends React.PureComponent {
   render() {
     const textStyle = this.props.selected ? styles.listTextSelected : styles.listText;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
-    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()}>
+    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
       <View style={styles.listRow}>
         <Text style={textStyle}>{prefix}{this.formatLabel()}</Text>
       </View>
@@ -2003,7 +2025,7 @@ export class SelectionList extends React.PureComponent {
   renderFilterField() {
     if (!this.state.searchable) return null;
     return <TextInput returnKeyType='search' autoCorrect={false} autoCapitalize='none' style={styles.searchField}
-      value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})}
+      value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})} testID={this.props.fieldId+'.filter'}
      />
   }
 
@@ -2051,7 +2073,8 @@ export class SelectionList extends React.PureComponent {
         data={data}
         extraData={{filter: this.state.filter, selection: this.props.selection}}
         keyExtractor = {(item, index) => index}
-        renderItem={({item}) => <SelectionListRow label={item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item)} onSelect={(isSelected : boolean|string) => this.select(item, isSelected)}/>}
+        renderItem={(item) => <SelectionListRow label={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)}
+          onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)} testID={this.props.label+'.option'+(item.index+1)}/>}
       />
     </View >
   }
