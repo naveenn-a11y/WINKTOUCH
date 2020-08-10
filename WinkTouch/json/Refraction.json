@@ -1,165 +1,181 @@
 {
-  "name":"Refraction",
-  "scrollable":true,
-  "type":"groupedForm",
-  "section":"Vision testing.6",
-  "cardGroup":"Subjective refraction",
-  "graph":{
-    "fields":[
+  "name": "Refraction",
+  "scrollable": true,
+  "type": "groupedForm",
+  "section": "Vision testing.6",
+  "cardGroup": "Subjective refraction",
+  "graph": {
+    "fields": [
       "Subjective refraction.od.sph",
       "Subjective refraction.os.sph"
     ]
   },
-  "locale":{
-    "fr-CA":{
-      "label":"RÃ©fraction",
-      "fields":[
+  "locale": {
+    "fr-CA": {
+      "label": "RÃ©fraction",
+      "fields": [
         {
-          "name":"Subjective refraction",
-          "label":"Subjectif"
+          "name": "Subjective refraction",
+          "label": "Subjectif"
         },
         {
-          "name":"Compensated refraction",
-          "label":"MAV"
+          "name": "Compensated refraction",
+          "label": "MAV"
         },
         {
-          "name":"Final Rx",
-          "label":"Rx Finale"
+          "name": "Final Rx",
+          "label": "Rx Finale"
         },
         {
-          "name":"Maximum VA refraction",
-          "label":"Max Convexe"
+          "name": "Maximum VA refraction",
+          "label": "Max Convexe"
         }
       ]
     }
   },
-  "fields":[
+  "fields": [
     {
-      "hasVA":true,
-      "hasAdd":true,
-      "canBeCopied":true,
-      "import": ["exam.Lensometry.Lensometry","exam.Auto refractor.Auto refractor"],
-      "export": ["machine.phoropter"],
-      "name":"Subjective refraction",
-      "type":"SRx"
+      "hasVA": true,
+      "hasAdd": true,
+      "canBeCopied": true,
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
+      "export": "machine.phoropter",
+      "name": "Subjective refraction",
+      "type": "SRx"
     },
     {
-      "hasVA":true,
-      "hasAdd":false,
-      "optional":true,
-      "name":"Maximum VA refraction",
-      "type":"SRx"
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Maximum VA refraction",
+      "type": "SRx"
     },
     {
-      "hasVA":true,
-      "hasAdd":false,
-      "optional":true,
-      "name":"Compensated refraction",
-      "type":"SRx"
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Compensated refraction",
+      "type": "SRx"
     },
     {
-      "hasVA":true,
-      "hasAdd":false,
-      "optional":true,
-      "name":"Duochrome",
-      "type":"SRx"
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Duochrome",
+      "type": "SRx"
     },
     {
-      "hasVA":true,
-      "hasAdd":false,
-      "optional":true,
-      "name":"Retinoscopy",
-      "type":"SRx"
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Retinoscopy",
+      "type": "SRx"
     },
     {
-      "hasVA":true,
-      "hasAdd":true,
-      "name":"Final Rx",
-      "type":"SRx",
-      "fields":[
+      "hasVA": true,
+      "hasAdd": true,
+      "name": "Final Rx",
+      "type": "SRx",
+      "fields": [
         {
-          "name":"od",
-          "fields":[
+          "name": "od",
+          "fields": [
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.sph",
-              "name":"sph"
+              "mappedField": "exam.RxToOrder.Final Rx.od.sph",
+              "name": "sph"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.cyl",
-              "name":"cyl"
+              "mappedField": "exam.RxToOrder.Final Rx.od.cyl",
+              "name": "cyl"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.axis",
-              "name":"axis"
+              "mappedField": "exam.RxToOrder.Final Rx.od.axis",
+              "name": "axis"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.prism",
-              "name":"prism"
+              "mappedField": "exam.RxToOrder.Final Rx.od.prism",
+              "name": "prism"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.add",
-              "name":"add"
+              "mappedField": "exam.RxToOrder.Final Rx.od.add",
+              "name": "add"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.va",
-              "name":"va"
+              "mappedField": "exam.RxToOrder.Final Rx.od.va",
+              "name": "va"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.od.addVa",
-              "name":"addVa"
+              "mappedField": "exam.RxToOrder.Final Rx.od.addVa",
+              "name": "addVa"
             }
           ]
         },
         {
-          "name":"os",
-          "fields":[
+          "name": "os",
+          "fields": [
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.sph",
-              "name":"sph"
+              "mappedField": "exam.RxToOrder.Final Rx.os.sph",
+              "name": "sph"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.cyl",
-              "name":"cyl"
+              "mappedField": "exam.RxToOrder.Final Rx.os.cyl",
+              "name": "cyl"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.axis",
-              "name":"axis"
+              "mappedField": "exam.RxToOrder.Final Rx.os.axis",
+              "name": "axis"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.prism",
-              "name":"prism"
+              "mappedField": "exam.RxToOrder.Final Rx.os.prism",
+              "name": "prism"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.add",
-              "name":"add"
+              "mappedField": "exam.RxToOrder.Final Rx.os.add",
+              "name": "add"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.va",
-              "name":"va"
+              "mappedField": "exam.RxToOrder.Final Rx.os.va",
+              "name": "va"
             },
             {
-              "mappedField":"exam.RxToOrder.Final Rx.os.addVa",
-              "name":"addVa"
+              "mappedField": "exam.RxToOrder.Final Rx.os.addVa",
+              "name": "addVa"
             }
           ]
         },
         {
           "name": "ou",
           "fields": [
-              {
-                  "mappedField": "exam.RxToOrder.Final Rx.ou.va",
-                  "name": "va"
-              },
-              {
-                  "mappedField": "exam.RxToOrder.Final Rx.ou.addVa",
-                  "name": "addVa"
-              }
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.ou.va",
+              "name": "va"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.ou.addVa",
+              "name": "addVa"
+            }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Notes",
+      "size": "L",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "label": "",
+          "freestyle": true
         }
       ]
     }
   ],
-  "relatedExams":[
+  "relatedExams": [
     "Auto refractor",
     "Lensometry",
     "Binocular"

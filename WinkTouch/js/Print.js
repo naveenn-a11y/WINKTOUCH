@@ -20,18 +20,28 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
 
 export async function printHtml(html: string) {
-    const pageWidth : number = 612;
+    let file = await generatePDF(html, false);
+    const job : any = await NativeModules.RNPrint.print({filePath: file.filePath});
+    await RNFS.unlink(file.filePath);
+    return job;
+
+  }
+
+export async function generatePDF(html: string, isBase64: boolean) {
+    const pageWidth : number = 612; 
     const pageAspectRatio : number = 8.5/11;
     const pageHeight : number = pageWidth/pageAspectRatio;
     let options = {
       html,
       fileName: 'Print',
       width: pageWidth,
-      height: pageHeight
+      height: pageHeight,
+      base64: isBase64,
+      padding: 54,
+      bgColor: '#FFFFFF'
     };
     let file = await RNHTMLtoPDF.convert(options);
-    await NativeModules.RNPrint.print({filePath: file.filePath});
-    await RNFS.unlink(file.filePath);
+    return file;
   }
 
 export async function printRx(visitId: string) {

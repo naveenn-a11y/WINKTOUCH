@@ -1,8 +1,8 @@
 {
-  "order":"4",
   "name":"Lensometry",
   "type":"groupedForm",
   "section":"Vision testing.4",
+  "order":"4",
   "scrollable": true,
   "fields":[
     {
@@ -26,7 +26,7 @@
       "hasAdd":true,
       "name":"Lensometry",
       "multiValue":true,
-      "import": "machine.lensometer",
+      "import": "machine.lensometer.rx",
       "type":"SRx",
       "fields":[
         {

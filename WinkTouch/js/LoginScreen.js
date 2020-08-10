@@ -6,6 +6,7 @@
 import React, {Component} from 'react';
 import {Button as RnButton, Image,Text,TextInput,View, TouchableOpacity,ScrollView, AsyncStorage, PanResponder, StatusBar, KeyboardAvoidingView, InteractionManager, Linking} from 'react-native';
 import codePush from 'react-native-code-push';
+import DeviceInfo from 'react-native-device-info';
 import type { Account, Store , User , Registration } from './Types';
 import base64 from 'base-64';
 import {styles, fontScale} from './Styles';
@@ -188,12 +189,13 @@ export class LoginScreen extends Component {
     let password: ?string = this.state.password;
     if (password===null || password===undefined) password = '';
     const account: ?Account = this.getAccount();
-    const store: ?Store = this.getStore();
+    let store: ?Store = this.getStore();
     if (!account || !store) return;
     let loginData = {
       accountsId: (account.id).toString(),
       storeId: (store.storeId).toString(),
-      expiration : 24 * 365
+      expiration: 24 * 365,
+      deviceId: DeviceInfo.getUniqueId()
     };
     const requestNr = getNextRequestNumber();
     __DEV__ && console.log('REQ '+requestNr+' POST '+doctorLoginUrl+' login for '+userName);
@@ -217,7 +219,9 @@ export class LoginScreen extends Component {
             handleHttpError(httpResponse, await httpResponse.json());
         }
         let token : string = httpResponse.headers.map.token;
-        let user : User = (await httpResponse.json()).user;
+        let responseJson = await httpResponse.json();
+        let user : User =  responseJson.user;
+        store = responseJson.store;
         this.props.onLogin(account, user, store, token);
     } catch (error) {
         alert(strings.loginFailed+ ': '+error);
@@ -245,14 +249,14 @@ export class LoginScreen extends Component {
                 <Text style={{fontSize:25*fontScale, color: 'red'}}>{strings.trialWarning}</Text>
                 <RnButton title={strings.winkLink} onPress={ ()=>{ Linking.openURL('http://www.downloadwink.com')}}/>
               </View>}
-              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset}><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
+              {!this.state.isTrial && <View><TouchableOpacity onLongPress={this.reset} testID='login.registrationEmail'><Text style={styles.label}>{this.props.registration.email}</Text></TouchableOpacity></View>}
               <Image source={require('./image/winklogo-big.png')} style={{width: 250 *fontScale, height: 250 *fontScale, margin: 20 * fontScale}}/>
-              <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount}/></View>
-              <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore}/></View>
+              <View><TilesField label={strings.account} value={this.state.account} style={styles.field400} containerStyle={styles.fieldContainer} options={accountNames} onChangeValue={this.setAccount} testID='login.account'/></View>
+              <View><TilesField label={strings.store} value={this.state.store} style={styles.field400} containerStyle={styles.fieldContainer} options={storeNames} onChangeValue={this.setStore} testID='login.store'/></View>
               {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.userName} autoCapitalize='none' autoCorrect={false} returnKeyType='next' style={styles.field400} value={this.state.userName}
-                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField}/></View>}
+                  onChangeText={this.setUserName} onSubmitEditing={this.focusPasswordField} testID='login.userNameField'/></View>}
               {!this.state.isTrial && <View style={styles.fieldContainer}><TextInput placeholder={strings.password} autoCapitalize='none' autoCorrect={false} returnKeyType='go' secureTextEntry={true} ref='focusField'
-                  style={styles.field400} value={this.state.password} selectTextOnFocus={true}
+                  style={styles.field400} value={this.state.password} selectTextOnFocus={true} testID='login.passwordField'
                   onChangeText={this.setPassword} onSubmitEditing={() => this.login()}/></View>}
               <View style={styles.buttonsRowLayout}>
                 <Button title={strings.submitLogin} disabled={account===undefined} onPress={() => this.login()} />

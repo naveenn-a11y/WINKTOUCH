@@ -6,17 +6,18 @@
 import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo } from './Types';
+import RNBeep from 'react-native-a-beep';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
 import { formatMoment, deepClone, formatDate, now, jsonDateTimeFormat, isEmpty, compareDates, isToyear, dateFormat, farDateFormat, tomorrow, yearDateFormat, officialDateFormat, prefix, postfix } from './Util';
-import { ExamCard, createExam, storeExam, getExam,  renderExamHtml } from './Exam';
+import { ExamCard, createExam, storeExam, getExam,  renderExamHtml, UserAction } from './Exam';
 import { allExamPredefinedValues } from './Favorites';
 import { allExamDefinitions } from './ExamDefinition';
 import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from './Assessment';
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
-import { searchItems, storeItem, performActionOnItem, fetchItemById } from './Rest';
+import { searchItems, storeItem, performActionOnItem, fetchItemById, stripDataType } from './Rest';
 import { fetchAppointment } from './Appointment';
 import { printRx, printClRx, printMedicalRx, printHtml } from './Print';
 import { PatientDocumentPage } from './Patient';
@@ -24,6 +25,7 @@ import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
 import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
+import { fetchWinkRest } from './WinkRest';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -122,12 +124,10 @@ export async function createVisit(visit: Visit) : Visit {
     return visit;
 }
 
-
 export async function updateVisit(visit: Visit) : Visit {
     visit = await storeItem(visit);
     return visit;
 }
-
 
 function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -148,7 +148,6 @@ function getRecentVisitSummaries(patientId: string) : ?Exam[] {
   return visitSummaries;
 }
 
-
 async function printPatientFile(visitId : string) {
    let visitHtml : string = '';
     const visit: Visit = getCachedItem(visitId);
@@ -158,6 +157,7 @@ async function printPatientFile(visitId : string) {
     let xlExams : Exam[] = [];
     visitHtml += printPatientHeader(visit);
     if (exams) {
+        let htmlDefinition : HtmlDefinition[] = [];
         visitHtml +=  `<table><thead></thead><tbody>`;
         for(const section : string of  examSections) {
           let filteredExams = exams.filter((exam: Exam) => exam.definition.section && exam.definition.section.startsWith(section));
@@ -169,12 +169,13 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true && exam.hasStarted) {
-                visitHtml +=  await renderExamHtml(exam);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition, UserAction.PATIENTFILE);
             }
           }
         }
         }
         let assessments: Exam[] = exams.filter((exam: Exam) => exam.definition.isAssessment);
+        assessments.sort(compareExams);
         for(const exam : Exam of assessments) {
           let xlGroupDefinition : GroupDefinition[] = exam.definition.fields.filter((groupDefinition: GroupDefinition) => groupDefinition.size==='XL');
             if(xlGroupDefinition && xlGroupDefinition.length >0) {
@@ -182,7 +183,7 @@ async function printPatientFile(visitId : string) {
             }
           else {
             if(exam.isHidden!==true) {
-                visitHtml +=  await renderExamHtml(exam);
+                visitHtml +=  await renderExamHtml(exam, htmlDefinition, UserAction.PATIENTFILE);
             }
           }
         }
@@ -190,37 +191,53 @@ async function printPatientFile(visitId : string) {
         visitHtml += getScannedFiles();
         for(const exam: string of xlExams) {
           if(exam.isHidden!==true && (exam.hasStarted) || (exam.isHidden!==true && exam.definition.isAssessment)) {
-              visitHtml += await renderExamHtml(exam);
+              visitHtml += await renderExamHtml(exam, htmlDefinition, UserAction.PATIENTFILE);
           }
          }
-        printHtml(getVisitHtml(visitHtml));
+         visitHtml = getVisitHtml(visitHtml);
+        printHtml(visitHtml);
     }
 }
 
+export async function transferRx(visitId: string) {
+  const store : Store = getStore();
+  let parameters : {} = {
+    'idAccounts': store.winkToWinkId,
+    'email': store.winkToWinkEmail
+  }
+  let response = await fetchWinkRest('webresources/WinkToWinkVisitTransfer/export/'+stripDataType(visitId), parameters);
+  if (response) {
+      RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+  }
+}
 
-  function compareExams(a: Exam, b: Exam) : number {
-        if (a.definition.order!==undefined && b.definition.order!==undefined) {
-          if (a.definition.order < b.definition.order) return -10;
-          if (a.definition.order > b.definition.order) return 10;
-        }
-        if (a.definition.section===undefined || b.definition.section===undefined) return -1;
-        if (a.definition.section < b.definition.section) return -1;
-        if (a.definition.section > b.definition.section) return 1;
-        return 0;
+function compareExams(a: Exam, b: Exam) : number {
+    if (a.definition.order!==undefined && b.definition.order!==undefined) {
+      if (a.definition.order < b.definition.order) return -10;
+      if (a.definition.order > b.definition.order) return 10;
     }
+    if(a.definition.isAssessment || b.definition.isAssessment) return 0;
+
+    if (a.definition.section===undefined || b.definition.section===undefined) return -1;
+    if (a.definition.section < b.definition.section) return -1;
+    if (a.definition.section > b.definition.section) return 1;
+    return 0;
+}
+
 class VisitButton extends PureComponent {
     props: {
         id: string,
         isSelected: ?boolean,
         onPress: () => void,
-        onLongPress?: () => void
+        onLongPress?: () => void,
+        testID: string
     }
 
     render() {
         const visitOrNote : ?(Visit|PatientDocument) = getCachedItem(this.props.id);
         const date : string = (visitOrNote!==undefined&&visitOrNote.date!=undefined)?visitOrNote.date:visitOrNote.postedOn;
         const type : string = (visitOrNote!==undefined&&visitOrNote.typeName!=undefined)?visitOrNote.typeName:visitOrNote.category;
-        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress}>
+        return <TouchableOpacity onPress={this.props.onPress} onLongPress={this.props.onLongPress} testID={this.props.testID}>
             <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{formatDate(date,yearDateFormat)}</Text>
                 <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{type}</Text>
@@ -236,7 +253,7 @@ class SummaryButton extends PureComponent {
     }
 
     render() {
-        return <TouchableOpacity onPress={this.props.onPress}>
+        return <TouchableOpacity onPress={this.props.onPress} testID='summaryTab'>
            <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.summaryTitle}</Text>
            </View>
@@ -422,13 +439,22 @@ class VisitWorkFlow extends Component {
       return !isEmpty(value);
     }
 
-    hasClFitting() : boolean {
-      this.state.addableExamTypes.forEach((addableType: ExamDefinition) => {
-        if (addableType.name==='Fitting') {
-          return false;
-        }
-      });
-      return true;
+    hasFinalClFitting() : boolean {
+      const fittingExam : Exam = getExam('Fitting', getCachedItem(this.props.visitId));
+      if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden) return false;
+      let value = fittingExam['Fitting'];
+      if (value instanceof Object) {
+        value = value['Contact Lens Trial'];
+      }
+      if (value instanceof Array) {
+        value = value.filter(trial => trial['Trial type']==2);
+      }
+      return !isEmpty(value);
+    }
+
+    canTransfer() : boolean {
+      const store : Store = getStore();
+      return (store!=undefined && store!=null && store.winkToWinkId!=undefined && store.winkToWinkId!=null && store.winkToWinkId>0 && store.winkToWinkEmail!==undefined && store.winkToWinkEmail!=null && store.winkToWinkEmail.trim()!='');
     }
 
     async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
@@ -550,6 +576,8 @@ class VisitWorkFlow extends Component {
     renderAssessments() {
        let assessments : Exam[] = getCachedItems(this.state.visit.customExamIds).filter(
          (exam: Exam) => exam.definition.isAssessment);
+        assessments.sort(compareExams);
+
        return assessments.map((exam: Exam, index: number) => {
 
          if (exam.definition.name==='RxToOrder') {
@@ -572,9 +600,10 @@ class VisitWorkFlow extends Component {
             {!this.state.locked && !this.state.visit.prescription.signedDate && <Button title={strings.sign} onPress={() => this.signVisit()}/>}
             <Button title={strings.printRx} onPress={() => {printRx(this.props.visitId)}}/>
             {this.hasMedicalRx() && <Button title={strings.printMedicalRx} onPress={() => {printMedicalRx(this.props.visitId)}}/>}
-            {this.hasClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
-            {__DEV__ && <Button title={strings.printReferral} onPress={() => {}}/>}
+            {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
+            {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
+            <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId)})}}/>
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
@@ -875,33 +904,38 @@ export class VisitHistory extends Component {
       this.setState({showingDatePicker: false}, () => this.addVisit(date));
     }
 
-    renderSummary() {
+    renderActionButtons() {
       let isNewAppointment : boolean = this.isNewAppointment();
-      return <View style={styles.topFlow}>
-        <PatientRefractionCard patientInfo={this.props.patientInfo} />
-        <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
-        <VisitHistoryCard patientInfo={this.props.patientInfo} />
-        {!this.props.readonly && <View style={styles.startVisitCard}>
-            <View style={styles.flow}>
-                {isNewAppointment && <Button title={strings.startAppointment} onPress={() => this.startAppointment()} />}
-                {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
-                {__DEV__ && <Button title={strings.printRx} />}
-                {__DEV__ && <Button title='Book appointment' />}
-                {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker
-                  isVisible={this.state.showingDatePicker}
-                  hideTitleContainerIOS={true}
-                  date={new Date()}
-                  mode="date"
-                  onConfirm={this.selectDate}
-                  onCancel={this.hideDatePicker}
-                  confirmTextIOS={strings.confirm}
-                  confirmTextStyle={styles.pickerLinkButton}
-                  cancelTextIOS={strings.cancel}
-                  cancelTextStyle={styles.pickerLinkButton}/>
-                }
-            </View>
-        </View>}
+      return <View style={styles.startVisitCard}>
+          <View style={styles.flow}>
+              {isNewAppointment && <Button title={strings.startAppointment} onPress={() => this.startAppointment()} />}
+              {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
+              {__DEV__ && <Button title={strings.printRx} />}
+              {__DEV__ && <Button title='Book appointment' />}
+              {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker
+                isVisible={this.state.showingDatePicker}
+                hideTitleContainerIOS={true}
+                date={new Date()}
+                mode="date"
+                onConfirm={this.selectDate}
+                onCancel={this.hideDatePicker}
+                confirmTextIOS={strings.confirm}
+                confirmTextStyle={styles.pickerLinkButton}
+                cancelTextIOS={strings.cancel}
+                cancelTextStyle={styles.pickerLinkButton}/>
+              }
+          </View>
+      </View>
+    }
 
+    renderSummary() {
+      return <View>
+        <View style={styles.topFlow}>
+          <PatientRefractionCard patientInfo={this.props.patientInfo} />
+          <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
+          <VisitHistoryCard patientInfo={this.props.patientInfo} />
+        </View>
+        {!this.props.readonly && this.renderActionButtons()}
       </View>
     }
 
@@ -915,7 +949,7 @@ export class VisitHistory extends Component {
                 extraData={this.state.selectedId}
                 data={this.state.history}
                 keyExtractor={(visitId: string, index :number) => index.toString()}
-                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item}
+                renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item} testID={'tab'+(data.index+1)}
                   keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.confirmDeleteVisit(data.item)}
                 />}
               />

@@ -6,7 +6,6 @@ import Moment from 'moment';
 require('moment/locale/fr.js');
 require('moment/locale/fr-ca.js');
 import { strings } from './Strings';
-import { Prism } from './Types';
 
 export const shortTimeFormat : string = 'H:mm';
 export const timeFormat : string ='h:mm a';
@@ -27,7 +26,6 @@ export const yearDateTime24Format : string = yearDateFormat+ ' '+time24Format;
 export const dayYearDateTime24Format : string = dayYearDateFormat+ ' '+time24Format;
 export const jsonDateTimeFormat : string = 'YYYY-MM-DD[T]HH:mm';
 export const jsonDateFormat: string = 'YYYY-MM-DD';
-export const spaceSeparator: string = ' ';
 
 export function deepClone(object: any) : any {
     if (object===undefined) return undefined;
@@ -459,9 +457,6 @@ export function postfix(text: ?string, postfix: string) :string {
   return '' + text + postfix;
 }
 
-export function splitPrism(finalPrism: string) : ?Prism {
-  if (finalPrism===undefined || finalPrism===null || finalPrism.trim().length===0) return undefined;
-  let prismArray : string[] = finalPrism.split(spaceSeparator);
-  const prism : Prism = {prism1: prismArray[0], prism1b: parseInt(prismArray[1]), prism2: prismArray[2], prism2b: parseInt(prismArray[3])};
-  return prism;
+export function sort(array: []) : [] {
+  return array.sort((a,b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
 }

@@ -167,14 +167,14 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
   }
 }
 
-function logRestResponse(restResponse, id, requestNr: number, method: string, url :string) {
+export function logRestResponse(restResponse, id, requestNr: number, method: string, url :string) {
   let cleanedResponse = deepClone(restResponse);
   if (!cleanedResponse.hasValidationError && !cleanedResponse.errors) {
     if (cleanedResponse[getItemFieldName(id)]) {
       cleanedResponse = cleanedResponse[getItemFieldName(id)];
     }
   }
-  cleanedResponse.definition='{...}';
+  if (cleanedResponse.definition) cleanedResponse.definition='{...}';
   if (cleanedResponse.data) cleanedResponse.data = '...';
   console.log('RES '+requestNr+' '+method+' '+url+' json body: '+JSON.stringify(cleanedResponse));
 }

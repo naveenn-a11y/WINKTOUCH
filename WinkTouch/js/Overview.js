@@ -10,7 +10,7 @@ import type {Appointment, User} from './Types';
 import {AppointmentsSummary, fetchAppointments} from './Appointment';
 import {Button} from './Widgets';
 import { StartVisitButtons } from './Visit';
-import { getStore } from './DoctorApp';
+import { getStore, getDoctor } from './DoctorApp';
 import { now } from './Util';
 import { strings } from './Strings';
 import { isAtWink } from './Registration';
@@ -69,8 +69,6 @@ export class OverviewScreen extends PureComponent {
     props: {
         navigation: any,
         screenProps: {
-          doctorId: string,
-          storeId: string,
           onLogout: () => void
         }
     }
@@ -104,7 +102,7 @@ export class OverviewScreen extends PureComponent {
         }
         this.lastRefresh=now().getTime();
         InteractionManager.runAfterInteractions(() => this.props.navigation.setParams({refreshAppointments: false}));
-        const appointments = await fetchAppointments(this.props.screenProps.storeId, this.props.screenProps.doctorId, 1);
+        const appointments = await fetchAppointments('store-'+getStore().storeId, getDoctor().id , 1);
         //appointments && appointments.sort(compareByStart);
         this.setState({appointments});
     }

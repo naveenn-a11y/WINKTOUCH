@@ -118,7 +118,7 @@ export class PatientCard extends Component {
 
     render() {
         if (!this.props.patientInfo) return null;
-        return <TouchableOpacity onPress={() => this.props.navigation.navigate(this.props.navigate, {patientInfo: this.props.patientInfo, refreshStateKey: this.props.refreshStateKey})}>
+        return <TouchableOpacity onPress={() => this.props.navigation.navigate(this.props.navigate, {patientInfo: this.props.patientInfo, refreshStateKey: this.props.refreshStateKey})} testID='patientContact'>
                   <View style={this.props.style?this.props.style:styles.paragraph}>
                       <Text style={styles.cardTitleLeft}>{this.props.patientInfo.firstName + ' ' + this.props.patientInfo.lastName}</Text>
                       <View style={styles.formRow}>
@@ -415,7 +415,7 @@ export class CabinetScreen extends Component {
       if (this.state.patientInfo.id==='patient') {
         return <View style={styles.separator}>
           <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
-          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} /></View>
+          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} testID='createPatientButton'/></View>
         </View>
       }
       return <View style={styles.separator}>
