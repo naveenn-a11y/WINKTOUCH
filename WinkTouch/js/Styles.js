@@ -359,6 +359,12 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
     },
+    leftColumnLayout: {
+        flex: 0,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start'
+    },
     centeredColumnLayout: {
         flexDirection: 'column',
         alignItems: 'center',
@@ -678,6 +684,30 @@ export const styles = StyleSheet.create({
         color: 'white',
         flexWrap: 'nowrap'
     },
+    tabCardFollowUp1: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        paddingBottom: 40 * fontScale,
+        minHeight: 260 * fontScale,
+        maxHeight: 730 * fontScale,
+        minWidth: 333 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
+    },
+    tabCardFollowUp2: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        paddingBottom: 40 * fontScale,
+        minHeight: 260 * fontScale,
+        maxHeight: 430 * fontScale,
+        minWidth: 333 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
+    },
     tabCard: {
         flexGrow: 100,
         padding: 10 * fontScale,
@@ -904,6 +934,28 @@ export const styles = StyleSheet.create({
         textAlign: 'left',
         color: selectionFontColor,
     },
+
+
+    tableListText: {
+        flex: 100,
+        flexDirection: 'row',
+        fontSize: 18 * fontScale,
+        flexWrap: 'nowrap',
+        textAlign: 'center',
+        margin: 4 * fontScale
+
+    },
+    tableListTextSelected: {
+        flex: 100,
+        flexDirection: 'row',
+        fontSize: 18 * fontScale,
+        flexWrap: 'nowrap',
+        textAlign: 'center',
+        margin: 4 * fontScale,
+        color: selectionFontColor
+
+    },
+
     scrollPopup: {
         position: 'absolute',
         top: 10 * fontScale,
@@ -1123,6 +1175,9 @@ export const styles = StyleSheet.create({
           height: 0.3,
           width: 0.3
       }
+    },
+    listSeparator: {
+        backgroundColor: "#f0f0ff"
     }
 });
 

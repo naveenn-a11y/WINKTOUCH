@@ -13,7 +13,7 @@ import { Button,TilesField, Label, SelectionList } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
 import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
-import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition} from './Types';
+import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp} from './Types';
 import {allExamIds} from './Visit';
 import { getCachedItems } from './DataCache';
 import { renderExamHtml, getExam, UserAction } from './Exam';
@@ -26,6 +26,9 @@ import { isEmpty, sort } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
+import { NavigationActions } from 'react-navigation';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 let referralHtml : string = "";
 
@@ -50,32 +53,78 @@ type ReferralScreenState = {
   key: ? string,
   doctorId: ? number | string,
   doctorReferral: ? ReferralDefinition,
+  linkedDoctorReferral: ? ReferralDefinition,
   isActive: ? boolean,
   emailDefinition : ? EmailDefinition,
   command: COMMAND,
   isPopupVisibile: ? boolean,
-  isSignVisible: ? boolean
+  isSignVisible: ? boolean,
+  isDirty: boolean,
+  selectedFollowUp: FollowUp,
+  followUpStateKey: string,
+
 };
 
 
 
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
   editor;
+  unmounted: boolean;
 
   constructor(props: ReferralScreenProps) {
     super(props);
-
     this.state = {
-      template: undefined,
+      template: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral && this.props.navigation.state.params.referral.referralTemplate && !this.props.navigation.state.params.followUp)?this.props.navigation.state.params.referral.referralTemplate.template : undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined],
       htmlDefinition : [],
-      doctorReferral: {},
+      doctorReferral: {id: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral && !this.props.navigation.state.params.followUp)?stripDataType(this.props.navigation.state.params.referral.id):undefined},
+      linkedDoctorReferral: {id: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&  this.props.navigation.state.params.followUp)?stripDataType(this.props.navigation.state.params.referral.id):undefined},
       isActive: true,
       emailDefinition: {},
       command: undefined,
       isPopupVisibile: false,
-      isSignVisible: false
+      isSignVisible: false,
+      doctorId: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?stripDataType(this.props.navigation.state.params.referral.doctorId):undefined,
+      isDirty: false,
+      selectedFollowUp: undefined,
+      followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined
       }
+    this.unmounted = false;
+  }
+
+  componentWillUnmount() {
+        this.unmounted = true;
+        this._unsubscribe.remove();
+
+        if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&  this.props.navigation.state.params.followUp) {
+          let params = this.props.navigation.state.params;  
+         this.props.navigation.setParams({refresh: true });  
+    }
+  }
+
+  async componentDidUpdate(prevProps: any) {
+        if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral) {
+          if(!this.props.navigation.isFocused()) {
+            const isDirty = await this.editor.isDirty();
+            if(isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id)) {
+               const value : any = {refresh: true};
+                 if (this.state.followUpStateKey) {
+                    const setParamsAction = NavigationActions.setParams({
+                      params: { refreshFollowUp: true },
+                      key: this.state.followUpStateKey
+                  })
+                  this.props.navigation.dispatch(setParamsAction);
+            }
+                await this.save();
+            }
+
+          }
+        }
+  }
+
+  componentDidMount() {
+    this._unsubscribe = this.props.navigation.addListener('didFocus', () => {
+    });
   }
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
@@ -91,11 +140,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         }
        return template;
   }
-  async startReferral(template: string) {
+  async startReferral(template?: string) {
+
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     const allExams : string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
+    this.updateReferral();
     if(exams) {
       let htmlDefinition : HtmlDefinition[] = [];
       initValues();
@@ -105,13 +156,27 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             }
         }
 
-      let body : {} = {
+     let body : {} = {};
+
+     if(this.state.doctorReferral && this.state.doctorReferral.id) {
+        body = {
         'htmlDefinition': htmlDefinition,
         'visitId': stripDataType(visit.id),
-        'doctorId': this.state.doctorId
+        'doctorId': this.state.doctorId,
+        'id': stripDataType(this.state.doctorReferral.id)
       };
+      }
+      else {
+        body = {
+        'htmlDefinition': htmlDefinition,
+        'visitId': stripDataType(visit.id),
+        'doctorId': stripDataType(this.state.doctorId),
+        'name': template,
+        
+      };
+      }
 
-      let response = await fetchWinkRest('webresources/template/'+template, parameters, 'POST', body);
+      let response = await fetchWinkRest('webresources/template', parameters, 'POST', body);
       if (response) {
         if (response.errors) {
               alert(response.errors);
@@ -120,18 +185,20 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
+        template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?this.props.navigation.state.params.referral.referralTemplate.template : template;
         referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
-        this.setState({template, htmlDefinition});
+        this.searchReferralSignatureKey();
         this.updateFieldSubject(htmlContent.subject);
         this.updateFieldBody(htmlContent.body);
-        this.searchReferralSignatureKey();
+        this.setState({template, htmlDefinition});
 
 
       }
     }
 
   }
+
 
   selectField(level: number, value: string, options: any) {
     let selectedField : string[] = this.state.selectedField;
@@ -193,6 +260,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     this.setState({ isPopupVisibile: false });
   }
 
+
   async insertField() : void {
     const key  : string =this.state.key;
     if(isEmpty(key)) {
@@ -205,7 +273,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       let body : {} = {
         'htmlDefinition': htmlDefinition,
         'visitId': stripDataType(visit.id),
-        'doctorId': this.state.doctorId
+        'doctorId': stripDataType(this.state.doctorId)
       };
 
     let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
@@ -220,13 +288,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let html = this.mapImageWithBase64(htmlContent.content);
         this.editor.insertContent(html);
         this.searchReferralSignatureKey();
+        this.updateReferral();
       }
   }
 
   async searchReferralSignatureKey() {
     let html = await this.editor.getContent();
+    this.updateReferral();
     const showSignButton = html.includes(".DigitalSignature");
     this.setState({isSignVisible: showSignButton});
+
   }
 
   async sign() : Promise<void> {
@@ -262,6 +333,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async print() : Promise<void> {
+    this.updateReferral();
     this.setState({command: COMMAND.PRINT});
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
@@ -273,30 +345,39 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     }
   }
 
-  async save() : Promise<void> {
+  async save() : Promise<any> {
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
+
     let file = await generatePDF(htmlHeader + html + htmlEnd, true);
     let referralId = undefined;
-    console.log("Referral: " + JSON.stringify(this.state.doctorReferral));
+    let linkedReferralId = undefined;
+
     if(this.state.doctorReferral !== undefined) {
       if(stripDataType(this.state.doctorReferral.id) > 0) {
         referralId = stripDataType(this.state.doctorReferral.id);
+      }
+    }
+    if(this.state.linkedDoctorReferral !== undefined) {
+      if(stripDataType(this.state.linkedDoctorReferral.id) > 0) {
+        linkedReferralId = stripDataType(this.state.linkedDoctorReferral.id);
       }
     }
 
     let body : {} = {
       'htmlReferral': html,
       'visitId': stripDataType(visit.id),
-      'doctorId': this.state.doctorId,
+      'doctorId': stripDataType(this.state.doctorId),
       'action': this.state.command,
       'id': referralId,
-      'attachment': file.base64
+      'linkedReferralId': linkedReferralId,
+      'attachment': file.base64,
+      'name': this.state.template
      };
-    let response = await fetchWinkRest('webresources/template/save/'+this.state.template, parameters, 'POST', body);
+    let response = await fetchWinkRest('webresources/template/save', parameters, 'POST', body);
     if(response) {
       if (response.errors) {
               alert(response.errors);
@@ -304,8 +385,29 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        }
 
       let referralDefinition: ReferralDefinition = response;
+      if(this.unmounted) {
+        return  referralDefinition;  
+      }
+      else
       this.setState({doctorReferral: referralDefinition});
     }
+     this.setState({isDirty: response.errors!==undefined});
+
+  }
+
+  async refresh() {
+      if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&  this.props.navigation.state.params.followUp) {
+            await this.props.onRefreshAppointments();
+      }
+    }
+
+
+
+   updateReferral ()  {
+    this.setState({isDirty:true});
+  }
+  onUpdateSelection() {
+
   }
 
   async email() : Promise<void> {
@@ -332,6 +434,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if(this.state.command === undefined || this.state.emailDefinition === undefined) {
       return;
     }
+    this.updateReferral();
     this.setState({isActive: false});
     await this.save();
     let html = await this.editor.getContent();
@@ -345,7 +448,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if(this.state.command == COMMAND.EMAIL) {
          body = {
             'visitId': stripDataType(visit.id),
-            'doctorId': this.state.doctorId,
+            'doctorId': stripDataType(this.state.doctorId),
             'attachment': file.base64,
             'emailDefinition': this.state.emailDefinition,
             'doctorReferral': this.state.doctorReferral
@@ -354,7 +457,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     else if(this.state.command == COMMAND.FAX) {
           body  = {
             'visitId': stripDataType(visit.id),
-            'doctorId': this.state.doctorId,
+            'doctorId': stripDataType(this.state.doctorId),
             'attachment': file.base64,
             'isFax': true,
             'emailDefinition': this.state.emailDefinition,
@@ -362,7 +465,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           };
     }
 
-      let response = await fetchWinkRest('webresources/template/email/'+this.state.template, parameters, 'POST', body);
+      let response = await fetchWinkRest('webresources/template/email', parameters, 'POST', body);
       if (response) {
           if (response.errors) {
               alert(response.errors);
@@ -375,6 +478,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     this.setState({isActive: true});
 
   }
+
 
   renderTemplateTool() {
     return <View>
@@ -500,7 +604,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   renderTemplates() {
     const templates : string[] = getAllCodes("referralTemplates");
-    return <View style={styles.page}>
+    return (
+    <View style={styles.page}>
+        {this.renderSavedFollowUp()}
       <View>
         <View style={styles.tabCard}>
           <Text style={styles.cardTitle}>New Referral</Text>
@@ -515,12 +621,26 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       </View>
     </View>
     </View>
+    )
   }
 
-  render() {
- /*   return <View style={styles.page}>
-      {this.state.template?this.renderEditor():this.renderTemplates()}
-    </View>*/
-    return <FollowUpScreen navigation = {this.props.navigation} />
+  renderSavedFollowUp() {
+    const followUp: Boolean = this.props.navigation.state.params.followUp;
+
+    return (
+        !followUp && <FollowUpScreen patientInfo = {this.props.navigation.state.params.patientInfo} navigation = {this.props.navigation} isDraft = {true}  />
+    )
+  } 
+
+   render() {
+     const doctorReferral : ReferralDefinition = this.state.doctorReferral;
+     const followUp: Boolean = this.props.navigation.state.params.followUp;
+    if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty) {
+       this.startReferral();
+    }
+    return <View style={styles.page}>
+      {(this.state.template || (doctorReferral && doctorReferral.id)) ?this.renderEditor():this.renderTemplates()}
+    </View>
+   // return <FollowUpScreen navigation = {this.props.navigation} />
   }
 }
