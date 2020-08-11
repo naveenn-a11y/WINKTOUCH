@@ -189,6 +189,7 @@ export const styles = StyleSheet.create({
     },
     textLeft: {
       fontSize: 18 * fontScale,
+      maxWidth: 400 * fontScale,
       textAlign: 'left'
     },
     label: {
