@@ -311,7 +311,7 @@ export class ItemsCard extends Component {
       if (String(value).startsWith('(-)')) return false; //TODO is this a general rule
       return true;
     });
-    return <View style={this.props.exam.definition.editable?styles.columnLayout:styles.rowLayout} key={index}>
+    return <View style={this.props.exam.definition.editable?styles.columnLayout:styles.topFlow} key={index}>
       {this.props.exam.definition.titleFields && this.props.exam.definition.titleFields.map((titleField: string) => {
         return <Text style={styles.boldText} key={titleField}>{examItem[titleField]} </Text>
       })}
