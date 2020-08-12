@@ -1926,33 +1926,7 @@ export function stripSelectionPrefix(selection: ?string) : string {
   return selection;
 }
 
-export class TableList extends React.PureComponent {
-  
-  getItems(): any[] {
 
-    const data : any[] = [{key:'A'}, {key:'B'}, {key:'C'}, {key:'D'}, {key:'E'}, {key:'F'}];
-    return data;
-  }
-
-  renderItem = ({item, index}) => {
-    return (
-      <View style={styles.fieldFlexContainer}>
-      <Text>{item.key}</Text>
-      </View>
-    );
-  }
-  render() {
-    let data : any[] = this.getItems();
-    return <View style={styles.board}>
-      <FlatList
-        initialNumToRender={20}
-        data={data}
-        renderItem ={this.renderItem}
-      />
-    </View >
-  }
-
-}
 export class SelectionList extends React.PureComponent {
   props: {
     label: string,

@@ -81,7 +81,8 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
             'visitId': stripDataType(this.state.selectedItem.visitId),
             'doctorId': stripDataType(referral.doctorId),
             'emailDefinition': this.state.emailDefinition,
-            'doctorReferral': this.state.doctorReferral
+            'doctorReferral': this.state.doctorReferral,
+            'action': this.state.command
           };
 
 
@@ -324,7 +325,7 @@ async openFollowUp() {
               {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
 
         <View style={style}>
-            <View style={styles.formRow}>
+            <View style={styles.flow}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
                onUpdateSelection={(value) => this.selectItem(value)}/>
             </View>
@@ -470,7 +471,7 @@ updateValue(value: any) {
         <Text style={textStyle}>{this.props.rowValue.date}</Text>
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
            onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={textStyle}
+        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={field400}
       value={this.props.rowValue.comment} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)} testID={this.props.fieldId+'.filter'}
      />
       </View>
@@ -644,11 +645,12 @@ select(item: any, select: boolean|string) {
     if(this.state.groupBy === undefined) {
       this.setState({groupBy: options[0]});
     }
+    const style = [styles.searchField, {marginTop: 10}];
     return(
               <TilesField label='Group By'
                 options={options}
                 value={this.state.groupBy}
-                style={styles.field400}
+                style={style}
                 onChangeValue={(value: string) => this.selectField(value, options)}
               />
 
@@ -678,13 +680,11 @@ select(item: any, select: boolean|string) {
   }
   render() {
     let data : any[] = this.getItems(); 
-      const style = {marginTop: 40};
+  const style = [styles.flow, {backgroundColor: '#1db3b3'}];
 
     return (
  <View style={styles.flow}>
-    {this.renderFilterField()}
-    {this.renderGroupField()}
- <View style={styles.flow}>
+    <View style={styles.tabCard}>
 
       <FlatList
         initialNumToRender={5}
@@ -695,6 +695,11 @@ select(item: any, select: boolean|string) {
                                 onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)}/>}
                                 ListHeaderComponent = {this.renderHeader()}
       />
+        </View>
+
+    <View style={styles.separator}>
+    {this.renderFilterField()}
+    {this.renderGroupField()}
     </View>
     </View>
 

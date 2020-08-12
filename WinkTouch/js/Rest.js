@@ -36,11 +36,14 @@ export function getDataType(id: string) :string {
   return dataType;
 }
 
-export function stripDataType(id: string) : number {
+export function stripDataType(id: string | number) : number {
   if (!id) return -1;
+  if(isNaN(id)) {
   const dashIndex = id.indexOf('-');
   const nummer : number = parseInt(id.substring(dashIndex+1));
   return nummer;
+  }
+  return id;
 }
 
 function getItemFieldName(id: string) : string {

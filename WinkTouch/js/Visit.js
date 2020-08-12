@@ -947,7 +947,7 @@ export class VisitHistory extends Component {
 
     renderSummary() {
       return <View>
-        <View style={styles.topFlow}>
+        <View style={styles.flow}>
           <PatientRefractionCard patientInfo={this.props.patientInfo} />
           <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
           <VisitHistoryCard patientInfo={this.props.patientInfo} />
@@ -958,7 +958,7 @@ export class VisitHistory extends Component {
 
     renderFollowUp() {
       return <View>
-        <View style={styles.topFlow}>
+        <View style={styles.flow}>
          <FollowUpScreen patientInfo = {this.props.patientInfo} navigation = {this.props.navigation} />
         </View>
       </View>
@@ -976,7 +976,7 @@ export class VisitHistory extends Component {
                 data={this.state.history}
                 keyExtractor={(visitId: string, index :number) => index.toString()}
                 renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item} testID={'tab'+(data.index+1)}
-                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.confirmDeleteVisit(data.item)}
+                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} 
                 />}
               />
             </View>

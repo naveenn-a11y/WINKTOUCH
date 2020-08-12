@@ -93,13 +93,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   componentWillUnmount() {
-        this.unmounted = true;
-        this._unsubscribe.remove();
-
-        if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&  this.props.navigation.state.params.followUp) {
-          let params = this.props.navigation.state.params;  
-         this.props.navigation.setParams({refresh: true });  
-    }
+    this.unmounted = true;
   }
 
   async componentDidUpdate(prevProps: any) {
@@ -107,24 +101,17 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           if(!this.props.navigation.isFocused()) {
             const isDirty = await this.editor.isDirty();
             if(isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id)) {
-               const value : any = {refresh: true};
+              await this.save();
                  if (this.state.followUpStateKey) {
                     const setParamsAction = NavigationActions.setParams({
                       params: { refreshFollowUp: true },
                       key: this.state.followUpStateKey
                   })
                   this.props.navigation.dispatch(setParamsAction);
+                }
             }
-                await this.save();
-            }
-
           }
         }
-  }
-
-  componentDidMount() {
-    this._unsubscribe = this.props.navigation.addListener('didFocus', () => {
-    });
   }
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
@@ -293,7 +280,12 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async searchReferralSignatureKey() {
-    let html = await this.editor.getContent();
+    let html = '';
+    if(this.editor) {
+     html = await this.editor.getContent();
+    } else {
+      html = referralHtml;
+    }
     this.updateReferral();
     const showSignButton = html.includes(".DigitalSignature");
     this.setState({isSignVisible: showSignButton});
@@ -390,8 +382,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       }
       else
       this.setState({doctorReferral: referralDefinition});
+      this.setState({isDirty: response.errors!==undefined});
     }
-     this.setState({isDirty: response.errors!==undefined});
 
   }
 
@@ -630,17 +622,30 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     return (
         !followUp && <FollowUpScreen patientInfo = {this.props.navigation.state.params.patientInfo} navigation = {this.props.navigation} isDraft = {true}  />
     )
+  }
+
+  shouldStartReferral()  {
+    let doctorReferral : ReferralDefinition = this.state.doctorReferral;
+    const followUp: Boolean = this.props.navigation.state.params.followUp;
+
+     const params = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params) ? this.props.navigation.state.params : undefined;
+     if(params) {
+       if(params.referral && !(doctorReferral && doctorReferral.id) && !followUp) {
+           doctorReferral  = {id: params.referral.id};
+           this.setState({doctorReferral: doctorReferral});
+       }
+     }
+     if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty) {
+          this.startReferral();
+      }
   } 
 
    render() {
-     const doctorReferral : ReferralDefinition = this.state.doctorReferral;
-     const followUp: Boolean = this.props.navigation.state.params.followUp;
-    if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty) {
-       this.startReferral();
-    }
+    let doctorReferral : ReferralDefinition = this.state.doctorReferral;
+    this.shouldStartReferral();
+
     return <View style={styles.page}>
       {(this.state.template || (doctorReferral && doctorReferral.id)) ?this.renderEditor():this.renderTemplates()}
     </View>
-   // return <FollowUpScreen navigation = {this.props.navigation} />
   }
 }
