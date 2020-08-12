@@ -471,7 +471,7 @@ updateValue(value: any) {
         <Text style={textStyle}>{this.props.rowValue.date}</Text>
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
            onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={field400}
+        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={textStyle}
       value={this.props.rowValue.comment} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)} testID={this.props.fieldId+'.filter'}
      />
       </View>

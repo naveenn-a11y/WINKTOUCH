@@ -105,7 +105,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   async componentDidUpdate(prevProps: any) {
         if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral) {
           if(!this.props.navigation.isFocused()) {
-            const isDirty = await this.editor.isDirty();
+            const isDirty = this.editor ? await this.editor.isDirty() : false;
             if(isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id)) {
               await this.save();
                  if (this.state.followUpStateKey) {
@@ -182,7 +182,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?this.props.navigation.state.params.referral.referralTemplate.template : template;
         referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
-        this.searchReferralSignatureKey();
         this.updateFieldSubject(htmlContent.subject);
         this.updateFieldBody(htmlContent.body);
         this.updateSignatureState(htmlContent.content);
