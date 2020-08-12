@@ -6,7 +6,7 @@
 import React from 'react';
 import {StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent} from 'react-native-webview';
-import { styles } from './Styles';
+import { styles, windowHeight, fontScale } from './Styles';
 
 
 interface EditorProps {
@@ -89,7 +89,7 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'  tinymce.init({'+
 		'	onchange_callback : \'myCustomOnChangeHandler\','+
 		'    selector: \'#mytextarea\','+
-		'    height: \'680\','+
+		'    height: \''+(windowHeight-150*fontScale)+'\','+
 		'	   branding: false,'+
 		'    statusbar: false,'+
 		'    removed_menuitems: \'newdocument\','+

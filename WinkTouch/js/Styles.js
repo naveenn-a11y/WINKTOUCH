@@ -189,6 +189,7 @@ export const styles = StyleSheet.create({
     },
     textLeft: {
       fontSize: 18 * fontScale,
+      maxWidth: 400 * fontScale,
       textAlign: 'left'
     },
     label: {
@@ -515,8 +516,10 @@ export const styles = StyleSheet.create({
       minWidth: 80*fontScale
     },
     formFieldLines: {
-        flex: 100,
+        flex: 1,
+        paddingRight: 20 * fontScale,
         fontSize: 20 * fontScale,
+        minWidth: 100 * fontScale,
         height: 36 * 4.7 * fontScale,
         paddingTop: 6 * fontScale,
         paddingBottom: 4 * fontScale,
@@ -1144,8 +1147,9 @@ export const styles = StyleSheet.create({
       flexDirection: 'column',
       flex:7,
       flexGrow: 1,
-      minWidth: 800 * fontScale,
-      minHeight: 930 * fontScale,
+      minWidth: 650,
+      maxWidth: 650,
+      minHeight: windowHeight-120*fontScale,
       backgroundColor: 'white',
       alignSelf: 'flex-start',
       padding: 0 * fontScale,
@@ -1162,9 +1166,9 @@ export const styles = StyleSheet.create({
     },
     sideBar: {
       flexDirection: 'column',
-      minWidth:200 * fontScale,
-      maxWidth:300 * fontScale,
-      minHeight: 400 * fontScale,
+      minWidth:290 * fontScale,
+      maxWidth:400 * fontScale,
+      minHeight:300 * fontScale,
       margin: 7 * fontScale,
       borderColor: fieldBorderColor,
       borderWidth: 3 * fontScale,
@@ -1229,6 +1233,7 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
         padding: 10 * fontScale,
         paddingTop: ((size==='S'||size==='M')?46:10) * fontScale,
         minWidth: minWidth * fontScale,
+        maxWidth: 1040 * fontScale,
         minHeight: minHeight *fontScale,
         borderRadius: 30 * fontScale,
         borderColor: shadowColor,

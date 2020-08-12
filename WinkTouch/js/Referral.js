@@ -30,6 +30,12 @@ import { NavigationActions } from 'react-navigation';
 import { useFocusEffect } from '@react-navigation/native';
 
 
+export function isReferralsEnabled() : boolean {
+  const referralTemplates: string[] = getAllCodes("referralTemplates");
+  if (referralTemplates===undefined || referralTemplates===null || referralTemplates.length===0) return false;
+  return true;
+}
+
 let referralHtml : string = "";
 
 export function setReferralHtml(html: string) {
@@ -58,7 +64,7 @@ type ReferralScreenState = {
   emailDefinition : ? EmailDefinition,
   command: COMMAND,
   isPopupVisibile: ? boolean,
-  isSignVisible: ? boolean,
+  hasSignatureField: ? boolean,
   isDirty: boolean,
   selectedFollowUp: FollowUp,
   followUpStateKey: string,
@@ -83,7 +89,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       emailDefinition: {},
       command: undefined,
       isPopupVisibile: false,
-      isSignVisible: false,
+      hasSignatureField: false,
       doctorId: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?stripDataType(this.props.navigation.state.params.referral.doctorId):undefined,
       isDirty: false,
       selectedFollowUp: undefined,
@@ -113,6 +119,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           }
         }
   }
+
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
       if(imageBase64Definition) {
@@ -178,12 +185,12 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         this.searchReferralSignatureKey();
         this.updateFieldSubject(htmlContent.subject);
         this.updateFieldBody(htmlContent.body);
+        this.updateSignatureState(htmlContent.content);
         this.setState({template, htmlDefinition});
 
 
       }
     }
-
   }
 
 
@@ -206,7 +213,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let key = keyArray.join('.');
     this.setState({selectedField});
     this.setState({key});
-
   }
 
   updateValue(newValue: any) {
@@ -225,7 +231,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      if (!emailDefinition) return;
      emailDefinition.to = newValue;
      this.setState({emailDefinition: emailDefinition});
-
   }
 
   updateFieldSubject(newValue: any) {
@@ -274,36 +279,28 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let htmlEnd: string = patientFooter();
         let html = this.mapImageWithBase64(htmlContent.content);
         this.editor.insertContent(html);
-        this.searchReferralSignatureKey();
+        this.updateSignatureState(html);
         this.updateReferral();
       }
   }
 
-  async searchReferralSignatureKey() {
-    let html = '';
-    if(this.editor) {
-     html = await this.editor.getContent();
-    } else {
-      html = referralHtml;
+  async updateSignatureState(html: string) {
+    if (!html) {
+      if (this.state.hasSignatureField) {
+        this.setState({hasSignatureField: false});
+      }
     }
-    this.updateReferral();
-    const showSignButton = html.includes(".DigitalSignature");
-    this.setState({isSignVisible: showSignButton});
-
+    const hasSignatureField : boolean = html.includes(".DigitalSignature}");
+    if (this.state.hasSignatureField!=hasSignatureField) {
+      this.setState({hasSignatureField});
+    }
   }
 
   async sign() : Promise<void> {
-    await this.searchReferralSignatureKey();
-    if(this.state.isSignVisible === false) {
-       alert(strings.digitalSignatureMissing);
-       return;
-    }
     let html = await this.editor.getContent();
-
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
-
       let body : {} = {
         'htmlReferral': html,
         'visitId': stripDataType(visit.id)
@@ -313,14 +310,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
-              return;
-        }
+        } else {
             const htmlContent : ReferralDocument = response;
             referralHtml = htmlContent.content;
             this.editor.setContent(referralHtml);
+            this.updateSignatureState(referralHtml);
             this.setState({command: COMMAND.SIGN});
             await this.save();
-
+          }
       }
   }
 
@@ -473,8 +470,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
 
   renderTemplateTool() {
-    return <View>
-      <View style={styles.sideBar}>
+    return <View style={styles.sideBar}>
+        <View style={styles.formRow}>
+          <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
+        </View>
+         <View style={styles.formRow}>
+            <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+        </View>
+        <View style={styles.formRow}>
+          <View style={styles.formRowHeader}><Label value={strings.dynamicField}/></View>
+        </View>
         {this.state.selectedField.map((fieldName: string, index: number) => {
           const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
           if (prevValue===undefined || prevValue===null) return undefined;
@@ -510,16 +515,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         <FormRow>
           <Button title='Insert' onPress={() => this.insertField()}/>
         </FormRow>
-      </View>
-      <View style={styles.sideBar}>
-          <View style={styles.formRow}>
-            <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
-          </View>
-           <View style={styles.formRow}>
-              <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-            </View>
-        </View>
-
     </View>
   }
 
@@ -535,10 +530,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       {this.renderTemplateTool()}
 
       <View style={styles.flow}>
+          <Button title={strings.sign} disabled={this.state.hasSignatureField!==true} onPress={() => this.sign()}/>
           <Button title='Print' onPress={() => this.print()} disabled={!this.state.isActive}/>
           <Button title='Email' onPress={() => this.email()} disabled={!this.state.isActive} />
           {getStore() !== undefined && getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
-          {this.state.isSignVisible===true && <Button title={strings.sign} onPress={() => this.sign()}/>}
       </View>
         {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
             && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -561,10 +556,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
-          <View style={styles.flowLeft}>
-              <Button title={strings.cancel} onPress={this.cancelEdit} disabled={!this.state.isActive} />
-              <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
-          </View>
 
           <View style={styles.flexColumnLayout}>
           <View style={styles.form}>
@@ -588,8 +579,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               <FormTextInput multiline={true} label='Body' value={emailDefinition.body} readonly={command == COMMAND.FAX} onChangeText={(newValue: string) => this.updateFieldBody(newValue)} />
             </View>
             </FormRow>
+            <View style={styles.flow}>
+                <Button title={strings.cancel} onPress={this.cancelEdit} disabled={!this.state.isActive} />
+                <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
+            </View>
           </View>
+
         </View>
+
       </View>
     </TouchableWithoutFeedback>
   }
