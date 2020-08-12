@@ -976,7 +976,7 @@ export class VisitHistory extends Component {
                 data={this.state.history}
                 keyExtractor={(visitId: string, index :number) => index.toString()}
                 renderItem={(data: ?any) => <VisitButton key={data.item} isSelected={this.state.selectedId === data.item} id={data.item} testID={'tab'+(data.index+1)}
-                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} 
+                  keyboardShouldPersistTaps="handled" onPress={() => this.showVisit(data.item)} onLongPress={() => this.confirmDeleteVisit(data.item)}
                 />}
               />
             </View>
