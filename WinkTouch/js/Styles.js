@@ -727,7 +727,7 @@ export const styles = StyleSheet.create({
         borderColor: selectionFontColor,
         borderWidth: 2*fontScale,
         margin: 7 * fontScale,
-    }
+    },
     errorCard: {
         flexGrow: 0,
         padding: 15 * fontScale,
