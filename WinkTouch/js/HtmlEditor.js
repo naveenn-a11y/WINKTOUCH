@@ -70,12 +70,18 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		this.refs.webref.injectJavaScript(javaScript);
 	}
 
+   setDirty(html: Boolean) {
+		__DEV__ && console.log('Set raw html: '+ html);
+		let javaScript : string = `tinymce.activeEditor.setDirty(${html})`;
+		this.refs.webref.injectJavaScript(javaScript);
+	}
+
 	webCallback = ( event: WebViewMessageEvent ) => {
 		const data: any = JSON.parse( event.nativeEvent.data );
 		if (this.resolveContent) {
 			this.resolveContent( data.html );
 		}
-		if (this.resolveBooleanContent) {
+		else if (this.resolveBooleanContent) {
 			this.resolveBooleanContent( data.html );
 		}
 	}
@@ -87,7 +93,6 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'  <script src="https://ws-touch.downloadwink.com/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>'+
 		'  <script type="text/javascript">'+
 		'  tinymce.init({'+
-		'	onchange_callback : \'myCustomOnChangeHandler\','+
 		'    selector: \'#mytextarea\','+
 		'    height: \''+(windowHeight-150*fontScale)+'\','+
 		'	   branding: false,'+
