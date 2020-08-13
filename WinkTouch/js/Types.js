@@ -325,7 +325,8 @@ export type FollowUp = {
   signedOn?: string,
   status?: string,
   comment?: string,
-  isOutgoing?: boolean
+  isOutgoing?: boolean,
+  isParent?: boolean
 }
 
 export type ReferralStatusCode = {
