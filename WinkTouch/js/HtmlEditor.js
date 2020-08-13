@@ -30,6 +30,8 @@ interface EditorProps {
 
 export class HtmlEditor extends React.Component<EditorProps> {
 	resolveContent : ( content: string ) => void = null;
+	resolveBooleanContent : ( content: boolean ) => void = null;
+
 
 	async getContent(): Promise<string> {
 		return new Promise( ( resolve, reject ) => {
@@ -38,6 +40,19 @@ export class HtmlEditor extends React.Component<EditorProps> {
 				window.ReactNativeWebView.postMessage(JSON.stringify({
 					type: 'getContent',
 					html: tinymce.activeEditor.getContent({format: 'raw'})
+				}));
+			`);
+		});
+	}
+
+	async isDirty(): Promise<Boolean> {
+
+		return new Promise( ( resolve, reject ) => {
+			this.resolveBooleanContent = resolve;
+			this.refs.webref.injectJavaScript(`
+				window.ReactNativeWebView.postMessage(JSON.stringify({
+					type: 'isDirty',
+					html: tinymce.activeEditor.isDirty()
 				}));
 			`);
 		});
@@ -60,6 +75,9 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		if (this.resolveContent) {
 			this.resolveContent( data.html );
 		}
+		if (this.resolveBooleanContent) {
+			this.resolveBooleanContent( data.html );
+		}
 	}
 
 	render() {
@@ -69,6 +87,7 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		'  <script src="https://ws-touch.downloadwink.com/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>'+
 		'  <script type="text/javascript">'+
 		'  tinymce.init({'+
+		'	onchange_callback : \'myCustomOnChangeHandler\','+
 		'    selector: \'#mytextarea\','+
 		'    height: \''+(windowHeight-150*fontScale)+'\','+
 		'	   branding: false,'+

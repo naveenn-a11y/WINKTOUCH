@@ -10,7 +10,7 @@ import { cacheItemById, cacheItemsById, cacheItem, getCachedVersionNumber, getCa
 import { restVersion } from './Version';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export let restUrl : string = __DEV__?'http://192.168.2.53:8080/Web/':'https://ws-touch.downloadwink.com/'+restVersion+'/';
+export let restUrl : string = __DEV__?'http://192.168.1.5:8080/Web/':'https://ws-touch.downloadwink.com/'+restVersion+'/';
 
 let token : string;
 
@@ -36,11 +36,14 @@ export function getDataType(id: string) :string {
   return dataType;
 }
 
-export function stripDataType(id: string) : number {
+export function stripDataType(id: string | number) : number {
   if (!id) return -1;
+  if(isNaN(id)) {
   const dashIndex = id.indexOf('-');
   const nummer : number = parseInt(id.substring(dashIndex+1));
   return nummer;
+  }
+  return id;
 }
 
 function getItemFieldName(id: string) : string {

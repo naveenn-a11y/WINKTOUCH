@@ -180,6 +180,8 @@ export const strings = new LocalizedStrings({
       referralSuccess: 'Referral sent successfully to {0}',
       referringPatientTo: 'Referring patient to ',
       doctorReferralMissing: 'Please select the doctor',
+      digitalSignatureMissing: 'Please insert and place your digital signature field first',
+      followUpTitle: 'Follow Up',
       dynamicField: 'Dynamic field'
     },
     fr: {
@@ -353,6 +355,8 @@ export const strings = new LocalizedStrings({
       referralSuccess: 'Référence envoyé avec succès à {0}',
       referringPatientTo: 'Référer le patient à ',
       doctorReferralMissing: 'Veuillez sélectionner le docteur',
+      digitalSignatureMissing: 'Veuillez avant insérer et placer votre signature',
+      followUpTitle: 'Suivi',
       dynamicField: 'Champ dynamique'
     }
 });
