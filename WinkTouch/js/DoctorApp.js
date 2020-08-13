@@ -24,6 +24,7 @@ import { allExamPredefinedValues } from './Favorites';
 import { ConfigurationScreen } from './Configuration';
 import { deleteLocalFiles } from './Print';
 import { ReferralScreen} from './Referral';
+import {FollowUpScreen} from './FollowUp';
 
 let account: Account;
 let doctor: User;
@@ -78,7 +79,8 @@ const DoctorNavigator = createStackNavigator({
     examTemplate: {screen: ExamDefinitionScreen},
     templates: {screen: TemplatesScreen},
     configuration: {screen: ConfigurationScreen},
-    referral: {screen: ReferralScreen}
+    referral: {screen: ReferralScreen},
+    followup: {screen: FollowUpScreen}
   }, {
     headerMode: 'none'
   }
@@ -97,6 +99,7 @@ DoctorNavigator.router.getStateForAction = (action, state) => {
   }
   let newState = defaultGetStateForAction(action, state);
   if (state && action.type === NavigationActions.BACK) {
+
       if (state.index===1) {
         newState.routes[0].params={refreshAppointments: true};
       }

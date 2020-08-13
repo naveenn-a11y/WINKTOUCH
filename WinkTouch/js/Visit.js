@@ -26,6 +26,7 @@ import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
 import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
 import { fetchWinkRest } from './WinkRest';
+import {FollowUpScreen} from './FollowUp';
 import { isReferralsEnabled } from './Referral';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
@@ -257,6 +258,21 @@ class SummaryButton extends PureComponent {
         return <TouchableOpacity onPress={this.props.onPress} testID='summaryTab'>
            <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.summaryTitle}</Text>
+           </View>
+        </TouchableOpacity>
+    }
+}
+
+class FollowUpButton extends PureComponent {
+    props: {
+        isSelected: ?boolean,
+        onPress: () => void
+    }
+
+    render() {
+        return <TouchableOpacity onPress={this.props.onPress} testID='followUpTab'>
+           <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
+               <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.followUpTitle}</Text>
            </View>
         </TouchableOpacity>
     }
@@ -595,6 +611,7 @@ class VisitWorkFlow extends Component {
     }
 
     renderActionButtons() {
+      console.log("Patient INFOOO: " + JSON.stringify(this.props.navigation)); 
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
             {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
@@ -604,7 +621,7 @@ class VisitWorkFlow extends Component {
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
-            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId)})}}/>}
+            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId), patientInfo: this.props.navigation.state.params.patientInfo})}}/>}
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
@@ -729,7 +746,7 @@ export class VisitHistory extends Component {
         this.state = {
           selectedId: undefined,
           history: this.combineHistory(props.patientDocumentHistory, props.visitHistory),
-          showingDatePicker: false
+          showingDatePicker: false,
         };
     }
 
@@ -931,7 +948,7 @@ export class VisitHistory extends Component {
 
     renderSummary() {
       return <View>
-        <View style={styles.topFlow}>
+        <View style={styles.flow}>
           <PatientRefractionCard patientInfo={this.props.patientInfo} />
           <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
           <VisitHistoryCard patientInfo={this.props.patientInfo} />
@@ -940,11 +957,20 @@ export class VisitHistory extends Component {
       </View>
     }
 
+    renderFollowUp() {
+      return <View>
+        <View style={styles.flow}>
+         <FollowUpScreen patientInfo = {this.props.patientInfo} navigation = {this.props.navigation} />
+        </View>
+      </View>
+    }
+
     render() {
         if (!this.state.history) return null;
         return <View>
             <View style={styles.tabHeader}>
               <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
+              <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />
               <FlatList
                 horizontal={true}
                 extraData={this.state.selectedId}
@@ -956,6 +982,8 @@ export class VisitHistory extends Component {
               />
             </View>
             {this.state.selectedId===undefined && this.renderSummary()}
+            {this.state.selectedId==='followup' && this.renderFollowUp()}
+
             {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientId={this.props.patientInfo.id}
                 visitId={this.state.selectedId}
                 navigation={this.props.navigation}

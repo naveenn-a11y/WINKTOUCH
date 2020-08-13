@@ -302,9 +302,40 @@ export type ReferralDocument = {
 }
 
 export type ReferralDefinition = {
-  id: number,
-  visitId  :number,
-  fromDoctorId :number
+  id: string,
+  visitId  :string,
+  fromDoctorId :string,
+  upload?: Upload
+}
+
+export type FollowUp = {
+  id: string,
+  ref: string,
+  linkedReferralId: string,
+  visitId ?:string,
+  patientId: string,
+  storeId: string,
+  referralTemplate: ReferralTemplate,
+  date: string,
+  from: Account,
+  to: Account,
+  faxedOn?: string,
+  emailOn?: string,
+  printedOn?: string,
+  signedOn?: string,
+  status?: string,
+  comment?: string,
+  isOutgoing?: boolean
+}
+
+export type ReferralStatusCode = {
+  id: string,
+  name: string,
+  status: string
+}
+export type ReferralTemplate = {
+  id: string,
+  template: string
 }
 
 export type EmailDefinition = {
