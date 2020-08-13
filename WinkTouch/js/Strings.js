@@ -182,7 +182,8 @@ export const strings = new LocalizedStrings({
       doctorReferralMissing: 'Please select the doctor',
       digitalSignatureMissing: 'Please insert and place your digital signature field first',
       followUpTitle: 'Follow Up',
-      dynamicField: 'Dynamic field'
+      dynamicField: 'Dynamic field',
+      findRow: 'Search'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
@@ -357,7 +358,8 @@ export const strings = new LocalizedStrings({
       doctorReferralMissing: 'Veuillez sélectionner le docteur',
       digitalSignatureMissing: 'Veuillez avant insérer et placer votre signature',
       followUpTitle: 'Suivi',
-      dynamicField: 'Champ dynamique'
+      dynamicField: 'Champ dynamique',
+      findRow: 'Recherche'
     }
 });
 

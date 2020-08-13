@@ -66,7 +66,6 @@ type ReferralScreenState = {
   isPopupVisibile: ? boolean,
   hasSignatureField: ? boolean,
   isDirty: boolean,
-  selectedFollowUp: FollowUp,
   followUpStateKey: string,
 
 };
@@ -92,10 +91,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       hasSignatureField: false,
       doctorId: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?stripDataType(this.props.navigation.state.params.referral.doctorId):undefined,
       isDirty: false,
-      selectedFollowUp: undefined,
       followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined
       }
     this.unmounted = false;
+
   }
 
   componentWillUnmount() {
@@ -105,7 +104,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   async componentDidUpdate(prevProps: any) {
         if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral) {
           if(!this.props.navigation.isFocused()) {
-            const isDirty = this.editor ? await this.editor.isDirty() : false;
+            const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
             if(isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id)) {
               await this.save();
                  if (this.state.followUpStateKey) {
