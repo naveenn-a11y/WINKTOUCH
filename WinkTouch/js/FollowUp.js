@@ -450,9 +450,18 @@ export class TableListRow extends React.PureComponent {
     testID: string,
     backgroundColor: string
   }
+  state: {
+    commentValue: string
+  }
   static defaultProps = {
     maxLength: 60,
     simpleSelect: false
+  }
+ constructor(props: any) {
+    super(props);
+    this.state = {
+      commentValue: this.props.rowValue.comment
+    }
   }
 
 async loadReferralStatusCode() {
@@ -496,6 +505,9 @@ updateValue(value: any) {
       this.props.onChangeValue();
     }
   }
+  changeText(value: string) {
+     this.setState({commentValue: value});
+  }
 
   render() {
     const textStyle = this.props.selected ? styles.tableListTextSelected : styles.tableListText;
@@ -509,7 +521,8 @@ updateValue(value: any) {
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
            onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
         <TextInput returnKeyType='done' placeholder={'comment:'} autoCorrect={false} autoCapitalize='none' style={textStyle}
-      value={this.props.rowValue.comment} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)} testID={this.props.fieldId+'.filter'}
+      value={this.state.commentValue} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
+      onChangeText={(text: string) => this.changeText(text)} testID={this.props.fieldId+'.filter'}
      />
       </View>
     </TouchableOpacity>
