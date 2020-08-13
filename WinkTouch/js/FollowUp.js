@@ -24,7 +24,7 @@ import { getStore } from './DoctorApp';
 import { strings } from './Strings';
 import {  getMimeType } from './Upload';
 import { printHtml, generatePDF } from './Print';
-import { deAccent, isEmpty} from './Util';
+import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 
 const COMMAND = {
   RESEND: 0,
@@ -138,8 +138,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
           alert('item not selected');
           return;
       }
-       this.setState({isPopupVisibile: true});
-       this.setState({command: COMMAND.REPLY});
+      let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+      const selectedItem : Follow = this.state.selectedItem;
+      emailDefinition.to = selectedItem.from.email;
+       this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.REPLY});
 
   }
 
@@ -148,8 +150,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
           alert('item not selected');
           return;
       }
-       this.setState({isPopupVisibile: true});
-       this.setState({command: COMMAND.RESEND});
+      let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+      const selectedItem : Follow = this.state.selectedItem;
+      emailDefinition.to = selectedItem.to.email;
+       this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.RESEND});
 
 
   }
@@ -305,14 +309,46 @@ async openFollowUp() {
     }
 
     let doctorReferral : ReferralDefinition =  {id: value.id};
-    let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-    emailDefinition.from = value.to.email;
-    emailDefinition.to = value.from.email;
     this.setState({
       selectedItem: value,
-      emailDefinition: emailDefinition,
       doctorReferral: doctorReferral
     });
+  }
+
+  shouldActivateEdit() : boolean {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if((statusCode && statusCode.status ==1) || (isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn))) {
+        return true;
+      }
+      return false;
+  }
+
+  shouldActivateResend() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if((selectedItem.isOutgoing || (statusCode && statusCode.status ==2))) {
+        return true;
+      }
+      return false;
+  }
+
+  shouldActivateReply() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if((!selectedItem.isOutgoing || (statusCode && statusCode.status ==3))) {
+        return true;
+      }
+      return false;
   }
 
   renderFollowUp() {
@@ -343,13 +379,13 @@ async openFollowUp() {
 
     renderButtons() {
       let statusCode : CodeDefinition = this.state.selectedItem !== undefined ? getCodeDefinition('referralStatus',this.state.selectedItem.status) : undefined;
-
+      const visit : Visit = this.state.selectedItem !== undefined ? getCachedItem(this.state.selectedItem.visitId) : undefined;
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
-           {this.state.selectedItem && (!this.state.selectedItem.isOutgoing || (statusCode && statusCode.status ==3)) && <Button title={'Quick Reply'} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && <Button title={'Follow Up'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.state.selectedItem.visitId), referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
-           {this.state.selectedItem && (statusCode && statusCode.status ==1) && <Button title={'Edit'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.state.selectedItem.visitId), referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
-           {this.state.selectedItem && (this.state.selectedItem.isOutgoing || (statusCode && statusCode.status ==2)) && <Button title={'Resend'} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && this.shouldActivateReply() && <Button title={'Quick Reply'} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && visit && <Button title={'Follow Up'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={'Edit'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && this.shouldActivateResend() && <Button title={'Resend'} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
         </View>
       </View>
     }
@@ -411,7 +447,8 @@ export class TableListRow extends React.PureComponent {
     onChangeValue: (value: ?string|?number) => void,
     maxLength?: number,
     simpleSelect?: boolean,
-    testID: string
+    testID: string,
+    backgroundColor: string
   }
   static defaultProps = {
     maxLength: 60,
@@ -464,14 +501,14 @@ updateValue(value: any) {
     const textStyle = this.props.selected ? styles.tableListTextSelected : styles.tableListText;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
     return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
-      <View style={styles.listRow}>
+      <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
         <Text style={textStyle}>{this.props.rowValue.ref}</Text>
         <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
-        <Text style={textStyle}>{this.props.rowValue.date}</Text>
+        <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
            onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={textStyle}
+        <TextInput returnKeyType='done' placeholder={'comment:'} autoCorrect={false} autoCapitalize='none' style={textStyle}
       value={this.props.rowValue.comment} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)} testID={this.props.fieldId+'.filter'}
      />
       </View>
@@ -635,7 +672,7 @@ select(item: any, select: boolean|string) {
   }
   renderFilterField() {
     return(
-         <TextInput returnKeyType='search' autoCorrect={false} autoCapitalize='none' style={styles.searchField}
+         <TextInput returnKeyType='search' placeholder={strings.findRow} autoCorrect={false} autoCapitalize='none' style={styles.searchField}
       value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})} testID={this.props.fieldId+'.filter'}
      />
     )} 
@@ -680,26 +717,25 @@ select(item: any, select: boolean|string) {
   }
   render() {
     let data : any[] = this.getItems(); 
-  const style = [styles.flow, {backgroundColor: '#1db3b3'}];
+  const sideBarCustomStyle = [styles.sideBar, {minWidth: 200 * fontScale, maxWidth:300 * fontScale}];
 
     return (
  <View style={styles.flow}>
-    <View style={styles.tabCard}>
-
       <FlatList
         initialNumToRender={5}
         data={data}
         extraData={{filter: this.state.filter, selection: this.state.item}}
-        renderItem={(item) => <TableListRow rowValue={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)}
+        renderItem={(item, index) => <TableListRow rowValue={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)} backgroundColor ={item.index%2===0 ? '#F9F9F9' :'#FFFFFF'}
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
                                 onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)}/>}
                                 ListHeaderComponent = {this.renderHeader()}
       />
-        </View>
 
-    <View style={styles.separator}>
+    <View style={sideBarCustomStyle}>
     {this.renderFilterField()}
-    {this.renderGroupField()}
+    {this.renderGroupField(
+      
+    )}
     </View>
     </View>
 
