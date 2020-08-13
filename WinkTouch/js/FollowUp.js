@@ -510,7 +510,8 @@ updateValue(value: any) {
   }
 
   render() {
-    const textStyle = this.props.selected ? styles.tableListTextSelected : styles.tableListText;
+    const style = this.props.selected ? styles.tableListTextSelected : styles.tableListText;
+    const textStyle = this.props.rowValue.isParent ? [style, {fontWeight: 'bold'}] : style ;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
     return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
@@ -637,6 +638,7 @@ select(item: any, select: boolean|string) {
     let data : any[] = [...this.props.items];
     data.map((followUp: FollowUp, index: number) => {
       followUp.ref = followUp.id;
+      followUp.isParent = false;
     });
     return data;
   }
@@ -664,11 +666,13 @@ select(item: any, select: boolean|string) {
       const childs : FollowUp[] = value;
       const parentId : string = parent.id;
       parent.ref = "+ " + parent.id;
+      parent.isParent = true;
       finalResult.push(parent);
       const finalChilds : FollowUp[] = childs.filter((v,i) => stripDataType(v.id) !== stripDataType(parentId));
       for(const childElement : FollowUp of finalChilds) {
         if(stripDataType(childElement.id) !== stripDataType(parentId)) {
           childElement.ref = "   -     " + childElement.id;
+          childElement.isParent = false;
           finalResult.push(childElement);
         }
       }
