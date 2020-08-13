@@ -167,8 +167,8 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
   async componentDidUpdate(prevProps: any) {
       let params = this.props.navigation.state.params; 
       if(params && params.refreshFollowUp) {
+        this.props.navigation.setParams({refreshFollowUp: false});
         await this.loadFollowUp();
-        InteractionManager.runAfterInteractions(() => this.props.navigation.setParams({refreshFollowUp: false}));
       }
     }
 

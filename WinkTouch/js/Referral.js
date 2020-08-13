@@ -46,7 +46,8 @@ const COMMAND = {
   EMAIL: 0,
   FAX: 1,
   PRINT: 2,
-  SIGN: 3
+  SIGN: 3,
+  SAVE: 4
 }
 
 type ReferralScreenProps = {
@@ -103,6 +104,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async componentDidUpdate(prevProps: any) {
         if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral) {
+          const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
           if(!this.props.navigation.isFocused()) {
             const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
             if(isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id)) {
@@ -369,32 +371,33 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response.errors) {
               alert(response.errors);
               return;
+       } else {
+         if(this.editor) {
+           this.editor.setDirty(false);
+         }
        }
 
       let referralDefinition: ReferralDefinition = response;
       if(this.unmounted) {
         return  referralDefinition;  
       }
-      else
+      else {
       this.setState({doctorReferral: referralDefinition});
       this.setState({isDirty: response.errors!==undefined});
-    }
-
-  }
-
-  async refresh() {
-      if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&  this.props.navigation.state.params.followUp) {
-            await this.props.onRefreshAppointments();
       }
     }
 
-
+  }
 
    updateReferral ()  {
     this.setState({isDirty:true});
   }
-  onUpdateSelection() {
 
+
+  async saveAction() : Promise<void> {
+       this.setState({command: COMMAND.SAVE});
+       await this.save();
+       this.props.navigation.goBack();
   }
 
   async email() : Promise<void> {
@@ -532,6 +535,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Button title='Print' onPress={() => this.print()} disabled={!this.state.isActive}/>
           <Button title='Email' onPress={() => this.email()} disabled={!this.state.isActive} />
           {getStore() !== undefined && getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
+          <Button title='Save' onPress={() => this.saveAction()} disabled={!this.state.isActive} />
       </View>
         {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
             && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -621,6 +625,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   shouldStartReferral()  {
     let doctorReferral : ReferralDefinition = this.state.doctorReferral;
+    let linkedDoctorReferral : ReferralDefinition = this.state.linkedDoctorReferral;
+
     const followUp: Boolean = this.props.navigation.state.params.followUp;
 
      const params = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params) ? this.props.navigation.state.params : undefined;
@@ -628,6 +634,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        if(params.referral && !(doctorReferral && doctorReferral.id) && !followUp) {
            doctorReferral  = {id: params.referral.id};
            this.setState({doctorReferral: doctorReferral});
+       }
+        if(params.referral && !(linkedDoctorReferral && linkedDoctorReferral.id) && followUp) {
+           linkedDoctorReferral  = {id: params.referral.id};
+           this.setState({linkedDoctorReferral: linkedDoctorReferral});
+       }
+        if(params.referral && isEmpty(this.state.doctorId)) {
+           linkedDoctorReferral  = {id: params.referral.id};
+           this.setState({doctorId: stripDataType(this.props.navigation.state.params.referral.doctorId)});
        }
      }
      if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty) {
