@@ -15,7 +15,7 @@ import { FormRow, FormTextInput, FormField, FormCode } from './Form';
 import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { PatientInfo, HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp, ReferralStatusCode, Upload} from './Types';
-import {allExamIds} from './Visit';
+import {allExamIds, fetchReferralFollowUpHistory} from './Visit';
 import { getCachedItems, getCachedItem } from './DataCache';
 
 import { stripDataType } from './Rest';
@@ -28,7 +28,8 @@ import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 
 const COMMAND = {
   RESEND: 0,
-  REPLY: 1
+  REPLY: 1,
+  FORWARD: 2
 }
 
 type FollowUpScreenProps = {
@@ -77,12 +78,18 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     this.setState({isActive: false});
     let parameters : {} = {};
     const referral: FollowUp = this.state.selectedItem;
+    let isFax: Boolean = false;
+    if(!isEmpty(referral.faxedOn)&& isEmpty(referral.emailOn)) {
+        isFax = true;
+    }
+
     let body = {
             'visitId': stripDataType(this.state.selectedItem.visitId),
             'doctorId': stripDataType(referral.doctorId),
             'emailDefinition': this.state.emailDefinition,
             'doctorReferral': this.state.doctorReferral,
-            'action': this.state.command
+            'action': this.state.command,
+            'isFax': isFax
           };
 
 
@@ -133,7 +140,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     this.setState({ isPopupVisibile: false });
   }
 
-  async reply() : Promise<void> {
+  reply() : Promise<void> {
       if(this.state.selectedItem === undefined) {
           alert('item not selected');
           return;
@@ -145,21 +152,30 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
 
   }
 
-    async resend() : Promise<void> {
+ resend() : Promise<void> {
       if(this.state.selectedItem === undefined) {
           alert('item not selected');
           return;
       }
       let emailDefinition : EmailDefinition =  this.state.emailDefinition;
       const selectedItem : Follow = this.state.selectedItem;
-      emailDefinition.to = selectedItem.to.email;
+      if(!isEmpty(selectedItem.faxedOn) && isEmpty(selectedItem.emailOn)) {
+              emailDefinition.to = selectedItem.to.fax;
+        } else {
+              emailDefinition.to = selectedItem.to.email;
+        }
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.RESEND});
-
-
   }
 
-  async componentDidMount() {
-      await this.loadFollowUp();
+   forward() : Promise<void> {
+      let emailDefinition : EmailDefinition =  this.state.emailDefinition;
+      const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+      emailDefinition.to = patientInfo ? patientInfo.email : undefined;
+       this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.FORWARD});
+  }
+
+  componentDidMount() {
+       this.loadFollowUp();
   }
   onRefresh(refresh: boolean)  {
   };                               
@@ -167,8 +183,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
   async componentDidUpdate(prevProps: any) {
       let params = this.props.navigation.state.params; 
       if(params && params.refreshFollowUp) {
+        const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
         this.props.navigation.setParams({refreshFollowUp: false});
-        await this.loadFollowUp();
+        await fetchReferralFollowUpHistory(patientInfo.id);
+        this.loadFollowUp();
       }
     }
 
@@ -188,36 +206,15 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
       }
   }
 
-  async loadFollowUp(id?: string | number) {
-    let parameters : {} = {};
+   loadFollowUp(id?: string | number) {
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
     const visit: Visit = this.props.navigation.state.params.visit;
-      let body : {} = {
-        'patientId': stripDataType(patientInfo.id),
-        'id': id ? stripDataType(id) : undefined,
-        'isDraft': this.props.isDraft,
-        'visitId': visit ? stripDataType(visit.id) : undefined,
-     };
-
-    let response = await fetchWinkRest('webresources/followup/list', parameters, 'POST', body);
-    if (response) {
-        if (response.errors) {
-              alert(response.errors);
-              return;
-        }
-        if(id) {
-          const allFollowUp :  FollowUp[] = this.state.allFollowUp;
-          if(allFollowUp){
-              allFollowUp.unshift(response.followUp);
-                          this.setState({allFollowUp});
-
-          }
-        } else {
-            const allFollowUp : FollowUp[] = response.followUp;
-                  this.setState({allFollowUp});
-
-        }
-      }
+    const isDraft: Boolean = this.props.isDraft;
+    let allFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
+    if(isDraft && visit) {
+      allFollowUp = allFollowUp.filter((followUp: FollowUp) => isEmpty(followUp.emailOn) && isEmpty(followUp.faxedOn) && followUp.visitId === visit.id);
+    }
+    this.setState({allFollowUp});
   }
   async updateItem(item: any) : Promise<void> {
     let allFollowUp : FollowUp[] = this.state.allFollowUp;
@@ -225,7 +222,6 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
       allFollowUp[index] = item;
       this.setState({allFollowUp});
       this.setState({isActive: false});
-
   
     let body : {} = {
       'referral': item
@@ -356,10 +352,7 @@ async openFollowUp() {
     const style = this.props.isDraft ? styles.tabCardFollowUp2 : styles.tabCardFollowUp1;
     return (
     <View>
-      <View style={styles.flow}>
-    <View style={styles.centeredColumnLayout}>
-              {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
-
+          {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
         <View style={style}>
             <View style={styles.flow}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
@@ -367,13 +360,9 @@ async openFollowUp() {
             </View>
     </View>
         {this.renderButtons()}
-        
        <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
         {this.renderPopup()}
       </Modal>
-    </View>
-
-  </View>
   </View>
     )}
 
@@ -386,6 +375,8 @@ async openFollowUp() {
            {this.state.selectedItem && visit && <Button title={'Follow Up'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={'Edit'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && this.shouldActivateResend() && <Button title={'Resend'} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem  && <Button title={'Forward'} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+
         </View>
       </View>
     }
@@ -396,16 +387,11 @@ async openFollowUp() {
 
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
-          <View style={styles.flowLeft}>
-              <Button title={strings.cancel} onPress={this.cancelEdit} disabled={!this.state.isActive} />
-              <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
-          </View>
-
           <View style={styles.flexColumnLayout}>
           <View style={styles.form}>
               <FormRow>
               <View style={styles.rowLayout}>
-                <FormTextInput label='To' value={emailDefinition.to} readonly={true} onChangeText={(newValue: string) => this.updateFieldTo(newValue)}/>
+                <FormTextInput label='To' value={emailDefinition.to} readonly={this.state.command !== COMMAND.FORWARD} onChangeText={(newValue: string) => this.updateFieldTo(newValue)}/>
               </View>
             </FormRow>
                <FormRow>
@@ -423,6 +409,10 @@ async openFollowUp() {
               <FormTextInput multiline={true} label='Body' value={emailDefinition.body} readonly={false} onChangeText={(newValue: string) => this.updateFieldBody(newValue)} />
             </View>
             </FormRow>
+            <View style={styles.flow}>
+                <Button title={strings.cancel} onPress={this.cancelEdit} disabled={!this.state.isActive} />
+                <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
+            </View>
           </View>
         </View>
       </View>
@@ -431,10 +421,12 @@ async openFollowUp() {
 
   render() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
-
+    if(Array.isArray(listFollowUp) && listFollowUp.length > 0) {
     return <View style={styles.page}>
-      { Array.isArray(listFollowUp) && listFollowUp.length > 0 && this.renderFollowUp()}
-    </View>
+           {this.renderFollowUp()}
+         </View>
+    }
+    return null;
   }
 }
 
@@ -572,6 +564,13 @@ export class TableList extends React.PureComponent {
       groupBy: undefined,
       groupedData: []
     }
+
+  }
+
+  componentDidMount() {
+    if(this.state.groupBy === undefined) {
+      this.setState({groupBy: this.state.options[0]});
+    }
   }
 
   isSearchable(items: string[]) : boolean {
@@ -660,6 +659,9 @@ select(item: any, select: boolean|string) {
         groupedData.get(parentReferral).push(element);
       }
     }
+    
+    groupedData = new Map([...groupedData.entries()].sort(this.compareFollowUp));
+
     let finalResult : any = [];
     for (const [key, value] : any of groupedData.entries()) {
       const parent : FollowUp = key;
@@ -680,6 +682,10 @@ select(item: any, select: boolean|string) {
     return finalResult;
   }
 
+compareFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(a.id < b.id) return -1;
+  return 0;
+}
   renderItem = ({item, index}) => {
     return (
       <View style={styles.fieldFlexContainer}>
@@ -696,9 +702,6 @@ select(item: any, select: boolean|string) {
 
   renderGroupField() {
     const options: string[] =  this.state.options;
-    if(this.state.groupBy === undefined) {
-      this.setState({groupBy: options[0]});
-    }
     const style = [styles.searchField, {marginTop: 10}];
     return(
               <TilesField label='Group By'

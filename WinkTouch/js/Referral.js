@@ -103,23 +103,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async componentDidUpdate(prevProps: any) {
-        if(this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral) {
-          const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
           if(!this.props.navigation.isFocused()) {
             const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
-            if(isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id)) {
-              await this.save();
-                 if (this.state.followUpStateKey) {
-                    const setParamsAction = NavigationActions.setParams({
-                      params: { refreshFollowUp: true },
-                      key: this.state.followUpStateKey
-                  })
-                  this.props.navigation.dispatch(setParamsAction);
-                }
+            if(this.state.template && (isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id))) {
+                 await this.save();
             }
           }
-        }
-  }
+    }
 
   mapImageWithBase64(template?:string) {
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
@@ -378,6 +368,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        }
 
       let referralDefinition: ReferralDefinition = response;
+      if (this.state.followUpStateKey) { 
+      const setParamsAction = NavigationActions.setParams({
+                   params: { refreshFollowUp: true },
+                    key: this.state.followUpStateKey
+                  })
+      this.props.navigation.dispatch(setParamsAction);
+        }
       if(this.unmounted) {
         return  referralDefinition;  
       }
@@ -595,10 +592,11 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   renderTemplates() {
     const templates : string[] = getAllCodes("referralTemplates");
+
     return (
     <View style={styles.page}>
         {this.renderSavedFollowUp()}
-      <View>
+      <View style={styles.separator}>
         <View style={styles.tabCard}>
           <Text style={styles.cardTitle}>New Referral</Text>
           <View style={styles.boardM}>
@@ -617,7 +615,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   renderSavedFollowUp() {
     const followUp: Boolean = this.props.navigation.state.params.followUp;
-
     return (
         !followUp && <FollowUpScreen patientInfo = {this.props.navigation.state.params.patientInfo} navigation = {this.props.navigation} isDraft = {true}  />
     )

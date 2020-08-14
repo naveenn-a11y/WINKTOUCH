@@ -7,7 +7,7 @@ import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import RNBeep from 'react-native-a-beep';
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store } from './Types';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp } from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
@@ -87,6 +87,22 @@ export function allExamIds(visit: Visit) : string[] {
   if (!allExamIds) allExamIds = [];
   return allExamIds;
 }
+export async function fetchReferralFollowUpHistory(patientId: string) : FollowUp[] {
+      let parameters : {} = {};
+      let body : {} = {
+        'patientId': stripDataType(patientId),
+     };
+    let allFollowUp : FollowUp[] = [];
+    let response = await fetchWinkRest('webresources/followup/list', parameters, 'POST', body);
+    if (response) {
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        }
+        allFollowUp = response.followUp;
+    }
+    cacheItem('referralFollowUpHistory-'+patientId, allFollowUp);
+}
 
 export async function fetchVisitHistory(patientId: string) : string[] {
     const searchCriteria = {patientId: patientId};
@@ -97,6 +113,8 @@ export async function fetchVisitHistory(patientId: string) : string[] {
     const patientDocuments : PatientDocument[] = restResponse.patientDocumentList?restResponse.patientDocumentList:[];
     const patientDocumentIds : string[] = patientDocuments.map(patientDocument => patientDocument.id);
     const users : User[] = restResponse.userList;
+    const referralsFollowUp : FollowUp[] = await fetchReferralFollowUpHistory(patientId);
+
 //    customExams && customExams.forEach((exam: Exam) => overwriteExamDefinition(exam)); //TODO remove after beta
     cacheItemsById(customExams);
     cacheItemsById(visits);
@@ -104,6 +122,7 @@ export async function fetchVisitHistory(patientId: string) : string[] {
     cacheItemsById(users);
     cacheItem('visitHistory-'+patientId, visitIds);
     cacheItem('patientDocumentHistory-'+patientId, patientDocumentIds);
+
     return visitIds;
 }
 
@@ -380,6 +399,13 @@ class VisitWorkFlow extends Component {
     }
 
     componentDidUpdate(prevProps: any) {
+        const params = this.props.navigation.state.params; 
+      
+      if(params && params.refreshFollowUp) {
+        const patientInfo: PatientInfo =  this.props.navigation.state.params.patientInfo;
+        this.props.navigation.setParams({refreshFollowUp: false});
+        fetchReferralFollowUpHistory(patientInfo.id);
+      }
         const visit :Visit = getCachedItem(this.props.visitId);
         const rxToOrder = this.findRxToOrder(visit);
         if (this.props.visitId===prevProps.visitId && visit===this.state.visit && rxToOrder===this.state.rxToOrder) {
@@ -611,7 +637,6 @@ class VisitWorkFlow extends Component {
     }
 
     renderActionButtons() {
-      console.log("Patient INFOOO: " + JSON.stringify(this.props.navigation)); 
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
             {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
@@ -621,7 +646,7 @@ class VisitWorkFlow extends Component {
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
-            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId), patientInfo: this.props.navigation.state.params.patientInfo})}}/>}
+            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId), patientInfo: this.props.navigation.state.params.patientInfo, followUpStateKey: this.props.navigation.state.key})}}/>}
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
