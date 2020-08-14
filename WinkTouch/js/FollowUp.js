@@ -659,6 +659,9 @@ select(item: any, select: boolean|string) {
         groupedData.get(parentReferral).push(element);
       }
     }
+    
+    groupedData = new Map([...groupedData.entries()].sort(this.compareFollowUp));
+
     let finalResult : any = [];
     for (const [key, value] : any of groupedData.entries()) {
       const parent : FollowUp = key;
@@ -679,6 +682,10 @@ select(item: any, select: boolean|string) {
     return finalResult;
   }
 
+compareFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(a.id < b.id) return -1;
+  return 0;
+}
   renderItem = ({item, index}) => {
     return (
       <View style={styles.fieldFlexContainer}>
