@@ -398,13 +398,13 @@ class VisitWorkFlow extends Component {
         visit && this.loadUnstartedExamTypes(visit);
     }
 
-    componentDidUpdate(prevProps: any) {
+   async componentDidUpdate(prevProps: any) {
         const params = this.props.navigation.state.params; 
       
       if(params && params.refreshFollowUp) {
         const patientInfo: PatientInfo =  this.props.navigation.state.params.patientInfo;
         this.props.navigation.setParams({refreshFollowUp: false});
-        fetchReferralFollowUpHistory(patientInfo.id);
+        await fetchReferralFollowUpHistory(patientInfo.id);
       }
         const visit :Visit = getCachedItem(this.props.visitId);
         const rxToOrder = this.findRxToOrder(visit);
