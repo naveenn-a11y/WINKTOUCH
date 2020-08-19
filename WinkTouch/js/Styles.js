@@ -711,6 +711,22 @@ export const styles = StyleSheet.create({
         borderWidth: 2*fontScale,
         margin: 7 * fontScale
     },
+    followUpList1: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        minHeight: 260 * fontScale,
+        maxHeight: windowHeight-395*fontScale,
+        minWidth: 333 * fontScale,
+        margin: 7 * fontScale
+    },
+    followUpList2: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        minHeight: 260 * fontScale,
+        maxHeight: windowHeight-590*fontScale,
+        minWidth: 333 * fontScale,
+        margin: 7 * fontScale
+    },
     tabCard: {
         flexGrow: 100,
         padding: 10 * fontScale,
@@ -913,6 +929,7 @@ export const styles = StyleSheet.create({
         flex: 10,
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         padding: 10 * fontScale,
         backgroundColor: 'white',
         margin: 3 * fontScale
@@ -921,6 +938,7 @@ export const styles = StyleSheet.create({
         flex: 10,
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         padding: 10 * fontScale,
         backgroundColor: selectionColor,
         margin: 3 * fontScale
@@ -944,7 +962,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         fontSize: 18 * fontScale,
         flexWrap: 'nowrap',
-        textAlign: 'center',
+        textAlign: 'left',
         margin: 4 * fontScale
 
     },
@@ -953,7 +971,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         fontSize: 18 * fontScale,
         flexWrap: 'nowrap',
-        textAlign: 'center',
+        textAlign: 'left',
         margin: 4 * fontScale,
         color: selectionFontColor
 
@@ -1180,9 +1198,27 @@ export const styles = StyleSheet.create({
           width: 0.3
       }
     },
+  sideBarHorizontal: {
+      flexDirection: 'row',
+      minWidth:290 * fontScale,
+      maxWidth:600 * fontScale,
+      minHeight:50 * fontScale,
+      maxHeight:80 * fontScale,
+      margin: 7 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
+    },
     listSeparator: {
         backgroundColor: "#f0f0ff"
-    }
+    },
+
 });
 
 function cardStyle(color: Color) {

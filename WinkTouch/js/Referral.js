@@ -101,7 +101,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   componentWillUnmount() {
     this.unmounted = true;
   }
-
+  // We need to upgrade react-navigation to have this code working
+/*
+  componentDidMount() {
+  this.focusListener = this.props.navigation.addListener('didFocus', () => {
+        this.shouldStartReferral();
+  });
+  }
+*/
   async componentDidUpdate(prevProps: any) {
           if(!this.props.navigation.isFocused()) {
             const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
@@ -109,6 +116,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
                  await this.save();
             }
           }
+
     }
 
   mapImageWithBase64(template?:string) {
@@ -170,7 +178,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         const htmlContent : ReferralDocument = response;
         let htmlHeader: string = patientHeader();
         let htmlEnd: string = patientFooter();
-        template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?this.props.navigation.state.params.referral.referralTemplate.template : template;
+        template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&
+                   this.props.navigation.state.params.referral.referralTemplate &&!this.props.navigation.state.params.followUp)?this.props.navigation.state.params.referral.referralTemplate.template : template;
         referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
         this.updateFieldSubject(htmlContent.subject);
@@ -398,7 +407,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async email() : Promise<void> {
-      if(this.state.doctorId === undefined) {
+      if(this.state.doctorId === undefined || this.state.doctorId <= 0) {
           alert(strings.doctorReferralMissing);
           return;
       }
@@ -468,12 +477,13 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
 
   renderTemplateTool() {
+    console.log("DOCTOR ID: " + JSON.stringify(this.state.doctorId));
     return <View style={styles.sideBar}>
         <View style={styles.formRow}>
           <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
         </View>
          <View style={styles.formRow}>
-            <FormCode code="doctors" value={this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+            <FormCode code="doctors" value={this.state.doctorId<=0?"" : this.state.doctorId} showLabel={false} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
         </View>
         <View style={styles.formRow}>
           <View style={styles.formRowHeader}><Label value={strings.dynamicField}/></View>
@@ -601,7 +611,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Text style={styles.cardTitle}>New Referral</Text>
           <View style={styles.boardM}>
             <View style={styles.formRow}>
-              <FormCode code="doctors" value={this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+              <FormCode code="doctors" value={this.state.doctorId<=0?"" : this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
             </View>
           </View>
           <View style={styles.flow}>
