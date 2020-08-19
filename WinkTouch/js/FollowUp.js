@@ -193,7 +193,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
       let params = this.props.navigation.state.params; 
       if(params && params.refreshFollowUp) {
         this.props.navigation.setParams({refreshFollowUp: false});
-        await refreshList();
+        await this.refreshList();
       }
     }
 
