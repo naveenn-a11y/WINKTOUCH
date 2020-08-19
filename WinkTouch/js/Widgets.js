@@ -609,10 +609,16 @@ export class NumberField extends Component {
           if (this.props.prefix.endsWith('+')) {
             return this.props.prefix.substring(0, this.props.prefix.length-1) + value;
           } else {
-            return this.props.prefix + value;
+            value = value.toString();
+            if (value.startsWith(this.props.prefix)) {
+              value = value.substring(this.props.prefix.length);
+            } else {
+              return value.toString();
+            }
           }
+        } else {
+          return value.toString();
         }
-        return value.toString();
       }
 
       let formattedValue: string = (this.props.decimals!=undefined && this.props.decimals>0) ? Number(value).toFixed(this.props.decimals) : String(value);
