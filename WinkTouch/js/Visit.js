@@ -291,7 +291,7 @@ class FollowUpButton extends PureComponent {
     render() {
         return <TouchableOpacity onPress={this.props.onPress} testID='followUpTab'>
            <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
-               <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.followUpTitle}</Text>
+               <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.referral}</Text>
            </View>
         </TouchableOpacity>
     }

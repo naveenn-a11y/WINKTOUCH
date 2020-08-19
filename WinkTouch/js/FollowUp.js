@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
   TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { styles, fontScale, selectionColor } from './Styles';
+import { styles, fontScale, selectionColor, selectionFontColor, fieldBorderColor } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
 import { getAllCodes, getCodeDefinition } from './Codes';
@@ -25,6 +25,7 @@ import { strings } from './Strings';
 import {  getMimeType } from './Upload';
 import { printHtml, generatePDF } from './Print';
 import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const COMMAND = {
   RESEND: 0,
@@ -146,7 +147,11 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
           return;
       }
       let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      const selectedItem : Follow = this.state.selectedItem;
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(selectedItem.doctorId === undefined || selectedItem.doctorId <= 0 || isEmpty(selectedItem.doctorId)) {
+          alert(strings.doctorReferralMissing);
+          return;
+      }
       emailDefinition.to = selectedItem.from.email;
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.REPLY});
 
@@ -158,7 +163,11 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
           return;
       }
       let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      const selectedItem : Follow = this.state.selectedItem;
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(selectedItem.doctorId === undefined || selectedItem.doctorId <= 0 || isEmpty(selectedItem.doctorId)) {
+          alert(strings.doctorReferralMissing);
+          return;
+      }
       if(!isEmpty(selectedItem.faxedOn) && isEmpty(selectedItem.emailOn)) {
               emailDefinition.to = selectedItem.to.fax;
         } else {
@@ -183,12 +192,16 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
   async componentDidUpdate(prevProps: any) {
       let params = this.props.navigation.state.params; 
       if(params && params.refreshFollowUp) {
-        const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
         this.props.navigation.setParams({refreshFollowUp: false});
-        await fetchReferralFollowUpHistory(patientInfo.id);
-        this.loadFollowUp();
+        await refreshList();
       }
     }
+
+ async refreshList() {
+    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+    await fetchReferralFollowUpHistory(patientInfo.id);
+    this.loadFollowUp();
+ }
 
   async loadReferralStatusCode() {
     let parameters : {} = {};
@@ -354,11 +367,9 @@ async openFollowUp() {
     <View>
           {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
         <View style={style}>
-            <View style={styles.flow}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
-               onUpdateSelection={(value) => this.selectItem(value)}/>
-            </View>
-    </View>
+               onUpdateSelection= {(value) => this.selectItem(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}/>
+        </View>
         {this.renderButtons()}
        <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
         {this.renderPopup()}
@@ -369,13 +380,15 @@ async openFollowUp() {
     renderButtons() {
       let statusCode : CodeDefinition = this.state.selectedItem !== undefined ? getCodeDefinition('referralStatus',this.state.selectedItem.status) : undefined;
       const visit : Visit = this.state.selectedItem !== undefined ? getCachedItem(this.state.selectedItem.visitId) : undefined;
+      const isDraft : boolean = this.props.isDraft;
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
-           {this.state.selectedItem && this.shouldActivateReply() && <Button title={'Quick Reply'} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && visit && <Button title={'Follow Up'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && <Button title={'View'} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={'Quick Reply'} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && visit && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={'Edit'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
-           {this.state.selectedItem && this.shouldActivateResend() && <Button title={'Resend'} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem  && <Button title={'Forward'} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={'Resend'} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft  && <Button title={'Forward'} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
@@ -505,15 +518,18 @@ updateValue(value: any) {
     const style = this.props.selected ? styles.tableListTextSelected : styles.tableListText;
     const textStyle = this.props.rowValue.isParent ? [style, {fontWeight: 'bold'}] : style ;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
+    const commentStyle = [styles.formField, {minWidth:150 * fontScale}];
+
     return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
+        <Icon name={this.props.rowValue.isOutgoing ? 'call-made' : 'call-received'} color={selectionFontColor}/>
         <Text style={textStyle}>{this.props.rowValue.ref}</Text>
         <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
         <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
            onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-        <TextInput returnKeyType='done' placeholder={'comment:'} autoCorrect={false} autoCapitalize='none' style={textStyle}
+        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={commentStyle}
       value={this.state.commentValue} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
       onChangeText={(text: string) => this.changeText(text)} testID={this.props.fieldId+'.filter'}
      />
@@ -533,8 +549,10 @@ export class TableList extends React.PureComponent {
     simpleSelect?: boolean,
     onUpdateSelection: (selection: ?(string[] | string)) => void,
     onUpdate: (item: ?any) => void,
+    isDraft?: boolean,
+    fieldId: string,
+    onRefreshList: () => void,
 
-    fieldId: string
   }
 
   state: {
@@ -543,8 +561,14 @@ export class TableList extends React.PureComponent {
     item: any,
     options: string[],
     groupBy: ?string,
-    groupedData: any[]
-
+    groupedData: any[],
+    refHeaderSelected: boolean,
+    fromHeaderSelected: boolean,
+    toHeaderSelected: boolean,
+    dateHeaderSelected: boolean,
+    statusHeaderSelected: boolean,
+    commentHeaderSelected: boolean,
+    refreshing: boolean
   }
 
   static defaultProps = {
@@ -560,9 +584,16 @@ export class TableList extends React.PureComponent {
       searchable: this.isSearchable(this.props.items),
       filter: '',
       item: {},
-      options: ['Date', 'Referral'],
+      options: ['Date', 'Referral', 'From', 'To', 'Status', 'Comment'],
       groupBy: undefined,
-      groupedData: []
+      groupedData: [],
+      refHeaderSelected: false,
+      fromHeaderSelected: false,
+      toHeaderSelected: false,
+      dateHeaderSelected: false,
+      statusHeaderSelected: false,
+      commentHeaderSelected: false,
+      refreshing: false
     }
 
   }
@@ -594,8 +625,16 @@ select(item: any, select: boolean|string) {
     let data : any[] = [...this.props.items];
     if(this.state.groupBy === 'Referral') {
       data = this.groupByReferral();
-    } else {
+    } else if(this.state.groupBy === 'Date') {
       data = this.groupByDate();
+    } else if(this.state.groupBy === 'From') {
+      data = this.groupByFrom();
+    } else if(this.state.groupBy === 'To') {
+      data = this.groupByTo();
+    } else if(this.state.groupBy === 'Status') {
+      data = this.groupByStatus();
+    } else if(this.state.groupBy === 'Comment') {
+      data = this.groupByComment();
     }
 
     const filter : ?string = this.state.filter!==undefined&&this.state.filter!==""?deAccent(this.state.filter.trim().toLowerCase()):undefined;
@@ -632,17 +671,46 @@ select(item: any, select: boolean|string) {
      return parentReferral;
   }
 
-  groupByDate() {
+  resetItems() : any {
     if(!this.props.items) return ;
     let data : any[] = [...this.props.items];
     data.map((followUp: FollowUp, index: number) => {
-      followUp.ref = followUp.id;
+      followUp.ref = followUp.ref.trim();
       followUp.isParent = false;
     });
     return data;
   }
+  groupByDate() : any{
+    let data : any[] = this.resetItems();
+    data.sort(this.compareDateFollowUp);
+    return data;
+  }
 
-  groupByReferral() {
+  groupByFrom() {
+    let data : any[] = this.resetItems();
+    data.sort(this.compareFromFollowUp);
+    return data;
+  }
+  
+  groupByTo() {
+    let data : any[] = this.resetItems();
+    data.sort(this.compareToFollowUp);
+    return data;
+  }
+
+  groupByStatus() {
+    let data : any[] = this.resetItems();
+    data.sort(this.compareStatusFollowUp);
+    return data;
+  }
+
+  groupByComment() {
+    let data : any[] = this.resetItems();
+    data.sort(this.compareCommentFollowUp);
+    return data;
+  }
+
+  groupByReferral() : any {
     if(!this.props.items) return ;
     let groupedData : any = new Map();
     let data : any[] = [...this.props.items];
@@ -667,13 +735,12 @@ select(item: any, select: boolean|string) {
       const parent : FollowUp = key;
       const childs : FollowUp[] = value;
       const parentId : string = parent.id;
-      parent.ref = "+ " + parent.id;
       parent.isParent = true;
       finalResult.push(parent);
       const finalChilds : FollowUp[] = childs.filter((v,i) => stripDataType(v.id) !== stripDataType(parentId));
       for(const childElement : FollowUp of finalChilds) {
         if(stripDataType(childElement.id) !== stripDataType(parentId)) {
-          childElement.ref = "   -     " + childElement.id;
+          childElement.ref = "        " + childElement.ref;
           childElement.isParent = false;
           finalResult.push(childElement);
         }
@@ -684,7 +751,75 @@ select(item: any, select: boolean|string) {
 
 compareFollowUp(a: FollowUp, b: FollowUp) : number {
   if(a.id < b.id) return -1;
+  else if(a.id > b.id) return 1;
   return 0;
+}
+
+compareFromFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(b.from.name.toLowerCase() < a.from.name.toLowerCase()) return -1;
+  else if(b.from.name.toLowerCase() > a.from.name.toLowerCase()) return 1;
+  return 0;
+}
+compareToFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(b.to.name.toLowerCase() < a.to.name.toLowerCase()) return -1;
+  else if(b.to.name.toLowerCase() > a.to.name.toLowerCase()) return 1;
+  return 0;
+}
+compareDateFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(b.date < a.date) return -1;
+  else if(b.date > a.date) return 1;
+  return 0;
+}
+compareStatusFollowUp(a: FollowUp, b: FollowUp) : number {
+  const aStatusCode : CodeDefinition = getCodeDefinition('referralStatus',a.status) ;
+  const bStatusCode : CodeDefinition = getCodeDefinition('referralStatus',b.status) ;
+
+  if(aStatusCode === undefined || bStatusCode === undefined) return -1;
+  if(bStatusCode.description.toLowerCase() <aStatusCode.description.toLowerCase()) return -1;
+  else if(bStatusCode.description.toLowerCase() > aStatusCode.description.toLowerCase()) return 1;
+  return 0;
+}
+
+compareCommentFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(isEmpty(b.comment) && !isEmpty(a.comment))   return -10;
+  if(isEmpty(a.comment) && !isEmpty(b.comment))   return 10;
+  if(isEmpty(a.comment) && isEmpty(b.comment))   return 0;
+
+  if(b.comment.toLowerCase() < a.comment.toLowerCase()) return -1;
+  else if(b.comment.toLowerCase() > a.comment.toLowerCase()) return 1;
+  return 0;
+}
+
+orderByRef() {
+    this.setState({groupBy: 'Referral', refHeaderSelected: true, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
+                   statusHeaderSelected: false, commentHeaderSelected: false })
+}
+orderByDate() {
+    this.setState({groupBy: 'Date', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: true,
+                  statusHeaderSelected: false, commentHeaderSelected: false })
+}
+orderByFrom() {
+    this.setState({groupBy: 'From', refHeaderSelected: false, fromHeaderSelected: true, toHeaderSelected: false, dateHeaderSelected: false,
+                   statusHeaderSelected: false, commentHeaderSelected: false})
+} 
+orderByTo() {
+    this.setState({groupBy: 'To', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: true, dateHeaderSelected: false,
+                   statusHeaderSelected: false, commentHeaderSelected: false})
+}
+orderByStatus() {
+    this.setState({groupBy: 'Status', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
+                   statusHeaderSelected: true, commentHeaderSelected: false})
+}
+orderByComment() {
+    this.setState({groupBy: 'Comment', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
+                   statusHeaderSelected: false, commentHeaderSelected: true})
+}     
+
+async handleRefresh() {
+  this.setState({refreshing: true});
+  await this.props.onRefreshList();
+  this.setState({refreshing: false});
+
 }
   renderItem = ({item, index}) => {
     return (
@@ -694,15 +829,17 @@ compareFollowUp(a: FollowUp, b: FollowUp) : number {
     );
   }
   renderFilterField() {
+    const style = [styles.searchField, {minWidth: 350 * fontScale}];
+
     return(
-         <TextInput returnKeyType='search' placeholder={strings.findRow} autoCorrect={false} autoCapitalize='none' style={styles.searchField}
+         <TextInput returnKeyType='search' placeholder={strings.findRow} autoCorrect={false} autoCapitalize='none' style={style}
       value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})} testID={this.props.fieldId+'.filter'}
      />
     )} 
 
   renderGroupField() {
     const options: string[] =  this.state.options;
-    const style = [styles.searchField, {marginTop: 10}];
+    const style = [styles.searchField, {marginLeft: 10}];
     return(
               <TilesField label='Group By'
                 options={options}
@@ -713,18 +850,21 @@ compareFollowUp(a: FollowUp, b: FollowUp) : number {
 
     )}
   renderHeader() {
+    const style = [styles.formTableColumnHeader, {textAlign: 'left'}];
+    const styleText = [styles.text, {fontSize: 26 * fontScale}];
+    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale}];
+    const commentStyle = [style, {minWidth:150 * fontScale}];
+
     return (
-    
-    <View style={styles.centeredColumnLayout}>
      <View style={styles.listRow}>
-      <Text style={styles.formTableColumnHeader}>{'Ref'}</Text>
-      <Text style={styles.formTableColumnHeader}>{'From'}</Text>
-      <Text style={styles.formTableColumnHeader}>{'To'}</Text>
-      <Text style={styles.formTableColumnHeader}>{'Date'}</Text>
-      <Text style={styles.formTableColumnHeader}>{'Status'}</Text>
-      <Text style={styles.formTableColumnHeader}>{'Comment'}</Text>
+      <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View><Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}><View><Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}><View><Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}><View><Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}><View><Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}><View><Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text></View></TouchableOpacity>
        </View>
-      </View>
 
     );
   }
@@ -737,10 +877,16 @@ compareFollowUp(a: FollowUp, b: FollowUp) : number {
   }
   render() {
     let data : any[] = this.getItems(); 
-  const sideBarCustomStyle = [styles.sideBar, {minWidth: 200 * fontScale, maxWidth:300 * fontScale}];
+  const sideBarCustomStyle = [styles.sideBarHorizontal, {minWidth: 200 * fontScale, maxWidth:600 * fontScale}];
+  const tabCardCustomStyle = [styles.tabCardFollowUp1, {maxHeight: 400, borderWidth: 0}];
+  const style = this.props.isDraft ? styles.followUpList2 : styles.followUpList1;
 
     return (
- <View style={styles.flow}>
+ <View >
+  <View style={styles.formRow}>
+    {this.renderFilterField()}
+   </View>
+     <View style={style}>
       <FlatList
         initialNumToRender={5}
         data={data}
@@ -749,14 +895,13 @@ compareFollowUp(a: FollowUp, b: FollowUp) : number {
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
                                 onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)}/>}
                                 ListHeaderComponent = {this.renderHeader()}
-      />
+      refreshing = {this.state.refreshing}
+      onRefresh = {() => this.handleRefresh()}
 
-    <View style={sideBarCustomStyle}>
-    {this.renderFilterField()}
-    {this.renderGroupField(
-      
-    )}
-    </View>
+      />
+   </View>
+
+
     </View>
 
     );
