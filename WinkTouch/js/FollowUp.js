@@ -383,12 +383,12 @@ async openFollowUp() {
       const isDraft : boolean = this.props.isDraft;
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
-           {this.state.selectedItem && <Button title={'View'} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={'Quick Reply'} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && visit && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
-           {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={'Edit'} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
-           {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={'Resend'} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft  && <Button title={'Forward'} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
@@ -439,6 +439,9 @@ async openFollowUp() {
            {this.renderFollowUp()}
          </View>
     }
+    else if(!this.props.isDraft)
+    return <Text>{strings.noDataFound}</Text>;
+
     return null;
   }
 }

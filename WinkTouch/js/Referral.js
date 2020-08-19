@@ -100,7 +100,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   componentWillUnmount() {
     this.unmounted = true;
-    this.focusListener.remove();
   }
   // We need to upgrade react-navigation to have this code working
 /*
