@@ -103,7 +103,7 @@ export class DocumentScanner extends Component {
       <View style={styles.popupFullScreen}>
         <TouchableWithoutFeedback onPress={this.props.onCancel}>
           <View style={styles.modalCamera}>
-          {this.state.saving===true && <ActivityIndicator ize="large" />}
+          {this.state.saving===true && <ActivityIndicator size="large" />}
           {this.state.saving===false && this.state.image!==undefined && <Image style={styles.bigImage} source={{ uri: `data:image/jpeg;base64,${this.state.image}`}} resizeMode="contain" />}
           {this.state.saving===false && this.state.image===undefined && <Scanner
               useBase64={true}
