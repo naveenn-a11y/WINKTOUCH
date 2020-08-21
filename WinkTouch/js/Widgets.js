@@ -503,7 +503,6 @@ export class NumberField extends Component {
       //remove prefix
       if (this.props.prefix && this.props.prefix!='+') {
         if (value.startsWith && value.startsWith(this.props.prefix)) {
-          __DEV__ && console.log('removing prefix before splitting value');
           value=value.substring(this.props.prefix.length);
         }
       }

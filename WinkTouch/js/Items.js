@@ -160,6 +160,28 @@ export function formatPrefix(fieldDefinition: FieldDefinition|GroupDefinition, v
       return '';
     }
     if (fieldDefinition.prefix==='+') return '';
+    if (value && value.startsWith && value.startsWith(fieldDefinition.prefix)) {
+      return '';
+    }
+    if (fieldDefinition.minValue!=undefined && fieldDefinition.maxValue!=undefined) {
+      //TODO: This is copy paste form NumberField in Widgets.js !
+      if (isNaN(value)) {
+        if (fieldDefinition.prefix!='+') {
+          let formattedValue : string = value.toString();
+          let freeType : boolean = false;
+          for (let i=0; i< formattedValue.length; i++) {
+            const character : char = formattedValue.charAt(i);
+            if ('0123456789.-+'.includes(character)===false) {
+              freeType = true;
+              break;
+            }
+          }
+          if (freeType) {
+            return '';
+          }
+        }
+      }
+    }
     return fieldDefinition.prefix;
 }
 
