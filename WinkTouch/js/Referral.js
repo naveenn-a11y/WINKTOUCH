@@ -6,9 +6,9 @@
 import type { Visit } from './Types';
 
 import React, { Component } from 'react';
-import { View, Text, ScrollView, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, ScrollView, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { styles } from './Styles';
+import { styles, selectionColor } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
 import { getAllCodes, getCodeDefinition } from './Codes';
@@ -68,6 +68,7 @@ type ReferralScreenState = {
   hasSignatureField: ? boolean,
   isDirty: boolean,
   followUpStateKey: string,
+  isLoading: boolean
 
 };
 
@@ -92,7 +93,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       hasSignatureField: false,
       doctorId: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?stripDataType(this.props.navigation.state.params.referral.doctorId):undefined,
       isDirty: false,
-      followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined
+      followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined,
+      isLoading: false
       }
     this.unmounted = false;
 
@@ -134,7 +136,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        return template;
   }
   async startReferral(template?: string) {
-
+    this.setState({ isLoading: true });
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     const allExams : string[] = allExamIds(visit);
@@ -186,10 +188,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         this.updateFieldBody(htmlContent.body);
         this.updateSignatureState(htmlContent.content);
         this.setState({template, htmlDefinition});
-
-
       }
     }
+    this.setState({ isLoading: false });
+
   }
 
 
@@ -477,7 +479,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
 
   renderTemplateTool() {
-    console.log("DOCTOR ID: " + JSON.stringify(this.state.doctorId));
     return <View style={styles.sideBar}>
         <View style={styles.formRow}>
           <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
@@ -623,6 +624,20 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     )
   }
 
+  renderLoading() {
+    if(this.state.isLoading) {
+    return(
+      <Modal visible={this.state.isLoading} transparent={true} animationType={'none'} onRequestClose={this.cancelEdit}>
+             <View style={[styles.popupBackground,{justifyContent: 'center', alignItems: 'center'}]}>
+          {this.state.isLoading && <ActivityIndicator size="large" color={selectionColor} />}
+            </View>
+      </Modal>
+
+    )
+    }
+    return null;
+  }
+
   renderSavedFollowUp() {
     const followUp: Boolean = this.props.navigation.state.params.followUp;
     return (
@@ -659,8 +674,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
    render() {
     let doctorReferral : ReferralDefinition = this.state.doctorReferral;
     this.shouldStartReferral();
-
     return <View style={styles.page}>
+      {this.renderLoading()}
       {(this.state.template || (doctorReferral && doctorReferral.id)) ?this.renderEditor():this.renderTemplates()}
     </View>
   }
