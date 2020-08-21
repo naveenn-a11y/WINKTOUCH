@@ -571,7 +571,8 @@ export class TableList extends React.PureComponent {
     dateHeaderSelected: boolean,
     statusHeaderSelected: boolean,
     commentHeaderSelected: boolean,
-    refreshing: boolean
+    refreshing: boolean,
+    orderDesc: boolean
   }
 
   static defaultProps = {
@@ -596,13 +597,15 @@ export class TableList extends React.PureComponent {
       dateHeaderSelected: false,
       statusHeaderSelected: false,
       commentHeaderSelected: false,
-      refreshing: false
+      refreshing: false,
+      orderDesc: false 
     }
 
   }
 
   componentDidMount() {
     if(this.state.groupBy === undefined) {
+      this.orderByDate();
       this.setState({groupBy: this.state.options[0]});
     }
   }
@@ -638,6 +641,9 @@ select(item: any, select: boolean|string) {
       data = this.groupByStatus();
     } else if(this.state.groupBy === 'Comment') {
       data = this.groupByComment();
+    }
+    if(!this.state.orderDesc) {
+      data.reverse();
     }
 
     const filter : ?string = this.state.filter!==undefined&&this.state.filter!==""?deAccent(this.state.filter.trim().toLowerCase()):undefined;
@@ -776,8 +782,9 @@ compareDateFollowUp(a: FollowUp, b: FollowUp) : number {
 compareStatusFollowUp(a: FollowUp, b: FollowUp) : number {
   const aStatusCode : CodeDefinition = getCodeDefinition('referralStatus',a.status) ;
   const bStatusCode : CodeDefinition = getCodeDefinition('referralStatus',b.status) ;
-
-  if(aStatusCode === undefined || bStatusCode === undefined) return -1;
+  console.log("A STATUS: " + JSON.stringify(aStatusCode));
+  console.log("B STATUS: " + JSON.stringify(bStatusCode));
+  if(aStatusCode === undefined || bStatusCode === undefined) return 0;
   if(bStatusCode.description.toLowerCase() <aStatusCode.description.toLowerCase()) return -1;
   else if(bStatusCode.description.toLowerCase() > aStatusCode.description.toLowerCase()) return 1;
   return 0;
@@ -792,30 +799,58 @@ compareCommentFollowUp(a: FollowUp, b: FollowUp) : number {
   else if(b.comment.toLowerCase() > a.comment.toLowerCase()) return 1;
   return 0;
 }
+updateOrder() {
+    const order : boolean = this.state.orderDesc;
+    this.setState({orderDesc: !order});
+}
 
 orderByRef() {
+   if(!this.state.refHeaderSelected) {
     this.setState({groupBy: 'Referral', refHeaderSelected: true, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false })
+                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+   } 
+
 }
 orderByDate() {
+    if(!this.state.dateHeaderSelected) {
     this.setState({groupBy: 'Date', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: true,
-                  statusHeaderSelected: false, commentHeaderSelected: false })
+                  statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+  } else {
+     this.updateOrder();
+   }
 }
 orderByFrom() {
+   if(!this.state.fromHeaderSelected) {
     this.setState({groupBy: 'From', refHeaderSelected: false, fromHeaderSelected: true, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false})
+                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+   } else {
+     this.updateOrder();
+   }
 } 
 orderByTo() {
+   if(!this.state.toHeaderSelected) {
     this.setState({groupBy: 'To', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: true, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false})
+                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+   } else {
+      this.updateOrder();
+   }
+
 }
 orderByStatus() {
+  if(!this.state.statusHeaderSelected) {
     this.setState({groupBy: 'Status', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: true, commentHeaderSelected: false})
+                   statusHeaderSelected: true, commentHeaderSelected: false, orderDesc: true})
+  } else {
+      this.updateOrder();
+   }
 }
 orderByComment() {
+  if(!this.state.commentHeaderSelected) {
     this.setState({groupBy: 'Comment', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: true})
+                   statusHeaderSelected: false, commentHeaderSelected: true, orderDesc: true})
+  } else {
+    this.updateOrder();
+  }
 }     
 
 async handleRefresh() {
@@ -855,18 +890,44 @@ async handleRefresh() {
   renderHeader() {
     const style = [styles.formTableColumnHeader, {textAlign: 'left'}];
     const styleText = [styles.text, {fontSize: 26 * fontScale}];
-    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale}];
+    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale, textAlign: "left"}];
     const commentStyle = [style, {minWidth:150 * fontScale}];
 
     return (
      <View style={styles.listRow}>
       <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View><Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}><View><Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}><View><Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}><View><Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}><View><Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}><View><Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View>
+      <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}>
+      <View style = {styles.formRow}>
+        {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        <Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}>
+      <View style = {styles.formRow}>
+        {this.state.toHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        <Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}>
+      <View style = {styles.formRow}>
+      {this.state.dateHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+      <Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}>
+      <View style = {styles.formRow}>
+      {this.state.statusHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+      <Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}>
+      <View style = {styles.formRow}>
+       {this.state.commentHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+       <Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text>
+       </View>
+       </TouchableOpacity>
        </View>
 
     );
@@ -898,6 +959,7 @@ async handleRefresh() {
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
                                 onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)}/>}
                                 ListHeaderComponent = {this.renderHeader()}
+                                stickyHeaderIndices={[0]}
       refreshing = {this.state.refreshing}
       onRefresh = {() => this.handleRefresh()}
 
