@@ -87,9 +87,8 @@ export function formatValue(value: ?string|?number|?string[]|?number[], fieldDef
     }
     return formattedValue;
   } else if (typeof value==='number') {
-    let decimals : number = fieldDefinition.decimals;
-    if (decimals===undefined || decimals===0 || decimals<0) decimals = 0;
-    let formattedValue : string = value.toFixed(decimals);
+    let decimals : ?number = fieldDefinition.decimals;  
+    let formattedValue : string = (decimals===undefined || decimals===null || decimals<0)?value.toString():value.toFixed(decimals);
     if (fieldDefinition.prefix==='+' && !formattedValue.startsWith('-') && !formattedValue.startsWith('+')) {
       formattedValue = '+'+formattedValue;
     }
