@@ -189,7 +189,7 @@ export const strings = new LocalizedStrings({
       edit: 'Edit',
       resend: 'Resend',
       forward: 'Forward',
-      noDataFound: 'Nothing to show !'
+      noDataFound: 'No Existing Referral Letter !'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
