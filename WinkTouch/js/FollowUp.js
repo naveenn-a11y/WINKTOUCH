@@ -381,7 +381,7 @@ async openFollowUp() {
       let statusCode : CodeDefinition = this.state.selectedItem !== undefined ? getCodeDefinition('referralStatus',this.state.selectedItem.status) : undefined;
       const visit : Visit = this.state.selectedItem !== undefined ? getCachedItem(this.state.selectedItem.visitId) : undefined;
       const isDraft : boolean = this.props.isDraft;
-      return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
+      return <View style={{paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
            {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
@@ -456,7 +456,8 @@ export class TableListRow extends React.PureComponent {
     maxLength?: number,
     simpleSelect?: boolean,
     testID: string,
-    backgroundColor: string
+    backgroundColor: string,
+    readonly: boolean
   }
   state: {
     commentValue: string
@@ -531,8 +532,8 @@ updateValue(value: any) {
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
         <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
-           onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={commentStyle}
+           onChangeValue={(code: ?string|?number) => this.updateValue(code)} readonly = {this.props.readonly} />
+        <TextInput returnKeyType='done' editable={!this.props.readonly} autoCorrect={false} autoCapitalize='none' style={commentStyle}
       value={this.state.commentValue} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
       onChangeText={(text: string) => this.changeText(text)} testID={this.props.fieldId+'.filter'}
      />
@@ -782,8 +783,6 @@ compareDateFollowUp(a: FollowUp, b: FollowUp) : number {
 compareStatusFollowUp(a: FollowUp, b: FollowUp) : number {
   const aStatusCode : CodeDefinition = getCodeDefinition('referralStatus',a.status) ;
   const bStatusCode : CodeDefinition = getCodeDefinition('referralStatus',b.status) ;
-  console.log("A STATUS: " + JSON.stringify(aStatusCode));
-  console.log("B STATUS: " + JSON.stringify(bStatusCode));
   if(aStatusCode === undefined || bStatusCode === undefined) return 0;
   if(bStatusCode.description.toLowerCase() <aStatusCode.description.toLowerCase()) return -1;
   else if(bStatusCode.description.toLowerCase() > aStatusCode.description.toLowerCase()) return 1;
@@ -957,7 +956,7 @@ async handleRefresh() {
         extraData={{filter: this.state.filter, selection: this.state.item}}
         renderItem={(item, index) => <TableListRow rowValue={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)} backgroundColor ={item.index%2===0 ? '#F9F9F9' :'#FFFFFF'}
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
-                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)}/>}
+                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}/>}
                                 ListHeaderComponent = {this.renderHeader()}
                                 stickyHeaderIndices={[0]}
       refreshing = {this.state.refreshing}

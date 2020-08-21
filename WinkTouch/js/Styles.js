@@ -691,7 +691,7 @@ export const styles = StyleSheet.create({
         flexGrow: 100,
         padding: 10 * fontScale,
         paddingBottom: 40 * fontScale,
-        minHeight: 260 * fontScale,
+        minHeight: 200 * fontScale,
         maxHeight: windowHeight-295*fontScale,
         minWidth: 333 * fontScale,
         borderRadius: 30 * fontScale,
@@ -703,8 +703,8 @@ export const styles = StyleSheet.create({
         flexGrow: 100,
         padding: 10 * fontScale,
         paddingBottom: 40 * fontScale,
-        minHeight: 260 * fontScale,
-        maxHeight: windowHeight-490*fontScale,
+        minHeight: 200 * fontScale,
+        maxHeight: windowHeight-550*fontScale,
         minWidth: 333 * fontScale,
         borderRadius: 30 * fontScale,
         borderColor: selectionFontColor,
@@ -714,7 +714,7 @@ export const styles = StyleSheet.create({
     followUpList1: {
         flexGrow: 100,
         padding: 10 * fontScale,
-        minHeight: 260 * fontScale,
+        minHeight: 200 * fontScale,
         maxHeight: windowHeight-395*fontScale,
         minWidth: 333 * fontScale,
         margin: 7 * fontScale
@@ -722,8 +722,8 @@ export const styles = StyleSheet.create({
     followUpList2: {
         flexGrow: 100,
         padding: 10 * fontScale,
-        minHeight: 260 * fontScale,
-        maxHeight: windowHeight-590*fontScale,
+        minHeight: 200 * fontScale,
+        maxHeight: windowHeight-650*fontScale,
         minWidth: 333 * fontScale,
         margin: 7 * fontScale
     },
