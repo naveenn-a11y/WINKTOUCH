@@ -87,9 +87,8 @@ export function formatValue(value: ?string|?number|?string[]|?number[], fieldDef
     }
     return formattedValue;
   } else if (typeof value==='number') {
-    let decimals : number = fieldDefinition.decimals;
-    if (decimals===undefined || decimals===0 || decimals<0) decimals = 0;
-    let formattedValue : string = value.toFixed(decimals);
+    let decimals : ?number = fieldDefinition.decimals;  
+    let formattedValue : string = (decimals===undefined || decimals===null || decimals<0)?value.toString():value.toFixed(decimals);
     if (fieldDefinition.prefix==='+' && !formattedValue.startsWith('-') && !formattedValue.startsWith('+')) {
       formattedValue = '+'+formattedValue;
     }
@@ -160,6 +159,28 @@ export function formatPrefix(fieldDefinition: FieldDefinition|GroupDefinition, v
       return '';
     }
     if (fieldDefinition.prefix==='+') return '';
+    if (value && value.startsWith && value.startsWith(fieldDefinition.prefix)) {
+      return '';
+    }
+    if (fieldDefinition.minValue!=undefined && fieldDefinition.maxValue!=undefined) {
+      //TODO: This is copy paste form NumberField in Widgets.js !
+      if (isNaN(value)) {
+        if (fieldDefinition.prefix!='+') {
+          let formattedValue : string = value.toString();
+          let freeType : boolean = false;
+          for (let i=0; i< formattedValue.length; i++) {
+            const character : char = formattedValue.charAt(i);
+            if ('0123456789.-+'.includes(character)===false) {
+              freeType = true;
+              break;
+            }
+          }
+          if (freeType) {
+            return '';
+          }
+        }
+      }
+    }
     return fieldDefinition.prefix;
 }
 

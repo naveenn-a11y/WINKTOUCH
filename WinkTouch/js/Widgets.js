@@ -500,7 +500,13 @@ export class NumberField extends Component {
     splitValue(value: number|string, fractions: string[]) : (?string)[] {
       if (value===undefined || value===null) return [undefined, undefined, undefined, undefined, undefined];
       //TODO check if value is an option
-      //remove suffix
+      //remove prefix
+      if (this.props.prefix && this.props.prefix!='+') {
+        if (value.startsWith && value.startsWith(this.props.prefix)) {
+          value=value.substring(this.props.prefix.length);
+        }
+      }
+      //parse suffix
       let suffix : ?string = undefined;
       if (this.props.suffix!==undefined && value.toLowerCase && fractions[4]!==undefined) {
         for (let i : number = 0; i<fractions[4].length ; i++) {
@@ -601,18 +607,26 @@ export class NumberField extends Component {
         });
         if(!isEmpty(formattedValue))
           value = formattedValue.replace(/\/\s*$/, "");
-       }
+      }
+      if (this.props.options instanceof Array && this.props.options.includes(value)) {
+        return value;
+      }
       if (isNaN(value)) {
-        if (this.props.options instanceof Array && this.props.options.includes(value)) {
-          return value;
-        } else if (this.props.prefix) {
-          if (this.props.prefix.endsWith('+')) {
-            return this.props.prefix.substring(0, this.props.prefix.length-1) + value;
-          } else {
-            return this.props.prefix + value;
+        let formattedValue : string = value.toString();
+        if (this.props.prefix && this.props.prefix!='+') {
+          let freeType : boolean = false;
+          for (let i=0; i< formattedValue.length; i++) {
+            const character : char = formattedValue.charAt(i);
+            if ('0123456789.-+'.includes(character)===false) {
+              freeType = true;
+              break;
+            }
+          }
+          if (!freeType) {
+            formattedValue = this.props.prefix + formattedValue;
           }
         }
-        return value.toString();
+        return formattedValue;
       }
 
       let formattedValue: string = (this.props.decimals!=undefined && this.props.decimals>0) ? Number(value).toFixed(this.props.decimals) : String(value);
@@ -790,7 +804,7 @@ export class NumberField extends Component {
         </View>
       }
       if (this.state.isTyping) {
-        const formattedValue = this.props.value?this.props.value.toString():'';
+        const formattedValue : string = this.props.value?this.props.value.toString():'';
         return <TextField value={formattedValue} ref='field'
           autoFocus={this.props.autoFocus || this.props.isTyping!==true}
           style={style}
