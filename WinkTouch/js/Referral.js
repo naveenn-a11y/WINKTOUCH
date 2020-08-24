@@ -36,11 +36,6 @@ export function isReferralsEnabled() : boolean {
   return true;
 }
 
-let referralHtml : string = "";
-
-export function setReferralHtml(html: string) {
-  referralHtml = html;
-}
 
 const COMMAND = {
   EMAIL: 0,
@@ -68,8 +63,8 @@ type ReferralScreenState = {
   hasSignatureField: ? boolean,
   isDirty: boolean,
   followUpStateKey: string,
-  isLoading: boolean
-
+  isLoading: boolean,
+  referralHtml: string
 };
 
 
@@ -94,7 +89,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       doctorId: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral)?stripDataType(this.props.navigation.state.params.referral.doctorId):undefined,
       isDirty: false,
       followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined,
-      isLoading: false
+      isLoading: false,
+      referralHtml: ''
       }
     this.unmounted = false;
 
@@ -122,6 +118,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     }
 
   mapImageWithBase64(template?:string) {
+      let referralHtml : string = this.state.referralHtml;
       const imageBase64Definition : ImageBase64Definition[] = getImageBase64Definition();
       if(imageBase64Definition) {
           for(const base64Image : ImageBase64Definition of imageBase64Definition) {
@@ -132,6 +129,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               referralHtml = referralHtml.replace(regex, base64Image.value);
             }
           }
+        }
+        if(referralHtml !== this.state.referralHtml) {
+          this.setState(referralHtml);
         }
        return template;
   }
@@ -182,12 +182,12 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let htmlEnd: string = patientFooter();
         template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&
                    this.props.navigation.state.params.referral.referralTemplate &&!this.props.navigation.state.params.followUp)?this.props.navigation.state.params.referral.referralTemplate.template : template;
-        referralHtml = htmlHeader + htmlContent.content + htmlEnd;
+        const referralHtml = htmlHeader + htmlContent.content + htmlEnd;
         this.mapImageWithBase64();
         this.updateFieldSubject(htmlContent.subject);
         this.updateFieldBody(htmlContent.body);
         this.updateSignatureState(htmlContent.content);
-        this.setState({template, htmlDefinition});
+        this.setState({template, htmlDefinition, referralHtml});
       }
     }
     this.setState({ isLoading: false });
@@ -259,6 +259,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if(isEmpty(key)) {
       return;
     }
+    this.setState({ isLoading: true });
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     let htmlDefinition : HtmlDefinition[] = this.state.htmlDefinition;
@@ -273,6 +274,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
+              this.setState({ isLoading: false });
               return;
         }
         const htmlContent : ReferralDocument = response;
@@ -283,6 +285,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         this.updateSignatureState(html);
         this.updateReferral();
       }
+    this.setState({ isLoading: false });
+
   }
 
   async updateSignatureState(html: string) {
@@ -298,6 +302,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async sign() : Promise<void> {
+    this.setState({ isLoading: true });
     let html = await this.editor.getContent();
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -308,15 +313,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      };
 
     let response = await fetchWinkRest('webresources/template/sign', parameters, 'POST', body);
+    this.setState({ isLoading: false });
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
         } else {
             const htmlContent : ReferralDocument = response;
-            referralHtml = htmlContent.content;
+            const referralHtml = htmlContent.content;
             this.editor.setContent(referralHtml);
             this.updateSignatureState(referralHtml);
-            this.setState({command: COMMAND.SIGN});
+            this.setState({command: COMMAND.SIGN, referralHtml: referralHtml});
             await this.save();
           }
       }
@@ -533,7 +539,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <HtmlEditor
             style={styles.page}
             ref={ref => this.editor = ref}
-            value={referralHtml}
+            value={this.state.referralHtml}
           />
       </View>
       {this.renderTemplateTool()}
@@ -666,7 +672,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
            this.setState({doctorId: stripDataType(this.props.navigation.state.params.referral.doctorId)});
        }
      }
-     if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty) {
+     if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty && isEmpty(this.state.referralHtml)) {
           this.startReferral();
       }
   } 
