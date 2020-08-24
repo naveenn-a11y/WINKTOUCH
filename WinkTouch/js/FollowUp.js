@@ -342,7 +342,7 @@ async openFollowUp() {
   
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
-      if((selectedItem.isOutgoing || (statusCode && statusCode.status ==2))) {
+      if(selectedItem.isOutgoing && (statusCode && statusCode.status ==2 || statusCode.status ==0)) {
         return true;
       }
       return false;
@@ -354,11 +354,12 @@ async openFollowUp() {
   
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
-      if((!selectedItem.isOutgoing || (statusCode && statusCode.status ==3))) {
+      if(!selectedItem.isOutgoing && (statusCode && (statusCode.status ==3 || statusCode.status ==0))) {
         return true;
       }
       return false;
   }
+  
 
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
