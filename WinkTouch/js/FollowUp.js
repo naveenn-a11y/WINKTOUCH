@@ -381,7 +381,7 @@ async openFollowUp() {
       let statusCode : CodeDefinition = this.state.selectedItem !== undefined ? getCodeDefinition('referralStatus',this.state.selectedItem.status) : undefined;
       const visit : Visit = this.state.selectedItem !== undefined ? getCachedItem(this.state.selectedItem.visitId) : undefined;
       const isDraft : boolean = this.props.isDraft;
-      return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
+      return <View style={{paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
            {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
@@ -456,7 +456,8 @@ export class TableListRow extends React.PureComponent {
     maxLength?: number,
     simpleSelect?: boolean,
     testID: string,
-    backgroundColor: string
+    backgroundColor: string,
+    readonly: boolean
   }
   state: {
     commentValue: string
@@ -531,8 +532,8 @@ updateValue(value: any) {
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
         <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
         <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
-           onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
-        <TextInput returnKeyType='done' autoCorrect={false} autoCapitalize='none' style={commentStyle}
+           onChangeValue={(code: ?string|?number) => this.updateValue(code)} readonly = {this.props.readonly} />
+        <TextInput returnKeyType='done' editable={!this.props.readonly} autoCorrect={false} autoCapitalize='none' style={commentStyle}
       value={this.state.commentValue} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
       onChangeText={(text: string) => this.changeText(text)} testID={this.props.fieldId+'.filter'}
      />
@@ -571,7 +572,8 @@ export class TableList extends React.PureComponent {
     dateHeaderSelected: boolean,
     statusHeaderSelected: boolean,
     commentHeaderSelected: boolean,
-    refreshing: boolean
+    refreshing: boolean,
+    orderDesc: boolean
   }
 
   static defaultProps = {
@@ -596,13 +598,15 @@ export class TableList extends React.PureComponent {
       dateHeaderSelected: false,
       statusHeaderSelected: false,
       commentHeaderSelected: false,
-      refreshing: false
+      refreshing: false,
+      orderDesc: false 
     }
 
   }
 
   componentDidMount() {
     if(this.state.groupBy === undefined) {
+      this.orderByDate();
       this.setState({groupBy: this.state.options[0]});
     }
   }
@@ -638,6 +642,9 @@ select(item: any, select: boolean|string) {
       data = this.groupByStatus();
     } else if(this.state.groupBy === 'Comment') {
       data = this.groupByComment();
+    }
+    if(!this.state.orderDesc) {
+      data.reverse();
     }
 
     const filter : ?string = this.state.filter!==undefined&&this.state.filter!==""?deAccent(this.state.filter.trim().toLowerCase()):undefined;
@@ -743,7 +750,7 @@ select(item: any, select: boolean|string) {
       const finalChilds : FollowUp[] = childs.filter((v,i) => stripDataType(v.id) !== stripDataType(parentId));
       for(const childElement : FollowUp of finalChilds) {
         if(stripDataType(childElement.id) !== stripDataType(parentId)) {
-          childElement.ref = "        " + childElement.ref;
+          childElement.ref = "        " + childElement.ref.trim();
           childElement.isParent = false;
           finalResult.push(childElement);
         }
@@ -776,8 +783,7 @@ compareDateFollowUp(a: FollowUp, b: FollowUp) : number {
 compareStatusFollowUp(a: FollowUp, b: FollowUp) : number {
   const aStatusCode : CodeDefinition = getCodeDefinition('referralStatus',a.status) ;
   const bStatusCode : CodeDefinition = getCodeDefinition('referralStatus',b.status) ;
-
-  if(aStatusCode === undefined || bStatusCode === undefined) return -1;
+  if(aStatusCode === undefined || bStatusCode === undefined) return 0;
   if(bStatusCode.description.toLowerCase() <aStatusCode.description.toLowerCase()) return -1;
   else if(bStatusCode.description.toLowerCase() > aStatusCode.description.toLowerCase()) return 1;
   return 0;
@@ -792,30 +798,58 @@ compareCommentFollowUp(a: FollowUp, b: FollowUp) : number {
   else if(b.comment.toLowerCase() > a.comment.toLowerCase()) return 1;
   return 0;
 }
+updateOrder() {
+    const order : boolean = this.state.orderDesc;
+    this.setState({orderDesc: !order});
+}
 
 orderByRef() {
+   if(!this.state.refHeaderSelected) {
     this.setState({groupBy: 'Referral', refHeaderSelected: true, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false })
+                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+   } 
+
 }
 orderByDate() {
+    if(!this.state.dateHeaderSelected) {
     this.setState({groupBy: 'Date', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: true,
-                  statusHeaderSelected: false, commentHeaderSelected: false })
+                  statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+  } else {
+     this.updateOrder();
+   }
 }
 orderByFrom() {
+   if(!this.state.fromHeaderSelected) {
     this.setState({groupBy: 'From', refHeaderSelected: false, fromHeaderSelected: true, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false})
+                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+   } else {
+     this.updateOrder();
+   }
 } 
 orderByTo() {
+   if(!this.state.toHeaderSelected) {
     this.setState({groupBy: 'To', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: true, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false})
+                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+   } else {
+      this.updateOrder();
+   }
+
 }
 orderByStatus() {
+  if(!this.state.statusHeaderSelected) {
     this.setState({groupBy: 'Status', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: true, commentHeaderSelected: false})
+                   statusHeaderSelected: true, commentHeaderSelected: false, orderDesc: true})
+  } else {
+      this.updateOrder();
+   }
 }
 orderByComment() {
+  if(!this.state.commentHeaderSelected) {
     this.setState({groupBy: 'Comment', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: true})
+                   statusHeaderSelected: false, commentHeaderSelected: true, orderDesc: true})
+  } else {
+    this.updateOrder();
+  }
 }     
 
 async handleRefresh() {
@@ -855,18 +889,44 @@ async handleRefresh() {
   renderHeader() {
     const style = [styles.formTableColumnHeader, {textAlign: 'left'}];
     const styleText = [styles.text, {fontSize: 26 * fontScale}];
-    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale}];
+    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale, textAlign: "left"}];
     const commentStyle = [style, {minWidth:150 * fontScale}];
 
     return (
      <View style={styles.listRow}>
       <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View><Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}><View><Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}><View><Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}><View><Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}><View><Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text></View></TouchableOpacity>
-      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}><View><Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View>
+      <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}>
+      <View style = {styles.formRow}>
+        {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        <Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}>
+      <View style = {styles.formRow}>
+        {this.state.toHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        <Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}>
+      <View style = {styles.formRow}>
+      {this.state.dateHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+      <Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}>
+      <View style = {styles.formRow}>
+      {this.state.statusHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+      <Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}>
+      <View style = {styles.formRow}>
+       {this.state.commentHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+       <Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text>
+       </View>
+       </TouchableOpacity>
        </View>
 
     );
@@ -896,8 +956,9 @@ async handleRefresh() {
         extraData={{filter: this.state.filter, selection: this.state.item}}
         renderItem={(item, index) => <TableListRow rowValue={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)} backgroundColor ={item.index%2===0 ? '#F9F9F9' :'#FFFFFF'}
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
-                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)}/>}
+                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}/>}
                                 ListHeaderComponent = {this.renderHeader()}
+                                stickyHeaderIndices={[0]}
       refreshing = {this.state.refreshing}
       onRefresh = {() => this.handleRefresh()}
 
