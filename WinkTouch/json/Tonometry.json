@@ -1,6 +1,7 @@
 {
   "name":"Tonometry",
   "starable":true,
+  "scrollable": true,
   "type":"groupedForm",
   "section":"Anterior exam.1",
   "order":"3",
