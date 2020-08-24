@@ -750,7 +750,7 @@ select(item: any, select: boolean|string) {
       const finalChilds : FollowUp[] = childs.filter((v,i) => stripDataType(v.id) !== stripDataType(parentId));
       for(const childElement : FollowUp of finalChilds) {
         if(stripDataType(childElement.id) !== stripDataType(parentId)) {
-          childElement.ref = "        " + childElement.ref;
+          childElement.ref = "        " + childElement.ref.trim();
           childElement.isParent = false;
           finalResult.push(childElement);
         }
