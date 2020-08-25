@@ -7,7 +7,7 @@ import type { Visit } from './Types';
 
 import React, { Component } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
-  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
+  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, fontScale, selectionColor, selectionFontColor, fieldBorderColor } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
@@ -31,7 +31,7 @@ const COMMAND = {
   RESEND: 0,
   REPLY: 1,
   FORWARD: 2
-}
+  }
 
 type FollowUpScreenProps = {
   navigation: any,
@@ -176,12 +176,52 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.RESEND});
   }
 
-   forward() : Promise<void> {
+  forward() : Promise<void> {
       let emailDefinition : EmailDefinition =  this.state.emailDefinition;
       const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
       emailDefinition.to = patientInfo ? patientInfo.email : undefined;
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.FORWARD});
   }
+
+  async deleteItem(selectedItem: FollowUp) : Promise<void> {
+  
+    this.setState({isActive: false});
+  
+    let body : {} = {
+      'referral': selectedItem
+     };
+    let parameters : {} = {};
+
+    let response = await fetchWinkRest('webresources/followup/delete', parameters, 'POST', body);
+    this.setState({isActive: true});
+    if(response) {
+      if (response.errors) {
+              alert(response.errors);
+              return;
+       }
+      this.props.navigation.setParams({refreshFollowUp: true});
+      this.setState({selectedItem: undefined});
+    }
+  }
+
+  confirmDeleteReferral(selectedItem: FollowUp) {
+      if(selectedItem === undefined) {
+          alert('item not selected');
+          return;
+      }
+      Alert.alert(
+        strings.deleteVisitTitle,
+        strings.formatString(strings.deleteReferralQuestion, selectedItem.ref, formatDate(selectedItem.date, jsonDateFormat)),
+        [
+          {
+            text: strings.cancel,
+            style: 'cancel',
+          },
+          {text: strings.confirm, onPress: () => this.deleteItem(selectedItem)},
+        ],
+        {cancelable: false},
+      );
+    }
 
   componentDidMount() {
        this.loadFollowUp();
@@ -395,7 +435,8 @@ async openFollowUp() {
           {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
         <View style={style}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
-               onUpdateSelection= {(value) => this.selectItem(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}/>
+               onUpdateSelection= {(value) => this.selectItem(value)}
+               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}/>
         </View>
         {this.renderButtons()}
        <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -416,6 +457,7 @@ async openFollowUp() {
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem &&  isDraft && visit && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
@@ -484,7 +526,8 @@ export class TableListRow extends React.PureComponent {
     simpleSelect?: boolean,
     testID: string,
     backgroundColor: string,
-    readonly: boolean
+    readonly: boolean,
+    onLongPress?: () => void
   }
   state: {
     commentValue: string
@@ -519,6 +562,12 @@ async loadReferralStatusCode() {
   toggleSelect() {
     this.props.onSelect(true);
   }
+  toggleLongPress() {
+    if(this.props.readonly) {
+      this.toggleSelect();
+      this.props.onLongPress();
+    }
+  }
     toggleSelectStatus() {
   }
 
@@ -551,7 +600,7 @@ updateValue(value: any) {
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
     const commentStyle = [styles.formField, {minWidth:150 * fontScale}];
 
-    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
+    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} onLongPress={() => this.toggleLongPress()} testID={this.props.testID}>
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
         <Icon name={this.props.rowValue.isOutgoing ? 'call-made' : 'call-received'} color={selectionFontColor}/>
         <Text style={textStyle}>{this.props.rowValue.ref}</Text>
@@ -653,6 +702,9 @@ isSelected(item: any): boolean|string {
 
 select(item: any, select: boolean|string) {
    this.props.onUpdateSelection(item);
+}
+onDelete(item: any) {
+  this.props.onDeleteSelection(item);
 }
 
   getItems(): any[] {
@@ -983,7 +1035,9 @@ async handleRefresh() {
         extraData={{filter: this.state.filter, selection: this.state.item}}
         renderItem={(item, index) => <TableListRow rowValue={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)} backgroundColor ={item.index%2===0 ? '#F9F9F9' :'#FFFFFF'}
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
-                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}/>}
+                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}
+                                onLongPress={() => this.onDelete(item.item)}
+                                testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}/>}
                                 ListHeaderComponent = {this.renderHeader()}
                                 stickyHeaderIndices={[0]}
       refreshing = {this.state.refreshing}
