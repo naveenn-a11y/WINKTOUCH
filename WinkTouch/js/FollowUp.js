@@ -358,9 +358,12 @@ async openFollowUp() {
     }
 
     let doctorReferral : ReferralDefinition =  {id: value.id};
+    let emailDefinition : EmailDefinition  = {};
+    emailDefinition.subject = value.referralTemplate.subject;
     this.setState({
       selectedItem: value,
-      doctorReferral: doctorReferral
+      doctorReferral: doctorReferral,
+      emailDefinition: emailDefinition
     });
   }
 
@@ -382,7 +385,7 @@ async openFollowUp() {
   
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
-      if((selectedItem.isOutgoing || (statusCode && statusCode.status ==2))) {
+      if(selectedItem.isOutgoing && (statusCode && statusCode.status ==2 || statusCode.status ==0)) {
         return true;
       }
       return false;
@@ -394,10 +397,34 @@ async openFollowUp() {
   
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
-      if((!selectedItem.isOutgoing || (statusCode && statusCode.status ==3))) {
+      if(!selectedItem.isOutgoing && (statusCode && (statusCode.status ==3 || statusCode.status ==0))) {
         return true;
       }
       return false;
+  }
+
+    shouldActivateForward() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if(statusCode && statusCode.status ==1) {
+        return false;
+      }
+      return true;
+  }
+  
+    shouldActivateFollowUp() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if(statusCode && statusCode.status ==1) {
+        return false;
+      }
+      return true;
   }
 
   renderFollowUp() {
@@ -426,10 +453,10 @@ async openFollowUp() {
           <View style={styles.flow}>
            {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && visit && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && !isDraft && visit && this.shouldActivateFollowUp() && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem &&  isDraft && visit && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
 
         </View>
