@@ -445,6 +445,12 @@ async openConsultation() {
       }
       return true;
   }
+  shouldActivateDelete() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+      if(isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn)) return true;
+      return false;
+  }
 
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
@@ -476,7 +482,7 @@ async openConsultation() {
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem &&  isDraft && visit && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
 
         </View>
@@ -583,11 +589,12 @@ async loadReferralStatusCode() {
     this.props.onSelect(true);
   }
   toggleLongPress() {
-    if(this.props.readonly) {
       this.toggleSelect();
-      this.props.onLongPress();
-    }
+      if(isEmpty(this.props.rowValue.emailOn) && isEmpty(this.props.rowValue.faxedOn)){
+          this.props.onLongPress();
+      }
   }
+  
     toggleSelectStatus() {
   }
 
