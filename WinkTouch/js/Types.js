@@ -313,7 +313,7 @@ export type FollowUp = {
   ref: string,
   linkedReferralId: string,
   visitId ?:string,
-  patientId: string,
+  patientInfo: PatientInfo,
   storeId: string,
   referralTemplate: ReferralTemplate,
   date: string,
