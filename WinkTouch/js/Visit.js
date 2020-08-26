@@ -87,10 +87,10 @@ export function allExamIds(visit: Visit) : string[] {
   if (!allExamIds) allExamIds = [];
   return allExamIds;
 }
-export async function fetchReferralFollowUpHistory(patientId: string) : FollowUp[] {
+export async function fetchReferralFollowUpHistory(patientId?: string) : FollowUp[] {
       let parameters : {} = {};
       let body : {} = {
-        'patientId': stripDataType(patientId),
+        'patientId': !isEmpty(patientId) ? stripDataType(patientId): undefined,
      };
     let allFollowUp : FollowUp[] = [];
     let response = await fetchWinkRest('webresources/followup/list', parameters, 'POST', body);
@@ -101,7 +101,8 @@ export async function fetchReferralFollowUpHistory(patientId: string) : FollowUp
         }
         allFollowUp = response.followUp;
     }
-    cacheItem('referralFollowUpHistory-'+patientId, allFollowUp);
+    const id : string = isEmpty(patientId) ? '*' : patientId;
+    cacheItem('referralFollowUpHistory-'+id, allFollowUp);
 }
 
 export async function fetchVisitHistory(patientId: string) : string[] {
@@ -769,10 +770,11 @@ export class VisitHistory extends Component {
     constructor(props: any) {
         super(props);
         this.state = {
-          selectedId: undefined,
+          selectedId: this.props.navigation && this.props.navigation.state && this.props.navigation.state.params ? this.props.navigation.state.params.selectedVisitId: undefined,
           history: this.combineHistory(props.patientDocumentHistory, props.visitHistory),
           showingDatePicker: false,
         };
+
     }
 
     componentDidUpdate(prevProps: any, prevState: any) {
@@ -985,7 +987,7 @@ export class VisitHistory extends Component {
     renderFollowUp() {
       return <View>
         <View style={styles.flow}>
-         <FollowUpScreen patientInfo = {this.props.patientInfo} navigation = {this.props.navigation} />
+         <FollowUpScreen patientInfo = {this.props.patientInfo} navigation = {this.props.navigation} onUpdateVisitSelection={(selectedVisit) => this.showVisit(selectedVisit)} />
         </View>
       </View>
     }

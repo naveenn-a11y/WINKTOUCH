@@ -26,6 +26,8 @@ import {  getMimeType } from './Upload';
 import { printHtml, generatePDF } from './Print';
 import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { fetchPatientInfo } from './Patient';
+
 
 const COMMAND = {
   RESEND: 0,
@@ -36,7 +38,8 @@ const COMMAND = {
 type FollowUpScreenProps = {
   navigation: any,
   patientInfo: PatientInfo,
-  isDraft: boolean
+  isDraft: boolean,
+  onUpdateVisitSelection: (selectedVisitId: string) => void
 };
 
 type FollowUpScreenState = {
@@ -238,7 +241,9 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     }
 
  async refreshList() {
-    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+    const selectedItem : FollowUp = this.state.selectedItem;
+    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientId)) ;
     await fetchReferralFollowUpHistory(patientInfo.id);
     this.loadFollowUp();
  }
@@ -263,7 +268,8 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
     const visit: Visit = this.props.navigation.state.params.visit;
     const isDraft: Boolean = this.props.isDraft;
-    let allFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
+    const patientId : string = isEmpty(patientInfo) ? '*' : patientInfo.id;
+    let allFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientId);
     if(isDraft && visit) {
       allFollowUp = allFollowUp.filter((followUp: FollowUp) => isEmpty(followUp.emailOn) && isEmpty(followUp.faxedOn) && followUp.visitId === visit.id);
     }
@@ -349,6 +355,19 @@ async openFollowUp() {
        await printHtml(html);
   }
 
+}
+
+async openConsultation() {
+  const selectedItem : FollowUp = this.state.selectedItem;
+  let patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientId)) ;
+    patientInfo = patientInfo === undefined  ? await fetchPatientInfo(selectedItem.patientId) : patientInfo ;
+  const params = this.props.navigation.state.params;
+  if(params && params.overview) {
+      this.props.navigation.navigate('appointment', {patientInfo: patientInfo, selectedVisitId: selectedItem.visitId, refreshStateKey: this.props.navigation.state.key});
+  } else {
+      this.props.onUpdateVisitSelection(selectedItem.visitId);
+  }
 }
 
   async selectItem(value: any) : void {
@@ -458,6 +477,7 @@ async openFollowUp() {
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem &&  isDraft && visit && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
