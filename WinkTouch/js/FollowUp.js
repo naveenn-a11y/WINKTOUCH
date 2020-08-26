@@ -181,7 +181,9 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
 
   forward() : Promise<void> {
       let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+      const selectedItem : FollowUp = this.state.selectedItem;
+      const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+      (this.props.navigation.state.params.patientInfo ? this.props.navigation.state.params.patientInfo : selectedItem.patientInfo);
       emailDefinition.to = patientInfo ? patientInfo.email : undefined;
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.FORWARD});
   }
@@ -243,7 +245,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
  async refreshList() {
     const selectedItem : FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
-   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientId)) ;
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientInfo.id)) ;
     await fetchReferralFollowUpHistory(patientInfo.id);
     this.loadFollowUp();
  }
@@ -360,8 +362,8 @@ async openFollowUp() {
 async openConsultation() {
   const selectedItem : FollowUp = this.state.selectedItem;
   let patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
-   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientId)) ;
-    patientInfo = patientInfo === undefined  ? await fetchPatientInfo(selectedItem.patientId) : patientInfo ;
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientInfo.id)) ;
+    patientInfo = patientInfo === undefined  ? await fetchPatientInfo(selectedItem.patientInfo.id) : patientInfo ;
   const params = this.props.navigation.state.params;
   if(params && params.overview) {
       this.props.navigation.navigate('appointment', {patientInfo: patientInfo, selectedVisitId: selectedItem.visitId, refreshStateKey: this.props.navigation.state.key});
@@ -461,7 +463,9 @@ async openConsultation() {
         <View style={style}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
                onUpdateSelection= {(value) => this.selectItem(value)}
-               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}/>
+               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
+               navigation = {this.props.navigation}
+               />
         </View>
         {this.renderButtons()}
        <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -553,7 +557,8 @@ export class TableListRow extends React.PureComponent {
     testID: string,
     backgroundColor: string,
     readonly: boolean,
-    onLongPress?: () => void
+    onLongPress?: () => void,
+    isVisible: boolean
   }
   state: {
     commentValue: string
@@ -631,6 +636,7 @@ updateValue(value: any) {
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
         <Icon name={this.props.rowValue.isOutgoing ? 'call-made' : 'call-received'} color={selectionFontColor}/>
         <Text style={textStyle}>{this.props.rowValue.ref}</Text>
+        {this.props.isVisible && <Text style={textStyle}>{this.props.rowValue.patientInfo.firstName + " " + this.props.rowValue.patientInfo.lastName}</Text>}
         <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
         <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
@@ -659,7 +665,7 @@ export class TableList extends React.PureComponent {
     isDraft?: boolean,
     fieldId: string,
     onRefreshList: () => void,
-
+    navigation: any
   }
 
   state: {
@@ -675,6 +681,7 @@ export class TableList extends React.PureComponent {
     dateHeaderSelected: boolean,
     statusHeaderSelected: boolean,
     commentHeaderSelected: boolean,
+    patientHeaderSelected: boolean,
     refreshing: boolean,
     orderDesc: boolean
   }
@@ -692,7 +699,7 @@ export class TableList extends React.PureComponent {
       searchable: this.isSearchable(this.props.items),
       filter: '',
       item: {},
-      options: ['Date', 'Referral', 'From', 'To', 'Status', 'Comment'],
+      options: ['Date', 'Referral', 'From', 'To', 'Status', 'Comment', 'Patient'],
       groupBy: undefined,
       groupedData: [],
       refHeaderSelected: false,
@@ -701,10 +708,10 @@ export class TableList extends React.PureComponent {
       dateHeaderSelected: false,
       statusHeaderSelected: false,
       commentHeaderSelected: false,
+      patientHeaderSelected: false,
       refreshing: false,
       orderDesc: false 
     }
-
   }
 
   componentDidMount() {
@@ -748,6 +755,8 @@ onDelete(item: any) {
       data = this.groupByStatus();
     } else if(this.state.groupBy === 'Comment') {
       data = this.groupByComment();
+     }else if(this.state.groupBy === 'Patient') {
+      data = this.groupByPatient();
     }
     if(!this.state.orderDesc) {
       data.reverse();
@@ -823,6 +832,12 @@ onDelete(item: any) {
   groupByComment() {
     let data : any[] = this.resetItems();
     data.sort(this.compareCommentFollowUp);
+    return data;
+  }
+
+  groupByPatient() {
+    let data : any[] = this.resetItems();
+    data.sort(this.comparePatientFollowUp);
     return data;
   }
 
@@ -904,6 +919,13 @@ compareCommentFollowUp(a: FollowUp, b: FollowUp) : number {
   else if(b.comment.toLowerCase() > a.comment.toLowerCase()) return 1;
   return 0;
 }
+
+
+comparePatientFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(b.patientInfo.firstName.toLowerCase() < a.patientInfo.firstName.toLowerCase()) return -1;
+  else if(b.patientInfo.firstName.toLowerCase() > a.patientInfo.firstName.toLowerCase()) return 1;
+  return 0;
+}
 updateOrder() {
     const order : boolean = this.state.orderDesc;
     this.setState({orderDesc: !order});
@@ -912,22 +934,30 @@ updateOrder() {
 orderByRef() {
    if(!this.state.refHeaderSelected) {
     this.setState({groupBy: 'Referral', refHeaderSelected: true, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+                   statusHeaderSelected: false, commentHeaderSelected: false, patientHeaderSelected: false, orderDesc: true })
    } 
 
 }
 orderByDate() {
     if(!this.state.dateHeaderSelected) {
     this.setState({groupBy: 'Date', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: true,
-                  statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+                  statusHeaderSelected: false, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true })
   } else {
      this.updateOrder();
    }
 }
+orderByPatient() {
+   if(!this.state.patientHeaderSelected) {
+    this.setState({groupBy: 'Patient', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
+                   statusHeaderSelected: false, commentHeaderSelected: false, patientHeaderSelected: true, orderDesc: true})
+   } else {
+     this.updateOrder();
+   }
+} 
 orderByFrom() {
    if(!this.state.fromHeaderSelected) {
     this.setState({groupBy: 'From', refHeaderSelected: false, fromHeaderSelected: true, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+                   statusHeaderSelected: false, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true})
    } else {
      this.updateOrder();
    }
@@ -935,7 +965,7 @@ orderByFrom() {
 orderByTo() {
    if(!this.state.toHeaderSelected) {
     this.setState({groupBy: 'To', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: true, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+                   statusHeaderSelected: false, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true})
    } else {
       this.updateOrder();
    }
@@ -944,7 +974,7 @@ orderByTo() {
 orderByStatus() {
   if(!this.state.statusHeaderSelected) {
     this.setState({groupBy: 'Status', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: true, commentHeaderSelected: false, orderDesc: true})
+                   statusHeaderSelected: true, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true})
   } else {
       this.updateOrder();
    }
@@ -952,7 +982,7 @@ orderByStatus() {
 orderByComment() {
   if(!this.state.commentHeaderSelected) {
     this.setState({groupBy: 'Comment', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: true, orderDesc: true})
+                   statusHeaderSelected: false, commentHeaderSelected: true,patientHeaderSelected: false, orderDesc: true})
   } else {
     this.updateOrder();
   }
@@ -997,12 +1027,18 @@ async handleRefresh() {
     const styleText = [styles.text, {fontSize: 26 * fontScale}];
     const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale, textAlign: "left"}];
     const commentStyle = [style, {minWidth:150 * fontScale}];
-
+    const isPatientVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
     return (
      <View style={styles.listRow}>
       <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View>
       <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
+      {isPatientVisible && <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByPatient()} style={style}>
+      <View style = {styles.formRow}>
+        {this.state.patientHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        <Text style={this.state.patientHeaderSelected ? styleSelected : styleText}>{'Patient'}</Text>
+      </View>
+      </TouchableOpacity>}
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}>
       <View style = {styles.formRow}>
         {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
@@ -1045,10 +1081,11 @@ async handleRefresh() {
   );
   }
   render() {
-    let data : any[] = this.getItems(); 
+  let data : any[] = this.getItems(); 
   const sideBarCustomStyle = [styles.sideBarHorizontal, {minWidth: 200 * fontScale, maxWidth:600 * fontScale}];
   const tabCardCustomStyle = [styles.tabCardFollowUp1, {maxHeight: 400, borderWidth: 0}];
   const style = this.props.isDraft ? styles.followUpList2 : styles.followUpList1;
+  const isVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
 
     return (
  <View >
@@ -1064,11 +1101,13 @@ async handleRefresh() {
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
                                 onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}
                                 onLongPress={() => this.onDelete(item.item)}
-                                testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}/>}
+                                testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}
+                                isVisible = {isVisible}
+                                />}
                                 ListHeaderComponent = {this.renderHeader()}
-                                stickyHeaderIndices={[0]}
-      refreshing = {this.state.refreshing}
-      onRefresh = {() => this.handleRefresh()}
+                                stickyHeaderIndices={[0]}             
+                                refreshing = {this.state.refreshing}
+                                onRefresh = {() => this.handleRefresh()}
 
       />
    </View>
