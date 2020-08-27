@@ -311,7 +311,7 @@ export class ItemsCard extends Component {
       if (String(value).startsWith('(-)')) return false; //TODO is this a general rule
       return true;
     });
-    return <View style={this.props.exam.definition.editable?styles.columnLayout:styles.rowLayout} key={index}>
+    return <View style={this.props.exam.definition.editable?styles.columnLayout:styles.topFlow} key={index}>
       {this.props.exam.definition.titleFields && this.props.exam.definition.titleFields.map((titleField: string) => {
         return <Text style={styles.boldText} key={titleField}>{examItem[titleField]} </Text>
       })}
@@ -433,12 +433,9 @@ export class ItemsList extends Component {
     //const listStyle = this.props.orientation === 'horizontal' ? styles.listRow : styles.centeredColumnLayout;
     return <View style={this.props.style?this.props.style:styles.board}>
       {this.props.title && <Text style={styles.cardTitle}>{this.props.title}</Text>}
-      {(this.props.items.length>4 && this.props.editable)?
-        <ScrollView>
-          {this.renderList()}
-        </ScrollView>:
-        this.renderList()
-      }
+      <ScrollView>
+        {this.renderList()}
+      </ScrollView>
       {this.renderButtons()}
       {this.renderIcons()}
     </View >
@@ -680,7 +677,7 @@ export class ItemsEditor extends Component {
     let fields : FieldDefinition[] = this.props.fieldDefinitions.filter((fieldDefinition: FieldDefinition) => fieldDefinition.options===undefined || fieldDefinition.options.length<=2);
     if (fields.length===0) return null;
     let form = this.state.selectedItem;
-    let groupDefinition : GroupDefinition = {'name':'nonSelectables','label':'','fields':fields};
+    let groupDefinition : GroupDefinition = {'name':'nonSelectables','label':'','fields':fields, 'size':'M'};
     return <View><GroupedForm form={form} definition={groupDefinition} onChangeField={this.updateItem} fieldId={this.props.fieldId} /></View>
   }
 

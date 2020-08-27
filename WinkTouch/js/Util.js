@@ -460,3 +460,9 @@ export function postfix(text: ?string, postfix: string) :string {
 export function sort(array: []) : [] {
   return array.sort((a,b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
 }
+
+export function insertNewlines(text: string) : string {
+  if (text===undefined || text===null) return text;
+  text = text.replace(/  +/g, '\n');
+  return text;
+}
