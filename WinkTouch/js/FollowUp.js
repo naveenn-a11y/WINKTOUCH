@@ -386,6 +386,24 @@ async openConsultation() {
       doctorReferral: doctorReferral,
       emailDefinition: emailDefinition
     });
+   this.shouldUpdateStatus();
+  }
+
+  shouldUpdateStatus(): void {
+      let selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return ;
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+      if(statusCode && statusCode.status ==3) {
+        let allStatusCode : CodeDefinition[] = getAllCodes('referralStatus');
+        allStatusCode = allStatusCode !== undefined ? allStatusCode.filter((code: CodeDefinition) => code.status == 4) : undefined;
+        const openedStatusCode : CodeDefinition = allStatusCode !== undefined && allStatusCode.length >0 ? allStatusCode[0] : undefined;
+        if(openedStatusCode !== undefined) {
+          selectedItem.status = openedStatusCode.code;
+          this.updateItem(selectedItem);
+        }
+
+
+      }
   }
 
   shouldActivateEdit() : boolean {
