@@ -636,8 +636,7 @@ export const styles = StyleSheet.create({
     popupBackground: {
       flex: 100,
       backgroundColor: '#00000077',
-      padding:20 * fontScale,
-      paddingBottom: 20 *fontScale
+      padding:20 * fontScale
     },
     popupTile: {
         ...tile
@@ -1023,6 +1022,13 @@ export const styles = StyleSheet.create({
     screenIcon: {
       padding: 25 * fontScale,
       fontSize: 30 * fontScale
+    },
+    popupIcon: {
+      position: 'absolute',
+      top:15 * fontScale,
+      right:  15 * fontScale,
+      fontSize: 30 * fontScale,          
+      backgroundColor: '#00000000'
     },
     groupIcon: {
       padding: 15 * fontScale,
