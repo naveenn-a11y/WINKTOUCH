@@ -564,10 +564,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let emailDefinition : EmailDefinition = this.state.emailDefinition;
         const command : COMMAND = this.state.command;
         if(command == COMMAND.EMAIL) {
-           emailDefinition.to = doctorCode.email;
+           emailDefinition.to = doctorCode !== undefined ? doctorCode.email : "";
         }
         else if(command == COMMAND.FAX) {
-           emailDefinition.to = doctorCode.fax;
+           emailDefinition.to = doctorCode !== undefined ?doctorCode.fax : "";
         }
 
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
