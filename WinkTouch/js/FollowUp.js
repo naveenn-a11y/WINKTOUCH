@@ -16,7 +16,7 @@ import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { PatientInfo, HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp, ReferralStatusCode, Upload} from './Types';
 import {allExamIds, fetchReferralFollowUpHistory} from './Visit';
-import { getCachedItems, getCachedItem } from './DataCache';
+import { getCachedItems, getCachedItem, cacheItem } from './DataCache';
 
 import { stripDataType } from './Rest';
 import RNBeep from 'react-native-a-beep';
@@ -190,23 +190,35 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
 
   async deleteItem(selectedItem: FollowUp) : Promise<void> {
   
-    this.setState({isActive: false});
+    let allFollowUp : FollowUp[] = this.state.allFollowUp;
   
+    const index  = allFollowUp.indexOf(selectedItem);
+    allFollowUp.splice(index, 1);
+    this.setState({allFollowUp});
+
     let body : {} = {
       'referral': selectedItem
      };
     let parameters : {} = {};
 
-    let response = await fetchWinkRest('webresources/followup/delete', parameters, 'POST', body);
-    this.setState({isActive: true});
-    if(response) {
+    let response =  fetchWinkRest('webresources/followup/delete', parameters, 'POST', body);
+    if(response)  { 
       if (response.errors) {
               alert(response.errors);
-              return;
+              return;  
        }
-      this.props.navigation.setParams({refreshFollowUp: true});
-      this.setState({selectedItem: undefined});
     }
+    const visit: Visit = this.props.navigation.state.params.visit;
+    const isDraft: Boolean = this.props.isDraft;
+    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+    const patientId : string = isEmpty(patientInfo) ? '*' : patientInfo.id;
+    if(isDraft && visit) {
+      allFollowUp = getCachedItem('referralFollowUpHistory-'+patientId);
+      const cachedIndex  = allFollowUp.indexOf(selectedItem);
+       allFollowUp.splice(cachedIndex, 1);
+    }
+    cacheItem('referralFollowUpHistory-'+patientId, allFollowUp);
+    this.setState({selectedItem: undefined});
   }
 
   confirmDeleteReferral(selectedItem: FollowUp) {
@@ -245,8 +257,13 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
  async refreshList() {
     const selectedItem : FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
-   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientInfo.id)) ;
-    await fetchReferralFollowUpHistory(patientInfo.id);
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : 
+    (selectedItem !==undefined ? getCachedItem(selectedItem.patientInfo.id) : undefined)) ;
+    if(patientInfo) {
+      await fetchReferralFollowUpHistory(patientInfo.id);
+    } else {
+     await fetchReferralFollowUpHistory();
+    }
     this.loadFollowUp();
  }
 
