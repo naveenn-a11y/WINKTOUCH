@@ -574,7 +574,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             });
           }
 
-          if (optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) return undefined;
           if (this.state.selectedField[0]==='Exam' && index===1) {
 
             return (
@@ -586,6 +585,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
                 onChangeValue={(value: string) => this.selectVisitDate(index, value, previousVisits)}
               />
             </FormRow>
+          {!(optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) && 
             <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
@@ -593,6 +593,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
                 onChangeValue={(value: string) => this.selectField(index, value, options)}
               />
             </FormRow>
+          }
             </View>
 
             )
