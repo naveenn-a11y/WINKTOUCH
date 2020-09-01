@@ -28,6 +28,7 @@ import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
 import { NavigationActions } from 'react-navigation';
 import { useFocusEffect } from '@react-navigation/native';
+import { getVisitHistory } from './Visit';
 
 
 export function isReferralsEnabled() : boolean {
@@ -102,6 +103,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   componentWillUnmount() {
     this.unmounted = true;
+  }
+
+  getPreviousVisits() {
+
+  const patientInfo: PatientInfo  = this.props.navigation.state.params.patientInfo;
+  if(patientInfo === undefined) return;
+
+  let visitHistory : ?Visit[] = getVisitHistory(patientInfo.id);
+  console.log("VISIT HISTORY: " + JSON.stringify(visitHistory));
+
   }
   // We need to upgrade react-navigation to have this code working
 /*
@@ -214,6 +225,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     let key = keyArray.join('.');
     this.setState({selectedField});
     this.setState({key});
+    this.getPreviousVisits();
   }
 
   updateValue(newValue: any) {
