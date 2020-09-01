@@ -7,7 +7,7 @@ import type { Visit } from './Types';
 
 import React, { Component } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
-  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
+  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, fontScale, selectionColor, selectionFontColor, fieldBorderColor } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
@@ -16,7 +16,7 @@ import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { PatientInfo, HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp, ReferralStatusCode, Upload} from './Types';
 import {allExamIds, fetchReferralFollowUpHistory} from './Visit';
-import { getCachedItems, getCachedItem } from './DataCache';
+import { getCachedItems, getCachedItem, cacheItem } from './DataCache';
 
 import { stripDataType } from './Rest';
 import RNBeep from 'react-native-a-beep';
@@ -26,17 +26,20 @@ import {  getMimeType } from './Upload';
 import { printHtml, generatePDF } from './Print';
 import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { fetchPatientInfo } from './Patient';
+
 
 const COMMAND = {
   RESEND: 0,
   REPLY: 1,
   FORWARD: 2
-}
+  }
 
 type FollowUpScreenProps = {
   navigation: any,
   patientInfo: PatientInfo,
-  isDraft: boolean
+  isDraft: boolean,
+  onUpdateVisitSelection: (selectedVisitId: string) => void
 };
 
 type FollowUpScreenState = {
@@ -176,12 +179,66 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.RESEND});
   }
 
-   forward() : Promise<void> {
+  forward() : Promise<void> {
       let emailDefinition : EmailDefinition =  this.state.emailDefinition;
-      const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+      const selectedItem : FollowUp = this.state.selectedItem;
+      const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+      (this.props.navigation.state.params.patientInfo ? this.props.navigation.state.params.patientInfo : selectedItem.patientInfo);
       emailDefinition.to = patientInfo ? patientInfo.email : undefined;
        this.setState({emailDefinition: emailDefinition, isPopupVisibile: true, command: COMMAND.FORWARD});
   }
+
+  async deleteItem(selectedItem: FollowUp) : Promise<void> {
+  
+    let allFollowUp : FollowUp[] = this.state.allFollowUp;
+  
+    const index  = allFollowUp.indexOf(selectedItem);
+    allFollowUp.splice(index, 1);
+    this.setState({allFollowUp});
+
+    let body : {} = {
+      'referral': selectedItem
+     };
+    let parameters : {} = {};
+
+    let response =  fetchWinkRest('webresources/followup/delete', parameters, 'POST', body);
+    if(response)  { 
+      if (response.errors) {
+              alert(response.errors);
+              return;  
+       }
+    }
+    const visit: Visit = this.props.navigation.state.params.visit;
+    const isDraft: Boolean = this.props.isDraft;
+    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+    const patientId : string = isEmpty(patientInfo) ? '*' : patientInfo.id;
+    if(isDraft && visit) {
+      allFollowUp = getCachedItem('referralFollowUpHistory-'+patientId);
+      const cachedIndex  = allFollowUp.indexOf(selectedItem);
+       allFollowUp.splice(cachedIndex, 1);
+    }
+    cacheItem('referralFollowUpHistory-'+patientId, allFollowUp);
+    this.setState({selectedItem: undefined});
+  }
+
+  confirmDeleteReferral(selectedItem: FollowUp) {
+      if(selectedItem === undefined) {
+          alert('item not selected');
+          return;
+      }
+      Alert.alert(
+        strings.deleteVisitTitle,
+        strings.formatString(strings.deleteReferralQuestion, selectedItem.ref, formatDate(selectedItem.date, jsonDateFormat)),
+        [
+          {
+            text: strings.cancel,
+            style: 'cancel',
+          },
+          {text: strings.confirm, onPress: () => this.deleteItem(selectedItem)},
+        ],
+        {cancelable: false},
+      );
+    }
 
   componentDidMount() {
        this.loadFollowUp();
@@ -198,8 +255,15 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     }
 
  async refreshList() {
-    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
-    await fetchReferralFollowUpHistory(patientInfo.id);
+    const selectedItem : FollowUp = this.state.selectedItem;
+    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : 
+    (selectedItem !==undefined ? getCachedItem(selectedItem.patientInfo.id) : undefined)) ;
+    if(patientInfo) {
+      await fetchReferralFollowUpHistory(patientInfo.id);
+    } else {
+     await fetchReferralFollowUpHistory();
+    }
     this.loadFollowUp();
  }
 
@@ -223,7 +287,8 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
     const visit: Visit = this.props.navigation.state.params.visit;
     const isDraft: Boolean = this.props.isDraft;
-    let allFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
+    const patientId : string = isEmpty(patientInfo) ? '*' : patientInfo.id;
+    let allFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientId);
     if(isDraft && visit) {
       allFollowUp = allFollowUp.filter((followUp: FollowUp) => isEmpty(followUp.emailOn) && isEmpty(followUp.faxedOn) && followUp.visitId === visit.id);
     }
@@ -311,6 +376,19 @@ async openFollowUp() {
 
 }
 
+async openConsultation() {
+  const selectedItem : FollowUp = this.state.selectedItem;
+  let patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientInfo.id)) ;
+    patientInfo = patientInfo === undefined  ? await fetchPatientInfo(selectedItem.patientInfo.id) : patientInfo ;
+  const params = this.props.navigation.state.params;
+  if(params && params.overview) {
+      this.props.navigation.navigate('appointment', {patientInfo: patientInfo, selectedVisitId: selectedItem.visitId, refreshStateKey: this.props.navigation.state.key});
+  } else {
+      this.props.onUpdateVisitSelection(selectedItem.visitId);
+  }
+}
+
   async selectItem(value: any) : void {
     if (this.state.selectedItem===value && this.state.isActive == true) {
       await this.openAttachment();
@@ -318,10 +396,31 @@ async openFollowUp() {
     }
 
     let doctorReferral : ReferralDefinition =  {id: value.id};
+    let emailDefinition : EmailDefinition  = {};
+    emailDefinition.subject = value.referralTemplate.subject;
     this.setState({
       selectedItem: value,
-      doctorReferral: doctorReferral
+      doctorReferral: doctorReferral,
+      emailDefinition: emailDefinition
     });
+   this.shouldUpdateStatus();
+  }
+
+  shouldUpdateStatus(): void {
+      let selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return ;
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+      if(statusCode && statusCode.status ==3) {
+        let allStatusCode : CodeDefinition[] = getAllCodes('referralStatus');
+        allStatusCode = allStatusCode !== undefined ? allStatusCode.filter((code: CodeDefinition) => code.status == 4) : undefined;
+        const openedStatusCode : CodeDefinition = allStatusCode !== undefined && allStatusCode.length >0 ? allStatusCode[0] : undefined;
+        if(openedStatusCode !== undefined) {
+          selectedItem.status = openedStatusCode.code;
+          this.updateItem(selectedItem);
+        }
+
+
+      }
   }
 
   shouldActivateEdit() : boolean {
@@ -342,7 +441,7 @@ async openFollowUp() {
   
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
-      if((selectedItem.isOutgoing || (statusCode && statusCode.status ==2))) {
+      if(selectedItem.isOutgoing && (statusCode && statusCode.status ==2 || statusCode.status ==0)) {
         return true;
       }
       return false;
@@ -354,9 +453,39 @@ async openFollowUp() {
   
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
-      if((!selectedItem.isOutgoing || (statusCode && statusCode.status ==3))) {
+      if(!selectedItem.isOutgoing && (statusCode && (statusCode.status ==3 || statusCode.status ==0))) {
         return true;
       }
+      return false;
+  }
+
+    shouldActivateForward() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if(statusCode && statusCode.status ==1) {
+        return false;
+      }
+      return true;
+  }
+  
+    shouldActivateFollowUp() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+  
+      const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
+
+      if(statusCode && statusCode.status ==1) {
+        return false;
+      }
+      return true;
+  }
+  shouldActivateDelete() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(!selectedItem) return false ;
+      if(isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn)) return true;
       return false;
   }
 
@@ -368,7 +497,10 @@ async openFollowUp() {
           {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
         <View style={style}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
-               onUpdateSelection= {(value) => this.selectItem(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}/>
+               onUpdateSelection= {(value) => this.selectItem(value)}
+               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
+               navigation = {this.props.navigation}
+               />
         </View>
         {this.renderButtons()}
        <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
@@ -385,10 +517,12 @@ async openFollowUp() {
           <View style={styles.flow}>
            {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && visit && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && !isDraft && visit && this.shouldActivateFollowUp() && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
@@ -457,7 +591,9 @@ export class TableListRow extends React.PureComponent {
     simpleSelect?: boolean,
     testID: string,
     backgroundColor: string,
-    readonly: boolean
+    readonly: boolean,
+    onLongPress?: () => void,
+    isVisible: boolean
   }
   state: {
     commentValue: string
@@ -492,6 +628,13 @@ async loadReferralStatusCode() {
   toggleSelect() {
     this.props.onSelect(true);
   }
+  toggleLongPress() {
+      this.toggleSelect();
+      if(isEmpty(this.props.rowValue.emailOn) && isEmpty(this.props.rowValue.faxedOn)){
+          this.props.onLongPress();
+      }
+  }
+  
     toggleSelectStatus() {
   }
 
@@ -524,10 +667,11 @@ updateValue(value: any) {
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
     const commentStyle = [styles.formField, {minWidth:150 * fontScale}];
 
-    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} testID={this.props.testID}>
+    return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} onLongPress={() => this.toggleLongPress()} testID={this.props.testID}>
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
         <Icon name={this.props.rowValue.isOutgoing ? 'call-made' : 'call-received'} color={selectionFontColor}/>
         <Text style={textStyle}>{this.props.rowValue.ref}</Text>
+        {this.props.isVisible && <Text style={textStyle}>{this.props.rowValue.patientInfo.firstName + " " + this.props.rowValue.patientInfo.lastName}</Text>}
         <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
         <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
@@ -556,7 +700,7 @@ export class TableList extends React.PureComponent {
     isDraft?: boolean,
     fieldId: string,
     onRefreshList: () => void,
-
+    navigation: any
   }
 
   state: {
@@ -572,6 +716,7 @@ export class TableList extends React.PureComponent {
     dateHeaderSelected: boolean,
     statusHeaderSelected: boolean,
     commentHeaderSelected: boolean,
+    patientHeaderSelected: boolean,
     refreshing: boolean,
     orderDesc: boolean
   }
@@ -589,7 +734,7 @@ export class TableList extends React.PureComponent {
       searchable: this.isSearchable(this.props.items),
       filter: '',
       item: {},
-      options: ['Date', 'Referral', 'From', 'To', 'Status', 'Comment'],
+      options: ['Date', 'Referral', 'From', 'To', 'Status', 'Comment', 'Patient'],
       groupBy: undefined,
       groupedData: [],
       refHeaderSelected: false,
@@ -598,10 +743,10 @@ export class TableList extends React.PureComponent {
       dateHeaderSelected: false,
       statusHeaderSelected: false,
       commentHeaderSelected: false,
+      patientHeaderSelected: false,
       refreshing: false,
       orderDesc: false 
     }
-
   }
 
   componentDidMount() {
@@ -627,6 +772,9 @@ isSelected(item: any): boolean|string {
 select(item: any, select: boolean|string) {
    this.props.onUpdateSelection(item);
 }
+onDelete(item: any) {
+  this.props.onDeleteSelection(item);
+}
 
   getItems(): any[] {
     let data : any[] = [...this.props.items];
@@ -642,6 +790,8 @@ select(item: any, select: boolean|string) {
       data = this.groupByStatus();
     } else if(this.state.groupBy === 'Comment') {
       data = this.groupByComment();
+     }else if(this.state.groupBy === 'Patient') {
+      data = this.groupByPatient();
     }
     if(!this.state.orderDesc) {
       data.reverse();
@@ -717,6 +867,12 @@ select(item: any, select: boolean|string) {
   groupByComment() {
     let data : any[] = this.resetItems();
     data.sort(this.compareCommentFollowUp);
+    return data;
+  }
+
+  groupByPatient() {
+    let data : any[] = this.resetItems();
+    data.sort(this.comparePatientFollowUp);
     return data;
   }
 
@@ -798,6 +954,13 @@ compareCommentFollowUp(a: FollowUp, b: FollowUp) : number {
   else if(b.comment.toLowerCase() > a.comment.toLowerCase()) return 1;
   return 0;
 }
+
+
+comparePatientFollowUp(a: FollowUp, b: FollowUp) : number {
+  if(b.patientInfo.firstName.toLowerCase() < a.patientInfo.firstName.toLowerCase()) return -1;
+  else if(b.patientInfo.firstName.toLowerCase() > a.patientInfo.firstName.toLowerCase()) return 1;
+  return 0;
+}
 updateOrder() {
     const order : boolean = this.state.orderDesc;
     this.setState({orderDesc: !order});
@@ -806,22 +969,30 @@ updateOrder() {
 orderByRef() {
    if(!this.state.refHeaderSelected) {
     this.setState({groupBy: 'Referral', refHeaderSelected: true, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+                   statusHeaderSelected: false, commentHeaderSelected: false, patientHeaderSelected: false, orderDesc: true })
    } 
 
 }
 orderByDate() {
     if(!this.state.dateHeaderSelected) {
     this.setState({groupBy: 'Date', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: true,
-                  statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true })
+                  statusHeaderSelected: false, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true })
   } else {
      this.updateOrder();
    }
 }
+orderByPatient() {
+   if(!this.state.patientHeaderSelected) {
+    this.setState({groupBy: 'Patient', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
+                   statusHeaderSelected: false, commentHeaderSelected: false, patientHeaderSelected: true, orderDesc: true})
+   } else {
+     this.updateOrder();
+   }
+} 
 orderByFrom() {
    if(!this.state.fromHeaderSelected) {
     this.setState({groupBy: 'From', refHeaderSelected: false, fromHeaderSelected: true, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+                   statusHeaderSelected: false, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true})
    } else {
      this.updateOrder();
    }
@@ -829,7 +1000,7 @@ orderByFrom() {
 orderByTo() {
    if(!this.state.toHeaderSelected) {
     this.setState({groupBy: 'To', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: true, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: false, orderDesc: true})
+                   statusHeaderSelected: false, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true})
    } else {
       this.updateOrder();
    }
@@ -838,7 +1009,7 @@ orderByTo() {
 orderByStatus() {
   if(!this.state.statusHeaderSelected) {
     this.setState({groupBy: 'Status', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: true, commentHeaderSelected: false, orderDesc: true})
+                   statusHeaderSelected: true, commentHeaderSelected: false,patientHeaderSelected: false, orderDesc: true})
   } else {
       this.updateOrder();
    }
@@ -846,7 +1017,7 @@ orderByStatus() {
 orderByComment() {
   if(!this.state.commentHeaderSelected) {
     this.setState({groupBy: 'Comment', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
-                   statusHeaderSelected: false, commentHeaderSelected: true, orderDesc: true})
+                   statusHeaderSelected: false, commentHeaderSelected: true,patientHeaderSelected: false, orderDesc: true})
   } else {
     this.updateOrder();
   }
@@ -891,12 +1062,18 @@ async handleRefresh() {
     const styleText = [styles.text, {fontSize: 26 * fontScale}];
     const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale, textAlign: "left"}];
     const commentStyle = [style, {minWidth:150 * fontScale}];
-
+    const isPatientVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
     return (
      <View style={styles.listRow}>
       <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View>
       <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
+      {isPatientVisible && <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByPatient()} style={style}>
+      <View style = {styles.formRow}>
+        {this.state.patientHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        <Text style={this.state.patientHeaderSelected ? styleSelected : styleText}>{'Patient'}</Text>
+      </View>
+      </TouchableOpacity>}
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}>
       <View style = {styles.formRow}>
         {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
@@ -939,10 +1116,11 @@ async handleRefresh() {
   );
   }
   render() {
-    let data : any[] = this.getItems(); 
+  let data : any[] = this.getItems(); 
   const sideBarCustomStyle = [styles.sideBarHorizontal, {minWidth: 200 * fontScale, maxWidth:600 * fontScale}];
   const tabCardCustomStyle = [styles.tabCardFollowUp1, {maxHeight: 400, borderWidth: 0}];
   const style = this.props.isDraft ? styles.followUpList2 : styles.followUpList1;
+  const isVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
 
     return (
  <View >
@@ -956,11 +1134,15 @@ async handleRefresh() {
         extraData={{filter: this.state.filter, selection: this.state.item}}
         renderItem={(item, index) => <TableListRow rowValue={item.item} simpleSelect={this.props.simpleSelect} selected={this.isSelected(item.item)} backgroundColor ={item.index%2===0 ? '#F9F9F9' :'#FFFFFF'}
                                 onChangeValue={(value : string|number) => this.updateValue(item.item, value)}
-                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}  testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}/>}
+                                onSelect={(isSelected : boolean|string) => this.select(item.item, isSelected)}
+                                onLongPress={() => this.onDelete(item.item)}
+                                testID={this.props.label+'.option'+(item.index+1)} readonly = {this.props.isDraft ? true : false}
+                                isVisible = {isVisible}
+                                />}
                                 ListHeaderComponent = {this.renderHeader()}
-                                stickyHeaderIndices={[0]}
-      refreshing = {this.state.refreshing}
-      onRefresh = {() => this.handleRefresh()}
+                                stickyHeaderIndices={[0]}             
+                                refreshing = {this.state.refreshing}
+                                onRefresh = {() => this.handleRefresh()}
 
       />
    </View>
