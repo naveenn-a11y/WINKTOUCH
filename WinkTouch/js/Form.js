@@ -578,9 +578,7 @@ export class FormOptions extends Component {
               <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.state.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}/>
             :
               <TilesField label={this.props.label} style={style} readonly={this.props.readonly} options={this.state.formattedOptions} combineOptions={this.isMultiOption()} errorMessage={this.props.errorMessage}
-                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}>
-                {this.props.children}                
-              </TilesField>
+                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID} />
           }
           {this.props.errorMessage && !this.state.dismissedError && <Text style={styles.formValidationError}> {this.props.errorMessage}  {'\u274c'}</Text>}
         </View>
@@ -683,9 +681,7 @@ export class FormCode extends Component {
     const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
     let selectedDescription: string = this.selectedDescription(allDescriptions);
     return <FormOptions labelWidth={this.props.labelWidth} label={this.props.label} showLabel={this.props.showLabel} readonly={this.props.readonly} freestyle={this.props.freestyle} errorMessage={this.props.errorMessage}
-      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline} testID={this.props.testID}>
-        {this.props.children}
-      </FormOptions>
+      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline} testID={this.props.testID} />
   }
 }
 

@@ -7,9 +7,10 @@ import type { Visit } from './Types';
 
 import React, { Component } from 'react';
 import { View, Text, ScrollView, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, selectionColor } from './Styles';
-import { Button,TilesField, Label, SelectionList } from './Widgets';
+import { Button,TilesField, Label, SelectionList, Binoculars } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
 import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
@@ -26,8 +27,7 @@ import { isEmpty, sort } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
-import { NavigationActions } from 'react-navigation';
-import { useFocusEffect } from '@react-navigation/native';
+import { ManageUsers } from './User';
 
 
 export function isReferralsEnabled() : boolean {
@@ -167,7 +167,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'visitId': stripDataType(visit.id),
         'doctorId': stripDataType(this.state.doctorId),
         'name': template,
-        
+
       };
       }
 
@@ -385,7 +385,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        }
 
       let referralDefinition: ReferralDefinition = response;
-      if (this.state.followUpStateKey) { 
+      if (this.state.followUpStateKey) {
       const setParamsAction = NavigationActions.setParams({
                    params: { refreshFollowUp: true },
                     key: this.state.followUpStateKey
@@ -393,7 +393,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       this.props.navigation.dispatch(setParamsAction);
         }
       if(this.unmounted) {
-        return  referralDefinition;  
+        return  referralDefinition;
       }
       else {
       this.setState({doctorReferral: referralDefinition});
@@ -553,22 +553,23 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       </View>
         {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
             && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
-        {this.renderPopup()}
-      </Modal>}
+          {this.renderSendPopup()}
+          </Modal>
+      }
     </View>
   }
 
 
-  renderPopup() {
-        let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
-        let emailDefinition : EmailDefinition = this.state.emailDefinition;
-        const command : COMMAND = this.state.command;
-        if(command == COMMAND.EMAIL) {
+  renderSendPopup() {
+    let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
+    let emailDefinition : EmailDefinition = this.state.emailDefinition;
+    const command : COMMAND = this.state.command;
+    if(command == COMMAND.EMAIL) {
            emailDefinition.to = doctorCode !== undefined ? doctorCode.email : "";
-        }
-        else if(command == COMMAND.FAX) {
+    }
+    else if(command == COMMAND.FAX) {
            emailDefinition.to = doctorCode !== undefined ?doctorCode.fax : "";
-        }
+    }
 
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
@@ -600,9 +601,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
                 <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
             </View>
           </View>
-
         </View>
+      </View>
+    </TouchableWithoutFeedback>
+  }
 
+  renderManageUsersPopup() {
+    return <TouchableWithoutFeedback onPress={this.cancelEdit}>
+        <View style={styles.popupBackground}>
+          <ManageUsers/>
       </View>
     </TouchableWithoutFeedback>
   }
@@ -618,7 +625,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <Text style={styles.cardTitle}>New Referral</Text>
           <View style={styles.boardM}>
             <View style={styles.formRow}>
-              <FormCode code="doctors" value={this.state.doctorId<=0?"" : this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+                <FormCode code="doctors" value={this.state.doctorId<=0?"" : this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)}/>
+                <Binoculars style={styles.groupIcon} onClick={() => this.setState({isPopupVisibile: true})}/>
             </View>
           </View>
           <View style={styles.flow}>
@@ -626,6 +634,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         </View>
       </View>
     </View>
+      {this.state.isPopupVisibile && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
+            {this.renderManageUsersPopup()}
+          </Modal>
+      }
     </View>
     )
   }
@@ -675,9 +687,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty && isEmpty(this.state.referralHtml)) {
           this.startReferral();
       }
-  } 
+  }
 
-   render() {
+  render() {
     let doctorReferral : ReferralDefinition = this.state.doctorReferral;
     this.shouldStartReferral();
     return <View style={styles.page}>

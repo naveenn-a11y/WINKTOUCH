@@ -141,6 +141,20 @@ export class CameraTile extends Component {
   }
 }
 
+export type BinocularsProps = {
+  onClick: () => void,
+  style: any
+}
+export type BinocularsState = {
+}
+export class Binoculars extends PureComponent<BinocularsProps, BinocularsState> {
+  render() {
+    return <TouchableWithoutFeedback onPress={this.props.onClick}>
+      <Icon name='binoculars' style={this.props.style} color={selectionFontColor}/>
+    </TouchableWithoutFeedback>
+  }
+}
+
 export class FocusTile extends Component {
   props: {
     type: string,
@@ -990,7 +1004,7 @@ export class TilesField extends Component {
               </View>
           </View>
         </ScrollView>
-        <Lock style={styles.popupIcon}/>        
+        <Lock style={styles.popupIcon}/>
       </View>
     </TouchableWithoutFeedback>
   }
