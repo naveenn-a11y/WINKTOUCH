@@ -551,8 +551,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           {getStore() !== undefined && getStore().eFaxUsed && <Button title='Fax' onPress={() => this.fax()} disabled={!this.state.isActive}/>}
           <Button title='Save' onPress={() => this.saveAction()} disabled={!this.state.isActive} />
       </View>
-        {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
-            && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
+      {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
+        && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
           {this.renderSendPopup()}
           </Modal>
       }
@@ -608,9 +608,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   renderManageUsersPopup() {
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
-        <View style={styles.popupBackground}>
+        <View style={styles.screeen}>
           <ManageUsers/>
-      </View>
+        </View>
     </TouchableWithoutFeedback>
   }
 
@@ -618,23 +618,23 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const templates : string[] = getAllCodes("referralTemplates");
 
     return (
-    <View style={styles.page}>
+      <View style={styles.page}>
         {this.renderSavedFollowUp()}
-      <View style={styles.separator}>
-        <View style={styles.tabCard}>
-          <Text style={styles.cardTitle}>New Referral</Text>
-          <View style={styles.boardM}>
-            <View style={styles.formRow}>
+        <View style={styles.separator}>
+          <View style={styles.tabCard}>
+            <Text style={styles.cardTitle}>New Referral</Text>
+            <View style={styles.boardM}>
+              <View style={styles.formRow}>
                 <FormCode code="doctors" value={this.state.doctorId<=0?"" : this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)}/>
                 <Binoculars style={styles.groupIcon} onClick={() => this.setState({isPopupVisibile: true})}/>
+              </View>
             </View>
+            <View style={styles.flow}>
+            {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
           </View>
-          <View style={styles.flow}>
-          {templates && templates.map((template: string) => <Button title={template} onPress={() => this.startReferral(template)}/>)}
         </View>
       </View>
-    </View>
-      {this.state.isPopupVisibile && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
+      {this.state.isPopupVisibile && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
             {this.renderManageUsersPopup()}
           </Modal>
       }

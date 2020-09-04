@@ -1004,7 +1004,6 @@ export class TilesField extends Component {
               </View>
           </View>
         </ScrollView>
-        <Lock style={styles.popupIcon}/>
       </View>
     </TouchableWithoutFeedback>
   }
