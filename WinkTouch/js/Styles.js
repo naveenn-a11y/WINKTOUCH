@@ -189,6 +189,7 @@ export const styles = StyleSheet.create({
     },
     textLeft: {
       fontSize: 18 * fontScale,
+      maxWidth: 400 * fontScale,
       textAlign: 'left'
     },
     label: {
@@ -509,8 +510,10 @@ export const styles = StyleSheet.create({
       minWidth: 80*fontScale
     },
     formFieldLines: {
-        flex: 100,
+        flex: 1,
+        paddingRight: 20 * fontScale,
         fontSize: 20 * fontScale,
+        minWidth: 100 * fontScale,
         height: 36 * 4.7 * fontScale,
         paddingTop: 6 * fontScale,
         paddingBottom: 4 * fontScale,
@@ -1087,6 +1090,43 @@ export const styles = StyleSheet.create({
           height: 3 * fontScale,
           width: 1 * fontScale
       }
+    },
+    pageEditor: {
+      flexDirection: 'column',
+      flex:7,
+      flexGrow: 1,
+      minWidth: 650,
+      maxWidth: 650,
+      minHeight: windowHeight-120*fontScale,
+      backgroundColor: 'white',
+      alignSelf: 'flex-start',
+      padding: 0 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      margin: 7 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
+    },
+    sideBar: {
+      flexDirection: 'column',
+      minWidth:290 * fontScale,
+      maxWidth:400 * fontScale,
+      minHeight:300 * fontScale,
+      margin: 7 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
     }
 });
 
@@ -1138,6 +1178,7 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
         padding: 10 * fontScale,
         paddingTop: ((size==='S'||size==='M')?46:10) * fontScale,
         minWidth: minWidth * fontScale,
+        maxWidth: 1040 * fontScale,
         minHeight: minHeight *fontScale,
         borderRadius: 30 * fontScale,
         borderColor: shadowColor,
@@ -1156,6 +1197,10 @@ function boardStyle(shadowColor: Color, size: ?string = 'S', minHeight: ?number 
 export function imageWidth(size: string) : number {
   const width : number = size === 'XL'?1110:size==='L'?680:size==='M'?520:size==='S'?340:340;
   return width;
+}
+
+export function printWidth(size: string): number {
+  return imageWidth(size)/1110*612;
 }
 
 export function imageStyle(size: string, aspecRatio: number) {

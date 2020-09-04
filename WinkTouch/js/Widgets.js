@@ -14,9 +14,9 @@ import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import { styles, fontScale, selectionColor, selectionFontColor, imageStyle, imageWidth } from './Styles';
 import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
-import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, capitalize,
+import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, officialDateFormat, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty} from './Util';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty, insertNewlines} from './Util';
 import { Camera } from './Favorites';
 import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
@@ -200,6 +200,13 @@ export class TextField extends Component {
       this.props.onChangeValue(value);
   }
 
+  updateText = (text:string) => {
+    if (this.props.multiline) {
+      text = insertNewlines(text);
+    }
+    this.setState({ value: text });
+  }
+
   render() {
     let style = this.props.style ? this.props.style: this.state.isActive ? styles.inputFieldActive : styles.inputField;
     if (this.props.width) {
@@ -215,7 +222,7 @@ export class TextField extends Component {
           keyboardType={this.props.type}
           style={style}
           onFocus={this.props.onFocus}
-          onChangeText={(text: string) => this.setState({ value: text })}
+          onChangeText={this.updateText}
           onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
           autoFocus={this.props.autoFocus}
           editable={!this.props.readonly}
@@ -1289,6 +1296,7 @@ export class DateField extends Component {
       suffix?: string,
       width?: number,
       readonly?: boolean,
+      dateFormat?: string,
       style?: any,
       onChangeValue?: (newValue: ?Date) => void,
       testID?: string
@@ -1484,9 +1492,15 @@ export class DateField extends Component {
       }
       this.setState({editedValue, isDirty: true});
     }
-
     getFormat(value: ?Date) : string {
+      if (this.props.dateFormat) {
+        if ('yyyy-MM-dd'===this.props.dateFormat) {
+          return officialDateFormat;
+        }
+        return this.props.dateFormat;
+      }
       if (!value) return yearDateFormat;
+
       let sameYear : boolean = isToyear(value);
       if (sameYear) {
         if (this.props.includeDay) {
@@ -1729,7 +1743,7 @@ export class Button extends Component {
   }
   render() {
     if (!this.props.visible) return null;
-    return <TouchableOpacity onPress={this.props.onPress} enable={this.props.disabled!=true} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
+    return <TouchableOpacity onPress={this.props.onPress} disabled={this.props.disabled} testID={this.props.testID?this.props.testID:(this.props.title+'Button')}><View style={this.props.disabled?styles.buttonDisabled:styles.button}><Text style={this.props.disabled?styles.buttonDisabledText:styles.buttonText}>{this.props.title}</Text></View></TouchableOpacity>
   }
 }
 
@@ -1762,6 +1776,7 @@ export class CheckButton extends Component {
 
 export class BackButton extends Component {
   props: {
+    navigation: any,
     visible? :boolean
   }
   static defaultProps = {
