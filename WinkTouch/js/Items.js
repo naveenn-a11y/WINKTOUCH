@@ -75,6 +75,7 @@ export async function cacheDefinitions(language: string) {
     cacheItem('visitTypes', undefined);
     await fetchItemDefinition('patient', language);
     await fetchItemDefinition('visit', language);
+    await fetchItemDefinition('user', language);
 }
 
 
@@ -87,7 +88,7 @@ export function formatValue(value: ?string|?number|?string[]|?number[], fieldDef
     }
     return formattedValue;
   } else if (typeof value==='number') {
-    let decimals : ?number = fieldDefinition.decimals;  
+    let decimals : ?number = fieldDefinition.decimals;
     let formattedValue : string = (decimals===undefined || decimals===null || decimals<0)?value.toString():value.toFixed(decimals);
     if (fieldDefinition.prefix==='+' && !formattedValue.startsWith('-') && !formattedValue.startsWith('+')) {
       formattedValue = '+'+formattedValue;

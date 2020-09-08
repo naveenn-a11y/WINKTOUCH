@@ -1903,7 +1903,7 @@ export class Lock extends PureComponent {
   }
 }
 
-export class SelectionListRow extends React.PureComponent {
+export class SelectionListRow extends PureComponent {
   props: {
     label: string,
     selected: boolean|string,

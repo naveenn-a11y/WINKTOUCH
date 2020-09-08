@@ -764,6 +764,17 @@ export const styles = StyleSheet.create({
         borderWidth: 2*fontScale,
         margin: 7 * fontScale,
     },
+    columnCard: {
+        flex: 30,
+        flexGrow: 30,
+        minWidth: 240 * fontScale,
+        padding: 10 * fontScale,
+        minHeight: 260 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
+    },
     examsBoard: {
         backgroundColor: sectionBackgroundColor,
         flexGrow: 100,
@@ -1022,13 +1033,6 @@ export const styles = StyleSheet.create({
     screenIcon: {
       padding: 25 * fontScale,
       fontSize: 30 * fontScale
-    },
-    popupIcon: {
-      position: 'absolute',
-      top:15 * fontScale,
-      right:  15 * fontScale,
-      fontSize: 30 * fontScale,          
-      backgroundColor: '#00000000'
     },
     groupIcon: {
       padding: 15 * fontScale,
