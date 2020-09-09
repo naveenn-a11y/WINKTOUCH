@@ -491,14 +491,16 @@ async openConsultation() {
 
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
-    const style = this.props.isDraft ? styles.tabCardFollowUp2 : styles.tabCardFollowUp1;
+    let style = this.props.isDraft ? styles.tabCardFollowUp2 : styles.tabCardFollowUp1;
+    const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+    style = isEmpty(patientInfo) ? [style, {maxHeight: style.maxHeight + 100}] : style;
     return (
     <View>
           {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
         <View style={style}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
                onUpdateSelection= {(value) => this.selectItem(value)}
-               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
+               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isForPatient = {isEmpty(patientInfo)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
                navigation = {this.props.navigation}
                />
         </View>
@@ -698,6 +700,7 @@ export class TableList extends React.PureComponent {
     onUpdateSelection: (selection: ?(string[] | string)) => void,
     onUpdate: (item: ?any) => void,
     isDraft?: boolean,
+    isForPatient?: boolean,
     fieldId: string,
     onRefreshList: () => void,
     navigation: any
@@ -726,7 +729,8 @@ export class TableList extends React.PureComponent {
     required: false,
     multiValue: false,
     freestyle: false,
-    simpleSelect: false
+    simpleSelect: false,
+    isForPatient: true
   }
   constructor(props: any) {
     super(props);
@@ -1119,7 +1123,8 @@ async handleRefresh() {
   let data : any[] = this.getItems(); 
   const sideBarCustomStyle = [styles.sideBarHorizontal, {minWidth: 200 * fontScale, maxWidth:600 * fontScale}];
   const tabCardCustomStyle = [styles.tabCardFollowUp1, {maxHeight: 400, borderWidth: 0}];
-  const style = this.props.isDraft ? styles.followUpList2 : styles.followUpList1;
+  let style = this.props.isDraft ? styles.followUpList2 : styles.followUpList1;
+  style = this.props.isForPatient ? [style, {maxHeight: style.maxHeight + 100}] : style;
   const isVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
 
     return (
