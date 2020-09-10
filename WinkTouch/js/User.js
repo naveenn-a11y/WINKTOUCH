@@ -8,7 +8,7 @@ import {View, Text, TouchableWithoutFeedback, TextInput, LayoutAnimation, Intera
 import type {User} from "./Types";
 import {styles} from './Styles';
 import { strings } from './Strings';
-import { searchItems, fetchItemById } from './Rest';
+import { searchItems, fetchItemById, storeItem } from './Rest';
 import { Button, SelectionListRow } from './Widgets';
 import { FormRow, FormField} from './Form';
 import { getCachedItem, cacheItemById } from './DataCache';
@@ -228,8 +228,9 @@ export class ManageUsers extends PureComponent<ManageUsersProps, ManageUsersStat
     this.setState({userId: 'user'});
   }
 
-  updateUser = (user: User) : void => {
-    alert('time to update user');
+  async updateUser(user: User) : void {
+    user = await storeItem(user);
+    __DEV__ && console.log('Stored user: '+JSON.stringify(user));
   }
 
   render() {
@@ -237,7 +238,7 @@ export class ManageUsers extends PureComponent<ManageUsersProps, ManageUsersStat
       <Text style={styles.screenTitle}>{this.props.label?this.props.label:strings.manageUsers}</Text>
       <View style={styles.centeredScreenLayout}>
         <FindUser selectedUserId={this.state.userId} onSelectUser={this.selectUser} onNewUser={this.newUser}/>
-        <UserDetails userId={this.state.userId} onUpdateUser={this.updateUser}/>
+        <UserDetails userId={this.state.userId} onUpdateUser={(user: User) => this.updateUser(user)}/>
       </View>
     </View>
   }

@@ -45,6 +45,7 @@ export type Account = {
 
 export type User = {
   id: string,
+  version: number,  
   firstName?: string,
   lastName?: string,
   instituteName?: string,
