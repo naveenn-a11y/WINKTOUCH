@@ -23,7 +23,7 @@ export async function fetchUser(userId: string) : Promise<User> {
 
 export async function searchUsers(searchText: string, external: boolean) : Promise<User[]> {
     if (!searchText || searchText.trim().length===0) {
-      return [];
+      searchText = undefined;
     }
     const searchCriteria = {
       searchData: searchText,
@@ -49,7 +49,7 @@ export type UserDetailsProps = {
   user: ?User,
   onUpdateUser: (user: User) => void
 }
-export class UserDetails extends PureComponent<UserDetailsProps, UserDetailsState> {
+export class UserDetails extends PureComponent<UserDetailsProps> {
     constructor(props: UserDetailsProps) {
         super(props);
     }
@@ -143,11 +143,7 @@ export class FindUser extends PureComponent<FindUserProps, FindUserState> {
 
   async searchDoctors() {
       this.props.onSelectUser && this.props.onSelectUser(undefined);
-      this.setState({showUserList: false, users: []});
-      if (!this.state.searchCriterium || this.state.searchCriterium.trim().length===0) {
-        alert(strings.searchCriteriumMissingError);
-        return;
-      }
+      this.setState({showUserList: false, showNewUserButton: false, users: []});
       let users : User[] = await searchUsers(this.state.searchCriterium, true);
       if (!users || users.length===0) {
         if (!this.props.onNewUser) {
@@ -232,8 +228,9 @@ export class ManageUsers extends PureComponent<ManageUsersProps, ManageUsersStat
   }
 
   async updateUser(user: User) : Promise<void> {
+    const isNewUser : boolean = user && user.id==='user';
     user = await storeItem(user);
-    if ((this.state.user && this.state.user.id===user.id) || user.errors) {
+    if ((this.state.user && this.state.user.id===user.id ) || user.errors || isNewUser) {
       this.setState({user});
     }
   }
