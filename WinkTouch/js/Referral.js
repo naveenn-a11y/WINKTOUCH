@@ -607,11 +607,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   renderManageUsersPopup() {
-    return <TouchableWithoutFeedback onPress={this.cancelEdit}>
-        <View style={styles.screeen}>
-          <ManageUsers/>
+    return <View style={styles.screeen}>
+          <ManageUsers onClose={this.cancelEdit}/>
         </View>
-    </TouchableWithoutFeedback>
   }
 
   renderTemplates() {

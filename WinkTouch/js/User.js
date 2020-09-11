@@ -4,14 +4,15 @@
 'use strict';
 
 import React, {PureComponent} from 'react';
-import {View, Text, TouchableWithoutFeedback, TextInput, LayoutAnimation, InteractionManager, FlatList } from 'react-native';
+import {View, Text, TouchableWithoutFeedback, TextInput, LayoutAnimation, InteractionManager, FlatList, TouchableOpacity } from 'react-native';
 import type {User} from "./Types";
 import {styles} from './Styles';
 import { strings } from './Strings';
 import { searchItems, fetchItemById, storeItem } from './Rest';
 import { Button, SelectionListRow } from './Widgets';
-import { FormRow, FormField} from './Form';
+import { FormRow, FormField, ErrorCard} from './Form';
 import { getCachedItem, cacheItemById } from './DataCache';
+import { Close } from './Favorites';
 
 const maxUserListSize : number = 200;
 
@@ -34,64 +35,56 @@ export async function searchUsers(searchText: string, external: boolean) : Promi
     return users;
 }
 
-export type UserDetailsProps = {
-  userId: ?string,
-  onUpdateUser: (user: User) => void
+function formatDoctorName(user: User) : string {
+  let name = '';
+  if (!user) return name;
+  if (user.firstName) name+=user.firstName.trim()+' ';
+  if (user.lastName) name+=user.lastName.trim()+' ';
+  if (user.instituteName) name+=user.instituteName.trim();
+  name = name.trim();
+  return name;
 }
-type UserDetailsState = {
-  user: ?User
+
+export type UserDetailsProps = {
+  user: ?User,
+  onUpdateUser: (user: User) => void
 }
 export class UserDetails extends PureComponent<UserDetailsProps, UserDetailsState> {
     constructor(props: UserDetailsProps) {
         super(props);
-        this.state = {
-          user: getCachedItem(props.userId)
-        }
-    }
-
-    componentDidUpdate(prevProps: UserDetailsProps, prevState: UserDetailsState) {
-      if (this.props.userId===prevProps.userId) return;
-      let user: ?User = getCachedItem(this.props.userId);
-      this.setState({user}, () => this.refreshUser(this.props.userId));
-    }
-
-    async refreshUser(userId: string) {
-      if (!userId || userId==='user') return;
-      let user : ?User = await fetchUser(userId);
-      if (userId!==this.props.userId) return;
-      this.setState({user});
     }
 
     render() {
-      if (!this.state.user) return <View style={styles.tabCard}/>;
+      if (!this.props.user) return <View style={styles.tabCard}/>;
       return <View style={styles.tabCard}>
+          <ErrorCard errors={this.props.user.errors} />
           <View style={styles.form}>
             <FormRow>
-              <FormField value={this.state.user} fieldName='firstName' onChangeValue={this.props.onUpdateUser} autoCapitalize='words'/>
-              <FormField value={this.state.user} fieldName='lastName' onChangeValue={this.props.onUpdateUser} autoCapitalize='words'/>
+              <FormField value={this.props.user} fieldName='firstName' onChangeValue={this.props.onUpdateUser} autoCapitalize='words'/>
+              <FormField value={this.props.user} fieldName='lastName' onChangeValue={this.props.onUpdateUser} autoCapitalize='words'/>
             </FormRow>
             <FormRow>
-              <FormField value={this.state.user} fieldName='instituteName' onChangeValue={this.props.onUpdateUser} autoCapitalize='words'/>
-              <FormField value={this.state.user} fieldName='license' onChangeValue={this.props.onUpdateUser} />
+              <FormField value={this.props.user} fieldName='instituteName' onChangeValue={this.props.onUpdateUser} autoCapitalize='words'/>
+              <FormField value={this.props.user} fieldName='license' onChangeValue={this.props.onUpdateUser} />
             </FormRow>
             <FormRow>
-              <FormField value={this.state.user} fieldName='email' onChangeValue={this.props.onUpdateUser}/>
+              <FormField value={this.props.user} fieldName='email' onChangeValue={this.props.onUpdateUser}/>
             </FormRow>
             <FormRow>
-              <FormField value={this.state.user} fieldName='fax' onChangeValue={this.props.onUpdateUser} />
-              <FormField value={this.state.user} fieldName='tel1' onChangeValue={this.props.onUpdateUser} />
-              <FormField value={this.state.user} fieldName='tel2' onChangeValue={this.props.onUpdateUser} />
+              <FormField value={this.props.user} fieldName='fax' onChangeValue={this.props.onUpdateUser} />
+              <FormField value={this.props.user} fieldName='tel1' onChangeValue={this.props.onUpdateUser} />
+              <FormField value={this.props.user} fieldName='tel2' onChangeValue={this.props.onUpdateUser} />
             </FormRow>
             <FormRow>
-              <FormField value={this.state.user} fieldName='address1' onChangeValue={this.props.onUpdateUser}/>
+              <FormField value={this.props.user} fieldName='address1' onChangeValue={this.props.onUpdateUser}/>
             </FormRow>
             <FormRow>
-              <FormField value={this.state.user} fieldName='address2' onChangeValue={this.props.onUpdateUser}/>
+              <FormField value={this.props.user} fieldName='address2' onChangeValue={this.props.onUpdateUser}/>
             </FormRow>
             <FormRow>
-              <FormField value={this.state.user} fieldName='province' onChangeValue={this.props.onUpdateUser}/>
-              <FormField value={this.state.user} fieldName='postalCode' onChangeValue={this.props.onUpdateUser}/>
-              <FormField value={this.state.user} fieldName='city' onChangeValue={this.props.onUpdateUser}/>
+              <FormField value={this.props.user} fieldName='province' onChangeValue={this.props.onUpdateUser}/>
+              <FormField value={this.props.user} fieldName='postalCode' onChangeValue={this.props.onUpdateUser}/>
+              <FormField value={this.props.user} fieldName='city' onChangeValue={this.props.onUpdateUser}/>
             </FormRow>
           </View>
       </View>
@@ -115,10 +108,10 @@ class UserList extends PureComponent<UserListProps> {
         extraData={{selection: this.props.selectedUserId}}
         keyExtractor = {(user, index) => user.id}
         renderItem={({item, index} : {item: User, index: number}) => <SelectionListRow
-            label={item.firstName+' '+item.lastName}
+            label={formatDoctorName(item)}
             simpleSelect={true}
             selected={item.id===this.props.selectedUserId}
-            onSelect={(isSelected : boolean|string) => isSelected && this.props.onSelectUser(item)}
+            onSelect={(isSelected : boolean|string) => this.props.onSelectUser(item)}
             testID={'userList.option'+(index+1)}
           />
         }
@@ -201,13 +194,14 @@ export type ManageUsersProps = {
   createdUser: (user: User) => void,
   label?: string,
   readonly?: boolean,
+  onClose?: () => void,
   style?: any,
   testID?: string
 }
 type ManageUsersState = {
   isActive: boolean,
   isTyping: boolean,
-  userId: ?string
+  user: ?User
 }
 export class ManageUsers extends PureComponent<ManageUsersProps, ManageUsersState> {
   constructor(props: any) {
@@ -215,31 +209,49 @@ export class ManageUsers extends PureComponent<ManageUsersProps, ManageUsersStat
     this.state = {
       isActive: false,
       isTyping: false,
-      userId: undefined
+      user: undefined
     };
   }
 
   selectUser = (user: ?User) => {
-    cacheItemById(user);
-    this.setState({userId: user?user.id:undefined});
+    let cachedUser: ?User = user?getCachedItem(user.id):undefined;
+    if (cachedUser) user = cachedUser;
+    this.setState({user}, () => this.fetchUser(user));
+  }
+
+  async fetchUser(user: ?User) {
+    if (!user || user.id==='user') return;
+    user = await fetchUser(user.id);
+    if (user.id===this.state.user.id) {
+      this.setState({user});
+    }
   }
 
   newUser = () => {
-    this.setState({userId: 'user'});
+    this.setState({user: {id:'user', isExternal:true}});
   }
 
-  async updateUser(user: User) : void {
+  async updateUser(user: User) : Promise<void> {
     user = await storeItem(user);
-    __DEV__ && console.log('Stored user: '+JSON.stringify(user));
+    if ((this.state.user && this.state.user.id===user.id) || user.errors) {
+      this.setState({user});
+    }
+  }
+
+  renderIcons() {
+    return <View style={styles.examIcons}>
+      {this.props.onClose && <TouchableOpacity onPress={this.props.onClose} testID='closeManageUser'><Close style={styles.screenIcon}/></TouchableOpacity>}
+    </View>
   }
 
   render() {
     return <View style={styles.page}>
       <Text style={styles.screenTitle}>{this.props.label?this.props.label:strings.manageUsers}</Text>
       <View style={styles.centeredScreenLayout}>
-        <FindUser selectedUserId={this.state.userId} onSelectUser={this.selectUser} onNewUser={this.newUser}/>
-        <UserDetails userId={this.state.userId} onUpdateUser={(user: User) => this.updateUser(user)}/>
+        <FindUser selectedUserId={this.state.user?this.state.user.id:undefined} onSelectUser={this.selectUser} onNewUser={this.newUser}/>
+        <UserDetails user={this.state.user} onUpdateUser={(user: ?User) => this.updateUser(user)}/>
       </View>
+      {this.renderIcons()}
     </View>
   }
 }
