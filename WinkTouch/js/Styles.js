@@ -636,8 +636,7 @@ export const styles = StyleSheet.create({
     popupBackground: {
       flex: 100,
       backgroundColor: '#00000077',
-      padding:20 * fontScale,
-      paddingBottom: 20 *fontScale
+      padding:20 * fontScale
     },
     popupTile: {
         ...tile
@@ -764,6 +763,17 @@ export const styles = StyleSheet.create({
         borderColor: selectionFontColor,
         borderWidth: 2*fontScale,
         margin: 7 * fontScale,
+    },
+    columnCard: {
+        flex: 30,
+        flexGrow: 30,
+        minWidth: 240 * fontScale,
+        padding: 10 * fontScale,
+        minHeight: 260 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
     },
     examsBoard: {
         backgroundColor: sectionBackgroundColor,

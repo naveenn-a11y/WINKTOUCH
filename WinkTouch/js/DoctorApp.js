@@ -35,6 +35,7 @@ export function getAccount() : Account {
 }
 
 async function setAccount(selectedAccount: Account) {
+  account = selectedAccount;
   let accountChanged: boolean = true;
   if (selectedAccount && selectedAccount.id) {
       const selectedAccountId : number = selectedAccount.id;

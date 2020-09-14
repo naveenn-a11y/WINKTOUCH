@@ -2,6 +2,7 @@
  * @flow
  */
 'use strict';
+import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import React , {PureComponent} from 'react';
 import {View, Text, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
@@ -345,6 +346,15 @@ export class PaperClip extends PureComponent {
   }
   render() {
     return <Icon name='paperclip' style={this.props.style} color={this.props.color}/>
+  }
+}
+
+export type CloseProps = {
+  style?: ViewStyleProp
+}
+export class Close extends PureComponent<CloseProps> {
+  render() {
+    return <Icon name='close' style={this.props.style} color={selectionFontColor}/>
   }
 }
 

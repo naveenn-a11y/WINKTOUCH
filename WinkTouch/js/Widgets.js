@@ -141,6 +141,20 @@ export class CameraTile extends Component {
   }
 }
 
+export type BinocularsProps = {
+  onClick: () => void,
+  style: any
+}
+export type BinocularsState = {
+}
+export class Binoculars extends PureComponent<BinocularsProps, BinocularsState> {
+  render() {
+    return <TouchableWithoutFeedback onPress={this.props.onClick}>
+      <Icon name='binoculars' style={this.props.style} color={selectionFontColor}/>
+    </TouchableWithoutFeedback>
+  }
+}
+
 export class FocusTile extends Component {
   props: {
     type: string,
@@ -1889,7 +1903,7 @@ export class Lock extends PureComponent {
   }
 }
 
-export class SelectionListRow extends React.PureComponent {
+export class SelectionListRow extends PureComponent {
   props: {
     label: string,
     selected: boolean|string,

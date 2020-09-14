@@ -45,10 +45,22 @@ export type Account = {
 
 export type User = {
   id: string,
-  firstName: string,
-  lastName: string,
+  version: number,  
+  firstName?: string,
+  lastName?: string,
+  instituteName?: string,
   license?: string,
-  signatureId?: string
+  signatureId?: string,
+  email?: string,
+  fax?: string,
+  tel1?: string,
+  tel2?: string,
+  adress1?: string,
+  adress2?: string,
+  province?: string,
+  postalcode?: string,
+  city?: string
+  isExternal: boolean
 }
 
 export type Patient = {

@@ -7,9 +7,10 @@ import type { Visit } from './Types';
 
 import React, { Component } from 'react';
 import { View, Text, ScrollView, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, selectionColor } from './Styles';
-import { Button,TilesField, Label, SelectionList } from './Widgets';
+import { Button,TilesField, Label, SelectionList, Binoculars } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
 import { getAllCodes, getCodeDefinition } from './Codes';
 import { fetchWinkRest } from './WinkRest';
@@ -27,8 +28,8 @@ import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
 import { NavigationActions } from 'react-navigation';
-import { useFocusEffect } from '@react-navigation/native';
 import { getVisitHistory } from './Visit';
+import { ManageUsers } from './User';
 
 
 export function isReferralsEnabled() : boolean {
@@ -599,8 +600,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             )
           }
           else {
-              sort(optionsKeys);
-             return <FormRow>
+          sort(optionsKeys);
+          return <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
                 value={this.state.selectedField[index]}
@@ -637,13 +638,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       </View>
         {(this.state.command===COMMAND.EMAIL || this.state.command===COMMAND.FAX)
             && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
-        {this.renderPopup()}
-      </Modal>}
+          {this.renderSendPopup()}
+          </Modal>
+      }
     </View>
   }
 
 
-  renderPopup() {
+  renderSendPopup() {
         let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
         let emailDefinition : EmailDefinition = this.state.emailDefinition;
         const command : COMMAND = this.state.command;
@@ -684,11 +686,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
                 <Button title={strings.send} onPress={() => this.send()} disabled={!this.state.isActive} />
             </View>
           </View>
-
         </View>
-
       </View>
     </TouchableWithoutFeedback>
+  }
+
+  renderManageUsersPopup() {
+    return <View style={styles.screeen}>
+          <ManageUsers onClose={this.cancelEdit}/>
+      </View>
   }
 
   renderTemplates() {
@@ -703,6 +709,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           <View style={styles.boardM}>
             <View style={styles.formRow}>
               <FormCode code="doctors" value={this.state.doctorId<=0?"" : this.state.doctorId} label={strings.referringPatientTo} onChangeValue={(code: ?string|?number) => this.updateValue(code)} />
+                <Binoculars style={styles.groupIcon} onClick={() => this.setState({isPopupVisibile: true})}/>
             </View>
           </View>
           <View style={styles.flow}>
@@ -710,6 +717,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         </View>
       </View>
     </View>
+      {this.state.isPopupVisibile && <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'fade'} onRequestClose={this.cancelEdit}>
+            {this.renderManageUsersPopup()}
+          </Modal>
+      }
     </View>
     )
   }
