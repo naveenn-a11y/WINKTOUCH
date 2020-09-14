@@ -27,7 +27,6 @@ import { isEmpty, sort, yearDateFormat, formatDate } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
-import { NavigationActions } from 'react-navigation';
 import { getVisitHistory } from './Visit';
 import { ManageUsers } from './User';
 
@@ -197,7 +196,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'visitId': stripDataType(visit.id),
         'doctorId': stripDataType(this.state.doctorId),
         'name': template,
-        
+
       };
       }
 
@@ -431,7 +430,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        }
 
       let referralDefinition: ReferralDefinition = response;
-      if (this.state.followUpStateKey) { 
+      if (this.state.followUpStateKey) {
       const setParamsAction = NavigationActions.setParams({
                    params: { refreshFollowUp: true },
                     key: this.state.followUpStateKey
@@ -439,7 +438,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       this.props.navigation.dispatch(setParamsAction);
         }
       if(this.unmounted) {
-        return  referralDefinition;  
+        return  referralDefinition;
       }
       else {
       this.setState({doctorReferral: referralDefinition});
@@ -586,7 +585,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
                 onChangeValue={(value: string) => this.selectVisitDate(index, value, previousVisits)}
               />
             </FormRow>
-          {!(optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) && 
+          {!(optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) &&
             <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
@@ -770,7 +769,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty && isEmpty(this.state.referralHtml)) {
           this.startReferral();
       }
-  } 
+  }
 
    render() {
     let doctorReferral : ReferralDefinition = this.state.doctorReferral;

@@ -128,7 +128,7 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
 export async function fetchCodeDefinitions(language: string, accountId: number, codeName: ?string = undefined ) : {[codeName: string]: CodeDefinition} {
   if (accountId===undefined) return undefined;
   const requestNr : number = getNextRequestNumber();
-  const url = restUrl +'Code/'+(codeName?codeName:'')+'/list?accountId='+accountId.toString();
+  const url = restUrl +'Code/'+(codeName?(codeName+'/'):'')+'list?accountId='+accountId.toString();
   __DEV__ && console.log('REQ '+requestNr+' fetch codes in '+language+": "+url);
   try {
     let httpResponse = await fetch(url, {

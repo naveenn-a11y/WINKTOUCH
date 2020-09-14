@@ -159,7 +159,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
       return; //TODO: we should also return an object containing the system eroor?
     }
     __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET', url);
-    const item : any = restResponse[getItemFieldName(id)];
+    const item : any = restResponse.id===id?restResponse:restResponse[getItemFieldName(id)];
     if (!item) throw new Error('The server did not return a '+getItemFieldName(id)+' for id '+id+".");
     cacheResponseItems(restResponse);
     return item;
