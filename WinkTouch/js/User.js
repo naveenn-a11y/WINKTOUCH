@@ -7,12 +7,14 @@ import React, {PureComponent} from 'react';
 import {View, Text, TouchableWithoutFeedback, TextInput, LayoutAnimation, InteractionManager, FlatList, TouchableOpacity } from 'react-native';
 import type {User} from "./Types";
 import {styles} from './Styles';
-import { strings } from './Strings';
+import { strings, getUserLanguage } from './Strings';
 import { searchItems, fetchItemById, storeItem } from './Rest';
 import { Button, SelectionListRow } from './Widgets';
 import { FormRow, FormField, ErrorCard} from './Form';
 import { getCachedItem, cacheItemById } from './DataCache';
 import { Close } from './Favorites';
+import { fetchCodeDefinitions } from './Codes';
+import { getAccount } from './DoctorApp';
 
 const maxUserListSize : number = 200;
 
@@ -233,6 +235,7 @@ export class ManageUsers extends PureComponent<ManageUsersProps, ManageUsersStat
     if ((this.state.user && this.state.user.id===user.id ) || user.errors || isNewUser) {
       this.setState({user});
     }
+    fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
   }
 
   renderIcons() {
