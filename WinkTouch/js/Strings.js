@@ -195,7 +195,9 @@ export const strings = new LocalizedStrings({
       noDataFound: 'No Existing Referral Letter !',
       deleteTitle: 'Delete',
       deleteReferralQuestion: 'Are you sure you want to delete the referral {0} of {1} ?',
-      manageUsers: 'Doctors'
+      manageUsers: 'Doctors',
+      deleteReferralTitle: 'Delete referral',
+
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
@@ -383,7 +385,9 @@ export const strings = new LocalizedStrings({
       noDataFound: 'Aucune donnée trouvée !',
       deleteTitle: 'Supprimer',
       deleteReferralQuestion: 'Est-ce que vous êtes sur de vouloir supprimer la référence {0} du {1}  ?',
-      manageUsers: 'Docteurs'
+      manageUsers: 'Docteurs',
+     deleteReferralTitle: 'Supprimer une référence',
+
     }
 });
 

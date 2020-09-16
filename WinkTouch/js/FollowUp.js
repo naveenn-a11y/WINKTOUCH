@@ -227,7 +227,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
           return;
       }
       Alert.alert(
-        strings.deleteVisitTitle,
+        strings.deleteReferralTitle,
         strings.formatString(strings.deleteReferralQuestion, selectedItem.ref, formatDate(selectedItem.date, jsonDateFormat)),
         [
           {
@@ -259,6 +259,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
    (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : 
     (selectedItem !==undefined ? getCachedItem(selectedItem.patientInfo.id) : undefined)) ;
+    
     if(patientInfo) {
       await fetchReferralFollowUpHistory(patientInfo.id);
     } else {
@@ -515,12 +516,15 @@ async openConsultation() {
       let statusCode : CodeDefinition = this.state.selectedItem !== undefined ? getCodeDefinition('referralStatus',this.state.selectedItem.status) : undefined;
       const visit : Visit = this.state.selectedItem !== undefined ? getCachedItem(this.state.selectedItem.visitId) : undefined;
       const isDraft : boolean = this.props.isDraft;
+      const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
+      (this.props.navigation.state.params.patientInfo ? this.props.navigation.state.params.patientInfo :
+      (this.state.selectedItem !== undefined ? this.state.selectedItem.patientInfo : undefined));
       return <View style={{paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
            {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && visit && this.shouldActivateFollowUp() && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key})}}/>}
-           {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key})}}/>}
+           {this.state.selectedItem && !isDraft && visit && this.shouldActivateFollowUp() && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key, patientInfo: patientInfo})}}/>}
+           {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key, patientInfo: patientInfo})}}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
