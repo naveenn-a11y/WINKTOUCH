@@ -211,8 +211,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let htmlEnd: string = patientFooter();
         template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&
                    this.props.navigation.state.params.referral.referralTemplate &&!this.props.navigation.state.params.followUp)?this.props.navigation.state.params.referral.referralTemplate.template : template;
-        const referralHtml = htmlHeader + htmlContent.content + htmlEnd;
-        this.mapImageWithBase64();
+        let html = htmlHeader + htmlContent.content + htmlEnd;
+        const referralHtml = this.mapImageWithBase64(html);
         this.updateFieldSubject(htmlContent.subject);
         this.updateFieldBody(htmlContent.body);
         this.updateSignatureState(htmlContent.content);
@@ -374,15 +374,15 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async print() : Promise<void> {
-    this.updateReferral();
-    this.setState({command: COMMAND.PRINT});
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
     const job = await printHtml(html);
     if(job) {
-       await this.save();
+      this.updateReferral();
+      this.setState({command: COMMAND.PRINT});
+      await this.save();
     }
   }
 
