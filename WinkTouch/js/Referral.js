@@ -52,7 +52,7 @@ type ReferralScreenProps = {
 
 type ReferralScreenState = {
   template: ?string,
-  selectedField: ?string[],
+  selectedField: ?CodeDefinition[],
   htmlDefinition: ?HtmlDefinition[],
   key: ? string,
   doctorId: ? number | string,
@@ -224,7 +224,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async selectVisitDate(level: number, value: string, options: any) {
-    let selectedField : string[] = this.state.selectedField;
+    let selectedField : CodeDefinition[] = this.state.selectedField;
     while(++level<selectedField.length) {
       selectedField[level-1]=undefined;
     }
@@ -242,21 +242,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   selectField(level: number, value: string, options: any) {
-    let selectedField : string[] = this.state.selectedField;
-    selectedField[level] = value;
+    const filter : CodeDefinition = options && options.find((codeDefinition: CodeDefinition) => codeDefinition.description == value) ;
+    let selectedField : CodeDefinition[] = this.state.selectedField;
+    selectedField[level] = filter;
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
-    let cleanSelectedField: string[] = selectedField.filter((field : string) => isEmpty(field) === false);
-    let keyArray : string[] = [];
-    for(const field : string of cleanSelectedField) {
-      const formatted = options[field] === undefined ? options['keySpec'] : options[field]['keySpec'];
-
-    if(formatted)
-       keyArray.push(formatted);
-    else
-        keyArray.push(field);
-    }
+    let cleanSelectedField: CodeDefinition[] = selectedField.filter((field : CodeDefinition) => isEmpty(field) === false);
+    let keyArray : string[] = cleanSelectedField!== undefined ?  cleanSelectedField.map(o => o.code) : [];
     let key = keyArray.join('.');
     this.setState({selectedField});
     this.setState({key});
@@ -534,6 +527,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const previousVisits : any = this.getPreviousVisitsDate();
     const previousVisitsOptionsKeys = Object.keys(previousVisits);
     let selectedVisitField : string = this.state.selectedVisitField;
+    let filter : any = {};
 
     return <View style={styles.sideBar}>
         <View style={styles.formRow}>
@@ -545,36 +539,39 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         <View style={styles.formRow}>
           <View style={styles.formRowHeader}><Label value={strings.dynamicField}/></View>
         </View>
-        {this.state.selectedField.map((fieldName: string, index: number) => {
+        {this.state.selectedField.map((fieldName: CodeDefinition, index: number) => {
 
-          const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
+          const prevValue : ?CodeDefinition = index>0?this.state.selectedField[index-1]:{};
           if (prevValue===undefined || prevValue===null) return undefined;
 
           let options  = getAllCodes("dynamicFields");
           for (let i:number =1; i<=index; i++) {
             if (options) {
-              options = options[this.state.selectedField[i-1]];
+              const filter : CodeDefinition = options.find((codeDefinition: CodeDefinition) => codeDefinition == this.state.selectedField[i-1]) ;
+              options = filter && filter.fields ? filter.fields : undefined;
             }
           }
 
-          let optionsKeys = Object.keys(options);
-          optionsKeys = optionsKeys.filter((oKey: string) => oKey !== 'keySpec');
-          if (this.state.selectedField[0]==='Exam' && index===1) {
+          let optionsKeys = options!== undefined ?  options.map(o => o.description) : undefined;
+          if (this.state.selectedField[0] !== undefined && this.state.selectedField[0].code==='Exam' && index===1) {
             if(isEmpty(selectedVisitField)) {
                selectedVisitField = previousVisitsOptionsKeys.find(key => previousVisits[key] === visit.id);
             }
 
             visit = selectedVisitField ? getCachedItem(previousVisits[selectedVisitField]) : visit;
 
-            optionsKeys = optionsKeys.filter((examName: string) => {
-              const exam = getExam(examName, visit);
+            options = options.filter((examName: CodeDefinition) => {
+              const exam = getExam(examName.code, visit);
               if (!exam) return false;
-              let examValue = exam[examName];
+              let examValue = exam[examName.code];
               return !isEmpty(examValue);
             });
-          }
+            optionsKeys = options!== undefined ?  options.map(o => o.description) : undefined;
 
-          if (this.state.selectedField[0]==='Exam' && index===1) {
+          }
+          const description : string = this.state.selectedField[index] !==undefined ? this.state.selectedField[index].description : undefined;
+
+          if (this.state.selectedField[0] !== undefined && this.state.selectedField[0].code==='Exam' && index===1) {
 
             return (
               <View>
@@ -589,7 +586,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
-                value={this.state.selectedField[index]}
+                value={description}
                 onChangeValue={(value: string) => this.selectField(index, value, options)}
               />
             </FormRow>
@@ -599,14 +596,17 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             )
           }
           else {
-          sort(optionsKeys);
-          return <FormRow>
+          return (
+            !(optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) &&
+            <FormRow>
               <TilesField label='Filter'
                 options={optionsKeys}
-                value={this.state.selectedField[index]}
+                value={description}
                 onChangeValue={(value: string) => this.selectField(index, value, options)}
               />
             </FormRow>
+            
+          )
           }
 
           })
