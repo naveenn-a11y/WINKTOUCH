@@ -570,7 +570,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
           }
           const description : string = this.state.selectedField[index] !==undefined ? this.state.selectedField[index].description : undefined;
-
+          if(optionsKeys) {
+            sort(optionsKeys);
+          }
           if (this.state.selectedField[0] !== undefined && this.state.selectedField[0].code==='Exam' && index===1) {
 
             return (
