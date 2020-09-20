@@ -295,7 +295,7 @@ class FollowUpButton extends PureComponent {
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.referral}</Text>
            </View>
         </TouchableOpacity>
-    }
+     }
 }
 
 export class StartVisitButtons extends Component {
@@ -994,10 +994,13 @@ export class VisitHistory extends Component {
 
     render() {
         if (!this.state.history) return null;
+        const patientInfo: PatientInfo = this.props.patientInfo;
+        const patientId : string = isEmpty(patientInfo) ? '*' : patientInfo.id;
+        const listFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientId);
         return <View>
             <View style={styles.tabHeader}>
               <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
-              <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />
+              {listFollowUp && Array.isArray(listFollowUp) && listFollowUp.length > 0 && <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />}
               <FlatList
                 horizontal={true}
                 extraData={this.state.selectedId}
