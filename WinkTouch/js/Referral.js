@@ -12,7 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { styles, selectionColor } from './Styles';
 import { Button,TilesField, Label, SelectionList, Binoculars } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
-import { getAllCodes, getCodeDefinition } from './Codes';
+import { getAllCodes, getCodeDefinition, formatCodeDefinition} from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp} from './Types';
 import {allExamIds} from './Visit';
@@ -552,7 +552,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
             }
           }
 
-          let optionsKeys = options!== undefined ?  options.map(o => o.description) : undefined;
+          let optionsKeys = options!== undefined ?  options.map(o => formatCodeDefinition(o)) : undefined;
           if (this.state.selectedField[0] !== undefined && this.state.selectedField[0].code==='Exam' && index===1) {
             if(isEmpty(selectedVisitField)) {
                selectedVisitField = previousVisitsOptionsKeys.find(key => previousVisits[key] === visit.id);
@@ -566,7 +566,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               let examValue = exam[examName.code];
               return !isEmpty(examValue);
             });
-            optionsKeys = options!== undefined ?  options.map(o => o.description) : undefined;
+            optionsKeys = options!== undefined ?  options.map(o => formatCodeDefinition(o)) : undefined;
 
           }
           const description : string = this.state.selectedField[index] !==undefined ? this.state.selectedField[index].description : undefined;
