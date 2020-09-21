@@ -404,7 +404,7 @@ class VisitWorkFlow extends Component {
         const params = this.props.navigation.state.params; 
       
       if(params && params.refreshFollowUp) {
-        const patientInfo: PatientInfo =  this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+        const patientInfo: PatientInfo =  this.props.patientInfo ;
         this.props.navigation.setParams({refreshFollowUp: false});
         await fetchReferralFollowUpHistory(patientInfo.id);
       }
