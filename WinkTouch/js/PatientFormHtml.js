@@ -1112,8 +1112,11 @@ export function patientHeader () {
     `.xlForm {display: block; page-break-before: always;}` +
     `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
-
-
+    `@media screen {` +
+    `table tr:nth-child(2n-1) td {` +
+    `  background: #F5F5F5;` +
+    `}` +
+    `}` +
     `.uploadForm {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
@@ -1194,9 +1197,7 @@ export function patientHeader () {
     `  border-spacing: 0;` +
     `  margin-bottom: 20px;` +
     `}` +
-    `table tr:nth-child(2n-1) td {` +
-    `  background: #F5F5F5;` +
-    `}` +
+
     `table th,` +
     `table td {` +
     `padding: 5px 20px;` +
