@@ -995,8 +995,7 @@ export class VisitHistory extends Component {
     render() {
         if (!this.state.history) return null;
         const patientInfo: PatientInfo = this.props.patientInfo;
-        const patientId : string = isEmpty(patientInfo) ? '*' : patientInfo.id;
-        const listFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientId);
+        const listFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
         return <View>
             <View style={styles.tabHeader}>
               <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
