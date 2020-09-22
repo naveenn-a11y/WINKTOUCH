@@ -772,13 +772,13 @@ async function renderImage (
               }
 
               let x =
-                (fieldScaledStyle ? fieldScaledStyle.left : 0) +
+                round((fieldScaledStyle ? fieldScaledStyle.left : 0) +
                 (parentScaledStyle ? parentScaledStyle.left : 0) +
-                styles.textfield.fontSize;
+                styles.textfield.fontSize);
               let y =
-                (fieldScaledStyle ? fieldScaledStyle.top : 0) +
+                round((fieldScaledStyle ? fieldScaledStyle.top : 0) +
                 (parentScaledStyle ? parentScaledStyle.top : 0) +
-                 styles.textfield.fontSize;
+                 styles.textfield.fontSize);
 
               html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
               html +=` <g transform="scale(0.96 0.98)">`;
@@ -819,23 +819,23 @@ function renderGraph (
 ) {
   let html: string = '';
   if (!value.lines || value.lines.length === 0) return '';
-  const strokeWidth: number = fontScale / scale;
+  const strokeWidth: number = round(fontScale / scale);
   const resolution: number[] = resolutions(value, definition);
   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return ''
     if (lijn.indexOf(' ') > 0) {
-      const points = lijn.split(' ')
+      const points = lijn.split(' ');
       const d = line()
         .x((point: string) => point.substring(0, point.indexOf(',')))
         .y((point: string) => point.substring(point.indexOf(',') + 1))
         .curve(curveBasis)(points);
-
-      html += `<path d="${d}"  fill="none" stroke="black" stroke-width=${strokeWidth} />`
+      const roundedCoordinates : any = round(d);
+      html += `<path d="${roundedCoordinates}"  fill="none" stroke="black" stroke-width=${strokeWidth} />`
     } else {
       let commaIndex: number = lijn.indexOf(',')
-      let x: string = lijn.substring(0, commaIndex);
-      let y: string = lijn.substring(commaIndex + 1);
+      let x: string = round(lijn.substring(0, commaIndex));
+      let y: string = round(lijn.substring(commaIndex + 1));
 
       html += `<circle cx="${x}" cy="${y}" r="${strokeWidth}" fill="black" />`
     }
@@ -851,6 +851,18 @@ function aspectRatio (
   const resolution: number[] = resolutions(value, definition)
   const aspectRatio: number = resolution[0] / resolution[1]
   return aspectRatio
+}
+
+function round(coordinates: any) : any {
+  try {
+     if(isNaN(coordinates)) {
+       return coordinates.replace(/[\d\.-][\d\.e-]*/g, function(n){return Math.round(n*10)/10});
+     } else {
+       return  Math.round(coordinates*10)/10;
+     }
+  }catch(e) {
+    return coordinates;
+  }
 }
 
 function resolutions (
