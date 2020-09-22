@@ -16,7 +16,7 @@ import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
 import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, officialDateFormat, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty, insertNewlines} from './Util';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty, insertNewlines, postfix} from './Util';
 import { Camera } from './Favorites';
 import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
@@ -975,7 +975,7 @@ export class TilesField extends Component {
     let allOptions : string[][] = this.isMultiColumn()?this.props.options:[this.props.options];
     return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID='popupBackground'>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>{this.props.label}: {this.format(this.state.editedValue)}</Text>
+          <Text style={styles.modalTitle}>{postfix(this.props.label,': ')}{this.format(this.state.editedValue)}</Text>
           <FocusTile type='previous' commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
           <FocusTile type='next' commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
           <ScrollView horizontal={allOptions.length>3}>

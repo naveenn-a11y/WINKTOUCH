@@ -87,6 +87,7 @@ export function allExamIds(visit: Visit) : string[] {
   if (!allExamIds) allExamIds = [];
   return allExamIds;
 }
+
 export async function fetchReferralFollowUpHistory(patientId?: string) : FollowUp[] {
       let parameters : {} = {};
       let body : {} = {
@@ -400,8 +401,8 @@ class VisitWorkFlow extends Component {
     }
 
    async componentDidUpdate(prevProps: any) {
-        const params = this.props.navigation.state.params; 
-      
+        const params = this.props.navigation.state.params;
+
       if(params && params.refreshFollowUp) {
         const patientInfo: PatientInfo =  this.props.navigation.state.params.patientInfo;
         this.props.navigation.setParams({refreshFollowUp: false});
