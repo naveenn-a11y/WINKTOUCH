@@ -25,6 +25,7 @@
     {
       "hasAdd": false,
       "name": "Auto refractor",
+      "multiValue": true,
       "type": "SRx",
       "import": ["machine.autorefractor.rx","machine.tonoref.rx"]
     },

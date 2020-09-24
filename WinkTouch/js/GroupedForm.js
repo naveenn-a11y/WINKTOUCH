@@ -403,7 +403,7 @@ export class GroupedCard extends Component {
 
   renderGlassesSummary(groupDefinition: GroupDefinition) {
     if (groupDefinition===undefined || groupDefinition===null) return null;
-    if (this.props.exam[this.props.exam.definition.name]===undefined || this.props.exam[this.props.exam.definition.name][groupDefinition.name]===undefined) return null;
+    if (isEmpty(this.props.exam[this.props.exam.definition.name]) || isEmpty(this.props.exam[this.props.exam.definition.name][groupDefinition.name])) return null;
     if (groupDefinition.multiValue) {
         return this.props.exam[this.props.exam.definition.name][groupDefinition.name].map((rx : GlassesRx, index: number) =>
             <GlassesSummary showHeaders={false} glassesRx={rx} key={groupDefinition.name+"."+index}/>
@@ -852,7 +852,7 @@ export class GroupedFormScreen extends Component {
       if (groupDefinition.mappedField) {
         groupDefinition = Object.assign({}, getFieldDefinition(groupDefinition.mappedField), groupDefinition);
       }
-      if (exam[exam.definition.name][groupDefinition.name]===undefined) {
+      if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
         if (groupDefinition.type==='SRx') {
           if (groupDefinition.optional===true) {
             this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
@@ -875,7 +875,7 @@ export class GroupedFormScreen extends Component {
           }
         }
       }
-      if (exam[exam.definition.name][groupDefinition.name]!==undefined) {
+      if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
         if (groupDefinition.multiValue) {
           let values = exam[exam.definition.name][groupDefinition.name];
           if (values instanceof Array === false) values = [values]; //auto convert old style exams
@@ -1004,11 +1004,14 @@ export class GroupedFormScreen extends Component {
         value.lines = undefined;
         value.image = undefined;
     }
-    for (const fieldDefinition: FieldDefinition of definition.fields) {
-      let fieldValue = value[fieldDefinition.name];
-      fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
-      value[fieldDefinition.name] = fieldValue;
+    if(definition.fields !== undefined) {
+          for (const fieldDefinition: FieldDefinition of definition.fields) {
+            let fieldValue = value[fieldDefinition.name];
+            fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
+            value[fieldDefinition.name] = fieldValue;
+      }
     }
+
     return value;
   }
 
@@ -1057,7 +1060,7 @@ export class GroupedFormScreen extends Component {
     const exam : Exam = this.props.exam;
     let groupDefinition = exam.definition.fields.find((groupDefinition: GroupDefinition) => groupDefinition.label!==undefined?groupDefinition.label===groupType:groupDefinition.name===groupType);
     if (!groupDefinition) return;
-    if (exam[exam.definition.name][groupDefinition.name]===undefined) {
+    if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
       if (groupDefinition.type==='SRx') {
         if (groupDefinition.multiValue===true) {
           exam[exam.definition.name][groupDefinition.name] = [newRefraction()];

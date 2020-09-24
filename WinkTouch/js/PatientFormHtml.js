@@ -492,7 +492,7 @@ async function renderColumnedRows (
 
 
   if(allRowsEmpty == false) {
-      html += `<table style="margin-top:10px; width:50%">`;
+      html += `<table class="childTable" style="margin-top:10px; width:50%">`;
       html += renderColumnsHeader(columnDefinition, definition);
       rows.forEach((column: string[]) => {
         html +=`<tr>`;
@@ -507,7 +507,7 @@ async function renderColumnedRows (
                let customColumns : string[] = columns.filter((header : string) => header !== '>>');
                 customColumns.map((header: string, i: number) => {
                   let subHtml : string = '';
-                  subHtml += `<table style="margin-top:10px; width:50%">`;
+                  subHtml += `<table class="childTable" style="margin-top:10px; width:50%">`;
                   rows.forEach((column: string[]) => {
                     subHtml +=`<tr>`;
                     column.map((value: string, j: number) => {
@@ -913,7 +913,7 @@ function renderRxTable (
   if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html;
   }
-  html += `<table>`
+  html += `<table class="childTable">`
   html += `<thead><tr>`
   html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(groupDefinition)}</th>`
   html += `<th class="service">Sph</th>`
@@ -1105,8 +1105,10 @@ export function patientHeader () {
   let htmlHeader: string =
     `<head><style>` +
     `@media print {` +
-    `table { page-break-after:auto; page-break-inside: avoid;}` +
+    `table { page-break-after:auto;}` +
+    `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
+    `td    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +

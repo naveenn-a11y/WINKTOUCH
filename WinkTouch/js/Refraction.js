@@ -369,6 +369,8 @@ export class GlassesSummary extends Component {
   }
 
   isEyeEmpty() {
+    if(isEmpty(this.props.glassesRx)) return true;
+    if(isEmpty(this.props.glassesRx.od) && isEmpty(this.props.glassesRx.os)) return true;
     return (this.props.glassesRx.od.isEye===false && this.props.glassesRx.os.isEye===false) ;
   }
 
