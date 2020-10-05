@@ -639,7 +639,7 @@ class VisitWorkFlow extends Component {
     }
 
     renderActionButtons() {
-      const patientInfo: PatientInfo =  this.props.patientInfo ? this.props.patientInfo : this.props.navigation.state.params.patientInfo;
+      const patientInfo: PatientInfo =  this.props.patientInfo;
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
             {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
