@@ -875,7 +875,7 @@ export class GroupedFormScreen extends Component {
           }
         }
       }
-      if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
+      if (!isEmpty(exam[exam.definition.name][groupDefinition.name])) {
         if (groupDefinition.multiValue) {
           let values = exam[exam.definition.name][groupDefinition.name];
           if (values instanceof Array === false) values = [values]; //auto convert old style exams
