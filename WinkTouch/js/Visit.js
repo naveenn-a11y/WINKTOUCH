@@ -29,10 +29,10 @@ import { fetchWinkRest } from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import { isReferralsEnabled } from './Referral';
 
-const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
+export const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
 
-function getSectionTitle(section) : string {
+export function getSectionTitle(section) : string {
   const language : string = getUserLanguage();
   if (language.startsWith('fr')) {
       if (section==='Pre tests') return 'Pré-tests';

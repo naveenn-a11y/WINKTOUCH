@@ -197,7 +197,7 @@ export const strings = new LocalizedStrings({
       deleteReferralQuestion: 'Are you sure you want to delete the referral {0} of {1} ?',
       manageUsers: 'Doctors',
       deleteReferralTitle: 'Delete referral',
-
+      customisation: 'Customisation'
     },
     fr: {
       enterRegisteredEmail: 'Veuillez entrer votre adresse courriel pour vous connecter à votre base de donées WINK\nou pour commencer un essai',
@@ -387,7 +387,7 @@ export const strings = new LocalizedStrings({
       deleteReferralQuestion: 'Est-ce que vous êtes sur de vouloir supprimer la référence {0} du {1}  ?',
       manageUsers: 'Docteurs',
      deleteReferralTitle: 'Supprimer une référence',
-
+      customisation: 'Personnalisation'
     }
 });
 

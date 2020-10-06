@@ -260,7 +260,7 @@ export class CheckList extends PureComponent {
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style}>
             <Label style={styles.sectionTitle} suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>
-          <View style={styles.wrapBoard}>
+          <View style={this.props.style?undefined:styles.wrapBoard}>
         {this.state.formattedOptions.map((option: string, index: number) => {
             const isSelected : boolean|string = this.isSelected(option);
             const prefix : string = isSelected===true||isSelected===false?'':('('+isSelected+') ');

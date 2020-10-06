@@ -12,6 +12,7 @@ import type {Exam, ExamDefinition, Scene } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
 import { UpcomingAppointments} from './Appointment';
 import { getAllCodes } from './Codes';
+import { isAtWink } from './Registration';
 import { getPhoropters } from './DoctorApp';
 
 export class Notifications extends PureComponent {
@@ -46,9 +47,9 @@ export class MenuBar extends PureComponent {
           {exam!=undefined && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
           {exam!=undefined && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
           {__DEV__ && false && exam && <Button title={strings.template} onPress={() => this.props.navigation.navigate('examTemplate', {examDefinition: this.extractExamDefinition(exam)})}/>}
-          {__DEV__ && <Button title={strings.templates} onPress={() => this.props.navigation.navigate('templates')}/>}
+          {(isAtWink || __DEV__) && <Button title={strings.customisation} onPress={() => this.props.navigation.navigate('customisation')}/>}
           {scene ==='overview'  && hasConfig===true && <Button title={strings.configuration} onPress={() => this.props.navigation.navigate('configuration')} />}
-          <BackButton navigation={this.props.navigation} />
+          {scene !=='overview' && <BackButton navigation={this.props.navigation} />}
           {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}
           {__DEV__ && <Notifications />}
         </View>

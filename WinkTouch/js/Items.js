@@ -143,7 +143,7 @@ export function isNumericField(fieldDefinition: FieldDefinition) : boolean {
   return fieldDefinition.minValue!==undefined || fieldDefinition.maxValue!==undefined;
 }
 
-export function formatLabel(fieldDefinition: FieldDefinition|GroupDefinition) : string {
+export function formatLabel(fieldDefinition: FieldDefinition|GroupDefinition|{name: string, label: ?string}) : string {
   if (fieldDefinition===undefined) return '';
   if (fieldDefinition.label!==undefined && fieldDefinition.label!==null) return fieldDefinition.label;
   return fieldDefinition.name;
