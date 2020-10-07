@@ -28,6 +28,7 @@ import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from
 import { fetchWinkRest } from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import { isReferralsEnabled } from './Referral';
+import { LoadingModal } from './LoadingModal';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -764,7 +765,8 @@ export class VisitHistory extends Component {
     state: {
         selectedId: ?string,
         history: ?string[],
-        showingDatePicker: boolean
+        showingDatePicker: boolean,
+        isLoading: boolean
     }
 
     constructor(props: any) {
@@ -773,6 +775,7 @@ export class VisitHistory extends Component {
           selectedId: this.props.navigation && this.props.navigation.state && this.props.navigation.state.params ? this.props.navigation.state.params.selectedVisitId: undefined,
           history: this.combineHistory(props.patientDocumentHistory, props.visitHistory),
           showingDatePicker: false,
+          isLoading: false
         };
 
     }
@@ -860,12 +863,14 @@ export class VisitHistory extends Component {
 
     async startVisit(visitId: string, visitType: string) {
       if (this.props.readonly) return;
+      this.setState({isLoading: true});
       let visit = getCachedItem(visitId);
       visit.typeName = visitType;
       visit = await updateVisit(visit);
       this.props.onRefresh();
       this.setState({
-        selectedId: visit.id
+        selectedId: visit.id,
+        isLoading: false
       });
     }
 
@@ -1021,6 +1026,7 @@ export class VisitHistory extends Component {
                 disableScroll={this.props.disableScroll}
               />}
             {this.state.selectedId && this.state.selectedId.startsWith('patientDocument') && <PatientDocumentPage id={this.state.selectedId}/>}
+            {this.state.isLoading && <LoadingModal isLoading = {this.state.isLoading}/>}
         </View>
     }
 }
