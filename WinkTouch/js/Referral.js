@@ -541,12 +541,19 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     return exams;
   }
 
+  compareDynamicFieldDescription(a: CodeDefinition, b: CodeDefinition) : number {
+  if(a.description.toLowerCase() < b.description.toLowerCase()) return -1;
+  else if(a.description.toLowerCase() > b.description.toLowerCase()) return 1;
+  return 0;
+ }
+
   renderFieldSelectionTree() {
     let dropdowns = [];
     let options : ?CodeDefinition[]  = getAllCodes("dynamicFields");
     for (let level: number = 0; level<this.state.selectedField.length; level++) {
       if (!options || (level>0 && !this.state.selectedField[level-1])) break; //Don't render empty dropdowns for nothing
       const selectedValue : ?string = this.state.selectedField[level];
+      options.sort(this.compareDynamicFieldDescription);
       dropdowns.push(<FormRow>
         <FormOptions
           options={options}
