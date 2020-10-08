@@ -28,7 +28,6 @@ import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from
 import { fetchWinkRest } from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import { isReferralsEnabled } from './Referral';
-import { LoadingModal } from './LoadingModal';
 
 const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
@@ -303,7 +302,8 @@ export class StartVisitButtons extends Component {
   props: {
     isPreVisit: boolean,
     title?: string,
-    onStartVisit: (type: string, isPrevisit: boolean) => void
+    onStartVisit: (type: string, isPrevisit: boolean) => void,
+    isLoading: ?boolean
   }
   state: {
     visitTypes: string[],
@@ -330,7 +330,7 @@ export class StartVisitButtons extends Component {
   }
 
   startVisit(visitType: string) {
-    if (this.state.clicked) return;
+    if (this.state.clicked || this.props.isLoading) return;
     this.setState({clicked: true}, () => {
         this.props.onStartVisit(visitType, this.props.isPreVisit);
         this.setState({clicked:false});
@@ -376,7 +376,8 @@ class VisitWorkFlow extends Component {
         onStartVisit: (type: string, isPreVisit: boolean) => void,
         readonly: ?boolean,
         enableScroll: () => void,
-        disableScroll: () => void
+        disableScroll: () => void,
+        isLoading: ?boolean
     }
     state: {
         visit: Visit,
@@ -677,7 +678,7 @@ class VisitWorkFlow extends Component {
         }
         if (!this.state.visit && !this.props.readonly) {
           return <View>
-            {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} />}
+            {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} isLoading={this.props.isLoading} />}
           </View>
         }
         const preExamDefinitions : ExamDefinition[] = getCachedItems(getCachedItem('preExamDefinitions'));
@@ -687,7 +688,7 @@ class VisitWorkFlow extends Component {
               {hasPreTests && <View style={styles.flow}>
                 {this.renderExams('Pre tests', getCachedItems(this.state.visit.preCustomExamIds), true)}
                 </View>}
-              {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit} />}
+              {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit}  isLoading={this.props.isLoading} />}
             </View>
         }
         let exams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
@@ -1024,9 +1025,9 @@ export class VisitHistory extends Component {
                 readonly={this.props.readonly}
                 enableScroll={this.props.enableScroll}
                 disableScroll={this.props.disableScroll}
+                isLoading={this.state.isLoading}
               />}
             {this.state.selectedId && this.state.selectedId.startsWith('patientDocument') && <PatientDocumentPage id={this.state.selectedId}/>}
-            {this.state.isLoading && <LoadingModal isLoading = {this.state.isLoading}/>}
         </View>
     }
 }
