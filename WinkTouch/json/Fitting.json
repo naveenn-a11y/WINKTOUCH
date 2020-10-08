@@ -1026,6 +1026,133 @@
           ]
         }
       ]
+    },
+    "fr-CA": {
+      "label": "Essai LC",
+      "fields": [
+        {
+          "name": "Contact Lens Trial",
+          "label": "Essai LC",
+          "fields": [
+            {
+              "name": "Doctor",
+              "label": "Docteur"
+            },
+            {
+              "name": "Follow-up",
+              "label": "Suivi"
+            },
+            {
+              "name": "Manufacturer",
+              "label": "Manufacturier"
+            },
+            {
+              "name": "Brand",
+              "label": "Marque"
+            },
+            {
+              "name": "Qty/Box",
+              "label": "QtÃ©/Bts"
+            },
+            {
+              "name": "Material",
+              "label": "MatÃ©riau"
+            },
+            {
+              "name": "Wearing Period",
+              "label": "FrÃ©quence de port"
+            },
+            {
+              "name": "Replacement",
+              "label": "Remplacement"
+            },
+            {
+              "name": "Axis",
+              "label": "Axe"
+            },
+            {
+              "name": "BC",
+              "label": "CB"
+            },
+            {
+              "name": "DVA",
+              "label": "AVL",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": [
+                    "APL"
+                  ]
+                },
+                {
+                  "name": "OS",
+                  "options": [
+                    "APL"
+                  ]
+                },
+                {
+                  "name": "OU",
+                  "options": [
+                    "APL"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "label": "AVP",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": [
+                    "APL"
+                  ]
+                },
+                {
+                  "name": "OS",
+                  "options": [
+                    "APL"
+                  ]
+                },
+                {
+                  "name": "OU",
+                  "options": [
+                    "APL"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Comfort",
+              "label": "Confort"
+            },
+            {
+              "name": "Movement",
+              "label": "Mouvement"
+            },
+            {
+              "name": "Tear",
+              "label": "Larmes"
+            },
+            {
+              "name": "Sclera",
+              "label": "SclÃ¨re"
+            },
+            {
+              "name": "Limbal",
+              "label": "Limbe"
+            },
+            {
+              "name": "Cornea",
+              "label": "CornÃ©e"
+            },
+            {
+              "name": "Lid",
+              "label": "PaupiÃ¨re"
+            }
+          ]
+        }
+      ]
     }
   }
 }

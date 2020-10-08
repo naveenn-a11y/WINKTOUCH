@@ -8,7 +8,11 @@
           "fields": [
             {
               "name": "Method",
-              "label": "MÃ©thode"
+              "label": "MÃ©thode",
+              "options": [
+                "Alignement",
+                "Embrouillement"
+              ]
             },
             {
               "name": "Dominant eye",

@@ -10,7 +10,8 @@
           "fields": [
             {
               "name": "Stereo fly",
-              "label": "Mouche"
+              "label": "Mouche",
+              "normalValue": "StÃ©rÃ©oscopie normale"
             },
             {
               "name": "Circles",
