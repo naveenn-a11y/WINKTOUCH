@@ -3,7 +3,29 @@
   "order": 4,
   "locale": {
     "fr-CA": {
-      "label": "Traitement"
+      "label": "Traitement",
+      "fields": [
+        {
+          "name": "Treatment plan",
+          "label": "Plan de traitement",
+          "fields": [
+            {
+              "name": "Treatment",
+              "label": "Traitement"
+            }
+          ]
+        },
+        {
+          "name": "Recall",
+          "label": "Rappel",
+          "fields": [
+            {
+              "name": "Amount",
+              "label": "Rappel dans"
+            }
+          ]
+        }
+      ]
     }
   },
   "name": "Treatment",
