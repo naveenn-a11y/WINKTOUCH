@@ -81,7 +81,7 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		if (this.resolveContent) {
 			this.resolveContent( data.html );
 		}
-		else if (this.resolveBooleanContent) {
+	    if (this.resolveBooleanContent) {
 			this.resolveBooleanContent( data.html );
 		}
 	}

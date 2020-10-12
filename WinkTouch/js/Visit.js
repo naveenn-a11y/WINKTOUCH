@@ -87,6 +87,7 @@ export function allExamIds(visit: Visit) : string[] {
   if (!allExamIds) allExamIds = [];
   return allExamIds;
 }
+
 export async function fetchReferralFollowUpHistory(patientId?: string) : FollowUp[] {
       let parameters : {} = {};
       let body : {} = {
@@ -295,7 +296,7 @@ class FollowUpButton extends PureComponent {
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.referral}</Text>
            </View>
         </TouchableOpacity>
-    }
+     }
 }
 
 export class StartVisitButtons extends Component {
@@ -400,8 +401,8 @@ class VisitWorkFlow extends Component {
     }
 
    async componentDidUpdate(prevProps: any) {
-        const params = this.props.navigation.state.params; 
-      
+        const params = this.props.navigation.state.params;
+
       if(params && params.refreshFollowUp) {
         const patientInfo: PatientInfo =  this.props.navigation.state.params.patientInfo;
         this.props.navigation.setParams({refreshFollowUp: false});
@@ -994,10 +995,12 @@ export class VisitHistory extends Component {
 
     render() {
         if (!this.state.history) return null;
+        const patientInfo: PatientInfo = this.props.patientInfo;
+        const listFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
         return <View>
             <View style={styles.tabHeader}>
               <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
-              <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />
+              {listFollowUp && Array.isArray(listFollowUp) && listFollowUp.length > 0 && <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />}
               <FlatList
                 horizontal={true}
                 extraData={this.state.selectedId}

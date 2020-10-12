@@ -12,7 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { styles, selectionColor } from './Styles';
 import { Button,TilesField, Label, SelectionList, Binoculars } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
-import { getAllCodes, getCodeDefinition } from './Codes';
+import { getAllCodes, getCodeDefinition, formatCodeDefinition} from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp} from './Types';
 import {allExamIds} from './Visit';
@@ -23,12 +23,13 @@ import { initValues, getImageBase64Definition, patientHeader, patientFooter } fr
 import { printHtml, generatePDF } from './Print';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
-import { isEmpty, sort, yearDateFormat, formatDate } from './Util';
+import { isEmpty, sort, yearDateFormat, yearDateTime24Format, formatDate, isSameDay, parseDate } from './Util';
 import { strings } from './Strings';
 import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
 import { getVisitHistory } from './Visit';
 import { ManageUsers } from './User';
+import { FormOptions } from './Form';
 
 
 export function isReferralsEnabled() : boolean {
@@ -52,25 +53,22 @@ type ReferralScreenProps = {
 
 type ReferralScreenState = {
   template: ?string,
-  selectedField: ?string[],
+  selectedField: string[],
   htmlDefinition: ?HtmlDefinition[],
-  key: ? string,
   doctorId: ? number | string,
   doctorReferral: ? ReferralDefinition,
   linkedDoctorReferral: ? ReferralDefinition,
   isActive: ? boolean,
   emailDefinition : ? EmailDefinition,
-  command: COMMAND,
+  command: ?number,
   isPopupVisibile: ? boolean,
   hasSignatureField: ? boolean,
   isDirty: boolean,
   followUpStateKey: string,
   isLoading: boolean,
   referralHtml: string,
-  selectedVisitField: ? string
+  selectedVisitId: string,
 };
-
-
 
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
   editor;
@@ -94,8 +92,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined,
       isLoading: false,
       referralHtml: '',
-      selectedVisitField: ''
-      }
+      selectedVisitId: this.props.navigation.state.params.visit.id
+    }
     this.unmounted = false;
 
   }
@@ -104,41 +102,48 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     this.unmounted = true;
   }
 
-  getPreviousVisitsDate() : Object {
-
-
-  const patientInfo: PatientInfo  = this.props.navigation.state.params.patientInfo;
-  if(patientInfo === undefined) return;
-
-  let visitHistory : ?Visit[] = getVisitHistory(patientInfo.id);
-  let previousVisits = {};
-  visitHistory.forEach((visit: Visit) => {
-      const date : string = (visit!==undefined&&visit.date!=undefined)?visit.date:visit.postedOn;
-      const vType : string = (visit!==undefined&&visit.typeName!=undefined)?visit.typeName:visit.category;
-
-  if (visit.customExamIds) {
-      previousVisits[formatDate(date,yearDateFormat) + " - " + vType] = visit.id;
-    }
-  });
- return previousVisits;
-  }
-  // We need to upgrade react-navigation to have this code working
-/*
-  componentDidMount() {
-  this.focusListener = this.props.navigation.addListener('didFocus', () => {
-        this.shouldStartReferral();
-  });
-  }
-*/
-  async componentDidUpdate(prevProps: any) {
-          if(!this.props.navigation.isFocused()) {
-            const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
-            if(this.state.template && (isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id))) {
-                 await this.save();
-            }
+  getPreviousVisits() : ?CodeDefinition[] {
+    const patientInfo: PatientInfo  = this.props.navigation.state.params.patientInfo;
+    if(patientInfo === undefined) return undefined;
+    let visitHistory : ?Visit[] = getVisitHistory(patientInfo.id);
+    if (!visitHistory || visitHistory.length===0) return undefined;
+    let codeDescriptions : CodeDefinition[]= [];
+    //Check if there is two visits of the same type on the same day
+    let hasDoubles : boolean = false;
+    for (let i:number=0; i<visitHistory.length-1;i++) {
+      for (let j:number=i+1; j<visitHistory.length;j++) {
+        if (isSameDay(parseDate(visitHistory[i].date), parseDate(visitHistory[j].date))) {
+          if (visitHistory[i].typeName===visitHistory[j].typeName) {
+           hasDoubles = true;
+           break;
           }
-
+        } else {
+          break;
+        }
+        if (hasDoubles) break;
+      }
     }
+    const dateFormat : string = hasDoubles?yearDateTime24Format:yearDateFormat;
+    //Format the visits as CodeDefinitions
+    visitHistory.forEach((visit: Visit) => {
+      if (visit.customExamIds || visit.preCustomExamIds) {
+        const code : string = visit.id;
+        const description : string = formatDate(visit.date, dateFormat) + " - " + visit.typeName;
+        const codeDescription : CodeDefitinion = {code, description};
+        codeDescriptions.push(codeDescription);
+      }
+    });
+    return codeDescriptions;
+  }
+
+  async componentDidUpdate(prevProps: any) {
+    if(!this.props.navigation.isFocused()) {
+      const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
+      if(this.state.template && (isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id))) {
+        this.save();
+      }
+    }
+  }
 
   mapImageWithBase64(template?:string) {
       let referralHtml : string = this.state.referralHtml;
@@ -160,6 +165,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   async retrieveHtmlExamDefinition(exams : Exam[]) : HtmlDefinition[] {
+      this.setState({htmlDefinition: undefined});
       let htmlDefinition : HtmlDefinition[] = [];
       initValues();
       for(const exam : Exam of exams) {
@@ -173,7 +179,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async startReferral(template?: string) {
     this.setState({ isLoading: true });
-    let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
     const allExams : string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
@@ -199,7 +204,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
       };
       }
-
+      let parameters : {} = {};
       let response = await fetchWinkRest('webresources/template', parameters, 'POST', body);
       if (response) {
         if (response.errors) {
@@ -223,43 +228,23 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   }
 
-  async selectVisitDate(level: number, value: string, options: any) {
-    let selectedField : string[] = this.state.selectedField;
-    while(++level<selectedField.length) {
-      selectedField[level-1]=undefined;
-    }
-    const visitId: string = options[value];
-    const prevSelectedVisitField : string = this.state.selectedField;
-    if(prevSelectedVisitField !== value) {
-        this.setState({selectedVisitField: value});
-        const visit: Visit = getCachedItem(visitId);
-        const allExams : string[] = allExamIds(visit);
-        let exams: Exam[] = getCachedItems(allExams);
-        await this.retrieveHtmlExamDefinition(exams);
-    }
-    this.setState({selectedField});
-
+  selectVisit(visitId: string) {
+    if (this.state.selectedVisitId===visitId) return;
+    this.setState({selectedVisitId: visitId});
+    const visit: Visit = getCachedItem(visitId);
+    const examIds : string[] = allExamIds(visit);
+    let exams: Exam[] = getCachedItems(examIds);
+    this.retrieveHtmlExamDefinition(exams);
+    this.selectField(0, 'Exam');
   }
 
-  selectField(level: number, value: string, options: any) {
-    let selectedField : string[] = this.state.selectedField;
-    selectedField[level] = value;
+  selectField(level: number, code: string) {
+    let selectedField : CodeDefinition[] = this.state.selectedField;
+    selectedField[level] = code;
     while(++level<selectedField.length) {
       selectedField[level]=undefined;
     }
-    let cleanSelectedField: string[] = selectedField.filter((field : string) => isEmpty(field) === false);
-    let keyArray : string[] = [];
-    for(const field : string of cleanSelectedField) {
-      const formatted = options[field] === undefined ? options['keySpec'] : options[field]['keySpec'];
-
-    if(formatted)
-       keyArray.push(formatted);
-    else
-        keyArray.push(field);
-    }
-    let key = keyArray.join('.');
     this.setState({selectedField});
-    this.setState({key});
   }
 
   updateValue(newValue: any) {
@@ -299,12 +284,20 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     this.setState({ isPopupVisibile: false });
   }
 
+  getSelectedKey() : ?string {
+    let selectedKey :?string = undefined;
+    for(let i:number = 0; i<this.state.selectedField.length;i++) {
+      let key : ?string = this.state.selectedField[i];
+      if (key===null || key===undefined) break;
+      selectedKey = key;
+    }
+    __DEV__ && console.log('selected key: '+selectedKey);
+    return selectedKey;
+  }
 
   async insertField() : void {
-    const key  : string =this.state.key;
-    if(isEmpty(key)) {
-      return;
-    }
+    const selectedKey : ?string = this.getSelectedKey();
+    if (!selectedKey) return;
     this.setState({ isLoading: true });
     let parameters : {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -315,7 +308,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         'doctorId': stripDataType(this.state.doctorId)
       };
 
-    let response = await fetchWinkRest('webresources/template/key/'+'{'+key+'}', parameters, 'POST', body);
+    let response = await fetchWinkRest('webresources/template/key/'+'{'+selectedKey+'}', parameters, 'POST', body);
     if (response && this.editor) {
         if (response.errors) {
               alert(response.errors);
@@ -331,7 +324,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         this.updateReferral();
       }
     this.setState({ isLoading: false });
-
   }
 
   async updateSignatureState(html: string) {
@@ -525,16 +517,70 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           }
       }
     this.setState({isActive: true});
-
   }
 
+  parseExamName(dynamicFieldName: string) : string {
+    if (!dynamicFieldName.startsWith('Exam.')) return dynamicFieldName;
+    let examName = dynamicFieldName.substring('Exam.'.length);
+    let firstDotIndex : number = examName.indexOf('.');
+    if (firstDotIndex>0) {
+      examName = examName.substring(0, firstDotIndex);
+    }
+    return examName;
+  }
+
+  filterEmptyExams(exams: CodeDefinition[]) : CodeDefinition[] {
+    const visit : Visit = getCachedItem(this.state.selectedVisitId);
+    exams = exams.filter((examCode: CodeDefinition) => {
+      let examName = this.parseExamName(examCode.code);
+      const exam = getExam(examName, visit);
+      if (!exam) return false;
+      let examValue = exam[examName];
+      return !isEmpty(examValue);
+    });
+    return exams;
+  }
+
+  compareDynamicFieldDescription(a: CodeDefinition, b: CodeDefinition) : number {
+  if(a.description.toLowerCase() < b.description.toLowerCase()) return -1;
+  else if(a.description.toLowerCase() > b.description.toLowerCase()) return 1;
+  return 0;
+ }
+
+  renderFieldSelectionTree() {
+    let dropdowns = [];
+    let options : ?CodeDefinition[]  = getAllCodes("dynamicFields");
+    for (let level: number = 0; level<this.state.selectedField.length; level++) {
+      if (!options || (level>0 && !this.state.selectedField[level-1])) break; //Don't render empty dropdowns for nothing
+      const selectedValue : ?string = this.state.selectedField[level];
+      options.sort(this.compareDynamicFieldDescription);
+      dropdowns.push(<FormRow>
+        <FormOptions
+          options={options}
+          value={selectedValue}
+          onChangeValue={(value: string) => this.selectField(level, value)}
+        />
+      </FormRow>);
+      let option : CodeDefinition = options.find((option: CodeDefinition) => (option.code?option.code:option) === selectedValue);
+      options = option?option.fields:undefined;
+      if (level===0 && selectedValue==='Exam' && options) {
+        options = this.filterEmptyExams(options);
+        let previousVisits : CodeDefinition[] = this.getPreviousVisits();
+        if (previousVisits && previousVisits.length>0) {
+          dropdowns.push(<FormRow>
+            <FormOptions
+              options={previousVisits}
+              value={this.state.selectedVisitId}
+              onChangeValue={(visitId: string) => this.selectVisit(visitId)}
+            />
+          </FormRow>);
+        }
+      }
+    }
+    return dropdowns;
+  }
 
   renderTemplateTool() {
-    let visit: Visit = this.props.navigation.state.params.visit;
-    const previousVisits : any = this.getPreviousVisitsDate();
-    const previousVisitsOptionsKeys = Object.keys(previousVisits);
-    let selectedVisitField : string = this.state.selectedVisitField;
-
     return <View style={styles.sideBar}>
         <View style={styles.formRow}>
           <View style={styles.formRowHeader}><Label value={strings.referringPatientTo}/></View>
@@ -545,74 +591,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         <View style={styles.formRow}>
           <View style={styles.formRowHeader}><Label value={strings.dynamicField}/></View>
         </View>
-        {this.state.selectedField.map((fieldName: string, index: number) => {
-
-          const prevValue : ?string = index>0?this.state.selectedField[index-1]:'';
-          if (prevValue===undefined || prevValue===null) return undefined;
-
-          let options  = getAllCodes("dynamicFields");
-          for (let i:number =1; i<=index; i++) {
-            if (options) {
-              options = options[this.state.selectedField[i-1]];
-            }
-          }
-
-          let optionsKeys = Object.keys(options);
-          optionsKeys = optionsKeys.filter((oKey: string) => oKey !== 'keySpec');
-          if (this.state.selectedField[0]==='Exam' && index===1) {
-            if(isEmpty(selectedVisitField)) {
-               selectedVisitField = previousVisitsOptionsKeys.find(key => previousVisits[key] === visit.id);
-            }
-
-            visit = selectedVisitField ? getCachedItem(previousVisits[selectedVisitField]) : visit;
-
-            optionsKeys = optionsKeys.filter((examName: string) => {
-              const exam = getExam(examName, visit);
-              if (!exam) return false;
-              let examValue = exam[examName];
-              return !isEmpty(examValue);
-            });
-          }
-
-          if (this.state.selectedField[0]==='Exam' && index===1) {
-
-            return (
-              <View>
-              <FormRow>
-              <TilesField label='Filter'
-                options={previousVisitsOptionsKeys}
-                value={selectedVisitField}
-                onChangeValue={(value: string) => this.selectVisitDate(index, value, previousVisits)}
-              />
-            </FormRow>
-          {!(optionsKeys===undefined || optionsKeys===null || optionsKeys.length===0) &&
-            <FormRow>
-              <TilesField label='Filter'
-                options={optionsKeys}
-                value={this.state.selectedField[index]}
-                onChangeValue={(value: string) => this.selectField(index, value, options)}
-              />
-            </FormRow>
-          }
-            </View>
-
-            )
-          }
-          else {
-          sort(optionsKeys);
-          return <FormRow>
-              <TilesField label='Filter'
-                options={optionsKeys}
-                value={this.state.selectedField[index]}
-                onChangeValue={(value: string) => this.selectField(index, value, options)}
-              />
-            </FormRow>
-          }
-
-          })
-        }
+        {this.renderFieldSelectionTree()}
         <FormRow>
-          <Button title='Insert' onPress={() => this.insertField()}/>
+          <Button title='Insert' disabled={!this.state.htmlDefinition} onPress={() => this.insertField()}/>
         </FormRow>
     </View>
   }
@@ -643,18 +624,16 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     </View>
   }
 
-
   renderSendPopup() {
-        let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
-        let emailDefinition : EmailDefinition = this.state.emailDefinition;
-        const command : COMMAND = this.state.command;
-        if(command == COMMAND.EMAIL) {
-           emailDefinition.to = doctorCode !== undefined ? doctorCode.email : "";
-        }
-        else if(command == COMMAND.FAX) {
-           emailDefinition.to = doctorCode !== undefined ?doctorCode.fax : "";
-        }
-
+    let doctorCode : CodeDefinition = getCodeDefinition('doctors',this.state.doctorId);
+    let emailDefinition : EmailDefinition = this.state.emailDefinition;
+    const command : COMMAND = this.state.command;
+    if(command == COMMAND.EMAIL) {
+       emailDefinition.to = doctorCode !== undefined ? doctorCode.email : "";
+    }
+    else if(command == COMMAND.FAX) {
+       emailDefinition.to = doctorCode !== undefined ?doctorCode.fax : "";
+    }
     return <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
 

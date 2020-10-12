@@ -10,7 +10,7 @@
       "name": "Condition",
       "multiValue": true,
       "freestyle": true,
-      "options": "medicalConditionCodes",
+      "options": "medicalConditionCodes"
     },
     {
       "name": "Notes",
