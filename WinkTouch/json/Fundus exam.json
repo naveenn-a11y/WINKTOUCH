@@ -13,35 +13,226 @@
               "fields": [
                 {
                   "name": "Pupillary reflex",
-                  "label": "Reflexe pupillairs"
+                  "label": "RÃ©flexe pupillaires",
+                  "normalValue": "Clair"
                 },
                 {
                   "name": "Vitreous",
-                  "label": "VitrÃ©"
+                  "label": "VitrÃ©",
+                  "normalValue": "Clair"
                 },
                 {
                   "name": "Optic Disc",
-                  "label": "Disque optique"
+                  "label": "Disque optique",
+                  "normalValue": "Rose/ Taille normale/ ISNT"
+                },
+                {
+                  "name": "C\/D Ratio",
+                  "label": "Ratio C\/D",
+                  "normalValue": "Dans les normes",
+                  "options": [
+                    [
+                      "0.10 H",
+                      "0.15 H",
+                      "0.20 H",
+                      "0.25 H",
+                      "0.30 H",
+                      "0.35 H",
+                      "0.40 H",
+                      "0.45 H",
+                      "0.50 H",
+                      "0.55 H",
+                      "0.60 H",
+                      "0.65 H",
+                      "0.70 H",
+                      "0.75 H",
+                      "0.80 H",
+                      "0.85 H",
+                      "0.90 H",
+                      "0.95 H"
+                    ],
+                    [
+                      "0.10 V",
+                      "0.15 V",
+                      "0.20 V",
+                      "0.25 V",
+                      "0.30 V",
+                      "0.35 V",
+                      "0.40 V",
+                      "0.45 V",
+                      "0.50 V",
+                      "0.55 V",
+                      "0.60 V",
+                      "0.65 V",
+                      "0.70 V",
+                      "0.75 V",
+                      "0.80 V",
+                      "0.85 V",
+                      "0.90 V",
+                      "0.95 V"
+                    ],
+                    [
+                      "Complet",
+                      "RosÃ© et plat",
+                      "Total cupping",
+                      "Sloping cup",
+                      "Deep cup",
+                      "Dans les normes"
+                    ]
+                  ]
                 },
                 {
                   "name": "Vessels",
-                  "label": "Vaisseaux"
+                  "label": "Vaisseaux",
+                  "normalValue": "Dans les normes"
+                },
+                {
+                  "name": "Macula",
+                  "normalValue": "Pas de maculopathie"
                 },
                 {
                   "name": "Foveal reflex",
-                  "label": "RÃ©flexe FovÃ©al"
+                  "label": "RÃ©flexe FovÃ©al",
+                  "normalValue": "Oui",
+                  "defaultValue": "Non",
+                  "options": [
+                    "Non",
+                    "Oui"
+                  ]
                 },
                 {
                   "name": "Retina",
-                  "label": "RÃ©tine "
+                  "label": "RÃ©tine",
+                  "normalValue": "Dans les normes"
                 },
                 {
                   "name": "Posterior pole",
-                  "label": "PÃ´le PostÃ©rieur"
+                  "label": "PÃ´le PostÃ©rieur",
+                  "options": [
+                    "Clair",
+                    "Aucune dÃ©chirure",
+                    "DÃ©chirures notÃ©es"
+                  ],
+                  "normalValue": "Clair"
                 },
                 {
                   "name": "Periphery",
-                  "label": "PÃ©ripheries"
+                  "label": "PÃ©ripheries",
+                  "normalValue": "Dans les normes"
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Pupillary reflex",
+                  "label": "RÃ©flexe pupillaires",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "Vitreous",
+                  "label": "VitrÃ©",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "Optic Disc",
+                  "label": "Disque optique",
+                  "normalValue": "Rose/ Taille normale/ ISNT"
+                },
+                {
+                  "name": "C\/D Ratio",
+                  "label": "Ratio C\/D",
+                  "normalValue": "Dans les normes",
+                  "options": [
+                    [
+                      "0.10 H",
+                      "0.15 H",
+                      "0.20 H",
+                      "0.25 H",
+                      "0.30 H",
+                      "0.35 H",
+                      "0.40 H",
+                      "0.45 H",
+                      "0.50 H",
+                      "0.55 H",
+                      "0.60 H",
+                      "0.65 H",
+                      "0.70 H",
+                      "0.75 H",
+                      "0.80 H",
+                      "0.85 H",
+                      "0.90 H",
+                      "0.95 H"
+                    ],
+                    [
+                      "0.10 V",
+                      "0.15 V",
+                      "0.20 V",
+                      "0.25 V",
+                      "0.30 V",
+                      "0.35 V",
+                      "0.40 V",
+                      "0.45 V",
+                      "0.50 V",
+                      "0.55 V",
+                      "0.60 V",
+                      "0.65 V",
+                      "0.70 V",
+                      "0.75 V",
+                      "0.80 V",
+                      "0.85 V",
+                      "0.90 V",
+                      "0.95 V"
+                    ],
+                    [
+                      "Complet",
+                      "RosÃ© et plat",
+                      "Total cupping",
+                      "Sloping cup",
+                      "Deep cup",
+                      "Dans les normes"
+                    ]
+                  ]
+                },
+                {
+                  "name": "Vessels",
+                  "label": "Vaisseaux",
+                  "normalValue": "Dans les normes"
+                },
+                {
+                  "name": "Macula",
+                  "normalValue": "Pas de maculopathie"
+                },
+                {
+                  "name": "Foveal reflex",
+                  "label": "RÃ©flexe FovÃ©al",
+                  "normalValue": "Oui",
+                  "defaultValue": "Non",
+                  "options": [
+                    "Non",
+                    "Oui"
+                  ]
+                },
+                {
+                  "name": "Retina",
+                  "label": "RÃ©tine",
+                  "normalValue": "Dans les normes"
+                },
+                {
+                  "name": "Posterior pole",
+                  "label": "PÃ´le PostÃ©rieur",
+                  "options": [
+                    "Clair",
+                    "Aucune dÃ©chirure",
+                    "DÃ©chirures notÃ©es"
+                  ],
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "Periphery",
+                  "label": "PÃ©ripheries",
+                  "normalValue": "Dans les normes"
                 }
               ]
             },
@@ -51,7 +242,12 @@
             },
             {
               "name": "Dilated",
-              "label": "DilatÃ©"
+              "label": "DilatÃ©",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "DilatÃ©"
+              ]
             },
             {
               "name": "Lens",
@@ -138,26 +334,26 @@
           "name": "OD",
           "fields": [
             {
-              "normalValue": "Clear",
               "name": "Pupillary reflex",
               "freestyle": true,
-              "options": "pupillaryReflexCodes"
+              "options": "pupillaryReflexCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "Clear",
               "name": "Vitreous",
               "freestyle": true,
-              "options": "vitreousCodes"
+              "options": "vitreousCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "Pink and distinct",
               "name": "Optic Disc",
               "freestyle": true,
-              "options": "opticDiscCodes"
+              "options": "opticDiscCodes",
+              "normalValue": "Pink/ Normal size/ ISNT"
             },
             {
-              "normalValue": "WNL",
               "name": "C\/D Ratio",
+              "normalValue": "WNL",
               "combineOptions": true,
               "suffix": [
                 " ",
@@ -217,47 +413,47 @@
               ]
             },
             {
-              "normalValue": "WNL",
               "name": "Vessels",
               "freestyle": true,
-              "options": "vesselsCodes"
+              "options": "vesselsCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "No diabetic maculopathy",
               "name": "Macula",
               "freestyle": true,
-              "options": "maculaCodes"
+              "options": "maculaCodes",
+              "normalValue": "No maculopathy"
             },
             {
-              "normalValue": "Yes",
               "name": "Foveal reflex",
               "defaultValue": "No",
               "options": [
                 "No",
                 "Yes"
-              ]
+              ],
+              "normalValue": "Yes"
             },
             {
-              "normalValue": "WNL",
               "name": "Retina",
               "freestyle": true,
-              "options": "retinaCodes"
+              "options": "retinaCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "Clear",
               "name": "Posterior pole",
               "freestyle": true,
               "options": [
                 "Clear",
                 "No breaks",
                 "Tears noted"
-              ]
+              ],
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "WNL",
               "name": "Periphery",
               "freestyle": true,
-              "options": "peripheryCodes"
+              "options": "peripheryCodes",
+              "normalValue": "WNL"
             }
           ]
         },
@@ -265,28 +461,26 @@
           "name": "OS",
           "fields": [
             {
-              "normalValue": "Clear",
               "name": "Pupillary reflex",
               "freestyle": true,
-              "options": "pupillaryReflexCodes"
+              "options": "pupillaryReflexCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "Clear",
               "name": "Vitreous",
               "freestyle": true,
-              "options": "vitreousCodes"
+              "options": "vitreousCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "Pink and distinct",
               "name": "Optic Disc",
               "freestyle": true,
-              "options": "opticDiscCodes"
+              "options": "opticDiscCodes",
+              "normalValue": "Pink/ Normal size/ ISNT"
             },
             {
-              "normalValue": [
-                "WNL"
-              ],
               "name": "C\/D Ratio",
+              "normalValue": "WNL",
               "combineOptions": true,
               "suffix": [
                 " ",
@@ -346,47 +540,47 @@
               ]
             },
             {
-              "normalValue": "WNL",
               "name": "Vessels",
               "freestyle": true,
-              "options": "vesselsCodes"
+              "options": "vesselsCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "No maculopathy",
               "name": "Macula",
               "freestyle": true,
-              "options": "maculaCodes"
+              "options": "maculaCodes",
+              "normalValue": "No maculopathy"
             },
             {
-              "normalValue": "Yes",
               "name": "Foveal reflex",
               "defaultValue": "No",
               "options": [
                 "No",
                 "Yes"
-              ]
+              ],
+              "normalValue": "Yes"
             },
             {
-              "normalValue": "WNL",
               "name": "Retina",
               "freestyle": true,
-              "options": "retinaCodes"
+              "options": "retinaCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "Clear",
               "name": "Posterior pole",
               "freestyle": true,
               "options": [
                 "Clear",
                 "No breaks",
                 "Tears noted"
-              ]
+              ],
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "WNL",
               "name": "Periphery",
               "freestyle": true,
-              "options": "peripheryCodes"
+              "options": "peripheryCodes",
+              "normalValue": "WNL"
             }
           ]
         }

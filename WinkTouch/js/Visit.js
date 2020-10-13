@@ -87,6 +87,7 @@ export function allExamIds(visit: Visit) : string[] {
   if (!allExamIds) allExamIds = [];
   return allExamIds;
 }
+
 export async function fetchReferralFollowUpHistory(patientId?: string) : FollowUp[] {
       let parameters : {} = {};
       let body : {} = {
@@ -295,7 +296,7 @@ class FollowUpButton extends PureComponent {
                <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.referral}</Text>
            </View>
         </TouchableOpacity>
-    }
+     }
 }
 
 export class StartVisitButtons extends Component {
@@ -369,6 +370,7 @@ class SectionTitle extends PureComponent {
 
 class VisitWorkFlow extends Component {
     props: {
+        patientInfo: PatientInfo,
         visitId: string,
         navigation: any,
         appointmentStateKey: string,
@@ -400,10 +402,10 @@ class VisitWorkFlow extends Component {
     }
 
    async componentDidUpdate(prevProps: any) {
-        const params = this.props.navigation.state.params; 
-      
+        const params = this.props.navigation.state.params;
+
       if(params && params.refreshFollowUp) {
-        const patientInfo: PatientInfo =  this.props.navigation.state.params.patientInfo;
+        const patientInfo: PatientInfo =  this.props.patientInfo ;
         this.props.navigation.setParams({refreshFollowUp: false});
         await fetchReferralFollowUpHistory(patientInfo.id);
       }
@@ -638,6 +640,7 @@ class VisitWorkFlow extends Component {
     }
 
     renderActionButtons() {
+      const patientInfo: PatientInfo =  this.props.patientInfo;
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
             {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
@@ -647,7 +650,7 @@ class VisitWorkFlow extends Component {
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
-            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId), patientInfo: this.props.navigation.state.params.patientInfo, followUpStateKey: this.props.navigation.state.key})}}/>}
+            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId), patientInfo: patientInfo, followUpStateKey: this.props.navigation.state.key})}}/>}
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
@@ -994,10 +997,12 @@ export class VisitHistory extends Component {
 
     render() {
         if (!this.state.history) return null;
+        const patientInfo: PatientInfo = this.props.patientInfo;
+        const listFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
         return <View>
             <View style={styles.tabHeader}>
               <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
-              <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />
+              {listFollowUp && Array.isArray(listFollowUp) && listFollowUp.length > 0 && <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />}
               <FlatList
                 horizontal={true}
                 extraData={this.state.selectedId}
@@ -1011,7 +1016,7 @@ export class VisitHistory extends Component {
             {this.state.selectedId===undefined && this.renderSummary()}
             {this.state.selectedId==='followup' && this.renderFollowUp()}
 
-            {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientId={this.props.patientInfo.id}
+            {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientInfo={this.props.patientInfo}
                 visitId={this.state.selectedId}
                 navigation={this.props.navigation}
                 appointmentStateKey={this.props.appointmentStateKey}

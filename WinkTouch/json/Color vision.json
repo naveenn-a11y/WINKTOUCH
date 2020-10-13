@@ -9,7 +9,13 @@
           "fields": [
             {
               "name": "Aquired",
-              "label": "Acquis"
+              "label": "Acquis",
+              "normalValue": "Non",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "Oui"
+              ]
             }
           ]
         }

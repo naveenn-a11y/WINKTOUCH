@@ -11,7 +11,8 @@
         },
         {
           "name": "Comfort",
-          "label": "Confort"
+          "label": "Confort",
+          "normalValue": "Bien"
         },
         {
           "name": "Wearing habits",
@@ -36,25 +37,25 @@
       "options": "clReplacementCodes"
     },
     {
-      "normalValue": "Good",
       "name": "Comfort",
       "multiValue": true,
       "freestyle": true,
-      "options": "clComfortCodes"
+      "options": "clComfortCodes",
+      "normalValue": "Good"
     },
     {
-      "normalValue": "Normal",
       "name": "Wearing habits",
       "multiValue": true,
       "freestyle": true,
-      "options": "clWearingHabitCodes"
+      "options": "clWearingHabitCodes",
+      "normalValue": "Normal"
     },
     {
-      "normalValue": "Normal",
       "name": "Cleaning habits",
       "multiValue": true,
       "freestyle": true,
-      "options": "clCleaningHabitCodes"
+      "options": "clCleaningHabitCodes",
+      "normalValue": "Normal"
     },
     {
       "maxLength": 500,

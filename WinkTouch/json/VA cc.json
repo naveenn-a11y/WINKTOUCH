@@ -12,12 +12,25 @@
               "label": "AVL",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
                 }
               ]
             },
@@ -26,8 +39,18 @@
               "label": "TE",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
                 }
               ]
             },
@@ -36,18 +59,39 @@
               "label": "AVP",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": [
+                    "APL",
+                    "ProthÃ¨se"
+                  ]
                 }
               ]
             },
             {
               "name": "Scale",
               "label": "Ãchelle"
+            },
+            {
+              "name": "Aide",
+              "options": [
+                "Lunettes",
+                "LC",
+                "Lunettes sur LC"
+              ]
             }
           ]
         }

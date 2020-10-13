@@ -573,7 +573,7 @@ export class FormOptions extends Component {
     const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
     return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.dismissedError==true || !this.props.errorMessage} accessible={false} testID={this.props.testID+'DismissError'}>
         <View style={styles.formElement}>
-          {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
+          {this.props.showLabel && this.props.label && <Label width={this.props.labelWidth} value={this.props.label} />}
           {manyOptions?
               <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.state.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}/>
             :

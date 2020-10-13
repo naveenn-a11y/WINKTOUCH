@@ -17,7 +17,7 @@ import { getCachedItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard, ImportIcon, ExportIcon } from './Favorites';
 import { getConfiguration } from './Configuration';
 import { importData } from './MappedField';
-import { GlassesDetail, GlassesSummary, newRefraction, clearRefraction } from './Refraction';
+import { GlassesDetail, GlassesSummary, newRefraction, clearRefraction, initRefraction } from './Refraction';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, setMappedFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
 import { formatLabel, formatFieldValue, getFieldDefinition } from './Items';
@@ -403,7 +403,7 @@ export class GroupedCard extends Component {
 
   renderGlassesSummary(groupDefinition: GroupDefinition) {
     if (groupDefinition===undefined || groupDefinition===null) return null;
-    if (this.props.exam[this.props.exam.definition.name]===undefined || this.props.exam[this.props.exam.definition.name][groupDefinition.name]===undefined) return null;
+    if (isEmpty(this.props.exam[this.props.exam.definition.name]) || isEmpty(this.props.exam[this.props.exam.definition.name][groupDefinition.name])) return null;
     if (groupDefinition.multiValue) {
         return this.props.exam[this.props.exam.definition.name][groupDefinition.name].map((rx : GlassesRx, index: number) =>
             <GlassesSummary showHeaders={false} glassesRx={rx} key={groupDefinition.name+"."+index}/>
@@ -815,91 +815,118 @@ export class GroupedForm extends Component {
   }
 }
 
-export class GroupedFormScreen extends Component {
-  props: {
-    exam: Exam,
-    onUpdateExam?: (exam: Exam) => void,
-    favorites?: ExamPredefinedValue[],
-    onAddFavorite?: (favorite: any, name: string) => void,
-    editable?: boolean,
-    onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
-    enableScroll?: () => void,
-    disableScroll?: () => void
-  }
+export type GroupedFormScreenProps = {
+  exam: Exam,
+  onUpdateExam?: (exam: Exam) => void,
+  favorites?: ExamPredefinedValue[],
+  onAddFavorite?: (favorite: any, name: string) => void,
+  editable?: boolean,
+  onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
+  enableScroll?: () => void,
+  disableScroll?: () => void
+}
+type GroupedFormScreenState = {
   addableGroups: string[]
-  patientId: string
+}
+export class GroupedFormScreen extends Component<GroupedFormScreenProps, GroupedFormScreenState> {
 
-  constructor(props: any) {
+  constructor(props: GroupedFormScreenProps) {
     super(props);
-    this.initialiseExam(this.props.exam, this.props.editable);
+    this.state = {
+      addableGroups: this.initialiseExam(this.props.exam)
+    }
   }
 
-  componentDidUpdate(prevProps: any) {
+  componentDidUpdate(prevProps: GroupedFormScreenProps) {
     if (prevProps.exam===this.props.exam && prevProps.exam[prevProps.exam.definition.name]===this.props.exam[this.props.exam.definition.name] && prevProps.editable===this.props.editable) {
       return;
     }
-    this.initialiseExam(this.props.exam, this.props.editable);
+    this.setState({addableGroups: this.initialiseExam(this.props.exam)});
+    //this.forceUpdate(); //TODO: this aint pretty but calling onUpdateExam would make it dirty
   }
 
-  initialiseExam(exam: Exam, editable?: boolean) {
-    this.addableGroups = [];
-    this.patientId = getCachedItem(exam.visitId).patientId;
+  /*
+   * Create the empty objects to hold all group and column data.
+   * Returns the list of optional addable groups.
+  **/
+  initialiseExam(exam: Exam) : string[] {
+    let addableGroups : string[] = [];
     if (!exam[exam.definition.name]) {
       exam[exam.definition.name] = {};
     }
     if (exam.definition.fields===undefined || exam.definition.fields.length===0) return;
-    exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
+    exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => { //Create a value for each group
       if (groupDefinition.mappedField) {
         groupDefinition = Object.assign({}, getFieldDefinition(groupDefinition.mappedField), groupDefinition);
       }
-      if (exam[exam.definition.name][groupDefinition.name]===undefined) {
-        if (groupDefinition.type==='SRx') {
+      if (groupDefinition.options===undefined) {
+        //Don't initialise a checkboxes group
+        if (exam[exam.definition.name][groupDefinition.name]===undefined || exam[exam.definition.name][groupDefinition.name]===null) {
+          //The group has no value, time to initialise it
           if (groupDefinition.optional===true) {
-            this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
+            //Don't initialise an optional group, in stead show add it to the + button
+            addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
           } else {
-            if (groupDefinition.multiValue) {
-              exam[exam.definition.name][groupDefinition.name] = [newRefraction()];
-            } else {
-              exam[exam.definition.name][groupDefinition.name] = newRefraction();
-            }
-          }
-        } else if (groupDefinition.multiValue===true) {
-          exam[exam.definition.name][groupDefinition.name] = [];
-        } else {
-          if (groupDefinition.optional===true) {
-            this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
-          } else {
-            if (groupDefinition.options===undefined) {
+            //Initialise the group value
+            if (groupDefinition.multiValue===true) {//Initialise a multivalue with an array
+              exam[exam.definition.name][groupDefinition.name] = [];
+            } else {//Initialise a group with an empty Object
               exam[exam.definition.name][groupDefinition.name] = {};
             }
           }
         }
-      }
-      if (exam[exam.definition.name][groupDefinition.name]!==undefined) {
-        if (groupDefinition.multiValue) {
-          let values = exam[exam.definition.name][groupDefinition.name];
-          if (values instanceof Array === false) values = [values]; //auto convert old style exams
-          if (values.length===0 && groupDefinition.fields) {
-            let newObject = {};
-            groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
-              if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
-                  newObject[fieldDefinition.name] = {} //Add empty column
-                }
-              }
-            );
-            values.push(newObject);
+        let groupValue : {}|[] = exam[exam.definition.name][groupDefinition.name];
+        if (groupValue) {
+          //Initialise empty arrays with a first element
+          if (groupDefinition.multiValue) {
+            if (groupValue instanceof Array === false) {
+              //auto fix old style exams that stored that stored a one size array as the first element
+              groupValue = [groupValue];
+              exam[exam.definition.name][groupDefinition.name] = groupValue;
+            }
+            if (groupValue.length===0) {
+              let firstValue = {};
+              groupValue.push(firstValue);
+            }
           }
-        } else {
+          //Initialise SRx
+          if (groupDefinition.type==='SRx') {
+            if (groupDefinition.multiValue) {
+              groupValue.forEach(value => {
+                initRefraction(value);
+              });
+            } else {
+              initRefraction(groupValue);
+            }
+          }
+          //Initialise the fields that have columns (subfields)
           groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
             if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
-              if (exam[exam.definition.name][groupDefinition.name][fieldDefinition.name]===undefined) {
-                exam[exam.definition.name][groupDefinition.name][fieldDefinition.name] = {} //Add empty column
+              //Initialise a subfield that has columns
+              if (groupDefinition.multiValue) {
+                //Initialise every value in the array
+                groupValue.forEach(value => {
+                  let fieldValue = value[fieldDefinition.name];
+                  if (fieldValue===undefined) {
+                    value[fieldDefinition.name] = {} //Add empty column
+                  }
+                });
+              } else {
+                let fieldValue = groupValue[fieldDefinition.name];
+                if (fieldValue===undefined) {
+                  groupValue[fieldDefinition.name] = {} //Add empty column
+                }
               }
             }
           });
         }
       }
     });
+    return addableGroups;
+  }
+
+  getPatientId(): string {
+     return getCachedItem(this.props.exam.visitId).patientId;
   }
 
   addGroupItem = (groupDefinition: GroupDefinition ) => {
@@ -1004,11 +1031,14 @@ export class GroupedFormScreen extends Component {
         value.lines = undefined;
         value.image = undefined;
     }
-    for (const fieldDefinition: FieldDefinition of definition.fields) {
-      let fieldValue = value[fieldDefinition.name];
-      fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
-      value[fieldDefinition.name] = fieldValue;
+    if(definition.fields !== undefined) {
+          for (const fieldDefinition: FieldDefinition of definition.fields) {
+            let fieldValue = value[fieldDefinition.name];
+            fieldValue = this.clearNonReadOnlyFields(fieldValue, fieldDefinition);
+            value[fieldDefinition.name] = fieldValue;
+      }
     }
+
     return value;
   }
 
@@ -1025,16 +1055,27 @@ export class GroupedFormScreen extends Component {
         return;
       }
       if (forms.length===1) {//Last element in the array
-        const form = forms[0];
-        forms[0] = this.clearNonReadOnlyFields(form, formDefinition);
+        if (formDefinition.optional) {
+          this.props.exam[this.props.exam.definition.name][groupName]=undefined;
+          this.setState({addableGroups: this.initialiseExam(this.props.exam)});
+        } else {
+          const form = forms[0];
+          forms[0] = this.clearNonReadOnlyFields(form, formDefinition);          
+        }
       } else {//Remove the element from the array
         forms.splice(index, 1);
       }
     } else {
       //Clearing a single grouped form or checklist
-      let form = this.props.exam[this.props.exam.definition.name][groupName];
-      form = this.clearNonReadOnlyFields(form, formDefinition);
-      this.props.exam[this.props.exam.definition.name][groupName]=form;
+      if (formDefinition.optional) {
+        this.props.exam[this.props.exam.definition.name][groupName]=undefined;
+        this.setState({addableGroups: this.initialiseExam(this.props.exam)});
+      } else {
+        let form = this.props.exam[this.props.exam.definition.name][groupName];
+        form = this.clearNonReadOnlyFields(form, formDefinition);
+        this.props.exam[this.props.exam.definition.name][groupName]=form;
+      }
+
     }
     this.props.onUpdateExam(this.props.exam);
   }
@@ -1053,11 +1094,10 @@ export class GroupedFormScreen extends Component {
   }
 
   addGroup(groupType: string) {
-    this.addableGroups.splice(this.addableGroups.indexOf(groupType), 1); //Remove the type from the addable list
     const exam : Exam = this.props.exam;
     let groupDefinition = exam.definition.fields.find((groupDefinition: GroupDefinition) => groupDefinition.label!==undefined?groupDefinition.label===groupType:groupDefinition.name===groupType);
     if (!groupDefinition) return;
-    if (exam[exam.definition.name][groupDefinition.name]===undefined) {
+    if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
       if (groupDefinition.type==='SRx') {
         if (groupDefinition.multiValue===true) {
           exam[exam.definition.name][groupDefinition.name] = [newRefraction()];
@@ -1070,7 +1110,7 @@ export class GroupedFormScreen extends Component {
         exam[exam.definition.name][groupDefinition.name] = {};
       }
     }
-    this.initialiseExam(exam);
+    this.setState({addableGroups: this.initialiseExam(exam)});
     this.props.onUpdateExam(this.props.exam);
   }
 
@@ -1078,10 +1118,7 @@ export class GroupedFormScreen extends Component {
     const fieldId : string = this.props.exam.definition.name+"."+groupDefinition.name;
     //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));
     let value : any = this.props.exam[this.props.exam.definition.name];
-    if (value===undefined) {
-      this.initialiseExam(this.props.exam);
-      value = this.props.exam[this.props.exam.definition.name];
-    }
+    if (!value) return null;
     value = value[groupDefinition.name];
     if (value===undefined && groupDefinition.options===undefined) return null;
     if (groupDefinition.mappedField) {
@@ -1123,10 +1160,10 @@ export class GroupedFormScreen extends Component {
       );
     } else if (groupDefinition.type==='SRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} onClear={() => this.clear(groupDefinition.name)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
     } else if (groupDefinition.type==='CRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} onClear={() => this.clear(groupDefinition.name)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
@@ -1149,8 +1186,8 @@ export class GroupedFormScreen extends Component {
   }
 
   renderAddableGroupsButton() {
-    if (this.addableGroups===undefined || this.addableGroups.length===0) return null;
-    return <FloatingButton options={this.addableGroups} onPress={(groupType: string) => this.addGroup(groupType)}/>
+    if (this.state.addableGroups.length===0) return null;
+    return <FloatingButton options={this.state.addableGroups} onPress={(groupType: string) => this.addGroup(groupType)}/>
   }
 
   render() {

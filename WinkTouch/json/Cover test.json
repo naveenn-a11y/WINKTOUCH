@@ -5,11 +5,21 @@
       "fields": [
         {
           "name": "Hirschberg test",
-          "label": "Hirschberg"
+          "label": "Hirschberg",
         },
         {
           "name": "Bruckner test",
-          "label": "Bruckner"
+          "label": "Bruckner",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Reflet rouge foncÃ©"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Reflet rouge foncÃ©"
+            }
+          ]
         },
         {
           "name": "Unilateral Cover Test",
@@ -31,7 +41,17 @@
             },
             {
               "name": "Near vision",
-              "label": "Vision de prÃ¨s "
+              "label": "Vision de prÃ¨s ",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "U LatÃ©ral"
+                },
+                {
+                  "name": "U Noncomitant",
+                  "label": "U Non-concomitant"
+                }
+              ]
             }
           ]
         },
@@ -59,7 +79,21 @@
             },
             {
               "name": "Near vision",
-              "label": "Vision de prÃ¨s"
+              "label": "Vision de prÃ¨s",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "A LatÃ©ral"
+                },
+                {
+                  "name": "Vertical",
+                  "label": "A Vertical"
+                },
+                {
+                  "name": "A Noncomitant",
+                  "label": "A Non-concomitant"
+                }
+              ]
             }
           ]
         }
@@ -77,16 +111,16 @@
       "name": "Hirschberg test",
       "fields": [
         {
-          "normalValue": "Ortho",
           "name": "OD",
           "freestyle": true,
-          "options": "hirschbergCodes"
+          "options": "hirschbergCodes",
+          "normalValue": "Ortho"
         },
         {
-          "normalValue": "Ortho",
           "name": "OS",
           "freestyle": true,
-          "options": "hirschbergCodes"
+          "options": "hirschbergCodes",
+          "normalValue": "Ortho"
         }
       ]
     },
@@ -94,16 +128,16 @@
       "name": "Bruckner test",
       "fields": [
         {
-          "normalValue": "Deep red reflex",
           "name": "OD",
           "freestyle": true,
-          "options": "brucknerCodes"
+          "options": "brucknerCodes",
+          "normalValue": "Deep red reflex"
         },
         {
-          "normalValue": "Deep red reflex",
           "name": "OS",
           "freestyle": true,
-          "options": "brucknerCodes"
+          "options": "brucknerCodes",
+          "normalValue": "Deep red reflex"
         }
       ]
     },

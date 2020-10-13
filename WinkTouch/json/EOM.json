@@ -22,7 +22,13 @@
             },
             {
               "name": "With effort",
-              "label": "Avec effort"
+              "label": "Avec effort",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "Oui"
+              ],
+              "normalValue": "Non"
             }
           ]
         }
@@ -78,13 +84,13 @@
           "maxValue": 50
         },
         {
-          "normalValue": "No",
           "name": "With effort",
           "defaultValue": "No",
           "options": [
             "No",
             "Yes"
-          ]
+          ],
+          "normalValue": "No"
         }
       ]
     },

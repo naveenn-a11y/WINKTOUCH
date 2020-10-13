@@ -230,7 +230,7 @@ export const strings = new LocalizedStrings({
       templates: 'Modèles',
       settings: 'Paramètres',
       openFile: 'Dossier patient',
-      startAppointment: 'Commence ',
+      startAppointment: 'Commencer',
       addVisit: 'Ajouter une consultation',
       createPatient: 'Ajouter un patient',
       logout: 'Déconnexion',

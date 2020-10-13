@@ -45,6 +45,7 @@
       ],
       "export": "machine.phoropter",
       "name": "Subjective refraction",
+      "multiValue": true,
       "type": "SRx"
     },
     {
@@ -73,6 +74,7 @@
       "hasAdd": false,
       "optional": true,
       "name": "Retinoscopy",
+      "multiValue": true,
       "type": "SRx"
     },
     {

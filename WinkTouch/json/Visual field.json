@@ -4,6 +4,30 @@
       "label": "Champ Visuel",
       "fields": [
         {
+          "name": "Confrontation visual field",
+          "label": "Par Confrontation",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Complet"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Complet"
+            }
+          ]
+        },
+        {
+          "name": "Tangent screen",
+          "label": "Ãcran Tangent",
+          "fields": [
+            {
+              "name": "Scale",
+              "label": "Ãchelle"
+            }
+          ]
+        },
+        {
           "name": "Amsler grid OD",
           "label": "Grille d\u2019Amsler OD"
         },
@@ -13,15 +37,17 @@
         },
         {
           "name": "Auto-perimetry",
-          "label": "PÃ©rimÃ¨tre Automatique"
-        },
-        {
-          "name": "Tangent screen",
-          "label": "Ãcran Tangent"
-        },
-        {
-          "name": "Confrontation visual field",
-          "label": "  Par Confrontation"
+          "label": "PÃ©rimÃ¨tre Automatique",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Complet"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Complet"
+            }
+          ]
         }
       ]
     }
@@ -34,21 +60,21 @@
   "fields": [
     {
       "name": "Confrontation visual field",
-      "label": "\n\nConfrontation",
+      "label": "Confrontation",
       "fields": [
         {
-          "normalValue": "Full",
           "name": "OD",
           "required": true,
           "freestyle": true,
-          "options": "confrontationVFCodes"
+          "options": "confrontationVFCodes",
+          "normalValue": "Full"
         },
         {
-          "normalValue": "Full",
           "name": "OS",
           "required": true,
           "freestyle": true,
-          "options": "confrontationVFCodes"
+          "options": "confrontationVFCodes",
+          "normalValue": "Full"
         }
       ]
     },
@@ -106,16 +132,16 @@
           "options": "autoPerimetryInstrumentCodes"
         },
         {
-          "normalValue": "Full",
           "name": "OD",
           "freestyle": true,
-          "options": "autoPerimetryVFCodes"
+          "options": "autoPerimetryVFCodes",
+          "normalValue": "Full"
         },
         {
-          "normalValue": "Full",
           "name": "OS",
           "freestyle": true,
-          "options": "autoPerimetryVFCodes"
+          "options": "autoPerimetryVFCodes",
+          "normalValue": "Full"
         },
         {
           "popup": false,
@@ -142,7 +168,7 @@
           "name": "Notes",
           "label": ""
         }
-      ],
+      ]
     }
   ]
 }

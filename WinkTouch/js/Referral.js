@@ -548,13 +548,12 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   return 0;
  }
 
-  appendText(text: string) {
+ appendText(text: string) {
     if (isEmpty(text)) {
       return;
     }
     this.editor.insertContent(text);
   }
-
   renderFieldSelectionTree() {
     let dropdowns = [];
     let options : ?CodeDefinition[]  = getAllCodes("dynamicFields");
