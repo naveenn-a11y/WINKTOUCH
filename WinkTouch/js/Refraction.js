@@ -514,10 +514,14 @@ export class GlassesDetail extends Component {
   }
 
   clear = () : void => {
-    let glassesRx: GlassesRx = this.props.glassesRx;
-    clearRefraction(glassesRx);
-    if (this.props.onChangeGlassesRx)
-      this.props.onChangeGlassesRx(glassesRx);
+    if (this.props.onClear) {
+      this.props.onClear();
+    } else {
+      let glassesRx: GlassesRx = this.props.glassesRx;
+      clearRefraction(glassesRx);
+      if (this.props.onChangeGlassesRx)
+        this.props.onChangeGlassesRx(glassesRx);
+    }
   }
 
   toggleTyping = () : void => {

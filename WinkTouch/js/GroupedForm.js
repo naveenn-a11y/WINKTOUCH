@@ -815,36 +815,42 @@ export class GroupedForm extends Component {
   }
 }
 
-export class GroupedFormScreen extends Component {
-  props: {
-    exam: Exam,
-    onUpdateExam?: (exam: Exam) => void,
-    favorites?: ExamPredefinedValue[],
-    onAddFavorite?: (favorite: any, name: string) => void,
-    editable?: boolean,
-    onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
-    enableScroll?: () => void,
-    disableScroll?: () => void
-  }
+export type GroupedFormScreenProps = {
+  exam: Exam,
+  onUpdateExam?: (exam: Exam) => void,
+  favorites?: ExamPredefinedValue[],
+  onAddFavorite?: (favorite: any, name: string) => void,
+  editable?: boolean,
+  onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
+  enableScroll?: () => void,
+  disableScroll?: () => void
+}
+type GroupedFormScreenState = {
   addableGroups: string[]
-  patientId: string
+}
+export class GroupedFormScreen extends Component<GroupedFormScreenProps, GroupedFormScreenState> {
 
-  constructor(props: any) {
+  constructor(props: GroupedFormScreenProps) {
     super(props);
-    this.initialiseExam(this.props.exam, this.props.editable);
+    this.state = {
+      addableGroups: this.initialiseExam(this.props.exam)
+    }
   }
 
-  componentDidUpdate(prevProps: any) {
+  componentDidUpdate(prevProps: GroupedFormScreenProps) {
     if (prevProps.exam===this.props.exam && prevProps.exam[prevProps.exam.definition.name]===this.props.exam[this.props.exam.definition.name] && prevProps.editable===this.props.editable) {
       return;
     }
-    this.initialiseExam(this.props.exam, this.props.editable);
-    this.forceUpdate(); //TODO: this aint pretty but calling onUpdateExam would make it dirty
+    this.setState({addableGroups: this.initialiseExam(this.props.exam)});
+    //this.forceUpdate(); //TODO: this aint pretty but calling onUpdateExam would make it dirty
   }
 
-  initialiseExam(exam: Exam, editable?: boolean) {
-    this.addableGroups = [];
-    this.patientId = getCachedItem(exam.visitId).patientId;
+  /*
+   * Create the empty objects to hold all group and column data.
+   * Returns the list of optional addable groups.
+  **/
+  initialiseExam(exam: Exam) : string[] {
+    let addableGroups : string[] = [];
     if (!exam[exam.definition.name]) {
       exam[exam.definition.name] = {};
     }
@@ -859,7 +865,7 @@ export class GroupedFormScreen extends Component {
           //The group has no value, time to initialise it
           if (groupDefinition.optional===true) {
             //Don't initialise an optional group, in stead show add it to the + button
-            this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
+            addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
           } else {
             //Initialise the group value
             if (groupDefinition.multiValue===true) {//Initialise a multivalue with an array
@@ -916,6 +922,11 @@ export class GroupedFormScreen extends Component {
         }
       }
     });
+    return addableGroups;
+  }
+
+  getPatientId(): string {
+     return getCachedItem(this.props.exam.visitId).patientId;
   }
 
   addGroupItem = (groupDefinition: GroupDefinition ) => {
@@ -1051,9 +1062,15 @@ export class GroupedFormScreen extends Component {
       }
     } else {
       //Clearing a single grouped form or checklist
-      let form = this.props.exam[this.props.exam.definition.name][groupName];
-      form = this.clearNonReadOnlyFields(form, formDefinition);
-      this.props.exam[this.props.exam.definition.name][groupName]=form;
+      if (formDefinition.optional) {
+        this.props.exam[this.props.exam.definition.name][groupName]=undefined;
+        this.setState({addableGroups: this.initialiseExam(this.props.exam)});
+      } else {
+        let form = this.props.exam[this.props.exam.definition.name][groupName];
+        form = this.clearNonReadOnlyFields(form, formDefinition);
+        this.props.exam[this.props.exam.definition.name][groupName]=form;
+      }
+
     }
     this.props.onUpdateExam(this.props.exam);
   }
@@ -1072,7 +1089,6 @@ export class GroupedFormScreen extends Component {
   }
 
   addGroup(groupType: string) {
-    this.addableGroups.splice(this.addableGroups.indexOf(groupType), 1); //Remove the type from the addable list
     const exam : Exam = this.props.exam;
     let groupDefinition = exam.definition.fields.find((groupDefinition: GroupDefinition) => groupDefinition.label!==undefined?groupDefinition.label===groupType:groupDefinition.name===groupType);
     if (!groupDefinition) return;
@@ -1089,7 +1105,7 @@ export class GroupedFormScreen extends Component {
         exam[exam.definition.name][groupDefinition.name] = {};
       }
     }
-    this.initialiseExam(exam);
+    this.setState({addableGroups: this.initialiseExam(exam)});
     this.props.onUpdateExam(this.props.exam);
   }
 
@@ -1097,10 +1113,7 @@ export class GroupedFormScreen extends Component {
     const fieldId : string = this.props.exam.definition.name+"."+groupDefinition.name;
     //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));
     let value : any = this.props.exam[this.props.exam.definition.name];
-    if (value===undefined) {
-      this.initialiseExam(this.props.exam);
-      value = this.props.exam[this.props.exam.definition.name];
-    }
+    if (!value) return null;
     value = value[groupDefinition.name];
     if (value===undefined && groupDefinition.options===undefined) return null;
     if (groupDefinition.mappedField) {
@@ -1142,10 +1155,10 @@ export class GroupedFormScreen extends Component {
       );
     } else if (groupDefinition.type==='SRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} onClear={() => this.clear(groupDefinition.name)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
     } else if (groupDefinition.type==='CRx') {
       return <GlassesDetail title={formatLabel(groupDefinition)} editable={this.props.editable} glassesRx={value} hasVA={groupDefinition.hasVA} onCopy={groupDefinition.canBeCopied===true?this.copyToFinal:undefined} examId={this.props.exam.id}   editable={this.props.editable!==false && groupDefinition.readonly!==true}
-        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
+        onChangeGlassesRx={(glassesRx: GlassesRx) => this.updateRefraction(groupDefinition.name, glassesRx)} onClear={() => this.clear(groupDefinition.name)} hasAdd={groupDefinition.hasAdd} hasLensType={groupDefinition.hasLensType} key={groupDefinition.name} definition={groupDefinition} fieldId={fieldId}/>
     } else if (groupDefinition.options!=undefined) {
       return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
@@ -1168,8 +1181,8 @@ export class GroupedFormScreen extends Component {
   }
 
   renderAddableGroupsButton() {
-    if (this.addableGroups===undefined || this.addableGroups.length===0) return null;
-    return <FloatingButton options={this.addableGroups} onPress={(groupType: string) => this.addGroup(groupType)}/>
+    if (this.state.addableGroups.length===0) return null;
+    return <FloatingButton options={this.state.addableGroups} onPress={(groupType: string) => this.addGroup(groupType)}/>
   }
 
   render() {
