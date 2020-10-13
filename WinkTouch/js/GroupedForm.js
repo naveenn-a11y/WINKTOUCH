@@ -1055,8 +1055,13 @@ export class GroupedFormScreen extends Component<GroupedFormScreenProps, Grouped
         return;
       }
       if (forms.length===1) {//Last element in the array
-        const form = forms[0];
-        forms[0] = this.clearNonReadOnlyFields(form, formDefinition);
+        if (formDefinition.optional) {
+          this.props.exam[this.props.exam.definition.name][groupName]=undefined;
+          this.setState({addableGroups: this.initialiseExam(this.props.exam)});
+        } else {
+          const form = forms[0];
+          forms[0] = this.clearNonReadOnlyFields(form, formDefinition);          
+        }
       } else {//Remove the element from the array
         forms.splice(index, 1);
       }
