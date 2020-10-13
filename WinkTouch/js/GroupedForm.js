@@ -17,7 +17,7 @@ import { getCachedItem } from './DataCache';
 import { Favorites, Star, Garbage, Plus, PaperClip, DrawingIcon, CopyRow, CopyColumn, Keyboard, ImportIcon, ExportIcon } from './Favorites';
 import { getConfiguration } from './Configuration';
 import { importData } from './MappedField';
-import { GlassesDetail, GlassesSummary, newRefraction, clearRefraction } from './Refraction';
+import { GlassesDetail, GlassesSummary, newRefraction, clearRefraction, initRefraction } from './Refraction';
 import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue, setMappedFieldValue } from './Exam';
 import { CheckButton, Label } from './Widgets';
 import { formatLabel, formatFieldValue, getFieldDefinition } from './Items';
@@ -839,6 +839,7 @@ export class GroupedFormScreen extends Component {
       return;
     }
     this.initialiseExam(this.props.exam, this.props.editable);
+    this.forceUpdate(); //TODO: this aint pretty but calling onUpdateExam would make it dirty
   }
 
   initialiseExam(exam: Exam, editable?: boolean) {
@@ -848,52 +849,67 @@ export class GroupedFormScreen extends Component {
       exam[exam.definition.name] = {};
     }
     if (exam.definition.fields===undefined || exam.definition.fields.length===0) return;
-    exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => {
+    exam.definition.fields.forEach((groupDefinition: GroupDefinition|FieldDefinition) => { //Create a value for each group
       if (groupDefinition.mappedField) {
         groupDefinition = Object.assign({}, getFieldDefinition(groupDefinition.mappedField), groupDefinition);
       }
-      if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
-        if (groupDefinition.type==='SRx') {
+      if (groupDefinition.options===undefined) {
+        //Don't initialise a checkboxes group
+        if (exam[exam.definition.name][groupDefinition.name]===undefined || exam[exam.definition.name][groupDefinition.name]===null) {
+          //The group has no value, time to initialise it
           if (groupDefinition.optional===true) {
+            //Don't initialise an optional group, in stead show add it to the + button
             this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
           } else {
-            if (groupDefinition.multiValue) {
-              exam[exam.definition.name][groupDefinition.name] = [newRefraction()];
-            } else {
-              exam[exam.definition.name][groupDefinition.name] = newRefraction();
-            }
-          }
-        } else if (groupDefinition.multiValue===true) {
-          exam[exam.definition.name][groupDefinition.name] = [];
-        } else {
-          if (groupDefinition.optional===true) {
-            this.addableGroups.push(groupDefinition.label?groupDefinition.label:groupDefinition.name);
-          } else {
-            if (groupDefinition.options===undefined) {
+            //Initialise the group value
+            if (groupDefinition.multiValue===true) {//Initialise a multivalue with an array
+              exam[exam.definition.name][groupDefinition.name] = [];
+            } else {//Initialise a group with an empty Object
               exam[exam.definition.name][groupDefinition.name] = {};
             }
           }
         }
-      }
-      if (!isEmpty(exam[exam.definition.name][groupDefinition.name])) {
-        if (groupDefinition.multiValue) {
-          let values = exam[exam.definition.name][groupDefinition.name];
-          if (values instanceof Array === false) values = [values]; //auto convert old style exams
-          if (values.length===0 && groupDefinition.fields) {
-            let newObject = {};
-            groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
-              if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
-                  newObject[fieldDefinition.name] = {} //Add empty column
-                }
-              }
-            );
-            values.push(newObject);
+        let groupValue : {}|[] = exam[exam.definition.name][groupDefinition.name];
+        if (groupValue) {
+          //Initialise empty arrays with a first element
+          if (groupDefinition.multiValue) {
+            if (groupValue instanceof Array === false) {
+              //auto fix old style exams that stored that stored a one size array as the first element
+              groupValue = [groupValue];
+              exam[exam.definition.name][groupDefinition.name] = groupValue;
+            }
+            if (groupValue.length===0) {
+              let firstValue = {};
+              groupValue.push(firstValue);
+            }
           }
-        } else {
+          //Initialise SRx
+          if (groupDefinition.type==='SRx') {
+            if (groupDefinition.multiValue) {
+              groupValue.forEach(value => {
+                initRefraction(value);
+              });
+            } else {
+              initRefraction(groupValue);
+            }
+          }
+          //Initialise the fields that have columns (subfields)
           groupDefinition.fields instanceof Array && groupDefinition.fields.forEach((fieldDefinition: FieldDefinition|GroupDefinition) => {
             if (fieldDefinition.fields instanceof Array && fieldDefinition.fields.length!==0) {
-              if (exam[exam.definition.name][groupDefinition.name][fieldDefinition.name]===undefined) {
-                exam[exam.definition.name][groupDefinition.name][fieldDefinition.name] = {} //Add empty column
+              //Initialise a subfield that has columns
+              if (groupDefinition.multiValue) {
+                //Initialise every value in the array
+                groupValue.forEach(value => {
+                  let fieldValue = value[fieldDefinition.name];
+                  if (fieldValue===undefined) {
+                    value[fieldDefinition.name] = {} //Add empty column
+                  }
+                });
+              } else {
+                let fieldValue = groupValue[fieldDefinition.name];
+                if (fieldValue===undefined) {
+                  groupValue[fieldDefinition.name] = {} //Add empty column
+                }
               }
             }
           });
