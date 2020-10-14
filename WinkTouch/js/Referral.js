@@ -30,6 +30,7 @@ import {FollowUpScreen} from './FollowUp';
 import { getVisitHistory } from './Visit';
 import { ManageUsers } from './User';
 import { FormOptions } from './Form';
+import { Microphone } from "./Voice";
 
 
 export function isReferralsEnabled() : boolean {
@@ -547,6 +548,12 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   return 0;
  }
 
+ appendText(text: string) {
+    if (isEmpty(text)) {
+      return;
+    }
+    this.editor.insertContent(text);
+  }
   renderFieldSelectionTree() {
     let dropdowns = [];
     let options : ?CodeDefinition[]  = getAllCodes("dynamicFields");
@@ -594,6 +601,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         {this.renderFieldSelectionTree()}
         <FormRow>
           <Button title='Insert' disabled={!this.state.htmlDefinition} onPress={() => this.insertField()}/>
+          <Microphone onSpoke={(text: string) => this.appendText(text)} style={styles.voiceIconMulti}
+          />
         </FormRow>
     </View>
   }
