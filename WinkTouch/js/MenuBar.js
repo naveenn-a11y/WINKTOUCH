@@ -12,6 +12,7 @@ import type {Exam, ExamDefinition, Scene } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
 import { UpcomingAppointments} from './Appointment';
 import { getAllCodes } from './Codes';
+import { getPhoropters } from './DoctorApp';
 
 export class Notifications extends PureComponent {
     render() {
@@ -37,7 +38,7 @@ export class MenuBar extends PureComponent {
         //if (this.props.scene.menuHidden) return null;
         const exam: ?Exam = this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.exam;
         const scene: ?string = this.props.navigation.state && this.props.navigation.state.routeName;
-        const hasConfig: boolean = getAllCodes('machines')!==undefined && getAllCodes('machines').length>0;
+        const hasConfig: boolean = getPhoropters().length>1;
         return <View style={styles.sideMenu}>
           <Image source={require('./image/menulogo.png')} />
           <Button title={strings.agenda} onPress={() => this.props.navigation.navigate('agenda')} />

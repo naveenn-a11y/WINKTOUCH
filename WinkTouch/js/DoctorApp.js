@@ -123,6 +123,12 @@ function getCurrentRoute(navigationState) {
   return route;
 }
 
+export function getPhoropters() : CodeDefinition[] {
+  const machines : CodeDefinition[] = getAllCodes('machines');
+  let phoropters : CodeDefinition[] = machines.filter((machine: CodeDefinition) => machine.machineType==='PHOROPTER');
+  return phoropters;
+}
+
 export class DoctorApp extends Component {
     props: {
       account: Account,
@@ -186,21 +192,13 @@ export class DoctorApp extends Component {
     }
 
     initPhoropter() : void {
-      let phoropter: CodeDefinition = undefined;
-      const machines : CodeDefinition[] = getAllCodes('machines');
-      if (machines && machines.length>0) {
-        machines.forEach((machine) => {
-          console.log(JSON.stringify(machine));
-          if (machine.machineType==='TONOREF') {
-            if (phoropter) return;
-            phoropter = machine;
-          }
-        });
+      const phoropters: CodeDefintion[] = getPhoropters();
+      if (phoropters && phoropters.length===1) {
+        let configuration : Configuration = getConfiguration();
+        configuration.machine.phoropter = phoropters[0].code;
+        //We don't want to save the configuration as the user did not choose this phoropter himself.
+        //So If he switches to a store with more then one phoropter he will get his selected phoropter from before.
       }
-      let configuration : Configuration = getConfiguration();
-      configuration.machine.phoropter = phoropter.code;
-      //We don't want to save the configuration as the user did not choose this phoropter himself.
-      //So If he switches to a store with more then one phoropter he will get his selected phoropter from before.
     }
 
     logout = () : void => {
