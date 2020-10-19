@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import {  StatusBar, ScrollView, View, AsyncStorage} from 'react-native';
 import { createAppContainer, NavigationActions, StackActions } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import type {Appointment, PatientInfo, Exam, Visit, Account, User, Store, ExamDefinition, Scene} from './Types';
+import type {Appointment, PatientInfo, Exam, Visit, Account, User, Store, ExamDefinition, Scene, CodeDefinition, Configuration} from './Types';
 import {styles} from './Styles';
 import {OverviewScreen} from './Overview';
 import { AppointmentScreen, AppointmentsSummary } from './Appointment';
@@ -21,10 +21,12 @@ import { ExamDefinitionScreen, TemplatesScreen, allExamDefinitions } from './Exa
 import { ExamChartScreen } from './Chart';
 import { setToken } from './Rest';
 import { allExamPredefinedValues } from './Favorites';
-import { ConfigurationScreen } from './Configuration';
+import { ConfigurationScreen, getConfiguration } from './Configuration';
 import { deleteLocalFiles } from './Print';
 import { ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
+import { fetchVisitTypes } from './Visit';
+import { fetchUserDefinedCodes, getAllCodes } from './Codes';
 
 let account: Account;
 let doctor: User;
@@ -121,6 +123,12 @@ function getCurrentRoute(navigationState) {
   return route;
 }
 
+export function getPhoropters() : CodeDefinition[] {
+  const machines : CodeDefinition[] = getAllCodes('machines');
+  let phoropters : CodeDefinition[] = machines.filter((machine: CodeDefinition) => machine.machineType==='PHOROPTER');
+  return phoropters;
+}
+
 export class DoctorApp extends Component {
     props: {
       account: Account,
@@ -163,15 +171,34 @@ export class DoctorApp extends Component {
       setStore(this.props.store);
     }
 
+    componentDidMount() {
+      this.initialseAppForDoctor();
+    }
+
     async initialseAppForDoctor() {
+      await fetchUserDefinedCodes();
+      this.initConfiguration();
+      this.forceUpdate();
+      await fetchVisitTypes();
       await allExamDefinitions(true, false);
       await allExamDefinitions(false, false);
       await allExamDefinitions(false, true);
       await allExamPredefinedValues();
+      this.forceUpdate();
     }
 
-    componentDidMount() {
-      this.initialseAppForDoctor();
+    initConfiguration() : void {
+      this.initPhoropter();
+    }
+
+    initPhoropter() : void {
+      const phoropters: CodeDefintion[] = getPhoropters();
+      if (phoropters && phoropters.length===1) {
+        let configuration : Configuration = getConfiguration();
+        configuration.machine.phoropter = phoropters[0].code;
+        //We don't want to save the configuration as the user did not choose this phoropter himself.
+        //So If he switches to a store with more then one phoropter he will get his selected phoropter from before.
+      }
     }
 
     logout = () : void => {
