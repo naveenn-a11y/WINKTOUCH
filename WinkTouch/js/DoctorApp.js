@@ -25,6 +25,8 @@ import { ConfigurationScreen } from './Configuration';
 import { deleteLocalFiles } from './Print';
 import { ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
+import { fetchVisitTypes } from './Visit';
+import { fetchUserDefinedCodes } from './Codes';
 
 let account: Account;
 let doctor: User;
@@ -164,10 +166,14 @@ export class DoctorApp extends Component {
     }
 
     async initialseAppForDoctor() {
+      await fetchUserDefinedCodes();
+      this.forceUpdate();
+      await fetchVisitTypes();
       await allExamDefinitions(true, false);
       await allExamDefinitions(false, false);
       await allExamDefinitions(false, true);
       await allExamPredefinedValues();
+      this.forceUpdate();
     }
 
     componentDidMount() {
