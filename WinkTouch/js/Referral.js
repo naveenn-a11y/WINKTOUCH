@@ -139,7 +139,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async componentDidUpdate(prevProps: any) {
     if(!this.props.navigation.isFocused()) {
-      const isDirty = this.editor !== undefined ? await this.editor.isDirty() : false;
+      const isEditorDirty : boolean = this.editor !== undefined ? await this.editor.isDirty() : false;
+      const isReferralDirty : boolean = this.state.isDirty;
+      const isDirty : boolean = isEditorDirty || isReferralDirty;
       if(this.state.template && (isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id))) {
         this.save();
       }
@@ -183,7 +185,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const visit: Visit = this.props.navigation.state.params.visit;
     const allExams : string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
-    this.updateReferral();
+    this.updateReferralState(true);
     if(exams) {
      const htmlDefinition : HtmlDefinition[] =  await this.retrieveHtmlExamDefinition(exams);
      let body : {} = {};
@@ -250,6 +252,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   updateValue(newValue: any) {
     this.setState({doctorId: newValue});
+    this.updateReferralState(true);
   }
 
   updateFieldCc(newValue: any) {
@@ -322,7 +325,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let html = this.mapImageWithBase64(htmlContent.content);
         this.editor.insertContent(html);
         this.updateSignatureState(html);
-        this.updateReferral();
+        this.updateReferralState(true);
       }
     this.setState({ isLoading: false });
   }
@@ -373,7 +376,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     html = htmlHeader + html + htmlEnd;
     const job = await printHtml(html);
     if(job) {
-      this.updateReferral();
+      this.updateReferralState(true);
       this.setState({command: COMMAND.PRINT});
       await this.save();
     }
@@ -435,14 +438,14 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       }
       else {
       this.setState({doctorReferral: referralDefinition});
-      this.setState({isDirty: response.errors!==undefined});
+      this.updateReferralState(response.errors!==undefined);
       }
     }
 
   }
 
-   updateReferral ()  {
-    this.setState({isDirty:true});
+   updateReferralState (isDirty?: boolean)  {
+    this.setState({isDirty:isDirty});
   }
 
 
@@ -476,7 +479,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if(this.state.command === undefined || this.state.emailDefinition === undefined) {
       return;
     }
-    this.updateReferral();
+    this.updateReferralState(true);
     this.setState({isActive: false});
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
