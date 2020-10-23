@@ -21,6 +21,7 @@
   "fields": [
     {
       "name": "Keratometry",
+      "import": ["machine.tonoref.kera","machine.phoropter.kera"],
       "columns": [
         [
           "OD",
