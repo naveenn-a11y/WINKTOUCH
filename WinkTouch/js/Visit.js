@@ -32,7 +32,7 @@ import { isReferralsEnabled } from './Referral';
 export const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
 
-export function getSectionTitle(section) : string {
+export function getSectionTitle(section: string) : string {
   const language : string = getUserLanguage();
   if (language.startsWith('fr')) {
       if (section==='Pre tests') return 'Pré-tests';
@@ -47,10 +47,10 @@ export async function fetchVisit(visitId: string) : Visit {
   return visit;
 }
 
-export async function fetchVisitTypes() : string[] {
+export async function fetchVisitTypes() : VisitType[] {
     const searchCriteria = {};
     let restResponse = await searchItems('VisitType/list', searchCriteria);
-    let visitTypes : string[] = restResponse.visitTypeNameList;
+    let visitTypes : VisitType[] = restResponse.visitTypeList;
     if (!visitTypes || visitTypes.length==0) {
       alert(strings.formatString(strings.doctorWithoutVisitTypeError, getDoctor().lastName));
       visitTypes = [];
@@ -59,7 +59,7 @@ export async function fetchVisitTypes() : string[] {
     return visitTypes;
 }
 
-export function getVisitTypes() : string[] {
+export function getVisitTypes() : VisitType[] {
   let visitTypes : string[] = getCachedItem('visitTypes');
   return visitTypes;
 }
@@ -299,18 +299,18 @@ class FollowUpButton extends PureComponent {
      }
 }
 
-export class StartVisitButtons extends Component {
-  props: {
+export type StartVisitButtonsProps = {
     isPreVisit: boolean,
     title?: string,
     onStartVisit: (type: string, isPrevisit: boolean) => void,
     isLoading: ?boolean
   }
-  state: {
-    visitTypes: string[],
+type StartVisitButtonstate = {
+  visitTypes: VisitType[],
     clicked: boolean
   }
-  constructor(props: any) {
+export class StartVisitButtons extends Component<StartVisitButtonsProps, StartVisitButtonsState> {
+  constructor(props: StartVisitButtonsProps) {
     super(props);
     this.state = {
       visitTypes: [],
@@ -324,7 +324,7 @@ export class StartVisitButtons extends Component {
 
   async loadVisitTypes() {
     if (this.state.visitTypes && this.state.visitTypes.length>0) return;
-    let visitTypes : string[] = getVisitTypes();
+    let visitTypes : VisitType[] = getVisitTypes();
     if (!visitTypes || visitTypes.length===0)
       visitTypes = await fetchVisitTypes();
     this.setState({visitTypes});
@@ -350,8 +350,8 @@ export class StartVisitButtons extends Component {
     return <View style={styles.startVisitCard}>
         {this.props.title && <Text style={styles.sectionTitle}>{this.props.title}</Text>}
         <View style={styles.flow}>
-          {this.state.visitTypes.map((visitType: string, index: number) =>
-            <Button title={visitType} key={index} onPress={() => this.startVisit(visitType)} />)}
+          {this.state.visitTypes.map((visitType: VisitType, index: number) =>
+            <Button title={visitType.name} key={index} onPress={() => this.startVisit(visitType.name)} />)}
         </View>
     </View>
   }
