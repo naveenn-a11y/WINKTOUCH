@@ -60,8 +60,12 @@ export async function fetchVisitTypes() : VisitType[] {
 }
 
 export function getVisitTypes() : VisitType[] {
-  let visitTypes : string[] = getCachedItem('visitTypes');
+  let visitTypes : VisitType[] = getCachedItem('visitTypes');
   return visitTypes;
+}
+
+export async function saveVisitTypes(visitTypes: VisitType[]) {
+  await performActionOnItem('linkExams', visitTypes);
 }
 
 export function visitHasEnded(visit: string|Visit) : boolean {

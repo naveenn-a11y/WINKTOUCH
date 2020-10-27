@@ -15,18 +15,17 @@ import { getVisitTypes } from './Visit';
 import { SelectionList } from './Widgets';
 import { strings} from './Strings';
 import { CheckList} from './GroupedForm';
-import { examSections, getSectionTitle } from './Visit';
+import { examSections, getSectionTitle, saveVisitTypes } from './Visit';
 import { capitalize } from './Util';
 
 export type CustomisationScreenProps = {
-};
-
+}
 type CustomisationScreenState = {
   visitTypes: VisitType[],
   visitType: ?string,
-  sectionDefinitions: FieldDefinition[]
-};
-
+  sectionDefinitions: FieldDefinition[],
+  isDirty: boolean
+}
 export class CustomisationScreen extends PureComponent<CustomisationScreenProps, CustomisationScreenState> {
 
   constructor(props: any) {
@@ -34,7 +33,8 @@ export class CustomisationScreen extends PureComponent<CustomisationScreenProps,
     this.state = {
       visitTypes: getVisitTypes(),
       visitType: undefined,
-      sectionDefinitions: []
+      sectionDefinitions: [],
+      isDirty: false
     }
   }
 
@@ -42,11 +42,22 @@ export class CustomisationScreen extends PureComponent<CustomisationScreenProps,
     this.refreshExamDefinitions();
   }
 
+  componentWillUnmount() {
+    if (this.state.isDirty) {
+      this.saveVisitTypeMapping();
+    }
+  }
+
   async refreshExamDefinitions() {
       let preExamDefinitions : ExamDefinition[] = await allExamDefinitions(true, false);
       let examDefinitions : ExamDefinition[] = await allExamDefinitions(false, false);
       let assessmentDefintions : ExamDefinition[] = await allExamDefinitions(false, true);
       this.generateSectionDefinitions();
+  }
+
+  async saveVisitTypeMapping() {
+    const visitTypes : VisitType[] = this.state.visitTypes.filter((visitType: VisitType) => visitType.isDirty);
+    await saveVisitTypes(visitTypes);
   }
 
   selectVisitType = (visitType: ?string) : void => {
@@ -74,9 +85,11 @@ export class CustomisationScreen extends PureComponent<CustomisationScreenProps,
       let sectionExamDefinitions : ExamDefinition[] = examDefinitions.filter((examDefinition: ExamDefinition) => examDefinition.section.startsWith(section));
       let examLabels : string[] = sectionExamDefinitions.map((examDefinition: ExamDefinition) => formatLabel(examDefinition));
       let examDefinitionIds : string[] = sectionExamDefinitions.map((examDefinition: ExamDefinition) => examDefinition.id);
+
       const sectionDefinition = {
         name: getSectionTitle(section),
         options: examLabels,
+        multiValue: true,
         examDefinitionIds: examDefinitionIds
       }
       return sectionDefinition;
@@ -92,15 +105,36 @@ export class CustomisationScreen extends PureComponent<CustomisationScreenProps,
   }
 
   getSelectedExamLabels(sectionDefinition: FieldDefinition) : string[] {
-    if (!this.state.visitType) return [];
     const visitType : ?VisitType = this.getSelectedVisitType();
     if (!visitType || !visitType.examDefinitionIds) return [];
-    const selectedExamIds : string[] = sectionDefinition.examDefinitionIds.filter((examDefinitionId: string) => {
-        let i : number = visitType.examDefinitionIds.indexOf(examDefinitionId);
-        return i>=0;
-      });
+    const selectedExamIds : string[] = sectionDefinition.examDefinitionIds.filter((examDefinitionId: string) => visitType.examDefinitionIds.indexOf(examDefinitionId)>=0);
     const selectedExamNames : string[] = selectedExamIds.map((examDefinitionId: string) => getCachedItem(examDefinitionId).name);
     return selectedExamNames;
+  }
+
+  setSelectedExamLabels(sectionDefinition: any, selectedExamNames: string|string[]) {
+    const visitType : ?VisitType = this.getSelectedVisitType();
+    if (!visitType || !visitType.examDefinitionIds) return;
+    sectionDefinition.examDefinitionIds.forEach((examDefinitionId: string) => {
+        const examName: string = getCachedItem(examDefinitionId).name;
+        const isSelected : boolean = selectedExamNames.indexOf(examName)>=0;
+        if (isSelected) {//Add the exam to the visit type
+          if (visitType.examDefinitionIds.indexOf(examDefinitionId)<0) {
+            visitType.examDefinitionIds.push(examDefinitionId);
+            visitType.isDirty = true;
+          }
+        } else {//Remove the exam from the visit type
+          const index : number = visitType.examDefinitionIds.indexOf(examDefinitionId);
+          if (index>=0) {
+            visitType.examDefinitionIds.splice(index,1);
+            visitType.isDirty = true;
+          }
+        }
+      });
+      if (!this.state.isDirty) {
+        this.setState({isDirty:true});
+      }
+      this.forceUpdate();
   }
 
   render() {
@@ -108,8 +142,12 @@ export class CustomisationScreen extends PureComponent<CustomisationScreenProps,
           <Text style={styles.screenTitle}>{strings.customisation}</Text>
           <ScrollView horizontal={true}>
             <View style={styles.flexRow}>
-              <SelectionList label='Visit type' selection={this.state.visitType} items={this.state.visitTypes.map((visitType: VisitType) => visitType.name)} simpleSelect={true} onUpdateSelection={this.selectVisitType} />
-              {this.state.sectionDefinitions.map((sectionDefinition: FieldDefinition) => <CheckList definition={sectionDefinition} style={styles.board} value={this.getSelectedExamLabels(sectionDefinition)}/>)}
+              <SelectionList label='Visit type' selection={this.state.visitType} items={this.state.visitTypes && this.state.visitTypes.map((visitType: VisitType) => visitType.name)} simpleSelect={true} onUpdateSelection={this.selectVisitType} />
+              {this.state.sectionDefinitions.map((sectionDefinition: FieldDefinition) =>
+                <CheckList definition={sectionDefinition} style={styles.board}
+                  value={this.getSelectedExamLabels(sectionDefinition)}
+                  onChangeField={(newValue: string|string[]) => this.setSelectedExamLabels(sectionDefinition, newValue)}/>
+              )}
             </View>
           </ScrollView>
         </View>

@@ -178,10 +178,10 @@ export class DoctorApp extends Component {
     }
 
     async initialseAppForDoctor() {
+      await fetchVisitTypes();
       await fetchUserDefinedCodes();
       this.initConfiguration();
       this.forceUpdate();
-      await fetchVisitTypes();
       await allExamDefinitions(true, false);
       await allExamDefinitions(false, false);
       await allExamDefinitions(false, true);

@@ -182,6 +182,10 @@ export function logRestResponse(restResponse, id, requestNr: number, method: str
   console.log('RES '+requestNr+' '+method+' '+url+' json body: '+JSON.stringify(cleanedResponse));
 }
 
+export async function storeItems(itemLsist : any[]) {
+
+}
+
 /**
 * Returns the saved object when the save was successfull (it will have a new version number).
 * Returns the original object with validation error messages per field in case the the object did not pass validation.
@@ -322,7 +326,10 @@ export async function searchItems(list: string, searchCritera: Object) : any {
 }
 
 export async function performActionOnItem(action: string, item: any) : any {
-  let url : string = restUrl + getDataType(item.id) + '/' + encodeURIComponent(action);
+  if (item===null | item===undefined || (item instanceof Array && item.length===0)) {
+    __DEV__ && console.error('item is mandatory');
+  }
+  let url : string = restUrl + getDataType((item instanceof Array?item[0].id:item.id)) + '/' + encodeURIComponent(action);
   const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
