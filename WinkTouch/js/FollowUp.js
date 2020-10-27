@@ -83,7 +83,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     let parameters : {} = {};
     const referral: FollowUp = this.state.selectedItem;
     let isFax: Boolean = false;
-    if(!isEmpty(referral.faxedOn)&& isEmpty(referral.emailOn)) {
+    if(this.state.command == COMMAND.RESEND && !isEmpty(referral.faxedOn)&& isEmpty(referral.emailOn)) {
         isFax = true;
     }
 
@@ -104,7 +104,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
           }
           else {
               RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
-              this.setState({isPopupVisibile: false});
+              this.setState({isPopupVisibile: false,  emailDefinition: {}});
           }
       }
     this.setState({isActive: true});
