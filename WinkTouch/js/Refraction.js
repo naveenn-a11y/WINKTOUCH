@@ -446,7 +446,7 @@ export class GlassesDetail extends Component {
     titleStyle?: string,
     style?: string,
     onChangeGlassesRx?: (glassesRx: GlassesRx) => void,
-    onAdd?: () => void,
+    onAdd?: (glassesRx: ?GlassesRx) => void,
     onClear? : () => void,
     examId: string,
     fieldId?: string
