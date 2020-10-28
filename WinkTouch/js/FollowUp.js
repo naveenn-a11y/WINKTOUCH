@@ -1078,37 +1078,37 @@ async handleRefresh() {
       <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
       {isPatientVisible && <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByPatient()} style={style}>
       <View style = {styles.formRow}>
-        {this.state.patientHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        {this.state.patientHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
         <Text style={this.state.patientHeaderSelected ? styleSelected : styleText}>{'Patient'}</Text>
       </View>
       </TouchableOpacity>}
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}>
       <View style = {styles.formRow}>
-        {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
         <Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}>
       <View style = {styles.formRow}>
-        {this.state.toHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+        {this.state.toHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
         <Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}>
       <View style = {styles.formRow}>
-      {this.state.dateHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+      {this.state.dateHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
       <Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}>
       <View style = {styles.formRow}>
-      {this.state.statusHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+      {this.state.statusHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
       <Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}>
       <View style = {styles.formRow}>
-       {this.state.commentHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-upward' : 'arrow-downward'} color={selectionFontColor}/>}
+       {this.state.commentHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
        <Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text>
        </View>
        </TouchableOpacity>
