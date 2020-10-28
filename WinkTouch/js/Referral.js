@@ -478,6 +478,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     }
     this.updateReferral();
     this.setState({isActive: false});
+    await this.save();
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
@@ -514,7 +515,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
           else {
               RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
               this.setState({isPopupVisibile: false});
-              await this.save();
           }
       }
     this.setState({isActive: true});
