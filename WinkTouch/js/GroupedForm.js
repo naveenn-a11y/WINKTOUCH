@@ -257,6 +257,9 @@ export class CheckList extends PureComponent {
   }
 
   render() {
+    console.log("Props Styles: " + JSON.stringify(this.props.style));
+    console.log("definition Styles: " + JSON.stringify(this.props.definition.size));
+
     const style = this.props.style?this.props.style:this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
     return  <View style={style}>
             <Label style={styles.sectionTitle} suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId}/>

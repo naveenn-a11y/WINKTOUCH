@@ -13,7 +13,7 @@ import RNFS from 'react-native-fs';
 
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.04/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.04/';
-export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.27/': 'https://ws-touch.downloadwink.com/WinkRESTv'+restVersion+'/';
+export let winkRestUrl = __DEV__? 'http://192.168.88.61:8080/WinkRESTv5.00.27/': 'https://ws-touch.downloadwink.com/WinkRESTv'+restVersion+'/';
 
 export async function fetchWinkRest(uri: string, parameters: Object, httpMethod?: string = 'GET', body?: any = undefined) : any {
   const url :string  = appendParameters(winkRestUrl + uri, parameters);

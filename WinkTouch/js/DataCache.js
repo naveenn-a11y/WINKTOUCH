@@ -3,21 +3,20 @@
  */
 'use strict';
 
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const cache = new Map();
 
 export function cacheItem(id: string, data: any) {
-  if (id===undefined || id===null) return;
-  if (data===undefined) {
+  if (id === undefined || id === null) return;
+  if (data === undefined) {
     cache.delete(id);
     //__DEV__ && console.log('Removing cached '+id+'.');
-  }
-  else {
+  } else {
     let existingData = getCachedItem(id);
     if (existingData) {
       if (existingData.version) {
-        if (data.version===undefined || data.version<existingData.version) {
+        if (data.version === undefined || data.version < existingData.version) {
           return;
         }
       }
@@ -28,7 +27,7 @@ export function cacheItem(id: string, data: any) {
 }
 
 export function cacheItemById(data: any) {
-  if (data===undefined || data.id===undefined) return;
+  if (data === undefined || data.id === undefined) return;
   cacheItem(data.id, data);
 }
 
@@ -42,21 +41,22 @@ export function cacheItemsById(items: []) {
   items.forEach((item: any) => cacheItemById(item));
 }
 
-export function getCachedItem(id: string) : any {
-  if (id==undefined) return undefined;
+export function getCachedItem(id: string): any {
+  if (id == undefined) return undefined;
   const cachedData = cache.get(id);
   return cachedData;
 }
 
-export function getCachedItems(ids: ?string[]) : ?any[] {
-    if (ids===undefined || ids===null) return undefined;
-    let items = ids.map(id => getCachedItem(id));
-    return items;
+export function getCachedItems(ids: ?(string[])): ?(any[]) {
+  if (ids === undefined || ids === null) return undefined;
+  let items = ids.map((id) => getCachedItem(id));
+  return items;
 }
 
-export function getCachedVersionNumber(id: string) : number {
-  const item :any = getCachedItem(id);
-  if (item===undefined || item.version===undefined || item===null) return -1;
+export function getCachedVersionNumber(id: string): number {
+  const item: any = getCachedItem(id);
+  if (item === undefined || item.version === undefined || item === null)
+    return -1;
   return item.version;
 }
 

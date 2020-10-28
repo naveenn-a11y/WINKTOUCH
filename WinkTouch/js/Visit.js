@@ -5,7 +5,7 @@
 
 import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
-import DateTimePicker from "react-native-modal-datetime-picker";
+import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
 import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp } from './Types';
 import { styles, fontScale } from './Styles';
@@ -960,12 +960,12 @@ export class VisitHistory extends Component {
               {!isNewAppointment && <Button title={strings.addVisit} onPress={this.showDatePicker} />}
               {__DEV__ && <Button title={strings.printRx} />}
               {__DEV__ && <Button title='Book appointment' />}
-              {!isNewAppointment && this.state.showingDatePicker && <DateTimePicker
+              {!isNewAppointment && this.state.showingDatePicker && <CustomDateTimePicker
                 isVisible={this.state.showingDatePicker}
                 hideTitleContainerIOS={true}
                 date={new Date()}
                 mode="date"
-                onConfirm={this.selectDate}
+                onChange={this.selectDate}
                 onCancel={this.hideDatePicker}
                 confirmTextIOS={strings.confirm}
                 confirmTextStyle={styles.pickerLinkButton}

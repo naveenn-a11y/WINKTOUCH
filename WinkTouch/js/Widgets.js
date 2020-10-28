@@ -7,7 +7,7 @@ import type { FieldDefinition, CodeDefinition, PatientDocument, ImageDrawing, Pa
 import React, { Component, PureComponent } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
   TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
-import { Button as NativeBaseButton, Icon as NativeBaseIcon, Fab as NativeBaseFab, Container } from 'native-base';
+import { Button as NativeBaseButton, Button as NativeBaseIcon, FAB as NativeBaseFab } from 'react-native-paper';
 import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
@@ -1832,7 +1832,7 @@ export class AddButton extends Component {
 
   render() {
     if (!this.props.visible) return null;
-    return <NativeBaseButton block style={styles.addButton} onPress={this.props.onPress}><NativeBaseIcon name='md-add'/></NativeBaseButton>
+    return <NativeBaseButton block style={styles.addButton} onPress={this.props.onPress}><NativeBaseIcon icon='plus'/></NativeBaseButton>
   }
 }
 
@@ -1876,7 +1876,7 @@ export class FloatingButton extends Component {
     if (!this.state.options) return null;
     return <NativeBaseFab active={this.state.active} onPress={this.toggleActive} direction='up' position='bottomRight' style={styles.floatingButton}
       containerStyle={styles.floatingContainer}>
-      {this.state.active===true?<NativeBaseIcon name='md-remove'/>:<NativeBaseIcon name='md-add'/>}
+      {this.state.active===true?<NativeBaseIcon icon='minus'/>:<NativeBaseIcon icon='plus'/>}
       {this.state.active===true && this.state.options.map((option: string, index: number) => {
          return <NativeBaseButton style={styles.floatingSubButton}
             onPress={()=> {

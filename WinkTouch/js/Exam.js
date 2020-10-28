@@ -8,7 +8,7 @@ import { View, TouchableHighlight, Text, TouchableOpacity, ScrollView, Button, A
 import { NavigationActions } from 'react-navigation';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import type {Exam, Patient, GlassesRx, Visit, ExamPredefinedValue, ExamDefinition, FieldDefinition, GroupDefinition } from './Types';
-import { styles, fontScale, selectionFontColor } from './Styles';
+import { styles, fontScale, selectionFontColor, isWeb } from './Styles';
 import { strings} from './Strings';
 import { SelectionListsScreen, ItemsCard, formatLabel, ItemsList, getFieldDefinition as getItemFieldDefinition} from './Items';
 import { GroupedFormScreen, GroupedForm, GroupedCard, CheckList } from './GroupedForm';
@@ -654,13 +654,13 @@ export class ExamScreen extends Component {
         {this.renderExam()}
         {this.renderExamIcons()}
         </View>
-    return <KeyboardAwareScrollView contentContainerStyle={styles.centeredScreenLayout} scrollEnabled={false}>
-        <View style={styles.centeredColumnLayout}>
+    return <KeyboardAwareScrollView contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout} scrollEnabled={isWeb}>
+        <View style={isWeb ? {} : styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
         {this.renderExamIcons()}
-      </KeyboardAwareScrollView >
+      </KeyboardAwareScrollView>
   }
 }

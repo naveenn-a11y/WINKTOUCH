@@ -399,6 +399,7 @@ export class Favorites extends PureComponent {
     style?: any
   }
   render() {
+    console.log("STYYYYYYLEE: " + JSON.stringify(this.props.style));
     const style = this.props.style?this.props.style:styles.boardStretch;
     return <View style={style}>
         <View style={styles.verticalFlow}>

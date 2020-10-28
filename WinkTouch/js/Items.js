@@ -8,7 +8,7 @@ import { View, Text, Button, TouchableHighlight, ScrollView, TouchableOpacity } 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {Exam, ExamDefinition, FieldDefinition, GroupDefinition, FieldDefinitions, ExamPredefinedValue, GlassesRx } from './Types';
 import { strings } from './Strings';
-import { styles, selectionColor, fontScale, scaleStyle } from './Styles';
+import { styles, selectionColor, fontScale, scaleStyle, isWeb } from './Styles';
 import { TilesField, TextField, NumberField, SelectionList, stripSelectionPrefix, selectionPrefix, FloatingButton } from './Widgets';
 import { FormTextInput, FormRow, FormInput } from './Form';
 import { formatDate, dateFormat, dateTimeFormat, yearDateFormat, yearDateTimeFormat, isToyear, deepClone, deepAssign, isEmpty, formatTime} from './Util';
@@ -460,7 +460,7 @@ export class ItemsList extends Component {
       </ScrollView>
       {this.renderButtons()}
       {this.renderIcons()}
-    </View >
+    </View>
   }
 }
 
@@ -729,10 +729,16 @@ export class ItemsEditor extends Component {
         />
         {this.props.onAddFavorite && this.props.editable && <Favorites favorites={this.props.favorites} onSelectFavorite={this.selectFavorite} onAddFavorite={this.addFavorite} onRemoveFavorite={this.props.onRemoveFavorite}/>}
       </View>
-      {this.props.editable && <ScrollView horizontal={true}>
+      {this.props.editable && 
+      isWeb ? <View style={{flex: 100, flexDirection: 'row', flexWrap: 'wrap' }}> 
         {this.renderSelectionLists()}
         {this.renderNonOptionFields()}
-      </ScrollView>
+           </View>
+          :
+         <ScrollView horizontal={true}>
+             {this.renderSelectionLists()}
+             {this.renderNonOptionFields()}
+         </ScrollView>
     }
     </View>
   }
