@@ -69,6 +69,7 @@ type ReferralScreenState = {
   isLoading: boolean,
   referralHtml: string,
   selectedVisitId: string,
+  referralStarted: boolean,
 };
 
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
@@ -93,7 +94,8 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       followUpStateKey: (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params)?this.props.navigation.state.params.followUpStateKey:undefined,
       isLoading: false,
       referralHtml: '',
-      selectedVisitId: this.props.navigation.state.params.visit.id
+      selectedVisitId: this.props.navigation.state.params.visit.id,
+      referralStarted: false,
     }
     this.unmounted = false;
 
@@ -147,6 +149,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         this.save();
       }
     }
+    if(!this.state.referralStarted) {
+        this.shouldStartReferral();
+    }
+
   }
 
   mapImageWithBase64(template?:string) {
@@ -734,25 +740,31 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
      if(params) {
        if(params.referral && !(doctorReferral && doctorReferral.id) && !followUp) {
            doctorReferral  = {id: params.referral.id};
-           this.setState({doctorReferral: doctorReferral});
+           if(isEmpty(this.state.doctorReferral) || this.state.doctorReferral !== doctorReferral) {
+                this.setState({doctorReferral: doctorReferral});
+           }
        }
         if(params.referral && !(linkedDoctorReferral && linkedDoctorReferral.id) && followUp) {
            linkedDoctorReferral  = {id: params.referral.id};
-           this.setState({linkedDoctorReferral: linkedDoctorReferral});
+          if(isEmpty(this.state.linkedDoctorReferral) || this.state.linkedDoctorReferral !== linkedDoctorReferral) {
+              this.setState({linkedDoctorReferral: linkedDoctorReferral});
+          }
        }
         if(params.referral && isEmpty(this.state.doctorId)) {
-           linkedDoctorReferral  = {id: params.referral.id};
-           this.setState({doctorId: stripDataType(this.props.navigation.state.params.referral.doctorId)});
+          const doctorId = stripDataType(this.props.navigation.state.params.referral.doctorId);
+          if(this.state.doctorId && this.state.doctorId !== doctorId) {
+              this.setState({doctorId: doctorId});
+          }
        }
      }
      if(((doctorReferral && doctorReferral.id) || this.state.template) && !followUp && !this.state.isDirty && isEmpty(this.state.referralHtml)) {
+          this.setState({referralStarted: true});
           this.startReferral();
       }
   }
 
    render() {
     let doctorReferral : ReferralDefinition = this.state.doctorReferral;
-    this.shouldStartReferral();
     return <View style={styles.page}>
       {this.renderLoading()}
       {(this.state.template || (doctorReferral && doctorReferral.id)) ?this.renderEditor():this.renderTemplates()}
