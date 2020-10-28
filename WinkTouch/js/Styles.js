@@ -1303,7 +1303,7 @@ function boardStyle(
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
     minHeight: minHeight * fontScale,
-    maxHeight: isWeb ? 600 : undefined,
+    maxHeight: isWeb ? 500 : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,
