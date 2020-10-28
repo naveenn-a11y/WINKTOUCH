@@ -12,7 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { styles, fontScale, selectionColor, selectionFontColor, fieldBorderColor } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
 import { FormRow, FormTextInput, FormField, FormCode } from './Form';
-import { getAllCodes, getCodeDefinition } from './Codes';
+import { getAllCodes, getCodeDefinition, formatCode } from './Codes';
 import { fetchWinkRest } from './WinkRest';
 import type { PatientInfo, HtmlDefinition, ReferralDocument, ImageBase64Definition, ReferralDefinition, CodeDefinition, EmailDefinition, FollowUp, ReferralStatusCode, Upload} from './Types';
 import {allExamIds, fetchReferralFollowUpHistory} from './Visit';
@@ -808,7 +808,8 @@ onDelete(item: any) {
     const filter : ?string = this.state.filter!==undefined&&this.state.filter!==""?deAccent(this.state.filter.trim().toLowerCase()):undefined;
     if (filter) {
       if (!data) data = [...this.props.items];
-      data = data.filter((item: any) => item!=null && item!==undefined && JSON.stringify(item).trim().length>0 && (deAccent(JSON.stringify(item).toLowerCase()).indexOf(filter))>=0);
+      data = data.filter((item: any) => item!=null && item!==undefined && JSON.stringify(item).trim().length>0 && ((deAccent(JSON.stringify(item).toLowerCase()).indexOf(filter))>=0
+      || (deAccent(JSON.stringify(formatCode("referralStatus",item.status)).toLowerCase()).indexOf(filter))>=0));
     }
     return data;
   }
