@@ -70,9 +70,8 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		this.refs.webref.injectJavaScript(javaScript);
 	}
 
-   setDirty(html: Boolean) {
-		__DEV__ && console.log('Set raw html: '+ html);
-		let javaScript : string = `tinymce.activeEditor.setDirty(${html})`;
+  afterSave() {
+		let javaScript : string = `tinymce.activeEditor.setDirty(false)`;
 		this.refs.webref.injectJavaScript(javaScript);
 	}
 

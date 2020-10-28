@@ -72,8 +72,8 @@ type ReferralScreenState = {
 };
 
 export class ReferralScreen extends Component<ReferralScreenProps, ReferralScreenState> {
-  editor;
-  unmounted: boolean;
+  editor : ?HtmlEditor;
+  unmounted : boolean;
 
   constructor(props: ReferralScreenProps) {
     super(props);
@@ -139,9 +139,10 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
 
   async componentDidUpdate(prevProps: any) {
     if(!this.props.navigation.isFocused()) {
-      const isEditorDirty : boolean = this.editor !== undefined ? await this.editor.isDirty() : false;
+      const isEditorDirty : boolean = this.editor && await this.editor.isDirty();
       const isReferralDirty : boolean = this.state.isDirty;
       const isDirty : boolean = isEditorDirty || isReferralDirty;
+      __DEV__ && console.log('Editor dirty:'+isEditorDirty+' referral dirty:' +isDirty);
       if(this.state.template && (isDirty || !(this.state.doctorReferral && this.state.doctorReferral.id))) {
         this.save();
       }
@@ -185,7 +186,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     const visit: Visit = this.props.navigation.state.params.visit;
     const allExams : string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
-    this.updateReferralState(true);
     if(exams) {
      const htmlDefinition : HtmlDefinition[] =  await this.retrieveHtmlExamDefinition(exams);
      let body : {} = {};
@@ -212,23 +212,22 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
       if (response) {
         if (response.errors) {
               alert(response.errors);
-              return;
+        } else {
+          const htmlContent : ReferralDocument = response;
+          let htmlHeader: string = patientHeader();
+          let htmlEnd: string = patientFooter();
+          template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&
+                     this.props.navigation.state.params.referral.referralTemplate &&!this.props.navigation.state.params.followUp)?this.props.navigation.state.params.referral.referralTemplate.template : template;
+          let html = htmlHeader + htmlContent.content + htmlEnd;
+          const referralHtml = this.mapImageWithBase64(html);
+          this.updateFieldSubject(htmlContent.subject);
+          this.updateFieldBody(htmlContent.body);
+          this.updateSignatureState(htmlContent.content);
+          this.setState({template, referralHtml});
         }
-        const htmlContent : ReferralDocument = response;
-        let htmlHeader: string = patientHeader();
-        let htmlEnd: string = patientFooter();
-        template = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.referral &&
-                   this.props.navigation.state.params.referral.referralTemplate &&!this.props.navigation.state.params.followUp)?this.props.navigation.state.params.referral.referralTemplate.template : template;
-        let html = htmlHeader + htmlContent.content + htmlEnd;
-        const referralHtml = this.mapImageWithBase64(html);
-        this.updateFieldSubject(htmlContent.subject);
-        this.updateFieldBody(htmlContent.body);
-        this.updateSignatureState(htmlContent.content);
-        this.setState({template, referralHtml});
       }
     }
-    this.setState({ isLoading: false });
-
+    this.setState({ isLoading: false, isDirty: true});
   }
 
   selectVisit(visitId: string) {
@@ -251,8 +250,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
   }
 
   updateValue(newValue: any) {
-    this.setState({doctorId: newValue});
-    this.updateReferralState(true);
+    this.setState({doctorId: newValue, isDirty: true});
   }
 
   updateFieldCc(newValue: any) {
@@ -325,9 +323,9 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         let html = this.mapImageWithBase64(htmlContent.content);
         this.editor.insertContent(html);
         this.updateSignatureState(html);
-        this.updateReferralState(true);
+
       }
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false, isDirty: true});
   }
 
   async updateSignatureState(html: string) {
@@ -376,8 +374,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     html = htmlHeader + html + htmlEnd;
     const job = await printHtml(html);
     if(job) {
-      this.updateReferralState(true);
-      this.setState({command: COMMAND.PRINT});
+      this.setState({command: COMMAND.PRINT, isDirty: true});
       await this.save();
     }
   }
@@ -420,9 +417,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
               alert(response.errors);
               return;
        } else {
-         if(this.editor) {
-           this.editor.setDirty(false);
-         }
+         this.editor && this.editor.afterSave();
        }
 
       let referralDefinition: ReferralDefinition = response;
@@ -437,17 +432,11 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         return  referralDefinition;
       }
       else {
-      this.setState({doctorReferral: referralDefinition});
-      this.updateReferralState(response.errors!==undefined);
+        this.setState({doctorReferral: referralDefinition, isDirty: response.errors!==undefined});
       }
     }
 
   }
-
-   updateReferralState (isDirty?: boolean)  {
-    this.setState({isDirty:isDirty});
-  }
-
 
   async saveAction() : Promise<void> {
        this.setState({command: COMMAND.SAVE});
@@ -479,7 +468,6 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
     if(this.state.command === undefined || this.state.emailDefinition === undefined) {
       return;
     }
-    this.updateReferralState(true);
     this.setState({isActive: false});
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
