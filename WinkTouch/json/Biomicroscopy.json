@@ -11,8 +11,8 @@
               "name": "OD",
               "fields": [
                 {
-                  "name": "Lid\/Lashes",
-                  "label": "PaupiÃ¨res\/cils",
+                  "name": "Lid/Lashes",
+                  "label": "Paupières/cils",
                   "normalValue": "Dans les normes"
                 },
                 {
@@ -22,7 +22,7 @@
                 },
                 {
                   "name": "Cornea",
-                  "label": "CornÃ©e",
+                  "label": "Cornée",
                   "normalValue": "Clair"
                 },
                 {
@@ -32,7 +32,7 @@
                 },
                 {
                   "name": "Vitreous",
-                  "label": "VitrÃ©",
+                  "label": "Vitré",
                   "normalValue": "Clair"
                 },
                 {
@@ -61,8 +61,8 @@
               "name": "OS",
               "fields": [
                 {
-                  "name": "Lid\/Lashes",
-                  "label": "PaupiÃ¨res\/cils",
+                  "name": "Lid/Lashes",
+                  "label": "Paupières/cils",
                   "normalValue": "Dans les normes"
                 },
                 {
@@ -72,7 +72,7 @@
                 },
                 {
                   "name": "Cornea",
-                  "label": "CornÃ©e",
+                  "label": "Cornée",
                   "normalValue": "Clair"
                 },
                 {
@@ -82,7 +82,7 @@
                 },
                 {
                   "name": "Vitreous",
-                  "label": "VitrÃ©",
+                  "label": "Vitré",
                   "normalValue": "Clair"
                 },
                 {
@@ -123,7 +123,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorOD.png",
+          "image": "./image/anteriorOD.png",
           "label": ""
         }
       ]
@@ -133,7 +133,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorOS.png",
+          "image": "./image/anteriorOS.png",
           "label": ""
         }
       ]
@@ -144,7 +144,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorSegOD.png",
+          "image": "./image/anteriorSegOD.png",
           "label": ""
         }
       ]
@@ -155,7 +155,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorSegOS.png",
+          "image": "./image/anteriorSegOS.png",
           "label": ""
         }
       ]
@@ -166,7 +166,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/notations.png",
+          "image": "./image/notations.png",
           "label": ""
         }
       ]
@@ -186,7 +186,7 @@
           "name": "OD",
           "fields": [
             {
-              "name": "Lid\/Lashes",
+              "name": "Lid/Lashes",
               "freestyle": true,
               "options": "lidLashesCodes",
               "normalValue": "WNL"
@@ -221,7 +221,7 @@
               "name": "Iris",
               "freestyle": true,
               "options": "irisCodes",
-              "normalValue": "Flat\/Clear"
+              "normalValue": "Flat/Clear"
             },
             {
               "name": "Eye color",
@@ -261,7 +261,7 @@
               "name":"TVOL",
               "stepSize":5,
               "freestyle":true,
-              "suffix":" mm \/ 5 min",
+              "suffix":" mm / 5 min",
               "options":["0","5","10","15","20"]
             }
           ]
@@ -270,7 +270,7 @@
           "name": "OS",
           "fields": [
             {
-              "name": "Lid\/Lashes",
+              "name": "Lid/Lashes",
               "freestyle": true,
               "options": "lidLashesCodes",
               "normalValue": "WNL"
@@ -305,7 +305,7 @@
               "name": "Iris",
               "freestyle": true,
               "options": "irisCodes",
-              "normalValue": "Flat\/Clear"
+              "normalValue": "Flat/Clear"
             },
             {
               "name": "Eye color",
@@ -345,7 +345,7 @@
               "name":"TVOL",
               "stepSize":5,
               "freestyle":true,
-              "suffix":" mm \/ 5 min",
+              "suffix":" mm / 5 min",
               "options":["0","5","10","15","20"]
             }
           ]

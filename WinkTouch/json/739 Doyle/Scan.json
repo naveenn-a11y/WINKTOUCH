@@ -102,7 +102,7 @@
         {
           "name": "Rx medicaments",
           "image": "upload",
-          "label": "Rx m\u00e9dicaments",
+          "label": "Rx médicaments",
           "popup": false,
           "drawable": false,
           "size": "M",
@@ -120,7 +120,7 @@
         {
           "name": "Reference",
           "image": "upload",
-          "label": "R\u00e9f\u00e9rence",
+          "label": "Référence",
           "popup": false,
           "drawable": false,
           "size": "XL",

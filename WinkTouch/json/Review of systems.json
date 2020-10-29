@@ -3,27 +3,27 @@
   "name": "Review of systems",
   "locale": {
     "fr-CA": {
-      "label": "Revue des systÃ¨mes",
+      "label": "Revue des systèmes",
       "fields": [
         {
-          "name": "General\/Constitutional",
-          "label": "GÃ©nÃ©ral"
+          "name": "General/Constitutional",
+          "label": "Général"
         },
         {
           "name": "Ears",
           "label": "Oreilles"
         },
         {
-          "name": "Nose\/Sinuses",
-          "label": "Nez\/Sinus"
+          "name": "Nose/Sinuses",
+          "label": "Nez/Sinus"
         },
         {
           "name": "Allergic",
           "label": "Allergies"
         },
         {
-          "name": "Mouth\/Throat",
-          "label": "Bouche\/Gorge"
+          "name": "Mouth/Throat",
+          "label": "Bouche/Gorge"
         },
         {
           "name": "Skin",
@@ -42,8 +42,8 @@
           "label": "Seins"
         },
         {
-          "name": "Respiratory\/Cardiac",
-          "label": "Respiratoire\/Cardiaque"
+          "name": "Respiratory/Cardiac",
+          "label": "Respiratoire/Cardiaque"
         },
         {
           "name": "Urinary",
@@ -63,11 +63,11 @@
         },
         {
           "name": "Hematologic",
-          "label": "HÃ©matologique"
+          "label": "Hématologique"
         },
         {
-          "name": "Peripheral\/Vascular",
-          "label": "PeriphÃ©rique\/Vasculaire"
+          "name": "Peripheral/Vascular",
+          "label": "Periphérique/Vasculaire"
         },
         {
           "name": "Psychiatric",
@@ -84,7 +84,7 @@
   "fields": [
     {
       "normalValue": "Normal",
-      "name": "General\/Constitutional",
+      "name": "General/Constitutional",
       "multiValue": true,
       "freestyle": true,
       "options": "rosGeneralCodes"
@@ -98,7 +98,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Nose\/Sinuses",
+      "name": "Nose/Sinuses",
       "multiValue": true,
       "freestyle": true,
       "options": "rosNoseCodes"
@@ -112,7 +112,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Mouth\/Throat",
+      "name": "Mouth/Throat",
       "multiValue": true,
       "freestyle": true,
       "options": "rosMouthCodes"
@@ -147,7 +147,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Respiratory\/Cardiac",
+      "name": "Respiratory/Cardiac",
       "multiValue": true,
       "freestyle": true,
       "options": "rosRespiratoryCodes"
@@ -196,7 +196,7 @@
     },
     {
       "normalValue": "Normal",
-      "name": "Peripheral\/Vascular",
+      "name": "Peripheral/Vascular",
       "multiValue": true,
       "freestyle": true,
       "options": "rosPeripheralCodes"

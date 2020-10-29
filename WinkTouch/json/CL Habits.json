@@ -7,7 +7,7 @@
       "fields": [
         {
           "name": "Replacement",
-          "label": "FrÃ©q. de remplacement"
+          "label": "Fréq. de remplacement"
         },
         {
           "name": "Comfort",
@@ -20,7 +20,7 @@
         },
         {
           "name": "Cleaning habits",
-          "label": "Habitudes d\u2019entretien"
+          "label": "Habitudes d'entretien"
         }
       ]
     }

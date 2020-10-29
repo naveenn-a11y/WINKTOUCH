@@ -9,15 +9,15 @@
   "name": "Over refraction",
   "locale": {
     "fr-CA": {
-      "label": "SurrÃ©fraction",
+      "label": "Surréfraction",
       "fields": [
         {
           "name": "Subjective over refraction",
-          "label": "SurrÃ©fraction subjective"
+          "label": "Surréfraction subjective"
         },
         {
           "name": "Final Rx",
-          "label": "SurrÃ©fraction finale"
+          "label": "Surréfraction finale"
         }
       ]
     }
