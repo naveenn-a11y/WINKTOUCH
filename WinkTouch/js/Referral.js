@@ -752,7 +752,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
        }
         if(params.referral && isEmpty(this.state.doctorId)) {
           const doctorId = stripDataType(this.props.navigation.state.params.referral.doctorId);
-          if(this.state.doctorId && this.state.doctorId !== doctorId) {
+          if(this.state.doctorId !== doctorId) {
               this.setState({doctorId: doctorId});
           }
        }
