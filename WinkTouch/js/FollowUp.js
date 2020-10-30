@@ -189,9 +189,9 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
   }
 
   async deleteItem(selectedItem: FollowUp) : Promise<void> {
-  
+
     let allFollowUp : FollowUp[] = this.state.allFollowUp;
-  
+
     const index  = allFollowUp.indexOf(selectedItem);
     allFollowUp.splice(index, 1);
     this.setState({allFollowUp});
@@ -202,10 +202,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     let parameters : {} = {};
 
     let response =  fetchWinkRest('webresources/followup/delete', parameters, 'POST', body);
-    if(response)  { 
+    if(response)  {
       if (response.errors) {
               alert(response.errors);
-              return;  
+              return;
        }
     }
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -244,10 +244,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
        this.loadFollowUp();
   }
   onRefresh(refresh: boolean)  {
-  };                               
+  };
 
   async componentDidUpdate(prevProps: any) {
-      let params = this.props.navigation.state.params; 
+      let params = this.props.navigation.state.params;
       if(params && params.refreshFollowUp) {
         this.props.navigation.setParams({refreshFollowUp: false});
         await this.refreshList();
@@ -257,9 +257,9 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
  async refreshList() {
     const selectedItem : FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
-   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : 
+   (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo :
     (selectedItem !==undefined ? getCachedItem(selectedItem.patientInfo.id) : undefined)) ;
-    
+
     if(patientInfo) {
       await fetchReferralFollowUpHistory(patientInfo.id);
     } else {
@@ -301,7 +301,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
       allFollowUp[index] = item;
       this.setState({allFollowUp});
       this.setState({isActive: false});
-  
+
     let body : {} = {
       'referral': item
      };
@@ -318,7 +318,7 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
 }
 
 async openAttachment() {
-    
+
     let body : {} = {
       'referral': this.state.selectedItem
      };
@@ -348,7 +348,7 @@ async openAttachment() {
 }
 
 async openFollowUp() {
-    
+
     let body : {} = {
       'referral': this.state.selectedItem
      };
@@ -377,8 +377,9 @@ async openFollowUp() {
 
 }
 
-async openConsultation() {
+async openPatientFile() {
   const selectedItem : FollowUp = this.state.selectedItem;
+  if (!selectedItem) return;
   let patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
    (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientInfo.id)) ;
     patientInfo = patientInfo === undefined  ? await fetchPatientInfo(selectedItem.patientInfo.id) : patientInfo ;
@@ -427,7 +428,7 @@ async openConsultation() {
   shouldActivateEdit() : boolean {
       const selectedItem : FollowUp = this.state.selectedItem;
       if(!selectedItem) return false ;
-  
+
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
       if((statusCode && statusCode.status ==1) || (isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn))) {
@@ -439,7 +440,7 @@ async openConsultation() {
   shouldActivateResend() {
       const selectedItem : FollowUp = this.state.selectedItem;
       if(!selectedItem) return false ;
-  
+
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
       if(selectedItem.isOutgoing && (statusCode && statusCode.status ==2 || statusCode.status ==0)) {
@@ -451,7 +452,7 @@ async openConsultation() {
   shouldActivateReply() {
       const selectedItem : FollowUp = this.state.selectedItem;
       if(!selectedItem) return false ;
-  
+
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
       if(!selectedItem.isOutgoing && (statusCode && (statusCode.status ==3 || statusCode.status ==0))) {
@@ -463,7 +464,7 @@ async openConsultation() {
     shouldActivateForward() {
       const selectedItem : FollowUp = this.state.selectedItem;
       if(!selectedItem) return false ;
-  
+
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
       if(statusCode && statusCode.status ==1) {
@@ -471,11 +472,11 @@ async openConsultation() {
       }
       return true;
   }
-  
+
     shouldActivateFollowUp() {
       const selectedItem : FollowUp = this.state.selectedItem;
       if(!selectedItem) return false ;
-  
+
       const statusCode : CodeDefinition = getCodeDefinition('referralStatus',this.state.selectedItem.status) ;
 
       if(statusCode && statusCode.status ==1) {
@@ -499,7 +500,7 @@ async openConsultation() {
     <View>
           {this.props.isDraft && <Text style={styles.cardTitle}>Existing Referrals</Text> }
         <View style={style}>
-               <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}  
+               <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}
                onUpdateSelection= {(value) => this.selectItem(value)}
                onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isForPatient = {isEmpty(patientInfo)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
                navigation = {this.props.navigation}
@@ -521,14 +522,14 @@ async openConsultation() {
       (this.state.selectedItem !== undefined ? this.state.selectedItem.patientInfo : undefined));
       return <View style={{paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
-           {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && <Button title={strings.view} onPress={() => this.openAttachment()} disabled={!this.state.isActive}/>}
+           {this.state.selectedItem && !isDraft && this.shouldActivateReply() && <Button title={strings.quickReply} onPress={() => this.reply()} disabled={!this.state.isActive}/>}
            {this.state.selectedItem && !isDraft && visit && this.shouldActivateFollowUp() && <Button title={strings.followUpTitle} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: true, followUpStateKey: this.props.navigation.state.key, patientInfo: patientInfo})}}/>}
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key, patientInfo: patientInfo})}}/>}
-           {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>}
+           {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>}
+           {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>}
+           {this.state.selectedItem && !isDraft  && <Button title={strings.openFile} onPress={() => this.openPatientFile()} disabled={!this.state.isActive}/>}
 
         </View>
       </View>
@@ -640,7 +641,7 @@ async loadReferralStatusCode() {
           this.props.onLongPress();
       }
   }
-  
+
     toggleSelectStatus() {
   }
 
@@ -681,7 +682,7 @@ updateValue(value: any) {
         <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
         <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
         <Text style={textStyle}>{formatDate(this.props.rowValue.date,jsonDateFormat)}</Text>
-        <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'} 
+        <FormCode code="referralStatus" value={this.props.rowValue.status} showLabel={false} label={'Status'}
            onChangeValue={(code: ?string|?number) => this.updateValue(code)} readonly = {this.props.readonly} />
         <TextInput returnKeyType='done' editable={!this.props.readonly} autoCorrect={false} autoCapitalize='none' style={commentStyle}
       value={this.state.commentValue} onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
@@ -692,7 +693,7 @@ updateValue(value: any) {
   }
 }
 export class TableList extends React.PureComponent {
-  
+
   props: {
     label: string,
     items: any[],
@@ -753,7 +754,7 @@ export class TableList extends React.PureComponent {
       commentHeaderSelected: false,
       patientHeaderSelected: false,
       refreshing: false,
-      orderDesc: false 
+      orderDesc: false
     }
   }
 
@@ -860,7 +861,7 @@ onDelete(item: any) {
     data.sort(this.compareFromFollowUp);
     return data;
   }
-  
+
   groupByTo() {
     let data : any[] = this.resetItems();
     data.sort(this.compareToFollowUp);
@@ -902,7 +903,7 @@ onDelete(item: any) {
         groupedData.get(parentReferral).push(element);
       }
     }
-    
+
     groupedData = new Map([...groupedData.entries()].sort(this.compareFollowUp));
 
     let finalResult : any = [];
@@ -979,7 +980,7 @@ orderByRef() {
    if(!this.state.refHeaderSelected) {
     this.setState({groupBy: 'Referral', refHeaderSelected: true, fromHeaderSelected: false, toHeaderSelected: false, dateHeaderSelected: false,
                    statusHeaderSelected: false, commentHeaderSelected: false, patientHeaderSelected: false, orderDesc: true })
-   } 
+   }
 
 }
 orderByDate() {
@@ -997,7 +998,7 @@ orderByPatient() {
    } else {
      this.updateOrder();
    }
-} 
+}
 orderByFrom() {
    if(!this.state.fromHeaderSelected) {
     this.setState({groupBy: 'From', refHeaderSelected: false, fromHeaderSelected: true, toHeaderSelected: false, dateHeaderSelected: false,
@@ -1005,7 +1006,7 @@ orderByFrom() {
    } else {
      this.updateOrder();
    }
-} 
+}
 orderByTo() {
    if(!this.state.toHeaderSelected) {
     this.setState({groupBy: 'To', refHeaderSelected: false, fromHeaderSelected: false, toHeaderSelected: true, dateHeaderSelected: false,
@@ -1030,7 +1031,7 @@ orderByComment() {
   } else {
     this.updateOrder();
   }
-}     
+}
 
 async handleRefresh() {
   this.setState({refreshing: true});
@@ -1052,7 +1053,7 @@ async handleRefresh() {
          <TextInput returnKeyType='search' placeholder={strings.findRow} autoCorrect={false} autoCapitalize='none' style={style}
       value={this.state.filter} onChangeText={(filter: string) => this.setState({filter})} testID={this.props.fieldId+'.filter'}
      />
-    )} 
+    )}
 
   renderGroupField() {
     const options: string[] =  this.state.options;
@@ -1125,7 +1126,7 @@ async handleRefresh() {
   );
   }
   render() {
-  let data : any[] = this.getItems(); 
+  let data : any[] = this.getItems();
   const sideBarCustomStyle = [styles.sideBarHorizontal, {minWidth: 200 * fontScale, maxWidth:600 * fontScale}];
   const tabCardCustomStyle = [styles.tabCardFollowUp1, {maxHeight: 400, borderWidth: 0}];
   let style = this.props.isDraft ? styles.followUpList2 : styles.followUpList1;
@@ -1150,7 +1151,7 @@ async handleRefresh() {
                                 isVisible = {isVisible}
                                 />}
                                 ListHeaderComponent = {this.renderHeader()}
-                                stickyHeaderIndices={[0]}             
+                                stickyHeaderIndices={[0]}
                                 refreshing = {this.state.refreshing}
                                 onRefresh = {() => this.handleRefresh()}
 
