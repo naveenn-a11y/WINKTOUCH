@@ -490,6 +490,13 @@ async openConsultation() {
       return false;
   }
 
+  shouldActivateConsultation() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      const visit : Visit = selectedItem !== undefined ? getCachedItem(selectedItem.visitId) : undefined;
+      if(visit && visit !==undefined) return true;
+      return false;
+  }
+
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
     let style = this.props.isDraft ? styles.tabCardFollowUp2 : styles.tabCardFollowUp1;
@@ -528,7 +535,7 @@ async openConsultation() {
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateConsultation()  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
