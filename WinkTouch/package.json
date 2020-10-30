@@ -59,6 +59,7 @@
     "react-native-webview": "^10.9.2",
     "react-navigation": "^4.4.2",
     "react-navigation-stack": "^2.8.4",
+    "react-pdf": "^5.0.0",
     "rn-fetch-blob": "^0.12.0",
     "simplify-js": "^1.2.4"
   },

@@ -17,12 +17,15 @@ module.exports = {
   output: {
     path: path.resolve(rootDir, 'dist'),
     filename: 'app-[hash].bundle.js',
+    publicPath: '/',
+  },
+  devServer: {
+    historyApiFallback: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, './index.html'),
       filename: 'index.html',
-      inject: 'body',
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
