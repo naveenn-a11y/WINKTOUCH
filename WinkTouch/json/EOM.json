@@ -6,7 +6,7 @@
       "fields": [
         {
           "name": "Extra Ocular Motilities",
-          "label": "MotilitÃ©s Oculaires"
+          "label": "Motilités Oculaires"
         },
         {
           "name": "NPC",
@@ -99,7 +99,7 @@
       "fields": [
         {
           "name": "image",
-          "image": ".\/image\/H.png",
+          "image": "./image/H.png",
           "label": ""
         }
       ],

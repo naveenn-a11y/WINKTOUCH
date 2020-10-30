@@ -14,19 +14,19 @@
         },
         {
           "name": "Quality",
-          "label": "QualitÃ©"
+          "label": "Qualité"
         },
         {
           "name": "Severity",
-          "label": "SÃ©vÃ©ritÃ©"
+          "label": "Sévérité"
         },
         {
           "name": "Timing",
-          "label": "FrÃ©quence"
+          "label": "Fréquence"
         },
         {
           "name": "Duration",
-          "label": "DurÃ©e"
+          "label": "Durée"
         },
         {
           "name": "Context",
@@ -38,7 +38,7 @@
         },
         {
           "name": "Associated Sign",
-          "label": "Signes liÃ©s"
+          "label": "Signes liés"
         }
       ]
     }

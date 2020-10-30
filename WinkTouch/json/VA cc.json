@@ -5,7 +5,7 @@
       "fields": [
         {
           "name": "Aided acuities",
-          "label": "AcuititÃ©s avec aide",
+          "label": "Acuitités avec aide",
           "fields": [
             {
               "name": "DVA",
@@ -15,21 +15,21 @@
                   "name": "OD",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 },
                 {
                   "name": "OS",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 },
                 {
                   "name": "OU",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 }
               ]
@@ -42,14 +42,14 @@
                   "name": "OD",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 },
                 {
                   "name": "OS",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 }
               ]
@@ -62,28 +62,28 @@
                   "name": "OD",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 },
                 {
                   "name": "OS",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 },
                 {
                   "name": "OU",
                   "options": [
                     "APL",
-                    "ProthÃ¨se"
+                    "Prothèse"
                   ]
                 }
               ]
             },
             {
               "name": "Scale",
-              "label": "Ãchelle"
+              "label": "Échelle"
             },
             {
               "name": "Aide",

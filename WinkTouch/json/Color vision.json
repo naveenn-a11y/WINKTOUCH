@@ -67,7 +67,7 @@
       "fields": [
         {
           "name": "D15 Drawing",
-          "image": ".\/image\/d15.jpg",
+          "image": "./image/d15.jpg",
           "label": ""
         }
       ]

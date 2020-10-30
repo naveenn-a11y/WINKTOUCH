@@ -24,11 +24,11 @@
   ],
   "locale":{
     "fr-CA":{
-      "label":"Scan pr\u00e9-test",
+      "label":"Scan pré-test",
       "fields":[
         {
           "name":"Pretest scan",
-          "label":"Scan pr\u00e9-test"
+          "label":"Scan pré-test"
         }
       ]
     }

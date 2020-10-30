@@ -23,12 +23,12 @@
             },
             {
               "name": "No show",
-              "label": "Non-prÃ©sentÃ©",
-              "normalValue": "PrÃ©sentÃ©",
-              "defaultValue": "PrÃ©sentÃ©",
+              "label": "Non-présenté",
+              "normalValue": "Présenté",
+              "defaultValue": "Présenté",
               "options": [
-                "PrÃ©sentÃ©",
-                "Non-prÃ©sentÃ©"
+                "Présenté",
+                "Non-présenté"
               ]
             }
           ]

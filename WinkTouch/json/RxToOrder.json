@@ -162,7 +162,7 @@
     {
       "mappedField": "visit.purchase",
       "name": "Purchase Rx",
-      "label": "Dr.\u0027s Recommendation"
+      "label": "Dr.'s Recommendation"
     }
   ],
   "locale": {
@@ -185,7 +185,7 @@
             },
             {
               "name": "Near",
-              "label": "Pr\u00e8s"
+              "label": "Près"
             }
           ]
         }

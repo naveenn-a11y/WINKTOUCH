@@ -119,7 +119,7 @@
         {
           "popup": false,
           "name": "Exam front page",
-          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/771\/251\/ToulchExamFront.jpg",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/771/251/ToulchExamFront.jpg",
           "drawable": true,
           "label": "",
           "resolution": "1620x2137",
@@ -407,7 +407,7 @@
         {
           "popup": false,
           "name": "Exam back page",
-          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/771\/252\/ToulchExamBack.jpg",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/771/252/ToulchExamBack.jpg",
           "drawable": true,
           "label": "",
           "resolution": "1623x2143",
@@ -425,7 +425,7 @@
           "sync": true,
           "popup": false,
           "name": "Medication Rx",
-          "image": "https:\/\/attachment.downloadwink.com\/WinkRESTvWinkWeb\/webresources\/attachement\/771\/255\/ToulchMeds.jpg",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/771/255/ToulchMeds.jpg",
           "drawable": true,
           "label": "",
           "resolution": "600x826",

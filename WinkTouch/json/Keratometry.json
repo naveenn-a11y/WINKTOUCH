@@ -75,11 +75,11 @@
   ],
   "locale": {
     "fr-CA": {
-      "label": "KÃ©ratomÃ©trie",
+      "label": "Kératométrie",
       "fields": [
         {
           "name": "Keratometry",
-          "label": "KÃ©ratomÃ©trie",
+          "label": "Kératométrie",
           "fields": [
             {
               "name": "OD",
@@ -94,7 +94,7 @@
                 },
                 {
                   "name": "Meridian",
-                  "label": "MÃ©ridien"
+                  "label": "Méridien"
                 }
               ]
             },
@@ -111,7 +111,7 @@
                 },
                 {
                   "name": "Meridian",
-                  "label": "MÃ©ridien"
+                  "label": "Méridien"
                 }
               ]
             }
