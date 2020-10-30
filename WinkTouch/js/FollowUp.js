@@ -383,10 +383,11 @@ async openConsultation() {
    (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo : getCachedItem(selectedItem.patientInfo.id)) ;
     patientInfo = patientInfo === undefined  ? await fetchPatientInfo(selectedItem.patientInfo.id) : patientInfo ;
   const params = this.props.navigation.state.params;
+  const shouldOpenConsultation : boolean = this.shouldOpenConsultation();
   if(params && params.overview) {
-      this.props.navigation.navigate('appointment', {patientInfo: patientInfo, selectedVisitId: selectedItem.visitId, refreshStateKey: this.props.navigation.state.key});
+      this.props.navigation.navigate('appointment', {patientInfo: patientInfo, selectedVisitId: shouldOpenConsultation ? selectedItem.visitId : undefined, refreshStateKey: this.props.navigation.state.key});
   } else {
-      this.props.onUpdateVisitSelection(selectedItem.visitId);
+      this.props.onUpdateVisitSelection(shouldOpenConsultation ? selectedItem.visitId : undefined);
   }
 }
 
@@ -490,7 +491,7 @@ async openConsultation() {
       return false;
   }
 
-  shouldActivateConsultation() {
+  shouldOpenConsultation() {
       const selectedItem : FollowUp = this.state.selectedItem;
       const visit : Visit = selectedItem !== undefined ? getCachedItem(selectedItem.visitId) : undefined;
       if(visit && visit !==undefined) return true;
@@ -535,7 +536,7 @@ async openConsultation() {
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && this.shouldActivateConsultation()  && <Button title={strings.openFile} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft  && <Button title={strings.openFile} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
