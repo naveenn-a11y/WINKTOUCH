@@ -165,8 +165,6 @@ export async function fetchUserDefinedCodes() : void {
     });
 
   //let userDefinedCodes : string[] = restResponse.codes;
-
-  //cacheItem('visitTypes', visitTypes);
 }
 
 let codeDefinitions = {

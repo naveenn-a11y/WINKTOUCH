@@ -25,6 +25,7 @@ import { ConfigurationScreen, getConfiguration } from './Configuration';
 import { deleteLocalFiles } from './Print';
 import { ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
+import { CustomisationScreen } from './Customisation';
 import { fetchVisitTypes } from './Visit';
 import { fetchUserDefinedCodes, getAllCodes } from './Codes';
 
@@ -83,7 +84,8 @@ const DoctorNavigator = createStackNavigator({
     templates: {screen: TemplatesScreen},
     configuration: {screen: ConfigurationScreen},
     referral: {screen: ReferralScreen},
-    followup: {screen: FollowUpScreen}
+    followup: {screen: FollowUpScreen},
+    customisation: {screen: CustomisationScreen}
   }, {
     headerMode: 'none'
   }
@@ -176,10 +178,10 @@ export class DoctorApp extends Component {
     }
 
     async initialseAppForDoctor() {
+      await fetchVisitTypes();
       await fetchUserDefinedCodes();
       this.initConfiguration();
       this.forceUpdate();
-      await fetchVisitTypes();
       await allExamDefinitions(true, false);
       await allExamDefinitions(false, false);
       await allExamDefinitions(false, true);
