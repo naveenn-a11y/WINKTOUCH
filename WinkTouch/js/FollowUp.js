@@ -535,7 +535,7 @@ async openConsultation() {
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>} 
            {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>} 
-           {this.state.selectedItem && !isDraft && this.shouldActivateConsultation()  && <Button title={strings.visit} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
+           {this.state.selectedItem && !isDraft && this.shouldActivateConsultation()  && <Button title={strings.openFile} onPress={() => this.openConsultation()} disabled={!this.state.isActive}/>} 
 
         </View>
       </View>
