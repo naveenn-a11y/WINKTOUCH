@@ -51,7 +51,6 @@ export async function fetchVisitTypes() : VisitType[] {
     const searchCriteria = {};
     let restResponse = await searchItems('VisitType/list', searchCriteria);
     let visitTypes : VisitType[] = restResponse.visitTypeList;
-    __DEV__ && console.log('VISIT TUYPES = '+JSON.stringify(visitTypes));
     if (!visitTypes || visitTypes.length==0) {
       alert(strings.formatString(strings.doctorWithoutVisitTypeError, getDoctor().lastName));
       visitTypes = [];
