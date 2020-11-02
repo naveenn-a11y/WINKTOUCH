@@ -7,7 +7,7 @@ import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import RNBeep from 'react-native-a-beep';
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp } from './Types';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp, VisitType} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
@@ -65,7 +65,8 @@ export function getVisitTypes() : VisitType[] {
 }
 
 export async function saveVisitTypes(visitTypes: VisitType[]) {
-  await performActionOnItem('linkExams', visitTypes);
+  visitTypes = (await performActionOnItem('linkExams', visitTypes)).visitTypeList;
+  cacheItem('visitTypes', visitTypes);
 }
 
 export function visitHasEnded(visit: string|Visit) : boolean {

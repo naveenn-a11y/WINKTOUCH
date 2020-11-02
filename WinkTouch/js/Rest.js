@@ -90,7 +90,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
   if (definition!==null && definition!==undefined) return definition;
   const url = constructTypeUrl(id)+'FieldDefinition';
   const requestNr = ++requestNumber;
-  __DEV__ && console.log('REQ '+requestNr+' Fetching definition for '+cacheKey+' in '+language+'.');
+  __DEV__ && console.log('REQ '+requestNr+' Fetching definition '+cacheKey+': '+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -100,7 +100,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
-    __DEV__ && console.log('RES '+requestNr+' Fetching definition for '+cacheKey+' in '+language+".");
+    __DEV__ && console.log('RES '+requestNr+' Fetching definition '+cacheKey+': '+url);
     let restResponse = await httpResponse.json();
     definition = restResponse.fields;
     cacheItem(cacheKey, definition);
@@ -353,11 +353,14 @@ export async function performActionOnItem(action: string, item: any) : any {
       } else if (restResponse.hasValidationError) {
         restResponse.errors=[strings.validationErrorMessage];
       }
-      if (item.id.includes('-')) {
+      if ((item instanceof Object) && item.id.includes('-')) {
         clearCachedItemById(item);
         await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
       }
       return restResponse;
+    }
+    if (item instanceof Array) {  
+        return restResponse;
     }
     const updatedItem = restResponse[getItemFieldName(item.id)];
     if (!updatedItem) {

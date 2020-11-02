@@ -6,7 +6,7 @@
 import React, { PureComponent } from 'react';
 import { View, TouchableHighlight, Image, LayoutAnimation, InteractionManager } from 'react-native';
 import codePush from 'react-native-code-push';
-import { strings } from './Strings';
+import { strings, getUserLanguage } from './Strings';
 import { styles, fontScale } from './Styles';
 import type {Exam, ExamDefinition, Scene } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
@@ -47,7 +47,7 @@ export class MenuBar extends PureComponent {
           {exam!=undefined && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
           {exam!=undefined && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
           {__DEV__ && false && exam && <Button title={strings.template} onPress={() => this.props.navigation.navigate('examTemplate', {examDefinition: this.extractExamDefinition(exam)})}/>}
-          {(isAtWink || __DEV__) && <Button title={strings.customisation} onPress={() => this.props.navigation.navigate('customisation')}/>}
+          {(isAtWink || __DEV__) && scene ==='overview' && 'en-CA'===getUserLanguage() && <Button title={strings.customisation} onPress={() => this.props.navigation.navigate('customisation')}/>}
           {scene ==='overview'  && hasConfig===true && <Button title={strings.configuration} onPress={() => this.props.navigation.navigate('configuration')} />}
           {scene !=='overview' && <BackButton navigation={this.props.navigation} />}
           {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}
