@@ -47,7 +47,7 @@ import {ConfigurationScreen} from './Configuration';
 import {deleteLocalFiles} from './Print';
 import {ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
-
+import {PdfViewer} from './PdfViewer';
 const isWeb = Platform.OS === 'web';
 
 let account: Account;
@@ -116,6 +116,7 @@ const DoctorNavigator = createStackNavigator(
     configuration: {screen: ConfigurationScreen},
     referral: {screen: ReferralScreen},
     followup: {screen: FollowUpScreen},
+    pdfViewer: {screen: PdfViewer},
   },
   {
     headerMode: 'none',

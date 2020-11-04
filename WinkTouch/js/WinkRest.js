@@ -15,6 +15,8 @@ import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {restVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
+import AsyncStorage from '@react-native-community/async-storage';
+
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
@@ -99,7 +101,9 @@ export async function createPdf(
       return undefined;
     }
     if (isWeb) {
-      return '';
+      const format: string = 'data:application/pdf;base64,';
+      AsyncStorage.setItem('printLink', format.concat(restResponse['data']));
+      return;
     } else {
       const fullFilename: string = RNFS.DocumentDirectoryPath + '/' + filename;
       await RNFS.exists(fullFilename).then((exists: boolean) => {

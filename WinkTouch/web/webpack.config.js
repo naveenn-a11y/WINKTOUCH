@@ -44,6 +44,8 @@ module.exports = {
         rootDir,
         './src/components/ReactFileSystem/ReactNativeFSWeb.js',
       ),
+      'react-native-view-shot': 'react-native-view-shot-with-web-support',
+      'react-native-pdf-lib': 'pdf-lib',
     }),
   },
 };

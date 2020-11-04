@@ -58,7 +58,7 @@ export async function printRx(visitId: string) {
       {visitId: visitId},
     );
     if (isWeb) {
-      window.open('http://localhost:8082/agenda', '_blank');
+      window.open('http://localhost:8081/pdfViewer', '_blank');
     } else {
       const jobName = await NativeModules.RNPrint.print({
         filePath: RNFS.DocumentDirectoryPath + '/' + filename,
