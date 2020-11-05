@@ -384,10 +384,11 @@ export const styles = StyleSheet.create({
   },
   centeredColumnLayout: {
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: isWeb ? 'stretch' : 'center',
     justifyContent: 'center',
     margin: 0 * fontScale,
   },
+
   examPreview: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -1126,7 +1127,8 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0 * fontScale,
     right: 0 * fontScale,
-    backgroundColor: 'orange',
+   // backgroundColor: 'orange',
+
   },
   floatingSubButton: {
     flex: 1,
@@ -1296,14 +1298,14 @@ function boardStyle(
       ? 340
       : 340;
   return {
-    flex: 0,
+    flex: isWeb ? 100 : 0,
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
     minHeight: minHeight * fontScale,
-    maxHeight: isWeb ? 500 : undefined,
+    maxHeight: isWeb && (size === 'M' || size === 'S') ? 500 : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,

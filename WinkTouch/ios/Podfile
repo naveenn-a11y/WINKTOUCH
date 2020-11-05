@@ -10,6 +10,8 @@ target 'WinkTouch' do
 
   pod 'ReactNativeLocalization', :path => '../node_modules/react-native-localization'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'WinkTouchTests' do
     inherit! :complete
     # Pods for testing

@@ -21,7 +21,7 @@ import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
 import {getVisitTypes, fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes} from './Codes';
-
+import {isWeb} from './Styles';
 /*codePush.getCurrentPackage().then((currentPackage) => {
   if (currentPackage !== null && currentPackage !== undefined)
     setDeploymentVersion(currentPackage.label);
@@ -204,6 +204,13 @@ export class EhrApp extends Component {
       store,
       token,
     });
+    if (this.state.isLoggedOn && isWeb) {
+      AsyncStorage.setItem('userAccount', JSON.stringify(account));
+      AsyncStorage.setItem('userStore', JSON.stringify(store));
+      AsyncStorage.setItem('token', token);
+      AsyncStorage.setItem('user', JSON.stringify(user));
+    }
+
     fetchVisitTypes();
     fetchUserDefinedCodes();
   };
@@ -217,6 +224,13 @@ export class EhrApp extends Component {
       store: undefined,
     });
     lastUpdateCheck = undefined;
+    if (isWeb) {
+      AsyncStorage.removeItem('userAccount');
+      AsyncStorage.removeItem('userStore');
+      AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('user');
+    }
+
     this.checkForUpdate();
   };
 
@@ -243,9 +257,35 @@ export class EhrApp extends Component {
   startLockingDog() {
     //TODO
   }
+  async loadUserInfo() {
+    const account: Account = await AsyncStorage.getItem('userAccount');
+    const store: Store = await AsyncStorage.getItem('userStore');
+    const user: string = await AsyncStorage.getItem('user');
+    const token: string = await AsyncStorage.getItem('token');
+    console.log('Account: ' + JSON.stringify(account));
+    console.log('Store: ' + JSON.stringify(store));
+    console.log('User: ' + JSON.stringify(user));
+    console.log('Token: ' + JSON.stringify(token));
+    this.setState({
+      isLoggedOn:
+        account !== undefined &&
+        account !== null &&
+        user !== undefined &&
+        user !== null &&
+        token !== undefined &&
+        token !== null &&
+        store !== undefined &&
+        store !== null,
+      account,
+      user,
+      store,
+      token,
+    });
+  }
 
   componentDidMount() {
     this.loadRegistration();
+    isWeb && this.loadUserInfo();
     this.startLockingDog();
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
@@ -289,6 +329,7 @@ export class EhrApp extends Component {
         />
       );
     }
+
     return (
       <DoctorApp
         registration={this.state.registration}

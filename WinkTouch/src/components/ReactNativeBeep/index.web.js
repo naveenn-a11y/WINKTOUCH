@@ -1,7 +1,12 @@
-import RNBeep from 'react-native-a-beep';
+class RNBeep {
+  // some fancy code here
+  static beep(success) {
+    console.log('RNBeep not handled for web');
+  }
 
-export const playSound = () => {
-  console.log('Not supported' + JSON.stringify(RNBeep));
-  RNBeep.PlaySysSound(RNBeep.AndroidSoundIDs.TONE_CDMA_ABBR_ALERT);
-};
-export const test: string = 'hello web';
+  static PlaySysSound(soundID) {
+    console.log('RNBeep PlaySound not handled for web');
+  }
+}
+
+export default RNBeep;

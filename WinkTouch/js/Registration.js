@@ -223,14 +223,15 @@ export class RegisterScreen extends Component {
     }
 
     render() {
+      const style = [styles.centeredColumnLayout, {alignItems: 'center'}];
         return <View style={styles.screeen}>
           <StatusBar hidden={true} />
-          <View style={styles.centeredColumnLayout}>
+          <View style={style}>
             <KeyboardAvoidingView behavior='position'>
-              <View style={styles.centeredColumnLayout}>
+              <View style={style}>
                 <Text style={styles.h1} testID={'screenTitle'}>{strings.registrationScreenTitle}</Text>
                 <Image source={require('./image/winklogo-big.png')} style={{width: 250 *fontScale, height: 250 *fontScale}}/>
-                {this.state.securityQuestionIndex===undefined && <View style={styles.centeredColumnLayout}>
+                {this.state.securityQuestionIndex===undefined && <View style={style}>
                   <Text style={styles.label}>{strings.enterRegisteredEmail}</Text>
                   <View style={{flexDirection:'row'}}><View style={{flex: 100}}>
                     <TextInput placeholder={strings.emailAdres} keyboardType='email-address' autoCapitalize='none' autoCorrect={false} returnKeyType='done' style={styles.searchField} value={this.state.email}
@@ -240,7 +241,7 @@ export class RegisterScreen extends Component {
                     <Button title={strings.connectToPms} onPress={() => this.submitEmail(true)} testID={'connectToPmsButton'}/><Button title={strings.tryForFree} onPress={() => this.submitEmail(false)} testID={'tryItButton'}/>
                   </View>
                 </View>}
-                {this.state.securityQuestionIndex!==undefined && <View style={styles.centeredColumnLayout}>
+                {this.state.securityQuestionIndex!==undefined && <View style={style}>
                   <View>
                     <TouchableOpacity onPress={this.resetRegistration} testID={'resetRegistrationButton'}><Text style={styles.label}>{this.state.email}</Text></TouchableOpacity>
                   </View>

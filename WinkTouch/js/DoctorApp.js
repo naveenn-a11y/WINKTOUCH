@@ -47,7 +47,7 @@ import {ConfigurationScreen} from './Configuration';
 import {deleteLocalFiles} from './Print';
 import {ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
-import {PdfViewer} from './PdfViewer';
+import {PdfViewer} from '../src/components/PdfViewer';
 const isWeb = Platform.OS === 'web';
 
 let account: Account;

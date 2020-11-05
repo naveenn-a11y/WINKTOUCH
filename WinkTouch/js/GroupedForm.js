@@ -810,6 +810,11 @@ export class GroupedForm extends Component {
 
   render() {
     const style = this.props.style?this.props.style:this.props.definition.layout?scaleStyle(this.props.definition.layout):this.props.definition.size?styles['board'+this.props.definition.size]:styles.board;
+    console.log("Props Style: " + JSON.stringify(this.props.style));
+    console.log("Props Definition Style: " + JSON.stringify(this.props.definition.layout));
+    console.log("Props Definition Style Scaled: " + JSON.stringify(scaleStyle(this.props.definition.layout)));
+    console.log("this.props.definition.size: " + JSON.stringify(this.props.definition.size));
+
     return  <View style={style} key={this.props.definition.name}>
         <Label style={styles.sectionTitle} key='title' suffix='' value={formatLabel(this.props.definition)} fieldId={this.props.fieldId} />
         {this.renderRows()}

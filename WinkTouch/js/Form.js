@@ -20,7 +20,7 @@ import type {
   CodeDefinition,
   GroupDefinition,
 } from './Types';
-import {styles, scaleStyle, selectionBorderColor, fontScale} from './Styles';
+import {styles, scaleStyle, selectionBorderColor, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
   DateField,

@@ -11,7 +11,6 @@ import {
 import * as RNLocalize from 'react-native-localize';
 import {translate, setI18nConfig} from './src/components/LanguageProvider/Util';
 
-import {test, playSound} from './src/components/ReactNativeBeep';
 import Calendar from 'react-native-calendar';
 import DeviceInfo from 'react-native-device-info';
 import Mailer from 'react-native-mail';

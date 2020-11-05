@@ -7,7 +7,7 @@ import type { FieldDefinition, CodeDefinition, PatientDocument, ImageDrawing, Pa
 import React, { Component, PureComponent } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
   TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
-import { Button as NativeBaseButton, Button as NativeBaseIcon, FAB as NativeBaseFab } from 'react-native-paper';
+import { Button as NativeBaseButton, Button as NativeBaseIcon, FAB , Portal, Provider } from 'react-native-paper';
 import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
@@ -1874,20 +1874,27 @@ export class FloatingButton extends Component {
 
   render() {
     if (!this.state.options) return null;
-    return <NativeBaseFab active={this.state.active} onPress={this.toggleActive} direction='up' position='bottomRight' style={styles.floatingButton}
-      containerStyle={styles.floatingContainer}>
-      {this.state.active===true?<NativeBaseIcon icon='minus'/>:<NativeBaseIcon icon='plus'/>}
-      {this.state.active===true && this.state.options.map((option: string, index: number) => {
-         return <NativeBaseButton style={styles.floatingSubButton}
-            onPress={()=> {
+    return (
+    <Provider>
+    <Portal>
+    <FAB.Group open={this.state.active} onStateChange={this.toggleActive}  position='bottomRight' fabStyle={styles.floatingButton}
+      
+      icon={this.state.active ? 'minus' : 'plus'}
+      actions={this.state.options.map((option: string, index: number) => {
+         console.log("OPTION: " + option);
+         return{
+           icon: 'star',
+           label: option,
+            onPress:()=> {
               this.toggleActive();
               this.props.onPress(option);
-            }}
-            key={index}>
-             <Text style={styles.fabButtonText}>{option}</Text>
-        </NativeBaseButton>
-      })}
-    </NativeBaseFab>
+            }
+         }             
+      })}/>
+    </Portal>
+    </Provider>
+
+    );
   }
 }
 

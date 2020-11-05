@@ -339,6 +339,7 @@ export class LoginScreen extends Component {
   };
 
   render() {
+    const style = [styles.centeredColumnLayout, {alignItems: 'center'}];
     const accountNames: string[] = this.state.accounts.map((account: Account) =>
       this.formatAccount(account),
     );
@@ -350,9 +351,9 @@ export class LoginScreen extends Component {
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />
-        <View style={styles.centeredColumnLayout}>
+        <View style={style}>
           <KeyboardAvoidingView behavior="position">
-            <View style={styles.centeredColumnLayout}>
+            <View style={style}>
               {!this.state.isTrial && (
                 <Text style={styles.h1}>{strings.loginscreenTitle}</Text>
               )}
