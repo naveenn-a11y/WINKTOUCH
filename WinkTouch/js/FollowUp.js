@@ -1069,8 +1069,8 @@ async handleRefresh() {
     )}
   renderHeader() {
     const style = [styles.formTableColumnHeader, {textAlign: 'left'}];
-    const styleText = [styles.text, {fontSize: 26 * fontScale}];
-    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 26 * fontScale, textAlign: "left"}];
+    const styleText = [styles.text, {fontSize: 22 * fontScale, fontWeight: '500'}];
+    const styleSelected = [styles.text, {color: selectionFontColor, fontSize: 22 * fontScale, fontWeight: '500', textAlign: "left"}];
     const commentStyle = [style, {minWidth:150 * fontScale}];
     const isPatientVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
     return (
@@ -1081,37 +1081,37 @@ async handleRefresh() {
       {isPatientVisible && <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByPatient()} style={style}>
       <View style = {styles.formRow}>
         {this.state.patientHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
-        <Text style={this.state.patientHeaderSelected ? styleSelected : styleText}>{'Patient'}</Text>
+        <Text style={this.state.patientHeaderSelected ? styleSelected : styleText}>{strings.patient}</Text>
       </View>
       </TouchableOpacity>}
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByFrom()} style={style}>
       <View style = {styles.formRow}>
         {this.state.fromHeaderSelected &&  <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
-        <Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{'From'}</Text>
+        <Text style={this.state.fromHeaderSelected ? styleSelected : styleText}>{strings.from}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByTo()} style={style}>
       <View style = {styles.formRow}>
         {this.state.toHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
-        <Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{'To'}</Text>
+        <Text style={this.state.toHeaderSelected ? styleSelected : styleText}>{strings.to}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByDate()} style={style}>
       <View style = {styles.formRow}>
       {this.state.dateHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
-      <Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{'Date'}</Text>
+      <Text style={this.state.dateHeaderSelected ? styleSelected : styleText}>{strings.date}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByStatus()} style={style}>
       <View style = {styles.formRow}>
       {this.state.statusHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
-      <Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{'Status'}</Text>
+      <Text style={this.state.statusHeaderSelected ? styleSelected : styleText}>{strings.status}</Text>
       </View>
       </TouchableOpacity>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByComment()} style={commentStyle}>
       <View style = {styles.formRow}>
        {this.state.commentHeaderSelected && <Icon name={this.state.orderDesc ? 'arrow-downward' : 'arrow-upward'} color={selectionFontColor}/>}
-       <Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{'Comment'}</Text>
+       <Text style={this.state.commentHeaderSelected ? styleSelected : styleText}>{strings.comment}</Text>
        </View>
        </TouchableOpacity>
        </View>
