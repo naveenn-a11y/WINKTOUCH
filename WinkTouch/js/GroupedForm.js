@@ -1166,7 +1166,7 @@ export class GroupedFormScreen extends Component<GroupedFormScreenProps, Grouped
             onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
             enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
             onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue, subIndex)}
-            patientId={this.patientId}
+            patientId={this.getPatientId()}
             examId={this.props.exam.id}
             fieldId={fieldId+'['+(value.length-subIndex)+']'}
             editable={this.props.editable!==false && groupDefinition.readonly!==true}
@@ -1206,7 +1206,7 @@ export class GroupedFormScreen extends Component<GroupedFormScreenProps, Grouped
         key={groupDefinition.name+"-"+index}
         onChangeField={(newValue: string) => this.changeField(groupDefinition.name, undefined, newValue, undefined)}
         onClear={() => this.clear(groupDefinition.name)}
-        patientId={this.patientId}
+        patientId={this.getPatientId()}
         examId={this.props.exam.id}
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         editable={this.props.editable!==false && groupDefinition.readonly!==true}
@@ -1218,7 +1218,7 @@ export class GroupedFormScreen extends Component<GroupedFormScreenProps, Grouped
         onAddFavorite={this.props.onAddFavorite?(favoriteName: string) => this.addGroupFavorite(groupDefinition.name, favoriteName):undefined}
         enableScroll={this.props.enableScroll} disableScroll={this.props.disableScroll}
         onUpdateForm={(groupName: string, newValue: any) => this.updateGroup(groupName, newValue)}
-        patientId={this.patientId}
+        patientId={this.getPatientId()}
         examId={this.props.exam.id}
         editable={this.props.editable!==false && groupDefinition.readonly!==true}
         fieldId={fieldId}/>
