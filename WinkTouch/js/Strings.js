@@ -111,7 +111,7 @@ export const strings = new LocalizedStrings({
       referral: 'Referral',
       finalRx: 'Final Rx',
       printRx: 'Print Rx',
-      transferRx: 'Transfer Rx',
+      transferRx: 'Share Rx',
       printClRx: 'Print ClRx',
       printReferral: 'Print Referral',
       printMedicalRx: 'Print Medical Rx',
@@ -306,7 +306,7 @@ export const strings = new LocalizedStrings({
       referral: 'Référence',
       finalRx: 'Rx Finale',
       printRx: 'Imprimer Rx',
-      transferRx: 'Transférer Rx',
+      transferRx: 'Partager Rx',
       printClRx: 'Imprimer RxVC',
       printReferral: 'Imprimer Référence',
       printMedicalRx: 'Imprimer Rx médicale',
@@ -397,7 +397,7 @@ export const strings = new LocalizedStrings({
       to: 'Á',
       date: 'Date',
       status: 'Statut',
-      comment: 'Commentaire'      
+      comment: 'Commentaire'
     }
 });
 
