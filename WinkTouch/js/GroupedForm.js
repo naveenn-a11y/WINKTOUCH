@@ -1227,6 +1227,7 @@ export class GroupedFormScreen extends Component<GroupedFormScreenProps, Grouped
 
   renderAddableGroupsButton() {
     if (this.state.addableGroups.length===0) return null;
+    if (this.props.editable===false) return null;
     return <FloatingButton options={this.state.addableGroups} onPress={(groupType: string) => this.addGroup(groupType)}/>
   }
 

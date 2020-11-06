@@ -291,8 +291,7 @@ class EditableItem extends Component {
         if (!description && fieldDefinition.normalValue) {
           isAllNormal = false;
         }
-        if (!description || (fieldDefinition.normalValue && fieldDefinition.normalValue == description))
-          return null;
+        if (!description) return null;
         isAllNormal = false;
         const propertyField = <FormTextInput key={index} label={fieldDefinition.label?fieldDefinition.label:fieldDefinition.name} value={description} readonly={!this.props.editable}
           onChangeText={(text: string) => this.props.onUpdateItem(fieldDefinition.name, text.split(', '))} />
