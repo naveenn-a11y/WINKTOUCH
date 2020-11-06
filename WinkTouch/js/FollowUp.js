@@ -492,6 +492,7 @@ async openPatientFile() {
       if(isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn)) return true;
       return false;
   }
+  
 
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
@@ -1076,7 +1077,7 @@ async handleRefresh() {
     const commentStyle = [style, {minWidth:150 * fontScale}];
     const isPatientVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
     return (
-     <View style={styles.listRow}>
+     <View style={[styles.listRow, {margin: 0}]}>
       <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View>
       <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
