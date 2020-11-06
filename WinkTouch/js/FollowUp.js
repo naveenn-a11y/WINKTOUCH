@@ -20,7 +20,7 @@ import { getCachedItems, getCachedItem, cacheItem } from './DataCache';
 
 import { stripDataType } from './Rest';
 import RNBeep from 'react-native-a-beep';
-import { getStore } from './DoctorApp';
+import { getStore, getDoctor } from './DoctorApp';
 import { strings } from './Strings';
 import {  getMimeType } from './Upload';
 import { printHtml, generatePDF } from './Print';
@@ -416,7 +416,9 @@ async openPatientFile() {
         let allStatusCode : CodeDefinition[] = getAllCodes('referralStatus');
         allStatusCode = allStatusCode !== undefined ? allStatusCode.filter((code: CodeDefinition) => code.status == 4) : undefined;
         const openedStatusCode : CodeDefinition = allStatusCode !== undefined && allStatusCode.length >0 ? allStatusCode[0] : undefined;
-        if(openedStatusCode !== undefined) {
+        const currentUser : User = getDoctor();
+        const userTo : User = selectedItem.to;
+        if((currentUser && userTo && stripDataType(currentUser.id) == stripDataType(userTo.id)) && openedStatusCode !== undefined) {
           selectedItem.status = openedStatusCode.code;
           this.updateItem(selectedItem);
         }
