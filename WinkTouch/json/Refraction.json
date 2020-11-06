@@ -29,6 +29,14 @@
         {
           "name": "Maximum VA refraction",
           "label": "Max Convexe"
+        },
+        {
+          "name": "Retinoscopy",
+          "label": "Rétinoscopie"
+        },
+        {
+          "name": "Cyclopegia",
+          "label": "Cyclopégie"
         }
       ]
     }
@@ -75,6 +83,13 @@
       "optional": true,
       "name": "Retinoscopy",
       "multiValue": true,
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Cyclopegia",
       "type": "SRx"
     },
     {
