@@ -233,7 +233,7 @@ export class ReferralScreen extends Component<ReferralScreenProps, ReferralScree
         }
       }
     }
-    this.setState({ isLoading: false, isDirty: true});
+    this.setState({ isLoading: false, isDirty: !(this.state.doctorReferral && this.state.doctorReferral.id)});
   }
 
   selectVisit(visitId: string) {

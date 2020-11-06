@@ -20,7 +20,7 @@ import { getCachedItems, getCachedItem, cacheItem } from './DataCache';
 
 import { stripDataType } from './Rest';
 import RNBeep from 'react-native-a-beep';
-import { getStore } from './DoctorApp';
+import { getStore, getDoctor } from './DoctorApp';
 import { strings } from './Strings';
 import {  getMimeType } from './Upload';
 import { printHtml, generatePDF } from './Print';
@@ -241,7 +241,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     }
 
   componentDidMount() {
-       this.loadFollowUp();
+    this.loadFollowUp();
+    InteractionManager.runAfterInteractions(() => {
+       this.refreshList();
+    });
   }
   onRefresh(refresh: boolean)  {
   };
@@ -259,7 +262,6 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
    (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo :
     (selectedItem !==undefined ? getCachedItem(selectedItem.patientInfo.id) : undefined)) ;
-
     if(patientInfo) {
       await fetchReferralFollowUpHistory(patientInfo.id);
     } else {
@@ -416,7 +418,9 @@ async openPatientFile() {
         let allStatusCode : CodeDefinition[] = getAllCodes('referralStatus');
         allStatusCode = allStatusCode !== undefined ? allStatusCode.filter((code: CodeDefinition) => code.status == 4) : undefined;
         const openedStatusCode : CodeDefinition = allStatusCode !== undefined && allStatusCode.length >0 ? allStatusCode[0] : undefined;
-        if(openedStatusCode !== undefined) {
+        const currentUser : User = getDoctor();
+        const userTo : User = selectedItem.to;
+        if((currentUser && userTo && stripDataType(currentUser.id) == stripDataType(userTo.id)) && openedStatusCode !== undefined) {
           selectedItem.status = openedStatusCode.code;
           this.updateItem(selectedItem);
         }
@@ -490,6 +494,7 @@ async openPatientFile() {
       if(isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn)) return true;
       return false;
   }
+  
 
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
@@ -613,9 +618,15 @@ export class TableListRow extends React.PureComponent {
     super(props);
     this.state = {
       commentValue: this.props.rowValue.comment
-    }
+    };
+
   }
 
+   componentDidUpdate(prevProps: any) {
+     if(prevProps.rowValue.comment !== this.props.rowValue.comment && this.state.commentValue == prevProps.rowValue.comment) {
+       this.changeText(this.props.rowValue.comment);
+     }
+    }
 async loadReferralStatusCode() {
     let parameters : {} = {};
     let body : {} = {};
@@ -673,7 +684,6 @@ updateValue(value: any) {
     const textStyle = this.props.rowValue.isParent ? [style, {fontWeight: 'bold'}] : style ;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
     const commentStyle = [styles.formField, {minWidth:150 * fontScale}];
-
     return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} onLongPress={() => this.toggleLongPress()} testID={this.props.testID}>
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
         <Icon name={this.props.rowValue.isOutgoing ? 'call-made' : 'call-received'} color={selectionFontColor}/>
@@ -1074,7 +1084,7 @@ async handleRefresh() {
     const commentStyle = [style, {minWidth:150 * fontScale}];
     const isPatientVisible : boolean = (this.props.navigation && this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.overview) ? true : false;
     return (
-     <View style={styles.listRow}>
+     <View style={[styles.listRow, {margin: 0}]}>
       <View><Text style={this.state.refHeaderSelected ? styleSelected : styles.text}>{' '}</Text></View>
       <TouchableOpacity underlayColor={selectionColor} onPress={() => this.orderByRef()} style={style} ><View>
       <Text style={this.state.refHeaderSelected ? styleSelected : styleText}>{'Ref'}</Text></View></TouchableOpacity>
