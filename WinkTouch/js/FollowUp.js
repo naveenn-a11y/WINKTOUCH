@@ -241,7 +241,10 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     }
 
   componentDidMount() {
-       this.loadFollowUp();
+    this.loadFollowUp();
+    InteractionManager.runAfterInteractions(() => {
+       this.refreshList();
+    });
   }
   onRefresh(refresh: boolean)  {
   };
@@ -259,7 +262,6 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     const patientInfo: PatientInfo = this.props.patientInfo ? this.props.patientInfo :
    (this.props.navigation.state.params.patientInfo !== undefined ? this.props.navigation.state.params.patientInfo :
     (selectedItem !==undefined ? getCachedItem(selectedItem.patientInfo.id) : undefined)) ;
-
     if(patientInfo) {
       await fetchReferralFollowUpHistory(patientInfo.id);
     } else {
@@ -616,9 +618,15 @@ export class TableListRow extends React.PureComponent {
     super(props);
     this.state = {
       commentValue: this.props.rowValue.comment
-    }
+    };
+
   }
 
+   componentDidUpdate(prevProps: any) {
+     if(prevProps.rowValue.comment !== this.props.rowValue.comment && this.state.commentValue == prevProps.rowValue.comment) {
+       this.changeText(this.props.rowValue.comment);
+     }
+    }
 async loadReferralStatusCode() {
     let parameters : {} = {};
     let body : {} = {};
@@ -676,7 +684,6 @@ updateValue(value: any) {
     const textStyle = this.props.rowValue.isParent ? [style, {fontWeight: 'bold'}] : style ;
     const prefix : string = this.props.selected ? (this.props.selected===true?undefined:'(' + this.props.selected+') '):undefined;
     const commentStyle = [styles.formField, {minWidth:150 * fontScale}];
-
     return <TouchableOpacity underlayColor={selectionColor} onPress={() => this.toggleSelect()} onLongPress={() => this.toggleLongPress()} testID={this.props.testID}>
       <View style={[styles.listRow, {backgroundColor: this.props.backgroundColor}]}>
         <Icon name={this.props.rowValue.isOutgoing ? 'call-made' : 'call-received'} color={selectionFontColor}/>
