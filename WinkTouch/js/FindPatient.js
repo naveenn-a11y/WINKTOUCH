@@ -14,7 +14,7 @@ import { PatientTitle, PatientBillingInfo, PatientContact, PatientCard, fetchPat
 import { PrescriptionCard } from './Assessment';
 import { searchItems } from './Rest';
 import { cacheItemsById, getCachedItem } from './DataCache';
-import { hourDifference, parseDate, now } from './Util';
+import { hourDifference, now } from './Util';
 import { VisitHistoryCard, fetchVisitHistory, VisitHistory } from './Visit';
 import { PatientRefractionCard } from './Refraction';
 import { getFieldDefinitions } from './Items';
