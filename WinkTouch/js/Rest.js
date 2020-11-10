@@ -36,11 +36,14 @@ export function getDataType(id: string) :string {
   return dataType;
 }
 
-export function stripDataType(id: string) : number {
+export function stripDataType(id: string | number) : number {
   if (!id) return -1;
+  if(isNaN(id)) {
   const dashIndex = id.indexOf('-');
   const nummer : number = parseInt(id.substring(dashIndex+1));
   return nummer;
+  }
+  return id;
 }
 
 function getItemFieldName(id: string) : string {
@@ -87,7 +90,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
   if (definition!==null && definition!==undefined) return definition;
   const url = constructTypeUrl(id)+'FieldDefinition';
   const requestNr = ++requestNumber;
-  __DEV__ && console.log('REQ '+requestNr+' Fetching definition for '+cacheKey+' in '+language+'.');
+  __DEV__ && console.log('REQ '+requestNr+' Fetching definition '+cacheKey+': '+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
@@ -97,7 +100,7 @@ export async function fetchItemDefinition(id: string, language: string) : FieldD
         },
     });
     if (!httpResponse.ok) handleHttpError(httpResponse);
-    __DEV__ && console.log('RES '+requestNr+' Fetching definition for '+cacheKey+' in '+language+".");
+    __DEV__ && console.log('RES '+requestNr+' Fetching definition '+cacheKey+': '+url);
     let restResponse = await httpResponse.json();
     definition = restResponse.fields;
     cacheItem(cacheKey, definition);
@@ -156,7 +159,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean) : any {
       return; //TODO: we should also return an object containing the system eroor?
     }
     __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET', url);
-    const item : any = restResponse[getItemFieldName(id)];
+    const item : any = restResponse.id===id?restResponse:restResponse[getItemFieldName(id)];
     if (!item) throw new Error('The server did not return a '+getItemFieldName(id)+' for id '+id+".");
     cacheResponseItems(restResponse);
     return item;
@@ -177,6 +180,10 @@ export function logRestResponse(restResponse, id, requestNr: number, method: str
   if (cleanedResponse.definition) cleanedResponse.definition='{...}';
   if (cleanedResponse.data) cleanedResponse.data = '...';
   console.log('RES '+requestNr+' '+method+' '+url+' json body: '+JSON.stringify(cleanedResponse));
+}
+
+export async function storeItems(itemLsist : any[]) {
+
 }
 
 /**
@@ -319,7 +326,10 @@ export async function searchItems(list: string, searchCritera: Object) : any {
 }
 
 export async function performActionOnItem(action: string, item: any) : any {
-  let url : string = restUrl + getDataType(item.id) + '/' + encodeURIComponent(action);
+  if (item===null | item===undefined || (item instanceof Array && item.length===0)) {
+    __DEV__ && console.error('item is mandatory');
+  }
+  let url : string = restUrl + getDataType((item instanceof Array?item[0].id:item.id)) + '/' + encodeURIComponent(action);
   const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ && console.log('REQ '+requestNr+' '+httpMethod+' '+url+' json body: '+JSON.stringify(item));
@@ -343,11 +353,14 @@ export async function performActionOnItem(action: string, item: any) : any {
       } else if (restResponse.hasValidationError) {
         restResponse.errors=[strings.validationErrorMessage];
       }
-      if (item.id.includes('-')) {
+      if ((item instanceof Object) && item.id.includes('-')) {
         clearCachedItemById(item);
         await fetchItemById(item.id); //TODO: I think its ok to not wait for the refresh of the cache
       }
       return restResponse;
+    }
+    if (item instanceof Array) {  
+        return restResponse;
     }
     const updatedItem = restResponse[getItemFieldName(item.id)];
     if (!updatedItem) {

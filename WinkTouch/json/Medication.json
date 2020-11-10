@@ -3,7 +3,7 @@
   "name": "Medication",
   "locale": {
     "fr-CA": {
-      "label": "MÃ©dicaments",
+      "label": "Médicaments",
       "fields": [
         {
           "name": "Label",
@@ -15,11 +15,11 @@
         },
         {
           "name": "Frequency",
-          "label": "FrÃ©quence"
+          "label": "Fréquence"
         },
         {
           "name": "Duration",
-          "label": "DurÃ©e"
+          "label": "Durée"
         },
         {
           "name": "Rx Date",

@@ -2,15 +2,16 @@
   "name": "Stereopsis",
   "locale": {
     "fr-CA": {
-      "label": "StÃ©rÃ©oscopie",
+      "label": "Stéréoscopie",
       "fields": [
         {
           "name": "Stereo tests",
-          "label": "Tests StÃ©rÃ©oscopiques",
+          "label": "Tests Stéréoscopiques",
           "fields": [
             {
               "name": "Stereo fly",
-              "label": "Mouche"
+              "label": "Mouche",
+              "normalValue": "Stéréoscopie normale"
             },
             {
               "name": "Circles",
@@ -39,7 +40,7 @@
           "normalValue": 9,
           "name": "Brewster",
           "minValue": 0,
-          "suffix": " \/ 9",
+          "suffix": " / 9",
           "maxValue": 9
         },
         {
@@ -51,7 +52,7 @@
           "normalValue": 9,
           "name": "Circles",
           "minValue": 0,
-          "suffix": " \/ 9",
+          "suffix": " / 9",
           "maxValue": 9
         },
         {
@@ -59,14 +60,14 @@
           "minLength": 8,
           "name": "Forms",
           "minValue": 0,
-          "suffix": " \/ 8",
+          "suffix": " / 8",
           "maxValue": 8
         },
         {
           "normalValue": 3,
           "name": "Animals",
           "minValue": 0,
-          "suffix": " \/ 3",
+          "suffix": " / 3",
           "maxValue": 3
         },
         {

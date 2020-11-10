@@ -28,7 +28,7 @@ export async function printHtml(html: string) {
   }
 
 export async function generatePDF(html: string, isBase64: boolean) {
-    const pageWidth : number = 612; 
+    const pageWidth : number = 612;
     const pageAspectRatio : number = 8.5/11;
     const pageHeight : number = pageWidth/pageAspectRatio;
     let options = {
@@ -57,7 +57,7 @@ export async function printRx(visitId: string) {
 export async function printClRx(visitId: string) {
   try {
     const filename : string = 'Rx.pdf';
-    await createPdf('webresources/reports', filename, {'type':'clRx'},'post',{'visitId':visitId});
+    await createPdf('webresources/reports', filename, {'type':'clRx'},'post',{'visitId':visitId, 'showTrialDetails':false});
     const jobName = await NativeModules.RNPrint.print({filePath: RNFS.DocumentDirectoryPath+'/' + filename});
   } catch (error) {
     alert(strings.serverError); //TODO clrxError

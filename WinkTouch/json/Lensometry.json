@@ -10,10 +10,10 @@
       "label":"",
       "fields":[
         {
-          "normalValue":"Glasses",
           "name":"Current wear",
           "defaultValue":"Glasses",
-          "options": "currentWearCodes"
+          "options": "currentWearCodes",
+          "normalValue":"Glasses"
         },
         {
           "name":"Since",
@@ -56,7 +56,7 @@
   ],
   "locale":{
     "fr-CA":{
-      "label":"LentimÃ¨tre",
+      "label":"Lentimètre",
       "fields":[
         {
           "name":"Current wear",
@@ -64,7 +64,9 @@
           "fields":[
             {
               "name":"Current wear",
-              "label":"Actuel"
+              "label":"Actuel",
+              "defaultValue":"Lunettes",
+              "normalValue":"Lunettes"
             },
             {
               "name":"Since",
@@ -74,7 +76,13 @@
         },
         {
           "name":"Lensometry",
-          "label":"LentimÃ¨tre"
+          "label":"Lentimètre",
+          "fields":[
+            {
+              "name": "lensType",
+              "label": "Type"
+            }
+          ]
         }
       ]
     }

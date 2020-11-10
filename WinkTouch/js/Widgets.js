@@ -16,7 +16,7 @@ import { strings} from './Strings';
 import { formatCodeDefinition, formatAllCodes } from './Codes';
 import { formatDuration, formatDate, dateFormat, dateTime24Format, now, yearDateFormat, yearDateTime24Format, officialDateFormat, capitalize,
    dayDateTime24Format, dayDateFormat, dayYearDateTime24Format, dayYearDateFormat, isToyear, deAccent, formatDecimals, split, combine,
-  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty, insertNewlines} from './Util';
+  formatTime, formatHour, time24Format, today, dayDifference, addDays, formatAge, isEmpty, insertNewlines, postfix} from './Util';
 import { Camera } from './Favorites';
 import { isInTranslateMode, updateLabel } from './ExamDefinition';
 
@@ -138,6 +138,20 @@ export class CameraTile extends Component {
         <Icon name='camera' style={styles.modalTileIcon} />
       </View>
     </TouchableOpacity>
+  }
+}
+
+export type BinocularsProps = {
+  onClick: () => void,
+  style: any
+}
+export type BinocularsState = {
+}
+export class Binoculars extends PureComponent<BinocularsProps, BinocularsState> {
+  render() {
+    return <TouchableWithoutFeedback onPress={this.props.onClick}>
+      <Icon name='binoculars' style={this.props.style} color={selectionFontColor}/>
+    </TouchableWithoutFeedback>
   }
 }
 
@@ -500,7 +514,13 @@ export class NumberField extends Component {
     splitValue(value: number|string, fractions: string[]) : (?string)[] {
       if (value===undefined || value===null) return [undefined, undefined, undefined, undefined, undefined];
       //TODO check if value is an option
-      //remove suffix
+      //remove prefix
+      if (this.props.prefix && this.props.prefix!='+') {
+        if (value.startsWith && value.startsWith(this.props.prefix)) {
+          value=value.substring(this.props.prefix.length);
+        }
+      }
+      //parse suffix
       let suffix : ?string = undefined;
       if (this.props.suffix!==undefined && value.toLowerCase && fractions[4]!==undefined) {
         for (let i : number = 0; i<fractions[4].length ; i++) {
@@ -601,18 +621,26 @@ export class NumberField extends Component {
         });
         if(!isEmpty(formattedValue))
           value = formattedValue.replace(/\/\s*$/, "");
-       }
+      }
+      if (this.props.options instanceof Array && this.props.options.includes(value)) {
+        return value;
+      }
       if (isNaN(value)) {
-        if (this.props.options instanceof Array && this.props.options.includes(value)) {
-          return value;
-        } else if (this.props.prefix) {
-          if (this.props.prefix.endsWith('+')) {
-            return this.props.prefix.substring(0, this.props.prefix.length-1) + value;
-          } else {
-            return this.props.prefix + value;
+        let formattedValue : string = value.toString();
+        if (this.props.prefix && this.props.prefix!='+') {
+          let freeType : boolean = false;
+          for (let i=0; i< formattedValue.length; i++) {
+            const character : char = formattedValue.charAt(i);
+            if ('0123456789.-+'.includes(character)===false) {
+              freeType = true;
+              break;
+            }
+          }
+          if (!freeType) {
+            formattedValue = this.props.prefix + formattedValue;
           }
         }
-        return value.toString();
+        return formattedValue;
       }
 
       let formattedValue: string = (this.props.decimals!=undefined && this.props.decimals>0) ? Number(value).toFixed(this.props.decimals) : String(value);
@@ -790,7 +818,7 @@ export class NumberField extends Component {
         </View>
       }
       if (this.state.isTyping) {
-        const formattedValue = this.props.value?this.props.value.toString():'';
+        const formattedValue : string = this.props.value?this.props.value.toString():'';
         return <TextField value={formattedValue} ref='field'
           autoFocus={this.props.autoFocus || this.props.isTyping!==true}
           style={style}
@@ -947,7 +975,7 @@ export class TilesField extends Component {
     let allOptions : string[][] = this.isMultiColumn()?this.props.options:[this.props.options];
     return <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID='popupBackground'>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>{this.props.label}: {this.format(this.state.editedValue)}</Text>
+          <Text style={styles.modalTitle}>{postfix(this.props.label,': ')}{this.format(this.state.editedValue)}</Text>
           <FocusTile type='previous' commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
           <FocusTile type='next' commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
           <ScrollView horizontal={allOptions.length>3}>
@@ -1875,7 +1903,7 @@ export class Lock extends PureComponent {
   }
 }
 
-export class SelectionListRow extends React.PureComponent {
+export class SelectionListRow extends PureComponent {
   props: {
     label: string,
     selected: boolean|string,
@@ -1932,6 +1960,7 @@ export function stripSelectionPrefix(selection: ?string) : string {
     return selection.substr(4);
   return selection;
 }
+
 
 export class SelectionList extends React.PureComponent {
   props: {

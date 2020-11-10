@@ -6,9 +6,9 @@
 import DeviceInfo from 'react-native-device-info';
 import { strings } from './Strings';
 
-export let deploymentVersion: string = 'v376';
-export let restVersion: string = 'EHR-3.7'
-export const dbVersion : string = '1580'; //TODO move to plist
+export let deploymentVersion: string = 'v398';
+export let restVersion: string = 'EHR-3.9'
+export const dbVersion : string = '1685'; //TODO move to plist
 export const touchVersion: string = DeviceInfo.getVersion();
 export const bundleVersion: string = DeviceInfo.getBuildNumber();
 const minimalTouchVersion = 3.0;

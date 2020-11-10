@@ -1,7 +1,27 @@
 {
   "locale": {
     "fr-CA": {
-      "label": "Gonioscopie"
+      "label": "Gonioscopie",
+        "fields": [
+            {
+                "name": "OD",
+                "fields": [
+                    {
+                        "name": "Iris",
+                        "normalValue": "Plat"
+                    }
+                ]
+            },
+            {
+                "name": "OS",
+                "fields": [
+                    {
+                        "name": "Iris",
+                        "normalValue": "Plat"
+                    }
+                ]
+            }
+        ]
     }
   },
   "name": "Gonioscopy",

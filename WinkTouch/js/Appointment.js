@@ -476,7 +476,10 @@ export class AppointmentScreen extends Component {
 
     async refreshPatientInfo() {
       const patientInfo : PatientInfo = await fetchPatientInfo(this.getPatientId());
-      if (patientInfo.version && patientInfo.version!==this.state.patientInfo.version)
+      if(this.state.patientInfo === undefined) {
+        this.setState({patientInfo});
+      }
+      else if (patientInfo.version && patientInfo.version!==this.state.patientInfo.version)
         this.setState({patientInfo});
     }
 

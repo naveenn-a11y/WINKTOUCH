@@ -6,7 +6,7 @@
       "fields": [
         {
           "name": "Extra Ocular Motilities",
-          "label": "MotilitÃ©s Oculaires"
+          "label": "Motilités Oculaires"
         },
         {
           "name": "NPC",
@@ -22,7 +22,13 @@
             },
             {
               "name": "With effort",
-              "label": "Avec effort"
+              "label": "Avec effort",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "Oui"
+              ],
+              "normalValue": "Non"
             }
           ]
         }
@@ -78,13 +84,13 @@
           "maxValue": 50
         },
         {
-          "normalValue": "No",
           "name": "With effort",
           "defaultValue": "No",
           "options": [
             "No",
             "Yes"
-          ]
+          ],
+          "normalValue": "No"
         }
       ]
     },
@@ -93,7 +99,7 @@
       "fields": [
         {
           "name": "image",
-          "image": ".\/image\/H.png",
+          "image": "./image/H.png",
           "label": ""
         }
       ],

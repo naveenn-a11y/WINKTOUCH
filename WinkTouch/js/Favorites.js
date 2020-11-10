@@ -2,13 +2,14 @@
  * @flow
  */
 'use strict';
+import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import React , {PureComponent} from 'react';
 import {View, Text, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNBeep from 'react-native-a-beep';
-import type { ExamDefinition, ExamPredefinedValue, Exam, Visit} from './Types';
+import type { ExamDefinition, ExamPredefinedValue, Exam, Visit, VisitType} from './Types';
 import { styles, selectionFontColor, disabledFontColor } from './Styles';
 import { strings } from './Strings';
 import { storeItem, searchItems, deleteItem } from './Rest';
@@ -89,9 +90,10 @@ export function getFavorites(exam: Exam) : ExamPredefinedValue[] {
     return [];
   }
   let examDefinitionId: string = exam.definition.id;
-  let visitTypes : string[] = getVisitTypes();
+  let visitTypes : VisitType[] = getVisitTypes();
   if (visitTypes===null || visitTypes===undefined) visitTypes = [];
-  let favorites : ExamPredefinedValue[] = examPredefinedValues.filter((examPredefinedValue : ExamPredefinedValue) => examPredefinedValue.customExamDefinitionId === examDefinitionId && visitTypes.includes(examPredefinedValue.name)===false);
+  const visitTypeNames : string[] = visitTypes.map((visitType: VisitType) => visitType.name);
+  let favorites : ExamPredefinedValue[] = examPredefinedValues.filter((examPredefinedValue : ExamPredefinedValue) => examPredefinedValue.customExamDefinitionId === examDefinitionId && visitTypeNames.includes(examPredefinedValue.name)===false);
   favorites = favorites.map((examPredefinedValue: ExamPredefinedValue) => examPredefinedValue.predefinedValue===undefined?getPreviousExamAsFavorite(exam, examPredefinedValue):examPredefinedValue);
   return favorites;
 }
@@ -345,6 +347,15 @@ export class PaperClip extends PureComponent {
   }
   render() {
     return <Icon name='paperclip' style={this.props.style} color={this.props.color}/>
+  }
+}
+
+export type CloseProps = {
+  style?: ViewStyleProp
+}
+export class Close extends PureComponent<CloseProps> {
+  render() {
+    return <Icon name='close' style={this.props.style} color={selectionFontColor}/>
   }
 }
 

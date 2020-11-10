@@ -573,12 +573,12 @@ export class FormOptions extends Component {
     const style = this.props.style?this.props.style:this.props.readonly?styles.formFieldReadOnly:this.props.errorMessage?styles.formFieldError:this.props.multiline?styles.formFieldLines:styles.formField;
     return <TouchableWithoutFeedback onPress={this.dismissError} disabled={this.state.dismissedError==true || !this.props.errorMessage} accessible={false} testID={this.props.testID+'DismissError'}>
         <View style={styles.formElement}>
-          {this.props.showLabel && <Label width={this.props.labelWidth} value={this.props.label} />}
+          {this.props.showLabel && this.props.label && <Label width={this.props.labelWidth} value={this.props.label} />}
           {manyOptions?
               <ListField label={this.props.label} style={style} readonly={this.props.readonly} freestyle={this.props.freestyle} options={this.state.formattedOptions} value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} prefix={this.props.prefx} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}/>
             :
               <TilesField label={this.props.label} style={style} readonly={this.props.readonly} options={this.state.formattedOptions} combineOptions={this.isMultiOption()} errorMessage={this.props.errorMessage}
-                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID}/>
+                value={this.formatValue(this.props.value)} onChangeValue={this.changeValue} freestyle={this.props.freestyle} prefix={this.props.prefix} suffix={this.props.suffix} multiline={this.props.multiline} testID={this.props.testID} />
           }
           {this.props.errorMessage && !this.state.dismissedError && <Text style={styles.formValidationError}> {this.props.errorMessage}  {'\u274c'}</Text>}
         </View>
@@ -681,7 +681,7 @@ export class FormCode extends Component {
     const allDescriptions: string[] = formatAllCodes(this.props.code, this.props.filter);
     let selectedDescription: string = this.selectedDescription(allDescriptions);
     return <FormOptions labelWidth={this.props.labelWidth} label={this.props.label} showLabel={this.props.showLabel} readonly={this.props.readonly} freestyle={this.props.freestyle} errorMessage={this.props.errorMessage}
-      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline} testID={this.props.testID}/>
+      options={allDescriptions} value={selectedDescription} onChangeValue={this.updateValue} prefix={this.props.prefix} suffix={this.props.suffix} style={this.props.style} multiline={this.props.multiline} testID={this.props.testID} />
   }
 }
 
@@ -828,11 +828,11 @@ export class FormInput extends Component {
     let style : ?any = this.props.style?
       this.props.style:
       (this.props.readonly||this.props.definition.readonly)?
-        (this.props.multiline===true || this.props.definition.maxLength>100)?
+        (this.props.multiline===true || this.props.definition.maxLength>150)?
           styles.formFieldReadOnlyLines
           :styles.formFieldReadOnly:
       this.props.errorMessage?styles.formFieldError:
-      (this.props.multiline===true || this.props.definition.maxLength>100)?styles.formFieldLines:
+      (this.props.multiline===true || this.props.definition.maxLength>150)?styles.formFieldLines:
       styles.formField;
     if (this.props.definition.layout!==undefined) {
       if (this.props.definition.layout.borderWidth!==undefined) {
@@ -855,11 +855,11 @@ export class FormInput extends Component {
         options = getAllCodes(options);
       } else if (!(options instanceof Array)) {
         return <FormCode code={options} filter={this.getFilterValue()} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} errorMessage={this.props.errorMessage}
-          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style} multiline={this.props.multiline===true || this.props.definition.maxLength>100} testID={this.props.testID}/>
+          prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoSelect={this.props.definition.autoSelect} onChangeValue={this.props.onChangeValue} style={style} multiline={this.props.multiline===true || this.props.definition.maxLength>150} testID={this.props.testID}/>
       } else if (options.length===2 && (options[0]===undefined || options[0]===null || options[0]===false || options[0].toString().trim()==='' || this.props.definition.defaultValue===options[0]))
         return <FormCheckBox options={options} value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
       return <FormOptions options={options} freestyle={this.props.definition.freestyle} value={this.props.value} label={label} showLabel={this.props.showLabel} errorMessage={this.props.errorMessage}
-        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>100} testID={this.props.testID}/>
+        readonly={readonly} onChangeValue={this.props.onChangeValue} style={style} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} multiline={this.props.multiline===true || this.props.definition.maxLength>150} testID={this.props.testID}/>
     } else if (type && type.includes('Date') || type==='age') {
       return <FormDateInput value={this.props.value} label={label} showLabel={this.props.showLabel} readonly={readonly} onChangeValue={this.props.onChangeValue}
         type={type} dateFormat={this.props.definition.dateFormat} style={style} errorMessage={this.props.errorMessage} testID={this.props.testID}/>
@@ -910,7 +910,7 @@ export class FormInput extends Component {
                 onChangeValue={this.props.onChangeValue} testID={this.props.testID}/>
     }
     return <FormTextInput value={this.props.value} errorMessage={this.props.errorMessage} onChangeText={this.props.onChangeValue} label={label} showLabel={this.props.showLabel} readonly={readonly} validation={this.state.validation}
-      type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>100}
+      type={this.props.type} prefix={this.props.definition.prefix} suffix={this.props.definition.suffix} autoCapitalize={this.props.autoCapitalize} multiline={this.props.multiline===true || this.props.definition.maxLength>150}
       freestyle={this.props.definition.freestyle} style={style} testID={this.props.testID}/>//TODO keyboardType from definition type
   }
 

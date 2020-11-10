@@ -5,7 +5,7 @@
 
 import type { CodeDefinition, FieldDefinition, FieldDefinitions, GroupDefinition } from './Types';
 import { strings, getUserLanguage } from './Strings';
-import { restUrl, handleHttpError, searchItems, getNextRequestNumber } from './Rest';
+import { restUrl, handleHttpError, searchItems, getNextRequestNumber, getToken } from './Rest';
 import { getFieldDefinitions } from './Items';
 import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
@@ -125,15 +125,16 @@ export function parseCode(codeType: string, input: string, codeIdentifier?: stri
   return code;
 }
 
-export async function fetchCodeDefinitions(language: string, accountId: number) : {[codeName: string]: CodeDefinition} {
+export async function fetchCodeDefinitions(language: string, accountId: number, codeName: ?string = undefined ) : {[codeName: string]: CodeDefinition} {
   if (accountId===undefined) return undefined;
   const requestNr : number = getNextRequestNumber();
-  const url = restUrl +'/Code/list?accountId='+accountId.toString();
+  const url = restUrl +'Code/'+(codeName?(codeName+'/'):'')+'list?accountId='+accountId.toString();
   __DEV__ && console.log('REQ '+requestNr+' fetch codes in '+language+": "+url);
   try {
     let httpResponse = await fetch(url, {
         method: 'get',
         headers: {
+          'token': getToken(),
           'Accept': 'application/json',
           'Accept-language': language
         },
@@ -164,8 +165,6 @@ export async function fetchUserDefinedCodes() : void {
     });
 
   //let userDefinedCodes : string[] = restResponse.codes;
-
-  //cacheItem('visitTypes', visitTypes);
 }
 
 let codeDefinitions = {

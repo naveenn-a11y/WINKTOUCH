@@ -30,6 +30,8 @@ interface EditorProps {
 
 export class HtmlEditor extends React.Component<EditorProps> {
 	resolveContent : ( content: string ) => void = null;
+	resolveBooleanContent : ( content: boolean ) => void = null;
+
 
 	async getContent(): Promise<string> {
 		return new Promise( ( resolve, reject ) => {
@@ -38,6 +40,19 @@ export class HtmlEditor extends React.Component<EditorProps> {
 				window.ReactNativeWebView.postMessage(JSON.stringify({
 					type: 'getContent',
 					html: tinymce.activeEditor.getContent({format: 'raw'})
+				}));
+			`);
+		});
+	}
+
+	async isDirty(): Promise<Boolean> {
+
+		return new Promise( ( resolve, reject ) => {
+			this.resolveBooleanContent = resolve;
+			this.refs.webref.injectJavaScript(`
+				window.ReactNativeWebView.postMessage(JSON.stringify({
+					type: 'isDirty',
+					html: tinymce.activeEditor.isDirty()
 				}));
 			`);
 		});
@@ -55,10 +70,18 @@ export class HtmlEditor extends React.Component<EditorProps> {
 		this.refs.webref.injectJavaScript(javaScript);
 	}
 
+  afterSave() {
+		let javaScript : string = `tinymce.activeEditor.setDirty(false)`;
+		this.refs.webref.injectJavaScript(javaScript);
+	}
+
 	webCallback = ( event: WebViewMessageEvent ) => {
 		const data: any = JSON.parse( event.nativeEvent.data );
 		if (this.resolveContent) {
 			this.resolveContent( data.html );
+		}
+	    if (this.resolveBooleanContent) {
+			this.resolveBooleanContent( data.html );
 		}
 	}
 

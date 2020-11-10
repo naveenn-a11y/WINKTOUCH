@@ -12,7 +12,7 @@
   },
   "locale": {
     "fr-CA": {
-      "label": "RÃ©fraction",
+      "label": "Réfraction",
       "fields": [
         {
           "name": "Subjective refraction",
@@ -29,6 +29,14 @@
         {
           "name": "Maximum VA refraction",
           "label": "Max Convexe"
+        },
+        {
+          "name": "Retinoscopy",
+          "label": "Rétinoscopie"
+        },
+        {
+          "name": "Cyclopegia",
+          "label": "Cyclopégie"
         }
       ]
     }
@@ -45,6 +53,7 @@
       ],
       "export": "machine.phoropter",
       "name": "Subjective refraction",
+      "multiValue": true,
       "type": "SRx"
     },
     {
@@ -73,6 +82,14 @@
       "hasAdd": false,
       "optional": true,
       "name": "Retinoscopy",
+      "multiValue": true,
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Cyclopegia",
       "type": "SRx"
     },
     {
