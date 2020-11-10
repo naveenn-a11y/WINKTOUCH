@@ -16,6 +16,7 @@ import { strings } from './Strings';
 import { isAtWink } from './Registration';
 import { toggleTranslateMode, isInTranslateMode } from './ExamDefinition';
 import { getCachedItem } from './DataCache';
+import { isReferralsEnabled } from './Referral';
 
 
 class MainActivities extends Component {
@@ -64,7 +65,7 @@ class MainActivities extends Component {
             <Button title={strings.openFile} onPress={this.openPatientFile} />
             <Button title={strings.logout} onPress={this.props.onLogout} />
             {__DEV__ && false && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
-            <Button title={strings.referral} onPress={() => this.openReferral()} />
+            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => this.openReferral()} />}
         </View>
     </View>
   }
