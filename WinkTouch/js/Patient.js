@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import { Image, View, TouchableHighlight, Text, TouchableOpacity, LayoutAnimation, ScrollView} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationActions } from 'react-navigation';
@@ -15,9 +15,8 @@ import { ExamCardSpecifics } from './Exam';
 import { cacheItemById, getCachedItem, getCachedItems } from './DataCache';
 import { fetchItemById, storeItem, searchItems, stripDataType } from './Rest';
 import { getFieldDefinitions, getFieldDefinition } from './Items';
-import { deepClone, formatAge } from './Util';
+import { deepClone, formatAge, prefix } from './Util';
 import { formatOption, formatCode } from './Codes';
-import { PatientMedicationCard} from './Medication';
 import { getDoctor, getStore } from './DoctorApp';
 import { Refresh } from './Favorites';
 import { PatientRefractionCard } from './Refraction';
@@ -64,10 +63,17 @@ export class PatientTags extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.state.patientTags===undefined || this.state.patientTags.includes(undefined)) {
       this.refreshPatientTags();
     }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.patient.id===prevProps.patient.id) return;
+    this.setState ({
+      patientTags: getCachedItems(this.props.patient.patientTags)
+    }, this.refreshPatientTags);
   }
 
   async refreshPatientTags() {
@@ -110,19 +116,15 @@ export class PatientCard extends Component {
       navigate: 'patient'
     }
 
-    componentWillReceiveProps() {
-      this.forceUpdate();
-    }
-
     render() {
         if (!this.props.patientInfo) return null;
-        return <TouchableOpacity onPress={() => this.props.navigation.navigate(this.props.navigate, {patientInfo: this.props.patientInfo, refreshStateKey: this.props.refreshStateKey})}>
+        return <TouchableOpacity onPress={() => this.props.navigation.navigate(this.props.navigate, {patientInfo: this.props.patientInfo, refreshStateKey: this.props.refreshStateKey})} testID='patientContact'>
                   <View style={this.props.style?this.props.style:styles.paragraph}>
                       <Text style={styles.cardTitleLeft}>{this.props.patientInfo.firstName + ' ' + this.props.patientInfo.lastName}</Text>
                       <View style={styles.formRow}>
                           <View style={styles.flexColumnLayout}>
-                              <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth):''}</Text>
-                              <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}</Text>
+                              <Text style={styles.text}>{formatCode('genderCode',this.props.patientInfo.gender)} {this.props.patientInfo.dateOfBirth?this.props.patientInfo.gender===0?strings.ageM:strings.ageF:''} {this.props.patientInfo.dateOfBirth?formatAge(this.props.patientInfo.dateOfBirth) + '  ('+this.props.patientInfo.dateOfBirth+')':''}</Text>
+                              <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}{prefix(this.props.patientInfo.medicalCard,'  ')}{prefix(this.props.patientInfo.medicalCardVersion, '-')}{prefix(this.props.patientInfo.medicalCardExp, '-')}</Text>
                               <PatientTags patient={this.props.patientInfo} showDescription={true}/>
                           </View>
                           <View style={styles.flexColumnLayout}>
@@ -199,6 +201,11 @@ export class PatientContact extends Component {
                 <FormField value={this.props.patientInfo} fieldName='gender' onChangeValue={this.props.onUpdatePatientInfo}/>
               </FormRow>
               <FormRow>
+                <FormField value={this.props.patientInfo} fieldName='medicalCard' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
+                <FormField value={this.props.patientInfo} fieldName='medicalCardVersion' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
+                <FormField value={this.props.patientInfo} fieldName='medicalCardExp' onChangeValue={this.props.onUpdatePatientInfo}  autoCapitalize='characters'/>
+              </FormRow>
+              <FormRow>
                 <FormField value={this.props.patientInfo} fieldName='email' onChangeValue={this.props.onUpdatePatientInfo} type='email-address'/>
               </FormRow>
             </View>
@@ -224,13 +231,13 @@ export class PatientDocumentPage extends Component {
     this.loadUpload(uploadId);
   }
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.id===this.props.id) return;
-    const patientDocument: PatientDocument = getCachedItem(nextProps.id);
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.id===this.props.id) return;
+    const patientDocument: PatientDocument = getCachedItem(this.props.id);
     const uploadId : ?string = patientDocument.uploadId;
-    this.setState({
+    this.state = {
       upload: getCachedItem(uploadId)
-    });
+    };
     this.loadUpload(uploadId);
   }
 
@@ -268,18 +275,15 @@ export class PatientScreen extends Component {
 
     constructor(props: any) {
       super(props);
-      this.params = this.props.navigation.state.params;
-      const isDirty : boolean = this.params.patientInfo.errors;
+      let params = this.props.navigation.state.params;
+      const isDirty : boolean = params.patientInfo.errors;
       this.state = {
-        patientInfo: isDirty?this.params.patientInfo:getCachedItem(this.params.patientInfo.id),
+        patientInfo: isDirty?params.patientInfo:getCachedItem(params.patientInfo.id),
         isDirty
       };
       if (!isDirty) {
         this.refreshPatientInfo();
       }
-    }
-
-    componentWillReceiveProps(nextProps: any) {
     }
 
     componentWillUnmount() {
@@ -292,17 +296,17 @@ export class PatientScreen extends Component {
       let patientInfo: RestResponse = await storePatientInfo(this.state.patientInfo);
       if (patientInfo.errors) {
           this.props.navigation.navigate('patient', {patientInfo: patientInfo});
-      } else if (this.params.refreshStateKey) {
+      } else if (this.props.navigation.state.params.refreshStateKey) {
         const setParamsAction = NavigationActions.setParams({
           params: { refresh: true },
-          key: this.params.refreshStateKey
+          key: this.props.navigation.state.params.refreshStateKey
         })
         this.props.navigation.dispatch(setParamsAction);
       }
     }
 
     async refreshPatientInfo() {
-      const patientInfo : PatientInfo = await fetchPatientInfo(this.params.patientInfo.id, this.state.isDirty);
+      const patientInfo : PatientInfo = await fetchPatientInfo(this.props.navigation.state.params.patientInfo.id, this.state.isDirty);
       this.setState({patientInfo, isDirty:false});
     }
 
@@ -343,7 +347,6 @@ export class CabinetScreen extends Component {
 
     constructor(props: any) {
       super(props);
-      this.params = this.props.navigation.state.params;
       this.state = {
         patientInfo: undefined,
         appointments: undefined
@@ -355,6 +358,9 @@ export class CabinetScreen extends Component {
         if (!this.state.patientInfo) return;
         LayoutAnimation.easeInEaseOut();
         this.setState({patientInfo: undefined, appointments: undefined});
+        return;
+      } else if (this.state.patientInfo && this.state.patientInfo.id===patient.id) {
+        this.props.navigation.navigate("appointment", {patientInfo: this.state.patientInfo}); //TODO: refreshStateKey: this.props.refreshStateKey?
         return;
       }
       let patientInfo : ?PatientInfo = getCachedItem(patient.id);
@@ -409,7 +415,7 @@ export class CabinetScreen extends Component {
       if (this.state.patientInfo.id==='patient') {
         return <View style={styles.separator}>
           <PatientContact patientInfo={this.state.patientInfo} onUpdatePatientInfo={this.updatePatientInfo}/>
-          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} /></View>
+          <View style={styles.centeredRowLayout}><Button title={strings.createPatient} onPress={() => this.createPatient()} testID='createPatientButton'/></View>
         </View>
       }
       return <View style={styles.separator}>

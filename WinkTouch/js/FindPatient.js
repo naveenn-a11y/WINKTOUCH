@@ -16,7 +16,6 @@ import { searchItems } from './Rest';
 import { cacheItemsById, getCachedItem } from './DataCache';
 import { hourDifference, parseDate, now } from './Util';
 import { VisitHistoryCard, fetchVisitHistory, VisitHistory } from './Visit';
-import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';
 import { getFieldDefinitions } from './Items';
 import { getStore } from './DoctorApp';
@@ -50,7 +49,8 @@ class PatientList extends Component {
       return null;
     return <View style={styles.flow}>
         {this.props.patients.map((patient: Patient, index: number) => {
-          return <View style={styles.centeredRowLayout} key={index}><Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} /></View>
+          return <View style={styles.centeredRowLayout} key={index}>
+            <Button title={patient.firstName+' '+patient.lastName}  onPress={() => this.props.onSelect(patient)} testID={'patientName'+(index+1)+'Button'}/></View>
         })}
     </View >;
   }
@@ -107,15 +107,18 @@ export class FindPatient extends Component {
 
   render() {
     return <View style={styles.tabCard}>
-      <TextInput placeholder='Find patient' returnKeyType='search' autoCorrect={false} autoFocus={true}
+      <TextInput placeholder={strings.findPatient} returnKeyType='search' autoCorrect={false} autoFocus={true}
         style={styles.searchField} value={this.state.searchCriterium}
         onChangeText={(text: string) => this.setState({ searchCriterium: text })}
-        onSubmitEditing={() => this.searchPatients()} />
+        onSubmitEditing={() => this.searchPatients()}
+        testID='patientSearchCriterium'/>
       <PatientList
         patients={this.state.patients}
         visible={this.state.showPatientList}
         onSelect={this.props.onSelectPatient} />
-      {this.props.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}><Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()}/></View>:null}
+      {this.props.onNewPatient && this.state.showNewPatientButton?<View style={styles.centeredRowLayout}>
+        <Button title={strings.newPatient} visible={this.state.showNewPatientButton} onPress={() => this.newPatient()} testID='newPatientButton'/>
+      </View>:null}
     </View>
   }
 }
@@ -123,10 +126,6 @@ export class FindPatient extends Component {
 export class FindPatientScreen extends Component {
   props: {
     navigation: any,
-  }
-  params: {
-    showBilling?: boolean,
-    nextNavigation?: {action: string, params: any}
   }
   state: {
     patientInfo: ?PatientInfo,
@@ -136,16 +135,11 @@ export class FindPatientScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    this.params = this.props.navigation.state.params;
     this.state = {
       patientInfo: undefined,
       visitHistory: undefined,
       patientDocumentHistory: undefined
     }
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    this.params = nextProps.navigation.state.params;
   }
 
   async showVisitHistory(patientId: string) : void {

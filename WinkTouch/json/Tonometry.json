@@ -1,107 +1,154 @@
 {
-  "name": "Tonometry",
-  "graph": {
-    "fields": [
+  "name":"Tonometry",
+  "starable":true,
+  "type":"groupedForm",
+  "section":"Anterior exam.1",
+  "order":"3",
+  "graph":{
+    "fields":[
       "IOP.OD.Tension",
       "IOP.OS.Tension"
     ]
   },
-  "order": "3",
-  "starable": true,
-  "type": "groupedForm",
-  "section": "Anterior exam.1",
-  "fields": [
+  "locale":{
+    "fr-CA":{
+      "label":"Tonométrie",
+      "fields":[
+        {
+          "name":"IOP",
+          "label":"PIO",
+          "fields":[
+            {
+              "name":"Drug",
+              "label":"Goutte"
+            },
+            {
+              "name":"Time",
+              "label":"Heure"
+            },
+            {
+              "name":"OD",
+              "fields":[
+                {
+                  "name":"Pachymetry",
+                  "label":"Pachymétrie"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "fields":[
     {
-      "name": "IOP",
-      "columns": [
+      "name":"IOP",
+      "import": ["machine.tonoref.iop"],
+      "columns":[
         [
           "OD",
-          "\u003e\u003e",
+          ">>",
           "OS"
         ]
       ],
-      "multiValue": true,
-      "rows": [
-        [
-          "Drug",
-          "Time"
-        ]
-      ],
-      "fields": [
+      "multiValue":true,
+      "size":"M",
+      "fields":[
         {
-          "name": "Test",
-          "freestyle": true,
-          "options": "tonometryTestCodes"
+          "name":"Test",
+          "freestyle":true,
+          "options":"tonometryTestCodes"
         },
         {
-          "name": "Drug",
-          "freestyle": true,
-          "options": "iopDrugCodes"
+          "name":"Drug",
+          "freestyle":true,
+          "options":"iopDrugCodes"
         },
         {
-          "name": "Time",
-          "type": "pastTime"
+          "name":"Time",
+          "type":"pastTime"
         },
         {
-          "name": "OD",
-          "fields": [
+          "name":"OD",
+          "fields":[
             {
-              "name": "Tension",
-              "minValue": 8,
-              "freestyle": false,
-              "maxValue": 35
+              "minValue":0,
+              "name":"Tension",
+              "freestyle":true,
+              "maxValue":39
             },
             {
-              "name": "Pachymetry",
-              "minValue": 400,
-              "freestyle": false,
-              "maxValue": 600
+              "minValue":400,
+              "name":"Pachymetry",
+              "freestyle":true,
+              "maxValue":600
             },
             {
-              "name": "Pach. cor.",
-              "minValue": -7,
-              "freestyle": false,
-              "maxValue": 7
+              "minValue":-7,
+              "name":"Pach. cor.",
+              "freestyle":true,
+              "maxValue":7
             },
             {
-              "name": "ADJ TN",
-              "minValue": 8,
-              "freestyle": false,
-              "maxValue": 35
+              "minValue":0,
+              "name":"ADJ TN",
+              "freestyle":true,
+              "maxValue":39
             }
           ]
         },
         {
-          "name": "OS",
-          "fields": [
+          "name":"OS",
+          "fields":[
             {
-              "name": "Tension",
-              "minValue": 8,
-              "freestyle": false,
-              "maxValue": 35
+              "minValue":0,
+              "name":"Tension",
+              "freestyle":true,
+              "maxValue":39
             },
             {
-              "name": "Pachymetry",
-              "minValue": 400,
-              "freestyle": false,
-              "maxValue": 600
+              "minValue":400,
+              "name":"Pachymetry",
+              "freestyle":true,
+              "maxValue":600
             },
             {
-              "name": "Pach. cor.",
-              "minValue": -7,
-              "freestyle": false,
-              "maxValue": 7
+              "minValue":-7,
+              "name":"Pach. cor.",
+              "freestyle":true,
+              "maxValue":7
             },
             {
-              "name": "ADJ TN",
-              "minValue": 8,
-              "freestyle": false,
-              "maxValue": 35
+              "minValue":0,
+              "name":"ADJ TN",
+              "freestyle":true,
+              "maxValue":39
             }
           ]
         }
       ],
-      "size": "M"
+      "rows":[
+        [
+          "Drug",
+          "Time"
+        ]
+      ]
+    },
+    {
+      "name":"Scan",
+      "multiValue":true,
+      "fields":[
+        {
+          "popup":false,
+          "name":"Tonometry scan",
+          "drawable":true,
+          "image":"upload",
+          "label":"",
+          "type":"EMR",
+          "size":"S"
+        }
+      ],
+      "size":"S"
     }
   ]
 }

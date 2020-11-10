@@ -4,7 +4,7 @@
 'use strict';
 
 import React , {PureComponent} from 'react';
-import {AlertIOS, View, Text, Button, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNBeep from 'react-native-a-beep';
@@ -15,6 +15,8 @@ import { storeItem, searchItems, deleteItem } from './Rest';
 import { cacheItem, getCachedItem } from './DataCache';
 import { deepClone, compareDates } from './Util';
 import { getVisitTypes } from './Visit';
+import { FormRow, FormTextInput } from './Form';
+import { Button } from './Widgets';
 
 const examPredefinedValuesCacheKey : string = 'examPredefinedValues';
 
@@ -94,15 +96,10 @@ export function getFavorites(exam: Exam) : ExamPredefinedValue[] {
   return favorites;
 }
 
-async function storeFavorite(favorite: any, examDefinitionId: string, name: string, callback: () => void) {
+export async function storeFavorite(favorite: any, examDefinitionId: string, name: string) {
   let predefinedValue : ExamPredefinedValue = {id: 'examPredefinedValue', version:-1, customExamDefinitionId: examDefinitionId, predefinedValue: favorite, name};
   favorite = await storeItem(predefinedValue);
   await fetchExamPredefinedValues();
-  if (callback) callback();
-}
-
-export function addFavorite(favorite: any, examDefinitionId: string, callback: () => void) {
-  AlertIOS.prompt('Please give the star a name.',null, name => storeFavorite(favorite, examDefinitionId, name, callback)); //TODO: android
 }
 
 export async function removeFavorite(favorite: ExamPredefinedValue) {
@@ -112,10 +109,77 @@ export async function removeFavorite(favorite: ExamPredefinedValue) {
 
 export class Star extends PureComponent {
   props: {
-    style: any
+    style: any,
+    onAddFavorite: (starName: string) => void,
+    testID?: string
   }
+  state: {
+    popupActif: boolean,
+    starName?: string
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      popupActif: false,
+      starName: undefined
+    }
+  }
+
+  activatePopup = () => {
+    this.setState({popupActif: true});
+  }
+
+  cancelPopup = () => {
+    this.setState({popupActif:false, starName: undefined});
+  }
+
+  changeStarName = (starName: string) => {
+    this.setState({starName});
+  }
+
+  addFavorite = () => {
+    if (this.props.onAddFavorite===undefined) return;
+    let starName : ?string = this.state.starName;
+    if (starName!==undefined && starName!==null && starName.trim().length>0) {
+      starName = starName.trim();
+      this.props.onAddFavorite(starName);
+    }
+    this.cancelPopup();
+  }
+
+  renderPopup() {
+    return <TouchableWithoutFeedback onPress={this.cancelPopup} accessible={false} testID='popupBackground'>
+        <View style={styles.popupBackground}>
+          <View style={styles.flexColumnLayout}>
+            <Text style={styles.modalTitle}>{strings.nameStar}</Text>
+            <View style={styles.centeredRowLayout}>
+              <View style={styles.modalColumnLayout}>
+                <View style={styles.form}>
+                  <FormRow>
+                    <FormTextInput value={this.state.starName} onChangeText={this.changeStarName} autoCapitalize="sentences" autoFocus={true} testID='star.name'/>
+                  </FormRow>
+                  <FormRow >
+                    <Button title={strings.cancel} onPress={this.cancelPopup} testID='cancelButton' />
+                    <Button title={strings.addFavorite} onPress={this.addFavorite} testID='addFavoriteButton'/>
+                  </FormRow>
+                </View>
+              </View>
+            </View>
+          </View>
+      </View>
+    </TouchableWithoutFeedback>
+  }
+
   render() {
-    return <Icon name='staro' style={this.props.style} color={selectionFontColor}/>
+    return [
+      <TouchableOpacity disabled={this.props.onAddFavorite===undefined} onPress={this.activatePopup} key="icon" testID={this.props.testID?this.props.testID:'starIcon'}>
+        <Icon name='staro' style={this.props.style} color={selectionFontColor}/>
+      </TouchableOpacity>,
+      <Modal visible={this.state.popupActif} transparent={true} animationType={'slide'} onRequestClose={this.cancelPopup} key="popup">
+        {this.renderPopup()}
+      </Modal>
+    ]
   }
 }
 
@@ -239,6 +303,38 @@ export class DrawingIcon extends PureComponent {
   }
 }
 
+export class ImportIcon extends PureComponent {
+  props: {
+    type: string,
+    style: any,
+    color: string
+  }
+  static defaultProps = {
+    color: selectionFontColor,
+  }
+
+  render() {
+    //return <Icon name='show-chart' style={this.props.style} color={this.props.color}/>
+    return <Icon name='download' style={this.props.style} color={this.props.color}/>
+  }
+}
+
+export class ExportIcon extends PureComponent {
+  props: {
+    type: string,
+    style: any,
+    color: string
+  }
+  static defaultProps = {
+    color: selectionFontColor,
+  }
+
+  render() {
+    //return <Icon name='show-chart' style={this.props.style} color={this.props.color}/>
+    return <Icon name='upload' style={this.props.style} color={this.props.color}/>
+  }
+}
+
 export class PaperClip extends PureComponent {
   props: {
     style: any,
@@ -256,14 +352,15 @@ export class CopyRow extends PureComponent {
   props: {
     onPress: () => void,
     style: any,
-    color: string
+    color: string,
+    testID: string
   }
   static defaultProps = {
     color: selectionFontColor
   }
 
   render() {
-    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
+    return  <TouchableOpacity onPress={this.props.onPress} style={styles.bottomEndOfRow} testID={this.props.testID}><Icon name='doubleright' style={styles.copyRow} color={this.props.color}/></TouchableOpacity>
   }
 }
 
@@ -271,14 +368,15 @@ export class CopyColumn extends PureComponent {
   props: {
     onPress: () => void,
     style: any,
-    color: string
+    color: string,
+    testID: string
   }
   static defaultProps = {
     color: selectionFontColor
   }
 
   render() {
-    return  <TouchableOpacity onPress={this.props.onPress}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
+    return  <TouchableOpacity onPress={this.props.onPress} testID={this.props.testID}><Icon name='doubleright' style={styles.copyColumn} color={this.props.color}/></TouchableOpacity>
   }
 }
 
@@ -295,10 +393,11 @@ export class Favorites extends PureComponent {
     return <View style={style}>
         <View style={styles.verticalFlow}>
           {this.props.favorites && this.props.favorites.map((favorite: ExamPredefinedValue, index: number) =>
-            <TouchableOpacity key={index}
+            <TouchableOpacity key={favorite.name}
               onPress={() => {this.props.onSelectFavorite(favorite)}}
-              onLongPress={() => this.props.onRemoveFavorite(favorite)}>
-              <Text key={index} style={styles.linkButton}>{favorite.name}</Text>
+              onLongPress={() => {if (favorite.userId!==undefined) this.props.onRemoveFavorite(favorite)}}
+              testID={'favorite'+(index+1)}>
+              <Text key={index} style={styles.linkButton}>{favorite.name}{favorite.userId===undefined?' [W]':''}</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -12,4 +12,4 @@ export const eyeColorCodes = [
 {"code":"Violet/Red"},
 {"code":"Green"},
 {"code":"Heterochromia"}
-];
+]

@@ -6,7 +6,8 @@
 import React, { Component } from 'react';
 import { View, Text, Image, TouchableWithoutFeedback, Button } from 'react-native';
 import { styles, fontScale } from './Styles';
-import { TilesField, ImageField, NumberField } from './Widgets';
+import { TilesField, NumberField } from './Widgets';
+import { ImageField } from './ImageField';
 import { ImagePicker } from './ImagePicker';
 
 const strabismusTypes: string[] = ['Exotropia', 'Esotropia', 'Hypertropia', 'Hypotropia'];

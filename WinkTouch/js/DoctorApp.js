@@ -3,9 +3,10 @@
  */
 'use strict';
 import React, { Component } from 'react';
-import {  StatusBar, ScrollView, View} from 'react-native';
-import { createAppContainer, createStackNavigator, NavigationActions, StackActions } from 'react-navigation';
-import type {Appointment, PatientInfo, Exam, Visit, User, Store, ExamDefinition, Scene} from './Types';
+import {  StatusBar, ScrollView, View, AsyncStorage} from 'react-native';
+import { createAppContainer, NavigationActions, StackActions } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
+import type {Appointment, PatientInfo, Exam, Visit, Account, User, Store, ExamDefinition, Scene} from './Types';
 import {styles} from './Styles';
 import {OverviewScreen} from './Overview';
 import { AppointmentScreen, AppointmentsSummary } from './Appointment';
@@ -20,9 +21,33 @@ import { ExamDefinitionScreen, TemplatesScreen, allExamDefinitions } from './Exa
 import { ExamChartScreen } from './Chart';
 import { setToken } from './Rest';
 import { allExamPredefinedValues } from './Favorites';
+import { ConfigurationScreen } from './Configuration';
+import { deleteLocalFiles } from './Print';
+import { ReferralScreen} from './Referral';
 
+let account: Account;
 let doctor: User;
 let store : Store;
+
+export function getAccount() : Account {
+  return account;
+}
+
+async function setAccount(selectedAccount: Account) {
+  let accountChanged: boolean = true;
+  if (selectedAccount && selectedAccount.id) {
+      const selectedAccountId : number = selectedAccount.id;
+      const accountId : number = await AsyncStorage.getItem('accountId');
+      accountChanged = accountId!=selectedAccountId;
+      if (accountChanged) await AsyncStorage.setItem('accountId', selectedAccountId.toString());
+  }
+  if (accountChanged) {
+      console.log('Account changed to: '+selectedAccount.id+' '+selectedAccount.name);
+      await deleteLocalFiles();
+  } else {
+      __DEV__ && console.log('Account did not change: '+selectedAccount.id+' '+selectedAccount.name);
+  }
+}
 
 export function getDoctor() : User {
   return doctor;
@@ -51,7 +76,9 @@ const DoctorNavigator = createStackNavigator({
     examGraph: {screen: ExamChartScreen},
     examHistory: {screen: ExamHistoryScreen},
     examTemplate: {screen: ExamDefinitionScreen},
-    templates: {screen: TemplatesScreen}
+    templates: {screen: TemplatesScreen},
+    configuration: {screen: ConfigurationScreen},
+    referral: {screen: ReferralScreen}
   }, {
     headerMode: 'none'
   }
@@ -92,6 +119,7 @@ function getCurrentRoute(navigationState) {
 
 export class DoctorApp extends Component {
     props: {
+      account: Account,
       user: User,
       store: Store,
       token: string,
@@ -109,17 +137,26 @@ export class DoctorApp extends Component {
             currentRoute: {routeName: 'overview'}
         }
         setToken(this.props.token);
+        setAccount(this.props.account);
         setDoctor(this.props.user);
         setStore(this.props.store);
     }
 
-    componentWillReceiveProps(nextProps: any) {
+    componentDidUpdate(prevProps: any) {
+      if (this.props.account===prevProps.account &&
+        this.props.user===prevProps.user &&
+        this.props.store===prevProps.store &&
+        this.props.token===prevProps.token) {
+        return;
+      }
       this.setState({
-          statusMessage: '',
+        statusMessage: '',
+        currentRoute: {routeName: 'overview'}
       });
-      setDoctor(nextProps.user);
-      setToken(nextProps.token);
-      setStore(nextProps.store);
+      setAccount(this.props.account);
+      setToken(this.props.token);
+      setDoctor(this.props.user);
+      setStore(this.props.store);
     }
 
     async initialseAppForDoctor() {

@@ -1,4 +1,21 @@
 {
+  "locale": {
+    "fr-CA": {
+      "label": "Vision des couleurs",
+      "fields": [
+        {
+          "name": "Color vision",
+          "label": "Vision does couleurs",
+          "fields": [
+            {
+              "name": "Aquired",
+              "label": "Acquis"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "name": "Color vision",
   "starable": true,
   "type": "groupedForm",
@@ -44,15 +61,14 @@
       "fields": [
         {
           "name": "D15 Drawing",
-          "image": "./image/d15.jpg",
+          "image": ".\/image\/d15.jpg",
           "label": ""
         }
       ]
     },
     {
-      "name": "Notes",
       "optional": true,
-      "size": "L",
+      "name": "Notes",
       "fields": [
         {
           "maxLength": 500,
@@ -60,7 +76,8 @@
           "label": "",
           "freestyle": true
         }
-      ]
+      ],
+      "size": "L"
     }
   ]
 }

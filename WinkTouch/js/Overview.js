@@ -10,9 +10,11 @@ import type {Appointment, User} from './Types';
 import {AppointmentsSummary, fetchAppointments} from './Appointment';
 import {Button} from './Widgets';
 import { StartVisitButtons } from './Visit';
-import { getStore } from './DoctorApp';
+import { getStore, getDoctor } from './DoctorApp';
 import { now } from './Util';
 import { strings } from './Strings';
+import { isAtWink } from './Registration';
+import { toggleTranslateMode, isInTranslateMode } from './ExamDefinition';
 
 class MainActivities extends Component {
   props: {
@@ -20,16 +22,38 @@ class MainActivities extends Component {
       onLogout: () => void
   }
 
+  state: {
+    translating: boolean
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      translating: isInTranslateMode()
+    };
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.state.translating!=isInTranslateMode()) {
+      this.setState({translating: isIntranslateMode()});
+    }
+  }
+
   openPatientFile = (visitType: string, isPrevisit: boolean) => {
     this.props.navigation.navigate('cabinet');
   }
 
-  render() {
+  switchTranslate = () => {
+    toggleTranslateMode();
+    this.setState({translating: isInTranslateMode()});
+  }
 
+  render() {
     return <View style={styles.startVisitCard}>
         <View style={styles.flow}>
             <Button title={strings.openFile} onPress={this.openPatientFile} />
             <Button title={strings.logout} onPress={this.props.onLogout} />
+            {isAtWink && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
         </View>
     </View>
   }
@@ -45,8 +69,6 @@ export class OverviewScreen extends PureComponent {
     props: {
         navigation: any,
         screenProps: {
-          doctorId: string,
-          storeId: string,
           onLogout: () => void
         }
     }
@@ -67,8 +89,8 @@ export class OverviewScreen extends PureComponent {
       this.refreshAppointments();
     }
 
-    componentWillReceiveProps(nextProps: any) {
-      if ( nextProps.navigation.state.params && nextProps.navigation.state.params.refreshAppointments===true) {
+    componentDidUpdate(prevProps: any) {
+      if ( this.props.navigation.state.params && this.props.navigation.state.params.refreshAppointments===true) {
         this.refreshAppointments();
       }
     }
@@ -80,7 +102,7 @@ export class OverviewScreen extends PureComponent {
         }
         this.lastRefresh=now().getTime();
         InteractionManager.runAfterInteractions(() => this.props.navigation.setParams({refreshAppointments: false}));
-        const appointments = await fetchAppointments(this.props.screenProps.storeId, this.props.screenProps.doctorId, 1);
+        const appointments = await fetchAppointments('store-'+getStore().storeId, getDoctor().id , 1);
         //appointments && appointments.sort(compareByStart);
         this.setState({appointments});
     }

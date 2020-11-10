@@ -1,21 +1,62 @@
 {
+  "locale": {
+    "fr-CA": {
+      "label": "Biomicroscopie",
+      "fields": [
+        {
+          "name": "Anterior",
+          "label": "Anterieur",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Lid\/Lashes",
+                  "label": "PaupiÃ¨res\/cils"
+                },
+                {
+                  "name": "Conjunctiva",
+                  "label": "Conjunctive"
+                },
+                {
+                  "name": "Cornea",
+                  "label": "CornÃ©e"
+                },
+                {
+                  "name": "AC",
+                  "label": "Chambre ant."
+                },
+                {
+                  "name": "Vitreous",
+                  "label": "VitrÃ©"
+                },
+                {
+                  "name": "Eye color",
+                  "label": "Coul. Yeux"
+                },
+                {
+                  "name": "Lens",
+                  "label": "Cristallin"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
   "name": "Biomicroscopy",
   "scrollable": true,
   "starable": true,
   "type": "groupedForm",
   "section": "Anterior exam.3",
-  "relatedExams": [
-    "Tonometry",
-    "Chief complaint",
-    "Pupils"
-  ],
   "fields": [
     {
       "name": "OD",
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorOD.png",
+          "image": ".\/image\/anteriorOD.png",
           "label": ""
         }
       ]
@@ -25,40 +66,40 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorOS.png",
+          "image": ".\/image\/anteriorOS.png",
           "label": ""
         }
       ]
     },
     {
+      "optional": true,
       "name": "OD Seg",
-      "optional": true,
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorSegOD.png",
+          "image": ".\/image\/anteriorSegOD.png",
           "label": ""
         }
       ]
     },
     {
+      "optional": true,
       "name": "OS Seg",
-      "optional": true,
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorSegOS.png",
+          "image": ".\/image\/anteriorSegOS.png",
           "label": ""
         }
       ]
     },
     {
-      "name": "Notations",
       "optional": true,
+      "name": "Notations",
       "fields": [
         {
           "name": "Image",
-          "image": "./image/notations.png",
+          "image": ".\/image\/notations.png",
           "label": ""
         }
       ]
@@ -68,17 +109,18 @@
       "columns": [
         [
           "OD",
-          "\u003e\u003e",
+          ">>",
           "OS"
         ]
       ],
+      "size": "L",
       "fields": [
         {
           "name": "OD",
           "fields": [
             {
               "normalValue": "WNL",
-              "name": "Lid/Lashes",
+              "name": "Lid\/Lashes",
               "freestyle": true,
               "options": "lidLashesCodes"
             },
@@ -95,11 +137,11 @@
               "options": "corneaCodes"
             },
             {
-              "normalValue": "D\u0026Q",
-              "name": "AC",
+              "normalValue": "D&Q",
               "minValue": 1,
-              "freestyle": true,
+              "name": "AC",
               "suffix": "aCSuffixCodes",
+              "freestyle": true,
               "maxValue": 4
             },
             {
@@ -109,7 +151,7 @@
               "options": "vitreousCodes"
             },
             {
-              "normalValue": "Flat/Clear",
+              "normalValue": "Flat\/Clear",
               "name": "Iris",
               "freestyle": true,
               "options": "irisCodes"
@@ -126,28 +168,33 @@
               "options": "lensCodes"
             },
             {
-              "normalValue": "WNL",
-              "name": "TBUT",
-              "minValue": 0,
-              "suffix": " s",
+              "name": "Angle",
               "freestyle": true,
-              "maxValue": 8,
               "options": [
-                "WNL"
+                "1",
+                "2",
+                "3",
+                "4",
+                "> 4"
               ]
             },
             {
-              "name": "TVOL",
-              "suffix": " mm / 5 min",
+              "normalValue": "WNL",
+              "minValue": 0,
+              "name": "TBUT",
               "freestyle": true,
-              "stepSize": 5,
+              "suffix": " s",
               "options": [
-                "0",
-                "5",
-                "10",
-                "15",
-                "20"
-              ]
+                "WNL"
+              ],
+              "maxValue": 8
+            },
+            {
+              "name":"TVOL",
+              "stepSize":5,
+              "freestyle":true,
+              "suffix":" mm \/ 5 min",
+              "options":["0","5","10","15","20"]
             }
           ]
         },
@@ -156,7 +203,7 @@
           "fields": [
             {
               "normalValue": "WNL",
-              "name": "Lid/Lashes",
+              "name": "Lid\/Lashes",
               "freestyle": true,
               "options": "lidLashesCodes"
             },
@@ -173,11 +220,11 @@
               "options": "corneaCodes"
             },
             {
-              "normalValue": "D\u0026Q",
-              "name": "AC",
+              "normalValue": "D&Q",
               "minValue": 1,
-              "freestyle": true,
+              "name": "AC",
               "suffix": "aCSuffixCodes",
+              "freestyle": true,
               "maxValue": 4
             },
             {
@@ -187,7 +234,7 @@
               "options": "vitreousCodes"
             },
             {
-              "normalValue": "Flat/Clear",
+              "normalValue": "Flat\/Clear",
               "name": "Iris",
               "freestyle": true,
               "options": "irisCodes"
@@ -204,45 +251,54 @@
               "options": "lensCodes"
             },
             {
-              "normalValue": "WNL",
-              "name": "TBUT",
-              "minValue": 0,
-              "suffix": " s",
+              "name": "Angle",
               "freestyle": true,
-              "maxValue": 8,
               "options": [
-                "WNL"
+                "1",
+                "2",
+                "3",
+                "4",
+                "> 4"
               ]
             },
             {
-              "name": "TVOL",
-              "suffix": " mm / 5 min",
+              "normalValue": "WNL",
+              "minValue": 0,
+              "name": "TBUT",
               "freestyle": true,
-              "stepSize": 5,
+              "suffix": " s",
               "options": [
-                "0",
-                "5",
-                "10",
-                "15",
-                "20"
-              ]
+                "WNL"
+              ],
+              "maxValue": 8
+            },
+            {
+              "name":"TVOL",
+              "stepSize":5,
+              "freestyle":true,
+              "suffix":" mm \/ 5 min",
+              "options":["0","5","10","15","20"]
             }
           ]
         }
-      ],
-      "size": "L"
+      ]
     },
     {
-      "name": "Notes",
       "optional": true,
-      "size": "L",
+      "name": "Notes",
       "fields": [
         {
           "maxLength": 500,
           "name": "Notes",
           "label": ""
         }
-      ]
+      ],
+      "size": "L"
     }
+  ],
+  "relatedExams": [
+    "Tonometry",
+    "Chief complaint",
+    "Pupils"
   ]
 }
