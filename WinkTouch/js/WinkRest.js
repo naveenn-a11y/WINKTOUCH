@@ -6,13 +6,14 @@
 import type {Exam} from './Types';
 import { appendParameters, getToken, getNextRequestNumber, logRestResponse, handleHttpError} from './Rest';
 import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
+import { restVersion } from './Version';
 import RNFS from 'react-native-fs';
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.04/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.04/';
-export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.09/': 'https://ws-touch.downloadwink.com/WinkRESTvEHR5.00.09/';
+export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.36/': 'https://ws-touch.downloadwink.com/WinkRESTv'+restVersion+'/';
 
 export async function fetchWinkRest(uri: string, parameters: Object, httpMethod?: string = 'GET', body?: any = undefined) : any {
   const url :string  = appendParameters(winkRestUrl + uri, parameters);

@@ -14,7 +14,7 @@
             },
             {
               "name": "Quantity",
-              "label": "QuantitÃ©"
+              "label": "Quantité"
             },
             {
               "name": "Eye",
@@ -26,7 +26,13 @@
             },
             {
               "name": "Informed PT of side effects",
-              "label": "Pt informÃ© des effets sec."
+              "label": "Pt informé des effets sec.",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "Oui"
+              ],
+              "normalValue": "Oui"
             }
           ]
         }
@@ -74,13 +80,13 @@
           "type": "pastTime"
         },
         {
-          "normalValue": "Yes",
           "name": "Informed PT of side effects",
           "defaultValue": "No",
           "options": [
             "No",
             "Yes"
-          ]
+          ],
+          "normalValue": "Yes"
         },
         {
           "maxLength": 500,

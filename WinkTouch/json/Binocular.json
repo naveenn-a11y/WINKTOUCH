@@ -33,19 +33,35 @@
                   "label": "Bris"
                 },
                 {
-                  "name": "Recov",
+                  "name": "Recov.",
                   "label": "Recouv."
                 }
               ]
             },
             {
               "name": "Near",
-              "label": "VP"
+              "label": "VP",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Embrouill."
+                },
+                {
+                  "name": "Break",
+                  "label": "Bris"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recouv."
+                }
+              ]
             }
-          ]
+          ],
+          "size": "M"
         },
         {
           "name": "Vergence BO",
+          "label": "Vergence BE",
           "fields": [
             {
               "name": "Distant",
@@ -60,17 +76,157 @@
                   "label": "Bris"
                 },
                 {
-                  "name": "Recov",
+                  "name": "Recov.",
                   "label": "Recouv."
                 }
               ]
             },
             {
               "name": "Near",
-              "label": "VP"
+              "label": "VP",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Embrouil."
+                },
+                {
+                  "name": "Break",
+                  "label": "Bris"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recouv."
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Vergence BU",
+          "label": "Vergence BH",
+          "fields": [
+            {
+              "name": "Distant",
+              "label": "VL",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Embrouil."
+                },
+                {
+                  "name": "Break",
+                  "label": "Bris"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recouv."
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "label": "VP",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Embrouil."
+                },
+                {
+                  "name": "Break",
+                  "label": "Bris"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recouv."
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Vergence BD",
+          "label": "Vergence BB",
+          "fields": [
+            {
+              "name": "Distant",
+              "label": "VL",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Embrouil."
+                },
+                {
+                  "name": "Break",
+                  "label": "Bris"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recouv."
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "label": "VP",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Embrouil."
+                },
+                {
+                  "name": "Break",
+                  "label": "Bris"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recouv."
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Pursuits",
+          "label": "Poursuites",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Smooth and precise",
+              "options": [
+                "Smooth and precise"
+              ]
+            },
+            {
+              "name": "OS",
+              "normalValue": "Smooth and precise",
+              "options": [
+                "Smooth and precise"
+              ]
             }
           ]
-        }
+        },
+        {
+          "name": "Saccades",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Smooth and precise",
+              "options": [
+                "Smooth and precise"
+              ]
+            },
+            {
+              "name": "OS",
+              "normalValue": "Smooth and precise",
+              "options": [
+                "Smooth and precise"
+              ]
+            }
+          ]
+        },
       ]
     }
   },
@@ -96,7 +252,7 @@
           "name": "Distant vision",
           "fields": [
             {
-              "name": "Horizontal",
+              "name": "H",
               "minValue": 0,
               "suffix": [
                 " Eso",
@@ -108,7 +264,7 @@
               ]
             },
             {
-              "name": "Vertical",
+              "name": "V",
               "minValue": 0,
               "suffix": [
                 " Hyper",
@@ -125,7 +281,7 @@
           "name": "Near vision",
           "fields": [
             {
-              "name": "Horizontal",
+              "name": "H",
               "minValue": 0,
               "suffix": [
                 " Eso",
@@ -137,7 +293,7 @@
               ]
             },
             {
-              "name": "Vertical",
+              "name": "V",
               "minValue": 0,
               "suffix": [
                 " Hyper",
@@ -151,7 +307,7 @@
           ]
         }
       ],
-      "size": "M"
+      "size": "S"
     },
     {
       "name": "Vergence BI",
@@ -471,7 +627,7 @@
         },
         {
           "minValue": 1,
-          "name": "AC\/A ratio",
+          "name": "AC/A ratio",
           "freestyle": true,
           "suffix": ":1",
           "maxValue": 20

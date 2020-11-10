@@ -492,7 +492,7 @@ async function renderColumnedRows (
 
 
   if(allRowsEmpty == false) {
-      html += `<table style="margin-top:10px; width:50%">`;
+      html += `<table class="childTable" style="margin-top:10px; width:50%">`;
       html += renderColumnsHeader(columnDefinition, definition);
       rows.forEach((column: string[]) => {
         html +=`<tr>`;
@@ -507,7 +507,7 @@ async function renderColumnedRows (
                let customColumns : string[] = columns.filter((header : string) => header !== '>>');
                 customColumns.map((header: string, i: number) => {
                   let subHtml : string = '';
-                  subHtml += `<table style="margin-top:10px; width:50%">`;
+                  subHtml += `<table class="childTable" style="margin-top:10px; width:50%">`;
                   rows.forEach((column: string[]) => {
                     subHtml +=`<tr>`;
                     column.map((value: string, j: number) => {
@@ -772,13 +772,13 @@ async function renderImage (
               }
 
               let x =
-                (fieldScaledStyle ? fieldScaledStyle.left : 0) +
+                round((fieldScaledStyle ? fieldScaledStyle.left : 0) +
                 (parentScaledStyle ? parentScaledStyle.left : 0) +
-                styles.textfield.fontSize;
+                styles.textfield.fontSize);
               let y =
-                (fieldScaledStyle ? fieldScaledStyle.top : 0) +
+                round((fieldScaledStyle ? fieldScaledStyle.top : 0) +
                 (parentScaledStyle ? parentScaledStyle.top : 0) +
-                 styles.textfield.fontSize;
+                 styles.textfield.fontSize);
 
               html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
               html +=` <g transform="scale(0.96 0.98)">`;
@@ -819,23 +819,23 @@ function renderGraph (
 ) {
   let html: string = '';
   if (!value.lines || value.lines.length === 0) return '';
-  const strokeWidth: number = fontScale / scale;
+  const strokeWidth: number = round(fontScale / scale);
   const resolution: number[] = resolutions(value, definition);
   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return ''
     if (lijn.indexOf(' ') > 0) {
-      const points = lijn.split(' ')
+      const points = lijn.split(' ');
       const d = line()
         .x((point: string) => point.substring(0, point.indexOf(',')))
         .y((point: string) => point.substring(point.indexOf(',') + 1))
         .curve(curveBasis)(points);
-
-      html += `<path d="${d}"  fill="none" stroke="black" stroke-width=${strokeWidth} />`
+      const roundedCoordinates : any = round(d);
+      html += `<path d="${roundedCoordinates}"  fill="none" stroke="black" stroke-width=${strokeWidth} />`
     } else {
       let commaIndex: number = lijn.indexOf(',')
-      let x: string = lijn.substring(0, commaIndex);
-      let y: string = lijn.substring(commaIndex + 1);
+      let x: string = round(lijn.substring(0, commaIndex));
+      let y: string = round(lijn.substring(commaIndex + 1));
 
       html += `<circle cx="${x}" cy="${y}" r="${strokeWidth}" fill="black" />`
     }
@@ -851,6 +851,18 @@ function aspectRatio (
   const resolution: number[] = resolutions(value, definition)
   const aspectRatio: number = resolution[0] / resolution[1]
   return aspectRatio
+}
+
+function round(coordinates: any) : any {
+  try {
+     if(isNaN(coordinates)) {
+       return coordinates.replace(/[\d\.-][\d\.e-]*/g, function(n){return Math.round(n*10)/10});
+     } else {
+       return  Math.round(coordinates*10)/10;
+     }
+  }catch(e) {
+    return coordinates;
+  }
 }
 
 function resolutions (
@@ -913,7 +925,7 @@ function renderRxTable (
   if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html;
   }
-  html += `<table>`
+  html += `<table class="childTable">`
   html += `<thead><tr>`
   html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(groupDefinition)}</th>`
   html += `<th class="service">Sph</th>`
@@ -1105,15 +1117,20 @@ export function patientHeader () {
   let htmlHeader: string =
     `<head><style>` +
     `@media print {` +
-    `table { page-break-after:auto; page-break-inside: avoid;}` +
+    `table { page-break-after:auto;}` +
+    `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
+    `td    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
     `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
-
-
+    `@media screen {` +
+    `table tr:nth-child(2n-1) td {` +
+    `  background: #F5F5F5;` +
+    `}` +
+    `}` +
     `.uploadForm {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
@@ -1194,9 +1211,7 @@ export function patientHeader () {
     `  border-spacing: 0;` +
     `  margin-bottom: 20px;` +
     `}` +
-    `table tr:nth-child(2n-1) td {` +
-    `  background: #F5F5F5;` +
-    `}` +
+
     `table th,` +
     `table td {` +
     `padding: 5px 20px;` +

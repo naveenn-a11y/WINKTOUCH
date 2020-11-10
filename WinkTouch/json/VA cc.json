@@ -5,19 +5,32 @@
       "fields": [
         {
           "name": "Aided acuities",
-          "label": "AcuititÃ©s avec aide",
+          "label": "Acuitités avec aide",
           "fields": [
             {
               "name": "DVA",
               "label": "AVL",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 }
               ]
             },
@@ -26,8 +39,18 @@
               "label": "TE",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 }
               ]
             },
@@ -36,18 +59,39 @@
               "label": "AVP",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 }
               ]
             },
             {
               "name": "Scale",
-              "label": "Ãchelle"
+              "label": "Échelle"
+            },
+            {
+              "name": "Aide",
+              "options": [
+                "Lunettes",
+                "LC",
+                "Lunettes sur LC"
+              ]
             }
           ]
         }
@@ -76,7 +120,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OD",
                   "maxValue": 600
                 },
@@ -95,7 +139,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OS",
                   "maxValue": 600
                 },
@@ -114,7 +158,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OU",
                   "maxValue": 600
                 }
@@ -138,7 +182,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OD",
                   "maxValue": 600
                 },
@@ -157,7 +201,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OS",
                   "maxValue": 600
                 }
@@ -181,7 +225,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OD",
                   "maxValue": 600
                 },
@@ -200,7 +244,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OS",
                   "maxValue": 600
                 },
@@ -219,7 +263,7 @@
                     200
                   ],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OU",
                   "maxValue": 600
                 }
@@ -243,7 +287,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
@@ -252,7 +296,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
@@ -261,7 +305,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 }
               ]
@@ -275,7 +319,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
@@ -284,7 +328,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 }
               ]
@@ -375,7 +419,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OD",
               "groupSize": 0,
               "freestyle": true,
@@ -405,7 +449,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OS",
               "groupSize": 0,
               "freestyle": true,
@@ -435,7 +479,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OU",
               "groupSize": 0,
               "freestyle": true,
@@ -469,7 +513,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OD",
               "groupSize": 0,
               "freestyle": true,
@@ -498,7 +542,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OS",
               "groupSize": 0,
               "freestyle": true,
@@ -532,7 +576,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OD",
               "groupSize": 0,
               "freestyle": true,
@@ -561,7 +605,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OS",
               "groupSize": 0,
               "freestyle": true,
@@ -590,7 +634,7 @@
                 24
               ],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OU",
               "groupSize": 0,
               "freestyle": true,

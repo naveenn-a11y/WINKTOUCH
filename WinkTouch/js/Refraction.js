@@ -19,7 +19,7 @@ import { CopyRow, Garbage, Keyboard, Plus, Copy, ImportIcon, ExportIcon } from '
 import { importData, exportData } from './MappedField';
 import { getCachedItem } from './DataCache';
 import { getConfiguration } from './Configuration';
-import { getPatient } from './Exam';
+import { getPatient, getExam } from './Exam';
 
 function getRecentRefraction(patientId: string) : ?GlassesRx[] {
   let visitHistory : ?Visit[] = getVisitHistory(patientId);
@@ -40,25 +40,34 @@ function getRecentRefraction(patientId: string) : ?GlassesRx[] {
 
 export function newRefraction() : GlassesRx {
   return {
-    od: {
-      sph: undefined,
-    },
-    os: {
-      sph: undefined
-    },
-    ou: {
-    }
+    od: { },
+    os: { },
+    ou: { },
+    lensType: undefined,
+    notes: undefined
   }
 }
 
 export function clearRefraction(glassesRx: GlassesRx) {
   if (!glassesRx) return;
-  glassesRx.os = {sph: undefined};
-  glassesRx.od = {sph: undefined};
+  glassesRx.os = {};
+  glassesRx.od = {};
   glassesRx.ou = {};
   glassesRx.lensType = undefined;
+  glassesRx.notes = undefined;
 }
 
+export function initRefraction(glassesRx: GlassesRx) {
+  if (!glassesRx) return;
+  if (glassesRx.od === undefined) glassesRx.od = {};
+  if (glassesRx.os === undefined) glassesRx.os = {};
+  if (glassesRx.ou === undefined) glassesRx.ou = {};
+}
+
+export function isRxEmpty(glassesRx: ?GlassesRx) : boolean {
+  if (!glassesRx) return true;
+  return (isEmpty(glassesRx.lensType) && isEmpty(glassesRx.notes) && isEmpty(glassesRx.od) && isEmpty(glassesRx.os));
+}
 
 
 function isAstigmatic(glassesRx: GlassesRx) : boolean {
@@ -162,6 +171,19 @@ export function hasPrism(glassesRx: GlassesRx) : boolean {
     if (hasPrismEye(glassesRx.os)) return true;
   }
   return false;
+}
+
+function getLensometry(visitId: string) : GlassesRx {
+  if (!visitId) return undefined;
+  let lensometry = getExam("Lensometry", getCachedItem(visitId));
+  if (!lensometry) return undefined;
+  lensometry = lensometry.Lensometry;
+  if (!lensometry) return undefined;
+  lensometry = lensometry.Lensometry;
+  if (!lensometry || lensometry.length===undefined || lensometry.length<0) return undefined;
+  lensometry = lensometry[0];
+  return lensometry;
+
 }
 
 export class VA extends Component {
@@ -364,29 +386,12 @@ export class GlassesSummary extends Component {
     titleStyle: styles.cardTitle
   }
 
-  isSphEmpty() {
-    return isEmpty(this.props.glassesRx.os.sph) && isEmpty(this.props.glassesRx.od.sph);
-  }
-
-  isEyeEmpty() {
-    return (this.props.glassesRx.od.isEye===false && this.props.glassesRx.os.isEye===false) ;
-  }
 
 
   render() {
-    if (this.props.visible!==true)
+    if (this.props.visible!==true || isRxEmpty(this.props.glassesRx))
       return null;
 
-    if (isEmpty(this.props.glassesRx)) {
-      return <View style={styles.columnLayout} key={this.props.title}>
-          <Text style={this.props.titleStyle}>{this.props.title}</Text>
-      </View>
-    }
-    if(this.isEyeEmpty())
-       return null;
-
-    if(this.isSphEmpty())
-       return null;
     return <View style={styles.columnLayout} key={this.props.title}>
       {this.props.title!==null && this.props.title!==undefined && <Text style={this.props.titleStyle}>{this.props.title}</Text>}
       {this.props.glassesRx.lensType!=undefined && this.props.glassesRx.lensType!=null && this.props.glassesRx.lensType!='' && <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>}
@@ -522,10 +527,14 @@ export class GlassesDetail extends Component {
   }
 
   clear = () : void => {
-    let glassesRx: GlassesRx = this.props.glassesRx;
-    clearRefraction(glassesRx);
-    if (this.props.onChangeGlassesRx)
-      this.props.onChangeGlassesRx(glassesRx);
+    if (this.props.onClear) {
+      this.props.onClear();
+    } else {
+      let glassesRx: GlassesRx = this.props.glassesRx;
+      clearRefraction(glassesRx);
+      if (this.props.onChangeGlassesRx)
+        this.props.onChangeGlassesRx(glassesRx);
+    }
   }
 
   toggleTyping = () : void => {
@@ -567,7 +576,7 @@ export class GlassesDetail extends Component {
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
       if (this.props.onChangeGlassesRx) {
-        this.setState({prism: hasPrism(glassesRx)});            
+        this.setState({prism: hasPrism(glassesRx)});
         this.props.onChangeGlassesRx(glassesRx);
       }
     }
@@ -577,18 +586,25 @@ export class GlassesDetail extends Component {
     if (this.props.definition.export===undefined) return;
     const exam : Exam = getCachedItem(this.props.examId);
     const patient: Patient = getPatient(exam);
+    let data : any = deepClone(this.props.glassesRx);
+    data.lensometry = deepClone(getLensometry(exam.visitId));
     let measurement : Measurement = {
       label: this.props.title?this.props.title:formatLabel(this.props.definition),
       date: formatDate(now(), jsonDateTimeFormat),
       patientId: patient.id,
-      data: this.props.glassesRx
+      data
     };
-    const data = await exportData(this.props.definition.export[0], measurement, this.props.examId);
+    let machineIdentifier = this.props.definition.export;
+    if (machineIdentifier instanceof Array && machineIdentifier.length>0) {
+      machineIdentifier = machineIdentifier[0]; //TODO: send to all destinations
+    }
+    data = await exportData( machineIdentifier, measurement, this.props.examId);
     const config = getConfiguration();
     if(config.machine && config.machine.phoropter) {
       const machineDefinition = getCodeDefinition('machines', config.machine.phoropter);
       if (machineDefinition.ip) {
-        await fetch('http://' + machineDefinition.ip + ':80/m')
+        __DEV__ && console.log('Kicking controlling wink pc '+machineDefinition.ip+' in the http 80 butt');
+        fetch('http://' + machineDefinition.ip + ':80/m');
       }
     }
 
@@ -662,7 +678,7 @@ export class GlassesDetail extends Component {
             {this.state.prism && <View style={styles.formElement2}><Text style={styles.text}></Text></View>}
             <FormInput value={this.props.glassesRx.ou.va} definition={getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU')} showLabel={false} readonly={!this.props.editable}
                   onChangeValue={(value: ?number) => this.updateGlassesRx('ou','va', value)} errorMessage={this.props.glassesRx.ou.vaError}  testID={this.props.fieldId+'.ou.dva'}/>
-            <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>
+            {this.props.hasAdd===true && <View style={styles.fieldFlexContainer}><Text style={styles.text}></Text></View>}
             {this.props.hasAdd===true && <FormInput value={this.props.glassesRx.ou.addVa} definition={getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU')} showLabel={false} readonly={!this.props.editable}
                 onChangeValue={(value: ?number) => this.updateGlassesRx('ou','addVa', value)} errorMessage={this.props.glassesRx.ou.addVaError}  testID={this.props.fieldId+'.ou.nva'}/>}
             {this.props.editable && <View style={styles.formTableColumnHeaderSmall}></View>}

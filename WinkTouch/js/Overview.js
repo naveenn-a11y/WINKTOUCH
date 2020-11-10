@@ -9,12 +9,14 @@ import {styles} from './Styles';
 import type {Appointment, User} from './Types';
 import {AppointmentsSummary, fetchAppointments} from './Appointment';
 import {Button} from './Widgets';
-import { StartVisitButtons } from './Visit';
+import { StartVisitButtons, fetchReferralFollowUpHistory} from './Visit';
 import { getStore, getDoctor } from './DoctorApp';
 import { now } from './Util';
 import { strings } from './Strings';
 import { isAtWink } from './Registration';
 import { toggleTranslateMode, isInTranslateMode } from './ExamDefinition';
+import { getCachedItem } from './DataCache';
+
 
 class MainActivities extends Component {
   props: {
@@ -43,6 +45,14 @@ class MainActivities extends Component {
     this.props.navigation.navigate('cabinet');
   }
 
+  async openReferral() {
+    let allFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-*');
+    if(allFollowUp === undefined) {
+      await fetchReferralFollowUpHistory();
+    }
+    this.props.navigation.navigate('followup', {overview: true});
+  }
+
   switchTranslate = () => {
     toggleTranslateMode();
     this.setState({translating: isInTranslateMode()});
@@ -53,7 +63,8 @@ class MainActivities extends Component {
         <View style={styles.flow}>
             <Button title={strings.openFile} onPress={this.openPatientFile} />
             <Button title={strings.logout} onPress={this.props.onLogout} />
-            {isAtWink && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
+            {__DEV__ && false && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
+            <Button title={strings.referral} onPress={() => this.openReferral()} />
         </View>
     </View>
   }

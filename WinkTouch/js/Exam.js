@@ -505,8 +505,6 @@ export class ExamScreen extends Component {
   async refreshExam() {
     let exam: Exam = await fetchExam(this.state.exam.id, true);
     if (exam===undefined) return;
-    this.state.exam[exam.definition.name]=undefined;
-    exam = Object.assign(this.state.exam, exam);
     this.setState({exam, isDirty: false});
   }
 
