@@ -17,6 +17,7 @@
     "@react-native-community/datetimepicker": "^3.0.3",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/web": "^1.0.0-alpha.9",
+    "@tinymce/tinymce-react": "^3.8.1",
     "d3-shape": "^2.0.0",
     "google-libphonenumber": "^3.2.14",
     "highcharts": "^8.2.0",

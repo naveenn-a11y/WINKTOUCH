@@ -25,12 +25,12 @@ import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
 import { isEmpty, sort, yearDateFormat, yearDateTime24Format, formatDate, isSameDay, parseDate } from './Util';
 import { strings } from './Strings';
-import { HtmlEditor } from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
 import { getVisitHistory } from './Visit';
 import { ManageUsers } from './User';
 import { FormOptions } from './Form';
 import { Microphone } from "./Voice";
+import { HtmlEditor } from '../src/components/TinyMceEditor/HtmlEditor';
 
 
 export function isReferralsEnabled() : boolean {
