@@ -13,7 +13,7 @@
               "fields": [
                 {
                   "name": "Size in light",
-                  "label": "Taille Ã  la lumiÃ¨re"
+                  "label": "Taille Ã  la lumière"
                 },
                 {
                   "name": "Size in dark",
@@ -25,7 +25,7 @@
                 },
                 {
                   "name": "Reaction",
-                  "label": "RÃ©action"
+                  "label": "Réaction"
                 },
                 {
                   "name": "Diagnose",
@@ -42,7 +42,7 @@
               "fields": [
                 {
                   "name": "Size in light",
-                  "label": "Taille Ã  la lumiÃ¨re"
+                  "label": "Taille Ã  la lumière"
                 },
                 {
                   "name": "Size in dark",
@@ -54,7 +54,7 @@
                 },
                 {
                   "name": "Reaction",
-                  "label": "RÃ©action"
+                  "label": "Réaction"
                 },
                 {
                   "name": "Diagnose",

@@ -23,7 +23,7 @@
     },
     {
       "name":"Rx medication",
-      "label":"Rx m\u00e9dicaments",
+      "label":"Rx médicaments",
       "multiValue":true,
       "size":"XL",
       "fields":[
@@ -56,7 +56,7 @@
     },
     {
       "name":"Reference",
-      "label":"R\u00e9f\u00e9rence",
+      "label":"Référence",
       "multiValue":true,
       "size":"XL",
       "fields":[

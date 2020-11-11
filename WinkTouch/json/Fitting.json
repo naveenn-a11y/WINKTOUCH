@@ -421,14 +421,14 @@
               "mappedField": "clFitting.axis.od",
               "name": "OD",
               "minValue": 0,
-              "suffix": "\u00B0",
+              "suffix": "°",
               "maxValue": 180
             },
             {
               "mappedField": "clFitting.axis.os",
               "name": "OS",
               "minValue": 0,
-              "suffix": "\u00B0",
+              "suffix": "°",
               "maxValue": 180
             }
           ]
@@ -1052,15 +1052,15 @@
             },
             {
               "name": "Qty/Box",
-              "label": "QtÃ©/Bts"
+              "label": "Qté/Bts"
             },
             {
               "name": "Material",
-              "label": "MatÃ©riau"
+              "label": "Matériau"
             },
             {
               "name": "Wearing Period",
-              "label": "FrÃ©quence de port"
+              "label": "Fréquence de port"
             },
             {
               "name": "Replacement",
@@ -1136,7 +1136,7 @@
             },
             {
               "name": "Sclera",
-              "label": "SclÃ¨re"
+              "label": "Sclère"
             },
             {
               "name": "Limbal",
@@ -1144,11 +1144,11 @@
             },
             {
               "name": "Cornea",
-              "label": "CornÃ©e"
+              "label": "Cornée"
             },
             {
               "name": "Lid",
-              "label": "PaupiÃ¨re"
+              "label": "Paupière"
             }
           ]
         }

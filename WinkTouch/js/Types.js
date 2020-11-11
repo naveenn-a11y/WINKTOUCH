@@ -17,6 +17,12 @@ export type Registration = {
   path: string
 }
 
+export type VisitType = {
+  id: string,
+  name: string,
+  examDefinitionIds: string[]
+}
+
 export type Store = {
   storeId: number, //TODO Chris
   name: string,
@@ -45,7 +51,7 @@ export type Account = {
 
 export type User = {
   id: string,
-  version: number,  
+  version: number,
   firstName?: string,
   lastName?: string,
   instituteName?: string,
@@ -329,8 +335,8 @@ export type FollowUp = {
   storeId: string,
   referralTemplate: ReferralTemplate,
   date: string,
-  from: Account,
-  to: Account,
+  from: User,
+  to: User,
   faxedOn?: string,
   emailOn?: string,
   printedOn?: string,

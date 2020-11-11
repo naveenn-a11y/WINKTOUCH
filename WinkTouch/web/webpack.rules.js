@@ -31,6 +31,8 @@ module.exports = [
       path.resolve(rootDir, './node_modules/react-native-easy-grid'),
       path.resolve(rootDir, './node_modules/@codler'),
       path.resolve(rootDir, './node_modules/react-native-drawer'),
+      path.resolve(rootDir, './node_modules/react-native-code-push'),
+
     ],
     loader: 'babel-loader',
     options: {

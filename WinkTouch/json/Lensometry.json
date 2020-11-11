@@ -56,7 +56,7 @@
   ],
   "locale":{
     "fr-CA":{
-      "label":"LentimÃ¨tre",
+      "label":"Lentimètre",
       "fields":[
         {
           "name":"Current wear",
@@ -76,7 +76,7 @@
         },
         {
           "name":"Lensometry",
-          "label":"LentimÃ¨tre",
+          "label":"Lentimètre",
           "fields":[
             {
               "name": "lensType",

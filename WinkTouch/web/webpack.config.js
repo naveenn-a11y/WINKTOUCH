@@ -51,6 +51,10 @@ module.exports = {
         rootDir,
         './src/components/ReactNativeBeep/index.web.js',
       ),
+      'react-native-code-push': path.join(
+        rootDir,
+        './src/components/CodePush/index.web.js',
+      ),
     }),
   },
 };

@@ -4,7 +4,7 @@
 'use strict';
 
 import React, {Component} from 'react';
-//import codePush from 'react-native-code-push';
+import codePush from 'react-native-code-push';
 import {DoctorApp} from './DoctorApp';
 import {EhrApp} from './EhrApp';
 
@@ -23,4 +23,4 @@ export default class Index extends Component {
   }
 }
 
-//Index = codePush({checkFrequency: codePush.CheckFrequency.MANUAL})(Index);
+Index = codePush({checkFrequency: codePush.CheckFrequency.MANUAL})(Index);

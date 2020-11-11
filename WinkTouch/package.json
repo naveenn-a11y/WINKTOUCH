@@ -36,6 +36,7 @@
     "react-native": "0.63.3",
     "react-native-a-beep": "^1.0.6",
     "react-native-calendar": "^0.13.1",
+    "react-native-code-push": "^6.4.0",
     "react-native-device-info": "^6.2.1",
     "react-native-document-scanner": "^1.4.2",
     "react-native-fs": "^2.16.6",

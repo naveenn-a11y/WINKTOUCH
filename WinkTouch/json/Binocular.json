@@ -627,7 +627,7 @@
         },
         {
           "minValue": 1,
-          "name": "AC\/A ratio",
+          "name": "AC/A ratio",
           "freestyle": true,
           "suffix": ":1",
           "maxValue": 20

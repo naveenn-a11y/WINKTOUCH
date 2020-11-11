@@ -143,7 +143,7 @@ export function isNumericField(fieldDefinition: FieldDefinition) : boolean {
   return fieldDefinition.minValue!==undefined || fieldDefinition.maxValue!==undefined;
 }
 
-export function formatLabel(fieldDefinition: FieldDefinition|GroupDefinition) : string {
+export function formatLabel(fieldDefinition: FieldDefinition|GroupDefinition|{name: string, label: ?string}) : string {
   if (fieldDefinition===undefined) return '';
   if (fieldDefinition.label!==undefined && fieldDefinition.label!==null) return fieldDefinition.label;
   return fieldDefinition.name;
@@ -291,8 +291,7 @@ class EditableItem extends Component {
         if (!description && fieldDefinition.normalValue) {
           isAllNormal = false;
         }
-        if (!description || (fieldDefinition.normalValue && fieldDefinition.normalValue == description))
-          return null;
+        if (!description) return null;
         isAllNormal = false;
         const propertyField = <FormTextInput key={index} label={fieldDefinition.label?fieldDefinition.label:fieldDefinition.name} value={description} readonly={!this.props.editable}
           onChangeText={(text: string) => this.props.onUpdateItem(fieldDefinition.name, text.split(', '))} />

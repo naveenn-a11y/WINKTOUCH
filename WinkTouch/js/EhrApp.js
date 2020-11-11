@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
-//import codePush, {SyncStatus} from 'react-native-code-push';
+import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
 import {fetchItemById} from './Rest';
 import {LoginScreen} from './LoginScreen';
@@ -22,13 +22,11 @@ import {setDeploymentVersion, checkBinaryVersion} from './Version';
 import {getVisitTypes, fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes} from './Codes';
 import {isWeb} from './Styles';
-/*codePush.getCurrentPackage().then((currentPackage) => {
-  if (currentPackage !== null && currentPackage !== undefined)
-    setDeploymentVersion(currentPackage.label);
-});
-*/
+
+!isWeb && codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) setDeploymentVersion(currentPackage.label)});
+
 function logUpdateStatus(status: number) {
-  /*switch (status) {
+  switch (status) {
     case SyncStatus.CHECKING_FOR_UPDATE:
       console.log('CodePush Checking for update');
       break;
@@ -59,7 +57,7 @@ function logUpdateStatus(status: number) {
       break;
     default:
       console.log('CodePush Status: ' + status);
-  }*/
+  }
 }
 
 let lastUpdateCheck: ?Date = undefined;
@@ -92,7 +90,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
   //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  /*codePush.disallowRestart();
+  codePush.disallowRestart();
   await codePush.sync(
     {
       updateDialog: false,
@@ -101,7 +99,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     },
     logUpdateStatus,
   );
-  codePush.allowRestart();*/
+  codePush.allowRestart();
 }
 
 export class EhrApp extends Component {

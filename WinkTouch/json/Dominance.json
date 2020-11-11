@@ -8,7 +8,7 @@
           "fields": [
             {
               "name": "Method",
-              "label": "MÃ©thode",
+              "label": "Méthode",
               "options": [
                 "Alignement",
                 "Embrouillement"

@@ -5,7 +5,7 @@
 
 import type { CodeDefinition, FieldDefinition, FieldDefinitions, GroupDefinition } from './Types';
 import { strings, getUserLanguage } from './Strings';
-import { restUrl, handleHttpError, searchItems, getNextRequestNumber } from './Rest';
+import { restUrl, handleHttpError, searchItems, getNextRequestNumber, getToken } from './Rest';
 import { getFieldDefinitions } from './Items';
 import { initialiseWinkCodes } from './codes/WinkDefinedCodes';
 import { initialiseUserCodes } from './codes/UserDefinedCodes';
@@ -134,6 +134,7 @@ export async function fetchCodeDefinitions(language: string, accountId: number, 
     let httpResponse = await fetch(url, {
         method: 'get',
         headers: {
+          'token': getToken(),
           'Accept': 'application/json',
           'Accept-language': language
         },
@@ -164,8 +165,6 @@ export async function fetchUserDefinedCodes() : void {
     });
 
   //let userDefinedCodes : string[] = restResponse.codes;
-
-  //cacheItem('visitTypes', visitTypes);
 }
 
 let codeDefinitions = {

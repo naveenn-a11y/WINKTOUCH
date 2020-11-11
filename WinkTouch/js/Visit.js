@@ -7,7 +7,7 @@ import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp } from './Types';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp, VisitType} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
@@ -30,10 +30,10 @@ import { fetchWinkRest } from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import { isReferralsEnabled } from './Referral';
 
-const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
+export const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
 
-function getSectionTitle(section) : string {
+export function getSectionTitle(section: string) : string {
   const language : string = getUserLanguage();
   if (language.startsWith('fr')) {
       if (section==='Pre tests') return 'Pré-tests';
@@ -48,10 +48,10 @@ export async function fetchVisit(visitId: string) : Visit {
   return visit;
 }
 
-export async function fetchVisitTypes() : string[] {
+export async function fetchVisitTypes() : VisitType[] {
     const searchCriteria = {};
     let restResponse = await searchItems('VisitType/list', searchCriteria);
-    let visitTypes : string[] = restResponse.visitTypeNameList;
+    let visitTypes : VisitType[] = restResponse.visitTypeList;
     if (!visitTypes || visitTypes.length==0) {
       alert(strings.formatString(strings.doctorWithoutVisitTypeError, getDoctor().lastName));
       visitTypes = [];
@@ -60,9 +60,14 @@ export async function fetchVisitTypes() : string[] {
     return visitTypes;
 }
 
-export function getVisitTypes() : string[] {
-  let visitTypes : string[] = getCachedItem('visitTypes');
+export function getVisitTypes() : VisitType[] {
+  let visitTypes : VisitType[] = getCachedItem('visitTypes');
   return visitTypes;
+}
+
+export async function saveVisitTypes(visitTypes: VisitType[]) {
+  visitTypes = (await performActionOnItem('linkExams', visitTypes)).visitTypeList;
+  cacheItem('visitTypes', visitTypes);
 }
 
 export function visitHasEnded(visit: string|Visit) : boolean {
@@ -300,17 +305,18 @@ class FollowUpButton extends PureComponent {
      }
 }
 
-export class StartVisitButtons extends Component {
-  props: {
+export type StartVisitButtonsProps = {
     isPreVisit: boolean,
     title?: string,
-    onStartVisit: (type: string, isPrevisit: boolean) => void
+    onStartVisit: (type: string, isPrevisit: boolean) => void,
+    isLoading: ?boolean
   }
-  state: {
-    visitTypes: string[],
+type StartVisitButtonstate = {
+  visitTypes: VisitType[],
     clicked: boolean
   }
-  constructor(props: any) {
+export class StartVisitButtons extends Component<StartVisitButtonsProps, StartVisitButtonsState> {
+  constructor(props: StartVisitButtonsProps) {
     super(props);
     this.state = {
       visitTypes: [],
@@ -324,14 +330,14 @@ export class StartVisitButtons extends Component {
 
   async loadVisitTypes() {
     if (this.state.visitTypes && this.state.visitTypes.length>0) return;
-    let visitTypes : string[] = getVisitTypes();
+    let visitTypes : VisitType[] = getVisitTypes();
     if (!visitTypes || visitTypes.length===0)
       visitTypes = await fetchVisitTypes();
     this.setState({visitTypes});
   }
 
   startVisit(visitType: string) {
-    if (this.state.clicked) return;
+    if (this.state.clicked || this.props.isLoading) return;
     this.setState({clicked: true}, () => {
         this.props.onStartVisit(visitType, this.props.isPreVisit);
         this.setState({clicked:false});
@@ -350,8 +356,8 @@ export class StartVisitButtons extends Component {
     return <View style={styles.startVisitCard}>
         {this.props.title && <Text style={styles.sectionTitle}>{this.props.title}</Text>}
         <View style={styles.flow}>
-          {this.state.visitTypes.map((visitType: string, index: number) =>
-            <Button title={visitType} key={index} onPress={() => this.startVisit(visitType)} />)}
+          {this.state.visitTypes.map((visitType: VisitType, index: number) =>
+            <Button title={visitType.name} key={index} onPress={() => this.startVisit(visitType.name)} />)}
         </View>
     </View>
   }
@@ -378,7 +384,8 @@ class VisitWorkFlow extends Component {
         onStartVisit: (type: string, isPreVisit: boolean) => void,
         readonly: ?boolean,
         enableScroll: () => void,
-        disableScroll: () => void
+        disableScroll: () => void,
+        isLoading: ?boolean
     }
     state: {
         visit: Visit,
@@ -680,7 +687,7 @@ class VisitWorkFlow extends Component {
         }
         if (!this.state.visit && !this.props.readonly) {
           return <View>
-            {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} />}
+            {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} isLoading={this.props.isLoading} />}
           </View>
         }
         const preExamDefinitions : ExamDefinition[] = getCachedItems(getCachedItem('preExamDefinitions'));
@@ -690,7 +697,7 @@ class VisitWorkFlow extends Component {
               {hasPreTests && <View style={styles.flow}>
                 {this.renderExams('Pre tests', getCachedItems(this.state.visit.preCustomExamIds), true)}
                 </View>}
-              {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit} />}
+              {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit}  isLoading={this.props.isLoading} />}
             </View>
         }
         let exams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
@@ -768,7 +775,8 @@ export class VisitHistory extends Component {
     state: {
         selectedId: ?string,
         history: ?string[],
-        showingDatePicker: boolean
+        showingDatePicker: boolean,
+        isLoading: boolean
     }
 
     constructor(props: any) {
@@ -777,6 +785,7 @@ export class VisitHistory extends Component {
           selectedId: this.props.navigation && this.props.navigation.state && this.props.navigation.state.params ? this.props.navigation.state.params.selectedVisitId: undefined,
           history: this.combineHistory(props.patientDocumentHistory, props.visitHistory),
           showingDatePicker: false,
+          isLoading: false
         };
 
     }
@@ -864,12 +873,14 @@ export class VisitHistory extends Component {
 
     async startVisit(visitId: string, visitType: string) {
       if (this.props.readonly) return;
+      this.setState({isLoading: true});
       let visit = getCachedItem(visitId);
       visit.typeName = visitType;
       visit = await updateVisit(visit);
       this.props.onRefresh();
       this.setState({
-        selectedId: visit.id
+        selectedId: visit.id,
+        isLoading: false
       });
     }
 
@@ -1025,6 +1036,7 @@ export class VisitHistory extends Component {
                 readonly={this.props.readonly}
                 enableScroll={this.props.enableScroll}
                 disableScroll={this.props.disableScroll}
+                isLoading={this.state.isLoading}
               />}
             {this.state.selectedId && this.state.selectedId.startsWith('patientDocument') && <PatientDocumentPage id={this.state.selectedId}/>}
         </View>

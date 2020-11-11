@@ -63,7 +63,7 @@ class MainActivities extends Component {
         <View style={styles.flow}>
             <Button title={strings.openFile} onPress={this.openPatientFile} />
             <Button title={strings.logout} onPress={this.props.onLogout} />
-            {isAtWink && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
+            {__DEV__ && false && <Button title={this.state.translating?strings.stopTranslating:strings.translate} onPress={this.switchTranslate}/>}
             <Button title={strings.referral} onPress={() => this.openReferral()} />
         </View>
     </View>
