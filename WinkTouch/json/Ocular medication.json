@@ -3,7 +3,7 @@
   "name": "Ocular medication",
   "locale": {
     "fr-CA": {
-      "label": "MÃ©dicaments Oculaires",
+      "label": "Médicaments Oculaires",
       "fields": [
         {
           "name": "Label",
@@ -15,11 +15,11 @@
         },
         {
           "name": "Frequency",
-          "label": "FrÃ©quence"
+          "label": "Fréquence"
         },
         {
           "name": "Duration",
-          "label": "DurÃ©e"
+          "label": "Durée"
         }
       ]
     }

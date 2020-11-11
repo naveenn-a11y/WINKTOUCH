@@ -21,6 +21,7 @@
   "fields": [
     {
       "name": "Keratometry",
+      "import": ["machine.tonoref.kera","machine.phoropter.kera"],
       "columns": [
         [
           "OD",
@@ -71,5 +72,52 @@
         }
       ]
     }
-  ]
+  ],
+  "locale": {
+    "fr-CA": {
+      "label": "Kératométrie",
+      "fields": [
+        {
+          "name": "Keratometry",
+          "label": "Kératométrie",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Power H",
+                  "label": "Puiss. H"
+                },
+                {
+                  "name": "Power V",
+                  "label": "Puiss. V"
+                },
+                {
+                  "name": "Meridian",
+                  "label": "Méridien"
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Power H",
+                  "label": "Puiss. H"
+                },
+                {
+                  "name": "Power V",
+                  "label": "Puiss. V"
+                },
+                {
+                  "name": "Meridian",
+                  "label": "Méridien"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
 }

@@ -103,7 +103,7 @@ export async function importData(dataIdentifier: string|string[], examId: string
 async function pushMachineMeasurement(machineId: string, measurement: Measurement) : void {
   measurement.id = 'measurement';
   measurement.machineId = machineId;
-  measurement = await storeItem(measurement);  
+  measurement = await storeItem(measurement);
   if (measurement.errors) {
     alert(measurement.errors.toString());
   }

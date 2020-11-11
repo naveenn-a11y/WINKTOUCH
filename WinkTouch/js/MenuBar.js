@@ -6,12 +6,14 @@
 import React, { PureComponent } from 'react';
 import { View, TouchableHighlight, Image, LayoutAnimation, InteractionManager } from 'react-native';
 import codePush from 'react-native-code-push';
-import { strings } from './Strings';
+import { strings, getUserLanguage } from './Strings';
 import { styles, fontScale } from './Styles';
 import type {Exam, ExamDefinition, Scene } from './Types';
 import { Button, BackButton, Clock } from './Widgets';
 import { UpcomingAppointments} from './Appointment';
 import { getAllCodes } from './Codes';
+import { isAtWink } from './Registration';
+import { getPhoropters } from './DoctorApp';
 
 export class Notifications extends PureComponent {
     render() {
@@ -37,7 +39,7 @@ export class MenuBar extends PureComponent {
         //if (this.props.scene.menuHidden) return null;
         const exam: ?Exam = this.props.navigation.state && this.props.navigation.state.params && this.props.navigation.state.params.exam;
         const scene: ?string = this.props.navigation.state && this.props.navigation.state.routeName;
-        const hasConfig: boolean = getAllCodes('machines')!==undefined && getAllCodes('machines').length>0;
+        const hasConfig: boolean = getPhoropters().length>1;
         return <View style={styles.sideMenu}>
           <Image source={require('./image/menulogo.png')} />
           <Button title={strings.agenda} onPress={() => this.props.navigation.navigate('agenda')} />
@@ -45,9 +47,9 @@ export class MenuBar extends PureComponent {
           {exam!=undefined && exam.definition.graph && <Button title={strings.graph} onPress={() => this.props.navigation.navigate('examGraph', {exam: exam})}/>}
           {exam!=undefined && <Button title={strings.history} onPress={() => this.props.navigation.navigate('examHistory', {exam: exam})}/>}
           {__DEV__ && false && exam && <Button title={strings.template} onPress={() => this.props.navigation.navigate('examTemplate', {examDefinition: this.extractExamDefinition(exam)})}/>}
-          {__DEV__ && <Button title={strings.templates} onPress={() => this.props.navigation.navigate('templates')}/>}
+          {(isAtWink || __DEV__) && scene ==='overview' && 'en-CA'===getUserLanguage() && <Button title={strings.customisation} onPress={() => this.props.navigation.navigate('customisation')}/>}
           {scene ==='overview'  && hasConfig===true && <Button title={strings.configuration} onPress={() => this.props.navigation.navigate('configuration')} />}
-          <BackButton navigation={this.props.navigation} />
+          {scene !=='overview' && <BackButton navigation={this.props.navigation} />}
           {__DEV__ && <Button title={strings.restart} onPress={() => codePush.restartApp()}/>}
           {__DEV__ && <Notifications />}
         </View>

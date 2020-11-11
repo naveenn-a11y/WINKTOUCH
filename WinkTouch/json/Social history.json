@@ -6,19 +6,23 @@
       "fields": [
         {
           "name": "Smoking",
-          "label": "Cigarette"
+          "label": "Cigarette",
+          "normalValue": "Non-fumeur (n'a jamais fumé)"
         },
         {
           "name": "Alcohol",
-          "label": "Alcool"
+          "label": "Alcool",
+          "normalValue": "Nie"
         },
         {
           "name": "Drugs",
-          "label": "Drogues"
+          "label": "Drogues",
+          "normalValue": "Nie"
         },
         {
           "name": "Other",
-          "label": "Autres"
+          "label": "Autres",
+          "normalValue": "Aucune"
         }
       ]
     }
@@ -30,11 +34,11 @@
   "editable": true,
   "fields": [
     {
-      "normalValue": "Never smoker",
-      "name": "Smoking",
+       "name": "Smoking",
       "required": true,
       "freestyle": true,
-      "options": "tobaccoUseCodes"
+      "options": "tobaccoUseCodes",
+      "normalValue": "Never smoker"
     },
     {
       "normalValue": "Denies",

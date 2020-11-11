@@ -2,7 +2,7 @@
  * @flow
  */
 'use strict';
-import Moment from 'moment';
+import moment from 'moment';
 require('moment/locale/fr.js');
 require('moment/locale/fr-ca.js');
 import { strings } from './Strings';
@@ -122,25 +122,20 @@ export function yearDifference(d1: Date, d2: Date) : number {
 
 export function parseDate(jsonDate: ?string) : ?Date {
   if (jsonDate===undefined || jsonDate===null || jsonDate.trim().length===0) return undefined;
-  let utcDate : Date = new Date(jsonDate);
-  let timezoneOffset : number = utcDate.getTimezoneOffset() * 60000; //Warning: don't try to be smart and cache the timeoffset.
-  let date : Date = new Date(utcDate.valueOf()+timezoneOffset);
+  const date = moment(jsonDate).toDate();
   return date;
 }
 
 export function formatDate(date: ?Date|?string, format: string): string {
   if (date===null || date===undefined || date==='' || date.toString().trim()==='') return '';
-  if (!(date instanceof Date)) {
-    date = parseDate(date);
-  }
-  const formattedDate : string = Moment(date).format(format);
+  const formattedDate : string = moment(date).format(format);
   if (formattedDate==='Invalid date') return date;
   return formattedDate;
 }
 
 export function formatTime(time: ?string) : string {
   if (time===null|| time===undefined || time.toString().trim()==='') return '';
-  const formattedTime : string = Moment(time, time24Format).format('LT');
+  const formattedTime : string = moment(time, time24Format).format('LT');
   if (formattedTime==='Invalid date') return time;
   return formattedTime;
 }

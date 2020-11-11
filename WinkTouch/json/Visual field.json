@@ -4,24 +4,50 @@
       "label": "Champ Visuel",
       "fields": [
         {
-          "name": "Amsler grid OD",
-          "label": "Grille d\u2019Amsler OD"
-        },
-        {
-          "name": "Amsler grid OS",
-          "label": "Grille d\u2019Amsler OG"
-        },
-        {
-          "name": "Auto-perimetry",
-          "label": "PÃ©rimÃ¨tre Automatique"
+          "name": "Confrontation visual field",
+          "label": "Par Confrontation",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Complet"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Complet"
+            }
+          ]
         },
         {
           "name": "Tangent screen",
-          "label": "Ãcran Tangent"
+          "label": "Écran Tangent",
+          "fields": [
+            {
+              "name": "Scale",
+              "label": "Échelle"
+            }
+          ]
         },
         {
-          "name": "Confrontation visual field",
-          "label": "  Par Confrontation"
+          "name": "Amsler grid OD",
+          "label": "Grille d'Amsler OD"
+        },
+        {
+          "name": "Amsler grid OS",
+          "label": "Grille d'Amsler OG"
+        },
+        {
+          "name": "Auto-perimetry",
+          "label": "Périmètre Automatique",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Complet"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Complet"
+            }
+          ]
         }
       ]
     }
@@ -34,21 +60,21 @@
   "fields": [
     {
       "name": "Confrontation visual field",
-      "label": "\n\nConfrontation",
+      "label": "Confrontation",
       "fields": [
         {
-          "normalValue": "Full",
           "name": "OD",
           "required": true,
           "freestyle": true,
-          "options": "confrontationVFCodes"
+          "options": "confrontationVFCodes",
+          "normalValue": "Full"
         },
         {
-          "normalValue": "Full",
           "name": "OS",
           "required": true,
           "freestyle": true,
-          "options": "confrontationVFCodes"
+          "options": "confrontationVFCodes",
+          "normalValue": "Full"
         }
       ]
     },
@@ -58,7 +84,7 @@
       "fields": [
         {
           "name": "Scale",
-          "suffix": " \/ 1000",
+          "suffix": " / 1000",
           "size": "S",
           "options": [
             "1",
@@ -69,7 +95,7 @@
         },
         {
           "name": "image",
-          "image": ".\/image\/perimetry.png",
+          "image": "./image/perimetry.png",
           "label": ""
         }
       ]
@@ -80,7 +106,7 @@
       "fields": [
         {
           "name": "image",
-          "image": ".\/image\/amsler.png",
+          "image": "./image/amsler.png",
           "label": ""
         }
       ]
@@ -91,7 +117,7 @@
       "fields": [
         {
           "name": "image",
-          "image": ".\/image\/amsler.png",
+          "image": "./image/amsler.png",
           "label": ""
         }
       ]
@@ -106,16 +132,16 @@
           "options": "autoPerimetryInstrumentCodes"
         },
         {
-          "normalValue": "Full",
           "name": "OD",
           "freestyle": true,
-          "options": "autoPerimetryVFCodes"
+          "options": "autoPerimetryVFCodes",
+          "normalValue": "Full"
         },
         {
-          "normalValue": "Full",
           "name": "OS",
           "freestyle": true,
-          "options": "autoPerimetryVFCodes"
+          "options": "autoPerimetryVFCodes",
+          "normalValue": "Full"
         },
         {
           "popup": false,
@@ -142,7 +168,7 @@
           "name": "Notes",
           "label": ""
         }
-      ],
+      ]
     }
   ]
 }

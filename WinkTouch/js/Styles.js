@@ -23,6 +23,7 @@ export const selectionBorderColor = '#1db3b3';
 export const selectionBackgroundColor = '#c9ffff'
 export const disabledFieldFontColor : string = '#444444ff';
 export const fieldBorderColor = '#ddddddff';
+export const recordingFontColor: string = "#ff0000";
 
 const fieldMinWidth = 100;
 
@@ -360,6 +361,12 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
     },
+    leftColumnLayout: {
+        flex: 0,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start'
+    },
     centeredColumnLayout: {
         flexDirection: 'column',
         alignItems: 'center',
@@ -630,8 +637,7 @@ export const styles = StyleSheet.create({
     popupBackground: {
       flex: 100,
       backgroundColor: '#00000077',
-      padding:20 * fontScale,
-      paddingBottom: 20 *fontScale
+      padding:20 * fontScale
     },
     popupTile: {
         ...tile
@@ -681,6 +687,46 @@ export const styles = StyleSheet.create({
         color: 'white',
         flexWrap: 'nowrap'
     },
+    tabCardFollowUp1: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        paddingBottom: 40 * fontScale,
+        minHeight: 200 * fontScale,
+        maxHeight: windowHeight-295*fontScale,
+        minWidth: 333 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
+    },
+    tabCardFollowUp2: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        paddingBottom: 40 * fontScale,
+        minHeight: 200 * fontScale,
+        maxHeight: windowHeight-550*fontScale,
+        minWidth: 333 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
+    },
+    followUpList1: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        minHeight: 200 * fontScale,
+        maxHeight: windowHeight-395*fontScale,
+        minWidth: 333 * fontScale,
+        margin: 7 * fontScale
+    },
+    followUpList2: {
+        flexGrow: 100,
+        padding: 10 * fontScale,
+        minHeight: 200 * fontScale,
+        maxHeight: windowHeight-650*fontScale,
+        minWidth: 333 * fontScale,
+        margin: 7 * fontScale
+    },
     tabCard: {
         flexGrow: 100,
         padding: 10 * fontScale,
@@ -718,6 +764,17 @@ export const styles = StyleSheet.create({
         borderColor: selectionFontColor,
         borderWidth: 2*fontScale,
         margin: 7 * fontScale,
+    },
+    columnCard: {
+        flex: 30,
+        flexGrow: 30,
+        minWidth: 240 * fontScale,
+        padding: 10 * fontScale,
+        minHeight: 260 * fontScale,
+        borderRadius: 30 * fontScale,
+        borderColor: selectionFontColor,
+        borderWidth: 2*fontScale,
+        margin: 7 * fontScale
     },
     examsBoard: {
         backgroundColor: sectionBackgroundColor,
@@ -883,6 +940,7 @@ export const styles = StyleSheet.create({
         flex: 10,
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         padding: 10 * fontScale,
         backgroundColor: 'white',
         margin: 3 * fontScale
@@ -891,6 +949,7 @@ export const styles = StyleSheet.create({
         flex: 10,
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         padding: 10 * fontScale,
         backgroundColor: selectionColor,
         margin: 3 * fontScale
@@ -907,6 +966,28 @@ export const styles = StyleSheet.create({
         textAlign: 'left',
         color: selectionFontColor,
     },
+
+
+    tableListText: {
+        flex: 100,
+        flexDirection: 'row',
+        fontSize: 18 * fontScale,
+        flexWrap: 'nowrap',
+        textAlign: 'left',
+        margin: 4 * fontScale
+
+    },
+    tableListTextSelected: {
+        flex: 100,
+        flexDirection: 'row',
+        fontSize: 18 * fontScale,
+        flexWrap: 'nowrap',
+        textAlign: 'left',
+        margin: 4 * fontScale,
+        color: selectionFontColor
+
+    },
+
     scrollPopup: {
         position: 'absolute',
         top: 10 * fontScale,
@@ -1127,7 +1208,28 @@ export const styles = StyleSheet.create({
           height: 0.3,
           width: 0.3
       }
-    }
+    },
+  sideBarHorizontal: {
+      flexDirection: 'row',
+      minWidth:290 * fontScale,
+      maxWidth:600 * fontScale,
+      minHeight:50 * fontScale,
+      maxHeight:80 * fontScale,
+      margin: 7 * fontScale,
+      borderColor: fieldBorderColor,
+      borderWidth: 3 * fontScale,
+      shadowRadius: 3 * fontScale,
+      shadowColor: fieldBorderColor,
+      shadowOpacity: 0.9,
+      shadowOffset: {
+          height: 0.3,
+          width: 0.3
+      }
+    },
+    listSeparator: {
+        backgroundColor: "#f0f0ff"
+    },
+
 });
 
 function cardStyle(color: Color) {

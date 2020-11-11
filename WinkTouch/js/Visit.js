@@ -7,7 +7,7 @@ import React, { Component, PureComponent } from 'react';
 import { View, TouchableHighlight, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, FlatList, Alert} from 'react-native';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import RNBeep from 'react-native-a-beep';
-import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store } from './Types';
+import type {Patient, Exam, GlassesRx, GlassRx, Visit, Appointment, ExamDefinition, ExamPredefinedValue, Recall, PatientDocument, PatientInfo, Store, FollowUp, VisitType} from './Types';
 import { styles, fontScale } from './Styles';
 import { strings, getUserLanguage } from './Strings';
 import {Button, FloatingButton, Lock} from './Widgets';
@@ -26,12 +26,13 @@ import { PatientRefractionCard } from './Refraction';
 import { getDoctor, getStore } from './DoctorApp';
 import {getVisitHtml, printPatientHeader, getScannedFiles, setScannedFiles} from './PatientFormHtml';
 import { fetchWinkRest } from './WinkRest';
+import {FollowUpScreen} from './FollowUp';
 import { isReferralsEnabled } from './Referral';
 
-const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
+export const examSections : string[] = ['Chief complaint','History','Entrance testing','Vision testing','Anterior exam','Posterior exam','CL','Form', 'Document'];
 const examSectionsFr : string[] = ['Plainte principale','Historique','Test d\'entrée','Test de vision','Examen antérieur','Examen postérieur','LC','Form', 'Document'];
 
-function getSectionTitle(section) : string {
+export function getSectionTitle(section: string) : string {
   const language : string = getUserLanguage();
   if (language.startsWith('fr')) {
       if (section==='Pre tests') return 'Pré-tests';
@@ -46,10 +47,10 @@ export async function fetchVisit(visitId: string) : Visit {
   return visit;
 }
 
-export async function fetchVisitTypes() : string[] {
+export async function fetchVisitTypes() : VisitType[] {
     const searchCriteria = {};
     let restResponse = await searchItems('VisitType/list', searchCriteria);
-    let visitTypes : string[] = restResponse.visitTypeNameList;
+    let visitTypes : VisitType[] = restResponse.visitTypeList;
     if (!visitTypes || visitTypes.length==0) {
       alert(strings.formatString(strings.doctorWithoutVisitTypeError, getDoctor().lastName));
       visitTypes = [];
@@ -58,9 +59,14 @@ export async function fetchVisitTypes() : string[] {
     return visitTypes;
 }
 
-export function getVisitTypes() : string[] {
-  let visitTypes : string[] = getCachedItem('visitTypes');
+export function getVisitTypes() : VisitType[] {
+  let visitTypes : VisitType[] = getCachedItem('visitTypes');
   return visitTypes;
+}
+
+export async function saveVisitTypes(visitTypes: VisitType[]) {
+  visitTypes = (await performActionOnItem('linkExams', visitTypes)).visitTypeList;
+  cacheItem('visitTypes', visitTypes);
 }
 
 export function visitHasEnded(visit: string|Visit) : boolean {
@@ -87,6 +93,24 @@ export function allExamIds(visit: Visit) : string[] {
   return allExamIds;
 }
 
+export async function fetchReferralFollowUpHistory(patientId?: string) : FollowUp[] {
+      let parameters : {} = {};
+      let body : {} = {
+        'patientId': !isEmpty(patientId) ? stripDataType(patientId): undefined,
+     };
+    let allFollowUp : FollowUp[] = [];
+    let response = await fetchWinkRest('webresources/followup/list', parameters, 'POST', body);
+    if (response) {
+        if (response.errors) {
+              alert(response.errors);
+              return;
+        }
+        allFollowUp = response.followUp;
+    }
+    const id : string = isEmpty(patientId) ? '*' : patientId;
+    cacheItem('referralFollowUpHistory-'+id, allFollowUp);
+}
+
 export async function fetchVisitHistory(patientId: string) : string[] {
     const searchCriteria = {patientId: patientId};
     let restResponse = await searchItems('Visit/list', searchCriteria);
@@ -96,6 +120,8 @@ export async function fetchVisitHistory(patientId: string) : string[] {
     const patientDocuments : PatientDocument[] = restResponse.patientDocumentList?restResponse.patientDocumentList:[];
     const patientDocumentIds : string[] = patientDocuments.map(patientDocument => patientDocument.id);
     const users : User[] = restResponse.userList;
+    const referralsFollowUp : FollowUp[] = await fetchReferralFollowUpHistory(patientId);
+
 //    customExams && customExams.forEach((exam: Exam) => overwriteExamDefinition(exam)); //TODO remove after beta
     cacheItemsById(customExams);
     cacheItemsById(visits);
@@ -103,6 +129,7 @@ export async function fetchVisitHistory(patientId: string) : string[] {
     cacheItemsById(users);
     cacheItem('visitHistory-'+patientId, visitIds);
     cacheItem('patientDocumentHistory-'+patientId, patientDocumentIds);
+
     return visitIds;
 }
 
@@ -262,17 +289,33 @@ class SummaryButton extends PureComponent {
     }
 }
 
-export class StartVisitButtons extends Component {
-  props: {
+class FollowUpButton extends PureComponent {
+    props: {
+        isSelected: ?boolean,
+        onPress: () => void
+    }
+
+    render() {
+        return <TouchableOpacity onPress={this.props.onPress} testID='followUpTab'>
+           <View style={this.props.isSelected ? styles.selectedTab : styles.tab}>
+               <Text style={this.props.isSelected ? styles.tabTextSelected : styles.tabText}>{strings.referral}</Text>
+           </View>
+        </TouchableOpacity>
+     }
+}
+
+export type StartVisitButtonsProps = {
     isPreVisit: boolean,
     title?: string,
-    onStartVisit: (type: string, isPrevisit: boolean) => void
+    onStartVisit: (type: string, isPrevisit: boolean) => void,
+    isLoading: ?boolean
   }
-  state: {
-    visitTypes: string[],
+type StartVisitButtonstate = {
+  visitTypes: VisitType[],
     clicked: boolean
   }
-  constructor(props: any) {
+export class StartVisitButtons extends Component<StartVisitButtonsProps, StartVisitButtonsState> {
+  constructor(props: StartVisitButtonsProps) {
     super(props);
     this.state = {
       visitTypes: [],
@@ -286,14 +329,14 @@ export class StartVisitButtons extends Component {
 
   async loadVisitTypes() {
     if (this.state.visitTypes && this.state.visitTypes.length>0) return;
-    let visitTypes : string[] = getVisitTypes();
+    let visitTypes : VisitType[] = getVisitTypes();
     if (!visitTypes || visitTypes.length===0)
       visitTypes = await fetchVisitTypes();
     this.setState({visitTypes});
   }
 
   startVisit(visitType: string) {
-    if (this.state.clicked) return;
+    if (this.state.clicked || this.props.isLoading) return;
     this.setState({clicked: true}, () => {
         this.props.onStartVisit(visitType, this.props.isPreVisit);
         this.setState({clicked:false});
@@ -312,8 +355,8 @@ export class StartVisitButtons extends Component {
     return <View style={styles.startVisitCard}>
         {this.props.title && <Text style={styles.sectionTitle}>{this.props.title}</Text>}
         <View style={styles.flow}>
-          {this.state.visitTypes.map((visitType: string, index: number) =>
-            <Button title={visitType} key={index} onPress={() => this.startVisit(visitType)} />)}
+          {this.state.visitTypes.map((visitType: VisitType, index: number) =>
+            <Button title={visitType.name} key={index} onPress={() => this.startVisit(visitType.name)} />)}
         </View>
     </View>
   }
@@ -333,13 +376,15 @@ class SectionTitle extends PureComponent {
 
 class VisitWorkFlow extends Component {
     props: {
+        patientInfo: PatientInfo,
         visitId: string,
         navigation: any,
         appointmentStateKey: string,
         onStartVisit: (type: string, isPreVisit: boolean) => void,
         readonly: ?boolean,
         enableScroll: () => void,
-        disableScroll: () => void
+        disableScroll: () => void,
+        isLoading: ?boolean
     }
     state: {
         visit: Visit,
@@ -363,7 +408,14 @@ class VisitWorkFlow extends Component {
         visit && this.loadUnstartedExamTypes(visit);
     }
 
-    componentDidUpdate(prevProps: any) {
+   async componentDidUpdate(prevProps: any) {
+        const params = this.props.navigation.state.params;
+
+      if(params && params.refreshFollowUp) {
+        const patientInfo: PatientInfo =  this.props.patientInfo ;
+        this.props.navigation.setParams({refreshFollowUp: false});
+        await fetchReferralFollowUpHistory(patientInfo.id);
+      }
         const visit :Visit = getCachedItem(this.props.visitId);
         const rxToOrder = this.findRxToOrder(visit);
         if (this.props.visitId===prevProps.visitId && visit===this.state.visit && rxToOrder===this.state.rxToOrder) {
@@ -595,6 +647,7 @@ class VisitWorkFlow extends Component {
     }
 
     renderActionButtons() {
+      const patientInfo: PatientInfo =  this.props.patientInfo;
       return <View style={{paddingTop: 30*fontScale, paddingBottom:100*fontScale}}>
           <View style={styles.flow}>
             {this.state.visit.prescription.signedDate && <Button title={strings.signed} disabled={true}/>}
@@ -604,7 +657,7 @@ class VisitWorkFlow extends Component {
             {this.hasFinalClFitting() && <Button title={strings.printClRx} onPress={() => {printClRx(this.props.visitId)}}/>}
             {this.canTransfer() && <Button title={strings.transferRx} onPress={() => {transferRx(this.props.visitId)}}/>}
             <Button title={strings.printPatientFile} onPress={() => {printPatientFile(this.props.visitId)}}/>
-            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId)})}}/>}
+            {isReferralsEnabled() && <Button title={strings.referral} onPress={() => {this.props.navigation.navigate('referral', {visit:  getCachedItem(this.props.visitId), patientInfo: patientInfo, followUpStateKey: this.props.navigation.state.key})}}/>}
             {!this.state.locked && !this.props.readonly && <Button title={strings.endVisit} onPress={() => this.endVisit()}/>}
         </View>
       </View>
@@ -633,7 +686,7 @@ class VisitWorkFlow extends Component {
         }
         if (!this.state.visit && !this.props.readonly) {
           return <View>
-            {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} />}
+            {!this.props.readonly && <StartVisitButtons isPreVisit={true} onStartVisit={this.props.onStartVisit} isLoading={this.props.isLoading} />}
           </View>
         }
         const preExamDefinitions : ExamDefinition[] = getCachedItems(getCachedItem('preExamDefinitions'));
@@ -643,7 +696,7 @@ class VisitWorkFlow extends Component {
               {hasPreTests && <View style={styles.flow}>
                 {this.renderExams('Pre tests', getCachedItems(this.state.visit.preCustomExamIds), true)}
                 </View>}
-              {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit} />}
+              {!this.props.readonly && <StartVisitButtons isPreVisit={false} onStartVisit={this.props.onStartVisit}  isLoading={this.props.isLoading} />}
             </View>
         }
         let exams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
@@ -721,16 +774,19 @@ export class VisitHistory extends Component {
     state: {
         selectedId: ?string,
         history: ?string[],
-        showingDatePicker: boolean
+        showingDatePicker: boolean,
+        isLoading: boolean
     }
 
     constructor(props: any) {
         super(props);
         this.state = {
-          selectedId: undefined,
+          selectedId: this.props.navigation && this.props.navigation.state && this.props.navigation.state.params ? this.props.navigation.state.params.selectedVisitId: undefined,
           history: this.combineHistory(props.patientDocumentHistory, props.visitHistory),
-          showingDatePicker: false
+          showingDatePicker: false,
+          isLoading: false
         };
+
     }
 
     componentDidUpdate(prevProps: any, prevState: any) {
@@ -816,12 +872,14 @@ export class VisitHistory extends Component {
 
     async startVisit(visitId: string, visitType: string) {
       if (this.props.readonly) return;
+      this.setState({isLoading: true});
       let visit = getCachedItem(visitId);
       visit.typeName = visitType;
       visit = await updateVisit(visit);
       this.props.onRefresh();
       this.setState({
-        selectedId: visit.id
+        selectedId: visit.id,
+        isLoading: false
       });
     }
 
@@ -931,7 +989,7 @@ export class VisitHistory extends Component {
 
     renderSummary() {
       return <View>
-        <View style={styles.topFlow}>
+        <View style={styles.flow}>
           <PatientRefractionCard patientInfo={this.props.patientInfo} />
           <PatientMedicationCard patientInfo={this.props.patientInfo} editable={false}/>
           <VisitHistoryCard patientInfo={this.props.patientInfo} />
@@ -940,11 +998,22 @@ export class VisitHistory extends Component {
       </View>
     }
 
+    renderFollowUp() {
+      return <View>
+        <View style={styles.flow}>
+         <FollowUpScreen patientInfo = {this.props.patientInfo} navigation = {this.props.navigation} onUpdateVisitSelection={(selectedVisit) => this.showVisit(selectedVisit)} />
+        </View>
+      </View>
+    }
+
     render() {
         if (!this.state.history) return null;
+        const patientInfo: PatientInfo = this.props.patientInfo;
+        const listFollowUp : ?FollowUp[] = getCachedItem('referralFollowUpHistory-'+patientInfo.id);
         return <View>
             <View style={styles.tabHeader}>
               <SummaryButton isSelected={this.state.selectedId === undefined} onPress={() => this.showVisit(undefined)} />
+              {listFollowUp && Array.isArray(listFollowUp) && listFollowUp.length > 0 && <FollowUpButton isSelected={this.state.selectedId === 'followup'} onPress={() => this.showVisit('followup')} />}
               <FlatList
                 horizontal={true}
                 extraData={this.state.selectedId}
@@ -956,7 +1025,9 @@ export class VisitHistory extends Component {
               />
             </View>
             {this.state.selectedId===undefined && this.renderSummary()}
-            {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientId={this.props.patientInfo.id}
+            {this.state.selectedId==='followup' && this.renderFollowUp()}
+
+            {this.state.selectedId && this.state.selectedId.startsWith('visit') && <VisitWorkFlow patientInfo={this.props.patientInfo}
                 visitId={this.state.selectedId}
                 navigation={this.props.navigation}
                 appointmentStateKey={this.props.appointmentStateKey}
@@ -964,6 +1035,7 @@ export class VisitHistory extends Component {
                 readonly={this.props.readonly}
                 enableScroll={this.props.enableScroll}
                 disableScroll={this.props.disableScroll}
+                isLoading={this.state.isLoading}
               />}
             {this.state.selectedId && this.state.selectedId.startsWith('patientDocument') && <PatientDocumentPage id={this.state.selectedId}/>}
         </View>

@@ -1,6 +1,7 @@
 {
   "name":"Tonometry",
   "starable":true,
+  "scrollable": true,
   "type":"groupedForm",
   "section":"Anterior exam.1",
   "order":"3",
@@ -34,6 +35,15 @@
                   "label":"Pachymétrie"
                 }
               ]
+            },
+            {
+              "name":"OS",
+              "fields":[
+                {
+                  "name":"Pachymetry",
+                  "label":"Pachymétrie"
+                }
+              ]
             }
           ]
         }
@@ -43,7 +53,7 @@
   "fields":[
     {
       "name":"IOP",
-      "import": ["machine.tonoref.iop"],
+      "import": ["machine.tonoref.iop", "machine.phoropter.iop"],
       "columns":[
         [
           "OD",

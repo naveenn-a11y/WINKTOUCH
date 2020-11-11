@@ -6,19 +6,32 @@
       "fields": [
         {
           "name": "Unaided acuities",
-          "label": "AcuititÃ©s sans aide",
+          "label": "Acuitités sans aide",
           "fields": [
             {
               "name": "DVA",
               "label": "AVL",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 }
               ]
             },
@@ -27,8 +40,18 @@
               "label": "TE",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 }
               ]
             },
@@ -37,18 +60,31 @@
               "label": "AVP",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": [
+                    "APL",
+                    "Prothèse"
+                  ]
                 }
               ]
             },
             {
               "name": "Scale",
-              "label": "Ãchelle"
+              "label": "Échelle"
             }
           ]
         }
@@ -64,7 +100,7 @@
               "fields": [
                 {
                   "name": "OD",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -83,7 +119,7 @@
                 },
                 {
                   "name": "OS",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -102,7 +138,7 @@
                 },
                 {
                   "name": "OU",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -126,7 +162,7 @@
               "fields": [
                 {
                   "name": "OD",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -145,7 +181,7 @@
                 },
                 {
                   "name": "OS",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -169,7 +205,7 @@
               "fields": [
                 {
                   "name": "OD",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -188,7 +224,7 @@
                 },
                 {
                   "name": "OS",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -207,7 +243,7 @@
                 },
                 {
                   "name": "OU",
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "minValue": 15,
                   "stepSize": [
                     5,
@@ -244,7 +280,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
@@ -253,7 +289,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
@@ -262,7 +298,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 }
               ]
@@ -276,7 +312,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
@@ -285,7 +321,7 @@
                     1,1,1,3,3,6,6,12,24
                   ],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 }
               ]
@@ -350,7 +386,7 @@
           "fields": [
             {
               "name": "OD",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -380,7 +416,7 @@
             },
             {
               "name": "OS",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -410,7 +446,7 @@
             },
             {
               "name": "OU",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -444,7 +480,7 @@
           "fields": [
             {
               "name": "OD",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -473,7 +509,7 @@
             },
             {
               "name": "OS",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -507,7 +543,7 @@
           "fields": [
             {
               "name": "OD",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -536,7 +572,7 @@
             },
             {
               "name": "OS",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,
@@ -565,7 +601,7 @@
             },
             {
               "name": "OU",
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [
                 1.5,

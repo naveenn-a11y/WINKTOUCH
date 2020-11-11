@@ -17,6 +17,12 @@ export type Registration = {
   path: string
 }
 
+export type VisitType = {
+  id: string,
+  name: string,
+  examDefinitionIds: string[]
+}
+
 export type Store = {
   storeId: number, //TODO Chris
   name: string,
@@ -45,10 +51,22 @@ export type Account = {
 
 export type User = {
   id: string,
-  firstName: string,
-  lastName: string,
+  version: number,
+  firstName?: string,
+  lastName?: string,
+  instituteName?: string,
   license?: string,
-  signatureId?: string
+  signatureId?: string,
+  email?: string,
+  fax?: string,
+  tel1?: string,
+  tel2?: string,
+  adress1?: string,
+  adress2?: string,
+  province?: string,
+  postalcode?: string,
+  city?: string
+  isExternal: boolean
 }
 
 export type Patient = {
@@ -302,9 +320,41 @@ export type ReferralDocument = {
 }
 
 export type ReferralDefinition = {
-  id: number,
-  visitId  :number,
-  fromDoctorId :number
+  id: string,
+  visitId  :string,
+  fromDoctorId :string,
+  upload?: Upload
+}
+
+export type FollowUp = {
+  id: string,
+  ref: string,
+  linkedReferralId: string,
+  visitId ?:string,
+  patientInfo: PatientInfo,
+  storeId: string,
+  referralTemplate: ReferralTemplate,
+  date: string,
+  from: User,
+  to: User,
+  faxedOn?: string,
+  emailOn?: string,
+  printedOn?: string,
+  signedOn?: string,
+  status?: string,
+  comment?: string,
+  isOutgoing?: boolean,
+  isParent?: boolean
+}
+
+export type ReferralStatusCode = {
+  id: string,
+  name: string,
+  status: string
+}
+export type ReferralTemplate = {
+  id: string,
+  template: string
 }
 
 export type EmailDefinition = {

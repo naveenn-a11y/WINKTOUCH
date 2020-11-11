@@ -11,8 +11,6 @@ import { LoginScreen } from './LoginScreen';
 import { DoctorApp } from './DoctorApp';
 import { RegisterScreen, fetchTouchVersion } from './Registration';
 import { setDeploymentVersion, checkBinaryVersion } from './Version';
-import { getVisitTypes, fetchVisitTypes } from './Visit';
-import { fetchUserDefinedCodes } from './Codes';
 
 codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) setDeploymentVersion(currentPackage.label)});
 
@@ -60,7 +58,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     return;
   }
   if (!registration || !registration.path) return;
-  checkBinaryVersion();  
+  checkBinaryVersion();
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
     //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
@@ -159,16 +157,16 @@ export class EhrApp extends Component {
         this.setRegistration(registration);
     }
 
-    userLoggedOn = (account: Account, user: User, store: Store, token: string) => {
+    async userLoggedOn(account: Account, user: User, store: Store, token: string)  {
         this.checkForUpdate();
-        this.setState({isLoggedOn: account!==undefined && user!==undefined && token!==undefined && store!==undefined,
+        const isLoggedOn: boolean = account!==undefined && user!==undefined && token!==undefined && store!==undefined;
+        this.setState({
+          isLoggedOn,
           account,
           user,
           store,
           token
         });
-        fetchVisitTypes();
-        fetchUserDefinedCodes();
     }
 
     logout = () => {
@@ -222,7 +220,7 @@ export class EhrApp extends Component {
               onRegistered={(registration: Registration) => this.safeRegistration(registration)}/>
         }
         if (!this.state.isLoggedOn) {
-            return <LoginScreen registration={this.state.registration} onLogin={this.userLoggedOn} onReset={this.reset}/>
+            return <LoginScreen registration={this.state.registration} onLogin={(account: Account, user: User, store: Store, token: string) => this.userLoggedOn(account, user, store, token)} onReset={this.reset}/>
         }
         return <DoctorApp registration={this.state.registration} account={this.state.account} user={this.state.user} token={this.state.token} store={this.state.store} onLogout={this.logout}/>
     }
