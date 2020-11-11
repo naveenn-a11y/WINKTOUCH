@@ -19,7 +19,8 @@ import { ReferralCard, PrescriptionCard, AssessmentCard, VisitSummaryCard } from
 import { cacheItem, getCachedItem, getCachedItems, cacheItemsById, cacheItemById } from './DataCache';
 import { searchItems, storeItem, performActionOnItem, fetchItemById, stripDataType } from './Rest';
 import { fetchAppointment } from './Appointment';
-import { printRx, printClRx, printMedicalRx, printHtml } from './Print';
+import { printRx, printClRx, printMedicalRx } from './Print';
+import { printHtml } from '../src/components/HtmlToPdf';
 import { PatientDocumentPage } from './Patient';
 import { PatientMedicationCard } from './Medication';
 import { PatientRefractionCard } from './Refraction';

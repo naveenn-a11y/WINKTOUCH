@@ -37,6 +37,12 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
       activeEditor: undefined,
     };
   }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.value !== prevProps.value) {
+      this.setContent(this.props.value);
+    }
+  }
   async getContent(): string {
     return this.state.activeEditor.getContent({format: 'raw'});
   }
@@ -61,13 +67,18 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
   }
 
   render() {
-      console.log("VALUEEEEEEEEEEEEEEEEEEE: " + JSON.stringify(this.props.value));
     return (
       <Editor
         initialValue={this.props.value}
         init={{
           setup: (editor) => {
-            this.setState({activeEditor: editor});
+            this.setState({activeEditor: editor}),
+              editor.on('init', function (e) {
+                editor.setContent(this.props.value, {format: 'raw'});
+              });
+          },
+          images_dataimg_filter: function (img) {
+            return img.hasAttribute('internal-blob');
           },
           selector: '#mytextarea',
           height: windowHeight - 150 * fontScale,

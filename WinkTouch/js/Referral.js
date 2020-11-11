@@ -20,7 +20,7 @@ import { getCachedItems, getCachedItem } from './DataCache';
 import { renderExamHtml, getExam, UserAction } from './Exam';
 import { stripDataType } from './Rest';
 import { initValues, getImageBase64Definition, patientHeader, patientFooter } from './PatientFormHtml';
-import { printHtml, generatePDF } from './Print';
+import { printHtml, generatePDF } from '../src/components/HtmlToPdf';
 import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
 import { isEmpty, sort, yearDateFormat, yearDateTime24Format, formatDate, isSameDay, parseDate } from './Util';

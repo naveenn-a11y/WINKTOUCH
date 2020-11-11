@@ -23,7 +23,7 @@ import RNBeep from 'react-native-a-beep';
 import { getStore } from './DoctorApp';
 import { strings } from './Strings';
 import {  getMimeType } from './Upload';
-import { printHtml, generatePDF } from './Print';
+import { printHtml, generatePDF } from '../src/components/HtmlToPdf';
 import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { fetchPatientInfo } from './Patient';
