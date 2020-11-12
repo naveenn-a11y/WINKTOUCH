@@ -9,10 +9,7 @@
             {
               "name": "Method",
               "label": "Méthode",
-              "options": [
-                "Alignement",
-                "Embrouillement"
-              ]
+              "options": ["Alignement", "Embrouillement"]
             },
             {
               "name": "Dominant eye",
@@ -34,10 +31,7 @@
         {
           "name": "Method",
           "freestyle": false,
-          "options": [
-            "Alignment",
-            "Lens fogging"
-          ]
+          "options": ["Alignment", "Lens fogging"]
         },
         {
           "name": "Dominant eye",

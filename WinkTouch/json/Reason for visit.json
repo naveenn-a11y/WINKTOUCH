@@ -26,10 +26,7 @@
               "label": "Non-présenté",
               "normalValue": "Présenté",
               "defaultValue": "Présenté",
-              "options": [
-                "Présenté",
-                "Non-présenté"
-              ]
+              "options": ["Présenté", "Non-présenté"]
             }
           ]
         }
@@ -64,10 +61,7 @@
           "normalValue": "Show",
           "name": "No show",
           "defaultValue": "Show",
-          "options": [
-            "Show",
-            "No show"
-          ]
+          "options": ["Show", "No show"]
         }
       ]
     }

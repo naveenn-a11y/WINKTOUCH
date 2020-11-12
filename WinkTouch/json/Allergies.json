@@ -15,13 +15,9 @@
     }
   },
   "name": "Allergies",
-  "cardFields": [
-    "Allergy"
-  ],
+  "cardFields": ["Allergy"],
   "starable": true,
-  "essentialFields": [
-    "Allergy"
-  ],
+  "essentialFields": ["Allergy"],
   "type": "selectionLists",
   "section": "History.24",
   "fields": [

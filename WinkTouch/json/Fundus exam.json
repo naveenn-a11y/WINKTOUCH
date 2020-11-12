@@ -95,10 +95,7 @@
                   "label": "Réflexe Fovéal",
                   "normalValue": "Oui",
                   "defaultValue": "Non",
-                  "options": [
-                    "Non",
-                    "Oui"
-                  ]
+                  "options": ["Non", "Oui"]
                 },
                 {
                   "name": "Retina",
@@ -108,11 +105,7 @@
                 {
                   "name": "Posterior pole",
                   "label": "PÃ´le Postérieur",
-                  "options": [
-                    "Clair",
-                    "Aucune déchirure",
-                    "Déchirures notées"
-                  ],
+                  "options": ["Clair", "Aucune déchirure", "Déchirures notées"],
                   "normalValue": "Clair"
                 },
                 {
@@ -209,10 +202,7 @@
                   "label": "Réflexe Fovéal",
                   "normalValue": "Oui",
                   "defaultValue": "Non",
-                  "options": [
-                    "Non",
-                    "Oui"
-                  ]
+                  "options": ["Non", "Oui"]
                 },
                 {
                   "name": "Retina",
@@ -222,11 +212,7 @@
                 {
                   "name": "Posterior pole",
                   "label": "PÃ´le Postérieur",
-                  "options": [
-                    "Clair",
-                    "Aucune déchirure",
-                    "Déchirures notées"
-                  ],
+                  "options": ["Clair", "Aucune déchirure", "Déchirures notées"],
                   "normalValue": "Clair"
                 },
                 {
@@ -244,10 +230,7 @@
               "name": "Dilated",
               "label": "Dilaté",
               "defaultValue": "Non",
-              "options": [
-                "Non",
-                "Dilaté"
-              ]
+              "options": ["Non", "Dilaté"]
             },
             {
               "name": "Lens",
@@ -262,10 +245,7 @@
   "starable": true,
   "type": "groupedForm",
   "section": "Posterior exam.2",
-  "relatedExams": [
-    "Dilation",
-    "Chief complaint"
-  ],
+  "relatedExams": ["Dilation", "Chief complaint"],
   "fields": [
     {
       "name": "OD",
@@ -289,46 +269,25 @@
     },
     {
       "name": "Posterior",
-      "columns": [
-        [
-          "OD",
-          ">>",
-          "OS"
-        ]
-      ],
+      "columns": [["OD", ">>", "OS"]],
       "multiValue": false,
-      "rows": [
-        [
-          "Lens",
-          "Ophtalmoscopy",
-          "Dilated"
-        ]
-      ],
+      "rows": [["Lens", "Ophtalmoscopy", "Dilated"]],
       "size": "L",
       "fields": [
         {
           "name": "Lens",
-          "suffix": [
-            " ",
-            ""
-          ],
+          "suffix": [" ", ""],
           "freestyle": true,
           "options": "posteriorLensCodes"
         },
         {
           "name": "Dilated",
           "defaultValue": "No",
-          "options": [
-            "No",
-            "Dilated"
-          ]
+          "options": ["No", "Dilated"]
         },
         {
           "name": "Ophtalmoscopy",
-          "options": [
-            "Direct",
-            "Indirect"
-          ]
+          "options": ["Direct", "Indirect"]
         },
         {
           "name": "OD",
@@ -355,11 +314,7 @@
               "name": "C/D Ratio",
               "normalValue": "WNL",
               "combineOptions": true,
-              "suffix": [
-                " ",
-                " ",
-                " "
-              ],
+              "suffix": [" ", " ", " "],
               "freestyle": true,
               "options": [
                 [
@@ -427,10 +382,7 @@
             {
               "name": "Foveal reflex",
               "defaultValue": "No",
-              "options": [
-                "No",
-                "Yes"
-              ],
+              "options": ["No", "Yes"],
               "normalValue": "Yes"
             },
             {
@@ -442,11 +394,7 @@
             {
               "name": "Posterior pole",
               "freestyle": true,
-              "options": [
-                "Clear",
-                "No breaks",
-                "Tears noted"
-              ],
+              "options": ["Clear", "No breaks", "Tears noted"],
               "normalValue": "Clear"
             },
             {
@@ -482,11 +430,7 @@
               "name": "C/D Ratio",
               "normalValue": "WNL",
               "combineOptions": true,
-              "suffix": [
-                " ",
-                " ",
-                " "
-              ],
+              "suffix": [" ", " ", " "],
               "freestyle": true,
               "options": [
                 [
@@ -554,10 +498,7 @@
             {
               "name": "Foveal reflex",
               "defaultValue": "No",
-              "options": [
-                "No",
-                "Yes"
-              ],
+              "options": ["No", "Yes"],
               "normalValue": "Yes"
             },
             {
@@ -569,11 +510,7 @@
             {
               "name": "Posterior pole",
               "freestyle": true,
-              "options": [
-                "Clear",
-                "No breaks",
-                "Tears noted"
-              ],
+              "options": ["Clear", "No breaks", "Tears noted"],
               "normalValue": "Clear"
             },
             {

@@ -195,16 +195,12 @@
             {
               "name": "OD",
               "normalValue": "Smooth and precise",
-              "options": [
-                "Smooth and precise"
-              ]
+              "options": ["Smooth and precise"]
             },
             {
               "name": "OS",
               "normalValue": "Smooth and precise",
-              "options": [
-                "Smooth and precise"
-              ]
+              "options": ["Smooth and precise"]
             }
           ]
         },
@@ -214,19 +210,15 @@
             {
               "name": "OD",
               "normalValue": "Smooth and precise",
-              "options": [
-                "Smooth and precise"
-              ]
+              "options": ["Smooth and precise"]
             },
             {
               "name": "OS",
               "normalValue": "Smooth and precise",
-              "options": [
-                "Smooth and precise"
-              ]
+              "options": ["Smooth and precise"]
             }
           ]
-        },
+        }
       ]
     }
   },
@@ -235,18 +227,11 @@
   "starable": true,
   "type": "groupedForm",
   "section": "Vision testing.5",
-  "relatedExams": [
-    "Cover test"
-  ],
+  "relatedExams": ["Cover test"],
   "fields": [
     {
       "name": "Phorias",
-      "columns": [
-        [
-          "Distant vision",
-          "Near vision"
-        ]
-      ],
+      "columns": [["Distant vision", "Near vision"]],
       "fields": [
         {
           "name": "Distant vision",
@@ -254,26 +239,16 @@
             {
               "name": "H",
               "minValue": 0,
-              "suffix": [
-                " Eso",
-                " Exo"
-              ],
+              "suffix": [" Eso", " Exo"],
               "maxValue": 50,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "V",
               "minValue": 0,
-              "suffix": [
-                " Hyper",
-                " Hypo"
-              ],
+              "suffix": [" Hyper", " Hypo"],
               "maxValue": 20,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             }
           ]
         },
@@ -283,26 +258,16 @@
             {
               "name": "H",
               "minValue": 0,
-              "suffix": [
-                " Eso",
-                " Exo"
-              ],
+              "suffix": [" Eso", " Exo"],
               "maxValue": 50,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "V",
               "minValue": 0,
-              "suffix": [
-                " Hyper",
-                " Hypo"
-              ],
+              "suffix": [" Hyper", " Hypo"],
               "maxValue": 20,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             }
           ]
         }
@@ -311,12 +276,7 @@
     },
     {
       "name": "Vergence BI",
-      "columns": [
-        [
-          "Distant",
-          "Near"
-        ]
-      ],
+      "columns": [["Distant", "Near"]],
       "fields": [
         {
           "name": "Distant",
@@ -326,9 +286,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -355,9 +313,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -381,12 +337,7 @@
     },
     {
       "name": "Vergence BO",
-      "columns": [
-        [
-          "Distant",
-          "Near"
-        ]
-      ],
+      "columns": [["Distant", "Near"]],
       "fields": [
         {
           "name": "Distant",
@@ -396,9 +347,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -425,9 +374,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -452,12 +399,7 @@
     {
       "optional": true,
       "name": "Vergence BU",
-      "columns": [
-        [
-          "Distant",
-          "Near"
-        ]
-      ],
+      "columns": [["Distant", "Near"]],
       "fields": [
         {
           "name": "Distant",
@@ -467,9 +409,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -496,9 +436,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -523,12 +461,7 @@
     {
       "optional": true,
       "name": "Vergence BD",
-      "columns": [
-        [
-          "Distant",
-          "Near"
-        ]
-      ],
+      "columns": [["Distant", "Near"]],
       "fields": [
         {
           "name": "Distant",
@@ -538,9 +471,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -567,9 +498,7 @@
               "minValue": 0,
               "freestyle": true,
               "suffix": " cm",
-              "options": [
-                "X"
-              ],
+              "options": ["X"],
               "maxValue": 50
             },
             {
@@ -594,12 +523,7 @@
     {
       "optional": false,
       "name": "Accomodation",
-      "columns": [
-        [
-          "OD",
-          "OS"
-        ]
-      ],
+      "columns": [["OD", "OS"]],
       "fields": [
         {
           "name": "OD",
@@ -659,17 +583,13 @@
           "normalValue": "Smooth and precise",
           "name": "OD",
           "freestyle": true,
-          "options": [
-            "Smooth and precise"
-          ]
+          "options": ["Smooth and precise"]
         },
         {
           "normalValue": "Smooth and precise",
           "name": "OS",
           "freestyle": true,
-          "options": [
-            "Smooth and precise"
-          ]
+          "options": ["Smooth and precise"]
         }
       ]
     },
@@ -682,17 +602,13 @@
           "normalValue": "Smooth and precise",
           "name": "OD",
           "freestyle": true,
-          "options": [
-            "Smooth and precise"
-          ]
+          "options": ["Smooth and precise"]
         },
         {
           "normalValue": "Smooth and precise",
           "name": "OS",
           "freestyle": true,
-          "options": [
-            "Smooth and precise"
-          ]
+          "options": ["Smooth and precise"]
         }
       ]
     },

@@ -28,10 +28,7 @@
               "name": "Informed PT of side effects",
               "label": "Pt informé des effets sec.",
               "defaultValue": "Non",
-              "options": [
-                "Non",
-                "Oui"
-              ],
+              "options": ["Non", "Oui"],
               "normalValue": "Oui"
             }
           ]
@@ -40,15 +37,8 @@
     }
   },
   "cardFields": [
-    [
-      "Dilation.Time",
-      "Dilation.Eye",
-      "Dilation.Drug",
-      "Dilation.Quantity"
-    ],
-    [
-      "Dilation.Informed PT of side effects"
-    ]
+    ["Dilation.Time", "Dilation.Eye", "Dilation.Drug", "Dilation.Quantity"],
+    ["Dilation.Informed PT of side effects"]
   ],
   "starable": true,
   "type": "groupedForm",
@@ -82,10 +72,7 @@
         {
           "name": "Informed PT of side effects",
           "defaultValue": "No",
-          "options": [
-            "No",
-            "Yes"
-          ],
+          "options": ["No", "Yes"],
           "normalValue": "Yes"
         },
         {

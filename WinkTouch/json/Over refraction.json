@@ -25,11 +25,7 @@
   "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.6",
-  "relatedExams": [
-    "Auto refractor",
-    "Lensometry",
-    "Binocular"
-  ],
+  "relatedExams": ["Auto refractor", "Lensometry", "Binocular"],
   "fields": [
     {
       "hasVA": true,
