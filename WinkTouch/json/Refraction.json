@@ -5,10 +5,7 @@
   "section": "Vision testing.6",
   "cardGroup": "Subjective refraction",
   "graph": {
-    "fields": [
-      "Subjective refraction.od.sph",
-      "Subjective refraction.os.sph"
-    ]
+    "fields": ["Subjective refraction.od.sph", "Subjective refraction.os.sph"]
   },
   "locale": {
     "fr-CA": {
@@ -192,9 +189,5 @@
       ]
     }
   ],
-  "relatedExams": [
-    "Auto refractor",
-    "Lensometry",
-    "Binocular"
-  ]
+  "relatedExams": ["Auto refractor", "Lensometry", "Binocular"]
 }

@@ -22,9 +22,7 @@
   },
   "starable": true,
   "type": "selectionLists",
-  "essentialFields": [
-    "Procedure"
-  ],
+  "essentialFields": ["Procedure"],
   "editable": false,
   "section": "History.12",
   "fields": [
@@ -40,11 +38,7 @@
     },
     {
       "name": "Eye",
-      "options": [
-        "OD",
-        "OS",
-        "OU"
-      ]
+      "options": ["OD", "OS", "OU"]
     },
     {
       "maxLength": 500,

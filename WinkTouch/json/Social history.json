@@ -34,7 +34,7 @@
   "editable": true,
   "fields": [
     {
-       "name": "Smoking",
+      "name": "Smoking",
       "required": true,
       "freestyle": true,
       "options": "tobaccoUseCodes",

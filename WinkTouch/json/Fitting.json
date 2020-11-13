@@ -2,10 +2,7 @@
   "name": "Fitting",
   "scrollable": true,
   "cardFields": [
-    [
-      "Contact Lens Trial.Date",
-      "Contact Lens Trial.Trial type"
-    ],
+    ["Contact Lens Trial.Date", "Contact Lens Trial.Trial type"],
     [
       "OD: ",
       "Contact Lens Trial.Sph.OD",
@@ -55,60 +52,15 @@
       "name": "Contact Lens Trial",
       "entity": "clFitting",
       "columns": [
-        [
-          "Manufacturer",
-          "Brand",
-          "Design",
-          "Qty/Box",
-          ">>"
-        ],
-        [
-          "Type",
-          "Material",
-          "Wearing Period",
-          "Replacement"
-        ],
-        [
-          "Sph",
-          "Cyl",
-          "Axis",
-          "BC",
-          "Dia",
-          "Add",
-          "D/N",
-          ">>"
-        ],
-        [
-          "DVA",
-          "NVA",
-          "Solution"
-        ],
-        [
-          "Comfort",
-          "Vision",
-          "Rotation",
-          "Movement",
-          "Centration",
-          ">>"
-        ],
-        [
-          "Tear",
-          "Sclera",
-          "Limbal",
-          "Cornea",
-          "Lid",
-          ">>"
-        ]
+        ["Manufacturer", "Brand", "Design", "Qty/Box", ">>"],
+        ["Type", "Material", "Wearing Period", "Replacement"],
+        ["Sph", "Cyl", "Axis", "BC", "Dia", "Add", "D/N", ">>"],
+        ["DVA", "NVA", "Solution"],
+        ["Comfort", "Vision", "Rotation", "Movement", "Centration", ">>"],
+        ["Tear", "Sclera", "Limbal", "Cornea", "Lid", ">>"]
       ],
       "multiValue": true,
-      "rows": [
-        [
-          "Date",
-          "Trial type",
-          "Doctor",
-          "Follow-up"
-        ]
-      ],
+      "rows": [["Date", "Trial type", "Doctor", "Follow-up"]],
       "size": "XL",
       "fields": [
         {
@@ -485,11 +437,7 @@
               "minValue": 0,
               "stepSize": 0.25,
               "prefix": "+",
-              "suffix": [
-                " L",
-                " M",
-                " H"
-              ],
+              "suffix": [" L", " M", " H"],
               "maxValue": 20
             },
             {
@@ -499,11 +447,7 @@
               "minValue": 0,
               "stepSize": 0.25,
               "prefix": "+",
-              "suffix": [
-                " L",
-                " M",
-                " H"
-              ],
+              "suffix": [" L", " M", " H"],
               "maxValue": 20
             }
           ]
@@ -531,87 +475,36 @@
               "name": "OD",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
+              "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
+              "options": ["NLP"]
             },
             {
               "mappedField": "clFitting.va.dist.os",
               "name": "OS",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
+              "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
+              "options": ["NLP"]
             },
             {
               "mappedField": "clFitting.va.dist.ou",
               "name": "OU",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
+              "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
+              "options": ["NLP"]
             }
           ]
         },
@@ -623,87 +516,36 @@
               "name": "OD",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
+              "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
+              "options": ["NLP"]
             },
             {
               "mappedField": "clFitting.va.near.os",
               "name": "OS",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
+              "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
+              "options": ["NLP"]
             },
             {
               "mappedField": "clFitting.va.near.ou",
               "name": "OU",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "groupSize": 0,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "+1",
-                "+2",
-                "+3"
-              ],
+              "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": [
-                "NLP"
-              ]
+              "options": ["NLP"]
             }
           ]
         },
@@ -906,57 +748,21 @@
                   "name": "OD",
                   "prefix": "20/\u200B",
                   "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "maxValue": 600
                 },
                 {
                   "name": "OS",
                   "prefix": "20/\u200B",
                   "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "maxValue": 600
                 },
                 {
                   "name": "OU",
                   "prefix": "20/\u200B",
                   "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "maxValue": 600
                 }
               ]
@@ -968,57 +774,21 @@
                   "name": "OD",
                   "prefix": "20/\u200B",
                   "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "maxValue": 600
                 },
                 {
                   "name": "OS",
                   "prefix": "20/\u200B",
                   "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "maxValue": 600
                 },
                 {
                   "name": "OU",
                   "prefix": "20/\u200B",
                   "minValue": 15,
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "maxValue": 600
                 }
               ]
@@ -1080,21 +850,15 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": [
-                    "APL"
-                  ]
+                  "options": ["APL"]
                 },
                 {
                   "name": "OS",
-                  "options": [
-                    "APL"
-                  ]
+                  "options": ["APL"]
                 },
                 {
                   "name": "OU",
-                  "options": [
-                    "APL"
-                  ]
+                  "options": ["APL"]
                 }
               ]
             },
@@ -1104,21 +868,15 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": [
-                    "APL"
-                  ]
+                  "options": ["APL"]
                 },
                 {
                   "name": "OS",
-                  "options": [
-                    "APL"
-                  ]
+                  "options": ["APL"]
                 },
                 {
                   "name": "OU",
-                  "options": [
-                    "APL"
-                  ]
+                  "options": ["APL"]
                 }
               ]
             },

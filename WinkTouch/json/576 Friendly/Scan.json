@@ -8,7 +8,7 @@
     {
       "name": "Chart",
       "multiValue": true,
-      "size":"XL",
+      "size": "XL",
       "fields": [
         {
           "name": "Exam chart scan",

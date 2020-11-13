@@ -76,15 +76,8 @@
           "name": "Notes"
         }
       ],
-      "rows": [
-        [
-          "Amount",
-          "Unit"
-        ]
-      ]
+      "rows": [["Amount", "Unit"]]
     }
   ],
-  "relatedExams": [
-    "Diagnose"
-  ]
+  "relatedExams": ["Diagnose"]
 }

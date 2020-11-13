@@ -32,10 +32,7 @@
         {
           "name": "Do not substitute",
           "label": "Ne pas substituer",
-          "options": [
-            "",
-            "Ne pas substituer"
-          ]
+          "options": ["", "Ne pas substituer"]
         },
         {
           "name": "Comment",
@@ -48,14 +45,9 @@
       ]
     }
   },
-  "cardFields": [
-    "Label",
-    "Strength"
-  ],
+  "cardFields": ["Label", "Strength"],
   "starable": true,
-  "essentialFields": [
-    "Label"
-  ],
+  "essentialFields": ["Label"],
   "type": "selectionLists",
   "fields": [
     {
@@ -105,10 +97,7 @@
       "normalValue": "",
       "name": "Do not substitute",
       "defaultValue": "",
-      "options": [
-        "",
-        "Do not substitute"
-      ]
+      "options": ["", "Do not substitute"]
     },
     {
       "maxLength": 500,
