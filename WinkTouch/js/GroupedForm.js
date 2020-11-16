@@ -1382,7 +1382,7 @@ export class GroupedForm extends Component {
         )}
         {this.props.onAdd && (
           <TouchableOpacity
-            onPress={this.props.onAdd}
+            onPress={() => this.props.onAdd()}
             testID={this.props.fieldId + '.plusIcon'}>
             <Plus style={styles.groupIcon} />
           </TouchableOpacity>
