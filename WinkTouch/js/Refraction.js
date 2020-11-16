@@ -11,7 +11,6 @@ import {
   ScrollView,
   LayoutAnimation,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import type {
@@ -27,7 +26,7 @@ import type {
 } from './Types';
 import {styles, fontScale} from './Styles';
 import {strings} from './Strings';
-import {NumberField, TilesField, Button, Label} from './Widgets';
+import {NumberField, TilesField, Button, Label, NativeBar} from './Widgets';
 import {Anesthetics} from './EyeTest';
 import {
   formatDegree,
@@ -65,6 +64,7 @@ import {importData, exportData} from './MappedField';
 import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient} from './Exam';
+import {Alert} from './Alert';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
@@ -729,6 +729,9 @@ export class GlassesDetail extends Component {
   state: {
     prism: boolean,
     isTyping: boolean,
+    importedData: any,
+    showDialog: boolean,
+    showSnackBar: boolean,
   };
   static defaultProps = {
     editable: true,
@@ -740,6 +743,8 @@ export class GlassesDetail extends Component {
     this.state = {
       prism: hasPrism(this.props.glassesRx),
       isTyping: false,
+      showDialog: false,
+      showSnackBar: false,
     };
   }
 
@@ -820,30 +825,39 @@ export class GlassesDetail extends Component {
     this.refs[fieldRef].startEditing();
   };
 
+  hideDialog() {
+    this.setState({showDialog: false});
+  }
+  showDialog(data: any) {
+    this.setState({importedData: data, showDialog: true});
+  }
+  showSnackBar() {
+    this.setState({showSnackBar: true});
+  }
+  hideSnackBar() {
+    this.setState({showSnackBar: false});
+  }
+  importSelectedData(importData: Measurement) {
+    let glassesRx: GlassesRx = this.props.glassesRx;
+    glassesRx.lensType = importData.data.lensType;
+    glassesRx.od = {...importData.data.od};
+    glassesRx.os = {...importData.data.os};
+    if (this.props.onChangeGlassesRx) {
+      this.setState({prism: hasPrism(glassesRx)});
+      this.props.onChangeGlassesRx(glassesRx);
+    }
+    this.hideDialog();
+  }
   async importData() {
     const data = await importData(
       this.props.definition.import,
       this.props.examId,
     );
-    if (data === undefined || data === null) return;
+    if (data === undefined || data === null) {
+      this.showSnackBar();
+    }
     if (data instanceof Array) {
-      const options = data.map((importData: Measurement) => {
-        return {
-          text: importData.label,
-          onPress: () => {
-            let glassesRx: GlassesRx = this.props.glassesRx;
-            glassesRx.lensType = importData.data.lensType;
-            glassesRx.od = {...importData.data.od};
-            glassesRx.os = {...importData.data.os};
-            if (this.props.onChangeGlassesRx) {
-              this.setState({prism: hasPrism(glassesRx)});
-              this.props.onChangeGlassesRx(glassesRx);
-            }
-          },
-        };
-      });
-      options.push({text: strings.cancel});
-      Alert.alert(strings.importDataQuestion, undefined, options);
+      this.showDialog(data);
     } else {
       let glassesRx: GlassesRx = this.props.glassesRx;
       glassesRx.lensType = data.data.lensType;
@@ -884,7 +898,31 @@ export class GlassesDetail extends Component {
       }
     }
   }
+  renderAlert() {
+    const importedData: any = this.state.importedData;
+    if (!importedData) return null;
+    return (
+      <Alert
+        title={strings.importDataQuestion}
+        data={importedData}
+        dismissable={true}
+        onConfirmAction={(selectedData: Measurement) =>
+          this.importSelectedData(selectedData)
+        }
+        onCancelAction={() => this.hideDialog()}
+        style={styles.alert}
+      />
+    );
+  }
 
+  renderSnackBar() {
+    return (
+      <NativeBar
+        message={strings.importDataNotFound}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
+  }
   render() {
     if (!this.props.glassesRx) return null;
     if (!this.props.glassesRx.od || !this.props.glassesRx.os) return null;
@@ -1316,6 +1354,8 @@ export class GlassesDetail extends Component {
             </TouchableOpacity>
           )}
         </View>
+        {this.state.importedData && this.state.showDialog && this.renderAlert()}
+        {this.state.showSnackBar && this.renderSnackBar()}
       </View>
     );
   }

@@ -1,15 +1,14 @@
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import React, {Component} from 'react';
 
-
 export default class CustomDateTimePicker extends Component {
   props: {
     selected: Date,
     onChange: (date: Date) => void,
     onCancel: () => void,
     isVisible: boolean,
-    confirmTextIOS?: string,
-    cancelTextIOS?: string,
+    confirmText?: string,
+    cancelText?: string,
     confirmTextStyle?: any,
     cancelTextStyle?: any,
   };
@@ -27,9 +26,9 @@ export default class CustomDateTimePicker extends Component {
         mode="date"
         onConfirm={this.props.onChange}
         onCancel={this.props.onCancel}
-        confirmTextIOS={this.props.confirmTextIOS}
+        confirmTextIOS={this.props.confirmText}
         confirmTextStyle={this.props.confirmTextStyle}
-        cancelTextIOS={this.props.cancelTextIOS}
+        cancelTextIOS={this.props.cancelText}
         cancelTextStyle={this.props.cancelTextStyle}
       />
     );

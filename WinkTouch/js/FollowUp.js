@@ -7,7 +7,7 @@ import type { Visit } from './Types';
 
 import React, { Component } from 'react';
 import ReactNative, { View, Text, Image, LayoutAnimation, TouchableHighlight, ScrollView, Modal, Dimensions,
-  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules, Alert } from 'react-native';
+  TouchableOpacity, TouchableWithoutFeedback, InteractionManager, TextInput, Keyboard, FlatList, NativeModules } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, fontScale, selectionColor, selectionFontColor, fieldBorderColor } from './Styles';
 import { Button,TilesField, Label, SelectionList } from './Widgets';
@@ -27,6 +27,7 @@ import { printHtml, generatePDF } from '../src/components/HtmlToPdf';
 import { deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { fetchPatientInfo } from './Patient';
+import {Alert} from './Alert';
 
 
 const COMMAND = {
@@ -51,7 +52,8 @@ type FollowUpScreenState = {
     isPopupVisibile: ? boolean,
     emailDefinition : ? EmailDefinition,
     command: COMMAND,
-    isDirty: boolean
+    isDirty: boolean,
+    showDialog: boolean,
 };
 
 
@@ -70,7 +72,8 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
       allRefStatusCode: [],
       emailDefinition: {},
       command: undefined,
-      isDirty: false
+      isDirty: false,
+      showDialog: false,
       }
 
   }
@@ -221,24 +224,26 @@ export class FollowUpScreen extends Component<FollowUpScreenProps, FollowUpScree
     this.setState({selectedItem: undefined});
   }
 
-  confirmDeleteReferral(selectedItem: FollowUp) {
+  showDialog(selectedItem: FollowUp) {
       if(selectedItem === undefined) {
-          alert('item not selected');
+          alert(strings.itemNotSelected);
           return;
       }
-      Alert.alert(
-        strings.deleteReferralTitle,
-        strings.formatString(strings.deleteReferralQuestion, selectedItem.ref, formatDate(selectedItem.date, jsonDateFormat)),
-        [
-          {
-            text: strings.cancel,
-            style: 'cancel',
-          },
-          {text: strings.confirm, onPress: () => this.deleteItem(selectedItem)},
-        ],
-        {cancelable: false},
-      );
+      this.setState({selectedItem: selectedItem, showDialog: true});
     }
+  confirmDeleteReferral() {
+      const selectedItem : FollowUp = this.state.selectedItem;
+      if(selectedItem === undefined) {
+          alert(strings.itemNotSelected);
+          return;
+      }
+    this.deleteItem(selectedItem);
+    this.hideDialog();
+  }
+
+  hideDialog() {
+    this.setState({showDialog: false});
+  }
 
   componentDidMount() {
     this.loadFollowUp();
@@ -495,7 +500,12 @@ async openPatientFile() {
       return false;
   }
   
-
+  renderAlert() {
+     const selectedItem : FollowUp = this.state.selectedItem;
+    return <Alert title={strings.deleteReferralTitle} message={strings.formatString(strings.deleteReferralQuestion, selectedItem.ref, formatDate(selectedItem.date, jsonDateFormat))}
+                 dismissable={false} onConfirmAction={ () => this.confirmDeleteReferral()} onCancelAction={() => this.hideDialog()}
+                 confirmActionLabel={strings.confirm} cancelActionLabel={strings.cancel} style={styles.alert} />
+  }
   renderFollowUp() {
     const listFollowUp : FollowUp[] = this.state.allFollowUp;
     let style = this.props.isDraft ? styles.tabCardFollowUp2 : styles.tabCardFollowUp1;
@@ -507,7 +517,7 @@ async openPatientFile() {
         <View style={style}>
                <TableList items = {listFollowUp} onUpdate={(item) => this.updateItem(item)} selection={this.state.selectedItem}
                onUpdateSelection= {(value) => this.selectItem(value)}
-               onDeleteSelection= {(value) => this.confirmDeleteReferral(value)} isForPatient = {isEmpty(patientInfo)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
+               onDeleteSelection= {(value) => this.showDialog(value)} isForPatient = {isEmpty(patientInfo)} isDraft = {this.props.isDraft} onRefreshList={() => this.refreshList()}
                navigation = {this.props.navigation}
                />
         </View>
@@ -515,6 +525,7 @@ async openPatientFile() {
        <Modal visible={this.state.isPopupVisibile} transparent={true} animationType={'slide'} onRequestClose={this.cancelEdit}>
         {this.renderPopup()}
       </Modal>
+        {this.state.showDialog && this.state.selectedItem && this.renderAlert()}
   </View>
     )}
 
@@ -533,7 +544,7 @@ async openPatientFile() {
            {this.state.selectedItem && visit && this.shouldActivateEdit() && <Button title={strings.edit} disabled={!this.state.isActive} onPress={() => {this.props.navigation.navigate('referral', {visit:  visit, referral: this.state.selectedItem, followUp: false, followUpStateKey: this.props.navigation.state.key, patientInfo: patientInfo})}}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateResend() && <Button title={strings.resend} onPress={() => this.resend()} disabled={!this.state.isActive}/>}
            {this.state.selectedItem && !isDraft && this.shouldActivateForward()  && <Button title={strings.forward} onPress={() => this.forward()} disabled={!this.state.isActive}/>}
-           {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.confirmDeleteReferral(this.state.selectedItem)} disabled={!this.state.isActive}/>}
+           {this.state.selectedItem && this.shouldActivateDelete() && <Button title={strings.deleteTitle} onPress={() => this.showDialog(this.state.selectedItem)} disabled={!this.state.isActive}/>}
            {this.state.selectedItem && !isDraft  && <Button title={strings.openFile} onPress={() => this.openPatientFile()} disabled={!this.state.isActive}/>}
 
         </View>

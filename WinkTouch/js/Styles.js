@@ -25,7 +25,6 @@ export const isIos = Platform.OS === 'ios';
 export const isAndroid = Platform.OS === 'android';
 export const isWeb = Platform.OS === 'web';
 
-
 if (isAndroid) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -1127,8 +1126,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0 * fontScale,
     right: 0 * fontScale,
-   // backgroundColor: 'orange',
-
+    // backgroundColor: 'orange',
   },
   floatingSubButton: {
     flex: 1,
@@ -1240,6 +1238,15 @@ export const styles = StyleSheet.create({
   },
   listSeparator: {
     backgroundColor: '#f0f0ff',
+  },
+  alert: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: 10 * fontScale,
+  },
+  bottomBar: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
 });
 

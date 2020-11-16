@@ -7,7 +7,7 @@ import React, {Component} from 'react';
 import codePush from 'react-native-code-push';
 import {DoctorApp} from './DoctorApp';
 import {EhrApp} from './EhrApp';
-
+import {isWeb} from './Styles';
 if ((process.env.NODE_ENV || '').toLowerCase() === 'production') {
   console.log = function () {};
   console.info = function () {};
@@ -22,5 +22,6 @@ export default class Index extends Component {
     //return <DoctorApp account={{companyName: 'Lavue'}} doctorId='user-1'/>
   }
 }
-
-Index = codePush({checkFrequency: codePush.CheckFrequency.MANUAL})(Index);
+ if(!isWeb) {
+  Index = codePush({checkFrequency: codePush.CheckFrequency.MANUAL})(Index);
+ }

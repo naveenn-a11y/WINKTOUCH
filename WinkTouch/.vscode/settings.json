@@ -1,13 +1,4 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "javascript.validate.enable": false,
-  "flow.path": "C:\\Users\\Samuel\\AppData\\Roaming\\npm\\node_modules\\flow-bin\\flow-win64-v0.35.0\\flow.exe",
-  "emeraldwalk.runonsave": {
-    "commands": [
-      {
-        "match": "\\\\js\\\\",
-        "cmd": "copy ${file} \\\\MINI-MAC\\Samuel\\Documents\\POC\\js"
-      }
-    ]
-  }
+  "flow.pathToFlow":"${workspaceRoot}/node_modules/.bin/flow",
 }
