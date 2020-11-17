@@ -5,7 +5,7 @@
       "fields": [
         {
           "name": "Hirschberg test",
-          "label": "Hirschberg",
+          "label": "Hirschberg"
         },
         {
           "name": "Bruckner test",
@@ -143,12 +143,7 @@
     },
     {
       "name": "Unilateral Cover Test",
-      "columns": [
-        [
-          "Distant vision",
-          "Near vision"
-        ]
-      ],
+      "columns": [["Distant vision", "Near vision"]],
       "size": "L",
       "fields": [
         {
@@ -161,9 +156,7 @@
               "freestyle": false,
               "suffix": "lateralTropiaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "Vertical",
@@ -171,16 +164,11 @@
               "label": "U Vertical",
               "suffix": "verticalTropiaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "U Noncomitant",
-              "options": [
-                "",
-                "U Noncomitant"
-              ]
+              "options": ["", "U Noncomitant"]
             }
           ]
         },
@@ -193,25 +181,18 @@
               "freestyle": false,
               "suffix": "lateralTropiaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "Vertical",
               "minValue": 0,
               "suffix": "verticalTropiaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "U Noncomitant",
-              "options": [
-                "",
-                "U Noncomitant"
-              ]
+              "options": ["", "U Noncomitant"]
             }
           ]
         },
@@ -223,12 +204,7 @@
     },
     {
       "name": "Alternating Cover Test",
-      "columns": [
-        [
-          "Distant vision",
-          "Near vision"
-        ]
-      ],
+      "columns": [["Distant vision", "Near vision"]],
       "size": "L",
       "fields": [
         {
@@ -240,9 +216,7 @@
               "label": "A Lateral",
               "suffix": "lateralPhoriaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "Vertical",
@@ -250,16 +224,11 @@
               "label": "A Lateral",
               "suffix": "verticalPhoriaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "A Noncomitant",
-              "options": [
-                "",
-                "A Noncomitant"
-              ]
+              "options": ["", "A Noncomitant"]
             }
           ]
         },
@@ -271,25 +240,18 @@
               "minValue": 0,
               "suffix": "lateralPhoriaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "Vertical",
               "minValue": 0,
               "suffix": "verticalPhoriaCodes",
               "maxValue": 40,
-              "options": [
-                "Ortho"
-              ]
+              "options": ["Ortho"]
             },
             {
               "name": "A Noncomitant",
-              "options": [
-                "",
-                "A Noncomitant"
-              ]
+              "options": ["", "A Noncomitant"]
             }
           ]
         },

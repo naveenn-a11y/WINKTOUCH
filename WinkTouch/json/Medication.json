@@ -28,16 +28,9 @@
       ]
     }
   },
-  "cardFields": [
-    "Label",
-    "Strength",
-    "Dosage",
-    "Frequency"
-  ],
+  "cardFields": ["Label", "Strength", "Dosage", "Frequency"],
   "starable": true,
-  "essentialFields": [
-    "Label"
-  ],
+  "essentialFields": ["Label"],
   "type": "selectionLists",
   "section": "History.23",
   "fields": [
