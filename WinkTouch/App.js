@@ -13,7 +13,6 @@ import {translate, setI18nConfig} from './src/components/LanguageProvider/Util';
 
 import Calendar from 'react-native-calendar';
 import DeviceInfo from 'react-native-device-info';
-import Mailer from 'react-native-mail';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {strings} from './src/components/LanguageProvider/Strings';
 
