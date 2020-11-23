@@ -919,7 +919,7 @@ async function renderImage(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += ` <g transform="scale(0.96 1)">`;
+                html += ` <g transform="scale(0.97 0.99)">`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `&nbsp;</svg>`;

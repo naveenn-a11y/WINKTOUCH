@@ -63,8 +63,9 @@ export class Pdf extends Component {
     const source = {
       uri: 'data:application/pdf;base64,' + this.state.upload.data,
     };
-    /*return (
-      <NativePdf
+    return (
+      <View></View>
+      /* <NativePdf
         source={source}
         fitWidth={true}
         fitPolicy={2}
@@ -78,8 +79,7 @@ export class Pdf extends Component {
           console.log(error);
         }}
         style={styles.patientDocument}
-      />
-    );*/
-    return null;
+      />*/
+    );
   }
 }

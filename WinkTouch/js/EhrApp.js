@@ -188,28 +188,26 @@ export class EhrApp extends Component {
     this.setRegistration(registration);
   }
 
-  userLoggedOn = (
+  async userLoggedOn(
     account: Account,
     user: User,
     store: Store,
     token: string,
-  ) => {
+  ) {
     this.checkForUpdate();
+    const isLoggedOn: boolean =
+      account !== undefined &&
+      user !== undefined &&
+      token !== undefined &&
+      store !== undefined;
     this.setState({
-      isLoggedOn:
-        account !== undefined &&
-        user !== undefined &&
-        token !== undefined &&
-        store !== undefined,
+      isLoggedOn,
       account,
       user,
       store,
       token,
     });
-
-    fetchVisitTypes();
-    fetchUserDefinedCodes();
-  };
+  }
 
   logout = () => {
     this.setState({
@@ -220,7 +218,6 @@ export class EhrApp extends Component {
       store: undefined,
     });
     lastUpdateCheck = undefined;
-
     this.checkForUpdate();
   };
 
@@ -247,35 +244,9 @@ export class EhrApp extends Component {
   startLockingDog() {
     //TODO
   }
-  async loadUserInfo() {
-    const account: Account = await AsyncStorage.getItem('userAccount');
-    const store: Store = await AsyncStorage.getItem('userStore');
-    const user: string = await AsyncStorage.getItem('user');
-    const token: string = await AsyncStorage.getItem('token');
-    console.log('Account: ' + JSON.stringify(account));
-    console.log('Store: ' + JSON.stringify(store));
-    console.log('User: ' + JSON.stringify(user));
-    console.log('Token: ' + JSON.stringify(token));
-    this.setState({
-      isLoggedOn:
-        account !== undefined &&
-        account !== null &&
-        user !== undefined &&
-        user !== null &&
-        token !== undefined &&
-        token !== null &&
-        store !== undefined &&
-        store !== null,
-      account,
-      user,
-      store,
-      token,
-    });
-  }
 
   componentDidMount() {
     this.loadRegistration();
-    //isWeb && this.loadUserInfo();
     this.startLockingDog();
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
@@ -314,12 +285,16 @@ export class EhrApp extends Component {
       return (
         <LoginScreen
           registration={this.state.registration}
-          onLogin={this.userLoggedOn}
+          onLogin={(
+            account: Account,
+            user: User,
+            store: Store,
+            token: string,
+          ) => this.userLoggedOn(account, user, store, token)}
           onReset={this.reset}
         />
       );
     }
-
     return (
       <DoctorApp
         registration={this.state.registration}

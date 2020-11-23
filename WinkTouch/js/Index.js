@@ -22,6 +22,6 @@ export default class Index extends Component {
     //return <DoctorApp account={{companyName: 'Lavue'}} doctorId='user-1'/>
   }
 }
- if(!isWeb) {
+if (!isWeb) {
   Index = codePush({checkFrequency: codePush.CheckFrequency.MANUAL})(Index);
- }
+}

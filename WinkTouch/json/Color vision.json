@@ -12,10 +12,7 @@
               "label": "Acquis",
               "normalValue": "Non",
               "defaultValue": "Non",
-              "options": [
-                "Non",
-                "Oui"
-              ]
+              "options": ["Non", "Oui"]
             }
           ]
         }
@@ -55,10 +52,7 @@
           "normalValue": "No",
           "name": "Aquired",
           "defaultValue": "No",
-          "options": [
-            "No",
-            "Yes"
-          ]
+          "options": ["No", "Yes"]
         }
       ]
     },

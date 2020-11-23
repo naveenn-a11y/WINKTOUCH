@@ -23,7 +23,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.04/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.04/';
 export let winkRestUrl = __DEV__
-  ? 'http://192.168.1.7:8080/WinkRESTv5.00.36/'
+  ? 'http://192.168.1.7:8080/WinkRESTv5.00.38/'
   : 'https://ws-touch.downloadwink.com/WinkRESTv' + restVersion + '/';
 
 export async function fetchWinkRest(

@@ -146,7 +146,28 @@ export class DocumentScanner extends Component {
                 resizeMode="contain"
               />
             )}
-
+            {
+              this.state.saving === false && this.state.image === undefined
+              /*<Scanner
+                useBase64={true}
+                onPictureTaken={(data) =>
+                  this.setState({image: data.croppedImage}, () =>
+                    this.tookPicture(data.croppedImage),
+                  )
+                }
+                captureMultiple={false}
+                overlayColor="rgba(255,130,0, 0.7)"
+                enableTorch={false}
+                useFrontCam={false}
+                brightness={0.2}
+                saturation={-0.1}
+                quality={1.0}
+                contrast={1.5}
+                detectionCountBeforeCapture={3}
+                detectionRefreshRateInMS={60}
+                style={styles.scanner}
+              />*/
+            }
             {this.state.image !== undefined && this.state.saving === false ? (
               <View style={styles.rowLayout}>
                 <CameraTile

@@ -911,6 +911,7 @@ export const styles = StyleSheet.create({
   wideFavorites: {
     flexShrink: 1,
     width: 1080 * fontScale,
+    height: 145 * fontScale,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -1127,7 +1128,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0 * fontScale,
     right: 0 * fontScale,
-    // backgroundColor: 'orange',
+    backgroundColor: 'orange',
   },
   floatingSubButton: {
     flex: 1,
@@ -1312,6 +1313,7 @@ function boardStyle(
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
+    maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
     maxHeight: isWeb && (size === 'M' || size === 'S') ? 500 : undefined,
     borderRadius: 30 * fontScale,

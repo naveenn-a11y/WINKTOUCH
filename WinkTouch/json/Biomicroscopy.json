@@ -51,9 +51,7 @@
                 {
                   "name": "TBUT",
                   "normalValue": "Dans les normes",
-                  "options": [
-                    "Dans les normes"
-                  ]
+                  "options": ["Dans les normes"]
                 }
               ]
             },
@@ -101,9 +99,7 @@
                 {
                   "name": "TBUT",
                   "normalValue": "Dans les normes",
-                  "options": [
-                    "Dans les normes"
-                  ]
+                  "options": ["Dans les normes"]
                 }
               ]
             }
@@ -173,13 +169,7 @@
     },
     {
       "name": "Anterior",
-      "columns": [
-        [
-          "OD",
-          ">>",
-          "OS"
-        ]
-      ],
+      "columns": [["OD", ">>", "OS"]],
       "size": "L",
       "fields": [
         {
@@ -237,13 +227,7 @@
             {
               "name": "Angle",
               "freestyle": true,
-              "options": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "> 4"
-              ],
+              "options": ["1", "2", "3", "4", "> 4"],
               "normalValue": "> 4"
             },
             {
@@ -252,17 +236,15 @@
               "name": "TBUT",
               "freestyle": true,
               "suffix": " s",
-              "options": [
-                "WNL"
-              ],
+              "options": ["WNL"],
               "maxValue": 8
             },
             {
-              "name":"TVOL",
-              "stepSize":5,
-              "freestyle":true,
-              "suffix":" mm / 5 min",
-              "options":["0","5","10","15","20"]
+              "name": "TVOL",
+              "stepSize": 5,
+              "freestyle": true,
+              "suffix": " mm / 5 min",
+              "options": ["0", "5", "10", "15", "20"]
             }
           ]
         },
@@ -321,13 +303,7 @@
             {
               "name": "Angle",
               "freestyle": true,
-              "options": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "> 4"
-              ],
+              "options": ["1", "2", "3", "4", "> 4"],
               "normalValue": "> 4"
             },
             {
@@ -336,17 +312,15 @@
               "name": "TBUT",
               "freestyle": true,
               "suffix": " s",
-              "options": [
-                "WNL"
-              ],
+              "options": ["WNL"],
               "maxValue": 8
             },
             {
-              "name":"TVOL",
-              "stepSize":5,
-              "freestyle":true,
-              "suffix":" mm / 5 min",
-              "options":["0","5","10","15","20"]
+              "name": "TVOL",
+              "stepSize": 5,
+              "freestyle": true,
+              "suffix": " mm / 5 min",
+              "options": ["0", "5", "10", "15", "20"]
             }
           ]
         }
@@ -365,9 +339,5 @@
       "size": "L"
     }
   ],
-  "relatedExams": [
-    "Tonometry",
-    "Chief complaint",
-    "Pupils"
-  ]
+  "relatedExams": ["Tonometry", "Chief complaint", "Pupils"]
 }

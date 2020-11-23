@@ -11,8 +11,6 @@ import {styles, fontScale, windowWidth, windowHeight} from './Styles.js';
 import {getExamHistory} from './Exam';
 import {formatMoment} from './Util';
 import {getCachedItem} from './DataCache';
-const isWeb = Platform.OS === 'web';
-//import HighchartsReactNative from '@highcharts/highcharts-react-native';
 type ChartData = {type: string, name: string, data: number[]};
 type ChartSeries = ChartData[];
 

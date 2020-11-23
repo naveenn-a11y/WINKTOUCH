@@ -46,9 +46,7 @@
   "name": "Chief complaint",
   "cardFields": [],
   "starable": true,
-  "essentialFields": [
-    "Chief complaint"
-  ],
+  "essentialFields": ["Chief complaint"],
   "type": "selectionLists",
   "section": "Chief complaint.2",
   "fields": [

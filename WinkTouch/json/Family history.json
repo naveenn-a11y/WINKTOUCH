@@ -16,13 +16,9 @@
       ]
     }
   },
-  "cardFields": [
-    "Disease / Condition"
-  ],
+  "cardFields": ["Disease / Condition"],
   "starable": true,
-  "essentialFields": [
-    "Disease / Condition"
-  ],
+  "essentialFields": ["Disease / Condition"],
   "type": "selectionLists",
   "editable": false,
   "section": "History.31",

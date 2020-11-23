@@ -26,7 +26,7 @@ import type {
   PatientDocument,
   Upload,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {FormRow, FormTextInput, FormInput, FormField, ErrorCard} from './Form';
 import {ExamCardSpecifics} from './Exam';
@@ -44,7 +44,6 @@ import {VisitHistoryCard} from './Visit';
 import {FindPatient} from './FindPatient';
 import {Button} from './Widgets';
 import {fetchAppointments, AppointmentSummary} from './Appointment';
-const isWeb = Platform.OS === 'web';
 
 export async function fetchPatientInfo(
   patientId: string,

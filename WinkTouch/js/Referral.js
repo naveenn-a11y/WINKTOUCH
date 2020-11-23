@@ -434,7 +434,6 @@ export class ReferralScreen extends Component<
         return;
       }
       const htmlContent: ReferralDocument = response;
-      console.log('CONTENTTTT: ' + JSON.stringify(htmlContent));
       let htmlHeader: string = patientHeader();
       let htmlEnd: string = patientFooter();
       let html = this.mapImageWithBase64(htmlContent.content);
@@ -635,7 +634,7 @@ export class ReferralScreen extends Component<
       if (response.errors) {
         alert(response.errors);
       } else {
-        !isWeb && RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
         this.setState({isPopupVisibile: false});
       }
     }
@@ -761,8 +760,6 @@ export class ReferralScreen extends Component<
   }
 
   renderEditor() {
-    console.log('Popup visilbe: ' + this.state.isPopupVisibile);
-    console.log('Commande: ' + JSON.stringify(this.state.command));
     return (
       <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
         <View style={styles.pageEditor}>

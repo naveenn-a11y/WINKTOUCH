@@ -282,9 +282,7 @@ export class ImageField extends Component {
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
-    console.log('BEFORE PATH: ' + image);
     const path: string = await loadBase64ImageForWeb(image);
-    console.log('PATHHH: ' + JSON.stringify(path));
     this.setState({imageWebUri: path});
   }
 
@@ -876,7 +874,6 @@ export class ImageField extends Component {
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
-    console.log('IMAGEEE: ' + JSON.stringify(image));
 
     if (image === undefined || image === 'upload') return undefined;
     if (image === './image/perimetry.png')

@@ -1,9 +1,6 @@
 {
   "graph": {
-    "fields": [
-      "Auto refractor.od.sph",
-      "Auto refractor.os.sph"
-    ]
+    "fields": ["Auto refractor.od.sph", "Auto refractor.os.sph"]
   },
   "order": "4",
   "locale": {
@@ -27,7 +24,7 @@
       "name": "Auto refractor",
       "multiValue": true,
       "type": "SRx",
-      "import": ["machine.autorefractor.rx","machine.tonoref.rx"]
+      "import": ["machine.autorefractor.rx", "machine.tonoref.rx"]
     },
     {
       "name": "Scan",

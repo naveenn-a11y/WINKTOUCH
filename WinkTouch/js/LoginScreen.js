@@ -20,10 +20,11 @@ import {
   Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import codePush from 'react-native-code-push';
 import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
 import base64 from 'base-64';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {Button, TilesField} from './Widgets';
 import {
   strings,
@@ -339,6 +340,7 @@ export class LoginScreen extends Component {
 
   render() {
     const style = [styles.centeredColumnLayout, {alignItems: 'center'}];
+
     const accountNames: string[] = this.state.accounts.map((account: Account) =>
       this.formatAccount(account),
     );
@@ -459,7 +461,9 @@ export class LoginScreen extends Component {
         <TouchableOpacity style={styles.flag} onPress={this.switchLanguage}>
           <Text style={styles.flagFont}>{getUserLanguageIcon()}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.version}>
+        <TouchableOpacity
+          style={styles.version}
+          onLongPress={() => !isWeb && codePush.restartApp()}>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
             {dbVersion}

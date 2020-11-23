@@ -322,11 +322,6 @@ export class CheckList extends PureComponent {
   };
 
   render() {
-    console.log('Props Styles: ' + JSON.stringify(this.props.style));
-    console.log(
-      'definition Styles: ' + JSON.stringify(this.props.definition.size),
-    );
-
     const style = this.props.style
       ? this.props.style
       : this.props.definition.size
@@ -1415,7 +1410,7 @@ export class GroupedForm extends Component {
         )}
         {this.props.onAdd && (
           <TouchableOpacity
-            onPress={this.props.onAdd}
+            onPress={() => this.props.onAdd()}
             testID={this.props.fieldId + '.plusIcon'}>
             <Plus style={styles.groupIcon} />
           </TouchableOpacity>
@@ -1455,19 +1450,6 @@ export class GroupedForm extends Component {
       : this.props.definition.size
       ? styles['board' + this.props.definition.size]
       : styles.board;
-    console.log('Props Style: ' + JSON.stringify(this.props.style));
-    console.log(
-      'Props Definition Style: ' + JSON.stringify(this.props.definition.layout),
-    );
-    console.log(
-      'Props Definition Style Scaled: ' +
-        JSON.stringify(scaleStyle(this.props.definition.layout)),
-    );
-    console.log(
-      'this.props.definition.size: ' +
-        JSON.stringify(this.props.definition.size),
-    );
-
     return (
       <View style={style} key={this.props.definition.name}>
         <Label

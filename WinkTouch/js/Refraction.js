@@ -270,6 +270,19 @@ export function hasPrism(glassesRx: GlassesRx): boolean {
   return false;
 }
 
+function getLensometry(visitId: string): GlassesRx {
+  if (!visitId) return undefined;
+  let lensometry = getExam('Lensometry', getCachedItem(visitId));
+  if (!lensometry) return undefined;
+  lensometry = lensometry.Lensometry;
+  if (!lensometry) return undefined;
+  lensometry = lensometry.Lensometry;
+  if (!lensometry || lensometry.length === undefined || lensometry.length < 0)
+    return undefined;
+  lensometry = lensometry[0];
+  return lensometry;
+}
+
 export class VA extends Component {
   state: {
     value: number,
@@ -589,9 +602,7 @@ export class GlassesSummary extends Component {
           )}
         <View style={styles.rowLayout}>
           <View style={styles.cardColumn}>
-            {this.props.showHeaders === true && (
-              <Text style={styles.text}></Text>
-            )}
+            {this.props.showHeaders === true && <Text style={styles.text} />}
             {<Text style={styles.text}>{'\t' + strings.od}:</Text>}
             {<Text style={styles.text}>{'\t' + strings.os}:</Text>}
           </View>
@@ -874,19 +885,21 @@ export class GlassesDetail extends Component {
     if (this.props.definition.export === undefined) return;
     const exam: Exam = getCachedItem(this.props.examId);
     const patient: Patient = getPatient(exam);
+    let data: any = deepClone(this.props.glassesRx);
+    data.lensometry = deepClone(getLensometry(exam.visitId));
     let measurement: Measurement = {
       label: this.props.title
         ? this.props.title
         : formatLabel(this.props.definition),
       date: formatDate(now(), jsonDateTimeFormat),
       patientId: patient.id,
-      data: this.props.glassesRx,
+      data,
     };
-    const data = await exportData(
-      this.props.definition.export[0],
-      measurement,
-      this.props.examId,
-    );
+    let machineIdentifier = this.props.definition.export;
+    if (machineIdentifier instanceof Array && machineIdentifier.length > 0) {
+      machineIdentifier = machineIdentifier[0]; //TODO: send to all destinations
+    }
+    data = await exportData(machineIdentifier, measurement, this.props.examId);
     const config = getConfiguration();
     if (config.machine && config.machine.phoropter) {
       const machineDefinition = getCodeDefinition(
@@ -894,6 +907,12 @@ export class GlassesDetail extends Component {
         config.machine.phoropter,
       );
       if (machineDefinition.ip) {
+        __DEV__ &&
+          console.log(
+            'Kicking controlling wink pc ' +
+              machineDefinition.ip +
+              ' in the http 80 butt',
+          );
         await fetch('http://' + machineDefinition.ip + ':80/m');
       }
     }
@@ -964,7 +983,7 @@ export class GlassesDetail extends Component {
             </View>
           )}
           <View style={styles.formRow}>
-            <Text style={styles.formTableRowHeader}></Text>
+            <Text style={styles.formTableRowHeader} />
             <Text style={styles.formTableColumnHeader}>
               {formatLabel(getFieldDefinition('visit.prescription.od.sph'))}
             </Text>
@@ -1001,7 +1020,7 @@ export class GlassesDetail extends Component {
               </Text>
             )}
             {this.props.editable && (
-              <View style={styles.formTableColumnHeaderSmall}></View>
+              <View style={styles.formTableColumnHeaderSmall} />
             )}
           </View>
           <View style={styles.formRow}>
@@ -1108,7 +1127,7 @@ export class GlassesDetail extends Component {
               />
             )}
             {this.props.editable && (
-              <View style={styles.formTableColumnHeaderSmall}></View>
+              <View style={styles.formTableColumnHeaderSmall} />
             )}
             {this.props.editable && <CopyRow onPress={this.copyOdOs} />}
           </View>
@@ -1209,24 +1228,24 @@ export class GlassesDetail extends Component {
               />
             )}
             {this.props.editable && (
-              <View style={styles.formTableColumnHeaderSmall}></View>
+              <View style={styles.formTableColumnHeaderSmall} />
             )}
           </View>
           {this.props.hasVA === true && this.props.glassesRx.ou !== undefined && (
             <View style={styles.formRow}>
               <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>
               <View style={styles.fieldFlexContainer}>
-                <Text style={styles.text}></Text>
+                <Text style={styles.text} />
               </View>
               <View style={styles.fieldFlexContainer}>
-                <Text style={styles.text}></Text>
+                <Text style={styles.text} />
               </View>
               <View style={styles.fieldFlexContainer}>
-                <Text style={styles.text}></Text>
+                <Text style={styles.text} />
               </View>
               {this.state.prism && (
                 <View style={styles.formElement2}>
-                  <Text style={styles.text}></Text>
+                  <Text style={styles.text} />
                 </View>
               )}
               <FormInput
@@ -1244,7 +1263,7 @@ export class GlassesDetail extends Component {
               />
               {this.props.hasAdd === true && (
                 <View style={styles.fieldFlexContainer}>
-                  <Text style={styles.text}></Text>
+                  <Text style={styles.text} />
                 </View>
               )}
               {this.props.hasAdd === true && (
@@ -1263,7 +1282,7 @@ export class GlassesDetail extends Component {
                 />
               )}
               {this.props.editable && (
-                <View style={styles.formTableColumnHeaderSmall}></View>
+                <View style={styles.formTableColumnHeaderSmall} />
               )}
             </View>
           )}

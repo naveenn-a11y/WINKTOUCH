@@ -24,10 +24,7 @@
               "name": "With effort",
               "label": "Avec effort",
               "defaultValue": "Non",
-              "options": [
-                "Non",
-                "Oui"
-              ],
+              "options": ["Non", "Oui"],
               "normalValue": "Non"
             }
           ]
@@ -66,9 +63,7 @@
         {
           "minValue": 0,
           "name": "Break",
-          "Options": [
-            "Nose"
-          ],
+          "Options": ["Nose"],
           "suffix": " cm",
           "freestyle": true,
           "maxValue": 50
@@ -76,9 +71,7 @@
         {
           "minValue": 0,
           "name": "Recovery",
-          "Options": [
-            "Nose"
-          ],
+          "Options": ["Nose"],
           "suffix": " cm",
           "freestyle": true,
           "maxValue": 50
@@ -86,10 +79,7 @@
         {
           "name": "With effort",
           "defaultValue": "No",
-          "options": [
-            "No",
-            "Yes"
-          ],
+          "options": ["No", "Yes"],
           "normalValue": "No"
         }
       ]
