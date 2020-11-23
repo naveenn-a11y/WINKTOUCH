@@ -23,7 +23,11 @@ import {getVisitTypes, fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes} from './Codes';
 import {isWeb} from './Styles';
 
-!isWeb && codePush.getCurrentPackage().then(currentPackage => {if (currentPackage!==null && currentPackage!==undefined) setDeploymentVersion(currentPackage.label)});
+!isWeb &&
+  codePush.getCurrentPackage().then((currentPackage) => {
+    if (currentPackage !== null && currentPackage !== undefined)
+      setDeploymentVersion(currentPackage.label);
+  });
 
 function logUpdateStatus(status: number) {
   switch (status) {
@@ -202,12 +206,6 @@ export class EhrApp extends Component {
       store,
       token,
     });
-    if (this.state.isLoggedOn && isWeb) {
-      AsyncStorage.setItem('userAccount', JSON.stringify(account));
-      AsyncStorage.setItem('userStore', JSON.stringify(store));
-      AsyncStorage.setItem('token', token);
-      AsyncStorage.setItem('user', JSON.stringify(user));
-    }
 
     fetchVisitTypes();
     fetchUserDefinedCodes();
@@ -222,12 +220,6 @@ export class EhrApp extends Component {
       store: undefined,
     });
     lastUpdateCheck = undefined;
-    if (isWeb) {
-      AsyncStorage.removeItem('userAccount');
-      AsyncStorage.removeItem('userStore');
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('user');
-    }
 
     this.checkForUpdate();
   };
@@ -283,7 +275,7 @@ export class EhrApp extends Component {
 
   componentDidMount() {
     this.loadRegistration();
-    isWeb && this.loadUserInfo();
+    //isWeb && this.loadUserInfo();
     this.startLockingDog();
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});

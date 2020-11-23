@@ -72,7 +72,7 @@ function isCloseBy(point: {x: number, y: nummber}, line: string) {
   return false;
 }
 
-export function getBase64Image(image: string) {
+export async function getBase64Image(image: string) {
   if (image === undefined || image === 'upload') return undefined;
   if (image === './image/perimetry.png')
     return require('./image/base64/perimetry');
@@ -110,8 +110,24 @@ export function getBase64Image(image: string) {
     return require('./image/base64/ToulchExamBack');
   if (image === './image/ToulchMeds.jpg')
     return require('./image/base64/ToulchMeds');
-  if (!image.startsWith('http:') && !image.startsWith('https:'))
-    return undefined;
+  if (image.startsWith('http:') || image.startsWith('https:')) {
+    const path: string = await loadBase64ImageForWeb(image);
+    return {data: path};
+  }
+  return undefined;
+}
+
+export async function loadBase64ImageForWeb(image: string): Promise<string> {
+  if (isWeb && (image.startsWith('http:') || image.startsWith('https:'))) {
+    const imageToBase64 = require('image-to-base64/browser');
+    const response = await imageToBase64(image);
+    const format: string = image.endsWith('jpg')
+      ? 'data:image/jpg;base64,'
+      : 'data:image/png;base64,';
+    const path: string = format.concat(response);
+
+    return path;
+  }
   return undefined;
 }
 
@@ -266,22 +282,10 @@ export class ImageField extends Component {
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
-    console.log('IMAGEEE: ' + JSON.stringify(image));
-    if (isWeb && (image.startsWith('http:') || image.startsWith('https:'))) {
-      const imageToBase64 = require('image-to-base64/browser');
-      imageToBase64(image)
-        .then((response) => {
-          const format: string = image.endsWith('jpg')
-            ? 'data:image/jpg;base64,'
-            : 'data:image/png;base64,';
-          const path: string = format.concat(response);
-          this.setState({imageWebUri: path});
-        })
-        .catch((error) => {
-          this.setState({imageWebUri: undefined});
-          console.log(JSON.stringify(error));
-        });
-    }
+    console.log('BEFORE PATH: ' + image);
+    const path: string = await loadBase64ImageForWeb(image);
+    console.log('PATHHH: ' + JSON.stringify(path));
+    this.setState({imageWebUri: path});
   }
 
   shouldComponentUpdate(nextProps, nextState): boolean {
@@ -785,8 +789,7 @@ export class ImageField extends Component {
       });
       const pdfData = await pdfDoc.saveAsBase64();
       const format: string = 'data:application/pdf;base64,';
-      AsyncStorage.setItem('printLink', format.concat(pdfData));
-      return '';
+      return format.concat(pdfData);
     } else {
       //__DEV__ && console.log('imagesize = '+width+'x'+height+' pageSize='+pageWidth+'x'+pageHeight);
       const page1 = PDFPage.create()
@@ -809,8 +812,14 @@ export class ImageField extends Component {
 
   async print() {
     const path: string = await this.generatePdf();
+    console.log('Image Web path: ' + path);
+
     if (isWeb) {
-      window.open('http://localhost:8081/pdfViewer', '_blank');
+      const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
+      var x = window.open();
+      x.document.open();
+      x.document.write(htmlContent);
+      x.document.close();
     } else {
       await NativeModules.RNPrint.print({filePath: path});
     }
@@ -1041,7 +1050,7 @@ export class ImageField extends Component {
     );
     const scale: number = style.width / this.resolution()[0];
     return (
-      <TouchableWithoutFeedback onPress={this.commitEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? {} : this.commitEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>{this.props.label}</Text>
           <View>
@@ -1055,12 +1064,16 @@ export class ImageField extends Component {
                 style={styles.solidWhite}
                 onStartShouldSetResponder={(event) => true}
                 onResponderGrant={(event) => this.penDown(event, scale)}
-                onResponderReject={(event) => this.setState({isActive: false})}
+                onResponderReject={(event) =>
+                  isWeb ? {} : this.setState({isActive: false})
+                }
                 onMoveShouldSetResponder={(event) => true}
                 onResponderTerminationRequest={(event) => false}
                 onResponderMove={(event) => this.updatePosition(event, scale)}
                 onResponderRelease={(event) => this.liftPen()}
-                onResponderTerminate={(event) => this.cancelEdit()}>
+                onResponderTerminate={(event) =>
+                  isWeb ? {} : this.cancelEdit()
+                }>
                 <Image source={this.requireImage()} style={style} />
                 {this.renderGraph(this.state.lines, style, scale)}
               </View>

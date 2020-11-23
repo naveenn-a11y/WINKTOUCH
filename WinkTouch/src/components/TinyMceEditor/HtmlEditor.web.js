@@ -61,9 +61,9 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
     this.state.activeEditor.setContent(`${html}`, {format: 'raw'});
   }
 
-  setDirty(html: Boolean) {
-    __DEV__ && console.log('Set raw html: ' + html);
-    this.state.activeEditor.setDirty(`${html}`);
+  afterSave() {
+    let javaScript: string = `tinymce.activeEditor.setDirty(false)`;
+    this.state.activeEditor.setDirty(false);
   }
 
   render() {

@@ -33,7 +33,7 @@ import type {
 } from './Types';
 import {styles, fontScale} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {Button, FloatingButton, Lock} from './Widgets';
+import {Button, FloatingButton, Lock, NativeBar} from './Widgets';
 import {
   formatMoment,
   deepClone,
@@ -582,6 +582,7 @@ class VisitWorkFlow extends Component {
     addableSections: string[],
     locked: boolean,
     rxToOrder: ?Exam,
+    showSnackBar: ?boolean,
   };
 
   constructor(props: any) {
@@ -594,6 +595,7 @@ class VisitWorkFlow extends Component {
       addableSections: [],
       locked: locked,
       rxToOrder: this.findRxToOrder(visit),
+      showSnackBar: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
   }
@@ -867,6 +869,26 @@ class VisitWorkFlow extends Component {
     this.loadUnstartedExamTypes(this.state.visit);
   };
 
+  showSnackBar() {
+    this.setState({showSnackBar: true});
+  }
+  hideSnackBar() {
+    this.setState({showSnackBar: false});
+  }
+
+  async transferRx(visitId: string) {
+    await transferRx(visitId);
+    this.showSnackBar();
+  }
+
+  renderSnackBar() {
+    return (
+      <NativeBar
+        message={strings.transferRxSuccess}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
+  }
   renderExams(section: string, exams: ?(Exam[]), isPreExam: boolean) {
     if (exams) {
       if (!isPreExam) {
@@ -1017,7 +1039,7 @@ class VisitWorkFlow extends Component {
             <Button
               title={strings.transferRx}
               onPress={() => {
-                transferRx(this.props.visitId);
+                this.transferRx(this.props.visitId);
               }}
             />
           )}
@@ -1138,6 +1160,7 @@ class VisitWorkFlow extends Component {
         <View style={styles.flow}>{this.renderAssessments()}</View>
         {this.renderActionButtons()}
         {this.renderLockIcon()}
+        {this.state.showSnackBar && this.renderSnackBar()}
       </View>
     );
   }

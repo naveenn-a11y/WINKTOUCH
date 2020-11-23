@@ -7,6 +7,7 @@ class RNBeep {
   static PlaySysSound(soundID) {
     console.log('RNBeep PlaySound not handled for web');
   }
+  static AndroidSoundIDs = {};
+  static iOSSoundIDs = {};
 }
-
 export default RNBeep;

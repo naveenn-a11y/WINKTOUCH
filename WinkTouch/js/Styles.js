@@ -20,6 +20,7 @@ __DEV__ &&
       ' -> scale=' +
       fontScale,
   );
+export const defaultFontSize = 26 * fontScale;
 
 export const isIos = Platform.OS === 'ios';
 export const isAndroid = Platform.OS === 'android';
@@ -371,7 +372,7 @@ export const styles = StyleSheet.create({
     margin: 0 * fontScale,
   },
   columnLayout: {
-    flex: 0,
+    flex: isWeb ? 1 : 0,
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },

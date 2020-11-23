@@ -22,17 +22,12 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
   setNumPages(numPages: number) {
     this.setState({numPages: numPages});
   }
-  onDocumentLoadSuccess({numPages}) {
-    console.log('Numpage: ' + numPages);
-    //this.setNumPages(numPages);
-  }
+  onDocumentLoadSuccess({numPages}) {}
 
   componentDidMount() {
     this.loadPrintingLink();
   }
-  componentWillUnmount() {
-    console.log('COmponent is Unmontingggg');
-  }
+  componentWillUnmount() {}
   async loadPrintingLink() {
     const link: string = await AsyncStorage.getItem('printLink');
     this.setLink(link);
@@ -43,7 +38,6 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
   }
   //Base64 or url
   render() {
-    console.log('linkk: ' + this.state.link);
     return (
       <View>
         <Document

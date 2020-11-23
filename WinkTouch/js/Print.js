@@ -19,14 +19,15 @@ import {
   getPng64Dimension,
   getMimeType,
 } from './Upload';
-import {winkRestUrl} from './WinkRest';
+import {winkRestUrl, fetchWinkRest} from './WinkRest';
 import {isWeb} from './Styles';
-
-
+import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
+import AsyncStorage from '@react-native-community/async-storage';
+import {loadBase64ImageForWeb} from './ImageField';
 export async function printRx(visitId: string) {
   try {
     const filename: string = 'Rx.pdf';
-    await createPdf(
+    const path = await createPdf(
       'webresources/reports',
       filename,
       {type: 'eye-exam'},
@@ -34,7 +35,11 @@ export async function printRx(visitId: string) {
       {visitId: visitId},
     );
     if (isWeb) {
-      window.open('http://localhost:8081/pdfViewer', '_blank');
+      const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
+      var x = window.open();
+      x.document.open();
+      x.document.write(htmlContent);
+      x.document.close();
     } else {
       const jobName = await NativeModules.RNPrint.print({
         filePath: RNFS.DocumentDirectoryPath + '/' + filename,
@@ -79,27 +84,53 @@ export async function deleteLocalFiles() {
 async function loadRxLogo() {
   //TODO: only fetch once
   __DEV__ && console.log('Fetching Rx logo');
-  await RNFS.downloadFile({
-    fromUrl: winkRestUrl + '/webresources/attachement/845/431/Rx.jpg',
-    toFile: RNFS.DocumentDirectoryPath + '/Rx-logo.jpg',
-  });
+  const url: string = winkRestUrl + 'webresources/attachement/845/431/Rx.jpg';
+  if (isWeb) {
+    const path: string = await loadBase64ImageForWeb(url);
+    AsyncStorage.setItem('rxLogo', path);
+  } else {
+    await RNFS.downloadFile({
+      fromUrl: url,
+      toFile: RNFS.DocumentDirectoryPath + '/Rx-logo.jpg',
+    });
+  }
 }
 
 loadRxLogo();
 
-async function addLogo(page: PDFPage, pageHeight: number, border: number) {
-  if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
+async function addLogo(
+  page: PDFPage,
+  pageHeight: number,
+  border: number,
+  pdfDoc?: PDFDocument,
+) {
+  if (isWeb) {
     await loadRxLogo();
-    if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
+    const rxLogo: string = await AsyncStorage.getItem('rxLogo');
+    if (rxLogo === undefined || rxLogo === null || rxLogo === '') {
       return;
     }
+    const image = await pdfDoc.embedJpg(rxLogo);
+    page.drawImage(image, {
+      x: border,
+      y: pageHeight - border - 100,
+      width: 100,
+      height: 100,
+    });
+  } else {
+    if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
+      await loadRxLogo();
+      if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
+        return;
+      }
+    }
+    page.drawImage(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg', 'jpg', {
+      x: border,
+      y: pageHeight - border - 100,
+      width: 100,
+      height: 100,
+    });
   }
-  page.drawImage(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg', 'jpg', {
-    x: border,
-    y: pageHeight - border - 100,
-    width: 100,
-    height: 100,
-  });
 }
 
 function addDrHeader(
@@ -126,18 +157,22 @@ function addDrHeader(
     doctor.firstName +
       prefix(doctor.lastName, ' ') +
       prefix(doctor.license, ' - '),
-    {x, y, fontSize},
+    {x, y, size: fontSize},
   );
   y -= fontSize * 2;
   if (!store) return;
   page.drawText(
     store.streetNumber + ' ' + store.streetName + prefix(store.unit, ', '),
-    {x, y, fontSize},
+    {x, y, size: fontSize},
   );
   y -= fontSize * 1.15;
-  page.drawText(store.postalCode + ' ' + store.city, {x, y, fontSize});
+  page.drawText(store.postalCode + ' ' + store.city, {
+    x,
+    y,
+    size: fontSize,
+  });
   y -= 2 * fontSize;
-  page.drawText(store.telephone, {x, y, fontSize});
+  page.drawText(store.telephone, {x, y, size: fontSize});
 }
 
 function addCurrentDate(page: PDFPage, pageHeight: number, border: number) {
@@ -177,20 +212,24 @@ function addPatientHeader(
     postfix(patient.streetNumber, ' ') +
       patient.streetName +
       prefix(patient.unit, ', '),
-    {x, y, fontSize},
+    {x, y, size: fontSize},
   );
   x = column2;
-  page.drawText(prefix(patient.dateOfBirth, ''), {x, y, fontSize});
+  page.drawText(prefix(patient.dateOfBirth, ''), {x, y, size: fontSize});
   x = column1;
   y -= fontSize * 1.15;
-  page.drawText(patient.city, {x, y, fontSize});
+  page.drawText(patient.city, {x, y, size: fontSize});
   x = column2;
-  page.drawText('' + patient.medicalCard, {x, y, fontSize});
+  page.drawText('' + patient.medicalCard, {x, y, size: fontSize});
   x = column1;
   y -= fontSize * 1.15;
-  page.drawText('' + patient.postalCode, {x, y, fontSize});
+  page.drawText('' + patient.postalCode, {x, y, size: fontSize});
   x = column2;
-  page.drawText('' + patient.cell + ' ' + patient.phone, {x, y, fontSize});
+  page.drawText('' + patient.cell + ' ' + patient.phone, {
+    x,
+    y,
+    size: fontSize,
+  });
   y -= fontSize * 2;
   page.drawRectangle({
     x: border - 10,
@@ -220,11 +259,11 @@ function addMedicalRxLines(
     formattedRxLine += prefix(prescription['Frequency'], ', ');
     formattedRxLine += prefix(prescription['Refill'], ', ');
     formattedRxLine += prefix(prescription['Do not substitute'], ', ');
-    page.drawText(formattedRxLine, {x, y, fontSize});
+    page.drawText(formattedRxLine, {x, y, size: fontSize});
     y -= fontSize * 1.5;
     formattedRxLine = prefix(prescription['Instructions'], '       ');
     if (formattedRxLine) {
-      page.drawText(formattedRxLine, {x, y, fontSize});
+      page.drawText(formattedRxLine, {x, y, size: fontSize});
       y -= fontSize * 1.15;
     }
     formattedRxLine = prefix(
@@ -232,7 +271,7 @@ function addMedicalRxLines(
       '       ' + strings.during + ' ',
     );
     if (formattedRxLine) {
-      page.drawText(formattedRxLine, {x, y, fontSize});
+      page.drawText(formattedRxLine, {x, y, size: fontSize});
       y -= fontSize * 1.15;
     }
     const commentLine: string = prescription['Comment'];
@@ -240,7 +279,7 @@ function addMedicalRxLines(
       y -= fontSize * 0.5;
       let lines = commentLine.split('\n');
       lines.forEach((line, j) => {
-        page.drawText(prefix(line, '       '), {x, y, fontSize});
+        page.drawText(prefix(line, '       '), {x, y, size: fontSize});
         y -= fontSize * 1.15;
       });
     }
@@ -248,22 +287,124 @@ function addMedicalRxLines(
   });
 }
 
+async function addSignatureWeb(
+  doctor: User,
+  page: PDFPage,
+  pageWidth: number,
+  border: number,
+  pdfDoc?: PDFDocument,
+) {
+  let x: number = border * 3;
+
+  let signature: Upload = getCachedItem(doctor.signatureId);
+  if (!signature) {
+    signature = await fetchUpload(doctor.signatureId);
+    if (!signature) {
+      __DEV__ &&
+        console.warn('failed to download singature ' + doctor.signatureId);
+      return;
+    }
+
+    const mimeType: string = getMimeType(signature);
+    if (mimeType === 'image/jpeg;base64') {
+      let dimension = getJpeg64Dimension(signature.data);
+      const image = await pdfDoc.embedJpg(signature.data);
+      page.drawImage(image, {
+        x,
+        y: border,
+        width: 150,
+        height: (dimension.height / dimension.width) * 150,
+      });
+    } else if (mimeType === 'image/png;base64') {
+      let dimension = getPng64Dimension(signature.data);
+      const image = await pdfDoc.embedPng(signature.data);
+      page.drawImage(image, {
+        x,
+        y: border,
+        width: 150,
+        height: (dimension.height / dimension.width) * 150,
+      });
+    } else {
+      __DEV__ &&
+        console.log(
+          'Unsupported signature image type:' +
+            signature.name +
+            ' ' +
+            signature.mimeType,
+        );
+    }
+  }
+}
+
+async function addSignatureNative(
+  doctor: User,
+  page: PDFPage,
+  pageWidth: number,
+  border: number,
+) {
+  let x: number = border * 3;
+
+  const fullFilename: string =
+    RNFS.DocumentDirectoryPath + '/' + doctor.signatureId + '.base64';
+  let signature: Upload = getCachedItem(doctor.signatureId);
+  if (!signature) {
+    signature = await fetchUpload(doctor.signatureId);
+    if (!signature) {
+      __DEV__ &&
+        console.warn('failed to download singature ' + doctor.signatureId);
+      return;
+    }
+    await RNFS.writeFile(fullFilename, signature.data, 'base64');
+    __DEV__ && console.log('Created local file ' + fullFilename);
+  } else {
+    if (!(await RNFS.exists(fullFilename))) {
+      await RNFS.writeFile(fullFilename, signature.data, 'base64');
+      __DEV__ && console.log('Created local file ' + fullFilename);
+    }
+  }
+  const mimeType: string = getMimeType(signature);
+  if (mimeType === 'image/jpeg;base64') {
+    let dimension = getJpeg64Dimension(signature.data);
+    page.drawImage(fullFilename, 'jpg', {
+      x,
+      y: border,
+      width: 150,
+      height: (dimension.height / dimension.width) * 150,
+    });
+  } else if (mimeType === 'image/png;base64') {
+    let dimension = getPng64Dimension(signature.data);
+    page.drawImage(fullFilename, 'png', {
+      x,
+      y: border,
+      width: 150,
+      height: (dimension.height / dimension.width) * 150,
+    });
+  } else {
+    __DEV__ &&
+      console.log(
+        'Unsupported signature image type:' +
+          signature.name +
+          ' ' +
+          signature.mimeType,
+      );
+  }
+}
 async function addSignature(
   visitId: string,
   page: PDFPage,
   pageWidth: number,
   border: number,
+  pdfDoc?: PDFDocument,
 ) {
   const visit: Visit = getCachedItem(visitId);
   const signedDate: ?string =
     visit.prescription && visit.prescription.signedDate
       ? formatDate(visit.prescription.signedDate, officialDateFormat)
       : undefined;
-
   const fontSize: number = 10;
   let x: number = border * 3;
   let y: number = border + fontSize * 4;
-  page.drawText(strings.drSignature + ':', {x, y, fontSize});
+  page.drawText(strings.drSignature + ':', {x, y, size: fontSize});
   x += 60;
   if (signedDate) {
     let doctor: User = getCachedItem(visit.userId);
@@ -273,53 +414,11 @@ async function addSignature(
     if (!doctor) {
       __DEV__ && console.error('Failed to fetch doctor ' + visit.userId);
     } else {
+      console.log('Doctor Signature: ' + JSON.stringify(doctor.signatureId));
       if (doctor.signatureId) {
-        const fullFilename: string =
-          RNFS.DocumentDirectoryPath + '/' + doctor.signatureId + '.base64';
-        let signature: Upload = getCachedItem(doctor.signatureId);
-        if (!signature) {
-          signature = await fetchUpload(doctor.signatureId);
-          if (!signature) {
-            __DEV__ &&
-              console.warn(
-                'failed to download singature ' + doctor.signatureId,
-              );
-            return;
-          }
-          await RNFS.writeFile(fullFilename, signature.data, 'base64');
-          __DEV__ && console.log('Created local file ' + fullFilename);
-        } else {
-          if (!(await RNFS.exists(fullFilename))) {
-            await RNFS.writeFile(fullFilename, signature.data, 'base64');
-            __DEV__ && console.log('Created local file ' + fullFilename);
-          }
-        }
-        const mimeType: string = getMimeType(signature);
-        if (mimeType === 'image/jpeg;base64') {
-          let dimension = getJpeg64Dimension(signature.data);
-          page.drawImage(fullFilename, 'jpg', {
-            x,
-            y: border,
-            width: 150,
-            height: (dimension.height / dimension.width) * 150,
-          });
-        } else if (mimeType === 'image/png;base64') {
-          let dimension = getPng64Dimension(signature.data);
-          page.drawImage(fullFilename, 'png', {
-            x,
-            y: border,
-            width: 150,
-            height: (dimension.height / dimension.width) * 150,
-          });
-        } else {
-          __DEV__ &&
-            console.log(
-              'Unsupported signature image type:' +
-                signature.name +
-                ' ' +
-                signature.mimeType,
-            );
-        }
+        isWeb
+          ? await addSignatureWeb(doctor, page, pageWidth, border, pdfDoc)
+          : await addSignatureNative(doctor, page, pageWidth, border);
       }
     }
   }
@@ -328,7 +427,7 @@ async function addSignature(
   page.drawText(strings.signedDate + ':' + prefix(signedDate, ' '), {
     x,
     y,
-    fontSize,
+    size: fontSize,
   });
 }
 
@@ -337,19 +436,37 @@ export async function printMedicalRx(visitId: string) {
   const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
   const pageHeight: number = pageWidth / pageAspectRatio;
   const border: number = 40;
+  let rxPage: PDFPage = undefined;
+  let pdfDoc: PDFDocument = undefined;
+  if (isWeb) {
+    pdfDoc = await PDFDocument.create();
+    rxPage = pdfDoc.addPage();
+    rxPage.setSize(pageWidth, pageHeight);
+  } else {
+    rxPage = PDFPage.create().setMediaBox(pageWidth, pageHeight);
+  }
 
-  const rxPage: PDFPage = PDFPage.create().setMediaBox(pageWidth, pageHeight);
-
-  await addLogo(rxPage, pageHeight, border);
+  await addLogo(rxPage, pageHeight, border, pdfDoc);
   addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border);
-  await addSignature(visitId, rxPage, pageWidth, border);
+  await addSignature(visitId, rxPage, pageWidth, border, pdfDoc);
+  if (isWeb) {
+    const pdfData = await pdfDoc.saveAsBase64();
+    const format: string = 'data:application/pdf;base64,';
+    const path: string = format.concat(pdfData);
+    const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
+    var x = window.open();
+    x.document.open();
+    x.document.write(htmlContent);
+    x.document.close();
+  } else {
+    const docsDir = await PDFLib.getDocumentsDirectory();
+    const pdfPath = `${docsDir}/print.pdf`;
+    let filePath = await PDFDocument.create(pdfPath).addPages(rxPage).write();
+    await NativeModules.RNPrint.print({filePath: filePath});
+  }
 
-  const docsDir = await PDFLib.getDocumentsDirectory();
-  const pdfPath = `${docsDir}/print.pdf`;
-  let filePath = await PDFDocument.create(pdfPath).addPages(rxPage).write();
-  await NativeModules.RNPrint.print({filePath: filePath});
   __DEV__ && console.log('printed medical rx for ' + visitId);
 }

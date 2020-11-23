@@ -227,6 +227,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'No data found to import !',
     consultationDate: 'Consultation Date',
     close: 'Close',
+    transferRxSuccess: 'Rx transferred successfully !',
   },
   fr: {
     enterRegisteredEmail:
@@ -453,6 +454,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'Aucun élément trouvée !',
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
+    transferRxSuccess: 'Rx transféré avec succès !',
   },
 });
 

@@ -18,7 +18,15 @@ import type {
   ImageBase64Definition,
 } from './Types';
 import {strings} from './Strings';
-import {styles, scaleStyle, fontScale, imageWidth, imageStyle} from './Styles';
+import {
+  styles,
+  scaleStyle,
+  fontScale,
+  imageWidth,
+  imageStyle,
+  defaultFontSize,
+  isWeb,
+} from './Styles';
 import {
   formatMoment,
   formatDate,
@@ -853,17 +861,26 @@ async function renderImage(
   }
 
   if (filePath) {
-    const imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
-    html += imageValue;
-    if (image.startsWith('./image')) {
-      const base64Image = getBase64Image(image);
+    let imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+    if (
+      image.startsWith('./image') ||
+      image.startsWith('http:') ||
+      image.startsWith('https:')
+    ) {
+      const base64Image = await getBase64Image(image);
       if (base64Image) {
+        if (isWeb) {
+          imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`;
+        }
         imageBase64Definition.push({
           key: imageValue,
           value: `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
         });
       }
     }
+
+    html += imageValue;
+
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
 
@@ -893,16 +910,16 @@ async function renderImage(
                 let x = round(
                   (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                     (parentScaledStyle ? parentScaledStyle.left : 0) +
-                    styles.textfield.fontSize,
+                    defaultFontSize,
                 );
                 let y = round(
                   (fieldScaledStyle ? fieldScaledStyle.top : 0) +
                     (parentScaledStyle ? parentScaledStyle.top : 0) +
-                    styles.textfield.fontSize,
+                    defaultFontSize,
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += ` <g transform="scale(0.96 0.98)">`;
+                html += ` <g transform="scale(0.96 1)">`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `&nbsp;</svg>`;
@@ -943,7 +960,7 @@ function renderGraph(
   if (!value.lines || value.lines.length === 0) return '';
   const strokeWidth: number = round(fontScale / scale);
   const resolution: number[] = resolutions(value, definition);
-  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${resolution[0]}" height="${resolution[1]}" style="width:${style.width}pt; height:${style.height}pt">`;
+  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${resolution[0]}pt" height="${resolution[1]}pt" style="width:${style.width}pt; height:${style.height}pt">`;
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return '';
     if (lijn.indexOf(' ') > 0) {
@@ -1321,7 +1338,7 @@ function renderRxTable(
 export function patientHeader() {
   let htmlHeader: string =
     `<head><style>` +
-    `@media print {` +
+    `@media screen {` +
     `table { page-break-after:auto;}` +
     `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
