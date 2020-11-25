@@ -12,7 +12,7 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
 } from 'react-native';
-//import Scanner from 'react-native-document-scanner';
+import NativeScanner from '../src/components/DocumentScanner';
 import base64 from 'base-64';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
@@ -24,7 +24,7 @@ import {
   RefreshTile,
   CloseTile,
 } from './Widgets';
-import {styles, fontScale, imageStyle} from './Styles';
+import {styles, fontScale, imageStyle, isWeb} from './Styles';
 import {storeUpload, getJpeg64Dimension} from './Upload';
 import {getCachedItem} from './DataCache';
 import {strings} from './Strings';
@@ -95,37 +95,40 @@ export class DocumentScanner extends Component {
   }
 
   async tookPicture(image: string) {
-    const dimension: {width: number, height: number} = getJpeg64Dimension(
-      image,
-    );
-    const maxSize: number = Math.round(
-      (imageStyle(this.props.size).width / fontScale) * 1.1,
-    );
-    if (dimension.width > maxSize) {
-      const tempFolder = 'temp';
-      let resizedImage = await ImageResizer.createResizedImage(
-        'data:image/jpeg;base64,' + image,
-        maxSize,
-        dimension.height,
-        'JPEG',
-        70,
-        0,
-        tempFolder,
+    if (!isWeb) {
+      const dimension: {width: number, height: number} = getJpeg64Dimension(
+        image,
       );
-      image = await RNFS.readFile(resizedImage.path, 'base64');
-      const dimensionAfter = getJpeg64Dimension(image);
-      __DEV__ &&
-        console.log(
-          'Resized image to ' +
-            dimensionAfter.width +
-            'x' +
-            dimensionAfter.height +
-            ' ' +
-            Math.round(resizedImage.size / 1024) +
-            ' kbytes.',
+      const maxSize: number = Math.round(
+        (imageStyle(this.props.size).width / fontScale) * 1.1,
+      );
+      if (dimension.width > maxSize) {
+        const tempFolder = 'temp';
+        let resizedImage = await ImageResizer.createResizedImage(
+          image,
+          maxSize,
+          dimension.height,
+          'JPEG',
+          70,
+          0,
+          tempFolder,
         );
-      RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
+        image = await RNFS.readFile(resizedImage.path, 'base64');
+        const dimensionAfter = getJpeg64Dimension(image);
+        __DEV__ &&
+          console.log(
+            'Resized image to ' +
+              dimensionAfter.width +
+              'x' +
+              dimensionAfter.height +
+              ' ' +
+              Math.round(resizedImage.size / 1024) +
+              ' kbytes.',
+          );
+        RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
+      }
     }
+
     this.setState({image, isDirty: true});
   }
 
@@ -146,28 +149,16 @@ export class DocumentScanner extends Component {
                 resizeMode="contain"
               />
             )}
-            {
-              this.state.saving === false && this.state.image === undefined
-              /*<Scanner
-                useBase64={true}
+            {this.state.saving === false && this.state.image === undefined && (
+              <NativeScanner
                 onPictureTaken={(data) =>
                   this.setState({image: data.croppedImage}, () =>
                     this.tookPicture(data.croppedImage),
                   )
                 }
-                captureMultiple={false}
-                overlayColor="rgba(255,130,0, 0.7)"
-                enableTorch={false}
-                useFrontCam={false}
-                brightness={0.2}
-                saturation={-0.1}
-                quality={1.0}
-                contrast={1.5}
-                detectionCountBeforeCapture={3}
-                detectionRefreshRateInMS={60}
                 style={styles.scanner}
-              />*/
-            }
+              />
+            )}
             {this.state.image !== undefined && this.state.saving === false ? (
               <View style={styles.rowLayout}>
                 <CameraTile

@@ -30,6 +30,7 @@ import {
   selectionColor,
   selectionFontColor,
   fieldBorderColor,
+  isWeb,
 } from './Styles';
 import {Button, TilesField, Label, SelectionList} from './Widgets';
 import {FormRow, FormTextInput, FormField, FormCode} from './Form';
@@ -662,33 +663,26 @@ export class FollowUpScreen extends Component<
   }
   renderFollowUp() {
     const listFollowUp: FollowUp[] = this.state.allFollowUp;
-    let style = this.props.isDraft
-      ? styles.tabCardFollowUp2
-      : styles.tabCardFollowUp1;
+
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
       : this.props.navigation.state.params.patientInfo;
-    style = isEmpty(patientInfo)
-      ? [style, {maxHeight: style.maxHeight + 100}]
-      : style;
     return (
-      <View>
+      <View style={styles.tabCardFollowUp}>
         {this.props.isDraft && (
           <Text style={styles.cardTitle}>Existing Referrals</Text>
         )}
-        <View style={style}>
-          <TableList
-            items={listFollowUp}
-            onUpdate={(item) => this.updateItem(item)}
-            selection={this.state.selectedItem}
-            onUpdateSelection={(value) => this.selectItem(value)}
-            onDeleteSelection={(value) => this.showDialog(value)}
-            isForPatient={isEmpty(patientInfo)}
-            isDraft={this.props.isDraft}
-            onRefreshList={() => this.refreshList()}
-            navigation={this.props.navigation}
-          />
-        </View>
+        <TableList
+          items={listFollowUp}
+          onUpdate={(item) => this.updateItem(item)}
+          selection={this.state.selectedItem}
+          onUpdateSelection={(value) => this.selectItem(value)}
+          onDeleteSelection={(value) => this.showDialog(value)}
+          isForPatient={isEmpty(patientInfo)}
+          isDraft={this.props.isDraft}
+          onRefreshList={() => this.refreshList()}
+          navigation={this.props.navigation}
+        />
         {this.renderButtons()}
         <Modal
           visible={this.state.isPopupVisibile}
@@ -720,90 +714,84 @@ export class FollowUpScreen extends Component<
       ? this.state.selectedItem.patientInfo
       : undefined;
     return (
-      <View style={{paddingBottom: 100 * fontScale}}>
-        <View style={styles.flow}>
-          {this.state.selectedItem && (
+      <View style={styles.flow}>
+        {this.state.selectedItem && (
+          <Button
+            title={strings.view}
+            onPress={() => this.openAttachment()}
+            disabled={!this.state.isActive}
+          />
+        )}
+        {this.state.selectedItem && !isDraft && this.shouldActivateReply() && (
+          <Button
+            title={strings.quickReply}
+            onPress={() => this.reply()}
+            disabled={!this.state.isActive}
+          />
+        )}
+        {this.state.selectedItem &&
+          !isDraft &&
+          visit &&
+          this.shouldActivateFollowUp() && (
             <Button
-              title={strings.view}
-              onPress={() => this.openAttachment()}
-              disabled={!this.state.isActive}
-            />
-          )}
-          {this.state.selectedItem &&
-            !isDraft &&
-            this.shouldActivateReply() && (
-              <Button
-                title={strings.quickReply}
-                onPress={() => this.reply()}
-                disabled={!this.state.isActive}
-              />
-            )}
-          {this.state.selectedItem &&
-            !isDraft &&
-            visit &&
-            this.shouldActivateFollowUp() && (
-              <Button
-                title={strings.followUpTitle}
-                disabled={!this.state.isActive}
-                onPress={() => {
-                  this.props.navigation.navigate('referral', {
-                    visit: visit,
-                    referral: this.state.selectedItem,
-                    followUp: true,
-                    followUpStateKey: this.props.navigation.state.key,
-                    patientInfo: patientInfo,
-                  });
-                }}
-              />
-            )}
-          {this.state.selectedItem && visit && this.shouldActivateEdit() && (
-            <Button
-              title={strings.edit}
+              title={strings.followUpTitle}
               disabled={!this.state.isActive}
               onPress={() => {
                 this.props.navigation.navigate('referral', {
                   visit: visit,
                   referral: this.state.selectedItem,
-                  followUp: false,
+                  followUp: true,
                   followUpStateKey: this.props.navigation.state.key,
                   patientInfo: patientInfo,
                 });
               }}
             />
           )}
-          {this.state.selectedItem &&
-            !isDraft &&
-            this.shouldActivateResend() && (
-              <Button
-                title={strings.resend}
-                onPress={() => this.resend()}
-                disabled={!this.state.isActive}
-              />
-            )}
-          {this.state.selectedItem &&
-            !isDraft &&
-            this.shouldActivateForward() && (
-              <Button
-                title={strings.forward}
-                onPress={() => this.forward()}
-                disabled={!this.state.isActive}
-              />
-            )}
-          {this.state.selectedItem && this.shouldActivateDelete() && (
+        {this.state.selectedItem && visit && this.shouldActivateEdit() && (
+          <Button
+            title={strings.edit}
+            disabled={!this.state.isActive}
+            onPress={() => {
+              this.props.navigation.navigate('referral', {
+                visit: visit,
+                referral: this.state.selectedItem,
+                followUp: false,
+                followUpStateKey: this.props.navigation.state.key,
+                patientInfo: patientInfo,
+              });
+            }}
+          />
+        )}
+        {this.state.selectedItem && !isDraft && this.shouldActivateResend() && (
+          <Button
+            title={strings.resend}
+            onPress={() => this.resend()}
+            disabled={!this.state.isActive}
+          />
+        )}
+        {this.state.selectedItem &&
+          !isDraft &&
+          this.shouldActivateForward() && (
             <Button
-              title={strings.deleteTitle}
-              onPress={() => this.showDialog(this.state.selectedItem)}
+              title={strings.forward}
+              onPress={() => this.forward()}
               disabled={!this.state.isActive}
             />
           )}
-          {this.state.selectedItem && !isDraft && (
-            <Button
-              title={strings.openFile}
-              onPress={() => this.openPatientFile()}
-              disabled={!this.state.isActive}
-            />
-          )}
-        </View>
+        {this.state.selectedItem && this.shouldActivateDelete() && (
+          <Button
+            title={strings.deleteTitle}
+            onPress={() => this.showDialog(this.state.selectedItem)}
+            disabled={!this.state.isActive}
+          />
+        )}
+        {this.state.selectedItem && !isDraft && (
+          <Button
+            title={strings.openFile}
+            onPress={() => this.openPatientFile()}
+            disabled={!this.state.isActive}
+          />
+        )}
       </View>
     );
   }
@@ -812,12 +800,12 @@ export class FollowUpScreen extends Component<
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
 
     return (
-      <TouchableWithoutFeedback onPress={this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? {} : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <View style={styles.flexColumnLayout}>
             <View style={styles.form}>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     label="To"
                     value={emailDefinition.to}
@@ -829,7 +817,7 @@ export class FollowUpScreen extends Component<
                 </View>
               </FormRow>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     label="Cc"
                     value={emailDefinition.cc}
@@ -841,7 +829,7 @@ export class FollowUpScreen extends Component<
                 </View>
               </FormRow>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     label="Subject"
                     value={emailDefinition.subject}
@@ -853,7 +841,7 @@ export class FollowUpScreen extends Component<
                 </View>
               </FormRow>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     multiline={true}
                     label="Body"
@@ -1706,20 +1694,7 @@ export class TableList extends React.PureComponent {
   }
   render() {
     let data: any[] = this.getItems();
-    const sideBarCustomStyle = [
-      styles.sideBarHorizontal,
-      {minWidth: 200 * fontScale, maxWidth: 600 * fontScale},
-    ];
-    const tabCardCustomStyle = [
-      styles.tabCardFollowUp1,
-      {maxHeight: 400, borderWidth: 0},
-    ];
-    let style = this.props.isDraft
-      ? styles.followUpList2
-      : styles.followUpList1;
-    style = this.props.isForPatient
-      ? [style, {maxHeight: style.maxHeight + 100}]
-      : style;
+
     const isVisible: boolean =
       this.props.navigation &&
       this.props.navigation.state &&
@@ -1729,37 +1704,35 @@ export class TableList extends React.PureComponent {
         : false;
 
     return (
-      <View>
+      <View style={styles.flexColumnLayout}>
         <View style={styles.formRow}>{this.renderFilterField()}</View>
-        <View style={style}>
-          <FlatList
-            initialNumToRender={5}
-            data={data}
-            extraData={{filter: this.state.filter, selection: this.state.item}}
-            renderItem={(item, index) => (
-              <TableListRow
-                rowValue={item.item}
-                simpleSelect={this.props.simpleSelect}
-                selected={this.isSelected(item.item)}
-                backgroundColor={item.index % 2 === 0 ? '#F9F9F9' : '#FFFFFF'}
-                onChangeValue={(value: string | number) =>
-                  this.updateValue(item.item, value)
-                }
-                onSelect={(isSelected: boolean | string) =>
-                  this.select(item.item, isSelected)
-                }
-                onLongPress={() => this.onDelete(item.item)}
-                testID={this.props.label + '.option' + (item.index + 1)}
-                readonly={this.props.isDraft ? true : false}
-                isVisible={isVisible}
-              />
-            )}
-            ListHeaderComponent={this.renderHeader()}
-            stickyHeaderIndices={[0]}
-            refreshing={this.state.refreshing}
-            onRefresh={() => this.handleRefresh()}
-          />
-        </View>
+        <FlatList
+          initialNumToRender={5}
+          data={data}
+          extraData={{filter: this.state.filter, selection: this.state.item}}
+          renderItem={(item, index) => (
+            <TableListRow
+              rowValue={item.item}
+              simpleSelect={this.props.simpleSelect}
+              selected={this.isSelected(item.item)}
+              backgroundColor={item.index % 2 === 0 ? '#F9F9F9' : '#FFFFFF'}
+              onChangeValue={(value: string | number) =>
+                this.updateValue(item.item, value)
+              }
+              onSelect={(isSelected: boolean | string) =>
+                this.select(item.item, isSelected)
+              }
+              onLongPress={() => this.onDelete(item.item)}
+              testID={this.props.label + '.option' + (item.index + 1)}
+              readonly={this.props.isDraft ? true : false}
+              isVisible={isVisible}
+            />
+          )}
+          ListHeaderComponent={this.renderHeader()}
+          stickyHeaderIndices={[0]}
+          refreshing={this.state.refreshing}
+          onRefresh={() => this.handleRefresh()}
+        />
       </View>
     );
   }

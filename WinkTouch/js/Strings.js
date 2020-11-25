@@ -228,6 +228,9 @@ export const strings = new LocalizedStrings({
     consultationDate: 'Consultation Date',
     close: 'Close',
     transferRxSuccess: 'Rx transferred successfully !',
+    NoCameraAccess: 'No access to camera',
+    flip: 'Flip',
+    snapshot: 'Snapshot',
   },
   fr: {
     enterRegisteredEmail:
@@ -455,6 +458,9 @@ export const strings = new LocalizedStrings({
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
     transferRxSuccess: 'Rx transféré avec succès !',
+    NoCameraAccess: 'Webcam non trouvé !',
+    flip: 'Retourner',
+    snapshot: 'Snapshot',
   },
 });
 
