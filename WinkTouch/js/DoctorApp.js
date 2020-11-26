@@ -50,7 +50,7 @@ import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
 import AsyncStorage from '@react-native-community/async-storage';
 import {createBrowserApp} from '@react-navigation/web';
-
+import ErrorBoundary from './ErrorBoundary';
 let account: Account;
 let doctor: User;
 let store: Store;
@@ -277,22 +277,27 @@ export class DoctorApp extends Component {
 
   render() {
     return (
-      <View style={styles.screeen}>
-        <StatusBar hidden={true} />
-        <DocatorAppContainer
-          ref={(navigator) => (this.navigator = navigator)}
-          screenProps={{
-            doctorId: this.props.user.id,
-            storeId: this.props.store.storeId,
-            onLogout: this.logout,
-          }}
-          onNavigationStateChange={this.navigationStateChanged}
-        />
-        <MenuBar
-          scene={{}}
-          navigation={{state: this.state.currentRoute, navigate: this.navigate}}
-        />
-      </View>
+      <ErrorBoundary>
+        <View style={styles.screeen}>
+          <StatusBar hidden={true} />
+          <DocatorAppContainer
+            ref={(navigator) => (this.navigator = navigator)}
+            screenProps={{
+              doctorId: this.props.user.id,
+              storeId: this.props.store.storeId,
+              onLogout: this.logout,
+            }}
+            onNavigationStateChange={this.navigationStateChanged}
+          />
+          <MenuBar
+            scene={{}}
+            navigation={{
+              state: this.state.currentRoute,
+              navigate: this.navigate,
+            }}
+          />
+        </View>
+      </ErrorBoundary>
     );
   }
 }

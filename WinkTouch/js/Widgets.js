@@ -2823,7 +2823,6 @@ export class FloatingButton extends Component {
             fabStyle={styles.floatingButton}
             icon={this.state.active ? 'minus' : 'plus'}
             actions={this.state.options.map((option: string, index: number) => {
-              console.log('OPTION: ' + option);
               return {
                 icon: 'star',
                 label: option,
