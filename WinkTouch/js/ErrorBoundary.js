@@ -3,6 +3,9 @@ import {Text, View, SafeAreaView, StyleSheet} from 'react-native';
 import {EhrApp} from './EhrApp';
 import {Avatar, Button, Card, Title, Paragraph} from 'react-native-paper';
 import {NavigationActions} from 'react-navigation';
+import {isWeb} from './Styles';
+import codePush from 'react-native-code-push';
+import {strings} from './Strings';
 export default class ErrorBoundary extends Component {
   props: {
     navigator: any,
@@ -32,6 +35,14 @@ export default class ErrorBoundary extends Component {
     });
   }
 
+  redirect() {
+    if (isWeb) {
+      window.location.href = 'http://localhost:8080';
+    } else {
+      codePush.restartApp();
+    }
+  }
+
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
@@ -41,10 +52,10 @@ export default class ErrorBoundary extends Component {
             <Card>
               <Card.Content>
                 <Title style={styles.paragraph}>
-                  Oops! Something when wrong.
+                  {strings.somethingWentWrongTitle}
                 </Title>
                 <Paragraph style={styles.paragraph}>
-                  Sorry, Something went wrong there. See the action below !
+                  {strings.somethingWentWrongMessage}
                 </Paragraph>
               </Card.Content>
 
@@ -53,7 +64,11 @@ export default class ErrorBoundary extends Component {
                   flex: 1,
                   justifyContent: 'center',
                   textAlign: 'center',
-                }}></Card.Actions>
+                }}>
+                <Button onPress={() => this.redirect()}>
+                  {strings.restartApp}
+                </Button>
+              </Card.Actions>
             </Card>
           </View>
         </SafeAreaView>

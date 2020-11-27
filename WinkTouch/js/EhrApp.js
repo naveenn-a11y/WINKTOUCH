@@ -94,16 +94,18 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
   //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  codePush.disallowRestart();
-  await codePush.sync(
-    {
-      updateDialog: false,
-      deploymentKey: registration.bundle,
-      installMode: codePush.InstallMode.IMMEDIATE,
-    },
-    logUpdateStatus,
-  );
-  codePush.allowRestart();
+  if (!isWeb) {
+    codePush.disallowRestart();
+    await codePush.sync(
+      {
+        updateDialog: false,
+        deploymentKey: registration.bundle,
+        installMode: codePush.InstallMode.IMMEDIATE,
+      },
+      logUpdateStatus,
+    );
+    codePush.allowRestart();
+  }
 }
 
 export class EhrApp extends Component {

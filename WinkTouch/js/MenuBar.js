@@ -40,6 +40,9 @@ export class Notifications extends PureComponent {
 export class MenuBar extends PureComponent {
   props: {
     navigation: any,
+    screenProps: {
+      onLogout: () => void,
+    },
   };
 
   extractExamDefinition(exam: Exam): ExamDefinition {
@@ -125,6 +128,10 @@ export class MenuBar extends PureComponent {
           />
         )}
         {__DEV__ && <Notifications />}
+        <Button
+          title={strings.logout}
+          onPress={this.props.screenProps.onLogout}
+        />
       </View>
     );
   }

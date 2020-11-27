@@ -1262,6 +1262,8 @@ export class VisitHistory extends Component {
 
   componentDidUpdate(prevProps: any, prevState: any) {
     if (
+      this.props.patientInfo !== undefined &&
+      prevProps.patientInfo !== undefined &&
       this.props.patientInfo.id === prevProps.patientInfo.id &&
       this.props.visitHistory === prevProps.visitHistory &&
       this.props.patientDocumentHistory === prevProps.patientDocumentHistory

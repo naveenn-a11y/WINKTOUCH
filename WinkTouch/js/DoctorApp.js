@@ -248,9 +248,11 @@ export class DoctorApp extends Component {
 
   logout = (): void => {
     __DEV__ && console.log('Logging out');
+
     setDoctor(undefined);
     setToken(undefined);
     setStore(undefined);
+
     this.props.onLogout();
   };
 
@@ -294,6 +296,9 @@ export class DoctorApp extends Component {
             navigation={{
               state: this.state.currentRoute,
               navigate: this.navigate,
+            }}
+            screenProps={{
+              onLogout: this.logout,
             }}
           />
         </View>
