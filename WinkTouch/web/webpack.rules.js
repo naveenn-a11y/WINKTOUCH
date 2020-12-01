@@ -32,7 +32,7 @@ module.exports = [
       path.resolve(rootDir, './node_modules/@codler'),
       path.resolve(rootDir, './node_modules/react-native-drawer'),
       path.resolve(rootDir, './node_modules/react-native-code-push'),
-
+      path.resolve(rootDir, './scripts'),
     ],
     loader: 'babel-loader',
     options: {

@@ -5,12 +5,21 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "web": "cd web && webpack-dev-server --open",
+    "web": "npm run env:dev && cd web && webpack-dev-server --env dev --open",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
     "prettier": "prettier --write '{js,json}/**/*.{js,json}'",
-    "build:web": "cd web && webpack"
+    "env:dev": "node scripts/envs.js dev",
+    "env:alpha": "node scripts/envs.js alpha",
+    "env:prod": "node scripts/envs.js prod",
+    "env:qa": "node scripts/envs.js qa",
+    "env:staging": "node scripts/envs.js staging",
+    "build:dev": "npm run env:dev && cd web && webpack --env dev",
+    "build:alpha": "npm run env:alpha && cd web && webpack --env prod",
+    "build:prod": "npm run env:prod && cd web && webpack --env prod",
+    "build:qa": "npm run env:qa && cd web && webpack --env prod",
+    "build:staging": "npm run env:staging && cd web && webpack --env prod"
   },
   "dependencies": {
     "@highcharts/highcharts-react-native": "^3.1.2",

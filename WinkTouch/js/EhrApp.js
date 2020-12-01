@@ -22,6 +22,7 @@ import {setDeploymentVersion, checkBinaryVersion} from './Version';
 import {getVisitTypes, fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes} from './Codes';
 import {isWeb} from './Styles';
+import {getHostFromBundleKey} from '../scripts/Utils';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -105,6 +106,12 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
       logUpdateStatus,
     );
     codePush.allowRestart();
+  } else {
+    const host: string = getHostFromBundleKey(registration.bundle);
+    if (host !== undefined) {
+      console.log('Redirect to:  ' + JSON.stringify(host));
+      window.location.href = host;
+    }
   }
 }
 
