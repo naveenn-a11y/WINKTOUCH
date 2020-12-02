@@ -1049,6 +1049,11 @@ export const styles = StyleSheet.create({
     right: -10 * fontScale,
     flexDirection: 'row',
   },
+  examIconsFlex: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   drawingIcons: {
     position: 'absolute',
     top: 40 * fontScale,

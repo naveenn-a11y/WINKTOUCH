@@ -967,7 +967,7 @@ export class ExamScreen extends Component {
   renderExamIcons() {
     if (this.state.exam.definition.card === false) return;
     return (
-      <View style={styles.examIcons}>
+      <View style={styles.examIconsFlex}>
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
         {this.renderLockIcon()}
@@ -1016,9 +1016,9 @@ export class ExamScreen extends Component {
           }
           pinchGestureEnabled={this.state.scrollable}>
           <ErrorCard errors={this.state.exam.errors} />
+          {this.renderExamIcons()}
           {this.renderRelatedExams()}
           {this.renderExam()}
-          {this.renderExamIcons()}
         </KeyboardAwareScrollView>
       );
     if (this.props.disableScroll)
