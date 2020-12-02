@@ -1108,65 +1108,73 @@ export class NumberField extends Component {
         accessible={false}
         testID={'popupBackground'}>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {formattedValue}
-          </Text>
-          <View style={styles.flexColumnLayout}>
-            <View style={styles.centeredRowLayout}>
-              {fractions.map((options: string[], column: number) => {
-                return (
-                  <View style={columnStyle} key={column}>
-                    {options.map((option: string, row: number) => {
-                      let isSelected: boolean =
-                        isKeypad === false &&
-                        this.state.editedValue[column] === option;
-                      if (option === '\u2328')
+          <ScrollView scrollEnabled={true}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {formattedValue}
+            </Text>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={columnStyle} key={column}>
+                      {options.map((option: string, row: number) => {
+                        let isSelected: boolean =
+                          isKeypad === false &&
+                          this.state.editedValue[column] === option;
+                        if (option === '\u2328')
+                          return (
+                            <KeyboardTile
+                              commitEdit={this.startTyping}
+                              key={row}
+                            />
+                          );
+                        if (option === '\u2714')
+                          return (
+                            <UpdateTile
+                              commitEdit={this.commitEdit}
+                              key={row}
+                            />
+                          );
+                        if (option === '\u2715')
+                          return (
+                            <ClearTile commitEdit={this.clearValue} key={row} />
+                          );
+                        if (option === '\u27f3')
+                          return (
+                            <RefreshTile
+                              commitEdit={this.cancelEdit}
+                              key={row}
+                            />
+                          );
                         return (
-                          <KeyboardTile
-                            commitEdit={this.startTyping}
+                          <TouchableOpacity
                             key={row}
-                          />
-                        );
-                      if (option === '\u2714')
-                        return (
-                          <UpdateTile commitEdit={this.commitEdit} key={row} />
-                        );
-                      if (option === '\u2715')
-                        return (
-                          <ClearTile commitEdit={this.clearValue} key={row} />
-                        );
-                      if (option === '\u27f3')
-                        return (
-                          <RefreshTile commitEdit={this.cancelEdit} key={row} />
-                        );
-                      return (
-                        <TouchableOpacity
-                          key={row}
-                          onPress={() => this.updateValue(column, option)}
-                          testID={'option' + (column + 1) + '-' + (row + 1)}>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
-                            }>
-                            <Text
+                            onPress={() => this.updateValue(column, option)}
+                            testID={'option' + (column + 1) + '-' + (row + 1)}>
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {option}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                );
-              })}
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {option}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </TouchableWithoutFeedback>
     );
