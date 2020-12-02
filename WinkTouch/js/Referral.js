@@ -395,6 +395,7 @@ export class ReferralScreen extends Component<
   cancelEdit = () => {
     this.setState({isActive: true});
     this.setState({isPopupVisibile: false});
+    this.setState({command: undefined});
   };
 
   getSelectedKey(): ?string {
