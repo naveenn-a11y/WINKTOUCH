@@ -1034,12 +1034,12 @@ export class ExamScreen extends Component {
       <KeyboardAwareScrollView
         contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
         scrollEnabled={isWeb}>
+        {this.renderExamIcons()}
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
-        {this.renderExamIcons()}
       </KeyboardAwareScrollView>
     );
   }
