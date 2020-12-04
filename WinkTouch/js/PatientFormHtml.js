@@ -861,17 +861,13 @@ async function renderImage(
   }
 
   if (filePath) {
-    let imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
-    if (
-      image.startsWith('./image') ||
-      image.startsWith('http:') ||
-      image.startsWith('https:')
-    ) {
+    const requiredImage = image.startsWith('./image')
+      ? require(`${filePath}`)
+      : filePath;
+    const imageValue: string = `<img src="${requiredImage}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+    if (!isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
       if (base64Image) {
-        if (isWeb) {
-          imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`;
-        }
         imageBase64Definition.push({
           key: imageValue,
           value: `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
@@ -1338,6 +1334,9 @@ function renderRxTable(
 export function patientHeader() {
   let htmlHeader: string =
     `<head><style>` +
+    `body {` +
+    `  padding:10px;` +
+    `}` +
     `@media screen {` +
     `table { page-break-after:auto;}` +
     `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
@@ -1504,6 +1503,7 @@ export function patientHeader() {
     `  display: block;` +
     `  float: left;` +
     ` margin-top:5px;` +
+    ` margin-bottom:10px;` +
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +

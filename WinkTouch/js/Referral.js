@@ -762,55 +762,63 @@ export class ReferralScreen extends Component<
 
   renderEditor() {
     return (
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-        <View style={styles.pageEditor}>
-          <HtmlEditor
-            style={styles.page}
-            ref={(ref) => (this.editor = ref)}
-            value={this.state.referralHtml}
-          />
-        </View>
-        {this.renderTemplateTool()}
-
-        <View style={styles.flow}>
-          <Button
-            title={strings.sign}
-            disabled={this.state.hasSignatureField !== true}
-            onPress={() => this.sign()}
-          />
-          <Button
-            title="Print"
-            onPress={() => this.print()}
-            disabled={!this.state.isActive}
-          />
-          <Button
-            title="Email"
-            onPress={() => this.email()}
-            disabled={!this.state.isActive}
-          />
-          {getStore() !== undefined && getStore().eFaxUsed && (
-            <Button
-              title="Fax"
-              onPress={() => this.fax()}
-              disabled={!this.state.isActive}
+      <View style={{flex: 100, flexDirection: 'column'}}>
+        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+          <View style={styles.pageEditor}>
+            <HtmlEditor
+              style={styles.page}
+              ref={(ref) => (this.editor = ref)}
+              value={this.state.referralHtml}
             />
+          </View>
+          {this.renderTemplateTool()}
+
+          {(this.state.command === COMMAND.EMAIL ||
+            this.state.command === COMMAND.FAX) && (
+            <Modal
+              visible={this.state.isPopupVisibile}
+              transparent={true}
+              animationType={'slide'}
+              onRequestClose={this.cancelEdit}>
+              {this.renderSendPopup()}
+            </Modal>
           )}
+        </View>
+        {this.renderButtons()}
+      </View>
+    );
+  }
+
+  renderButtons() {
+    return (
+      <View style={styles.bottomItems}>
+        <Button
+          title={strings.sign}
+          disabled={this.state.hasSignatureField !== true}
+          onPress={() => this.sign()}
+        />
+        <Button
+          title="Print"
+          onPress={() => this.print()}
+          disabled={!this.state.isActive}
+        />
+        <Button
+          title="Email"
+          onPress={() => this.email()}
+          disabled={!this.state.isActive}
+        />
+        {getStore() !== undefined && getStore().eFaxUsed && (
           <Button
-            title="Save"
-            onPress={() => this.saveAction()}
+            title="Fax"
+            onPress={() => this.fax()}
             disabled={!this.state.isActive}
           />
-        </View>
-        {(this.state.command === COMMAND.EMAIL ||
-          this.state.command === COMMAND.FAX) && (
-          <Modal
-            visible={this.state.isPopupVisibile}
-            transparent={true}
-            animationType={'slide'}
-            onRequestClose={this.cancelEdit}>
-            {this.renderSendPopup()}
-          </Modal>
         )}
+        <Button
+          title="Save"
+          onPress={() => this.saveAction()}
+          disabled={!this.state.isActive}
+        />
       </View>
     );
   }

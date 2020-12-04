@@ -1230,6 +1230,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
   },
+  bottomItems: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
 });
 
 function cardStyle(color: Color) {
