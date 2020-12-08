@@ -75,10 +75,12 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   }
   if (!registration || !registration.path) return;
   checkBinaryVersion();
+  let bundleUpdated: boolean = false;
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
     //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
     if (registration.bundle !== codePushBundleKey) {
+      bundleUpdated = true;
       registration.bundle = codePushBundleKey;
       if (registration.bundle) {
         AsyncStorage.setItem('bundle', registration.bundle);
@@ -107,10 +109,12 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     );
     codePush.allowRestart();
   } else {
-    const host: string = getHostFromBundleKey(registration.bundle);
-    if (host !== undefined) {
-      console.log('Redirect to:  ' + JSON.stringify(host));
-      window.location.href = host;
+    if (bundleUpdated) {
+      const host: string = getHostFromBundleKey(registration.bundle);
+      if (host !== undefined) {
+        console.log('Redirect to:  ' + JSON.stringify(host));
+        window.location.href = host;
+      }
     }
   }
 }

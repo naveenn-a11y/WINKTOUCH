@@ -778,6 +778,7 @@ export const styles = StyleSheet.create({
     borderColor: selectionFontColor,
     borderWidth: 2 * fontScale,
     margin: 7 * fontScale,
+    flexShrink: isWeb ? 100 : 0,
   },
   startVisitCard: {
     backgroundColor: sectionBackgroundColor,
@@ -842,7 +843,7 @@ export const styles = StyleSheet.create({
   historyBoardSelected: boardStyle(selectionBorderColor, 'L', 278),
   boardStretch: {
     width: 530 * fontScale,
-    height: 285 * fontScale,
+    height: isWeb ? undefined : 285 * fontScale,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -859,7 +860,7 @@ export const styles = StyleSheet.create({
   boardStretchL: {
     flexShrink: 1,
     width: 1080 * fontScale,
-    height: 285 * fontScale,
+    height: isWeb ? undefined : 285 * fontScale,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -886,7 +887,7 @@ export const styles = StyleSheet.create({
   wideFavorites: {
     flexShrink: 1,
     width: 1080 * fontScale,
-    height: 145 * fontScale,
+    height: isWeb ? undefined : 145 * fontScale,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -1299,7 +1300,8 @@ function boardStyle(
     minWidth: minWidth * fontScale,
     maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
-    maxHeight: isWeb && (size === 'M' || size === 'S') ? 500 : undefined,
+    maxHeight:
+      isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,

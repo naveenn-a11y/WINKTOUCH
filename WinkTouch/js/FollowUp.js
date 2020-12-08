@@ -31,8 +31,9 @@ import {
   selectionFontColor,
   fieldBorderColor,
   isWeb,
+  windowHeight,
 } from './Styles';
-import {Button, TilesField, Label, SelectionList} from './Widgets';
+import {Button, TilesField, Label, SelectionList, Alert} from './Widgets';
 import {FormRow, FormTextInput, FormField, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
 import {fetchWinkRest} from './WinkRest';
@@ -60,7 +61,6 @@ import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {fetchPatientInfo} from './Patient';
-import {Alert} from './Alert';
 
 const COMMAND = {
   RESEND: 0,
@@ -667,8 +667,12 @@ export class FollowUpScreen extends Component<
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
       : this.props.navigation.state.params.patientInfo;
+    const style =
+      !isEmpty(patientInfo) && !this.props.isDraft
+        ? [styles.tabCardFollowUp, {maxHeight: windowHeight - 295 * fontScale}]
+        : styles.tabCardFollowUp;
     return (
-      <View style={styles.tabCardFollowUp}>
+      <View style={style}>
         {this.props.isDraft && (
           <Text style={styles.cardTitle}>Existing Referrals</Text>
         )}

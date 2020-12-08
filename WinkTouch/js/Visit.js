@@ -12,6 +12,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
@@ -31,9 +32,9 @@ import type {
   FollowUp,
   VisitType,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {Button, FloatingButton, Lock, NativeBar} from './Widgets';
+import {Button, FloatingButton, Lock, NativeBar, Alert} from './Widgets';
 import {
   formatMoment,
   deepClone,
@@ -97,7 +98,6 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
-import {Alert} from './Alert';
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -1197,11 +1197,15 @@ export class VisitHistoryCard extends Component {
   render() {
     if (!this.state.summaries) return null;
     return (
-      <View style={styles.tabCard}>
+      <View
+        style={isWeb ? [styles.tabCard, {flexShrink: 100}] : styles.tabCard}>
         <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
         {this.state.summaries.map((visitSummary: Exam, index: number) => (
           <View style={styles.rowLayout}>
-            <View style={styles.cardColumn}>
+            <View
+              style={
+                isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
+              }>
               <Text style={styles.text}>
                 {formatDate(
                   getCachedItem(visitSummary.visitId).date,

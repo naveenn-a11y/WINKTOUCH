@@ -118,7 +118,12 @@ export async function getBase64Image(image: string) {
 }
 
 export async function loadBase64ImageForWeb(image: string): Promise<string> {
-  if (isWeb && (image.startsWith('http:') || image.startsWith('https:'))) {
+  if (
+    isWeb &&
+    (image.startsWith('http:') ||
+      image.startsWith('https:') ||
+      image.startsWith('blob:'))
+  ) {
     const imageToBase64 = require('image-to-base64/browser');
     const response = await imageToBase64(image);
     const format: string = image.endsWith('jpg')
@@ -1051,7 +1056,7 @@ export class ImageField extends Component {
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>{this.props.label}</Text>
           <View>
-            <View style={styles.centeredColumnLayout}>
+            <View style={[styles.centeredColumnLayout, {alignItems: 'center'}]}>
               <View style={styles.centeredRowLayout}>
                 <ClearTile commitEdit={this.clear} />
                 <UpdateTile commitEdit={this.commitEdit} />
@@ -1133,7 +1138,7 @@ export class ImageField extends Component {
     const image = this.requireImage();
     if (this.props.popup === false || this.props.image === 'upload') {
       return (
-        <View style={styles.centeredColumnLayout}>
+        <View style={[styles.centeredColumnLayout, {alignItems: 'center'}]}>
           {image !== undefined && (
             <ViewShot ref="viewShot" options={{format: 'jpg', quality: 0.9}}>
               <View

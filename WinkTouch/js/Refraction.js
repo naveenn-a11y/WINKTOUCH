@@ -26,7 +26,14 @@ import type {
 } from './Types';
 import {styles, fontScale} from './Styles';
 import {strings} from './Strings';
-import {NumberField, TilesField, Button, Label, NativeBar} from './Widgets';
+import {
+  NumberField,
+  TilesField,
+  Button,
+  Label,
+  NativeBar,
+  Alert,
+} from './Widgets';
 import {Anesthetics} from './EyeTest';
 import {
   formatDegree,
@@ -64,7 +71,6 @@ import {importData, exportData} from './MappedField';
 import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient} from './Exam';
-import {Alert} from './Alert';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);

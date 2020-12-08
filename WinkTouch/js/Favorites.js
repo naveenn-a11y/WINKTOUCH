@@ -22,7 +22,7 @@ import type {
   Visit,
   VisitType,
 } from './Types';
-import {styles, selectionFontColor, disabledFontColor} from './Styles';
+import {styles, selectionFontColor, disabledFontColor, isWeb} from './Styles';
 import {strings} from './Strings';
 import {storeItem, searchItems, deleteItem} from './Rest';
 import {cacheItem, getCachedItem} from './DataCache';
@@ -423,9 +423,11 @@ export class Mail extends PureComponent {
     style: any,
   };
   render() {
-    return (
-      <Icon name="mail" style={this.props.style} color={selectionFontColor} />
-    );
+    if (isWeb) return null;
+    else
+      return (
+        <Icon name="mail" style={this.props.style} color={selectionFontColor} />
+      );
   }
 }
 

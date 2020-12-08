@@ -235,6 +235,9 @@ export const strings = new LocalizedStrings({
     somethingWentWrongMessage:
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the App !',
+    dragNDrop: 'Drag and drop some files here !',
+    takePicture: 'Take a Picture',
+    uploadFile: 'Upload a File',
   },
   fr: {
     enterRegisteredEmail:
@@ -469,6 +472,9 @@ export const strings = new LocalizedStrings({
     somethingWentWrongMessage:
       "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
     restartApp: "Cliquez ici pour redémarrer l'application !",
+    dragNDrop: 'Faites glisser et déposez votre fichier ici !',
+    takePicture: 'Prendre une Photo',
+    uploadFile: 'Téléverser un Fichier',
   },
 });
 

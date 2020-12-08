@@ -16,7 +16,7 @@ import type {
 } from './Types';
 import {strings} from './Strings';
 import {styles, scaleStyle, fontScale} from './Styles';
-import {FloatingButton} from './Widgets';
+import {FloatingButton, Alert} from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {deepClone, deepAssign, isEmpty, cleanUpArray} from './Util';
 import {formatAllCodes} from './Codes';
@@ -50,7 +50,6 @@ import {
 } from './Exam';
 import {CheckButton, Label, NativeBar} from './Widgets';
 import {formatLabel, formatFieldValue, getFieldDefinition} from './Items';
-import {Alert} from './Alert';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
