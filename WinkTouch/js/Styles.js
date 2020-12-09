@@ -319,7 +319,7 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
     fontSize: 22 * fontScale,
   },
-  backButton: {
+  menuButton: {
     width: 130 * fontScale,
     height: 100 * fontScale,
     borderRadius: 65 * fontScale,
@@ -328,7 +328,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#2dc3c3',
   },
-  backIcon: {
+  menuIcon: {
     color: 'white',
     fontSize: 50 * fontScale,
   },

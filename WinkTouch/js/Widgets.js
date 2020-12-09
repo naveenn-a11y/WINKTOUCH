@@ -2757,8 +2757,8 @@ export class BackButton extends Component {
         onPress={this.navigateBack}
         enable={this.props.disabled != true}
         testID="backButton">
-        <View style={styles.backButton}>
-          <Icon name="arrow-left" style={styles.backIcon} />
+        <View style={styles.menuButton}>
+          <Icon name="arrow-left" style={styles.menuIcon} />
         </View>
       </TouchableOpacity>
     );
@@ -3291,6 +3291,37 @@ export class Alert extends Component<AlertProps, AlertState> {
           </Dialog>
         </Portal>
       </Provider>
+    );
+  }
+}
+
+export class KeyboardMode extends Component {
+  props: {
+    mode: any,
+    onPress: () => void,
+  };
+  state: {
+    isKeyBoard: boolean,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      isKeyBoard: isWeb,
+    };
+  }
+  onUpdate() {
+    this.props.onPress();
+  }
+  render() {
+    const icon: string = this.props.mode === 'desktop' ? 'tablet' : 'keyboard';
+    return (
+      <TouchableOpacity
+        onPress={() => this.onUpdate()}
+        testID="keyboardModeIcon">
+        <View style={styles.menuButton}>
+          <Icon name={icon} style={styles.menuIcon} />
+        </View>
+      </TouchableOpacity>
     );
   }
 }

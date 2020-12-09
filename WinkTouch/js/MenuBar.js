@@ -10,16 +10,18 @@ import {
   Image,
   LayoutAnimation,
   InteractionManager,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import codePush from 'react-native-code-push';
 import {strings, getUserLanguage} from './Strings';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, backgroundColor} from './Styles';
 import type {Exam, ExamDefinition, Scene} from './Types';
-import {Button, BackButton, Clock} from './Widgets';
+import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
 import {getAllCodes} from './Codes';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
+import {ModeContext} from '../src/components/Context/ModeContextProvider';
 
 export class Notifications extends PureComponent {
   render() {
@@ -50,6 +52,7 @@ export class MenuBar extends PureComponent {
     examDefinition.id = exam.id;
     return examDefinition;
   }
+  static contextType = ModeContext;
 
   render() {
     //if (this.props.scene.menuHidden) return null;
@@ -127,10 +130,15 @@ export class MenuBar extends PureComponent {
             onPress={() => codePush.restartApp()}
           />
         )}
-        {__DEV__ && <Notifications />}
         <Button
           title={strings.logout}
           onPress={this.props.screenProps.onLogout}
+        />
+        {__DEV__ && <Notifications />}
+
+        <KeyboardMode
+          mode={this.context.keyboardMode}
+          onPress={this.context.toggleMode}
         />
       </View>
     );
