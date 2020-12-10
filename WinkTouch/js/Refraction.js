@@ -71,6 +71,7 @@ import {importData, exportData} from './MappedField';
 import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient} from './Exam';
+import {ModeContext} from '../src/components/Context/ModeContextProvider';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
@@ -754,6 +755,7 @@ export class GlassesDetail extends Component {
     editable: true,
     titleStyle: styles.sectionTitle,
   };
+  static contextType = ModeContext;
 
   constructor(props: any) {
     super(props);
@@ -951,6 +953,9 @@ export class GlassesDetail extends Component {
   render() {
     if (!this.props.glassesRx) return null;
     if (!this.props.glassesRx.od || !this.props.glassesRx.os) return null;
+    const isTyping =
+      this.context.keyboardMode === 'desktop' || this.state.isTyping;
+
     return (
       <View
         style={
@@ -1040,7 +1045,7 @@ export class GlassesDetail extends Component {
                 this.updateGlassesRx('od', 'sph', value)
               }
               errorMessage={this.props.glassesRx.od.sphError}
-              isTyping={this.state.isTyping}
+              isTyping={isTyping}
               autoFocus={true}
               testID={this.props.fieldId + '.od.sph'}
             />
@@ -1053,7 +1058,7 @@ export class GlassesDetail extends Component {
                 this.updateGlassesRx('od', 'cyl', value)
               }
               errorMessage={this.props.glassesRx.od.cylError}
-              isTyping={this.state.isTyping}
+              isTyping={isTyping}
               testID={this.props.fieldId + '.od.cyl'}
             />
             <FormInput
@@ -1065,7 +1070,7 @@ export class GlassesDetail extends Component {
                 this.updateGlassesRx('od', 'axis', value)
               }
               errorMessage={this.props.glassesRx.od.axisError}
-              isTyping={this.state.isTyping}
+              isTyping={isTyping}
               testID={this.props.fieldId + '.od.axis'}
             />
             {this.state.prism && (
@@ -1110,7 +1115,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('od', 'add', value)
                 }
                 errorMessage={this.props.glassesRx.od.addError}
-                isTyping={this.state.isTyping}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.od.add'}
               />
             )}
@@ -1148,7 +1153,7 @@ export class GlassesDetail extends Component {
                 this.updateGlassesRx('os', 'sph', value)
               }
               errorMessage={this.props.glassesRx.os.sphError}
-              isTyping={this.state.isTyping}
+              isTyping={isTyping}
               testID={this.props.fieldId + '.os.sph'}
             />
             <FormInput
@@ -1160,7 +1165,7 @@ export class GlassesDetail extends Component {
                 this.updateGlassesRx('os', 'cyl', value)
               }
               errorMessage={this.props.glassesRx.os.cylError}
-              isTyping={this.state.isTyping}
+              isTyping={isTyping}
               testID={this.props.fieldId + '.os.cyl'}
             />
             <FormInput
@@ -1172,7 +1177,7 @@ export class GlassesDetail extends Component {
                 this.updateGlassesRx('os', 'axis', value)
               }
               errorMessage={this.props.glassesRx.os.axisError}
-              isTyping={this.state.isTyping}
+              isTyping={isTyping}
               testID={this.props.fieldId + '.os.axis'}
             />
             {this.state.prism && (
@@ -1214,7 +1219,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('os', 'add', value)
                 }
                 errorMessage={this.props.glassesRx.os.addError}
-                isTyping={this.state.isTyping}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.os.add'}
               />
             )}
@@ -1372,10 +1377,7 @@ export class GlassesDetail extends Component {
             <TouchableOpacity
               onPress={this.toggleTyping}
               testID={this.props.fieldId + '.keyboardIcon'}>
-              <Keyboard
-                style={styles.groupIcon}
-                disabled={this.state.isTyping}
-              />
+              <Keyboard style={styles.groupIcon} disabled={isTyping} />
             </TouchableOpacity>
           )}
         </View>

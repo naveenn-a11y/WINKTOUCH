@@ -356,6 +356,9 @@ export class TextField extends Component {
       : this.state.isActive
       ? styles.inputFieldActive
       : styles.inputField;
+    if (isWeb) {
+      style = [{width: 36 * fontScale}, style];
+    }
     if (this.props.width) {
       style = [{width: this.props.width}, style];
     }

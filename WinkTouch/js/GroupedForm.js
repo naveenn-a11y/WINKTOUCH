@@ -61,6 +61,7 @@ export function hasColumns(groupDefinition: GroupDefinition): boolean {
     groupDefinition.columns[0][0].trim() !== ''
   );
 }
+import {ModeContext} from '../src/components/Context/ModeContextProvider';
 
 export function getColumnFieldIndex(
   groupDefinition: GroupDefinition,
@@ -952,6 +953,7 @@ export class GroupedForm extends Component {
   static defaultProps = {
     editable: true,
   };
+  static contextType = ModeContext;
 
   constructor(props: any) {
     super(props);
@@ -961,6 +963,7 @@ export class GroupedForm extends Component {
       showSnackBar: false,
     };
   }
+
   hideDialog() {
     this.setState({showDialog: false});
   }
@@ -1068,6 +1071,8 @@ export class GroupedForm extends Component {
         ? ' ' + this.formatColumnLabel(column) + ' '
         : ' ') +
       formatLabel(fieldDefinition);
+    const isTyping =
+      this.context.keyboardMode === 'desktop' || this.state.isTyping;
     return (
       <FormInput
         value={value}
@@ -1080,7 +1085,7 @@ export class GroupedForm extends Component {
           this.changeField(fieldDefinition, newValue, column)
         }
         errorMessage={error}
-        isTyping={this.state.isTyping}
+        isTyping={isTyping}
         patientId={this.props.patientId}
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
@@ -1398,6 +1403,8 @@ export class GroupedForm extends Component {
         !this.props.definition.keyboardEnabled)
     )
       return null;
+    const isTyping =
+      this.context.keyboardMode === 'desktop' || this.state.isTyping;
     return [
       <View style={styles.groupIcons} key="icons">
         {this.props.onClear && (
@@ -1418,7 +1425,7 @@ export class GroupedForm extends Component {
           <TouchableOpacity
             onPress={this.toggleTyping}
             testID={this.props.fieldId + '.keyboardIcon'}>
-            <Keyboard style={styles.groupIcon} disabled={this.state.isTyping} />
+            <Keyboard style={styles.groupIcon} disabled={isTyping} />
           </TouchableOpacity>
         )}
         {this.props.onAddFavorite && (
