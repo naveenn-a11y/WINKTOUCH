@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import codePush from 'react-native-code-push';
 import {strings, getUserLanguage} from './Strings';
-import {styles, fontScale, backgroundColor} from './Styles';
+import {styles, fontScale, backgroundColor, isWeb} from './Styles';
 import type {Exam, ExamDefinition, Scene} from './Types';
 import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
@@ -45,6 +45,24 @@ export class MenuBar extends PureComponent {
     screenProps: {
       onLogout: () => void,
     },
+  };
+
+  componentDidMount() {
+    if (isWeb) {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  componentWillUnmount() {
+    if (isWeb) {
+      document.removeEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  handleKeyDown = (event) => {
+    if (event && event.keyCode === 37) {
+      this.props.navigation && this.props.navigation.navigate('back');
+    }
   };
 
   extractExamDefinition(exam: Exam): ExamDefinition {

@@ -710,6 +710,7 @@ export class FormOptions extends Component {
     prefix?: string,
     suffix?: string,
     onChangeValue: (newvalue: ?string | ?number) => void,
+    isTyping?: boolean,
     testID: string,
   };
   state: {
@@ -850,6 +851,7 @@ export class FormOptions extends Component {
               prefix={this.props.prefix}
               suffix={this.props.suffix}
               multiline={this.props.multiline}
+              isTyping={this.props.isTyping && this.props.freestyle}
               testID={this.props.testID}
             />
           )}
@@ -952,6 +954,7 @@ export class FormCode extends Component {
     style?: any,
     onChangeValue?: (newvalue: ?string | ?number) => void,
     testID: string,
+    isTyping?: boolean,
   };
 
   getCodeIdentifier() {
@@ -1004,6 +1007,7 @@ export class FormCode extends Component {
         suffix={this.props.suffix}
         style={this.props.style}
         multiline={this.props.multiline}
+        isTyping={this.props.isTyping}
         testID={this.props.testID}
       />
     );
@@ -1307,6 +1311,7 @@ export class FormInput extends Component {
               this.props.multiline === true ||
               this.props.definition.maxLength > 150
             }
+            isTyping={this.props.isTyping}
             testID={this.props.testID}
           />
         );
@@ -1348,6 +1353,7 @@ export class FormInput extends Component {
             this.props.multiline === true ||
             this.props.definition.maxLength > 150
           }
+          isTyping={this.props.isTyping}
           testID={this.props.testID}
         />
       );

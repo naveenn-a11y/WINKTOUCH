@@ -317,6 +317,7 @@ export class TextField extends Component {
     autoFocus?: boolean,
     onFocus?: () => void,
     testID: string,
+    onOpenModal?: () => void,
   };
   state: {
     value: string,
@@ -338,9 +339,17 @@ export class TextField extends Component {
   }
 
   commitEdit(value: string) {
+    console.log('Hello Vlaue: ' + value);
     this.setState({value});
     if (this.props.onChangeValue && value !== this.props.value)
       this.props.onChangeValue(value);
+  }
+
+  handleKeyEvent(keyCode: Number) {
+    //ArrowDown
+    if (keyCode === 40) {
+      this.props.onOpenModal();
+    }
   }
 
   updateText = (text: string) => {
@@ -367,21 +376,41 @@ export class TextField extends Component {
         {this.props.prefix != undefined && (
           <Text style={styles.formPrefix}>{this.props.prefix}</Text>
         )}
-        <TextInput
-          value={this.state.value}
-          autoCapitalize="sentences"
-          autoCorrect={false}
-          placeholder={''}
-          keyboardType={this.props.type}
-          style={style}
-          onFocus={this.props.onFocus}
-          onChangeText={this.updateText}
-          onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
-          autoFocus={this.props.autoFocus}
-          editable={!this.props.readonly}
-          multiline={this.props.multiline}
-          testID={this.props.testID}
-        />
+        {isWeb ? (
+          <TextInput
+            value={this.state.value}
+            autoCapitalize="sentences"
+            autoCorrect={false}
+            placeholder={''}
+            keyboardType={this.props.type}
+            style={style}
+            onFocus={this.props.onFocus}
+            onChangeText={this.updateText}
+            onBlur={(event) => this.commitEdit(event.nativeEvent.text)}
+            autoFocus={this.props.autoFocus}
+            editable={!this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+            onKeyPress={(event) => this.handleKeyEvent(event.keyCode)}
+          />
+        ) : (
+          <TextInput
+            value={this.state.value}
+            autoCapitalize="sentences"
+            autoCorrect={false}
+            placeholder={''}
+            keyboardType={this.props.type}
+            style={style}
+            onFocus={this.props.onFocus}
+            onChangeText={this.updateText}
+            onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
+            autoFocus={this.props.autoFocus}
+            editable={!this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+          />
+        )}
+
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
         )}
@@ -612,6 +641,12 @@ export class NumberField extends Component {
     });
   };
 
+  openModal = () => {
+    if (!this.state.isTyping) return;
+
+    this.setState({isTyping: false});
+    this.startEditing();
+  };
   startTyping = () => {
     if (this.props.readonly) return;
     //KeyEvent.removeKeyUpListener();
@@ -1205,9 +1240,7 @@ export class NumberField extends Component {
       );
     }
     if (this.state.isTyping) {
-      const formattedValue: string = this.props.value
-        ? this.props.value.toString()
-        : '';
+      // const formattedValue: string = this.props.value? this.props.value.toString() : '';
       return (
         <TextField
           value={formattedValue}
@@ -1216,6 +1249,7 @@ export class NumberField extends Component {
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
           onChangeValue={(newValue) => this.commitTyping(newValue)}
+          onOpenModal={this.openModal}
         />
       );
     }
@@ -1264,6 +1298,7 @@ export class TilesField extends Component {
       onTransferFocus: (field: string) => void,
     },
     testID?: string,
+    isTyping?: boolean,
   };
   state: {
     isActive: boolean,
@@ -1275,11 +1310,16 @@ export class TilesField extends Component {
     super(props);
     this.state = {
       isActive: false,
-      isTyping: false,
+      isTyping: props.isTyping,
       editedValue: undefined,
     };
   }
-
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) return;
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
   startTyping = () => {
     if (this.props.readonly) return;
     this.setState({isActive: false, isTyping: true});
