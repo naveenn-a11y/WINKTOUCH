@@ -50,6 +50,9 @@ export class MenuBar extends PureComponent {
   componentDidMount() {
     if (isWeb) {
       document.addEventListener('keydown', this.handleKeyDown);
+      window.onpopstate = () => {
+        this.props.screenProps.onLogout();
+      };
     }
   }
 
