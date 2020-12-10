@@ -213,7 +213,6 @@
             {
               "name": "Lateral",
               "minValue": 0,
-              "label": "A Lateral",
               "suffix": "lateralPhoriaCodes",
               "maxValue": 40,
               "options": ["Ortho"]
@@ -221,7 +220,6 @@
             {
               "name": "Vertical",
               "minValue": 0,
-              "label": "A Lateral",
               "suffix": "verticalPhoriaCodes",
               "maxValue": 40,
               "options": ["Ortho"]
