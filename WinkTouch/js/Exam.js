@@ -554,15 +554,35 @@ export class ExamHistoryScreen extends Component {
       if (groupDefinition.options == undefined) {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
-        return value.map((childValue: any, index: number) => (
-          <GroupedForm
-            definition={groupDefinition}
-            editable={false}
-            key={index}
-            form={childValue}
-            patientId={this.state.patient ? this.state.patient.id : undefined}
-          />
-        ));
+        return value.map((childValue: any, index: number) => {
+          if (groupDefinition.type === 'SRx') {
+            let exam: Exam = this.props.navigation.state.params.exam;
+            return (
+              <GlassesDetail
+                title={formatLabel(groupDefinition)}
+                editable={false}
+                glassesRx={childValue}
+                key={groupDefinition.name}
+                definition={groupDefinition}
+                hasVA={groupDefinition.hasVA}
+                hasAdd={groupDefinition.hasAdd}
+                examId={exam.id}
+              />
+            );
+          } else {
+            return (
+              <GroupedForm
+                definition={groupDefinition}
+                editable={false}
+                key={index}
+                form={childValue}
+                patientId={
+                  this.state.patient ? this.state.patient.id : undefined
+                }
+              />
+            );
+          }
+        });
       }
     } else if (groupDefinition.type === 'SRx') {
       let exam: Exam = this.props.navigation.state.params.exam;
