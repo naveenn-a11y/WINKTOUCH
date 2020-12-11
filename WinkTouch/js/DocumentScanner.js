@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import NativeScanner from '../src/components/DocumentScanner';
 import base64 from 'base-64';
-import ImageResizer from 'react-native-image-resizer';
+import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
 import type {Upload} from './Types';
 import {
@@ -95,24 +95,26 @@ export class DocumentScanner extends Component {
   }
 
   async tookPicture(image: string) {
-    if (!isWeb) {
-      const dimension: {width: number, height: number} = getJpeg64Dimension(
+    const dimension: {width: number, height: number} = getJpeg64Dimension(
+      image,
+    );
+    const maxSize: number = Math.round(
+      (imageStyle(this.props.size).width / fontScale) * 1.1,
+    );
+    if (dimension.width > maxSize) {
+      const tempFolder = 'temp';
+      let resizedImage = await resizeFile(
         image,
+        maxSize,
+        dimension.height,
+        'JPEG',
+        70,
+        0,
+        tempFolder,
       );
-      const maxSize: number = Math.round(
-        (imageStyle(this.props.size).width / fontScale) * 1.1,
-      );
-      if (dimension.width > maxSize) {
-        const tempFolder = 'temp';
-        let resizedImage = await ImageResizer.createResizedImage(
-          image,
-          maxSize,
-          dimension.height,
-          'JPEG',
-          70,
-          0,
-          tempFolder,
-        );
+      if (isWeb) {
+        image = resizedImage.split(',')[1];
+      } else {
         image = await RNFS.readFile(resizedImage.path, 'base64');
         const dimensionAfter = getJpeg64Dimension(image);
         __DEV__ &&
