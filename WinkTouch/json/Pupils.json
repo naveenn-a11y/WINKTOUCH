@@ -2,7 +2,7 @@
   "name": "Pupils",
   "locale": {
     "fr-CA": {
-      "label": "Pupillles",
+      "label": "Pupilles",
       "fields": [
         {
           "name": "Pupils",
@@ -13,11 +13,11 @@
               "fields": [
                 {
                   "name": "Size in light",
-                  "label": "Taille Ã  la lumiÃ¨re"
+                  "label": "Taille Ã  la lumière"
                 },
                 {
                   "name": "Size in dark",
-                  "label": "Taille dans la noir"
+                  "label": "Taille dans la noirceur"
                 },
                 {
                   "name": "Shape",
@@ -25,7 +25,36 @@
                 },
                 {
                   "name": "Reaction",
-                  "label": "RÃ©action"
+                  "label": "Réaction"
+                },
+                {
+                  "name": "Diagnose",
+                  "label": "Diagnostic"
+                },
+                {
+                  "name": "Accom",
+                  "label": "Accomm."
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Size in light",
+                  "label": "Taille Ã  la lumière"
+                },
+                {
+                  "name": "Size in dark",
+                  "label": "Taille dans la noirceur"
+                },
+                {
+                  "name": "Shape",
+                  "label": "Forme"
+                },
+                {
+                  "name": "Reaction",
+                  "label": "Réaction"
                 },
                 {
                   "name": "Diagnose",
@@ -48,13 +77,7 @@
   "fields": [
     {
       "name": "Pupils",
-      "columns": [
-        [
-          "OD",
-          ">>",
-          "OS"
-        ]
-      ],
+      "columns": [["OD", ">>", "OS"]],
       "size": "L",
       "fields": [
         {

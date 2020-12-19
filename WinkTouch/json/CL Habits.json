@@ -7,11 +7,12 @@
       "fields": [
         {
           "name": "Replacement",
-          "label": "FrÃ©q. de remplacement"
+          "label": "Fréq. de remplacement"
         },
         {
           "name": "Comfort",
-          "label": "Confort"
+          "label": "Confort",
+          "normalValue": "Bien"
         },
         {
           "name": "Wearing habits",
@@ -19,7 +20,7 @@
         },
         {
           "name": "Cleaning habits",
-          "label": "Habitudes d\u2019entretien"
+          "label": "Habitudes d'entretien"
         }
       ]
     }
@@ -36,25 +37,25 @@
       "options": "clReplacementCodes"
     },
     {
-      "normalValue": "Good",
       "name": "Comfort",
       "multiValue": true,
       "freestyle": true,
-      "options": "clComfortCodes"
+      "options": "clComfortCodes",
+      "normalValue": "Good"
     },
     {
-      "normalValue": "Normal",
       "name": "Wearing habits",
       "multiValue": true,
       "freestyle": true,
-      "options": "clWearingHabitCodes"
+      "options": "clWearingHabitCodes",
+      "normalValue": "Normal"
     },
     {
-      "normalValue": "Normal",
       "name": "Cleaning habits",
       "multiValue": true,
       "freestyle": true,
-      "options": "clCleaningHabitCodes"
+      "options": "clCleaningHabitCodes",
+      "normalValue": "Normal"
     },
     {
       "maxLength": 500,

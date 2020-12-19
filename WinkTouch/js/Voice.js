@@ -1,44 +1,50 @@
 // @flow
-import React, { Component, PureComponent} from 'react';
-import { StyleSheet, Text, View, Image, TouchableWithoutFeedback } from 'react-native';
+import React, {Component, PureComponent} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Voice from 'react-native-voice';
 import RNBeep from 'react-native-a-beep';
-import { selectionFontColor } from './Styles';
-import { getUserLanguage } from './Strings';
+import {selectionFontColor, recordingFontColor} from './Styles';
+import {getUserLanguage} from './Strings';
 
 export class Microphone extends PureComponent {
   props: {
     style: any,
-    onSpoke: (text: string) => void
-  }
+    onSpoke: (text: string) => void,
+  };
   recording: boolean = false;
 
   state: {
     text: string,
     isListening: boolean,
     timer: any,
-  }
+  };
 
   constructor(props: any) {
     super(props);
     this.state = {
       text: '',
       isListening: false,
-      timer: null
-    }
+      timer: null,
+    };
   }
 
   async startListening() {
     __DEV__ && console.log('Start listening');
     Voice.onSpeechResults = this.onSpeechResults.bind(this);
-    this.setState({text: '', isListening:true});
+    this.setState({text: '', isListening: true});
     try {
       await Voice.start(getUserLanguage());
       RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.BeginRecording);
     } catch (e) {
-        console.error(e);
-        alert('Failed to start listening to your voice.');
+      console.error(e);
+      alert('Failed to start listening to your voice.');
     }
   }
 
@@ -46,7 +52,7 @@ export class Microphone extends PureComponent {
     try {
       await Voice.stop();
       RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.EndRecording);
-      __DEV__ && console.log('Stopped listening: '+this.state.text);
+      __DEV__ && console.log('Stopped listening: ' + this.state.text);
       let timer = setTimeout(this.endSpeech.bind(this), 1000);
       this.setState({timer, isListening: false});
     } catch (e) {
@@ -57,16 +63,16 @@ export class Microphone extends PureComponent {
   }
 
   onSpeechResults(event) {
-    let text : string = event.value.join();
+    let text: string = event.value.join();
     __DEV__ && console.log('Speech result:' + text);
     this.setState({text});
   }
 
   endSpeech() {
     const text: string = this.state.text;
-    __DEV__ && console.log('Final speech: '+text);
-    this.setState({text:'', timer: null});
-    if (text!=='' && text!==undefined) {
+    __DEV__ && console.log('Final speech: ' + text);
+    this.setState({text: '', timer: null});
+    if (text !== '' && text !== undefined) {
       this.props.onSpoke(text);
     }
   }
@@ -78,8 +84,18 @@ export class Microphone extends PureComponent {
   }
 
   render() {
-    return <TouchableWithoutFeedback onPressIn={() => this.startListening()} onPressOut={() => this.stopListening()}>
-      <Icon name='mic' style={this.props.style} color={selectionFontColor}/>
-    </TouchableWithoutFeedback>
+    return (
+      <TouchableWithoutFeedback
+        onPressIn={() => this.startListening()}
+        onPressOut={() => this.stopListening()}>
+        <Icon
+          name="mic"
+          style={this.props.style}
+          color={
+            this.state.isListening ? recordingFontColor : selectionFontColor
+          }
+        />
+      </TouchableWithoutFeedback>
+    );
   }
 }

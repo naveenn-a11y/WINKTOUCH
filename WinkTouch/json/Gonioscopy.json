@@ -1,7 +1,27 @@
 {
   "locale": {
     "fr-CA": {
-      "label": "Gonioscopie"
+      "label": "Gonioscopie",
+      "fields": [
+        {
+          "name": "OD",
+          "fields": [
+            {
+              "name": "Iris",
+              "normalValue": "Plat"
+            }
+          ]
+        },
+        {
+          "name": "OS",
+          "fields": [
+            {
+              "name": "Iris",
+              "normalValue": "Plat"
+            }
+          ]
+        }
+      ]
     }
   },
   "name": "Gonioscopy",
@@ -29,275 +49,268 @@
       "OS.Insertion T",
       "OS.Pigment T"
     ],
-    [
-      "Iris: ",
-      "OD.Iris",
-      "OS.Iris"
-    ]
+    ["Iris: ", "OD.Iris", "OS.Iris"]
   ],
   "starable": true,
   "type": "groupedForm",
   "section": "Anterior exam.3",
   "fields": [
     {
-        "name": "OD",
-        "fields": [
-            {
-                "image": "./image/gonioscopyOD.png",
-                "name": "Image",
-                "label": ""
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 230,
-                    "left": 425,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment N",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 190,
-                    "left": 425,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion N",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 230,
-                    "left": 90,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment T",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 190,
-                    "left": 90,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion T",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 85,
-                    "left": 280,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment U",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 85,
-                    "left": 232,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion U",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 360,
-                    "left": 280,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment D",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 360,
-                    "left": 232,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion D",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "freestyle": true,
-                "name": "Iris",
-                "options": "irisPaternCodes",
-                "normalValue": "Flat"
-            },
-            {
-                "name": "Lens",
-                "options": "gonioscopyLensCodes"
-            },
-            {
-                "name": "Notes",
-                "maxLength": 500
-            }
-        ]
+      "name": "OD",
+      "fields": [
+        {
+          "image": "./image/gonioscopyOD.png",
+          "name": "Image",
+          "label": ""
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 230,
+            "left": 425,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment N",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 190,
+            "left": 425,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion N",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 230,
+            "left": 90,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment T",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 190,
+            "left": 90,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion T",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 85,
+            "left": 280,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment U",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 85,
+            "left": 232,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion U",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 360,
+            "left": 280,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment D",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 360,
+            "left": 232,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion D",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "freestyle": true,
+          "name": "Iris",
+          "options": "irisPaternCodes",
+          "normalValue": "Flat"
+        },
+        {
+          "name": "Lens",
+          "options": "gonioscopyLensCodes"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
     },
     {
-        "name": "OS",
-        "fields": [
-            {
-                "image": "./image/gonioscopyOS.png",
-                "name": "Image",
-                "label": ""
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 230,
-                    "left": 96,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment N",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 190,
-                    "left": 96,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion N",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 230,
-                    "left": 425,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment T",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 190,
-                    "left": 425,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion T",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 85,
-                    "left": 280,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment U",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 85,
-                    "left": 232,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion U",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 360,
-                    "left": 280,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Pigment D",
-                "options": "gonioPigmentCodes"
-            },
-            {
-                "layout": {
-                    "backgroundColor": "#ffffff00",
-                    "top": 360,
-                    "left": 232,
-                    "width": 50,
-                    "position": "absolute",
-                    "justifyContent": "center",
-                    "height": 50
-                },
-                "name": "Insertion D",
-                "options": "gonioInsertionCodes"
-            },
-            {
-                "freestyle": true,
-                "name": "Iris",
-                "options": "irisPaternCodes",
-                "normalValue": "Flat"
-            },
-            {
-                "name": "Lens",
-                "options": "gonioscopyLensCodes"
-            },
-            {
-                "name": "Notes",
-                "maxLength": 500
-            }
-        ]
+      "name": "OS",
+      "fields": [
+        {
+          "image": "./image/gonioscopyOS.png",
+          "name": "Image",
+          "label": ""
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 230,
+            "left": 96,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment N",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 190,
+            "left": 96,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion N",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 230,
+            "left": 425,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment T",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 190,
+            "left": 425,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion T",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 85,
+            "left": 280,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment U",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 85,
+            "left": 232,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion U",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 360,
+            "left": 280,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Pigment D",
+          "options": "gonioPigmentCodes"
+        },
+        {
+          "layout": {
+            "backgroundColor": "#ffffff00",
+            "top": 360,
+            "left": 232,
+            "width": 50,
+            "position": "absolute",
+            "justifyContent": "center",
+            "height": 50
+          },
+          "name": "Insertion D",
+          "options": "gonioInsertionCodes"
+        },
+        {
+          "freestyle": true,
+          "name": "Iris",
+          "options": "irisPaternCodes",
+          "normalValue": "Flat"
+        },
+        {
+          "name": "Lens",
+          "options": "gonioscopyLensCodes"
+        },
+        {
+          "name": "Notes",
+          "maxLength": 500
+        }
+      ]
     }
-],
-  "relatedExams": [
-    "Dilation",
-    "Chief complaint"
-  ]
+  ],
+  "relatedExams": ["Dilation", "Chief complaint"]
 }

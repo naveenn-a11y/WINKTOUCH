@@ -5,19 +5,23 @@
       "fields": [
         {
           "name": "Aided acuities",
-          "label": "AcuititÃ©s avec aide",
+          "label": "Acuitités avec aide",
           "fields": [
             {
               "name": "DVA",
               "label": "AVL",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": ["APL", "Prothèse"]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": ["APL", "Prothèse"]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": ["APL", "Prothèse"]
                 }
               ]
             },
@@ -26,8 +30,12 @@
               "label": "TE",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": ["APL", "Prothèse"]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": ["APL", "Prothèse"]
                 }
               ]
             },
@@ -36,18 +44,26 @@
               "label": "AVP",
               "fields": [
                 {
+                  "name": "OD",
+                  "options": ["APL", "Prothèse"]
+                },
+                {
                   "name": "OS",
-                  "label": "OG"
+                  "options": ["APL", "Prothèse"]
                 },
                 {
                   "name": "OU",
-                  "label": "ODG"
+                  "options": ["APL", "Prothèse"]
                 }
               ]
             },
             {
               "name": "Scale",
-              "label": "Ãchelle"
+              "label": "Échelle"
+            },
+            {
+              "name": "Aide",
+              "options": ["Lunettes", "LC", "Lunettes sur LC"]
             }
           ]
         }
@@ -62,59 +78,23 @@
               "name": "DVA",
               "fields": [
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OD",
                   "maxValue": 600
                 },
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OS",
                   "maxValue": 600
                 },
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OU",
                   "maxValue": 600
                 }
@@ -124,40 +104,16 @@
               "name": "PH",
               "fields": [
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OD",
                   "maxValue": 600
                 },
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OS",
                   "maxValue": 600
                 }
@@ -167,59 +123,23 @@
               "name": "NVA",
               "fields": [
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OD",
                   "maxValue": 600
                 },
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OS",
                   "maxValue": 600
                 },
                 {
-                  "stepSize": [
-                    5,
-                    5,
-                    5,
-                    10,
-                    10,
-                    10,
-                    10,
-                    10,
-                    20,
-                    100,
-                    200
-                  ],
+                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
                   "minValue": 15,
-                  "prefix": "20\/\u200B",
+                  "prefix": "20/",
                   "name": "OU",
                   "maxValue": 600
                 }
@@ -239,29 +159,23 @@
               "fields": [
                 {
                   "name": "OD",
-                  "stepSize": [
-                    1,1,1,3,3,6,6,12,24
-                  ],
+                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
                   "name": "OS",
-                  "stepSize": [
-                    1,1,1,3,3,6,6,12,24
-                  ],
+                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
                   "name": "OU",
-                  "stepSize": [
-                    1,1,1,3,3,6,6,12,24
-                  ],
+                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 }
               ]
@@ -271,20 +185,16 @@
               "fields": [
                 {
                   "name": "OD",
-                  "stepSize": [
-                    1,1,1,3,3,6,6,12,24
-                  ],
+                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 },
                 {
                   "name": "OS",
-                  "stepSize": [
-                    1,1,1,3,3,6,6,12,24
-                  ],
+                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
                   "minValue": 3,
-                  "prefix": "6\/\u200B",
+                  "prefix": "6/",
                   "maxValue": 60
                 }
               ]
@@ -294,7 +204,20 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["N4.5","N5","N6","N8","N10","N12","N14","N18","N24","N36","N48","NLP"],
+                  "options": [
+                    "N4.5",
+                    "N5",
+                    "N6",
+                    "N8",
+                    "N10",
+                    "N12",
+                    "N14",
+                    "N18",
+                    "N24",
+                    "N36",
+                    "N48",
+                    "NLP"
+                  ],
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
@@ -303,7 +226,20 @@
                 },
                 {
                   "name": "OS",
-                  "options": ["N4.5","N5","N6","N8","N10","N12","N14","N18","N24","N36","N48","NLP"],
+                  "options": [
+                    "N4.5",
+                    "N5",
+                    "N6",
+                    "N8",
+                    "N10",
+                    "N12",
+                    "N14",
+                    "N18",
+                    "N24",
+                    "N36",
+                    "N48",
+                    "NLP"
+                  ],
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
@@ -312,7 +248,20 @@
                 },
                 {
                   "name": "OU",
-                  "options": ["N4.5","N5","N6","N8","N10","N12","N14","N18","N24","N36","N48","NLP"],
+                  "options": [
+                    "N4.5",
+                    "N5",
+                    "N6",
+                    "N8",
+                    "N10",
+                    "N12",
+                    "N14",
+                    "N18",
+                    "N24",
+                    "N36",
+                    "N48",
+                    "NLP"
+                  ],
                   "prefix": null,
                   "minValue": null,
                   "maxValue": null,
@@ -334,26 +283,13 @@
     {
       "multivalue": true,
       "name": "Aided acuities",
-      "import": [
-        "machine.phoropter.va.cc"
-      ],
-      "columns": [
-        [
-          "DVA",
-          "PH",
-          "NVA",
-          ">>"
-        ]
-      ],
+      "import": ["machine.phoropter.va.cc"],
+      "columns": [["DVA", "PH", "NVA", ">>"]],
       "fields": [
         {
           "name": "Aide",
           "freestyle": true,
-          "options": [
-            "Spectacles",
-            "CL",
-            "Spectacles over CL"
-          ]
+          "options": ["Spectacles", "CL", "Spectacles over CL"]
         },
         {
           "normalValue": "Snellen",
@@ -365,92 +301,36 @@
           "name": "DVA",
           "fields": [
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OD",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP",
-                "Prothesis"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP", "Prothesis"],
               "maxValue": 60
             },
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OS",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP",
-                "Prothesis"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP", "Prothesis"],
               "maxValue": 60
             },
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OU",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP"],
               "maxValue": 60
             }
           ]
@@ -459,61 +339,25 @@
           "name": "PH",
           "fields": [
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OD",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP"],
               "maxValue": 60
             },
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OS",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP"],
               "maxValue": 60
             }
           ]
@@ -522,90 +366,36 @@
           "name": "NVA",
           "fields": [
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OD",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP"],
               "maxValue": 60
             },
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OS",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP"],
               "maxValue": 60
             },
             {
-              "stepSize": [
-                1.5,
-                3,
-                3,
-                6,
-                6,
-                12,
-                24
-              ],
+              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
               "minValue": 4.5,
-              "prefix": "6\/\u200B",
+              "prefix": "6/",
               "name": "OU",
               "groupSize": 0,
               "freestyle": true,
-              "suffix": [
-                "-3",
-                "-2",
-                "-1",
-                "-",
-                "+1",
-                "+2",
-                "+3"
-              ],
-              "options": [
-                "NLP"
-              ],
+              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+              "options": ["NLP"],
               "maxValue": 60
             }
           ]
@@ -616,12 +406,7 @@
         }
       ],
       "size": "M",
-      "rows": [
-        [
-          "Aide",
-          "Scale"
-        ]
-      ]
+      "rows": [["Aide", "Scale"]]
     }
   ]
 }
