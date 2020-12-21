@@ -11,6 +11,7 @@ import {styles, fontScale, windowWidth, windowHeight} from './Styles.js';
 import {getExamHistory} from './Exam';
 import {formatMoment} from './Util';
 import {getCachedItem} from './DataCache';
+import {Highcharts as HighchartsReactNative} from '../src/components/HighCharts';
 type ChartData = {type: string, name: string, data: number[]};
 type ChartSeries = ChartData[];
 
@@ -63,18 +64,13 @@ class LineChart extends Component {
       },
       series: this.props.series,
     };
-    /* return (
+    return (
       <HighchartsReactNative
         useCDN={true}
         useSSL={true}
         styles={{top: 0, width: windowWidth * 0.85, height: windowHeight}}
         options={conf}
       />
-    );*/
-    return (
-      <View>
-        <Text> HighCharts </Text>
-      </View>
     );
   }
 }
