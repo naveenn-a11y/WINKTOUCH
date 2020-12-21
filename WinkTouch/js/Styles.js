@@ -844,6 +844,7 @@ export const styles = StyleSheet.create({
   boardStretch: {
     width: 530 * fontScale,
     height: isWeb ? undefined : 285 * fontScale,
+    maxHeight: isWeb ? 585 * fontScale : undefined,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -861,6 +862,7 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
     width: 1080 * fontScale,
     height: isWeb ? undefined : 285 * fontScale,
+    maxHeight: isWeb ? 585 * fontScale : undefined,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
