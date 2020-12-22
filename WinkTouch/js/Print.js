@@ -304,35 +304,34 @@ async function addSignatureWeb(
         console.warn('failed to download singature ' + doctor.signatureId);
       return;
     }
-
-    const mimeType: string = getMimeType(signature);
-    if (mimeType === 'image/jpeg;base64') {
-      let dimension = getJpeg64Dimension(signature.data);
-      const image = await pdfDoc.embedJpg(signature.data);
-      page.drawImage(image, {
-        x,
-        y: border,
-        width: 150,
-        height: (dimension.height / dimension.width) * 150,
-      });
-    } else if (mimeType === 'image/png;base64') {
-      let dimension = getPng64Dimension(signature.data);
-      const image = await pdfDoc.embedPng(signature.data);
-      page.drawImage(image, {
-        x,
-        y: border,
-        width: 150,
-        height: (dimension.height / dimension.width) * 150,
-      });
-    } else {
-      __DEV__ &&
-        console.log(
-          'Unsupported signature image type:' +
-            signature.name +
-            ' ' +
-            signature.mimeType,
-        );
-    }
+  }
+  const mimeType: string = getMimeType(signature);
+  if (mimeType === 'image/jpeg;base64') {
+    let dimension = getJpeg64Dimension(signature.data);
+    const image = await pdfDoc.embedJpg(signature.data);
+    page.drawImage(image, {
+      x,
+      y: border,
+      width: 150,
+      height: (dimension.height / dimension.width) * 150,
+    });
+  } else if (mimeType === 'image/png;base64') {
+    let dimension = getPng64Dimension(signature.data);
+    const image = await pdfDoc.embedPng(signature.data);
+    page.drawImage(image, {
+      x,
+      y: border,
+      width: 150,
+      height: (dimension.height / dimension.width) * 150,
+    });
+  } else {
+    __DEV__ &&
+      console.log(
+        'Unsupported signature image type:' +
+          signature.name +
+          ' ' +
+          signature.mimeType,
+      );
   }
 }
 
