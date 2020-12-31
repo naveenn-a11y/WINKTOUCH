@@ -22,6 +22,7 @@ import {setDeploymentVersion, checkBinaryVersion} from './Version';
 import {getVisitTypes, fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes} from './Codes';
 import {isWeb} from './Styles';
+import {getHostFromBundleKey} from '../scripts/Utils';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -109,8 +110,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     codePush.allowRestart();
   } else {
     if (bundleUpdated) {
-      const envFileContent : any = require('../scripts/Utils');
-      const host: string = envFileContent.getHostFromBundleKey(registration.bundle);
+      const host: string = getHostFromBundleKey(registration.bundle);
       if (host !== undefined) {
         console.log('Redirect to:  ' + JSON.stringify(host));
         window.location.href = host;
