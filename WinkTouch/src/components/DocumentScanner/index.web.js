@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text, View, TouchableOpacity, Button} from 'react-native';
-import {Camera} from 'expo-camera';
+//import {Camera} from 'expo-camera';
 import {strings} from '../../../js/Strings';
 import {styles} from '../../../js/Styles';
 import {UploadZone} from '../DropZone';
@@ -19,13 +19,13 @@ export default class NativeScanner extends Component {
     super(props);
     this.state = {
       hasPermission: false,
-      type: Camera.Constants.Type.back,
+      type: false,
       action: undefined,
     };
   }
 
   async componentDidMount() {
-    const status = await Camera.isAvailableAsync();
+    const status = false;
     this.setHasPermission(status);
   }
 
@@ -63,6 +63,7 @@ export default class NativeScanner extends Component {
             <Button
               onPress={() => this.setAction('camera')}
               title={strings.takePicture}
+              disabled={true}
             />
           </View>
           <View style={{marginLeft: 10}}>
@@ -94,6 +95,7 @@ export default class NativeScanner extends Component {
           </View>
         );
       }
+      /*
       return (
         <Camera
           ref={(ref) => {
@@ -140,6 +142,7 @@ export default class NativeScanner extends Component {
           </View>
         </Camera>
       );
+      */
     }
   }
 }

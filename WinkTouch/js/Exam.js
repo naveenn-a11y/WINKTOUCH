@@ -987,7 +987,7 @@ export class ExamScreen extends Component {
   renderExamIcons() {
     if (this.state.exam.definition.card === false) return;
     return (
-      <View style={styles.examIconsFlex}>
+      <View style={isWeb ? styles.examIconsFlex : styles.examIcons}>
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
         {this.renderLockIcon()}

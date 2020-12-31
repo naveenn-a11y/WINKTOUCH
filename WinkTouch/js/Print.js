@@ -24,6 +24,7 @@ import {isWeb} from './Styles';
 import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
+
 export async function printRx(visitId: string) {
   try {
     const filename: string = 'Rx.pdf';

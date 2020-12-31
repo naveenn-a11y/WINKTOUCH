@@ -6,7 +6,6 @@ import {NavigationActions} from 'react-navigation';
 import {isWeb} from './Styles';
 import codePush from 'react-native-code-push';
 import {strings} from './Strings';
-import {REACT_APP_HOST} from '../env.json';
 export default class ErrorBoundary extends Component {
   props: {
     navigator: any,
@@ -38,7 +37,8 @@ export default class ErrorBoundary extends Component {
 
   redirect() {
     if (isWeb) {
-      window.location.href = REACT_APP_HOST;
+       const envFileContent: any = require(`../env.json`);
+       window.location.href = envFileContent.REACT_APP_HOST;
     } else {
       codePush.restartApp();
     }

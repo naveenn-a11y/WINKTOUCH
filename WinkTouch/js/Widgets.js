@@ -2869,8 +2869,6 @@ export class FloatingButton extends Component {
   render() {
     if (!this.state.options) return null;
     return (
-      <Provider>
-        <Portal>
           <FAB.Group
             open={this.state.active}
             onStateChange={this.toggleActive}
@@ -2888,8 +2886,6 @@ export class FloatingButton extends Component {
               };
             })}
           />
-        </Portal>
-      </Provider>
     );
   }
 }

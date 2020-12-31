@@ -6,7 +6,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {WebView, WebViewMessageEvent} from 'react-native-webview';
-import {styles, windowHeight, fontScale, isWeb} from '../../../Styles';
+import {styles, windowHeight, fontScale, isWeb} from '../../../js/Styles';
 
 interface EditorProps {
   /**

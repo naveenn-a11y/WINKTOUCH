@@ -669,7 +669,7 @@ export class FollowUpScreen extends Component<
       : this.props.navigation.state.params.patientInfo;
     const style =
       !isEmpty(patientInfo) && !this.props.isDraft
-        ? [styles.tabCardFollowUp, {maxHeight: windowHeight - 295 * fontScale}]
+        ? [styles.tabCardFollowUp, {maxHeight: windowHeight - 295 * fontScale, minHeight: windowHeight - 295 * fontScale}]
         : styles.tabCardFollowUp;
     return (
       <View style={style}>

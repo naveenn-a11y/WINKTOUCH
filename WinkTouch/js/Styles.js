@@ -939,6 +939,10 @@ export const styles = StyleSheet.create({
     backgroundColor: 'white',
     margin: 3 * fontScale,
   },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   listRowSelected: {
     flex: 10,
     flexDirection: 'row',
