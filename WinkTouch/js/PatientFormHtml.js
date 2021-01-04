@@ -861,8 +861,9 @@ async function renderImage(
   }
 
   if (filePath) {
-    console.log("File Path: " + filePath);
-    const imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+    const requiredImage =
+      isWeb && image.startsWith('./image') ? require(`${filePath}`) : filePath;
+    let imageValue: string = `<img src="${requiredImage}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     if (!isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
       if (base64Image) {
@@ -871,6 +872,12 @@ async function renderImage(
           value: `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
         });
       }
+    } else if (
+      isWeb &&
+      (image.startsWith('http:') || image.startsWith('https:'))
+    ) {
+      const base64Image = await getBase64Image(image);
+      imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     }
 
     html += imageValue;
@@ -1342,7 +1349,7 @@ export function patientHeader() {
     `td    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
-    `.xlForm {display: block; page-break-before: always;}` +
+    `.xlForm {display: block; page-break-before: always;` +
     `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
     `@media screen {` +
