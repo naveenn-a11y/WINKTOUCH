@@ -37,6 +37,7 @@
       "Recall.Notes"
     ]
   ],
+  "starable": true,
   "type": "groupedForm",
   "fields": [
     {

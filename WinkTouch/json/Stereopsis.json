@@ -30,6 +30,7 @@
       ]
     }
   },
+  "starable": true,
   "type": "groupedForm",
   "section": "Entrance testing.5",
   "fields": [

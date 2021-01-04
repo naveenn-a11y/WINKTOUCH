@@ -23,7 +23,7 @@
       ]
     }
   },
-  "starable": false,
+  "starable": true,
   "type": "groupedForm",
   "fields": [
     {
