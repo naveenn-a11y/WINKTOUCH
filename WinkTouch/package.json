@@ -1,6 +1,6 @@
 {
   "name": "WinkTouch",
-  "version": "0.0.1",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -61,7 +61,7 @@
     "react-native-modal-datetime-picker": "^9.1.0",
     "react-native-paper": "^4.5.0",
     "react-native-pdf": "^6.2.2",
-    "react-native-pdf-lib": "git+https://github.com/Hopding/react-native-pdf-lib.git",
+    "react-native-pdf-lib": "github:zilicon/react-native-pdf-lib#fix-fonts",
     "react-native-print": "^0.7.0",
     "react-native-public-ip": "^1.0.2",
     "react-native-reanimated": "^1.13.2",
@@ -70,7 +70,6 @@
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^7.1.0",
     "react-native-view-shot": "^3.1.2",
-    "react-native-view-shot-with-web-support": "^3.1.2",
     "react-native-voice": "^0.3.0",
     "react-native-web": "^0.14.10",
     "react-native-webview": "^11.0.2",
