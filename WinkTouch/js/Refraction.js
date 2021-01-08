@@ -754,7 +754,6 @@ export class GlassesDetail extends Component {
     importedData: any,
     showDialog: boolean,
     showSnackBar: boolean,
-    isRxDateVisible: boolean,
   };
   static defaultProps = {
     editable: true,
@@ -769,7 +768,6 @@ export class GlassesDetail extends Component {
       isTyping: false,
       showDialog: false,
       showSnackBar: false,
-      isRxDateVisible: true,
     };
   }
 
@@ -931,14 +929,6 @@ export class GlassesDetail extends Component {
       }
     }
   }
-  setExpirationDate = (date: Date) => {
-    this.hideDatePicker();
-    this.updateGlassesRx(undefined, 'expiry', date);
-  };
-
-  hideDatePicker = () => {
-    this.setState({isRxDateVisible: true});
-  };
 
   renderAlert() {
     const importedData: any = this.state.importedData;
@@ -966,28 +956,6 @@ export class GlassesDetail extends Component {
     );
   }
 
-  renderDateTimePicker() {
-    const expiryDate: Date = isEmpty(this.props.glassesRx.expiry)
-      ? new Date()
-      : parseDate(this.props.glassesRx.expiry);
-    return (
-      <CustomDateTimePicker
-        isTextInput={this.state.isRxDateVisible}
-        isVisible={true}
-        hideTitleContainerIOS={true}
-        selected={expiryDate}
-        mode="date"
-        onChange={this.setExpirationDate}
-        onCancel={this.hideDatePicker}
-        confirmText={strings.confirm}
-        confirmTextStyle={styles.pickerLinkButton}
-        cancelText={strings.cancel}
-        cancelTextStyle={styles.pickerLinkButton}
-        style={styles.alert}
-        title={strings.consultationDate}
-      />
-    );
-  }
   render() {
     if (!this.props.glassesRx) return null;
     if (!this.props.glassesRx.od || !this.props.glassesRx.os) return null;
@@ -1014,11 +982,17 @@ export class GlassesDetail extends Component {
           />
         )}
         {this.props.editable && this.props.glassesRx.expiry && (
-          <View style={(styles.formRow, {zIndex: 1})}>
-            <View style={styles.formElement}>
-              <Text>Expiration Date: </Text>
-              {this.renderDateTimePicker()}
-            </View>
+          <View style={styles.formRow}>
+            <FormInput
+              value={this.props.glassesRx.expiry}
+              definition={getFieldDefinition('visit.expDate')}
+              readonly={!this.props.editable}
+              onChangeValue={(value: ?string) => {
+                this.updateGlassesRx(undefined, 'expiry', value);
+              }}
+              errorMessage={this.props.glassesRx.expiryError}
+              testID={this.props.fieldId + '.expDate'}
+            />
           </View>
         )}
         <View style={styles.centeredColumnLayout}>
