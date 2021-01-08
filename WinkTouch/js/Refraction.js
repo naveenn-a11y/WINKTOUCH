@@ -46,7 +46,9 @@ import {
   isToyear,
   now,
   jsonDateTimeFormat,
+  jsonDateFormat,
   postfix,
+  parseDate,
 } from './Util';
 import {FormInput} from './Form';
 import {getFieldDefinition, filterFieldDefinition, formatLabel} from './Items';
@@ -72,6 +74,8 @@ import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient} from './Exam';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
+
+import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
@@ -750,6 +754,7 @@ export class GlassesDetail extends Component {
     importedData: any,
     showDialog: boolean,
     showSnackBar: boolean,
+    isRxDateVisible: boolean,
   };
   static defaultProps = {
     editable: true,
@@ -764,6 +769,7 @@ export class GlassesDetail extends Component {
       isTyping: false,
       showDialog: false,
       showSnackBar: false,
+      isRxDateVisible: true,
     };
   }
 
@@ -925,6 +931,15 @@ export class GlassesDetail extends Component {
       }
     }
   }
+  setExpirationDate = (date: Date) => {
+    this.hideDatePicker();
+    this.updateGlassesRx(undefined, 'expiry', date);
+  };
+
+  hideDatePicker = () => {
+    this.setState({isRxDateVisible: true});
+  };
+
   renderAlert() {
     const importedData: any = this.state.importedData;
     if (!importedData) return null;
@@ -947,6 +962,29 @@ export class GlassesDetail extends Component {
       <NativeBar
         message={strings.importDataNotFound}
         onDismissAction={() => this.hideSnackBar()}
+      />
+    );
+  }
+
+  renderDateTimePicker() {
+    const expiryDate: Date = isEmpty(this.props.glassesRx.expiry)
+      ? new Date()
+      : parseDate(this.props.glassesRx.expiry);
+    return (
+      <CustomDateTimePicker
+        isTextInput={this.state.isRxDateVisible}
+        isVisible={true}
+        hideTitleContainerIOS={true}
+        selected={expiryDate}
+        mode="date"
+        onChange={this.setExpirationDate}
+        onCancel={this.hideDatePicker}
+        confirmText={strings.confirm}
+        confirmTextStyle={styles.pickerLinkButton}
+        cancelText={strings.cancel}
+        cancelTextStyle={styles.pickerLinkButton}
+        style={styles.alert}
+        title={strings.consultationDate}
       />
     );
   }
@@ -974,6 +1012,14 @@ export class GlassesDetail extends Component {
             value={this.props.title}
             fieldId={this.props.fieldId}
           />
+        )}
+        {this.props.editable && this.props.glassesRx.expiry && (
+          <View style={(styles.formRow, {zIndex: 1})}>
+            <View style={styles.formElement}>
+              <Text>Expiration Date: </Text>
+              {this.renderDateTimePicker()}
+            </View>
+          </View>
         )}
         <View style={styles.centeredColumnLayout}>
           {this.props.hasLensType && (
@@ -1313,6 +1359,7 @@ export class GlassesDetail extends Component {
               />
             </View>
           )}
+
           {this.props.editable === true && this.props.hasAdd === true && (
             <View style={styles.buttonsRowLayout}>
               <Button

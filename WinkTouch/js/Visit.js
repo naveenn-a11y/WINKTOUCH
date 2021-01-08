@@ -1507,7 +1507,7 @@ export class VisitHistory extends Component {
       <CustomDateTimePicker
         isVisible={this.state.showingDatePicker}
         hideTitleContainerIOS={true}
-        date={new Date()}
+        selected={new Date()}
         mode="date"
         onChange={this.selectDate}
         onCancel={this.hideDatePicker}
