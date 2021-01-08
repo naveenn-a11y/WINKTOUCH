@@ -34,24 +34,12 @@ export default class CustomDateTimePicker extends Component {
     this.props.onChange(this.state.date);
   };
   updateDate = (selectedDate: ?Date) => {
-    this.setState(
-      {
-        date: selectedDate,
-      },
-      this.props.isTextInput ? this.confirmDialog : undefined,
-    );
+    this.setState({
+      date: selectedDate,
+    });
   };
 
   render() {
-    if (this.props.isTextInput) {
-      return (
-        <DateTimePicker
-          selected={this.state.date}
-          onChange={(date) => this.updateDate(date)}
-        />
-      );
-    }
-
     return (
       <Provider>
         <Portal>
