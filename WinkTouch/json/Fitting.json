@@ -35,6 +35,17 @@
   ],
   "fields": [
     {
+      "name": "Contact Lens Expiration Date",
+      "multiValue": false,
+      "fields": [
+          {
+              "name": "Expiration Date",
+              "mappedField": "visit.expDateCl",
+              "type": "futreDate"
+          }
+      ]
+    },
+    {
       "clone": [
         "Manufacturer",
         "Brand",
@@ -83,11 +94,6 @@
         {
           "mappedField": "clFitting.followupDate",
           "name": "Follow-up",
-          "type": "futreDate"
-        },
-        {
-          "mappedField": "clFitting.expDateCl",
-          "name": "Expiration Date",
           "type": "futreDate"
         },
         {
