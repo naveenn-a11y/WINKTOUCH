@@ -54,13 +54,27 @@ export async function printRx(visitId: string) {
 export async function printClRx(visitId: string) {
   try {
     const filename: string = 'Rx.pdf';
-    await createPdf('webresources/reports', filename, {type: 'clRx'}, 'post', {
-      visitId: visitId,
-      showTrialDetails: false,
-    });
-    const jobName = await NativeModules.RNPrint.print({
-      filePath: RNFS.DocumentDirectoryPath + '/' + filename,
-    });
+    const path = await createPdf(
+      'webresources/reports',
+      filename,
+      {type: 'clRx'},
+      'post',
+      {
+        visitId: visitId,
+        showTrialDetails: false,
+      },
+    );
+    if (isWeb) {
+      const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
+      var x = window.open();
+      x.document.open();
+      x.document.write(htmlContent);
+      x.document.close();
+    } else {
+      const jobName = await NativeModules.RNPrint.print({
+        filePath: RNFS.DocumentDirectoryPath + '/' + filename,
+      });
+    }
   } catch (error) {
     alert(strings.serverError); //TODO clrxError
   }
