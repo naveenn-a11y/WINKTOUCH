@@ -22,6 +22,7 @@ import {getAllCodes} from './Codes';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
+import {REACT_APP_HOST} from '../env.json';
 
 export class Notifications extends PureComponent {
   render() {
@@ -148,7 +149,11 @@ export class MenuBar extends PureComponent {
         {__DEV__ && (
           <Button
             title={strings.restart}
-            onPress={() => codePush.restartApp()}
+            onPress={() =>
+              !isWeb
+                ? codePush.restartApp()
+                : window.location.replace(REACT_APP_HOST)
+            }
           />
         )}
         <Button
