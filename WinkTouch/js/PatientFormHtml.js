@@ -6,39 +6,27 @@ import {Platform} from 'react-native';
 import type {
   FieldDefinition,
   GroupDefinition,
-  FieldDefinitions,
-  ExamPredefinedValue,
   GlassesRx,
-  GlassRx,
   ImageDrawing,
   Visit,
-  ExamDefinition,
   PatientInfo,
   HtmlDefinition,
   ImageBase64Definition,
 } from './Types';
 import {strings} from './Strings';
 import {
-  styles,
   scaleStyle,
   fontScale,
-  imageWidth,
   imageStyle,
   defaultFontSize,
   isWeb,
 } from './Styles';
 import {
-  formatMoment,
   formatDate,
-  now,
   isEmpty,
-  compareDates,
-  dateFormat,
-  yearDateFormat,
   officialDateFormat,
   prefix,
   postfix,
-  cleanUpArray,
   formatDiopter,
   formatDegree,
   getValue,
@@ -48,7 +36,6 @@ import {
 import {formatPrism, hasPrism} from './Refraction';
 import {
   getFieldDefinition as getExamFieldDefinition,
-  getFieldValue as getExamFieldValue,
   getCurrentAction,
   UserAction,
 } from './Exam';
@@ -62,13 +49,8 @@ import RNFS from 'react-native-fs';
 import {line, curveBasis} from 'd3-shape';
 import {fetchUpload, getMimeType, getAspectRatio} from './Upload';
 import {getColumnFieldIndex, hasColumns} from './GroupedForm';
-import {
-  cacheItemById,
-  getCachedItem,
-  cacheItem,
-  getCachedItems,
-} from './DataCache';
-import {getDoctor, getStore} from './DoctorApp';
+import {getCachedItem} from './DataCache';
+import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
 
@@ -1342,7 +1324,7 @@ export function patientHeader() {
     `body {` +
     `  padding:10px;` +
     `}` +
-    `@media screen {` +
+    `@media all {` +
     `table { page-break-after:auto;}` +
     `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
