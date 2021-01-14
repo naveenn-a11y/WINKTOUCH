@@ -145,6 +145,11 @@ DoctorNavigator.router.getStateForAction = (action, state) => {
     }
   }
   let newState = defaultGetStateForAction(action, state);
+
+  if (!state && action.routeName !== 'overview') {
+    newState.routes[0].routeName = 'overview';
+    newState.routes[0].params = {refreshAppointments: false};
+  }
   if (state && action.type === NavigationActions.BACK) {
     if (state.index === 1) {
       newState.routes[0].params = {refreshAppointments: true};

@@ -103,7 +103,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {exam != undefined && exam.definition.graph && (
+        {exam != undefined && exam.definition && exam.definition.graph && (
           <Button
             title={strings.graph}
             onPress={() =>
