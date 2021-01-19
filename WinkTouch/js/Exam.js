@@ -555,8 +555,8 @@ export class ExamHistoryScreen extends Component {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
         return value.map((childValue: any, index: number) => {
+          const exam : Exam = this.props.navigation.state.params.exam;
           if (groupDefinition.type === 'SRx') {
-            let exam: Exam = this.props.navigation.state.params.exam;
             return (
               <GlassesDetail
                 title={formatLabel(groupDefinition)}
@@ -579,6 +579,7 @@ export class ExamHistoryScreen extends Component {
                 patientId={
                   this.state.patient ? this.state.patient.id : undefined
                 }
+                examId={exam.id}
               />
             );
           }
