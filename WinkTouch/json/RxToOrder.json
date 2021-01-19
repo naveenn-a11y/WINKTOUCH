@@ -3,12 +3,10 @@
   "scrollable": true,
   "addable": false,
   "isAssessment": true,
+  "order": 1,
   "cardGroup": "Final Rx",
   "graph": {
-    "fields": [
-      "Final Rx.od.sph",
-      "Final Rx.os.sph"
-    ]
+    "fields": ["Final Rx.od.sph", "Final Rx.os.sph"]
   },
   "label": "Final Rx",
   "type": "groupedForm",
@@ -97,34 +95,28 @@
               "mappedField": "visit.prescription.os.prism",
               "name": "prism"
             }
-
           ]
         },
         {
           "name": "ou",
           "fields": [
-              {
-                  "mappedField": "visit.prescription.ou.va",
-                  "name": "va"
-              },
-              {
-                  "mappedField": "visit.prescription.ou.addVa",
-                  "name": "addVa"
-             }
+            {
+              "mappedField": "visit.prescription.ou.va",
+              "name": "va"
+            },
+            {
+              "mappedField": "visit.prescription.ou.addVa",
+              "name": "addVa"
+            }
           ]
-      }
+        }
       ]
     },
     {
       "name": "PD",
       "optional": true,
       "keyboardEnabled": true,
-      "columns": [
-        [
-          "Far",
-          "Near"
-        ]
-      ],
+      "columns": [["Far", "Near"]],
       "fields": [
         {
           "name": "Far",
@@ -161,7 +153,7 @@
     {
       "mappedField": "visit.purchase",
       "name": "Purchase Rx",
-      "label": "Dr.\u0027s Recommendation"
+      "label": "Dr.'s Recommendation"
     }
   ],
   "locale": {
@@ -184,7 +176,7 @@
             },
             {
               "name": "Near",
-              "label": "Pr\u00e8s"
+              "label": "Près"
             }
           ]
         }

@@ -14,7 +14,7 @@
             },
             {
               "name": "Quantity",
-              "label": "QuantitÃ©"
+              "label": "Quantité"
             },
             {
               "name": "Eye",
@@ -26,7 +26,10 @@
             },
             {
               "name": "Informed PT of side effects",
-              "label": "Pt informÃ© des effets sec."
+              "label": "Pt informé des effets sec.",
+              "defaultValue": "Non",
+              "options": ["Non", "Oui"],
+              "normalValue": "Oui"
             }
           ]
         }
@@ -34,15 +37,8 @@
     }
   },
   "cardFields": [
-    [
-      "Dilation.Time",
-      "Dilation.Eye",
-      "Dilation.Drug",
-      "Dilation.Quantity"
-    ],
-    [
-      "Dilation.Informed PT of side effects"
-    ]
+    ["Dilation.Time", "Dilation.Eye", "Dilation.Drug", "Dilation.Quantity"],
+    ["Dilation.Informed PT of side effects"]
   ],
   "starable": true,
   "type": "groupedForm",
@@ -74,13 +70,10 @@
           "type": "pastTime"
         },
         {
-          "normalValue": "Yes",
           "name": "Informed PT of side effects",
           "defaultValue": "No",
-          "options": [
-            "No",
-            "Yes"
-          ]
+          "options": ["No", "Yes"],
+          "normalValue": "Yes"
         },
         {
           "maxLength": 500,

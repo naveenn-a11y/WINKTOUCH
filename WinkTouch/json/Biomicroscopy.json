@@ -11,24 +11,33 @@
               "name": "OD",
               "fields": [
                 {
-                  "name": "Lid\/Lashes",
-                  "label": "PaupiÃ¨res\/cils"
+                  "name": "Lid/Lashes",
+                  "label": "Paupières/cils",
+                  "normalValue": "Dans les normes"
                 },
                 {
                   "name": "Conjunctiva",
-                  "label": "Conjunctive"
+                  "label": "Conjonctive",
+                  "normalValue": "Dans les normes"
                 },
                 {
                   "name": "Cornea",
-                  "label": "CornÃ©e"
+                  "label": "Cornée",
+                  "normalValue": "Clair"
                 },
                 {
                   "name": "AC",
-                  "label": "Chambre ant."
+                  "label": "Chambre ant.",
+                  "normalValue": "D&Q"
                 },
                 {
                   "name": "Vitreous",
-                  "label": "VitrÃ©"
+                  "label": "Vitré",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "Iris",
+                  "normalValue": "Plat/Clair"
                 },
                 {
                   "name": "Eye color",
@@ -36,7 +45,61 @@
                 },
                 {
                   "name": "Lens",
-                  "label": "Cristallin"
+                  "label": "Cristallin",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "TBUT",
+                  "normalValue": "Dans les normes",
+                  "options": ["Dans les normes"]
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Lid/Lashes",
+                  "label": "Paupières/cils",
+                  "normalValue": "Dans les normes"
+                },
+                {
+                  "name": "Conjunctiva",
+                  "label": "Conjonctive",
+                  "normalValue": "Dans les normes"
+                },
+                {
+                  "name": "Cornea",
+                  "label": "Cornée",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "AC",
+                  "label": "Chambre ant.",
+                  "normalValue": "D&Q"
+                },
+                {
+                  "name": "Vitreous",
+                  "label": "Vitré",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "Iris",
+                  "normalValue": "Plat/Clair"
+                },
+                {
+                  "name": "Eye color",
+                  "label": "Coul. Yeux"
+                },
+                {
+                  "name": "Lens",
+                  "label": "Cristallin",
+                  "normalValue": "Clair"
+                },
+                {
+                  "name": "TBUT",
+                  "normalValue": "Dans les normes",
+                  "options": ["Dans les normes"]
                 }
               ]
             }
@@ -56,7 +119,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorOD.png",
+          "image": "./image/anteriorOD.png",
           "label": ""
         }
       ]
@@ -66,7 +129,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorOS.png",
+          "image": "./image/anteriorOS.png",
           "label": ""
         }
       ]
@@ -77,7 +140,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorSegOD.png",
+          "image": "./image/anteriorSegOD.png",
           "label": ""
         }
       ]
@@ -88,7 +151,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/anteriorSegOS.png",
+          "image": "./image/anteriorSegOS.png",
           "label": ""
         }
       ]
@@ -99,62 +162,56 @@
       "fields": [
         {
           "name": "Image",
-          "image": ".\/image\/notations.png",
+          "image": "./image/notations.png",
           "label": ""
         }
       ]
     },
     {
       "name": "Anterior",
-      "columns": [
-        [
-          "OD",
-          ">>",
-          "OS"
-        ]
-      ],
+      "columns": [["OD", ">>", "OS"]],
       "size": "L",
       "fields": [
         {
           "name": "OD",
           "fields": [
             {
-              "normalValue": "WNL",
-              "name": "Lid\/Lashes",
+              "name": "Lid/Lashes",
               "freestyle": true,
-              "options": "lidLashesCodes"
+              "options": "lidLashesCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "WNL",
               "name": "Conjunctiva",
               "freestyle": true,
-              "options": "conjunctivaCodes"
+              "options": "conjunctivaCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "Clear",
               "name": "Cornea",
               "freestyle": true,
-              "options": "corneaCodes"
+              "options": "corneaCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "D&Q",
-              "minValue": 1,
               "name": "AC",
+              "minValue": 1,
+              "maxValue": 4,
               "suffix": "aCSuffixCodes",
               "freestyle": true,
-              "maxValue": 4
+              "normalValue": "D&Q"
             },
             {
-              "normalValue": "Clear",
               "name": "Vitreous",
               "freestyle": true,
-              "options": "vitreousCodes"
+              "options": "vitreousCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "Flat\/Clear",
               "name": "Iris",
               "freestyle": true,
-              "options": "irisCodes"
+              "options": "irisCodes",
+              "normalValue": "Flat/Clear"
             },
             {
               "name": "Eye color",
@@ -162,10 +219,16 @@
               "options": "eyeColorCodes"
             },
             {
-              "normalValue": "Clear",
               "name": "Lens",
               "freestyle": true,
-              "options": "lensCodes"
+              "options": "lensCodes",
+              "normalValue": "Clear"
+            },
+            {
+              "name": "Angle",
+              "freestyle": true,
+              "options": ["1", "2", "3", "4", "> 4"],
+              "normalValue": "> 4"
             },
             {
               "normalValue": "WNL",
@@ -173,21 +236,15 @@
               "name": "TBUT",
               "freestyle": true,
               "suffix": " s",
-              "options": [
-                "WNL"
-              ],
+              "options": ["WNL"],
               "maxValue": 8
             },
             {
-              "name": "Angle",
+              "name": "TVOL",
+              "stepSize": 5,
               "freestyle": true,
-              "options": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "> 4"
-              ]
+              "suffix": " mm / 5 min",
+              "options": ["0", "5", "10", "15", "20"]
             }
           ]
         },
@@ -195,42 +252,42 @@
           "name": "OS",
           "fields": [
             {
-              "normalValue": "WNL",
-              "name": "Lid\/Lashes",
+              "name": "Lid/Lashes",
               "freestyle": true,
-              "options": "lidLashesCodes"
+              "options": "lidLashesCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "WNL",
               "name": "Conjunctiva",
               "freestyle": true,
-              "options": "conjunctivaCodes"
+              "options": "conjunctivaCodes",
+              "normalValue": "WNL"
             },
             {
-              "normalValue": "Clear",
               "name": "Cornea",
               "freestyle": true,
-              "options": "corneaCodes"
+              "options": "corneaCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "D&Q",
-              "minValue": 1,
               "name": "AC",
+              "minValue": 1,
+              "maxValue": 4,
               "suffix": "aCSuffixCodes",
               "freestyle": true,
-              "maxValue": 4
+              "normalValue": "D&Q"
             },
             {
-              "normalValue": "Clear",
               "name": "Vitreous",
               "freestyle": true,
-              "options": "vitreousCodes"
+              "options": "vitreousCodes",
+              "normalValue": "Clear"
             },
             {
-              "normalValue": "Flat\/Clear",
               "name": "Iris",
               "freestyle": true,
-              "options": "irisCodes"
+              "options": "irisCodes",
+              "normalValue": "Flat/Clear"
             },
             {
               "name": "Eye color",
@@ -238,10 +295,16 @@
               "options": "eyeColorCodes"
             },
             {
-              "normalValue": "Clear",
               "name": "Lens",
               "freestyle": true,
-              "options": "lensCodes"
+              "options": "lensCodes",
+              "normalValue": "Clear"
+            },
+            {
+              "name": "Angle",
+              "freestyle": true,
+              "options": ["1", "2", "3", "4", "> 4"],
+              "normalValue": "> 4"
             },
             {
               "normalValue": "WNL",
@@ -249,21 +312,15 @@
               "name": "TBUT",
               "freestyle": true,
               "suffix": " s",
-              "options": [
-                "WNL"
-              ],
+              "options": ["WNL"],
               "maxValue": 8
             },
             {
-              "name": "Angle",
+              "name": "TVOL",
+              "stepSize": 5,
               "freestyle": true,
-              "options": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "> 4"
-              ]
+              "suffix": " mm / 5 min",
+              "options": ["0", "5", "10", "15", "20"]
             }
           ]
         }
@@ -282,9 +339,5 @@
       "size": "L"
     }
   ],
-  "relatedExams": [
-    "Tonometry",
-    "Chief complaint",
-    "Pupils"
-  ]
+  "relatedExams": ["Tonometry", "Chief complaint", "Pupils"]
 }

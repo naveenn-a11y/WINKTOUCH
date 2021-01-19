@@ -3,7 +3,7 @@
   "name": "Medication",
   "locale": {
     "fr-CA": {
-      "label": "MÃ©dicaments",
+      "label": "Médicaments",
       "fields": [
         {
           "name": "Label",
@@ -15,11 +15,11 @@
         },
         {
           "name": "Frequency",
-          "label": "FrÃ©quence"
+          "label": "Fréquence"
         },
         {
           "name": "Duration",
-          "label": "DurÃ©e"
+          "label": "Durée"
         },
         {
           "name": "Rx Date",
@@ -28,16 +28,9 @@
       ]
     }
   },
-  "cardFields": [
-    "Label",
-    "Strength",
-    "Dosage",
-    "Frequency"
-  ],
+  "cardFields": ["Label", "Strength", "Dosage", "Frequency"],
   "starable": true,
-  "essentialFields": [
-    "Label"
-  ],
+  "essentialFields": ["Label"],
   "type": "selectionLists",
   "section": "History.23",
   "fields": [

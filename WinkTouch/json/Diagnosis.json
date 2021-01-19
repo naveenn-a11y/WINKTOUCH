@@ -1,5 +1,6 @@
 {
   "isAssessment": true,
+  "order": 3,
   "name": "Diagnosis",
   "locale": {
     "fr-CA": {
@@ -7,11 +8,11 @@
       "fields": [
         {
           "name": "Procedure",
-          "label": "ProcÃ©dure",
+          "label": "Procédure",
           "fields": [
             {
               "name": "procedureCode",
-              "label": "ProcÃ©dure"
+              "label": "Procédure"
             }
           ]
         },

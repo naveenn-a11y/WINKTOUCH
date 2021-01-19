@@ -1,6 +1,7 @@
 {
   "name": "Consultation summary",
   "isAssessment": true,
+  "order": 5,
   "type": "groupedForm",
   "fields": [
     {
