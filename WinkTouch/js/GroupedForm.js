@@ -4,7 +4,7 @@
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
-import {View, Text, Button, TouchableOpacity} from 'react-native';
+import {View, Text, Button, TouchableOpacity, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {
   FieldDefinition,
@@ -15,7 +15,7 @@ import type {
   Measurement,
 } from './Types';
 import {strings} from './Strings';
-import {styles, scaleStyle, fontScale} from './Styles';
+import {styles, scaleStyle, fontScale, isWeb} from './Styles';
 import {FloatingButton, Alert} from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {deepClone, deepAssign, isEmpty, cleanUpArray} from './Util';
@@ -335,26 +335,37 @@ export class CheckList extends PureComponent {
           value={formatLabel(this.props.definition)}
           fieldId={this.props.fieldId}
         />
-        <View style={this.props.style ? undefined : styles.wrapBoard}>
-          {this.state.formattedOptions.map((option: string, index: number) => {
-            const isSelected: boolean | string = this.isSelected(option);
-            const prefix: string =
-              isSelected === true || isSelected === false
-                ? ''
-                : '(' + isSelected + ') ';
-            return (
-              <View style={styles.formRow} key={option}>
-                <CheckButton
-                  isChecked={isSelected !== false}
-                  suffix={prefix + option}
-                  onSelect={() => this.select(prefix + option)}
-                  onDeselect={() => this.select(prefix + option)}
-                  readonly={this.props.editable != true}
-                  testID={this.props.fieldId + '.option' + (index + 1)}
-                />
-              </View>
-            );
-          })}
+        <View
+          style={
+            this.props.style
+              ? undefined
+              : isWeb
+              ? {maxHeight: 500 * fontScale}
+              : styles.wrapBoard
+          }>
+          <ScrollView scrollEnabled={true}>
+            {this.state.formattedOptions.map(
+              (option: string, index: number) => {
+                const isSelected: boolean | string = this.isSelected(option);
+                const prefix: string =
+                  isSelected === true || isSelected === false
+                    ? ''
+                    : '(' + isSelected + ') ';
+                return (
+                  <View style={[styles.formRow]} key={option}>
+                    <CheckButton
+                      isChecked={isSelected !== false}
+                      suffix={prefix + option}
+                      onSelect={() => this.select(prefix + option)}
+                      onDeselect={() => this.select(prefix + option)}
+                      readonly={this.props.editable != true}
+                      testID={this.props.fieldId + '.option' + (index + 1)}
+                    />
+                  </View>
+                );
+              },
+            )}
+          </ScrollView>
         </View>
         {this.props.definition.freestyle && this.props.editable && (
           <View style={styles.formRow} key="freestyle">
