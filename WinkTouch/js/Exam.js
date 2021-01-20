@@ -444,7 +444,7 @@ export class ExamCard extends Component {
 
   render() {
     return (
-      <TouchableOpacity
+      <TouchableOpacity style={{flexShrink:100}}
         disabled={
           this.props.disabled ||
           this.props.onSelect === undefined ||
