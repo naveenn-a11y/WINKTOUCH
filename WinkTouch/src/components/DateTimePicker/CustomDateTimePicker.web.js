@@ -1,6 +1,6 @@
 import DateTimePicker from 'react-datepicker';
 import React, {Component} from 'react';
-import {Button, Dialog, Portal, Provider} from 'react-native-paper';
+import {Button, Dialog, Portal} from 'react-native-paper';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -38,7 +38,7 @@ export default class CustomDateTimePicker extends Component {
 
   render() {
     return (
-      <Provider>
+
         <Portal>
           <Dialog
             visible={this.props.isVisible}
@@ -63,7 +63,7 @@ export default class CustomDateTimePicker extends Component {
             </Dialog.Actions>
           </Dialog>
         </Portal>
-      </Provider>
+
     );
   }
 }

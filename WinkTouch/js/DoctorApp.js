@@ -52,6 +52,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {createBrowserApp} from '@react-navigation/web';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
+import {Provider} from 'react-native-paper';
 let account: Account;
 let doctor: User;
 let store: Store;
@@ -287,6 +288,7 @@ export class DoctorApp extends Component {
     return (
       <ErrorBoundary>
         <ModeContextProvider>
+          <Provider>
           <View style={styles.screeen}>
             <StatusBar hidden={true} />
             <DocatorAppContainer
@@ -309,6 +311,7 @@ export class DoctorApp extends Component {
               }}
             />
           </View>
+          </Provider>
         </ModeContextProvider>
       </ErrorBoundary>
     );
