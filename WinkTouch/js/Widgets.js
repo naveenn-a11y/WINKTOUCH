@@ -34,7 +34,6 @@ import {
   Button as NativeBaseIcon,
   FAB,
   Portal,
-  Provider,
   Snackbar,
   Paragraph,
   Dialog,
@@ -3310,7 +3309,7 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-      <Provider>
+
         <Portal>
           <Dialog
             visible={this.state.visible}
@@ -3329,7 +3328,7 @@ export class Alert extends Component<AlertProps, AlertState> {
             </Dialog.Actions>
           </Dialog>
         </Portal>
-      </Provider>
+
     );
   }
 }
