@@ -27,6 +27,19 @@
   "type": "groupedForm",
   "fields": [
     {
+      "size": "M",
+      "name": "Suppliers",
+      "fields": [
+          {
+              "simpleSelect": true,
+              "name": "insuranceProviders",
+              "options": "insuranceProviders",
+              "label": "Insurer Providers",
+              "mappedField": "visit.supplierId"
+          }
+      ]
+    },
+    {
       "name": "Procedure",
       "entity": "procedure",
       "multiValue": true,
