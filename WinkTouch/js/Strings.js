@@ -160,7 +160,7 @@ export const strings = new LocalizedStrings({
     maximumAddableGroupError: 'You can not add more then {0} {1}.',
     doctorWithoutVisitTypeError:
       'Doctor {0} is not set up for the EMR yet in the database.',
-    searchCriteriumMissingError: 'Please enter a search criterion.',
+    searchCriteriumMissingError: 'Please enter a search criterium.',
     noPatientsFound: 'No patients found',
     noDoctorsFound: 'No doctors found',
     drawingNotSavedWarning: 'Attention: Your last drawing was not saved.',
