@@ -1150,23 +1150,6 @@ export class FormInput extends Component {
     }
   }
 
-  getDefaultValue(): ?{} {
-    if (this.props.value !== undefined) return this.props.value;
-    const isDefaultValue: any = this.props.definition.normalValue;
-
-    if (
-      isDefaultValue != undefined &&
-      isDefaultValue.startsWith('[') &&
-      isDefaultValue.endsWith(']')
-    ) {
-      const key: any = isDefaultValue.substring(1, isDefaultValue.length - 1);
-      const exam: Exam = getCachedItem(this.props.examId);
-      const value: any = getValue(exam, key);
-      return isEmpty(value);
-    }
-
-    return isDefaultValue;
-  }
   getIsReadOnly(): ?{} {
     if (this.props.readonly === true || this.props.definition.readonly === true)
       return true;
