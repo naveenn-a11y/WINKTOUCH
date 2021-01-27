@@ -583,6 +583,7 @@ class VisitWorkFlow extends Component {
     locked: boolean,
     rxToOrder: ?Exam,
     showSnackBar: ?boolean,
+    snackBarMessage: ?string,
   };
 
   constructor(props: any) {
@@ -596,6 +597,7 @@ class VisitWorkFlow extends Component {
       locked: locked,
       rxToOrder: this.findRxToOrder(visit),
       showSnackBar: false,
+      snackBarMessage: '',
     };
     visit && this.loadUnstartedExamTypes(visit);
   }
@@ -820,13 +822,28 @@ class VisitWorkFlow extends Component {
     }
   }
 
-  async endVisit() {
+  async lockVisit() {
     if (this.props.readonly) return;
     const visit: Visit = this.state.visit;
     try {
       this.props.navigation.goBack();
       visit.locked = true;
       await updateVisit(visit);
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+  }
+
+  async endVisit() {
+    const visit: Visit = this.state.visit;
+    const appointment: Appointment = getCachedItem(visit.appointmentId);
+
+    if (appointment === undefined || appointment === null) return;
+    try {
+      await performActionOnItem('close', appointment, 'POST');
+      this.setSnackBarMessage(strings.endConsultationSuccess);
+      this.showSnackBar();
     } catch (error) {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
@@ -876,15 +893,20 @@ class VisitWorkFlow extends Component {
     this.setState({showSnackBar: false});
   }
 
+  setSnackBarMessage(message: string) {
+    this.setState({snackBarMessage: message});
+  }
+
   async transferRx(visitId: string) {
     await transferRx(visitId);
+    this.setSnackBarMessage(strings.transferRxSuccess);
     this.showSnackBar();
   }
 
   renderSnackBar() {
     return (
       <NativeBar
-        message={strings.transferRxSuccess}
+        message={this.state.snackBarMessage}
         onDismissAction={() => this.hideSnackBar()}
       />
     );
@@ -1003,6 +1025,8 @@ class VisitWorkFlow extends Component {
 
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
+    const visit: Visit = this.state.visit;
+
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
@@ -1062,7 +1086,16 @@ class VisitWorkFlow extends Component {
             />
           )}
           {!this.state.locked && !this.props.readonly && (
-            <Button title={strings.endVisit} onPress={() => this.endVisit()} />
+            <Button
+              title={strings.lockVisit}
+              onPress={() => this.lockVisit()}
+            />
+          )}
+          {visit && visit.appointmentId && !this.props.readonly && (
+            <Button
+              title={strings.completeConsultation}
+              onPress={() => this.endVisit()}
+            />
           )}
         </View>
       </View>

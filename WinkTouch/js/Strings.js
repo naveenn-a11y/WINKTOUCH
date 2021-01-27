@@ -107,7 +107,8 @@ export const strings = new LocalizedStrings({
     beforeYesterday: 'Before yesterday',
     tomorrow: 'Tomorrow',
     in2Days: 'In 2 days',
-    endVisit: 'End consultation',
+    lockVisit: 'Lock',
+    completeConsultation: 'Complete',
     years: 'years',
     ageM: 'age',
     ageF: 'age',
@@ -238,6 +239,7 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Drag and drop some files here !',
     takePicture: 'Take a Picture',
     uploadFile: 'Upload a File',
+    endConsultationSuccess: 'Consultation completed successfully !',
   },
   fr: {
     enterRegisteredEmail:
@@ -338,7 +340,8 @@ export const strings = new LocalizedStrings({
     beforeYesterday: 'Avant hier',
     tomorrow: 'Demain',
     in2Days: 'Dans 2 jours',
-    endVisit: 'Conclure la consultation',
+    lockVisit: 'Vérouiller ',
+    completeConsultation: 'Compléter',
     years: 'ans',
     ageM: 'âgé de',
     ageF: 'âgée de',
@@ -475,6 +478,7 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
+    endConsultationSuccess: 'Consultation terminée avec succès !',
   },
 });
 
