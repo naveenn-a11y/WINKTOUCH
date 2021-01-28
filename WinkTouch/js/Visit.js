@@ -578,6 +578,7 @@ class VisitWorkFlow extends Component {
   };
   state: {
     visit: Visit,
+    appointment: Appointment,
     addableExamTypes: ExamDefinition[],
     addableSections: string[],
     locked: boolean,
@@ -589,6 +590,7 @@ class VisitWorkFlow extends Component {
   constructor(props: any) {
     super(props);
     const visit: Visit = getCachedItem(this.props.visitId);
+    const appointment: Appointment = getCachedItem(visit.appointmentId);
     const locked: boolean = visitHasEnded(visit);
     this.state = {
       visit: visit,
@@ -598,6 +600,7 @@ class VisitWorkFlow extends Component {
       rxToOrder: this.findRxToOrder(visit),
       showSnackBar: false,
       snackBarMessage: '',
+      appointment: appointment,
     };
     visit && this.loadUnstartedExamTypes(visit);
   }
@@ -658,7 +661,7 @@ class VisitWorkFlow extends Component {
     if (!visit || !visit.appointmentId) return;
     let appointment: Appointment = getCachedItem(visit.appointmentId);
     if (!appointment) {
-      await fetchAppointment(visit.appointmentId);
+      appointment = await fetchAppointment(visit.appointmentId);
       const locked: boolean = visitHasEnded(visit);
       this.setState({locked});
     }
@@ -667,7 +670,8 @@ class VisitWorkFlow extends Component {
 
   async loadUnstartedExamTypes(visit: Visit) {
     if (this.props.readonly) return;
-    await this.loadAppointment(visit);
+    const appointment: Appointment = await this.loadAppointment(visit);
+    this.setState({appointment: appointment});
     const locked: boolean = this.state.locked;
     if (locked) {
       if (this.state.addableExamTypes.length !== 0)
@@ -836,14 +840,17 @@ class VisitWorkFlow extends Component {
   }
 
   async endVisit() {
-    const visit: Visit = this.state.visit;
-    const appointment: Appointment = getCachedItem(visit.appointmentId);
-
+    const appointment: Appointment = this.state.appointment;
     if (appointment === undefined || appointment === null) return;
     try {
-      await performActionOnItem('close', appointment, 'POST');
+      const response: Appointment = await performActionOnItem(
+        'close',
+        appointment,
+        'POST',
+      );
       this.setSnackBarMessage(strings.endConsultationSuccess);
       this.showSnackBar();
+      this.setState({appointment: response});
     } catch (error) {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
@@ -1026,6 +1033,7 @@ class VisitWorkFlow extends Component {
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
+    const appointment: Appointment = this.state.appointment;
 
     return (
       <View
@@ -1093,7 +1101,12 @@ class VisitWorkFlow extends Component {
           )}
           {visit && visit.appointmentId && !this.props.readonly && (
             <Button
-              title={strings.completeConsultation}
+              title={
+                appointment && appointment.status === 5
+                  ? strings.completed
+                  : strings.complete
+              }
+              disabled={appointment && appointment.status === 5}
               onPress={() => this.endVisit()}
             />
           )}
