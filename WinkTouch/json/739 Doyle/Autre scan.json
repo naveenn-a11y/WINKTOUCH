@@ -1,121 +1,121 @@
 {
-  "name":"Autre scan",
-  "type":"groupedForm",
-  "section":"Form.3",
-  "card":true,
-  "scrollable":true,
-  "fields":[
+  "name": "Autre scan",
+  "type": "groupedForm",
+  "section": "Form.3",
+  "card": true,
+  "scrollable": true,
+  "fields": [
     {
-      "name":"Rx externe",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "Rx externe",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"Rx externe",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"M",
-          "type":"Rx externe"
+          "name": "Rx externe",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "M",
+          "type": "Rx externe"
         }
       ]
     },
     {
-      "name":"Rx medication",
-      "label":"Rx m\u00e9dicaments",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "Rx medication",
+      "label": "Rx médicaments",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"Rx medication",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"M",
-          "type":"Examen"
+          "name": "Rx medication",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "M",
+          "type": "Examen"
         }
       ]
     },
     {
-      "name":"SAAQ",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "SAAQ",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"SAAQ",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"XL",
-          "type":"Examen"
+          "name": "SAAQ",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
         }
       ]
     },
     {
-      "name":"Reference",
-      "label":"R\u00e9f\u00e9rence",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "Reference",
+      "label": "Référence",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"Reference",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"XL",
-          "type":"Examen"
+          "name": "Reference",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
         }
       ]
     },
     {
-      "name":"OCT",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "OCT",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"OCT",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"L",
-          "type":"Examen"
+          "name": "OCT",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "L",
+          "type": "Examen"
         }
       ]
     },
     {
-      "name":"Optomap",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "Optomap",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"Optomap",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"L",
-          "type":"Examen"
+          "name": "Optomap",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "L",
+          "type": "Examen"
         }
       ]
     },
     {
-      "name":"Autre scan",
-      "multiValue":true,
-      "size":"XL",
-      "fields":[
+      "name": "Autre scan",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
         {
-          "name":"Autre scan",
-          "image":"upload",
-          "label":"",
-          "popup":false,
-          "drawable":false,
-          "size":"XL",
-          "type":"Examen"
+          "name": "Autre scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
         }
       ]
     }

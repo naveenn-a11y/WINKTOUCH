@@ -9,17 +9,23 @@
   "name": "Over refraction",
   "locale": {
     "fr-CA": {
-      "label": "SurrÃ©fraction"
+      "label": "Surréfraction",
+      "fields": [
+        {
+          "name": "Subjective over refraction",
+          "label": "Surréfraction subjective"
+        },
+        {
+          "name": "Final Rx",
+          "label": "Surréfraction finale"
+        }
+      ]
     }
   },
   "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.6",
-  "relatedExams": [
-    "Auto refractor",
-    "Lensometry",
-    "Binocular"
-  ],
+  "relatedExams": ["Auto refractor", "Lensometry", "Binocular"],
   "fields": [
     {
       "hasVA": true,

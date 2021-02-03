@@ -5,14 +5,11 @@
   "section": "Vision testing.6",
   "cardGroup": "Subjective refraction",
   "graph": {
-    "fields": [
-      "Subjective refraction.od.sph",
-      "Subjective refraction.os.sph"
-    ]
+    "fields": ["Subjective refraction.od.sph", "Subjective refraction.os.sph"]
   },
   "locale": {
     "fr-CA": {
-      "label": "RÃ©fraction",
+      "label": "Réfraction",
       "fields": [
         {
           "name": "Subjective refraction",
@@ -29,6 +26,14 @@
         {
           "name": "Maximum VA refraction",
           "label": "Max Convexe"
+        },
+        {
+          "name": "Retinoscopy",
+          "label": "Rétinoscopie"
+        },
+        {
+          "name": "Cyclopegia",
+          "label": "Cyclopégie"
         }
       ]
     }
@@ -45,6 +50,7 @@
       ],
       "export": "machine.phoropter",
       "name": "Subjective refraction",
+      "multiValue": true,
       "type": "SRx"
     },
     {
@@ -73,6 +79,14 @@
       "hasAdd": false,
       "optional": true,
       "name": "Retinoscopy",
+      "multiValue": true,
+      "type": "SRx"
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Cyclopegia",
       "type": "SRx"
     },
     {
@@ -175,9 +189,5 @@
       ]
     }
   ],
-  "relatedExams": [
-    "Auto refractor",
-    "Lensometry",
-    "Binocular"
-  ]
+  "relatedExams": ["Auto refractor", "Lensometry", "Binocular"]
 }

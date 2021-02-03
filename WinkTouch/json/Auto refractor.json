@@ -1,18 +1,15 @@
 {
   "graph": {
-    "fields": [
-      "Auto refractor.od.sph",
-      "Auto refractor.os.sph"
-    ]
+    "fields": ["Auto refractor.od.sph", "Auto refractor.os.sph"]
   },
   "order": "4",
   "locale": {
     "fr-CA": {
-      "label": "Auto-RÃ©fraction",
+      "label": "Auto-Réfraction",
       "fields": [
         {
           "name": "Auto refractor",
-          "label": "Auto-rÃ©fraction"
+          "label": "Auto-réfraction"
         }
       ]
     }
@@ -25,8 +22,9 @@
     {
       "hasAdd": false,
       "name": "Auto refractor",
+      "multiValue": true,
       "type": "SRx",
-      "import": ["machine.autorefractor.rx","machine.tonoref.rx"]
+      "import": ["machine.autorefractor.rx", "machine.tonoref.rx"]
     },
     {
       "name": "Scan",

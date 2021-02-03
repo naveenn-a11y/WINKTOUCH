@@ -10,7 +10,7 @@
       "name": "Condition",
       "multiValue": true,
       "freestyle": true,
-      "options": "medicalConditionCodes",
+      "options": "medicalConditionCodes"
     },
     {
       "name": "Notes",
@@ -26,7 +26,7 @@
   ],
   "locale": {
     "fr-CA": {
-      "label": "Conditions mÃ©dicales"
+      "label": "Conditions médicales"
     }
   }
 }

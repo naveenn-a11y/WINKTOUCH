@@ -6,8 +6,8 @@
       "label": "Historique Familial",
       "fields": [
         {
-          "name": "Disease \/ Condition",
-          "label": "MÃ©dicament \/ Condition"
+          "name": "Disease / Condition",
+          "label": "Médicament / Condition"
         },
         {
           "name": "Relation",
@@ -16,19 +16,15 @@
       ]
     }
   },
-  "cardFields": [
-    "Disease \/ Condition"
-  ],
+  "cardFields": ["Disease / Condition"],
   "starable": true,
-  "essentialFields": [
-    "Disease \/ Condition"
-  ],
+  "essentialFields": ["Disease / Condition"],
   "type": "selectionLists",
   "editable": false,
   "section": "History.31",
   "fields": [
     {
-      "name": "Disease \/ Condition",
+      "name": "Disease / Condition",
       "required": true,
       "freestyle": true,
       "options": "familyDiseaseCodes"

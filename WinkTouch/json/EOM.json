@@ -6,7 +6,7 @@
       "fields": [
         {
           "name": "Extra Ocular Motilities",
-          "label": "MotilitÃ©s Oculaires"
+          "label": "Motilités Oculaires"
         },
         {
           "name": "NPC",
@@ -22,7 +22,10 @@
             },
             {
               "name": "With effort",
-              "label": "Avec effort"
+              "label": "Avec effort",
+              "defaultValue": "Non",
+              "options": ["Non", "Oui"],
+              "normalValue": "Non"
             }
           ]
         }
@@ -60,9 +63,7 @@
         {
           "minValue": 0,
           "name": "Break",
-          "Options": [
-            "Nose"
-          ],
+          "Options": ["Nose"],
           "suffix": " cm",
           "freestyle": true,
           "maxValue": 50
@@ -70,21 +71,16 @@
         {
           "minValue": 0,
           "name": "Recovery",
-          "Options": [
-            "Nose"
-          ],
+          "Options": ["Nose"],
           "suffix": " cm",
           "freestyle": true,
           "maxValue": 50
         },
         {
-          "normalValue": "No",
           "name": "With effort",
           "defaultValue": "No",
-          "options": [
-            "No",
-            "Yes"
-          ]
+          "options": ["No", "Yes"],
+          "normalValue": "No"
         }
       ]
     },
@@ -93,7 +89,7 @@
       "fields": [
         {
           "name": "image",
-          "image": ".\/image\/H.png",
+          "image": "./image/H.png",
           "label": ""
         }
       ],
