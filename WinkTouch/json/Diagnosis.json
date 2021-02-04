@@ -27,11 +27,36 @@
   "type": "groupedForm",
   "fields": [
     {
+      "visible": "[visit.appointmentId]",
+      "size": "M",
+      "name": "Suppliers",
+      "fields": [
+          {
+              "simpleSelect": true,
+              "name": "supplierId",
+              "options": "insuranceProviders",
+              "label": "Insurer Providers",
+              "mappedField": "visit.supplierId"
+          }
+      ]
+    },
+    {
       "name": "Procedure",
       "entity": "procedure",
       "multiValue": true,
       "size": "M",
       "fields": [
+        {
+          "visible": "[Diagnosis.Suppliers.supplierId]",
+          "mappedField": "procedure.isSelfPaid",
+          "normalValue": "[Diagnosis.Suppliers.supplierId]",
+          "name": "Self Paid",
+          "defaultValue": "true",
+          "options": [
+              "true",
+              "false"
+          ]          
+       },
         {
           "mappedField": "procedure.productId",
           "name": "procedureCode",
