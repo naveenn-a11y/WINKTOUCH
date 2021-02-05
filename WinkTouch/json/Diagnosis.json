@@ -49,12 +49,12 @@
         {
           "visible": "[Diagnosis.Suppliers.supplierId]",
           "mappedField": "procedure.isSelfPaid",
-          "normalValue": "[Diagnosis.Suppliers.supplierId]",
+          "normalValue": "false",
           "name": "Self Paid",
-          "defaultValue": "true",
+          "defaultValue": "false",
           "options": [
-              "true",
-              "false"
+              "false",
+              "true"
           ]          
        },
         {
