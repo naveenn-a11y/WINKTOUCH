@@ -18,7 +18,7 @@ import {strings} from './Strings';
 import {styles, scaleStyle, fontScale, isWeb} from './Styles';
 import {FloatingButton, Alert} from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
-import {deepClone, deepAssign, isEmpty, cleanUpArray} from './Util';
+import {deepClone, deepAssign, isEmpty, cleanUpArray, getValue} from './Util';
 import {formatAllCodes} from './Codes';
 import {getCachedItem} from './DataCache';
 import {
@@ -81,6 +81,32 @@ export function getColumnFieldIndex(
     }
   }
   return -1;
+}
+
+function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
+  const isVisible: any = groupDefinition.visible;
+  if (isVisible === true || isVisible === false) return isVisible;
+
+  if (
+    isVisible != undefined &&
+    isVisible.startsWith('[') &&
+    isVisible.endsWith(']')
+  ) {
+    const key: any = isVisible.substring(1, isVisible.length - 1);
+    const keyIdentifier: string[] = key.split('.');
+    if (keyIdentifier[0] === 'visit') {
+      const visit: Visit = getCachedItem(item);
+      const value: any =
+        visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
+      return !isEmpty(value);
+    } else {
+      const exam: Exam = getCachedItem(item);
+      const value: any = exam !== undefined ? getValue(exam, key) : undefined;
+      return !isEmpty(value);
+    }
+  }
+
+  return true;
 }
 
 function isRowField(
@@ -562,6 +588,7 @@ export class GroupedCard extends Component {
     const value = this.props.exam[this.props.exam.definition.name][
       fieldDefinition.name
     ];
+
     if (fieldDefinition.normalValue === value) return null;
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
     if (formattedValue === '') return null;
@@ -1015,6 +1042,10 @@ export class GroupedForm extends Component {
     }
   }
 
+  getIsVisible(fieldDefinition: FieldDefinition): ?{} {
+    return getIsVisible(this.props.examId, fieldDefinition);
+  }
+
   renderAlert() {
     const importedData: any = this.state.importedData;
     if (!importedData) return null;
@@ -1119,6 +1150,8 @@ export class GroupedForm extends Component {
   }
 
   renderSimpleRow(fieldDefinition: FieldDefinition) {
+    if (this.getIsVisible(fieldDefinition) === false) return null;
+
     const label: string = formatLabel(fieldDefinition);
     if (fieldDefinition.layout) return this.renderField(fieldDefinition);
     return (
@@ -1890,7 +1923,13 @@ export class GroupedFormScreen extends Component<
     );
   }
 
+  getIsVisible(groupDefinition: GroupDefinition): ?{} {
+    return getIsVisible(this.props.exam.visitId, groupDefinition);
+  }
+
   renderGroup(groupDefinition: GroupDefinition, index: number) {
+    if (this.getIsVisible(groupDefinition) === false) return null;
+
     const fieldId: string =
       this.props.exam.definition.name + '.' + groupDefinition.name;
     //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));

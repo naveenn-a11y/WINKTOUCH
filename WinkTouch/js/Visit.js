@@ -578,16 +578,19 @@ class VisitWorkFlow extends Component {
   };
   state: {
     visit: Visit,
+    appointment: Appointment,
     addableExamTypes: ExamDefinition[],
     addableSections: string[],
     locked: boolean,
     rxToOrder: ?Exam,
     showSnackBar: ?boolean,
+    snackBarMessage: ?string,
   };
 
   constructor(props: any) {
     super(props);
     const visit: Visit = getCachedItem(this.props.visitId);
+    const appointment: Appointment = getCachedItem(visit.appointmentId);
     const locked: boolean = visitHasEnded(visit);
     this.state = {
       visit: visit,
@@ -596,6 +599,8 @@ class VisitWorkFlow extends Component {
       locked: locked,
       rxToOrder: this.findRxToOrder(visit),
       showSnackBar: false,
+      snackBarMessage: '',
+      appointment: appointment,
     };
     visit && this.loadUnstartedExamTypes(visit);
   }
@@ -656,7 +661,7 @@ class VisitWorkFlow extends Component {
     if (!visit || !visit.appointmentId) return;
     let appointment: Appointment = getCachedItem(visit.appointmentId);
     if (!appointment) {
-      await fetchAppointment(visit.appointmentId);
+      appointment = await fetchAppointment(visit.appointmentId);
       const locked: boolean = visitHasEnded(visit);
       this.setState({locked});
     }
@@ -665,7 +670,8 @@ class VisitWorkFlow extends Component {
 
   async loadUnstartedExamTypes(visit: Visit) {
     if (this.props.readonly) return;
-    await this.loadAppointment(visit);
+    const appointment: Appointment = await this.loadAppointment(visit);
+    this.setState({appointment: appointment});
     const locked: boolean = this.state.locked;
     if (locked) {
       if (this.state.addableExamTypes.length !== 0)
@@ -820,13 +826,29 @@ class VisitWorkFlow extends Component {
     }
   }
 
-  async endVisit() {
+  async lockVisit() {
     if (this.props.readonly) return;
     const visit: Visit = this.state.visit;
     try {
       this.props.navigation.goBack();
       visit.locked = true;
       await updateVisit(visit);
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+  }
+
+  async endVisit() {
+    const appointment: Appointment = this.state.appointment;
+    if (appointment === undefined || appointment === null) return;
+    try {
+      const response: Appointment = await performActionOnItem(
+        'close',
+        appointment,
+        'POST',
+      );
+      this.setState({appointment: response});
     } catch (error) {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
@@ -876,15 +898,20 @@ class VisitWorkFlow extends Component {
     this.setState({showSnackBar: false});
   }
 
+  setSnackBarMessage(message: string) {
+    this.setState({snackBarMessage: message});
+  }
+
   async transferRx(visitId: string) {
     await transferRx(visitId);
+    this.setSnackBarMessage(strings.transferRxSuccess);
     this.showSnackBar();
   }
 
   renderSnackBar() {
     return (
       <NativeBar
-        message={strings.transferRxSuccess}
+        message={this.state.snackBarMessage}
         onDismissAction={() => this.hideSnackBar()}
       />
     );
@@ -1003,6 +1030,9 @@ class VisitWorkFlow extends Component {
 
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
+    const visit: Visit = this.state.visit;
+    const appointment: Appointment = this.state.appointment;
+
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
@@ -1062,7 +1092,21 @@ class VisitWorkFlow extends Component {
             />
           )}
           {!this.state.locked && !this.props.readonly && (
-            <Button title={strings.endVisit} onPress={() => this.endVisit()} />
+            <Button
+              title={strings.lockVisit}
+              onPress={() => this.lockVisit()}
+            />
+          )}
+          {visit && visit.appointmentId && !this.props.readonly && (
+            <Button
+              title={
+                appointment && appointment.status === 5
+                  ? strings.completed
+                  : strings.complete
+              }
+              disabled={appointment && appointment.status === 5}
+              onPress={() => this.endVisit()}
+            />
           )}
         </View>
       </View>
