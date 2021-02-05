@@ -848,8 +848,6 @@ class VisitWorkFlow extends Component {
         appointment,
         'POST',
       );
-      this.setSnackBarMessage(strings.endConsultationSuccess);
-      this.showSnackBar();
       this.setState({appointment: response});
     } catch (error) {
       console.log(error);

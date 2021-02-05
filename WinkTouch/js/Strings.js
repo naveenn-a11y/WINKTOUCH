@@ -239,7 +239,6 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Drag and drop some files here !',
     takePicture: 'Take a Picture',
     uploadFile: 'Upload a File',
-    endConsultationSuccess: 'Consultation completed successfully !',
   },
   fr: {
     enterRegisteredEmail:
@@ -478,7 +477,6 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
-    endConsultationSuccess: 'Consultation terminée avec succès !',
   },
 });
 
