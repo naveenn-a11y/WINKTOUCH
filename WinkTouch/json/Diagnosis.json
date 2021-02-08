@@ -35,7 +35,7 @@
               "simpleSelect": true,
               "name": "supplierId",
               "options": "insuranceProviders",
-              "label": "Insurer Provider",
+              "label": "Insurer",
               "mappedField": "visit.supplierId"
           }
       ]
@@ -47,7 +47,7 @@
       "size": "M",
       "fields": [
         {
-          "visible": "[Diagnosis.Suppliers.supplierId]",
+          "visible": "[Diagnosis.Insurer.supplierId]",
           "mappedField": "procedure.isSelfPaid",
           "normalValue": "true",
           "name": "Self Paid",
