@@ -29,13 +29,13 @@
     {
       "visible": "[visit.appointmentId]",
       "size": "M",
-      "name": "Suppliers",
+      "name": "Insurer",
       "fields": [
           {
               "simpleSelect": true,
               "name": "supplierId",
               "options": "insuranceProviders",
-              "label": "Insurer Providers",
+              "label": "Insurer Provider",
               "mappedField": "visit.supplierId"
           }
       ]
