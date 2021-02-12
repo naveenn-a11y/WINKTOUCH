@@ -30,6 +30,7 @@ import {deepClone, compareDates} from './Util';
 import {getVisitTypes} from './Visit';
 import {FormRow, FormTextInput} from './Form';
 import {Button} from './Widgets';
+import {getDoctor} from './DoctorApp';
 
 const examPredefinedValuesCacheKey: string = 'examPredefinedValues';
 
@@ -41,13 +42,16 @@ async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
   );
   let examPredefinedValues: ExamPredefinedValue[] =
     restResponse.examPredefinedValueList;
-  cacheItem(examPredefinedValuesCacheKey, examPredefinedValues);
+  cacheItem(
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
+    examPredefinedValues,
+  );
   return examPredefinedValues;
 }
 
 export async function allExamPredefinedValues(): ExamPredefinedValue[] {
   let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey,
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
   );
   if (
     examPredefinedValues === undefined ||
@@ -128,7 +132,7 @@ function getPreviousExamAsFavorite(
 
 export function getFavorites(exam: Exam): ExamPredefinedValue[] {
   let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey,
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
   );
   if (!examPredefinedValues) {
     //alert('no predefiend values loaded yet');
