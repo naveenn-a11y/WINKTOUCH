@@ -721,7 +721,12 @@ export class GroupedCard extends Component {
       )
     )
       return null;
-    if (groupDefinition.multiValue) {
+    if (
+      groupDefinition.multiValue &&
+      this.props.exam[this.props.exam.definition.name][
+        groupDefinition.name
+      ] instanceof Array
+    ) {
       return this.props.exam[this.props.exam.definition.name][
         groupDefinition.name
       ].map((rx: GlassesRx, index: number) => (
