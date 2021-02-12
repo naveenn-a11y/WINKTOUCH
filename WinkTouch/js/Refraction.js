@@ -46,7 +46,9 @@ import {
   isToyear,
   now,
   jsonDateTimeFormat,
+  jsonDateFormat,
   postfix,
+  parseDate,
 } from './Util';
 import {FormInput} from './Form';
 import {getFieldDefinition, filterFieldDefinition, formatLabel} from './Items';
@@ -72,6 +74,8 @@ import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient} from './Exam';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
+
+import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
@@ -925,6 +929,7 @@ export class GlassesDetail extends Component {
       }
     }
   }
+
   renderAlert() {
     const importedData: any = this.state.importedData;
     if (!importedData) return null;
@@ -950,6 +955,7 @@ export class GlassesDetail extends Component {
       />
     );
   }
+
   render() {
     if (!this.props.glassesRx) return null;
     if (!this.props.glassesRx.od || !this.props.glassesRx.os) return null;
@@ -974,6 +980,20 @@ export class GlassesDetail extends Component {
             value={this.props.title}
             fieldId={this.props.fieldId}
           />
+        )}
+        {this.props.editable && this.props.glassesRx.expiry && (
+          <View style={styles.formRow}>
+            <FormInput
+              value={this.props.glassesRx.expiry}
+              definition={getFieldDefinition('visit.expDate')}
+              readonly={!this.props.editable}
+              onChangeValue={(value: ?string) => {
+                this.updateGlassesRx(undefined, 'expiry', value);
+              }}
+              errorMessage={this.props.glassesRx.expiryError}
+              testID={this.props.fieldId + '.expDate'}
+            />
+          </View>
         )}
         <View style={styles.centeredColumnLayout}>
           {this.props.hasLensType && (
@@ -1313,6 +1333,7 @@ export class GlassesDetail extends Component {
               />
             </View>
           )}
+
           {this.props.editable === true && this.props.hasAdd === true && (
             <View style={styles.buttonsRowLayout}>
               <Button

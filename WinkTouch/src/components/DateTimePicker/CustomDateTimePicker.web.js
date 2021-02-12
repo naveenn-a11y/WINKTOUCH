@@ -14,6 +14,7 @@ export default class CustomDateTimePicker extends Component {
     cancelText: string,
     title: string,
     style?: any,
+    isTextInput?: boolean,
   };
   state: {
     date: Date,
@@ -22,7 +23,7 @@ export default class CustomDateTimePicker extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      date: new Date(),
+      date: this.props.selected,
     };
   }
 
@@ -33,7 +34,9 @@ export default class CustomDateTimePicker extends Component {
     this.props.onChange(this.state.date);
   };
   updateDate = (selectedDate: ?Date) => {
-    this.setState({date: selectedDate});
+    this.setState({
+      date: selectedDate,
+    });
   };
 
   render() {
@@ -48,7 +51,7 @@ export default class CustomDateTimePicker extends Component {
             <Dialog.Title>{this.props.title}</Dialog.Title>
             <Dialog.Content>
               <DateTimePicker
-                selected={this.props.selected}
+                selected={this.state.date}
                 onChange={(date) => this.updateDate(date)}
                 inline
               />
