@@ -17,8 +17,8 @@ import {
 import {restVersion} from './Version';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export let restUrl: string = !__DEV__
-  ? 'http://192.168.1.7:8080/Web/'
+export let restUrl: string = __DEV__
+  ? 'http://192.168.2.53:8080/Web/'
   : 'https://ws-touch.downloadwink.com/' + restVersion + '/';
 
 let token: string;
@@ -452,7 +452,11 @@ export async function searchItems(list: string, searchCritera: Object): any {
   }
 }
 
-export async function performActionOnItem(action: string, item: any): any {
+export async function performActionOnItem(
+  action: string,
+  item: any,
+  httpMethod: ?any = 'PUT',
+): any {
   if (
     (item === null) | (item === undefined) ||
     (item instanceof Array && item.length === 0)
@@ -464,7 +468,6 @@ export async function performActionOnItem(action: string, item: any): any {
     getDataType(item instanceof Array ? item[0].id : item.id) +
     '/' +
     encodeURIComponent(action);
-  const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ &&
     console.log(

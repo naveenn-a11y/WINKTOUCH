@@ -22,6 +22,7 @@ import {getAllCodes} from './Codes';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
+import {REACT_APP_HOST} from '../env.json';
 
 export class Notifications extends PureComponent {
   render() {
@@ -102,7 +103,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {exam != undefined && exam.definition.graph && (
+        {exam != undefined && exam.definition && exam.definition.graph && (
           <Button
             title={strings.graph}
             onPress={() =>
@@ -128,7 +129,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {(isAtWink || __DEV__) &&
+        {(isAtWink || __DEV__ || isWeb) &&
           scene === 'overview' &&
           'en-CA' === getUserLanguage() && (
             <Button
@@ -148,7 +149,11 @@ export class MenuBar extends PureComponent {
         {__DEV__ && (
           <Button
             title={strings.restart}
-            onPress={() => codePush.restartApp()}
+            onPress={() =>
+              !isWeb
+                ? codePush.restartApp()
+                : window.location.replace(REACT_APP_HOST)
+            }
           />
         )}
         <Button

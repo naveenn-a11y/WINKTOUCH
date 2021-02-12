@@ -19,6 +19,7 @@ import type {
   FieldDefinitions,
   CodeDefinition,
   GroupDefinition,
+  Exam,
 } from './Types';
 import {
   styles,
@@ -62,10 +63,13 @@ import {
   setValue,
   formatAge,
   insertNewlines,
+  isEmpty,
 } from './Util';
 import {isNumericField, formatLabel} from './Items';
 import {Microphone} from './Voice';
 import {GeneralPrismInput} from './Refraction';
+import {getFieldValue} from './Exam';
+import {getCachedItem} from './DataCache';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -881,7 +885,6 @@ export class FormCheckBox extends Component {
     style?: any,
     testID?: string,
   };
-
   isChecked(): boolean {
     return (
       this.props.value &&
@@ -1147,6 +1150,11 @@ export class FormInput extends Component {
     }
   }
 
+  getIsReadOnly(): ?{} {
+    if (this.props.readonly === true || this.props.definition.readonly === true)
+      return true;
+    return false;
+  }
   getFilterValue(): ?{} {
     if (
       this.props.definition.filter instanceof Object &&
@@ -1154,6 +1162,7 @@ export class FormInput extends Component {
     ) {
       let filledFilter = undefined;
       const filterEntries: [][] = Object.entries(this.props.definition.filter);
+
       for (let i: number = 0; i < filterEntries.length; i++) {
         const filterKey: string = filterEntries[i][0];
         const filterValue: string = filterEntries[i][1];
@@ -1259,8 +1268,8 @@ export class FormInput extends Component {
         ];
       }
     }
-    const readonly: boolean =
-      this.props.readonly === true || this.props.definition.readonly === true;
+    const readonly: boolean = this.getIsReadOnly();
+
     if (!this.props.definition || !this.props.visible) return null;
     if (isNumericField(this.props.definition)) {
       return (

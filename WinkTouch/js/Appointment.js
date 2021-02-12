@@ -438,9 +438,7 @@ export class AppointmentsSummary extends Component {
               refreshing={this.state.refreshing}
               onRefresh={() => this.refresh()}
             />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }>
         <View style={styles.topFlow}>
           {this.props.appointments &&
@@ -548,11 +546,7 @@ export class AppointmentDetails extends Component {
 
   getDateFormat(date: ?string): string {
     if (!date) return yearDateFormat;
-    let sameYear: boolean = date.startsWith(
-      now()
-        .getFullYear()
-        .toString(),
-    );
+    let sameYear: boolean = date.startsWith(now().getFullYear().toString());
     return sameYear ? dayDateTime24Format : dayYearDateTime24Format;
   }
 

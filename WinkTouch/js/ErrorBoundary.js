@@ -36,7 +36,7 @@ export default class ErrorBoundary extends Component {
     });
   }
 
-  redirect() {
+  restart() {
     if (isWeb) {
       window.location.href = REACT_APP_HOST;
     } else {
@@ -66,7 +66,7 @@ export default class ErrorBoundary extends Component {
                   justifyContent: 'center',
                   textAlign: 'center',
                 }}>
-                <Button onPress={() => this.redirect()}>
+                <Button onPress={() => this.restart()}>
                   {strings.restartApp}
                 </Button>
               </Card.Actions>

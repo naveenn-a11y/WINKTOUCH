@@ -46,6 +46,7 @@ import {
   restVersion,
 } from './Version';
 import {fetchCodeDefinitions} from './Codes';
+import {REACT_APP_HOST} from '../env.json';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';
 const accountsUrl =
@@ -463,7 +464,11 @@ export class LoginScreen extends Component {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.version}
-          onLongPress={() => !isWeb && codePush.restartApp()}>
+          onLongPress={() =>
+            !isWeb
+              ? codePush.restartApp()
+              : window.location.replace(REACT_APP_HOST)
+          }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
             {dbVersion}

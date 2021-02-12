@@ -52,6 +52,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {createBrowserApp} from '@react-navigation/web';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
+import {Provider} from 'react-native-paper';
 let account: Account;
 let doctor: User;
 let store: Store;
@@ -145,6 +146,11 @@ DoctorNavigator.router.getStateForAction = (action, state) => {
     }
   }
   let newState = defaultGetStateForAction(action, state);
+
+  if (!state && action.routeName !== 'overview') {
+    newState.routes[0].routeName = 'overview';
+    newState.routes[0].params = {refreshAppointments: false};
+  }
   if (state && action.type === NavigationActions.BACK) {
     if (state.index === 1) {
       newState.routes[0].params = {refreshAppointments: true};
@@ -282,6 +288,7 @@ export class DoctorApp extends Component {
     return (
       <ErrorBoundary>
         <ModeContextProvider>
+          <Provider>
           <View style={styles.screeen}>
             <StatusBar hidden={true} />
             <DocatorAppContainer
@@ -304,6 +311,7 @@ export class DoctorApp extends Component {
               }}
             />
           </View>
+          </Provider>
         </ModeContextProvider>
       </ErrorBoundary>
     );

@@ -286,6 +286,7 @@ export type FieldDefinition = {
   newLine?: boolean,
   popup?: boolean,
   sync?: boolean,
+  visible?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
