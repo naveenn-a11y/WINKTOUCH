@@ -34,7 +34,7 @@ import {getDoctor} from './DoctorApp';
 
 const examPredefinedValuesCacheKey: string = 'examPredefinedValues';
 
-async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
+export async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
   const searchCriteria = {};
   let restResponse = await searchItems(
     'ExamPredefinedValue/list',

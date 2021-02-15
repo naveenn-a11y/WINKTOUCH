@@ -40,7 +40,7 @@ import {
 } from './ExamDefinition';
 import {ExamChartScreen} from './Chart';
 import {setToken} from './Rest';
-import {allExamPredefinedValues} from './Favorites';
+import {allExamPredefinedValues, fetchExamPredefinedValues} from './Favorites';
 import {ConfigurationScreen, getConfiguration} from './Configuration';
 import {deleteLocalFiles} from './Print';
 import {ReferralScreen} from './Referral';
@@ -235,7 +235,7 @@ export class DoctorApp extends Component {
     await allExamDefinitions(true, false);
     await allExamDefinitions(false, false);
     await allExamDefinitions(false, true);
-    await allExamPredefinedValues();
+    await fetchExamPredefinedValues();
     this.forceUpdate();
   }
 

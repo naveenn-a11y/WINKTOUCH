@@ -33,7 +33,11 @@ export function cacheItemById(data: any) {
 
 export function clearCachedItemById(data: any) {
   if (!data) return;
-  cache.delete(data.id);
+  if (data.id) {
+    cache.delete(data.id);
+  } else {
+    cache.delete(id);
+  }
 }
 
 export function cacheItemsById(items: []) {
