@@ -16,8 +16,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   InteractionManager,
-  Linking,
-  Platform,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import codePush from 'react-native-code-push';
@@ -315,7 +314,7 @@ export class LoginScreen extends Component {
         else handleHttpError(httpResponse, await httpResponse.json());
       }
       let token: string = undefined;
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         for (let entry of httpResponse.headers.entries()) {
           if (entry[0] === 'token') {
             token = entry[1];
@@ -340,7 +339,7 @@ export class LoginScreen extends Component {
   };
 
   render() {
-    const style = [styles.centeredColumnLayout, {alignItems: 'center'}];
+    const style = isWeb ? [styles.centeredColumnLayout, {alignItems: 'center'}] : styles.centeredColumnLayout;
 
     const accountNames: string[] = this.state.accounts.map((account: Account) =>
       this.formatAccount(account),

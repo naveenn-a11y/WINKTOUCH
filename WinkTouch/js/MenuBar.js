@@ -129,7 +129,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {(isAtWink || __DEV__ || isWeb) &&
+        {(isAtWink || __DEV__ ) &&
           scene === 'overview' &&
           'en-CA' === getUserLanguage() && (
             <Button
@@ -156,10 +156,6 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        <Button
-          title={strings.logout}
-          onPress={this.props.screenProps.onLogout}
-        />
         {__DEV__ && <Notifications />}
 
         <KeyboardMode

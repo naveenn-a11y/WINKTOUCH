@@ -1231,7 +1231,7 @@ export class ItemsEditor extends Component {
             {this.renderSelectionLists()}
             {this.renderNonOptionFields()}
           </View>
-        ) : (
+         :
           <ScrollView horizontal={true}>
             {this.renderSelectionLists()}
             {this.renderNonOptionFields()}
