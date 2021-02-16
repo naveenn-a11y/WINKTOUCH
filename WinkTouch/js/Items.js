@@ -1226,7 +1226,7 @@ export class ItemsEditor extends Component {
             />
           )}
         </View>
-        {this.props.editable && isWeb ? (
+        {this.props.editable && (isWeb ?
           <View style={{flex: 100, flexDirection: 'row', flexWrap: 'wrap'}}>
             {this.renderSelectionLists()}
             {this.renderNonOptionFields()}
