@@ -74,6 +74,7 @@ export class MenuBar extends PureComponent {
     examDefinition.id = exam.id;
     return examDefinition;
   }
+  static contextType = ModeContext;
 
   render() {
     //if (this.props.scene.menuHidden) return null;

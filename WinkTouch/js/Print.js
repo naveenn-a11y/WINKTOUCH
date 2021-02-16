@@ -96,13 +96,13 @@ export async function deleteLocalFiles() {
   }
 }
 
-async function loadRxLogo() {
+async function loadRxLogo() : Promise<string> {
   //TODO: only fetch once
   __DEV__ && console.log('Fetching Rx logo');
   const url: string = winkRestUrl + 'webresources/attachement/845/431/Rx.jpg';
   if (isWeb) {
     const path: string = await loadBase64ImageForWeb(url);
-    AsyncStorage.setItem('rxLogo', path);
+    return path;
   } else {
     await RNFS.downloadFile({
       fromUrl: url,
@@ -120,8 +120,7 @@ async function addLogo(
   pdfDoc?: PDFDocument,
 ) {
   if (isWeb) {
-    await loadRxLogo();
-    const rxLogo: string = await AsyncStorage.getItem('rxLogo');
+    const rxLogo : string = await loadRxLogo();
     if (rxLogo === undefined || rxLogo === null || rxLogo === '') {
       return;
     }

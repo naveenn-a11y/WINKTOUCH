@@ -603,6 +603,7 @@ class VisitWorkFlow extends Component {
       appointment: appointment,
     };
     visit && this.loadUnstartedExamTypes(visit);
+    this.loadAppointment(visit);
   }
 
   async componentDidUpdate(prevProps: any) {
@@ -629,6 +630,7 @@ class VisitWorkFlow extends Component {
       rxToOrder,
     });
     visit && this.loadUnstartedExamTypes(visit);
+    this.loadAppointment(visit);
   }
 
   async storeVisit(visit: Visit) {
@@ -641,6 +643,7 @@ class VisitWorkFlow extends Component {
       rxToOrder: this.findRxToOrder(visit),
     });
     visit && this.loadUnstartedExamTypes(visit);
+    this.loadAppointment(visit);
   }
 
   findRxToOrder(visit: Visit): ?Exam {
@@ -662,16 +665,12 @@ class VisitWorkFlow extends Component {
     let appointment: Appointment = getCachedItem(visit.appointmentId);
     if (!appointment) {
       appointment = await fetchAppointment(visit.appointmentId);
-      const locked: boolean = visitHasEnded(visit);
-      this.setState({locked});
     }
-    return appointment;
+    this.setState({appointment: appointment});
   }
 
   async loadUnstartedExamTypes(visit: Visit) {
     if (this.props.readonly) return;
-    const appointment: Appointment = await this.loadAppointment(visit);
-    this.setState({appointment: appointment});
     const locked: boolean = this.state.locked;
     if (locked) {
       if (this.state.addableExamTypes.length !== 0)
@@ -775,10 +774,7 @@ class VisitWorkFlow extends Component {
       visit.customExamIds.push(exam.id);
     }
     cacheItemById(visit);
-    this.loadUnstartedExamTypes(
-      visit,
-      getCachedItem(examDefinitionId).isPreExam,
-    );
+    this.loadUnstartedExamTypes(visit);
     this.setState({visit});
   }
 

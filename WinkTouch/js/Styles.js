@@ -139,14 +139,14 @@ export const styles = StyleSheet.create({
     margin: 10 * fontScale,
   },
   screenTitle: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     fontWeight: '500',
     textAlign: 'center',
     margin: 12 * fontScale,
     marginTop: 30 * fontScale,
   },
   screenTitleSelected: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     textAlign: 'center',
     margin: 8 * fontScale,
     color: selectionFontColor,
@@ -235,14 +235,14 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
   },
   textfield: {
-    padding: 26 * fontScale * (isIos ? 1 : 0.2),
-    fontSize: 26 * fontScale,
+    padding: defaultFontSize * (isIos ? 1 : 0.2),
+    fontSize: defaultFontSize,
     textAlign: 'center',
     borderRadius: 6 * fontScale,
     shadowRadius: 3 * fontScale,
   },
   searchField: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
     minWidth: 200 * fontScale,
     padding: 6 * fontScale,
@@ -254,7 +254,7 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
   },
   field400: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
     minWidth: 400 * fontScale,
     padding: 6 * fontScale,
@@ -267,7 +267,7 @@ export const styles = StyleSheet.create({
     margin: 3 * fontScale,
   },
   dropdownButtonIos: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     padding: 10 * fontScale,
     textAlign: 'center',
     borderColor: 'gray',
@@ -310,7 +310,7 @@ export const styles = StyleSheet.create({
     color: selectionFontColor,
     textAlign: 'center',
     padding: 10 * fontScale,
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     fontWeight: 'bold',
   },
   linkButton: {

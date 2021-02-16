@@ -276,7 +276,7 @@ export class RegisterScreen extends Component {
   };
 
   render() {
-    const style = [styles.centeredColumnLayout, {alignItems: 'center'}];
+    const style = isWeb ? [styles.centeredColumnLayout, {alignItems: 'center'}] : ;
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />

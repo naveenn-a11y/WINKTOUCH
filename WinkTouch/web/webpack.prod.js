@@ -43,7 +43,7 @@ module.exports = {
       'react-native-localization': 'react-localization',
       'react-native-fs': path.join(
         rootDir,
-        './src/components/ReactFileSystem/ReactNativeFSWeb.js',
+        './src/components/ReactFileSystem/ReactNativeFS.web.js',
       ),
       'react-native-view-shot': 'react-native-view-shot-with-web-support',
       'react-native-pdf-lib': 'pdf-lib',

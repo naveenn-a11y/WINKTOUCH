@@ -53,7 +53,7 @@ export function getJpeg64Dimension(
     }
     lastByte = byte;
   }
-  !__DEV__ && console.log("Couln't find size in jpeg");
+  console.log("Couln't find size in jpeg");
   const width: number = 1024;
   const height: number = 768;
   return {width, height};
