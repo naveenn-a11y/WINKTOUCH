@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {
   strings,
   getUserLanguage,
@@ -276,7 +276,9 @@ export class RegisterScreen extends Component {
   };
 
   render() {
-    const style = isWeb ? [styles.centeredColumnLayout, {alignItems: 'center'}] : ;
+    const style = isWeb
+      ? [styles.centeredColumnLayout, {alignItems: 'center'}]
+      : styles.centeredColumnLayout;
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />
