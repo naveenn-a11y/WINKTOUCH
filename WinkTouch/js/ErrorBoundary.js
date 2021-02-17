@@ -21,12 +21,11 @@ export default class ErrorBoundary extends Component {
   static getDerivedStateFromError(error) {
     return {hasError: true};
   }
-  componentDidMount() {
-    //   console.log('NAVVVV: ' + JSON.stringify(this.props));
-  }
+  componentDidMount() {}
 
   componentDidCatch(error, errorInfo) {
-    // logErrorToMyService(error, errorInfo);
+    console.error(error);
+    console.error(errorInfo);
   }
 
   navigate() {
