@@ -339,7 +339,7 @@ export function deAccent(text: string): string {
     ö: 'o',
   };
   let chars = /[àáâãäçèéêëòôõö]/g;
-  return text.replace(chars, char => accents[char]);
+  return text.replace(chars, (char) => accents[char]);
 }
 
 export function isEmpty(value: any): boolean {
@@ -367,7 +367,7 @@ export function isEmpty(value: any): boolean {
 // remove null and undefined
 export function cleanUpArray(a: any[]): any[] {
   return !isEmpty(a) && a instanceof Array
-    ? a.filter(function(v) {
+    ? a.filter(function (v) {
         return v !== null && v !== undefined;
       })
     : a;
@@ -448,7 +448,10 @@ export function passesFilter(value: Object, filter: {}): boolean {
       filterValue.trim() !== ''
     ) {
       const subValue = value[filterKey];
-      const passesFilter: boolean = subValue === filterValue;
+      const passesFilter: boolean =
+        typeof subValue === 'string'
+          ? subValue.trim().toLowerCase() === filterValue.trim().toLowerCase()
+          : subValue === filterValue;
       if (!passesFilter) return false;
     }
   }
