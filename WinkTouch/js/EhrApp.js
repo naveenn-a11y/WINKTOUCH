@@ -3,26 +3,16 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {
-  View,
-  TextInput,
-  StatusBar,
-  AppState,
-  InteractionManager,
-} from 'react-native';
+import {AppState} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
-import {fetchItemById} from './Rest';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
-import {getVisitTypes, fetchVisitTypes} from './Visit';
-import {fetchUserDefinedCodes} from './Codes';
 import {isWeb} from './Styles';
-import {getHostFromBundleKey} from '../scripts/Utils';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -75,12 +65,10 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   }
   if (!registration || !registration.path) return;
   checkBinaryVersion();
-  let bundleUpdated: boolean = false;
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
     //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
     if (registration.bundle !== codePushBundleKey) {
-      bundleUpdated = true;
       registration.bundle = codePushBundleKey;
       if (registration.bundle) {
         AsyncStorage.setItem('bundle', registration.bundle);
@@ -108,14 +96,6 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
       logUpdateStatus,
     );
     codePush.allowRestart();
-  } else {
-    if (bundleUpdated) {
-      const host: string = getHostFromBundleKey(registration.bundle);
-      if (host !== undefined) {
-        console.log('Redirect to:  ' + JSON.stringify(host));
-        window.location.href = host;
-      }
-    }
   }
 }
 
