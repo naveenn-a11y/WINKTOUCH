@@ -2868,23 +2868,23 @@ export class FloatingButton extends Component {
   render() {
     if (!this.state.options) return null;
     return (
-          <FAB.Group
-            open={this.state.active}
-            onStateChange={this.toggleActive}
-            position="bottomRight"
-            fabStyle={styles.floatingButton}
-            icon={this.state.active ? 'minus' : 'plus'}
-            actions={this.state.options.map((option: string, index: number) => {
-              return {
-                icon: 'minus',
-                label: option,
-                onPress: () => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                },
-              };
-            })}
-          />
+      <FAB.Group
+        open={this.state.active}
+        onStateChange={this.toggleActive}
+        position="bottomRight"
+        fabStyle={styles.floatingButton}
+        icon={this.state.active ? 'minus' : 'plus'}
+        actions={this.state.options.map((option: string, index: number) => {
+          return {
+            icon: 'minus',
+            label: option,
+            onPress: () => {
+              this.toggleActive();
+              this.props.onPress(option);
+            },
+          };
+        })}
+      />
     );
   }
 }
@@ -3309,26 +3309,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-
-        <Portal>
-          <Dialog
-            visible={this.state.visible}
-            onDismiss={this.cancelDialog}
-            dismissable={this.props.dismissable}
-            style={this.props.style}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
-            <Dialog.Content>{this.renderContent()}</Dialog.Content>
-            <Dialog.Actions>
-              <NativeBaseButton onPress={this.cancelDialog}>
-                {this.props.cancelActionLabel}
-              </NativeBaseButton>
-              <NativeBaseButton onPress={this.confirmDialog}>
-                {this.props.confirmActionLabel}
-              </NativeBaseButton>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
-
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
@@ -3360,6 +3358,114 @@ export class KeyboardMode extends Component {
           <Icon name={icon} style={styles.menuIcon} />
         </View>
       </TouchableOpacity>
+    );
+  }
+}
+
+export class CustomModal extends Component {
+  props: {
+    label?: string,
+    options: (string[] | string)[],
+    onChangeValue?: (newvalue: ?(string[] | string)) => void,
+    testID?: string,
+    isActive?: boolean,
+  };
+  state: {
+    isActive: boolean,
+    editedValue?: string[] | string,
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      isActive: this.props.isActive,
+      editedValue: undefined,
+    };
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isActive === prevProps.isActive) return;
+    this.setState({
+      isActive: this.props.isActive,
+    });
+  }
+
+  updateValue(newValue?: string, columnIndex: number): void {
+    this.setState({editedValue: newValue}, this.commitEdit);
+  }
+  commitEdit = () => {
+    if (this.props.onChangeValue)
+      this.props.onChangeValue(this.state.editedValue);
+    this.setState({isActive: false});
+  };
+
+  format(value: ?string): string {
+    if (value === undefined || value === null || value === '') return '';
+    let formattedValue: string = '';
+    formattedValue += value.toString();
+    return formattedValue;
+  }
+
+  render() {
+    return (
+      this.state.isActive === true && (
+        <Modal
+          visible={this.state.isActive === true}
+          transparent={true}
+          animationType={'slide'}
+          onRequestClose={this.cancelEdit}>
+          {this.renderPopup()}
+        </Modal>
+      )
+    );
+  }
+  renderPopup() {
+    let allOptions: string[][] = [this.props.options];
+    return (
+      <TouchableWithoutFeedback
+        onPress={this.commitEdit}
+        accessible={false}
+        testID="popupBackground">
+        <View style={styles.popupBackground}>
+          <Text style={styles.modalTitle}>{this.format(this.props.label)}</Text>
+          <ScrollView>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                {allOptions.map((options: string[], columnIndex: number) => (
+                  <View style={styles.modalColumn} key={columnIndex}>
+                    {options.map((option: string, rowIndex: number) => {
+                      let isSelected: boolean =
+                        this.state.editedValue === option;
+                      return (
+                        <TouchableOpacity
+                          key={rowIndex}
+                          onPress={() => this.updateValue(option, columnIndex)}
+                          testID={'option' + (rowIndex + 1)}>
+                          <View
+                            style={
+                              isSelected
+                                ? styles.popupTileSelected
+                                : styles.popupTile
+                            }>
+                            <Text
+                              style={
+                                isSelected
+                                  ? styles.modalTileLabelSelected
+                                  : styles.modalTileLabel
+                              }>
+                              {option}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

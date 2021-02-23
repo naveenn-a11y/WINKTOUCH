@@ -31,10 +31,18 @@ import type {
   Store,
   FollowUp,
   VisitType,
+  CodeDefitinion,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {Button, FloatingButton, Lock, NativeBar, Alert} from './Widgets';
+import {
+  Button,
+  FloatingButton,
+  Lock,
+  NativeBar,
+  Alert,
+  CustomModal,
+} from './Widgets';
 import {
   formatMoment,
   deepClone,
@@ -48,9 +56,12 @@ import {
   farDateFormat,
   tomorrow,
   yearDateFormat,
+  yearDateTime24Format,
   officialDateFormat,
   prefix,
   postfix,
+  isSameDay,
+  parseDate,
 } from './Util';
 import {
   ExamCard,
@@ -98,6 +109,7 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
+import {formatOptions} from './Codes';
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -240,6 +252,46 @@ export async function fetchVisitHistory(patientId: string): string[] {
   cacheItem('patientDocumentHistory-' + patientId, patientDocumentIds);
 
   return visitIds;
+}
+
+export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
+  if (patientId === undefined || patientId === null || patientId === '')
+    return undefined;
+  let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
+  if (!visitHistory || visitHistory.length === 0) return undefined;
+  let codeDescriptions: CodeDefinition[] = [];
+  //Check if there is two visits of the same type on the same day
+  let hasDoubles: boolean = false;
+  for (let i: number = 0; i < visitHistory.length - 1; i++) {
+    for (let j: number = i + 1; j < visitHistory.length; j++) {
+      if (
+        isSameDay(
+          parseDate(visitHistory[i].date),
+          parseDate(visitHistory[j].date),
+        )
+      ) {
+        if (visitHistory[i].typeName === visitHistory[j].typeName) {
+          hasDoubles = true;
+          break;
+        }
+      } else {
+        break;
+      }
+      if (hasDoubles) break;
+    }
+  }
+  const dateFormat: string = hasDoubles ? yearDateTime24Format : yearDateFormat;
+  //Format the visits as CodeDefinitions
+  visitHistory.forEach((visit: Visit) => {
+    if (visit.customExamIds || visit.preCustomExamIds) {
+      const code: string = visit.id;
+      const description: string =
+        formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
+      const codeDescription: CodeDefitinion = {code, description};
+      codeDescriptions.push(codeDescription);
+    }
+  });
+  return codeDescriptions;
 }
 
 export function getVisitHistory(patientId: string): ?(Visit[]) {
@@ -485,10 +537,14 @@ export type StartVisitButtonsProps = {
   title?: string,
   onStartVisit: (type: string, isPrevisit: boolean) => void,
   isLoading: ?boolean,
+  patientInfo: ?PatientInfo,
 };
 type StartVisitButtonstate = {
   visitTypes: VisitType[],
   clicked: boolean,
+  isVisitOptionsVisible: boolean,
+  visitOptions: CodeDefinition[],
+  formattedVisitOptions: string[],
 };
 export class StartVisitButtons extends Component<
   StartVisitButtonsProps,
@@ -499,6 +555,9 @@ export class StartVisitButtons extends Component<
     this.state = {
       visitTypes: [],
       clicked: false,
+      isVisitOptionsVisible: false,
+      visitOptions: [],
+      formattedVisitOptions: [],
     };
   }
 
@@ -522,6 +581,40 @@ export class StartVisitButtons extends Component<
     });
   }
 
+  showVisitOptions() {
+    const blankVisit: CodeDefinition = {
+      code: 0,
+      description: strings.startBlank,
+    };
+    const previousVisits: CodeDefinition[] = getPreviousVisits(
+      this.props.patientInfo.id,
+    );
+    const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
+    const formattedOptions: string[] = formatOptions(options);
+    this.setState({
+      visitOptions: options,
+      formattedVisitOptions: formattedOptions,
+      isVisitOptionsVisible: true,
+    });
+  }
+
+  changeValue = (newValue: ?string) => {
+    const option: CodeDefinition = this.parseValue(newValue);
+    this.setState({isVisitOptionsVisible: false});
+  };
+  parseValue(newValue: ?string): CodeDefinition {
+    if (newValue === undefined || newValue === null) return undefined;
+    let index: number = this.state.formattedVisitOptions.findIndex(
+      (option: string) =>
+        option.trim().toLowerCase() === newValue.trim().toLowerCase(),
+    );
+    if (index < 0 || index >= this.state.visitOptions.length) {
+      return undefined;
+    }
+    const option: CodeDefinition = this.state.visitOptions[index];
+    return option;
+  }
+
   render() {
     if (this.state.visitTypes.length === 0) return null;
     if (this.state.clicked) {
@@ -540,13 +633,22 @@ export class StartVisitButtons extends Component<
         )}
         <View style={styles.flow}>
           {this.state.visitTypes.map((visitType: VisitType, index: number) => (
-            <Button
-              title={visitType.name}
-              key={index}
+            <TouchableOpacity
               onPress={() => this.startVisit(visitType.name)}
-            />
+              onLongPress={() => this.showVisitOptions()}
+              key={index}>
+              <View style={styles.button}>
+                <Text style={styles.buttonText}>{visitType.name}</Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </View>
+        <CustomModal
+          label={strings.startFromVisit}
+          options={this.state.formattedVisitOptions}
+          isActive={this.state.isVisitOptionsVisible}
+          onChangeValue={this.changeValue}
+        />
       </View>
     );
   }
@@ -1155,6 +1257,7 @@ class VisitWorkFlow extends Component {
               isPreVisit={true}
               onStartVisit={this.props.onStartVisit}
               isLoading={this.props.isLoading}
+              patientInfo={this.props.patientInfo}
             />
           )}
         </View>
@@ -1182,6 +1285,7 @@ class VisitWorkFlow extends Component {
               isPreVisit={false}
               onStartVisit={this.props.onStartVisit}
               isLoading={this.props.isLoading}
+              patientInfo={this.props.patientInfo}
             />
           )}
         </View>

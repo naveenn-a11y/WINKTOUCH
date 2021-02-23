@@ -239,6 +239,8 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Drag and drop some files here !',
     takePicture: 'Take a Picture',
     uploadFile: 'Upload a File',
+    startBlank: 'Start Blank',
+    startFromVisit: 'Start From a Visit',
   },
   fr: {
     enterRegisteredEmail:
@@ -477,6 +479,8 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
+    startBlank: 'Commencer Vide',
+    startFromVisit: 'Commencer par une visite',
   },
 });
 
