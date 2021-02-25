@@ -437,14 +437,19 @@ export class ExamCard extends Component {
       this.props.exam.definition.card === false
         ? styles.page
         : this.props.exam.hasStarted
-        ? styles.finishedExamCard
+        ? this.props.exam.isInvalid
+          ? styles.unverifiedExamCard
+          : styles.finishedExamCard
+        : this.props.exam.isInvalid
+        ? styles.unverifiedExamCard
         : styles.todoExamCard;
     return style;
   }
 
   render() {
     return (
-      <TouchableOpacity style={{flexShrink:100}}
+      <TouchableOpacity
+        style={{flexShrink: 100}}
         disabled={
           this.props.disabled ||
           this.props.onSelect === undefined ||
@@ -555,7 +560,7 @@ export class ExamHistoryScreen extends Component {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
         return value.map((childValue: any, index: number) => {
-          const exam : Exam = this.props.navigation.state.params.exam;
+          const exam: Exam = this.props.navigation.state.params.exam;
           if (groupDefinition.type === 'SRx') {
             return (
               <GlassesDetail
@@ -769,7 +774,7 @@ export class ExamScreen extends Component {
 
   componentWillUnmount() {
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
-    if (this.state.isDirty) {
+    if (this.state.isDirty || this.state.exam.isInvalid) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
       this.storeExam(this.state.exam);
     }
@@ -805,6 +810,7 @@ export class ExamScreen extends Component {
 
   async storeExam(exam: Exam) {
     exam.hasStarted = true;
+    exam.isInvalid = false;
     exam = await storeExam(
       exam,
       this.state.appointmentStateKey,

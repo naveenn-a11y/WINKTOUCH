@@ -71,7 +71,7 @@ import {
   renderExamHtml,
   UserAction,
 } from './Exam';
-import {allExamPredefinedValues} from './Favorites';
+import {getSPExamPredefinedValues} from './Favorites';
 import {allExamDefinitions} from './ExamDefinition';
 import {
   ReferralCard,
@@ -535,7 +535,7 @@ class FollowUpButton extends PureComponent {
 export type StartVisitButtonsProps = {
   isPreVisit: boolean,
   title?: string,
-  onStartVisit: (type: string, isPrevisit: boolean) => void,
+  onStartVisit: (type: string, isPrevisit: boolean, cVisitId?: string) => void,
   isLoading: ?boolean,
   patientInfo: ?PatientInfo,
 };
@@ -545,6 +545,7 @@ type StartVisitButtonstate = {
   isVisitOptionsVisible: boolean,
   visitOptions: CodeDefinition[],
   formattedVisitOptions: string[],
+  visitType: string,
 };
 export class StartVisitButtons extends Component<
   StartVisitButtonsProps,
@@ -558,6 +559,7 @@ export class StartVisitButtons extends Component<
       isVisitOptionsVisible: false,
       visitOptions: [],
       formattedVisitOptions: [],
+      visitType: '',
     };
   }
 
@@ -575,32 +577,43 @@ export class StartVisitButtons extends Component<
 
   startVisit(visitType: string) {
     if (this.state.clicked || this.props.isLoading) return;
-    this.setState({clicked: true}, () => {
-      this.props.onStartVisit(visitType, this.props.isPreVisit);
+    this.setState({clicked: true, visitType: visitType}, () => {
+      if (!this.props.isPreVisit) {
+        this.showVisitOptions();
+      } else this.props.onStartVisit(visitType, this.props.isPreVisit);
       this.setState({clicked: false});
     });
   }
 
   showVisitOptions() {
-    const blankVisit: CodeDefinition = {
-      code: 0,
-      description: strings.startBlank,
-    };
-    const previousVisits: CodeDefinition[] = getPreviousVisits(
-      this.props.patientInfo.id,
-    );
-    const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
-    const formattedOptions: string[] = formatOptions(options);
-    this.setState({
-      visitOptions: options,
-      formattedVisitOptions: formattedOptions,
-      isVisitOptionsVisible: true,
-    });
+    if (!this.props.isPreVisit) {
+      const blankVisit: CodeDefinition = {
+        code: undefined,
+        description: strings.startBlank,
+      };
+      const previousVisits: CodeDefinition[] = getPreviousVisits(
+        this.props.patientInfo.id,
+      );
+      const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
+      const formattedOptions: string[] = formatOptions(options);
+      this.setState({
+        visitOptions: options,
+        formattedVisitOptions: formattedOptions,
+        isVisitOptionsVisible: true,
+      });
+    }
   }
 
   changeValue = (newValue: ?string) => {
-    const option: CodeDefinition = this.parseValue(newValue);
     this.setState({isVisitOptionsVisible: false});
+    const option: CodeDefinition = this.parseValue(newValue);
+    if (option !== undefined) {
+      this.props.onStartVisit(
+        this.state.visitType,
+        this.props.isPreVisit,
+        option.code,
+      );
+    }
   };
   parseValue(newValue: ?string): CodeDefinition {
     if (newValue === undefined || newValue === null) return undefined;
@@ -672,7 +685,11 @@ class VisitWorkFlow extends Component {
     visitId: string,
     navigation: any,
     appointmentStateKey: string,
-    onStartVisit: (type: string, isPreVisit: boolean) => void,
+    onStartVisit: (
+      type: string,
+      isPreVisit: boolean,
+      cVisitId?: string,
+    ) => void,
     readonly: ?boolean,
     enableScroll: () => void,
     disableScroll: () => void,
@@ -1282,7 +1299,7 @@ class VisitWorkFlow extends Component {
           )}
           {!this.props.readonly && (
             <StartVisitButtons
-              isPreVisit={false}
+              isPreVisit={isEmpty(this.state.visit.preCustomExamIds)}
               onStartVisit={this.props.onStartVisit}
               isLoading={this.props.isLoading}
               patientInfo={this.props.patientInfo}
@@ -1493,13 +1510,48 @@ export class VisitHistory extends Component {
     };
     return newVisit;
   }
+  cloneVisit(currentVisit: Visit, previousVisit: Visit) {
+    currentVisit.customExamIds.forEach((examId: string) => {
+      const exam: Exam = getCachedItem(examId);
+      this.copyExam(exam, previousVisit);
+    });
+  }
 
-  async startVisit(visitId: string, visitType: string) {
+  copyExam(exam: Exam, previousVisit: Visit) {
+    const examPredefinedValues: ExamPredefinedValue[] = getSPExamPredefinedValues(
+      exam,
+    );
+    if (examPredefinedValues && examPredefinedValues.length > 0) {
+      previousVisit.customExamIds.forEach((examId: string) => {
+        const previousExam: Exam = getCachedItem(examId);
+        if (exam.definition.id === previousExam.definition.id) {
+          const data = previousExam[previousExam.definition.name];
+          if (data !== undefined) {
+            exam[exam.definition.name] =
+              previousExam[previousExam.definition.name];
+            exam.isInvalid = true;
+            exam.hasStarted = true;
+            storeExam(
+              exam,
+              this.props.appointmentStateKey,
+              this.props.navigation,
+            );
+          }
+        }
+      });
+    }
+  }
+  async startVisit(visitId: string, visitType: string, cVisitId?: string) {
     if (this.props.readonly) return;
     this.setState({isLoading: true});
     let visit = getCachedItem(visitId);
     visit.typeName = visitType;
     visit = await updateVisit(visit);
+    if (cVisitId !== undefined) {
+      const previousVisit: Visit = getCachedItem(cVisitId);
+      this.cloneVisit(visit, previousVisit);
+    }
+
     this.props.onRefresh();
     this.setState({
       selectedId: visit.id,
@@ -1745,8 +1797,12 @@ export class VisitHistory extends Component {
             visitId={this.state.selectedId}
             navigation={this.props.navigation}
             appointmentStateKey={this.props.appointmentStateKey}
-            onStartVisit={(visitType: string, isPreVisit: boolean) => {
-              this.startVisit(this.state.selectedId, visitType);
+            onStartVisit={(
+              visitType: string,
+              isPreVisit: boolean,
+              cVisitId?: string,
+            ) => {
+              this.startVisit(this.state.selectedId, visitType, cVisitId);
             }}
             readonly={this.props.readonly}
             enableScroll={this.props.enableScroll}

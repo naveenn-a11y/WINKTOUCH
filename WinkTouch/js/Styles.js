@@ -828,6 +828,7 @@ export const styles = StyleSheet.create({
   examCard: examCardStyle('gray'),
   todoExamCard: examCardStyle('orange'),
   finishedExamCard: examCardStyle('green'),
+  unverifiedExamCard: examCardStyle('red'),
   board: boardStyle('#dddddd'),
   boardSelected: boardStyle(selectionBorderColor),
   boardS: boardStyle('#dddddd', 'S'),
