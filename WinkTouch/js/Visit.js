@@ -591,9 +591,11 @@ export class StartVisitButtons extends Component<
         code: undefined,
         description: strings.startBlank,
       };
-      const previousVisits: CodeDefinition[] = getPreviousVisits(
+      let previousVisits: CodeDefinition[] = getPreviousVisits(
         this.props.patientInfo.id,
       );
+      previousVisits = previousVisits.slice(1);
+
       const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
       const formattedOptions: string[] = formatOptions(options);
       this.setState({
