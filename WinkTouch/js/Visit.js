@@ -1510,35 +1510,64 @@ export class VisitHistory extends Component {
     };
     return newVisit;
   }
-  cloneVisit(currentVisit: Visit, previousVisit: Visit) {
-    currentVisit.customExamIds.forEach((examId: string) => {
-      const exam: Exam = getCachedItem(examId);
-      this.copyExam(exam, previousVisit);
-    });
+  async cloneVisit(currentVisit: Visit, previousVisit: Visit) {
+    await Promise.all(
+      previousVisit.customExamIds.map(async (examId: string) => {
+        const previousExam: Exam = getCachedItem(examId);
+        await this.copyExam(previousExam, currentVisit);
+      }),
+      previousVisit.preCustomExamIds.map(async (examId: string) => {
+        const previousExam: Exam = getCachedItem(examId);
+        await this.copyExam(previousExam, currentVisit);
+      }),
+    );
   }
 
-  copyExam(exam: Exam, previousVisit: Visit) {
+  async copyExam(previousExam: Exam, currentVisit: Visit) {
     const examPredefinedValues: ExamPredefinedValue[] = getSPExamPredefinedValues(
-      exam,
+      previousExam,
     );
     if (examPredefinedValues && examPredefinedValues.length > 0) {
-      previousVisit.customExamIds.forEach((examId: string) => {
-        const previousExam: Exam = getCachedItem(examId);
-        if (exam.definition.id === previousExam.definition.id) {
-          const data = previousExam[previousExam.definition.name];
-          if (data !== undefined) {
-            exam[exam.definition.name] =
-              previousExam[previousExam.definition.name];
-            exam.isInvalid = true;
-            exam.hasStarted = true;
-            storeExam(
-              exam,
-              this.props.appointmentStateKey,
-              this.props.navigation,
-            );
-          }
+      const customExamId: string = previousExam.definition.isPreExam
+        ? currentVisit.preCustomExamIds.find(
+            (examId: string) =>
+              getCachedItem(examId).definition.id ===
+              previousExam.definition.id,
+          )
+        : currentVisit.customExamIds.find(
+            (examId: string) =>
+              getCachedItem(examId).definition.id ===
+              previousExam.definition.id,
+          );
+
+      const data = previousExam[previousExam.definition.name];
+
+      if (data !== undefined) {
+        let currentExam: Exam = undefined;
+        if (customExamId !== undefined) {
+          currentExam = getCachedItem(customExamId);
+        } else {
+          currentExam = {
+            id: 'customExam',
+            visitId: currentVisit.id,
+            customExamDefinitionId: previousExam.definition.id,
+          };
+          currentExam = await createExam(currentExam);
+          previousExam.definition.isPreExam
+            ? currentVisit.preCustomExamIds.push(currentExam.id)
+            : currentVisit.customExamIds.push(currentExam.id);
+          cacheItemById(currentVisit);
         }
-      });
+
+        currentExam[currentExam.definition.name] = data;
+        currentExam.isInvalid = true;
+        currentExam.hasStarted = true;
+        storeExam(
+          currentExam,
+          this.props.appointmentStateKey,
+          this.props.navigation,
+        );
+      }
     }
   }
   async startVisit(visitId: string, visitType: string, cVisitId?: string) {
