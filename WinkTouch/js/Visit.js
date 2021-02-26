@@ -650,7 +650,6 @@ export class StartVisitButtons extends Component<
           {this.state.visitTypes.map((visitType: VisitType, index: number) => (
             <TouchableOpacity
               onPress={() => this.startVisit(visitType.name)}
-              onLongPress={() => this.showVisitOptions()}
               key={index}>
               <View style={styles.button}>
                 <Text style={styles.buttonText}>{visitType.name}</Text>
