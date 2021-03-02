@@ -174,9 +174,8 @@ export function parseCode(
   }
   let codeDefinition: CodeDefinition = getAllCodes(codeType).find(
     (codeDefinition: CodeDefinition) =>
-      formatCodeDefinition(codeDefinition, codeIdentifier)
-        .trim()
-        .toLowerCase() === trimmedInput,
+      formatCodeDefinition(codeDefinition).trim().toLowerCase() ===
+      trimmedInput,
   );
   let code = input;
   if (codeDefinition !== undefined && codeDefinition !== null) {
