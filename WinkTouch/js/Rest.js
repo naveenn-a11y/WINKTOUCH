@@ -19,7 +19,7 @@ import {restVersion} from './Version';
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
 export let restUrl: string = __DEV__
   ? 'http://192.168.2.53:8080/Web/'
-  : 'https://ws-touch.downloadwink.com/' + restVersion + '/';
+  : 'https://emr.downloadwink.com/' + restVersion + '/';
 
 let token: string;
 
