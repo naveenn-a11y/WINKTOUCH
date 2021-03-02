@@ -1643,7 +1643,7 @@ export class ListField extends Component {
 
   renderPopup() {
     return (
-      <TouchableWithoutFeedback onPress={this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? undefined : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
@@ -3163,7 +3163,7 @@ export class SelectionList extends React.PureComponent {
 
   renderItem = ({ item }) => {
     return <SelectionListRow
-      label={JSON.stringify(item)}
+      label={item}
       simpleSelect={this.props.simpleSelect}
       selected={this.isSelected(item)}
       onSelect={(isSelected: boolean | string) =>
