@@ -338,7 +338,6 @@ export class TextField extends Component {
   }
 
   commitEdit(value: string) {
-    console.log('Hello Vlaue: ' + value);
     this.setState({value});
     if (this.props.onChangeValue && value !== this.props.value)
       this.props.onChangeValue(value);
@@ -3162,6 +3161,18 @@ export class SelectionList extends React.PureComponent {
     return data;
   }
 
+  renderItem = ({ item }) => {
+    return <SelectionListRow
+      label={JSON.stringify(item)}
+      simpleSelect={this.props.simpleSelect}
+      selected={this.isSelected(item)}
+      onSelect={(isSelected: boolean | string) =>
+        this.select(item, isSelected)
+      }
+      testID={this.props.label + '.option.' + item}
+    />
+  };
+
   render() {
     let style: string =
       this.props.required && !this.hasSelection()
@@ -3182,22 +3193,8 @@ export class SelectionList extends React.PureComponent {
         <FlatList
           initialNumToRender={20}
           data={data}
-          extraData={{
-            filter: this.state.filter,
-            selection: this.props.selection,
-          }}
-          keyExtractor={(item, index) => index}
-          renderItem={(item) => (
-            <SelectionListRow
-              label={item.item}
-              simpleSelect={this.props.simpleSelect}
-              selected={this.isSelected(item.item)}
-              onSelect={(isSelected: boolean | string) =>
-                this.select(item.item, isSelected)
-              }
-              testID={this.props.label + '.option' + (item.index + 1)}
-            />
-          )}
+          keyExtractor={(item) => item}
+          renderItem={this.renderItem}
         />
       </View>
     );
