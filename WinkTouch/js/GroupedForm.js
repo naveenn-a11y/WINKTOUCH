@@ -421,25 +421,23 @@ export class GroupedCard extends Component {
     showTitle?: boolean,
     exam: Exam,
   };
-  groupDefinition: ?GroupDefinition;
   static defaultProps = {
     showTitle: true,
   };
 
   constructor(props: any) {
     super(props);
-    this.groupDefinition = this.props.exam.definition.fields.find(
-      (fieldDefinition: GroupDefinition | FieldDefinition) =>
-        fieldDefinition.name === this.props.exam.definition.cardGroup,
-    );
   }
 
-  componentDidUpdate(prevProps: any) {
-    if (this.props.exam === prevProps.exam) return;
-    this.groupDefinition = this.props.exam.definition.fields.find(
+  getCardGroup(): ?GroupDefinition {
+    if (this.props.exam.definition.cardGroup===undefined || this.props.exam.definition.cardGroup===null) {
+      return undefined;
+    }
+    const groupDefinition: GroupDefinition = this.props.exam.definition.fields.find(
       (fieldDefinition: GroupDefinition | FieldDefinition) =>
         fieldDefinition.name === this.props.exam.definition.cardGroup,
     );
+    return groupDefinition;
   }
 
   renderField(
@@ -822,14 +820,19 @@ export class GroupedCard extends Component {
     }
   }
 
-  renderAllGroups() {
+  renderGroups() {
     if (!this.props.exam[this.props.exam.definition.name]) return null;
     if (
       this.props.exam.definition.fields === null ||
       this.props.exam.definition.fields === undefined ||
       this.props.exam.definition.fields.length === 0
-    )
+    ) {
       return null;
+    }
+    let cardGroup: ?GroupDefinition = this.getCardGroup();
+    if (cardGroup) {
+      return this.renderGroup(cardGroup);
+    }
     return this.props.exam.definition.fields.map(
       (groupDefinition: GroupDefinition) => this.renderGroup(groupDefinition),
     );
@@ -961,9 +964,7 @@ export class GroupedCard extends Component {
           ? null
           : this.props.exam.definition.cardFields
           ? this.renderCardRows()
-          : this.groupDefinition
-          ? this.renderGroup(this.groupDefinition)
-          : this.renderAllGroups()}
+          : this.renderGroups()}
       </View>
     );
   }
