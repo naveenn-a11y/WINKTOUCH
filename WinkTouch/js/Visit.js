@@ -1024,6 +1024,19 @@ class VisitWorkFlow extends Component {
     this.showSnackBar();
   }
 
+  selectExam = (exam: Exam) => {
+    if (exam.isInvalid) {
+      exam.isInvalid = false;
+      exam.hasStarted = true;
+      storeExam(exam, this.props.appointmentStateKey, this.props.navigation);
+    } else {
+      this.props.navigation.navigate('exam', {
+        exam,
+        appointmentStateKey: this.props.appointmentStateKey,
+      });
+    }
+  };
+
   renderSnackBar() {
     return (
       <NativeBar
@@ -1068,12 +1081,7 @@ class VisitWorkFlow extends Component {
                 key={exam.definition.name}
                 exam={exam}
                 disabled={this.props.readonly}
-                onSelect={() =>
-                  this.props.navigation.navigate('exam', {
-                    exam,
-                    appointmentStateKey: this.props.appointmentStateKey,
-                  })
-                }
+                onSelect={() => this.selectExam(exam)}
                 onHide={() => this.hideExam(exam)}
                 unlocked={this.state.locked !== true}
                 enableScroll={this.props.enableScroll}
@@ -1547,6 +1555,8 @@ export class VisitHistory extends Component {
         let currentExam: Exam = undefined;
         if (customExamId !== undefined) {
           currentExam = getCachedItem(customExamId);
+
+          if (!isEmpty(currentExam[currentExam.definition.name])) return;
         } else {
           currentExam = {
             id: 'customExam',
