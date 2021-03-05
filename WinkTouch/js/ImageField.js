@@ -325,6 +325,8 @@ export class ImageField extends Component {
       this.state.lines[this.state.lines.length - 1]
     )
       return true;
+    if (nextState.cameraOn != this.state.cameraOn) return true;
+
     //__DEV__ && console.log('Image field should not update');
     return false;
   }
@@ -1069,13 +1071,7 @@ export class ImageField extends Component {
       this.props.image === 'upload' &&
       this.props.type === 'document'
     ) {
-      let width = Math.floor(
-        printWidth(
-          this.props.value && this.props.value.size
-            ? this.props.value.size
-            : 'XL',
-        ),
-      );
+      let width = Math.floor(printWidth('XL'));
       const pageAspectRatio: number = this.aspectRatio();
       let height = Math.floor(width / pageAspectRatio);
       const style = {
