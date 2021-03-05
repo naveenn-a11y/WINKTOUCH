@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-import {View} from 'react-native';
-import {Document, Page} from 'react-pdf/dist/esm/entry.webpack';
+import NativePdf from 'react-native-pdf';
 
 type PdfViewerProps = {
-  source: string,
+  source: any,
   style: any,
   isPreview: ?boolean,
 };
@@ -26,29 +25,25 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
   onDocumentLoadSuccess({numPages}) {
     this.setState({numPages: this.props.isPreview ? 1 : numPages});
   }
-  renderPages() {
-    var pages = [];
-    for (var i = 1; i <= this.state.numPages; i++) {
-      pages.push(
-        <Page
-          width={this.props.style.width}
-          height={this.props.style.height}
-          pageNumber={i}
-        />,
-      );
-    }
-    return pages;
-  }
+
   //Base64 or url
   render() {
     return (
-      <View>
-        <Document
-          file={this.props.source}
-          onLoadSuccess={this.onDocumentLoadSuccess}>
-          {this.renderPages()}
-        </Document>
-      </View>
+      <NativePdf
+        source={{uri: this.props.source}}
+        fitWidth={true}
+        fitPolicy={2}
+        onLoadComplete={(numberOfPages, filePath) => {
+          __DEV__ && console.log(`number of pages: ${numberOfPages}`);
+        }}
+        onPageChanged={(page, numberOfPages) => {
+          __DEV__ && console.log(`current page: ${page}`);
+        }}
+        onError={(error) => {
+          console.log(error);
+        }}
+        style={this.props.style}
+      />
     );
   }
 }

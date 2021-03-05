@@ -297,7 +297,7 @@ export class DocumentScanner extends Component {
                   {isPdf && !this.state.isDirty && (
                     <PdfViewer
                       style={this.state.style}
-                      base64Pdf={`data:${mimeType},${this.state.scaledImage}`}
+                      source={`data:${mimeType},${this.state.scaledImage}`}
                     />
                   )}
                   {(!isPdf || this.state.isDirty) && (

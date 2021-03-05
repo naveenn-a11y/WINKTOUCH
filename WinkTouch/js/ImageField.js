@@ -835,8 +835,6 @@ export class ImageField extends Component {
 
   async print() {
     const path: string = await this.generatePdf();
-    console.log('Image Web path: ' + path);
-
     if (isWeb) {
       const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
       var x = window.open();
@@ -1071,6 +1069,11 @@ export class ImageField extends Component {
       this.props.image === 'upload' &&
       this.props.type === 'document'
     ) {
+      if (!isWeb) {
+        this.print();
+        return;
+      }
+
       let width = Math.floor(printWidth('XL'));
       const pageAspectRatio: number = this.aspectRatio();
       let height = Math.floor(width / pageAspectRatio);
@@ -1107,10 +1110,7 @@ export class ImageField extends Component {
                     onMoveShouldSetResponder={(event) => true}
                     onResponderTerminationRequest={(event) => false}
                     onResponderTerminate={(event) => this.cancelEdit()}>
-                    <PdfViewer
-                      style={style}
-                      base64Pdf={this.requireImage().uri}
-                    />
+                    <PdfViewer style={style} source={this.requireImage().uri} />
                     {this.renderGraph(this.state.lines, style, scale)}
                   </View>
                 </View>
@@ -1329,7 +1329,7 @@ export class ImageField extends Component {
                 {image && (
                   <PdfViewer
                     style={style}
-                    base64Pdf={image.uri}
+                    source={image.uri}
                     isPreview={true}
                   />
                 )}
