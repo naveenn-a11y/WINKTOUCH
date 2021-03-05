@@ -2868,23 +2868,23 @@ export class FloatingButton extends Component {
   render() {
     if (!this.state.options) return null;
     return (
-          <FAB.Group
-            open={this.state.active}
-            onStateChange={this.toggleActive}
-            position="bottomRight"
-            fabStyle={styles.floatingButton}
-            icon={this.state.active ? 'minus' : 'plus'}
-            actions={this.state.options.map((option: string, index: number) => {
-              return {
-                icon: 'minus',
-                label: option,
-                onPress: () => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                },
-              };
-            })}
-          />
+      <FAB.Group
+        open={this.state.active}
+        onStateChange={this.toggleActive}
+        position="bottomRight"
+        fabStyle={styles.floatingButton}
+        icon={this.state.active ? 'minus' : 'plus'}
+        actions={this.state.options.map((option: string, index: number) => {
+          return {
+            icon: 'minus',
+            label: option,
+            onPress: () => {
+              this.toggleActive();
+              this.props.onPress(option);
+            },
+          };
+        })}
+      />
     );
   }
 }
@@ -3309,26 +3309,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-
-        <Portal>
-          <Dialog
-            visible={this.state.visible}
-            onDismiss={this.cancelDialog}
-            dismissable={this.props.dismissable}
-            style={this.props.style}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
-            <Dialog.Content>{this.renderContent()}</Dialog.Content>
-            <Dialog.Actions>
-              <NativeBaseButton onPress={this.cancelDialog}>
-                {this.props.cancelActionLabel}
-              </NativeBaseButton>
-              <NativeBaseButton onPress={this.confirmDialog}>
-                {this.props.confirmActionLabel}
-              </NativeBaseButton>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
-
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
@@ -3358,6 +3356,28 @@ export class KeyboardMode extends Component {
         testID="keyboardModeIcon">
         <View style={styles.menuButton}>
           <Icon name={icon} style={styles.menuIcon} />
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class SizeTile extends Component {
+  props: {
+    commitEdit: (field?: string) => void,
+    name: string,
+    isSelected: boolean,
+  };
+  render() {
+    return (
+      <TouchableOpacity
+        onPress={() => this.props.commitEdit(this.props.name)}
+        testID="SizeIcon">
+        <View
+          style={
+            this.props.isSelected ? styles.popupTileSelected : styles.popupTile
+          }>
+          <Icon name={this.props.name} style={styles.modalTileIcon} />
         </View>
       </TouchableOpacity>
     );

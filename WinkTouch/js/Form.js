@@ -1421,6 +1421,7 @@ export class FormInput extends Component {
           resolution={this.props.definition.resolution}
           size={this.props.definition.size}
           popup={this.props.definition.popup}
+          multiValue={this.props.definition.multiValue}
           sync={this.props.definition.sync}
           readonly={readonly}
           onChangeValue={this.props.onChangeValue}
