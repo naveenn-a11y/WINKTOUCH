@@ -1,12 +1,13 @@
 /**
  * @flow
  */
+
 'use strict';
 import React, {Component} from 'react';
 import {StyleSheet, Dimensions, View} from 'react-native';
-//import NativePdf from 'react-native-pdf';
+import NativePdf from 'react-native-pdf';
 import type {Upload} from './Types';
-import {styles} from './Styles';
+import { isWeb, styles } from "./Styles";
 import {getCachedItem} from './DataCache';
 import {fetchUpload} from './Upload';
 
@@ -63,9 +64,14 @@ export class Pdf extends Component {
     const source = {
       uri: 'data:application/pdf;base64,' + this.state.upload.data,
     };
+    if (isWeb)
+      return (
+        <View>
+          <Text>Pdfs are not yet supported</Text>
+        </View>
+      );
     return (
-      <View></View>
-      /* <NativePdf
+      <NativePdf
         source={source}
         fitWidth={true}
         fitPolicy={2}
@@ -79,7 +85,7 @@ export class Pdf extends Component {
           console.log(error);
         }}
         style={styles.patientDocument}
-      />*/
+      />
     );
   }
 }

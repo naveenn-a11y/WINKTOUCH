@@ -885,30 +885,33 @@ export class FormCheckBox extends Component {
     style?: any,
     testID?: string,
   };
+
   isChecked(): boolean {
-    return (
-      this.props.value &&
-      this.props.value !== null &&
-      this.props.value !== undefined &&
-      this.props.value !== '' &&
-      this.props.value !== 0
-    );
+    return this.props.value === this.enabledValue();
   }
 
   select = () => {
+    if (this.props.readonly) {
+      return;
+    }
+    let enabledValue = this.enabledValue();
+    this.props.onChangeValue(enabledValue);
+  };
+
+  enabledValue() {
     if (
-      this.props.readonly ||
       this.props.options === undefined ||
       this.props.options === null ||
       this.props.options.length < 2
-    )
-      return;
-    let selectedValue = this.props.options[1];
-    if (selectedValue instanceof Object) {
-      selectedValue = selectedValue.code;
+    ) {
+      return true;
     }
-    this.props.onChangeValue(selectedValue);
-  };
+    let enabledValue = this.props.options[1];
+    if (enabledValue instanceof Object) {
+      enabledValue = enabledValue.code;
+    }
+    return enabledValue;
+  }
 
   deSelect = () => {
     if (this.props.readonly) return;
