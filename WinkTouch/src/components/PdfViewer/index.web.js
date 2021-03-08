@@ -1,11 +1,53 @@
 import React, {Component} from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
+import {Document, Page} from 'react-pdf/dist/esm/entry.webpack';
 
-export default class PdfViewer extends Component {
+type PdfViewerProps = {
+  source: string,
+  style: any,
+  isPreview: ?boolean,
+};
+
+type PdfViewerState = {
+  numPages: number,
+};
+export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
+  constructor(props: PdfViewerProps) {
+    super(props);
+    this.state = {
+      numPages: 0,
+    };
+    this.onDocumentLoadSuccess = this.onDocumentLoadSuccess.bind(this);
+  }
+  static defaultProps = {
+    isPreview: false,
+  };
+  setNumPages(numPages: number) {}
+  onDocumentLoadSuccess({numPages}) {
+    this.setState({numPages: this.props.isPreview ? 1 : numPages});
+  }
+  renderPages() {
+    var pages = [];
+    for (var i = 1; i <= this.state.numPages; i++) {
+      pages.push(
+        <Page
+          width={this.props.style.width}
+          height={this.props.style.height}
+          pageNumber={i}
+        />,
+      );
+    }
+    return pages;
+  }
+  //Base64 or url
   render() {
     return (
       <View>
-        <Text> PDF Viewer </Text>
+        <Document
+          file={this.props.source}
+          onLoadSuccess={this.onDocumentLoadSuccess}>
+          {this.renderPages()}
+        </Document>
       </View>
     );
   }
