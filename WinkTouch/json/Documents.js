@@ -5,6 +5,11 @@
     "card": true,
     "scrollable": true,
     "isPreExam": true,
+    "cardFields": [
+        [
+            "Documents.Label"
+        ]
+    ],
     "fields": [
         {
             "name": "Documents",
@@ -17,7 +22,7 @@
                     "drawable": false,
                     "multiValue": true,
                     "size": "S",
-                    "name": "Documents",
+                    "name": "Document",
                     "label": "",
                     "type": "document"
                 },
@@ -28,7 +33,7 @@
                 {
                     "name": "Label",
                     "maxLength": 100,
-                    "isTitle": true
+                    "isLabel": true
                 }
             ]
         }

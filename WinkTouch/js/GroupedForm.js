@@ -430,7 +430,10 @@ export class GroupedCard extends Component {
   }
 
   getCardGroup(): ?GroupDefinition {
-    if (this.props.exam.definition.cardGroup===undefined || this.props.exam.definition.cardGroup===null) {
+    if (
+      this.props.exam.definition.cardGroup === undefined ||
+      this.props.exam.definition.cardGroup === null
+    ) {
       return undefined;
     }
     const groupDefinition: GroupDefinition = this.props.exam.definition.fields.find(
@@ -1445,6 +1448,23 @@ export class GroupedForm extends Component {
     // TODO export data
   }
 
+  formatLabel(): string {
+    const customDefinition:
+      | ?GroupDefinition
+      | FieldDefinition = this.props.definition.fields.find(
+      (definition: GroupDefinition | FieldDefinition) =>
+        definition.isLabel === true,
+    );
+    const label: string =
+      this.props.form && customDefinition
+        ? isEmpty(this.props.form[customDefinition.name])
+          ? formatLabel(this.props.definition)
+          : this.props.form[customDefinition.name]
+        : formatLabel(this.props.definition);
+
+    return label;
+  }
+
   renderIcons() {
     if (
       !this.props.editable ||
@@ -1512,7 +1532,7 @@ export class GroupedForm extends Component {
           style={styles.sectionTitle}
           key="title"
           suffix=""
-          value={formatLabel(this.props.definition)}
+          value={this.formatLabel(this.props.definition)}
           fieldId={this.props.fieldId}
         />
         {this.renderRows()}
