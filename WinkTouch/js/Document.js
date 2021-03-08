@@ -4,10 +4,9 @@
 
 'use strict';
 import React, {Component} from 'react';
-import {StyleSheet, Dimensions, View} from 'react-native';
-import NativePdf from 'react-native-pdf';
+import {PdfViewer} from '../src/components/PdfViewer';
 import type {Upload} from './Types';
-import { isWeb, styles } from "./Styles";
+import {styles} from './Styles';
 import {getCachedItem} from './DataCache';
 import {fetchUpload} from './Upload';
 
@@ -61,31 +60,8 @@ export class Pdf extends Component {
   render() {
     //const source = {uri:'http://samples.leanpub.com/thereactnativebook-sample.pdf',cache:true};
     if (!this.state.upload) return null;
-    const source = {
-      uri: 'data:application/pdf;base64,' + this.state.upload.data,
-    };
-    if (isWeb)
-      return (
-        <View>
-          <Text>Pdfs are not yet supported</Text>
-        </View>
-      );
-    return (
-      <NativePdf
-        source={source}
-        fitWidth={true}
-        fitPolicy={2}
-        onLoadComplete={(numberOfPages, filePath) => {
-          __DEV__ && console.log(`number of pages: ${numberOfPages}`);
-        }}
-        onPageChanged={(page, numberOfPages) => {
-          __DEV__ && console.log(`current page: ${page}`);
-        }}
-        onError={(error) => {
-          console.log(error);
-        }}
-        style={styles.patientDocument}
-      />
-    );
+    const source = 'data:application/pdf;base64,' + this.state.upload.data;
+
+    return <PdfViewer source={source} style={styles.patientDocument} />;
   }
 }
