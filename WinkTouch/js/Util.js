@@ -351,7 +351,7 @@ export function isEmpty(value: any): boolean {
     if (value.length === 0) {
       return true;
     } else {
-      return value.reduce((a, v) => a && (v === null || v === undefined), true);
+      return value.reduce((a, v) => a && isEmpty(v), true);
     }
   } else if (value instanceof Object) {
     if (Object.keys(value).length === 0) return true;
