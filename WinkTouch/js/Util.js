@@ -380,7 +380,10 @@ export function deepAssign(value: Object, newValue: Object): Object {
       value[key] = subNewValue;
     } else if (subNewValue instanceof Array) {
       if (isEmpty(subValue))
-        subValue[subValue.length - 1] = deepClone(subNewValue[0]);
+        subNewValue.map(
+          (subElement: any, index: number) =>
+            (subValue[index] = deepClone(subNewValue[index])),
+        );
       else if (subValue instanceof Array) {
         subValue.push(...subNewValue);
       } else {
