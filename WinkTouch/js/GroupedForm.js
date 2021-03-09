@@ -1532,7 +1532,7 @@ export class GroupedForm extends Component {
           style={styles.sectionTitle}
           key="title"
           suffix=""
-          value={this.formatLabel(this.props.definition)}
+          value={this.formatLabel()}
           fieldId={this.props.fieldId}
         />
         {this.renderRows()}
