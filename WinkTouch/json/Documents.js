@@ -5,11 +5,6 @@
     "card": true,
     "scrollable": true,
     "isPreExam": true,
-    "cardFields": [
-        [
-            "Documents.Label"
-        ]
-    ],
     "fields": [
         {
             "name": "Documents",
@@ -31,7 +26,7 @@
                     "name": "Notes"
                 },
                 {
-                    "name": "Label",
+                    "name": "Title",
                     "maxLength": 100,
                     "isLabel": true
                 }

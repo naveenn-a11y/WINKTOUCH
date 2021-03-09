@@ -395,7 +395,7 @@ export class ImageField extends Component {
     this.setState({cameraOn: false});
   };
 
-  async savedCameraImage(uploadId: string, size: ?string) {
+  async saveUpload(uploadId: string, size: ?string, dc: ?number) {
     const upload: ?Upload =
       uploadId != undefined ? getCachedItem(uploadId) : undefined;
     this.setState({cameraOn: false, upload});
@@ -405,15 +405,20 @@ export class ImageField extends Component {
         patientId: this.props.patientId,
         postedOn: formatDate(now(), jsonDateFormat),
         name: this.props.fileName,
-        category: this.props.type,
+        category: this.props.type !== 'document' ? this.props.type : undefined,
         uploadId,
+        documentCategoryId: dc,
       };
       patientDocument = await storePatientDocument(patientDocument);
       if (patientDocument.errors) {
         alert(strings.pmsImageSaveError);
       }
     }
-    this.props.onChangeValue({image: uploadId, size: size});
+    this.props.onChangeValue({
+      image: uploadId,
+      size: size,
+      documentCategory: dc,
+    });
   }
 
   showDocuments = () => {
@@ -1293,13 +1298,18 @@ export class ImageField extends Component {
                 size={this.props.size}
                 fileName={this.props.fileName}
                 onCancel={this.cancelCamera}
-                onSave={(uploadId: string, size: ?string) =>
-                  this.savedCameraImage(uploadId, size)
+                onSave={(uploadId: string, size: ?string, dc: ?number) =>
+                  this.saveUpload(uploadId, size, dc)
                 }
                 patientId={this.props.patientId}
                 examId={this.props.examId}
                 replaceImage={this.props.replaceImage}
                 type={this.props.type}
+                documentCategoryId={
+                  this.props.value
+                    ? this.props.value.documentCategory
+                    : undefined
+                }
               />
             </Modal>
           )}
@@ -1361,13 +1371,18 @@ export class ImageField extends Component {
                   size={this.props.size}
                   fileName={this.props.fileName}
                   onCancel={this.cancelCamera}
-                  onSave={(uploadId: string, size: ?string) =>
-                    this.savedCameraImage(uploadId, size)
+                  onSave={(uploadId: string, size: ?string, dc: ?number) =>
+                    this.saveUpload(uploadId, size, dc)
                   }
                   patientId={this.props.patientId}
                   examId={this.props.examId}
                   replaceImage={this.props.replaceImage}
                   type={this.props.type}
+                  documentCategoryId={
+                    this.props.value
+                      ? this.props.value.documentCategory
+                      : undefined
+                  }
                 />
               </Modal>
             )}
@@ -1421,13 +1436,18 @@ export class ImageField extends Component {
                 size={this.props.size}
                 fileName={this.props.fileName}
                 onCancel={this.cancelCamera}
-                onSave={(uploadId: string, size: ?string) =>
-                  this.savedCameraImage(uploadId, size)
+                onSave={(uploadId: string, size: ?string, dc: ?number) =>
+                  this.saveUpload(uploadId, size, dc)
                 }
                 patientId={this.props.patientId}
                 examId={this.props.examId}
                 replaceImage={this.props.replaceImage}
                 type={this.props.type}
+                documentCategoryId={
+                  this.props.value
+                    ? this.props.value.documentCategory
+                    : undefined
+                }
               />
             </Modal>
           )}

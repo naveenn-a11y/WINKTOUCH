@@ -3161,16 +3161,18 @@ export class SelectionList extends React.PureComponent {
     return data;
   }
 
-  renderItem = ({ item }) => {
-    return <SelectionListRow
-      label={item}
-      simpleSelect={this.props.simpleSelect}
-      selected={this.isSelected(item)}
-      onSelect={(isSelected: boolean | string) =>
-        this.select(item, isSelected)
-      }
-      testID={this.props.label + '.option.' + item}
-    />
+  renderItem = ({item}) => {
+    return (
+      <SelectionListRow
+        label={item}
+        simpleSelect={this.props.simpleSelect}
+        selected={this.isSelected(item)}
+        onSelect={(isSelected: boolean | string) =>
+          this.select(item, isSelected)
+        }
+        testID={this.props.label + '.option.' + item}
+      />
+    );
   };
 
   render() {
@@ -3364,16 +3366,21 @@ export class SizeTile extends Component {
     commitEdit: (field?: string) => void,
     name: string,
     isSelected: boolean,
+    minWidth: number,
   };
   render() {
+    const style = this.props.isSelected
+      ? this.props.minWidth
+        ? [styles.popupTileSelected, {minWidth: this.props.minWidth}]
+        : styles.popupTileSelected
+      : this.props.minWidth
+      ? [styles.popupTile, {minWidth: this.props.minWidth}]
+      : styles.popupTile;
     return (
       <TouchableOpacity
         onPress={() => this.props.commitEdit(this.props.name)}
         testID="SizeIcon">
-        <View
-          style={
-            this.props.isSelected ? styles.popupTileSelected : styles.popupTile
-          }>
+        <View style={style}>
           <Icon name={this.props.name} style={styles.modalTileIcon} />
         </View>
       </TouchableOpacity>
