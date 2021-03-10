@@ -399,7 +399,7 @@ export class ImageField extends Component {
     const upload: ?Upload =
       uploadId != undefined ? getCachedItem(uploadId) : undefined;
     this.setState({cameraOn: false, upload});
-    if (this.props.type) {
+    if (this.props.type && uploadId) {
       let patientDocument: PatientDocument = {
         id: 'patientDocument',
         patientId: this.props.patientId,
@@ -1089,9 +1089,9 @@ export class ImageField extends Component {
         return null;
       }
 
-      let width = Math.floor(printWidth('XL'));
-      const pageAspectRatio: number = this.aspectRatio();
-      let height = Math.floor(width / pageAspectRatio);
+      const width: number = 612;
+      const pageAspectRatio: number = 8.5 / 11;
+      const height: number = width / pageAspectRatio;
       const style = {
         width,
         height,
