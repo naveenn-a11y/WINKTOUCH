@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {View} from 'react-native';
-import {Document, Page} from 'react-pdf/dist/esm/entry.webpack';
+import {Document, Page, pdfjs} from 'react-pdf';
 
 type PdfViewerProps = {
   source: string,
@@ -18,6 +18,10 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
       numPages: 0,
     };
     this.onDocumentLoadSuccess = this.onDocumentLoadSuccess.bind(this);
+  }
+
+  componentDidMount() {
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
   }
   static defaultProps = {
     isPreview: false,
