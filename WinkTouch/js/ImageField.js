@@ -781,11 +781,21 @@ export class ImageField extends Component {
         : undefined;
     if (fileUri === undefined) {
       const mimeType: string = getMimeType(this.state.upload);
+
       if (
         mimeType === 'application/pdf' ||
         mimeType === 'application/pdf;base64'
       ) {
-        return (fileUri = this.requireImage().uri);
+        const path = this.requireImage().uri;
+        if (isWeb) {
+          return (fileUri = this.requireImage().uri);
+        } else {
+          const fullFilename: string =
+            RNFS.DocumentDirectoryPath + '/' + 'document.pdf';
+          const data = path.split(',')[1];
+          await RNFS.writeFile(fullFilename, data, 'base64');
+          return (fileUri = fullFilename);
+        }
       }
     }
 
@@ -1076,7 +1086,7 @@ export class ImageField extends Component {
     ) {
       if (!isWeb) {
         this.print();
-        return;
+        return null;
       }
 
       let width = Math.floor(printWidth('XL'));
