@@ -436,12 +436,10 @@ export class ExamCard extends Component {
     style =
       this.props.exam.definition.card === false
         ? styles.page
-        : this.props.exam.hasStarted
-        ? this.props.exam.isInvalid
-          ? styles.unverifiedExamCard
-          : styles.finishedExamCard
         : this.props.exam.isInvalid
         ? styles.unverifiedExamCard
+        : this.props.exam.hasStarted
+        ? styles.finishedExamCard
         : styles.todoExamCard;
     return style;
   }

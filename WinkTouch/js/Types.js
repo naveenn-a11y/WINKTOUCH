@@ -425,6 +425,7 @@ export type Exam = {
   definition: ExamDefinition,
   hasStarted: boolean,
   isDirty?: boolean,
+  isInvalid?: boolean,
   isHidden?: boolean,
 };
 
