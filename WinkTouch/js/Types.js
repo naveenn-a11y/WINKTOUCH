@@ -285,6 +285,7 @@ export type FieldDefinition = {
   simpleSelect?: boolean,
   newLine?: boolean,
   popup?: boolean,
+  drawable?: boolean,
   sync?: boolean,
   visible?: boolean,
 };

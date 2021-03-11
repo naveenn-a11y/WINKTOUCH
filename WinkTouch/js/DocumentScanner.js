@@ -32,7 +32,7 @@ import {getCachedItem} from './DataCache';
 import {strings} from './Strings';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import {PdfViewer} from '../src/components/PdfViewer';
-import {getAllCodes, getCodeDefinition} from './Codes';
+import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
 
 export class DocumentScanner extends Component {
   props: {
@@ -46,7 +46,7 @@ export class DocumentScanner extends Component {
     size: string,
     replaceImage?: boolean,
     type?: string,
-    documentCategoryId?: number,
+    isPdf?: boolean,
   };
   state: {
     image: ?string,
@@ -68,9 +68,13 @@ export class DocumentScanner extends Component {
     super(props);
     const upload: ?Upload = getCachedItem(this.props.uploadId);
     const image: string = upload ? upload.data : undefined;
-    const documentCategory: CodeDefinition = this.props.documentCategoryId
-      ? getCodeDefinition('documentCategories', this.props.documentCategoryId)
-      : undefined;
+    const documentCategories: CodeDefinition[] = getAllCodes(
+      'documentCategories',
+    );
+    const documentCategory: CodeDefinition = documentCategories.find(
+      (dc: CodeDefinition) =>
+        (dc.description ? dc.description : dc.code) === this.props.type,
+    );
     this.state = {
       image: image,
       saving: false,
@@ -174,7 +178,7 @@ export class DocumentScanner extends Component {
     this.setState({saving: true});
     let upload: Upload = undefined;
 
-    if (this.props.type === 'document') {
+    if (this.props.isPdf) {
       const pdfData: string = await this.createDocument();
       upload = {
         id: 'upload',
@@ -219,8 +223,8 @@ export class DocumentScanner extends Component {
       upload.id,
       this.getSelectedSize(),
       this.state.documentCategory
-        ? this.state.documentCategory.code
-        : undefined,
+        ? this.state.documentCategory.description
+        : this.props.type,
     );
   }
   getSelectedSize() {
