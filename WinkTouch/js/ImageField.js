@@ -818,7 +818,7 @@ export class ImageField extends Component {
     if (isWeb) {
       const pdfDoc = await PDFDocument.create();
       const page = pdfDoc.addPage();
-      const image = await pdfDoc.embedPng(fileUri);
+      const image = await pdfDoc.embedJpg(fileUri);
       page.setSize(pageWidth, pageHeight);
       const page1 = page.drawImage(image, {
         x: 0,
@@ -833,7 +833,7 @@ export class ImageField extends Component {
       //__DEV__ && console.log('imagesize = '+width+'x'+height+' pageSize='+pageWidth+'x'+pageHeight);
       const page1 = PDFPage.create()
         .setMediaBox(pageWidth, pageHeight)
-        .drawImage(fileUri, 'png', {
+        .drawImage(fileUri, 'jpg', {
           x: 0,
           y: pageHeight - height,
           width: width,

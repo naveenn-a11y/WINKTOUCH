@@ -27,12 +27,12 @@ import {
   Label,
 } from './Widgets';
 import {styles, fontScale, imageStyle, isWeb, printWidth} from './Styles';
-import {storeUpload, getPng64Dimension, getMimeType} from './Upload';
+import {storeUpload, getJpeg64Dimension, getMimeType} from './Upload';
 import {getCachedItem} from './DataCache';
 import {strings} from './Strings';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import {PdfViewer} from '../src/components/PdfViewer';
-import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
+import {getAllCodes} from './Codes';
 
 export class DocumentScanner extends Component {
   props: {
@@ -98,8 +98,8 @@ export class DocumentScanner extends Component {
     pageWidth: number,
     pageHeight: number,
   ) {
-    const dimensionAfter = getPng64Dimension(this.state.scaledImage);
-    const image = await pdfDoc.embedPng(this.state.scaledImage);
+    const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
+    const image = await pdfDoc.embedJpg(this.state.scaledImage);
     const size: string = this.getSelectedSize();
     const addY: number = size === 'XL' ? 0 : 50;
     const width = Math.floor(printWidth(size));
@@ -120,14 +120,14 @@ export class DocumentScanner extends Component {
   ) {
     const fullFilename: string =
       RNFS.DocumentDirectoryPath + '/' + this.props.type + '.base64';
-    const dimensionAfter = getPng64Dimension(this.state.scaledImage);
+    const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
     await RNFS.writeFile(fullFilename, this.state.scaledImage, 'base64');
     const size: string = this.getSelectedSize();
     const addY: number = size === 'XL' ? 0 : 50;
     const width = Math.floor(printWidth(size));
     const aspectRatio: number = dimensionAfter.width / dimensionAfter.height;
     const height = Math.floor(width / aspectRatio);
-    documentPage.drawImage(fullFilename, 'png', {
+    documentPage.drawImage(fullFilename, 'jpeg', {
       x: pageWidth / 2 - width / 2,
       y: pageHeight / 2 - height / 2 + addY,
       width: width,
@@ -193,7 +193,7 @@ export class DocumentScanner extends Component {
       upload = {
         id: 'upload',
         data: this.state.scaledImage,
-        mimeType: 'image/png;base64',
+        mimeType: 'image/jpeg;base64',
         name: this.props.fileName,
         argument1: this.props.patientId,
         argument2: this.props.examId,
@@ -238,7 +238,7 @@ export class DocumentScanner extends Component {
     return size;
   }
   async resizeImage(image: string, size?: string = 'L') {
-    const dimensionBefore = getPng64Dimension(image);
+    const dimensionBefore = getJpeg64Dimension(image);
     let ratio: number = 3 / 4;
     if (dimensionBefore !== undefined && dimensionBefore.height > 0)
       ratio = dimensionBefore.width / dimensionBefore.height;
@@ -260,7 +260,7 @@ export class DocumentScanner extends Component {
       image,
       style.width,
       style.height,
-      'PNG',
+      'JPEG',
       100,
       0,
       tempFolder,
@@ -271,7 +271,7 @@ export class DocumentScanner extends Component {
       image = await RNFS.readFile(resizedImage.path, 'base64');
       RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
     }
-    const dimensionAfter = getPng64Dimension(image);
+    const dimensionAfter = getJpeg64Dimension(image);
     __DEV__ &&
       console.log(
         'Resized image to ' +
@@ -397,69 +397,82 @@ export class DocumentScanner extends Component {
     return (
       <View style={styles.popupFullScreen}>
         <View style={styles.flexRow}>
-          <ScrollView scrollEnabled={true}>
-            <View style={styles.flow}>
-              <TouchableWithoutFeedback onPress={this.props.onCancel}>
-                <View style={styles.modalCamera}>
-                  {this.state.saving === true && (
-                    <ActivityIndicator size="large" />
-                  )}
-                  {this.state.saving === false &&
-                    this.state.image !== undefined && (
-                      <View style={styles.columnLayout}>
-                        <View style={styles.centeredRowLayout}>
-                          {isPdf && !this.state.isDirty && (
-                            <PdfViewer
-                              style={this.state.style}
-                              source={`data:${mimeType},${this.state.scaledImage}`}
-                            />
-                          )}
-                          {(!isPdf || this.state.isDirty) && (
-                            <Image
-                              style={this.state.style}
-                              source={{
-                                uri: `data:${
-                                  mimeType ? mimeType : `image/png;base64`
-                                },${this.state.scaledImage}`,
-                              }}
-                              resizeMode="contain"
+          {this.state.image !== undefined && (
+            <ScrollView scrollEnabled={true}>
+              <View style={styles.flow}>
+                <TouchableWithoutFeedback onPress={this.props.onCancel}>
+                  <View style={styles.modalCamera}>
+                    {this.state.saving === true && (
+                      <ActivityIndicator size="large" />
+                    )}
+                    {this.state.saving === false &&
+                      this.state.image !== undefined && (
+                        <View style={styles.columnLayout}>
+                          <View style={styles.centeredRowLayout}>
+                            {isPdf && !this.state.isDirty && (
+                              <PdfViewer
+                                style={this.state.style}
+                                source={`data:${mimeType},${this.state.scaledImage}`}
+                              />
+                            )}
+                            {(!isPdf || this.state.isDirty) && (
+                              <Image
+                                style={this.state.style}
+                                source={{
+                                  uri: `data:${
+                                    mimeType ? mimeType : `image/jpeg;base64`
+                                  },${this.state.scaledImage}`,
+                                }}
+                                resizeMode="contain"
+                              />
+                            )}
+                          </View>
+                        </View>
+                      )}
+                    {this.state.image !== undefined &&
+                      this.state.saving === false && (
+                        <View style={styles.rowLayout}>
+                          <CameraTile
+                            commitEdit={() => this.setState({image: undefined})}
+                          />
+                          <ClearTile commitEdit={this.clear} />
+                          <RefreshTile commitEdit={this.props.onCancel} />
+                          {this.state.isDirty && (
+                            <UpdateTile
+                              commitEdit={() => this.saveDocument()}
                             />
                           )}
                         </View>
-                      </View>
-                    )}
-                  {this.state.saving === false &&
-                    this.state.image === undefined && (
-                      <NativeScanner
-                        onPictureTaken={(data) =>
-                          this.setState({image: data.croppedImage}, () =>
-                            this.resizeImage(data.croppedImage),
-                          )
-                        }
-                        style={styles.scanner}
-                      />
-                    )}
-                  {this.state.image !== undefined &&
-                  this.state.saving === false ? (
-                    <View style={styles.rowLayout}>
-                      <CameraTile
-                        commitEdit={() => this.setState({image: undefined})}
-                      />
-                      <ClearTile commitEdit={this.clear} />
-                      <RefreshTile commitEdit={this.props.onCancel} />
-                      {this.state.isDirty && (
-                        <UpdateTile commitEdit={() => this.saveDocument()} />
                       )}
-                    </View>
-                  ) : (
-                    <View style={styles.rowLayout}>
-                      <CloseTile commitEdit={this.props.onCancel} />
-                    </View>
-                  )}
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </ScrollView>
+          )}
+
+          <View style={styles.centeredRowLayout}>
+            <View style={styles.modalCamera}>
+              {this.state.saving === false &&
+                this.state.image === undefined && (
+                  <NativeScanner
+                    onPictureTaken={(data) =>
+                      this.setState({image: data.croppedImage}, () =>
+                        this.resizeImage(data.croppedImage),
+                      )
+                    }
+                    style={styles.scanner}
+                  />
+                )}
+              {!(
+                this.state.image !== undefined && this.state.saving === false
+              ) && (
+                <View style={styles.rowLayout}>
+                  <CloseTile commitEdit={this.props.onCancel} />
                 </View>
-              </TouchableWithoutFeedback>
+              )}
             </View>
-          </ScrollView>
+          </View>
+
           {this.state.image !== undefined && this.renderScannerTool()}
         </View>
       </View>
