@@ -1085,59 +1085,51 @@ export class ImageField extends Component {
       this.props.image === 'upload' &&
       this.props.drawable === false
     ) {
-      if (isWeb) {
-        const width: number = 612;
-        const pageAspectRatio: number = 8.5 / 11;
-        const height: number = width / pageAspectRatio;
-        const style = {
-          width,
-          height,
-          resizeMode: 'contain',
-        };
-        const scale: number = style.width / this.resolution()[0];
-        return (
-          <TouchableWithoutFeedback onPress={this.commitEdit}>
-            <View style={styles.popupBackground}>
-              <ScrollView scrollEnabled={true}>
-                <Text style={styles.modalTitle}>{this.props.label}</Text>
-                <View>
+      const width: number = 612;
+      const pageAspectRatio: number = 8.5 / 11;
+      const height: number = width / pageAspectRatio;
+      const style = {
+        width,
+        height,
+        resizeMode: 'contain',
+      };
+      const scale: number = style.width / this.resolution()[0];
+      return (
+        <TouchableWithoutFeedback onPress={this.commitEdit}>
+          <View style={styles.popupBackground}>
+            <ScrollView scrollEnabled={true}>
+              <Text style={styles.modalTitle}>{this.props.label}</Text>
+              <View>
+                <View
+                  style={[styles.centeredColumnLayout, {alignItems: 'center'}]}>
+                  <View style={styles.centeredRowLayout}>
+                    <TouchableOpacity onPress={() => this.print()}>
+                      <View style={styles.popupTile}>
+                        <Printer
+                          style={styles.drawIcon}
+                          disabled={this.state.isActive}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                   <View
-                    style={[
-                      styles.centeredColumnLayout,
-                      {alignItems: 'center'},
-                    ]}>
-                    <View style={styles.centeredRowLayout}>
-                      <TouchableOpacity onPress={() => this.print()}>
-                        <View style={styles.popupTile}>
-                          <Printer
-                            style={styles.drawIcon}
-                            disabled={this.state.isActive}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                    <View
-                      style={styles.solidWhite}
-                      onStartShouldSetResponder={(event) => true}
-                      onResponderReject={(event) =>
-                        this.setState({isActive: false})
-                      }
-                      onMoveShouldSetResponder={(event) => true}
-                      onResponderTerminationRequest={(event) => false}
-                      onResponderTerminate={(event) => this.cancelEdit()}>
-                      <PdfViewer
-                        style={style}
-                        source={this.requireImage().uri}
-                      />
-                      {this.renderGraph(this.state.lines, style, scale)}
-                    </View>
+                    style={styles.solidWhite}
+                    onStartShouldSetResponder={(event) => true}
+                    onResponderReject={(event) =>
+                      this.setState({isActive: false})
+                    }
+                    onMoveShouldSetResponder={(event) => true}
+                    onResponderTerminationRequest={(event) => false}
+                    onResponderTerminate={(event) => this.cancelEdit()}>
+                    <PdfViewer style={style} source={this.requireImage().uri} />
+                    {this.renderGraph(this.state.lines, style, scale)}
                   </View>
                 </View>
-              </ScrollView>
-            </View>
-          </TouchableWithoutFeedback>
-        );
-      }
+              </View>
+            </ScrollView>
+          </View>
+        </TouchableWithoutFeedback>
+      );
     } else {
       const style: {width: number, height: number} = imageStyle(
         'XL',
