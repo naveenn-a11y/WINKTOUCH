@@ -27,7 +27,12 @@ import {
   Label,
 } from './Widgets';
 import {styles, fontScale, imageStyle, isWeb, printWidth} from './Styles';
-import {storeUpload, getJpeg64Dimension, getMimeType} from './Upload';
+import {
+  storeUpload,
+  getJpeg64Dimension,
+  getMimeType,
+  getPng64Dimension,
+} from './Upload';
 import {getCachedItem} from './DataCache';
 import {strings} from './Strings';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
@@ -211,9 +216,6 @@ export class DocumentScanner extends Component {
       });
       return upload;
     }
-    if (this.props.category) {
-      //TODO?
-    }
     this.setState({
       saving: false,
       isDirty: false,
@@ -238,7 +240,11 @@ export class DocumentScanner extends Component {
     return size;
   }
   async resizeImage(image: string, size?: string = 'L') {
-    const dimensionBefore = getJpeg64Dimension(image);
+    let dimensionBefore = getJpeg64Dimension(image);
+    // to do: create a function that detects if image is png or jpeg
+    if (dimensionBefore.width === 1024 && dimensionBefore.height === 768) {
+      dimensionBefore = getPng64Dimension(image);
+    }
     let ratio: number = 3 / 4;
     if (dimensionBefore !== undefined && dimensionBefore.height > 0)
       ratio = dimensionBefore.width / dimensionBefore.height;
@@ -248,10 +254,7 @@ export class DocumentScanner extends Component {
         'Dimension of Image before resize: ' +
           dimensionBefore.width +
           'x' +
-          dimensionBefore.height +
-          ' ' +
-          Math.round(image.size / 1024) +
-          ' kbytes.',
+          dimensionBefore.height,
       );
     const style = imageStyle(size.toUpperCase(), ratio);
 
@@ -277,10 +280,7 @@ export class DocumentScanner extends Component {
         'Resized image to ' +
           dimensionAfter.width +
           'x' +
-          dimensionAfter.height +
-          ' ' +
-          Math.round(resizedImage.size / 1024) +
-          ' kbytes.',
+          dimensionAfter.height,
       );
 
     this.setState({
@@ -397,53 +397,42 @@ export class DocumentScanner extends Component {
     return (
       <View style={styles.popupFullScreen}>
         <View style={styles.flexRow}>
-          {this.state.image !== undefined && (
+          {this.state.saving === false && this.state.image !== undefined && (
             <ScrollView scrollEnabled={true}>
               <View style={styles.flow}>
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
                   <View style={styles.modalCamera}>
-                    {this.state.saving === true && (
-                      <ActivityIndicator size="large" />
-                    )}
-                    {this.state.saving === false &&
-                      this.state.image !== undefined && (
-                        <View style={styles.columnLayout}>
-                          <View style={styles.centeredRowLayout}>
-                            {isPdf && !this.state.isDirty && (
-                              <PdfViewer
-                                style={this.state.style}
-                                source={`data:${mimeType},${this.state.scaledImage}`}
-                              />
-                            )}
-                            {(!isPdf || this.state.isDirty) && (
-                              <Image
-                                style={this.state.style}
-                                source={{
-                                  uri: `data:${
-                                    mimeType ? mimeType : `image/jpeg;base64`
-                                  },${this.state.scaledImage}`,
-                                }}
-                                resizeMode="contain"
-                              />
-                            )}
-                          </View>
-                        </View>
-                      )}
-                    {this.state.image !== undefined &&
-                      this.state.saving === false && (
-                        <View style={styles.rowLayout}>
-                          <CameraTile
-                            commitEdit={() => this.setState({image: undefined})}
+                    <View style={styles.columnLayout}>
+                      <View style={styles.centeredRowLayout}>
+                        {isPdf && !this.state.isDirty && (
+                          <PdfViewer
+                            style={this.state.style}
+                            source={`data:${mimeType},${this.state.scaledImage}`}
                           />
-                          <ClearTile commitEdit={this.clear} />
-                          <RefreshTile commitEdit={this.props.onCancel} />
-                          {this.state.isDirty && (
-                            <UpdateTile
-                              commitEdit={() => this.saveDocument()}
-                            />
-                          )}
-                        </View>
+                        )}
+                        {(!isPdf || this.state.isDirty) && (
+                          <Image
+                            style={this.state.style}
+                            source={{
+                              uri: `data:${
+                                mimeType ? mimeType : `image/jpeg;base64`
+                              },${this.state.scaledImage}`,
+                            }}
+                            resizeMode="contain"
+                          />
+                        )}
+                      </View>
+                    </View>
+                    <View style={styles.rowLayout}>
+                      <CameraTile
+                        commitEdit={() => this.setState({image: undefined})}
+                      />
+                      <ClearTile commitEdit={this.clear} />
+                      <RefreshTile commitEdit={this.props.onCancel} />
+                      {this.state.isDirty && (
+                        <UpdateTile commitEdit={() => this.saveDocument()} />
                       )}
+                    </View>
                   </View>
                 </TouchableWithoutFeedback>
               </View>
@@ -452,6 +441,7 @@ export class DocumentScanner extends Component {
 
           <View style={styles.centeredRowLayout}>
             <View style={styles.modalCamera}>
+              {this.state.saving === true && <ActivityIndicator size="large" />}
               {this.state.saving === false &&
                 this.state.image === undefined && (
                   <NativeScanner

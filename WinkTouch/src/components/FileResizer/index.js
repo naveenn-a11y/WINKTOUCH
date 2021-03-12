@@ -9,7 +9,7 @@ export async function resizeFile(
   tempFolder = '',
 ) {
   const resizedImage = await ImageResizer.createResizedImage(
-    image,
+    'data:image/jpeg;base64,' + image,
     maxWidth,
     maxHeight,
     type,
