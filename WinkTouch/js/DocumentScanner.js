@@ -132,7 +132,7 @@ export class DocumentScanner extends Component {
     const width = Math.floor(printWidth(size));
     const aspectRatio: number = dimensionAfter.width / dimensionAfter.height;
     const height = Math.floor(width / aspectRatio);
-    documentPage.drawImage(fullFilename, 'jpeg', {
+    documentPage.drawImage(fullFilename, 'jpg', {
       x: pageWidth / 2 - width / 2,
       y: pageHeight / 2 - height / 2 + addY,
       width: width,
