@@ -476,7 +476,7 @@ export class GroupedCard extends Component {
         ? groupValue[column][fieldName]
         : undefined;
     if (fieldDefinition.image) {
-      if (value === undefined || value === null) return null;
+      if (isEmpty(value)) return null;
       const label: ?string = formatLabel(groupDefinition);
 
       const icon =
