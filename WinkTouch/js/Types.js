@@ -217,6 +217,7 @@ export type Visit = {
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
+  previousVisitId: string,
 };
 
 export type CodeDefinition =

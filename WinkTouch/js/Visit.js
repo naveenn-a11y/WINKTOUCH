@@ -57,9 +57,6 @@ import {
   tomorrow,
   yearDateFormat,
   yearDateTime24Format,
-  officialDateFormat,
-  prefix,
-  postfix,
   isSameDay,
   parseDate,
 } from './Util';
@@ -71,14 +68,8 @@ import {
   renderExamHtml,
   UserAction,
 } from './Exam';
-import {getSPExamPredefinedValues} from './Favorites';
 import {allExamDefinitions} from './ExamDefinition';
-import {
-  ReferralCard,
-  PrescriptionCard,
-  AssessmentCard,
-  VisitSummaryCard,
-} from './Assessment';
+import {PrescriptionCard, AssessmentCard, VisitSummaryCard} from './Assessment';
 import {
   cacheItem,
   getCachedItem,
@@ -1519,78 +1510,14 @@ export class VisitHistory extends Component {
     };
     return newVisit;
   }
-  async cloneVisit(currentVisit: Visit, previousVisit: Visit) {
-    await Promise.all(
-      previousVisit.customExamIds.map(async (examId: string) => {
-        const previousExam: Exam = getCachedItem(examId);
-        await this.copyExam(previousExam, currentVisit);
-      }),
-      previousVisit.preCustomExamIds.map(async (examId: string) => {
-        const previousExam: Exam = getCachedItem(examId);
-        await this.copyExam(previousExam, currentVisit);
-      }),
-    );
-  }
 
-  async copyExam(previousExam: Exam, currentVisit: Visit) {
-    const examPredefinedValues: ExamPredefinedValue[] = getSPExamPredefinedValues(
-      previousExam,
-    );
-    if (examPredefinedValues && examPredefinedValues.length > 0) {
-      const customExamId: string = previousExam.definition.isPreExam
-        ? currentVisit.preCustomExamIds.find(
-            (examId: string) =>
-              getCachedItem(examId).definition.id ===
-              previousExam.definition.id,
-          )
-        : currentVisit.customExamIds.find(
-            (examId: string) =>
-              getCachedItem(examId).definition.id ===
-              previousExam.definition.id,
-          );
-
-      const data = previousExam[previousExam.definition.name];
-
-      if (data !== undefined) {
-        let currentExam: Exam = undefined;
-        if (customExamId !== undefined) {
-          currentExam = getCachedItem(customExamId);
-
-          if (!isEmpty(currentExam[currentExam.definition.name])) return;
-        } else {
-          currentExam = {
-            id: 'customExam',
-            visitId: currentVisit.id,
-            customExamDefinitionId: previousExam.definition.id,
-          };
-          currentExam = await createExam(currentExam);
-          previousExam.definition.isPreExam
-            ? currentVisit.preCustomExamIds.push(currentExam.id)
-            : currentVisit.customExamIds.push(currentExam.id);
-          cacheItemById(currentVisit);
-        }
-
-        currentExam[currentExam.definition.name] = data;
-        currentExam.isInvalid = true;
-        currentExam.hasStarted = true;
-        storeExam(
-          currentExam,
-          this.props.appointmentStateKey,
-          this.props.navigation,
-        );
-      }
-    }
-  }
   async startVisit(visitId: string, visitType: string, cVisitId?: string) {
     if (this.props.readonly) return;
     this.setState({isLoading: true});
     let visit = getCachedItem(visitId);
     visit.typeName = visitType;
+    visit.previousVisitId = cVisitId === undefined ? 'visit-0' : cVisitId;
     visit = await updateVisit(visit);
-    if (cVisitId !== undefined) {
-      const previousVisit: Visit = getCachedItem(cVisitId);
-      this.cloneVisit(visit, previousVisit);
-    }
 
     this.props.onRefresh();
     this.setState({

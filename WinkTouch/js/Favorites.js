@@ -156,21 +156,6 @@ export function getFavorites(exam: Exam): ExamPredefinedValue[] {
   );
   return favorites;
 }
-// get SAME AS PAST Exam Predefined Values
-export function getSPExamPredefinedValues(exam: Exam): ExamPredefinedValue[] {
-  let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey + '-' + getDoctor().id,
-  );
-  if (!examPredefinedValues) {
-    return [];
-  }
-  examPredefinedValues = examPredefinedValues.filter(
-    (examPredefinedValue: ExamPredefinedValue) =>
-      examPredefinedValue.customExamDefinitionId === exam.definition.id &&
-      examPredefinedValue.predefinedValue === undefined,
-  );
-  return examPredefinedValues;
-}
 
 export async function storeFavorite(
   favorite: any,
