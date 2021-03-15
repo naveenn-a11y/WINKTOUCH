@@ -774,7 +774,7 @@ export class ExamScreen extends Component {
 
   componentWillUnmount() {
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
-    if (this.state.isDirty || this.state.exam.isInvalid) {
+    if (this.state.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
       this.storeExam(this.state.exam);
     }
