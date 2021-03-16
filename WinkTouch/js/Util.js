@@ -351,7 +351,12 @@ export function isEmpty(value: any): boolean {
     if (value.length === 0) {
       return true;
     } else {
-      return value.reduce((a, v) => a && isEmpty(v), true);
+      for (let i: number = 0; i < value.length; i++) {
+        if (!isEmpty(value[i])) {
+          return false;
+        }
+      }
+      return true;
     }
   } else if (value instanceof Object) {
     if (Object.keys(value).length === 0) return true;
@@ -360,7 +365,6 @@ export function isEmpty(value: any): boolean {
     }
     return true;
   }
-
   return false;
 }
 
@@ -376,15 +380,10 @@ export function cleanUpArray(a: any[]): any[] {
 export function deepAssign(value: Object, newValue: Object): Object {
   for (let [key: string, subNewValue: any] of Object.entries(newValue)) {
     let subValue: any = value[key];
-    if (subValue === undefined || subValue === null) {
+    if (isEmpty(subValue)) {
       value[key] = subNewValue;
     } else if (subNewValue instanceof Array) {
-      if (isEmpty(subValue))
-        subNewValue.map(
-          (subElement: any, index: number) =>
-            (subValue[index] = deepClone(subNewValue[index])),
-        );
-      else if (subValue instanceof Array) {
+      if (subValue instanceof Array) {
         subValue.push(...subNewValue);
       } else {
         //silently ignore setting an array on non array
