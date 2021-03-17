@@ -117,6 +117,7 @@ export class DocumentScanner extends Component {
       height: height,
     });
   }
+
   async addPageNative(
     pdfDoc: PDFDocument,
     documentPage: PDFPage,
@@ -162,11 +163,19 @@ export class DocumentScanner extends Component {
       await this.addPageWeb(pdfDoc, documentPage, pageWidth, pageHeight);
       path = await pdfDoc.saveAsBase64();
     } else {
-      documentPage = isPdf
-        ? PDFDocument.modify(upload.data)
-            .addPage()
-            .setMediaBox(pageWidth, pageHeight)
-        : PDFPage.create().setMediaBox(pageWidth, pageHeight);
+      PDFPage.create().setMediaBox(pageWidth, pageHeight);
+      if (isPdf) {
+        const fullFilename: string =
+          RNFS.DocumentDirectoryPath + '/document.pdf';
+        await RNFS.writeFile(fullFilename, upload.data, 'base64');
+        documentPage = PDFDocument.modify(fullFilename).setMediaBox(
+          pageWidth,
+          pageHeight,
+        );
+      } else {
+        PDFPage.create().setMediaBox(pageWidth, pageHeight);
+      }
+
       await this.addPageNative(pdfDoc, documentPage, pageWidth, pageHeight);
       const docsDir = await PDFLib.getDocumentsDirectory();
       const pdfPath = `${docsDir}/document.pdf`;
