@@ -23,6 +23,7 @@ import type {
   Prism,
   Visit,
   Measurement,
+  User,
 } from './Types';
 import {styles, fontScale} from './Styles';
 import {strings} from './Strings';
@@ -84,6 +85,8 @@ function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   visitHistory.forEach((visit: Visit) => {
     if (visit.prescription) {
       const refraction: GlassesRx = visit.prescription;
+      const doc: User = getCachedItem(visit.userId)
+      refraction.doctor=doc.firstName +" "+doc.lastName;
       if (!refraction.prescriptionDate) {
         refraction.prescriptionDate = visit.date;
       }
@@ -1447,29 +1450,30 @@ export class PatientRefractionCard extends Component {
 
   render() {
     return (
-      <View style={styles.tabCard}>
-        {(!this.state.refractions || this.state.refractions.length === 0) && (
-          <Text style={styles.cardTitle}>{strings.finalRx}</Text>
-        )}
-        {this.state.refractions &&
+        <View style={styles.tabCard}>
+          {(!this.state.refractions || this.state.refractions.length === 0) && (
+              <Text style={styles.cardTitle}>{strings.finalRx}</Text>
+          )}
+          {this.state.refractions &&
           this.state.refractions.map((refraction: GlassesRx, index: number) => (
-            <GlassesSummary
-              showHeaders={false}
-              title={
-                strings.finalRx +
-                ' ' +
-                formatDate(
-                  refraction.prescriptionDate,
-                  isToyear(refraction.prescriptionDate)
-                    ? dateFormat
-                    : farDateFormat,
-                )
-              }
-              glassesRx={refraction}
-              key={index}
-            />
+              <GlassesSummary
+                  showHeaders={false}
+                  title={
+                    strings.finalRx +
+                    ' ' +
+                    formatDate(
+                        refraction.prescriptionDate,
+                        isToyear(refraction.prescriptionDate)
+                            ? dateFormat
+                            : farDateFormat,
+                    )
+                    +" ("+refraction.doctor +")"
+                  }
+                  glassesRx={refraction}
+                  key={index}
+              />
           ))}
-      </View>
+        </View>
     );
   }
 }
