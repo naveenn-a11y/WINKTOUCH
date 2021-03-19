@@ -25,7 +25,15 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ViewShot from 'react-native-view-shot';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import RNFS from 'react-native-fs';
-import {styles, fontScale, imageStyle, printWidth, isWeb} from './Styles';
+import {
+  styles,
+  fontScale,
+  imageStyle,
+  printWidth,
+  isWeb,
+  widthPercentageToDP,
+  heightPercentageToDP,
+} from './Styles';
 import {strings} from './Strings';
 import {getDoctor} from './DoctorApp';
 import {
@@ -1085,7 +1093,7 @@ export class ImageField extends Component {
       this.props.image === 'upload' &&
       this.props.drawable === false
     ) {
-      const width: number = 612;
+      const width: number = widthPercentageToDP('60%');
       const pageAspectRatio: number = 8.5 / 11;
       const height: number = width / pageAspectRatio;
       const style = {
