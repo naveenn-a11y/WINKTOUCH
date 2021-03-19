@@ -85,8 +85,8 @@ function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   visitHistory.forEach((visit: Visit) => {
     if (visit.prescription) {
       const refraction: GlassesRx = visit.prescription;
-      const doc: User = getCachedItem(visit.userId)
-      refraction.doctor=doc.firstName +" "+doc.lastName;
+      const doctor: User = getCachedItem(visit.userId);
+      refraction.doctor = isEmpty(doctor) ? '' : doctor.firstName + ' ' + doctor.lastName;
       if (!refraction.prescriptionDate) {
         refraction.prescriptionDate = visit.date;
       }
@@ -104,6 +104,7 @@ export function newRefraction(): GlassesRx {
     ou: {},
     lensType: undefined,
     notes: undefined,
+    doctor: undefined,
   };
 }
 
@@ -114,6 +115,7 @@ export function clearRefraction(glassesRx: GlassesRx) {
   glassesRx.ou = {};
   glassesRx.lensType = undefined;
   glassesRx.notes = undefined;
+  glassesRx.doctor = undefined;
 }
 
 export function initRefraction(glassesRx: GlassesRx) {
@@ -129,7 +131,8 @@ export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
     isEmpty(glassesRx.lensType) &&
     isEmpty(glassesRx.notes) &&
     isEmpty(glassesRx.od) &&
-    isEmpty(glassesRx.os)
+    isEmpty(glassesRx.os) &&
+    isEmpty(glassesRx.doctor)
   );
 }
 
@@ -1467,7 +1470,7 @@ export class PatientRefractionCard extends Component {
                             ? dateFormat
                             : farDateFormat,
                     )
-                    +" ("+refraction.doctor +")"
+                    +' ('+refraction.doctor +')'
                   }
                   glassesRx={refraction}
                   key={index}

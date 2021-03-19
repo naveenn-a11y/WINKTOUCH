@@ -1043,36 +1043,21 @@ class VisitWorkFlow extends Component {
     );
   }
 
-  renderConsultation(visitId: string) {
-    const visit: Visit = getCachedItem(visitId);
-    const store: Store = getCachedItem(visit.storeId);
-    const appointment: Appointment = this.state.appointment;
-    const doctorName: User = getCachedItem(visit.userId);
-    const signedOn: String = visit.prescription.signedDate
-      ? 'Signed on: ' +
-        formatDate(visit.prescription.signedDate, yearDateFormat)
-      : '';
-    const visitLocked:String= visit.locked ? 'File is locked.' : '';
-    const location: String = 'Location: ' + store.name;
-
-    let doctor: String =
-      'Doctor: ' + doctorName.firstName + ' ' + doctorName.lastName + '\n';
+  renderConsultation() {
+    const store: Store = getCachedItem(this.state.visit.storeId);
+    const doctor: User = getCachedItem(this.state.visit.userId);
+    const signedOn: string = isEmpty(this.state.visit.prescription.signedDate) ?'' :strings.signedOn + ': ' + formatDate(this.state.visit.prescription.signedDate, yearDateFormat);
+    const location: String = isEmpty(store.name) ? '' : strings.location + ': ' + store.name;
+    let doctorName: String = isEmpty(doctorName) ? '' :strings.doctor+': ' + doctor.firstName + ' ' + doctor.lastName;
 
     return (
       <View style={styles.examsBoard}>
-        <Text style={styles.cardTitle}>Consultation </Text>
-        <Text style={{flex: 1, justifyContent: 'center', textAlign: 'center'}}>
-          {doctor}
-        </Text>
-        <Text style={{flex: 1, justifyContent: 'center', textAlign: 'center'}}>
-          {location}
-        </Text>
-        <Text style={{flex: 1, justifyContent: 'center', textAlign: 'center'}}>
-          {signedOn}
-        </Text>
-        <Text style={{flex: 1, justifyContent: 'center', textAlign: 'center'}}>
-          {visitLocked}
-        </Text>
+        <View style={styles.examCard}>
+        <Text style={styles.cardTitle}>{strings.consultation} </Text>
+        <Text style={styles.text}>{doctorName}</Text>
+        <Text style={styles.text}> {location}</Text>
+        <Text style={styles.text}>{signedOn}</Text>
+        </View>
       </View>
     );
   }
@@ -1301,7 +1286,7 @@ class VisitWorkFlow extends Component {
     exams = exams.concat(getCachedItems(this.state.visit.customExamIds));
     return (
       <View>
-        {this.renderConsultation(this.props.visitId)}
+        {this.renderConsultation()}
         <View style={styles.flow}>
           {examSections.map((section: string) => {
             return this.renderExams(section, exams, false);
