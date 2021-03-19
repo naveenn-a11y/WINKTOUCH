@@ -106,13 +106,15 @@ export class DocumentScanner extends Component {
     const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
     const image = await pdfDoc.embedJpg(this.state.scaledImage);
     const size: string = this.getSelectedSize();
-    const addY: number = size === 'XL' ? 0 : 50;
+    const addY: number = size === 'XL' ? 0 : 10;
+
     const width = Math.floor(printWidth(size));
     const aspectRatio: number = dimensionAfter.width / dimensionAfter.height;
     const height = Math.floor(width / aspectRatio);
+
     documentPage.drawImage(image, {
-      x: pageWidth / 2 - width / 2,
-      y: pageHeight / 2 - height / 2 + addY,
+      x: 0,
+      y: pageHeight - height - addY,
       width: width,
       height: height,
     });
@@ -129,13 +131,13 @@ export class DocumentScanner extends Component {
     const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
     await RNFS.writeFile(fullFilename, this.state.scaledImage, 'base64');
     const size: string = this.getSelectedSize();
-    const addY: number = size === 'XL' ? 0 : 50;
+    const addY: number = size === 'XL' ? 0 : 10;
     const width = Math.floor(printWidth(size));
     const aspectRatio: number = dimensionAfter.width / dimensionAfter.height;
     const height = Math.floor(width / aspectRatio);
     documentPage.drawImage(fullFilename, 'jpg', {
-      x: pageWidth / 2 - width / 2,
-      y: pageHeight / 2 - height / 2 + addY,
+      x: 0,
+      y: pageHeight - height - addY,
       width: width,
       height: height,
     });
