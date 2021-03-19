@@ -429,6 +429,24 @@ export class GroupedCard extends Component {
     super(props);
   }
 
+  formatLabel(groupDefinition: GroupDefinition, groupValue: any): string {
+    const customDefinition:
+      | ?GroupDefinition
+      | FieldDefinition = groupDefinition.fields.find(
+      (definition: GroupDefinition | FieldDefinition) =>
+        definition.isLabel === true,
+    );
+
+    const label: string =
+      groupValue && customDefinition
+        ? isEmpty(groupValue[customDefinition.name])
+          ? formatLabel(groupDefinition)
+          : groupValue[customDefinition.name]
+        : formatLabel(groupDefinition);
+
+    return label;
+  }
+
   getCardGroup(): ?GroupDefinition {
     if (
       this.props.exam.definition.cardGroup === undefined ||
@@ -477,7 +495,8 @@ export class GroupedCard extends Component {
         : undefined;
     if (fieldDefinition.image) {
       if (isEmpty(value)) return null;
-      const label: ?string = formatLabel(groupDefinition);
+
+      const label: ?string = this.formatLabel(groupDefinition, groupValue);
 
       const icon =
         value && value.startsWith && value.startsWith('upload-') ? (
@@ -536,6 +555,7 @@ export class GroupedCard extends Component {
         </View>
       );
     }
+    if (fieldDefinition && fieldDefinition.isLabel) return null;
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
     if (formattedValue === '') return null;
     const label: ?string = formatLabel(fieldDefinition);
