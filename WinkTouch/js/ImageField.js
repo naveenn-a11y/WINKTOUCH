@@ -797,7 +797,7 @@ export class ImageField extends Component {
       ) {
         const path = this.requireImage().uri;
         if (isWeb) {
-          return (fileUri = this.requireImage().uri);
+          return (fileUri = path);
         } else {
           const fullFilename: string =
             RNFS.DocumentDirectoryPath + '/' + 'document.pdf';
@@ -828,7 +828,7 @@ export class ImageField extends Component {
       const page = pdfDoc.addPage();
       const image = await pdfDoc.embedJpg(fileUri);
       page.setSize(pageWidth, pageHeight);
-      const page1 = page.drawImage(image, {
+      page.drawImage(image, {
         x: 0,
         y: pageHeight - height,
         width: width,

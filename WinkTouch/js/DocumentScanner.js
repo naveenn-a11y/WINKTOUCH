@@ -35,7 +35,7 @@ import {
 } from './Upload';
 import {getCachedItem} from './DataCache';
 import {strings} from './Strings';
-import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
+import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
 import {PdfViewer} from '../src/components/PdfViewer';
 import {getAllCodes} from './Codes';
 
@@ -97,10 +97,9 @@ export class DocumentScanner extends Component {
     };
   }
 
-  async addPageWeb(
+  async drawImage(
     pdfDoc: PDFDocument,
     documentPage: PDFPage,
-    pageWidth: number,
     pageHeight: number,
   ) {
     const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
@@ -120,33 +119,7 @@ export class DocumentScanner extends Component {
     });
   }
 
-  async addPageNative(
-    pdfDoc: PDFDocument,
-    documentPage: PDFPage,
-    pageWidth: number,
-    pageHeight: number,
-  ) {
-    const fullFilename: string =
-      RNFS.DocumentDirectoryPath + '/' + this.props.type + '.base64';
-    const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
-    await RNFS.writeFile(fullFilename, this.state.scaledImage, 'base64');
-    const size: string = this.getSelectedSize();
-    const addY: number = size === 'XL' ? 0 : 10;
-    const width = Math.floor(printWidth(size));
-    const aspectRatio: number = dimensionAfter.width / dimensionAfter.height;
-    const height = Math.floor(width / aspectRatio);
-    documentPage.drawImage(fullFilename, 'jpg', {
-      x: 0,
-      y: pageHeight - height - addY,
-      width: width,
-      height: height,
-    });
-  }
-  async createDocument(): string {
-    let path: string = undefined;
-    const pageWidth: number = 612;
-    const pageAspectRatio: number = 8.5 / 11;
-    const pageHeight: number = pageWidth / pageAspectRatio;
+  async addPage(pageWidth: number, pageHeight: number) {
     let documentPage: PDFPage = undefined;
     let pdfDoc: PDFDocument = undefined;
     const upload: ?Upload = getCachedItem(this.props.uploadId);
@@ -156,36 +129,21 @@ export class DocumentScanner extends Component {
         ? mimeType === 'application/pdf' ||
           mimeType === 'application/pdf;base64'
         : false;
-    if (isWeb) {
-      pdfDoc = isPdf
-        ? await PDFDocument.load(upload.data)
-        : await PDFDocument.create();
-      documentPage = pdfDoc.addPage();
-      documentPage.setSize(pageWidth, pageHeight);
-      await this.addPageWeb(pdfDoc, documentPage, pageWidth, pageHeight);
-      path = await pdfDoc.saveAsBase64();
-    } else {
-      PDFPage.create().setMediaBox(pageWidth, pageHeight);
-      if (isPdf) {
-        const fullFilename: string =
-          RNFS.DocumentDirectoryPath + '/document.pdf';
-        await RNFS.writeFile(fullFilename, upload.data, 'base64');
-        documentPage = PDFDocument.modify(fullFilename).setMediaBox(
-          pageWidth,
-          pageHeight,
-        );
-      } else {
-        PDFPage.create().setMediaBox(pageWidth, pageHeight);
-      }
 
-      await this.addPageNative(pdfDoc, documentPage, pageWidth, pageHeight);
-      const docsDir = await PDFLib.getDocumentsDirectory();
-      const pdfPath = `${docsDir}/document.pdf`;
-      let filePath = await PDFDocument.create(pdfPath)
-        .addPages(documentPage)
-        .write();
-      path = await RNFS.readFile(filePath, 'base64');
-    }
+    pdfDoc = isPdf
+      ? await PDFDocument.load(upload.data)
+      : await PDFDocument.create();
+    documentPage = pdfDoc.addPage();
+    documentPage.setSize(pageWidth, pageHeight);
+    await this.drawImage(pdfDoc, documentPage, pageHeight);
+    const path: string = await pdfDoc.saveAsBase64();
+    return path;
+  }
+  async createDocument(): string {
+    const pageWidth: number = 612;
+    const pageAspectRatio: number = 8.5 / 11;
+    const pageHeight: number = pageWidth / pageAspectRatio;
+    const path: string = await this.addPage(pageWidth, pageHeight);
     return path;
   }
 
