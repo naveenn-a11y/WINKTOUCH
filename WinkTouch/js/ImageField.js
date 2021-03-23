@@ -806,54 +806,58 @@ export class ImageField extends Component {
           return (fileUri = fullFilename);
         }
       }
-    }
-
-    const aspectRatio = this.aspectRatio();
-    const size: number =
-      this.props.value && this.props.value.size
-        ? this.props.value.size
-        : this.props.size;
-    let width = Math.floor(printWidth(size));
-    let height = Math.floor(width / aspectRatio);
-    if (height > pageHeight) {
-      height = Math.floor(pageHeight);
-      width = Math.floor(pageHeight * aspectRatio);
-    }
-    if (width > pageWidth) {
-      width = Math.floor(pageWidth);
-      height = Math.floor(width / aspectRatio);
-    }
-    if (isWeb) {
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage();
-      const image = await pdfDoc.embedJpg(fileUri);
-      page.setSize(pageWidth, pageHeight);
-      page.drawImage(image, {
-        x: 0,
-        y: pageHeight - height,
-        width: width,
-        height: height,
-      });
-      const pdfData = await pdfDoc.saveAsBase64();
-      const format: string = 'data:application/pdf;base64,';
-      return format.concat(pdfData);
     } else {
-      //__DEV__ && console.log('imagesize = '+width+'x'+height+' pageSize='+pageWidth+'x'+pageHeight);
-      const page1 = PDFPage.create()
-        .setMediaBox(pageWidth, pageHeight)
-        .drawImage(fileUri, 'jpg', {
+      const aspectRatio = this.aspectRatio();
+      const size: number =
+        this.props.value && this.props.value.size
+          ? this.props.value.size
+          : this.props.size;
+      let width = Math.floor(printWidth(size));
+      let height = Math.floor(width / aspectRatio);
+      if (height > pageHeight) {
+        height = Math.floor(pageHeight);
+        width = Math.floor(pageHeight * aspectRatio);
+      }
+      if (width > pageWidth) {
+        width = Math.floor(pageWidth);
+        height = Math.floor(width / aspectRatio);
+      }
+      const type: string = fileUri.split(',')[0];
+      const isPng: boolean = type === 'data:image/png;base64';
+      if (isWeb) {
+        const pdfDoc = await PDFDocument.create();
+        const page = pdfDoc.addPage();
+        const image = isPng
+          ? await pdfDoc.embedPng(fileUri)
+          : await pdfDoc.embedJpg(fileUri);
+        page.setSize(pageWidth, pageHeight);
+        page.drawImage(image, {
           x: 0,
           y: pageHeight - height,
           width: width,
           height: height,
         });
-      const docsDir = await PDFLib.getDocumentsDirectory();
-      const fileName =
-        'print' + (this.props.fileName ? this.props.fileName : '') + '.pdf';
-      const pdfPath = `${docsDir}/${fileName}`;
-      let path = await PDFDocument.create(pdfPath).addPages(page1).write();
-      //__DEV__ && console.log('PDF = '+path);
-      return path;
+        const pdfData = await pdfDoc.saveAsBase64();
+        const format: string = 'data:application/pdf;base64,';
+        return format.concat(pdfData);
+      } else {
+        //__DEV__ && console.log('imagesize = '+width+'x'+height+' pageSize='+pageWidth+'x'+pageHeight);
+        const page1 = PDFPage.create()
+          .setMediaBox(pageWidth, pageHeight)
+          .drawImage(fileUri, isPng ? 'png' : 'jpg', {
+            x: 0,
+            y: pageHeight - height,
+            width: width,
+            height: height,
+          });
+        const docsDir = await PDFLib.getDocumentsDirectory();
+        const fileName =
+          'print' + (this.props.fileName ? this.props.fileName : '') + '.pdf';
+        const pdfPath = `${docsDir}/${fileName}`;
+        let path = await PDFDocument.create(pdfPath).addPages(page1).write();
+        //__DEV__ && console.log('PDF = '+path);
+        return path;
+      }
     }
   }
 
@@ -1243,10 +1247,82 @@ export class ImageField extends Component {
     const scale: number = style.width / this.resolution()[0];
     const image = this.requireImage();
     if (
-      this.props.popup === false &&
+      this.props.popup === true &&
       this.props.image === 'upload' &&
-      this.props.drawable === true
+      this.props.drawable === false
     ) {
+      style = imageStyle('S', this.aspectRatio());
+      return (
+        <View style={styles.fieldContainer}>
+          <View>
+            <TouchableOpacity
+              style={styles.fieldContainer}
+              onPress={this.startEditing}
+              disabled={this.props.readonly}>
+              <View>
+                {image && (
+                  <PdfViewer
+                    style={style}
+                    source={image.uri}
+                    isPreview={true}
+                  />
+                )}
+                {this.props.value &&
+                  this.renderGraph(this.props.value.lines, style, scale)}
+              </View>
+            </TouchableOpacity>
+            {this.renderIcons()}
+            {this.state.isActive && (
+              <Modal
+                visible={this.state.isActive}
+                transparent={true}
+                animationType={'fade'}
+                onRequestClose={this.cancelEdit}>
+                {this.renderPopup()}
+              </Modal>
+            )}
+            {this.state.cameraOn && (
+              <Modal
+                visible={this.state.cameraOn}
+                transparant={false}
+                animationType={'slide'}>
+                <DocumentScanner
+                  uploadId={
+                    this.props.value && this.props.value.image
+                      ? this.props.value.image
+                      : undefined
+                  }
+                  size={this.props.size}
+                  fileName={this.props.fileName}
+                  onCancel={this.cancelCamera}
+                  onSave={(uploadId: string, size: ?string, type: ?string) =>
+                    this.saveUpload(uploadId, size, type)
+                  }
+                  patientId={this.props.patientId}
+                  examId={this.props.examId}
+                  replaceImage={this.props.replaceImage}
+                  type={
+                    this.props.value && this.props.value.type
+                      ? this.props.value.type
+                      : this.props.type
+                  }
+                  isPdf={true}
+                />
+              </Modal>
+            )}
+            {this.state.attachOn && (
+              <Modal
+                visible={this.state.attachOn}
+                transparant={true}
+                animationType={'slide'}>
+                {this.renderDocumentTrailPopup()}
+              </Modal>
+            )}
+          </View>
+          {this.props.children}
+        </View>
+      );
+    } else if (this.props.popup === false || this.props.image === 'upload') {
       return (
         <View style={[styles.centeredColumnLayout, {alignItems: 'center'}]}>
           {image !== undefined && (
@@ -1327,82 +1403,6 @@ export class ImageField extends Component {
               {this.renderDocumentTrailPopup()}
             </Modal>
           )}
-        </View>
-      );
-    } else if (
-      this.props.popup === true &&
-      this.props.image === 'upload' &&
-      this.props.drawable === false
-    ) {
-      style = imageStyle('S', this.aspectRatio());
-      return (
-        <View style={styles.fieldContainer}>
-          <View>
-            <TouchableOpacity
-              style={styles.fieldContainer}
-              onPress={this.startEditing}
-              disabled={this.props.readonly}>
-              <View>
-                {image && (
-                  <PdfViewer
-                    style={style}
-                    source={image.uri}
-                    isPreview={true}
-                  />
-                )}
-                {this.props.value &&
-                  this.renderGraph(this.props.value.lines, style, scale)}
-              </View>
-            </TouchableOpacity>
-            {this.renderIcons()}
-            {this.state.isActive && (
-              <Modal
-                visible={this.state.isActive}
-                transparent={true}
-                animationType={'fade'}
-                onRequestClose={this.cancelEdit}>
-                {this.renderPopup()}
-              </Modal>
-            )}
-            {this.state.cameraOn && (
-              <Modal
-                visible={this.state.cameraOn}
-                transparant={false}
-                animationType={'slide'}>
-                <DocumentScanner
-                  uploadId={
-                    this.props.value && this.props.value.image
-                      ? this.props.value.image
-                      : undefined
-                  }
-                  size={this.props.size}
-                  fileName={this.props.fileName}
-                  onCancel={this.cancelCamera}
-                  onSave={(uploadId: string, size: ?string, type: ?string) =>
-                    this.saveUpload(uploadId, size, type)
-                  }
-                  patientId={this.props.patientId}
-                  examId={this.props.examId}
-                  replaceImage={this.props.replaceImage}
-                  type={
-                    this.props.value && this.props.value.type
-                      ? this.props.value.type
-                      : this.props.type
-                  }
-                  isPdf={true}
-                />
-              </Modal>
-            )}
-            {this.state.attachOn && (
-              <Modal
-                visible={this.state.attachOn}
-                transparant={true}
-                animationType={'slide'}>
-                {this.renderDocumentTrailPopup()}
-              </Modal>
-            )}
-          </View>
-          {this.props.children}
         </View>
       );
     }
