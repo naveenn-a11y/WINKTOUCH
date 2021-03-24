@@ -48,6 +48,7 @@ import {
   now,
   jsonDateTimeFormat,
   jsonDateFormat,
+  prefix,
   postfix,
   parseDate,
 } from './Util';
@@ -1453,30 +1454,25 @@ export class PatientRefractionCard extends Component {
 
   render() {
     return (
-        <View style={styles.tabCard}>
-          {(!this.state.refractions || this.state.refractions.length === 0) && (
-              <Text style={styles.cardTitle}>{strings.finalRx}</Text>
-          )}
-          {this.state.refractions &&
+      <View style={styles.tabCard}>
+        {(!this.state.refractions || this.state.refractions.length === 0) && (
+          <Text style={styles.cardTitle}>{strings.finalRx}</Text>
+        )}
+        {this.state.refractions &&
           this.state.refractions.map((refraction: GlassesRx, index: number) => (
-              <GlassesSummary
-                  showHeaders={false}
-                  title={
-                    strings.finalRx +
-                    ' ' +
-                    formatDate(
-                        refraction.prescriptionDate,
-                        isToyear(refraction.prescriptionDate)
-                            ? dateFormat
-                            : farDateFormat,
-                    )
-                    +' ('+refraction.doctor +')'
-                  }
-                  glassesRx={refraction}
-                  key={index}
-              />
+            <GlassesSummary
+              showHeaders={false}
+              title={
+                strings.finalRx +
+                prefix(formatDate(refraction.prescriptionDate,
+                  isToyear(refraction.prescriptionDate)? dateFormat : farDateFormat),' ') +
+                prefix(refraction.doctor, ' ')
+              }
+              glassesRx={refraction}
+              key={index}
+            />
           ))}
-        </View>
+      </View>
     );
   }
 }

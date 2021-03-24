@@ -1043,21 +1043,15 @@ class VisitWorkFlow extends Component {
     );
   }
 
-  renderConsultation() {
+  renderConsultationDetails() {
     const store: Store = getCachedItem(this.state.visit.storeId);
     const doctor: User = getCachedItem(this.state.visit.userId);
-    const signedOn: string = isEmpty(this.state.visit.prescription.signedDate) ?'' :strings.signedOn + ': ' + formatDate(this.state.visit.prescription.signedDate, yearDateFormat);
-    const location: String = isEmpty(store.name) ? '' : strings.location + ': ' + store.name;
-    let doctorName: String = isEmpty(doctorName) ? '' :strings.doctor+': ' + doctor.firstName + ' ' + doctor.lastName;
-
     return (
       <View style={styles.examsBoard}>
-        <View style={styles.examCard}>
-        <Text style={styles.cardTitle}>{strings.consultation} </Text>
-        <Text style={styles.text}>{doctorName}</Text>
-        <Text style={styles.text}> {location}</Text>
-        <Text style={styles.text}>{signedOn}</Text>
-        </View>
+        <Text style={styles.cardTitle}>{strings.visit}</Text>
+        {doctor && (<Text style={styles.text}>{strings.doctor}:{' '}{postfix(doctor.firstName, ' ') + doctor.lastName}</Text>)}
+        {store && store.name && (<Text style={styles.text}>{strings.location}: {store.name}</Text>)}
+        {!isEmpty(this.state.visit.prescription.signedDate) && (<Text style={styles.text}>{strings.signedOn}: {formatDate(this.state.visit.prescription.signedDate, yearDateFormat)}</Text>)}
       </View>
     );
   }
@@ -1286,8 +1280,8 @@ class VisitWorkFlow extends Component {
     exams = exams.concat(getCachedItems(this.state.visit.customExamIds));
     return (
       <View>
-        {this.renderConsultation()}
         <View style={styles.flow}>
+          {this.renderConsultationDetails()}
           {examSections.map((section: string) => {
             return this.renderExams(section, exams, false);
           })}

@@ -175,7 +175,7 @@ export type GlassesRx = {
   vaNear?: string,
   lensType?: string,
   notes?: string,
-  doctor: ?string,
+  doctor?: string,
 };
 
 export type Recall = {
