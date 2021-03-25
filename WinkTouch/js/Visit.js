@@ -1136,7 +1136,7 @@ class VisitWorkFlow extends Component {
   renderAlert() {
     const data: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
     if (!data) return null;
-
+    console.log(JSON.stringify(this.state.visit));
     this.state.visit.purchase.map((recomm: any, index: number)=>{
       data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
     });
