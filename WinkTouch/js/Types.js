@@ -217,6 +217,8 @@ export type Visit = {
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
+  pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
 };
 
 export type CodeDefinition =
@@ -421,6 +423,7 @@ export type Exam = {
   visitId: string,
   version: number,
   errors?: string[],
+  readonly?: boolean,
   definition: ExamDefinition,
   hasStarted: boolean,
   isDirty?: boolean,
