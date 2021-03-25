@@ -35,7 +35,7 @@ import type {
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {Button, FloatingButton, Lock, NativeBar, Alert, CustomModal} from './Widgets';
+import {Button, FloatingButton, Lock, NativeBar, Alert} from './Widgets';
 import {
   formatMoment,
   deepClone,
@@ -1136,7 +1136,6 @@ class VisitWorkFlow extends Component {
   renderAlert() {
     const data: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
     if (!data) return null;
-    console.log(JSON.stringify(this.state.visit));
     this.state.visit.purchase.map((recomm: any, index: number)=>{
       data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
     });
@@ -1177,7 +1176,6 @@ class VisitWorkFlow extends Component {
             title={strings.printRx}
             onPress={() => {
               this.showRxPopup();
-              // printRx(this.props.visitId);
             }}
           />
           {this.hasMedicalRx() && (
