@@ -239,6 +239,10 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Drag and drop some files here !',
     takePicture: 'Take a Picture',
     uploadFile: 'Upload a File',
+    printRxLabel: 'Please select what to print:',
+    pd: 'PD',
+    notesOnRx: 'Notes on Rx',
+    drRecommendation: 'Dr Recommendation',
   },
   fr: {
     enterRegisteredEmail:
@@ -477,6 +481,10 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    pd: 'PD',
+    notesOnRx: 'Notes sur Rx',
+    drRecommendation: 'Dr Recommandation',
   },
 });
 

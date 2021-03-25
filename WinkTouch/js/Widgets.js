@@ -3248,9 +3248,11 @@ type AlertProps = {
   cancelActionLabel: string,
   onConfirmAction: (selectedData: ?any) => void,
   onCancelAction: () => void,
+  multiValue?: boolean,
 };
 type AlertState = {
   visible: boolean,
+  data?: any,
 };
 
 export class Alert extends Component<AlertProps, AlertState> {
@@ -3258,6 +3260,7 @@ export class Alert extends Component<AlertProps, AlertState> {
     super(props);
     this.state = {
       visible: true,
+      data: this.props.data,
     };
   }
   static defaultProps = {
@@ -3272,8 +3275,15 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
   confirmDialog = (selectedData: ?any) => {
     this.setState({visible: false});
-    this.props.onConfirmAction(selectedData);
+    this.props.onConfirmAction(selectedData === undefined ? this.state.data : selectedData);
   };
+
+  select(importData: any, index: number){
+    importData.isChecked = !importData.isChecked;
+    let data: any = this.state.data;
+    data[index] = importData;
+    this.setState({data: data});
+  }
 
   renderContent() {
     if (!isEmpty(this.props.message)) {
@@ -3284,12 +3294,21 @@ export class Alert extends Component<AlertProps, AlertState> {
           <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
             <Dialog.ScrollArea>
               <ScrollView>
-                {this.props.data.map((importData: any) => {
+                {this.state.data.map((importData: any, index: number) => {
+
                   return (
-                    <Button onPress={() => this.confirmDialog(importData)}>
+                    this.props.multiValue ? (
+                      <CheckButton
+                        isChecked={importData.isChecked}
+                        onSelect={() => this.select(importData, index)}
+                        onDeselect={() => this.select(importData, index)}
+                        style={styles.checkButtonLabel}
+                        testID={this.props.testID}
+                        prefix={importData.label}>
+                      </CheckButton>
+                  ): <Button onPress={() => this.confirmDialog(importData)}>
                       {importData.label}
-                    </Button>
-                  );
+                    </Button>);
                 })}
               </ScrollView>
             </Dialog.ScrollArea>
