@@ -219,6 +219,8 @@ export type Visit = {
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
+  pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
 };
 
 export type CodeDefinition =
@@ -427,6 +429,7 @@ export type Exam = {
   hasStarted: boolean,
   isDirty?: boolean,
   isHidden?: boolean,
+  readonly?: boolean,
 };
 
 export type Scene = {
