@@ -16,7 +16,7 @@ import {
 import NativeScanner from '../src/components/DocumentScanner';
 import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
-import type {Upload, CodeDefinition} from './Types';
+import type {Upload, CodeDefinition, PatientDocument} from './Types';
 import {
   ClearTile,
   UpdateTile,
@@ -32,12 +32,15 @@ import {
   getJpeg64Dimension,
   getMimeType,
   getPng64Dimension,
+  fetchUpload,
 } from './Upload';
 import {getCachedItem} from './DataCache';
 import {strings} from './Strings';
 import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
 import {PdfViewer} from '../src/components/PdfViewer';
 import {getAllCodes} from './Codes';
+import {formatDate, yearDateFormat} from './Util';
+import {loadDocuments} from './ImageField';
 
 export class DocumentScanner extends Component {
   props: {
@@ -52,10 +55,12 @@ export class DocumentScanner extends Component {
     replaceImage?: boolean,
     type?: string,
     isPdf?: boolean,
+    patientDocuments?: PatientDocument[],
+    isAttachment?: boolean,
   };
   state: {
-    image: ?string,
-    scaledImage: ?string,
+    file: ?string,
+    scaledFile: ?string,
     saving: boolean,
     isDirty: boolean,
     sizeSSelected: boolean,
@@ -63,6 +68,9 @@ export class DocumentScanner extends Component {
     sizeLSelected: boolean,
     style: any,
     documentCategory: CodeDefinition,
+    upload: ?Upload,
+    patientDocuments?: PatientDocument[],
+    patientDocument?: PatientDocument,
   };
 
   static defaultProps = {
@@ -71,8 +79,8 @@ export class DocumentScanner extends Component {
 
   constructor(props) {
     super(props);
+
     const upload: ?Upload = getCachedItem(this.props.uploadId);
-    const image: string = upload ? upload.data : undefined;
     const documentCategories: CodeDefinition[] = getAllCodes(
       'documentCategories',
     );
@@ -81,7 +89,7 @@ export class DocumentScanner extends Component {
         (dc.description ? dc.description : dc.code) === this.props.type,
     );
     this.state = {
-      image: image,
+      file: undefined,
       saving: false,
       isDirty: false,
       sizeSSelected: false,
@@ -92,18 +100,40 @@ export class DocumentScanner extends Component {
         height: 750 * fontScale,
         resizeMode: 'contain',
       },
-      scaledImage: image,
+      scaledFile: undefined,
       documentCategory: documentCategory,
+      upload: upload,
+      patientDocuments: this.props.patientDocuments,
+      patientDocument: undefined,
     };
+  }
+
+  async setImageFromUpload(patientDocument: PatientDocument) {
+    let upload: ?Upload = getCachedItem(patientDocument.uploadId);
+    if (upload === undefined)
+      upload = await fetchUpload(patientDocument.uploadId);
+    const data: string = upload ? upload.data : undefined;
+    const mimeType: string = upload ? upload.mimeType : undefined;
+
+    this.resizeImage(data, this.getSelectedSize(), mimeType);
+    this.setState({
+      file: data,
+      scaledFile: data,
+      upload: upload,
+      isDirty: true,
+      patientDocument: patientDocument,
+    });
   }
 
   async drawImage(
     pdfDoc: PDFDocument,
-    documentPage: PDFPage,
+    pageWidth: number,
     pageHeight: number,
-  ) {
-    const dimensionAfter = getJpeg64Dimension(this.state.scaledImage);
-    const image = await pdfDoc.embedJpg(this.state.scaledImage);
+  ): PDFDocument {
+    const documentPage: PDFPage = pdfDoc.addPage();
+    documentPage.setSize(pageWidth, pageHeight);
+    const dimensionAfter = getJpeg64Dimension(this.state.scaledFile);
+    const image = await pdfDoc.embedJpg(this.state.scaledFile);
     const size: string = this.getSelectedSize();
     const addY: number = size === 'XL' ? 0 : 10;
 
@@ -117,25 +147,55 @@ export class DocumentScanner extends Component {
       width: width,
       height: height,
     });
+    return pdfDoc;
   }
 
+  async drawPdf(
+    pdfDoc: PDFDocument,
+    pageWidth: number,
+    pageHeight: number,
+  ): PDFDocument {
+    const newPdf = await PDFDocument.load(this.state.scaledFile);
+    for (const page: PDFPage of newPdf.getPages()) {
+      const documentPage: PDFPage = pdfDoc.addPage();
+      documentPage.setSize(pageWidth, pageHeight);
+      const embedPage = await pdfDoc.embedPage(page);
+      const dims = embedPage.scale(1);
+      documentPage.drawPage(embedPage, {
+        ...dims,
+        x: 0,
+        y: pageHeight - dims.height,
+      });
+    }
+    return pdfDoc;
+  }
+  isPdf(upload?: Upload) {
+    let mimeType: string = upload ? getMimeType(upload) : undefined;
+    let isPdf: boolean = false;
+    if (mimeType === undefined) {
+      mimeType = this.state.file ? this.state.file.split(',')[0] : undefined;
+    }
+    isPdf = mimeType ? mimeType.includes('application/pdf') : false;
+    return isPdf;
+  }
   async addPage(pageWidth: number, pageHeight: number) {
-    let documentPage: PDFPage = undefined;
     let pdfDoc: PDFDocument = undefined;
     const upload: ?Upload = getCachedItem(this.props.uploadId);
-    const mimeType: string = upload ? getMimeType(upload) : undefined;
-    const isPdf: boolean =
-      mimeType !== undefined
-        ? mimeType === 'application/pdf' ||
-          mimeType === 'application/pdf;base64'
-        : false;
+    const isExistingPdf: boolean = this.isPdf(upload);
+    pdfDoc =
+      upload && isExistingPdf
+        ? await PDFDocument.load(upload.data)
+        : await PDFDocument.create();
 
-    pdfDoc = isPdf
-      ? await PDFDocument.load(upload.data)
-      : await PDFDocument.create();
-    documentPage = pdfDoc.addPage();
-    documentPage.setSize(pageWidth, pageHeight);
-    await this.drawImage(pdfDoc, documentPage, pageHeight);
+    const isNewPdfUpload: boolean = this.isPdf(
+      this.state.patientDocument ? this.state.upload : undefined,
+    );
+    if (isNewPdfUpload) {
+      pdfDoc = await this.drawPdf(pdfDoc, pageWidth, pageHeight);
+    } else {
+      pdfDoc = await this.drawImage(pdfDoc, pageWidth, pageHeight);
+    }
+
     const path: string = await pdfDoc.saveAsBase64();
     return path;
   }
@@ -148,43 +208,49 @@ export class DocumentScanner extends Component {
   }
 
   async saveDocument(): Upload {
-    if (!this.state.image) return;
+    if (!this.state.file) return;
     this.setState({saving: true});
     let upload: Upload = undefined;
 
-    if (this.props.isPdf) {
-      const pdfData: string = await this.createDocument();
-      upload = {
-        id: 'upload',
-        data: pdfData,
-        mimeType: 'application/pdf',
-        name: this.props.fileName,
-        argument1: this.props.patientId,
-        argument2: this.props.examId,
-        replace: this.props.replaceImage,
-      };
-    } else {
-      upload = {
-        id: 'upload',
-        data: this.state.scaledImage,
-        mimeType: 'image/jpeg;base64',
-        name: this.props.fileName,
-        argument1: this.props.patientId,
-        argument2: this.props.examId,
-        replace: this.props.replaceImage,
-      };
-    }
+    if (!(this.state.patientDocument && !this.props.uploadId)) {
+      if (this.props.isPdf) {
+        const pdfData: string = await this.createDocument();
+        upload = {
+          id: 'upload',
+          data: pdfData,
+          mimeType: 'application/pdf',
+          name: this.props.fileName,
+          argument1: this.props.patientId,
+          argument2: this.props.examId,
+          replace: this.props.replaceImage,
+        };
+      } else {
+        upload = {
+          id: 'upload',
+          data: this.state.scaledFile,
+          mimeType: 'image/jpeg;base64',
+          name: this.props.fileName,
+          argument1: this.props.patientId,
+          argument2: this.props.examId,
+          replace: this.props.replaceImage,
+        };
+      }
 
-    upload = await storeUpload(upload);
-    if (upload.errors) {
-      alert(
-        strings.formatString(strings.pmsImageSaveError, this.props.fileName),
-      );
-      this.setState({
-        saving: false,
-      });
-      return upload;
+      upload = await storeUpload(upload);
+      if (upload.errors) {
+        alert(
+          strings.formatString(strings.pmsImageSaveError, this.props.fileName),
+        );
+        this.setState({
+          saving: false,
+        });
+        return upload;
+      }
+    } else {
+      upload = this.state.upload;
     }
+    // check if the current upload exist && has not changed
+
     this.setState({
       saving: false,
       isDirty: false,
@@ -208,12 +274,37 @@ export class DocumentScanner extends Component {
       : 'XL';
     return size;
   }
-  async resizeImage(image: string, size?: string = 'L') {
-    let dimensionBefore = getJpeg64Dimension(image);
-    // to do: create a function that detects if image is png or jpeg
-    if (dimensionBefore.width === 1024 && dimensionBefore.height === 768) {
-      dimensionBefore = getPng64Dimension(image);
+
+  async uploadFile(file: string, size?: string = 'L') {
+    const mimeType: string = file.split(',')[0];
+    const base64Data: string = file.split(',')[1];
+
+    if (mimeType.includes('application/pdf')) {
+      const pageWidth: number = 612;
+      const pageAspectRatio: number = 8.5 / 11;
+      const pageHeight: number = pageWidth / pageAspectRatio;
+      const style: any = {width: pageWidth, height: pageHeight};
+      this.setState({
+        style: style,
+        scaledFile: base64Data,
+        isDirty: true,
+      });
+    } else {
+      this.resizeImage(base64Data, size, mimeType);
     }
+  }
+  async resizeImage(
+    image: string,
+    size?: string = 'L',
+    mimeType?: string = 'image/jpeg;base64',
+  ) {
+    let dimensionBefore: any = undefined;
+    if (mimeType.includes('image/png')) {
+      dimensionBefore = getPng64Dimension(image);
+    } else {
+      dimensionBefore = getJpeg64Dimension(image);
+    }
+
     let ratio: number = 3 / 4;
     if (dimensionBefore !== undefined && dimensionBefore.height > 0)
       ratio = dimensionBefore.width / dimensionBefore.height;
@@ -254,7 +345,7 @@ export class DocumentScanner extends Component {
 
     this.setState({
       style: style,
-      scaledImage: image,
+      scaledFile: image,
       isDirty: true,
     });
   }
@@ -265,22 +356,24 @@ export class DocumentScanner extends Component {
 
   sizeOnChange = (field: name) => {
     if (field === undefined || field === null || field === '') return;
+    const mimeType: string = this.state.file.split(',')[0];
+    const base64Data: string = this.state.file.split(',')[1];
     if (field === 'size-s') {
-      this.resizeImage(this.state.image, 'M');
+      this.resizeImage(base64Data, 'M', mimeType);
       this.setState({
         sizeSSelected: true,
         sizeMSelected: false,
         sizeLSelected: false,
       });
     } else if (field === 'size-m') {
-      this.resizeImage(this.state.image, 'L');
+      this.resizeImage(base64Data, 'L', mimeType);
       this.setState({
         sizeSSelected: false,
         sizeMSelected: true,
         sizeLSelected: false,
       });
     } else if (field === 'size-l') {
-      this.resizeImage(this.state.image, 'XL');
+      this.resizeImage(base64Data, 'XL', mimeType);
       this.setState({
         sizeSSelected: false,
         sizeMSelected: false,
@@ -288,9 +381,22 @@ export class DocumentScanner extends Component {
       });
     }
   };
-  documentCategoryOnChange = (dc: CodeDefinition, index: number) => {
+  async documentCategoryOnChange(dc: CodeDefinition, index: number) {
+    if (this.props.isAttachment) {
+      const patientDocuments: PatientDocument[] = await loadDocuments(
+        dc.description,
+        this.props.patientId,
+      );
+      this.setState({patientDocuments: patientDocuments});
+    }
+    if (
+      this.state.patientDocument !== undefined &&
+      this.state.file !== undefined
+    ) {
+      this.setState({file: undefined, patientDocument: undefined});
+    }
     this.setState({documentCategory: dc});
-  };
+  }
 
   renderDocumentCategories() {
     const documentCategories: CodeDefinition[] = getAllCodes(
@@ -315,77 +421,130 @@ export class DocumentScanner extends Component {
       ))
     );
   }
-  renderScannerTool() {
+  renderDocumentAttachments() {
     return (
-      <View style={styles.sideBar}>
-        <View style={styles.formRow}>
-          <View style={styles.formRowHeader}>
-            <Label value={strings.documentSize} />
+      this.state.patientDocuments &&
+      this.state.patientDocuments.map(
+        (patientDocument: PatientDocument, row: number) => {
+          return (
+            <TouchableOpacity
+              key={row}
+              onPress={() => this.setImageFromUpload(patientDocument)}>
+              <View
+                style={
+                  this.state.patientDocument === patientDocument
+                    ? styles.popupTileSelected
+                    : styles.popupTile
+                }>
+                <Text
+                  style={
+                    this.state.patientDocument === patientDocument
+                      ? styles.modalTileLabelSelected
+                      : styles.modalTileLabel
+                  }>
+                  {patientDocument.name +
+                    ' ' +
+                    formatDate(patientDocument.postedOn, yearDateFormat)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        },
+      )
+    );
+  }
+  renderScannerTool(isPdf: ?boolean = false) {
+    return (
+      <View style={[styles.sideBar, {maxWidth: 500 * fontScale}]}>
+        <ScrollView scrollEnabled={true}>
+          {!isPdf && (
+            <View style={styles.formRow}>
+              <View style={styles.formRowHeader}>
+                <Label value={strings.documentSize} />
+              </View>
+            </View>
+          )}
+          {!isPdf && (
+            <View style={styles.formRow}>
+              <SizeTile
+                name="size-s"
+                commitEdit={this.sizeOnChange}
+                isSelected={this.state.sizeSSelected}
+                minWidth={80}
+              />
+              <SizeTile
+                name="size-m"
+                commitEdit={this.sizeOnChange}
+                isSelected={this.state.sizeMSelected}
+                minWidth={80}
+              />
+              <SizeTile
+                name="size-l"
+                commitEdit={this.sizeOnChange}
+                isSelected={this.state.sizeLSelected}
+                minWidth={80}
+              />
+            </View>
+          )}
+          <View style={styles.formRow}>
+            <View style={styles.formRowHeader}>
+              <Label value={strings.documentCategory} />
+            </View>
           </View>
-        </View>
-        <View style={styles.formRow}>
-          <SizeTile
-            name="size-s"
-            commitEdit={this.sizeOnChange}
-            isSelected={this.state.sizeSSelected}
-            minWidth={80}
-          />
-          <SizeTile
-            name="size-m"
-            commitEdit={this.sizeOnChange}
-            isSelected={this.state.sizeMSelected}
-            minWidth={80}
-          />
-          <SizeTile
-            name="size-l"
-            commitEdit={this.sizeOnChange}
-            isSelected={this.state.sizeLSelected}
-            minWidth={80}
-          />
-        </View>
-        <View style={styles.formRow}>
-          <View style={styles.formRowHeader}>
-            <Label value={strings.documentCategory} />
+          <View style={[styles.formRow, {flexWrap: 'wrap'}]}>
+            {this.renderDocumentCategories()}
           </View>
-        </View>
-        <View style={[styles.formRow, {flexWrap: 'wrap'}]}>
-          {this.renderDocumentCategories()}
-        </View>
+          {this.props.isAttachment && (
+            <View style={styles.formRow}>
+              <View style={styles.formRowHeader}>
+                <Label value={strings.attachment} />
+              </View>
+            </View>
+          )}
+          {this.props.isAttachment && (
+            <View style={[styles.formRow, {flexWrap: 'wrap'}]}>
+              {this.renderDocumentAttachments()}
+            </View>
+          )}
+        </ScrollView>
       </View>
     );
   }
   render() {
-    const upload: ?Upload = getCachedItem(this.props.uploadId);
-    const mimeType: string = upload ? getMimeType(upload) : undefined;
-    const isPdf: boolean =
-      mimeType !== undefined
-        ? mimeType === 'application/pdf' ||
-          mimeType === 'application/pdf;base64'
-        : false;
+    const upload: ?Upload =
+      this.state.upload && this.state.patientDocument
+        ? this.state.upload
+        : undefined;
+    let mimeType: string = upload ? getMimeType(upload) : undefined;
+    let isPdf: boolean = false;
+    if (mimeType === undefined) {
+      mimeType = this.state.file ? this.state.file.split(',')[0] : undefined;
+    }
+    isPdf = mimeType ? mimeType.includes('application/pdf') : false;
 
     return (
       <View style={styles.popupFullScreen}>
         <View style={styles.flexRow}>
-          {this.state.saving === false && this.state.image !== undefined && (
+          {this.state.saving === false && this.state.file !== undefined && (
             <ScrollView scrollEnabled={true}>
               <View style={styles.flow}>
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
                   <View style={styles.modalCamera}>
                     <View style={styles.columnLayout}>
                       <View style={styles.centeredRowLayout}>
-                        {isPdf && !this.state.isDirty && (
+                        {isPdf && (
                           <PdfViewer
                             style={this.state.style}
-                            source={`data:${mimeType},${this.state.scaledImage}`}
+                            source={`data:${mimeType},${this.state.scaledFile}`}
                           />
                         )}
-                        {(!isPdf || this.state.isDirty) && (
+                        {!isPdf && (
                           <Image
                             style={this.state.style}
                             source={{
                               uri: `data:${
                                 mimeType ? mimeType : `image/jpeg;base64`
-                              },${this.state.scaledImage}`,
+                              },${this.state.scaledFile}`,
                             }}
                             resizeMode="contain"
                           />
@@ -393,9 +552,11 @@ export class DocumentScanner extends Component {
                       </View>
                     </View>
                     <View style={styles.rowLayout}>
-                      <CameraTile
-                        commitEdit={() => this.setState({image: undefined})}
-                      />
+                      {!isWeb && (
+                        <CameraTile
+                          commitEdit={() => this.setState({file: undefined})}
+                        />
+                      )}
                       <ClearTile commitEdit={this.clear} />
                       <RefreshTile commitEdit={this.props.onCancel} />
                       {this.state.isDirty && (
@@ -411,19 +572,23 @@ export class DocumentScanner extends Component {
           <View style={styles.centeredRowLayout}>
             <View style={styles.modalCamera}>
               {this.state.saving === true && <ActivityIndicator size="large" />}
-              {this.state.saving === false &&
-                this.state.image === undefined && (
-                  <NativeScanner
-                    onPictureTaken={(data) =>
-                      this.setState({image: data.croppedImage}, () =>
-                        this.resizeImage(data.croppedImage),
-                      )
-                    }
-                    style={styles.scanner}
-                  />
-                )}
+              {this.state.saving === false && this.state.file === undefined && (
+                <NativeScanner
+                  onPictureTaken={(data) =>
+                    this.setState(
+                      {file: data.croppedImage, patientDocument: undefined},
+                      () =>
+                        this.uploadFile(
+                          data.croppedImage,
+                          this.getSelectedSize(),
+                        ),
+                    )
+                  }
+                  style={styles.scanner}
+                />
+              )}
               {!(
-                this.state.image !== undefined && this.state.saving === false
+                this.state.file !== undefined && this.state.saving === false
               ) && (
                 <View style={styles.rowLayout}>
                   <CloseTile commitEdit={this.props.onCancel} />
@@ -432,7 +597,9 @@ export class DocumentScanner extends Component {
             </View>
           </View>
 
-          {this.state.image !== undefined && this.renderScannerTool()}
+          {(this.state.file !== undefined ||
+            this.state.patientDocuments !== undefined) &&
+            this.renderScannerTool(isPdf)}
         </View>
       </View>
     );

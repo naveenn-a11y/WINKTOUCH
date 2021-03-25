@@ -241,6 +241,7 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Upload a File',
     documentSize: 'Document Size',
     documentCategory: 'Document Category',
+    attachment: 'Attachment',
   },
   fr: {
     enterRegisteredEmail:
@@ -481,6 +482,7 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Téléverser un Fichier',
     documentSize: 'Taille du document',
     documentCategory: 'Catégorie du document',
+    attachment: 'Attachment',
   },
 });
 
