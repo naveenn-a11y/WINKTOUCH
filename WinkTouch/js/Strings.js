@@ -242,6 +242,7 @@ export const strings = new LocalizedStrings({
     documentSize: 'Document Size',
     documentCategory: 'Document Category',
     attachment: 'Attachment',
+    documentName: 'Document Name',
   },
   fr: {
     enterRegisteredEmail:
@@ -483,6 +484,7 @@ export const strings = new LocalizedStrings({
     documentSize: 'Taille du document',
     documentCategory: 'Catégorie du document',
     attachment: 'Attachment',
+    documentName: 'Nom du document',
   },
 });
 

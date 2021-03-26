@@ -12,6 +12,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Text,
+  TextInput,
 } from 'react-native';
 import NativeScanner from '../src/components/DocumentScanner';
 import {resizeFile} from '../src/components/FileResizer';
@@ -39,7 +40,7 @@ import {strings} from './Strings';
 import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
 import {PdfViewer} from '../src/components/PdfViewer';
 import {getAllCodes} from './Codes';
-import {formatDate, yearDateFormat} from './Util';
+import {formatDate, yearDateFormat, isEmpty} from './Util';
 import {loadDocuments} from './ImageField';
 
 export class DocumentScanner extends Component {
@@ -71,6 +72,7 @@ export class DocumentScanner extends Component {
     upload: ?Upload,
     patientDocuments?: PatientDocument[],
     patientDocument?: PatientDocument,
+    name?: string,
   };
 
   static defaultProps = {
@@ -105,6 +107,7 @@ export class DocumentScanner extends Component {
       upload: upload,
       patientDocuments: this.props.patientDocuments,
       patientDocument: undefined,
+      name: this.props.fileName,
     };
   }
 
@@ -219,7 +222,7 @@ export class DocumentScanner extends Component {
           id: 'upload',
           data: pdfData,
           mimeType: 'application/pdf',
-          name: this.props.fileName,
+          name: this.state.name,
           argument1: this.props.patientId,
           argument2: this.props.examId,
           replace: this.props.replaceImage,
@@ -229,7 +232,7 @@ export class DocumentScanner extends Component {
           id: 'upload',
           data: this.state.scaledFile,
           mimeType: 'image/jpeg;base64',
-          name: this.props.fileName,
+          name: this.state.name,
           argument1: this.props.patientId,
           argument2: this.props.examId,
           replace: this.props.replaceImage,
@@ -255,13 +258,13 @@ export class DocumentScanner extends Component {
       saving: false,
       isDirty: false,
     });
-
     this.props.onSave(
       upload.id,
       this.getSelectedSize(),
       this.state.documentCategory
         ? this.state.documentCategory.description
         : this.props.type,
+      !isEmpty(this.state.name) ? this.state.name : this.props.fileName,
     );
   }
   getSelectedSize() {
@@ -398,6 +401,10 @@ export class DocumentScanner extends Component {
     this.setState({documentCategory: dc});
   }
 
+  changeText(value: string) {
+    this.setState({name: value});
+  }
+
   renderDocumentCategories() {
     const documentCategories: CodeDefinition[] = getAllCodes(
       'documentCategories',
@@ -453,6 +460,20 @@ export class DocumentScanner extends Component {
       )
     );
   }
+
+  renderDocumentName() {
+    return (
+      <TextInput
+        returnKeyType="done"
+        editable={this.props.isPdf}
+        autoCorrect={false}
+        autoCapitalize="none"
+        style={styles.formField}
+        value={this.state.name}
+        onChangeText={(text: string) => this.changeText(text)}
+      />
+    );
+  }
   renderScannerTool(isPdf: ?boolean = false) {
     return (
       <View style={[styles.sideBar, {maxWidth: 500 * fontScale}]}>
@@ -493,6 +514,14 @@ export class DocumentScanner extends Component {
           </View>
           <View style={[styles.formRow, {flexWrap: 'wrap'}]}>
             {this.renderDocumentCategories()}
+          </View>
+          <View style={styles.formRow}>
+            <View style={styles.formRowHeader}>
+              <Label value={strings.documentName} />
+            </View>
+          </View>
+          <View style={[styles.formRow, {flexWrap: 'wrap'}]}>
+            {this.renderDocumentName()}
           </View>
           {this.props.isAttachment && (
             <View style={styles.formRow}>

@@ -288,6 +288,7 @@ export type FieldDefinition = {
   drawable?: boolean,
   sync?: boolean,
   visible?: boolean,
+  isLabel?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];

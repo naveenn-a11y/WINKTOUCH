@@ -19,16 +19,12 @@
                     "size": "S",
                     "name": "Document",
                     "label": "",
-                    "type": "document"
+                    "type": "Patient Documents",
+                    "isLabel": true
                 },
                 {
                     "maxLength": 500,
                     "name": "Notes"
-                },
-                {
-                    "name": "Title",
-                    "maxLength": 100,
-                    "isLabel": true
                 }
             ]
         }
