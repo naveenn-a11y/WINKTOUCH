@@ -1272,7 +1272,11 @@ export class ImageField extends Component {
 
     const scale: number = style.width / this.resolution()[0];
     const image = this.requireImage();
-    const mimeType = image ? image.uri.split(',')[0] : undefined;
+    const mimeType = image
+      ? image.uri
+        ? image.uri.split(',')[0]
+        : image.split(',')[0]
+      : undefined;
     const isPdf: boolean = mimeType
       ? mimeType.includes('application/pdf')
       : false;
