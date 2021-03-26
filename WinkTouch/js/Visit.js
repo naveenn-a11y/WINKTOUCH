@@ -99,6 +99,7 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
+import { formatCode } from "./Codes";
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -1112,6 +1113,7 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
   confirmDialog = (data: any) => {
+    console.log(JSON.stringify(this.state.visit.purchase));
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
     let printNotesOnRx: boolean = false;
@@ -1136,8 +1138,13 @@ class VisitWorkFlow extends Component {
   renderAlert() {
     const data: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
     if (!data) return null;
+    console.log(JSON.stringify(this.state.visit.purchase));
     this.state.visit.purchase.map((recomm: any, index: number)=>{
-      data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
+      // data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
+      console.log(formatCode('purchaseReasonCode', recomm.lensType));
+      formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ?
+      data.push({label:formatCode('purchaseReasonCode', recomm.lensType),entityId:recomm.entityId, isChecked:false})
+        : data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
     });
     return (
       <Alert

@@ -3302,9 +3302,9 @@ export class Alert extends Component<AlertProps, AlertState> {
                         isChecked={importData.isChecked}
                         onSelect={() => this.select(importData, index)}
                         onDeselect={() => this.select(importData, index)}
-                        style={styles.checkButtonLabel}
+                        style={styles.alertCheckBox}
                         testID={this.props.testID}
-                        prefix={importData.label}>
+                        suffix={importData.label}>
                       </CheckButton>
                   ): <Button onPress={() => this.confirmDialog(importData)}>
                       {importData.label}

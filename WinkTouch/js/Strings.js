@@ -242,7 +242,7 @@ export const strings = new LocalizedStrings({
     printRxLabel: 'Please select what to print:',
     pd: 'PD',
     notesOnRx: 'Notes on Rx',
-    drRecommendation: 'Dr Recommendation',
+    drRecommendation: 'Dr Recommendation ',
   },
   fr: {
     enterRegisteredEmail:
