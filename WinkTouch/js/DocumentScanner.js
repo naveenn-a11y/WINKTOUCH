@@ -82,7 +82,6 @@ export class DocumentScanner extends Component {
   constructor(props) {
     super(props);
 
-    const upload: ?Upload = getCachedItem(this.props.uploadId);
     const documentCategories: CodeDefinition[] = getAllCodes(
       'documentCategories',
     );
@@ -104,7 +103,7 @@ export class DocumentScanner extends Component {
       },
       scaledFile: undefined,
       documentCategory: documentCategory,
-      upload: upload,
+      upload: undefined,
       patientDocuments: this.props.patientDocuments,
       patientDocument: undefined,
       name: this.props.fileName,
@@ -214,44 +213,51 @@ export class DocumentScanner extends Component {
     if (!this.state.file) return;
     this.setState({saving: true});
     let upload: Upload = undefined;
-
-    if (!(this.state.patientDocument && !this.props.uploadId)) {
-      if (this.props.isPdf) {
-        const pdfData: string = await this.createDocument();
-        upload = {
-          id: 'upload',
-          data: pdfData,
-          mimeType: 'application/pdf',
-          name: this.state.name,
-          argument1: this.props.patientId,
-          argument2: this.props.examId,
-          replace: this.props.replaceImage,
-        };
-      } else {
-        upload = {
-          id: 'upload',
-          data: this.state.scaledFile,
-          mimeType: 'image/jpeg;base64',
-          name: this.state.name,
-          argument1: this.props.patientId,
-          argument2: this.props.examId,
-          replace: this.props.replaceImage,
-        };
-      }
-
-      upload = await storeUpload(upload);
-      if (upload.errors) {
-        alert(
-          strings.formatString(strings.pmsImageSaveError, this.props.fileName),
-        );
-        this.setState({
-          saving: false,
-        });
-        return upload;
-      }
-    } else {
-      upload = this.state.upload;
+    const parentUpload: ?Upload = getCachedItem(this.props.uploadId);
+    //check if current upload arg1 and arg2 are the same as current arg1 & arg2
+    let uploadId: string = parentUpload
+      ? parentUpload.argument1 === this.props.patientId &&
+        parentUpload.argument2 === this.props.examId
+        ? this.props.uploadId
+        : 'upload'
+      : 'upload';
+    if (parentUpload === undefined) {
+      uploadId = this.state.upload
+        ? this.state.upload.argument1 === this.props.patientId &&
+          this.state.upload.argument2 === this.props.examId
+          ? this.state.upload.id
+          : 'upload'
+        : 'upload';
     }
+
+    const pdfData: string = this.props.isPdf
+      ? await this.createDocument()
+      : this.state.scaledFile;
+    const isCurrentFilePdf: boolean = this.isPdf();
+    upload = {
+      id: uploadId,
+      data: pdfData,
+      mimeType:
+        isCurrentFilePdf || this.props.isPdf
+          ? 'application/pdf'
+          : 'image/jpeg;base64',
+      name: this.props.fileName,
+      argument1: this.props.patientId,
+      argument2: this.props.examId,
+      replace: this.props.replaceImage,
+    };
+
+    upload = await storeUpload(upload);
+    if (upload.errors) {
+      alert(
+        strings.formatString(strings.pmsImageSaveError, this.props.fileName),
+      );
+      this.setState({
+        saving: false,
+      });
+      return upload;
+    }
+
     // check if the current upload exist && has not changed
 
     this.setState({
@@ -281,7 +287,6 @@ export class DocumentScanner extends Component {
   async uploadFile(file: string, size?: string = 'L') {
     const mimeType: string = file.split(',')[0];
     const base64Data: string = file.split(',')[1];
-
     if (mimeType.includes('application/pdf')) {
       const pageWidth: number = 612;
       const pageAspectRatio: number = 8.5 / 11;
@@ -396,7 +401,11 @@ export class DocumentScanner extends Component {
       this.state.patientDocument !== undefined &&
       this.state.file !== undefined
     ) {
-      this.setState({file: undefined, patientDocument: undefined});
+      this.setState({
+        file: undefined,
+        patientDocument: undefined,
+        upload: undefined,
+      });
     }
     this.setState({documentCategory: dc});
   }
