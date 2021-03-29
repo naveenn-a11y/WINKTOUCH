@@ -32,6 +32,7 @@ import type {
   Store,
   FollowUp,
   VisitType,
+  User,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -234,6 +235,7 @@ export async function fetchVisitHistory(patientId: string): string[] {
   const customExams: Exam[] = restResponse.customExamList;
   const visits: Visit[] = restResponse.visitList ? restResponse.visitList : [];
   const visitIds: string[] = visits.map((visit) => visit.id);
+  const stores: Store[] = restResponse.storeList ? restResponse.storeList : [];
   const patientDocuments: PatientDocument[] = restResponse.patientDocumentList
     ? restResponse.patientDocumentList
     : [];
@@ -250,9 +252,9 @@ export async function fetchVisitHistory(patientId: string): string[] {
   cacheItemsById(visits);
   cacheItemsById(patientDocuments);
   cacheItemsById(users);
+  cacheItemsById(stores);
   cacheItem('visitHistory-' + patientId, visitIds);
   cacheItem('patientDocumentHistory-' + patientId, patientDocumentIds);
-
   return visitIds;
 }
 
@@ -1061,6 +1063,19 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  renderConsultationDetails() {
+    const store: Store = getCachedItem(this.state.visit.storeId);
+    const doctor: User = getCachedItem(this.state.visit.userId);
+    return (
+      <View style={styles.examsBoard}>
+        <Text style={styles.cardTitle}>{strings.visit}</Text>
+        {doctor && (<Text style={styles.text}>{strings.doctor}:{' '}{postfix(doctor.firstName, ' ') + doctor.lastName}</Text>)}
+        {store && store.name && (<Text style={styles.text}>{strings.location}: {store.name}</Text>)}
+        {!isEmpty(this.state.visit.prescription.signedDate) && (<Text style={styles.text}>{strings.signedOn}: {formatDate(this.state.visit.prescription.signedDate, yearDateFormat)}</Text>)}
+      </View>
+    );
+  }
+
   renderAssessments() {
     let assessments: Exam[] = getCachedItems(
       this.state.visit.customExamIds,
@@ -1338,6 +1353,7 @@ class VisitWorkFlow extends Component {
     return (
       <View>
         <View style={styles.flow}>
+          {this.renderConsultationDetails()}
           {examSections.map((section: string) => {
             return this.renderExams(section, exams, false);
           })}
@@ -1543,7 +1559,7 @@ export class VisitHistory extends Component {
       typeName: '',
       date: formatDate(date, jsonDateTimeFormat),
       duration: 15, //TODO userpreference?
-      location: undefined,
+      storeId: undefined,
       preExamIds: [],
       examIds: [],
       recall: {},
