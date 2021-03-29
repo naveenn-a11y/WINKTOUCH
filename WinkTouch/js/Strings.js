@@ -236,10 +236,14 @@ export const strings = new LocalizedStrings({
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
     dragNDrop: 'Drag and drop some files here !',
-    takePicture: 'Take a picture',
-    uploadFile: 'Upload a file',
+    takePicture: 'Take a Picture',
+    uploadFile: 'Upload a File',
     signedOn: 'Signed on',
-    location: 'Location',
+    location: 'Location',    
+    printRxLabel: 'Please select what to print:',
+    pd: 'PD',
+    notesOnRx: 'Notes on Rx',
+    drRecommendation: 'Dr Recommendation ',
   },
   fr: {
     enterRegisteredEmail:
@@ -475,10 +479,14 @@ export const strings = new LocalizedStrings({
       "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
     restartApp: "Cliquez ici pour redémarrer l'application !",
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
-    takePicture: 'Prendre une photo',
-    uploadFile: 'Téléverser un fichier',
+    takePicture: 'Prendre une Photo',
+    uploadFile: 'Téléverser un Fichier',
     signedOn: 'Signé le',
     location: 'Lieu',
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    pd: 'PD',
+    notesOnRx: 'Notes sur Rx',
+    drRecommendation: 'Dr Recommandation',
   },
 });
 

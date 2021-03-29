@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -99,6 +100,7 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
+import { formatCode } from "./Codes";
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -626,6 +628,8 @@ class VisitWorkFlow extends Component {
     rxToOrder: ?Exam,
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
+    showRxPopup: boolean,
+    printRxCheckBoxes : string[]
   };
 
   constructor(props: any) {
@@ -642,6 +646,7 @@ class VisitWorkFlow extends Component {
       showSnackBar: false,
       snackBarMessage: '',
       appointment: appointment,
+      showRxPopup: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -675,7 +680,9 @@ class VisitWorkFlow extends Component {
   }
 
   async storeVisit(visit: Visit) {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     visit = await storeItem(visit);
     const locked: boolean = visitHasEnded(visit);
     this.setState({
@@ -688,8 +695,12 @@ class VisitWorkFlow extends Component {
   }
 
   findRxToOrder(visit: Visit): ?Exam {
-    if (!visit) return undefined;
-    if (!visit.customExamIds) return undefined;
+    if (!visit) {
+      return undefined;
+    }
+    if (!visit.customExamIds) {
+      return undefined;
+    }
     let rxToOrderExamId: ?string = visit.customExamIds.find(
       (examId: string) => getCachedItem(examId).definition.name === 'RxToOrder',
     );
@@ -702,7 +713,9 @@ class VisitWorkFlow extends Component {
   }
 
   async loadAppointment(visit: Visit) {
-    if (!visit || !visit.appointmentId) return;
+    if (!visit || !visit.appointmentId) {
+      return;
+    }
     let appointment: Appointment = getCachedItem(visit.appointmentId);
     if (!appointment) {
       appointment = await fetchAppointment(visit.appointmentId);
@@ -711,11 +724,14 @@ class VisitWorkFlow extends Component {
   }
 
   async loadUnstartedExamTypes(visit: Visit) {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     const locked: boolean = this.state.locked;
     if (locked) {
-      if (this.state.addableExamTypes.length !== 0)
+      if (this.state.addableExamTypes.length !== 0) {
         this.setState({addableExamTypes: []});
+      }
       return;
     }
     let allExamTypes: ExamDefinition[] = await allExamDefinitions(true);
@@ -729,12 +745,13 @@ class VisitWorkFlow extends Component {
                 getCachedItem(examId).isHidden !== true,
             )
           : -1;
-        if (existingExamIndex < 0 && visit.customExamIds)
+        if (existingExamIndex < 0 && visit.customExamIds) {
           existingExamIndex = visit.customExamIds.findIndex(
             (examId: string) =>
               getCachedItem(examId).definition.name === examType.name &&
               getCachedItem(examId).isHidden !== true,
           );
+        }
         return existingExamIndex < 0;
       },
     );
@@ -756,8 +773,10 @@ class VisitWorkFlow extends Component {
       'Prescription',
       getCachedItem(this.props.visitId),
     );
-    if (!medicationExam) return false;
-    const value = medicationExam['Prescription'];
+    if (!medicationExam) {
+      return false;
+    }
+    const value = medicationExam.Prescription;
     return !isEmpty(value);
   }
 
@@ -766,9 +785,10 @@ class VisitWorkFlow extends Component {
       'Fitting',
       getCachedItem(this.props.visitId),
     );
-    if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden)
+    if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden) {
       return false;
-    let value = fittingExam['Fitting'];
+    }
+    let value = fittingExam.Fitting;
     if (value instanceof Object) {
       value = value['Contact Lens Trial'];
     }
@@ -1104,14 +1124,65 @@ class VisitWorkFlow extends Component {
     });
   }
 
+  hidePrintRxPopup = () => {
+    this.setState({showRxPopup: false});
+  };
+
+  confirmPrintRxDialog = (data: any) => {
+    let printFinalRx: boolean = false;
+    let printPDs: boolean = false;
+    let printNotesOnRx: boolean = false;
+    let drRecommendationArray: string[] = new Array();
+    data.map((importData: any) => {
+      let labelRx = importData.label;
+      let flagRx = importData.isChecked;
+      if (labelRx.toString() === strings.finalRx) {
+        printFinalRx = flagRx;
+      } else if (labelRx.toString() === strings.pd) {
+        printPDs = flagRx;
+      } else if (labelRx.toString() === strings.notesOnRx) {
+        printNotesOnRx = flagRx;
+      } else if ('entityId' in importData && importData.isChecked) {
+        drRecommendationArray.push(importData.entityId);
+      }
+    });
+    printRx(this.props.visitId, printFinalRx, printPDs, printNotesOnRx, drRecommendationArray);
+    this.hidePrintRxPopup();
+  };
+
+  renderPrintRxPopup() {
+    const printRxOptions: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
+    if (this.state.visit.purchase) {
+      this.state.visit.purchase.map((recomm: any, index: number)=> {
+        formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ?
+          printRxOptions.push({label:formatCode('purchaseReasonCode', recomm.lensType),entityId:recomm.entityId, isChecked:false})
+          : printRxOptions.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
+      });
+    }
+
+    return (
+      <Alert
+        title={strings.printRxLabel}
+        data={printRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintRxDialog(printRxOptions)}
+        onCancelAction={() => this.hidePrintRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
-
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
+        {this.state.showRxPopup && this.renderPrintRxPopup()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -1119,10 +1190,11 @@ class VisitWorkFlow extends Component {
           {!this.state.locked && !this.state.visit.prescription.signedDate && (
             <Button title={strings.sign} onPress={() => this.signVisit()} />
           )}
+
           <Button
             title={strings.printRx}
             onPress={() => {
-              printRx(this.props.visitId);
+              this.showRxPopup();
             }}
           />
           {this.hasMedicalRx() && (
@@ -1292,6 +1364,10 @@ class VisitWorkFlow extends Component {
         {this.state.showSnackBar && this.renderSnackBar()}
       </View>
     );
+  }
+
+  showRxPopup() {
+    this.setState({showRxPopup: true});
   }
 }
 
