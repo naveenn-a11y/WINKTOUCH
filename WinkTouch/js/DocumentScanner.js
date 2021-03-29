@@ -116,9 +116,10 @@ export class DocumentScanner extends Component {
       upload = await fetchUpload(patientDocument.uploadId);
     const data: string = upload ? upload.data : undefined;
     const mimeType: string = getMimeType(upload);
+    if (mimeType && !mimeType.includes('application/pdf')) {
+      this.resizeImage(data, this.getSelectedSize(), mimeType);
+    }
     const fullPath: string = `${mimeType},${data}`;
-
-    this.resizeImage(data, this.getSelectedSize(), mimeType);
     this.setState({
       file: fullPath,
       scaledFile: data,
