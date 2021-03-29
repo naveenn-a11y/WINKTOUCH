@@ -1109,11 +1109,11 @@ class VisitWorkFlow extends Component {
     });
   }
 
-  hideDialog = () => {
+  hidePrintRxPopup = () => {
     this.setState({showRxPopup: false});
   };
-  confirmDialog = (data: any) => {
-    console.log(JSON.stringify(this.state.visit.purchase));
+
+  confirmPrintRxDialog = (data: any) => {
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
     let printNotesOnRx: boolean = false;
@@ -1132,29 +1132,26 @@ class VisitWorkFlow extends Component {
       }
     });
     printRx(this.props.visitId, printFinalRx, printPDs, printNotesOnRx, drRecommendationArray);
-    this.hideDialog();
-  }
+    this.hidePrintRxPopup();
+  };
 
-  renderAlert() {
-    const data: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
-    if (!data) return null;
-    console.log(JSON.stringify(this.state.visit.purchase));
-    this.state.visit.purchase.map((recomm: any, index: number)=>{
-      // data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
-      console.log(formatCode('purchaseReasonCode', recomm.lensType));
-      formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ?
-      data.push({label:formatCode('purchaseReasonCode', recomm.lensType),entityId:recomm.entityId, isChecked:false})
-        : data.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
-    });
+  renderPrintRxPopup() {
+    const printRxOptions: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
+    if (this.state.visit.purchase) {
+      this.state.visit.purchase.map((recomm: any, index: number)=> {
+        formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ?
+          printRxOptions.push({label:formatCode('purchaseReasonCode', recomm.lensType),entityId:recomm.entityId, isChecked:false})
+          : printRxOptions.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
+      });
+    }
+
     return (
       <Alert
         title={strings.printRxLabel}
-        data={data}
+        data={printRxOptions}
         dismissable={true}
-        onConfirmAction={() =>
-          this.confirmDialog(data)
-        }
-        onCancelAction={() => this.hideDialog()}
+        onConfirmAction={() => this.confirmPrintRxDialog(printRxOptions)}
+        onCancelAction={() => this.hidePrintRxPopup()}
         style={styles.alert}
         confirmActionLabel={strings.printRx}
         cancelActionLabel={strings.cancel}
@@ -1170,7 +1167,7 @@ class VisitWorkFlow extends Component {
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
-        {this.state.showRxPopup && this.renderAlert()}
+        {this.state.showRxPopup && this.renderPrintRxPopup()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />

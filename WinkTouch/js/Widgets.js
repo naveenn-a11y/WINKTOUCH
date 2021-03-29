@@ -2867,23 +2867,23 @@ export class FloatingButton extends Component {
   render() {
     if (!this.state.options) return null;
     return (
-          <FAB.Group
-            open={this.state.active}
-            onStateChange={this.toggleActive}
-            position="bottomRight"
-            fabStyle={styles.floatingButton}
-            icon={this.state.active ? 'minus' : 'plus'}
-            actions={this.state.options.map((option: string, index: number) => {
-              return {
-                icon: 'minus',
-                label: option,
-                onPress: () => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                },
-              };
-            })}
-          />
+      <FAB.Group
+        open={this.state.active}
+        onStateChange={this.toggleActive}
+        position="bottomRight"
+        fabStyle={styles.floatingButton}
+        icon={this.state.active ? 'minus' : 'plus'}
+        actions={this.state.options.map((option: string, index: number) => {
+          return {
+            icon: 'minus',
+            label: option,
+            onPress: () => {
+              this.toggleActive();
+              this.props.onPress(option);
+            },
+          };
+        })}
+      />
     );
   }
 }
@@ -3278,11 +3278,10 @@ export class Alert extends Component<AlertProps, AlertState> {
     this.props.onConfirmAction(selectedData === undefined ? this.state.data : selectedData);
   };
 
-  select(importData: any, index: number){
-    importData.isChecked = !importData.isChecked;
+  toggleCheckbox(index: number) {
     let data: any = this.state.data;
-    data[index] = importData;
-    this.setState({data: data});
+    data[index].isChecked = !data[index].isChecked;
+    this.setState({data});
   }
 
   renderContent() {
@@ -3295,20 +3294,19 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((importData: any, index: number) => {
-
-                  return (
-                    this.props.multiValue ? (
-                      <CheckButton
-                        isChecked={importData.isChecked}
-                        onSelect={() => this.select(importData, index)}
-                        onDeselect={() => this.select(importData, index)}
-                        style={styles.alertCheckBox}
-                        testID={this.props.testID}
-                        suffix={importData.label}>
-                      </CheckButton>
-                  ): <Button onPress={() => this.confirmDialog(importData)}>
+                  return this.props.multiValue ? (
+                    <CheckButton
+                      isChecked={importData.isChecked}
+                      onSelect={() => this.toggleCheckbox(index)}
+                      onDeselect={() => this.toggleCheckbox(index)}
+                      style={styles.alertCheckBox}
+                      testID={this.props.testID+'.'+importData.label}
+                      suffix={importData.label}></CheckButton>
+                  ) : (
+                    <Button onPress={() => this.confirmDialog(importData)}>
                       {importData.label}
-                    </Button>);
+                    </Button>
+                  );
                 })}
               </ScrollView>
             </Dialog.ScrollArea>
@@ -3325,26 +3323,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-
-        <Portal>
-          <Dialog
-            visible={this.state.visible}
-            onDismiss={this.cancelDialog}
-            dismissable={this.props.dismissable}
-            style={this.props.style}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
-            <Dialog.Content>{this.renderContent()}</Dialog.Content>
-            <Dialog.Actions>
-              <NativeBaseButton onPress={this.cancelDialog}>
-                {this.props.cancelActionLabel}
-              </NativeBaseButton>
-              <NativeBaseButton onPress={this.confirmDialog}>
-                {this.props.confirmActionLabel}
-              </NativeBaseButton>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
-
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
