@@ -176,6 +176,8 @@ export type GlassesRx = {
   lensType?: string,
   notes?: string,
   doctor?: string,
+  readonly?: boolean,
+  noaccess?: boolean,
 };
 
 export type Recall = {
