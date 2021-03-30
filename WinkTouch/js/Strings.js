@@ -240,6 +240,7 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Upload a file',
     signedOn: 'Signed on',
     location: 'Location',
+    noAccess: 'You do not have access to this information',
   },
   fr: {
     enterRegisteredEmail:
@@ -479,6 +480,7 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Téléverser un fichier',
     signedOn: 'Signé le',
     location: 'Lieu',
+    noAccess: 'Vous n’avez pas accès à cette information',
   },
 });
 

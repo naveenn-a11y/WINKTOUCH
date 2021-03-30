@@ -3360,3 +3360,14 @@ export class KeyboardMode extends Component {
     );
   }
 }
+
+export class NoAccess extends Component{
+  render(){
+    return (
+      <View style={{textAlign: 'center'}}>
+        <Text>{strings.noAccess}</Text>
+      </View>
+    );
+
+  }
+}

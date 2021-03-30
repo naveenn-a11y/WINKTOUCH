@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
@@ -10,14 +11,15 @@ import type {
   FieldDefinition,
   PatientDrug,
   Visit,
-  Exam,
-} from './Types';
+  Exam, GlassesRx, Prescription,
+} from "./Types";
 import {styles} from './Styles';
 import {ItemsList} from './Items';
 import {compareDates} from './Util';
 import {getCachedItems, getCachedItem} from './DataCache';
 import {getVisitHistory, fetchVisitHistory} from './Visit';
 import {strings} from './Strings';
+import { NoAccess } from "./Widgets";
 
 const medicationExamNames: string[] = [
   'Medication',
@@ -25,10 +27,10 @@ const medicationExamNames: string[] = [
   'Prescription',
 ];
 
-function fillPrescriptionDates(medications: ?(PatientDrug[]), visitId: string) {
+function fillPrescriptionDates(medications: ?(Prescription[]), visitId: string) {
   if (!medications) return;
   const visit: Visit = getCachedItem(visitId);
-  medications.forEach((medication: PatientDrug) => {
+  medications.forEach((medication: Prescription) => {
     if (!medication['Rx Date']) {
       medication['Rx Date'] = visit.date;
     }
@@ -46,12 +48,13 @@ function compareMedication(med1: ?PatientDrug, med2: ?PatientDrug): number {
 function getRecentMedication(patientId: string): ?(PatientDrug[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
   if (!visitHistory) return undefined;
-  let medications: PatientDrug[] = [];
+  let medications: Prescription[] = [];
   visitHistory.forEach((visit: Visit) => {
     if (visit.customExamIds) {
       visit.customExamIds.forEach((examId: string) => {
         const exam: Exam = getCachedItem(examId);
         if (exam.Prescription) {
+          console.log(exam.Prescription);
           fillPrescriptionDates(exam.Prescription, exam.visitId);
           medications = [...medications, ...exam.Prescription];
         }
@@ -148,7 +151,7 @@ export class PatientMedicationCard extends Component {
     patientInfo: PatientInfo,
   };
   state: {
-    medication: ?(PatientDrug[]),
+    medication: ?(Prescription[]),
   };
 
   constructor(props: any) {
@@ -170,7 +173,7 @@ export class PatientMedicationCard extends Component {
 
   async refreshPatientInfo() {
     if (this.state.medication) return;
-    let medication: ?(PatientDrug[]) = getRecentMedication(
+    let medication: ?(Prescription[]) = getRecentMedication(
       this.props.patientInfo.id,
     );
     if (medication === undefined) {
@@ -180,17 +183,34 @@ export class PatientMedicationCard extends Component {
     this.setState({medication});
   }
 
+  checkUserHasAccess() {
+    let hasReadOnly = true;
+    this.state.medication.map((item: Prescription) =>
+        (hasReadOnly &&= 'noaccess' in item ? item['noaccess'] : false),
+    );
+    return hasReadOnly;
+  }
+
   render() {
     if (!this.state.medication) return null;
+    let hasNoAccess = this.checkUserHasAccess();
+    // let hasNoAccess = true;
     return (
-      <ItemsList
-        title={strings.medicationRxTitle}
-        items={this.state.medication}
-        showLabels={false}
-        style={styles.tabCard}
-        fieldDefinitions={patientDrugDefinition}
-        editable={false}
-      />
+      <View style={hasNoAccess ? styles.tabCard : ''}>
+        {hasNoAccess && (
+          <Text style={styles.cardTitle}>{strings.medicationRxTitle}</Text>
+        )}
+        {hasNoAccess ? <NoAccess /> : (
+          <ItemsList
+            title={strings.medicationRxTitle}
+            items={this.state.medication}
+            showLabels={false}
+            style={styles.tabCard}
+            fieldDefinitions={patientDrugDefinition}
+            editable={false}
+          />
+        )}
+      </View>
     );
   }
 }

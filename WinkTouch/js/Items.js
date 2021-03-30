@@ -20,8 +20,8 @@ import type {
   GroupDefinition,
   FieldDefinitions,
   ExamPredefinedValue,
-  GlassesRx,
-} from './Types';
+  GlassesRx, PatientDrug, Prescription,
+} from "./Types";
 import {strings} from './Strings';
 import {styles, selectionColor, fontScale, scaleStyle, isWeb} from './Styles';
 import {
@@ -31,8 +31,8 @@ import {
   SelectionList,
   stripSelectionPrefix,
   selectionPrefix,
-  FloatingButton,
-} from './Widgets';
+  FloatingButton, NoAccess,
+} from "./Widgets";
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {
   formatDate,
@@ -349,6 +349,7 @@ function constructItemView(
   titleFields?: string[],
   showLabels?: boolean = false,
 ) {
+
   switch (itemView) {
     case 'EditableItem':
       return (
@@ -390,6 +391,9 @@ class ItemSummary extends Component {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;
+    }
+    if (this.props.item?.noaccess) {
+      return <NoAccess />;
     }
     if (this.props.orientation !== 'horizontal') {
       let description = '';
@@ -480,6 +484,9 @@ class EditableItem extends Component {
       this.props.orientation === 'horizontal' ? styles.flow : styles.form;
     if (this.props.isSelected) {
       style = [style, {backgroundColor: selectionColor}];
+    }
+    if (this.props.item?.noaccess) {
+      return <NoAccess />;
     }
     return (
       <View style={style}>
@@ -793,7 +800,7 @@ export class ItemsList extends Component {
   renderList(): Component {
     const itemOrientation: string =
       this.props.orientation === 'vertical' ? 'horizontal' : 'vertical';
-    return this.props.items.map((item: any, index: number) => {
+    return this.props.items.map((item: ?Prescription | any, index: number) => {
       const isSelected: boolean =
         this.props.selectedItem === item && this.props.items.length > 1;
       const itemView = constructItemView(

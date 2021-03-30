@@ -35,7 +35,7 @@ import type {
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {Button, FloatingButton, Lock, NativeBar, Alert} from './Widgets';
+import { Button, FloatingButton, Lock, NativeBar, Alert, NoAccess } from "./Widgets";
 import {
   formatMoment,
   deepClone,
@@ -272,6 +272,7 @@ export async function createVisit(visit: Visit): Visit {
   let visitHistory: ?(Visit[]) = getCachedItem(
     'visitHistory-' + visit.patientId,
   );
+  console.log(visitHistory);
   if (visitHistory === undefined) {
     visitHistory = [];
     cacheItem('visitHistory-' + visit.patientId, visitHistory);
@@ -1325,33 +1326,45 @@ export class VisitHistoryCard extends Component {
     this.setState({summaries});
   }
 
+  checkUserHasAccess() {
+    let hasNoAccess = true;
+    this.state.summaries.map((visitSummary: Exam) =>
+      (hasNoAccess &&= visitSummary.readonly),
+    );
+    return hasNoAccess;
+  }
+
   render() {
     if (!this.state.summaries) {
       return null;
     }
+    let hasNoAccess = this.checkUserHasAccess();
     return (
       <View
         style={isWeb ? [styles.tabCard, {flexShrink: 100}] : styles.tabCard}>
         <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
-        {this.state.summaries.map((visitSummary: Exam, index: number) => (
-          <View style={styles.rowLayout}>
-            <View
-              style={
-                isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
-              }>
-              <Text style={styles.text}>
-                {formatDate(
-                  getCachedItem(visitSummary.visitId).date,
-                  isToyear(getCachedItem(visitSummary.visitId).date)
-                    ? dateFormat
-                    : farDateFormat,
-                )}
-                : {visitSummary.resume}
-                {'\n'}
-              </Text>
-            </View>
-          </View>
-        ))}
+        {hasNoAccess ? <NoAccess /> : (
+          this.state.summaries.map((visitSummary: Exam, index: number) => (
+            visitSummary.readonly ? (<NoAccess />) : (
+              <View style={styles.rowLayout}>
+                <View
+                  style={
+                    isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
+                  }>
+                  <Text style={styles.text}>
+                    {formatDate(
+                      getCachedItem(visitSummary.visitId).date,
+                      isToyear(getCachedItem(visitSummary.visitId).date)
+                        ? dateFormat
+                        : farDateFormat,
+                    )}
+                    : {visitSummary.resume}
+                    {'\n'}
+                  </Text>
+                </View>
+              </View>
+          )))
+        )}
       </View>
     );
   }
