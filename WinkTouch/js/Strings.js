@@ -222,11 +222,10 @@ export const strings = new LocalizedStrings({
     from: 'From',
     to: 'To',
     date: 'Date',
-    status: 'Status',
     comment: 'Comment',
     itemNotSelected: 'No item was selected',
     importDataNotFound: 'No data found to import !',
-    consultationDate: 'Consultation Date',
+    consultationDate: 'Consultation date',
     close: 'Close',
     transferRxSuccess: 'Rx transferred successfully !',
     NoCameraAccess: 'No access to camera',
@@ -235,10 +234,16 @@ export const strings = new LocalizedStrings({
     somethingWentWrongTitle: 'Oops! Something when wrong.',
     somethingWentWrongMessage:
       'Sorry, Something went wrong there. See the action below !',
-    restartApp: 'Click here to restart the App !',
+    restartApp: 'Click here to restart the app !',
     dragNDrop: 'Drag and drop some files here !',
     takePicture: 'Take a Picture',
     uploadFile: 'Upload a File',
+    signedOn: 'Signed on',
+    location: 'Location',    
+    printRxLabel: 'Please select what to print:',
+    pd: 'PD',
+    notesOnRx: 'Notes on Rx',
+    drRecommendation: 'Dr Recommendation ',
   },
   fr: {
     enterRegisteredEmail:
@@ -460,7 +465,6 @@ export const strings = new LocalizedStrings({
     from: 'De',
     to: 'Á',
     date: 'Date',
-    status: 'Statut',
     comment: 'Commentaire',
     itemNotSelected: 'Aucun élément sélectionné',
     importDataNotFound: 'Aucun élément trouvée !',
@@ -477,6 +481,12 @@ export const strings = new LocalizedStrings({
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
+    signedOn: 'Signé le',
+    location: 'Lieu',
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    pd: 'PD',
+    notesOnRx: 'Notes sur Rx',
+    drRecommendation: 'Dr Recommandation',
   },
 });
 

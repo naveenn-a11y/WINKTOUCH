@@ -532,7 +532,7 @@
               "minValue": 1,
               "name": "Amp.",
               "freestyle": true,
-              "suffix": " cm",
+              "suffix": " D",
               "maxValue": 20
             }
           ]
@@ -544,7 +544,7 @@
               "minValue": 1,
               "name": "Amp.",
               "freestyle": true,
-              "suffix": " cm",
+              "suffix": " D",
               "maxValue": 20
             }
           ]

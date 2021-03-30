@@ -24,6 +24,7 @@ export type VisitType = {
 };
 
 export type Store = {
+  id: string,
   storeId: number, //TODO Chris
   name: string,
   companyName: string,
@@ -174,6 +175,9 @@ export type GlassesRx = {
   vaNear?: string,
   lensType?: string,
   notes?: string,
+  doctor?: string,
+  readonly?: boolean,
+  noaccess?: boolean,
 };
 
 export type Recall = {
@@ -212,7 +216,7 @@ export type Visit = {
   locked: boolean,
   typeName: string,
   isDigital: boolean,
-  location?: string,
+  storeId?: string,
   prescription: GlassesRx,
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
@@ -428,6 +432,7 @@ export type Exam = {
   hasStarted: boolean,
   isDirty?: boolean,
   isHidden?: boolean,
+  readonly?: boolean,
 };
 
 export type Scene = {
