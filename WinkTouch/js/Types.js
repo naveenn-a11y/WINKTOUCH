@@ -427,7 +427,6 @@ export type Exam = {
   visitId: string,
   version: number,
   errors?: string[],
-  readonly?: boolean,
   definition: ExamDefinition,
   hasStarted: boolean,
   isDirty?: boolean,
