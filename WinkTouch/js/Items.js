@@ -347,7 +347,7 @@ function constructItemView(
   onUpdateItem?: (propertyName: string, value: any) => void,
   orientation: string,
   titleFields?: string[],
-  showLabels?: boolean = false,
+  showLabels: boolean = false,
 ) {
 
   switch (itemView) {
@@ -374,30 +374,44 @@ function constructItemView(
         fieldDefinitions={fieldDefinitions}
         editable={editable}
         showLabels={showLabels}
+        titleFields={titleFields}
       />
     </View>
   );
 }
 
-class ItemSummary extends Component {
-  props: {
-    item: any,
-    fieldDefinitions: ?(FieldDefinition[]),
-    editable?: boolean,
-    orientation?: string,
-    showLabels?: boolean,
-  };
-
+type ItemSummaryProps = {
+  item: any,
+  fieldDefinitions: ?(FieldDefinition[]),
+  editable?: boolean,
+  orientation?: string,
+  showLabels?: boolean,
+  titleFields?: string[],
+};
+class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;
     }
     if (this.props.item?.noaccess) {
-      return <NoAccess />;
+      let noAccessLabel: string = '';
+      this.props.titleFields &&
+        this.props.titleFields.forEach((titleField: string) => {
+          noAccessLabel = noAccessLabel + this.props.item[titleField] + ' ';
+        });
+      let formattedValue: string = '';
+      noAccessLabel = noAccessLabel.trim();
+      if (noAccessLabel !== null && noAccessLabel !== '') {
+        let rxDateObject = this.props.fieldDefinitions.find(o => o.name === 'Rx Date');
+        if (rxDateObject !== undefined)
+          formattedValue += formatFieldValue(noAccessLabel, rxDateObject);
+      }
+      return <NoAccess prefix={formattedValue + ':'} />;
     }
     if (this.props.orientation !== 'horizontal') {
       let description = '';
       let isFirstField = true;
+      let rxDate = '';
       for (let i: number = 0; i < this.props.fieldDefinitions.length; i++) {
         const fieldDefinition: FieldDefinition = this.props.fieldDefinitions[i];
         const propertyName: string = fieldDefinition.name;
@@ -411,12 +425,18 @@ class ItemSummary extends Component {
             if (this.props.showLabels && this.props.fieldDefinitions[i].label) {
               description += this.props.fieldDefinitions[i].label + ': ';
             }
-            description += formattedValue;
+            if (propertyName === 'Rx Date') {
+              rxDate += formattedValue;
+            } else {
+              description += formattedValue;
+            }
             isFirstField = false;
           }
         }
       }
-      return <Text style={styles.textLeft}>{description}</Text>;
+      description = description.trim();
+      description = description.charAt(description.length - 1) === ',' ? description.slice(0, -1) : description;
+      return <Text style={styles.textLeft}>{rxDate + ': ' + description}</Text>;
     }
     return (
       <View>
@@ -486,7 +506,12 @@ class EditableItem extends Component {
       style = [style, {backgroundColor: selectionColor}];
     }
     if (this.props.item?.noaccess) {
-      return <NoAccess />;
+      return (
+        <View style={style}>
+          {this.renderTitle()}
+          <NoAccess />
+        </View>
+      );
     }
     return (
       <View style={style}>

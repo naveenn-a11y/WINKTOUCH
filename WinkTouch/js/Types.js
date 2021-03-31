@@ -129,6 +129,7 @@ export type Prescription = {
   refill?: string,
   doNotSubstitute?: string,
   comment?: string,
+  rxDate?: string,
   noaccess?: boolean,
   readonly?: boolean,
 };
