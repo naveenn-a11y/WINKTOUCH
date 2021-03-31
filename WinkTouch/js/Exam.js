@@ -891,9 +891,7 @@ export class ExamScreen extends Component {
 
   renderExam() {
     if (!this.state.exam) return null;
-    let canEdit: boolean;
-    if (this.state.exam.readonly || this.state.locked) canEdit = false;
-    else canEdit = true;
+    const canEdit: boolean = !(this.state.exam.readonly || this.state.locked);
     switch (this.state.exam.definition.type) {
       case 'selectionLists':
         return (
