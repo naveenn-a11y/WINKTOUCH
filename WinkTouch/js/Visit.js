@@ -35,7 +35,14 @@ import type {
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import { Button, FloatingButton, Lock, NativeBar, Alert, NoAccess } from "./Widgets";
+import {
+  Button,
+  FloatingButton,
+  Lock,
+  NativeBar,
+  Alert,
+  NoAccess,
+} from './Widgets';
 import {
   formatMoment,
   deepClone,
@@ -272,7 +279,6 @@ export async function createVisit(visit: Visit): Visit {
   let visitHistory: ?(Visit[]) = getCachedItem(
     'visitHistory-' + visit.patientId,
   );
-  console.log(visitHistory);
   if (visitHistory === undefined) {
     visitHistory = [];
     cacheItem('visitHistory-' + visit.patientId, visitHistory);
@@ -676,7 +682,9 @@ class VisitWorkFlow extends Component {
   }
 
   async storeVisit(visit: Visit) {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     visit = await storeItem(visit);
     const locked: boolean = visitHasEnded(visit);
     this.setState({
@@ -689,8 +697,12 @@ class VisitWorkFlow extends Component {
   }
 
   findRxToOrder(visit: Visit): ?Exam {
-    if (!visit) return undefined;
-    if (!visit.customExamIds) return undefined;
+    if (!visit) {
+      return undefined;
+    }
+    if (!visit.customExamIds) {
+      return undefined;
+    }
     let rxToOrderExamId: ?string = visit.customExamIds.find(
       (examId: string) => getCachedItem(examId).definition.name === 'RxToOrder',
     );
@@ -703,7 +715,9 @@ class VisitWorkFlow extends Component {
   }
 
   async loadAppointment(visit: Visit) {
-    if (!visit || !visit.appointmentId) return;
+    if (!visit || !visit.appointmentId) {
+      return;
+    }
     let appointment: Appointment = getCachedItem(visit.appointmentId);
     if (!appointment) {
       appointment = await fetchAppointment(visit.appointmentId);
@@ -712,11 +726,14 @@ class VisitWorkFlow extends Component {
   }
 
   async loadUnstartedExamTypes(visit: Visit) {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     const locked: boolean = this.state.locked;
     if (locked) {
-      if (this.state.addableExamTypes.length !== 0)
+      if (this.state.addableExamTypes.length !== 0) {
         this.setState({addableExamTypes: []});
+      }
       return;
     }
     let allExamTypes: ExamDefinition[] = await allExamDefinitions(true);
@@ -730,12 +747,13 @@ class VisitWorkFlow extends Component {
                 getCachedItem(examId).isHidden !== true,
             )
           : -1;
-        if (existingExamIndex < 0 && visit.customExamIds)
+        if (existingExamIndex < 0 && visit.customExamIds) {
           existingExamIndex = visit.customExamIds.findIndex(
             (examId: string) =>
               getCachedItem(examId).definition.name === examType.name &&
               getCachedItem(examId).isHidden !== true,
           );
+        }
         return existingExamIndex < 0;
       },
     );
@@ -757,8 +775,10 @@ class VisitWorkFlow extends Component {
       'Prescription',
       getCachedItem(this.props.visitId),
     );
-    if (!medicationExam) return false;
-    const value = medicationExam['Prescription'];
+    if (!medicationExam) {
+      return false;
+    }
+    const value = medicationExam.Prescription;
     return !isEmpty(value);
   }
 
@@ -767,9 +787,10 @@ class VisitWorkFlow extends Component {
       'Fitting',
       getCachedItem(this.props.visitId),
     );
-    if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden)
+    if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden) {
       return false;
-    let value = fittingExam['Fitting'];
+    }
+    let value = fittingExam.Fitting;
     if (value instanceof Object) {
       value = value['Contact Lens Trial'];
     }
@@ -1050,9 +1071,25 @@ class VisitWorkFlow extends Component {
     return (
       <View style={styles.examsBoard}>
         <Text style={styles.cardTitle}>{strings.visit}</Text>
-        {doctor && (<Text style={styles.text}>{strings.doctor}:{' '}{postfix(doctor.firstName, ' ') + doctor.lastName}</Text>)}
-        {store && store.name && (<Text style={styles.text}>{strings.location}: {store.name}</Text>)}
-        {!isEmpty(this.state.visit.prescription.signedDate) && (<Text style={styles.text}>{strings.signedOn}: {formatDate(this.state.visit.prescription.signedDate, yearDateFormat)}</Text>)}
+        {doctor && (
+          <Text style={styles.text}>
+            {strings.doctor}: {postfix(doctor.firstName, ' ') + doctor.lastName}
+          </Text>
+        )}
+        {store && store.name && (
+          <Text style={styles.text}>
+            {strings.location}: {store.name}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.prescription.signedDate) && (
+          <Text style={styles.text}>
+            {strings.signedOn}:{' '}
+            {formatDate(
+              this.state.visit.prescription.signedDate,
+              yearDateFormat,
+            )}
+          </Text>
+        )}
       </View>
     );
   }
@@ -1328,8 +1365,8 @@ export class VisitHistoryCard extends Component {
 
   checkUserHasAccess() {
     let hasNoAccess = true;
-    this.state.summaries.map((visitSummary: Exam) =>
-      (hasNoAccess &&= visitSummary.readonly),
+    this.state.summaries.map(
+      (visitSummary: Exam) => (hasNoAccess &&= visitSummary.readonly),
     );
     return hasNoAccess;
   }
@@ -1343,9 +1380,22 @@ export class VisitHistoryCard extends Component {
       <View
         style={isWeb ? [styles.tabCard, {flexShrink: 100}] : styles.tabCard}>
         <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
-        {hasNoAccess ? <NoAccess /> : (
-          this.state.summaries.map((visitSummary: Exam, index: number) => (
-            visitSummary.readonly ? (<NoAccess />) : (
+        {hasNoAccess ? (
+          <NoAccess />
+        ) : (
+          this.state.summaries.map((visitSummary: Exam, index: number) =>
+            visitSummary.readonly ? (
+              <NoAccess
+                prefix={
+                  formatDate(
+                    getCachedItem(visitSummary.visitId).date,
+                    isToyear(getCachedItem(visitSummary.visitId).date)
+                      ? dateFormat
+                      : farDateFormat,
+                  ) + ':'
+                }
+              />
+            ) : (
               <View style={styles.rowLayout}>
                 <View
                   style={
@@ -1363,7 +1413,8 @@ export class VisitHistoryCard extends Component {
                   </Text>
                 </View>
               </View>
-          )))
+            ),
+          )
         )}
       </View>
     );

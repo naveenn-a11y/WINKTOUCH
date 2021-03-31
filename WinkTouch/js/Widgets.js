@@ -3367,7 +3367,8 @@ type NoAccessProps = {
 export class NoAccess extends Component<NoAccessProps> {
   render() {
     return (
-      <View style={{textAlign: 'center'}}>
+      // <View style={{textAlign: 'center'}}>
+      <View>
         <Text style={styles.noAccessText}>
           {(this.props.prefix ? this.props.prefix + ' ' : '') +
             strings.noAccess}
