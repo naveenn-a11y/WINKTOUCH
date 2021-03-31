@@ -6,26 +6,18 @@
 import React, {Component, PureComponent} from 'react';
 import {
   View,
-  TouchableHighlight,
   Text,
   TouchableOpacity,
-  Modal,
-  TouchableWithoutFeedback,
   FlatList,
-  ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
 import type {
-  Patient,
   Exam,
-  GlassesRx,
-  GlassRx,
   Visit,
   Appointment,
   ExamDefinition,
-  ExamPredefinedValue,
-  Recall,
   PatientDocument,
   PatientInfo,
   Store,
@@ -38,7 +30,6 @@ import {strings, getUserLanguage} from './Strings';
 import {Button, FloatingButton, Lock, NativeBar, Alert} from './Widgets';
 import {
   formatMoment,
-  deepClone,
   formatDate,
   now,
   jsonDateTimeFormat,
@@ -49,8 +40,6 @@ import {
   farDateFormat,
   tomorrow,
   yearDateFormat,
-  officialDateFormat,
-  prefix,
   postfix,
 } from './Util';
 import {
@@ -61,14 +50,8 @@ import {
   renderExamHtml,
   UserAction,
 } from './Exam';
-import {allExamPredefinedValues} from './Favorites';
 import {allExamDefinitions} from './ExamDefinition';
-import {
-  ReferralCard,
-  PrescriptionCard,
-  AssessmentCard,
-  VisitSummaryCard,
-} from './Assessment';
+import {PrescriptionCard, AssessmentCard, VisitSummaryCard} from './Assessment';
 import {
   cacheItem,
   getCachedItem,
@@ -99,6 +82,7 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
+import {Card, Title, Paragraph} from 'react-native-paper';
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -122,6 +106,12 @@ const examSectionsFr: string[] = [
   'Form',
   'Document',
 ];
+
+const PRIVILEGE = {
+  FULLACCESS: 'FULLACCESS',
+  NOACCESS: 'NOACCESS',
+  READONLY: 'READONLY',
+};
 
 export function getSectionTitle(section: string): string {
   const language: string = getUserLanguage();
@@ -168,6 +158,30 @@ export async function saveVisitTypes(visitTypes: VisitType[]) {
   visitTypes = (await performActionOnItem('linkExams', visitTypes))
     .visitTypeList;
   cacheItem('visitTypes', visitTypes);
+}
+
+function hasVisitMedicalDataAccess(visit: Visit): boolean {
+  if (!visit) return false;
+  return (
+    visit.medicalDataPrivilege === PRIVILEGE.READONLY ||
+    visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+function hasVisitPretestAccess(visit: Visit): boolean {
+  if (!visit) return false;
+  return (
+    visit.pretestPrivilege === PRIVILEGE.READONLY ||
+    visit.pretestPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+function hasVisitMedicalDataFullAccess(visit: Visit): boolean {
+  if (!visit) return false;
+  return visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS;
+}
+function hasVisitPretestFullAccess(visit: Visit): boolean {
+  if (!visit) return false;
+  return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
 }
 
 export function visitHasEnded(visit: string | Visit): boolean {
@@ -1021,7 +1035,10 @@ class VisitWorkFlow extends Component {
                     appointmentStateKey: this.props.appointmentStateKey,
                   })
                 }
-                onHide={() => this.hideExam(exam)}
+                onHide={() =>
+                  hasVisitMedicalDataFullAccess(this.state.visit) &&
+                  this.hideExam(exam)
+                }
                 unlocked={this.state.locked !== true}
                 enableScroll={this.props.enableScroll}
                 disableScroll={this.props.disableScroll}
@@ -1049,9 +1066,25 @@ class VisitWorkFlow extends Component {
     return (
       <View style={styles.examsBoard}>
         <Text style={styles.cardTitle}>{strings.visit}</Text>
-        {doctor && (<Text style={styles.text}>{strings.doctor}:{' '}{postfix(doctor.firstName, ' ') + doctor.lastName}</Text>)}
-        {store && store.name && (<Text style={styles.text}>{strings.location}: {store.name}</Text>)}
-        {!isEmpty(this.state.visit.prescription.signedDate) && (<Text style={styles.text}>{strings.signedOn}: {formatDate(this.state.visit.prescription.signedDate, yearDateFormat)}</Text>)}
+        {doctor && (
+          <Text style={styles.text}>
+            {strings.doctor}: {postfix(doctor.firstName, ' ') + doctor.lastName}
+          </Text>
+        )}
+        {store && store.name && (
+          <Text style={styles.text}>
+            {strings.location}: {store.name}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.prescription.signedDate) && (
+          <Text style={styles.text}>
+            {strings.signedOn}
+            {formatDate(
+              this.state.visit.prescription.signedDate,
+              yearDateFormat,
+            )}
+          </Text>
+        )}
       </View>
     );
   }
@@ -1086,7 +1119,9 @@ class VisitWorkFlow extends Component {
         return (
           <VisitSummaryCard
             exam={exam}
-            editable={!this.state.locked && !this.props.readonly}
+            editable={
+              !this.state.locked && !this.props.readonly && !exam.readonly
+            }
             key={strings.summaryTitle}
           />
         );
@@ -1108,6 +1143,11 @@ class VisitWorkFlow extends Component {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
+    const hasMedicalDataAccess: boolean = hasVisitMedicalDataAccess(visit);
+    const hasPreTestAccess: boolean = hasVisitPretestAccess(visit);
+    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataFullAccess(
+      visit,
+    );
 
     return (
       <View
@@ -1119,13 +1159,15 @@ class VisitWorkFlow extends Component {
           {!this.state.locked && !this.state.visit.prescription.signedDate && (
             <Button title={strings.sign} onPress={() => this.signVisit()} />
           )}
-          <Button
-            title={strings.printRx}
-            onPress={() => {
-              printRx(this.props.visitId);
-            }}
-          />
-          {this.hasMedicalRx() && (
+          {hasPreTestAccess && (
+            <Button
+              title={strings.printRx}
+              onPress={() => {
+                printRx(this.props.visitId);
+              }}
+            />
+          )}
+          {hasMedicalDataAccess && this.hasMedicalRx() && (
             <Button
               title={strings.printMedicalRx}
               onPress={() => {
@@ -1133,7 +1175,7 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {this.hasFinalClFitting() && (
+          {hasPreTestAccess && this.hasFinalClFitting() && (
             <Button
               title={strings.printClRx}
               onPress={() => {
@@ -1149,12 +1191,14 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          <Button
-            title={strings.printPatientFile}
-            onPress={() => {
-              printPatientFile(this.props.visitId);
-            }}
-          />
+          {hasMedicalDataAccess && (
+            <Button
+              title={strings.printPatientFile}
+              onPress={() => {
+                printPatientFile(this.props.visitId);
+              }}
+            />
+          )}
           {isReferralsEnabled() && (
             <Button
               title={strings.referral}
@@ -1167,39 +1211,59 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {!this.state.locked && !this.props.readonly && (
-            <Button
-              title={strings.lockVisit}
-              onPress={() => this.lockVisit()}
-            />
-          )}
-          {visit && visit.appointmentId && !this.props.readonly && (
-            <Button
-              title={
-                appointment && appointment.status === 5
-                  ? strings.completed
-                  : strings.complete
-              }
-              disabled={appointment && appointment.status === 5}
-              onPress={() => this.endVisit()}
-            />
-          )}
+          {!this.state.locked &&
+            !this.props.readonly &&
+            hasMedicalDataFullAccess && (
+              <Button
+                title={strings.lockVisit}
+                onPress={() => this.lockVisit()}
+              />
+            )}
+          {visit &&
+            visit.appointmentId &&
+            !this.props.readonly &&
+            (
+              hasMedicalDataFullAccess &&
+              !(appointment && appointment.status === 5)
+            )(
+              <Button
+                title={
+                  appointment && appointment.status === 5
+                    ? strings.completed
+                    : strings.complete
+                }
+                disabled={appointment && appointment.status === 5}
+                onPress={() => this.endVisit()}
+              />,
+            )}
         </View>
       </View>
     );
   }
 
   renderAddableExamButton(section?: string) {
+    const hasPreTestFullAccess: boolean = hasVisitPretestFullAccess(
+      this.state.visit,
+    );
+    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataFullAccess(
+      this.state.visit,
+    );
     if (this.props.readonly || section === 'Document') {
       return;
     }
+
     const doingPreExam: boolean = !visitHasStarted(this.state.visit);
-    const addableExamDefinitions: ExamDefinition[] = this.state.addableExamTypes.filter(
+    let addableExamDefinitions: ExamDefinition[] = this.state.addableExamTypes.filter(
       (examType: ExamDefinition) =>
         (doingPreExam === true && examType.isPreExam === true) ||
         (doingPreExam === false &&
           examType.section.substring(0, examType.section.indexOf('.')) ===
             section),
+    );
+    addableExamDefinitions = addableExamDefinitions.filter(
+      (examType: ExamDefinition) =>
+        (examType.isPreExam && hasPreTestFullAccess) ||
+        (!examType.isPreExam && hasMedicalDataFullAccess),
     );
     const addableExamLabels: string[] = addableExamDefinitions.map(
       (examType: ExamDefinition) =>
@@ -1208,6 +1272,7 @@ class VisitWorkFlow extends Component {
     if (!addableExamLabels || addableExamLabels.length == 0) {
       return null;
     }
+
     return (
       <FloatingButton
         options={addableExamLabels}
@@ -1217,7 +1282,10 @@ class VisitWorkFlow extends Component {
   }
 
   renderLockIcon() {
-    if (this.state.locked !== true) {
+    if (
+      this.state.locked !== true ||
+      !hasVisitMedicalDataFullAccess(this.state.visit)
+    ) {
       return null;
     }
     return (
@@ -1249,9 +1317,12 @@ class VisitWorkFlow extends Component {
     const preExamDefinitions: ExamDefinition[] = getCachedItems(
       getCachedItem('preExamDefinitions'),
     );
-    if (!visitHasStarted(this.state.visit)) {
+
+    const doingPreExam: boolean = !visitHasStarted(this.state.visit);
+    if (doingPreExam || !hasVisitMedicalDataAccess(this.state.visit)) {
       const hasPreTests =
         preExamDefinitions == undefined || preExamDefinitions.length > 0;
+
       return (
         <View>
           {hasPreTests && (
@@ -1263,13 +1334,19 @@ class VisitWorkFlow extends Component {
               )}
             </View>
           )}
-          {!this.props.readonly && (
-            <StartVisitButtons
-              isPreVisit={false}
-              onStartVisit={this.props.onStartVisit}
-              isLoading={this.props.isLoading}
-            />
-          )}
+          {!this.props.readonly &&
+            ((hasVisitPretestFullAccess(this.state.visit) &&
+              this.state.visit.preCustomExamIds.length == 0) ||
+              hasVisitMedicalDataFullAccess(this.state.visit)) && (
+              <StartVisitButtons
+                isPreVisit={false}
+                onStartVisit={this.props.onStartVisit}
+                isLoading={this.props.isLoading}
+              />
+            )}
+          {!doingPreExam &&
+            !hasVisitMedicalDataAccess(this.state.visit) &&
+            this.renderActionButtons()}
         </View>
       );
     }
@@ -1638,6 +1715,8 @@ export class VisitHistory extends Component {
   }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
+    const hasPretestAccess: boolean =
+      getDoctor() && getDoctor().pretestPrivilege === PRIVILEGE.FULLACCESS;
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
@@ -1647,7 +1726,7 @@ export class VisitHistory extends Component {
               onPress={() => this.startAppointment()}
             />
           )}
-          {!isNewAppointment && (
+          {!isNewAppointment && hasPretestAccess && (
             <Button title={strings.addVisit} onPress={this.showDatePicker} />
           )}
           {__DEV__ && <Button title={strings.printRx} />}
@@ -1715,6 +1794,10 @@ export class VisitHistory extends Component {
     const listFollowUp: ?(FollowUp[]) = getCachedItem(
       'referralFollowUpHistory-' + patientInfo.id,
     );
+    const visit: Visit =
+      this.state.selectedId && this.state.selectedId.startsWith('visit')
+        ? getCachedItem(this.state.selectedId)
+        : undefined;
     return (
       <View>
         <View style={styles.tabHeader}>
@@ -1752,29 +1835,68 @@ export class VisitHistory extends Component {
         {this.state.selectedId === 'followup' && this.renderFollowUp()}
 
         {this.state.selectedId && this.state.selectedId.startsWith('visit') && (
-          <VisitWorkFlow
-            patientInfo={this.props.patientInfo}
-            visitId={this.state.selectedId}
-            navigation={this.props.navigation}
-            appointmentStateKey={this.props.appointmentStateKey}
-            onStartVisit={(visitType: string, isPreVisit: boolean) => {
-              this.startVisit(this.state.selectedId, visitType);
-            }}
-            readonly={this.props.readonly}
-            enableScroll={this.props.enableScroll}
-            disableScroll={this.props.disableScroll}
-            isLoading={this.state.isLoading}
-          />
+          <VisitPermission hasAccess={hasVisitPretestAccess(visit)}>
+            <VisitWorkFlow
+              patientInfo={this.props.patientInfo}
+              visitId={this.state.selectedId}
+              navigation={this.props.navigation}
+              appointmentStateKey={this.props.appointmentStateKey}
+              onStartVisit={(visitType: string, isPreVisit: boolean) => {
+                this.startVisit(this.state.selectedId, visitType);
+              }}
+              readonly={this.props.readonly}
+              enableScroll={this.props.enableScroll}
+              disableScroll={this.props.disableScroll}
+              isLoading={this.state.isLoading}
+            />
+          </VisitPermission>
         )}
         {this.state.selectedId &&
           this.state.selectedId.startsWith('patientDocument') && (
             <PatientDocumentPage id={this.state.selectedId} />
           )}
-        {this.state.selectedId && this.state.showDialog && this.renderAlert()}
+        {this.state.selectedId &&
+          this.state.showDialog &&
+          hasVisitMedicalDataFullAccess(visit) &&
+          this.renderAlert()}
         {!isNewAppointment &&
           this.state.showingDatePicker &&
           this.renderDateTimePicker()}
       </View>
     );
+  }
+}
+
+export class VisitPermission extends Component {
+  props: {
+    hasAccess?: boolean,
+    hideLabel?: boolean,
+  };
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    if (this.props.hasAccess) return this.props.children;
+    else {
+      return (
+        !this.props.hideLabel && (
+          <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
+              <Card>
+                <Card.Content>
+                  <Title style={styles.paragraph}>
+                    {strings.deniedAccessTitle}
+                  </Title>
+                  <Paragraph style={styles.paragraph}>
+                    {strings.visitDeniedAccessError}
+                  </Paragraph>
+                </Card.Content>
+              </Card>
+            </View>
+          </SafeAreaView>
+        )
+      );
+    }
   }
 }

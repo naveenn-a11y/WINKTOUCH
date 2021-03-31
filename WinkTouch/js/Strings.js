@@ -240,6 +240,9 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Upload a file',
     signedOn: 'Signed on',
     location: 'Location',
+    visitDeniedAccessError:
+      'You do not have access to view this patient file !',
+    deniedAccessTitle: 'Access Denied',
   },
   fr: {
     enterRegisteredEmail:
@@ -479,6 +482,8 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Téléverser un fichier',
     signedOn: 'Signé le',
     location: 'Lieu',
+    visitDeniedAccessError: "vous n'avez pas accès à ce dossier patient !",
+    deniedAccessTitle: 'Accès Refusé',
   },
 });
 

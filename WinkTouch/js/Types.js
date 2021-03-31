@@ -68,6 +68,8 @@ export type User = {
   postalcode?: string,
   city?: string,
   isExternal: boolean,
+  pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
 };
 
 export type Patient = {
