@@ -1089,6 +1089,27 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  renderVisitPermission() {
+    return (
+      <View style={styles.examsBoard}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.container}>
+            <Card>
+              <Card.Content>
+                <Title style={styles.paragraph}>
+                  {strings.deniedAccessTitle}
+                </Title>
+                <Paragraph style={styles.paragraph}>
+                  {strings.visitDeniedAccessError}
+                </Paragraph>
+              </Card.Content>
+            </Card>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
   renderAssessments() {
     let assessments: Exam[] = getCachedItems(
       this.state.visit.customExamIds,
@@ -1120,7 +1141,9 @@ class VisitWorkFlow extends Component {
           <VisitSummaryCard
             exam={exam}
             editable={
-              !this.state.locked && !this.props.readonly && !exam.readonly
+              !this.state.locked &&
+              !this.props.readonly &&
+              hasVisitMedicalDataFullAccess(this.state.visit)
             }
             key={strings.summaryTitle}
           />
@@ -1300,6 +1323,16 @@ class VisitWorkFlow extends Component {
   render() {
     if (this.props.visitId === undefined) {
       return null;
+    }
+    if (!hasVisitPretestAccess(this.state.visit)) {
+      return (
+        <View>
+          <View style={styles.flow}>
+            {this.renderConsultationDetails()}
+            {this.renderVisitPermission()}
+          </View>
+        </View>
+      );
     }
     if (!this.state.visit && !this.props.readonly) {
       return (
@@ -1835,21 +1868,19 @@ export class VisitHistory extends Component {
         {this.state.selectedId === 'followup' && this.renderFollowUp()}
 
         {this.state.selectedId && this.state.selectedId.startsWith('visit') && (
-          <VisitPermission hasAccess={hasVisitPretestAccess(visit)}>
-            <VisitWorkFlow
-              patientInfo={this.props.patientInfo}
-              visitId={this.state.selectedId}
-              navigation={this.props.navigation}
-              appointmentStateKey={this.props.appointmentStateKey}
-              onStartVisit={(visitType: string, isPreVisit: boolean) => {
-                this.startVisit(this.state.selectedId, visitType);
-              }}
-              readonly={this.props.readonly}
-              enableScroll={this.props.enableScroll}
-              disableScroll={this.props.disableScroll}
-              isLoading={this.state.isLoading}
-            />
-          </VisitPermission>
+          <VisitWorkFlow
+            patientInfo={this.props.patientInfo}
+            visitId={this.state.selectedId}
+            navigation={this.props.navigation}
+            appointmentStateKey={this.props.appointmentStateKey}
+            onStartVisit={(visitType: string, isPreVisit: boolean) => {
+              this.startVisit(this.state.selectedId, visitType);
+            }}
+            readonly={this.props.readonly}
+            enableScroll={this.props.enableScroll}
+            disableScroll={this.props.disableScroll}
+            isLoading={this.state.isLoading}
+          />
         )}
         {this.state.selectedId &&
           this.state.selectedId.startsWith('patientDocument') && (
@@ -1864,39 +1895,5 @@ export class VisitHistory extends Component {
           this.renderDateTimePicker()}
       </View>
     );
-  }
-}
-
-export class VisitPermission extends Component {
-  props: {
-    hasAccess?: boolean,
-    hideLabel?: boolean,
-  };
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    if (this.props.hasAccess) return this.props.children;
-    else {
-      return (
-        !this.props.hideLabel && (
-          <SafeAreaView style={styles.container}>
-            <View style={styles.container}>
-              <Card>
-                <Card.Content>
-                  <Title style={styles.paragraph}>
-                    {strings.deniedAccessTitle}
-                  </Title>
-                  <Paragraph style={styles.paragraph}>
-                    {strings.visitDeniedAccessError}
-                  </Paragraph>
-                </Card.Content>
-              </Card>
-            </View>
-          </SafeAreaView>
-        )
-      );
-    }
   }
 }
