@@ -2908,6 +2908,21 @@ export class Lock extends PureComponent {
   }
 }
 
+export class Pencil extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <Icon
+        name="pencil-off-outline"
+        style={this.props.style}
+        color={selectionFontColor}
+      />
+    );
+  }
+}
+
 export class SelectionListRow extends PureComponent {
   props: {
     label: string,

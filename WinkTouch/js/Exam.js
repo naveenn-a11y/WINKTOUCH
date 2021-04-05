@@ -60,7 +60,7 @@ import {
   storeFavorite,
 } from './Favorites';
 import {getExamDefinition} from './ExamDefinition';
-import {Lock} from './Widgets';
+import {Lock, Pencil} from './Widgets';
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 
@@ -891,13 +891,14 @@ export class ExamScreen extends Component {
 
   renderExam() {
     if (!this.state.exam) return null;
+    const canEdit: boolean = !(this.state.exam.readonly || this.state.locked);
     switch (this.state.exam.definition.type) {
       case 'selectionLists':
         return (
           <SelectionListsScreen
             exam={this.state.exam}
             onUpdateExam={this.updateExam}
-            editable={this.state.locked !== true}
+            editable={canEdit}
             favorites={this.state.favorites}
             onAddFavorite={
               this.state.exam.definition.starable ? this.addFavorite : undefined
@@ -912,7 +913,7 @@ export class ExamScreen extends Component {
           <GroupedFormScreen
             exam={this.state.exam}
             onUpdateExam={this.updateExam}
-            editable={this.state.locked !== true}
+            editable={canEdit}
             favorites={this.state.favorites}
             onAddFavorite={
               this.state.exam.definition.starable ? this.addFavorite : undefined
@@ -929,7 +930,7 @@ export class ExamScreen extends Component {
           <PaperFormScreen
             exam={this.state.exam}
             onUpdateExam={this.updateExam}
-            editable={this.state.locked !== true}
+            editable={canEdit}
             appointmentStateKey={this.state.appointmentStateKey}
             navigation={this.props.navigation}
             enableScroll={this.enableScroll}
@@ -945,7 +946,7 @@ export class ExamScreen extends Component {
   }
 
   renderLockIcon() {
-    if (!this.state.locked) return null;
+    if (!this.state.locked || this.state.exam.readonly) return null;
     return (
       <TouchableOpacity onPress={this.switchLock}>
         <Lock
@@ -957,10 +958,21 @@ export class ExamScreen extends Component {
     );
   }
 
+  renderPencilIcon() {
+    if (this.state.exam.readonly) {
+      return (
+        <TouchableOpacity>
+          <Pencil style={styles.screenIcon} />
+        </TouchableOpacity>
+      );
+    } else return null;
+  }
+
   renderFavoriteIcon() {
     if (!this.state.exam) return null;
     if (
       this.state.locked ||
+      this.state.exam.readonly ||
       this.state.exam.definition.starable !== true ||
       this.state.exam.definition.starable !== true ||
       (this.state.exam.definition.type !== 'selectionLists' &&
@@ -991,6 +1003,7 @@ export class ExamScreen extends Component {
       <View style={isWeb ? styles.examIconsFlex : styles.examIcons}>
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
+        {this.renderPencilIcon()}
         {this.renderLockIcon()}
       </View>
     );
