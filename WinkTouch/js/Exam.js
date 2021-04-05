@@ -972,6 +972,7 @@ export class ExamScreen extends Component {
     if (!this.state.exam) return null;
     if (
       this.state.locked ||
+      this.state.exam.readonly ||
       this.state.exam.definition.starable !== true ||
       this.state.exam.definition.starable !== true ||
       (this.state.exam.definition.type !== 'selectionLists' &&
