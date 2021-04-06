@@ -293,21 +293,6 @@ export async function updateVisit(visit: Visit): Visit {
   return visit;
 }
 
-function fillPrescriptionDates(
-  summaries: ?(Exam[]),
-  visitId: string,
-) {
-  if (!summaries) {
-    return;
-  }
-  const visit: Visit = getCachedItem(visitId);
-  summaries.forEach((summary: Exam) => {
-    if (!summary['Rx Date']) {
-      summary['Rx_Date'] = visit.date;
-    }
-  });
-}
-
 function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
   if (!visitHistory) {
@@ -319,8 +304,7 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
       visit.medicalDataPrivilege != 'READONLY' &&
       visit.medicalDataPrivilege != 'FULLACCESS'
     ) {
-      let noAccessExam: Exam[] = [{noaccess: true}];
-      fillPrescriptionDates(noAccessExam, visit.id);
+      let noAccessExam: Exam[] = [{noaccess: true, visitId: visit.id}];
       visitSummaries = [...visitSummaries, ...noAccessExam];
     } else {
       if (visit.customExamIds) {
@@ -1413,8 +1397,8 @@ export class VisitHistoryCard extends Component {
               <NoAccess
                 prefix={
                   formatDate(
-                    visitSummary.Rx_Date,
-                    isToyear(visitSummary.Rx_Date)
+                    getCachedItem(visitSummary.visitId).date,
+                    isToyear(getCachedItem(visitSummary.visitId).date)
                       ? dateFormat
                       : farDateFormat,
                   ) + ': '
