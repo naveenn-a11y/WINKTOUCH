@@ -20,7 +20,7 @@ import type {
   GroupDefinition,
   FieldDefinitions,
   ExamPredefinedValue,
-  GlassesRx, PatientDrug, Prescription,
+  GlassesRx, Prescription,
 } from "./Types";
 import {strings} from './Strings';
 import {styles, selectionColor, fontScale, scaleStyle, isWeb} from './Styles';
@@ -208,12 +208,36 @@ export function formatFieldValue(
     }
   }
   if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
+    if (
+      (fieldDefinition.prefix &&
+        fieldDefinition.prefix instanceof Array === false) ||
+      (fieldDefinition.suffix &&
+        fieldDefinition.suffix instanceof Array === false)
+    ) {
+      return (
+        formatPrefix(fieldDefinition, value) +
+        formatDate(value, isToyear(value) ? dateFormat : yearDateFormat) +
+        formatSuffix(fieldDefinition)
+      );
+    }
     return formatDate(value, isToyear(value) ? dateFormat : yearDateFormat);
   }
   if (
     fieldDefinition.type &&
     (fieldDefinition.type === 'time' || fieldDefinition.type.includes('Time'))
   ) {
+    if (
+      (fieldDefinition.prefix &&
+        fieldDefinition.prefix instanceof Array === false) ||
+      (fieldDefinition.suffix &&
+        fieldDefinition.suffix instanceof Array === false)
+    ) {
+      return (
+        formatPrefix(fieldDefinition, value) +
+        formatTime(value) +
+        formatSuffix(fieldDefinition)
+      );
+    }
     return formatTime(value);
   }
   if (fieldDefinition.type && fieldDefinition.type === 'prism') {
@@ -394,24 +418,27 @@ class ItemSummary extends Component<ItemSummaryProps> {
       return null;
     }
     if (this.props.item?.noaccess) {
-      let noAccessLabel: string = '';
+      const itemKeys = Object.keys(this.props.item);
+      let dateValue: string = '';
+      let dateLiteral: string = '';
       this.props.titleFields &&
         this.props.titleFields.forEach((titleField: string) => {
-          noAccessLabel = noAccessLabel + this.props.item[titleField] + ' ';
+          if (itemKeys.indexOf(titleField) !== -1) {
+            dateValue += this.props.item[titleField];
+            dateLiteral += titleField;
+          }
         });
       let formattedValue: string = '';
-      noAccessLabel = noAccessLabel.trim();
-      if (noAccessLabel !== null && noAccessLabel !== '') {
-        let rxDateObject = this.props.fieldDefinitions.find(o => o.name === 'Rx Date');
+      if (dateValue !== null && dateValue !== '') {
+        let rxDateObject = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === dateLiteral);
         if (rxDateObject !== undefined)
-          formattedValue += formatFieldValue(noAccessLabel, rxDateObject);
+          formattedValue += formatFieldValue(dateValue, rxDateObject);
       }
-      return <NoAccess prefix={formattedValue + ':'} />;
+      return <NoAccess prefix={formattedValue} />;
     }
     if (this.props.orientation !== 'horizontal') {
       let description = '';
       let isFirstField = true;
-      let rxDate = '';
       for (let i: number = 0; i < this.props.fieldDefinitions.length; i++) {
         const fieldDefinition: FieldDefinition = this.props.fieldDefinitions[i];
         const propertyName: string = fieldDefinition.name;
@@ -419,24 +446,18 @@ class ItemSummary extends Component<ItemSummaryProps> {
         if (value !== undefined && value !== null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
-            if (!isFirstField) {
+            if (!isFirstField && !description.trim().endsWith(':')) {
               description += ', ';
             }
             if (this.props.showLabels && this.props.fieldDefinitions[i].label) {
               description += this.props.fieldDefinitions[i].label + ': ';
             }
-            if (propertyName === 'Rx Date') {
-              rxDate += formattedValue;
-            } else {
-              description += formattedValue;
-            }
+            description += formattedValue;
             isFirstField = false;
           }
         }
       }
-      description = description.trim();
-      description = description.charAt(description.length - 1) === ',' ? description.slice(0, -1) : description;
-      return <Text style={styles.textLeft}>{rxDate + ': ' + description}</Text>;
+      return <Text style={styles.textLeft}>{description}</Text>;
     }
     return (
       <View>

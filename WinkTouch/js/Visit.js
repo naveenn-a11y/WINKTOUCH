@@ -31,8 +31,8 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  User,
-} from './Types';
+  User, Prescription,
+} from "./Types";
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
@@ -293,6 +293,21 @@ export async function updateVisit(visit: Visit): Visit {
   return visit;
 }
 
+function fillPrescriptionDates(
+  summaries: ?(Exam[]),
+  visitId: string,
+) {
+  if (!summaries) {
+    return;
+  }
+  const visit: Visit = getCachedItem(visitId);
+  summaries.forEach((summary: Exam) => {
+    if (!summary['Rx Date']) {
+      summary['Rx_Date'] = visit.date;
+    }
+  });
+}
+
 function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
   if (!visitHistory) {
@@ -300,15 +315,25 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   }
   let visitSummaries: Exam[] = [];
   visitHistory.forEach((visit: Visit) => {
-    if (visit.customExamIds) {
-      visit.customExamIds.forEach((examId: string) => {
-        const exam: Exam = getCachedItem(examId);
-        if (exam.resume) {
-          visitSummaries = [...visitSummaries, exam];
+    if (
+      visit.medicalDataPrivilege != 'READONLY' &&
+      visit.medicalDataPrivilege != 'FULLACCESS'
+    ) {
+      let noAccessExam: Exam[] = [{noaccess: true}];
+      fillPrescriptionDates(noAccessExam, visit.id);
+      visitSummaries = [...visitSummaries, ...noAccessExam];
+      console.log('visitsummaries ' + JSON.stringify(visitSummaries));
+    } else {
+      if (visit.customExamIds) {
+        visit.customExamIds.forEach((examId: string) => {
+          const exam: Exam = getCachedItem(examId);
+          if (exam.resume) {
+            visitSummaries = [...visitSummaries, exam];
+          }
+        });
+        if (visitSummaries.length > 3) {
+          return visitSummaries;
         }
-      });
-      if (visitSummaries.length > 3) {
-        return visitSummaries;
       }
     }
   });
@@ -1364,11 +1389,12 @@ export class VisitHistoryCard extends Component {
   }
 
   checkUserHasAccess() {
-    let hasNoAccess = true;
+    let hasNoAccesAtAll = true;
     this.state.summaries.map(
-      (visitSummary: Exam) => (hasNoAccess &&= visitSummary.readonly),
+      (visitSummary: Exam) =>
+        (hasNoAccesAtAll &&= 'noaccess' in visitSummary ? visitSummary.noaccess : false),
     );
-    return hasNoAccess;
+    return hasNoAccesAtAll;
   }
 
   render() {
@@ -1384,15 +1410,15 @@ export class VisitHistoryCard extends Component {
           <NoAccess />
         ) : (
           this.state.summaries.map((visitSummary: Exam, index: number) =>
-            visitSummary.readonly ? (
+            visitSummary.noaccess ? (
               <NoAccess
                 prefix={
                   formatDate(
-                    getCachedItem(visitSummary.visitId).date,
-                    isToyear(getCachedItem(visitSummary.visitId).date)
+                    visitSummary.Rx_Date,
+                    isToyear(visitSummary.Rx_Date)
                       ? dateFormat
                       : farDateFormat,
-                  ) + ':'
+                  ) + ': '
                 }
               />
             ) : (

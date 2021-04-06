@@ -72,10 +72,10 @@ function getRecentMedication(patientId: string): ?({ medications: Prescription[]
           if (exam.Prescription) {
             if (fieldDefinitions === undefined) {
               fieldDefinitions = exam.definition.fields;
-              let obj = fieldDefinitions.find(o => o.name === 'Rx Date');
-              if (obj === undefined) {
-                let date: ?(FieldDefinition[]) = [{"name":"Rx Date","type":"pastDate","required":true}];
-                fieldDefinitions = [...fieldDefinitions, ...date];
+              let fieldDefinition = fieldDefinitions.find(fd => fd.name === 'Rx Date');
+              if (fieldDefinition === undefined) {
+                let date: ?(FieldDefinition[]) = [{"name":"Rx Date","type":"pastDate","required":true, "suffix":': '}];
+                fieldDefinitions = [...date, ...fieldDefinitions];
               }
             }
             fillPrescriptionDates(exam.Prescription, exam.visitId);
