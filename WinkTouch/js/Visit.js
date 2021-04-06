@@ -322,7 +322,6 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
       let noAccessExam: Exam[] = [{noaccess: true}];
       fillPrescriptionDates(noAccessExam, visit.id);
       visitSummaries = [...visitSummaries, ...noAccessExam];
-      console.log('visitsummaries ' + JSON.stringify(visitSummaries));
     } else {
       if (visit.customExamIds) {
         visit.customExamIds.forEach((examId: string) => {
