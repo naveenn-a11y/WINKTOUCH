@@ -240,6 +240,7 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Upload a File',
     signedOn: 'Signed on',
     location: 'Location',
+    noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
     pd: 'PD',
     notesOnRx: 'Notes on Rx',
@@ -484,6 +485,7 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Téléverser un Fichier',
     signedOn: 'Signé le',
     location: 'Lieu',
+    noAccess: 'Vous n’avez pas accès à cette information',
     printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
     pd: 'PD',
     notesOnRx: 'Notes sur Rx',

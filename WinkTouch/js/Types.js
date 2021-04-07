@@ -116,6 +116,22 @@ export type PatientDrug = {
   repeat: number,
   duration: string,
   note: string,
+  noaccess?: boolean,
+};
+
+export type Prescription = {
+  label?: string,
+  strength?: string,
+  dosage?: string,
+  frequency?: string,
+  duration?: string,
+  instructions?: string,
+  refill?: string,
+  doNotSubstitute?: string,
+  comment?: string,
+  rxDate?: string,
+  noaccess?: boolean,
+  readonly?: boolean,
 };
 
 export type PatientTag = {

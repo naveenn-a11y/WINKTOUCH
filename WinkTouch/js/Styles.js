@@ -205,6 +205,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18 * fontScale,
   },
+  noAccessText: {
+    fontSize: 18 * fontScale,
+    fontStyle: 'italic',
+  },
   textLeft: {
     fontSize: 18 * fontScale,
     maxWidth: 400 * fontScale,

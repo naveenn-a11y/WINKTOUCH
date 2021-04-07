@@ -32,11 +32,18 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  User,
-} from './Types';
+  User, Prescription,
+} from "./Types";
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {Button, FloatingButton, Lock, NativeBar, Alert} from './Widgets';
+import {
+  Button,
+  FloatingButton,
+  Lock,
+  NativeBar,
+  Alert,
+  NoAccess,
+} from './Widgets';
 import {
   formatMoment,
   deepClone,
@@ -295,15 +302,23 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   }
   let visitSummaries: Exam[] = [];
   visitHistory.forEach((visit: Visit) => {
-    if (visit.customExamIds) {
-      visit.customExamIds.forEach((examId: string) => {
-        const exam: Exam = getCachedItem(examId);
-        if (exam.resume) {
-          visitSummaries = [...visitSummaries, exam];
+    if (
+      visit.medicalDataPrivilege != 'READONLY' &&
+      visit.medicalDataPrivilege != 'FULLACCESS'
+    ) {
+      let noAccessExam: Exam[] = [{noaccess: true, visitId: visit.id}];
+      visitSummaries = [...visitSummaries, ...noAccessExam];
+    } else {
+      if (visit.customExamIds) {
+        visit.customExamIds.forEach((examId: string) => {
+          const exam: Exam = getCachedItem(examId);
+          if (exam.resume) {
+            visitSummaries = [...visitSummaries, exam];
+          }
+        });
+        if (visitSummaries.length > 3) {
+          return visitSummaries;
         }
-      });
-      if (visitSummaries.length > 3) {
-        return visitSummaries;
       }
     }
   });
@@ -1071,9 +1086,25 @@ class VisitWorkFlow extends Component {
     return (
       <View style={styles.examsBoard}>
         <Text style={styles.cardTitle}>{strings.visit}</Text>
-        {doctor && (<Text style={styles.text}>{strings.doctor}:{' '}{postfix(doctor.firstName, ' ') + doctor.lastName}</Text>)}
-        {store && store.name && (<Text style={styles.text}>{strings.location}: {store.name}</Text>)}
-        {!isEmpty(this.state.visit.prescription.signedDate) && (<Text style={styles.text}>{strings.signedOn}: {formatDate(this.state.visit.prescription.signedDate, yearDateFormat)}</Text>)}
+        {doctor && (
+          <Text style={styles.text}>
+            {strings.doctor}: {postfix(doctor.firstName, ' ') + doctor.lastName}
+          </Text>
+        )}
+        {store && store.name && (
+          <Text style={styles.text}>
+            {strings.location}: {store.name}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.prescription.signedDate) && (
+          <Text style={styles.text}>
+            {strings.signedOn}:{' '}
+            {formatDate(
+              this.state.visit.prescription.signedDate,
+              yearDateFormat,
+            )}
+          </Text>
+        )}
       </View>
     );
   }
@@ -1454,33 +1485,60 @@ export class VisitHistoryCard extends Component {
     this.setState({summaries});
   }
 
+  checkUserHasAccess() {
+    let hasNoAccesAtAll = true;
+    this.state.summaries.map(
+      (visitSummary: Exam) =>
+        (hasNoAccesAtAll &&= 'noaccess' in visitSummary ? visitSummary.noaccess : false),
+    );
+    return hasNoAccesAtAll;
+  }
+
   render() {
     if (!this.state.summaries) {
       return null;
     }
+    let hasNoAccess = this.checkUserHasAccess();
     return (
       <View
         style={isWeb ? [styles.tabCard, {flexShrink: 100}] : styles.tabCard}>
         <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
-        {this.state.summaries.map((visitSummary: Exam, index: number) => (
-          <View style={styles.rowLayout}>
-            <View
-              style={
-                isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
-              }>
-              <Text style={styles.text}>
-                {formatDate(
-                  getCachedItem(visitSummary.visitId).date,
-                  isToyear(getCachedItem(visitSummary.visitId).date)
-                    ? dateFormat
-                    : farDateFormat,
-                )}
-                : {visitSummary.resume}
-                {'\n'}
-              </Text>
-            </View>
-          </View>
-        ))}
+        {hasNoAccess ? (
+          <NoAccess />
+        ) : (
+          this.state.summaries.map((visitSummary: Exam, index: number) =>
+            visitSummary.noaccess ? (
+              <NoAccess
+                prefix={
+                  formatDate(
+                    getCachedItem(visitSummary.visitId).date,
+                    isToyear(getCachedItem(visitSummary.visitId).date)
+                      ? dateFormat
+                      : farDateFormat,
+                  ) + ': '
+                }
+              />
+            ) : (
+              <View style={styles.rowLayout}>
+                <View
+                  style={
+                    isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
+                  }>
+                  <Text style={styles.text}>
+                    {formatDate(
+                      getCachedItem(visitSummary.visitId).date,
+                      isToyear(getCachedItem(visitSummary.visitId).date)
+                        ? dateFormat
+                        : farDateFormat,
+                    )}
+                    : {visitSummary.resume}
+                    {'\n'}
+                  </Text>
+                </View>
+              </View>
+            ),
+          )
+        )}
       </View>
     );
   }

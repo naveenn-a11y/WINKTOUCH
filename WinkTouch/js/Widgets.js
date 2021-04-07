@@ -3390,3 +3390,19 @@ export class KeyboardMode extends Component {
     );
   }
 }
+
+type NoAccessProps = {
+  prefix?: string,
+};
+export class NoAccess extends Component<NoAccessProps> {
+  render() {
+    return (
+      <View>
+        <Text style={styles.noAccessText}>
+          {(this.props.prefix ? this.props.prefix : '') +
+            strings.noAccess}
+        </Text>
+      </View>
+    );
+  }
+}
