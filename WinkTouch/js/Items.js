@@ -421,16 +421,17 @@ class ItemSummary extends Component<ItemSummaryProps> {
       const itemKeys = Object.keys(this.props.item);
       let dateValue: string = '';
       let dateLiteral: string = '';
+      let rxDateObject: FieldDefinition = undefined;
       this.props.titleFields &&
         this.props.titleFields.forEach((titleField: string) => {
           if (itemKeys.indexOf(titleField) !== -1) {
             dateValue += this.props.item[titleField];
             dateLiteral += titleField;
+            rxDateObject = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === dateLiteral);
           }
         });
       let formattedValue: string = '';
       if (dateValue !== null && dateValue !== '') {
-        let rxDateObject = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === dateLiteral);
         if (rxDateObject !== undefined)
           formattedValue += formatFieldValue(dateValue, rxDateObject);
       }
