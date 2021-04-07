@@ -629,7 +629,8 @@ class VisitWorkFlow extends Component {
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
     showRxPopup: boolean,
-    printRxCheckBoxes : string[]
+    printRxCheckBoxes : string[],
+    showMedicationRxPopup: boolean,
   };
 
   constructor(props: any) {
@@ -647,6 +648,7 @@ class VisitWorkFlow extends Component {
       snackBarMessage: '',
       appointment: appointment,
       showRxPopup: false,
+      showMedicationRxPopup: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1175,6 +1177,53 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  hidePrintMedicationRxPopup = () => {
+    this.setState({showMedicationRxPopup: false});
+  };
+
+  confirmPrintMedicationRxDialog = (prescriptionData: any) => {
+    let labelsArray: string[] = new Array();
+    prescriptionData.map((prescriptionLabel: any) => {
+      let labelRx = prescriptionLabel.label;
+      let flagRx = prescriptionLabel.isChecked;
+      if (flagRx) {
+        labelsArray.push(labelRx);
+      }
+    });
+    printMedicalRx(this.props.visitId, labelsArray);
+    this.hidePrintMedicationRxPopup();
+  };
+
+  renderPrintMedicationRxPopup() {
+    const printMedicationRxOptions: any = [{label: strings.all, isChecked: false}];
+    const medicationExam = getExam('Prescription', getCachedItem(this.props.visitId));
+    let label: string = '';
+    let labelAlreadyExist = new Set();
+    if ((medicationExam !== undefined || medicationExam !== null) && (medicationExam.Prescription !== undefined || medicationExam.Prescription !== null)) {
+      medicationExam.Prescription.forEach((prescription, i) => {
+        label = prescription.Label;
+        if (!labelAlreadyExist.has(label)) {
+          printMedicationRxOptions.push({label: label, isChecked: false});
+          labelAlreadyExist.add(label);
+        }
+      });
+    }
+
+    return (
+      <Alert
+        title={strings.printRxLabel}
+        data={printMedicationRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintMedicationRxDialog(printMedicationRxOptions)}
+        onCancelAction={() => this.hidePrintMedicationRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printMedicalRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
@@ -1183,6 +1232,7 @@ class VisitWorkFlow extends Component {
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
         {this.state.showRxPopup && this.renderPrintRxPopup()}
+        {this.state.showMedicationRxPopup && this.renderPrintMedicationRxPopup()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -1201,7 +1251,7 @@ class VisitWorkFlow extends Component {
             <Button
               title={strings.printMedicalRx}
               onPress={() => {
-                printMedicalRx(this.props.visitId);
+                this.showMedicationRxPopup();
               }}
             />
           )}
@@ -1368,6 +1418,9 @@ class VisitWorkFlow extends Component {
 
   showRxPopup() {
     this.setState({showRxPopup: true});
+  }
+  showMedicationRxPopup() {
+    this.setState({showMedicationRxPopup: true});
   }
 }
 

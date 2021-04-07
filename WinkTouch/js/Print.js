@@ -274,6 +274,7 @@ function addMedicalRxLines(
   page: PDFPage,
   pageHeight: number,
   border: number,
+  labelsArray: string[],
 ) {
   const medicationExam: Exam = getExam('Prescription', getCachedItem(visitId));
   if (medicationExam === undefined || medicationExam === null) {
@@ -283,42 +284,44 @@ function addMedicalRxLines(
   if (prescriptions === undefined || prescriptions === null) {
     return;
   }
+
   const fontSize: number = 12;
   let x: number = border;
   let y: number = pageHeight - border - 280;
   prescriptions.forEach((prescription, i) => {
     let formattedRxLine: string = prescription.Label;
-    formattedRxLine += prefix(prescription.Strength, ', ');
-    formattedRxLine += prefix(prescription.Dosage, ', ');
-    formattedRxLine += prefix(prescription.Frequency, ', ');
-    formattedRxLine += prefix(prescription.Refill, ', ');
-    formattedRxLine += prefix(prescription['Do not substitute'], ', ');
-    page.drawText(formattedRxLine, {x, y, size: fontSize});
-    y -= fontSize * 1.5;
-    formattedRxLine = prefix(prescription.Instructions, '       ');
-    if (formattedRxLine) {
+    if (labelsArray.indexOf(strings.all) !== -1 ||  labelsArray.indexOf(formattedRxLine) !== -1) {
+      formattedRxLine += prefix(prescription.Strength, ', ');
+      formattedRxLine += prefix(prescription.Dosage, ', ');
+      formattedRxLine += prefix(prescription.Frequency, ', ');
+      formattedRxLine += prefix(prescription.Refill, ', ');
+      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
       page.drawText(formattedRxLine, {x, y, size: fontSize});
-      y -= fontSize * 1.15;
-    }
-    formattedRxLine = prefix(
-      prescription.Duration,
-      '       ' + strings.during + ' ',
-    );
-    if (formattedRxLine) {
-      page.drawText(formattedRxLine, {x, y, size: fontSize});
-      y -= fontSize * 1.15;
-    }
-    const commentLine: string = prescription.Comment;
-    if (commentLine) {
-      y -= fontSize * 0.5;
-      let lines = commentLine.split('\n');
-      lines.forEach((line, j) => {
-        page.drawText(prefix(line, '       '), {x, y, size: fontSize});
+      y -= fontSize * 1.5;
+      formattedRxLine = prefix(prescription.Instructions, '       ');
+      if (formattedRxLine) {
+        page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
-      });
-    }
-    y -= fontSize;
-  });
+      }
+      formattedRxLine = prefix(
+        prescription.Duration,
+        '       ' + strings.during + ' ',
+      );
+      if (formattedRxLine) {
+        page.drawText(formattedRxLine, {x, y, size: fontSize});
+        y -= fontSize * 1.15;
+      }
+      const commentLine: string = prescription.Comment;
+      if (commentLine) {
+        y -= fontSize * 0.5;
+        let lines = commentLine.split('\n');
+        lines.forEach((line, j) => {
+          page.drawText(prefix(line, '       '), {x, y, size: fontSize});
+          y -= fontSize * 1.15;
+        });
+      }
+      y -= fontSize;
+  }});
 }
 
 async function addSignatureWeb(
@@ -464,7 +467,7 @@ async function addSignature(
   });
 }
 
-export async function printMedicalRx(visitId: string) {
+export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   const pageWidth: number = 612; //US Letter portrait 8.5 inch * 72 dpi
   const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
   const pageHeight: number = pageWidth / pageAspectRatio;
@@ -483,7 +486,7 @@ export async function printMedicalRx(visitId: string) {
   addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
-  addMedicalRxLines(visitId, rxPage, pageHeight, border);
+  addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
   await addSignature(visitId, rxPage, pageWidth, border, pdfDoc);
   if (isWeb) {
     const pdfData = await pdfDoc.saveAsBase64();

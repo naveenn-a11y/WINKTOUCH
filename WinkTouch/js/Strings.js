@@ -239,11 +239,12 @@ export const strings = new LocalizedStrings({
     takePicture: 'Take a Picture',
     uploadFile: 'Upload a File',
     signedOn: 'Signed on',
-    location: 'Location',    
+    location: 'Location',
     printRxLabel: 'Please select what to print:',
     pd: 'PD',
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
+    all: 'All',
   },
   fr: {
     enterRegisteredEmail:
@@ -487,6 +488,7 @@ export const strings = new LocalizedStrings({
     pd: 'PD',
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
+    all: 'Tout',
   },
 });
 
