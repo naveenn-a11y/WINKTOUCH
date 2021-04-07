@@ -419,22 +419,20 @@ class ItemSummary extends Component<ItemSummaryProps> {
     }
     if (this.props.item?.noaccess) {
       const itemKeys = Object.keys(this.props.item);
-      let dateValue: string = '';
-      let dateLiteral: string = '';
-      let rxDateObject: FieldDefinition = undefined;
-      this.props.titleFields &&
-        this.props.titleFields.forEach((titleField: string) => {
-          if (itemKeys.indexOf(titleField) !== -1) {
-            dateValue += this.props.item[titleField];
-            dateLiteral += titleField;
-            rxDateObject = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === dateLiteral);
-          }
-        });
       let formattedValue: string = '';
-      if (dateValue !== null && dateValue !== '') {
-        if (rxDateObject !== undefined)
-          formattedValue += formatFieldValue(dateValue, rxDateObject);
-      }
+      this.props.titleFields && this.props.titleFields.forEach((fieldName: string) => {
+          if (itemKeys.indexOf(fieldName) !== -1) {
+            let fieldValue = this.props.item[fieldName];
+            if (!isEmpty(fieldValue)) {
+              let fieldDefinition: ?FieldDefinition = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === fieldName);
+              if (fieldDefinition) {
+                formattedValue += formatFieldValue(fieldValue, fieldDefinition) + ' ';
+              } else {
+                formattedValue += fieldValue.toString();
+              }
+            }
+          }
+      });
       return <NoAccess prefix={formattedValue} />;
     }
     if (this.props.orientation !== 'horizontal') {
