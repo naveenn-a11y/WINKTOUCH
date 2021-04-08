@@ -3369,6 +3369,7 @@ export class CustomModal extends Component {
     onChangeValue?: (newvalue: ?(string[] | string)) => void,
     testID?: string,
     isActive?: boolean,
+    readOnly?: CodeDefinition[],
   };
   state: {
     isActive: boolean,
@@ -3421,6 +3422,8 @@ export class CustomModal extends Component {
   }
   renderPopup() {
     let allOptions: string[][] = [this.props.options];
+    let readOnlyDefinitions: CodeDefinition[] = this.props.readOnly;
+    const readOnlyDetails = readOnlyDefinitions.reduce((object, key) => ({ ...object, [key.description]: key.readOnly}), {});  //converting CodeDefinition to Object
     return (
       <TouchableWithoutFeedback
         onPress={this.commitEdit}
@@ -3439,13 +3442,15 @@ export class CustomModal extends Component {
                       return (
                         <TouchableOpacity
                           key={rowIndex}
-                          onPress={() => this.updateValue(option, columnIndex)}
+                          onPress={() => !readOnlyDetails[option] && this.updateValue(option, columnIndex)}
                           testID={'option' + (rowIndex + 1)}>
                           <View
                             style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
+                              !readOnlyDetails[option]
+                                ? isSelected
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
+                                : styles.readOnly
                             }>
                             <Text
                               style={

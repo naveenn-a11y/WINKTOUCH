@@ -31,8 +31,8 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  CodeDefitinion,
-} from './Types';
+  CodeDefitinion, CodeDefinition,
+} from "./Types";
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
@@ -275,10 +275,17 @@ export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
   //Format the visits as CodeDefinitions
   visitHistory.forEach((visit: Visit) => {
     if (visit.customExamIds || visit.preCustomExamIds) {
+      let readOnly: boolean = false;
+      if (
+        visit.pretestDataPrivilege !== 'READONLY' &&
+        visit.pretestDataPrivilege !== 'FULLACCESS'
+      ) {
+        readOnly = true;
+      }
       const code: string = visit.id;
       const description: string =
         formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
-      const codeDescription: CodeDefitinion = {code, description};
+      const codeDescription: CodeDefitinion = {code, description, readOnly};
       codeDescriptions.push(codeDescription);
     }
   });
@@ -530,7 +537,7 @@ export type StartVisitButtonsProps = {
   isLoading: ?boolean,
   patientInfo: ?PatientInfo,
 };
-type StartVisitButtonstate = {
+type StartVisitButtonsState = {
   visitTypes: VisitType[],
   clicked: boolean,
   isVisitOptionsVisible: boolean,
@@ -586,7 +593,6 @@ export class StartVisitButtons extends Component<
         this.props.patientInfo.id,
       );
       previousVisits = previousVisits.slice(1);
-
       const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
       const formattedOptions: string[] = formatOptions(options);
       this.setState({
@@ -653,6 +659,7 @@ export class StartVisitButtons extends Component<
           options={this.state.formattedVisitOptions}
           isActive={this.state.isVisitOptionsVisible}
           onChangeValue={this.changeValue}
+          readOnly={this.state.visitOptions}
         />
       </View>
     );
@@ -1266,6 +1273,7 @@ class VisitWorkFlow extends Component {
     if (this.props.visitId === undefined) {
       return null;
     }
+
     if (!this.state.visit && !this.props.readonly) {
       return (
         <View>
