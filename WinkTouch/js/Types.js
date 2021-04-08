@@ -225,6 +225,7 @@ export type Visit = {
   inactive: boolean,
   pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
   medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  enteredByUserId?: string,
 };
 
 export type CodeDefinition =

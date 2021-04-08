@@ -1352,7 +1352,10 @@ class VisitWorkFlow extends Component {
     );
 
     const doingPreExam: boolean = !visitHasStarted(this.state.visit);
-    if (doingPreExam || !hasVisitMedicalDataAccess(this.state.visit)) {
+    const preTestMode: boolean =
+      isEmpty(this.state.visit.userId) &&
+      !isEmpty(this.state.visit.enteredByUserId);
+    if (doingPreExam || preTestMode) {
       const hasPreTests =
         preExamDefinitions == undefined || preExamDefinitions.length > 0;
 
@@ -1360,6 +1363,7 @@ class VisitWorkFlow extends Component {
         <View>
           {hasPreTests && (
             <View style={styles.flow}>
+              {preTestMode && this.renderConsultationDetails()}
               {this.renderExams(
                 'Pre tests',
                 getCachedItems(this.state.visit.preCustomExamIds),
