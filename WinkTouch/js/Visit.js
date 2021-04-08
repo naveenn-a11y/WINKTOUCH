@@ -1363,7 +1363,8 @@ class VisitWorkFlow extends Component {
         <View>
           {hasPreTests && (
             <View style={styles.flow}>
-              {preTestMode && this.renderConsultationDetails()}
+              {!isEmpty(this.state.visit.userId) &&
+                this.renderConsultationDetails()}
               {this.renderExams(
                 'Pre tests',
                 getCachedItems(this.state.visit.preCustomExamIds),
