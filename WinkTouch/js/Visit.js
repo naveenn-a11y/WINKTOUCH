@@ -275,13 +275,7 @@ export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
   //Format the visits as CodeDefinitions
   visitHistory.forEach((visit: Visit) => {
     if (visit.customExamIds || visit.preCustomExamIds) {
-      let readOnly: boolean = false;
-      if (
-        visit.pretestDataPrivilege !== 'READONLY' &&
-        visit.pretestDataPrivilege !== 'FULLACCESS'
-      ) {
-        readOnly = true;
-      }
+      let readOnly: boolean = visit.pretestDataPrivilege !== 'FULLACCESS' ? true : false;
       const code: string = visit.id;
       const description: string =
         formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
