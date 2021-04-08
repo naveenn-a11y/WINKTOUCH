@@ -200,14 +200,6 @@ export const styles = StyleSheet.create({
     marginBottom: 10 * fontScale, //Weird for scroll list
   },
   modalTileLabel: modalTileLabel(false),
-  modalTileLabelNoAccess: {
-    readonly: 'true',
-    fontSize: 26 * fontScale,
-    textAlign: 'center',
-    margin: 5 * fontScale,
-    color: fontColor,
-    fontWeight: 'normal',
-  },
   modalTileLabelSelected: modalTileLabel(true),
   modalTileIcon: modalTileLabel(false, true),
   text: {
