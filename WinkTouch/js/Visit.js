@@ -160,14 +160,14 @@ export async function saveVisitTypes(visitTypes: VisitType[]) {
   cacheItem('visitTypes', visitTypes);
 }
 
-function hasVisitMedicalDataAccess(visit: Visit): boolean {
+function hasVisitMedicalDataReadAccess(visit: Visit): boolean {
   if (!visit) return false;
   return (
     visit.medicalDataPrivilege === PRIVILEGE.READONLY ||
     visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS
   );
 }
-function hasVisitPretestAccess(visit: Visit): boolean {
+function hasVisitPretestReadAccess(visit: Visit): boolean {
   if (!visit) return false;
   return (
     visit.pretestPrivilege === PRIVILEGE.READONLY ||
@@ -175,11 +175,11 @@ function hasVisitPretestAccess(visit: Visit): boolean {
   );
 }
 
-function hasVisitMedicalDataFullAccess(visit: Visit): boolean {
+function hasVisitMedicalDataWriteAccess(visit: Visit): boolean {
   if (!visit) return false;
   return visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS;
 }
-function hasVisitPretestFullAccess(visit: Visit): boolean {
+function hasVisitPretestWriteAccess(visit: Visit): boolean {
   if (!visit) return false;
   return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
 }
@@ -529,9 +529,8 @@ class FollowUpButton extends PureComponent {
 }
 
 export type StartVisitButtonsProps = {
-  isPreVisit: boolean,
   title?: string,
-  onStartVisit: (type: string, isPrevisit: boolean) => void,
+  onStartVisit: (type: string) => void,
   isLoading: ?boolean,
 };
 type StartVisitButtonstate = {
@@ -570,7 +569,7 @@ export class StartVisitButtons extends Component<
       return;
     }
     this.setState({clicked: true}, () => {
-      this.props.onStartVisit(visitType, this.props.isPreVisit);
+      this.props.onStartVisit(visitType);
       this.setState({clicked: false});
     });
   }
@@ -625,7 +624,7 @@ class VisitWorkFlow extends Component {
     visitId: string,
     navigation: any,
     appointmentStateKey: string,
-    onStartVisit: (type: string, isPreVisit: boolean) => void,
+    onStartVisit: (type: string) => void,
     readonly: ?boolean,
     enableScroll: () => void,
     disableScroll: () => void,
@@ -1036,7 +1035,7 @@ class VisitWorkFlow extends Component {
                   })
                 }
                 onHide={() =>
-                  hasVisitMedicalDataFullAccess(this.state.visit) &&
+                  hasVisitMedicalDataWriteAccess(this.state.visit) &&
                   this.hideExam(exam)
                 }
                 unlocked={this.state.locked !== true}
@@ -1141,9 +1140,7 @@ class VisitWorkFlow extends Component {
           <VisitSummaryCard
             exam={exam}
             editable={
-              !this.state.locked &&
-              !this.props.readonly &&
-              hasVisitMedicalDataFullAccess(this.state.visit)
+              !this.state.locked && !this.props.readonly && !exam.readonly
             }
             key={strings.summaryTitle}
           />
@@ -1166,9 +1163,9 @@ class VisitWorkFlow extends Component {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
-    const hasMedicalDataAccess: boolean = hasVisitMedicalDataAccess(visit);
-    const hasPreTestAccess: boolean = hasVisitPretestAccess(visit);
-    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataFullAccess(
+    const hasMedicalDataAccess: boolean = hasVisitMedicalDataReadAccess(visit);
+    const hasPreTestAccess: boolean = hasVisitPretestReadAccess(visit);
+    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataWriteAccess(
       visit,
     );
 
@@ -1265,10 +1262,10 @@ class VisitWorkFlow extends Component {
   }
 
   renderAddableExamButton(section?: string) {
-    const hasPreTestFullAccess: boolean = hasVisitPretestFullAccess(
+    const hasPreTestFullAccess: boolean = hasVisitPretestWriteAccess(
       this.state.visit,
     );
-    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataFullAccess(
+    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataWriteAccess(
       this.state.visit,
     );
     if (this.props.readonly || section === 'Document') {
@@ -1307,7 +1304,7 @@ class VisitWorkFlow extends Component {
   renderLockIcon() {
     if (
       this.state.locked !== true ||
-      !hasVisitMedicalDataFullAccess(this.state.visit)
+      !hasVisitMedicalDataWriteAccess(this.state.visit)
     ) {
       return null;
     }
@@ -1324,7 +1321,7 @@ class VisitWorkFlow extends Component {
     if (this.props.visitId === undefined) {
       return null;
     }
-    if (!hasVisitPretestAccess(this.state.visit)) {
+    if (!hasVisitPretestReadAccess(this.state.visit)) {
       return (
         <View>
           <View style={styles.flow}>
@@ -1334,19 +1331,7 @@ class VisitWorkFlow extends Component {
         </View>
       );
     }
-    if (!this.state.visit && !this.props.readonly) {
-      return (
-        <View>
-          {!this.props.readonly && (
-            <StartVisitButtons
-              isPreVisit={true}
-              onStartVisit={this.props.onStartVisit}
-              isLoading={this.props.isLoading}
-            />
-          )}
-        </View>
-      );
-    }
+
     const preExamDefinitions: ExamDefinition[] = getCachedItems(
       getCachedItem('preExamDefinitions'),
     );
@@ -1373,17 +1358,16 @@ class VisitWorkFlow extends Component {
             </View>
           )}
           {!this.props.readonly &&
-            ((hasVisitPretestFullAccess(this.state.visit) &&
+            ((hasVisitPretestWriteAccess(this.state.visit) &&
               this.state.visit.preCustomExamIds.length == 0) ||
-              hasVisitMedicalDataFullAccess(this.state.visit)) && (
+              hasVisitMedicalDataWriteAccess(this.state.visit)) && (
               <StartVisitButtons
-                isPreVisit={false}
                 onStartVisit={this.props.onStartVisit}
                 isLoading={this.props.isLoading}
               />
             )}
           {!doingPreExam &&
-            !hasVisitMedicalDataAccess(this.state.visit) &&
+            !hasVisitMedicalDataReadAccess(this.state.visit) &&
             this.renderActionButtons()}
         </View>
       );
@@ -1878,7 +1862,7 @@ export class VisitHistory extends Component {
             visitId={this.state.selectedId}
             navigation={this.props.navigation}
             appointmentStateKey={this.props.appointmentStateKey}
-            onStartVisit={(visitType: string, isPreVisit: boolean) => {
+            onStartVisit={(visitType: string) => {
               this.startVisit(this.state.selectedId, visitType);
             }}
             readonly={this.props.readonly}
@@ -1893,7 +1877,7 @@ export class VisitHistory extends Component {
           )}
         {this.state.selectedId &&
           this.state.showDialog &&
-          hasVisitMedicalDataFullAccess(visit) &&
+          hasVisitMedicalDataWriteAccess(visit) &&
           this.renderAlert()}
         {!isNewAppointment &&
           this.state.showingDatePicker &&
