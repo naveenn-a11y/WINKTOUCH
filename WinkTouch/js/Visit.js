@@ -194,13 +194,6 @@ export function visitHasEnded(visit: string | Visit): boolean {
   return visit.locked === true;
 }
 
-export function visitHasStarted(visit: string | Visit): boolean {
-  if (visit instanceof Object === false) {
-    visit = getCachedItem(visit);
-  }
-  return visit.customExamIds !== undefined && visit.customExamIds.length > 0;
-}
-
 export function allExamIds(visit: Visit): string[] {
   let allExamIds: string[];
   if (!visit.customExamIds) {
@@ -1274,11 +1267,11 @@ class VisitWorkFlow extends Component {
       return;
     }
 
-    const doingPreExam: boolean = !visitHasStarted(this.state.visit);
+    const pretestMode: boolean = isEmpty(this.state.visit.userId);
     let addableExamDefinitions: ExamDefinition[] = this.state.addableExamTypes.filter(
       (examType: ExamDefinition) =>
-        (doingPreExam === true && examType.isPreExam === true) ||
-        (doingPreExam === false &&
+        (pretestMode === true && examType.isPreExam === true) ||
+        (pretestMode === false &&
           examType.section.substring(0, examType.section.indexOf('.')) ===
             section),
     );
@@ -1338,11 +1331,9 @@ class VisitWorkFlow extends Component {
       getCachedItem('preExamDefinitions'),
     );
 
-    const doingPreExam: boolean = !visitHasStarted(this.state.visit);
-    const preTestMode: boolean =
-      isEmpty(this.state.visit.userId) &&
-      !isEmpty(this.state.visit.enteredByUserId);
-    if (doingPreExam || preTestMode) {
+    const pretestMode: boolean = isEmpty(this.state.visit.userId);
+
+    if (pretestMode) {
       const hasPreTests =
         preExamDefinitions == undefined || preExamDefinitions.length > 0;
 
@@ -1359,14 +1350,14 @@ class VisitWorkFlow extends Component {
           )}
           {!this.props.readonly &&
             ((hasVisitPretestWriteAccess(this.state.visit) &&
-              this.state.visit.preCustomExamIds.length == 0) ||
+              isEmpty(this.state.visit.enteredByUserId)) ||
               hasVisitMedicalDataWriteAccess(this.state.visit)) && (
               <StartVisitButtons
                 onStartVisit={this.props.onStartVisit}
                 isLoading={this.props.isLoading}
               />
             )}
-          {!doingPreExam &&
+          {!pretestMode &&
             !hasVisitMedicalDataReadAccess(this.state.visit) &&
             this.renderActionButtons()}
         </View>
