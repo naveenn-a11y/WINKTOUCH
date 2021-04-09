@@ -448,6 +448,7 @@ export type Exam = {
   isDirty?: boolean,
   isHidden?: boolean,
   readonly?: boolean,
+  hasAccess?:boolean,
 };
 
 export type Scene = {
