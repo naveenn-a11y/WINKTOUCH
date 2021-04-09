@@ -225,6 +225,7 @@ export type Visit = {
   appointmentId?: string,
   patientId: string,
   userId?: string,
+  enteredByUserId?: string,
   preCustomExamIds: string[],
   customExamIds: string[],
   date: string,
