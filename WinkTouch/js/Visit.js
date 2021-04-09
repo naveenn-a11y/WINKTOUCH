@@ -1163,9 +1163,11 @@ class VisitWorkFlow extends Component {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
-    const hasMedicalDataAccess: boolean = hasVisitMedicalDataReadAccess(visit);
-    const hasPreTestAccess: boolean = hasVisitPretestReadAccess(visit);
-    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataWriteAccess(
+    const hasMedicalDataReadAccess: boolean = hasVisitMedicalDataReadAccess(
+      visit,
+    );
+    const hasPreTestReadAccess: boolean = hasVisitPretestReadAccess(visit);
+    const hasMedicalDataWriteAccess: boolean = hasVisitMedicalDataWriteAccess(
       visit,
     );
 
@@ -1179,7 +1181,7 @@ class VisitWorkFlow extends Component {
           {!this.state.locked && !this.state.visit.prescription.signedDate && (
             <Button title={strings.sign} onPress={() => this.signVisit()} />
           )}
-          {hasPreTestAccess && (
+          {hasPreTestReadAccess && (
             <Button
               title={strings.printRx}
               onPress={() => {
@@ -1187,7 +1189,7 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {hasMedicalDataAccess && this.hasMedicalRx() && (
+          {hasMedicalDataReadAccess && this.hasMedicalRx() && (
             <Button
               title={strings.printMedicalRx}
               onPress={() => {
@@ -1195,7 +1197,7 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {hasPreTestAccess && this.hasFinalClFitting() && (
+          {hasPreTestReadAccess && this.hasFinalClFitting() && (
             <Button
               title={strings.printClRx}
               onPress={() => {
@@ -1211,7 +1213,7 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {hasMedicalDataAccess && (
+          {hasMedicalDataReadAccess && (
             <Button
               title={strings.printPatientFile}
               onPress={() => {
@@ -1233,7 +1235,7 @@ class VisitWorkFlow extends Component {
           )}
           {!this.state.locked &&
             !this.props.readonly &&
-            hasMedicalDataFullAccess && (
+            hasMedicalDataWriteAccess && (
               <Button
                 title={strings.lockVisit}
                 onPress={() => this.lockVisit()}
@@ -1243,7 +1245,7 @@ class VisitWorkFlow extends Component {
             visit.appointmentId &&
             !this.props.readonly &&
             (
-              hasMedicalDataFullAccess &&
+              hasMedicalDataWriteAccess &&
               !(appointment && appointment.status === 5)
             )(
               <Button
@@ -1262,10 +1264,10 @@ class VisitWorkFlow extends Component {
   }
 
   renderAddableExamButton(section?: string) {
-    const hasPreTestFullAccess: boolean = hasVisitPretestWriteAccess(
+    const hasPreTestWriteAccess: boolean = hasVisitPretestWriteAccess(
       this.state.visit,
     );
-    const hasMedicalDataFullAccess: boolean = hasVisitMedicalDataWriteAccess(
+    const hasMedicalDataWriteAccess: boolean = hasVisitMedicalDataWriteAccess(
       this.state.visit,
     );
     if (this.props.readonly || section === 'Document') {
@@ -1282,8 +1284,8 @@ class VisitWorkFlow extends Component {
     );
     addableExamDefinitions = addableExamDefinitions.filter(
       (examType: ExamDefinition) =>
-        (examType.isPreExam && hasPreTestFullAccess) ||
-        (!examType.isPreExam && hasMedicalDataFullAccess),
+        (examType.isPreExam && hasPreTestWriteAccess) ||
+        (!examType.isPreExam && hasMedicalDataWriteAccess),
     );
     const addableExamLabels: string[] = addableExamDefinitions.map(
       (examType: ExamDefinition) =>
@@ -1348,8 +1350,6 @@ class VisitWorkFlow extends Component {
         <View>
           {hasPreTests && (
             <View style={styles.flow}>
-              {!isEmpty(this.state.visit.userId) &&
-                this.renderConsultationDetails()}
               {this.renderExams(
                 'Pre tests',
                 getCachedItems(this.state.visit.preCustomExamIds),
@@ -1737,7 +1737,7 @@ export class VisitHistory extends Component {
   }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
-    const hasPretestAccess: boolean =
+    const hasPretestWriteAccess: boolean =
       getDoctor() && getDoctor().pretestPrivilege === PRIVILEGE.FULLACCESS;
     return (
       <View style={styles.startVisitCard}>
@@ -1748,7 +1748,7 @@ export class VisitHistory extends Component {
               onPress={() => this.startAppointment()}
             />
           )}
-          {!isNewAppointment && hasPretestAccess && (
+          {!isNewAppointment && hasPretestWriteAccess && (
             <Button title={strings.addVisit} onPress={this.showDatePicker} />
           )}
           {__DEV__ && <Button title={strings.printRx} />}
