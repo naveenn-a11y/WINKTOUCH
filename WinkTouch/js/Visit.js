@@ -32,8 +32,9 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  User, Prescription,
-} from "./Types";
+  User,
+  Prescription,
+} from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
@@ -90,6 +91,7 @@ import {
   performActionOnItem,
   fetchItemById,
   stripDataType,
+  getToken,
 } from './Rest';
 import {fetchAppointment} from './Appointment';
 import {printRx, printClRx, printMedicalRx} from './Print';
@@ -107,7 +109,8 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
-import { formatCode } from "./Codes";
+import {formatCode} from './Codes';
+import {decodeToken} from 'react-jwt';
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -644,7 +647,7 @@ class VisitWorkFlow extends Component {
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
     showRxPopup: boolean,
-    printRxCheckBoxes : string[],
+    printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
   };
 
@@ -1179,17 +1182,35 @@ class VisitWorkFlow extends Component {
         drRecommendationArray.push(importData.entityId);
       }
     });
-    printRx(this.props.visitId, printFinalRx, printPDs, printNotesOnRx, drRecommendationArray);
+    printRx(
+      this.props.visitId,
+      printFinalRx,
+      printPDs,
+      printNotesOnRx,
+      drRecommendationArray,
+    );
     this.hidePrintRxPopup();
   };
 
   renderPrintRxPopup() {
-    const printRxOptions: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
+    const printRxOptions: any = [
+      {label: strings.finalRx, isChecked: true},
+      {label: strings.pd, isChecked: false},
+      {label: strings.notesOnRx, isChecked: true},
+    ];
     if (this.state.visit.purchase) {
-      this.state.visit.purchase.map((recomm: any, index: number)=> {
-        formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ?
-          printRxOptions.push({label:formatCode('purchaseReasonCode', recomm.lensType),entityId:recomm.entityId, isChecked:false})
-          : printRxOptions.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
+      this.state.visit.purchase.map((recomm: any, index: number) => {
+        formatCode('purchaseReasonCode', recomm.lensType).trim() !== ''
+          ? printRxOptions.push({
+              label: formatCode('purchaseReasonCode', recomm.lensType),
+              entityId: recomm.entityId,
+              isChecked: false,
+            })
+          : printRxOptions.push({
+              label: strings.drRecommendation + (index + 1),
+              entityId: recomm.entityId,
+              isChecked: false,
+            });
       });
     }
 
@@ -1226,11 +1247,20 @@ class VisitWorkFlow extends Component {
   };
 
   renderPrintMedicationRxPopup() {
-    const printMedicationRxOptions: any = [{label: strings.all, isChecked: false}];
-    const medicationExam = getExam('Prescription', getCachedItem(this.props.visitId));
+    const printMedicationRxOptions: any = [
+      {label: strings.all, isChecked: false},
+    ];
+    const medicationExam = getExam(
+      'Prescription',
+      getCachedItem(this.props.visitId),
+    );
     let label: string = '';
     let labelAlreadyExist = new Set();
-    if ((medicationExam !== undefined || medicationExam !== null) && (medicationExam.Prescription !== undefined || medicationExam.Prescription !== null)) {
+    if (
+      (medicationExam !== undefined || medicationExam !== null) &&
+      (medicationExam.Prescription !== undefined ||
+        medicationExam.Prescription !== null)
+    ) {
       medicationExam.Prescription.forEach((prescription, i) => {
         label = prescription.Label;
         if (!labelAlreadyExist.has(label)) {
@@ -1245,7 +1275,9 @@ class VisitWorkFlow extends Component {
         title={strings.printRxLabel}
         data={printMedicationRxOptions}
         dismissable={true}
-        onConfirmAction={() => this.confirmPrintMedicationRxDialog(printMedicationRxOptions)}
+        onConfirmAction={() =>
+          this.confirmPrintMedicationRxDialog(printMedicationRxOptions)
+        }
         onCancelAction={() => this.hidePrintMedicationRxPopup()}
         style={styles.alert}
         confirmActionLabel={strings.printMedicalRx}
@@ -1259,11 +1291,13 @@ class VisitWorkFlow extends Component {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
+
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
         {this.state.showRxPopup && this.renderPrintRxPopup()}
-        {this.state.showMedicationRxPopup && this.renderPrintMedicationRxPopup()}
+        {this.state.showMedicationRxPopup &&
+          this.renderPrintMedicationRxPopup()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -1489,7 +1523,8 @@ export class VisitHistoryCard extends Component {
     let hasNoAccesAtAll = true;
     this.state.summaries.map(
       (visitSummary: Exam) =>
-        (hasNoAccesAtAll &&= 'noaccess' in visitSummary ? visitSummary.noaccess : false),
+        (hasNoAccesAtAll &&=
+          'noaccess' in visitSummary ? visitSummary.noaccess : false),
     );
     return hasNoAccesAtAll;
   }
@@ -1825,6 +1860,10 @@ export class VisitHistory extends Component {
   }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
+    const payload: any = decodeToken(getToken());
+    const userHasPretestWriteAccess: boolean = payload
+      ? payload.pretestPrivilege === 'FULLACCESS'
+      : false;
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
@@ -1834,7 +1873,7 @@ export class VisitHistory extends Component {
               onPress={() => this.startAppointment()}
             />
           )}
-          {!isNewAppointment && (
+          {!isNewAppointment && userHasPretestWriteAccess && (
             <Button title={strings.addVisit} onPress={this.showDatePicker} />
           )}
           {__DEV__ && <Button title={strings.printRx} />}
