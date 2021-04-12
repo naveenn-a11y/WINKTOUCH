@@ -1238,8 +1238,8 @@ class VisitWorkFlow extends Component {
             visit.appointmentId &&
             !this.props.readonly &&
             (
-              hasMedicalDataWriteAccess &&
-              !(appointment && appointment.status === 5)
+              hasMedicalDataWriteAccess ||
+              (appointment && appointment.status === 5)
             )(
               <Button
                 title={
