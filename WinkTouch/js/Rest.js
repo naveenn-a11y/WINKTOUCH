@@ -1,9 +1,11 @@
 /**
  * @flow
  */
+
 'use strict';
 
-import type {FieldDefinitions, RestResponse} from './Types';
+import type { FieldDefinitions, RestResponse, Privileges, TokenPayload } from "./Types";
+import {decodeToken} from 'react-jwt';
 import {capitalize, deepClone} from './Util';
 import {strings, getUserLanguage} from './Strings';
 import {
@@ -22,6 +24,10 @@ export let restUrl: string = __DEV__
   : 'https://emr.downloadwink.com/' + restVersion + '/';
 
 let token: string;
+let privileges: Privileges = {
+  pretestPrivilege: 'NOACCESS',
+  medicalDataPrivilege: 'NOACCESS',
+};
 
 let requestNumber: number = 0;
 
@@ -29,13 +35,36 @@ export function getNextRequestNumber(): number {
   return ++requestNumber;
 }
 
+function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
+  privileges.pretestPrivilege = 'NOACCESS';
+  privileges.medicalDataPrivilege = 'NOACCESS';
+  if (tokenPrivileges === undefined || tokenPrivileges === null ) return;
+  if (tokenPrivileges.pre === 'F') {
+    privileges.pretestPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.pre === 'R') {
+    privileges.pretestPrivilege = 'READONLY';
+  }
+  if (tokenPrivileges.med === 'F') {
+    privileges.medicalDataPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.med === 'R') {
+    privileges.medicalDataPrivilege = 'READONLY';
+  }
+}
+
 export function setToken(newToken: ?string) {
-  if (newToken !== undefined) console.log('Token:' + newToken);
+  __DEV__ && console.log('Token:' + newToken);
   token = newToken;
+  let payLoad: TokenPayload = decodeToken(token);
+  parsePrivileges(payLoad.prv);
+  __DEV__ && console.log('Logged on user privileges = ' + JSON.stringify(privileges));
 }
 
 export function getToken(): string {
   return token;
+}
+
+export function getPrivileges(): Privileges {
+  return privileges;
 }
 
 export function getDataType(id: string): string {

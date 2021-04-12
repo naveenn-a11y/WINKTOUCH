@@ -91,7 +91,7 @@ import {
   performActionOnItem,
   fetchItemById,
   stripDataType,
-  getToken,
+  getPrivileges,
 } from './Rest';
 import {fetchAppointment} from './Appointment';
 import {printRx, printClRx, printMedicalRx} from './Print';
@@ -110,7 +110,6 @@ import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
 import {formatCode} from './Codes';
-import {decodeToken} from 'react-jwt';
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -1860,10 +1859,7 @@ export class VisitHistory extends Component {
   }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
-    const payload: any = decodeToken(getToken());
-    const userHasPretestWriteAccess: boolean = payload
-      ? payload.pretestPrivilege === 'FULLACCESS'
-      : false;
+    const userHasPretestWriteAccess: boolean = getPrivileges().pretestPrivilege==='FULLACCESS';
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>

@@ -70,6 +70,26 @@ export type User = {
   isExternal: boolean,
 };
 
+export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+
+export type Privileges = {
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+};
+
+export type TokenPrivilege = 'N' | 'R' | 'F';
+
+export type TokenPrivileges = {
+  pre: ?TokenPrivilege,
+  med: ?TokenPrivilege,
+};
+
+export type TokenPayload = {
+  sub: string,
+  exp: number,
+  prv: TokenPrivileges,
+};
+
 export type Patient = {
   id: string,
   firstName: string,
@@ -238,8 +258,8 @@ export type Visit = {
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
-  pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
-  medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
 };
 
 export type CodeDefinition =
