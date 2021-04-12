@@ -1728,8 +1728,6 @@ export class VisitHistory extends Component {
   }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
-    const hasPretestWriteAccess: boolean =
-      getDoctor() && getDoctor().pretestPrivilege === PRIVILEGE.FULLACCESS;
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
@@ -1739,7 +1737,7 @@ export class VisitHistory extends Component {
               onPress={() => this.startAppointment()}
             />
           )}
-          {!isNewAppointment && hasPretestWriteAccess && (
+          {!isNewAppointment && (
             <Button title={strings.addVisit} onPress={this.showDatePicker} />
           )}
           {__DEV__ && <Button title={strings.printRx} />}
