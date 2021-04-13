@@ -1233,9 +1233,14 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f0f0ff',
   },
   alert: {
-    position: 'absolute',
     alignSelf: 'center',
     top: 10 * fontScale,
+  },
+  alertCheckBox: {
+    width:'100%',
+    display:'block',
+    fontSize: 18 * fontScale,
+    color: fontColor,
   },
   bottomBar: {
     flex: 1,

@@ -1457,12 +1457,12 @@ export class PatientRefractionCard extends Component {
   }
 
   checkUserHasAccess() {
-    let hasReadOnly = true;
+    let hasNoAccessAtAll = true;
     this.state.refractions &&
       this.state.refractions.map((refraction: GlassesRx) =>
-          (hasReadOnly &&= refraction.noaccess),
+          (hasNoAccessAtAll &&= refraction.noaccess),
       );
-    return hasReadOnly;
+    return hasNoAccessAtAll;
   }
 
   render() {

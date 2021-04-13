@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -31,8 +32,8 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  User,
-} from './Types';
+  User, Prescription,
+} from "./Types";
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
@@ -106,6 +107,7 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
+import { formatCode } from "./Codes";
 
 export const examSections: string[] = [
   'Chief complaint',
@@ -300,15 +302,23 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   }
   let visitSummaries: Exam[] = [];
   visitHistory.forEach((visit: Visit) => {
-    if (visit.customExamIds) {
-      visit.customExamIds.forEach((examId: string) => {
-        const exam: Exam = getCachedItem(examId);
-        if (exam.resume) {
-          visitSummaries = [...visitSummaries, exam];
+    if (
+      visit.medicalDataPrivilege != 'READONLY' &&
+      visit.medicalDataPrivilege != 'FULLACCESS'
+    ) {
+      let noAccessExam: Exam[] = [{noaccess: true, visitId: visit.id}];
+      visitSummaries = [...visitSummaries, ...noAccessExam];
+    } else {
+      if (visit.customExamIds) {
+        visit.customExamIds.forEach((examId: string) => {
+          const exam: Exam = getCachedItem(examId);
+          if (exam.resume) {
+            visitSummaries = [...visitSummaries, exam];
+          }
+        });
+        if (visitSummaries.length > 3) {
+          return visitSummaries;
         }
-      });
-      if (visitSummaries.length > 3) {
-        return visitSummaries;
       }
     }
   });
@@ -633,6 +643,9 @@ class VisitWorkFlow extends Component {
     rxToOrder: ?Exam,
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
+    showRxPopup: boolean,
+    printRxCheckBoxes : string[],
+    showMedicationRxPopup: boolean,
   };
 
   constructor(props: any) {
@@ -649,6 +662,8 @@ class VisitWorkFlow extends Component {
       showSnackBar: false,
       snackBarMessage: '',
       appointment: appointment,
+      showRxPopup: false,
+      showMedicationRxPopup: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1142,14 +1157,113 @@ class VisitWorkFlow extends Component {
     });
   }
 
+  hidePrintRxPopup = () => {
+    this.setState({showRxPopup: false});
+  };
+
+  confirmPrintRxDialog = (data: any) => {
+    let printFinalRx: boolean = false;
+    let printPDs: boolean = false;
+    let printNotesOnRx: boolean = false;
+    let drRecommendationArray: string[] = new Array();
+    data.map((importData: any) => {
+      let labelRx = importData.label;
+      let flagRx = importData.isChecked;
+      if (labelRx.toString() === strings.finalRx) {
+        printFinalRx = flagRx;
+      } else if (labelRx.toString() === strings.pd) {
+        printPDs = flagRx;
+      } else if (labelRx.toString() === strings.notesOnRx) {
+        printNotesOnRx = flagRx;
+      } else if ('entityId' in importData && importData.isChecked) {
+        drRecommendationArray.push(importData.entityId);
+      }
+    });
+    printRx(this.props.visitId, printFinalRx, printPDs, printNotesOnRx, drRecommendationArray);
+    this.hidePrintRxPopup();
+  };
+
+  renderPrintRxPopup() {
+    const printRxOptions: any = [{label:strings.finalRx, isChecked:true}, {label:strings.pd, isChecked:false}, {label:strings.notesOnRx, isChecked:true}];
+    if (this.state.visit.purchase) {
+      this.state.visit.purchase.map((recomm: any, index: number)=> {
+        formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ?
+          printRxOptions.push({label:formatCode('purchaseReasonCode', recomm.lensType),entityId:recomm.entityId, isChecked:false})
+          : printRxOptions.push({label:strings.drRecommendation+(index+1),entityId:recomm.entityId, isChecked:false});
+      });
+    }
+
+    return (
+      <Alert
+        title={strings.printRxLabel}
+        data={printRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintRxDialog(printRxOptions)}
+        onCancelAction={() => this.hidePrintRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={true}
+      />
+    );
+  }
+
+  hidePrintMedicationRxPopup = () => {
+    this.setState({showMedicationRxPopup: false});
+  };
+
+  confirmPrintMedicationRxDialog = (prescriptionData: any) => {
+    let labelsArray: string[] = new Array();
+    prescriptionData.map((prescriptionLabel: any) => {
+      let labelRx = prescriptionLabel.label;
+      let flagRx = prescriptionLabel.isChecked;
+      if (flagRx) {
+        labelsArray.push(labelRx);
+      }
+    });
+    printMedicalRx(this.props.visitId, labelsArray);
+    this.hidePrintMedicationRxPopup();
+  };
+
+  renderPrintMedicationRxPopup() {
+    const printMedicationRxOptions: any = [{label: strings.all, isChecked: false}];
+    const medicationExam = getExam('Prescription', getCachedItem(this.props.visitId));
+    let label: string = '';
+    let labelAlreadyExist = new Set();
+    if ((medicationExam !== undefined || medicationExam !== null) && (medicationExam.Prescription !== undefined || medicationExam.Prescription !== null)) {
+      medicationExam.Prescription.forEach((prescription, i) => {
+        label = prescription.Label;
+        if (!labelAlreadyExist.has(label)) {
+          printMedicationRxOptions.push({label: label, isChecked: false});
+          labelAlreadyExist.add(label);
+        }
+      });
+    }
+
+    return (
+      <Alert
+        title={strings.printRxLabel}
+        data={printMedicationRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintMedicationRxDialog(printMedicationRxOptions)}
+        onCancelAction={() => this.hidePrintMedicationRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printMedicalRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
-
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
+        {this.state.showRxPopup && this.renderPrintRxPopup()}
+        {this.state.showMedicationRxPopup && this.renderPrintMedicationRxPopup()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -1157,17 +1271,18 @@ class VisitWorkFlow extends Component {
           {!this.state.locked && !this.state.visit.prescription.signedDate && (
             <Button title={strings.sign} onPress={() => this.signVisit()} />
           )}
+
           <Button
             title={strings.printRx}
             onPress={() => {
-              printRx(this.props.visitId);
+              this.showRxPopup();
             }}
           />
           {this.hasMedicalRx() && (
             <Button
               title={strings.printMedicalRx}
               onPress={() => {
-                printMedicalRx(this.props.visitId);
+                this.showMedicationRxPopup();
               }}
             />
           )}
@@ -1331,6 +1446,13 @@ class VisitWorkFlow extends Component {
       </View>
     );
   }
+
+  showRxPopup() {
+    this.setState({showRxPopup: true});
+  }
+  showMedicationRxPopup() {
+    this.setState({showMedicationRxPopup: true});
+  }
 }
 
 export class VisitHistoryCard extends Component {
@@ -1364,11 +1486,12 @@ export class VisitHistoryCard extends Component {
   }
 
   checkUserHasAccess() {
-    let hasNoAccess = true;
+    let hasNoAccesAtAll = true;
     this.state.summaries.map(
-      (visitSummary: Exam) => (hasNoAccess &&= visitSummary.readonly),
+      (visitSummary: Exam) =>
+        (hasNoAccesAtAll &&= 'noaccess' in visitSummary ? visitSummary.noaccess : false),
     );
-    return hasNoAccess;
+    return hasNoAccesAtAll;
   }
 
   render() {
@@ -1384,7 +1507,7 @@ export class VisitHistoryCard extends Component {
           <NoAccess />
         ) : (
           this.state.summaries.map((visitSummary: Exam, index: number) =>
-            visitSummary.readonly ? (
+            visitSummary.noaccess ? (
               <NoAccess
                 prefix={
                   formatDate(
@@ -1392,7 +1515,7 @@ export class VisitHistoryCard extends Component {
                     isToyear(getCachedItem(visitSummary.visitId).date)
                       ? dateFormat
                       : farDateFormat,
-                  ) + ':'
+                  ) + ': '
                 }
               />
             ) : (
