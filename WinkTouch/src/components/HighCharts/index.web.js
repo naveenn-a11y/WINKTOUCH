@@ -16,7 +16,7 @@ export class Highcharts extends Component {
     if (config === undefined || config === null) return;
     config.series.map((series: any, index: Number) => {
       const data: any = series.data.map((e: Number) =>
-        e === null || e === undefined ? 0 : e,
+        e === undefined ? null : e,
       );
       config.series[index].data = data;
     });
