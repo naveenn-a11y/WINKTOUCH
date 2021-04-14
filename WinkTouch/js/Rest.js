@@ -4,9 +4,14 @@
 
 'use strict';
 
-import type { FieldDefinitions, RestResponse, Privileges, TokenPayload } from "./Types";
+import type {
+  FieldDefinitions,
+  RestResponse,
+  Privileges,
+  TokenPayload,
+} from './Types';
 import {decodeToken} from 'react-jwt';
-import {capitalize, deepClone} from './Util';
+import {capitalize, deepClone, isEmpty} from './Util';
 import {strings, getUserLanguage} from './Strings';
 import {
   cacheItemById,
@@ -38,7 +43,7 @@ export function getNextRequestNumber(): number {
 function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.pretestPrivilege = 'NOACCESS';
   privileges.medicalDataPrivilege = 'NOACCESS';
-  if (tokenPrivileges === undefined || tokenPrivileges === null ) return;
+  if (tokenPrivileges === undefined || tokenPrivileges === null) return;
   if (tokenPrivileges.pre === 'F') {
     privileges.pretestPrivilege = 'FULLACCESS';
   } else if (tokenPrivileges.pre === 'R') {
@@ -54,9 +59,12 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
 export function setToken(newToken: ?string) {
   __DEV__ && console.log('Token:' + newToken);
   token = newToken;
-  let payLoad: TokenPayload = decodeToken(token);
-  parsePrivileges(payLoad.prv);
-  __DEV__ && console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+  if (!isEmpty(token)) {
+    let payLoad: TokenPayload = decodeToken(token);
+    parsePrivileges(payLoad.prv);
+    __DEV__ &&
+      console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+  }
 }
 
 export function getToken(): string {
