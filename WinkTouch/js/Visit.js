@@ -794,7 +794,16 @@ class VisitWorkFlow extends Component {
       store.winkToWinkId > 0 &&
       store.winkToWinkEmail !== undefined &&
       store.winkToWinkEmail != null &&
-      store.winkToWinkEmail.trim() != ''
+      store.winkToWinkEmail.trim() != '' &&
+      this.state.visit.userId === getDoctor().id
+    );
+  }
+
+  canSign(): boolean {
+    return (
+      !this.state.locked &&
+      !this.state.visit.prescription.signedDate &&
+      this.state.visit.userId === getDoctor().id
     );
   }
 
@@ -1171,7 +1180,7 @@ class VisitWorkFlow extends Component {
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
           )}
-          {!this.state.locked && !this.state.visit.prescription.signedDate && (
+          {this.canSign() && (
             <Button title={strings.sign} onPress={() => this.signVisit()} />
           )}
           {hasPreTestReadAccess && (
