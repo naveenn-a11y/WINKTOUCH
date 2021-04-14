@@ -1237,10 +1237,8 @@ class VisitWorkFlow extends Component {
           {visit &&
             visit.appointmentId &&
             !this.props.readonly &&
-            (
-              hasMedicalDataWriteAccess ||
-              (appointment && appointment.status === 5)
-            )(
+            (hasMedicalDataWriteAccess ||
+              (appointment && appointment.status === 5)) && (
               <Button
                 title={
                   appointment && appointment.status === 5
@@ -1249,7 +1247,7 @@ class VisitWorkFlow extends Component {
                 }
                 disabled={appointment && appointment.status === 5}
                 onPress={() => this.endVisit()}
-              />,
+              />
             )}
         </View>
       </View>
