@@ -193,6 +193,14 @@ export function visitHasEnded(visit: string | Visit): boolean {
   }
   return visit.locked === true;
 }
+export function visitHasStarted(visit: string | Visit): boolean {
+  if (visit instanceof Object === false) {
+    visit = getCachedItem(visit);
+  }
+  return (
+    visit.preCustomExamIds !== undefined && visit.preCustomExamIds.length > 0
+  );
+}
 
 export function allExamIds(visit: Visit): string[] {
   let allExamIds: string[];
@@ -1357,7 +1365,7 @@ class VisitWorkFlow extends Component {
           )}
           {!this.props.readonly &&
             ((hasVisitPretestWriteAccess(this.state.visit) &&
-              isEmpty(this.state.visit.enteredByUserId)) ||
+              !visitHasStarted(this.state.visit)) ||
               hasVisitMedicalDataWriteAccess(this.state.visit)) && (
               <StartVisitButtons
                 onStartVisit={this.props.onStartVisit}
