@@ -1473,7 +1473,7 @@ export class PatientRefractionCard extends Component {
         {(!this.state.refractions || this.state.refractions.length === 0 || hasNoAccess) && (
           <Text style={styles.cardTitle}>{strings.finalRx}</Text>
         )}
-        {this.state.refractions.length !== 0 && (
+        {this.state.refractions && this.state.refractions.length !== 0 && (
           hasNoAccess ? (
             <NoAccess />
           ) : (

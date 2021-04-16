@@ -161,7 +161,7 @@ export class PatientMedicationCard extends Component {
         {hasNoAccess && (
           <Text style={styles.cardTitle}>{strings.medicationRxTitle}</Text>
         )}
-        {this.state.medications.length !== 0 && (
+        {this.state.medications && this.state.medications.length !== 0 && (
           hasNoAccess ? (
             <NoAccess />
           ) : (

@@ -1503,7 +1503,7 @@ export class VisitHistoryCard extends Component {
       <View
         style={isWeb ? [styles.tabCard, {flexShrink: 100}] : styles.tabCard}>
         <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
-        {this.state.summaries.length !== 0 && (
+        {this.state.summaries && this.state.summaries.length !== 0 && (
           hasNoAccess ? (
             <NoAccess />
           ) : (
