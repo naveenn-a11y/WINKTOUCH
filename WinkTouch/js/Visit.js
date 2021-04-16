@@ -815,6 +815,14 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  canLock(): boolean {
+    return (
+      !this.state.locked &&
+      !this.props.readonly &&
+      this.state.visit.userId === getDoctor().id
+    );
+  }
+
   async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
     if (this.props.readonly) {
       return;
@@ -1045,7 +1053,9 @@ class VisitWorkFlow extends Component {
                   })
                 }
                 onHide={() =>
-                  hasVisitMedicalDataWriteAccess(this.state.visit) &&
+                  ((hasVisitPretestWriteAccess(this.state.visit) &&
+                    isEmpty(this.state.visit.userId)) ||
+                    hasVisitMedicalDataWriteAccess(this.state.visit)) &&
                   this.hideExam(exam)
                 }
                 unlocked={this.state.locked !== true}
@@ -1243,14 +1253,12 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {!this.state.locked &&
-            !this.props.readonly &&
-            hasMedicalDataWriteAccess && (
-              <Button
-                title={strings.lockVisit}
-                onPress={() => this.lockVisit()}
-              />
-            )}
+          {this.canLock() && (
+            <Button
+              title={strings.lockVisit}
+              onPress={() => this.lockVisit()}
+            />
+          )}
           {visit &&
             visit.appointmentId &&
             !this.props.readonly &&
@@ -1314,7 +1322,7 @@ class VisitWorkFlow extends Component {
   renderLockIcon() {
     if (
       this.state.locked !== true ||
-      !hasVisitMedicalDataWriteAccess(this.state.visit)
+      this.state.visit.userId !== getDoctor().id
     ) {
       return null;
     }
@@ -1719,6 +1727,15 @@ export class VisitHistory extends Component {
     }
     this.setState({showDialog: true, selectedId: visitId});
   }
+
+  canDelete(visit: Visit) {
+    return (
+      this.state.selectedId &&
+      this.state.showDialog &&
+      ((hasVisitPretestWriteAccess(visit) && isEmpty(visit.userId)) ||
+        hasVisitMedicalDataWriteAccess(visit))
+    );
+  }
   renderAlert() {
     const visit: Visit = getCachedItem(this.state.selectedId);
     if (!visit) {
@@ -1879,10 +1896,7 @@ export class VisitHistory extends Component {
           this.state.selectedId.startsWith('patientDocument') && (
             <PatientDocumentPage id={this.state.selectedId} />
           )}
-        {this.state.selectedId &&
-          this.state.showDialog &&
-          hasVisitMedicalDataWriteAccess(visit) &&
-          this.renderAlert()}
+        {this.canDelete(visit) && this.renderAlert()}
         {!isNewAppointment &&
           this.state.showingDatePicker &&
           this.renderDateTimePicker()}
