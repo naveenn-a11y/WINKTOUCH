@@ -824,7 +824,9 @@ export class ExamScreen extends Component {
 
   updateExam = (exam: Exam): void => {
     //__DEV__ && console.log('Examscreen updateExam called');
-    this.setState({exam, isDirty: true});
+    if (!this.state.exam.readonly) {
+      this.setState({exam, isDirty: true});
+    }
   };
 
   async removeFavorite(favorite: ExamPredefinedValue) {
