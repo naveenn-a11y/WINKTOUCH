@@ -59,8 +59,8 @@ function getRecentMedication(patientId: string): ?({ medications: Prescription[]
   let fieldDefinitions: ?(FieldDefinition[]) = undefined;
   visitHistory.forEach((visit: Visit) => {
     if (
-      visit.medicalDataPrivilege != 'READONLY' &&
-      visit.medicalDataPrivilege != 'FULLACCESS'
+      visit.medicalDataPrivilege !== 'READONLY' &&
+      visit.medicalDataPrivilege !== 'FULLACCESS'
     ) {
       let noAccessPrescription: Prescription[] = [{noaccess: true}];
       fillPrescriptionDates(noAccessPrescription, visit.id);
@@ -161,19 +161,20 @@ export class PatientMedicationCard extends Component {
         {hasNoAccess && (
           <Text style={styles.cardTitle}>{strings.medicationRxTitle}</Text>
         )}
-        {hasNoAccess ? (
-          <NoAccess />
-        ) : (
-          <ItemsList
-            title={strings.medicationRxTitle}
-            items={this.state.medications}
-            showLabels={false}
-            style={styles.tabCard}
-            fieldDefinitions={this.state.fieldDefinitions}
-            editable={false}
-            titleFields={['Rx Date']}
-          />
-        )}
+        {this.state.medications.length !== 0 && (
+          hasNoAccess ? (
+            <NoAccess />
+          ) : (
+            <ItemsList
+              title={strings.medicationRxTitle}
+              items={this.state.medications}
+              showLabels={false}
+              style={styles.tabCard}
+              fieldDefinitions={this.state.fieldDefinitions}
+              editable={false}
+              titleFields={['Rx Date']}
+            />
+          ))}
       </View>
     );
   }

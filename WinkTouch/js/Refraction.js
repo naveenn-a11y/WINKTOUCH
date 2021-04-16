@@ -1458,6 +1458,7 @@ export class PatientRefractionCard extends Component {
 
   checkUserHasAccess() {
     let hasNoAccessAtAll = true;
+    console.log('refractions ' + JSON.stringify(this.state.refractions));
     this.state.refractions &&
       this.state.refractions.map((refraction: GlassesRx) =>
           (hasNoAccessAtAll &&= refraction.noaccess),
@@ -1472,29 +1473,32 @@ export class PatientRefractionCard extends Component {
         {(!this.state.refractions || this.state.refractions.length === 0 || hasNoAccess) && (
           <Text style={styles.cardTitle}>{strings.finalRx}</Text>
         )}
-        {hasNoAccess ? <NoAccess /> : (
-          this.state.refractions &&
-          this.state.refractions.map((refraction: GlassesRx, index: number) => (
-            <GlassesSummary
-              showHeaders={false}
-              title={
-                strings.finalRx +
-                prefix(
-                  formatDate(
-                    refraction.prescriptionDate,
-                  isToyear(refraction.prescriptionDate)
-                    ? dateFormat
-                    : farDateFormat,
-                  ),
-                  ' ',
-                ) +
-                prefix(refraction.doctor, ' ')
-              }
-              glassesRx={refraction}
-              key={index}
-            />
-          ))
-        )}
+        {this.state.refractions.length !== 0 && (
+          hasNoAccess ? (
+            <NoAccess />
+          ) : (
+            this.state.refractions &&
+            this.state.refractions.map((refraction: GlassesRx, index: number) => (
+                <GlassesSummary
+                  showHeaders={false}
+                  title={
+                    strings.finalRx +
+                    prefix(
+                      formatDate(
+                        refraction.prescriptionDate,
+                        isToyear(refraction.prescriptionDate)
+                          ? dateFormat
+                          : farDateFormat,
+                      ),
+                      ' ',
+                    ) +
+                    prefix(refraction.doctor, ' ')
+                  }
+                  glassesRx={refraction}
+                  key={index}
+                />
+            ))
+          ))}
       </View>
     );
   }

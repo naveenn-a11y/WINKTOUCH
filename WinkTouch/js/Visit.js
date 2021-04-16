@@ -303,8 +303,8 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   let visitSummaries: Exam[] = [];
   visitHistory.forEach((visit: Visit) => {
     if (
-      visit.medicalDataPrivilege != 'READONLY' &&
-      visit.medicalDataPrivilege != 'FULLACCESS'
+      visit.medicalDataPrivilege !== 'READONLY' &&
+      visit.medicalDataPrivilege !== 'FULLACCESS'
     ) {
       let noAccessExam: Exam[] = [{noaccess: true, visitId: visit.id}];
       visitSummaries = [...visitSummaries, ...noAccessExam];
@@ -1495,50 +1495,51 @@ export class VisitHistoryCard extends Component {
   }
 
   render() {
+    let hasNoAccess = this.checkUserHasAccess();
     if (!this.state.summaries) {
       return null;
     }
-    let hasNoAccess = this.checkUserHasAccess();
     return (
       <View
         style={isWeb ? [styles.tabCard, {flexShrink: 100}] : styles.tabCard}>
         <Text style={styles.cardTitle}>{strings.summaryTitle}</Text>
-        {hasNoAccess ? (
-          <NoAccess />
-        ) : (
-          this.state.summaries.map((visitSummary: Exam, index: number) =>
-            visitSummary.noaccess ? (
-              <NoAccess
-                prefix={
-                  formatDate(
-                    getCachedItem(visitSummary.visitId).date,
-                    isToyear(getCachedItem(visitSummary.visitId).date)
-                      ? dateFormat
-                      : farDateFormat,
-                  ) + ': '
-                }
-              />
-            ) : (
-              <View style={styles.rowLayout}>
-                <View
-                  style={
-                    isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
-                  }>
-                  <Text style={styles.text}>
-                    {formatDate(
+        {this.state.summaries.length !== 0 && (
+          hasNoAccess ? (
+            <NoAccess />
+          ) : (
+            this.state.summaries.map((visitSummary: Exam, index: number) =>
+              visitSummary.noaccess ? (
+                <NoAccess
+                  prefix={
+                    formatDate(
                       getCachedItem(visitSummary.visitId).date,
                       isToyear(getCachedItem(visitSummary.visitId).date)
                         ? dateFormat
                         : farDateFormat,
-                    )}
-                    : {visitSummary.resume}
-                    {'\n'}
-                  </Text>
+                    ) + ': '
+                  }
+                />
+              ) : (
+                <View style={styles.rowLayout}>
+                  <View
+                    style={
+                      isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
+                    }>
+                    <Text style={styles.text}>
+                      {formatDate(
+                        getCachedItem(visitSummary.visitId).date,
+                        isToyear(getCachedItem(visitSummary.visitId).date)
+                          ? dateFormat
+                          : farDateFormat,
+                      )}
+                      : {visitSummary.resume}
+                      {'\n'}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            ),
-          )
-        )}
+              ),
+            )
+          ))}
       </View>
     );
   }
