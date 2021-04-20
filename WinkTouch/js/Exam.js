@@ -471,7 +471,7 @@ export function getExamHistory(exam: Exam): Exam[] {
   visitHistory.forEach((visit: Visit) => {
     if (visit.medicalDataPrivilege === 'NOACCESS') {
       let noAccessExam: Exam = {
-        hasAccess: false,
+        noaccess: true,
         visitId: visit.id,
       };
       examArray = [...examArray, noAccessExam];
@@ -626,7 +626,7 @@ export class ExamHistoryScreen extends Component {
     const visitDate: string = exam.visitId
       ? formatMoment(getCachedItem(exam.visitId).date)
       : 'Today';
-    if (exam.hasAccess === false) {
+    if (exam.noaccess === true) {
       return (
         <View style={styles.historyBoard}>
           <Text style={styles.cardTitle}>{visitDate}</Text>

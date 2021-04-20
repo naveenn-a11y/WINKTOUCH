@@ -1458,7 +1458,6 @@ export class PatientRefractionCard extends Component {
 
   checkUserHasAccess() {
     let hasNoAccessAtAll = true;
-    console.log('refractions ' + JSON.stringify(this.state.refractions));
     this.state.refractions &&
       this.state.refractions.map((refraction: GlassesRx) =>
           (hasNoAccessAtAll &&= refraction.noaccess),
