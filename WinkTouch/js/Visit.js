@@ -1860,11 +1860,12 @@ export class VisitHistory extends Component {
   }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
-    const userHasPretestWriteAccess: boolean = getPrivileges().pretestPrivilege==='FULLACCESS';
+    const userHasPretestWriteAccess: boolean =
+      getPrivileges().pretestPrivilege === 'FULLACCESS';
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
-          {isNewAppointment && (
+          {isNewAppointment && userHasPretestWriteAccess && (
             <Button
               title={strings.startAppointment}
               onPress={() => this.startAppointment()}
