@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -31,7 +32,7 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  User,
+  User, UserLog,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -396,6 +397,16 @@ export async function transferRx(visitId: string) {
     RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
   }
 }
+
+export async function fetchUpdateLog(visitId: string): UserLog[] {
+  const searchCriteria = {visitId: visitId};
+  let restResponse = await searchItems(
+    'User/getUpdateLogAfterVisitLock',
+    searchCriteria,
+  );
+  const userLogs: UserLog[] = restResponse.userLogs;
+  console.log('userlog: ' + JSON.stringify(userLogs[0]));
+  }
 
 function compareExams(a: Exam, b: Exam): number {
   if (a.definition.order !== undefined && b.definition.order !== undefined) {

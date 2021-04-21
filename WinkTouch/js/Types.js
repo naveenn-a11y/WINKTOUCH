@@ -470,3 +470,16 @@ export type TranslationDefinition = {
   label: ?string,
   normalValue: ?string,
 };
+
+export type UserLog = {
+  id: string,
+  date: string,
+  comment: string,
+  user: User,
+  table: string,
+  field: string,
+  oldValue: string,
+  newValue: string,
+  //patientId: string,
+  visitId: string,
+};
