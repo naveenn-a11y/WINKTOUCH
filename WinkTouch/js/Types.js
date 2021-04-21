@@ -221,11 +221,12 @@ export type Visit = {
 };
 
 export type CodeDefinition =
-  | {
+  {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
-    }
+      readonly? : boolean,
+  }
   | string;
 
 export type FieldLayout = {

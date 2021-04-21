@@ -658,6 +658,11 @@ export const styles = StyleSheet.create({
   popupTile: {
     ...tile,
   },
+  readOnly: {
+    ...tile,
+    backgroundColor: 'gray',
+    cursor: 'default',
+  },
   popupTileSelected: {
     ...tile,
     backgroundColor: selectionBackgroundColor,

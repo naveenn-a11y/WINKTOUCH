@@ -237,10 +237,10 @@ export const strings = new LocalizedStrings({
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the App !',
     dragNDrop: 'Drag and drop some files here !',
-    takePicture: 'Take a Picture',
-    uploadFile: 'Upload a File',
-    startBlank: 'Start Blank',
-    startFromVisit: 'Start From a Visit',
+    takePicture: 'Take a picture',
+    uploadFile: 'Upload a file',
+    startBlank: 'Start blank',
+    startFromVisit: 'Start from previous consultation',
   },
   fr: {
     enterRegisteredEmail:
@@ -477,10 +477,10 @@ export const strings = new LocalizedStrings({
       "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
     restartApp: "Cliquez ici pour redémarrer l'application !",
     dragNDrop: 'Faites glisser et déposez votre fichier ici !',
-    takePicture: 'Prendre une Photo',
-    uploadFile: 'Téléverser un Fichier',
-    startBlank: 'Commencer Vide',
-    startFromVisit: 'Commencer par une visite',
+    takePicture: 'Prendre une photo',
+    uploadFile: 'Téléverser un fichier',
+    startBlank: 'Commencer avec un dossier vierge',
+    startFromVisit: 'Commencer sur la base d\'une consultation précédente',
   },
 });
 
