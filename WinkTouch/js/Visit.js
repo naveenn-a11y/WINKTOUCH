@@ -31,7 +31,7 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  CodeDefitinion, CodeDefinition,
+  CodeDefinition,
 } from "./Types";
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -41,7 +41,7 @@ import {
   Lock,
   NativeBar,
   Alert,
-  CustomModal,
+  SelectionDialog,
 } from './Widgets';
 import {
   formatMoment,
@@ -275,11 +275,11 @@ export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
   //Format the visits as CodeDefinitions
   visitHistory.forEach((visit: Visit) => {
     if (visit.customExamIds || visit.preCustomExamIds) {
-      let readOnly: boolean = visit.pretestPrivilege === 'NOACCESS' ? true : false;
+      let readonly: boolean = visit.pretestPrivilege === 'NOACCESS';
       const code: string = visit.id;
       const description: string =
         formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
-      const codeDescription: CodeDefitinion = {code, description, readOnly};
+      const codeDescription: CodeDefinition = {code, description, readonly};
       codeDescriptions.push(codeDescription);
     }
   });
@@ -527,7 +527,7 @@ class FollowUpButton extends PureComponent {
 export type StartVisitButtonsProps = {
   isPreVisit: boolean,
   title?: string,
-  onStartVisit: (type: string, isPrevisit: boolean, cVisitId?: string) => void,
+  onStartVisit: (type: string, isPrevisit: boolean, startVisitId?: string) => void,
   isLoading: ?boolean,
   patientInfo: ?PatientInfo,
 };
@@ -536,7 +536,6 @@ type StartVisitButtonsState = {
   clicked: boolean,
   isVisitOptionsVisible: boolean,
   visitOptions: CodeDefinition[],
-  formattedVisitOptions: string[],
   visitType: string,
 };
 export class StartVisitButtons extends Component<
@@ -550,7 +549,6 @@ export class StartVisitButtons extends Component<
       clicked: false,
       isVisitOptionsVisible: false,
       visitOptions: [],
-      formattedVisitOptions: [],
       visitType: '',
     };
   }
@@ -572,7 +570,9 @@ export class StartVisitButtons extends Component<
     this.setState({clicked: true, visitType: visitType}, () => {
       if (!this.props.isPreVisit) {
         this.showVisitOptions();
-      } else this.props.onStartVisit(visitType, this.props.isPreVisit);
+      } else {
+        this.props.onStartVisit(visitType, this.props.isPreVisit);
+      }
       this.setState({clicked: false});
     });
   }
@@ -586,39 +586,26 @@ export class StartVisitButtons extends Component<
       let previousVisits: CodeDefinition[] = getPreviousVisits(
         this.props.patientInfo.id,
       );
-      previousVisits = previousVisits.slice(1);
+      //previousVisits = previousVisits.slice(1); TODO: filter the current visit, not the first visit in the history.
       const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
-      const formattedOptions: string[] = formatOptions(options);
       this.setState({
         visitOptions: options,
-        formattedVisitOptions: formattedOptions,
         isVisitOptionsVisible: true,
       });
     }
   }
 
-  changeValue = (newValue: ?string) => {
+  hideVisitOptions = () => {
     this.setState({isVisitOptionsVisible: false});
-    const option: CodeDefinition = this.parseValue(newValue);
-    if (option !== undefined) {
-      this.props.onStartVisit(
+  }
+
+  selectVisit = (visit: ?CodeDefinition) => {
+    this.setState({isVisitOptionsVisible: false});
+    this.props.onStartVisit(
         this.state.visitType,
         this.props.isPreVisit,
-        option.code,
-      );
-    }
-  };
-  parseValue(newValue: ?string): CodeDefinition {
-    if (newValue === undefined || newValue === null) return undefined;
-    let index: number = this.state.formattedVisitOptions.findIndex(
-      (option: string) =>
-        option.trim().toLowerCase() === newValue.trim().toLowerCase(),
+        visit?visit.code:undefined,
     );
-    if (index < 0 || index >= this.state.visitOptions.length) {
-      return undefined;
-    }
-    const option: CodeDefinition = this.state.visitOptions[index];
-    return option;
   }
 
   render() {
@@ -648,12 +635,12 @@ export class StartVisitButtons extends Component<
             </TouchableOpacity>
           ))}
         </View>
-        <CustomModal
+        <SelectionDialog
+          visible={this.state.isVisitOptionsVisible}
           label={strings.startFromVisit}
-          options={this.state.formattedVisitOptions}
-          isActive={this.state.isVisitOptionsVisible}
-          onChangeValue={this.changeValue}
-          readOnly={this.state.visitOptions}
+          options={this.state.visitOptions}
+          onSelect={this.selectVisit}
+          onCancel={this.hideVisitOptions}
         />
       </View>
     );

@@ -3362,115 +3362,68 @@ export class KeyboardMode extends Component {
   }
 }
 
-export class CustomModal extends Component {
-  props: {
-    label?: string,
-    options: (string[] | string)[],
-    onChangeValue?: (newvalue: ?(string[] | string)) => void,
-    testID?: string,
-    isActive?: boolean,
-    readOnly?: CodeDefinition[],
-  };
-  state: {
-    isActive: boolean,
-    editedValue?: string[] | string,
-  };
-
-  constructor(props: any) {
+export type SelectionDialogProps = {
+  label?: string,
+  options: CodeDefinition[],
+  onSelect?: (option: ?(CodeDefinition)) => void,
+  onCancel?: () => void,
+  visible: boolean,
+  testID?: string,
+};
+export class SelectionDialog extends Component<SelectionDialogProps, SelectionDialogState> {
+  constructor(props: SelectionDialogProps) {
     super(props);
-    this.state = {
-      isActive: this.props.isActive,
-      editedValue: undefined,
-    };
   }
 
-  componentDidUpdate(prevProps: any) {
-    if (this.props.isActive === prevProps.isActive) return;
-    this.setState({
-      isActive: this.props.isActive,
-    });
+  selectOption(option: CodeDefinition): void {
+    if (option.readonly) return;
+    this.props.onSelect(option);
   }
 
-  updateValue(newValue?: string, columnIndex: number): void {
-    this.setState({editedValue: newValue}, this.commitEdit);
-  }
-  commitEdit = () => {
-    if (this.props.onChangeValue)
-      this.props.onChangeValue(this.state.editedValue);
-    this.setState({isActive: false});
-  };
-
-  format(value: ?string): string {
-    if (value === undefined || value === null || value === '') return '';
-    let formattedValue: string = '';
-    formattedValue += value.toString();
-    return formattedValue;
-  }
-
-  render() {
-    return (
-      this.state.isActive === true && (
-        <Modal
-          visible={this.state.isActive === true}
-          transparent={true}
-          animationType={'slide'}
-          onRequestClose={this.cancelEdit}>
-          {this.renderPopup()}
-        </Modal>
-      )
-    );
-  }
   renderPopup() {
-    let allOptions: string[][] = [this.props.options];
-    let readOnlyDefinitions: CodeDefinition[] = this.props.readOnly;
-    const readOnlyDetails = readOnlyDefinitions.reduce((object, key) => ({ ...object, [key.description]: key.readOnly}), {});  //converting CodeDefinition to Object
     return (
       <TouchableWithoutFeedback
-        onPress={this.commitEdit}
+        onPress={this.props.onCancel}
         accessible={false}
         testID="popupBackground">
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>{this.format(this.props.label)}</Text>
+          {this.props.label && <Text style={styles.modalTitle}>{this.props.label}</Text>}
           <ScrollView>
             <View style={styles.flexColumnLayout}>
               <View style={styles.centeredRowLayout}>
-                {allOptions.map((options: string[], columnIndex: number) => (
-                  <View style={styles.modalColumn} key={columnIndex}>
-                    {options.map((option: string, rowIndex: number) => {
-                      let isSelected: boolean =
-                        this.state.editedValue === option;
+                  <View style={styles.modalColumn}>
+                    {this.props.options.map((option: CodeDefinition, rowIndex: number) => {
                       return (
                         <TouchableOpacity
                           key={rowIndex}
-                          onPress={() => !readOnlyDetails[option] && this.updateValue(option, columnIndex)}
+                          onPress={() => this.selectOption(option)}
                           testID={'option' + (rowIndex + 1)}>
-                          <View
-                            style={
-                              !readOnlyDetails[option]
-                                ? isSelected
-                                  ? styles.popupTileSelected
-                                  : styles.popupTile
-                                : styles.readOnly
-                            }>
-                            <Text
-                              style={
-                                isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
-                              }>
-                              {option}
+                          <View style={option.readonly ? styles.readOnly : styles.popupTile }>
+                            <Text style={ styles.modalTileLabel }>
+                              {formatCodeDefinition(option)}
                             </Text>
                           </View>
                         </TouchableOpacity>
                       );
                     })}
                   </View>
-                ))}
               </View>
             </View>
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        visible={this.props.visible}
+        transparent={true}
+        animationType={'slide'}
+        onRequestClose={this.props.onCancel}>
+        {this.renderPopup()}
+      </Modal>
     );
   }
 }
