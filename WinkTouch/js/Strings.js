@@ -240,6 +240,9 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Upload a file',
     signedOn: 'Signed on',
     location: 'Location',
+    lockedOn: 'Locked on',
+    lastUpdateOn: 'Last update on',
+    lastUpdateBy: 'Last update by',
   },
   fr: {
     enterRegisteredEmail:
@@ -479,6 +482,9 @@ export const strings = new LocalizedStrings({
     uploadFile: 'Téléverser un fichier',
     signedOn: 'Signé le',
     location: 'Lieu',
+    lockedOn: 'Verrouillé le',
+    lastUpdateOn: 'Modifié le',
+    lastUpdateBy: 'Modifié par',
   },
 });
 

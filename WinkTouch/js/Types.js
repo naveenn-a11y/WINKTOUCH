@@ -221,6 +221,13 @@ export type Visit = {
   inactive: boolean,
   pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
   medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  consultationDetail?: ConsultationDetail,
+};
+
+export type ConsultationDetail = {
+  lastUpdateOn?: string,
+  lastUpdateBy?: string,
+  lockedOn?: string,
 };
 
 export type CodeDefinition =
@@ -469,17 +476,4 @@ export type TranslationDefinition = {
   language: string,
   label: ?string,
   normalValue: ?string,
-};
-
-export type UserLog = {
-  id: string,
-  date: string,
-  comment: string,
-  user: User,
-  table: string,
-  field: string,
-  oldValue: string,
-  newValue: string,
-  //patientId: string,
-  visitId: string,
 };

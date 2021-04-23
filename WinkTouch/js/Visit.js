@@ -32,7 +32,7 @@ import type {
   Store,
   FollowUp,
   VisitType,
-  User, UserLog,
+  User,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -43,6 +43,7 @@ import {
   formatDate,
   now,
   jsonDateTimeFormat,
+  dateTimeFormat,
   isEmpty,
   compareDates,
   isToyear,
@@ -397,16 +398,6 @@ export async function transferRx(visitId: string) {
     RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
   }
 }
-
-export async function fetchUpdateLog(visitId: string): UserLog[] {
-  const searchCriteria = {visitId: visitId};
-  let restResponse = await searchItems(
-    'User/getUpdateLogAfterVisitLock',
-    searchCriteria,
-  );
-  const userLogs: UserLog[] = restResponse.userLogs;
-  console.log('userlog: ' + JSON.stringify(userLogs[0]));
-  }
 
 function compareExams(a: Exam, b: Exam): number {
   if (a.definition.order !== undefined && b.definition.order !== undefined) {
@@ -1060,9 +1051,49 @@ class VisitWorkFlow extends Component {
     return (
       <View style={styles.examsBoard}>
         <Text style={styles.cardTitle}>{strings.visit}</Text>
-        {doctor && (<Text style={styles.text}>{strings.doctor}:{' '}{postfix(doctor.firstName, ' ') + doctor.lastName}</Text>)}
-        {store && store.name && (<Text style={styles.text}>{strings.location}: {store.name}</Text>)}
-        {!isEmpty(this.state.visit.prescription.signedDate) && (<Text style={styles.text}>{strings.signedOn}: {formatDate(this.state.visit.prescription.signedDate, yearDateFormat)}</Text>)}
+        {doctor && (
+          <Text style={styles.text}>
+            {strings.doctor}: {postfix(doctor.firstName, ' ') + doctor.lastName}
+          </Text>
+        )}
+        {store && store.name && (
+          <Text style={styles.text}>
+            {strings.location}: {store.name}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.prescription.signedDate) && (
+          <Text style={styles.text}>
+            {strings.signedOn}:{' '}
+            {formatDate(
+              this.state.visit.prescription.signedDate,
+              yearDateFormat,
+            )}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.consultationDetail.lockedOn) && (
+          <Text style={styles.text}>
+            {strings.lockedOn}:{' '}
+            {formatDate(
+              this.state.visit.consultationDetail.lockedOn,
+              dateTimeFormat,
+            )}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.consultationDetail.lastUpdateOn) && (
+          <Text style={styles.text}>
+            {strings.lastUpdateOn}:{' '}
+            {formatDate(
+              this.state.visit.consultationDetail.lastUpdateOn,
+              dateTimeFormat,
+            )}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.consultationDetail.lastUpdateBy) && (
+          <Text style={styles.text}>
+            {strings.lastUpdateBy}:{' '}
+            {this.state.visit.consultationDetail.lastUpdateBy}
+          </Text>
+        )}
       </View>
     );
   }
