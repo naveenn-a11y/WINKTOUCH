@@ -1066,7 +1066,7 @@ class VisitWorkFlow extends Component {
             {strings.signedOn}:{' '}
             {formatDate(
               this.state.visit.prescription.signedDate,
-              yearDateFormat,
+              dateTimeFormat,
             )}
           </Text>
         )}
