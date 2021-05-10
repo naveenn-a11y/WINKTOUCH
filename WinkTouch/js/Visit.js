@@ -850,15 +850,14 @@ class VisitWorkFlow extends Component {
     );
   }
 
-  async createExam(examDefinitionId: string, examPredefinedValueId?: string) {
+  async createExam(examDefinitionId: string) {
     if (this.props.readonly) return;
     const visit: ?Visit = this.state.visit;
     if (!visit || !visit.id) return;
     let exam: Exam = {
       id: 'customExam',
       visitId: visit.id,
-      customExamDefinitionId: examDefinitionId,
-      examPredefinedValueId: examPredefinedValueId,
+      customExamDefinitionId: examDefinitionId
     };
     exam = await createExam(exam);
     if (exam.errors) {
@@ -917,7 +916,7 @@ class VisitWorkFlow extends Component {
     if (existingExam) {
       this.unhideExam(existingExam);
     } else {
-      this.createExam(examDefinition.id, undefined);
+      this.createExam(examDefinition.id);
     }
   }
 
