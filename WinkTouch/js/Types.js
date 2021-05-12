@@ -259,7 +259,14 @@ export type Visit = {
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
   pretestPrivilege?: Privilege,
-  medicalDataPrivilege?: Privilege
+  medicalDataPrivilege?: Privilege,
+  consultationDetail?: ConsultationDetail,
+};
+
+export type ConsultationDetail = {
+  lastUpdateOn?: string,
+  lastUpdateBy?: string,
+  lockedOn?: string,
 };
 
 export type CodeDefinition =

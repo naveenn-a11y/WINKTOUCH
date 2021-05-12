@@ -248,6 +248,9 @@ export const strings = new LocalizedStrings({
     all: 'All',
     startBlank: 'Start blank',
     startFromVisit: 'Start from previous consultation',
+    lockedOn: 'Locked on',
+    lastUpdateOn: 'Last update on',
+    lastUpdateBy: 'Last update by',
   },
   fr: {
     enterRegisteredEmail:
@@ -495,6 +498,9 @@ export const strings = new LocalizedStrings({
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
     startFromVisit: 'Commencer sur la base d\'une consultation précédente',
+    lockedOn: 'Verrouillé le',
+    lastUpdateOn: 'Modifié le',
+    lastUpdateBy: 'Modifié par',
   },
 });
 

@@ -53,6 +53,7 @@ import {
   formatDate,
   now,
   jsonDateTimeFormat,
+  dateTimeFormat,
   isEmpty,
   compareDates,
   isToyear,
@@ -356,10 +357,10 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
           visitSummaries = [...visitSummaries, exam];
         }
       });
-        if (visitSummaries.length > 3) {
-          return visitSummaries;
-        }
+      if (visitSummaries.length > 3) {
+        return visitSummaries;
       }
+    }
     }
   });
   return visitSummaries;
@@ -458,7 +459,7 @@ function compareExams(a: Exam, b: Exam): number {
   if (a.definition.order !== undefined && b.definition.order !== undefined) {
     if (a.definition.order < b.definition.order) {
       return -10;
-  }
+    }
     if (a.definition.order > b.definition.order) {
       return 10;
     }
@@ -622,7 +623,7 @@ export class StartVisitButtons extends Component<
         this.showVisitOptions();
       } else {
         this.props.onStartVisit(visitType, this.props.isPreVisit);
-      }
+    }
       this.setState({clicked: false});
     });
   }
@@ -1203,6 +1204,30 @@ class VisitWorkFlow extends Component {
               this.state.visit.prescription.signedDate,
               yearDateFormat,
             )}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.consultationDetail.lockedOn) && (
+          <Text style={styles.text}>
+            {strings.lockedOn}:{' '}
+            {formatDate(
+              this.state.visit.consultationDetail.lockedOn,
+              dateTimeFormat,
+            )}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.consultationDetail.lastUpdateOn) && (
+          <Text style={styles.text}>
+            {strings.lastUpdateOn}:{' '}
+            {formatDate(
+              this.state.visit.consultationDetail.lastUpdateOn,
+              dateTimeFormat,
+            )}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.consultationDetail.lastUpdateBy) && (
+          <Text style={styles.text}>
+            {strings.lastUpdateBy}:{' '}
+            {this.state.visit.consultationDetail.lastUpdateBy}
           </Text>
         )}
       </View>
