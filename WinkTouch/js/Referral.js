@@ -30,7 +30,7 @@ import type {
   EmailDefinition,
   FollowUp,
 } from './Types';
-import {allExamIds} from './Visit';
+import {allExamIds, getPreviousVisits} from './Visit';
 import {getCachedItems, getCachedItem} from './DataCache';
 import {renderExamHtml, getExam, UserAction} from './Exam';
 import {stripDataType} from './Rest';
@@ -180,43 +180,7 @@ export class ReferralScreen extends Component<
     const patientInfo: PatientInfo = this.props.navigation.state.params
       .patientInfo;
     if (patientInfo === undefined) return undefined;
-    let visitHistory: ?(Visit[]) = getVisitHistory(patientInfo.id);
-    if (!visitHistory || visitHistory.length === 0) return undefined;
-    let codeDescriptions: CodeDefinition[] = [];
-    //Check if there is two visits of the same type on the same day
-    let hasDoubles: boolean = false;
-    for (let i: number = 0; i < visitHistory.length - 1; i++) {
-      for (let j: number = i + 1; j < visitHistory.length; j++) {
-        if (
-          isSameDay(
-            parseDate(visitHistory[i].date),
-            parseDate(visitHistory[j].date),
-          )
-        ) {
-          if (visitHistory[i].typeName === visitHistory[j].typeName) {
-            hasDoubles = true;
-            break;
-          }
-        } else {
-          break;
-        }
-        if (hasDoubles) break;
-      }
-    }
-    const dateFormat: string = hasDoubles
-      ? yearDateTime24Format
-      : yearDateFormat;
-    //Format the visits as CodeDefinitions
-    visitHistory.forEach((visit: Visit) => {
-      if (visit.customExamIds || visit.preCustomExamIds) {
-        const code: string = visit.id;
-        const description: string =
-          formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
-        const codeDescription: CodeDefitinion = {code, description};
-        codeDescriptions.push(codeDescription);
-      }
-    });
-    return codeDescriptions;
+    return getPreviousVisits(patientInfo.id);
   }
 
   async componentDidUpdate(prevProps: any) {
