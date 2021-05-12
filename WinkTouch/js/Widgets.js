@@ -338,7 +338,6 @@ export class TextField extends Component {
   }
 
   commitEdit(value: string) {
-    console.log('Hello Vlaue: ' + value);
     this.setState({value});
     if (this.props.onChangeValue && value !== this.props.value)
       this.props.onChangeValue(value);
@@ -1644,7 +1643,7 @@ export class ListField extends Component {
 
   renderPopup() {
     return (
-      <TouchableWithoutFeedback onPress={this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? undefined : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
@@ -2868,23 +2867,23 @@ export class FloatingButton extends Component {
   render() {
     if (!this.state.options) return null;
     return (
-      <FAB.Group
-        open={this.state.active}
-        onStateChange={this.toggleActive}
-        position="bottomRight"
-        fabStyle={styles.floatingButton}
-        icon={this.state.active ? 'minus' : 'plus'}
-        actions={this.state.options.map((option: string, index: number) => {
-          return {
-            icon: 'minus',
-            label: option,
-            onPress: () => {
-              this.toggleActive();
-              this.props.onPress(option);
-            },
-          };
-        })}
-      />
+          <FAB.Group
+            open={this.state.active}
+            onStateChange={this.toggleActive}
+            position="bottomRight"
+            fabStyle={styles.floatingButton}
+            icon={this.state.active ? 'minus' : 'plus'}
+            actions={this.state.options.map((option: string, index: number) => {
+              return {
+                icon: 'minus',
+                label: option,
+                onPress: () => {
+                  this.toggleActive();
+                  this.props.onPress(option);
+                },
+              };
+            })}
+          />
     );
   }
 }
@@ -2902,6 +2901,21 @@ export class Lock extends PureComponent {
     return (
       <Icon
         name="lock-open-outline"
+        style={this.props.style}
+        color={selectionFontColor}
+      />
+    );
+  }
+}
+
+export class Pencil extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <Icon
+        name="pencil-off-outline"
         style={this.props.style}
         color={selectionFontColor}
       />
@@ -3162,6 +3176,18 @@ export class SelectionList extends React.PureComponent {
     return data;
   }
 
+  renderItem = ({ item }) => {
+    return <SelectionListRow
+      label={item}
+      simpleSelect={this.props.simpleSelect}
+      selected={this.isSelected(item)}
+      onSelect={(isSelected: boolean | string) =>
+        this.select(item, isSelected)
+      }
+      testID={this.props.label + '.option.' + item}
+    />
+  };
+
   render() {
     let style: string =
       this.props.required && !this.hasSelection()
@@ -3182,22 +3208,8 @@ export class SelectionList extends React.PureComponent {
         <FlatList
           initialNumToRender={20}
           data={data}
-          extraData={{
-            filter: this.state.filter,
-            selection: this.props.selection,
-          }}
-          keyExtractor={(item, index) => index}
-          renderItem={(item) => (
-            <SelectionListRow
-              label={item.item}
-              simpleSelect={this.props.simpleSelect}
-              selected={this.isSelected(item.item)}
-              onSelect={(isSelected: boolean | string) =>
-                this.select(item.item, isSelected)
-              }
-              testID={this.props.label + '.option' + (item.index + 1)}
-            />
-          )}
+          keyExtractor={(item) => item}
+          renderItem={this.renderItem}
         />
       </View>
     );
@@ -3251,9 +3263,11 @@ type AlertProps = {
   cancelActionLabel: string,
   onConfirmAction: (selectedData: ?any) => void,
   onCancelAction: () => void,
+  multiValue?: boolean,
 };
 type AlertState = {
   visible: boolean,
+  data?: any,
 };
 
 export class Alert extends Component<AlertProps, AlertState> {
@@ -3261,6 +3275,7 @@ export class Alert extends Component<AlertProps, AlertState> {
     super(props);
     this.state = {
       visible: true,
+      data: this.props.data,
     };
   }
   static defaultProps = {
@@ -3275,8 +3290,14 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
   confirmDialog = (selectedData: ?any) => {
     this.setState({visible: false});
-    this.props.onConfirmAction(selectedData);
+    this.props.onConfirmAction(selectedData === undefined ? this.state.data : selectedData);
   };
+
+  toggleCheckbox(index: number) {
+    let data: any = this.state.data;
+    data[index].isChecked = !data[index].isChecked;
+    this.setState({data});
+  }
 
   renderContent() {
     if (!isEmpty(this.props.message)) {
@@ -3287,8 +3308,16 @@ export class Alert extends Component<AlertProps, AlertState> {
           <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
             <Dialog.ScrollArea>
               <ScrollView>
-                {this.props.data.map((importData: any) => {
-                  return (
+                {this.state.data.map((importData: any, index: number) => {
+                  return this.props.multiValue ? (
+                    <CheckButton
+                      isChecked={importData.isChecked}
+                      onSelect={() => this.toggleCheckbox(index)}
+                      onDeselect={() => this.toggleCheckbox(index)}
+                      style={styles.alertCheckBox}
+                      testID={this.props.testID+'.'+importData.label}
+                      suffix={importData.label}></CheckButton>
+                  ) : (
                     <Button onPress={() => this.confirmDialog(importData)}>
                       {importData.label}
                     </Button>
@@ -3309,24 +3338,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-      <Portal>
-        <Dialog
-          visible={this.state.visible}
-          onDismiss={this.cancelDialog}
-          dismissable={this.props.dismissable}
-          style={this.props.style}>
-          <Dialog.Title>{this.props.title}</Dialog.Title>
-          <Dialog.Content>{this.renderContent()}</Dialog.Content>
-          <Dialog.Actions>
-            <NativeBaseButton onPress={this.cancelDialog}>
-              {this.props.cancelActionLabel}
-            </NativeBaseButton>
-            <NativeBaseButton onPress={this.confirmDialog}>
-              {this.props.confirmActionLabel}
-            </NativeBaseButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+        <Portal>
+          <Dialog
+            visible={this.state.visible}
+            onDismiss={this.cancelDialog}
+            dismissable={this.props.dismissable}
+            style={this.props.style}>
+            <Dialog.Title>{this.props.title}</Dialog.Title>
+            <Dialog.Content>{this.renderContent()}</Dialog.Content>
+            <Dialog.Actions>
+              <NativeBaseButton onPress={this.cancelDialog}>
+                {this.props.cancelActionLabel}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={this.confirmDialog}>
+                {this.props.confirmActionLabel}
+              </NativeBaseButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
     );
   }
 }
@@ -3362,6 +3391,21 @@ export class KeyboardMode extends Component {
   }
 }
 
+type NoAccessProps = {
+  prefix?: string,
+};
+export class NoAccess extends Component<NoAccessProps> {
+  render() {
+    return (
+      <View>
+        <Text style={styles.noAccessText}>
+          {(this.props.prefix ? this.props.prefix : '') +
+            strings.noAccess}
+        </Text>
+      </View>
+    );
+  }
+}
 export type SelectionDialogProps = {
   label?: string,
   options: CodeDefinition[],

@@ -2,6 +2,7 @@
   "isAssessment": true,
   "order": 3,
   "name": "Diagnosis",
+  "scrollable": true,
   "locale": {
     "fr-CA": {
       "label": "Diagnostic",
@@ -19,6 +20,16 @@
         {
           "name": "Diagnosis",
           "label": "Diagnostic"
+        },
+        {
+          "name": "Self paid",
+          "label": "Patient paie",
+          "normalValue": "Non",
+          "defaultValue": "Non",
+          "options": [
+            "Non",
+            "Patient paie"
+          ]
         }
       ]
     }
@@ -47,22 +58,22 @@
       "size": "M",
       "fields": [
         {
-          "visible": "[Diagnosis.Insurer.supplierId]",
-          "mappedField": "procedure.isSelfPaid",
-          "normalValue": "true",
-          "name": "Self Paid",
-          "defaultValue": "false",
-          "options": [
-              "false",
-              "true"
-          ]          
-       },
-        {
           "mappedField": "procedure.productId",
           "name": "procedureCode",
           "label": "Procedure",
           "simpleSelect": true,
           "options": "procedureCodes"
+        },
+        {
+          "name": "Self paid",
+          "visible": "[Diagnosis.Insurer.supplierId]",
+          "mappedField": "procedure.isSelfPaid",
+          "normalValue": "No",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Self paid"
+          ]
         },
         {
           "mappedField": "procedure.icd1Code",
