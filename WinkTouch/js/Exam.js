@@ -436,6 +436,8 @@ export class ExamCard extends Component {
     style =
       this.props.exam.definition.card === false
         ? styles.page
+        : this.props.exam.isInvalid
+        ? styles.unverifiedExamCard
         : this.props.exam.hasStarted
         ? styles.finishedExamCard
         : styles.todoExamCard;
@@ -444,7 +446,8 @@ export class ExamCard extends Component {
 
   render() {
     return (
-      <TouchableOpacity style={{flexShrink:100}}
+      <TouchableOpacity
+        style={{flexShrink: 100}}
         disabled={
           this.props.disabled ||
           this.props.onSelect === undefined ||
@@ -478,7 +481,7 @@ export function getExamHistory(exam: Exam): Exam[] {
     } else {
       let examIds: string[] = allExamIds(visit);
       let examLists: Exam[][] = examIds
-        .map((examId: string) => getCachedItem(examId))
+      .map((examId: string) => getCachedItem(examId))
         .filter((exam: Exam) => exam.definition.name === examDefinitionName);
       examArray = [...examArray, examLists[0]];
     }
@@ -562,7 +565,7 @@ export class ExamHistoryScreen extends Component {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
         return value.map((childValue: any, index: number) => {
-          const exam : Exam = this.props.navigation.state.params.exam;
+          const exam: Exam = this.props.navigation.state.params.exam;
           if (groupDefinition.type === 'SRx') {
             return (
               <GlassesDetail
@@ -823,6 +826,7 @@ export class ExamScreen extends Component {
 
   async storeExam(exam: Exam) {
     exam.hasStarted = true;
+    exam.isInvalid = false;
     exam = await storeExam(
       exam,
       this.state.appointmentStateKey,
@@ -843,7 +847,7 @@ export class ExamScreen extends Component {
   updateExam = (exam: Exam): void => {
     //__DEV__ && console.log('Examscreen updateExam called');
     if (!this.state.exam.readonly) {
-      this.setState({exam, isDirty: true});
+    this.setState({exam, isDirty: true});
     }
   };
 

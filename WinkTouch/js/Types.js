@@ -259,14 +259,15 @@ export type Visit = {
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
   pretestPrivilege?: Privilege,
-  medicalDataPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege
 };
 
 export type CodeDefinition =
-  | {
+  {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
+      readonly? : boolean,
     }
   | string;
 
@@ -467,6 +468,7 @@ export type Exam = {
   definition: ExamDefinition,
   hasStarted: boolean,
   isDirty?: boolean,
+  isInvalid?: boolean,
   isHidden?: boolean,
   readonly?: boolean,
   noaccess?: boolean,

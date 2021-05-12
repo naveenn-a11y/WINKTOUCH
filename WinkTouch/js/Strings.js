@@ -246,6 +246,8 @@ export const strings = new LocalizedStrings({
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
+    startBlank: 'Start blank',
+    startFromVisit: 'Start from previous consultation',
   },
   fr: {
     enterRegisteredEmail:
@@ -491,6 +493,8 @@ export const strings = new LocalizedStrings({
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
+    startBlank: 'Commencer avec un dossier vierge',
+    startFromVisit: 'Commencer sur la base d\'une consultation précédente',
   },
 });
 

@@ -25,7 +25,7 @@ import {restVersion} from './Version';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
 export let restUrl: string = __DEV__
-  ? 'http://192.168.2.53:8080/Web/'
+  ? 'http://192.168.88.18:8080/Web/'
   : 'https://emr.downloadwink.com/' + restVersion + '/';
 
 let token: string;
@@ -64,7 +64,7 @@ export function setToken(newToken: ?string) {
     parsePrivileges(payLoad.prv);
     __DEV__ &&
       console.log('Logged on user privileges = ' + JSON.stringify(privileges));
-  }
+}
 }
 
 export function getToken(): string {
@@ -467,7 +467,8 @@ export async function searchItems(list: string, searchCritera: Object): any {
           ' GET ' +
           url +
           ': ' +
-          JSON.stringify(Object.keys(restResponse)),
+          JSON.stringify(Object.keys(restResponse))
+          //JSON.stringify(restResponse)
       );
     if (restResponse.errors) {
       alert(restResponse.errors);

@@ -2867,23 +2867,23 @@ export class FloatingButton extends Component {
   render() {
     if (!this.state.options) return null;
     return (
-      <FAB.Group
-        open={this.state.active}
-        onStateChange={this.toggleActive}
-        position="bottomRight"
-        fabStyle={styles.floatingButton}
-        icon={this.state.active ? 'minus' : 'plus'}
-        actions={this.state.options.map((option: string, index: number) => {
-          return {
-            icon: 'minus',
-            label: option,
-            onPress: () => {
-              this.toggleActive();
-              this.props.onPress(option);
-            },
-          };
-        })}
-      />
+          <FAB.Group
+            open={this.state.active}
+            onStateChange={this.toggleActive}
+            position="bottomRight"
+            fabStyle={styles.floatingButton}
+            icon={this.state.active ? 'minus' : 'plus'}
+            actions={this.state.options.map((option: string, index: number) => {
+              return {
+                icon: 'minus',
+                label: option,
+                onPress: () => {
+                  this.toggleActive();
+                  this.props.onPress(option);
+                },
+              };
+            })}
+          />
     );
   }
 }
@@ -3338,24 +3338,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-      <Portal>
-        <Dialog
-          visible={this.state.visible}
-          onDismiss={this.cancelDialog}
-          dismissable={this.props.dismissable}
-          style={this.props.style}>
-          <Dialog.Title>{this.props.title}</Dialog.Title>
-          <Dialog.Content>{this.renderContent()}</Dialog.Content>
-          <Dialog.Actions>
-            <NativeBaseButton onPress={this.cancelDialog}>
-              {this.props.cancelActionLabel}
-            </NativeBaseButton>
-            <NativeBaseButton onPress={this.confirmDialog}>
-              {this.props.confirmActionLabel}
-            </NativeBaseButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+        <Portal>
+          <Dialog
+            visible={this.state.visible}
+            onDismiss={this.cancelDialog}
+            dismissable={this.props.dismissable}
+            style={this.props.style}>
+            <Dialog.Title>{this.props.title}</Dialog.Title>
+            <Dialog.Content>{this.renderContent()}</Dialog.Content>
+            <Dialog.Actions>
+              <NativeBaseButton onPress={this.cancelDialog}>
+                {this.props.cancelActionLabel}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={this.confirmDialog}>
+                {this.props.confirmActionLabel}
+              </NativeBaseButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
     );
   }
 }
@@ -3403,6 +3403,71 @@ export class NoAccess extends Component<NoAccessProps> {
             strings.noAccess}
         </Text>
       </View>
+    );
+  }
+}
+export type SelectionDialogProps = {
+  label?: string,
+  options: CodeDefinition[],
+  onSelect?: (option: ?(CodeDefinition)) => void,
+  onCancel?: () => void,
+  visible: boolean,
+  testID?: string,
+};
+export class SelectionDialog extends Component<SelectionDialogProps, SelectionDialogState> {
+  constructor(props: SelectionDialogProps) {
+    super(props);
+  }
+
+  selectOption(option: CodeDefinition): void {
+    if (option.readonly) return;
+    this.props.onSelect(option);
+  }
+
+  renderPopup() {
+    return (
+      <TouchableWithoutFeedback
+        onPress={this.props.onCancel}
+        accessible={false}
+        testID="popupBackground">
+        <View style={styles.popupBackground}>
+          {this.props.label && <Text style={styles.modalTitle}>{this.props.label}</Text>}
+          <ScrollView>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                  <View style={styles.modalColumn}>
+                    {this.props.options.map((option: CodeDefinition, rowIndex: number) => {
+                      return (
+                        <TouchableOpacity
+                          key={rowIndex}
+                          onPress={() => this.selectOption(option)}
+                          testID={'option' + (rowIndex + 1)}>
+                          <View style={option.readonly ? styles.readOnly : styles.popupTile }>
+                            <Text style={ styles.modalTileLabel }>
+                              {formatCodeDefinition(option)}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        visible={this.props.visible}
+        transparent={true}
+        animationType={'slide'}
+        onRequestClose={this.props.onCancel}>
+        {this.renderPopup()}
+      </Modal>
     );
   }
 }
