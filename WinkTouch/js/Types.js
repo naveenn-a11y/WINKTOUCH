@@ -70,6 +70,26 @@ export type User = {
   isExternal: boolean,
 };
 
+export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+
+export type Privileges = {
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+};
+
+export type TokenPrivilege = 'N' | 'R' | 'F';
+
+export type TokenPrivileges = {
+  pre: ?TokenPrivilege,
+  med: ?TokenPrivilege,
+};
+
+export type TokenPayload = {
+  sub: string,
+  exp: number,
+  prv: TokenPrivileges,
+};
+
 export type Patient = {
   id: string,
   firstName: string,
@@ -116,6 +136,22 @@ export type PatientDrug = {
   repeat: number,
   duration: string,
   note: string,
+  noaccess?: boolean,
+};
+
+export type Prescription = {
+  label?: string,
+  strength?: string,
+  dosage?: string,
+  frequency?: string,
+  duration?: string,
+  instructions?: string,
+  refill?: string,
+  doNotSubstitute?: string,
+  comment?: string,
+  rxDate?: string,
+  noaccess?: boolean,
+  readonly?: boolean,
 };
 
 export type PatientTag = {
@@ -209,6 +245,7 @@ export type Visit = {
   appointmentId?: string,
   patientId: string,
   userId?: string,
+  enteredByUserId?: string,
   preCustomExamIds: string[],
   customExamIds: string[],
   date: string,
@@ -221,16 +258,26 @@ export type Visit = {
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
-  pretestPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
-  medicalDataPrivilege?: 'NOACCESS' | 'READONLY' | 'FULLACCESS',
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+  consultationDetail?: ConsultationDetail,
+};
+
+export type ConsultationDetail = {
+  lastUpdateOn?: string,
+  lastUpdateBy?: string,
+  lockedOn?: string,
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
   enteredByUserId?: string,
 };
 
 export type CodeDefinition =
-  | {
+  {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
+      readonly? : boolean,
     }
   | string;
 
@@ -431,8 +478,10 @@ export type Exam = {
   definition: ExamDefinition,
   hasStarted: boolean,
   isDirty?: boolean,
+  isInvalid?: boolean,
   isHidden?: boolean,
   readonly?: boolean,
+  noaccess?: boolean,
 };
 
 export type Scene = {

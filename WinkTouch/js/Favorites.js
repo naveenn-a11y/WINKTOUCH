@@ -139,15 +139,9 @@ export function getFavorites(exam: Exam): ExamPredefinedValue[] {
     return [];
   }
   let examDefinitionId: string = exam.definition.id;
-  let visitTypes: VisitType[] = getVisitTypes();
-  if (visitTypes === null || visitTypes === undefined) visitTypes = [];
-  const visitTypeNames: string[] = visitTypes.map(
-    (visitType: VisitType) => visitType.name,
-  );
   let favorites: ExamPredefinedValue[] = examPredefinedValues.filter(
     (examPredefinedValue: ExamPredefinedValue) =>
-      examPredefinedValue.customExamDefinitionId === examDefinitionId &&
-      visitTypeNames.includes(examPredefinedValue.name) === false,
+      examPredefinedValue.customExamDefinitionId === examDefinitionId
   );
   favorites = favorites.map((examPredefinedValue: ExamPredefinedValue) =>
     examPredefinedValue.predefinedValue === undefined
@@ -170,6 +164,9 @@ export async function storeFavorite(
     name,
   };
   favorite = await storeItem(predefinedValue);
+  if (favorite.errors) {
+    alert(favorite.errors);
+  }
   await fetchExamPredefinedValues();
 }
 

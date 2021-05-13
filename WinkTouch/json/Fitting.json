@@ -41,7 +41,7 @@
           {
               "name": "Expiration Date",
               "mappedField": "visit.expDateCl",
-              "type": "futreDate"
+              "type": "futureDate"
           }
       ]
     },

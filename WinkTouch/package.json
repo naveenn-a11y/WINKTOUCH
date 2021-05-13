@@ -44,6 +44,7 @@
     "react-dom": "^17.0.1",
     "react-dropzone": "^11.2.4",
     "react-image-file-resizer": "^0.3.9",
+    "react-jwt": "^1.1.2",
     "react-localization": "^1.0.15",
     "react-native": "0.63.4",
     "react-native-a-beep": "^1.0.7",

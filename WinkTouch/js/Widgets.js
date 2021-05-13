@@ -2908,6 +2908,21 @@ export class Lock extends PureComponent {
   }
 }
 
+export class Pencil extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <Icon
+        name="pencil-off-outline"
+        style={this.props.style}
+        color={selectionFontColor}
+      />
+    );
+  }
+}
+
 export class SelectionListRow extends PureComponent {
   props: {
     label: string,
@@ -3248,9 +3263,11 @@ type AlertProps = {
   cancelActionLabel: string,
   onConfirmAction: (selectedData: ?any) => void,
   onCancelAction: () => void,
+  multiValue?: boolean,
 };
 type AlertState = {
   visible: boolean,
+  data?: any,
 };
 
 export class Alert extends Component<AlertProps, AlertState> {
@@ -3258,6 +3275,7 @@ export class Alert extends Component<AlertProps, AlertState> {
     super(props);
     this.state = {
       visible: true,
+      data: this.props.data,
     };
   }
   static defaultProps = {
@@ -3272,8 +3290,14 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
   confirmDialog = (selectedData: ?any) => {
     this.setState({visible: false});
-    this.props.onConfirmAction(selectedData);
+    this.props.onConfirmAction(selectedData === undefined ? this.state.data : selectedData);
   };
+
+  toggleCheckbox(index: number) {
+    let data: any = this.state.data;
+    data[index].isChecked = !data[index].isChecked;
+    this.setState({data});
+  }
 
   renderContent() {
     if (!isEmpty(this.props.message)) {
@@ -3284,8 +3308,16 @@ export class Alert extends Component<AlertProps, AlertState> {
           <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
             <Dialog.ScrollArea>
               <ScrollView>
-                {this.props.data.map((importData: any) => {
-                  return (
+                {this.state.data.map((importData: any, index: number) => {
+                  return this.props.multiValue ? (
+                    <CheckButton
+                      isChecked={importData.isChecked}
+                      onSelect={() => this.toggleCheckbox(index)}
+                      onDeselect={() => this.toggleCheckbox(index)}
+                      style={styles.alertCheckBox}
+                      testID={this.props.testID+'.'+importData.label}
+                      suffix={importData.label}></CheckButton>
+                  ) : (
                     <Button onPress={() => this.confirmDialog(importData)}>
                       {importData.label}
                     </Button>
@@ -3306,7 +3338,6 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-
         <Portal>
           <Dialog
             visible={this.state.visible}
@@ -3325,7 +3356,6 @@ export class Alert extends Component<AlertProps, AlertState> {
             </Dialog.Actions>
           </Dialog>
         </Portal>
-
     );
   }
 }
@@ -3357,6 +3387,87 @@ export class KeyboardMode extends Component {
           <Icon name={icon} style={styles.menuIcon} />
         </View>
       </TouchableOpacity>
+    );
+  }
+}
+
+type NoAccessProps = {
+  prefix?: string,
+};
+export class NoAccess extends Component<NoAccessProps> {
+  render() {
+    return (
+      <View>
+        <Text style={styles.noAccessText}>
+          {(this.props.prefix ? this.props.prefix : '') +
+            strings.noAccess}
+        </Text>
+      </View>
+    );
+  }
+}
+export type SelectionDialogProps = {
+  label?: string,
+  options: CodeDefinition[],
+  onSelect?: (option: ?(CodeDefinition)) => void,
+  onCancel?: () => void,
+  visible: boolean,
+  testID?: string,
+};
+export class SelectionDialog extends Component<SelectionDialogProps, SelectionDialogState> {
+  constructor(props: SelectionDialogProps) {
+    super(props);
+  }
+
+  selectOption(option: CodeDefinition): void {
+    if (option.readonly) return;
+    this.props.onSelect(option);
+  }
+
+  renderPopup() {
+    return (
+      <TouchableWithoutFeedback
+        onPress={this.props.onCancel}
+        accessible={false}
+        testID="popupBackground">
+        <View style={styles.popupBackground}>
+          {this.props.label && <Text style={styles.modalTitle}>{this.props.label}</Text>}
+          <ScrollView>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                  <View style={styles.modalColumn}>
+                    {this.props.options.map((option: CodeDefinition, rowIndex: number) => {
+                      return (
+                        <TouchableOpacity
+                          key={rowIndex}
+                          onPress={() => this.selectOption(option)}
+                          testID={'option' + (rowIndex + 1)}>
+                          <View style={option.readonly ? styles.readOnly : styles.popupTile }>
+                            <Text style={ styles.modalTileLabel }>
+                              {formatCodeDefinition(option)}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        visible={this.props.visible}
+        transparent={true}
+        animationType={'slide'}
+        onRequestClose={this.props.onCancel}>
+        {this.renderPopup()}
+      </Modal>
     );
   }
 }
