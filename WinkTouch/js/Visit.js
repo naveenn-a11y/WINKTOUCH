@@ -193,7 +193,8 @@ export function visitHasEnded(visit: string | Visit): boolean {
   }
   return visit.locked === true;
 }
-export function visitHasStarted(visit: string | Visit): boolean {
+
+export function pretestHasStarted(visit: string | Visit): boolean {
   if (visit instanceof Object === false) {
     visit = getCachedItem(visit);
   }
@@ -1350,19 +1351,14 @@ class VisitWorkFlow extends Component {
       );
     }
 
-    const preExamDefinitions: ExamDefinition[] = getCachedItems(
-      getCachedItem('preExamDefinitions'),
-    );
-
     const pretestMode: boolean = isEmpty(this.state.visit.userId);
 
     if (pretestMode) {
-      const hasPreTests =
-        preExamDefinitions == undefined || preExamDefinitions.length > 0;
-
+      const showStartVisitButtons : boolean = !this.props.readonly &&
+        ((hasVisitPretestWriteAccess(this.state.visit) && !pretestHasStarted(this.state.visit)) ||
+          hasVisitMedicalDataWriteAccess(this.state.visit));
       return (
         <View>
-          {hasPreTests && (
             <View style={styles.flow}>
               {this.renderExams(
                 'Pre tests',
@@ -1370,22 +1366,16 @@ class VisitWorkFlow extends Component {
                 true,
               )}
             </View>
-          )}
-          {!this.props.readonly &&
-            ((hasVisitPretestWriteAccess(this.state.visit) &&
-              !visitHasStarted(this.state.visit)) ||
-              hasVisitMedicalDataWriteAccess(this.state.visit)) && (
+          {showStartVisitButtons && (
               <StartVisitButtons
                 onStartVisit={this.props.onStartVisit}
                 isLoading={this.props.isLoading}
               />
-            )}
-          {!pretestMode &&
-            !hasVisitMedicalDataReadAccess(this.state.visit) &&
-            this.renderActionButtons()}
+              )}
         </View>
       );
     }
+    
     let exams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
     if (!exams) {
       exams = [];
