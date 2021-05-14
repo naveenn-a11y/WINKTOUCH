@@ -49,7 +49,12 @@ import {
   setMappedFieldValue,
 } from './Exam';
 import {CheckButton, Label, NativeBar} from './Widgets';
-import {formatLabel, formatFieldValue, getFieldDefinition} from './Items';
+import {
+  formatLabel,
+  formatFieldValue,
+  getFieldDefinition,
+  formatFieldLabel,
+} from './Items';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -429,24 +434,6 @@ export class GroupedCard extends Component {
     super(props);
   }
 
-  formatLabel(groupDefinition: GroupDefinition, groupValue: any): string {
-    const customDefinition:
-      | ?GroupDefinition
-      | FieldDefinition = groupDefinition.fields.find(
-      (definition: GroupDefinition | FieldDefinition) =>
-        definition.isLabel === true,
-    );
-
-    const label: string =
-      groupValue && customDefinition
-        ? isEmpty(groupValue[customDefinition.name])
-          ? formatLabel(groupDefinition)
-          : groupValue[customDefinition.name]
-        : formatLabel(groupDefinition);
-
-    return label;
-  }
-
   getCardGroup(): ?GroupDefinition {
     if (
       this.props.exam.definition.cardGroup === undefined ||
@@ -496,8 +483,7 @@ export class GroupedCard extends Component {
     if (fieldDefinition.image) {
       if (isEmpty(value)) return null;
 
-      const label: ?string = this.formatLabel(groupDefinition, groupValue);
-
+      const label: ?string = formatFieldLabel(groupDefinition, groupValue);
       const icon =
         value && value.startsWith && value.startsWith('upload-') ? (
           <PaperClip style={styles.textIcon} color="black" key="paperclip" />
@@ -555,7 +541,6 @@ export class GroupedCard extends Component {
         </View>
       );
     }
-    if (fieldDefinition && fieldDefinition.isLabel) return null;
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
     if (formattedValue === '') return null;
     const label: ?string = formatLabel(fieldDefinition);
@@ -1468,23 +1453,6 @@ export class GroupedForm extends Component {
     // TODO export data
   }
 
-  formatLabel(): string {
-    const customDefinition:
-      | ?GroupDefinition
-      | FieldDefinition = this.props.definition.fields.find(
-      (definition: GroupDefinition | FieldDefinition) =>
-        definition.isLabel === true,
-    );
-    const label: string =
-      this.props.form && customDefinition
-        ? isEmpty(this.props.form[customDefinition.name])
-          ? formatLabel(this.props.definition)
-          : this.props.form[customDefinition.name]
-        : formatLabel(this.props.definition);
-
-    return label;
-  }
-
   renderIcons() {
     if (
       !this.props.editable ||
@@ -1552,7 +1520,7 @@ export class GroupedForm extends Component {
           style={styles.sectionTitle}
           key="title"
           suffix=""
-          value={this.formatLabel()}
+          value={formatFieldLabel(this.props.definition, this.props.form)}
           fieldId={this.props.fieldId}
         />
         {this.renderRows()}

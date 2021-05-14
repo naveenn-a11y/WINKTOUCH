@@ -418,7 +418,12 @@ export class ImageField extends Component {
     this.setState({cameraOn: false});
   };
 
-  async saveUpload(uploadId: string, size: ?string, type: ?string) {
+  async saveUpload(
+    uploadId: string,
+    size: ?string,
+    type: ?string,
+    label: ?string,
+  ) {
     const upload: ?Upload =
       uploadId != undefined ? getCachedItem(uploadId) : undefined;
     this.setState({cameraOn: false, attachOn: false, upload});
@@ -427,7 +432,7 @@ export class ImageField extends Component {
         id: 'patientDocument',
         patientId: this.props.patientId,
         postedOn: formatDate(now(), jsonDateFormat),
-        name: this.props.fileName,
+        name: label,
         category: isEmpty(type) ? this.props.type : type,
         uploadId,
       };
@@ -440,6 +445,7 @@ export class ImageField extends Component {
       image: uploadId,
       size: size,
       type: type,
+      label: label,
     });
   }
 
@@ -1266,7 +1272,11 @@ export class ImageField extends Component {
 
     const scale: number = style.width / this.resolution()[0];
     const image = this.requireImage();
-    const mimeType = image ? image.uri.split(',')[0] : undefined;
+    const mimeType = image
+      ? image.uri
+        ? image.uri.split(',')[0]
+        : image.split(',')[0]
+      : undefined;
     const isPdf: boolean = mimeType
       ? mimeType.includes('application/pdf')
       : false;
@@ -1319,11 +1329,18 @@ export class ImageField extends Component {
                       : undefined
                   }
                   size={this.props.size}
-                  fileName={this.props.fileName}
-                  onCancel={this.cancelCamera}
-                  onSave={(uploadId: string, size: ?string, type: ?string) =>
-                    this.saveUpload(uploadId, size, type)
+                  fileName={
+                    this.props.value && this.props.value.label
+                      ? this.props.value.label
+                      : this.props.fileName
                   }
+                  onCancel={this.cancelCamera}
+                  onSave={(
+                    uploadId: string,
+                    size: ?string,
+                    type: ?string,
+                    label: ?string,
+                  ) => this.saveUpload(uploadId, size, type, label)}
                   patientId={this.props.patientId}
                   examId={this.props.examId}
                   replaceImage={this.props.replaceImage}
@@ -1349,11 +1366,18 @@ export class ImageField extends Component {
                       : undefined
                   }
                   size={this.props.size}
-                  fileName={this.props.fileName}
-                  onCancel={this.hideDocuments}
-                  onSave={(uploadId: string, size: ?string, type: ?string) =>
-                    this.saveUpload(uploadId, size, type)
+                  fileName={
+                    this.props.value && this.props.value.label
+                      ? this.props.value.label
+                      : this.props.fileName
                   }
+                  onCancel={this.hideDocuments}
+                  onSave={(
+                    uploadId: string,
+                    size: ?string,
+                    type: ?string,
+                    label: ?string,
+                  ) => this.saveUpload(uploadId, size, type, label)}
                   patientId={this.props.patientId}
                   examId={this.props.examId}
                   replaceImage={this.props.replaceImage}
@@ -1437,11 +1461,18 @@ export class ImageField extends Component {
                     : undefined
                 }
                 size={this.props.size}
-                fileName={this.props.fileName}
-                onCancel={this.cancelCamera}
-                onSave={(uploadId: string, size: ?string, type: ?string) =>
-                  this.saveUpload(uploadId, size, type)
+                fileName={
+                  this.props.value && this.props.value.label
+                    ? this.props.value.label
+                    : this.props.fileName
                 }
+                onCancel={this.cancelCamera}
+                onSave={(
+                  uploadId: string,
+                  size: ?string,
+                  type: ?string,
+                  label: ?string,
+                ) => this.saveUpload(uploadId, size, type, label)}
                 patientId={this.props.patientId}
                 examId={this.props.examId}
                 replaceImage={this.props.replaceImage}
@@ -1466,11 +1497,18 @@ export class ImageField extends Component {
                     : undefined
                 }
                 size={this.props.size}
-                fileName={this.props.fileName}
-                onCancel={this.hideDocuments}
-                onSave={(uploadId: string, size: ?string, type: ?string) =>
-                  this.saveUpload(uploadId, size, type)
+                fileName={
+                  this.props.value && this.props.value.label
+                    ? this.props.value.label
+                    : this.props.fileName
                 }
+                onCancel={this.hideDocuments}
+                onSave={(
+                  uploadId: string,
+                  size: ?string,
+                  type: ?string,
+                  label: ?string,
+                ) => this.saveUpload(uploadId, size, type, label)}
                 patientId={this.props.patientId}
                 examId={this.props.examId}
                 replaceImage={this.props.replaceImage}
@@ -1526,11 +1564,18 @@ export class ImageField extends Component {
                     : undefined
                 }
                 size={this.props.size}
-                fileName={this.props.fileName}
-                onCancel={this.cancelCamera}
-                onSave={(uploadId: string, size: ?string, type: ?string) =>
-                  this.saveUpload(uploadId, size, type)
+                fileName={
+                  this.props.value && this.props.value.label
+                    ? this.props.value.label
+                    : this.props.fileName
                 }
+                onCancel={this.cancelCamera}
+                onSave={(
+                  uploadId: string,
+                  size: ?string,
+                  type: ?string,
+                  label: ?string,
+                ) => this.saveUpload(uploadId, size, type, label)}
                 patientId={this.props.patientId}
                 examId={this.props.examId}
                 replaceImage={this.props.replaceImage}
@@ -1555,11 +1600,18 @@ export class ImageField extends Component {
                     : undefined
                 }
                 size={this.props.size}
-                fileName={this.props.fileName}
-                onCancel={this.hideDocuments}
-                onSave={(uploadId: string, size: ?string, type: ?string) =>
-                  this.saveUpload(uploadId, size, type)
+                fileName={
+                  this.props.value && this.props.value.label
+                    ? this.props.value.label
+                    : this.props.fileName
                 }
+                onCancel={this.hideDocuments}
+                onSave={(
+                  uploadId: string,
+                  size: ?string,
+                  type: ?string,
+                  label: ?string,
+                ) => this.saveUpload(uploadId, size, type, label)}
                 patientId={this.props.patientId}
                 examId={this.props.examId}
                 replaceImage={this.props.replaceImage}
