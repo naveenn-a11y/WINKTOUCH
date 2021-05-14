@@ -289,6 +289,33 @@ export function isNumericField(fieldDefinition: FieldDefinition): boolean {
   );
 }
 
+export function formatFieldLabel(
+  groupDefinition: GroupDefinition,
+  groupValue: any,
+): string {
+  const customDefinition:
+    | ?GroupDefinition
+    | FieldDefinition = groupDefinition.fields.find(
+    (definition: GroupDefinition | FieldDefinition) =>
+      definition.isLabel === true,
+  );
+
+  let label: string = formatLabel(groupDefinition);
+  if (customDefinition) {
+    if (groupValue[customDefinition.name] instanceof Object) {
+      label = !isEmpty(groupValue[customDefinition.name].label)
+        ? groupValue[customDefinition.name].label
+        : label;
+    } else {
+      label = !isEmpty(groupValue[customDefinition.name])
+        ? groupValue[customDefinition.name]
+        : label;
+    }
+  }
+
+  return label;
+}
+
 export function formatLabel(
   fieldDefinition:
     | FieldDefinition
@@ -405,13 +432,13 @@ function constructItemView(
 }
 
 type ItemSummaryProps = {
-  item: any,
-  fieldDefinitions: ?(FieldDefinition[]),
-  editable?: boolean,
-  orientation?: string,
-  showLabels?: boolean,
+    item: any,
+    fieldDefinitions: ?(FieldDefinition[]),
+    editable?: boolean,
+    orientation?: string,
+    showLabels?: boolean,
   titleFields?: string[],
-};
+  };
 class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
@@ -1278,17 +1305,18 @@ export class ItemsEditor extends Component {
             />
           )}
         </View>
-        {this.props.editable && (isWeb ?
-          <View style={{flex: 100, flexDirection: 'row', flexWrap: 'wrap'}}>
-            {this.renderSelectionLists()}
-            {this.renderNonOptionFields()}
-          </View>
-         :
-          <ScrollView horizontal={true}>
-            {this.renderSelectionLists()}
-            {this.renderNonOptionFields()}
-          </ScrollView>
-        )}
+        {this.props.editable &&
+          (isWeb ? (
+            <View style={{flex: 100, flexDirection: 'row', flexWrap: 'wrap'}}>
+              {this.renderSelectionLists()}
+              {this.renderNonOptionFields()}
+            </View>
+          ) : (
+            <ScrollView horizontal={true}>
+              {this.renderSelectionLists()}
+              {this.renderNonOptionFields()}
+            </ScrollView>
+          ))}
       </View>
     );
   }

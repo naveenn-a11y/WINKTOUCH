@@ -60,6 +60,7 @@ export class Pdf extends Component {
   render() {
     //const source = {uri:'http://samples.leanpub.com/thereactnativebook-sample.pdf',cache:true};
     if (!this.state.upload) return null;
+
     const source = 'data:application/pdf;base64,' + this.state.upload.data;
 
     return <PdfViewer source={source} style={styles.patientDocument} />;

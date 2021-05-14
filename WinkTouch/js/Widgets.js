@@ -3177,7 +3177,8 @@ export class SelectionList extends React.PureComponent {
   }
 
   renderItem = ({ item }) => {
-    return <SelectionListRow
+    return (
+      <SelectionListRow
       label={item}
       simpleSelect={this.props.simpleSelect}
       selected={this.isSelected(item)}
@@ -3186,6 +3187,7 @@ export class SelectionList extends React.PureComponent {
       }
       testID={this.props.label + '.option.' + item}
     />
+    );
   };
 
   render() {
@@ -3468,6 +3470,32 @@ export class SelectionDialog extends Component<SelectionDialogProps, SelectionDi
         onRequestClose={this.props.onCancel}>
         {this.renderPopup()}
       </Modal>
+    );
+  }
+}
+export class SizeTile extends Component {
+  props: {
+    commitEdit: (field?: string) => void,
+    name: string,
+    isSelected: boolean,
+    minWidth: number,
+  };
+  render() {
+    const style = this.props.isSelected
+      ? this.props.minWidth
+        ? [styles.popupTileSelected, {minWidth: this.props.minWidth}]
+        : styles.popupTileSelected
+      : this.props.minWidth
+      ? [styles.popupTile, {minWidth: this.props.minWidth}]
+      : styles.popupTile;
+    return (
+      <TouchableOpacity
+        onPress={() => this.props.commitEdit(this.props.name)}
+        testID="SizeIcon">
+        <View style={style}>
+          <Icon name={this.props.name} style={styles.modalTileIcon} />
+        </View>
+      </TouchableOpacity>
     );
   }
 }

@@ -1,4 +1,10 @@
-import {StyleSheet, Dimensions, Platform, UIManager} from 'react-native';
+import {
+  StyleSheet,
+  Dimensions,
+  Platform,
+  UIManager,
+  PixelRatio,
+} from 'react-native';
 
 export const windowWidth: number =
   Dimensions.get('window').width < Dimensions.get('window').height
@@ -20,6 +26,12 @@ __DEV__ &&
       ' -> scale=' +
       fontScale,
   );
+
+export const widthPercentageToDP = (widthPercent) => {
+  const width = parseFloat(widthPercent);
+  return PixelRatio.roundToNearestPixel((windowWidth * width) / 100);
+};
+
 export const defaultFontSize = 26 * fontScale;
 
 export const isIos = Platform.OS === 'ios';

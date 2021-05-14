@@ -339,8 +339,10 @@ export type FieldDefinition = {
   simpleSelect?: boolean,
   newLine?: boolean,
   popup?: boolean,
+  drawable?: boolean,
   sync?: boolean,
   visible?: boolean,
+  isLabel?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];

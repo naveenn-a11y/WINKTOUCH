@@ -254,6 +254,10 @@ export const strings = new LocalizedStrings({
     visitDeniedAccessError:
       'You do not have access to view this patient file !',
     deniedAccessTitle: 'Access Denied',
+    documentSize: 'Document Size',
+    documentCategory: 'Document Category',
+    attachment: 'Attachment',
+    documentName: 'Document Name',
   },
   fr: {
     enterRegisteredEmail:
@@ -506,6 +510,10 @@ export const strings = new LocalizedStrings({
     lastUpdateBy: 'Modifié par',
     visitDeniedAccessError: "vous n'avez pas accès à ce dossier patient !",
     deniedAccessTitle: 'Accès Refusé',
+    documentSize: 'Taille du document',
+    documentCategory: 'Catégorie du document',
+    attachment: 'Attachment',
+    documentName: 'Nom du document',
   },
 });
 

@@ -21,13 +21,16 @@ export class UploadZone extends Component {
         preview: URL.createObjectURL(file),
       }),
     );
-    const upload: string = await loadBase64ImageForWeb(imageFiles[0].preview);
+    const upload: string = await loadBase64ImageForWeb(
+      imageFiles[0].preview,
+      imageFiles[0].path,
+    );
     this.props.onUpdateUpload(upload);
   }
   render() {
     return (
       <View>
-        <Dropzone accept="image/*" onDrop={this.onDrop.bind(this)}>
+        <Dropzone accept="image/*,.pdf" onDrop={this.onDrop.bind(this)}>
           {({getRootProps, getInputProps}) => (
             <View>
               <div {...getRootProps({className: 'dropzone'})}>

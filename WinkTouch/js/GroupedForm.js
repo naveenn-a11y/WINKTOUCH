@@ -49,7 +49,12 @@ import {
   setMappedFieldValue,
 } from './Exam';
 import {CheckButton, Label, NativeBar} from './Widgets';
-import {formatLabel, formatFieldValue, getFieldDefinition} from './Items';
+import {
+  formatLabel,
+  formatFieldValue,
+  getFieldDefinition,
+  formatFieldLabel,
+} from './Items';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -430,7 +435,10 @@ export class GroupedCard extends Component {
   }
 
   getCardGroup(): ?GroupDefinition {
-    if (this.props.exam.definition.cardGroup===undefined || this.props.exam.definition.cardGroup===null) {
+    if (
+      this.props.exam.definition.cardGroup === undefined ||
+      this.props.exam.definition.cardGroup === null
+    ) {
       return undefined;
     }
     const groupDefinition: GroupDefinition = this.props.exam.definition.fields.find(
@@ -473,9 +481,9 @@ export class GroupedCard extends Component {
         ? groupValue[column][fieldName]
         : undefined;
     if (fieldDefinition.image) {
-      if (value === undefined || value === null) return null;
-      const label: ?string = formatLabel(groupDefinition);
+      if (isEmpty(value)) return null;
 
+      const label: ?string = formatFieldLabel(groupDefinition, groupValue);
       const icon =
         value && value.startsWith && value.startsWith('upload-') ? (
           <PaperClip style={styles.textIcon} color="black" key="paperclip" />
@@ -1513,7 +1521,7 @@ export class GroupedForm extends Component {
           style={styles.sectionTitle}
           key="title"
           suffix=""
-          value={formatLabel(this.props.definition)}
+          value={formatFieldLabel(this.props.definition, this.props.form)}
           fieldId={this.props.fieldId}
         />
         {this.renderRows()}

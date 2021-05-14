@@ -11,11 +11,15 @@ export default class NativeScanner extends Component {
   constructor(props: any) {
     super(props);
   }
+
+  takePicture = (data: any) => {
+    this.props.onPictureTaken(data);
+  };
   render() {
     return (
       <Scanner
         useBase64={true}
-        onPictureTaken={this.props.onPictureTaken}
+        onPictureTaken={this.takePicture}
         captureMultiple={false}
         overlayColor="rgba(255,130,0, 0.7)"
         enableTorch={false}
