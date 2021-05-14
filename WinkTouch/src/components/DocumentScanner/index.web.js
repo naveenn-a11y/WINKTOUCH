@@ -20,7 +20,7 @@ export default class NativeScanner extends Component {
     this.state = {
       hasPermission: false,
       type: false,
-      action: undefined,
+      action: 'upload',
     };
   }
 
@@ -30,7 +30,6 @@ export default class NativeScanner extends Component {
   }
 
   onUploadTaken(upload: string) {
-    if (upload && upload.startsWith('data')) upload = upload.split(',')[1];
     this.props.onPictureTaken({croppedImage: upload});
   }
   setHasPermission(status: boolean) {
