@@ -53,6 +53,7 @@ import {createBrowserApp} from '@react-navigation/web';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
 import {Provider} from 'react-native-paper';
+import {clearDataCache} from './DataCache';
 let account: Account;
 let doctor: User;
 let store: Store;
@@ -259,7 +260,7 @@ export class DoctorApp extends Component {
     setDoctor(undefined);
     setToken(undefined);
     setStore(undefined);
-
+    clearDataCache();
     this.props.onLogout();
   };
 
@@ -289,28 +290,28 @@ export class DoctorApp extends Component {
       <ErrorBoundary>
         <ModeContextProvider>
           <Provider>
-          <View style={styles.screeen}>
-            <StatusBar hidden={true} />
-            <DocatorAppContainer
-              ref={(navigator) => (this.navigator = navigator)}
-              screenProps={{
-                doctorId: this.props.user.id,
-                storeId: this.props.store.storeId,
-                onLogout: this.logout,
-              }}
-              onNavigationStateChange={this.navigationStateChanged}
-            />
-            <MenuBar
-              scene={{}}
-              navigation={{
-                state: this.state.currentRoute,
-                navigate: this.navigate,
-              }}
-              screenProps={{
-                onLogout: this.logout,
-              }}
-            />
-          </View>
+            <View style={styles.screeen}>
+              <StatusBar hidden={true} />
+              <DocatorAppContainer
+                ref={(navigator) => (this.navigator = navigator)}
+                screenProps={{
+                  doctorId: this.props.user.id,
+                  storeId: this.props.store.storeId,
+                  onLogout: this.logout,
+                }}
+                onNavigationStateChange={this.navigationStateChanged}
+              />
+              <MenuBar
+                scene={{}}
+                navigation={{
+                  state: this.state.currentRoute,
+                  navigate: this.navigate,
+                }}
+                screenProps={{
+                  onLogout: this.logout,
+                }}
+              />
+            </View>
           </Provider>
         </ModeContextProvider>
       </ErrorBoundary>

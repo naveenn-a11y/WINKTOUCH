@@ -267,6 +267,9 @@ export type ConsultationDetail = {
   lastUpdateOn?: string,
   lastUpdateBy?: string,
   lockedOn?: string,
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+  enteredByUserId?: string,
 };
 
 export type CodeDefinition =

@@ -236,8 +236,8 @@ export const strings = new LocalizedStrings({
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
     dragNDrop: 'Drag and drop some files here !',
-    takePicture: 'Take a Picture',
-    uploadFile: 'Upload a File',
+    takePicture: 'Take a picture',
+    uploadFile: 'Upload a file',
     signedOn: 'Signed on',
     location: 'Location',
     noAccess: 'You do not have access to this information',
@@ -251,6 +251,9 @@ export const strings = new LocalizedStrings({
     lockedOn: 'Locked on',
     lastUpdateOn: 'Last update on',
     lastUpdateBy: 'Last update by',
+    visitDeniedAccessError:
+      'You do not have access to view this patient file !',
+    deniedAccessTitle: 'Access Denied',
   },
   fr: {
     enterRegisteredEmail:
@@ -501,6 +504,8 @@ export const strings = new LocalizedStrings({
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
     lastUpdateBy: 'Modifié par',
+    visitDeniedAccessError: "vous n'avez pas accès à ce dossier patient !",
+    deniedAccessTitle: 'Accès Refusé',
   },
 });
 
