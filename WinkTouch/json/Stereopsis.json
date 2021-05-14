@@ -1,5 +1,6 @@
 {
   "name": "Stereopsis",
+  "starable": true,
   "locale": {
     "fr-CA": {
       "label": "Stéréoscopie",
