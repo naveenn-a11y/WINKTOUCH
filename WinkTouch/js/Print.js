@@ -25,7 +25,7 @@ import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
 
-export async function printRx(visitId: string) {
+export async function printRx(visitId: string, printFinalRx: boolean, printPDs: boolean, printNotesOnRx: boolean, drRecommendationArray: string[]) {
   try {
     const filename: string = 'Rx.pdf';
     const path = await createPdf(
@@ -33,7 +33,13 @@ export async function printRx(visitId: string) {
       filename,
       {type: 'eye-exam'},
       'post',
-      {visitId: visitId},
+      {
+        visitId: visitId,
+        rxRecommendations: drRecommendationArray,
+        printFinalRx: printFinalRx,
+        printPDs: printPDs,
+        printNotesOnRx: printNotesOnRx,
+      },
     );
     if (isWeb) {
       const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
@@ -96,7 +102,7 @@ export async function deleteLocalFiles() {
   }
 }
 
-async function loadRxLogo() : Promise<string> {
+async function loadRxLogo(): Promise<string> {
   //TODO: only fetch once
   __DEV__ && console.log('Fetching Rx logo');
   const url: string = winkRestUrl + 'webresources/attachement/845/431/Rx.jpg';
@@ -120,7 +126,7 @@ async function addLogo(
   pdfDoc?: PDFDocument,
 ) {
   if (isWeb) {
-    const rxLogo : string = await loadRxLogo();
+    const rxLogo: string = await loadRxLogo();
     if (rxLogo === undefined || rxLogo === null || rxLogo === '') {
       return;
     }
@@ -157,9 +163,13 @@ function addDrHeader(
   const store: Store = getStore();
   const visit: Visit = getCachedItem(visitId);
   //const doctor = getDoctor();
-  if (!visit || !visit.userId) return;
+  if (!visit || !visit.userId) {
+    return;
+  }
   const doctor: User = getCachedItem(visit.userId);
-  if (!doctor) return;
+  if (!doctor) {
+    return;
+  }
   const leftBorder: number = pageWidth - 120 - border;
   const top: number = pageHeight - border;
   let x: number = leftBorder;
@@ -174,7 +184,9 @@ function addDrHeader(
     {x, y, size: fontSize},
   );
   y -= fontSize * 2;
-  if (!store) return;
+  if (!store) {
+    return;
+  }
   page.drawText(
     store.streetNumber + ' ' + store.streetName + prefix(store.unit, ', '),
     {x, y, size: fontSize},
@@ -206,9 +218,13 @@ function addPatientHeader(
   border: number,
 ) {
   const visit: Visit = getCachedItem(visitId);
-  if (!visit) return;
+  if (!visit) {
+    return;
+  }
   const patient: PatientInfo = getCachedItem(visit.patientId);
-  if (!patient) return;
+  if (!patient) {
+    return;
+  }
   const top: number = pageHeight - 175 - border;
   const fontSize: number = 10;
   let column1: number = border;
@@ -258,47 +274,54 @@ function addMedicalRxLines(
   page: PDFPage,
   pageHeight: number,
   border: number,
+  labelsArray: string[],
 ) {
   const medicationExam: Exam = getExam('Prescription', getCachedItem(visitId));
-  if (medicationExam === undefined || medicationExam === null) return;
-  const prescriptions = medicationExam['Prescription'];
-  if (prescriptions === undefined || prescriptions === null) return;
+  if (medicationExam === undefined || medicationExam === null) {
+    return;
+  }
+  const prescriptions = medicationExam.Prescription;
+  if (prescriptions === undefined || prescriptions === null) {
+    return;
+  }
+
   const fontSize: number = 12;
   let x: number = border;
   let y: number = pageHeight - border - 280;
   prescriptions.forEach((prescription, i) => {
-    let formattedRxLine: string = prescription['Label'];
-    formattedRxLine += prefix(prescription['Strength'], ', ');
-    formattedRxLine += prefix(prescription['Dosage'], ', ');
-    formattedRxLine += prefix(prescription['Frequency'], ', ');
-    formattedRxLine += prefix(prescription['Refill'], ', ');
-    formattedRxLine += prefix(prescription['Do not substitute'], ', ');
-    page.drawText(formattedRxLine, {x, y, size: fontSize});
-    y -= fontSize * 1.5;
-    formattedRxLine = prefix(prescription['Instructions'], '       ');
-    if (formattedRxLine) {
+    let formattedRxLine: string = prescription.Label;
+    if (labelsArray.indexOf(strings.all) !== -1 ||  labelsArray.indexOf(formattedRxLine) !== -1) {
+      formattedRxLine += prefix(prescription.Strength, ', ');
+      formattedRxLine += prefix(prescription.Dosage, ', ');
+      formattedRxLine += prefix(prescription.Frequency, ', ');
+      formattedRxLine += prefix(prescription.Refill, ', ');
+      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
       page.drawText(formattedRxLine, {x, y, size: fontSize});
-      y -= fontSize * 1.15;
-    }
-    formattedRxLine = prefix(
-      prescription['Duration'],
-      '       ' + strings.during + ' ',
-    );
-    if (formattedRxLine) {
-      page.drawText(formattedRxLine, {x, y, size: fontSize});
-      y -= fontSize * 1.15;
-    }
-    const commentLine: string = prescription['Comment'];
-    if (commentLine) {
-      y -= fontSize * 0.5;
-      let lines = commentLine.split('\n');
-      lines.forEach((line, j) => {
-        page.drawText(prefix(line, '       '), {x, y, size: fontSize});
+      y -= fontSize * 1.5;
+      formattedRxLine = prefix(prescription.Instructions, '       ');
+      if (formattedRxLine) {
+        page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
-      });
-    }
-    y -= fontSize;
-  });
+      }
+      formattedRxLine = prefix(
+        prescription.Duration,
+        '       ' + strings.during + ' ',
+      );
+      if (formattedRxLine) {
+        page.drawText(formattedRxLine, {x, y, size: fontSize});
+        y -= fontSize * 1.15;
+      }
+      const commentLine: string = prescription.Comment;
+      if (commentLine) {
+        y -= fontSize * 0.5;
+        let lines = commentLine.split('\n');
+        lines.forEach((line, j) => {
+          page.drawText(prefix(line, '       '), {x, y, size: fontSize});
+          y -= fontSize * 1.15;
+        });
+      }
+      y -= fontSize;
+  }});
 }
 
 async function addSignatureWeb(
@@ -444,13 +467,13 @@ async function addSignature(
   });
 }
 
-export async function printMedicalRx(visitId: string) {
+export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   const pageWidth: number = 612; //US Letter portrait 8.5 inch * 72 dpi
   const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
   const pageHeight: number = pageWidth / pageAspectRatio;
   const border: number = 40;
-  let rxPage: PDFPage = undefined;
-  let pdfDoc: PDFDocument = undefined;
+  let rxPage: PDFPage;
+  let pdfDoc: PDFDocument;
   if (isWeb) {
     pdfDoc = await PDFDocument.create();
     rxPage = pdfDoc.addPage();
@@ -463,7 +486,7 @@ export async function printMedicalRx(visitId: string) {
   addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
-  addMedicalRxLines(visitId, rxPage, pageHeight, border);
+  addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
   await addSignature(visitId, rxPage, pageWidth, border, pdfDoc);
   if (isWeb) {
     const pdfData = await pdfDoc.saveAsBase64();

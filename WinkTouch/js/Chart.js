@@ -12,6 +12,8 @@ import {getExamHistory} from './Exam';
 import {formatMoment} from './Util';
 import {getCachedItem} from './DataCache';
 import {Highcharts as HighchartsReactNative} from '../src/components/HighCharts';
+import HC_brokenAxis from 'highcharts/modules/broken-axis';
+HC_brokenAxis(Highcharts);
 type ChartData = {type: string, name: string, data: number[]};
 type ChartSeries = ChartData[];
 
@@ -56,7 +58,7 @@ class LineChart extends Component {
           dataLabels: {
             enabled: true,
           },
-          connectNulls: true,
+          connectNulls: false,
         },
       },
       exporting: {

@@ -20,8 +20,8 @@ import type {
   GroupDefinition,
   FieldDefinitions,
   ExamPredefinedValue,
-  GlassesRx,
-} from './Types';
+  GlassesRx, Prescription,
+} from "./Types";
 import {strings} from './Strings';
 import {styles, selectionColor, fontScale, scaleStyle, isWeb} from './Styles';
 import {
@@ -31,8 +31,8 @@ import {
   SelectionList,
   stripSelectionPrefix,
   selectionPrefix,
-  FloatingButton,
-} from './Widgets';
+  FloatingButton, NoAccess,
+} from "./Widgets";
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {
   formatDate,
@@ -208,12 +208,36 @@ export function formatFieldValue(
     }
   }
   if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
+    if (
+      (fieldDefinition.prefix &&
+        fieldDefinition.prefix instanceof Array === false) ||
+      (fieldDefinition.suffix &&
+        fieldDefinition.suffix instanceof Array === false)
+    ) {
+      return (
+        formatPrefix(fieldDefinition, value) +
+        formatDate(value, isToyear(value) ? dateFormat : yearDateFormat) +
+        formatSuffix(fieldDefinition)
+      );
+    }
     return formatDate(value, isToyear(value) ? dateFormat : yearDateFormat);
   }
   if (
     fieldDefinition.type &&
     (fieldDefinition.type === 'time' || fieldDefinition.type.includes('Time'))
   ) {
+    if (
+      (fieldDefinition.prefix &&
+        fieldDefinition.prefix instanceof Array === false) ||
+      (fieldDefinition.suffix &&
+        fieldDefinition.suffix instanceof Array === false)
+    ) {
+      return (
+        formatPrefix(fieldDefinition, value) +
+        formatTime(value) +
+        formatSuffix(fieldDefinition)
+      );
+    }
     return formatTime(value);
   }
   if (fieldDefinition.type && fieldDefinition.type === 'prism') {
@@ -374,8 +398,9 @@ function constructItemView(
   onUpdateItem?: (propertyName: string, value: any) => void,
   orientation: string,
   titleFields?: string[],
-  showLabels?: boolean = false,
+  showLabels: boolean = false,
 ) {
+
   switch (itemView) {
     case 'EditableItem':
       return (
@@ -400,23 +425,42 @@ function constructItemView(
         fieldDefinitions={fieldDefinitions}
         editable={editable}
         showLabels={showLabels}
+        titleFields={titleFields}
       />
     </View>
   );
 }
 
-class ItemSummary extends Component {
-  props: {
+type ItemSummaryProps = {
     item: any,
     fieldDefinitions: ?(FieldDefinition[]),
     editable?: boolean,
     orientation?: string,
     showLabels?: boolean,
+  titleFields?: string[],
   };
-
+class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;
+    }
+    if (this.props.item?.noaccess) {
+      const itemKeys = Object.keys(this.props.item);
+      let formattedValue: string = '';
+      this.props.titleFields && this.props.titleFields.forEach((fieldName: string) => {
+          if (itemKeys.indexOf(fieldName) !== -1) {
+            let fieldValue = this.props.item[fieldName];
+            if (!isEmpty(fieldValue)) {
+              let fieldDefinition: ?FieldDefinition = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === fieldName);
+              if (fieldDefinition) {
+                formattedValue += formatFieldValue(fieldValue, fieldDefinition) + ' ';
+              } else {
+                formattedValue += fieldValue.toString();
+              }
+            }
+          }
+      });
+      return <NoAccess prefix={formattedValue} />;
     }
     if (this.props.orientation !== 'horizontal') {
       let description = '';
@@ -428,7 +472,7 @@ class ItemSummary extends Component {
         if (value !== undefined && value !== null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
-            if (!isFirstField) {
+            if (!isFirstField && !description.trim().endsWith(':')) {
               description += ', ';
             }
             if (this.props.showLabels && this.props.fieldDefinitions[i].label) {
@@ -507,6 +551,14 @@ class EditableItem extends Component {
       this.props.orientation === 'horizontal' ? styles.flow : styles.form;
     if (this.props.isSelected) {
       style = [style, {backgroundColor: selectionColor}];
+    }
+    if (this.props.item?.noaccess) {
+      return (
+        <View style={style}>
+          {this.renderTitle()}
+          <NoAccess />
+        </View>
+      );
     }
     return (
       <View style={style}>
@@ -820,7 +872,7 @@ export class ItemsList extends Component {
   renderList(): Component {
     const itemOrientation: string =
       this.props.orientation === 'vertical' ? 'horizontal' : 'vertical';
-    return this.props.items.map((item: any, index: number) => {
+    return this.props.items.map((item: ?Prescription | any, index: number) => {
       const isSelected: boolean =
         this.props.selectedItem === item && this.props.items.length > 1;
       const itemView = constructItemView(

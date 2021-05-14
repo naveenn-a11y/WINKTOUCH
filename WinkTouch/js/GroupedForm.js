@@ -1128,7 +1128,8 @@ export class GroupedForm extends Component {
         : ' ') +
       formatLabel(fieldDefinition);
     const isTyping =
-      this.context.keyboardMode === 'desktop' || this.state.isTyping;
+      this.context.keyboardMode === ('desktop' || this.state.isTyping) &&
+      this.props.editable;
     return (
       <FormInput
         value={value}

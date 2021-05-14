@@ -217,6 +217,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18 * fontScale,
   },
+  noAccessText: {
+    fontSize: 18 * fontScale,
+    fontStyle: 'italic',
+  },
   textLeft: {
     fontSize: 18 * fontScale,
     maxWidth: 400 * fontScale,
@@ -670,6 +674,11 @@ export const styles = StyleSheet.create({
   popupTile: {
     ...tile,
   },
+  readOnly: {
+    ...tile,
+    backgroundColor: 'gray',
+    cursor: 'default',
+  },
   popupTileSelected: {
     ...tile,
     backgroundColor: selectionBackgroundColor,
@@ -840,6 +849,7 @@ export const styles = StyleSheet.create({
   examCard: examCardStyle('gray'),
   todoExamCard: examCardStyle('orange'),
   finishedExamCard: examCardStyle('green'),
+  unverifiedExamCard: examCardStyle('red'),
   board: boardStyle('#dddddd'),
   boardSelected: boardStyle(selectionBorderColor),
   boardS: boardStyle('#dddddd', 'S'),
@@ -1241,9 +1251,14 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f0f0ff',
   },
   alert: {
-    position: 'absolute',
     alignSelf: 'center',
     top: 10 * fontScale,
+  },
+  alertCheckBox: {
+    width:'100%',
+    display:'block',
+    fontSize: 18 * fontScale,
+    color: fontColor,
   },
   bottomBar: {
     flex: 1,
