@@ -601,6 +601,7 @@ export type StartVisitButtonsProps = {
   onStartVisit: (type: string) => void,
   isLoading: ?boolean,
   patientInfo: ?PatientInfo,
+  isPretest: boolean
 };
 type StartVisitButtonsState = {
   visitTypes: VisitType[],
@@ -642,7 +643,7 @@ export class StartVisitButtons extends Component<
   startVisit(visitType: string) {
     if (this.state.clicked || this.props.isLoading) return;
     this.setState({clicked: true, visitType: visitType}, () => {
-      if (!this.props.isPreVisit) {
+      if (this.props.isPretest==false) {
         this.showVisitOptions();
       } else {
         this.props.onStartVisit(visitType);
@@ -1634,8 +1635,9 @@ class VisitWorkFlow extends Component {
     const pretestMode: boolean = isEmpty(this.state.visit.userId);
 
     if (pretestMode) {
+      const pretestStarted : boolean = pretestHasStarted(this.state.visit);
       const showStartVisitButtons : boolean = !this.props.readonly &&
-        ((hasVisitPretestWriteAccess(this.state.visit) && !pretestHasStarted(this.state.visit)) ||
+        ((hasVisitPretestWriteAccess(this.state.visit) && !pretestStarted) ||
           hasVisitMedicalDataWriteAccess(this.state.visit));
       return (
         <View>
@@ -1651,12 +1653,13 @@ class VisitWorkFlow extends Component {
               onStartVisit={this.props.onStartVisit}
               isLoading={this.props.isLoading}
               patientInfo={this.props.patientInfo}
+              isPretest={pretestStarted===false}
             />
           )}
         </View>
       );
     }
-    
+
     let exams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
     if (!exams) {
       exams = [];
