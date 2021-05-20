@@ -1770,6 +1770,11 @@ export class TimeField extends Component {
     this.setState({editedValue: newValue}, this.commitEdit);
   };
 
+  startTyping = () => {
+    if (this.props.readonly) return;
+    this.setState({isActive: false, isTyping: true});
+  };
+
   startEditing = () => {
     if (this.props.readonly) return;
     this.setState({
@@ -1947,6 +1952,7 @@ export class TimeField extends Component {
                 <UpdateTile commitEdit={this.commitEdit} />
                 <ClearTile commitEdit={this.clear} />
                 <RefreshTile commitEdit={this.cancelEdit} />
+                <KeyboardTile commitEdit={this.startTyping} />
               </View>
             </View>
           </ScrollView>
