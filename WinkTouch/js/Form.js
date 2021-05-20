@@ -525,6 +525,7 @@ export class FormTimeInput extends Component {
     type?: string,
     onChangeValue?: (time: ?string) => void,
     testID: string,
+    isTyping?: boolean,
   };
   static defaultProps = {
     showLabel: true,
@@ -560,6 +561,7 @@ export class FormTimeInput extends Component {
               : styles.formField
           }
           onChangeValue={this.updateValue}
+          isTyping={this.props.isTyping}
           testID={this.props.testID + 'Field'}
         />
       </View>
@@ -1399,6 +1401,7 @@ export class FormInput extends Component {
           type={type}
           style={style}
           errorMessage={this.props.errorMessage}
+          isTyping={this.props.isTyping}
           testID={this.props.testID}
         />
       );
