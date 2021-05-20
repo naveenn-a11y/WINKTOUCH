@@ -1733,12 +1733,14 @@ export class TimeField extends Component {
     readonly?: boolean,
     past?: boolean,
     future?: boolean,
+    isTyping?: boolean,
   };
   state: {
     isActive: boolean,
     isDirty: boolean,
     fractions: string[][],
     editedValue: (?string)[],
+    isTyping: boolean,
   };
   static defaultProps = {
     readonly: false,
@@ -1753,8 +1755,20 @@ export class TimeField extends Component {
       isActive: false,
       fractions: this.generateFractions(),
       isDirty: false,
+      isTyping: props.isTyping,
     };
   }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) return;
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
+
+  commitTyping = (newValue: string) => {
+    this.setState({editedValue: newValue}, this.commitEdit);
+  };
 
   startEditing = () => {
     if (this.props.readonly) return;
@@ -1768,7 +1782,7 @@ export class TimeField extends Component {
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
     if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
-    this.setState({isActive: false});
+    this.setState({isActive: false, isTyping: false});
   };
 
   commitNow = (offset?: ?string) => {
@@ -1788,7 +1802,7 @@ export class TimeField extends Component {
   };
 
   cancelEdit = () => {
-    this.setState({isActive: false});
+    this.setState({isActive: false, isTyping: false});
   };
 
   clear = () => {
@@ -1953,6 +1967,18 @@ export class TimeField extends Component {
             {this.props.suffix}
           </Text>
         </View>
+      );
+    }
+    if (this.state.isTyping) {
+      return (
+        <TextField
+          prefix={this.props.prefix}
+          value={formattedValue}
+          suffix={this.props.suffix}
+          autoFocus={true}
+          style={style}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
+        />
       );
     }
     return (
