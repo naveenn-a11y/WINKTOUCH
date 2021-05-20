@@ -1133,6 +1133,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('od', 'va', value)
                 }
                 errorMessage={this.props.glassesRx.od.vaError}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.od.dva'}
               />
             )}
@@ -1165,6 +1166,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('od', 'addVa', value)
                 }
                 errorMessage={this.props.glassesRx.od.addVaError}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.od.nva'}
               />
             )}
@@ -1237,6 +1239,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('os', 'va', value)
                 }
                 errorMessage={this.props.glassesRx.os.vaError}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.os.dva'}
               />
             )}
@@ -1266,6 +1269,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('os', 'addVa', value)
                 }
                 errorMessage={this.props.glassesRx.os.addVaError}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.os.nva'}
               />
             )}
@@ -1301,6 +1305,7 @@ export class GlassesDetail extends Component {
                   this.updateGlassesRx('ou', 'va', value)
                 }
                 errorMessage={this.props.glassesRx.ou.vaError}
+                isTyping={isTyping}
                 testID={this.props.fieldId + '.ou.dva'}
               />
               {this.props.hasAdd === true && (
@@ -1320,6 +1325,7 @@ export class GlassesDetail extends Component {
                     this.updateGlassesRx('ou', 'addVa', value)
                   }
                   errorMessage={this.props.glassesRx.ou.addVaError}
+                  isTyping={isTyping}
                   testID={this.props.fieldId + '.ou.nva'}
                 />
               )}
