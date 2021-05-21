@@ -601,7 +601,8 @@ export type StartVisitButtonsProps = {
   onStartVisit: (type: string) => void,
   isLoading: ?boolean,
   patientInfo: ?PatientInfo,
-  isPretest: boolean
+  isPretest: boolean,
+  currentVisitId: string,
 };
 type StartVisitButtonsState = {
   visitTypes: VisitType[],
@@ -661,7 +662,9 @@ export class StartVisitButtons extends Component<
       let previousVisits: CodeDefinition[] = getPreviousVisits(
         this.props.patientInfo.id,
       );
-      //previousVisits = previousVisits.slice(1); TODO: filter the current visit, not the first visit in the history.
+      previousVisits = previousVisits.filter((value: CodeDefinition) => {
+        return value.code != this.props.currentVisitId;
+      })
       const options: CodeDefinition[] = [blankVisit].concat(previousVisits);
       this.setState({
         visitOptions: options,
@@ -1654,6 +1657,7 @@ class VisitWorkFlow extends Component {
               isLoading={this.props.isLoading}
               patientInfo={this.props.patientInfo}
               isPretest={pretestStarted===false}
+              currentVisitId={this.props.visitId}
             />
           )}
         </View>
