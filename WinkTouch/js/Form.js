@@ -163,7 +163,7 @@ export class FormTextInput extends Component {
         input = phoneUtil.format(phoneNumber, 'CA');
       } catch (error) {}
     }
-    return input;
+    return input === undefined ? "" : input;
   }
 
   commit(input: string) {
