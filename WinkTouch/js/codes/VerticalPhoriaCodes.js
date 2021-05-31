@@ -8,5 +8,5 @@ export const verticalPhoriaCodes = [
   {code: ' Hypophoria'},
   {code: ' Alternating Hyperphoria'},
   {code: ' Alternating Hypophoria'},
-  {code: ' Intermittant Alternating'},
+  {code: ' intermittent Alternating'},
 ];

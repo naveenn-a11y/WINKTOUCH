@@ -8,5 +8,5 @@ export const lateralPhoriaCodes = [
   {code: ' Exophoria'},
   {code: ' Alternating Esophoria'},
   {code: ' Alternating Exophoria'},
-  {code: ' Intermittant Alternating'},
+  {code: ' intermittent Alternating'},
 ];
