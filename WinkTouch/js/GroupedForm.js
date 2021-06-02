@@ -32,7 +32,7 @@ import {
   CopyColumn,
   Keyboard,
   ImportIcon,
-  ExportIcon,
+  Copy,
 } from './Favorites';
 import {getConfiguration} from './Configuration';
 import {importData} from './MappedField';
@@ -989,6 +989,7 @@ export class GroupedForm extends Component {
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
     onAdd?: (groupValue?: {}) => void,
+    onCopy?: (groupValue?: {}) => void,
     patientId: string,
     examId: string,
     enableScroll?: () => void,
@@ -1460,8 +1461,9 @@ export class GroupedForm extends Component {
       (!this.props.onAddFavorite &&
         !this.props.onClear &&
         !this.props.definition.keyboardEnabled)
-    )
+    ) {
       return null;
+    }
     const isTyping =
       this.context.keyboardMode === 'desktop' || this.state.isTyping;
     return [
@@ -1478,6 +1480,13 @@ export class GroupedForm extends Component {
             onPress={() => this.props.onAdd()}
             testID={this.props.fieldId + '.plusIcon'}>
             <Plus style={styles.groupIcon} />
+          </TouchableOpacity>
+        )}
+        {this.props.onCopy && (
+          <TouchableOpacity
+            onPress={() => this.props.onCopy()}
+            testID={this.props.fieldId + '.copyIcon'}>
+            <Copy style={styles.groupIcon} />
           </TouchableOpacity>
         )}
         {this.props.definition.keyboardEnabled && (
@@ -1680,7 +1689,11 @@ export class GroupedFormScreen extends Component<
     return getCachedItem(this.props.exam.visitId).patientId;
   }
 
-  addGroupItem = (groupDefinition: GroupDefinition, groupValue: ?{}) => {
+  addGroupItem = (
+    groupDefinition: GroupDefinition,
+    groupValue: ?{},
+    isNew: ?boolean = false,
+  ) => {
     let values = this.props.exam[this.props.exam.definition.name][
       groupDefinition.name
     ];
@@ -1718,7 +1731,11 @@ export class GroupedFormScreen extends Component<
             }
           },
         );
-      if (groupDefinition.clone instanceof Array && values.length > 0) {
+      if (
+        groupDefinition.clone instanceof Array &&
+        values.length > 0 &&
+        !isNew
+      ) {
         const lastValue = deepClone(values[0]);
         groupDefinition.clone.forEach((fieldName: string) => {
           newValue[fieldName] = lastValue[fieldName];
@@ -2021,6 +2038,9 @@ export class GroupedFormScreen extends Component<
             }
             onClear={() => this.clear(groupDefinition.name, subIndex)}
             onAdd={(groupValue: ?{}) =>
+              this.addGroupItem(groupDefinition, groupValue, true)
+            }
+            onCopy={(groupValue: ?{}) =>
               this.addGroupItem(groupDefinition, groupValue)
             }
             onAddFavorite={
