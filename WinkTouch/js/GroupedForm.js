@@ -148,6 +148,58 @@ function getMultiValueGroup(
   return undefined;
 }
 
+export function addGroupItem(
+  exam: Exam,
+  groupDefinition: GroupDefinition,
+  groupValue: ?{},
+  isNew: ?boolean = false,
+  childValue: ?{},
+) {
+  let values = exam[exam.definition.name][groupDefinition.name];
+  if (values instanceof Array === false) values = [values]; //auto convert old style exams to be nice
+  if (
+    groupDefinition.maxLength !== undefined &&
+    values.length >= groupDefinition.maxLength
+  ) {
+    alert(
+      strings.formatString(
+        strings.maximumAddableGroupError,
+        groupDefinition.maxLength - 1,
+        groupDefinition.name.toLowerCase(),
+      ),
+    );
+  } else {
+    let newValue = groupValue
+      ? groupValue
+      : groupDefinition.type === 'SRx'
+      ? newRefraction()
+      : {};
+    groupDefinition.fields instanceof Array &&
+      groupDefinition.fields.forEach(
+        (fieldDefinition: FieldDefinition | GroupDefinition) => {
+          if (
+            fieldDefinition.fields instanceof Array &&
+            fieldDefinition.fields.length !== 0
+          ) {
+            if (
+              newValue[fieldDefinition.name] === undefined ||
+              newValue[fieldDefinition.name] === null
+            ) {
+              newValue[fieldDefinition.name] = {}; //Add empty column
+            }
+          }
+        },
+      );
+    if (groupDefinition.clone instanceof Array && values.length > 0 && !isNew) {
+      const lastValue = deepClone(isEmpty(childValue) ? values[0] : childValue);
+      groupDefinition.clone.forEach((fieldName: string) => {
+        newValue[fieldName] = lastValue[fieldName];
+      });
+    }
+    values.unshift(newValue);
+  }
+}
+
 export class CheckList extends PureComponent {
   props: {
     value: string | string[],
@@ -983,6 +1035,7 @@ export class GroupedForm extends Component {
     form: {},
     definition: GroupDefinition,
     editable?: boolean,
+    cloneable?: boolean,
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
     onUpdateForm?: (groupName: string, newValue: any) => void,
@@ -1005,6 +1058,7 @@ export class GroupedForm extends Component {
 
   static defaultProps = {
     editable: true,
+    cloneable: false,
   };
   static contextType = ModeContext;
 
@@ -1455,7 +1509,26 @@ export class GroupedForm extends Component {
     // TODO export data
   }
 
+  renderCopyIcon() {
+    return (
+      this.props.onCopy && (
+        <TouchableOpacity
+          onPress={() => this.props.onCopy()}
+          testID={this.props.fieldId + '.copyIcon'}>
+          <Copy style={styles.groupIcon} />
+        </TouchableOpacity>
+      )
+    );
+  }
+
   renderIcons() {
+    if (this.props.cloneable) {
+      return (
+        <View style={styles.groupIcons} key="icons">
+          {this.renderCopyIcon()}
+        </View>
+      );
+    }
     if (
       !this.props.editable ||
       (!this.props.onAddFavorite &&
@@ -1482,13 +1555,7 @@ export class GroupedForm extends Component {
             <Plus style={styles.groupIcon} />
           </TouchableOpacity>
         )}
-        {this.props.onCopy && (
-          <TouchableOpacity
-            onPress={() => this.props.onCopy()}
-            testID={this.props.fieldId + '.copyIcon'}>
-            <Copy style={styles.groupIcon} />
-          </TouchableOpacity>
-        )}
+        {this.renderCopyIcon()}
         {this.props.definition.keyboardEnabled && (
           <TouchableOpacity
             onPress={this.toggleTyping}
@@ -1694,55 +1761,7 @@ export class GroupedFormScreen extends Component<
     groupValue: ?{},
     isNew: ?boolean = false,
   ) => {
-    let values = this.props.exam[this.props.exam.definition.name][
-      groupDefinition.name
-    ];
-    if (values instanceof Array === false) values = [values]; //auto convert old style exams to be nice
-    if (
-      groupDefinition.maxLength !== undefined &&
-      values.length >= groupDefinition.maxLength
-    ) {
-      alert(
-        strings.formatString(
-          strings.maximumAddableGroupError,
-          groupDefinition.maxLength - 1,
-          groupDefinition.name.toLowerCase(),
-        ),
-      );
-    } else {
-      let newValue = groupValue
-        ? groupValue
-        : groupDefinition.type === 'SRx'
-        ? newRefraction()
-        : {};
-      groupDefinition.fields instanceof Array &&
-        groupDefinition.fields.forEach(
-          (fieldDefinition: FieldDefinition | GroupDefinition) => {
-            if (
-              fieldDefinition.fields instanceof Array &&
-              fieldDefinition.fields.length !== 0
-            ) {
-              if (
-                newValue[fieldDefinition.name] === undefined ||
-                newValue[fieldDefinition.name] === null
-              ) {
-                newValue[fieldDefinition.name] = {}; //Add empty column
-              }
-            }
-          },
-        );
-      if (
-        groupDefinition.clone instanceof Array &&
-        values.length > 0 &&
-        !isNew
-      ) {
-        const lastValue = deepClone(values[0]);
-        groupDefinition.clone.forEach((fieldName: string) => {
-          newValue[fieldName] = lastValue[fieldName];
-        });
-      }
-      values.unshift(newValue);
-    }
+    addGroupItem(this.props.exam, groupDefinition, groupValue, isNew);
     this.props.onUpdateExam(this.props.exam);
   };
 
