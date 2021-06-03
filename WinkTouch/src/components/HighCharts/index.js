@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import HighchartsReactNative from '@highcharts/highcharts-react-native';
 
 export class Highcharts extends Component {
   props: {
@@ -13,13 +12,6 @@ export class Highcharts extends Component {
     super(props);
   }
   render() {
-    return (
-      <HighchartsReactNative
-        useCDN={this.props.useCDN}
-        useSSL={this.props.useSSL}
-        styles={this.props.style}
-        options={this.props.options}
-      />
-    );
+    return null;
   }
 }
