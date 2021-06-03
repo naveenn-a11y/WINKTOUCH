@@ -1522,7 +1522,7 @@ export class GroupedForm extends Component {
   }
 
   renderIcons() {
-    if (this.props.cloneable) {
+    if (this.props.cloneable && this.props.definition.clone) {
       return (
         <View style={styles.groupIcons} key="icons">
           {this.renderCopyIcon()}
