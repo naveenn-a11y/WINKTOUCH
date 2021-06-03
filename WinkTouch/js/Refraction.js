@@ -1466,7 +1466,7 @@ export class PatientRefractionCard extends Component {
     let hasNoAccessAtAll = true;
     this.state.refractions &&
       this.state.refractions.map((refraction: GlassesRx) =>
-          (hasNoAccessAtAll &&= refraction.noaccess),
+          (hasNoAccessAtAll = hasNoAccessAtAll && refraction.noaccess),
       );
     return hasNoAccessAtAll;
   }
