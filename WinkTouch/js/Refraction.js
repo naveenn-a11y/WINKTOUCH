@@ -34,8 +34,9 @@ import {
   Button,
   Label,
   NativeBar,
-  Alert, NoAccess,
-} from "./Widgets";
+  Alert,
+  NoAccess,
+} from './Widgets';
 import {Anesthetics} from './EyeTest';
 import {
   formatDegree,
@@ -66,7 +67,6 @@ import {getVisitHistory, fetchVisitHistory} from './Visit';
 import {
   CopyRow,
   Garbage,
-  Keyboard,
   Plus,
   Copy,
   ImportIcon,
@@ -88,7 +88,9 @@ function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
     if (visit.prescription) {
       const refraction: GlassesRx = visit.prescription;
       const doctor: User = getCachedItem(visit.userId);
-      refraction.doctor = isEmpty(doctor) ? '' : doctor.firstName + ' ' + doctor.lastName;
+      refraction.doctor = isEmpty(doctor)
+        ? ''
+        : doctor.firstName + ' ' + doctor.lastName;
       if (!refraction.prescriptionDate) {
         refraction.prescriptionDate = visit.date;
       }
@@ -733,7 +735,8 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
-          </View>)}
+          </View>
+        )}
       </View>
     );
   }
@@ -849,10 +852,6 @@ export class GlassesDetail extends Component {
       clearRefraction(glassesRx);
       if (this.props.onChangeGlassesRx) this.props.onChangeGlassesRx(glassesRx);
     }
-  };
-
-  toggleTyping = (): void => {
-    this.setState({isTyping: this.state.isTyping ? false : true});
   };
 
   transferFocus = (fieldRef: string) => {
@@ -1411,13 +1410,6 @@ export class GlassesDetail extends Component {
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>
           )}
-          {this.props.editable && (
-            <TouchableOpacity
-              onPress={this.toggleTyping}
-              testID={this.props.fieldId + '.keyboardIcon'}>
-              <Keyboard style={styles.groupIcon} disabled={isTyping} />
-            </TouchableOpacity>
-          )}
         </View>
         {this.state.importedData && this.state.showDialog && this.renderAlert()}
         {this.state.showSnackBar && this.renderSnackBar()}
@@ -1465,8 +1457,8 @@ export class PatientRefractionCard extends Component {
   checkUserHasAccess() {
     let hasNoAccessAtAll = true;
     this.state.refractions &&
-      this.state.refractions.map((refraction: GlassesRx) =>
-          (hasNoAccessAtAll &&= refraction.noaccess),
+      this.state.refractions.map(
+        (refraction: GlassesRx) => (hasNoAccessAtAll &&= refraction.noaccess),
       );
     return hasNoAccessAtAll;
   }
@@ -1475,15 +1467,19 @@ export class PatientRefractionCard extends Component {
     let hasNoAccess = this.checkUserHasAccess();
     return (
       <View style={styles.tabCard}>
-        {(!this.state.refractions || this.state.refractions.length === 0 || hasNoAccess) && (
+        {(!this.state.refractions ||
+          this.state.refractions.length === 0 ||
+          hasNoAccess) && (
           <Text style={styles.cardTitle}>{strings.finalRx}</Text>
         )}
-        {this.state.refractions && this.state.refractions.length !== 0 && (
-          hasNoAccess ? (
+        {this.state.refractions &&
+          this.state.refractions.length !== 0 &&
+          (hasNoAccess ? (
             <NoAccess />
           ) : (
             this.state.refractions &&
-            this.state.refractions.map((refraction: GlassesRx, index: number) => (
+            this.state.refractions.map(
+              (refraction: GlassesRx, index: number) => (
                 <GlassesSummary
                   showHeaders={false}
                   title={
@@ -1502,7 +1498,8 @@ export class PatientRefractionCard extends Component {
                   glassesRx={refraction}
                   key={index}
                 />
-            ))
+              ),
+            )
           ))}
       </View>
     );
