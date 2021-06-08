@@ -1511,7 +1511,8 @@ export class GroupedForm extends Component {
 
   renderCopyIcon() {
     return (
-      this.props.onCopy && (
+      this.props.onCopy &&
+      this.props.definition.clone && (
         <TouchableOpacity
           onPress={() => this.props.onCopy()}
           testID={this.props.fieldId + '.copyIcon'}>
