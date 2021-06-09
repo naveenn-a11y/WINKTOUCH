@@ -2896,26 +2896,38 @@ export class FloatingButton extends Component {
     //if (!wasActive) setTimeout(() => {this.setState({active: false, options: []})}, 5000);
   };
 
+  renderAlert() {
+    const options: any = this.state.options;
+    if (!options) return null;
+    return (
+      <Alert
+        title={'Choose on of the following element:'}
+        data={options}
+        dismissable={true}
+        onCancelAction={() => this.toggleActive()}
+        onConfirmAction={(selectedData: Measurement) => {
+          this.toggleActive();
+          this.props.onPress(selectedData);
+        }}
+        style={styles.alert}
+      />
+    );
+  }
+
   render() {
     if (!this.state.options) return null;
+    if (this.state.active) return this.renderAlert();
     return (
-          <FAB.Group
-            open={this.state.active}
-            onStateChange={this.toggleActive}
-            position="bottomRight"
-            fabStyle={styles.floatingButton}
-            icon={this.state.active ? 'minus' : 'plus'}
-            actions={this.state.options.map((option: string, index: number) => {
-              return {
-                icon: 'minus',
-                label: option,
-                onPress: () => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                },
-              };
-            })}
-          />
+      <FAB
+        open={this.state.active}
+        onStateChange={this.toggleActive}
+        position="bottomRight"
+        style={styles.floatingButton}
+        label={this.state.options.length}
+        onPress={() => {
+          this.toggleActive();
+        }}
+      />
     );
   }
 }
@@ -3208,17 +3220,17 @@ export class SelectionList extends React.PureComponent {
     return data;
   }
 
-  renderItem = ({ item }) => {
+  renderItem = ({item}) => {
     return (
       <SelectionListRow
-      label={item}
-      simpleSelect={this.props.simpleSelect}
-      selected={this.isSelected(item)}
-      onSelect={(isSelected: boolean | string) =>
-        this.select(item, isSelected)
-      }
-      testID={this.props.label + '.option.' + item}
-    />
+        label={item}
+        simpleSelect={this.props.simpleSelect}
+        selected={this.isSelected(item)}
+        onSelect={(isSelected: boolean | string) =>
+          this.select(item, isSelected)
+        }
+        testID={this.props.label + '.option.' + item}
+      />
     );
   };
 
@@ -3324,7 +3336,9 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
   confirmDialog = (selectedData: ?any) => {
     this.setState({visible: false});
-    this.props.onConfirmAction(selectedData === undefined ? this.state.data : selectedData);
+    this.props.onConfirmAction(
+      selectedData === undefined ? this.state.data : selectedData,
+    );
   };
 
   toggleCheckbox(index: number) {
@@ -3342,19 +3356,20 @@ export class Alert extends Component<AlertProps, AlertState> {
           <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
             <Dialog.ScrollArea>
               <ScrollView>
-                {this.state.data.map((importData: any, index: number) => {
+                {this.state.data.map((element: any, index: number) => {
+                  const item: any = element.label ? element.label : element;
                   return this.props.multiValue ? (
                     <CheckButton
-                      isChecked={importData.isChecked}
+                      isChecked={element.isChecked}
                       onSelect={() => this.toggleCheckbox(index)}
                       onDeselect={() => this.toggleCheckbox(index)}
                       style={styles.alertCheckBox}
-                      testID={this.props.testID+'.'+importData.label}
-                      suffix={importData.label}></CheckButton>
+                      testID={this.props.testID + '.' + item}
+                      suffix={item}></CheckButton>
                   ) : (
-                    <Button onPress={() => this.confirmDialog(importData)}>
-                      {importData.label}
-                    </Button>
+                    <NativeBaseButton onPress={() => this.confirmDialog(item)}>
+                      {item}
+                    </NativeBaseButton>
                   );
                 })}
               </ScrollView>
@@ -3363,7 +3378,9 @@ export class Alert extends Component<AlertProps, AlertState> {
         );
       } else {
         return (
-          <Button onPress={this.confirmDialog}>{this.props.data.label}</Button>
+          <NativeBaseButton onPress={this.confirmDialog}>
+            {this.props.data.label}
+          </NativeBaseButton>
         );
       }
     } else {
@@ -3372,24 +3389,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-        <Portal>
-          <Dialog
-            visible={this.state.visible}
-            onDismiss={this.cancelDialog}
-            dismissable={this.props.dismissable}
-            style={this.props.style}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
-            <Dialog.Content>{this.renderContent()}</Dialog.Content>
-            <Dialog.Actions>
-              <NativeBaseButton onPress={this.cancelDialog}>
-                {this.props.cancelActionLabel}
-              </NativeBaseButton>
-              <NativeBaseButton onPress={this.confirmDialog}>
-                {this.props.confirmActionLabel}
-              </NativeBaseButton>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
@@ -3433,8 +3450,7 @@ export class NoAccess extends Component<NoAccessProps> {
     return (
       <View>
         <Text style={styles.noAccessText}>
-          {(this.props.prefix ? this.props.prefix : '') +
-            strings.noAccess}
+          {(this.props.prefix ? this.props.prefix : '') + strings.noAccess}
         </Text>
       </View>
     );
@@ -3443,12 +3459,15 @@ export class NoAccess extends Component<NoAccessProps> {
 export type SelectionDialogProps = {
   label?: string,
   options: CodeDefinition[],
-  onSelect?: (option: ?(CodeDefinition)) => void,
+  onSelect?: (option: ?CodeDefinition) => void,
   onCancel?: () => void,
   visible: boolean,
   testID?: string,
 };
-export class SelectionDialog extends Component<SelectionDialogProps, SelectionDialogState> {
+export class SelectionDialog extends Component<
+  SelectionDialogProps,
+  SelectionDialogState,
+> {
   constructor(props: SelectionDialogProps) {
     super(props);
   }
@@ -3465,26 +3484,35 @@ export class SelectionDialog extends Component<SelectionDialogProps, SelectionDi
         accessible={false}
         testID="popupBackground">
         <View style={styles.popupBackground}>
-          {this.props.label && <Text style={styles.modalTitle}>{this.props.label}</Text>}
+          {this.props.label && (
+            <Text style={styles.modalTitle}>{this.props.label}</Text>
+          )}
           <ScrollView>
             <View style={styles.flexColumnLayout}>
               <View style={styles.centeredRowLayout}>
-                  <View style={styles.modalColumn}>
-                    {this.props.options.map((option: CodeDefinition, rowIndex: number) => {
+                <View style={styles.modalColumn}>
+                  {this.props.options.map(
+                    (option: CodeDefinition, rowIndex: number) => {
                       return (
                         <TouchableOpacity
                           key={rowIndex}
                           onPress={() => this.selectOption(option)}
                           testID={'option' + (rowIndex + 1)}>
-                          <View style={option.readonly ? styles.readOnly : styles.popupTile }>
-                            <Text style={ styles.modalTileLabel }>
+                          <View
+                            style={
+                              option.readonly
+                                ? styles.readOnly
+                                : styles.popupTile
+                            }>
+                            <Text style={styles.modalTileLabel}>
                               {formatCodeDefinition(option)}
                             </Text>
                           </View>
                         </TouchableOpacity>
                       );
-                    })}
-                  </View>
+                    },
+                  )}
+                </View>
               </View>
             </View>
           </ScrollView>
