@@ -2901,7 +2901,7 @@ export class FloatingButton extends Component {
     if (!options) return null;
     return (
       <Alert
-        title={'Choose on of the following element:'}
+        title={strings.selectItemMessage}
         data={options}
         dismissable={true}
         onCancelAction={() => this.toggleActive()}
