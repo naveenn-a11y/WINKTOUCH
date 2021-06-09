@@ -2905,7 +2905,7 @@ export class FloatingButton extends Component {
         data={options}
         dismissable={true}
         onCancelAction={() => this.toggleActive()}
-        onConfirmAction={(selectedData: Measurement) => {
+        onConfirmAction={(selectedData: any) => {
           this.toggleActive();
           this.props.onPress(selectedData);
         }}
