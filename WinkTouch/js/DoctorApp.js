@@ -49,7 +49,6 @@ import {CustomisationScreen} from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
 import AsyncStorage from '@react-native-community/async-storage';
-import {createBrowserApp} from '@react-navigation/web';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
 import {Provider} from 'react-native-paper';
@@ -127,9 +126,7 @@ const DoctorNavigator = createStackNavigator(
   },
 );
 
-const DocatorAppContainer = isWeb
-  ? createBrowserApp(DoctorNavigator)
-  : createAppContainer(DoctorNavigator);
+const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
 const replaceRoutes: string[] = [
