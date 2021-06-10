@@ -3367,7 +3367,8 @@ export class Alert extends Component<AlertProps, AlertState> {
                       testID={this.props.testID + '.' + item}
                       suffix={item}></CheckButton>
                   ) : (
-                    <NativeBaseButton onPress={() => this.confirmDialog(item)}>
+                    <NativeBaseButton
+                      onPress={() => this.confirmDialog(element)}>
                       {item}
                     </NativeBaseButton>
                   );
