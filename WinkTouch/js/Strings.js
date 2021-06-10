@@ -258,6 +258,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Document Category',
     attachment: 'Attachment',
     documentName: 'Document Name',
+    selectItemMessage: 'Select one of the following items',
   },
   fr: {
     enterRegisteredEmail:
@@ -504,7 +505,7 @@ export const strings = new LocalizedStrings({
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
-    startFromVisit: 'Commencer sur la base d\'une consultation précédente',
+    startFromVisit: "Commencer sur la base d'une consultation précédente",
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
     lastUpdateBy: 'Modifié par',
@@ -514,6 +515,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Catégorie du document',
     attachment: 'Attachment',
     documentName: 'Nom du document',
+    selectItemMessage: "Sélectionnez l'un des éléments suivants",
   },
 });
 
