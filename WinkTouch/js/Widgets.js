@@ -2900,34 +2900,35 @@ export class FloatingButton extends Component {
     const options: any = this.state.options;
     if (!options) return null;
     return (
-      <Alert
-        title={strings.selectItemMessage}
-        data={options}
-        dismissable={true}
-        onCancelAction={() => this.toggleActive()}
-        onConfirmAction={(selectedData: any) => {
+      <SelectionDialog
+        visible={this.state.active}
+        label={strings.selectItemMessage}
+        options={options}
+        onSelect={(selectedData: any) => {
           this.toggleActive();
           this.props.onPress(selectedData);
         }}
-        style={styles.alert}
+        onCancel={() => this.toggleActive()}
       />
     );
   }
 
   render() {
     if (!this.state.options) return null;
-    if (this.state.active) return this.renderAlert();
     return (
-      <FAB
-        open={this.state.active}
-        onStateChange={this.toggleActive}
-        position="bottomRight"
-        style={styles.floatingButton}
-        label={this.state.options.length}
-        onPress={() => {
-          this.toggleActive();
-        }}
-      />
+      <View style={styles.flow1}>
+        <FAB
+          open={this.state.active}
+          onStateChange={this.toggleActive}
+          position="bottomRight"
+          style={styles.floatingButton}
+          label={this.state.options.length}
+          onPress={() => {
+            this.toggleActive();
+          }}
+        />
+        {this.state.active && this.renderAlert()}
+      </View>
     );
   }
 }
@@ -3459,8 +3460,8 @@ export class NoAccess extends Component<NoAccessProps> {
 }
 export type SelectionDialogProps = {
   label?: string,
-  options: CodeDefinition[],
-  onSelect?: (option: ?CodeDefinition) => void,
+  options: any[],
+  onSelect?: (option: ?any) => void,
   onCancel?: () => void,
   visible: boolean,
   testID?: string,
@@ -3473,7 +3474,7 @@ export class SelectionDialog extends Component<
     super(props);
   }
 
-  selectOption(option: CodeDefinition): void {
+  selectOption(option: any): void {
     if (option.readonly) return;
     this.props.onSelect(option);
   }
@@ -3492,27 +3493,23 @@ export class SelectionDialog extends Component<
             <View style={styles.flexColumnLayout}>
               <View style={styles.centeredRowLayout}>
                 <View style={styles.modalColumn}>
-                  {this.props.options.map(
-                    (option: CodeDefinition, rowIndex: number) => {
-                      return (
-                        <TouchableOpacity
-                          key={rowIndex}
-                          onPress={() => this.selectOption(option)}
-                          testID={'option' + (rowIndex + 1)}>
-                          <View
-                            style={
-                              option.readonly
-                                ? styles.readOnly
-                                : styles.popupTile
-                            }>
-                            <Text style={styles.modalTileLabel}>
-                              {formatCodeDefinition(option)}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    },
-                  )}
+                  {this.props.options.map((option: any, rowIndex: number) => {
+                    return (
+                      <TouchableOpacity
+                        key={rowIndex}
+                        onPress={() => this.selectOption(option)}
+                        testID={'option' + (rowIndex + 1)}>
+                        <View
+                          style={
+                            option.readonly ? styles.readOnly : styles.popupTile
+                          }>
+                          <Text style={styles.modalTileLabel}>
+                            {formatCodeDefinition(option)}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
             </View>
