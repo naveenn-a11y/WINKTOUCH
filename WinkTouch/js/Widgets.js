@@ -2902,7 +2902,7 @@ export class FloatingButton extends Component {
     return (
       <SelectionDialog
         visible={this.state.active}
-        label={strings.selectItemMessage}
+        label={strings.addExamMessage}
         options={options}
         onSelect={(selectedData: any) => {
           this.toggleActive();

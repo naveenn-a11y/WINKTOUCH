@@ -258,7 +258,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Document Category',
     attachment: 'Attachment',
     documentName: 'Document Name',
-    selectItemMessage: 'Select one of the following items',
+    addExamMessage: 'Add a new exam',
   },
   fr: {
     enterRegisteredEmail:
@@ -515,7 +515,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Catégorie du document',
     attachment: 'Attachment',
     documentName: 'Nom du document',
-    selectItemMessage: "Sélectionnez l'un des éléments suivants",
+    addExamMessage: 'Ajouter un nouvel examen',
   },
 });
 
