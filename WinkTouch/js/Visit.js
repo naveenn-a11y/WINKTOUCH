@@ -808,13 +808,17 @@ class VisitWorkFlow extends Component {
       return;
     }
     const locked: boolean = visitHasEnded(visit);
-    this.setState({
-      visit,
-      locked,
-      rxToOrder,
-    });
-    visit && this.loadUnstartedExamTypes(visit);
-    this.loadAppointment(visit);
+    this.setState(
+      {
+        visit,
+        locked,
+        rxToOrder,
+      },
+      () => {
+        visit && this.loadUnstartedExamTypes(visit);
+        this.loadAppointment(visit);
+      },
+    );
   }
 
   async storeVisit(visit: Visit) {
@@ -1571,7 +1575,7 @@ class VisitWorkFlow extends Component {
     const hasMedicalDataWriteAccess: boolean = hasVisitMedicalDataWriteAccess(
       this.state.visit,
     );
-    if (this.props.readonly || section === 'Document' || this.state.locked) {
+    if (this.props.readonly || section === 'Document') {
       return;
     }
 
