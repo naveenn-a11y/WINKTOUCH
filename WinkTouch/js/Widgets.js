@@ -2922,7 +2922,7 @@ export class FloatingButton extends Component {
           onStateChange={this.toggleActive}
           position="bottomRight"
           style={styles.floatingButton}
-          label={this.state.options.length}
+          icon={this.state.active ? 'minus' : 'plus'}
           onPress={() => {
             this.toggleActive();
           }}
