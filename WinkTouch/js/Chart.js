@@ -1,19 +1,18 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
-import Highcharts from 'highcharts';
 import type {Exam} from './Types';
 import {styles, fontScale, windowWidth, windowHeight} from './Styles.js';
 import {getExamHistory} from './Exam';
-import {formatMoment} from './Util';
+import { formatMoment, isEmpty } from "./Util";
 import {getCachedItem} from './DataCache';
 import {Highcharts as HighchartsReactNative} from '../src/components/HighCharts';
-import HC_brokenAxis from 'highcharts/modules/broken-axis';
-HC_brokenAxis(Highcharts);
+
 type ChartData = {type: string, name: string, data: number[]};
 type ChartSeries = ChartData[];
 
@@ -29,7 +28,7 @@ class LineChart extends Component {
     let conf = {
       chart: {
         type: 'line',
-        animation: Highcharts.svg,
+        animation: true,
         marginRight: 10 * fontScale,
       },
       title: {
@@ -70,8 +69,8 @@ class LineChart extends Component {
       <HighchartsReactNative
         useCDN={true}
         useSSL={true}
-        styles={{top: 0, width: windowWidth * 0.85, height: windowHeight}}
-        options={conf}
+        style={{top: 0, width: windowWidth * 0.85, height: windowHeight}}
+        conf={conf}
       />
     );
   }
@@ -121,6 +120,11 @@ export class ExamChartScreen extends Component {
           data = data[fieldName];
         }
       });
+      if (isEmpty(data)) {
+        data = null;
+      } else {
+        data = parseFloat(data);
+      }
       series.push(data);
     });
     return {

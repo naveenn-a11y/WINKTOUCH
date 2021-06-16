@@ -1727,7 +1727,7 @@ export class VisitHistoryCard extends Component {
     let hasNoAccesAtAll = true;
     this.state.summaries.map(
       (visitSummary: Exam) =>
-        (hasNoAccesAtAll &&=
+        (hasNoAccesAtAll = hasNoAccesAtAll &&
           'noaccess' in visitSummary ? visitSummary.noaccess : false),
     );
     return hasNoAccesAtAll;
