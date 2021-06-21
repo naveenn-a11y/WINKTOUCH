@@ -424,17 +424,19 @@
               "decimals": 2,
               "mappedField": "clFitting.dia.od",
               "name": "OD",
-              "minValue": 10,
+              "minValue": 1,
               "stepSize": 0.1,
-              "maxValue": 15
+              "maxValue": 15,
+              "freestyle": true
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.dia.os",
               "name": "OS",
-              "minValue": 10,
+              "minValue": 1,
               "stepSize": 0.1,
-              "maxValue": 15
+              "maxValue": 15,
+              "freestyle": true
             }
           ]
         },
