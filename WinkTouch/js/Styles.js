@@ -1121,9 +1121,9 @@ export const styles = StyleSheet.create({
     borderColor: 'orange',
     borderWidth: 1,
   },
-  bigImage: {
-    width: 1000 * fontScale,
-    height: 750 * fontScale,
+  scannedImage: {
+    width: (windowWidth - 620) * fontScale,
+    height: 800 * fontScale,
   },
   floatingContainer: {
     position: 'absolute',
