@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
@@ -17,7 +18,7 @@ import {
 import NativeScanner from '../src/components/DocumentScanner';
 import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
-import type {Upload, CodeDefinition, PatientDocument} from './Types';
+import type { Upload, CodeDefinition, PatientDocument, Dimension } from "./Types";
 import {
   ClearTile,
   UpdateTile,
@@ -27,7 +28,7 @@ import {
   SizeTile,
   Label,
 } from './Widgets';
-import {styles, fontScale, imageStyle, isWeb, printWidth} from './Styles';
+import { styles, fontScale, imageStyle, isWeb, printWidth, imageWidth } from "./Styles";
 import {
   storeUpload,
   getJpeg64Dimension,
@@ -67,7 +68,6 @@ export class DocumentScanner extends Component {
     sizeSSelected: boolean,
     sizeMSelected: boolean,
     sizeLSelected: boolean,
-    style: any,
     documentCategory: CodeDefinition,
     upload: ?Upload,
     patientDocuments?: PatientDocument[],
@@ -96,11 +96,6 @@ export class DocumentScanner extends Component {
       sizeSSelected: false,
       sizeMSelected: true,
       sizeLSelected: false,
-      style: {
-        width: 1000 * fontScale,
-        height: 750 * fontScale,
-        resizeMode: 'contain',
-      },
       scaledFile: undefined,
       documentCategory: documentCategory,
       upload: undefined,
@@ -303,60 +298,45 @@ export class DocumentScanner extends Component {
       this.resizeImage(base64Data, size, mimeType);
     }
   }
+
   async resizeImage(
     image: string,
     size?: string = 'L',
     mimeType?: string = 'image/jpeg;base64',
   ) {
-    let dimensionBefore: any = undefined;
+    let dimension: Dimension = undefined;
+    let resized: boolean = false;
     if (mimeType.includes('image/png')) {
-      dimensionBefore = getPng64Dimension(image);
+      dimension = getPng64Dimension(image);
     } else {
-      dimensionBefore = getJpeg64Dimension(image);
+      dimension = getJpeg64Dimension(image);
     }
-
-    let ratio: number = 3 / 4;
-    if (dimensionBefore !== undefined && dimensionBefore.height > 0)
-      ratio = dimensionBefore.width / dimensionBefore.height;
-
-    __DEV__ &&
-      console.log(
-        'Dimension of Image before resize: ' +
-          dimensionBefore.width +
-          'x' +
-          dimensionBefore.height,
+    const maxWidth: number = Math.round(imageWidth(size) * 1.1);
+    if (dimension.width > maxWidth) {//Image is too big so lets resize
+      const tempFolder = 'temp';
+      let resizedImage = await resizeFile(
+        image,
+        maxWidth,
+        dimension.height,
+        'JPEG',
+        75,
+        0,
+        tempFolder,
       );
-    const style = imageStyle(size.toUpperCase(), ratio);
-
-    const tempFolder = 'temp';
-    let resizedImage = await resizeFile(
-      image,
-      style.width,
-      style.height,
-      'JPEG',
-      100,
-      0,
-      tempFolder,
-    );
-    if (isWeb) {
-      image = resizedImage.split(',')[1];
-    } else {
-      image = await RNFS.readFile(resizedImage.path, 'base64');
-      RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
+      if (isWeb) {
+        image = resizedImage.split(',')[1];
+      } else {
+        image = await RNFS.readFile(resizedImage.path, 'base64');
+        RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
+      }
+      const dimensionAfter = getJpeg64Dimension(image);
+      __DEV__ && console.log('Resized image from '+dimension.width +'x' + dimension.height,' to ' +
+        dimensionAfter.width +'x' + dimensionAfter.height+ ' '+Math.round(resizedImage.size/1024)+'Kb');
+      resized = true;
     }
-    const dimensionAfter = getJpeg64Dimension(image);
-    __DEV__ &&
-      console.log(
-        'Resized image to ' +
-          dimensionAfter.width +
-          'x' +
-          dimensionAfter.height,
-      );
-
     this.setState({
-      style: style,
       scaledFile: image,
-      isDirty: true,
+      isDirty: this.state.isDirty || resized,
     });
   }
 
@@ -574,13 +554,13 @@ export class DocumentScanner extends Component {
                       <View style={styles.centeredRowLayout}>
                         {isPdf && (
                           <PdfViewer
-                            style={this.state.style}
+                            style={styles.scannedImage}
                             source={`data:${mimeType},${this.state.scaledFile}`}
                           />
                         )}
                         {!isPdf && (
                           <Image
-                            style={this.state.style}
+                            style={styles.scannedImage}
                             source={{
                               uri: `data:${
                                 mimeType ? mimeType : `image/jpeg;base64`
