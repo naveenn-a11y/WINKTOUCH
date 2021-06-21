@@ -33,7 +33,14 @@ import {
   isWeb,
   windowHeight,
 } from './Styles';
-import {Button, TilesField, Label, SelectionList, Alert} from './Widgets';
+import {
+  Button,
+  TilesField,
+  Label,
+  SelectionList,
+  Alert,
+  TextField,
+} from './Widgets';
 import {FormRow, FormTextInput, FormField, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
 import {fetchWinkRest} from './WinkRest';
@@ -669,7 +676,13 @@ export class FollowUpScreen extends Component<
       : this.props.navigation.state.params.patientInfo;
     const style =
       !isEmpty(patientInfo) && !this.props.isDraft
-        ? [styles.tabCardFollowUp, {maxHeight: windowHeight - 295 * fontScale, minHeight: windowHeight - 295 * fontScale}]
+        ? [
+            styles.tabCardFollowUp,
+            {
+              maxHeight: windowHeight - 295 * fontScale,
+              minHeight: windowHeight - 295 * fontScale,
+            },
+          ]
         : styles.tabCardFollowUp;
     return (
       <View style={style}>
@@ -970,12 +983,15 @@ export class TableListRow extends React.PureComponent {
 
   commitEdit(value: string) {
     if (this.props.onChangeValue && value !== this.props.rowValue.comment) {
-      this.props.rowValue.comment = value;
-      this.props.onChangeValue();
+      if (!(isEmpty(value) && isEmpty(this.props.rowValue.comment))) {
+        this.props.rowValue.comment = value;
+        this.props.onChangeValue();
+      }
     }
   }
   changeText(value: string) {
     this.setState({commentValue: value});
+    this.commitEdit(value);
   }
 
   render() {
@@ -1029,15 +1045,15 @@ export class TableListRow extends React.PureComponent {
             onChangeValue={(code: ?string | ?number) => this.updateValue(code)}
             readonly={this.props.readonly}
           />
-          <TextInput
+
+          <TextField
             returnKeyType="done"
             editable={!this.props.readonly}
             autoCorrect={false}
             autoCapitalize="none"
-            style={commentStyle}
             value={this.state.commentValue}
-            onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
-            onChangeText={(text: string) => this.changeText(text)}
+            style={commentStyle}
+            onChangeValue={(text: string) => this.changeText(text)}
             testID={this.props.fieldId + '.filter'}
           />
         </View>
