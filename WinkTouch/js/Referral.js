@@ -384,10 +384,11 @@ export class ReferralScreen extends Component<
       htmlDefinition: htmlDefinition,
       visitId: stripDataType(visit.id),
       doctorId: stripDataType(this.state.doctorId),
+      key: '{' + selectedKey + '}',
     };
 
     let response = await fetchWinkRest(
-      'webresources/template/key/' + '{' + selectedKey + '}',
+      'webresources/template/key/',
       parameters,
       'POST',
       body,
