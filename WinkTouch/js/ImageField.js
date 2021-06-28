@@ -85,6 +85,7 @@ export async function getBase64Image(image: string) {
     return require('./image/base64/perimetry');
   if (image === './image/champvisuel.png')
     return require('./image/base64/champvisuel');
+  if (image === './image/H.png') return require('./image/base64/H');
   if (image === './image/anteriorOD.png')
     return require('./image/base64/anteriorOD');
   if (image === './image/anteriorOS.png')
