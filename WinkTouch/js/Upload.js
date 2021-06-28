@@ -4,7 +4,7 @@
 'use strict';
 
 import base64 from 'base-64';
-import type {Upload} from './Types';
+import type {Upload, Demension} from './Types';
 import {storeItem, fetchItemById} from './Rest';
 
 export async function storeUpload(upload: Upload): Upload {
@@ -38,7 +38,7 @@ export function getMimeType(upload: ?Upload): string {
 
 export function getJpeg64Dimension(
   base64jpg: string,
-): {width: number, height: number} {
+): Dimension {
   let decodedHeader: string = base64.decode(base64jpg.substring(0, 1024)); //size should be in the first kilo
   let lastByte: number = -1;
   for (var i = 0; i < decodedHeader.length; i++) {
@@ -65,7 +65,7 @@ function toInt32(bytes): number {
 
 export function getPng64Dimension(
   base64png: string,
-): {width: number, height: number} {
+): Dimension {
   let decodedHeader: string = base64.decode(base64png.slice(0, 50));
   let widthBytes = [
     decodedHeader.charCodeAt(16),

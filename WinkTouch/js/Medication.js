@@ -146,7 +146,7 @@ export class PatientMedicationCard extends Component {
     let hasNoAccesAtAll = true;
     this.state.medications.map(
       (item: Prescription) =>
-        (hasNoAccesAtAll &&= 'noaccess' in item ? item.noaccess : false),
+        (hasNoAccesAtAll = hasNoAccesAtAll && 'noaccess' in item ? item.noaccess : false),
     );
     return hasNoAccesAtAll;
   }

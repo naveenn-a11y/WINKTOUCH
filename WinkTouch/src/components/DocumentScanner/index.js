@@ -13,8 +13,10 @@ export default class NativeScanner extends Component {
   }
 
   takePicture = (data: any) => {
+    data.croppedImage = 'image/jpeg;base64,' + data.croppedImage;
     this.props.onPictureTaken(data);
   };
+
   render() {
     return (
       <Scanner
