@@ -288,6 +288,11 @@ export type FieldLayout = {
   height: number,
 };
 
+export type Dimension = {
+  width: number,
+  height: number,
+};
+
 export type GraphDefinition = {
   fields: string[],
 };

@@ -550,14 +550,13 @@ export const styles = StyleSheet.create({
   },
   formFieldLines: {
     flex: 1,
-    paddingRight: 20 * fontScale,
     fontSize: 20 * fontScale,
     minWidth: 100 * fontScale,
     height: 36 * 4.7 * fontScale,
     paddingTop: 6 * fontScale,
     paddingBottom: 4 * fontScale,
     paddingLeft: 6 * fontScale,
-    paddingRight: 3 * fontScale,
+    paddingRight: 20 * fontScale,
     textAlign: 'left',
     backgroundColor: transparantBackgroundColor,
     borderWidth: 1 * fontScale,
@@ -677,7 +676,6 @@ export const styles = StyleSheet.create({
   readOnly: {
     ...tile,
     backgroundColor: 'gray',
-    cursor: 'default',
   },
   popupTileSelected: {
     ...tile,
@@ -860,7 +858,7 @@ export const styles = StyleSheet.create({
   boardTodoS: boardStyle('#ffaabb', 'S'),
   boardTodoM: boardStyle('#ffaabb', 'M'),
   boardTodoL: boardStyle('#ffaabb', 'L'),
-  boardTodoL: boardStyle('#ffaabb', 'XL'),
+  boardTodoXL: boardStyle('#ffaabb', 'XL'),
   historyBoard: boardStyle(backgroundColor, 'L', 278),
   historyBoardSelected: boardStyle(selectionBorderColor, 'L', 278),
   boardStretch: {
@@ -1123,9 +1121,9 @@ export const styles = StyleSheet.create({
     borderColor: 'orange',
     borderWidth: 1,
   },
-  bigImage: {
-    width: 1000 * fontScale,
-    height: 750 * fontScale,
+  scannedImage: {
+    width: (windowWidth - 620) * fontScale,
+    height: 800 * fontScale,
   },
   floatingContainer: {
     position: 'absolute',
@@ -1255,8 +1253,7 @@ export const styles = StyleSheet.create({
     top: 10 * fontScale,
   },
   alertCheckBox: {
-    width:'100%',
-    display:'block',
+    width: '100%',
     fontSize: 18 * fontScale,
     color: fontColor,
   },
@@ -1421,7 +1418,7 @@ function inputFieldStyle(isActive: boolean, hasNewValue: boolean) {
   };
 }
 
-function modalTileLabel(isSelected: boolean, isIcon?: boolean = false) {
+function modalTileLabel(isSelected: boolean, isIcon: boolean = false) {
   return {
     fontSize: (isIcon ? 36 : 26) * fontScale,
     textAlign: 'center',

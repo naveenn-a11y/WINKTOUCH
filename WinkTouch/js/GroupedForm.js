@@ -30,7 +30,6 @@ import {
   DrawingIcon,
   CopyRow,
   CopyColumn,
-  Keyboard,
   ImportIcon,
   ExportIcon,
 } from './Favorites';
@@ -1028,9 +1027,6 @@ export class GroupedForm extends Component {
   hideSnackBar() {
     this.setState({showSnackBar: false});
   }
-  toggleTyping = (): void => {
-    this.setState({isTyping: this.state.isTyping ? false : true});
-  };
 
   formatColumnLabel(column: string): string {
     const columnDefinition:
@@ -1462,8 +1458,6 @@ export class GroupedForm extends Component {
         !this.props.definition.keyboardEnabled)
     )
       return null;
-    const isTyping =
-      this.context.keyboardMode === 'desktop' || this.state.isTyping;
     return [
       <View style={styles.groupIcons} key="icons">
         {this.props.onClear && (
@@ -1478,13 +1472,6 @@ export class GroupedForm extends Component {
             onPress={() => this.props.onAdd()}
             testID={this.props.fieldId + '.plusIcon'}>
             <Plus style={styles.groupIcon} />
-          </TouchableOpacity>
-        )}
-        {this.props.definition.keyboardEnabled && (
-          <TouchableOpacity
-            onPress={this.toggleTyping}
-            testID={this.props.fieldId + '.keyboardIcon'}>
-            <Keyboard style={styles.groupIcon} disabled={isTyping} />
           </TouchableOpacity>
         )}
         {this.props.onAddFavorite && (

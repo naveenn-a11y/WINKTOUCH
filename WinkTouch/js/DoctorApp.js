@@ -49,7 +49,6 @@ import {CustomisationScreen} from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
 import AsyncStorage from '@react-native-community/async-storage';
-import {createBrowserApp} from '@react-navigation/web';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
 import {Provider} from 'react-native-paper';
@@ -106,30 +105,28 @@ function setStore(selectedStore: Store): void {
 
 const DoctorNavigator = createStackNavigator(
   {
-    overview: {screen: OverviewScreen},
-    agenda: {screen: AgendaScreen},
-    findPatient: {screen: FindPatientScreen},
-    appointment: {screen: AppointmentScreen},
-    exam: {screen: ExamScreen},
-    patient: {screen: PatientScreen},
-    cabinet: {screen: CabinetScreen},
-    examGraph: {screen: ExamChartScreen},
-    examHistory: {screen: ExamHistoryScreen},
-    examTemplate: {screen: ExamDefinitionScreen},
-    templates: {screen: TemplatesScreen},
-    configuration: {screen: ConfigurationScreen},
-    referral: {screen: ReferralScreen},
-    followup: {screen: FollowUpScreen},
-    customisation: {screen: CustomisationScreen},
+    overview: {screen: OverviewScreen, path: '/'},
+    agenda: {screen: AgendaScreen, path: '/'},
+    findPatient: {screen: FindPatientScreen, path: '/'},
+    appointment: {screen: AppointmentScreen, path: '/'},
+    exam: {screen: ExamScreen, path: '/'},
+    patient: {screen: PatientScreen, path: '/'},
+    cabinet: {screen: CabinetScreen, path: '/'},
+    examGraph: {screen: ExamChartScreen, path: '/'},
+    examHistory: {screen: ExamHistoryScreen, path: '/'},
+    examTemplate: {screen: ExamDefinitionScreen, path: '/'},
+    templates: {screen: TemplatesScreen, path: '/'},
+    configuration: {screen: ConfigurationScreen, path: '/'},
+    referral: {screen: ReferralScreen, path: '/'},
+    followup: {screen: FollowUpScreen, path: '/'},
+    customisation: {screen: CustomisationScreen, path: '/'},
   },
   {
     headerMode: 'none',
   },
 );
 
-const DocatorAppContainer = isWeb
-  ? createBrowserApp(DoctorNavigator)
-  : createAppContainer(DoctorNavigator);
+const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
 const replaceRoutes: string[] = [

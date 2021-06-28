@@ -85,6 +85,7 @@ export async function getBase64Image(image: string) {
     return require('./image/base64/perimetry');
   if (image === './image/champvisuel.png')
     return require('./image/base64/champvisuel');
+  if (image === './image/H.png') return require('./image/base64/H');
   if (image === './image/anteriorOD.png')
     return require('./image/base64/anteriorOD');
   if (image === './image/anteriorOS.png')
@@ -934,6 +935,21 @@ export class ImageField extends Component {
     );
   }
 
+  isPdf(image: any) {
+    let isPdf: boolean = false;
+    try {
+      const mimeType = image
+        ? image.uri
+          ? image.uri.split(',')[0]
+          : image.split(',')[0]
+        : undefined;
+      isPdf = mimeType ? mimeType.includes('application/pdf') : false;
+    } catch (e) {
+      isPdf = false;
+    }
+    return isPdf;
+  }
+
   requireImage() {
     if (this.state.upload) {
       return {
@@ -944,7 +960,6 @@ export class ImageField extends Component {
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
-
     if (image === undefined || image === 'upload') return undefined;
     if (image === './image/perimetry.png')
       return require('./image/perimetry.png');
@@ -1272,14 +1287,7 @@ export class ImageField extends Component {
 
     const scale: number = style.width / this.resolution()[0];
     const image = this.requireImage();
-    const mimeType = image
-      ? image.uri
-        ? image.uri.split(',')[0]
-        : image.split(',')[0]
-      : undefined;
-    const isPdf: boolean = mimeType
-      ? mimeType.includes('application/pdf')
-      : false;
+    const isPdf: boolean = this.isPdf(image);
 
     if (
       this.props.popup === true &&
