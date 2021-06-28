@@ -1863,9 +1863,9 @@ export class VisitHistory extends Component {
     try {
       visit.inactive = true;
       await updateVisit(visit);
-      let i: number = this.props.visitHistory.indexOf(visitId);
+      let i: number = this.state.history.indexOf(visitId);
       if (i >= 0) {
-        this.props.visitHistory.splice(i, 1);
+        this.state.history.splice(i, 1);
       }
       if (this.state.selectedId === visitId) {
         this.setState({selectedId: undefined});
