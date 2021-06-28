@@ -29,8 +29,8 @@ export let winkRestUrl = __DEV__
 export async function fetchWinkRest(
   uri: string,
   parameters: Object,
-  httpMethod?: string = 'GET',
-  body?: any = undefined,
+  httpMethod: string = 'GET',
+  body?: any,
 ): any {
   const url: string = appendParameters(winkRestUrl + uri, parameters);
   const requestNr = getNextRequestNumber();
@@ -71,8 +71,8 @@ export async function createPdf(
   uri: string,
   filename: string,
   parameters: Object,
-  method?: string = 'post',
-  body?: any = undefined,
+  method: string = 'post',
+  body?: any,
 ): any {
   const url: string = appendParameters(winkRestUrl + uri, parameters);
   __DEV__ &&

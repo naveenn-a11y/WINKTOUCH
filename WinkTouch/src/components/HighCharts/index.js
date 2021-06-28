@@ -1,24 +1,35 @@
 import React, {Component} from 'react';
-import HighchartsReactNative from '@highcharts/highcharts-react-native';
+import ChartView from 'react-native-highcharts';
 
 export class Highcharts extends Component {
   props: {
     useCDN: boolean,
     useSSL: boolean,
     style: any,
-    options: any,
+    conf: any,
   };
 
   constructor(props: any) {
     super(props);
   }
   render() {
+    const options = {
+      global: {
+        useUTC: false,
+        useCDN: this.props.useCDN,
+        useSSL: this.props.useSSL,
+      },
+      lang: {
+        decimalPoint: ',',
+        thousandsSep: '.',
+      },
+    };
     return (
-      <HighchartsReactNative
-        useCDN={this.props.useCDN}
-        useSSL={this.props.useSSL}
-        styles={this.props.style}
-        options={this.props.options}
+      <ChartView
+        style={this.props.style}
+        config={this.props.conf}
+        options={options}
+        originWhitelist={['*']}
       />
     );
   }

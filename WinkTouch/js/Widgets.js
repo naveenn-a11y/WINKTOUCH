@@ -1052,9 +1052,8 @@ export class NumberField extends Component {
       let c = 0;
       for (let i = minInt; i <= maxInt; c++) {
         fractions[2].push(String(i));
-        let stepSize = this.props.stepSize[
-          Math.min(this.props.stepSize.length - 1, c)
-        ];
+        let stepSize =
+          this.props.stepSize[Math.min(this.props.stepSize.length - 1, c)];
         i = i + Math.max(1, stepSize);
       }
     } else {
@@ -2167,6 +2166,7 @@ export class DateField extends Component {
             '1990',
             '2000',
             '2010',
+            '2020',
           ]
       : ['2010', '2020'];
     const dateOptions: string[][] = [
@@ -2520,16 +2520,7 @@ export class DurationField extends Component {
     editedValue: string[],
   };
   static popularDurationMinutes: number[] = [
-    5,
-    10,
-    15,
-    30,
-    45,
-    60,
-    90,
-    120,
-    180,
-    240,
+    5, 10, 15, 30, 45, 60, 90, 120, 180, 240,
   ];
 
   constructor(props: any) {
@@ -2585,9 +2576,8 @@ export class DurationField extends Component {
   combinedValue(): ?Date {
     const totalFormattedValue: string = this.state.editedValue[0];
     if (totalFormattedValue === undefined) return undefined;
-    const selectedIndex: number = this.state.fractions[0].indexOf(
-      totalFormattedValue,
-    );
+    const selectedIndex: number =
+      this.state.fractions[0].indexOf(totalFormattedValue);
     if (selectedIndex < 0) return undefined;
     const minuteDuration = DurationField.popularDurationMinutes[selectedIndex];
     let end = new Date(this.props.startDate.getTime() + minuteDuration * 60000);
