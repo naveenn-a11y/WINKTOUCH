@@ -3,30 +3,19 @@
  */
 'use strict';
 
-import type {
-  FieldDefinition,
-  CodeDefinition,
-  PatientDocument,
-  ImageDrawing,
-  PatientInfo,
-} from './Types';
+import type {FieldDefinition, CodeDefinition} from './Types';
 import React, {Component, PureComponent} from 'react';
 import ReactNative, {
   View,
   Text,
   Image,
-  LayoutAnimation,
-  TouchableHighlight,
   ScrollView,
   Modal,
-  Dimensions,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  InteractionManager,
   TextInput,
   Keyboard,
   FlatList,
-  NativeModules,
 } from 'react-native';
 
 import {
@@ -46,8 +35,6 @@ import {
   fontScale,
   selectionColor,
   selectionFontColor,
-  imageStyle,
-  imageWidth,
   isWeb,
 } from './Styles';
 import {strings} from './Strings';
@@ -70,7 +57,6 @@ import {
   deAccent,
   formatDecimals,
   split,
-  combine,
   formatTime,
   formatHour,
   time24Format,
