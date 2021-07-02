@@ -302,8 +302,10 @@ export class ImageField extends Component {
     ) {
       return;
     }
+
     let upload: Upload = await fetchUpload(imageDrawing.image);
-    if (this.props.value !== imageDrawing) return;
+
+    // if (this.props.value !== imageDrawing) return;
     this.setState({upload, cameraOn: false, attachOn: false});
   }
 
@@ -956,6 +958,7 @@ export class ImageField extends Component {
         uri: `data:${getMimeType(this.state.upload)},${this.state.upload.data}`,
       };
     }
+
     const image: string =
       this.props.value && this.props.value.image
         ? this.props.value.image
