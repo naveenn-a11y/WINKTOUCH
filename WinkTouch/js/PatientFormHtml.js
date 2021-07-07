@@ -864,9 +864,7 @@ async function renderMedia(
       const base64Image = await getBase64Image(image);
       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
-      imageValue = !isWeb
-        ? `<a href ="${filePath}">Pdf Link</a>`
-        : `<label>Not supported !</label>`;
+      imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
     html += imageValue;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
