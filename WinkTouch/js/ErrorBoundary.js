@@ -61,7 +61,6 @@ export default class ErrorBoundary extends Component {
 
               <Card.Actions
                 style={{
-                  flex: 1,
                   justifyContent: 'center',
                   textAlign: 'center',
                 }}>

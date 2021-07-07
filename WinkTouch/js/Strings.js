@@ -231,7 +231,7 @@ export const strings = new LocalizedStrings({
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
     snapshot: 'Snapshot',
-    somethingWentWrongTitle: 'Oops! Something when wrong.',
+    somethingWentWrongTitle: 'Oops! Something went wrong.',
     somethingWentWrongMessage:
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
