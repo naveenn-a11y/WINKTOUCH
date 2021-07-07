@@ -464,7 +464,7 @@ async function printPatientFile(visitId: string) {
   }
 }
 
-export async function transferRx(visitId: string) {
+export async function transferRx(visitId: string): boolean {
   const store: Store = getStore();
   let parameters: {} = {
     idAccounts: store.winkToWinkId,
@@ -476,7 +476,9 @@ export async function transferRx(visitId: string) {
   );
   if (response) {
     RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+    return true;
   }
+  return false;
 }
 
 function compareExams(a: Exam, b: Exam): number {
@@ -1144,9 +1146,11 @@ class VisitWorkFlow extends Component {
   }
 
   async transferRx(visitId: string) {
-    await transferRx(visitId);
-    this.setSnackBarMessage(strings.transferRxSuccess);
-    this.showSnackBar();
+    const rxSuccess: boolean = await transferRx(visitId);
+    if (rxSuccess) {
+      this.setSnackBarMessage(strings.transferRxSuccess);
+      this.showSnackBar();
+    }
   }
 
   selectExam = (exam: Exam) => {
@@ -1863,9 +1867,9 @@ export class VisitHistory extends Component {
     try {
       visit.inactive = true;
       await updateVisit(visit);
-      let i: number = this.props.visitHistory.indexOf(visitId);
+      let i: number = this.state.history.indexOf(visitId);
       if (i >= 0) {
-        this.props.visitHistory.splice(i, 1);
+        this.state.history.splice(i, 1);
       }
       if (this.state.selectedId === visitId) {
         this.setState({selectedId: undefined});
