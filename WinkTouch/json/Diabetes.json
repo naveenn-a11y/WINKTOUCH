@@ -7,7 +7,7 @@
   },
   "name": "Diabetes",
   "scrollable": true,
-  "starable": false,
+  "starable": true,
   "type": "groupedForm",
   "editable": true,
   "section": "History.42",

@@ -4,7 +4,9 @@
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
-import {View, Text, AsyncStorage} from 'react-native';
+import {View, Text} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {Configuration, GroupDefinition} from './Types';
 import {styles} from './Styles';

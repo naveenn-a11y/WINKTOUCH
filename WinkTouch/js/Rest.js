@@ -1,10 +1,17 @@
 /**
  * @flow
  */
+
 'use strict';
 
-import type {FieldDefinitions, RestResponse} from './Types';
-import {capitalize, deepClone} from './Util';
+import type {
+  FieldDefinitions,
+  RestResponse,
+  Privileges,
+  TokenPayload,
+} from './Types';
+import base64 from 'base-64';
+import {capitalize, deepClone, isEmpty} from './Util';
 import {strings, getUserLanguage} from './Strings';
 import {
   cacheItemById,
@@ -19,9 +26,13 @@ import {restVersion} from './Version';
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
 export let restUrl: string = __DEV__
   ? 'http://192.168.2.53:8080/Web/'
-  : 'https://ws-touch.downloadwink.com/' + restVersion + '/';
+  : 'https://emr.downloadwink.com/' + restVersion + '/';
 
 let token: string;
+let privileges: Privileges = {
+  pretestPrivilege: 'NOACCESS',
+  medicalDataPrivilege: 'NOACCESS',
+};
 
 let requestNumber: number = 0;
 
@@ -29,13 +40,43 @@ export function getNextRequestNumber(): number {
   return ++requestNumber;
 }
 
+function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
+  privileges.pretestPrivilege = 'NOACCESS';
+  privileges.medicalDataPrivilege = 'NOACCESS';
+  if (tokenPrivileges === undefined || tokenPrivileges === null) return;
+  if (tokenPrivileges.pre === 'F') {
+    privileges.pretestPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.pre === 'R') {
+    privileges.pretestPrivilege = 'READONLY';
+  }
+  if (tokenPrivileges.med === 'F') {
+    privileges.medicalDataPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.med === 'R') {
+    privileges.medicalDataPrivilege = 'READONLY';
+  }
+}
+
+export function decodeTokenPayload(token: string): ?TokenPayload {
+  if (!token) return null;
+  return JSON.parse(base64.decode(token.split('.')[1]));
+}
+
 export function setToken(newToken: ?string) {
-  if (newToken !== undefined) console.log('Token:' + newToken);
+  __DEV__ && console.log('Set token:' + newToken);
   token = newToken;
+  if (!isEmpty(newToken)) {
+    let payLoad: TokenPayload = decodeTokenPayload(newToken);
+    parsePrivileges(payLoad?payLoad.prv:undefined);
+    __DEV__ && console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+  }
 }
 
 export function getToken(): string {
   return token;
+}
+
+export function getPrivileges(): Privileges {
+  return privileges;
 }
 
 export function getDataType(id: string): string {
@@ -73,7 +114,7 @@ function constructTypeUrl(id: string) {
 
 function clearErrors(item: Object) {
   if (!(item instanceof Object)) return;
-  Object.keys(item).forEach(key => {
+  Object.keys(item).forEach((key) => {
     if (key.endsWith('rror') || key.endsWith('rrors')) {
       delete item[key];
     } else {
@@ -430,7 +471,8 @@ export async function searchItems(list: string, searchCritera: Object): any {
           ' GET ' +
           url +
           ': ' +
-          JSON.stringify(Object.keys(restResponse)),
+          JSON.stringify(Object.keys(restResponse))
+          //JSON.stringify(restResponse)
       );
     if (restResponse.errors) {
       alert(restResponse.errors);
@@ -452,7 +494,11 @@ export async function searchItems(list: string, searchCritera: Object): any {
   }
 }
 
-export async function performActionOnItem(action: string, item: any): any {
+export async function performActionOnItem(
+  action: string,
+  item: any,
+  httpMethod: ?any = 'PUT',
+): any {
   if (
     (item === null) | (item === undefined) ||
     (item instanceof Array && item.length === 0)
@@ -464,7 +510,6 @@ export async function performActionOnItem(action: string, item: any): any {
     getDataType(item instanceof Array ? item[0].id : item.id) +
     '/' +
     encodeURIComponent(action);
-  const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ &&
     console.log(

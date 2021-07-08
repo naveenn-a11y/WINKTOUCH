@@ -339,7 +339,7 @@ export function deAccent(text: string): string {
     ö: 'o',
   };
   let chars = /[àáâãäçèéêëòôõö]/g;
-  return text.replace(chars, char => accents[char]);
+  return text.replace(chars, (char) => accents[char]);
 }
 
 export function isEmpty(value: any): boolean {
@@ -351,7 +351,12 @@ export function isEmpty(value: any): boolean {
     if (value.length === 0) {
       return true;
     } else {
-      return value.reduce((a, v) => a && (v === null || v === undefined), true);
+      for (let i: number = 0; i < value.length; i++) {
+        if (!isEmpty(value[i])) {
+          return false;
+        }
+      }
+      return true;
     }
   } else if (value instanceof Object) {
     if (Object.keys(value).length === 0) return true;
@@ -360,14 +365,13 @@ export function isEmpty(value: any): boolean {
     }
     return true;
   }
-
   return false;
 }
 
 // remove null and undefined
 export function cleanUpArray(a: any[]): any[] {
   return !isEmpty(a) && a instanceof Array
-    ? a.filter(function(v) {
+    ? a.filter(function (v) {
         return v !== null && v !== undefined;
       })
     : a;
@@ -376,12 +380,10 @@ export function cleanUpArray(a: any[]): any[] {
 export function deepAssign(value: Object, newValue: Object): Object {
   for (let [key: string, subNewValue: any] of Object.entries(newValue)) {
     let subValue: any = value[key];
-    if (subValue === undefined || subValue === null) {
+    if (isEmpty(subValue)) {
       value[key] = subNewValue;
     } else if (subNewValue instanceof Array) {
-      if (isEmpty(subValue))
-        subValue[subValue.length - 1] = deepClone(subNewValue[0]);
-      else if (subValue instanceof Array) {
+      if (subValue instanceof Array) {
         subValue.push(...subNewValue);
       } else {
         //silently ignore setting an array on non array
@@ -448,7 +450,10 @@ export function passesFilter(value: Object, filter: {}): boolean {
       filterValue.trim() !== ''
     ) {
       const subValue = value[filterKey];
-      const passesFilter: boolean = subValue === filterValue;
+      const passesFilter: boolean =
+        typeof subValue === 'string'
+          ? subValue.trim().toLowerCase() === filterValue.trim().toLowerCase()
+          : subValue === filterValue;
       if (!passesFilter) return false;
     }
   }

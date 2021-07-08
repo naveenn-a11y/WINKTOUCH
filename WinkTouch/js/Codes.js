@@ -27,6 +27,7 @@ export function formatCodeDefinition(
   descriptionIdentifier?: string,
 ): string {
   if (option === undefined || option === null) return '';
+
   if (descriptionIdentifier !== undefined && descriptionIdentifier !== null) {
     option = option[descriptionIdentifier];
   } else if (option.description !== undefined && option.description !== null) {
@@ -47,7 +48,7 @@ export function getCodeDefinition(
 ): ?CodeDefinition {
   if (code === undefined || code === null) return undefined;
   let codeDefinition: ?CodeDefinition = getAllCodes(codeType).find(
-    x =>
+    (x) =>
       (x.code !== undefined && x.code === code) ||
       (x.code === undefined && x === code),
   );
@@ -108,12 +109,12 @@ export function formatOptions(
   if (!options || options.length === 0) return [];
   let formattedOptions: (string[] | string)[] = [];
   if (options[0] instanceof Array) {
-    formattedOptions = options.map(subOptions =>
+    formattedOptions = options.map((subOptions) =>
       formatOptions(subOptions, descriptionIdentifier),
     );
   } else {
     const includedOptions = new Set();
-    options.forEach(option => {
+    options.forEach((option) => {
       const formattedOption: string = formatCodeDefinition(
         option,
         descriptionIdentifier,
@@ -173,9 +174,8 @@ export function parseCode(
   }
   let codeDefinition: CodeDefinition = getAllCodes(codeType).find(
     (codeDefinition: CodeDefinition) =>
-      formatCodeDefinition(codeDefinition)
-        .trim()
-        .toLowerCase() === trimmedInput,
+      formatCodeDefinition(codeDefinition).trim().toLowerCase() ===
+      trimmedInput,
   );
   let code = input;
   if (codeDefinition !== undefined && codeDefinition !== null) {
