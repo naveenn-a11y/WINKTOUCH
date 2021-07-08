@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {Patient, PatientInfo, Appointment, Visit, Store} from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {Button} from './Widgets';
 import {
@@ -121,7 +121,7 @@ export class FindPatient extends Component {
         return;
       }
     }
-    LayoutAnimation.spring();
+    !isWeb && LayoutAnimation.spring();
     this.setState({
       showPatientList: patients != undefined && patients.length > 0,
       showNewPatientButton:
@@ -137,9 +137,10 @@ export class FindPatient extends Component {
       patients: [],
     });
     this.props.onNewPatient();
-    InteractionManager.runAfterInteractions(() =>
-      LayoutAnimation.easeInEaseOut(),
-    );
+    !isWeb &&
+      InteractionManager.runAfterInteractions(() =>
+        LayoutAnimation.easeInEaseOut(),
+      );
   }
 
   render() {
@@ -208,7 +209,7 @@ export class FindPatientScreen extends Component {
     ) {
       return;
     }
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     const patientDocumentHistory: ?(string[]) = getCachedItem(
       'patientDocumentHistory-' + patientId,
     );
@@ -218,7 +219,7 @@ export class FindPatientScreen extends Component {
   async selectPatient(patient: Patient) {
     if (!patient) {
       if (!this.state.patientInfo) return;
-      LayoutAnimation.easeInEaseOut();
+      !isWeb && LayoutAnimation.easeInEaseOut();
       this.setState({
         patientInfo: undefined,
         visitHistory: undefined,
@@ -228,7 +229,7 @@ export class FindPatientScreen extends Component {
       return;
     }
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({
       patientInfo,
       visitHistory: undefined,
