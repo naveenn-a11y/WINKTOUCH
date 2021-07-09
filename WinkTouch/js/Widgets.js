@@ -3,30 +3,19 @@
  */
 'use strict';
 
-import type {
-  FieldDefinition,
-  CodeDefinition,
-  PatientDocument,
-  ImageDrawing,
-  PatientInfo,
-} from './Types';
+import type {FieldDefinition, CodeDefinition} from './Types';
 import React, {Component, PureComponent} from 'react';
 import ReactNative, {
   View,
   Text,
   Image,
-  LayoutAnimation,
-  TouchableHighlight,
   ScrollView,
   Modal,
-  Dimensions,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  InteractionManager,
   TextInput,
   Keyboard,
   FlatList,
-  NativeModules,
 } from 'react-native';
 
 import {
@@ -46,8 +35,6 @@ import {
   fontScale,
   selectionColor,
   selectionFontColor,
-  imageStyle,
-  imageWidth,
   isWeb,
 } from './Styles';
 import {strings} from './Strings';
@@ -70,7 +57,6 @@ import {
   deAccent,
   formatDecimals,
   split,
-  combine,
   formatTime,
   formatHour,
   time24Format,
@@ -1052,9 +1038,8 @@ export class NumberField extends Component {
       let c = 0;
       for (let i = minInt; i <= maxInt; c++) {
         fractions[2].push(String(i));
-        let stepSize = this.props.stepSize[
-          Math.min(this.props.stepSize.length - 1, c)
-        ];
+        let stepSize =
+          this.props.stepSize[Math.min(this.props.stepSize.length - 1, c)];
         i = i + Math.max(1, stepSize);
       }
     } else {
@@ -2167,6 +2152,7 @@ export class DateField extends Component {
             '1990',
             '2000',
             '2010',
+            '2020',
           ]
       : ['2010', '2020'];
     const dateOptions: string[][] = [
@@ -2520,16 +2506,7 @@ export class DurationField extends Component {
     editedValue: string[],
   };
   static popularDurationMinutes: number[] = [
-    5,
-    10,
-    15,
-    30,
-    45,
-    60,
-    90,
-    120,
-    180,
-    240,
+    5, 10, 15, 30, 45, 60, 90, 120, 180, 240,
   ];
 
   constructor(props: any) {
@@ -2585,9 +2562,8 @@ export class DurationField extends Component {
   combinedValue(): ?Date {
     const totalFormattedValue: string = this.state.editedValue[0];
     if (totalFormattedValue === undefined) return undefined;
-    const selectedIndex: number = this.state.fractions[0].indexOf(
-      totalFormattedValue,
-    );
+    const selectedIndex: number =
+      this.state.fractions[0].indexOf(totalFormattedValue);
     if (selectedIndex < 0) return undefined;
     const minuteDuration = DurationField.popularDurationMinutes[selectedIndex];
     let end = new Date(this.props.startDate.getTime() + minuteDuration * 60000);
@@ -2896,26 +2872,39 @@ export class FloatingButton extends Component {
     //if (!wasActive) setTimeout(() => {this.setState({active: false, options: []})}, 5000);
   };
 
+  renderAlert() {
+    const options: any = this.state.options;
+    if (!options) return null;
+    return (
+      <SelectionDialog
+        visible={this.state.active}
+        label={strings.addExamMessage}
+        options={options}
+        onSelect={(selectedData: any) => {
+          this.toggleActive();
+          this.props.onPress(selectedData);
+        }}
+        onCancel={() => this.toggleActive()}
+      />
+    );
+  }
+
   render() {
     if (!this.state.options) return null;
     return (
-          <FAB.Group
-            open={this.state.active}
-            onStateChange={this.toggleActive}
-            position="bottomRight"
-            fabStyle={styles.floatingButton}
-            icon={this.state.active ? 'minus' : 'plus'}
-            actions={this.state.options.map((option: string, index: number) => {
-              return {
-                icon: 'minus',
-                label: option,
-                onPress: () => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                },
-              };
-            })}
-          />
+      <View style={styles.flow1}>
+        <FAB
+          open={this.state.active}
+          onStateChange={this.toggleActive}
+          position="bottomRight"
+          style={styles.floatingButton}
+          icon={this.state.active ? 'minus' : 'plus'}
+          onPress={() => {
+            this.toggleActive();
+          }}
+        />
+        {this.state.active && this.renderAlert()}
+      </View>
     );
   }
 }
@@ -3208,17 +3197,17 @@ export class SelectionList extends React.PureComponent {
     return data;
   }
 
-  renderItem = ({ item }) => {
+  renderItem = ({item}) => {
     return (
       <SelectionListRow
-      label={item}
-      simpleSelect={this.props.simpleSelect}
-      selected={this.isSelected(item)}
-      onSelect={(isSelected: boolean | string) =>
-        this.select(item, isSelected)
-      }
-      testID={this.props.label + '.option.' + item}
-    />
+        label={item}
+        simpleSelect={this.props.simpleSelect}
+        selected={this.isSelected(item)}
+        onSelect={(isSelected: boolean | string) =>
+          this.select(item, isSelected)
+        }
+        testID={this.props.label + '.option.' + item}
+      />
     );
   };
 
@@ -3324,7 +3313,9 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
   confirmDialog = (selectedData: ?any) => {
     this.setState({visible: false});
-    this.props.onConfirmAction(selectedData === undefined ? this.state.data : selectedData);
+    this.props.onConfirmAction(
+      selectedData === undefined ? this.state.data : selectedData,
+    );
   };
 
   toggleCheckbox(index: number) {
@@ -3342,19 +3333,21 @@ export class Alert extends Component<AlertProps, AlertState> {
           <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
             <Dialog.ScrollArea>
               <ScrollView>
-                {this.state.data.map((importData: any, index: number) => {
+                {this.state.data.map((element: any, index: number) => {
+                  const item: any = element.label ? element.label : element;
                   return this.props.multiValue ? (
                     <CheckButton
-                      isChecked={importData.isChecked}
+                      isChecked={element.isChecked}
                       onSelect={() => this.toggleCheckbox(index)}
                       onDeselect={() => this.toggleCheckbox(index)}
                       style={styles.alertCheckBox}
-                      testID={this.props.testID+'.'+importData.label}
-                      suffix={importData.label}></CheckButton>
+                      testID={this.props.testID + '.' + item}
+                      suffix={item}></CheckButton>
                   ) : (
-                    <Button onPress={() => this.confirmDialog(importData)}>
-                      {importData.label}
-                    </Button>
+                    <NativeBaseButton
+                      onPress={() => this.confirmDialog(element)}>
+                      {item}
+                    </NativeBaseButton>
                   );
                 })}
               </ScrollView>
@@ -3363,7 +3356,9 @@ export class Alert extends Component<AlertProps, AlertState> {
         );
       } else {
         return (
-          <Button onPress={this.confirmDialog}>{this.props.data.label}</Button>
+          <NativeBaseButton onPress={this.confirmDialog}>
+            {this.props.data.label}
+          </NativeBaseButton>
         );
       }
     } else {
@@ -3372,24 +3367,24 @@ export class Alert extends Component<AlertProps, AlertState> {
   }
   render() {
     return (
-        <Portal>
-          <Dialog
-            visible={this.state.visible}
-            onDismiss={this.cancelDialog}
-            dismissable={this.props.dismissable}
-            style={this.props.style}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
-            <Dialog.Content>{this.renderContent()}</Dialog.Content>
-            <Dialog.Actions>
-              <NativeBaseButton onPress={this.cancelDialog}>
-                {this.props.cancelActionLabel}
-              </NativeBaseButton>
-              <NativeBaseButton onPress={this.confirmDialog}>
-                {this.props.confirmActionLabel}
-              </NativeBaseButton>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
@@ -3433,8 +3428,7 @@ export class NoAccess extends Component<NoAccessProps> {
     return (
       <View>
         <Text style={styles.noAccessText}>
-          {(this.props.prefix ? this.props.prefix : '') +
-            strings.noAccess}
+          {(this.props.prefix ? this.props.prefix : '') + strings.noAccess}
         </Text>
       </View>
     );
@@ -3442,18 +3436,21 @@ export class NoAccess extends Component<NoAccessProps> {
 }
 export type SelectionDialogProps = {
   label?: string,
-  options: CodeDefinition[],
-  onSelect?: (option: ?(CodeDefinition)) => void,
+  options: any[],
+  onSelect?: (option: ?any) => void,
   onCancel?: () => void,
   visible: boolean,
   testID?: string,
 };
-export class SelectionDialog extends Component<SelectionDialogProps, SelectionDialogState> {
+export class SelectionDialog extends Component<
+  SelectionDialogProps,
+  SelectionDialogState,
+> {
   constructor(props: SelectionDialogProps) {
     super(props);
   }
 
-  selectOption(option: CodeDefinition): void {
+  selectOption(option: any): void {
     if (option.readonly) return;
     this.props.onSelect(option);
   }
@@ -3465,26 +3462,31 @@ export class SelectionDialog extends Component<SelectionDialogProps, SelectionDi
         accessible={false}
         testID="popupBackground">
         <View style={styles.popupBackground}>
-          {this.props.label && <Text style={styles.modalTitle}>{this.props.label}</Text>}
+          {this.props.label && (
+            <Text style={styles.modalTitle}>{this.props.label}</Text>
+          )}
           <ScrollView>
             <View style={styles.flexColumnLayout}>
               <View style={styles.centeredRowLayout}>
-                  <View style={styles.modalColumn}>
-                    {this.props.options.map((option: CodeDefinition, rowIndex: number) => {
-                      return (
-                        <TouchableOpacity
-                          key={rowIndex}
-                          onPress={() => this.selectOption(option)}
-                          testID={'option' + (rowIndex + 1)}>
-                          <View style={option.readonly ? styles.readOnly : styles.popupTile }>
-                            <Text style={ styles.modalTileLabel }>
-                              {formatCodeDefinition(option)}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
+                <View style={styles.modalColumn}>
+                  {this.props.options.map((option: any, rowIndex: number) => {
+                    return (
+                      <TouchableOpacity
+                        key={rowIndex}
+                        onPress={() => this.selectOption(option)}
+                        testID={'option' + (rowIndex + 1)}>
+                        <View
+                          style={
+                            option.readonly ? styles.readOnly : styles.popupTile
+                          }>
+                          <Text style={styles.modalTileLabel}>
+                            {formatCodeDefinition(option)}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
             </View>
           </ScrollView>

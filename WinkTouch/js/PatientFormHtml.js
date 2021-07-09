@@ -751,7 +751,7 @@ async function renderField(
       } else {
         html += `<span class="img-wrap" style="width:100%">`;
       }
-      const imageValue = await renderImage(
+      const imageValue = await renderMedia(
         value,
         fieldDefinition,
         groupDefinition,
@@ -792,7 +792,7 @@ function extractImageName(image: string) {
   return value;
 }
 
-async function renderImage(
+async function renderMedia(
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
   groupDefinition: GroupDefinition,
@@ -811,11 +811,14 @@ async function renderImage(
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
+  let isPdf: boolean = false;
   if (image.startsWith('upload-')) {
     upload = await loadImage(value);
 
     if (upload) {
-      filePath = `data:${getMimeType(upload)},${upload.data}`;
+      const mimeType: string = getMimeType(upload);
+      isPdf = mimeType ? mimeType.includes('application/pdf') : false;
+      filePath = `data:${mimeType},${upload.data}`;
       fieldAspectRatio = getAspectRatio(upload);
       style = imageStyle(fieldDefinition.size, fieldAspectRatio);
       html += `<div>${formatLabel(exam.definition)}</div>`;
@@ -860,10 +863,10 @@ async function renderImage(
     ) {
       const base64Image = await getBase64Image(image);
       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+    } else if (isPdf) {
+      imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
-
     html += imageValue;
-
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
 

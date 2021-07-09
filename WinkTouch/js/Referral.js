@@ -177,8 +177,8 @@ export class ReferralScreen extends Component<
   }
 
   getPreviousVisits(): ?(CodeDefinition[]) {
-    const patientInfo: PatientInfo = this.props.navigation.state.params
-      .patientInfo;
+    const patientInfo: PatientInfo =
+      this.props.navigation.state.params.patientInfo;
     if (patientInfo === undefined) return undefined;
     return getPreviousVisits(patientInfo.id);
   }
@@ -208,7 +208,8 @@ export class ReferralScreen extends Component<
 
   mapImageWithBase64(template?: string) {
     let referralHtml: string = this.state.referralHtml;
-    const imageBase64Definition: ImageBase64Definition[] = getImageBase64Definition();
+    const imageBase64Definition: ImageBase64Definition[] =
+      getImageBase64Definition();
     if (imageBase64Definition) {
       for (const base64Image: ImageBase64Definition of imageBase64Definition) {
         try {
@@ -246,9 +247,8 @@ export class ReferralScreen extends Component<
     const allExams: string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
     if (exams) {
-      const htmlDefinition: HtmlDefinition[] = await this.retrieveHtmlExamDefinition(
-        exams,
-      );
+      const htmlDefinition: HtmlDefinition[] =
+        await this.retrieveHtmlExamDefinition(exams);
       let body: {} = {};
 
       if (this.state.doctorReferral && this.state.doctorReferral.id) {
@@ -384,10 +384,11 @@ export class ReferralScreen extends Component<
       htmlDefinition: htmlDefinition,
       visitId: stripDataType(visit.id),
       doctorId: stripDataType(this.state.doctorId),
+      key: '{' + selectedKey + '}',
     };
 
     let response = await fetchWinkRest(
-      'webresources/template/key/' + '{' + selectedKey + '}',
+      'webresources/template/key/',
       parameters,
       'POST',
       body,
@@ -937,11 +938,7 @@ export class ReferralScreen extends Component<
           transparent={true}
           animationType={'none'}
           onRequestClose={this.cancelEdit}>
-          <View
-            style={[
-              styles.popupBackground,
-              {justifyContent: 'center', alignItems: 'center'},
-            ]}>
+          <View style={styles.container}>
             {this.state.isLoading && (
               <ActivityIndicator size="large" color={selectionColor} />
             )}
@@ -967,8 +964,8 @@ export class ReferralScreen extends Component<
 
   shouldStartReferral() {
     let doctorReferral: ReferralDefinition = this.state.doctorReferral;
-    let linkedDoctorReferral: ReferralDefinition = this.state
-      .linkedDoctorReferral;
+    let linkedDoctorReferral: ReferralDefinition =
+      this.state.linkedDoctorReferral;
 
     const followUp: Boolean = this.props.navigation.state.params.followUp;
 
