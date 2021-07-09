@@ -40,6 +40,7 @@ import {
   GroupedForm,
   GroupedCard,
   CheckList,
+  addGroupItem,
 } from './GroupedForm';
 import {PaperFormScreen} from './PaperForm';
 import {fetchItemById, storeItem, searchItems} from './Rest';
@@ -481,7 +482,7 @@ export function getExamHistory(exam: Exam): Exam[] {
     } else {
       let examIds: string[] = allExamIds(visit);
       let examLists: Exam[][] = examIds
-      .map((examId: string) => getCachedItem(examId))
+        .map((examId: string) => getCachedItem(examId))
         .filter((exam: Exam) => exam.definition.name === examDefinitionName);
       examArray = [...examArray, examLists[0]];
     }
@@ -541,6 +542,17 @@ export class ExamHistoryScreen extends Component {
     this.forceUpdate(); //TODO update exam
   }
 
+  addHistoryGroupItem = (
+    groupDefinition: GroupDefinition,
+    groupValue: ?{},
+    childValue: ?{},
+  ) => {
+    let exam: Exam = this.props.navigation.state.params.exam;
+    addGroupItem(exam, groupDefinition, groupValue, false, childValue);
+    exam.isDirty = true;
+    this.props.navigation.goBack();
+  };
+
   renderGroup(groupDefinition: GroupDefinition, value: any, index: number) {
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign(
@@ -584,12 +596,20 @@ export class ExamHistoryScreen extends Component {
               <GroupedForm
                 definition={groupDefinition}
                 editable={false}
+                cloneable={true}
                 key={index}
                 form={childValue}
                 patientId={
                   this.state.patient ? this.state.patient.id : undefined
                 }
                 examId={exam.id}
+                onCopy={(groupValue: ?{}) =>
+                  this.addHistoryGroupItem(
+                    groupDefinition,
+                    groupValue,
+                    childValue,
+                  )
+                }
               />
             );
           }
@@ -847,7 +867,7 @@ export class ExamScreen extends Component {
   updateExam = (exam: Exam): void => {
     //__DEV__ && console.log('Examscreen updateExam called');
     if (!this.state.exam.readonly) {
-    this.setState({exam, isDirty: true});
+      this.setState({exam, isDirty: true});
     }
   };
 
