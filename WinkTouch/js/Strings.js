@@ -231,7 +231,7 @@ export const strings = new LocalizedStrings({
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
     snapshot: 'Snapshot',
-    somethingWentWrongTitle: 'Oops! Something when wrong.',
+    somethingWentWrongTitle: 'Oops! Something went wrong.',
     somethingWentWrongMessage:
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
@@ -258,6 +258,9 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Document Category',
     attachment: 'Attachment',
     documentName: 'Document Name',
+    addExamMessage: 'Add a new exam',
+    pdfNotSupported:
+      'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
   },
   fr: {
     enterRegisteredEmail:
@@ -504,7 +507,7 @@ export const strings = new LocalizedStrings({
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
-    startFromVisit: 'Commencer sur la base d\'une consultation précédente',
+    startFromVisit: "Commencer sur la base d'une consultation précédente",
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
     lastUpdateBy: 'Modifié par',
@@ -514,6 +517,9 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Catégorie du document',
     attachment: 'Attachment',
     documentName: 'Nom du document',
+    addExamMessage: 'Ajouter un nouvel examen',
+    pdfNotSupported:
+      'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
   },
 });
 

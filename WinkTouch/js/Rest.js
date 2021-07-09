@@ -10,7 +10,7 @@ import type {
   Privileges,
   TokenPayload,
 } from './Types';
-import {decodeToken} from 'react-jwt';
+import base64 from 'base-64';
 import {capitalize, deepClone, isEmpty} from './Util';
 import {strings, getUserLanguage} from './Strings';
 import {
@@ -25,7 +25,7 @@ import {restVersion} from './Version';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
 export let restUrl: string = __DEV__
-  ? 'http://192.168.88.18:8080/Web/'
+  ? 'http://192.168.2.53:8080/Web/'
   : 'https://emr.downloadwink.com/' + restVersion + '/';
 
 let token: string;
@@ -56,15 +56,19 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   }
 }
 
-export function setToken(newToken: ?string) {
-  __DEV__ && console.log('Token:' + newToken);
-  token = newToken;
-  if (!isEmpty(token)) {
-    let payLoad: TokenPayload = decodeToken(token);
-    parsePrivileges(payLoad.prv);
-    __DEV__ &&
-      console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+export function decodeTokenPayload(token: string): ?TokenPayload {
+  if (!token) return null;
+  return JSON.parse(base64.decode(token.split('.')[1]));
 }
+
+export function setToken(newToken: ?string) {
+  __DEV__ && console.log('Set token:' + newToken);
+  token = newToken;
+  if (!isEmpty(newToken)) {
+    let payLoad: TokenPayload = decodeTokenPayload(newToken);
+    parsePrivileges(payLoad?payLoad.prv:undefined);
+    __DEV__ && console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+  }
 }
 
 export function getToken(): string {
