@@ -754,6 +754,7 @@ export class NumberField extends Component {
   }
 
   splitValue(value: number | string, fractions: string[]): (?string)[] {
+    const originalValue: number | string = value;
     if (value === undefined || value === null)
       return [undefined, undefined, undefined, undefined, undefined];
     //TODO check if value is an option
@@ -778,6 +779,9 @@ export class NumberField extends Component {
             return [undefined, undefined, undefined, undefined, suffix];
           }
           value = parseFloat(value);
+          if (isNaN(value)) {
+            return [undefined, undefined, undefined, undefined, originalValue];
+          }
           break;
         }
       }
