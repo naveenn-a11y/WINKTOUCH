@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   LayoutAnimation,
   ScrollView,
+  Platform,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {NavigationActions} from 'react-navigation';
@@ -25,7 +26,7 @@ import type {
   PatientDocument,
   Upload,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {FormRow, FormTextInput, FormInput, FormField, ErrorCard} from './Form';
 import {ExamCardSpecifics} from './Exam';
@@ -571,7 +572,7 @@ export class CabinetScreen extends Component {
   async selectPatient(patient: Patient) {
     if (!patient) {
       if (!this.state.patientInfo) return;
-      LayoutAnimation.easeInEaseOut();
+      !isWeb && LayoutAnimation.easeInEaseOut();
       this.setState({patientInfo: undefined, appointments: undefined});
       return;
     } else if (
@@ -584,7 +585,7 @@ export class CabinetScreen extends Component {
       return;
     }
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({patientInfo, appointments: undefined});
     patientInfo = await fetchPatientInfo(patient.id);
     if (
@@ -604,7 +605,7 @@ export class CabinetScreen extends Component {
       patient.id !== this.state.patientInfo.id
     )
       return;
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({appointments});
   }
 

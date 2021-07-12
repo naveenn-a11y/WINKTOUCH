@@ -1,6 +1,6 @@
 {
   "name": "Prescription",
-  "label": "Medication",
+  "label": "Medical Rx",
   "addable": true,
   "isAssessment": true,
   "order": 2,

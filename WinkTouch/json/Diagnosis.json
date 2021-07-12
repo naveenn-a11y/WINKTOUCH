@@ -2,6 +2,7 @@
   "isAssessment": true,
   "order": 3,
   "name": "Diagnosis",
+  "scrollable": true,
   "locale": {
     "fr-CA": {
       "label": "Diagnostic",
@@ -19,13 +20,37 @@
         {
           "name": "Diagnosis",
           "label": "Diagnostic"
+        },
+        {
+          "name": "Self paid",
+          "label": "Patient paie",
+          "normalValue": "Non",
+          "defaultValue": "Non",
+          "options": [
+            "Non",
+            "Patient paie"
+          ]
         }
       ]
     }
   },
-  "starable": false,
+  "starable": true,
   "type": "groupedForm",
   "fields": [
+    {
+      "visible": "[visit.appointmentId]",
+      "size": "M",
+      "name": "Insurer",
+      "fields": [
+          {
+              "simpleSelect": true,
+              "name": "supplierId",
+              "options": "insuranceProviders",
+              "label": "Insurer",
+              "mappedField": "visit.supplierId"
+          }
+      ]
+    },
     {
       "name": "Procedure",
       "entity": "procedure",
@@ -38,6 +63,17 @@
           "label": "Procedure",
           "simpleSelect": true,
           "options": "procedureCodes"
+        },
+        {
+          "name": "Self paid",
+          "visible": "[Diagnosis.Insurer.supplierId]",
+          "mappedField": "procedure.isSelfPaid",
+          "normalValue": "No",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Self paid"
+          ]
         },
         {
           "mappedField": "procedure.icd1Code",

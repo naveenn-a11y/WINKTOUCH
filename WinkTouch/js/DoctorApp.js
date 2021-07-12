@@ -3,7 +3,7 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {StatusBar, ScrollView, View, AsyncStorage} from 'react-native';
+import {StatusBar, ScrollView, View} from 'react-native';
 import {
   createAppContainer,
   NavigationActions,
@@ -23,7 +23,7 @@ import type {
   CodeDefinition,
   Configuration,
 } from './Types';
-import {styles} from './Styles';
+import {styles, isWeb} from './Styles';
 import {OverviewScreen} from './Overview';
 import {AppointmentScreen, AppointmentsSummary} from './Appointment';
 import {Reminders} from './Reminders';
@@ -40,7 +40,7 @@ import {
 } from './ExamDefinition';
 import {ExamChartScreen} from './Chart';
 import {setToken} from './Rest';
-import {allExamPredefinedValues} from './Favorites';
+import {allExamPredefinedValues, fetchExamPredefinedValues} from './Favorites';
 import {ConfigurationScreen, getConfiguration} from './Configuration';
 import {deleteLocalFiles} from './Print';
 import {ReferralScreen} from './Referral';
@@ -48,7 +48,11 @@ import {FollowUpScreen} from './FollowUp';
 import {CustomisationScreen} from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
-
+import AsyncStorage from '@react-native-community/async-storage';
+import ErrorBoundary from './ErrorBoundary';
+import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
+import {Provider} from 'react-native-paper';
+import {clearDataCache} from './DataCache';
 let account: Account;
 let doctor: User;
 let store: Store;
@@ -64,9 +68,8 @@ async function setAccount(selectedAccount: Account) {
     const selectedAccountId: number = selectedAccount.id;
     const accountId: number = await AsyncStorage.getItem('accountId');
     accountChanged = accountId != selectedAccountId;
-    if (accountChanged) {
+    if (accountChanged)
       await AsyncStorage.setItem('accountId', selectedAccountId.toString());
-    }
   }
   if (accountChanged) {
     console.log(
@@ -102,21 +105,21 @@ function setStore(selectedStore: Store): void {
 
 const DoctorNavigator = createStackNavigator(
   {
-    overview: {screen: OverviewScreen},
-    agenda: {screen: AgendaScreen},
-    findPatient: {screen: FindPatientScreen},
-    appointment: {screen: AppointmentScreen},
-    exam: {screen: ExamScreen},
-    patient: {screen: PatientScreen},
-    cabinet: {screen: CabinetScreen},
-    examGraph: {screen: ExamChartScreen},
-    examHistory: {screen: ExamHistoryScreen},
-    examTemplate: {screen: ExamDefinitionScreen},
-    templates: {screen: TemplatesScreen},
-    configuration: {screen: ConfigurationScreen},
-    referral: {screen: ReferralScreen},
-    followup: {screen: FollowUpScreen},
-    customisation: {screen: CustomisationScreen},
+    overview: {screen: OverviewScreen, path: '/'},
+    agenda: {screen: AgendaScreen, path: '/'},
+    findPatient: {screen: FindPatientScreen, path: '/'},
+    appointment: {screen: AppointmentScreen, path: '/'},
+    exam: {screen: ExamScreen, path: '/'},
+    patient: {screen: PatientScreen, path: '/'},
+    cabinet: {screen: CabinetScreen, path: '/'},
+    examGraph: {screen: ExamChartScreen, path: '/'},
+    examHistory: {screen: ExamHistoryScreen, path: '/'},
+    examTemplate: {screen: ExamDefinitionScreen, path: '/'},
+    templates: {screen: TemplatesScreen, path: '/'},
+    configuration: {screen: ConfigurationScreen, path: '/'},
+    referral: {screen: ReferralScreen, path: '/'},
+    followup: {screen: FollowUpScreen, path: '/'},
+    customisation: {screen: CustomisationScreen, path: '/'},
   },
   {
     headerMode: 'none',
@@ -141,6 +144,11 @@ DoctorNavigator.router.getStateForAction = (action, state) => {
     }
   }
   let newState = defaultGetStateForAction(action, state);
+
+  if (!state && action.routeName !== 'overview') {
+    newState.routes[0].routeName = 'overview';
+    newState.routes[0].params = {refreshAppointments: false};
+  }
   if (state && action.type === NavigationActions.BACK) {
     if (state.index === 1) {
       newState.routes[0].params = {refreshAppointments: true};
@@ -225,7 +233,7 @@ export class DoctorApp extends Component {
     await allExamDefinitions(true, false);
     await allExamDefinitions(false, false);
     await allExamDefinitions(false, true);
-    await allExamPredefinedValues();
+    await fetchExamPredefinedValues();
     this.forceUpdate();
   }
 
@@ -245,9 +253,11 @@ export class DoctorApp extends Component {
 
   logout = (): void => {
     __DEV__ && console.log('Logging out');
+
     setDoctor(undefined);
     setToken(undefined);
     setStore(undefined);
+    clearDataCache();
     this.props.onLogout();
   };
 
@@ -256,9 +266,7 @@ export class DoctorApp extends Component {
       this.logout();
       return;
     }
-    if (!this.navigator) {
-      return;
-    }
+    if (!this.navigator) return;
     if (routeName === 'back')
       this.navigator.dispatch({type: NavigationActions.BACK});
     else
@@ -276,22 +284,34 @@ export class DoctorApp extends Component {
 
   render() {
     return (
-      <View style={styles.screeen}>
-        <StatusBar hidden={true} />
-        <DocatorAppContainer
-          ref={navigator => (this.navigator = navigator)}
-          screenProps={{
-            doctorId: this.props.user.id,
-            storeId: this.props.store.storeId,
-            onLogout: this.logout,
-          }}
-          onNavigationStateChange={this.navigationStateChanged}
-        />
-        <MenuBar
-          scene={{}}
-          navigation={{state: this.state.currentRoute, navigate: this.navigate}}
-        />
-      </View>
+      <ErrorBoundary>
+        <ModeContextProvider>
+          <Provider>
+            <View style={styles.screeen}>
+              <StatusBar hidden={true} />
+              <DocatorAppContainer
+                ref={(navigator) => (this.navigator = navigator)}
+                screenProps={{
+                  doctorId: this.props.user.id,
+                  storeId: this.props.store.storeId,
+                  onLogout: this.logout,
+                }}
+                onNavigationStateChange={this.navigationStateChanged}
+              />
+              <MenuBar
+                scene={{}}
+                navigation={{
+                  state: this.state.currentRoute,
+                  navigate: this.navigate,
+                }}
+                screenProps={{
+                  onLogout: this.logout,
+                }}
+              />
+            </View>
+          </Provider>
+        </ModeContextProvider>
+      </ErrorBoundary>
     );
   }
 }
