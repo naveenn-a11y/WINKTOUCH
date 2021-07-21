@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {styles, selectionColor} from './Styles';
+import {styles, selectionColor, isWeb} from './Styles';
 import {Button, TilesField, Label, SelectionList, Binoculars} from './Widgets';
 import {FormRow, FormTextInput, FormField, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCodeDefinition} from './Codes';
@@ -30,7 +30,7 @@ import type {
   EmailDefinition,
   FollowUp,
 } from './Types';
-import {allExamIds} from './Visit';
+import {allExamIds, getPreviousVisits} from './Visit';
 import {getCachedItems, getCachedItem} from './DataCache';
 import {renderExamHtml, getExam, UserAction} from './Exam';
 import {stripDataType} from './Rest';
@@ -40,7 +40,7 @@ import {
   patientHeader,
   patientFooter,
 } from './PatientFormHtml';
-import {printHtml, generatePDF} from './Print';
+import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import RNBeep from 'react-native-a-beep';
 import {getStore} from './DoctorApp';
 import {
@@ -53,12 +53,12 @@ import {
   parseDate,
 } from './Util';
 import {strings} from './Strings';
-import {HtmlEditor} from './HtmlEditor';
 import {FollowUpScreen} from './FollowUp';
 import {getVisitHistory} from './Visit';
 import {ManageUsers} from './User';
 import {FormOptions} from './Form';
 import {Microphone} from './Voice';
+import {HtmlEditor} from '../src/components/TinyMceEditor/HtmlEditor';
 
 export function isReferralsEnabled(): boolean {
   const referralTemplates: string[] = getAllCodes('referralTemplates');
@@ -177,46 +177,10 @@ export class ReferralScreen extends Component<
   }
 
   getPreviousVisits(): ?(CodeDefinition[]) {
-    const patientInfo: PatientInfo = this.props.navigation.state.params
-      .patientInfo;
+    const patientInfo: PatientInfo =
+      this.props.navigation.state.params.patientInfo;
     if (patientInfo === undefined) return undefined;
-    let visitHistory: ?(Visit[]) = getVisitHistory(patientInfo.id);
-    if (!visitHistory || visitHistory.length === 0) return undefined;
-    let codeDescriptions: CodeDefinition[] = [];
-    //Check if there is two visits of the same type on the same day
-    let hasDoubles: boolean = false;
-    for (let i: number = 0; i < visitHistory.length - 1; i++) {
-      for (let j: number = i + 1; j < visitHistory.length; j++) {
-        if (
-          isSameDay(
-            parseDate(visitHistory[i].date),
-            parseDate(visitHistory[j].date),
-          )
-        ) {
-          if (visitHistory[i].typeName === visitHistory[j].typeName) {
-            hasDoubles = true;
-            break;
-          }
-        } else {
-          break;
-        }
-        if (hasDoubles) break;
-      }
-    }
-    const dateFormat: string = hasDoubles
-      ? yearDateTime24Format
-      : yearDateFormat;
-    //Format the visits as CodeDefinitions
-    visitHistory.forEach((visit: Visit) => {
-      if (visit.customExamIds || visit.preCustomExamIds) {
-        const code: string = visit.id;
-        const description: string =
-          formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
-        const codeDescription: CodeDefitinion = {code, description};
-        codeDescriptions.push(codeDescription);
-      }
-    });
-    return codeDescriptions;
+    return getPreviousVisits(patientInfo.id);
   }
 
   async componentDidUpdate(prevProps: any) {
@@ -244,15 +208,18 @@ export class ReferralScreen extends Component<
 
   mapImageWithBase64(template?: string) {
     let referralHtml: string = this.state.referralHtml;
-    const imageBase64Definition: ImageBase64Definition[] = getImageBase64Definition();
+    const imageBase64Definition: ImageBase64Definition[] =
+      getImageBase64Definition();
     if (imageBase64Definition) {
       for (const base64Image: ImageBase64Definition of imageBase64Definition) {
-        let regex = new RegExp(base64Image.key, 'g');
-        if (template) {
-          template = template.replace(regex, base64Image.value);
-        } else {
-          referralHtml = referralHtml.replace(regex, base64Image.value);
-        }
+        try {
+          let regex = new RegExp(base64Image.key, 'g');
+          if (template) {
+            template = template.replace(regex, base64Image.value);
+          } else {
+            referralHtml = referralHtml.replace(regex, base64Image.value);
+          }
+        } catch (e) {}
       }
     }
     if (referralHtml !== this.state.referralHtml) {
@@ -280,9 +247,8 @@ export class ReferralScreen extends Component<
     const allExams: string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
     if (exams) {
-      const htmlDefinition: HtmlDefinition[] = await this.retrieveHtmlExamDefinition(
-        exams,
-      );
+      const htmlDefinition: HtmlDefinition[] =
+        await this.retrieveHtmlExamDefinition(exams);
       let body: {} = {};
 
       if (this.state.doctorReferral && this.state.doctorReferral.id) {
@@ -393,6 +359,7 @@ export class ReferralScreen extends Component<
   cancelEdit = () => {
     this.setState({isActive: true});
     this.setState({isPopupVisibile: false});
+    this.setState({command: undefined});
   };
 
   getSelectedKey(): ?string {
@@ -417,10 +384,11 @@ export class ReferralScreen extends Component<
       htmlDefinition: htmlDefinition,
       visitId: stripDataType(visit.id),
       doctorId: stripDataType(this.state.doctorId),
+      key: '{' + selectedKey + '}',
     };
 
     let response = await fetchWinkRest(
-      'webresources/template/key/' + '{' + selectedKey + '}',
+      'webresources/template/key/',
       parameters,
       'POST',
       body,
@@ -759,55 +727,63 @@ export class ReferralScreen extends Component<
 
   renderEditor() {
     return (
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-        <View style={styles.pageEditor}>
-          <HtmlEditor
-            style={styles.page}
-            ref={ref => (this.editor = ref)}
-            value={this.state.referralHtml}
-          />
-        </View>
-        {this.renderTemplateTool()}
-
-        <View style={styles.flow}>
-          <Button
-            title={strings.sign}
-            disabled={this.state.hasSignatureField !== true}
-            onPress={() => this.sign()}
-          />
-          <Button
-            title="Print"
-            onPress={() => this.print()}
-            disabled={!this.state.isActive}
-          />
-          <Button
-            title="Email"
-            onPress={() => this.email()}
-            disabled={!this.state.isActive}
-          />
-          {getStore() !== undefined && getStore().eFaxUsed && (
-            <Button
-              title="Fax"
-              onPress={() => this.fax()}
-              disabled={!this.state.isActive}
+      <View style={{flex: 100, flexDirection: 'column'}}>
+        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+          <View style={styles.pageEditor}>
+            <HtmlEditor
+              style={styles.page}
+              ref={(ref) => (this.editor = ref)}
+              value={this.state.referralHtml}
             />
+          </View>
+          {this.renderTemplateTool()}
+
+          {(this.state.command === COMMAND.EMAIL ||
+            this.state.command === COMMAND.FAX) && (
+            <Modal
+              visible={this.state.isPopupVisibile}
+              transparent={true}
+              animationType={'slide'}
+              onRequestClose={this.cancelEdit}>
+              {this.renderSendPopup()}
+            </Modal>
           )}
+        </View>
+        {this.renderButtons()}
+      </View>
+    );
+  }
+
+  renderButtons() {
+    return (
+      <View style={styles.bottomItems}>
+        <Button
+          title={strings.sign}
+          disabled={this.state.hasSignatureField !== true}
+          onPress={() => this.sign()}
+        />
+        <Button
+          title="Print"
+          onPress={() => this.print()}
+          disabled={!this.state.isActive}
+        />
+        <Button
+          title="Email"
+          onPress={() => this.email()}
+          disabled={!this.state.isActive}
+        />
+        {getStore() !== undefined && getStore().eFaxUsed && (
           <Button
-            title="Save"
-            onPress={() => this.saveAction()}
+            title="Fax"
+            onPress={() => this.fax()}
             disabled={!this.state.isActive}
           />
-        </View>
-        {(this.state.command === COMMAND.EMAIL ||
-          this.state.command === COMMAND.FAX) && (
-          <Modal
-            visible={this.state.isPopupVisibile}
-            transparent={true}
-            animationType={'slide'}
-            onRequestClose={this.cancelEdit}>
-            {this.renderSendPopup()}
-          </Modal>
         )}
+        <Button
+          title="Save"
+          onPress={() => this.saveAction()}
+          disabled={!this.state.isActive}
+        />
       </View>
     );
   }
@@ -825,12 +801,12 @@ export class ReferralScreen extends Component<
       emailDefinition.to = doctorCode !== undefined ? doctorCode.fax : '';
     }
     return (
-      <TouchableWithoutFeedback onPress={this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? {} : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <View style={styles.flexColumnLayout}>
             <View style={styles.form}>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     label="To"
                     value={emailDefinition.to}
@@ -842,7 +818,7 @@ export class ReferralScreen extends Component<
                 </View>
               </FormRow>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     label="Cc"
                     value={emailDefinition.cc}
@@ -854,7 +830,7 @@ export class ReferralScreen extends Component<
                 </View>
               </FormRow>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     label="Subject"
                     value={emailDefinition.subject}
@@ -866,7 +842,7 @@ export class ReferralScreen extends Component<
                 </View>
               </FormRow>
               <FormRow>
-                <View style={styles.rowLayout}>
+                <View style={styles.flexRow}>
                   <FormTextInput
                     multiline={true}
                     label="Body"
@@ -962,11 +938,7 @@ export class ReferralScreen extends Component<
           transparent={true}
           animationType={'none'}
           onRequestClose={this.cancelEdit}>
-          <View
-            style={[
-              styles.popupBackground,
-              {justifyContent: 'center', alignItems: 'center'},
-            ]}>
+          <View style={styles.container}>
             {this.state.isLoading && (
               <ActivityIndicator size="large" color={selectionColor} />
             )}
@@ -992,8 +964,8 @@ export class ReferralScreen extends Component<
 
   shouldStartReferral() {
     let doctorReferral: ReferralDefinition = this.state.doctorReferral;
-    let linkedDoctorReferral: ReferralDefinition = this.state
-      .linkedDoctorReferral;
+    let linkedDoctorReferral: ReferralDefinition =
+      this.state.linkedDoctorReferral;
 
     const followUp: Boolean = this.props.navigation.state.params.followUp;
 
