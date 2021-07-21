@@ -25,7 +25,7 @@
       ]
     }
   },
-  "starable": false,
+  "starable": true,
   "type": "selectionLists",
   "section": "History.60",
   "editable": true,
