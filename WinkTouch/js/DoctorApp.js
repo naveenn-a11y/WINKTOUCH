@@ -53,6 +53,9 @@ import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
 import {Provider} from 'react-native-paper';
 import {clearDataCache} from './DataCache';
+import {cacheDefinitions} from './Items';
+import {getUserLanguage} from './Strings';
+
 let account: Account;
 let doctor: User;
 let store: Store;
@@ -258,6 +261,7 @@ export class DoctorApp extends Component {
     setToken(undefined);
     setStore(undefined);
     clearDataCache();
+    cacheDefinitions(getUserLanguage());
     this.props.onLogout();
   };
 
