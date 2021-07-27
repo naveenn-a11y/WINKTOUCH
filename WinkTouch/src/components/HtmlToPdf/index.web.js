@@ -38,6 +38,7 @@ function getOptions() {
       format: [pageHeight, pageWidth],
       orientation: 'portrait',
     },
+    html2canvas: {scale: 2.5},
   };
   return opt;
 }

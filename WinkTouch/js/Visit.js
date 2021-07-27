@@ -409,9 +409,10 @@ async function printPatientFile(visitId: string) {
       );
       filteredExams.sort(compareExams);
       for (const exam: string of filteredExams) {
-        let xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
-          (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
-        );
+        let xlGroupDefinition: GroupDefinition[] =
+          exam.definition.fields.filter(
+            (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
+          );
         if (xlGroupDefinition && xlGroupDefinition.length > 0) {
           xlExams.push(exam);
         } else {
@@ -1291,6 +1292,26 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  renderVisitPermission() {
+    return (
+      <View style={styles.examsBoard}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.container}>
+            <Card>
+              <Card.Content>
+                <Title style={styles.paragraph}>
+                  {strings.deniedAccessTitle}
+                </Title>
+                <Paragraph style={styles.paragraph}>
+                  {strings.visitDeniedAccessError}
+                </Paragraph>
+              </Card.Content>
+            </Card>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
   renderAssessments() {
     let assessments: Exam[] = getCachedItems(
       this.state.visit.customExamIds,
@@ -1472,13 +1493,11 @@ class VisitWorkFlow extends Component {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
-    const hasMedicalDataReadAccess: boolean = hasVisitMedicalDataReadAccess(
-      visit,
-    );
+    const hasMedicalDataReadAccess: boolean =
+      hasVisitMedicalDataReadAccess(visit);
     const hasPreTestReadAccess: boolean = hasVisitPretestReadAccess(visit);
-    const hasMedicalDataWriteAccess: boolean = hasVisitMedicalDataWriteAccess(
-      visit,
-    );
+    const hasMedicalDataWriteAccess: boolean =
+      hasVisitMedicalDataWriteAccess(visit);
 
     return (
       <View
@@ -1584,13 +1603,14 @@ class VisitWorkFlow extends Component {
     }
 
     const pretestMode: boolean = isEmpty(this.state.visit.userId);
-    let addableExamDefinitions: ExamDefinition[] = this.state.addableExamTypes.filter(
-      (examType: ExamDefinition) =>
-        (pretestMode === true && examType.isPreExam === true) ||
-        (pretestMode === false &&
-          examType.section.substring(0, examType.section.indexOf('.')) ===
-            section),
-    );
+    let addableExamDefinitions: ExamDefinition[] =
+      this.state.addableExamTypes.filter(
+        (examType: ExamDefinition) =>
+          (pretestMode === true && examType.isPreExam === true) ||
+          (pretestMode === false &&
+            examType.section.substring(0, examType.section.indexOf('.')) ===
+              section),
+      );
     addableExamDefinitions = addableExamDefinitions.filter(
       (examType: ExamDefinition) =>
         (examType.isPreExam && hasPreTestWriteAccess) ||
@@ -1736,8 +1756,10 @@ export class VisitHistoryCard extends Component {
     let hasNoAccesAtAll = true;
     this.state.summaries.map(
       (visitSummary: Exam) =>
-        (hasNoAccesAtAll = hasNoAccesAtAll &&
-          'noaccess' in visitSummary ? visitSummary.noaccess : false),
+        (hasNoAccesAtAll =
+          hasNoAccesAtAll && 'noaccess' in visitSummary
+            ? visitSummary.noaccess
+            : false),
     );
     return hasNoAccesAtAll;
   }
