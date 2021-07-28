@@ -66,6 +66,7 @@ import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient, getExam} from './Exam';
 
+
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
   if (!visitHistory) return undefined;
@@ -282,6 +283,17 @@ function getLensometry(visitId: string): GlassesRx {
   lensometry = lensometry[0];
   return lensometry;
 }
+
+function getKeratometry(visitId: string): GlassesRx {
+  if (!visitId) return undefined;
+  let keratometry = getExam('Keratometry', getCachedItem(visitId));
+  if (!keratometry) return undefined;
+  keratometry = keratometry.Keratometry;
+  if (!keratometry) return undefined;
+  keratometry = keratometry.Keratometry;
+  return keratometry;
+}
+
 
 export class VA extends Component {
   state: {
@@ -873,6 +885,7 @@ export class GlassesDetail extends Component {
     const patient: Patient = getPatient(exam);
     let data: any = deepClone(this.props.glassesRx);
     data.lensometry = deepClone(getLensometry(exam.visitId));
+    data.keratometry = deepClone(getKeratometry(exam.visitId));
     let measurement: Measurement = {
       label: this.props.title
         ? this.props.title
