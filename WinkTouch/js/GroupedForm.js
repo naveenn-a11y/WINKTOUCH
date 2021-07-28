@@ -1551,6 +1551,7 @@ export class GroupedForm extends Component {
             <Plus style={styles.groupIcon} />
           </TouchableOpacity>
         )}
+        {this.renderCopyIcon()}
         {this.props.onAddFavorite && (
           <Star
             onAddFavorite={this.props.onAddFavorite}
