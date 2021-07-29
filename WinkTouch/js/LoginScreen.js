@@ -43,13 +43,14 @@ import {
   bundleVersion,
   deploymentVersion,
   restVersion,
+  ecommVersion,
 } from './Version';
 import {fetchCodeDefinitions} from './Codes';
 import {REACT_APP_HOST} from '../env.json';
 
-//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';
+//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationAccounts';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
 let doctorLoginUrl = restUrl + 'login/doctors';
 
 async function fetchAccounts(path: string) {

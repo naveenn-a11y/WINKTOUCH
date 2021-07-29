@@ -27,16 +27,17 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
+  ecommVersion,
 } from './Version';
 
 const securityQuestionsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationQuestions';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' + ecommVersion + '/WinkRegistrationQuestions';
 const securityQuestionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?mac=EMRFree&source=touch';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' + ecommVersion + '/WinkRegistrationEmail?mac=EMRFree&source=touch';
 const registrationUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' + ecommVersion + '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const touchVersionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkTouchVersion';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' + ecommVersion + '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();
