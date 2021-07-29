@@ -2895,20 +2895,18 @@ export class FloatingButton extends Component {
 
   render() {
     if (!this.state.options) return null;
+    if (this.state.active) return this.renderAlert();
     return (
-      <View style={styles.flow1}>
-        <FAB
-          open={this.state.active}
-          onStateChange={this.toggleActive}
-          position="bottomRight"
-          style={styles.floatingButton}
-          icon={this.state.active ? 'minus' : 'plus'}
-          onPress={() => {
-            this.toggleActive();
-          }}
-        />
-        {this.state.active && this.renderAlert()}
-      </View>
+      <FAB
+        open={this.state.active}
+        onStateChange={this.toggleActive}
+        position="bottomRight"
+        style={styles.floatingButton}
+        icon={this.state.active ? 'minus' : 'plus'}
+        onPress={() => {
+          this.toggleActive();
+        }}
+      />
     );
   }
 }
