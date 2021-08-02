@@ -16,7 +16,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   InteractionManager,
-  Linking
+  Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import codePush from 'react-native-code-push';
@@ -50,7 +50,9 @@ import {REACT_APP_HOST} from '../env.json';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationAccounts';
 let doctorLoginUrl = restUrl + 'login/doctors';
 
 async function fetchAccounts(path: string) {
@@ -340,7 +342,9 @@ export class LoginScreen extends Component {
   };
 
   render() {
-    const style = isWeb ? [styles.centeredColumnLayout, {alignItems: 'center'}] : styles.centeredColumnLayout;
+    const style = isWeb
+      ? [styles.centeredColumnLayout, {alignItems: 'center'}]
+      : styles.centeredColumnLayout;
 
     const accountNames: string[] = this.state.accounts.map((account: Account) =>
       this.formatAccount(account),
@@ -449,7 +453,7 @@ export class LoginScreen extends Component {
                   />
                 </View>
               )}
-              <View style={styles.buttonsRowLayout}>
+              <View style={(styles.buttonsRowLayout, {flex: 1})}>
                 <Button
                   title={strings.submitLogin}
                   disabled={account === undefined}
