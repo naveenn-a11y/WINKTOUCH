@@ -453,7 +453,12 @@ export class LoginScreen extends Component {
                   />
                 </View>
               )}
-              <View style={(styles.buttonsRowLayout, {flex: 1})}>
+              <View
+                style={
+                  isWeb
+                    ? (styles.buttonsRowLayout, {flex: 1})
+                    : styles.buttonsRowLayout
+                }>
                 <Button
                   title={strings.submitLogin}
                   disabled={account === undefined}

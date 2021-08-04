@@ -288,7 +288,9 @@ export class RegisterScreen extends Component {
     const style = isWeb
       ? [styles.centeredColumnLayout, {alignItems: 'center'}]
       : styles.centeredColumnLayout;
-    const buttonsRowLayout = [styles.buttonsRowLayout, {flex: 1}];
+    const buttonsRowLayout = isWeb
+      ? [styles.buttonsRowLayout, {flex: 1}]
+      : styles.buttonsRowLayout;
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />
