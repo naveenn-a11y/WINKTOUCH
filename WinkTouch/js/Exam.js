@@ -812,7 +812,6 @@ export class ExamScreen extends Component {
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
     if (this.state.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
-      console.log('EXAMMMM: ' + JSON.stringify(this.state.exam));
       this.storeExam(this.state.exam);
     }
   }
