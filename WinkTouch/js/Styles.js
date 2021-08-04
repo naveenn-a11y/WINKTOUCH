@@ -1253,7 +1253,9 @@ export const styles = StyleSheet.create({
     top: 10 * fontScale,
   },
   alertCheckBox: {
-    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    flex: 1,
     fontSize: 18 * fontScale,
     color: fontColor,
   },

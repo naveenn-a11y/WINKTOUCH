@@ -3332,7 +3332,12 @@ export class Alert extends Component<AlertProps, AlertState> {
     } else if (!isEmpty(this.props.data)) {
       if (this.props.data instanceof Array) {
         return (
-          <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
+          <View
+            style={
+              isWeb
+                ? {Height: 'auto', maxHeight: 200}
+                : {Height: 'auto', maxHeight: 150}
+            }>
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {
