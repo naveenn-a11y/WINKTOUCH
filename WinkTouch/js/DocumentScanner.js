@@ -18,7 +18,7 @@ import {
 import NativeScanner from '../src/components/DocumentScanner';
 import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
-import type { Upload, CodeDefinition, PatientDocument, Dimension } from "./Types";
+import type {Upload, CodeDefinition, PatientDocument, Dimension} from './Types';
 import {
   ClearTile,
   UpdateTile,
@@ -28,7 +28,14 @@ import {
   SizeTile,
   Label,
 } from './Widgets';
-import { styles, fontScale, imageStyle, isWeb, printWidth, imageWidth } from "./Styles";
+import {
+  styles,
+  fontScale,
+  imageStyle,
+  isWeb,
+  printWidth,
+  imageWidth,
+} from './Styles';
 import {
   storeUpload,
   getJpeg64Dimension,
@@ -82,9 +89,8 @@ export class DocumentScanner extends Component {
   constructor(props) {
     super(props);
 
-    const documentCategories: CodeDefinition[] = getAllCodes(
-      'documentCategories',
-    );
+    const documentCategories: CodeDefinition[] =
+      getAllCodes('documentCategories');
     const documentCategory: CodeDefinition = documentCategories.find(
       (dc: CodeDefinition) =>
         (dc.description ? dc.description : dc.code) === this.props.type,
@@ -312,7 +318,8 @@ export class DocumentScanner extends Component {
       dimension = getJpeg64Dimension(image);
     }
     const maxWidth: number = Math.round(imageWidth(size) * 1.1);
-    if (dimension.width > maxWidth) {//Image is too big so lets resize
+    if (dimension.width > maxWidth) {
+      //Image is too big so lets resize
       const tempFolder = 'temp';
       let resizedImage = await resizeFile(
         image,
@@ -330,8 +337,17 @@ export class DocumentScanner extends Component {
         RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
       }
       const dimensionAfter = getJpeg64Dimension(image);
-      __DEV__ && console.log('Resized image from '+dimension.width +'x' + dimension.height,' to ' +
-        dimensionAfter.width +'x' + dimensionAfter.height+ ' '+Math.round(resizedImage.size/1024)+'Kb');
+      __DEV__ &&
+        console.log(
+          'Resized image from ' + dimension.width + 'x' + dimension.height,
+          ' to ' +
+            dimensionAfter.width +
+            'x' +
+            dimensionAfter.height +
+            ' ' +
+            Math.round(resizedImage.size / 1024) +
+            'Kb',
+        );
       resized = true;
     }
     this.setState({
@@ -346,6 +362,13 @@ export class DocumentScanner extends Component {
 
   sizeOnChange = (field: name) => {
     if (field === undefined || field === null || field === '') return;
+    if (
+      this.state.file === undefined ||
+      this.state.file === null ||
+      this.state.file === ''
+    )
+      return;
+
     const mimeType: string = this.state.file.split(',')[0];
     const base64Data: string = this.state.file.split(',')[1];
     if (field === 'size-s') {
@@ -397,9 +420,8 @@ export class DocumentScanner extends Component {
   }
 
   renderDocumentCategories() {
-    const documentCategories: CodeDefinition[] = getAllCodes(
-      'documentCategories',
-    );
+    const documentCategories: CodeDefinition[] =
+      getAllCodes('documentCategories');
 
     return (
       documentCategories &&
