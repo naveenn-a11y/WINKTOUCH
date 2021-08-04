@@ -99,6 +99,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: backgroundColor,
   },
+  columnScreenLayout: {
+    flex: 100,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    justifyContent: 'flex-start',
+    backgroundColor: backgroundColor,
+  },
   page: {
     flex: 100,
     flexDirection: 'column',
@@ -1077,7 +1084,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   examIconsFlex: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },

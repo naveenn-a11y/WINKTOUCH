@@ -1044,7 +1044,7 @@ export class ExamScreen extends Component {
   renderExamIcons() {
     if (this.state.exam.definition.card === false) return;
     return (
-      <View style={isWeb ? styles.examIconsFlex : styles.examIcons}>
+      <View style={styles.examIconsFlex}>
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
         {this.renderPencilIcon()}
@@ -1110,7 +1110,7 @@ export class ExamScreen extends Component {
       );
     return (
       <KeyboardAwareScrollView
-        contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
+        contentContainerStyle={styles.columnScreenLayout}
         scrollEnabled={isWeb}>
         {this.renderExamIcons()}
         <View style={styles.centeredColumnLayout}>
