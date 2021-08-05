@@ -99,6 +99,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: backgroundColor,
   },
+  columnScreenLayout: {
+    flexGrow: 100,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    backgroundColor: backgroundColor,
+  },
 
   page: {
     flex: 100,
@@ -1333,7 +1340,9 @@ function boardStyle(
     maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
     maxHeight:
-      isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
+      isWeb && (size === 'M' || size === 'S')
+        ? 800 * fontScale
+        : 600 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,
