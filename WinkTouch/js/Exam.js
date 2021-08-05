@@ -1110,8 +1110,8 @@ export class ExamScreen extends Component {
       );
     return (
       <KeyboardAwareScrollView
-        contentContainerStyle={styles.columnScreenLayout}
-        scrollEnabled={isWeb}>
+        contentContainerStyle={{backgroundColor: 'white'}}
+        scrollEnabled={true}>
         {this.renderExamIcons()}
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />

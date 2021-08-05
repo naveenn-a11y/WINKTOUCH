@@ -99,13 +99,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: backgroundColor,
   },
-  columnScreenLayout: {
-    flex: 100,
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    justifyContent: 'flex-start',
-    backgroundColor: backgroundColor,
-  },
+
   page: {
     flex: 100,
     flexDirection: 'column',
