@@ -1323,7 +1323,6 @@ function boardStyle(
       ? 340
       : 340;
   return {
-    flex: isWeb ? 100 : 0,
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
@@ -1344,6 +1343,8 @@ function boardStyle(
       height: 0.3,
       width: 0.3,
     },
+    flexGrow: 1,
+    flexShrink: 1,
   };
 }
 
