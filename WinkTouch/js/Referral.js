@@ -13,6 +13,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -862,7 +863,10 @@ export class ReferralScreen extends Component<
                 />
                 <Button
                   title={strings.send}
-                  onPress={() => this.send()}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    this.send();
+                  }}
                   disabled={!this.state.isActive}
                 />
               </View>
