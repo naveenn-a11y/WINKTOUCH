@@ -318,38 +318,38 @@ export class DocumentScanner extends Component {
       dimension = getJpeg64Dimension(image);
     }
     const maxWidth: number = Math.round(imageWidth(size) * 1.1);
-    if (dimension.width > maxWidth) {
-      //Image is too big so lets resize
-      const tempFolder = 'temp';
-      let resizedImage = await resizeFile(
-        image,
-        maxWidth,
-        dimension.height,
-        'JPEG',
-        75,
-        0,
-        tempFolder,
-      );
-      if (isWeb) {
-        image = resizedImage.split(',')[1];
-      } else {
-        image = await RNFS.readFile(resizedImage.path, 'base64');
-        RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
-      }
-      const dimensionAfter = getJpeg64Dimension(image);
-      __DEV__ &&
-        console.log(
-          'Resized image from ' + dimension.width + 'x' + dimension.height,
-          ' to ' +
-            dimensionAfter.width +
-            'x' +
-            dimensionAfter.height +
-            ' ' +
-            Math.round(resizedImage.size / 1024) +
-            'Kb',
-        );
-      resized = true;
+
+    //Image is too big so lets resize
+    const tempFolder = 'temp';
+    let resizedImage = await resizeFile(
+      image,
+      dimension.width > maxWidth ? maxWidth : dimension.width,
+      dimension.height,
+      'JPEG',
+      75,
+      0,
+      tempFolder,
+    );
+    if (isWeb) {
+      image = resizedImage.split(',')[1];
+    } else {
+      image = await RNFS.readFile(resizedImage.path, 'base64');
+      RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
     }
+    const dimensionAfter = getJpeg64Dimension(image);
+    __DEV__ &&
+      console.log(
+        'Resized image from ' + dimension.width + 'x' + dimension.height,
+        ' to ' +
+          dimensionAfter.width +
+          'x' +
+          dimensionAfter.height +
+          ' ' +
+          Math.round(resizedImage.size / 1024) +
+          'Kb',
+      );
+    resized = true;
+
     this.setState({
       scaledFile: image,
       isDirty: this.state.isDirty || resized,
