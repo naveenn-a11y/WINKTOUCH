@@ -9,46 +9,28 @@ import React, {Component} from 'react';
 import ReactNative, {
   View,
   Text,
-  Image,
-  LayoutAnimation,
-  TouchableHighlight,
-  ScrollView,
   Modal,
-  Dimensions,
   TouchableOpacity,
   TouchableWithoutFeedback,
   InteractionManager,
   TextInput,
   Keyboard,
   FlatList,
-  NativeModules,
 } from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {
   styles,
   fontScale,
   selectionColor,
   selectionFontColor,
-  fieldBorderColor,
   isWeb,
   windowHeight,
 } from './Styles';
-import {
-  Button,
-  TilesField,
-  Label,
-  SelectionList,
-  Alert,
-  TextField,
-} from './Widgets';
-import {FormRow, FormTextInput, FormField, FormCode} from './Form';
+import {Button, TilesField, Alert, TextField} from './Widgets';
+import {FormRow, FormTextInput, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
 import {fetchWinkRest} from './WinkRest';
 import type {
   PatientInfo,
-  HtmlDefinition,
-  ReferralDocument,
-  ImageBase64Definition,
   ReferralDefinition,
   CodeDefinition,
   EmailDefinition,
@@ -56,15 +38,15 @@ import type {
   ReferralStatusCode,
   Upload,
 } from './Types';
-import {allExamIds, fetchReferralFollowUpHistory} from './Visit';
-import {getCachedItems, getCachedItem, cacheItem} from './DataCache';
+import {fetchReferralFollowUpHistory} from './Visit';
+import {getCachedItem, cacheItem} from './DataCache';
 
 import {stripDataType} from './Rest';
 import RNBeep from 'react-native-a-beep';
-import {getStore, getDoctor} from './DoctorApp';
+import {getDoctor} from './DoctorApp';
 import {strings} from './Strings';
 import {getMimeType} from './Upload';
-import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
+import {printHtml} from '../src/components/HtmlToPdf';
 import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {fetchPatientInfo} from './Patient';
@@ -878,7 +860,10 @@ export class FollowUpScreen extends Component<
                 />
                 <Button
                   title={strings.send}
-                  onPress={() => this.send()}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    this.send();
+                  }}
                   disabled={!this.state.isActive}
                 />
               </View>
