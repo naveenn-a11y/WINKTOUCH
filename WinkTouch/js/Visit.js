@@ -801,9 +801,6 @@ class VisitWorkFlow extends Component {
       this.props.navigation.setParams({refreshFollowUp: false});
       await fetchReferralFollowUpHistory(patientInfo.id);
     }
-    if (params && params.refresh) {
-      await fetchItemById(this.props.visitId, true);
-    }
     const visit: Visit = getCachedItem(this.props.visitId);
     const rxToOrder = this.findRxToOrder(visit);
     if (
