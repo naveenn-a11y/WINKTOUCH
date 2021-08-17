@@ -2,7 +2,7 @@
   "name": "Medical condition",
   "type": "groupedForm",
   "section": "History.10",
-  "starable": false,
+  "starable": true,
   "addable": false,
   "editable": true,
   "fields": [
