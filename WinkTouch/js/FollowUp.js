@@ -560,6 +560,8 @@ export class FollowUpScreen extends Component<
   shouldActivateResend() {
     const selectedItem: FollowUp = this.state.selectedItem;
     if (!selectedItem) return false;
+    const params = this.props.navigation.state.params;
+    if (params && params.overview) return false;
 
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
@@ -597,7 +599,8 @@ export class FollowUpScreen extends Component<
   shouldActivateForward() {
     const selectedItem: FollowUp = this.state.selectedItem;
     if (!selectedItem) return false;
-
+    const params = this.props.navigation.state.params;
+    if (params && params.overview) return false;
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
       this.state.selectedItem.status,
