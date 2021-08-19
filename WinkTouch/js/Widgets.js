@@ -2895,20 +2895,18 @@ export class FloatingButton extends Component {
 
   render() {
     if (!this.state.options) return null;
+    if (this.state.active) return this.renderAlert();
     return (
-      <View style={styles.flow1}>
-        <FAB
-          open={this.state.active}
-          onStateChange={this.toggleActive}
-          position="bottomRight"
-          style={styles.floatingButton}
-          icon={this.state.active ? 'minus' : 'plus'}
-          onPress={() => {
-            this.toggleActive();
-          }}
-        />
-        {this.state.active && this.renderAlert()}
-      </View>
+      <FAB
+        open={this.state.active}
+        onStateChange={this.toggleActive}
+        position="bottomRight"
+        style={styles.floatingButton}
+        icon={this.state.active ? 'minus' : 'plus'}
+        onPress={() => {
+          this.toggleActive();
+        }}
+      />
     );
   }
 }
@@ -3334,7 +3332,12 @@ export class Alert extends Component<AlertProps, AlertState> {
     } else if (!isEmpty(this.props.data)) {
       if (this.props.data instanceof Array) {
         return (
-          <View style={isWeb ? {Height: 'auto', maxHeight: 200} : undefined}>
+          <View
+            style={
+              isWeb
+                ? {Height: 'auto', maxHeight: 200}
+                : {Height: 'auto', maxHeight: 150}
+            }>
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {

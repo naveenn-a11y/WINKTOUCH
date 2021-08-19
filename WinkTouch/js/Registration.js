@@ -27,16 +27,25 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
+  ecommVersion,
 } from './Version';
 
 const securityQuestionsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationQuestions';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationQuestions';
 const securityQuestionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?mac=EMRFree&source=touch';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationEmail?mac=EMRFree&source=touch';
 const registrationUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const touchVersionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkTouchVersion';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();
@@ -279,6 +288,9 @@ export class RegisterScreen extends Component {
     const style = isWeb
       ? [styles.centeredColumnLayout, {alignItems: 'center'}]
       : styles.centeredColumnLayout;
+    const buttonsRowLayout = isWeb
+      ? [styles.buttonsRowLayout, {flex: 1}]
+      : styles.buttonsRowLayout;
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />
@@ -312,7 +324,7 @@ export class RegisterScreen extends Component {
                       />
                     </View>
                   </View>
-                  <View style={styles.buttonsRowLayout}>
+                  <View style={buttonsRowLayout}>
                     <Button
                       title={strings.connectToPms}
                       onPress={() => this.submitEmail(true)}
@@ -358,7 +370,7 @@ export class RegisterScreen extends Component {
                       testID={'securityAnswerInput'}
                     />
                   </View>
-                  <View style={styles.buttonsRowLayout}>
+                  <View style={buttonsRowLayout}>
                     <Button
                       title={strings.submitSecurityAnswer}
                       onPress={() => this.submitSecurityAnswer()}
