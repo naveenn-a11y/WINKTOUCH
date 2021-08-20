@@ -44,7 +44,7 @@ import {
   formatDate,
   now,
   jsonDateTimeFormat,
-  dateTimeFormat,
+  yearDateTimeFormat,
   isEmpty,
   compareDates,
   isToyear,
@@ -1267,7 +1267,7 @@ class VisitWorkFlow extends Component {
             {strings.signedOn}:{' '}
             {formatDate(
               this.state.visit.prescription.signedDate,
-              yearDateFormat,
+              yearDateTimeFormat,
             )}
           </Text>
         )}
@@ -1276,7 +1276,7 @@ class VisitWorkFlow extends Component {
             {strings.lockedOn}:{' '}
             {formatDate(
               this.state.visit.consultationDetail.lockedOn,
-              dateTimeFormat,
+              yearDateTimeFormat,
             )}
           </Text>
         )}
@@ -1285,7 +1285,7 @@ class VisitWorkFlow extends Component {
             {strings.lastUpdateOn}:{' '}
             {formatDate(
               this.state.visit.consultationDetail.lastUpdateOn,
-              dateTimeFormat,
+              yearDateTimeFormat,
             )}
           </Text>
         )}
