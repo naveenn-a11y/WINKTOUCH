@@ -201,6 +201,13 @@ function hasVisitPretestWriteAccess(visit: Visit): boolean {
   return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
 }
 
+export function visitHasStarted(visit: string | Visit): boolean {
+  if (visit instanceof Object === false) {
+    visit = getCachedItem(visit);
+  }
+  return visit.customExamIds !== undefined && visit.customExamIds.length > 0;
+}
+
 export function visitHasEnded(visit: string | Visit): boolean {
   if (visit instanceof Object === false) {
     visit = getCachedItem(visit);
@@ -1662,11 +1669,12 @@ class VisitWorkFlow extends Component {
         </View>
       );
     }
-
-    const pretestMode: boolean = isEmpty(this.state.visit.userId);
-
+    const pretestStarted: boolean = pretestHasStarted(this.state.visit);
+    const visitStarted: boolean = visitHasStarted(this.state.visit);
+    const pretestMode: boolean =
+      (isEmpty(this.state.visit.userId) && !visitStarted) ||
+      (isEmpty(this.state.visit.userId) && !visitStarted && !pretestStarted);
     if (pretestMode) {
-      const pretestStarted: boolean = pretestHasStarted(this.state.visit);
       const showStartVisitButtons: boolean =
         !this.props.readonly &&
         ((hasVisitPretestWriteAccess(this.state.visit) && !pretestStarted) ||
