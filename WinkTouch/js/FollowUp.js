@@ -787,7 +787,7 @@ export class FollowUpScreen extends Component<
             disabled={!this.state.isActive}
           />
         )}
-        {this.state.selectedItem && !isDraft && (
+        {this.state.selectedItem && !isDraft && visit && (
           <Button
             title={strings.openFile}
             onPress={() => this.openPatientFile()}
