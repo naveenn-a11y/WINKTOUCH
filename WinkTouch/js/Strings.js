@@ -176,6 +176,7 @@ export const strings = new LocalizedStrings({
     deleteVisitTitle: 'Delete consultation',
     deleteVisitQuestion:
       'Are you sure you want to permanently delete the {0} of {1} ?',
+    deletedVisitMessage: 'Cannot open deleted visits !',
     findPatient: 'Search by patient name or #Z',
     findDoctor: "Search by doctor's name",
     visit: 'Consultation',
@@ -436,6 +437,7 @@ export const strings = new LocalizedStrings({
     deleteVisitTitle: 'Supprimer une consultation',
     deleteVisitQuestion:
       'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
+    deletedVisitMessage: "Impossible d'ouvrir les visites supprimées !",
     findPatient: 'Entrer le nom du patient ou le #Z',
     findDoctor: 'Entrer le nom du docteur',
     visit: 'Consultation',

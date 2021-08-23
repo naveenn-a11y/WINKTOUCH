@@ -38,7 +38,7 @@ import type {
   ReferralStatusCode,
   Upload,
 } from './Types';
-import {fetchReferralFollowUpHistory} from './Visit';
+import {fetchReferralFollowUpHistory, fetchVisit} from './Visit';
 import {getCachedItem, cacheItem} from './DataCache';
 
 import {stripDataType} from './Rest';
@@ -480,14 +480,20 @@ export class FollowUpScreen extends Component<
         ? await fetchPatientInfo(selectedItem.patientInfo.id)
         : patientInfo;
     const params = this.props.navigation.state.params;
-    if (params && params.overview) {
-      this.props.navigation.navigate('appointment', {
-        patientInfo: patientInfo,
-        selectedVisitId: selectedItem.visitId,
-        refreshStateKey: this.props.navigation.state.key,
-      });
+    let visit: Visit = getCachedItem(selectedItem.visitId);
+    if (visit === undefined) visit = await fetchVisit(selectedItem.visitId);
+    if (visit && !visit.inactive) {
+      if (params && params.overview) {
+        this.props.navigation.navigate('appointment', {
+          patientInfo: patientInfo,
+          selectedVisitId: selectedItem.visitId,
+          refreshStateKey: this.props.navigation.state.key,
+        });
+      } else {
+        this.props.onUpdateVisitSelection(selectedItem.visitId);
+      }
     } else {
-      this.props.onUpdateVisitSelection(selectedItem.visitId);
+      alert(strings.deletedVisitMessage);
     }
   }
 
@@ -787,7 +793,7 @@ export class FollowUpScreen extends Component<
             disabled={!this.state.isActive}
           />
         )}
-        {this.state.selectedItem && !isDraft && visit && (
+        {this.state.selectedItem && !isDraft && (
           <Button
             title={strings.openFile}
             onPress={() => this.openPatientFile()}
