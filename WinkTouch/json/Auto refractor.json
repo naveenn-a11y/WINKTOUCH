@@ -21,6 +21,7 @@
   "fields": [
     {
       "hasAdd": false,
+      "hasNotes": true,
       "name": "Auto refractor",
       "multiValue": true,
       "type": "SRx",
