@@ -25,7 +25,13 @@ import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
 
-export async function printRx(visitId: string, printFinalRx: boolean, printPDs: boolean, printNotesOnRx: boolean, drRecommendationArray: string[]) {
+export async function printRx(
+  visitId: string,
+  printFinalRx: boolean,
+  printPDs: boolean,
+  printNotesOnRx: boolean,
+  drRecommendationArray: string[],
+) {
   try {
     const filename: string = 'Rx.pdf';
     const path = await createPdf(
@@ -290,7 +296,10 @@ function addMedicalRxLines(
   let y: number = pageHeight - border - 280;
   prescriptions.forEach((prescription, i) => {
     let formattedRxLine: string = prescription.Label;
-    if (labelsArray.indexOf(strings.all) !== -1 ||  labelsArray.indexOf(formattedRxLine) !== -1) {
+    if (
+      labelsArray.indexOf(strings.all) !== -1 ||
+      labelsArray.indexOf(formattedRxLine) !== -1
+    ) {
       formattedRxLine += prefix(prescription.Strength, ', ');
       formattedRxLine += prefix(prescription.Dosage, ', ');
       formattedRxLine += prefix(prescription.Frequency, ', ');
@@ -311,6 +320,12 @@ function addMedicalRxLines(
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
       }
+      formattedRxLine = prefix(prescription.Eye, '       ');
+
+      if (formattedRxLine) {
+        page.drawText(formattedRxLine, {x, y, size: fontSize});
+        y -= fontSize * 1.15;
+      }
       const commentLine: string = prescription.Comment;
       if (commentLine) {
         y -= fontSize * 0.5;
@@ -321,7 +336,8 @@ function addMedicalRxLines(
         });
       }
       y -= fontSize;
-  }});
+    }
+  });
 }
 
 async function addSignatureWeb(
