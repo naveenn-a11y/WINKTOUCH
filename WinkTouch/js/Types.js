@@ -40,6 +40,7 @@ export type Store = {
   winkToWinkId?: number,
   winkToWinkEmail?: string,
   eFaxUsed?: boolean,
+  fax?: string,
 };
 
 export type Account = {
@@ -68,6 +69,7 @@ export type User = {
   postalcode?: string,
   city?: string,
   isExternal: boolean,
+  providerType?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
@@ -273,11 +275,11 @@ export type ConsultationDetail = {
 };
 
 export type CodeDefinition =
-  {
+  | {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
-      readonly? : boolean,
+      readonly?: boolean,
     }
   | string;
 
