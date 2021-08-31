@@ -262,6 +262,7 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Add a new exam',
     pdfNotSupported:
       'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
+    dob: 'DOB',
   },
   fr: {
     enterRegisteredEmail:
@@ -522,6 +523,7 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Ajouter un nouvel examen',
     pdfNotSupported:
       'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
+    dob: 'Date de Naissance',
   },
 });
 
