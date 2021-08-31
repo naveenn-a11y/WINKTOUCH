@@ -8,7 +8,14 @@ import type {User, PatientInfo, Visit} from './Types';
 import RNFS from 'react-native-fs';
 import {strings} from './Strings';
 import {createPdf} from './WinkRest';
-import {formatDate, now, officialDateFormat, prefix, postfix} from './Util';
+import {
+  formatDate,
+  now,
+  officialDateFormat,
+  prefix,
+  postfix,
+  isEmpty,
+} from './Util';
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
 import {getDoctor, getStore} from './DoctorApp';
@@ -25,7 +32,13 @@ import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
 
-export async function printRx(visitId: string, printFinalRx: boolean, printPDs: boolean, printNotesOnRx: boolean, drRecommendationArray: string[]) {
+export async function printRx(
+  visitId: string,
+  printFinalRx: boolean,
+  printPDs: boolean,
+  printNotesOnRx: boolean,
+  drRecommendationArray: string[],
+) {
   try {
     const filename: string = 'Rx.pdf';
     const path = await createPdf(
@@ -170,7 +183,7 @@ function addDrHeader(
   if (!doctor) {
     return;
   }
-  const leftBorder: number = pageWidth - 120 - border;
+  const leftBorder: number = pageWidth - 180 - border;
   const top: number = pageHeight - border;
   let x: number = leftBorder;
   let y: number = top;
@@ -180,6 +193,7 @@ function addDrHeader(
   page.drawText(
     doctor.firstName +
       prefix(doctor.lastName, ' ') +
+      prefix(doctor.providerType, ' - ') +
       prefix(doctor.license, ' - '),
     {x, y, size: fontSize},
   );
@@ -188,17 +202,32 @@ function addDrHeader(
     return;
   }
   page.drawText(
-    store.streetNumber + ' ' + store.streetName + prefix(store.unit, ', '),
+    postfix(store.unit, '-') + store.streetNumber + ' ' + store.streetName,
     {x, y, size: fontSize},
   );
   y -= fontSize * 1.15;
-  page.drawText(store.postalCode + ' ' + store.city, {
+  page.drawText(store.city + prefix(store.pr, ', '), {
     x,
     y,
     size: fontSize,
   });
-  y -= 2 * fontSize;
-  page.drawText(store.telephone, {x, y, size: fontSize});
+  if (!isEmpty(store.postalCode)) {
+    y -= fontSize * 1.15;
+    page.drawText(store.postalCode, {
+      x,
+      y,
+      size: fontSize,
+    });
+  }
+
+  if (!isEmpty(store.telephone)) {
+    y -= 2 * fontSize;
+    page.drawText(prefix(store.telephone, 'T: '), {x, y, size: fontSize});
+  }
+  if (!isEmpty(store.fax)) {
+    y -= 2 * fontSize;
+    page.drawText(prefix(store.fax, 'F: '), {x, y, size: fontSize});
+  }
 }
 
 function addCurrentDate(page: PDFPage, pageHeight: number, border: number) {
@@ -239,23 +268,35 @@ function addPatientHeader(
   });
   y -= (fontSize + 2) * 1.15;
   page.drawText(
-    postfix(patient.streetNumber, ' ') +
-      patient.streetName +
-      prefix(patient.unit, ', '),
+    postfix(patient.unit, '-') +
+      postfix(patient.streetNumber, ' ') +
+      patient.streetName,
     {x, y, size: fontSize},
   );
   x = column2;
-  page.drawText(prefix(patient.dateOfBirth, ''), {x, y, size: fontSize});
+  page.drawText(prefix(patient.dateOfBirth, strings.dob + ': '), {
+    x,
+    y,
+    size: fontSize,
+  });
   x = column1;
   y -= fontSize * 1.15;
-  page.drawText(patient.city, {x, y, size: fontSize});
+  page.drawText(patient.city + prefix(patient.province, ', '), {
+    x,
+    y,
+    size: fontSize,
+  });
   x = column2;
-  page.drawText('' + patient.medicalCard, {x, y, size: fontSize});
+  page.drawText(prefix(patient.medicalCard, strings.healthCard + ': '), {
+    x,
+    y,
+    size: fontSize,
+  });
   x = column1;
   y -= fontSize * 1.15;
   page.drawText('' + patient.postalCode, {x, y, size: fontSize});
   x = column2;
-  page.drawText('' + patient.cell + ' ' + patient.phone, {
+  page.drawText(prefix(patient.cell + ' ' + patient.phone, 'T: '), {
     x,
     y,
     size: fontSize,
@@ -290,7 +331,10 @@ function addMedicalRxLines(
   let y: number = pageHeight - border - 280;
   prescriptions.forEach((prescription, i) => {
     let formattedRxLine: string = prescription.Label;
-    if (labelsArray.indexOf(strings.all) !== -1 ||  labelsArray.indexOf(formattedRxLine) !== -1) {
+    if (
+      labelsArray.indexOf(strings.all) !== -1 ||
+      labelsArray.indexOf(formattedRxLine) !== -1
+    ) {
       formattedRxLine += prefix(prescription.Strength, ', ');
       formattedRxLine += prefix(prescription.Dosage, ', ');
       formattedRxLine += prefix(prescription.Frequency, ', ');
@@ -311,6 +355,12 @@ function addMedicalRxLines(
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
       }
+      formattedRxLine = prefix(prescription.Eye, '       ');
+
+      if (formattedRxLine) {
+        page.drawText(formattedRxLine, {x, y, size: fontSize});
+        y -= fontSize * 1.15;
+      }
       const commentLine: string = prescription.Comment;
       if (commentLine) {
         y -= fontSize * 0.5;
@@ -321,7 +371,8 @@ function addMedicalRxLines(
         });
       }
       y -= fontSize;
-  }});
+    }
+  });
 }
 
 async function addSignatureWeb(
