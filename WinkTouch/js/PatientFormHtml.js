@@ -855,12 +855,7 @@ async function renderMedia(
           value: `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
         });
       }
-    } else if (
-      isWeb &&
-      (image.startsWith('./image') ||
-        image.startsWith('http:') ||
-        image.startsWith('https:'))
-    ) {
+    } else if (isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
