@@ -621,6 +621,7 @@ export class GlassesSummary extends Component {
           this.props.glassesRx.lensType != '' && (
             <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>
           )}
+
         {this.props.glassesRx.noaccess ? (
           <NoAccess />
         ) : (
@@ -737,6 +738,11 @@ export class GlassesSummary extends Component {
             </View>
           </View>
         )}
+        {!isEmpty(this.props.glassesRx.pd) && (
+          <Text style={styles.text}>
+            {strings.binocularPd}: {this.props.glassesRx.pd}
+          </Text>
+        )}
       </View>
     );
   }
@@ -753,6 +759,7 @@ export class GlassesDetail extends Component {
     hasVA?: boolean,
     hasAdd?: boolean,
     hasLensType?: boolean,
+    hasPD?: boolean,
     hasNotes?: boolean,
     titleStyle?: string,
     style?: string,
@@ -1020,6 +1027,25 @@ export class GlassesDetail extends Component {
                 }
                 errorMessage={this.props.glassesRx.lensTypeError}
                 testID={this.props.fieldId + '.lensType'}
+              />
+            </View>
+          )}
+          {this.props.hasPD && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.pd}
+                definition={filterFieldDefinition(
+                  this.props.definition.fields,
+                  'pd',
+                )}
+                readonly={!this.props.editable}
+                onChangeValue={(value: ?string) =>
+                  this.updateGlassesRx(undefined, 'pd', value)
+                }
+                isTyping={isTyping}
+                autoFocus={true}
+                errorMessage={this.props.glassesRx.pdError}
+                testID={this.props.fieldId + '.pd'}
               />
             </View>
           )}

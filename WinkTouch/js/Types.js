@@ -273,11 +273,11 @@ export type ConsultationDetail = {
 };
 
 export type CodeDefinition =
-  {
+  | {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
-      readonly? : boolean,
+      readonly?: boolean,
     }
   | string;
 
@@ -371,6 +371,7 @@ export type GroupDefinition = {
   hasVA?: boolean,
   hasAdd?: boolean,
   hasLensType?: boolean,
+  hasPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
