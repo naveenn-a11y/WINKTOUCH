@@ -244,6 +244,7 @@ export const strings = new LocalizedStrings({
     noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
     pd: 'PD',
+    binocularPd: 'Binocular PD',
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
@@ -506,6 +507,7 @@ export const strings = new LocalizedStrings({
     noAccess: 'Vous n’avez pas accès à cette information',
     printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
     pd: 'PD',
+    binocularPd: 'PD Binoculaire',
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',

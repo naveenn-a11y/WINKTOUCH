@@ -373,6 +373,7 @@ export type GroupDefinition = {
   hasVA?: boolean,
   hasAdd?: boolean,
   hasLensType?: boolean,
+  hasPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
