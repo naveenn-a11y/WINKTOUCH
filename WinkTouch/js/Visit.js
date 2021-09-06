@@ -44,7 +44,7 @@ import {
   formatDate,
   now,
   jsonDateTimeFormat,
-  dateTimeFormat,
+  yearDateTimeFormat,
   isEmpty,
   compareDates,
   isToyear,
@@ -199,6 +199,13 @@ function hasVisitMedicalDataWriteAccess(visit: Visit): boolean {
 function hasVisitPretestWriteAccess(visit: Visit): boolean {
   if (!visit) return false;
   return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
+}
+
+export function visitHasStarted(visit: string | Visit): boolean {
+  if (visit instanceof Object === false) {
+    visit = getCachedItem(visit);
+  }
+  return visit.customExamIds !== undefined && visit.customExamIds.length > 0;
 }
 
 export function visitHasEnded(visit: string | Visit): boolean {
@@ -801,9 +808,6 @@ class VisitWorkFlow extends Component {
       this.props.navigation.setParams({refreshFollowUp: false});
       await fetchReferralFollowUpHistory(patientInfo.id);
     }
-    if (params && params.refresh) {
-      await fetchItemById(this.props.visitId, true);
-    }
     const visit: Visit = getCachedItem(this.props.visitId);
     const rxToOrder = this.findRxToOrder(visit);
     if (
@@ -1263,7 +1267,7 @@ class VisitWorkFlow extends Component {
             {strings.signedOn}:{' '}
             {formatDate(
               this.state.visit.prescription.signedDate,
-              yearDateFormat,
+              yearDateTimeFormat,
             )}
           </Text>
         )}
@@ -1272,7 +1276,7 @@ class VisitWorkFlow extends Component {
             {strings.lockedOn}:{' '}
             {formatDate(
               this.state.visit.consultationDetail.lockedOn,
-              dateTimeFormat,
+              yearDateTimeFormat,
             )}
           </Text>
         )}
@@ -1281,7 +1285,7 @@ class VisitWorkFlow extends Component {
             {strings.lastUpdateOn}:{' '}
             {formatDate(
               this.state.visit.consultationDetail.lastUpdateOn,
-              dateTimeFormat,
+              yearDateTimeFormat,
             )}
           </Text>
         )}
@@ -1665,11 +1669,12 @@ class VisitWorkFlow extends Component {
         </View>
       );
     }
-
-    const pretestMode: boolean = isEmpty(this.state.visit.userId);
-
+    const pretestStarted: boolean = pretestHasStarted(this.state.visit);
+    const visitStarted: boolean = visitHasStarted(this.state.visit);
+    const pretestMode: boolean =
+      (isEmpty(this.state.visit.userId) && !visitStarted) ||
+      (isEmpty(this.state.visit.userId) && !visitStarted && !pretestStarted);
     if (pretestMode) {
-      const pretestStarted: boolean = pretestHasStarted(this.state.visit);
       const showStartVisitButtons: boolean =
         !this.props.readonly &&
         ((hasVisitPretestWriteAccess(this.state.visit) && !pretestStarted) ||

@@ -1077,7 +1077,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   examIconsFlex: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
@@ -1324,7 +1323,6 @@ function boardStyle(
       ? 340
       : 340;
   return {
-    flex: isWeb ? 100 : 0,
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
@@ -1345,6 +1343,8 @@ function boardStyle(
       height: 0.3,
       width: 0.3,
     },
+    flexGrow: 1,
+    flexShrink: 1,
   };
 }
 

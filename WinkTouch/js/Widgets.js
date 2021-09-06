@@ -324,7 +324,6 @@ export class TextField extends Component {
   }
 
   commitEdit(value: string) {
-    this.setState({value});
     if (this.props.onChangeValue && value !== this.props.value)
       this.props.onChangeValue(value);
   }
@@ -370,7 +369,7 @@ export class TextField extends Component {
             style={style}
             onFocus={this.props.onFocus}
             onChangeText={this.updateText}
-            onBlur={(event) => this.commitEdit(event.nativeEvent.text)}
+            onBlur={() => this.commitEdit(this.state.value)}
             autoFocus={this.props.autoFocus}
             editable={!this.props.readonly}
             multiline={this.props.multiline}
@@ -387,7 +386,7 @@ export class TextField extends Component {
             style={style}
             onFocus={this.props.onFocus}
             onChangeText={this.updateText}
-            onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
+            onEndEditing={() => this.commitEdit(this.state.value)}
             autoFocus={this.props.autoFocus}
             editable={!this.props.readonly}
             multiline={this.props.multiline}

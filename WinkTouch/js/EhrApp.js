@@ -224,7 +224,7 @@ export class EhrApp extends Component {
     const path: string = await AsyncStorage.getItem('path');
     const registration: Registration = {email, bundle, path};
     console.log(
-      'WinkTouch app is registered to : ' +
+      'WINKemr app is registered to : ' +
         email +
         ' bundle: ' +
         bundle +
