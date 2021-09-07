@@ -15,7 +15,6 @@ import {
 import {styles, windowHeight} from './Styles';
 import {strings} from './Strings';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import tailwind from 'tailwind-rn';
 import dayjs from 'dayjs';
 
 export const themes: Record<string, PartialTheme> = {
@@ -197,10 +196,6 @@ export class AgendaScreen extends Component {
     this.setState({mode: 'month'});
   };
   render() {
-    const pickerStyle = [
-      tailwind('border-gray-300 py-1 px-2 rounded text-gray-700 text-base'),
-      tailwind('bg-white text-gray-700'),
-    ];
     return (
       <View style={styles.page}>
         <View
