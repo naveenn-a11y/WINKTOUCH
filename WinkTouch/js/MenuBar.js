@@ -89,7 +89,7 @@ export class MenuBar extends PureComponent {
       <View style={styles.sideMenu}>
         <Image source={require('./image/menulogo.png')} />
         <Button
-          title={strings.agenda}
+          title={strings.calendar}
           onPress={() => this.props.navigation.navigate('agenda')}
         />
         {(scene === 'appointment' || exam) && (
@@ -129,7 +129,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {(isAtWink || __DEV__ ) &&
+        {(isAtWink || __DEV__) &&
           scene === 'overview' &&
           'en-CA' === getUserLanguage() && (
             <Button

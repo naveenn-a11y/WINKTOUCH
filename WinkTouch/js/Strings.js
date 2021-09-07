@@ -38,7 +38,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       'Something went wrong trying to get the accounts from the server. Please try again.',
     loginFailed: 'Login failed',
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graph',
@@ -293,7 +293,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graphique',
