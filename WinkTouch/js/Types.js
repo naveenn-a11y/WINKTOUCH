@@ -175,8 +175,8 @@ export type Appointment = {
   patientId: string,
   userId: string,
   title: string,
-  start: string,
-  end: string,
+  start: string | Date,
+  end: string | Date,
   status: number,
   appointmentTypes?: string[],
   indicators?: string[],
@@ -273,11 +273,11 @@ export type ConsultationDetail = {
 };
 
 export type CodeDefinition =
-  {
+  | {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
-      readonly? : boolean,
+      readonly?: boolean,
     }
   | string;
 

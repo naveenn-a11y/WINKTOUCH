@@ -228,6 +228,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'No data found to import !',
     consultationDate: 'Consultation date',
     close: 'Close',
+    open: 'Open',
     transferRxSuccess: 'Rx transferred successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
@@ -262,6 +263,9 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Add a new exam',
     pdfNotSupported:
       'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
+    previous: 'Previous',
+    next: 'Next',
+    weeks: 'Weeks',
   },
   fr: {
     enterRegisteredEmail:
@@ -489,6 +493,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'Aucun élément trouvée !',
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
+    open: 'Ouvrir',
     transferRxSuccess: 'Rx transféré avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
@@ -522,6 +527,9 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Ajouter un nouvel examen',
     pdfNotSupported:
       'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
+    previous: 'Précédent',
+    next: 'Suivant',
+    weeks: 'Semaines',
   },
 });
 
