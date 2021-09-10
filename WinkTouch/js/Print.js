@@ -29,7 +29,7 @@ import {
 import {winkRestUrl, fetchWinkRest} from './WinkRest';
 import {isWeb} from './Styles';
 import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
 
 export async function printRx(

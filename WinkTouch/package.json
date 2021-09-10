@@ -22,7 +22,7 @@
     "build:staging": "npm run env:staging && cd web && webpack --env prod"
   },
   "dependencies": {
-    "@react-native-community/async-storage": "^1.12.1",
+    "@react-native-async-storage/async-storage": "^1.15.7",
     "@react-native-community/datetimepicker": "^3.0.8",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/progress-view": "^1.2.3",

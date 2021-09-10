@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LocalizedStrings from 'react-native-localization';
 import Moment from 'moment';
 import {cacheDefinitions} from './Items';
