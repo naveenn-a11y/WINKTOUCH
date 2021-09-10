@@ -38,7 +38,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       'Something went wrong trying to get the accounts from the server. Please try again.',
     loginFailed: 'Login failed',
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graph',
@@ -228,6 +228,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'No data found to import !',
     consultationDate: 'Consultation date',
     close: 'Close',
+    open: 'Open',
     transferRxSuccess: 'Rx transferred successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
@@ -264,6 +265,9 @@ export const strings = new LocalizedStrings({
     pdfNotSupported:
       'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
     dob: 'DOB',
+    previous: 'Previous',
+    next: 'Next',
+    weeks: 'Weeks',
   },
   fr: {
     enterRegisteredEmail:
@@ -295,7 +299,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graphique',
@@ -491,6 +495,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'Aucun élément trouvée !',
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
+    open: 'Ouvrir',
     transferRxSuccess: 'Rx transféré avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
@@ -526,6 +531,9 @@ export const strings = new LocalizedStrings({
     pdfNotSupported:
       'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
     dob: 'Date de Naissance',
+    previous: 'Précédent',
+    next: 'Suivant',
+    weeks: 'Semaines',
   },
 });
 
