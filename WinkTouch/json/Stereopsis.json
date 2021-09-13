@@ -1,5 +1,6 @@
 {
   "name": "Stereopsis",
+  "starable": true,
   "locale": {
     "fr-CA": {
       "label": "Stéréoscopie",
@@ -30,6 +31,7 @@
       ]
     }
   },
+  "starable": true,
   "type": "groupedForm",
   "section": "Entrance testing.5",
   "fields": [

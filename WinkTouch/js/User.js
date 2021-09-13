@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import type {User} from './Types';
-import {styles} from './Styles';
+import {styles, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {searchItems, fetchItemById, storeItem} from './Rest';
 import {Button, SelectionListRow} from './Widgets';
@@ -227,7 +227,7 @@ export class FindUser extends PureComponent<FindUserProps, FindUserState> {
         return;
       }
     }
-    LayoutAnimation.spring();
+    !isWeb && LayoutAnimation.spring();
     this.setState({
       showUserList: users != undefined && users.length > 0,
       showNewUserButton: users === undefined || users.length < maxUserListSize,

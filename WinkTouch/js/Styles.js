@@ -1,4 +1,10 @@
-import {StyleSheet, Dimensions, Platform, UIManager} from 'react-native';
+import {
+  StyleSheet,
+  Dimensions,
+  Platform,
+  UIManager,
+  PixelRatio,
+} from 'react-native';
 
 export const windowWidth: number =
   Dimensions.get('window').width < Dimensions.get('window').height
@@ -21,8 +27,16 @@ __DEV__ &&
       fontScale,
   );
 
+export const widthPercentageToDP = (widthPercent) => {
+  const width = parseFloat(widthPercent);
+  return PixelRatio.roundToNearestPixel((windowWidth * width) / 100);
+};
+
+export const defaultFontSize = 26 * fontScale;
+
 export const isIos = Platform.OS === 'ios';
 export const isAndroid = Platform.OS === 'android';
+export const isWeb = Platform.OS === 'web';
 
 if (isAndroid) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -137,14 +151,14 @@ export const styles = StyleSheet.create({
     margin: 10 * fontScale,
   },
   screenTitle: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     fontWeight: '500',
     textAlign: 'center',
     margin: 12 * fontScale,
     marginTop: 30 * fontScale,
   },
   screenTitleSelected: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     textAlign: 'center',
     margin: 8 * fontScale,
     color: selectionFontColor,
@@ -203,6 +217,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18 * fontScale,
   },
+  noAccessText: {
+    fontSize: 18 * fontScale,
+    fontStyle: 'italic',
+  },
   textLeft: {
     fontSize: 18 * fontScale,
     maxWidth: 400 * fontScale,
@@ -233,14 +251,14 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
   },
   textfield: {
-    padding: 26 * fontScale * (isIos ? 1 : 0.2),
-    fontSize: 26 * fontScale,
+    padding: defaultFontSize * (isIos ? 1 : 0.2),
+    fontSize: defaultFontSize,
     textAlign: 'center',
     borderRadius: 6 * fontScale,
     shadowRadius: 3 * fontScale,
   },
   searchField: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
     minWidth: 200 * fontScale,
     padding: 6 * fontScale,
@@ -252,7 +270,7 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
   },
   field400: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
     minWidth: 400 * fontScale,
     padding: 6 * fontScale,
@@ -265,7 +283,7 @@ export const styles = StyleSheet.create({
     margin: 3 * fontScale,
   },
   dropdownButtonIos: {
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     padding: 10 * fontScale,
     textAlign: 'center',
     borderColor: 'gray',
@@ -308,7 +326,7 @@ export const styles = StyleSheet.create({
     color: selectionFontColor,
     textAlign: 'center',
     padding: 10 * fontScale,
-    fontSize: 26 * fontScale,
+    fontSize: defaultFontSize,
     fontWeight: 'bold',
   },
   linkButton: {
@@ -317,7 +335,7 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
     fontSize: 22 * fontScale,
   },
-  backButton: {
+  menuButton: {
     width: 130 * fontScale,
     height: 100 * fontScale,
     borderRadius: 65 * fontScale,
@@ -326,7 +344,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#2dc3c3',
   },
-  backIcon: {
+  menuIcon: {
     color: 'white',
     fontSize: 50 * fontScale,
   },
@@ -370,7 +388,7 @@ export const styles = StyleSheet.create({
     margin: 0 * fontScale,
   },
   columnLayout: {
-    flex: 0,
+    flex: isWeb ? 1 : 0,
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
@@ -382,10 +400,11 @@ export const styles = StyleSheet.create({
   },
   centeredColumnLayout: {
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: isWeb ? 'stretch' : 'center',
     justifyContent: 'center',
     margin: 0 * fontScale,
   },
+
   examPreview: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -531,14 +550,13 @@ export const styles = StyleSheet.create({
   },
   formFieldLines: {
     flex: 1,
-    paddingRight: 20 * fontScale,
     fontSize: 20 * fontScale,
     minWidth: 100 * fontScale,
     height: 36 * 4.7 * fontScale,
     paddingTop: 6 * fontScale,
     paddingBottom: 4 * fontScale,
     paddingLeft: 6 * fontScale,
-    paddingRight: 3 * fontScale,
+    paddingRight: 20 * fontScale,
     textAlign: 'left',
     backgroundColor: transparantBackgroundColor,
     borderWidth: 1 * fontScale,
@@ -655,6 +673,10 @@ export const styles = StyleSheet.create({
   popupTile: {
     ...tile,
   },
+  readOnly: {
+    ...tile,
+    backgroundColor: 'gray',
+  },
   popupTileSelected: {
     ...tile,
     backgroundColor: selectionBackgroundColor,
@@ -700,46 +722,21 @@ export const styles = StyleSheet.create({
     color: 'white',
     flexWrap: 'nowrap',
   },
-  tabCardFollowUp1: {
-    flexGrow: 100,
+
+  tabCardFollowUp: {
+    flex: 100,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
     padding: 10 * fontScale,
     paddingBottom: 40 * fontScale,
     minHeight: 200 * fontScale,
-    maxHeight: windowHeight - 295 * fontScale,
     minWidth: 333 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: selectionFontColor,
     borderWidth: 2 * fontScale,
     margin: 7 * fontScale,
   },
-  tabCardFollowUp2: {
-    flexGrow: 100,
-    padding: 10 * fontScale,
-    paddingBottom: 40 * fontScale,
-    minHeight: 200 * fontScale,
-    maxHeight: windowHeight - 550 * fontScale,
-    minWidth: 333 * fontScale,
-    borderRadius: 30 * fontScale,
-    borderColor: selectionFontColor,
-    borderWidth: 2 * fontScale,
-    margin: 7 * fontScale,
-  },
-  followUpList1: {
-    flexGrow: 100,
-    padding: 10 * fontScale,
-    minHeight: 200 * fontScale,
-    maxHeight: windowHeight - 395 * fontScale,
-    minWidth: 333 * fontScale,
-    margin: 7 * fontScale,
-  },
-  followUpList2: {
-    flexGrow: 100,
-    padding: 10 * fontScale,
-    minHeight: 200 * fontScale,
-    maxHeight: windowHeight - 650 * fontScale,
-    minWidth: 333 * fontScale,
-    margin: 7 * fontScale,
-  },
+
   tabCard: {
     flexGrow: 100,
     padding: 10 * fontScale,
@@ -800,6 +797,7 @@ export const styles = StyleSheet.create({
     borderColor: selectionFontColor,
     borderWidth: 2 * fontScale,
     margin: 7 * fontScale,
+    flexShrink: isWeb ? 100 : 0,
   },
   startVisitCard: {
     backgroundColor: sectionBackgroundColor,
@@ -849,6 +847,7 @@ export const styles = StyleSheet.create({
   examCard: examCardStyle('gray'),
   todoExamCard: examCardStyle('orange'),
   finishedExamCard: examCardStyle('green'),
+  unverifiedExamCard: examCardStyle('red'),
   board: boardStyle('#dddddd'),
   boardSelected: boardStyle(selectionBorderColor),
   boardS: boardStyle('#dddddd', 'S'),
@@ -859,12 +858,13 @@ export const styles = StyleSheet.create({
   boardTodoS: boardStyle('#ffaabb', 'S'),
   boardTodoM: boardStyle('#ffaabb', 'M'),
   boardTodoL: boardStyle('#ffaabb', 'L'),
-  boardTodoL: boardStyle('#ffaabb', 'XL'),
+  boardTodoXL: boardStyle('#ffaabb', 'XL'),
   historyBoard: boardStyle(backgroundColor, 'L', 278),
   historyBoardSelected: boardStyle(selectionBorderColor, 'L', 278),
   boardStretch: {
     width: 530 * fontScale,
-    height: 285 * fontScale,
+    height: isWeb ? undefined : 285 * fontScale,
+    maxHeight: isWeb ? 585 * fontScale : undefined,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -881,7 +881,8 @@ export const styles = StyleSheet.create({
   boardStretchL: {
     flexShrink: 1,
     width: 1080 * fontScale,
-    height: 285 * fontScale,
+    height: isWeb ? undefined : 285 * fontScale,
+    maxHeight: isWeb ? 585 * fontScale : undefined,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -908,7 +909,7 @@ export const styles = StyleSheet.create({
   wideFavorites: {
     flexShrink: 1,
     width: 1080 * fontScale,
-    height: 145 * fontScale,
+    height: isWeb ? undefined : 145 * fontScale,
     padding: 10 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: '#dddddd',
@@ -957,6 +958,10 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
     backgroundColor: 'white',
     margin: 3 * fontScale,
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
   },
   listRowSelected: {
     flex: 10,
@@ -1071,6 +1076,10 @@ export const styles = StyleSheet.create({
     right: -10 * fontScale,
     flexDirection: 'row',
   },
+  examIconsFlex: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   drawingIcons: {
     position: 'absolute',
     top: 40 * fontScale,
@@ -1111,9 +1120,9 @@ export const styles = StyleSheet.create({
     borderColor: 'orange',
     borderWidth: 1,
   },
-  bigImage: {
-    width: 1000 * fontScale,
-    height: 750 * fontScale,
+  scannedImage: {
+    width: (windowWidth - 620) * fontScale,
+    height: 800 * fontScale,
   },
   floatingContainer: {
     position: 'absolute',
@@ -1238,6 +1247,25 @@ export const styles = StyleSheet.create({
   listSeparator: {
     backgroundColor: '#f0f0ff',
   },
+  alert: {
+    alignSelf: 'center',
+    top: 10 * fontScale,
+  },
+  alertCheckBox: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    flex: 1,
+    fontSize: 18 * fontScale,
+    color: fontColor,
+  },
+  bottomBar: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  bottomItems: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
 });
 
 function cardStyle(color: Color) {
@@ -1281,7 +1309,7 @@ function tabStyle(isSelected: boolean) {
 
 function boardStyle(
   shadowColor: Color,
-  size: ?string = 'S',
+  size: ?string = isWeb ? 'M' : 'S',
   minHeight: ?number = 0,
 ) {
   const minWidth: number =
@@ -1295,14 +1323,15 @@ function boardStyle(
       ? 340
       : 340;
   return {
-    flex: 0,
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
-    maxWidth: 1040 * fontScale,
+    maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
+    maxHeight:
+      isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,
@@ -1314,6 +1343,8 @@ function boardStyle(
       height: 0.3,
       width: 0.3,
     },
+    flexGrow: 1,
+    flexShrink: 1,
   };
 }
 
@@ -1389,7 +1420,7 @@ function inputFieldStyle(isActive: boolean, hasNewValue: boolean) {
   };
 }
 
-function modalTileLabel(isSelected: boolean, isIcon?: boolean = false) {
+function modalTileLabel(isSelected: boolean, isIcon: boolean = false) {
   return {
     fontSize: (isIcon ? 36 : 26) * fontScale,
     textAlign: 'center',
