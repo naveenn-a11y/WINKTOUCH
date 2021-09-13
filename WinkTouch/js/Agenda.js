@@ -6,7 +6,7 @@
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, InteractionManager} from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
-import {styles, windowHeight, fontScale} from './Styles';
+import {styles, windowHeight, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -134,7 +134,7 @@ export class AgendaScreen extends Component {
   renderContent(event: Appointment) {
     const patient: Patient = getCachedItem(event.patientId);
     return (
-      <View>
+      <View style={!isWeb ? {Height: 'auto', maxHeight: 150} : undefined}>
         <Title>
           {patient && patient.firstName} {patient && patient.lastName}
           <PatientTags patient={patient} />
@@ -163,10 +163,10 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
+          style={styles.alert}
           visible={this.state.showDialog}
           onDismiss={this.cancelDialog}
-          dismissable={true}
-          style={styles.alert}>
+          dismissable={true}>
           <Dialog.Title>
             <AppointmentTypes appointment={event} />
             {event.title}
@@ -243,13 +243,13 @@ export class AgendaScreen extends Component {
             <Text style={styles.linkButton}>{strings.today}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this._onDaily}>
-            <Text style={styles.linkButton}>{strings.days}</Text>
+            <Text style={styles.linkButton}>{strings.daily}</Text>
           </TouchableOpacity>
           <Text style={styles.text}>
             {formatDate(this.state.date, farDateFormat)}
           </Text>
           <TouchableOpacity onPress={this._onWeekly}>
-            <Text style={styles.linkButton}>{strings.weeks}</Text>
+            <Text style={styles.linkButton}>{strings.weekly}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={this._onNextDate}>

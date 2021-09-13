@@ -267,7 +267,8 @@ export const strings = new LocalizedStrings({
     dob: 'DOB',
     previous: 'Previous',
     next: 'Next',
-    weeks: 'Weeks',
+    weekly: 'Weekly',
+    daily: 'Daily',
   },
   fr: {
     enterRegisteredEmail:
@@ -299,7 +300,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
-    calendar: 'Calendar',
+    calendar: 'Calendrier',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graphique',
@@ -533,7 +534,8 @@ export const strings = new LocalizedStrings({
     dob: 'Date de Naissance',
     previous: 'Précédent',
     next: 'Suivant',
-    weeks: 'Semaines',
+    weekly: 'Semaines',
+    daily: 'Journalier',
   },
 });
 
