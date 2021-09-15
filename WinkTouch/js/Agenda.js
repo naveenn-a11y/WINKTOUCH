@@ -30,6 +30,9 @@ import {
   jsonDateFormat,
   farDateFormat2,
   yearDateFormat,
+  isEmpty,
+  formatAge,
+  prefix,
 } from './Util';
 import {getCachedItem} from './DataCache';
 import {PatientTags} from './Patient';
@@ -41,6 +44,8 @@ import {
   Title,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {formatCode} from './Codes';
+import {FormTextInput} from './Form';
 
 export class AgendaScreen extends Component {
   props: {
@@ -134,14 +139,25 @@ export class AgendaScreen extends Component {
     });
   };
   renderContent(event: Appointment) {
-    const patient: Patient = getCachedItem(event.patientId);
+    const patient: PatientInfo | Patient = getCachedItem(event.patientId);
+    let genderShort: string = formatCode('genderCode', patient.gender);
+    if (genderShort.length > 0) genderShort = genderShort.substring(0, 1);
     return (
       <View style={!isWeb ? {Height: 'auto', maxHeight: 150} : undefined}>
+        <AppointmentIcons appointment={event} orientation="horizontal" />
+
         <Title>
           {patient && patient.firstName} {patient && patient.lastName}
-          <PatientTags patient={patient} />
+          <View style={styles.rowLayout}>
+            <Text style={styles.text}>({genderShort}) </Text>
+            <PatientTags patient={patient} showDescription={true} />
+            <Text style={styles.text}>
+              {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
+            </Text>
+          </View>
         </Title>
-        <View style={styles.flexRow}>
+
+        <View style={styles.formRow}>
           <Text style={styles.text}>
             {isToday(event.start)
               ? formatDate(event.start, timeFormat)
@@ -154,8 +170,48 @@ export class AgendaScreen extends Component {
               : formatDate(event.end, dayYearDateTimeFormat)}
           </Text>
         </View>
-        <View style={styles.flexRow}>
-          <AppointmentIcons appointment={event} orientation="horizontal" />
+        <View style={styles.flexColumnLayout}>
+          {!isEmpty(event.supplierName) && (
+            <View style={styles.formRow}>
+              <Text style={styles.text}>{event.supplierName}</Text>
+            </View>
+          )}
+          {!isEmpty(patient.medicalCard) && (
+            <View style={styles.formRow}>
+              <Icon name="card-account-details" style={styles.text} />
+              <Text style={styles.text}>
+                {prefix(patient.medicalCard, '  ')}
+                {prefix(patient.medicalCardVersion, '-')}
+                {prefix(patient.medicalCardExp, '-')}
+              </Text>
+            </View>
+          )}
+          {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
+            <View style={styles.formRow}>
+              <Icon name="cellphone" style={styles.text} />
+              <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                {patient.cell ? patient.cell + ' ' : patient.phone}
+              </Text>
+            </View>
+          )}
+          {!isEmpty(patient.email) && (
+            <View style={styles.formRow}>
+              <Icon name="email" style={styles.text} />
+              <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                {patient.email}
+              </Text>
+            </View>
+          )}
+          {!isEmpty(event.comment) && (
+            <View style={styles.formRow}>
+              <FormTextInput
+                label=""
+                multiline={true}
+                readonly={true}
+                value={event.comment}
+              />
+            </View>
+          )}
         </View>
       </View>
     );

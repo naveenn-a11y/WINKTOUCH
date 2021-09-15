@@ -182,6 +182,8 @@ export type Appointment = {
   status: number,
   appointmentTypes?: string[],
   indicators?: string[],
+  comment?: string,
+  supplierName?: string,
 };
 
 export type Prism = {
