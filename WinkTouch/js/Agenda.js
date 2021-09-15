@@ -4,7 +4,13 @@
 'use strict';
 
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, InteractionManager} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  InteractionManager,
+  Picker,
+} from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import {styles, windowHeight, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
@@ -22,7 +28,8 @@ import {
   dayYearDateTimeFormat,
   now,
   jsonDateFormat,
-  farDateFormat,
+  farDateFormat2,
+  yearDateFormat,
 } from './Util';
 import {getCachedItem} from './DataCache';
 import {PatientTags} from './Patient';
@@ -33,6 +40,7 @@ import {
   Dialog,
   Title,
 } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export class AgendaScreen extends Component {
   props: {
@@ -111,14 +119,8 @@ export class AgendaScreen extends Component {
     });
   };
 
-  _onDaily = () => {
-    this.setState({mode: 'day'});
-  };
-  _onWeekly = () => {
-    this.setState({mode: 'week'});
-  };
-  _onMonthly = () => {
-    this.setState({mode: 'month'});
+  _onSetMode = (mode: string) => {
+    this.setState({mode: mode});
   };
 
   cancelDialog = () => {
@@ -234,34 +236,44 @@ export class AgendaScreen extends Component {
     return (
       <View style={styles.page}>
         {this.state.showDialog && this.renderEventDetails()}
-        <View
-          style={[styles.centeredRowLayout, {justifyContent: 'space-around'}]}>
-          <TouchableOpacity onPress={this._onPrevDate}>
-            <Text style={styles.linkButton}>{strings.previous}</Text>
-          </TouchableOpacity>
+        <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
-            <Text style={styles.linkButton}>{strings.today}</Text>
+            <Text style={[styles.textfield, {margin: 10 * fontScale}]}>
+              {strings.today}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={this._onDaily}>
-            <Text style={styles.linkButton}>{strings.daily}</Text>
-          </TouchableOpacity>
-          <Text style={styles.text}>
-            {formatDate(this.state.date, farDateFormat)}
-          </Text>
-          <TouchableOpacity onPress={this._onWeekly}>
-            <Text style={styles.linkButton}>{strings.weekly}</Text>
+          <TouchableOpacity onPress={this._onPrevDate}>
+            <Icon name="chevron-left" style={styles.screenIcon} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={this._onNextDate}>
-            <Text style={styles.linkButton}>{strings.next}</Text>
+            <Icon name="chevron-right" style={styles.screenIcon} />
           </TouchableOpacity>
+
+          <Text style={styles.h2}>
+            {formatDate(
+              this.state.date,
+              this.state.mode === 'day' ? yearDateFormat : farDateFormat2,
+            )}
+          </Text>
+          <View style={styles.topRight}>
+            <Picker
+              style={styles.picker}
+              selectedValue={this.state.mode}
+              onValueChange={(mode) => this._onSetMode(mode)}>
+              <Picker.Item value="day" label={strings.daily} />
+              <Picker.Item value="week" label={strings.weekly} />
+            </Picker>
+          </View>
         </View>
+
         <Calendar
           date={this.state.date}
           height={windowHeight}
           events={this.state.appointments}
           onPressEvent={(event) => this._onSetEvent(event)}
           mode={this.state.mode}
+          ampm={true}
           renderEvent={(
             event: ICalendarEvent<T>,
             touchableOpacityProps: CalendarTouchableOpacityProps,
