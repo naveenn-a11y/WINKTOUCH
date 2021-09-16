@@ -143,7 +143,12 @@ export class AgendaScreen extends Component {
     let genderShort: string = formatCode('genderCode', patient.gender);
     if (genderShort.length > 0) genderShort = genderShort.substring(0, 1);
     return (
-      <View style={!isWeb ? {Height: 'auto', maxHeight: 150} : undefined}>
+      <View
+        style={
+          !isWeb
+            ? {height: 400 * fontScale, maxHeight: 800 * fontScale}
+            : undefined
+        }>
         <AppointmentIcons appointment={event} orientation="horizontal" />
 
         <Title>
@@ -294,7 +299,12 @@ export class AgendaScreen extends Component {
         {this.state.showDialog && this.renderEventDetails()}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
-            <Text style={[styles.textfield, {margin: 10 * fontScale}]}>
+            <Text
+              style={
+                isWeb
+                  ? [styles.textfield, {margin: 10 * fontScale}]
+                  : styles.textfield
+              }>
               {strings.today}
             </Text>
           </TouchableOpacity>
@@ -306,7 +316,7 @@ export class AgendaScreen extends Component {
             <Icon name="chevron-right" style={styles.screenIcon} />
           </TouchableOpacity>
 
-          <Text style={styles.h2}>
+          <Text style={[styles.h2, {padding: 10 * fontScale}]}>
             {formatDate(
               this.state.date,
               this.state.mode === 'day' ? yearDateFormat : farDateFormat2,
@@ -314,7 +324,13 @@ export class AgendaScreen extends Component {
           </Text>
           <View style={styles.topRight}>
             <Picker
-              style={styles.picker}
+              style={{
+                padding: 10 * fontScale,
+                width: 200,
+                height: 44,
+                alignSelf: 'flex-end',
+              }}
+              itemStyle={{height: 44}}
               selectedValue={this.state.mode}
               onValueChange={(mode) => this._onSetMode(mode)}>
               <Picker.Item value="day" label={strings.daily} />
