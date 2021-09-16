@@ -79,6 +79,7 @@ export async function fetchAppointments(
   maxDays: ?number,
   patientId: ?string,
   startDate: ?Date = today(),
+  includeDayEvents: ?boolean = false,
 ): Promise<Appointment[]> {
   //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
@@ -96,10 +97,16 @@ export async function fetchAppointments(
   let patients: PatientInfo[] = restResponse.patientList;
   let appointmentTypes: AppointmentType[] = restResponse.appointmentTypeList;
   let appointments: Appointment[] = restResponse.appointmentList;
+  if (includeDayEvents) {
+    let dayEvents: Appointment[] = restResponse.dayEventsList;
+    appointments = [...appointments, ...dayEvents];
+  }
+
   cacheItemsById(users);
   cacheItemsById(appointmentTypes);
   cacheItemsById(appointments);
   cacheItemsById(patients);
+
   return appointments;
 }
 

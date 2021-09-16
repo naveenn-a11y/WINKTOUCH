@@ -94,8 +94,8 @@ export class AgendaScreen extends Component {
       undefined,
       undefined,
       dayjs(this.today).subtract(2, 'year').format(jsonDateFormat),
+      true,
     );
-
     this.setState({appointments});
   }
   _onToday = () => {
