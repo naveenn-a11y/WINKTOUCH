@@ -63,7 +63,7 @@ export class AgendaScreen extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      mode: 'week',
+      mode: 'custom',
       date: this.today,
       appointments: [],
       event: undefined,
@@ -334,7 +334,7 @@ export class AgendaScreen extends Component {
               selectedValue={this.state.mode}
               onValueChange={(mode) => this._onSetMode(mode)}>
               <Picker.Item value="day" label={strings.daily} />
-              <Picker.Item value="week" label={strings.weekly} />
+              <Picker.Item value="custom" label={strings.weekly} />
             </Picker>
           </View>
         </View>
@@ -346,6 +346,8 @@ export class AgendaScreen extends Component {
           onPressEvent={(event) => this._onSetEvent(event)}
           mode={this.state.mode}
           ampm={true}
+          weekStartsOn={1}
+          weekEndsOn={6}
           renderEvent={(
             event: ICalendarEvent<T>,
             touchableOpacityProps: CalendarTouchableOpacityProps,
