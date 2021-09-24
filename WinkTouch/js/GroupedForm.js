@@ -96,17 +96,22 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
     isVisible.startsWith('[') &&
     isVisible.endsWith(']')
   ) {
-    const key: any = isVisible.substring(1, isVisible.length - 1);
+    let reverseFlag: boolean = false;
+    let key: any = isVisible.substring(1, isVisible.length - 1);
+    if (key.startsWith('!')) {
+      key = key.substring(1, key.length - 1);
+      reverseFlag = true;
+    }
     const keyIdentifier: string[] = key.split('.');
     if (keyIdentifier[0] === 'visit') {
       const visit: Visit = getCachedItem(item);
       const value: any =
         visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
-      return !isEmpty(value);
+      return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
       const value: any = exam !== undefined ? getValue(exam, key) : undefined;
-      return !isEmpty(value);
+      return reverseFlag ? isEmpty(value) : !isEmpty(value);
     }
   }
 
