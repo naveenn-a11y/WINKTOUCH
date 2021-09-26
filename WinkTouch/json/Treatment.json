@@ -36,7 +36,7 @@
               "label": "Date de rappel programmée 2"
             },
             {
-              "name": "PatientRecallDate",
+              "name": "PatientVisitNextEE",
               "label": "Date de rappel"
             },
             {
@@ -140,7 +140,7 @@
         },
         {
           "mappedField": "visit.recall.patientVisitNextEE",
-          "name": "PatientRecallDate",
+          "name": "PatientVisitNextEE",
           "label": "Recall Date",
           "readonly": true
         },
