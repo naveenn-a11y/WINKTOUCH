@@ -38,6 +38,8 @@
     },
     {
       "name": "Eye",
+      "simpleSelect": true,
+      "freestyle": true,
       "options": ["OD", "OS", "OU"]
     },
     {

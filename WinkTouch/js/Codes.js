@@ -183,6 +183,7 @@ export function parseCode(
         .trim()
         .toLowerCase() === trimmedInput,
   );
+
   let code = input;
   if (codeDefinition !== undefined && codeDefinition !== null) {
     if (codeDefinition instanceof Object) {

@@ -307,6 +307,7 @@ export class ReferralScreen extends Component<
   }
 
   selectVisit(visitId: string) {
+    if (visitId === '' || visitId === undefined) return;
     if (this.state.selectedVisitId === visitId) return;
     this.setState({selectedVisitId: visitId});
     const visit: Visit = getCachedItem(visitId);

@@ -33,12 +33,13 @@ function getOptions() {
   const opt = {
     filename: 'Print.pdf',
     pagebreak: {mode: ['css']},
+    margin: 10,
     jsPDF: {
       unit: 'pt',
       format: [pageHeight, pageWidth],
       orientation: 'portrait',
     },
-    html2canvas: {scale: 2.5},
+    html2canvas: {scale: 2.5, useCORS: true},
   };
   return opt;
 }
