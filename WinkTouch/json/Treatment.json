@@ -34,6 +34,14 @@
             {
               "name": "Recall2",
               "label": "Date de rappel programmée 2"
+            },
+            {
+              "name": "PatientRecallDate",
+              "label": "Date de rappel"
+            },
+            {
+              "name": "DefaultRecallFrequencyMonths",
+              "label": "Fréquence de rappel en mois"
             }
           ]
         }
@@ -131,8 +139,8 @@
           "label": "Recall Frequency Months"
         },
         {
-          "mappedField": "visit.recall.recallDate",
-          "name": "RecallDate",
+          "mappedField": "visit.recall.patientVisitNextEE",
+          "name": "PatientRecallDate",
           "label": "Recall Date",
           "readonly": true
         },

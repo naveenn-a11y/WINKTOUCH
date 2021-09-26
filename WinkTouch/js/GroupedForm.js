@@ -99,7 +99,7 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
     let reverseFlag: boolean = false;
     let key: any = isVisible.substring(1, isVisible.length - 1);
     if (key.startsWith('!')) {
-      key = key.substring(1, key.length - 1);
+      key = key.substring(1, key.length);
       reverseFlag = true;
     }
     const keyIdentifier: string[] = key.split('.');
@@ -107,6 +107,7 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
       const visit: Visit = getCachedItem(item);
       const value: any =
         visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
+
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
