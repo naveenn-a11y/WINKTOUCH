@@ -22,6 +22,26 @@
             {
               "name": "Amount",
               "label": "Rappel dans"
+            },
+            {
+              "name": "RecallDate",
+              "label": "Date de rappel"
+            },
+            {
+              "name": "Recall1",
+              "label": "Date de rappel programmée 1"
+            },
+            {
+              "name": "Recall2",
+              "label": "Date de rappel programmée 2"
+            },
+            {
+              "name": "PatientVisitNextEE",
+              "label": "Date de rappel"
+            },
+            {
+              "name": "DefaultRecallFrequencyMonths",
+              "label": "Fréquence de rappel en mois"
             }
           ]
         }
@@ -59,8 +79,9 @@
       ]
     },
     {
+      "visible": "[!visit.appointmentId]",
       "name": "Recall",
-      "size": "M",
+      "size": "XL",
       "fields": [
         {
           "mappedField": "visit.recall.amount",
@@ -73,11 +94,84 @@
           "label": ""
         },
         {
+          "mappedField": "visit.recall.recallDate",
+          "name": "RecallDate",
+          "label": "Recall Date",
+          "readonly": true
+        },
+        {
+          "mappedField": "patient.recall1",
+          "name": "Recall1",
+          "label": "Scheduled Recall Date 1",
+          "type": "futureDate"
+        },
+        {
+          "mappedField": "patient.recall1Comment",
+          "name": "Recall1Comment",
+          "label": ""
+        },
+        {
+          "mappedField": "patient.recall2",
+          "name": "Recall2",
+          "label": "Scheduled Recall Date 2",
+          "type": "futureDate"
+        },
+        {
+          "mappedField": "patient.recall2Comment",
+          "name": "Recall2Comment",
+          "label": ""
+        },
+        {
           "mappedField": "visit.recall.notes",
           "name": "Notes"
         }
       ],
-      "rows": [["Amount", "Unit"]]
+      "rows": [["Amount", "Unit"], ["Recall1", "Recall1Comment"], ["Recall2", "Recall2Comment"]]
+    },
+    {
+      "visible": "[visit.appointmentId]",
+      "name": "Recall",
+      "size": "XL",
+      "fields": [
+        {
+          "mappedField": "patient.defaultRecallFrequencyMonths",
+          "name": "DefaultRecallFrequencyMonths",
+          "label": "Recall Frequency Months"
+        },
+        {
+          "mappedField": "visit.recall.patientVisitNextEE",
+          "name": "PatientVisitNextEE",
+          "label": "Recall Date",
+          "readonly": true
+        },
+        {
+          "mappedField": "patient.recall1",
+          "name": "Recall1",
+          "label": "Scheduled Recall Date 1",
+          "type": "futureDate"
+        },
+        {
+          "mappedField": "patient.recall1Comment",
+          "name": "Recall1Comment",
+          "label": ""
+        },
+        {
+          "mappedField": "patient.recall2",
+          "name": "Recall2",
+          "label": "Scheduled Recall Date 2",
+          "type": "futureDate"
+        },
+        {
+          "mappedField": "patient.recall2Comment",
+          "name": "Recall2Comment",
+          "label": ""
+        },
+        {
+          "mappedField": "visit.recall.notes",
+          "name": "Notes"
+        }
+      ],
+      "rows": [["Recall1", "Recall1Comment"], ["Recall2", "Recall2Comment"]]
     }
   ],
   "relatedExams": ["Diagnose"]

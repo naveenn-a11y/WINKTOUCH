@@ -14,6 +14,7 @@ export const dateFormat: string = 'MMM Do';
 export const officialDateFormat: string = 'YYYY-MM-DD'; //TODO: this should be locale dependent or a setting?
 export const dayDateFormat: string = 'dd MMM Do';
 export const farDateFormat: string = 'MMM YYYY';
+export const farDateFormat2: string = 'MMMM YYYY';
 export const yearDateFormat: string = 'MMM Do YYYY';
 export const dayYearDateFormat: string = 'dd MMM Do YYYY';
 export const dateTimeFormat: string = dateFormat + ' ' + timeFormat;
