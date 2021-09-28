@@ -173,12 +173,13 @@ function addDrHeader(
   pageHeight: number,
   border: number,
 ) {
-  const store: Store = getStore();
   const visit: Visit = getCachedItem(visitId);
   //const doctor = getDoctor();
   if (!visit || !visit.userId) {
     return;
   }
+  const vStore: Store = getCachedItem(visit.storeId);
+  const store: Store = !isEmpty(vStore) ? vStore : getStore();
   const doctor: User = getCachedItem(visit.userId);
   if (!doctor) {
     return;
