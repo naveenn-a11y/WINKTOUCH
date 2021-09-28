@@ -18,7 +18,7 @@ import {
   InteractionManager,
   Linking,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
