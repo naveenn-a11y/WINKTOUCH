@@ -269,6 +269,7 @@ export class AgendaScreen extends Component {
             borderLeftWidth: 10,
             borderStyle: 'solid',
             borderRadius: 6,
+            padding: 0,
           },
         ]}>
         <View>
