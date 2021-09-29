@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LocalizedStrings from 'react-native-localization';
 import Moment from 'moment';
 import {cacheDefinitions} from './Items';
@@ -38,7 +38,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       'Something went wrong trying to get the accounts from the server. Please try again.',
     loginFailed: 'Login failed',
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graph',
@@ -228,6 +228,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'No data found to import !',
     consultationDate: 'Consultation date',
     close: 'Close',
+    open: 'Open',
     transferRxSuccess: 'Rx transferred successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
@@ -244,6 +245,7 @@ export const strings = new LocalizedStrings({
     noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
     pd: 'PD',
+    binocularPd: 'Binocular PD',
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
@@ -262,6 +264,11 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Add a new exam',
     pdfNotSupported:
       'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
+    dob: 'DOB',
+    previous: 'Previous',
+    next: 'Next',
+    weekly: 'Weekly',
+    daily: 'Daily',
   },
   fr: {
     enterRegisteredEmail:
@@ -293,7 +300,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
-    agenda: 'Agenda',
+    calendar: 'Calendrier',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graphique',
@@ -489,6 +496,7 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'Aucun élément trouvée !',
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
+    open: 'Ouvrir',
     transferRxSuccess: 'Rx transféré avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
@@ -505,6 +513,7 @@ export const strings = new LocalizedStrings({
     noAccess: 'Vous n’avez pas accès à cette information',
     printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
     pd: 'PD',
+    binocularPd: 'PD Binoculaire',
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
@@ -522,6 +531,11 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Ajouter un nouvel examen',
     pdfNotSupported:
       'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
+    dob: 'Date de Naissance',
+    previous: 'Précédent',
+    next: 'Suivant',
+    weekly: 'Semaines',
+    daily: 'Journalier',
   },
 });
 

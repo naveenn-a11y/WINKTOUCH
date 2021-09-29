@@ -4,7 +4,7 @@
 'use strict';
 import React, {Component} from 'react';
 import {AppState} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
