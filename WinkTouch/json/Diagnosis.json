@@ -2,10 +2,11 @@
   "isAssessment": true,
   "order": 3,
   "name": "Diagnosis",
+  "label": "Billing",
   "scrollable": true,
   "locale": {
     "fr-CA": {
-      "label": "Diagnostic",
+      "label": "Facturation",
       "fields": [
         {
           "name": "Procedure",
