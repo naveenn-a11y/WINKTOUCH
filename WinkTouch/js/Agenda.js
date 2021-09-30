@@ -73,7 +73,9 @@ export class AgendaScreen extends Component {
   }
 
   componentDidMount() {
-    this.refreshAppointments();
+    InteractionManager.runAfterInteractions(() => {
+      this.refreshAppointments();
+    });
   }
 
   _onSetEvent = (event: Appointment) => {
@@ -93,7 +95,7 @@ export class AgendaScreen extends Component {
       getDoctor().id,
       undefined,
       undefined,
-      dayjs(this.today).subtract(2, 'year').format(jsonDateFormat),
+      dayjs(this.today).subtract(6, 'month').format(jsonDateFormat),
       true,
     );
     this.setState({appointments});
@@ -247,6 +249,81 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  render() {
+    return (
+      <View style={styles.page}>
+        {this.state.showDialog && this.renderEventDetails()}
+        <View style={styles.topFlow}>
+          <TouchableOpacity onPress={this._onToday}>
+            <Text
+              style={
+                isWeb
+                  ? [styles.textfield, {margin: 10 * fontScale}]
+                  : styles.textfield
+              }>
+              {strings.today}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this._onPrevDate}>
+            <Icon name="chevron-left" style={styles.screenIcon} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={this._onNextDate}>
+            <Icon name="chevron-right" style={styles.screenIcon} />
+          </TouchableOpacity>
+
+          <Text style={[styles.h2, {padding: 10 * fontScale}]}>
+            {formatDate(
+              this.state.date,
+              this.state.mode === 'day' ? yearDateFormat : farDateFormat2,
+            )}
+          </Text>
+          <View style={styles.topRight}>
+            <Picker
+              style={{
+                padding: 10 * fontScale,
+                width: 200,
+                height: 44,
+                alignSelf: 'flex-end',
+              }}
+              itemStyle={{height: 44}}
+              selectedValue={this.state.mode}
+              onValueChange={(mode) => this._onSetMode(mode)}>
+              <Picker.Item value="day" label={strings.daily} />
+              <Picker.Item value="custom" label={strings.weekly} />
+            </Picker>
+          </View>
+        </View>
+        <NativeCalendar
+          date={this.state.date}
+          mode={this.state.mode}
+          appointments={this.state.appointments}
+          _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
+        />
+      </View>
+    );
+  }
+}
+
+class NativeCalendar extends Component {
+  props: {
+    date: Date,
+    mode: any,
+    appointments: Appointment[],
+    _onSetEvent: (event: Appointment) => void,
+  };
+
+  constructor(props: any) {
+    super(props);
+  }
+  shouldComponentUpdate(nextProps) {
+    return (
+      nextProps.mode !== this.props.mode ||
+      nextProps.date !== this.props.date ||
+      nextProps.appointments !== this.props.appointments
+    );
+  }
+
   renderAppointment(event, touchableOpacityProps) {
     const patient: Patient = getCachedItem(event.patientId);
     const appointmentType: AppointmentType =
@@ -294,67 +371,23 @@ export class AgendaScreen extends Component {
       </TouchableOpacity>
     );
   }
+
   render() {
     return (
-      <View style={styles.page}>
-        {this.state.showDialog && this.renderEventDetails()}
-        <View style={styles.topFlow}>
-          <TouchableOpacity onPress={this._onToday}>
-            <Text
-              style={
-                isWeb
-                  ? [styles.textfield, {margin: 10 * fontScale}]
-                  : styles.textfield
-              }>
-              {strings.today}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this._onPrevDate}>
-            <Icon name="chevron-left" style={styles.screenIcon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={this._onNextDate}>
-            <Icon name="chevron-right" style={styles.screenIcon} />
-          </TouchableOpacity>
-
-          <Text style={[styles.h2, {padding: 10 * fontScale}]}>
-            {formatDate(
-              this.state.date,
-              this.state.mode === 'day' ? yearDateFormat : farDateFormat2,
-            )}
-          </Text>
-          <View style={styles.topRight}>
-            <Picker
-              style={{
-                padding: 10 * fontScale,
-                width: 200,
-                height: 44,
-                alignSelf: 'flex-end',
-              }}
-              itemStyle={{height: 44}}
-              selectedValue={this.state.mode}
-              onValueChange={(mode) => this._onSetMode(mode)}>
-              <Picker.Item value="day" label={strings.daily} />
-              <Picker.Item value="custom" label={strings.weekly} />
-            </Picker>
-          </View>
-        </View>
-
-        <Calendar
-          date={this.state.date}
-          height={windowHeight}
-          events={this.state.appointments}
-          onPressEvent={(event) => this._onSetEvent(event)}
-          mode={this.state.mode}
-          ampm={true}
-          weekStartsOn={1}
-          weekEndsOn={6}
-          renderEvent={(
-            event: ICalendarEvent<T>,
-            touchableOpacityProps: CalendarTouchableOpacityProps,
-          ) => this.renderAppointment(event, touchableOpacityProps)}
-        />
-      </View>
+      <Calendar
+        date={this.props.date}
+        height={windowHeight}
+        events={this.props.appointments}
+        onPressEvent={(event) => this.props._onSetEvent(event)}
+        mode={this.props.mode}
+        ampm={true}
+        weekStartsOn={1}
+        weekEndsOn={6}
+        renderEvent={(
+          event: ICalendarEvent<T>,
+          touchableOpacityProps: CalendarTouchableOpacityProps,
+        ) => this.renderAppointment(event, touchableOpacityProps)}
+      />
     );
   }
 }
