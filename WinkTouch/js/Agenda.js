@@ -58,6 +58,7 @@ export class AgendaScreen extends Component {
     date: Date,
     mode: any,
     appointments: Appointment[],
+    events: Appointment[],
     event: Appointment,
     showDialog: boolean,
     isLoading: boolean,
@@ -71,6 +72,7 @@ export class AgendaScreen extends Component {
       mode: 'custom',
       date: this.today,
       appointments: [],
+      events: [],
       event: undefined,
       showDialog: false,
       isLoading: false,
@@ -117,8 +119,9 @@ export class AgendaScreen extends Component {
       );
       if (includeDayEvents) {
         const events = await fetchEvents('store-' + getStore().storeId);
-        appointments = [...appointments, ...events];
+        this.setState({events});
       }
+      appointments = [...appointments, ...this.state.events];
       this.setState({appointments, isLoading: false});
     } catch (e) {
       this.setState({isLoading: false});
