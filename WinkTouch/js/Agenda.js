@@ -10,15 +10,18 @@ import {
   TouchableOpacity,
   InteractionManager,
   Picker,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
-import {styles, windowHeight, fontScale, isWeb} from './Styles';
+import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
   AppointmentTypes,
   AppointmentIcons,
   fetchAppointments,
+  fetchEvents,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -57,9 +60,11 @@ export class AgendaScreen extends Component {
     appointments: Appointment[],
     event: Appointment,
     showDialog: boolean,
+    isLoading: boolean,
   };
   today = new Date();
   lastRefresh: number;
+  daysInWeek: number;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -68,21 +73,27 @@ export class AgendaScreen extends Component {
       appointments: [],
       event: undefined,
       showDialog: false,
+      isLoading: false,
     };
     this.lastRefresh = 0;
+    this.daysInWeek = 6;
   }
 
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
-      this.refreshAppointments();
+      this.refreshAppointments(true, true, this.daysInWeek);
     });
   }
 
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event, showDialog: true});
   };
-  async refreshAppointments() {
-    if (now().getTime() - this.lastRefresh < 5 * 1000) {
+  async refreshAppointments(
+    refresh: ?boolean,
+    includeDayEvents: ?boolean = false,
+    maxDays: number = this.daysInWeek,
+  ) {
+    if (!refresh && now().getTime() - this.lastRefresh < 5 * 1000) {
       this.setState(this.state.appointments);
       return;
     }
@@ -90,18 +101,37 @@ export class AgendaScreen extends Component {
     InteractionManager.runAfterInteractions(() =>
       this.props.navigation.setParams({refreshAppointments: false}),
     );
-    let appointments = await fetchAppointments(
-      'store-' + getStore().storeId,
-      getDoctor().id,
-      undefined,
-      undefined,
-      dayjs(this.today).subtract(6, 'month').format(jsonDateFormat),
-      true,
-    );
-    this.setState({appointments});
+    this.setState({isLoading: true});
+    try {
+      const fromDate =
+        this.state.mode === 'custom'
+          ? dayjs(this.state.date).startOf('week')
+          : dayjs(this.state.date);
+      let appointments = await fetchAppointments(
+        'store-' + getStore().storeId,
+        getDoctor().id,
+        maxDays,
+        undefined,
+        fromDate.format(jsonDateFormat),
+        true,
+      );
+      if (includeDayEvents) {
+        const events = await fetchEvents('store-' + getStore().storeId);
+        appointments = [...appointments, ...events];
+      }
+      this.setState({appointments, isLoading: false});
+    } catch (e) {
+      this.setState({isLoading: false});
+    }
   }
   _onToday = () => {
-    this.setState({date: this.today});
+    this.setState({date: this.today}, () => {
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    });
   };
   _onPrevDate = () => {
     if (this.state.mode === 'month') {
@@ -111,23 +141,47 @@ export class AgendaScreen extends Component {
           .toDate(),
       });
     } else {
-      this.setState({
-        date: dayjs(this.state.date)
-          .add(modeToNum(this.state.mode, this.state.date) * -1, 'day')
-          .toDate(),
-      });
+      this.setState(
+        {
+          date: dayjs(this.state.date)
+            .add(modeToNum(this.state.mode, this.state.date) * -1, 'day')
+            .toDate(),
+        },
+        () => {
+          this.refreshAppointments(
+            true,
+            false,
+            this.state.mode === 'day' ? 1 : this.daysInWeek,
+          );
+        },
+      );
     }
   };
   _onNextDate = () => {
-    this.setState({
-      date: dayjs(this.state.date)
-        .add(modeToNum(this.state.mode, this.state.date), 'day')
-        .toDate(),
-    });
+    this.setState(
+      {
+        date: dayjs(this.state.date)
+          .add(modeToNum(this.state.mode, this.state.date), 'day')
+          .toDate(),
+      },
+      () => {
+        this.refreshAppointments(
+          true,
+          false,
+          this.state.mode === 'day' ? 1 : this.daysInWeek,
+        );
+      },
+    );
   };
 
   _onSetMode = (mode: string) => {
-    this.setState({mode: mode});
+    this.setState({mode: mode}, () => {
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    });
   };
 
   cancelDialog = () => {
@@ -252,6 +306,7 @@ export class AgendaScreen extends Component {
   render() {
     return (
       <View style={styles.page}>
+        {this.state.isLoading && this.renderLoading()}
         {this.state.showDialog && this.renderEventDetails()}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
@@ -302,6 +357,25 @@ export class AgendaScreen extends Component {
         />
       </View>
     );
+  }
+
+  renderLoading() {
+    if (this.state.isLoading) {
+      return (
+        <Modal
+          visible={this.state.isLoading}
+          transparent={true}
+          animationType={'none'}
+          onRequestClose={this.cancelEdit}>
+          <View style={styles.container}>
+            {this.state.isLoading && (
+              <ActivityIndicator size="large" color={selectionColor} />
+            )}
+          </View>
+        </Modal>
+      );
+    }
+    return null;
   }
 }
 
