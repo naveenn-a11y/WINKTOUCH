@@ -1,0 +1,98 @@
+{
+    "name": "Health Consent Form",
+    "scrollable": true,
+    "card": true,
+    "type": "groupedForm",
+    "section": "Form.2",
+    "cardGroup": "Health Consent Form",
+    "fields": [
+      {
+        "name": "Health Consent Form",
+        "label": "",
+        "size": "XL",
+        "fields": [
+          {
+            "sync": true,
+            "popup": false,
+            "name": "Health Consent Form",
+            "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1718/bc_healthConsentForm.jpg",
+            "drawable": true,
+            "label": "",
+            "resolution": "1700x2200",
+            "type": "Patient Consent Form",
+            "size": "XL",
+            "fields": [
+              {
+                "layout": {
+                  "position": "absolute",
+                  "width": 1000,
+                  "justifyContent": "flex-start",
+                  "left": 0,
+                  "top": 0
+                },
+                "name": "Form",
+                "label": "",
+                "fields": [
+                  {
+                    "mappedField": "patient.firstName",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 50,
+                      "fontSize": 20,
+                      "top": 280
+                    },
+                    "name": "Patient First Name",
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "patient.lastName",
+                    "name": "Patient Last Name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 420,
+                      "fontSize": 20,
+                      "top": 280
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "patient.medicalCard",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 780,
+                      "fontSize": 20,
+                      "top": 280
+                    },
+                    "name": "Medical card",
+                    "readonly": true
+                  },
+                  {
+                    "name": "Exam date",
+                    "mappedField": "visit.examDate",
+                    "readonly": true,
+                    "dateFormat": "DD/MM/yyyy",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 650,
+                      "left": 780,
+                      "width": 200,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  }
+                ],
+                "size": "M"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
