@@ -22,7 +22,7 @@ import type {
   Visit,
   VisitType,
 } from './Types';
-import {styles, selectionFontColor, disabledFontColor} from './Styles';
+import {styles, selectionFontColor, disabledFontColor, isWeb} from './Styles';
 import {strings} from './Strings';
 import {storeItem, searchItems, deleteItem} from './Rest';
 import {cacheItem, getCachedItem} from './DataCache';
@@ -30,10 +30,11 @@ import {deepClone, compareDates} from './Util';
 import {getVisitTypes} from './Visit';
 import {FormRow, FormTextInput} from './Form';
 import {Button} from './Widgets';
+import {getDoctor} from './DoctorApp';
 
 const examPredefinedValuesCacheKey: string = 'examPredefinedValues';
 
-async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
+export async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
   const searchCriteria = {};
   let restResponse = await searchItems(
     'ExamPredefinedValue/list',
@@ -41,13 +42,16 @@ async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
   );
   let examPredefinedValues: ExamPredefinedValue[] =
     restResponse.examPredefinedValueList;
-  cacheItem(examPredefinedValuesCacheKey, examPredefinedValues);
+  cacheItem(
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
+    examPredefinedValues,
+  );
   return examPredefinedValues;
 }
 
 export async function allExamPredefinedValues(): ExamPredefinedValue[] {
   let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey,
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
   );
   if (
     examPredefinedValues === undefined ||
@@ -128,22 +132,16 @@ function getPreviousExamAsFavorite(
 
 export function getFavorites(exam: Exam): ExamPredefinedValue[] {
   let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey,
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
   );
   if (!examPredefinedValues) {
     //alert('no predefiend values loaded yet');
     return [];
   }
   let examDefinitionId: string = exam.definition.id;
-  let visitTypes: VisitType[] = getVisitTypes();
-  if (visitTypes === null || visitTypes === undefined) visitTypes = [];
-  const visitTypeNames: string[] = visitTypes.map(
-    (visitType: VisitType) => visitType.name,
-  );
   let favorites: ExamPredefinedValue[] = examPredefinedValues.filter(
     (examPredefinedValue: ExamPredefinedValue) =>
-      examPredefinedValue.customExamDefinitionId === examDefinitionId &&
-      visitTypeNames.includes(examPredefinedValue.name) === false,
+      examPredefinedValue.customExamDefinitionId === examDefinitionId
   );
   favorites = favorites.map((examPredefinedValue: ExamPredefinedValue) =>
     examPredefinedValue.predefinedValue === undefined
@@ -166,6 +164,9 @@ export async function storeFavorite(
     name,
   };
   favorite = await storeItem(predefinedValue);
+  if (favorite.errors) {
+    alert(favorite.errors);
+  }
   await fetchExamPredefinedValues();
 }
 
@@ -423,9 +424,11 @@ export class Mail extends PureComponent {
     style: any,
   };
   render() {
-    return (
-      <Icon name="mail" style={this.props.style} color={selectionFontColor} />
-    );
+    if (isWeb) return null;
+    else
+      return (
+        <Icon name="mail" style={this.props.style} color={selectionFontColor} />
+      );
   }
 }
 

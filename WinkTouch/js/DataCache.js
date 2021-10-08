@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const cache = new Map();
 
@@ -33,7 +33,11 @@ export function cacheItemById(data: any) {
 
 export function clearCachedItemById(data: any) {
   if (!data) return;
-  cache.delete(data.id);
+  if (data.id) {
+    cache.delete(data.id);
+  } else {
+    cache.delete(id);
+  }
 }
 
 export function cacheItemsById(items: []) {
@@ -49,7 +53,7 @@ export function getCachedItem(id: string): any {
 
 export function getCachedItems(ids: ?(string[])): ?(any[]) {
   if (ids === undefined || ids === null) return undefined;
-  let items = ids.map(id => getCachedItem(id));
+  let items = ids.map((id) => getCachedItem(id));
   return items;
 }
 

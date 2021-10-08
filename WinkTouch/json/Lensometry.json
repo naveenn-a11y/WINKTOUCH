@@ -4,6 +4,7 @@
   "section": "Vision testing.4",
   "order": "4",
   "scrollable": true,
+  "starable": true,
   "fields": [
     {
       "name": "Current wear",
@@ -24,6 +25,7 @@
     {
       "hasLensType": true,
       "hasAdd": true,
+      "hasNotes": true,
       "name": "Lensometry",
       "multiValue": true,
       "import": "machine.lensometer.rx",
