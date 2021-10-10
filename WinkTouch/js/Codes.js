@@ -77,12 +77,11 @@ export function formatOption(
   const fieldDefinitions: ?FieldDefinitions = getFieldDefinitions(dataType);
   if (fieldDefinitions === undefined || fieldDefinitions === null)
     return code.toString();
-  const fieldDefinition:
-    | ?FieldDefinition
-    | GroupDefinition = fieldDefinitions.find(
-    (fieldDefinition: FieldDefinition | GroupDefinition) =>
-      fieldDefinition.name === field,
-  );
+  const fieldDefinition: ?FieldDefinition | GroupDefinition =
+    fieldDefinitions.find(
+      (fieldDefinition: FieldDefinition | GroupDefinition) =>
+        fieldDefinition.name === field,
+    );
   if (fieldDefinition === undefined || fieldDefinition === null)
     return code.toString();
   const options: ?(CodeDefinition[]) | string = fieldDefinition.options;
@@ -174,9 +173,17 @@ export function parseCode(
   }
   let codeDefinition: CodeDefinition = getAllCodes(codeType).find(
     (codeDefinition: CodeDefinition) =>
-      formatCodeDefinition(codeDefinition).trim().toLowerCase() ===
-      trimmedInput,
+      formatCodeDefinition(
+        codeDefinition,
+        codeDefinition.quantityPerBox !== undefined &&
+          codeDefinition.quantityPerBox !== null
+          ? codeIdentifier
+          : undefined,
+      )
+        .trim()
+        .toLowerCase() === trimmedInput,
   );
+
   let code = input;
   if (codeDefinition !== undefined && codeDefinition !== null) {
     if (codeDefinition instanceof Object) {

@@ -48,7 +48,7 @@ import {FollowUpScreen} from './FollowUp';
 import {CustomisationScreen} from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
 import {Provider} from 'react-native-paper';

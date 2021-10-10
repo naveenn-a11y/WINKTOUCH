@@ -18,6 +18,10 @@
           "label": "Concentration"
         },
         {
+          "name": "Eye",
+          "label": "Oeil"
+        },
+        {
           "name": "Dosage",
           "label": "Dose"
         },
@@ -45,7 +49,7 @@
       ]
     }
   },
-  "cardFields": ["Label", "Strength"],
+  "cardFields": ["Eye", "Label", "Strength"],
   "starable": true,
   "essentialFields": ["Label"],
   "type": "selectionLists",
@@ -62,6 +66,12 @@
       "simpleSelect": true,
       "freestyle": true,
       "options": "medicationStrengthCodes"
+    },
+    {
+      "name": "Eye",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": ["OD", "OS", "OU"]
     },
     {
       "name": "Dosage",

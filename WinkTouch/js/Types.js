@@ -40,6 +40,7 @@ export type Store = {
   winkToWinkId?: number,
   winkToWinkEmail?: string,
   eFaxUsed?: boolean,
+  fax?: string,
 };
 
 export type Account = {
@@ -68,6 +69,7 @@ export type User = {
   postalcode?: string,
   city?: string,
   isExternal: boolean,
+  providerType?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
@@ -175,11 +177,13 @@ export type Appointment = {
   patientId: string,
   userId: string,
   title: string,
-  start: string,
-  end: string,
+  start: string | Date,
+  end: string | Date,
   status: number,
   appointmentTypes?: string[],
   indicators?: string[],
+  comment?: string,
+  supplierName?: string,
 };
 
 export type Prism = {
@@ -273,11 +277,11 @@ export type ConsultationDetail = {
 };
 
 export type CodeDefinition =
-  {
+  | {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
-      readonly? : boolean,
+      readonly?: boolean,
     }
   | string;
 
@@ -371,6 +375,7 @@ export type GroupDefinition = {
   hasVA?: boolean,
   hasAdd?: boolean,
   hasLensType?: boolean,
+  hasPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
