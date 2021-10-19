@@ -1,0 +1,169 @@
+{
+    "name": "BC Health Consent Form",
+    "scrollable": true,
+    "card": true,
+    "type": "groupedForm",
+    "section": "Form.2",
+    "cardGroup": "BC Health Consent Form",
+    "fields": [
+      {
+        "name": "BC Health Consent Form",
+        "label": "",
+        "size": "XL",
+        "fields": [
+          {
+            "sync": true,
+            "popup": false,
+            "name": "BC Health Consent Form",
+            "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1718/bc_healthConsentForm.jpg",
+            "drawable": true,
+            "label": "",
+            "resolution": "1700x2200",
+            "type": "Patient Consent Form",
+            "size": "XL",
+            "fields": [
+              {
+                "layout": {
+                  "position": "absolute",
+                  "width": 1000,
+                  "justifyContent": "flex-start",
+                  "left": 0,
+                  "top": 0
+                },
+                "name": "Form",
+                "label": "",
+                "fields": [
+                  {
+                    "mappedField": "patient.lastName",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 50,
+                      "fontSize": 20,
+                      "top": 280
+                    },
+                    "name": "Patient Last Name",
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "patient.firstName",
+                    "name": "Patient First Name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 420,
+                      "fontSize": 20,
+                      "top": 280
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "patient.medicalCard",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 780,
+                      "fontSize": 20,
+                      "top": 280
+                    },
+                    "name": "Medical card",
+                    "readonly": true
+                  },
+                  {
+                    "name": "Patient signed date",
+                    "mappedField": "visit.examDate",
+                    "readonly": true,
+                    "dateFormat": "DD/MM/yyyy",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 650,
+                      "left": 780,
+                      "width": 200,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  },
+                  {
+                    "mappedField": "visit.doctor",
+                    "maxLength": 100,
+                    "name": "Doctor",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 420,
+                      "left": 50,
+                      "fontSize": 20,
+                      "top": 810
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.insurance.practitionernumber",
+                    "maxLength": 100,
+                    "name": "Practitioner Number",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 250,
+                      "left": 510,
+                      "fontSize": 20,
+                      "top": 810
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.insurance.payeenumber",
+                    "maxLength": 100,
+                    "name": "Payee Number",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 250,
+                      "left": 780,
+                      "fontSize": 20,
+                      "top": 810
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "name": "Practioner signed date",
+                    "mappedField": "visit.examDate",
+                    "readonly": true,
+                    "dateFormat": "DD/MM/yyyy",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 1120,
+                      "left": 780,
+                      "width": 200,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  },
+                  {
+                    "name": "Doctor signature",
+                    "mappedField": "visit.doctor.signature",
+                    "image": "[visit.doctor.signature]",
+                    "readonly": true,
+                    "size": "XS",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 1095,
+                      "left": 320,
+                      "width": 300,
+                      "height": 60,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  

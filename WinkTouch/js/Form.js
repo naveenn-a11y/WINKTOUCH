@@ -1462,11 +1462,22 @@ export class FormInput extends Component {
         //An image in a multivalue group
         replaceImage = false;
       }
+      const image = this.props.definition.image;
+      let value = this.props.value;
+      if (
+        image !== undefined &&
+        image !== null &&
+        image.startsWith('[') &&
+        image.endsWith(']')
+      ) {
+        value = {image: this.props.value};
+      }
+
       return (
         <ImageField
           ref="imageField"
-          value={this.props.value}
-          image={this.props.definition.image}
+          value={value}
+          image={image}
           fileName={this.props.definition.name}
           resolution={this.props.definition.resolution}
           size={this.props.definition.size}

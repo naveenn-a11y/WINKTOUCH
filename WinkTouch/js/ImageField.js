@@ -147,9 +147,13 @@ export async function loadBase64ImageForWeb(
         format = 'data:image/jpg;base64,';
       }
     } else {
-      format = image.endsWith('jpg')
-        ? 'data:image/jpg;base64,'
-        : 'data:image/png;base64,';
+      if (image.endsWith('pdf')) {
+        format = 'data:application/pdf;base64,';
+      } else if (image.endsWith('jpg')) {
+        format = 'data:image/jpg;base64,';
+      } else {
+        format = 'data:image/png;base64,';
+      }
     }
 
     const path: string = format.concat(response);
@@ -963,6 +967,7 @@ export class ImageField extends Component {
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
+
     if (image === undefined || image === 'upload') return undefined;
     if (image === './image/perimetry.png')
       return require('./image/perimetry.png');

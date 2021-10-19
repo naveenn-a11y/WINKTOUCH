@@ -1364,6 +1364,8 @@ export function imageWidth(size: string): number {
       ? 520
       : size === 'S'
       ? 340
+      : size === 'XS'
+      ? 90
       : 340;
   return width;
 }
