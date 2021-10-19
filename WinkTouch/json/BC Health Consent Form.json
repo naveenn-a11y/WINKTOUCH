@@ -14,9 +14,9 @@
           {
             "sync": true,
             "popup": false,
+            "drawable":true,
             "name": "BC Health Consent Form",
             "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1718/bc_healthConsentForm.jpg",
-            "drawable": true,
             "label": "",
             "resolution": "1700x2200",
             "type": "Patient Consent Form",
