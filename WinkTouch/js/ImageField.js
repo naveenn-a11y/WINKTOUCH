@@ -1193,7 +1193,6 @@ export class ImageField extends Component {
         'XL',
         this.aspectRatio(),
       );
-      const scale: number = style.width / this.resolution()[0];
 
       return (
         <TouchableWithoutFeedback onPress={isWeb ? {} : this.commitEdit}>
