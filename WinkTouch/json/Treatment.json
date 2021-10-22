@@ -3,7 +3,7 @@
   "order": 4,
   "locale": {
     "fr-CA": {
-      "label": "Traitement",
+      "label": "Rappel",
       "fields": [
         {
           "name": "Treatment plan",
@@ -49,6 +49,7 @@
     }
   },
   "name": "Treatment",
+  "label": "Recall",
   "scrollable": false,
   "cardFields": [
     [

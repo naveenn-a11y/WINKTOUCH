@@ -32,10 +32,12 @@ import {
   getUserLanguageIcon,
 } from './Strings';
 import {
-  restUrl,
+  getRestUrl,
   searchItems,
   handleHttpError,
   getNextRequestNumber,
+  getWinkEmrHostFromAccount,
+  switchEmrHost,
 } from './Rest';
 import {
   dbVersion,
@@ -53,7 +55,6 @@ const accountsUrl =
   'https://ecomm-touch.downloadwink.com/wink-ecomm' +
   ecommVersion +
   '/WinkRegistrationAccounts';
-let doctorLoginUrl = restUrl + 'login/doctors';
 
 async function fetchAccounts(path: string) {
   if (!path) return;
@@ -130,6 +131,11 @@ export class LoginScreen extends Component {
     this.props.onReset();
   };
 
+  switchEmrHost = (account: Account) => {
+    switchEmrHost(getWinkEmrHostFromAccount(account));
+    this.forceUpdate();
+  };
+
   async fetchAccountsStores(registration: Registration) {
     if (!registration) return;
     let accounts: Account[] = await fetchAccounts(this.props.registration.path);
@@ -179,6 +185,7 @@ export class LoginScreen extends Component {
     InteractionManager.runAfterInteractions(() => {
       let account: ?Account = this.getAccount();
       if (!account || account.id === undefined) return;
+      this.switchEmrHost(account);
       fetchCodeDefinitions(getUserLanguage(), account.id);
     });
   }
@@ -209,6 +216,7 @@ export class LoginScreen extends Component {
     )
       AsyncStorage.removeItem('account');
     else AsyncStorage.setItem('account', account);
+
     this.setState({account}, this.fetchCodes());
   };
 
@@ -257,6 +265,7 @@ export class LoginScreen extends Component {
   };
 
   async login() {
+    let doctorLoginUrl = getRestUrl() + 'login/doctors';
     let userName = this.state.userName;
     if (
       userName === undefined ||

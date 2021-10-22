@@ -73,6 +73,13 @@ export async function fetchAppointment(
   return appointment;
 }
 
+export async function fetchEvents(storeId: ?string): Promise<Appointment> {
+  const searchCritera = {storeId: storeId};
+  let restResponse = await searchItems('Appointment/events', searchCritera);
+  let dayEvents: Appointment[] = restResponse.dayEventsList;
+  cacheItemsById(dayEvents);
+  return dayEvents;
+}
 export async function fetchAppointments(
   storeId: ?string,
   doctorId: ?string,
@@ -97,10 +104,6 @@ export async function fetchAppointments(
   let patients: PatientInfo[] = restResponse.patientList;
   let appointmentTypes: AppointmentType[] = restResponse.appointmentTypeList;
   let appointments: Appointment[] = restResponse.appointmentList;
-  if (includeDayEvents) {
-    let dayEvents: Appointment[] = restResponse.dayEventsList;
-    appointments = [...appointments, ...dayEvents];
-  }
 
   cacheItemsById(users);
   cacheItemsById(appointmentTypes);

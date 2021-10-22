@@ -75,7 +75,7 @@ import {
 import {importData, exportData} from './MappedField';
 import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
-import {getPatient} from './Exam';
+import {getPatient, getExam} from './Exam';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
 
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';

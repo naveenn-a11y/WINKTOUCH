@@ -10,21 +10,34 @@ import {
   getNextRequestNumber,
   logRestResponse,
   handleHttpError,
+  defaultHost,
 } from './Rest';
 import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {restVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.04/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.04/';
-export let winkRestUrl = __DEV__
-  ? 'http://192.168.2.53:8080/WinkRESTv5.00.40/'
-  : 'https://emr.downloadwink.com/WinkRESTv' + restVersion + '/';
+
+let winkRestUrl: string;
+export function setWinkRestUrl(winkEmrHost: string) {
+  winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + restVersion + '/';
+}
+
+export function getWinkRestUrl(): string {
+  if (__DEV__) {
+    return 'http://192.168.2.53:8080/WinkRESTv5.00.40/';
+  }
+  if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
+    return setWinkRestUrl(defaultHost);
+  } else {
+    return winkRestUrl;
+  }
+}
 
 export async function fetchWinkRest(
   uri: string,
@@ -32,7 +45,7 @@ export async function fetchWinkRest(
   httpMethod: string = 'GET',
   body?: any,
 ): any {
-  const url: string = appendParameters(winkRestUrl + uri, parameters);
+  const url: string = appendParameters(getWinkRestUrl() + uri, parameters);
   const requestNr = getNextRequestNumber();
   __DEV__ &&
     console.log(
@@ -74,7 +87,7 @@ export async function createPdf(
   method: string = 'post',
   body?: any,
 ): any {
-  const url: string = appendParameters(winkRestUrl + uri, parameters);
+  const url: string = appendParameters(getWinkRestUrl() + uri, parameters);
   __DEV__ &&
     console.log(method + ' ' + url + ': ' + (body ? JSON.stringify(body) : ''));
   try {
