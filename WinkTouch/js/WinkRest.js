@@ -10,6 +10,7 @@ import {
   getNextRequestNumber,
   logRestResponse,
   handleHttpError,
+  defaultHost
 } from './Rest';
 import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {restVersion} from './Version';
@@ -28,7 +29,16 @@ export function setWinkRestUrl(winkEmrHost: string) {
 }
 
 export function getWinkRestUrl(): string {
-  return __DEV__ ? 'http://192.168.2.53:8080/WinkRESTv5.00.40/' : winkRestUrl;
+  if(__DEV__) {
+    return  'http://192.168.2.53:8080/WinkRESTv5.00.40/';
+  }
+  if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
+    return 'https://' + defaultHost +'/WinkRESTv' + restVersion + '/';
+  }
+  else {
+    return winkRestUrl;
+  }
+
 }
 
 export async function fetchWinkRest(

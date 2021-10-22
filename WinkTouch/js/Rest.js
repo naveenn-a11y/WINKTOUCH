@@ -27,7 +27,7 @@ import {setWinkRestUrl} from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-const defaultHost: string = 'emr.downloadwink.com';
+export const defaultHost: string = 'emr.downloadwink.com';
 
 let token: string;
 let privileges: Privileges = {
