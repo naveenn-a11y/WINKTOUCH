@@ -1334,7 +1334,6 @@ function boardStyle(
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
-    maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
     maxHeight:
       isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
@@ -1364,6 +1363,8 @@ export function imageWidth(size: string): number {
       ? 520
       : size === 'S'
       ? 340
+      : size === 'XS'
+      ? 130
       : 340;
   return width;
 }
