@@ -49,6 +49,7 @@ export type Account = {
   email: string,
   stores: Store[],
   isDemo: boolean,
+  extraFields: any,
 };
 
 export type User = {
