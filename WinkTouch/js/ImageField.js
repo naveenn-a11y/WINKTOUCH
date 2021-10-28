@@ -184,6 +184,7 @@ export class ImageField extends Component {
     enableScroll?: () => void,
     disableScroll?: () => void,
     replaceImage?: boolean,
+    forceSync?: boolean,
   };
   state: {
     isActive: boolean,
@@ -289,6 +290,7 @@ export class ImageField extends Component {
     if (this.state.isActive) {
       this.commitEdit();
     }
+
     if (this.state.pdf) {
       this.uploadScreenShot();
     }
@@ -296,7 +298,9 @@ export class ImageField extends Component {
 
   async loadImage() {
     await this.loadImageForWeb();
-
+    if (this.props.forceSync) {
+      this.scheduleScreenShot();
+    }
     this.setState({upload: undefined});
     const imageDrawing: ImageDrawing = this.props.value;
     if (
@@ -819,6 +823,7 @@ export class ImageField extends Component {
       this.refs && this.refs.viewShot
         ? await this.refs.viewShot.capture()
         : undefined;
+
     if (fileUri === undefined) {
       const mimeType: string = getMimeType(this.state.upload);
       const isPdf: boolean = mimeType
