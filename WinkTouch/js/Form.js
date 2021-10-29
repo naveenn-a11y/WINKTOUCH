@@ -63,7 +63,6 @@ import {
   getValue,
   setValue,
   formatAge,
-  insertNewlines,
   isEmpty,
 } from './Util';
 import {isNumericField, formatLabel} from './Items';
@@ -208,9 +207,6 @@ export class FormTextInput extends Component {
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({text});
   };
 
