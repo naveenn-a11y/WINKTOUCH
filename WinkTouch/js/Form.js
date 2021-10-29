@@ -1495,6 +1495,7 @@ export class FormInput extends Component {
           enableScroll={this.props.enableScroll}
           disableScroll={this.props.disableScroll}
           replaceImage={replaceImage}
+          forceSync={this.props.definition.forceSync}
           testID={this.props.testID}>
           {this.props.definition.fields &&
             this.props.definition.fields.map(
