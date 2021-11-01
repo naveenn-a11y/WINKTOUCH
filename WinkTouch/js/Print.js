@@ -26,7 +26,7 @@ import {
   getPng64Dimension,
   getMimeType,
 } from './Upload';
-import {winkRestUrl, fetchWinkRest} from './WinkRest';
+import {getWinkRestUrl} from './WinkRest';
 import {isWeb} from './Styles';
 import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -118,7 +118,8 @@ export async function deleteLocalFiles() {
 async function loadRxLogo(): Promise<string> {
   //TODO: only fetch once
   __DEV__ && console.log('Fetching Rx logo');
-  const url: string = winkRestUrl + 'webresources/attachement/845/431/Rx.jpg';
+  const url: string =
+    getWinkRestUrl() + 'webresources/attachement/845/431/Rx.jpg';
   if (isWeb) {
     const path: string = await loadBase64ImageForWeb(url);
     return path;
@@ -173,12 +174,13 @@ function addDrHeader(
   pageHeight: number,
   border: number,
 ) {
-  const store: Store = getStore();
   const visit: Visit = getCachedItem(visitId);
   //const doctor = getDoctor();
   if (!visit || !visit.userId) {
     return;
   }
+  const vStore: Store = getCachedItem(visit.storeId);
+  const store: Store = !isEmpty(vStore) ? vStore : getStore();
   const doctor: User = getCachedItem(visit.userId);
   if (!doctor) {
     return;

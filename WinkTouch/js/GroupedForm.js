@@ -1161,6 +1161,7 @@ export class GroupedForm extends Component {
           : undefined
         : this.props.form[fieldDefinition.name]
       : undefined;
+
     //if (fieldDefinition.mappedField) {
     //  value = getExamFieldValue(fieldDefinition.mappedField, getCachedItem(this.props.examId));
     //  __DEV__ && console.log('Got mapped field value '+fieldDefinition.mappedField+' from exam :'+value);

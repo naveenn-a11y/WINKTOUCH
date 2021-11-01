@@ -10,15 +10,18 @@ import {
   TouchableOpacity,
   InteractionManager,
   Picker,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
-import {styles, windowHeight, fontScale, isWeb} from './Styles';
+import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
   AppointmentTypes,
   AppointmentIcons,
   fetchAppointments,
+  fetchEvents,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -55,32 +58,44 @@ export class AgendaScreen extends Component {
     date: Date,
     mode: any,
     appointments: Appointment[],
+    events: Appointment[],
     event: Appointment,
     showDialog: boolean,
+    isLoading: boolean,
   };
   today = new Date();
   lastRefresh: number;
+  daysInWeek: number;
   constructor(props: any) {
     super(props);
     this.state = {
       mode: 'custom',
       date: this.today,
       appointments: [],
+      events: [],
       event: undefined,
       showDialog: false,
+      isLoading: false,
     };
     this.lastRefresh = 0;
+    this.daysInWeek = 6;
   }
 
   componentDidMount() {
-    this.refreshAppointments();
+    InteractionManager.runAfterInteractions(() => {
+      this.refreshAppointments(true, true, this.daysInWeek);
+    });
   }
 
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event, showDialog: true});
   };
-  async refreshAppointments() {
-    if (now().getTime() - this.lastRefresh < 5 * 1000) {
+  async refreshAppointments(
+    refresh: ?boolean,
+    includeDayEvents: ?boolean = false,
+    maxDays: number = this.daysInWeek,
+  ) {
+    if (!refresh && now().getTime() - this.lastRefresh < 5 * 1000) {
       this.setState(this.state.appointments);
       return;
     }
@@ -88,18 +103,38 @@ export class AgendaScreen extends Component {
     InteractionManager.runAfterInteractions(() =>
       this.props.navigation.setParams({refreshAppointments: false}),
     );
-    let appointments = await fetchAppointments(
-      'store-' + getStore().storeId,
-      getDoctor().id,
-      undefined,
-      undefined,
-      dayjs(this.today).subtract(2, 'year').format(jsonDateFormat),
-      true,
-    );
-    this.setState({appointments});
+    this.setState({isLoading: true});
+    try {
+      const fromDate =
+        this.state.mode === 'custom'
+          ? dayjs(this.state.date).startOf('week')
+          : dayjs(this.state.date);
+      let appointments = await fetchAppointments(
+        'store-' + getStore().storeId,
+        getDoctor().id,
+        maxDays,
+        undefined,
+        fromDate.format(jsonDateFormat),
+        true,
+      );
+      if (includeDayEvents) {
+        const events = await fetchEvents('store-' + getStore().storeId);
+        this.setState({events});
+      }
+      appointments = [...appointments, ...this.state.events];
+      this.setState({appointments, isLoading: false});
+    } catch (e) {
+      this.setState({isLoading: false});
+    }
   }
   _onToday = () => {
-    this.setState({date: this.today});
+    this.setState({date: this.today}, () => {
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    });
   };
   _onPrevDate = () => {
     if (this.state.mode === 'month') {
@@ -109,23 +144,47 @@ export class AgendaScreen extends Component {
           .toDate(),
       });
     } else {
-      this.setState({
-        date: dayjs(this.state.date)
-          .add(modeToNum(this.state.mode, this.state.date) * -1, 'day')
-          .toDate(),
-      });
+      this.setState(
+        {
+          date: dayjs(this.state.date)
+            .add(modeToNum(this.state.mode, this.state.date) * -1, 'day')
+            .toDate(),
+        },
+        () => {
+          this.refreshAppointments(
+            true,
+            false,
+            this.state.mode === 'day' ? 1 : this.daysInWeek,
+          );
+        },
+      );
     }
   };
   _onNextDate = () => {
-    this.setState({
-      date: dayjs(this.state.date)
-        .add(modeToNum(this.state.mode, this.state.date), 'day')
-        .toDate(),
-    });
+    this.setState(
+      {
+        date: dayjs(this.state.date)
+          .add(modeToNum(this.state.mode, this.state.date), 'day')
+          .toDate(),
+      },
+      () => {
+        this.refreshAppointments(
+          true,
+          false,
+          this.state.mode === 'day' ? 1 : this.daysInWeek,
+        );
+      },
+    );
   };
 
   _onSetMode = (mode: string) => {
-    this.setState({mode: mode});
+    this.setState({mode: mode}, () => {
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    });
   };
 
   cancelDialog = () => {
@@ -247,55 +306,10 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
-  renderAppointment(event, touchableOpacityProps) {
-    const patient: Patient = getCachedItem(event.patientId);
-    const appointmentType: AppointmentType =
-      event && event.appointmentTypes
-        ? getCachedItem(event.appointmentTypes[0])
-        : undefined;
-    return (
-      <TouchableOpacity
-        {...touchableOpacityProps}
-        style={[
-          ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
-          {
-            backgroundColor: 'white',
-            borderWidth: 1,
-            borderColor: 'lightgrey',
-            borderLeftColor:
-              appointmentType && appointmentType.color
-                ? appointmentType.color
-                : 'white',
-            borderLeftWidth: 10,
-            borderStyle: 'solid',
-            borderRadius: 6,
-          },
-        ]}>
-        <View>
-          <View style={styles.rowLayout}>
-            <AppointmentIcons appointment={event} />
-            <View style={{marginHorizontal: 5 * fontScale}}>
-              <View style={styles.rowLayout}>
-                <Text style={styles.text}>
-                  {patient && patient.firstName} {patient && patient.lastName}
-                </Text>
-                <PatientTags patient={patient} />
-              </View>
-              <Text style={styles.text}>{event.title}</Text>
-              <Text style={styles.text}>
-                {isToday(event.start)
-                  ? formatDate(event.start, timeFormat)
-                  : formatDate(event.start, dayYearDateTimeFormat)}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
   render() {
     return (
       <View style={styles.page}>
+        {this.state.isLoading && this.renderLoading()}
         {this.state.showDialog && this.renderEventDetails()}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
@@ -338,22 +352,119 @@ export class AgendaScreen extends Component {
             </Picker>
           </View>
         </View>
-
-        <Calendar
+        <NativeCalendar
           date={this.state.date}
-          height={windowHeight}
-          events={this.state.appointments}
-          onPressEvent={(event) => this._onSetEvent(event)}
           mode={this.state.mode}
-          ampm={true}
-          weekStartsOn={1}
-          weekEndsOn={6}
-          renderEvent={(
-            event: ICalendarEvent<T>,
-            touchableOpacityProps: CalendarTouchableOpacityProps,
-          ) => this.renderAppointment(event, touchableOpacityProps)}
+          appointments={this.state.appointments}
+          _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
         />
       </View>
+    );
+  }
+
+  renderLoading() {
+    if (this.state.isLoading) {
+      return (
+        <Modal
+          visible={this.state.isLoading}
+          transparent={true}
+          animationType={'none'}
+          onRequestClose={this.cancelEdit}>
+          <View style={styles.container}>
+            {this.state.isLoading && (
+              <ActivityIndicator size="large" color={selectionColor} />
+            )}
+          </View>
+        </Modal>
+      );
+    }
+    return null;
+  }
+}
+
+class NativeCalendar extends Component {
+  props: {
+    date: Date,
+    mode: any,
+    appointments: Appointment[],
+    _onSetEvent: (event: Appointment) => void,
+  };
+
+  constructor(props: any) {
+    super(props);
+  }
+  shouldComponentUpdate(nextProps) {
+    return (
+      nextProps.mode !== this.props.mode ||
+      nextProps.date !== this.props.date ||
+      nextProps.appointments !== this.props.appointments
+    );
+  }
+
+  renderAppointment(event, touchableOpacityProps) {
+    const patient: Patient = getCachedItem(event.patientId);
+    const appointmentType: AppointmentType =
+      event && event.appointmentTypes
+        ? getCachedItem(event.appointmentTypes[0])
+        : undefined;
+    return (
+      <TouchableOpacity
+        {...touchableOpacityProps}
+        style={[
+          ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
+          {
+            backgroundColor: 'white',
+            borderWidth: 1,
+            borderColor: 'lightgrey',
+            borderLeftColor:
+              appointmentType && appointmentType.color
+                ? appointmentType.color
+                : 'white',
+            borderLeftWidth: 10,
+            borderStyle: 'solid',
+            borderRadius: 6,
+            padding: 0,
+          },
+        ]}>
+        <View>
+          <View style={styles.rowLayout}>
+            <AppointmentIcons appointment={event} />
+            <View style={{marginHorizontal: 5 * fontScale}}>
+              <View style={styles.rowLayout}>
+                <Text style={styles.text}>
+                  {patient && patient.firstName} {patient && patient.lastName}
+                </Text>
+                <PatientTags patient={patient} />
+              </View>
+              <Text style={styles.text}>{event.title}</Text>
+              <Text style={styles.text}>
+                {isToday(event.start)
+                  ? formatDate(event.start, timeFormat)
+                  : formatDate(event.start, dayYearDateTimeFormat)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  render() {
+    return (
+      <Calendar
+        date={this.props.date}
+        height={windowHeight}
+        events={this.props.appointments}
+        onPressEvent={(event) => this.props._onSetEvent(event)}
+        mode={this.props.mode}
+        ampm={true}
+        weekStartsOn={1}
+        weekEndsOn={6}
+        renderEvent={(
+          event: ICalendarEvent<T>,
+          touchableOpacityProps: CalendarTouchableOpacityProps,
+        ) => this.renderAppointment(event, touchableOpacityProps)}
+      />
     );
   }
 }

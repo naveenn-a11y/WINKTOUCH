@@ -1673,7 +1673,8 @@ class VisitWorkFlow extends Component {
     const visitStarted: boolean = visitHasStarted(this.state.visit);
     const pretestMode: boolean =
       (isEmpty(this.state.visit.userId) && !visitStarted) ||
-      (isEmpty(this.state.visit.userId) && !visitStarted && !pretestStarted);
+      (isEmpty(this.state.visit.userId) && !visitStarted && !pretestStarted) ||
+      (!isEmpty(this.state.visit.userId) && !visitStarted);
     if (pretestMode) {
       const showStartVisitButtons: boolean =
         !this.props.readonly &&
