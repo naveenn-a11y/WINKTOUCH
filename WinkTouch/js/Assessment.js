@@ -15,15 +15,17 @@ import {
 import type {GlassesRx, Visit, Exam} from './Types';
 import {strings} from './Strings';
 import {styles, fontScale} from './Styles';
-import {GlassesDetail} from './Refraction';
+import {GlassesDetail, isPDEmpty} from './Refraction';
 import {FormRow, FormField, FormTextInput} from './Form';
 import {getCachedItem} from './DataCache';
 import {ItemsCard, formatLabel} from './Items';
-import {GroupedCard} from './GroupedForm';
+import {GroupedCard, GroupedForm} from './GroupedForm';
 import {storeExam} from './Exam';
 import {Microphone} from './Voice';
 import {getDataType} from './Rest';
 import {Label} from './Widgets';
+import {isEmpty} from './Util';
+import {formatCode} from './Codes';
 
 export class AssessmentCard extends Component {
   props: {
@@ -80,22 +82,81 @@ export class PrescriptionCard extends Component {
     exam: Exam,
     title?: string,
   };
-
+  renderPurchaseRxRows() {
+    let rows: any[] = [];
+    const purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
+    purchaseRx.map((recomm: any, index: number) => {
+      rows.push(this.renderPurchaseRxSimpleRow(recomm, index));
+    });
+    return rows;
+  }
+  renderPurchaseRxSimpleRow(recomm: any, index: number) {
+    return (
+      <View style={styles.formRow}>
+        {formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ? (
+          <Text style={styles.textLeft}>
+            {formatCode('purchaseReasonCode', recomm.lensType)}
+          </Text>
+        ) : (
+          !isEmpty(recomm.notes) && (
+            <Text style={styles.textLeft}>
+              {strings.drRecommendation + (index + 1)}
+            </Text>
+          )
+        )}
+        {!isEmpty(recomm.notes) && (
+          <Text style={styles.textLeft}>
+            {', '} {recomm.notes}
+          </Text>
+        )}
+      </View>
+    );
+  }
   render() {
     if (this.props.exam === undefined) return null;
+    const groupDefinition: GroupDefinition =
+      this.props.exam.definition.fields.find(
+        (fieldDefinition: GroupDefinition | FieldDefinition) =>
+          fieldDefinition.name === 'PD',
+      );
+    const glassesRx: GlassesRx = this.props.exam.RxToOrder['Final Rx'];
+    const pd: any = this.props.exam.RxToOrder['PD'];
+
     return (
       <View style={styles.assessmentCard}>
         <View style={styles.formRow500}>
           <GlassesDetail
-            title={strings.RxToOrder}
             titleStyle={styles.sectionTitle}
             title={strings.finalRx}
-            glassesRx={this.props.exam.RxToOrder['Final Rx']}
+            glassesRx={glassesRx}
             examId={this.props.exam.id}
             style={styles.flexColumnLayout}
             editable={false}
             hasAdd={true}
+            isPrescriptionCard={true}
           />
+        </View>
+        {glassesRx && !isEmpty(glassesRx.notes) && (
+          <View style={styles.formRow}>
+            <Text style={styles.textLeft}>{strings.notesOnRx}: </Text>
+            <Text style={styles.textLeft}>{glassesRx.notes}</Text>
+          </View>
+        )}
+        <View style={styles.formRow}>
+          {groupDefinition && !isPDEmpty(pd) && (
+            <GroupedForm
+              definition={groupDefinition}
+              editable={false}
+              form={pd}
+              examId={this.props.exam.id}
+              style={styles.flexColumnLayout}
+            />
+          )}
+        </View>
+        <View style={styles.formRow}>
+          <View style={styles.flexColumnLayout}>
+            {this.renderPurchaseRxRows()}
+          </View>
         </View>
       </View>
     );

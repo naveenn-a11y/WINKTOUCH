@@ -140,6 +140,21 @@ export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
   );
 }
 
+export function isPDEmpty(pd: ?any): boolean {
+  if (!pd) return true;
+
+  const farPD: any = pd.Far;
+  const nearPD: any = pd.Near;
+
+  if (!farPD && !nearPD) return true;
+  return (
+    (isEmpty(farPD.OS) || farPD.OS === 0) &&
+    (isEmpty(farPD.OD) || farPD.OD === 0) &&
+    (isEmpty(nearPD.OS) || nearPD.OS === 0) &&
+    (isEmpty(nearPD.OD) || nearPD.OD === 0)
+  );
+}
+
 function isAstigmatic(glassesRx: GlassesRx): boolean {
   if (!glassesRx) return false;
   if (
@@ -768,6 +783,7 @@ export class GlassesDetail extends Component {
     onClear?: () => void,
     examId: string,
     fieldId?: string,
+    isPrescriptionCard?: boolean,
   };
   state: {
     prism: boolean,
@@ -779,6 +795,7 @@ export class GlassesDetail extends Component {
   static defaultProps = {
     editable: true,
     titleStyle: styles.sectionTitle,
+    isPrescriptionCard: false,
   };
   static contextType = ModeContext;
 
@@ -910,6 +927,19 @@ export class GlassesDetail extends Component {
     }
   }
 
+  hasVA(): boolean {
+    return (
+      this.props.hasVA ||
+      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.od.va)) ||
+      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.os.va)) ||
+      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.ou.va))
+    );
+  }
+
+  hasNVA(): boolean {
+    return this.hasVA() && this.props.hasAdd;
+  }
+
   async exportData() {
     if (this.props.definition.export === undefined) return;
     const exam: Exam = getCachedItem(this.props.examId);
@@ -984,9 +1014,9 @@ export class GlassesDetail extends Component {
         style={
           this.props.style
             ? this.props.style
-            : this.state.prism && this.props.hasVA
+            : this.state.prism && this.hasVA()
             ? styles.boardXL
-            : this.state.prism || this.props.hasVA
+            : this.state.prism || this.hasVA()
             ? styles.boardL
             : styles.boardM
         }>
@@ -1067,7 +1097,7 @@ export class GlassesDetail extends Component {
                 )}
               </Text>
             )}
-            {this.props.hasVA && (
+            {this.hasVA() && (
               <Text style={styles.formTableColumnHeader}>
                 {formatLabel(
                   getFieldDefinition('exam.VA cc.Aided acuities.DVA'),
@@ -1079,7 +1109,7 @@ export class GlassesDetail extends Component {
                 {formatLabel(getFieldDefinition('visit.prescription.od.add'))}
               </Text>
             )}
-            {this.props.hasVA && this.props.hasAdd && (
+            {this.hasNVA() && (
               <Text style={styles.formTableColumnHeader}>
                 {formatLabel(
                   getFieldDefinition('exam.VA cc.Aided acuities.NVA'),
@@ -1143,7 +1173,7 @@ export class GlassesDetail extends Component {
                 />
               </View>
             )}
-            {this.props.hasVA === true && (
+            {this.hasVA() && (
               <FormInput
                 value={this.props.glassesRx.od.va}
                 definition={getFieldDefinition(
@@ -1176,7 +1206,7 @@ export class GlassesDetail extends Component {
                 testID={this.props.fieldId + '.od.add'}
               />
             )}
-            {this.props.hasVA === true && this.props.hasAdd === true && (
+            {this.hasNVA() && (
               <FormInput
                 value={this.props.glassesRx.od.addVa}
                 definition={getFieldDefinition(
@@ -1252,7 +1282,7 @@ export class GlassesDetail extends Component {
                 />
               </View>
             )}
-            {this.props.hasVA === true && (
+            {this.hasVA() && (
               <FormInput
                 value={this.props.glassesRx.os.va}
                 definition={getFieldDefinition(
@@ -1282,7 +1312,7 @@ export class GlassesDetail extends Component {
                 testID={this.props.fieldId + '.os.add'}
               />
             )}
-            {this.props.hasVA === true && this.props.hasAdd === true && (
+            {this.hasNVA() && (
               <FormInput
                 value={this.props.glassesRx.os.addVa}
                 definition={getFieldDefinition(
@@ -1302,7 +1332,7 @@ export class GlassesDetail extends Component {
               <View style={styles.formTableColumnHeaderSmall} />
             )}
           </View>
-          {this.props.hasVA === true && this.props.glassesRx.ou !== undefined && (
+          {this.hasVA() && this.props.glassesRx.ou !== undefined && (
             <View style={styles.formRow}>
               <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>
               <View style={styles.fieldFlexContainer}>
