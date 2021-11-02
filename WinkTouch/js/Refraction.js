@@ -795,6 +795,7 @@ export class GlassesDetail extends Component {
   static defaultProps = {
     editable: true,
     titleStyle: styles.sectionTitle,
+    isPrescriptionCard: false,
   };
   static contextType = ModeContext;
 
