@@ -1028,20 +1028,23 @@ export class GlassesDetail extends Component {
             fieldId={this.props.fieldId}
           />
         )}
-        {this.props.editable && this.props.glassesRx.expiry && (
-          <View style={styles.formRow}>
-            <FormInput
-              value={this.props.glassesRx.expiry}
-              definition={getFieldDefinition('visit.expDate')}
-              readonly={!this.props.editable}
-              onChangeValue={(value: ?string) => {
-                this.updateGlassesRx(undefined, 'expiry', value);
-              }}
-              errorMessage={this.props.glassesRx.expiryError}
-              testID={this.props.fieldId + '.expDate'}
-            />
-          </View>
-        )}
+        {this.props.editable &&
+          this.props.definition &&
+          this.props.definition.name &&
+          this.props.definition.name.toLowerCase() === 'final rx' && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.expiry}
+                definition={getFieldDefinition('visit.expDate')}
+                readonly={!this.props.editable}
+                onChangeValue={(value: ?string) => {
+                  this.updateGlassesRx(undefined, 'expiry', value);
+                }}
+                errorMessage={this.props.glassesRx.expiryError}
+                testID={this.props.fieldId + '.expDate'}
+              />
+            </View>
+          )}
         <View style={styles.centeredColumnLayout}>
           {this.props.hasLensType && (
             <View style={styles.formRow}>
