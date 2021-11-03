@@ -93,25 +93,16 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxSimpleRow(recomm: any, index: number) {
     return (
       <View style={styles.formRow}>
-        {formatCode('purchaseReasonCode', recomm.lensType).trim() !== '' ? (
-          <Text style={styles.textLeft}>
-            {formatCode('purchaseReasonCode', recomm.lensType)}
-          </Text>
-        ) : (
-          !isEmpty(recomm.notes) && (
-            <Text style={styles.textLeft}>
-              {strings.drRecommendation + (index + 1)}
-            </Text>
-          )
-        )}
-        {!isEmpty(recomm.notes) && (
-          <Text style={styles.textLeft}>
-            {', '} {recomm.notes}
-          </Text>
-        )}
+        <Text style={styles.textLeft}>
+          {formatCode('purchaseReasonCode', recomm.lensType).trim() !== ''
+            ? formatCode('purchaseReasonCode', recomm.lensType)
+            : !isEmpty(recomm.notes) && strings.drRecommendation + (index + 1)}
+          {!isEmpty(recomm.notes) && ', ' + recomm.notes}
+        </Text>
       </View>
     );
   }
+
   render() {
     if (this.props.exam === undefined) return null;
     const groupDefinition: GroupDefinition =
