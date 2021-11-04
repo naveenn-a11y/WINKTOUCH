@@ -123,6 +123,45 @@
           "label": ""
         },
         {
+          "mappedField": "patient.patientTag1",
+          "name": "PatientTag1",
+          "label": "Patient Type 1",
+          "simpleSelect": true,
+          "options": "patientTagsCodes"
+        },
+        {
+          "mappedField": "patient.patientTag2",
+          "name": "PatientTag2",
+          "label": "Patient Type 2",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[Treatment.Recall.PatientTag1]"
+        },
+        {
+          "mappedField": "patient.patientTag3",
+          "name": "PatientTag3",
+          "label": "Patient Type 3",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[Treatment.Recall.PatientTag2]"
+        },
+        {
+          "mappedField": "patient.patientTag4",
+          "name": "PatientTag4",
+          "label": "Patient Type 4",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[Treatment.Recall.PatientTag3]"
+        },
+        {
+          "mappedField": "patient.patientTag5",
+          "name": "PatientTag5",
+          "label": "Patient Type 5",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[Treatment.Recall.PatientTag4]"
+        },
+        {
           "mappedField": "visit.recall.notes",
           "name": "Notes"
         }
@@ -166,6 +205,45 @@
           "mappedField": "patient.recall2Comment",
           "name": "Recall2Comment",
           "label": ""
+        },
+        {
+          "mappedField": "patient.patientTag1",
+          "name": "PatientTag1",
+          "label": "Patient Type 1",
+          "simpleSelect": true,
+          "options": "patientTagsCodes"
+        },
+        {
+          "mappedField": "patient.patientTag2",
+          "name": "PatientTag2",
+          "label": "Patient Type 2",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[patient.patientTag1]"
+        },
+        {
+          "mappedField": "patient.patientTag3",
+          "name": "PatientTag3",
+          "label": "Patient Type 3",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[patient.patientTag2]"
+        },
+        {
+          "mappedField": "patient.patientTag4",
+          "name": "PatientTag4",
+          "label": "Patient Type 4",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[patient.patientTag3]"
+        },
+        {
+          "mappedField": "patient.patientTag5",
+          "name": "PatientTag5",
+          "label": "Patient Type 5",
+          "simpleSelect": true,
+          "options": "patientTagsCodes",
+          "visible": "[patient.patientTag4]"
         },
         {
           "mappedField": "visit.recall.notes",

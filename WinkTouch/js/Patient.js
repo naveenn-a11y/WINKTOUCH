@@ -97,7 +97,11 @@ export class PatientTags extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.patient.id === prevProps.patient.id) return;
+    if (
+      this.props.patient.id === prevProps.patient.id &&
+      this.props.patient.patientTags === prevProps.patient.patientTags
+    )
+      return;
     this.setState(
       {
         patientTags: getCachedItems(this.props.patient.patientTags),
