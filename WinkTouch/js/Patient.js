@@ -170,6 +170,7 @@ export class PatientCard extends Component {
     navigate?: string,
     refreshStateKey: string,
     style?: any,
+    hasAppointment?: boolean,
   };
   static defaultProps = {
     navigate: 'patient',
@@ -183,6 +184,7 @@ export class PatientCard extends Component {
           this.props.navigation.navigate(this.props.navigate, {
             patientInfo: this.props.patientInfo,
             refreshStateKey: this.props.refreshStateKey,
+            hasAppointment: this.props.hasAppointment,
           })
         }
         testID="patientContact">
@@ -612,6 +614,15 @@ export class CabinetScreen extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({appointments});
   }
+  hasAppointment(): boolean {
+    if (!this.state.appointments && this.state.patientInfo) {
+      const appointments: Appointment[] = getCachedItem(
+        'appointmentsHistory-' + this.state.patientInfo.id,
+      );
+      return appointments && appointments.length > 0;
+    }
+    return this.state.appointments && this.state.appointments.length > 0;
+  }
 
   newPatient = () => {
     const store: Store = getStore();
@@ -690,6 +701,7 @@ export class CabinetScreen extends Component {
           navigate="appointment"
           navigation={this.props.navigation}
           style={styles.tabCardS}
+          hasAppointment={this.hasAppointment()}
         />
         {this.renderAppointments()}
       </View>
