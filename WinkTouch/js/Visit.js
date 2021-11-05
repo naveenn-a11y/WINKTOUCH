@@ -2117,6 +2117,22 @@ export class VisitHistory extends Component {
       />
     );
   }
+  shouldRenderActionButons(): boolean {
+    if (this.props.readonly) return false;
+
+    const isNewAppointment: boolean = this.isNewAppointment();
+    const userHasPretestWriteAccess: boolean =
+      getPrivileges().pretestPrivilege === 'FULLACCESS';
+    if (isNewAppointment && userHasPretestWriteAccess) return true;
+    if (
+      !isNewAppointment &&
+      userHasPretestWriteAccess &&
+      !this.props.hasAppointment
+    )
+      return true;
+
+    return false;
+  }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
     const userHasPretestWriteAccess: boolean =
@@ -2170,7 +2186,7 @@ export class VisitHistory extends Component {
           />
           <VisitHistoryCard patientInfo={this.props.patientInfo} />
         </View>
-        {!this.props.readonly && this.renderActionButtons()}
+        {this.shouldRenderActionButons() && this.renderActionButtons()}
       </View>
     );
   }
