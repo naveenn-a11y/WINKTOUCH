@@ -14,6 +14,7 @@ export const dateFormat: string = 'MMM Do';
 export const officialDateFormat: string = 'YYYY-MM-DD'; //TODO: this should be locale dependent or a setting?
 export const dayDateFormat: string = 'dd MMM Do';
 export const farDateFormat: string = 'MMM YYYY';
+export const farDateFormat2: string = 'MMMM YYYY';
 export const yearDateFormat: string = 'MMM Do YYYY';
 export const dayYearDateFormat: string = 'dd MMM Do YYYY';
 export const dateTimeFormat: string = dateFormat + ' ' + timeFormat;
@@ -550,4 +551,20 @@ export function insertNewlines(text: string): string {
   if (text === undefined || text === null) return text;
   text = text.replace(/  +/g, '\n');
   return text;
+}
+
+export function extractHostname(url) {
+  let hostname;
+  //find & remove protocol (http, ftp, etc.) and get hostname
+  if (url.indexOf('//') > -1) {
+    hostname = url.split('/')[2];
+  } else {
+    hostname = url.split('/')[0];
+  }
+  //find & remove port number
+  hostname = hostname.split(':')[0];
+  //find & remove "?"
+  hostname = hostname.split('?')[0];
+
+  return hostname;
 }
