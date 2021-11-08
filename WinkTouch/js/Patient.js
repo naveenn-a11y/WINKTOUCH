@@ -33,7 +33,7 @@ import {ExamCardSpecifics} from './Exam';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix} from './Util';
+import {deepClone, formatAge, prefix, isToday} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
 import {Refresh} from './Favorites';
@@ -587,6 +587,7 @@ export class CabinetScreen extends Component {
     ) {
       this.props.navigation.navigate('appointment', {
         patientInfo: this.state.patientInfo,
+        hasAppointment: this.hasAppointment(),
       }); //TODO: refreshStateKey: this.props.refreshStateKey?
       return;
     }
@@ -614,14 +615,25 @@ export class CabinetScreen extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({appointments});
   }
+
   hasAppointment(): boolean {
+    let todaysAppointments: Appointment[] = [];
     if (!this.state.appointments && this.state.patientInfo) {
       const appointments: Appointment[] = getCachedItem(
         'appointmentsHistory-' + this.state.patientInfo.id,
       );
-      return appointments && appointments.length > 0;
+      todaysAppointments = appointments;
+    } else if (this.state.appointments && this.state.appointments.length > 0) {
+      todaysAppointments = this.state.appointments;
     }
-    return this.state.appointments && this.state.appointments.length > 0;
+    if (todaysAppointments) {
+      todaysAppointments = todaysAppointments.filter(
+        (appointment: Appointment) => isToday(appointment.start),
+      );
+      return todaysAppointments && todaysAppointments.length > 0;
+    }
+
+    return false;
   }
 
   newPatient = () => {
