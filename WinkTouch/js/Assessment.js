@@ -85,10 +85,27 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxRows() {
     let rows: any[] = [];
     const purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
+    rows.push(this.renderPurchaseRxTitle());
     purchaseRx.map((recomm: any, index: number) => {
       rows.push(this.renderPurchaseRxSimpleRow(recomm, index));
     });
     return rows;
+  }
+  renderPurchaseRxTitle() {
+    let purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
+    purchaseRx = purchaseRx.filter(
+      (recomm: any) => !isEmpty(recomm.notes) || !isEmpty(recomm.lensType),
+    );
+    if (purchaseRx && purchaseRx.length > 0) {
+      return (
+        <Label
+          suffix=""
+          style={styles.sectionTitle}
+          value={strings.drRecommendation}
+        />
+      );
+    }
+    return null;
   }
   renderPurchaseRxSimpleRow(recomm: any, index: number) {
     return (
@@ -128,9 +145,13 @@ export class PrescriptionCard extends Component {
           />
         </View>
         {glassesRx && !isEmpty(glassesRx.notes) && (
-          <View style={styles.formRow}>
-            <Text style={styles.textLeft}>{strings.notesOnRx}: </Text>
-            <Text style={styles.textLeft}>{glassesRx.notes}</Text>
+          <View>
+            <View style={styles.formRow}>
+              <Text style={styles.textLeft}>{strings.notesOnRx}: </Text>
+            </View>
+            <View style={styles.formRow}>
+              <Text style={styles.textLeft}>{glassesRx.notes}</Text>
+            </View>
           </View>
         )}
         <View style={styles.formRow}>
