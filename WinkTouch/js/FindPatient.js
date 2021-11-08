@@ -217,8 +217,6 @@ export class FindPatientScreen extends Component {
   }
 
   async selectPatient(patient: Patient) {
-    console.log('ZZZZZZZZZZZZZZZZ: ' + JSON.stringify(patient));
-
     if (!patient) {
       if (!this.state.patientInfo) return;
       !isWeb && LayoutAnimation.easeInEaseOut();
@@ -230,13 +228,9 @@ export class FindPatientScreen extends Component {
       });
       return;
     }
-    console.log('Appoint2222222222222: ');
 
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
-    const appointments: Appointment[] = getCachedItem(
-      'appointmentsHistory-' + patientInfo.id,
-    );
-    console.log('Appointmentssssss: ' + JSON.stringify(appointments));
+
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({
       patientInfo,
