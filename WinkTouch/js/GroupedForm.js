@@ -950,7 +950,7 @@ export class GroupedCard extends Component {
                   indexedRow,
                   multiValueGroups,
                 );
-                if (indexedGroup.name === group.name) {
+                if (indexedGroup && indexedGroup.name === group.name) {
                   indexedRow = indexedRow.map((fieldName: string) =>
                     fieldName.replace(
                       group.name + '.',

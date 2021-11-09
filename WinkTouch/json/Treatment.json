@@ -54,7 +54,36 @@
   "cardFields": [
     [
       "Treatment plan.Recommendation",
-      "Treatment plan.Treatment",
+      "Treatment plan.Treatment"
+    ],
+    [
+      "Recall.PatientTag1",
+      "Recall.PatientTag2",
+      "Recall.PatientTag3",
+      "Recall.PatientTag4",
+      "Recall.PatientTag5"
+    ],
+    [
+      "Recall.DefaultRecallFrequencyMonths",
+      "Recall.PatientVisitNextEE"
+     ],
+    [
+     "Recall.Amount",
+     "Recall.Unit",
+     "Recall.RecallDate"
+    ],
+    [
+      "R1:",
+      "Recall.Recall1",
+      "Recall.Recall1Comment"
+    ],
+    [
+      "R2:",
+      "Recall.Recall2",
+      "Recall.Recall2Comment"
+    ],
+    [
+      "Notes:",
       "Recall.Notes"
     ]
   ],
