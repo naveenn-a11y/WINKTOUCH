@@ -65,6 +65,7 @@
     ],
     [
       "Recall.DefaultRecallFrequencyMonths",
+      "Recall.Unit2",
       "Recall.PatientVisitNextEE"
      ],
     [
@@ -73,12 +74,10 @@
      "Recall.RecallDate"
     ],
     [
-      "R1:",
       "Recall.Recall1",
       "Recall.Recall1Comment"
     ],
     [
-      "R2:",
       "Recall.Recall2",
       "Recall.Recall2Comment"
     ],
@@ -109,96 +108,6 @@
       ]
     },
     {
-      "visible": "[!visit.appointmentId]",
-      "name": "Recall",
-      "size": "XL",
-      "fields": [
-        {
-          "mappedField": "patient.patientTag1",
-          "name": "PatientTag1",
-          "label": "Patient Type 1",
-          "simpleSelect": true,
-          "options": "patientTagsCodes"
-        },
-        {
-          "mappedField": "patient.patientTag2",
-          "name": "PatientTag2",
-          "label": "Patient Type 2",
-          "simpleSelect": true,
-          "options": "patientTagsCodes",
-          "visible": "[Treatment.Recall.PatientTag1]"
-        },
-        {
-          "mappedField": "patient.patientTag3",
-          "name": "PatientTag3",
-          "label": "Patient Type 3",
-          "simpleSelect": true,
-          "options": "patientTagsCodes",
-          "visible": "[Treatment.Recall.PatientTag2]"
-        },
-        {
-          "mappedField": "patient.patientTag4",
-          "name": "PatientTag4",
-          "label": "Patient Type 4",
-          "simpleSelect": true,
-          "options": "patientTagsCodes",
-          "visible": "[Treatment.Recall.PatientTag3]"
-        },
-        {
-          "mappedField": "patient.patientTag5",
-          "name": "PatientTag5",
-          "label": "Patient Type 5",
-          "simpleSelect": true,
-          "options": "patientTagsCodes",
-          "visible": "[Treatment.Recall.PatientTag4]"
-        },
-        {
-          "mappedField": "visit.recall.amount",
-          "name": "Amount",
-          "label": "Recall in"
-        },
-        {
-          "mappedField": "visit.recall.unit",
-          "name": "Unit",
-          "label": ""
-        },
-        {
-          "mappedField": "visit.recall.recallDate",
-          "name": "RecallDate",
-          "label": "Recall Date",
-          "readonly": true
-        },
-        {
-          "mappedField": "patient.recall1",
-          "name": "Recall1",
-          "label": "Scheduled Recall Date 1",
-          "type": "futureDate"
-        },
-        {
-          "mappedField": "patient.recall1Comment",
-          "name": "Recall1Comment",
-          "label": ""
-        },
-        {
-          "mappedField": "patient.recall2",
-          "name": "Recall2",
-          "label": "Scheduled Recall Date 2",
-          "type": "futureDate"
-        },
-        {
-          "mappedField": "patient.recall2Comment",
-          "name": "Recall2Comment",
-          "label": ""
-        },
-        {
-          "mappedField": "visit.recall.notes",
-          "name": "Notes"
-        }
-      ],
-      "rows": [["Amount", "Unit"], ["Recall1", "Recall1Comment"], ["Recall2", "Recall2Comment"]]
-    },
-    {
-      "visible": "[visit.appointmentId]",
       "name": "Recall",
       "size": "XL",
       "fields": [
@@ -244,13 +153,42 @@
         {
           "mappedField": "patient.defaultRecallFrequencyMonths",
           "name": "DefaultRecallFrequencyMonths",
-          "label": "Recall Frequency Months"
+          "label": "Recall Frequency Months",
+          "visible": "[visit.appointmentId]"
+        },
+        {
+          "name": "Unit2",
+          "label": "",
+          "options": "recallCode",
+          "defaultValue": 1,
+          "readonly": true,
+          "visible": "[visit.appointmentId]"
         },
         {
           "mappedField": "visit.recall.patientVisitNextEE",
           "name": "PatientVisitNextEE",
           "label": "Recall Date",
-          "readonly": true
+          "readonly": true,
+          "visible": "[visit.appointmentId]"
+        },
+        {
+          "mappedField": "visit.recall.amount",
+          "name": "Amount",
+          "label": "Recall in",
+          "visible": "[!visit.appointmentId]"
+        },
+        {
+          "mappedField": "visit.recall.unit",
+          "name": "Unit",
+          "label": "",
+          "visible": "[!visit.appointmentId]"
+        },
+        {
+          "mappedField": "visit.recall.recallDate",
+          "name": "RecallDate",
+          "label": "Recall Date",
+          "readonly": true,
+          "visible": "[!visit.appointmentId]"
         },
         {
           "mappedField": "patient.recall1",
@@ -279,7 +217,7 @@
           "name": "Notes"
         }
       ],
-      "rows": [["Recall1", "Recall1Comment"], ["Recall2", "Recall2Comment"]]
+      "rows": [["DefaultRecallFrequencyMonths","Unit2"],["Amount", "Unit"], ["Recall1", "Recall1Comment"], ["Recall2", "Recall2Comment"]]
     }
   ],
   "relatedExams": ["Diagnose"]
