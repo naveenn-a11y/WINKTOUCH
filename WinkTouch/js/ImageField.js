@@ -911,6 +911,7 @@ export class ImageField extends Component {
 
   async email() {
     const path: string = await this.generatePdf();
+    console.log("Path: " + JSON.stringify(path));
     const patient: PatientInfo = getCachedItem(this.props.patientId);
     const doctorName: string =
       getDoctor().firstName + ' ' + getDoctor().lastName;
@@ -935,11 +936,11 @@ export class ImageField extends Component {
         ),
         body,
         isHTML: true,
-        attachment: {
+        attachments: [{
           path: path,
           type: 'pdf',
           name: fileName,
-        },
+        }],
       },
       (error, event) => {
         error && console.log('Error opening email app:', error);
