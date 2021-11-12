@@ -994,7 +994,7 @@ export class GroupedCard extends Component {
           this.props.exam,
         );
         let formattedValue = formatFieldValue(fieldValue, fieldDefinition);
-        if (!getIsVisible(this.props.exam.visitId, fieldDefinition)) return '';
+        if (!getIsVisible(this.props.exam.id, fieldDefinition)) return '';
         if (formattedValue === '') return '';
         if (cardRowFields.length === 1) {
           //Add the label for single field rows
