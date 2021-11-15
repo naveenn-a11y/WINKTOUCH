@@ -53,7 +53,9 @@
   "scrollable": false,
   "cardFields": [
     [
-      "Treatment plan.Recommendation",
+      "Treatment plan.Recommendation"
+    ],
+    [
       "Treatment plan.Treatment"
     ],
     [
