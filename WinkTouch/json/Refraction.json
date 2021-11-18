@@ -96,6 +96,10 @@
       "type": "SRx",
       "fields": [
         {
+          "name": "expiry",
+          "mappedField": "visit.expDate"
+        },
+        {
           "name": "od",
           "fields": [
             {

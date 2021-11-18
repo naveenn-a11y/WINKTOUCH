@@ -293,6 +293,7 @@ export async function fetchVisitHistory(patientId: string): string[] {
   cacheItemsById(stores);
   cacheItem('visitHistory-' + patientId, visitIds);
   cacheItem('patientDocumentHistory-' + patientId, patientDocumentIds);
+
   return visitIds;
 }
 
@@ -1837,6 +1838,7 @@ export class VisitHistory extends Component {
     readonly: ?boolean,
     enableScroll: () => void,
     disableScroll: () => void,
+    hasAppointment: ?boolean,
   };
   state: {
     selectedId: ?string,
@@ -2115,6 +2117,22 @@ export class VisitHistory extends Component {
       />
     );
   }
+  shouldRenderActionButons(): boolean {
+    if (this.props.readonly) return false;
+
+    const isNewAppointment: boolean = this.isNewAppointment();
+    const userHasPretestWriteAccess: boolean =
+      getPrivileges().pretestPrivilege === 'FULLACCESS';
+    if (isNewAppointment && userHasPretestWriteAccess) return true;
+    if (
+      !isNewAppointment &&
+      userHasPretestWriteAccess &&
+      !this.props.hasAppointment
+    )
+      return true;
+
+    return false;
+  }
   renderActionButtons() {
     let isNewAppointment: boolean = this.isNewAppointment();
     const userHasPretestWriteAccess: boolean =
@@ -2128,9 +2146,11 @@ export class VisitHistory extends Component {
               onPress={() => this.startAppointment()}
             />
           )}
-          {!isNewAppointment && userHasPretestWriteAccess && (
-            <Button title={strings.addVisit} onPress={this.showDatePicker} />
-          )}
+          {!isNewAppointment &&
+            userHasPretestWriteAccess &&
+            !this.props.hasAppointment && (
+              <Button title={strings.addVisit} onPress={this.showDatePicker} />
+            )}
           {__DEV__ && <Button title={strings.printRx} />}
           {__DEV__ && <Button title="Book appointment" />}
         </View>
@@ -2166,7 +2186,7 @@ export class VisitHistory extends Component {
           />
           <VisitHistoryCard patientInfo={this.props.patientInfo} />
         </View>
-        {!this.props.readonly && this.renderActionButtons()}
+        {this.shouldRenderActionButons() && this.renderActionButtons()}
       </View>
     );
   }
@@ -2261,6 +2281,7 @@ export class VisitHistory extends Component {
           )}
         {this.canDelete(visit) && this.renderAlert()}
         {!isNewAppointment &&
+          !this.props.hasAppointment &&
           this.state.showingDatePicker &&
           this.renderDateTimePicker()}
       </View>

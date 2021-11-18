@@ -228,7 +228,9 @@ export class FindPatientScreen extends Component {
       });
       return;
     }
+
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
+
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({
       patientInfo,

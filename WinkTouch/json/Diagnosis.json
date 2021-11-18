@@ -1,6 +1,6 @@
 {
   "isAssessment": true,
-  "order": 3,
+  "order": 4,
   "name": "Diagnosis",
   "label": "Billing",
   "scrollable": true,
@@ -15,22 +15,22 @@
             {
               "name": "procedureCode",
               "label": "Procédure"
+            },
+            {
+              "name": "Self paid",
+              "label": "Patient paie",
+              "normalValue": "Non",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "Patient paie"
+              ]
             }
           ]
         },
         {
           "name": "Diagnosis",
           "label": "Diagnostic"
-        },
-        {
-          "name": "Self paid",
-          "label": "Patient paie",
-          "normalValue": "Non",
-          "defaultValue": "Non",
-          "options": [
-            "Non",
-            "Patient paie"
-          ]
         }
       ]
     }
