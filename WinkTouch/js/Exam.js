@@ -224,6 +224,21 @@ export function setMappedFieldValue(
   } else if (fieldSrc[0] === 'clFitting') {
     //TODO: we can ignore clFitting for now
     return;
+  } else if (fieldSrc[0] === 'patient') {
+    //TODO: Support other patient Mapped Fields
+    __DEV__ && console.log('Setting ' + fieldIdentifier + ' to ' + value);
+    let patientIdentifier = fieldIdentifier.substring(8);
+    let patient = getPatient(exam);
+    patient = deepClone(patient);
+    if (!patient) return undefined;
+    if (patientIdentifier.includes('patientTag')) {
+      if (!patient.patientTags) {
+        Object.assign(patient, {
+          patientTags: [],
+        });
+      }
+    }
+    cacheItemById(patient);
   } else {
     __DEV__ &&
       console.error(
