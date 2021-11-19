@@ -1,0 +1,33 @@
+{
+  "order": "1",
+  "name": "Amendments",
+  "locale": {
+    "fr-CA": {
+      "label": "Amendements",
+      "fields": [
+        {
+          "name": "Amendments",
+          "label": "Amendements"
+        }
+      ]
+    }
+  },
+  "scrollable": false,
+  "type": "groupedForm",
+  "section": "Amendments.1",
+  "multiValue": true,
+  "fields": [
+    {
+      "name": "Amendments",
+      "size": "M",
+      "fields": [
+        {
+          "maxLength": 500,
+          "name": "Main Amendment",
+          "freestyle": true,
+          "label": ""
+        }
+      ]
+    }
+  ]
+}

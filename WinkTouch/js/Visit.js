@@ -102,6 +102,7 @@ import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 
 export const examSections: string[] = [
+  'Amendments',
   'Chief complaint',
   'History',
   'Entrance testing',
@@ -113,6 +114,7 @@ export const examSections: string[] = [
   'Document',
 ];
 const examSectionsFr: string[] = [
+  'Amendements',
   'Plainte principale',
   'Historique',
   "Test d'entrée",
@@ -895,14 +897,16 @@ class VisitWorkFlow extends Component {
           ? visit.preCustomExamIds.findIndex(
               (examId: string) =>
                 getCachedItem(examId).definition.name === examType.name &&
-                getCachedItem(examId).isHidden !== true,
+                getCachedItem(examId).isHidden !== true &&
+                getCachedItem(examId).definition.multiValue !== true,
             )
           : -1;
         if (existingExamIndex < 0 && visit.customExamIds) {
           existingExamIndex = visit.customExamIds.findIndex(
             (examId: string) =>
               getCachedItem(examId).definition.name === examType.name &&
-              getCachedItem(examId).isHidden !== true,
+              getCachedItem(examId).isHidden !== true &&
+              getCachedItem(examId).definition.multiValue !== true,
           );
         }
         return existingExamIndex < 0;
@@ -918,6 +922,7 @@ class VisitWorkFlow extends Component {
         )
         .includes(section),
     );
+
     this.setState({addableExamTypes: unstartedExamTypes, addableSections});
   }
 
@@ -1061,7 +1066,7 @@ class VisitWorkFlow extends Component {
         ],
       );
     }
-    if (existingExam) {
+    if (existingExam && examDefinition.multiValue !== true) {
       this.unhideExam(existingExam);
     } else {
       this.createExam(examDefinition.id);

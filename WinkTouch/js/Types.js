@@ -304,6 +304,7 @@ export type GraphDefinition = {
 
 export type FieldDefinition = {
   name: string,
+  name: string,
   label?: string,
   multiValue?: boolean, //Can contain more then 1 value
   options?: CodeDefinition[][] | CodeDefinition[] | string,
@@ -473,6 +474,7 @@ export type ExamDefinition = {
   layout?: any,
   signable?: boolean,
   showSubtitles?: boolean,
+  multiValue?: boolean, //Can Add more than 1 exam
 };
 
 export type ExamPredefinedValue = {
