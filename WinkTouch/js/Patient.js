@@ -33,7 +33,7 @@ import {ExamCardSpecifics} from './Exam';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix} from './Util';
+import {deepClone, formatAge, prefix, isToday} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
 import {Refresh} from './Favorites';
@@ -97,7 +97,11 @@ export class PatientTags extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.patient.id === prevProps.patient.id) return;
+    if (
+      this.props.patient.id === prevProps.patient.id &&
+      this.props.patient.patientTags === prevProps.patient.patientTags
+    )
+      return;
     this.setState(
       {
         patientTags: getCachedItems(this.props.patient.patientTags),
@@ -166,6 +170,7 @@ export class PatientCard extends Component {
     navigate?: string,
     refreshStateKey: string,
     style?: any,
+    hasAppointment?: boolean,
   };
   static defaultProps = {
     navigate: 'patient',
@@ -179,6 +184,7 @@ export class PatientCard extends Component {
           this.props.navigation.navigate(this.props.navigate, {
             patientInfo: this.props.patientInfo,
             refreshStateKey: this.props.refreshStateKey,
+            hasAppointment: this.props.hasAppointment,
           })
         }
         testID="patientContact">
@@ -581,6 +587,7 @@ export class CabinetScreen extends Component {
     ) {
       this.props.navigation.navigate('appointment', {
         patientInfo: this.state.patientInfo,
+        hasAppointment: this.hasAppointment(),
       }); //TODO: refreshStateKey: this.props.refreshStateKey?
       return;
     }
@@ -607,6 +614,26 @@ export class CabinetScreen extends Component {
       return;
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({appointments});
+  }
+
+  hasAppointment(): boolean {
+    let todaysAppointments: Appointment[] = [];
+    if (!this.state.appointments && this.state.patientInfo) {
+      const appointments: Appointment[] = getCachedItem(
+        'appointmentsHistory-' + this.state.patientInfo.id,
+      );
+      todaysAppointments = appointments;
+    } else if (this.state.appointments && this.state.appointments.length > 0) {
+      todaysAppointments = this.state.appointments;
+    }
+    if (todaysAppointments) {
+      todaysAppointments = todaysAppointments.filter(
+        (appointment: Appointment) => isToday(appointment.start),
+      );
+      return todaysAppointments && todaysAppointments.length > 0;
+    }
+
+    return false;
   }
 
   newPatient = () => {
@@ -686,6 +713,7 @@ export class CabinetScreen extends Component {
           navigate="appointment"
           navigation={this.props.navigation}
           style={styles.tabCardS}
+          hasAppointment={this.hasAppointment()}
         />
         {this.renderAppointments()}
       </View>
