@@ -644,9 +644,10 @@ export const styles = StyleSheet.create({
     margin: 0 * fontScale,
   },
   cardSubTitle: {
-    fontSize: 19 * fontScale,
+    fontSize: 17 * fontScale,
     fontWeight: '500',
-    marginTop: 3 * fontScale,
+    alignItems: 'center',
+    marginTop: 1 * fontScale,
   },
   cardColumn: {
     marginHorizontal: 3 * fontScale,

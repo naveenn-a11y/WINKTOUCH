@@ -304,7 +304,6 @@ export type GraphDefinition = {
 
 export type FieldDefinition = {
   name: string,
-  name: string,
   label?: string,
   multiValue?: boolean, //Can contain more then 1 value
   options?: CodeDefinition[][] | CodeDefinition[] | string,

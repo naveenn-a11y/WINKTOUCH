@@ -12,6 +12,7 @@
       ]
     }
   },
+  "showSubtitles": true,
   "scrollable": false,
   "type": "groupedForm",
   "section": "Amendments.1",
@@ -22,10 +23,43 @@
       "size": "M",
       "fields": [
         {
+          "name": "Doctor",
+          "defaultValue": "[currentUser]",
+          "maxLength": 100,
+          "readonly": true,
+          "isLabel": true,
+          "label": "",
+          "freestyle": true
+        },
+        {
+          "name": "Creation Date",
+          "dateFormat": "MMM Do YYYY",
+          "label": "",
+          "defaultValue": "[currentDate]",
+          "readonly": true,
+          "freestyle": true
+        },
+        {
           "maxLength": 500,
           "name": "Main Amendment",
           "freestyle": true,
           "label": ""
+        }
+      ]
+    },
+    {
+      "name": "Pretest scan",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
+        {
+          "name": "Pretest scan",
+          "image": "upload",
+          "label": "",
+          "popup": false,
+          "drawable": false,
+          "size": "XL",
+          "type": "Examen"
         }
       ]
     }
