@@ -12,19 +12,34 @@
       ]
     }
   },
-  "showSubtitles": true,
   "scrollable": false,
   "type": "groupedForm",
   "section": "Amendments.1",
   "multiValue": true,
   "fields": [
     {
+      "name": "Scan",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "popup": true,
+          "drawable": false,
+          "size": "S",
+          "type": "Patient Documents"
+        }
+      ]
+    },
+    {
       "name": "Amendments",
       "size": "M",
       "fields": [
-        {
+         {
           "name": "Doctor",
-          "defaultValue": "[currentUser]",
+          "defaultValue": "[user.name]",
           "maxLength": 100,
           "readonly": true,
           "isLabel": true,
@@ -44,22 +59,6 @@
           "name": "Main Amendment",
           "freestyle": true,
           "label": ""
-        }
-      ]
-    },
-    {
-      "name": "Pretest scan",
-      "multiValue": true,
-      "size": "XL",
-      "fields": [
-        {
-          "name": "Pretest scan",
-          "image": "upload",
-          "label": "",
-          "popup": false,
-          "drawable": false,
-          "size": "XL",
-          "type": "Examen"
         }
       ]
     }

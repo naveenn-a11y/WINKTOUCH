@@ -149,10 +149,16 @@ function getDefaultValue(groupDefinition: GroupDefinition): any {
     defaultValue.endsWith(']')
   ) {
     let key: any = defaultValue.substring(1, defaultValue.length - 1);
-    if (key === 'currentUser') {
-      const doctorName: string =
-        getDoctor().firstName + ' ' + getDoctor().lastName;
-      return doctorName;
+    const keyIdentifier: string[] = key.split('.');
+    if (keyIdentifier[0] === 'user') {
+      if (keyIdentifier[1] === 'name') {
+        const doctorName: string =
+          getDoctor().firstName + ' ' + getDoctor().lastName;
+        return doctorName;
+      } else if (keyIdentifier[1] === 'id') {
+        const doctorId: string = getDoctor().id;
+        return doctorId;
+      }
     } else if (key === 'currentDate') {
       const dateFormat: string = groupDefinition.dateFormat
         ? groupDefinition.dateFormat
@@ -1244,8 +1250,11 @@ export class GroupedForm extends Component {
   }
 
   getDefinitionDefaultValue(fieldDefinition: FieldDefinition): any {
-    if (!fieldDefinition.defaultValue) {
-      return null;
+    if (
+      fieldDefinition.defaultValue === undefined ||
+      fieldDefinition.defaultValue === null
+    ) {
+      return;
     }
     const defaultValue: string = getDefaultValue(fieldDefinition);
     if (defaultValue !== undefined) {
