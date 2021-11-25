@@ -80,7 +80,6 @@ import {ModeContext} from '../src/components/Context/ModeContextProvider';
 
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 
-
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
   if (!visitHistory) return undefined;
@@ -329,7 +328,6 @@ function getKeratometry(visitId: string): GlassesRx {
   keratometry = keratometry.Keratometry;
   return keratometry;
 }
-
 
 export class VA extends Component {
   state: {
@@ -942,9 +940,15 @@ export class GlassesDetail extends Component {
   hasVA(): boolean {
     return (
       this.props.hasVA ||
-      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.od.va)) ||
-      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.os.va)) ||
-      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.ou.va))
+      (this.props.isPrescriptionCard &&
+        !isEmpty(this.props.glassesRx.od) &&
+        !isEmpty(this.props.glassesRx.od.va)) ||
+      (this.props.isPrescriptionCard &&
+        !isEmpty(this.props.glassesRx.os) &&
+        !isEmpty(this.props.glassesRx.os.va)) ||
+      (this.props.isPrescriptionCard &&
+        !isEmpty(this.props.glassesRx.ou) &&
+        !isEmpty(this.props.glassesRx.ou.va))
     );
   }
 
