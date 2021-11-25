@@ -16,6 +16,7 @@
   "type": "groupedForm",
   "section": "Amendments.1",
   "multiValue": true,
+  "addablePostLock": true,
   "fields": [
     {
       "name": "Scan",

@@ -883,12 +883,7 @@ class VisitWorkFlow extends Component {
       return;
     }
     const locked: boolean = this.state.locked;
-    if (locked) {
-      if (this.state.addableExamTypes.length !== 0) {
-        this.setState({addableExamTypes: []});
-      }
-      return;
-    }
+
     let allExamTypes: ExamDefinition[] = await allExamDefinitions(true);
     allExamTypes = allExamTypes.concat(await allExamDefinitions(false));
     let unstartedExamTypes: ExamDefinition[] = allExamTypes.filter(
@@ -922,6 +917,13 @@ class VisitWorkFlow extends Component {
         )
         .includes(section),
     );
+
+    if (locked) {
+      unstartedExamTypes = unstartedExamTypes.filter(
+        (examDefinition: ExamDefinition) =>
+          examDefinition.addablePostLock === true,
+      );
+    }
 
     this.setState({addableExamTypes: unstartedExamTypes, addableSections});
   }
@@ -1204,7 +1206,9 @@ class VisitWorkFlow extends Component {
           !exam.definition.isAssessment &&
           exam.isHidden !== true &&
           (exam.hasStarted ||
-            (this.state.locked !== true && this.props.readonly !== true)),
+            (this.state.locked !== true && this.props.readonly !== true) ||
+            (this.state.locked === true &&
+              exam.definition.addablePostLock === true)),
       );
       exams.sort(compareExams);
     }
