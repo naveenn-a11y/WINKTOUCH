@@ -76,6 +76,7 @@ export function decodeTokenPayload(token: string): ?TokenPayload {
 export function setToken(newToken: ?string) {
   __DEV__ && console.log('Set token:' + newToken);
   token = newToken;
+  console.log('done token');
   if (!isEmpty(newToken)) {
     let payLoad: TokenPayload = decodeTokenPayload(newToken);
     parsePrivileges(payLoad ? payLoad.prv : undefined);
@@ -629,7 +630,7 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return __DEV__ ? 'http://192.168.2.53:8080/Web/' : restUrl;
+  return !__DEV__ ? 'http://192.168.2.53:8080/Web/' : restUrl;
 }
 
 async function setRestUrl(winkEmrHost: string) {

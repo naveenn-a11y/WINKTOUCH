@@ -199,7 +199,7 @@ export class DoctorApp extends Component {
       statusMessage: '',
       currentRoute: {routeName: 'overview'},
     };
-    setToken(this.props.token);
+    // setToken(this.props.token);
     setAccount(this.props.account);
     setDoctor(this.props.user);
     setStore(this.props.store);

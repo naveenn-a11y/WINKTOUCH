@@ -273,6 +273,7 @@ export class LoginScreen extends Component {
       userName.trim().length === 0
     )
       return;
+    this.props.startLogin();
     let password: ?string = this.state.password;
     if (password === null || password === undefined) password = '';
     const account: ?Account = this.getAccount();
