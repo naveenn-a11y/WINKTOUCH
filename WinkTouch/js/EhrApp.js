@@ -265,6 +265,9 @@ export class EhrApp extends Component {
       this.checkForUpdate();
     }
   }
+  setLoading = (loading) => {
+    this.setState({loading});
+  };
 
   render() {
     if (!!this.state.loading)
@@ -290,7 +293,7 @@ export class EhrApp extends Component {
       return (
         <LoginScreen
           registration={this.state.registration}
-          startLogin={() => this.setState({loading: true})}
+          setLoading={this.setLoading}
           onLogin={(
             account: Account,
             user: User,
