@@ -1019,7 +1019,7 @@ export class GroupedCard extends Component {
           this.props.exam,
         );
         if (groupValue && groupDefinition && groupDefinition.fields) {
-          title = formatFieldLabel(groupDefinition, groupValue);
+          title = formatFieldLabel(groupDefinition, groupValue, title);
         }
       },
     );
