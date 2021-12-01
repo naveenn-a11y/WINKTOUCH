@@ -230,6 +230,7 @@ export const strings = new LocalizedStrings({
     close: 'Close',
     open: 'Open',
     transferRxSuccess: 'Rx transferred successfully !',
+    exportDataSuccess: 'Data exported successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
     snapshot: 'Snapshot',
@@ -244,6 +245,7 @@ export const strings = new LocalizedStrings({
     location: 'Location',
     noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
+    printExportLabel: 'Please select what to export:',
     pd: 'PD',
     binocularPd: 'Binocular PD',
     notesOnRx: 'Notes on Rx',
@@ -269,6 +271,10 @@ export const strings = new LocalizedStrings({
     next: 'Next',
     weekly: 'Weekly',
     daily: 'Daily',
+    lensometry: 'Lensometry',
+    keratometry: 'Keratometry',
+    autoRefractor: 'Auto Refractor',
+    exportAction: 'Export',
   },
   fr: {
     enterRegisteredEmail:
@@ -498,6 +504,7 @@ export const strings = new LocalizedStrings({
     close: 'Fermer',
     open: 'Ouvrir',
     transferRxSuccess: 'Rx transféré avec succès !',
+    exportDataSuccess: 'Données transférées avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
     snapshot: 'Snapshot',
@@ -511,7 +518,8 @@ export const strings = new LocalizedStrings({
     signedOn: 'Signé le',
     location: 'Lieu',
     noAccess: 'Vous n’avez pas accès à cette information',
-    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer:', //need to change accordingly,
+    printExportLabel: 'Veuillez sélectionner ce que vous souhaitez exporter:',
     pd: 'PD',
     binocularPd: 'PD Binoculaire',
     notesOnRx: 'Notes sur Rx',
@@ -536,6 +544,10 @@ export const strings = new LocalizedStrings({
     next: 'Suivant',
     weekly: 'Semaines',
     daily: 'Journalier',
+    lensometry: 'Lensométrie',
+    keratometry: 'Kératométrie',
+    autoRefractor: 'Auto Réfraction',
+    exportAction: 'Exporter',
   },
 });
 

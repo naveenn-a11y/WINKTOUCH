@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import type {FieldDefinition, CodeDefinition} from './Types';
@@ -26,6 +27,7 @@ import {
   Snackbar,
   Paragraph,
   Dialog,
+  Divider,
 } from 'react-native-paper';
 import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -3303,6 +3305,12 @@ export class Alert extends Component<AlertProps, AlertState> {
     dismissable: false,
   };
 
+  isDisabled(): boolean {
+    if (!this.props.multiValue) return false;
+    let data: any = this.state.data;
+    data = data.filter((element: any) => element.isChecked);
+    return !(data && data.length > 0);
+  }
   cancelDialog = () => {
     this.setState({visible: false});
     this.props.onCancelAction();
@@ -3316,6 +3324,16 @@ export class Alert extends Component<AlertProps, AlertState> {
 
   toggleCheckbox(index: number) {
     let data: any = this.state.data;
+    const item: any = data[index];
+
+    if (item.singleSelection) {
+      data.map((element: any, i: number) => {
+        if (element.entityId === item.entityId && index !== i) {
+          data[i].isChecked = false;
+        }
+      });
+    }
+
     data[index].isChecked = !data[index].isChecked;
     this.setState({data});
   }
@@ -3337,13 +3355,16 @@ export class Alert extends Component<AlertProps, AlertState> {
                 {this.state.data.map((element: any, index: number) => {
                   const item: any = element.label ? element.label : element;
                   return this.props.multiValue ? (
-                    <CheckButton
-                      isChecked={element.isChecked}
-                      onSelect={() => this.toggleCheckbox(index)}
-                      onDeselect={() => this.toggleCheckbox(index)}
-                      style={styles.alertCheckBox}
-                      testID={this.props.testID + '.' + item}
-                      suffix={item}></CheckButton>
+                    <View>
+                      <CheckButton
+                        isChecked={element.isChecked}
+                        onSelect={() => this.toggleCheckbox(index)}
+                        onDeselect={() => this.toggleCheckbox(index)}
+                        style={styles.alertCheckBox}
+                        testID={this.props.testID + '.' + item}
+                        suffix={item}></CheckButton>
+                      {element.divider && <Divider />}
+                    </View>
                   ) : (
                     <NativeBaseButton
                       onPress={() => this.confirmDialog(element)}>
@@ -3367,6 +3388,8 @@ export class Alert extends Component<AlertProps, AlertState> {
     }
   }
   render() {
+    const disabled: boolean = this.isDisabled();
+
     return (
       <Portal>
         <Dialog
@@ -3380,7 +3403,7 @@ export class Alert extends Component<AlertProps, AlertState> {
             <NativeBaseButton onPress={this.cancelDialog}>
               {this.props.cancelActionLabel}
             </NativeBaseButton>
-            <NativeBaseButton onPress={this.confirmDialog}>
+            <NativeBaseButton onPress={this.confirmDialog} disabled={disabled}>
               {this.props.confirmActionLabel}
             </NativeBaseButton>
           </Dialog.Actions>

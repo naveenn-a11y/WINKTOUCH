@@ -306,7 +306,7 @@ export function hasPrism(glassesRx: GlassesRx): boolean {
   return false;
 }
 
-function getLensometry(visitId: string): GlassesRx {
+export function getLensometries(visitId: string): GlassesRx[] {
   if (!visitId) return undefined;
   let lensometry = getExam('Lensometry', getCachedItem(visitId));
   if (!lensometry) return undefined;
@@ -315,11 +315,16 @@ function getLensometry(visitId: string): GlassesRx {
   lensometry = lensometry.Lensometry;
   if (!lensometry || lensometry.length === undefined || lensometry.length < 0)
     return undefined;
-  lensometry = lensometry[0];
   return lensometry;
 }
+export function getLensometry(visitId: string): GlassesRx {
+  const lensometry: GlassesRx[] = getLensometries(visitId);
+  if (!lensometry || lensometry.length === undefined || lensometry.length < 0)
+    return undefined;
+  return lensometry[0];
+}
 
-function getKeratometry(visitId: string): GlassesRx {
+export function getKeratometry(visitId: string): GlassesRx {
   if (!visitId) return undefined;
   let keratometry = getExam('Keratometry', getCachedItem(visitId));
   if (!keratometry) return undefined;
@@ -329,6 +334,21 @@ function getKeratometry(visitId: string): GlassesRx {
   return keratometry;
 }
 
+export function getAutoRefractor(visitId: string): GlassesRx[] {
+  if (!visitId) return undefined;
+  let autoRefractor = getExam('Auto refractor', getCachedItem(visitId));
+  if (!autoRefractor) return undefined;
+  autoRefractor = autoRefractor['Auto refractor'];
+  if (!autoRefractor) return undefined;
+  autoRefractor = autoRefractor['Auto refractor'];
+  if (
+    !autoRefractor ||
+    autoRefractor.length === undefined ||
+    autoRefractor.length < 0
+  )
+    return undefined;
+  return autoRefractor;
+}
 export class VA extends Component {
   state: {
     value: number,

@@ -475,6 +475,7 @@ export type ExamDefinition = {
   showSubtitles?: boolean,
   multiValue?: boolean, //Can Add more than 1 exam,
   addablePostLock?: boolean,
+  export?: string | string[],
 };
 
 export type ExamPredefinedValue = {

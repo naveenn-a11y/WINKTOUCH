@@ -48,7 +48,6 @@
         "exam.Auto refractor.Auto refractor",
         "machine.phoropter.rx"
       ],
-      "export": "machine.phoropter",
       "name": "Subjective refraction",
       "multiValue": true,
       "type": "SRx"
@@ -198,5 +197,6 @@
       ]
     }
   ],
-  "relatedExams": ["VA sc", "VA cc","Auto refractor", "Lensometry", "Binocular"]
+  "relatedExams": ["VA sc", "VA cc","Auto refractor", "Lensometry", "Binocular"],
+  "export": "machine.phoropter"
 }
