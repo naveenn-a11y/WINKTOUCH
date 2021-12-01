@@ -217,6 +217,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18 * fontScale,
   },
+  grayedText: {
+    fontSize: 18 * fontScale,
+    color: 'gray',
+  },
   noAccessText: {
     fontSize: 18 * fontScale,
     fontStyle: 'italic',

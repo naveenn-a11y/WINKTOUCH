@@ -11,7 +11,6 @@ import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
-import {setToken} from './Rest';
 import {isWeb} from './Styles';
 
 !isWeb &&
@@ -194,7 +193,6 @@ export class EhrApp extends Component {
       user !== undefined &&
       token !== undefined &&
       store !== undefined;
-    setToken(token);
     this.setState(
       {
         isLoggedOn,
@@ -202,7 +200,6 @@ export class EhrApp extends Component {
         user,
         store,
         token,
-        loading: false,
       },
       () => console.log('done set loading'),
     );
@@ -270,7 +267,7 @@ export class EhrApp extends Component {
   };
 
   render() {
-    if (!!this.state.loading)
+    if (this.state.loading)
       return (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ActivityIndicator size="large" />
@@ -293,7 +290,6 @@ export class EhrApp extends Component {
       return (
         <LoginScreen
           registration={this.state.registration}
-          setLoading={this.setLoading}
           onLogin={(
             account: Account,
             user: User,

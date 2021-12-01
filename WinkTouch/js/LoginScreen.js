@@ -273,7 +273,6 @@ export class LoginScreen extends Component {
       userName.trim().length === 0
     )
       return;
-    this.props.setLoading(true);
     let password: ?string = this.state.password;
     if (password === null || password === undefined) password = '';
     const account: ?Account = this.getAccount();
@@ -342,7 +341,6 @@ export class LoginScreen extends Component {
       this.props.onLogin(account, user, store, token);
     } catch (error) {
       alert(strings.loginFailed + ': ' + error);
-      this.props.setLoading(false);
     }
   }
 
