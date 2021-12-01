@@ -6,7 +6,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LocalizedStrings from 'react-native-localization';
 import Moment from 'moment';
-import {cacheDefinitions} from './Items';
+import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
   en: {
@@ -269,6 +269,7 @@ export const strings = new LocalizedStrings({
     next: 'Next',
     weekly: 'Weekly',
     daily: 'Daily',
+    billing: "Billing",
   },
   fr: {
     enterRegisteredEmail:
@@ -536,6 +537,7 @@ export const strings = new LocalizedStrings({
     next: 'Suivant',
     weekly: 'Semaines',
     daily: 'Journalier',
+    billing: "Facturation",
   },
 });
 
