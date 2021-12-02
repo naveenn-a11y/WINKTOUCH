@@ -386,10 +386,24 @@ export class AppointmentSummary extends Component {
     appointment: Appointment,
     onPress: () => void,
   };
+  state: {
+    locked: boolean,
+  };
 
   constructor(props: any) {
     super(props);
+    this.state = {
+      locked: false,
+    };
   }
+  componentDidMount = async () => {
+    const {patientId, id: appointmentId} = this.props.appointment;
+    const visitHistory: string[] = await fetchVisitHistory(patientId);
+    visitHistory.map((visitId) => {
+      const visit: Visit = getCachedItem(visitId);
+      if (visit.appointmentId == appointmentId) this.setState({locked: true});
+    });
+  };
 
   render() {
     const patient: Patient = getCachedItem(this.props.appointment.patientId);
@@ -403,17 +417,22 @@ export class AppointmentSummary extends Component {
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
             <View style={{marginHorizontal: 5 * fontScale}}>
-              <Text style={styles.text}>
+              <Text
+                style={!!this.state.locked ? styles.grayedText : styles.text}>
                 {isToday(date)
                   ? formatDate(date, timeFormat)
                   : formatDate(date, dayYearDateTimeFormat)}
               </Text>
-              <Text style={styles.text}>{this.props.appointment.title}</Text>
+              <Text
+                style={!!this.state.locked ? styles.grayedText : styles.text}>
+                {this.props.appointment.title}
+              </Text>
               <View style={{flexDirection: 'row'}}>
-                <Text style={styles.text}>
+                <Text
+                  style={!!this.state.locked ? styles.grayedText : styles.text}>
                   {patient && patient.firstName} {patient && patient.lastName}
                 </Text>
-                <PatientTags patient={patient} />
+                <PatientTags patient={patient} locked={this.state.locked} />
               </View>
               {/**<Text style={styles.text}>{formatCode('appointmentStatusCode', this.props.appointment.status)}</Text>*/}
             </View>
