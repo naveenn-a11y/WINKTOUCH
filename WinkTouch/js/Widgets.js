@@ -3,37 +3,30 @@
  */
 'use strict';
 
-import type {
-  FieldDefinition,
-  CodeDefinition,
-  PatientDocument,
-  ImageDrawing,
-  PatientInfo,
-} from './Types';
+import type {FieldDefinition, CodeDefinition} from './Types';
 import React, {Component, PureComponent} from 'react';
 import ReactNative, {
   View,
   Text,
   Image,
-  LayoutAnimation,
-  TouchableHighlight,
   ScrollView,
   Modal,
-  Dimensions,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  InteractionManager,
   TextInput,
   Keyboard,
   FlatList,
-  NativeModules,
 } from 'react-native';
+
 import {
   Button as NativeBaseButton,
-  Icon as NativeBaseIcon,
-  Fab as NativeBaseFab,
-  Container,
-} from 'native-base';
+  Button as NativeBaseIcon,
+  FAB,
+  Portal,
+  Snackbar,
+  Paragraph,
+  Dialog,
+} from 'react-native-paper';
 import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
@@ -42,8 +35,7 @@ import {
   fontScale,
   selectionColor,
   selectionFontColor,
-  imageStyle,
-  imageWidth,
+  isWeb,
 } from './Styles';
 import {strings} from './Strings';
 import {formatCodeDefinition, formatAllCodes} from './Codes';
@@ -65,7 +57,6 @@ import {
   deAccent,
   formatDecimals,
   split,
-  combine,
   formatTime,
   formatHour,
   time24Format,
@@ -74,7 +65,6 @@ import {
   addDays,
   formatAge,
   isEmpty,
-  insertNewlines,
   postfix,
 } from './Util';
 import {Camera} from './Favorites';
@@ -311,6 +301,7 @@ export class TextField extends Component {
     autoFocus?: boolean,
     onFocus?: () => void,
     testID: string,
+    onOpenModal?: () => void,
   };
   state: {
     value: string,
@@ -332,15 +323,18 @@ export class TextField extends Component {
   }
 
   commitEdit(value: string) {
-    this.setState({value});
     if (this.props.onChangeValue && value !== this.props.value)
       this.props.onChangeValue(value);
   }
 
-  updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
+  handleKeyEvent(keyCode: Number) {
+    //ArrowDown
+    if (keyCode === 40) {
+      this.props.onOpenModal();
     }
+  }
+
+  updateText = (text: string) => {
     this.setState({value: text});
   };
 
@@ -350,6 +344,9 @@ export class TextField extends Component {
       : this.state.isActive
       ? styles.inputFieldActive
       : styles.inputField;
+    if (isWeb) {
+      style = [{width: 36 * fontScale}, style];
+    }
     if (this.props.width) {
       style = [{width: this.props.width}, style];
     }
@@ -358,21 +355,41 @@ export class TextField extends Component {
         {this.props.prefix != undefined && (
           <Text style={styles.formPrefix}>{this.props.prefix}</Text>
         )}
-        <TextInput
-          value={this.state.value}
-          autoCapitalize="sentences"
-          autoCorrect={false}
-          placeholder={''}
-          keyboardType={this.props.type}
-          style={style}
-          onFocus={this.props.onFocus}
-          onChangeText={this.updateText}
-          onEndEditing={event => this.commitEdit(event.nativeEvent.text)}
-          autoFocus={this.props.autoFocus}
-          editable={!this.props.readonly}
-          multiline={this.props.multiline}
-          testID={this.props.testID}
-        />
+        {isWeb ? (
+          <TextInput
+            value={this.state.value}
+            autoCapitalize="sentences"
+            autoCorrect={false}
+            placeholder={''}
+            keyboardType={this.props.type}
+            style={style}
+            onFocus={this.props.onFocus}
+            onChangeText={this.updateText}
+            onBlur={() => this.commitEdit(this.state.value)}
+            autoFocus={this.props.autoFocus}
+            editable={!this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+            onKeyPress={(event) => this.handleKeyEvent(event.keyCode)}
+          />
+        ) : (
+          <TextInput
+            value={this.state.value}
+            autoCapitalize="sentences"
+            autoCorrect={false}
+            placeholder={''}
+            keyboardType={this.props.type}
+            style={style}
+            onFocus={this.props.onFocus}
+            onChangeText={this.updateText}
+            onEndEditing={() => this.commitEdit(this.state.value)}
+            autoFocus={this.props.autoFocus}
+            editable={!this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+          />
+        )}
+
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
         )}
@@ -603,6 +620,12 @@ export class NumberField extends Component {
     });
   };
 
+  openModal = () => {
+    if (!this.state.isTyping) return;
+
+    this.setState({isTyping: false});
+    this.startEditing();
+  };
   startTyping = () => {
     if (this.props.readonly) return;
     //KeyEvent.removeKeyUpListener();
@@ -726,6 +749,7 @@ export class NumberField extends Component {
   }
 
   splitValue(value: number | string, fractions: string[]): (?string)[] {
+    const originalValue: number | string = value;
     if (value === undefined || value === null)
       return [undefined, undefined, undefined, undefined, undefined];
     //TODO check if value is an option
@@ -750,6 +774,9 @@ export class NumberField extends Component {
             return [undefined, undefined, undefined, undefined, suffix];
           }
           value = parseFloat(value);
+          if (isNaN(value)) {
+            return [undefined, undefined, undefined, undefined, originalValue];
+          }
           break;
         }
       }
@@ -921,8 +948,8 @@ export class NumberField extends Component {
     }
     if (
       this.props.suffix != undefined &&
-      (this.props.suffix instanceof Array === false &&
-        this.props.suffix.includes('Code') === false)
+      this.props.suffix instanceof Array === false &&
+      this.props.suffix.includes('Code') === false
     )
       formattedValue = formattedValue + this.props.suffix;
     return formattedValue;
@@ -1010,9 +1037,8 @@ export class NumberField extends Component {
       let c = 0;
       for (let i = minInt; i <= maxInt; c++) {
         fractions[2].push(String(i));
-        let stepSize = this.props.stepSize[
-          Math.min(this.props.stepSize.length - 1, c)
-        ];
+        let stepSize =
+          this.props.stepSize[Math.min(this.props.stepSize.length - 1, c)];
         i = i + Math.max(1, stepSize);
       }
     } else {
@@ -1106,65 +1132,73 @@ export class NumberField extends Component {
         accessible={false}
         testID={'popupBackground'}>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {formattedValue}
-          </Text>
-          <View style={styles.flexColumnLayout}>
-            <View style={styles.centeredRowLayout}>
-              {fractions.map((options: string[], column: number) => {
-                return (
-                  <View style={columnStyle} key={column}>
-                    {options.map((option: string, row: number) => {
-                      let isSelected: boolean =
-                        isKeypad === false &&
-                        this.state.editedValue[column] === option;
-                      if (option === '\u2328')
+          <ScrollView scrollEnabled={true}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {formattedValue}
+            </Text>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={columnStyle} key={column}>
+                      {options.map((option: string, row: number) => {
+                        let isSelected: boolean =
+                          isKeypad === false &&
+                          this.state.editedValue[column] === option;
+                        if (option === '\u2328')
+                          return (
+                            <KeyboardTile
+                              commitEdit={this.startTyping}
+                              key={row}
+                            />
+                          );
+                        if (option === '\u2714')
+                          return (
+                            <UpdateTile
+                              commitEdit={this.commitEdit}
+                              key={row}
+                            />
+                          );
+                        if (option === '\u2715')
+                          return (
+                            <ClearTile commitEdit={this.clearValue} key={row} />
+                          );
+                        if (option === '\u27f3')
+                          return (
+                            <RefreshTile
+                              commitEdit={this.cancelEdit}
+                              key={row}
+                            />
+                          );
                         return (
-                          <KeyboardTile
-                            commitEdit={this.startTyping}
+                          <TouchableOpacity
                             key={row}
-                          />
-                        );
-                      if (option === '\u2714')
-                        return (
-                          <UpdateTile commitEdit={this.commitEdit} key={row} />
-                        );
-                      if (option === '\u2715')
-                        return (
-                          <ClearTile commitEdit={this.clearValue} key={row} />
-                        );
-                      if (option === '\u27f3')
-                        return (
-                          <RefreshTile commitEdit={this.cancelEdit} key={row} />
-                        );
-                      return (
-                        <TouchableOpacity
-                          key={row}
-                          onPress={() => this.updateValue(column, option)}
-                          testID={'option' + (column + 1) + '-' + (row + 1)}>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
-                            }>
-                            <Text
+                            onPress={() => this.updateValue(column, option)}
+                            testID={'option' + (column + 1) + '-' + (row + 1)}>
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {option}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                );
-              })}
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {option}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </TouchableWithoutFeedback>
     );
@@ -1188,9 +1222,7 @@ export class NumberField extends Component {
       );
     }
     if (this.state.isTyping) {
-      const formattedValue: string = this.props.value
-        ? this.props.value.toString()
-        : '';
+      // const formattedValue: string = this.props.value? this.props.value.toString() : '';
       return (
         <TextField
           value={formattedValue}
@@ -1198,7 +1230,8 @@ export class NumberField extends Component {
           autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
-          onChangeValue={newValue => this.commitTyping(newValue)}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
+          onOpenModal={this.openModal}
         />
       );
     }
@@ -1247,6 +1280,7 @@ export class TilesField extends Component {
       onTransferFocus: (field: string) => void,
     },
     testID?: string,
+    isTyping?: boolean,
   };
   state: {
     isActive: boolean,
@@ -1258,11 +1292,16 @@ export class TilesField extends Component {
     super(props);
     this.state = {
       isActive: false,
-      isTyping: false,
+      isTyping: props.isTyping,
       editedValue: undefined,
     };
   }
-
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) return;
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
   startTyping = () => {
     if (this.props.readonly) return;
     this.setState({isActive: false, isTyping: true});
@@ -1306,7 +1345,7 @@ export class TilesField extends Component {
     if (this.isMultiColumn()) {
       let editedValue: (?string)[] = this.state.editedValue;
       if (editedValue instanceof Array === false)
-        editedValue = this.props.options.map(option => undefined);
+        editedValue = this.props.options.map((option) => undefined);
       while (editedValue.length <= columnIndex) editedValue.push(undefined);
       editedValue[columnIndex] = newValue;
       if (this.updateConfirm()) {
@@ -1343,7 +1382,7 @@ export class TilesField extends Component {
   clear = () => {
     let clearedValue = undefined;
     if (this.state.editedValue instanceof Array) {
-      clearedValue = this.state.editedValue.map(columnValue => undefined);
+      clearedValue = this.state.editedValue.map((columnValue) => undefined);
     }
     this.setState({editedValue: clearedValue}, () => this.commitEdit());
   };
@@ -1496,7 +1535,7 @@ export class TilesField extends Component {
           autoFocus={true}
           style={style}
           multiline={this.props.multiline}
-          onChangeValue={newValue => this.commitTyping(newValue)}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
           testID={
             this.props.testID ? this.props.testID + 'ActiveField' : undefined
           }
@@ -1588,7 +1627,7 @@ export class ListField extends Component {
 
   renderPopup() {
     return (
-      <TouchableWithoutFeedback onPress={this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? undefined : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
@@ -1678,12 +1717,14 @@ export class TimeField extends Component {
     readonly?: boolean,
     past?: boolean,
     future?: boolean,
+    isTyping?: boolean,
   };
   state: {
     isActive: boolean,
     isDirty: boolean,
     fractions: string[][],
     editedValue: (?string)[],
+    isTyping: boolean,
   };
   static defaultProps = {
     readonly: false,
@@ -1698,8 +1739,25 @@ export class TimeField extends Component {
       isActive: false,
       fractions: this.generateFractions(),
       isDirty: false,
+      isTyping: props.isTyping,
     };
   }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) return;
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
+
+  commitTyping = (newValue: string) => {
+    this.setState({editedValue: newValue}, this.commitEdit);
+  };
+
+  startTyping = () => {
+    if (this.props.readonly) return;
+    this.setState({isActive: false, isTyping: true});
+  };
 
   startEditing = () => {
     if (this.props.readonly) return;
@@ -1713,7 +1771,7 @@ export class TimeField extends Component {
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
     if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
-    this.setState({isActive: false});
+    this.setState({isActive: false, isTyping: false});
   };
 
   commitNow = (offset?: ?string) => {
@@ -1733,7 +1791,7 @@ export class TimeField extends Component {
   };
 
   cancelEdit = () => {
-    this.setState({isActive: false});
+    this.setState({isActive: false, isTyping: false});
   };
 
   clear = () => {
@@ -1878,6 +1936,7 @@ export class TimeField extends Component {
                 <UpdateTile commitEdit={this.commitEdit} />
                 <ClearTile commitEdit={this.clear} />
                 <RefreshTile commitEdit={this.cancelEdit} />
+                <KeyboardTile commitEdit={this.startTyping} />
               </View>
             </View>
           </ScrollView>
@@ -1898,6 +1957,18 @@ export class TimeField extends Component {
             {this.props.suffix}
           </Text>
         </View>
+      );
+    }
+    if (this.state.isTyping) {
+      return (
+        <TextField
+          prefix={this.props.prefix}
+          value={formattedValue}
+          suffix={this.props.suffix}
+          autoFocus={true}
+          style={style}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
+        />
       );
     }
     return (
@@ -2080,6 +2151,7 @@ export class DateField extends Component {
             '1990',
             '2000',
             '2010',
+            '2020',
           ]
       : ['2010', '2020'];
     const dateOptions: string[][] = [
@@ -2433,16 +2505,7 @@ export class DurationField extends Component {
     editedValue: string[],
   };
   static popularDurationMinutes: number[] = [
-    5,
-    10,
-    15,
-    30,
-    45,
-    60,
-    90,
-    120,
-    180,
-    240,
+    5, 10, 15, 30, 45, 60, 90, 120, 180, 240,
   ];
 
   constructor(props: any) {
@@ -2498,9 +2561,8 @@ export class DurationField extends Component {
   combinedValue(): ?Date {
     const totalFormattedValue: string = this.state.editedValue[0];
     if (totalFormattedValue === undefined) return undefined;
-    const selectedIndex: number = this.state.fractions[0].indexOf(
-      totalFormattedValue,
-    );
+    const selectedIndex: number =
+      this.state.fractions[0].indexOf(totalFormattedValue);
     if (selectedIndex < 0) return undefined;
     const minuteDuration = DurationField.popularDurationMinutes[selectedIndex];
     let end = new Date(this.props.startDate.getTime() + minuteDuration * 60000);
@@ -2743,8 +2805,8 @@ export class BackButton extends Component {
         onPress={this.navigateBack}
         enable={this.props.disabled != true}
         testID="backButton">
-        <View style={styles.backButton}>
-          <Icon name="arrow-left" style={styles.backIcon} />
+        <View style={styles.menuButton}>
+          <Icon name="arrow-left" style={styles.menuIcon} />
         </View>
       </TouchableOpacity>
     );
@@ -2767,7 +2829,7 @@ export class AddButton extends Component {
         block
         style={styles.addButton}
         onPress={this.props.onPress}>
-        <NativeBaseIcon name="md-add" />
+        <NativeBaseIcon icon="plus" />
       </NativeBaseButton>
     );
   }
@@ -2809,36 +2871,37 @@ export class FloatingButton extends Component {
     //if (!wasActive) setTimeout(() => {this.setState({active: false, options: []})}, 5000);
   };
 
+  renderAlert() {
+    const options: any = this.state.options;
+    if (!options) return null;
+    return (
+      <SelectionDialog
+        visible={this.state.active}
+        label={strings.addExamMessage}
+        options={options}
+        onSelect={(selectedData: any) => {
+          this.toggleActive();
+          this.props.onPress(selectedData);
+        }}
+        onCancel={() => this.toggleActive()}
+      />
+    );
+  }
+
   render() {
     if (!this.state.options) return null;
+    if (this.state.active) return this.renderAlert();
     return (
-      <NativeBaseFab
-        active={this.state.active}
-        onPress={this.toggleActive}
-        direction="up"
+      <FAB
+        open={this.state.active}
+        onStateChange={this.toggleActive}
         position="bottomRight"
         style={styles.floatingButton}
-        containerStyle={styles.floatingContainer}>
-        {this.state.active === true ? (
-          <NativeBaseIcon name="md-remove" />
-        ) : (
-          <NativeBaseIcon name="md-add" />
-        )}
-        {this.state.active === true &&
-          this.state.options.map((option: string, index: number) => {
-            return (
-              <NativeBaseButton
-                style={styles.floatingSubButton}
-                onPress={() => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                }}
-                key={index}>
-                <Text style={styles.fabButtonText}>{option}</Text>
-              </NativeBaseButton>
-            );
-          })}
-      </NativeBaseFab>
+        icon={this.state.active ? 'minus' : 'plus'}
+        onPress={() => {
+          this.toggleActive();
+        }}
+      />
     );
   }
 }
@@ -2856,6 +2919,21 @@ export class Lock extends PureComponent {
     return (
       <Icon
         name="lock-open-outline"
+        style={this.props.style}
+        color={selectionFontColor}
+      />
+    );
+  }
+}
+
+export class Pencil extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <Icon
+        name="pencil-off-outline"
         style={this.props.style}
         color={selectionFontColor}
       />
@@ -3084,7 +3162,6 @@ export class SelectionList extends React.PureComponent {
       }
     } else if (this.props.selection) {
       let selection: string = stripSelectionPrefix(this.props.selection);
-
       if (!this.props.items.includes(selection)) {
         data = [].concat(this.props.items);
         data.unshift(selection);
@@ -3112,9 +3189,23 @@ export class SelectionList extends React.PureComponent {
       this.state.filter.length > 0
     )
       data.push(this.state.filter);
-    if (data === undefined) data = this.props.items;
+    if (data === undefined) data = [].concat(this.props.items);
     return data;
   }
+
+  renderItem = ({item}) => {
+    return (
+      <SelectionListRow
+        label={item}
+        simpleSelect={this.props.simpleSelect}
+        selected={this.isSelected(item)}
+        onSelect={(isSelected: boolean | string) =>
+          this.select(item, isSelected)
+        }
+        testID={this.props.label + '.option.' + item}
+      />
+    );
+  };
 
   render() {
     let style: string =
@@ -3136,24 +3227,310 @@ export class SelectionList extends React.PureComponent {
         <FlatList
           initialNumToRender={20}
           data={data}
-          extraData={{
-            filter: this.state.filter,
-            selection: this.props.selection,
-          }}
-          keyExtractor={(item, index) => index}
-          renderItem={item => (
-            <SelectionListRow
-              label={item.item}
-              simpleSelect={this.props.simpleSelect}
-              selected={this.isSelected(item.item)}
-              onSelect={(isSelected: boolean | string) =>
-                this.select(item.item, isSelected)
-              }
-              testID={this.props.label + '.option' + (item.index + 1)}
-            />
-          )}
+          keyExtractor={(item) => item}
+          renderItem={this.renderItem}
         />
       </View>
+    );
+  }
+}
+
+export class NativeBar extends Component {
+  props: {
+    message: string,
+    onDismissAction: () => void,
+  };
+  state: {
+    visible: boolean,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      visible: true,
+    };
+  }
+  onDismiss = () => {
+    this.setState({visible: false});
+    this.props.onDismissAction();
+  };
+  render() {
+    return (
+      <View style={styles.bottomBar}>
+        <Snackbar
+          visible={this.state.visible}
+          onDismiss={this.onDismiss}
+          action={{
+            label: strings.close,
+            onPress: () => {
+              this.onDismiss;
+            },
+          }}>
+          {this.props.message}
+        </Snackbar>
+      </View>
+    );
+  }
+}
+
+type AlertProps = {
+  style: any,
+  title?: string,
+  message?: string,
+  data?: any,
+  dismissable?: boolean,
+  confirmActionLabel: string,
+  cancelActionLabel: string,
+  onConfirmAction: (selectedData: ?any) => void,
+  onCancelAction: () => void,
+  multiValue?: boolean,
+};
+type AlertState = {
+  visible: boolean,
+  data?: any,
+};
+
+export class Alert extends Component<AlertProps, AlertState> {
+  constructor(props: AlertProps) {
+    super(props);
+    this.state = {
+      visible: true,
+      data: this.props.data,
+    };
+  }
+  static defaultProps = {
+    title: '',
+    message: '',
+    dismissable: false,
+  };
+
+  cancelDialog = () => {
+    this.setState({visible: false});
+    this.props.onCancelAction();
+  };
+  confirmDialog = (selectedData: ?any) => {
+    this.setState({visible: false});
+    this.props.onConfirmAction(
+      selectedData === undefined ? this.state.data : selectedData,
+    );
+  };
+
+  toggleCheckbox(index: number) {
+    let data: any = this.state.data;
+    data[index].isChecked = !data[index].isChecked;
+    this.setState({data});
+  }
+
+  renderContent() {
+    if (!isEmpty(this.props.message)) {
+      return <Paragraph>{this.props.message}</Paragraph>;
+    } else if (!isEmpty(this.props.data)) {
+      if (this.props.data instanceof Array) {
+        return (
+          <View
+            style={
+              isWeb
+                ? {Height: 'auto', maxHeight: 200}
+                : {Height: 'auto', maxHeight: 150}
+            }>
+            <Dialog.ScrollArea>
+              <ScrollView>
+                {this.state.data.map((element: any, index: number) => {
+                  const item: any = element.label ? element.label : element;
+                  return this.props.multiValue ? (
+                    <CheckButton
+                      isChecked={element.isChecked}
+                      onSelect={() => this.toggleCheckbox(index)}
+                      onDeselect={() => this.toggleCheckbox(index)}
+                      style={styles.alertCheckBox}
+                      testID={this.props.testID + '.' + item}
+                      suffix={item}></CheckButton>
+                  ) : (
+                    <NativeBaseButton
+                      onPress={() => this.confirmDialog(element)}>
+                      {item}
+                    </NativeBaseButton>
+                  );
+                })}
+              </ScrollView>
+            </Dialog.ScrollArea>
+          </View>
+        );
+      } else {
+        return (
+          <NativeBaseButton onPress={this.confirmDialog}>
+            {this.props.data.label}
+          </NativeBaseButton>
+        );
+      }
+    } else {
+      return null;
+    }
+  }
+  render() {
+    return (
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
+}
+
+export class KeyboardMode extends Component {
+  props: {
+    mode: any,
+    onPress: () => void,
+  };
+  state: {
+    isKeyBoard: boolean,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      isKeyBoard: isWeb,
+    };
+  }
+  onUpdate() {
+    this.props.onPress();
+  }
+  render() {
+    const icon: string = this.props.mode === 'desktop' ? 'tablet' : 'keyboard';
+    return (
+      <TouchableOpacity
+        onPress={() => this.onUpdate()}
+        testID="keyboardModeIcon">
+        <View style={styles.menuButton}>
+          <Icon name={icon} style={styles.menuIcon} />
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+type NoAccessProps = {
+  prefix?: string,
+};
+export class NoAccess extends Component<NoAccessProps> {
+  render() {
+    return (
+      <View>
+        <Text style={styles.noAccessText}>
+          {(this.props.prefix ? this.props.prefix : '') + strings.noAccess}
+        </Text>
+      </View>
+    );
+  }
+}
+export type SelectionDialogProps = {
+  label?: string,
+  options: any[],
+  onSelect?: (option: ?any) => void,
+  onCancel?: () => void,
+  visible: boolean,
+  testID?: string,
+};
+export class SelectionDialog extends Component<
+  SelectionDialogProps,
+  SelectionDialogState,
+> {
+  constructor(props: SelectionDialogProps) {
+    super(props);
+  }
+
+  selectOption(option: any): void {
+    if (option.readonly) return;
+    this.props.onSelect(option);
+  }
+
+  renderPopup() {
+    return (
+      <TouchableWithoutFeedback
+        onPress={this.props.onCancel}
+        accessible={false}
+        testID="popupBackground">
+        <View style={styles.popupBackground}>
+          {this.props.label && (
+            <Text style={styles.modalTitle}>{this.props.label}</Text>
+          )}
+          <ScrollView>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                <View style={styles.modalColumn}>
+                  {this.props.options.map((option: any, rowIndex: number) => {
+                    return (
+                      <TouchableOpacity
+                        key={rowIndex}
+                        onPress={() => this.selectOption(option)}
+                        testID={'option' + (rowIndex + 1)}>
+                        <View
+                          style={
+                            option.readonly ? styles.readOnly : styles.popupTile
+                          }>
+                          <Text style={styles.modalTileLabel}>
+                            {formatCodeDefinition(option)}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        visible={this.props.visible}
+        transparent={true}
+        animationType={'slide'}
+        onRequestClose={this.props.onCancel}>
+        {this.renderPopup()}
+      </Modal>
+    );
+  }
+}
+export class SizeTile extends Component {
+  props: {
+    commitEdit: (field?: string) => void,
+    name: string,
+    isSelected: boolean,
+    minWidth: number,
+  };
+  render() {
+    const style = this.props.isSelected
+      ? this.props.minWidth
+        ? [styles.popupTileSelected, {minWidth: this.props.minWidth}]
+        : styles.popupTileSelected
+      : this.props.minWidth
+      ? [styles.popupTile, {minWidth: this.props.minWidth}]
+      : styles.popupTile;
+    return (
+      <TouchableOpacity
+        onPress={() => this.props.commitEdit(this.props.name)}
+        testID="SizeIcon">
+        <View style={style}>
+          <Icon name={this.props.name} style={styles.modalTileIcon} />
+        </View>
+      </TouchableOpacity>
     );
   }
 }
