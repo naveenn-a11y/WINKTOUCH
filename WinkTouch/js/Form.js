@@ -51,6 +51,7 @@ import {
   parseCode,
   formatOptions,
   getAllCodes,
+  getCodeDefinition,
 } from './Codes';
 import {
   capitalize,
@@ -62,7 +63,6 @@ import {
   getValue,
   setValue,
   formatAge,
-  insertNewlines,
   isEmpty,
 } from './Util';
 import {isNumericField, formatLabel} from './Items';
@@ -163,7 +163,7 @@ export class FormTextInput extends Component {
         input = phoneUtil.format(phoneNumber, 'CA');
       } catch (error) {}
     }
-    return input === undefined ? "" : input;
+    return input === undefined ? '' : input;
   }
 
   commit(input: string) {
@@ -207,9 +207,6 @@ export class FormTextInput extends Component {
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({text});
   };
 
@@ -1160,6 +1157,46 @@ export class FormInput extends Component {
       return true;
     return false;
   }
+
+  isExisingValue(values: any, element: string) {
+    if (values === undefined || values === null) return false;
+    if (!(values instanceof Array)) return false;
+    for (let i: number = 0; i < values.length; i++) {
+      if (element === values[i]) return true;
+    }
+    return false;
+  }
+  getLimitedValues(): any {
+    if (this.props.definition.limitedValues) {
+      const filterEntries: Object = this.props.definition.limitedValues;
+      if (filterEntries && filterEntries instanceof Object) {
+        const filledValue = getValue(
+          this.props.filterValue,
+          filterEntries.code,
+        );
+
+        let filteredCode: CodeDefinition = getCodeDefinition(
+          filterEntries.codes,
+          filledValue,
+        );
+        if (filteredCode && filteredCode.hasLimitedValues) {
+          let filteredCodes: CodeDefinition[] = [];
+          if (
+            filteredCode.limitedValues &&
+            filteredCode.limitedValues instanceof Array
+          ) {
+            const codes: CodeDefinition[] = getAllCodes(filterEntries.options);
+            filteredCodes = codes.filter((element: CodeDefinition) =>
+              this.isExisingValue(filteredCode.limitedValues, element.code),
+            );
+          }
+          return filteredCodes;
+        }
+      }
+    }
+    return this.props.definition.options;
+  }
+
   getFilterValue(): ?{} {
     if (
       this.props.definition.filter instanceof Object &&
@@ -1299,6 +1336,9 @@ export class FormInput extends Component {
       this.props.definition.options.length > 0
     ) {
       let options = this.props.definition.options;
+      if (this.props.definition.limitedValues) {
+        options = this.getLimitedValues();
+      }
       let isNestedCode =
         !(options instanceof Array) &&
         options.endsWith('Codes') &&
@@ -1418,11 +1458,22 @@ export class FormInput extends Component {
         //An image in a multivalue group
         replaceImage = false;
       }
+      const image = this.props.definition.image;
+      let value = this.props.value;
+      if (
+        image !== undefined &&
+        image !== null &&
+        image.startsWith('[') &&
+        image.endsWith(']')
+      ) {
+        value = {image: this.props.value};
+      }
+
       return (
         <ImageField
           ref="imageField"
-          value={this.props.value}
-          image={this.props.definition.image}
+          value={value}
+          image={image}
           fileName={this.props.definition.name}
           resolution={this.props.definition.resolution}
           size={this.props.definition.size}
@@ -1440,6 +1491,7 @@ export class FormInput extends Component {
           enableScroll={this.props.enableScroll}
           disableScroll={this.props.disableScroll}
           replaceImage={replaceImage}
+          forceSync={this.props.definition.forceSync}
           testID={this.props.testID}>
           {this.props.definition.fields &&
             this.props.definition.fields.map(

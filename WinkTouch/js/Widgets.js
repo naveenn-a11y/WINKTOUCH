@@ -65,7 +65,6 @@ import {
   addDays,
   formatAge,
   isEmpty,
-  insertNewlines,
   postfix,
 } from './Util';
 import {Camera} from './Favorites';
@@ -336,9 +335,6 @@ export class TextField extends Component {
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({value: text});
   };
 
