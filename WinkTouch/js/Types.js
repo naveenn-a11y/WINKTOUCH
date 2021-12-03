@@ -473,6 +473,8 @@ export type ExamDefinition = {
   layout?: any,
   signable?: boolean,
   showSubtitles?: boolean,
+  multiValue?: boolean, //Can Add more than 1 exam,
+  addablePostLock?: boolean,
 };
 
 export type ExamPredefinedValue = {

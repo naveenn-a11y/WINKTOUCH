@@ -104,6 +104,7 @@ import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 
 export const examSections: string[] = [
+  'Amendments',
   'Chief complaint',
   'History',
   'Entrance testing',
@@ -115,6 +116,7 @@ export const examSections: string[] = [
   'Document',
 ];
 const examSectionsFr: string[] = [
+  'Amendements',
   'Plainte principale',
   'Historique',
   "Test d'entrée",
@@ -921,12 +923,7 @@ class VisitWorkFlow extends Component {
       return;
     }
     const locked: boolean = this.state.locked;
-    if (locked) {
-      if (this.state.addableExamTypes.length !== 0) {
-        this.setState({addableExamTypes: []});
-      }
-      return;
-    }
+
     let allExamTypes: ExamDefinition[] = await allExamDefinitions(true);
     allExamTypes = allExamTypes.concat(await allExamDefinitions(false));
     let unstartedExamTypes: ExamDefinition[] = allExamTypes.filter(
@@ -935,14 +932,16 @@ class VisitWorkFlow extends Component {
           ? visit.preCustomExamIds.findIndex(
               (examId: string) =>
                 getCachedItem(examId).definition.name === examType.name &&
-                getCachedItem(examId).isHidden !== true,
+                getCachedItem(examId).isHidden !== true &&
+                getCachedItem(examId).definition.multiValue !== true,
             )
           : -1;
         if (existingExamIndex < 0 && visit.customExamIds) {
           existingExamIndex = visit.customExamIds.findIndex(
             (examId: string) =>
               getCachedItem(examId).definition.name === examType.name &&
-              getCachedItem(examId).isHidden !== true,
+              getCachedItem(examId).isHidden !== true &&
+              getCachedItem(examId).definition.multiValue !== true,
           );
         }
         return existingExamIndex < 0;
@@ -958,6 +957,14 @@ class VisitWorkFlow extends Component {
         )
         .includes(section),
     );
+
+    if (locked) {
+      unstartedExamTypes = unstartedExamTypes.filter(
+        (examDefinition: ExamDefinition) =>
+          examDefinition.addablePostLock === true,
+      );
+    }
+
     this.setState({addableExamTypes: unstartedExamTypes, addableSections});
   }
 
@@ -1101,7 +1108,7 @@ class VisitWorkFlow extends Component {
         ],
       );
     }
-    if (existingExam) {
+    if (existingExam && examDefinition.multiValue !== true) {
       this.unhideExam(existingExam);
     } else {
       this.createExam(examDefinition.id);
@@ -1239,7 +1246,9 @@ class VisitWorkFlow extends Component {
           !exam.definition.isAssessment &&
           exam.isHidden !== true &&
           (exam.hasStarted ||
-            (this.state.locked !== true && this.props.readonly !== true)),
+            (this.state.locked !== true && this.props.readonly !== true) ||
+            (this.state.locked === true &&
+              exam.definition.addablePostLock === true)),
       );
       exams.sort(compareExams);
     }

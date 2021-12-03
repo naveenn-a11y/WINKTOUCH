@@ -94,6 +94,11 @@
       "hasAdd": true,
       "name": "Final Rx",
       "type": "SRx",
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
       "fields": [
         {
           "name": "expiry",

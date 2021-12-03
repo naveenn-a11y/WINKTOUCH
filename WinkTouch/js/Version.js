@@ -7,8 +7,8 @@ import DeviceInfo from 'react-native-device-info';
 import {strings} from './Strings';
 import {isWeb} from './Styles';
 
-export let deploymentVersion: string = 'v409';
-export let restVersion: string = 'EHR-409';
+export let deploymentVersion: string = 'v410';
+export let restVersion: string = 'EHR-410';
 export let ecommVersion: string = 'V4';
 export const dbVersion: string = '1685'; //TODO move to plist
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
