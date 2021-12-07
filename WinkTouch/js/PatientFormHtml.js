@@ -53,7 +53,7 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
-
+let media = [];
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
   return imageBase64Definition;
@@ -134,15 +134,18 @@ export function renderItemsHtml(
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
+
     html += `<div style="display:none;">${value}</div>`;
   } else {
     let examKeyFound: boolean = false;
+
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
-    html += `<tr>`;
-    html += `<td class="service">${value}</td>`;
-    html += `<td class="desc">`;
+    // html += `<tr>`;
+    if(isEmpty(value)) return html;
+    html += `<div class="groupHeader">${value}</div>`;
+    html += `<div class="desc">`;
     let htmlSubItems: string = '';
     let parentDefinitionName = '';
     exam[exam.definition.name].map((examItem: any, index: number) => {
@@ -155,8 +158,8 @@ export function renderItemsHtml(
       html: htmlSubItems,
       child: htmlDefinition,
     });
-    html += `</td>`;
-    html += `</tr>`;
+    html += `</div>`;
+    // html += `</tr>`;
   }
   return html;
 }
@@ -194,7 +197,7 @@ function renderItemHtml(
           htmlSubItems += `<span>${formattedValue}</span>`;
           isFirstField = false;
         } else {
-          htmlSubItems += `<div><span>${label}: </span><span>${formattedValue}</span></div>`;
+          htmlSubItems += `<div><span  class="label">${formattedValue}:</span><span class="value">${formattedValue}</span></div>`;
         }
       }
       html += htmlSubItems;
@@ -231,12 +234,12 @@ export async function renderParentGroupHtml(
   } else {
     if (exam.definition.name === 'Consultation summary') {
       if (!isEmpty(exam.resume)) {
-        html += `<tr>`;
-        html += `<td class="service">${formatLabel(exam.definition)}</td>`;
-        html += `<td class="desc">`;
+        // html += `<tr>`;
+        html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
+        html += `<div class="desc">`;
         html += `<div style="white-space: pre-line">${exam.resume}</div>`;
-        html += `</td>`;
-        html += `</tr>`;
+        html += `</div>`;
+        // html += `</tr>`;
         parentHtmlDefinition.push({
           name: exam.definition.name,
           html: `<div style="white-space: pre-line">${exam.resume}</div>`,
@@ -244,13 +247,14 @@ export async function renderParentGroupHtml(
       }
     } else {
       let htmlSubItems: string = '';
-      html += `<tr>`;
-      html += `<td class="service">${formatLabel(exam.definition)}</td>`;
-      html += `<td class="desc">`;
       htmlSubItems += await renderAllGroupsHtml(exam, htmlDefinition);
+      if(isEmpty(htmlSubItems)) return html;
+      // html += `<tr>`;
+      html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
+      html += `<div class="desc">`;
       html += htmlSubItems;
-      html += `</td>`;
-      html += `</tr>`;
+      html += `</div>`;
+      // html += `</tr>`;
       parentHtmlDefinition.push({
         name: exam.definition.name,
         html: htmlSubItems,
@@ -509,8 +513,8 @@ async function renderRowsHtml(
         if (label !== undefined && label !== null && label.trim() !== '') {
           htmlSubItems += `<div>`;
           if (!fieldDefinition.image)
-            htmlSubItems += `<div><span>${label}:</span>`;
-          htmlSubItems += `<span>${value}</span></div>`;
+            htmlSubItems += `<div><span class="label">${label}:</span>`;
+          htmlSubItems += `<span class="value">${value}</span></div>`;
           htmlSubItems += `</div>`;
         } else {
           if (groupDefinition.size === 'XL')
@@ -579,7 +583,7 @@ async function renderColumnedRows(
   }
 
   if (allRowsEmpty == false) {
-    html += `<table class="childTable" style="margin-top:10px; width:50%">`;
+    html += `<table class="childTable" style="margin:10px;">`;
     html += renderColumnsHeader(columnDefinition, definition);
     rows.forEach((column: string[]) => {
       html += `<tr>`;
@@ -599,7 +603,7 @@ async function renderColumnedRows(
       );
       customColumns.map((header: string, i: number) => {
         let subHtml: string = '';
-        subHtml += `<table class="childTable" style="margin-top:10px; width:50%">`;
+        subHtml += `<table class="childTable" style="margin:10px;">`;
         rows.forEach((column: string[]) => {
           subHtml += `<tr>`;
           column.map((value: string, j: number) => {
@@ -746,20 +750,23 @@ async function renderField(
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
-      if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-        html += `<span class="img-wrap" style="width:49%">`;
+      if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
+        html += `<span class="img-wrap" style="width:100%" >`;
       } else {
-        html += `<span class="img-wrap" style="width:100%">`;
-      }
+        html += `<span class="img-wrap">`;
+      }     
       const imageValue = await renderMedia(
         value,
         fieldDefinition,
         groupDefinition,
         exam,
       );
+      let index =  media.length+1
       html += imageValue;
+      html += `<p>${fieldDefinition.name} (${index})</p>`;
       html += `</span>`;
-      return html;
+      media.push(html);
+      return `<span><p>*Please see annexed image (${index}) at the end of the document. </p></span>`;
     }
 
     if (fieldDefinition.type === 'age') {
@@ -1484,11 +1491,16 @@ export function patientHeader() {
     `  text-align: center;` +
     `}` +
     `.img-wrap {` +
-    `  position: relative;` +
-    `  display: block;` +
-    `  float: left;` +
-    ` margin-top:5px;` +
-    ` margin-bottom:10px;` +
+    '  margin: 10px;'+
+    '  position: relative;'+
+    '  text-align: center;'+
+    '  margin-top: 5px;'+
+    '  margin-bottom: 10px;'+
+    '  display: flex;'+
+    '  flex-direction: column;'+
+    '  align-self: center;'+
+    '  justify-content: center;'+
+    '  align-items: center;'+
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +
@@ -1498,12 +1510,56 @@ export function patientHeader() {
     `.img-wrap img {` +
     `  display:block;` +
     `}` +
+    'span.img-wrap p {'+
+    '  border-bottom: 1.5px solid;'+
+    '  padding: 5px;'+
+    '  font-size: 13px;'+
+    ' }'+
+    '.groupHeader {' + 
+    ' margin-top:10px;'+
+    ' padding: 6px 0;'+
+    'border-top: 1px solid #5D6975;'+
+    'border-bottom: 1px solid #5D6975;'+
+    'color: #5D6975;'+
+    'font-size: 1.4em;'+
+    'line-height: 1.4em;'+
+    'font-weight: normal;'+
+    'text-align: center;'+
+    'margin: 0 0 20px 0;'+
+    'background: #F5F5F5;'+
+    '}'+
+    '.desc {'+
+    'margin:10px;'+
+    'font-size: 15px;'+
+    '}'+
+    '.desc .value{'+
+    'color:#000;'+
+    'font-size: 15px;'+
+    'font-weight: 400;'+
+    '}'+
+    '.desc .label {'+
+    'color:#000;'+
+    'font-size: 16px;'+
+    'font-weight: bold;'+
+    '}'+
+    ' .wrap-imgs {'+
+    '   display: flex;'+
+    '   flex-wrap: wrap;'+
+    '   width: 100%;'+
+    '   justify-content: space-around;'+
+    ' }'+
+
     `</style></head><body><main>`;
   return htmlHeader;
 }
 
 export function patientFooter() {
-  let htmlEnd: string = `</main></body>`;
+  let htmlEnd: string = ``;
+  htmlEnd += `<div class="wrap-imgs">`;
+  for(var i of media){
+    htmlEnd+=i
+  }
+  htmlEnd += `</div></main></body>`;
   return htmlEnd;
 }
 
