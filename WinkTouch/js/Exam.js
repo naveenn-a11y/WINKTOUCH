@@ -84,7 +84,7 @@ import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
 import {formatCode, getCodeDefinition} from './Codes';
-import {exportData} from './MappedField';
+import {Machine, exportData} from './Machine';
 
 export async function fetchExam(
   examId: string,
@@ -986,12 +986,29 @@ export class ExamScreen extends Component {
       measurement,
       this.state.exam.examId,
     );
+
     if (data && !data.errors) {
-      this.setSnackBarMessage(strings.exportDataSuccess);
-      this.showSnackBar();
+      const machine: Machine = new Machine();
+      machine.bind = (type, data) => {
+        switch (type) {
+          case 'message':
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+          case 'closed':
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+          case 'connected':
+            machine.push();
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+        }
+      };
+      machine.connect(() => {});
     }
     this.hideExportDataPopup();
-    //  exportMeasurment(this.state.exam.definition, this.state.exam);
   }
 
   hideExportDataPopup() {
