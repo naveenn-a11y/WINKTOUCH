@@ -275,6 +275,7 @@ export const strings = new LocalizedStrings({
     keratometry: 'Keratometry',
     autoRefractor: 'Auto Refractor',
     exportAction: 'Export',
+    billing: 'Billing',
   },
   fr: {
     enterRegisteredEmail:
@@ -548,6 +549,7 @@ export const strings = new LocalizedStrings({
     keratometry: 'Kératométrie',
     autoRefractor: 'Auto Réfraction',
     exportAction: 'Exporter',
+    billing: 'Facturation',
   },
 });
 

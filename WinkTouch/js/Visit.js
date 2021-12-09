@@ -102,6 +102,7 @@ import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
 import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
+import {BillingCard} from './Visit/Partials';
 
 export const examSections: string[] = [
   'Amendments',
@@ -392,44 +393,6 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
           if (exam.resume) {
             visitSummaries = [...visitSummaries, exam];
           }
-        });
-        if (visitSummaries.length > 5) {
-          return visitSummaries;
-        }
-      }
-    }
-  });
-  return visitSummaries;
-}
-function getRecentBilling(patientId: string): ?(Exam[]) {
-  let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
-  if (!visitHistory) {
-    return undefined;
-  }
-  let visitSummaries: Exam[] = [];
-  visitHistory.forEach((visit: Visit) => {
-    if (
-      visit.medicalDataPrivilege !== 'READONLY' &&
-      visit.medicalDataPrivilege !== 'FULLACCESS'
-    ) {
-      let noAccessExam: Exam[] = [{noaccess: true, visitId: visit.id}];
-      visitSummaries = [...visitSummaries, ...noAccessExam];
-    } else {
-      if (visit.customExamIds) {
-        visit.customExamIds.forEach(async (examId: string) => {
-          const exam: Exam = getCachedItem(examId);
-          if (exam.Diagnosis)
-            exam?.Diagnosis.Procedure.map(({procedureCode}) => {
-              const procedure = getCodeDefinition(
-                'procedureCodes',
-                procedureCode,
-              );
-              console.log('procedure', procedure);
-              visitSummaries = [
-                ...visitSummaries,
-                {...procedure, visitId: exam.visitId, ...exam},
-              ];
-            });
         });
         if (visitSummaries.length > 5) {
           return visitSummaries;
@@ -924,6 +887,12 @@ class VisitWorkFlow extends Component {
     }
     const locked: boolean = this.state.locked;
 
+    if (locked) {
+      if (this.state.addableExamTypes.length !== 0) {
+        this.setState({addableExamTypes: []});
+      }
+      return;
+    }
     let allExamTypes: ExamDefinition[] = await allExamDefinitions(true);
     allExamTypes = allExamTypes.concat(await allExamDefinitions(false));
     let unstartedExamTypes: ExamDefinition[] = allExamTypes.filter(
@@ -1780,107 +1749,6 @@ class VisitWorkFlow extends Component {
     this.setState({showMedicationRxPopup: true});
   }
 }
-export class BillingCard extends Component {
-  props: {
-    patientInfo: PatientInfo,
-  };
-  state: {
-    billing: ?(Exam[]),
-  };
-
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      billing: getRecentBilling(props.patientInfo.id),
-    };
-    this.refreshPatientInfo();
-  }
-
-  async refreshPatientInfo() {
-    if (this.state.billing) {
-      return;
-    }
-    const billing: ?(Exam[]) = getRecentBilling(this.props.patientInfo.id);
-    if (billing === undefined) {
-      await fetchVisitHistory(this.props.patientInfo.id);
-      billing = getRecentBilling(this.props.patientInfo.id);
-    }
-    this.setState({billing});
-  }
-
-  checkUserHasAccess() {
-    let hasNoAccesAtAll = true;
-    this.state.billing.map(
-      (visitSummary: Exam) =>
-        (hasNoAccesAtAll =
-          hasNoAccesAtAll && 'noaccess' in visitSummary
-            ? visitSummary.noaccess
-            : false),
-    );
-    return hasNoAccesAtAll;
-  }
-
-  render() {
-    let hasNoAccess = this.checkUserHasAccess();
-    if (!this.state.billing) {
-      return null;
-    }
-
-    return (
-      <View
-        style={
-          isWeb
-            ? [styles.tabCard, {flexShrink: 100}]
-            : [styles.tabCard, {flexGrow: 13}]
-        }>
-        <Text style={styles.cardTitle}>{'Billing'}</Text>
-        {this.state.billing &&
-          this.state.billing.length !== 0 &&
-          (hasNoAccess ? (
-            <NoAccess />
-          ) : (
-            <ScrollView style={{maxHeight: 250}}>
-              {this.state.billing.map((visitSummary: Exam, index: number) =>
-                visitSummary.noaccess ? (
-                  <NoAccess
-                    prefix={
-                      formatDate(
-                        getCachedItem(visitSummary.visitId).date,
-                        isToyear(getCachedItem(visitSummary.visitId).date)
-                          ? dateFormat
-                          : farDateFormat,
-                      ) + ': '
-                    }
-                  />
-                ) : (
-                  <View style={styles.rowLayout}>
-                    <View
-                      style={
-                        isWeb
-                          ? [styles.cardColumn, {flex: 1}]
-                          : [styles.listRow]
-                      }>
-                      <Text style={styles.text}>
-                        {formatDate(
-                          getCachedItem(visitSummary.visitId).date,
-                          isToyear(getCachedItem(visitSummary.visitId).date)
-                            ? dateFormat
-                            : farDateFormat,
-                        )}
-                        : {visitSummary.description} {visitSummary.price}
-                        {'\n'}
-                      </Text>
-                    </View>
-                  </View>
-                ),
-              )}
-            </ScrollView>
-          ))}
-      </View>
-    );
-  }
-}
-
 export class VisitHistoryCard extends Component {
   props: {
     patientInfo: PatientInfo,
