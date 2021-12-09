@@ -988,7 +988,7 @@ export class ExamScreen extends Component {
     );
 
     if (data && !data.errors) {
-      const machine: Machine = new Machine();
+      const machine: Machine = new Machine(machineIdentifier);
       machine.bind = (type, data) => {
         switch (type) {
           case 'message':

@@ -20,7 +20,7 @@ const MachineRequestType = {
 };
 const wsRestUrl: string = __DEV__
   ? 'http://localhost:8080/Web/'
-  : 'https://' + defaultHost + '/' + 'WinkWebSocketv1' + '/';
+  : 'https://' + defaultHost + '/' + 'WinkWebSocket' + '/';
 
 async function fetchMachineMeasurements(
   machineType,
@@ -131,9 +131,16 @@ export async function exportData(
   }
 }
 export class Machine {
-  constructor() {
+  constructor(destinationIdentifier: string) {
     this.url = undefined;
     this.ws = undefined;
+    this.destinationIdentifier = destinationIdentifier;
+    if (destinationIdentifier.startsWith('machine.')) {
+      const machineType: string = destinationIdentifier.substring(
+        'machine.'.length,
+      );
+      this.machineId = getConfiguration()['machine'][machineType];
+    }
   }
 
   buildUrl(authInfo: any): string {
@@ -237,7 +244,7 @@ export class Machine {
   }
 
   async push() {
-    const path: string = 'Machine/Push';
+    const path: string = 'Machine/Message';
     const wsPushUrl: string = wsRestUrl + path + '/';
     const requestNr = getNextRequestNumber();
     try {
@@ -248,7 +255,10 @@ export class Machine {
           Accept: 'application/json',
           token: getToken(),
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          action: MachineRequestType.PUSH,
+          machineId: this.machineId,
+        }),
       });
       console.log(
         'RES ' + requestNr + ' POST ' + wsPushUrl + '  OK: ' + httpResponse.ok,
