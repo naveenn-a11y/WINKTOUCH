@@ -76,7 +76,6 @@ export function decodeTokenPayload(token: string): ?TokenPayload {
 export function setToken(newToken: ?string) {
   __DEV__ && console.log('Set token:' + newToken);
   token = newToken;
-  console.log('done token');
   if (!isEmpty(newToken)) {
     let payLoad: TokenPayload = decodeTokenPayload(newToken);
     parsePrivileges(payLoad ? payLoad.prv : undefined);
