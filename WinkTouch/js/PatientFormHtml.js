@@ -144,6 +144,7 @@ export function renderItemsHtml(
       : exam.definition.name;
     // html += `<tr>`;
     if(isEmpty(value)) return html;
+    html += `<div class="container">`;
     html += `<div class="groupHeader">${value}</div>`;
     html += `<div class="desc">`;
     let htmlSubItems: string = '';
@@ -159,7 +160,7 @@ export function renderItemsHtml(
       child: htmlDefinition,
     });
     html += `</div>`;
-    // html += `</tr>`;
+    html += `</div>`;
   }
   return html;
 }
@@ -216,7 +217,7 @@ export async function renderParentGroupHtml(
   let htmlDefinition: HtmlDefinition[] = [];
 
   let html: string = '';
-
+  html += `<div class="container">`;
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
   );
@@ -226,6 +227,7 @@ export async function renderParentGroupHtml(
       ? ''
       : await renderAllGroupsHtml(exam, htmlDefinition);
     html += `</div>`;
+    html += `</div>`
     parentHtmlDefinition.push({
       name: exam.definition.name,
       html: html,
@@ -234,12 +236,12 @@ export async function renderParentGroupHtml(
   } else {
     if (exam.definition.name === 'Consultation summary') {
       if (!isEmpty(exam.resume)) {
-        // html += `<tr>`;
+        
         html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
         html += `<div class="desc">`;
         html += `<div style="white-space: pre-line">${exam.resume}</div>`;
         html += `</div>`;
-        // html += `</tr>`;
+        html += `</div>`
         parentHtmlDefinition.push({
           name: exam.definition.name,
           html: `<div style="white-space: pre-line">${exam.resume}</div>`,
@@ -248,13 +250,12 @@ export async function renderParentGroupHtml(
     } else {
       let htmlSubItems: string = '';
       htmlSubItems += await renderAllGroupsHtml(exam, htmlDefinition);
-      if(isEmpty(htmlSubItems)) return html;
-      // html += `<tr>`;
+      if(isEmpty(htmlSubItems)) {html += `</div>`; return html;}
       html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
       html += `<div class="desc">`;
       html += htmlSubItems;
       html += `</div>`;
-      // html += `</tr>`;
+      html += `</div>`
       parentHtmlDefinition.push({
         name: exam.definition.name,
         html: htmlSubItems,
@@ -262,7 +263,6 @@ export async function renderParentGroupHtml(
       });
     }
   }
-
   return html;
 }
 
@@ -486,6 +486,7 @@ async function renderRowsHtml(
         groupIndex,
       );
       html += value;
+
     } else if (columnFieldIndex < 0) {
       const value = await renderField(
         fieldDefinition,
@@ -517,11 +518,16 @@ async function renderRowsHtml(
           htmlSubItems += `<span class="value">${value}</span></div>`;
           htmlSubItems += `</div>`;
         } else {
+          if(fieldDefinition.image){
+            htmlSubItems += `<div>` + value + `</div>`;
+          }
+          else{
           if (groupDefinition.size === 'XL')
             htmlSubItems += `<div class="xlForm">` + value + `</div>`;
-          else if (!fieldDefinition.image)
+           else 
             htmlSubItems += `<div><span>` + value + `</span></div>`;
-          else htmlSubItems += `<span>` + value + `</span>`;
+          // else htmlSubItems += `<span>` + value + `</span>`;
+          }
         }
         rowHtmlDefinition.push({
           name: fieldDefinition.name,
@@ -751,9 +757,9 @@ async function renderField(
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
-        html += `<span class="img-wrap" style="width:100%" >`;
+        html += `<div class="img-wrap large-image"><div class="xlForm">`;
       } else {
-        html += `<span class="img-wrap">`;
+        html += `<div class="img-wrap">`;
       }     
       const imageValue = await renderMedia(
         value,
@@ -764,9 +770,12 @@ async function renderField(
       let index =  media.length+1
       html += imageValue;
       html += `<p>${fieldDefinition.name} (${index})</p>`;
-      html += `</span>`;
+      html += `</div>`;
+      if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {html += `</div>`;}
+      
       media.push(html);
-      return `<span><p>*Please see annexed image (${index}) at the end of the document. </p></span>`;
+      html = `<span>*Please see annexed image (${index}) at the end of the document.</span>`
+      return html;
     }
 
     if (fieldDefinition.type === 'age') {
@@ -848,6 +857,7 @@ async function renderMedia(
   }
 
   if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
+   
     style.width = style.width * 0.65;
     style.height = style.height * 0.65;
   }
@@ -864,7 +874,7 @@ async function renderMedia(
       }
     } else if (isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
-      imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
       imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
@@ -913,6 +923,7 @@ async function renderMedia(
                 html += `</svg>`;
               }
             }
+
           },
         ),
       ));
@@ -1336,7 +1347,7 @@ export function patientHeader() {
     `td    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
-    `.xlForm {display: block; page-break-before: always;` +
+    `.xlForm {display: block; page-break-before: always;}` +
     `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
     `@media screen {` +
@@ -1501,14 +1512,31 @@ export function patientHeader() {
     '  align-self: center;'+
     '  justify-content: center;'+
     '  align-items: center;'+
+    '   page-break-inside:avoid;'+
     `}` +
+    '.large-image {'+
+    '  width:100%;'+
+    // '  page-break-after:always;'+
+    '  page-break-inside:avoid;'+
+    // '  display: block;' +
+    // ' page-break-before: always;'+
+    '}'+
     `.img-wrap svg {` +
     `  position:absolute;` +
     `  top:0;` +
     `  left:0;` +
     `}` +
+    `.xlForm svg {` +
+    '   width: 100% !important;'+
+    '   height: auto !important;'+
+    `}` +
+    
     `.img-wrap img {` +
-    `  display:block;` +
+    `   display:block;` +
+    `}` +
+    `.xlForm img {` +
+    '   width: 100% !important;'+
+    '   height: auto !important;'+
     `}` +
     'span.img-wrap p {'+
     '  border-bottom: 1.5px solid;'+
@@ -1528,6 +1556,7 @@ export function patientHeader() {
     'margin: 0 0 20px 0;'+
     'background: #F5F5F5;'+
     '}'+
+    `.container    { page-break-inside:avoid; page-break-after:auto; }`+
     '.desc {'+
     'margin:10px;'+
     'font-size: 15px;'+
