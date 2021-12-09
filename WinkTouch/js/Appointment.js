@@ -417,24 +417,21 @@ export class AppointmentSummary extends Component {
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
             <View style={{marginHorizontal: 5 * fontScale}}>
-              <Text
-                style={!!this.state.locked ? styles.grayedText : styles.text}>
+              <Text style={this.state.locked ? styles.grayedText : styles.text}>
                 {isToday(date)
                   ? formatDate(date, timeFormat)
                   : formatDate(date, dayYearDateTimeFormat)}
               </Text>
-              <Text
-                style={!!this.state.locked ? styles.grayedText : styles.text}>
+              <Text style={this.state.locked ? styles.grayedText : styles.text}>
                 {this.props.appointment.title}
               </Text>
               <View style={{flexDirection: 'row'}}>
                 <Text
-                  style={!!this.state.locked ? styles.grayedText : styles.text}>
+                  style={this.state.locked ? styles.grayedText : styles.text}>
                   {patient && patient.firstName} {patient && patient.lastName}
                 </Text>
                 <PatientTags patient={patient} locked={this.state.locked} />
               </View>
-              {/**<Text style={styles.text}>{formatCode('appointmentStatusCode', this.props.appointment.status)}</Text>*/}
             </View>
           </View>
         </View>
