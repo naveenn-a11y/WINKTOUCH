@@ -74,6 +74,7 @@ export async function storePatientDocument(patientDocument: PatientDocument) {
 
 export class PatientTags extends Component {
   props: {
+    locked: boolean,
     patient: Patient | PatientInfo,
     showDescription?: boolean,
   };
@@ -131,7 +132,9 @@ export class PatientTags extends Component {
       if (this.props.showDescription) return null;
       return (
         <View style={styles.rowLayout}>
-          <Text style={styles.text}> ({genderShort})</Text>
+          <Text style={!!this.props.locked ? styles.grayedText : styles.text}>
+            ({genderShort})
+          </Text>
         </View>
       );
     }
