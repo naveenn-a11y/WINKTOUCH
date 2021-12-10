@@ -275,6 +275,9 @@ export const strings = new LocalizedStrings({
     keratometry: 'Keratometry',
     autoRefractor: 'Auto Refractor',
     exportAction: 'Export',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
   },
   fr: {
     enterRegisteredEmail:
@@ -548,6 +551,10 @@ export const strings = new LocalizedStrings({
     keratometry: 'Kératométrie',
     autoRefractor: 'Auto Réfraction',
     exportAction: 'Exporter',
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
   },
 });
 

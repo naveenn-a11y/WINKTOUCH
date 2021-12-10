@@ -13,15 +13,16 @@ import {getFieldValue, getPatient} from './Exam';
 import {formatLabel, getFieldDefinition} from './Items';
 import {getConfiguration} from './Configuration';
 import {strings} from './Strings';
-import {breakTextIntoLines} from 'pdf-lib';
+import {isEmpty} from './Util';
 
 const MachineRequestType = {
   PUSH: 'PUSH',
   PULL: 'PULL',
 };
 const wsRestUrl: string = __DEV__
-  ? 'http://localhost:8080/Web/'
+  ? 'http://localhost:8080/WinkWebSocket/'
   : 'https://' + defaultHost + '/' + 'WinkWebSocket' + '/';
+const wssIoStream: string = 'wss://chat-us-east-1.stream-io-api.com/';
 
 async function fetchMachineMeasurements(
   machineType,
@@ -94,13 +95,14 @@ export async function importData(
 async function pushMachineMeasurement(
   machineId: string,
   measurement: Measurement,
-): void {
+): Measurement {
   measurement.id = 'measurement';
   measurement.machineId = machineId;
   measurement = await storeItem(measurement);
   if (measurement.errors) {
     alert(measurement.errors.toString());
   }
+  return measurement;
 }
 
 export async function exportData(
@@ -151,7 +153,8 @@ export class Machine {
         '{"user_details":{"id":"' + getDoctor().id + '"}}',
       );
       url =
-        'wss://chat-us-east-1.stream-io-api.com/connect?api_key=' +
+        wssIoStream +
+        'connect?api_key=' +
         authInfo.apiKey +
         '&stream-auth-type=jwt&authorization=' +
         authInfo.token +
@@ -166,36 +169,32 @@ export class Machine {
     this.url = this.buildUrl(authInfo);
     this.ws = new WebSocket(this.url);
     this.ws.onopen = () => {
-      this.bind('connected', 'Client connected !');
+      this.bind('connected', strings.clientConnected);
     };
     this.ws.onerror = (e) => {
-      // an error occurred
       console.log('on error ' + e.message);
       this.bind('error', e.message);
     };
 
     this.ws.onclose = (e) => {
-      // connection closed
-      this.bind('closed', 'Client disconnected !');
       console.log('on close ' + e.code, e.reason);
+      this.bind('closed', strings.clientDisconnected);
     };
     this.ws.onmessage = (e) => {
       if (e.data) {
         const data: any = JSON.parse(e.data);
         if (data.message && data.message.text) {
           const text: any = JSON.parse(data.message.text);
-          if (text.action === MachineRequestType.PUSH) {
-            console.log('Pushed successfully');
-          } else if (text.action === MachineRequestType.PULL) {
+          if (text.action === MachineRequestType.PULL) {
             switch (text.status) {
               case 200:
-                this.bind(
-                  'message',
-                  'Machine Interface has pulled successfully the data',
-                );
+                this.bind('message', strings.machinePullSuccess);
                 break;
               case 500:
-                this.bind('message', text.message);
+                const message: string = !isEmpty(text.message)
+                  ? text.message
+                  : strings.formatString(strings.serverError, text.status);
+                this.bind('message', message);
                 break;
             }
           }
