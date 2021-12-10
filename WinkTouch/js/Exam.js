@@ -987,27 +987,26 @@ export class ExamScreen extends Component {
       this.state.exam.examId,
     );
 
-    if (data && !data.errors) {
-      const machine: Machine = new Machine(machineIdentifier);
-      machine.bind = (type, data) => {
-        switch (type) {
-          case 'message':
-            this.setSnackBarMessage(data);
-            this.showSnackBar();
-            break;
-          case 'closed':
-            this.setSnackBarMessage(data);
-            this.showSnackBar();
-            break;
-          case 'connected':
-            machine.push();
-            this.setSnackBarMessage(data);
-            this.showSnackBar();
-            break;
-        }
-      };
-      machine.connect(() => {});
-    }
+    const machine: Machine = new Machine(machineIdentifier);
+    machine.bind = (type, data) => {
+      switch (type) {
+        case 'message':
+          this.setSnackBarMessage(data);
+          this.showSnackBar();
+          break;
+        case 'closed':
+          this.setSnackBarMessage(data);
+          this.showSnackBar();
+          break;
+        case 'connected':
+          machine.push();
+          this.setSnackBarMessage(data);
+          this.showSnackBar();
+          break;
+      }
+    };
+    machine.connect(() => {});
+
     this.hideExportDataPopup();
   }
 

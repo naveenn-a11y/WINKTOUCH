@@ -13,6 +13,7 @@ import {getFieldValue, getPatient} from './Exam';
 import {formatLabel, getFieldDefinition} from './Items';
 import {getConfiguration} from './Configuration';
 import {strings} from './Strings';
+import {breakTextIntoLines} from 'pdf-lib';
 
 const MachineRequestType = {
   PUSH: 'PUSH',
@@ -182,19 +183,21 @@ export class Machine {
       if (e.data) {
         const data: any = JSON.parse(e.data);
         if (data.message && data.message.text) {
-          if (data.message.text === MachineRequestType.PUSH) {
-            // ignore
-            this.bind(
-              'message',
-              'Data pushed succesfully to the machine Interface',
-            );
+          const text: any = JSON.parse(data.message.text);
+          if (text.action === MachineRequestType.PUSH) {
             console.log('Pushed successfully');
-          } else if (data.message.text === MachineRequestType.PULL) {
-            // call my
-            this.bind(
-              'message',
-              'Machine Interface has pulled successfully the data',
-            );
+          } else if (text.action === MachineRequestType.PULL) {
+            switch (text.status) {
+              case 200:
+                this.bind(
+                  'message',
+                  'Machine Interface has pulled successfully the data',
+                );
+                break;
+              case 500:
+                this.bind('message', text.message);
+                break;
+            }
           }
         }
       }
