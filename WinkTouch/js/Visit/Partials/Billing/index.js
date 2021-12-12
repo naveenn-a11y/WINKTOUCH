@@ -118,7 +118,7 @@ export default class BillingCard extends Component {
       <View
         style={
           isWeb
-            ? [styles.tabCard, {flexShrink: 100}]
+            ? [styles.tabCard]
             : [styles.tabCard, {flexGrow: 13}]
         }>
         <Text style={styles.cardTitle}>{strings.billing}</Text>
@@ -141,7 +141,7 @@ export default class BillingCard extends Component {
                     }
                   />
                 ) : (
-                  <View style={styles.rowLayout}>
+                  <View style={styles.rowLayout,{backgroundColor:"#fff" , marginBottom:"5px", padding:"5px"}}>
                     <View
                       style={
                         isWeb
