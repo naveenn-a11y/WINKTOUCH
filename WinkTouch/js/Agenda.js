@@ -49,6 +49,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatCode} from './Codes';
 import {FormTextInput} from './Form';
+import { fetchVisitHistory} from './Visit';
 
 export class AgendaScreen extends Component {
   props: {
@@ -382,31 +383,36 @@ export class AgendaScreen extends Component {
   }
 }
 
-class NativeCalendar extends Component {
+class Event extends Component {
   props: {
-    date: Date,
-    mode: any,
-    appointments: Appointment[],
-    _onSetEvent: (event: Appointment) => void,
+    event: ICalendarEvent<T>,
+    touchableOpacityProps: CalendarTouchableOpacityProps,
   };
-
+  state: {
+    locked:boolean
+  };
   constructor(props: any) {
     super(props);
+    this.state = {
+     locked: false
+    };
   }
-  shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.mode !== this.props.mode ||
-      nextProps.date !== this.props.date ||
-      nextProps.appointments !== this.props.appointments
-    );
-  }
-
-  renderAppointment(event, touchableOpacityProps) {
+  componentDidMount = async () => {
+    const {patientId, id: appointmentId} = this.props.event;
+    const visitHistory: string[] = await fetchVisitHistory(patientId);
+    visitHistory.map((visitId) => {
+      const visit: Visit = getCachedItem(visitId);
+      if (visit.appointmentId == appointmentId) this.setState({locked: true});
+    });
+  };
+  render() {
+    const {event,touchableOpacityProps} = this.props;
+    const {locked} = this.state
     const patient: Patient = getCachedItem(event.patientId);
     const appointmentType: AppointmentType =
-      event && event.appointmentTypes
-        ? getCachedItem(event.appointmentTypes[0])
-        : undefined;
+    event && event.appointmentTypes
+    ? getCachedItem(event.appointmentTypes[0])
+    : undefined;
     return (
       <TouchableOpacity
         {...touchableOpacityProps}
@@ -431,13 +437,13 @@ class NativeCalendar extends Component {
             <AppointmentIcons appointment={event} />
             <View style={{marginHorizontal: 5 * fontScale}}>
               <View style={styles.rowLayout}>
-                <Text style={styles.text}>
+                <Text style={!!locked ? styles.grayedText : styles.text}>
                   {patient && patient.firstName} {patient && patient.lastName}
                 </Text>
                 <PatientTags patient={patient} />
               </View>
-              <Text style={styles.text}>{event.title}</Text>
-              <Text style={styles.text}>
+              <Text style={!!locked ? styles.grayedText : styles.text}>{event.title}</Text>
+              <Text  style={!!locked ? styles.grayedText : styles.text}>
                 {isToday(event.start)
                   ? formatDate(event.start, timeFormat)
                   : formatDate(event.start, dayYearDateTimeFormat)}
@@ -448,6 +454,29 @@ class NativeCalendar extends Component {
       </TouchableOpacity>
     );
   }
+}
+
+
+class NativeCalendar extends Component {
+  props: {
+    date: Date,
+    mode: any,
+    appointments: Appointment[],
+    _onSetEvent: (event: Appointment) => void,
+  };
+
+  constructor(props: any) {
+    super(props);
+  }
+  shouldComponentUpdate(nextProps) {
+    return (
+      nextProps.mode !== this.props.mode ||
+      nextProps.date !== this.props.date ||
+      nextProps.appointments !== this.props.appointments
+    );
+  }
+
+
 
   render() {
     return (
@@ -460,10 +489,10 @@ class NativeCalendar extends Component {
         ampm={true}
         weekStartsOn={1}
         weekEndsOn={6}
-        renderEvent={(
+        renderEvent={ (
           event: ICalendarEvent<T>,
           touchableOpacityProps: CalendarTouchableOpacityProps,
-        ) => this.renderAppointment(event, touchableOpacityProps)}
+        ) =>  <Event event={event} touchableOpacityProps={touchableOpacityProps}/>}
       />
     );
   }
