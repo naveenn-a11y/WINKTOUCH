@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text, View} from 'react-native';
-import Scanner from 'react-native-document-scanner';
+import Scanner from 'react-native-rectangle-scanner';
 
 export default class NativeScanner extends Component {
   props: {
