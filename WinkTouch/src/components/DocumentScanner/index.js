@@ -18,21 +18,46 @@ import Scanner, {
   Filters,
   RectangleOverlay,
 } from 'react-native-rectangle-scanner';
-import ScannerFilters from './Filters';
+import RNFS from 'react-native-fs';
 
-export default class NativeScanner extends Component {
-  static propTypes = {
-    cameraIsOn: PropTypes.bool,
-    onLayout: PropTypes.func,
-    onPictureTaken: PropTypes.func,
-    onPictureProcessed: PropTypes.func,
+let previewHeight: number = 0;
+let previewWidth: number = 0;
+function setPreviewHeight(height) {
+  previewHeight = height;
+}
+function setPreviewWidth(width) {
+  previewWidth = width;
+}
+function getPreviewSize() {
+  const dimensions = Dimensions.get('window');
+  const previewHeightPercent = previewHeight / dimensions.height;
+  const previewWidthPercent = previewWidth / dimensions.width;
+
+  // We use set margin amounts because for some reasons the percentage values don't align the camera preview in the center correctly.
+  const heightMargin = ((1 - previewHeightPercent) * dimensions.height) / 2;
+  const widthMargin = ((1 - previewWidthPercent) * dimensions.width) / 2;
+  if (dimensions.height > dimensions.width) {
+    // Portrait
+    return {
+      height: previewHeightPercent,
+      width: previewWidthPercent,
+      marginTop: heightMargin,
+      marginLeft: widthMargin,
+    };
+  }
+
+  // Landscape
+  return {
+    width: previewHeightPercent,
+    height: previewWidthPercent,
+    marginTop: widthMargin,
+    marginLeft: heightMargin,
   };
-
-  static defaultProps = {
-    cameraIsOn: undefined, // Whether camera is on or off
-    onLayout: () => {}, // Invokes when the camera layout is initialized
-    onPictureTaken: () => {}, // Invokes when the picture is taken
-    onPictureProcessed: () => {}, // Invokes when the picture is taken and cached.
+}
+export default class NativeScanner extends Component {
+  props: {
+    onPictureTaken: (data: any) => void,
+    style: any,
   };
 
   constructor(props) {
@@ -93,6 +118,7 @@ export default class NativeScanner extends Component {
   }
 
   onDeviceSetup = (deviceDetails) => {
+    console.log('deviceDetails: ' + JSON.stringify(deviceDetails));
     const {
       hasCamera,
       permissionToUseCamera,
@@ -113,6 +139,30 @@ export default class NativeScanner extends Component {
     });
   };
 
+  getPreviewSize() {
+    const dimensions = Dimensions.get('window');
+    // We use set margin amounts because for some reasons the percentage values don't align the camera preview in the center correctly.
+    const heightMargin = ((1 - previewHeight) * dimensions.height) / 2;
+    const widthMargin = ((1 - previewWidth) * dimensions.width) / 2;
+    const previewHeightPercent = previewHeight / dimensions.height;
+    const previewWidthPercent = previewWidth / dimensions.width;
+    if (dimensions.height > dimensions.width) {
+      // Portrait
+      return {
+        height: previewHeightPercent,
+        width: previewWidthPercent,
+        marginTop: heightMargin,
+        marginLeft: widthMargin,
+      };
+    }
+    // Landscape
+    return {
+      width: previewHeightPercent,
+      height: previewWidthPercent,
+      marginTop: widthMargin,
+      marginLeft: heightMargin,
+    };
+  }
   getCameraDisabledMessage() {
     if (this.state.isMultiTasking) {
       return 'Camera is not allowed in multi tasking mode.';
@@ -148,31 +198,6 @@ export default class NativeScanner extends Component {
     } else if (this.state.showScannerView) {
       this.setState({showScannerView: false});
     }
-  }
-
-  getPreviewSize() {
-    const dimensions = Dimensions.get('window');
-    // We use set margin amounts because for some reasons the percentage values don't align the camera preview in the center correctly.
-    const heightMargin =
-      ((1 - this.state.device.previewHeightPercent) * dimensions.height) / 2;
-    const widthMargin =
-      ((1 - this.state.device.previewWidthPercent) * dimensions.width) / 2;
-    if (dimensions.height > dimensions.width) {
-      // Portrait
-      return {
-        height: this.state.device.previewHeightPercent,
-        width: this.state.device.previewWidthPercent,
-        marginTop: heightMargin,
-        marginLeft: widthMargin,
-      };
-    }
-    // Landscape
-    return {
-      width: this.state.device.previewHeightPercent,
-      height: this.state.device.previewWidthPercent,
-      marginTop: widthMargin,
-      marginLeft: heightMargin,
-    };
   }
 
   triggerSnapAnimation() {
@@ -216,21 +241,29 @@ export default class NativeScanner extends Component {
   };
 
   // The picture was captured but still needs to be processed.
-  onPictureTaken = (event) => {
+  async onPictureTaken(event: any) {
     this.setState({takingPicture: false});
-    this.props.onPictureTaken(event);
-  };
+    console.log('Eventssssssssssssss: ' + JSON.stringify(event));
+
+    //   this.props.onPictureTaken(event);
+  }
 
   // The picture was taken and cached. You can now go on to using it.
-  onPictureProcessed = (event) => {
-    this.props.onPictureProcessed(event);
+  async onPictureProcessed(event: any) {
+    const base64CroppedImage: string = await RNFS.readFile(
+      event.croppedImage,
+      'base64',
+    );
+    RNFS.unlink(event.croppedImage);
     this.setState({
       image: event,
       takingPicture: false,
       processingImage: false,
       showScannerView: this.props.cameraIsOn || false,
     });
-  };
+    event.croppedImage = 'image/jpeg;base64,' + base64CroppedImage;
+    this.props.onPictureTaken(event);
+  }
 
   renderFlashControl() {
     const {flashEnabled, device} = this.state;
@@ -314,6 +347,7 @@ export default class NativeScanner extends Component {
   }
 
   renderCameraView() {
+    console.log('Props Style: ' + JSON.stringify(this.props.style));
     if (this.state.showScannerView) {
       const previewSize = this.getPreviewSize();
       let rectangleOverlay = null;
@@ -343,11 +377,11 @@ export default class NativeScanner extends Component {
             width: `${previewSize.width * 100}%`,
           }}>
           <Scanner
-            onPictureTaken={this.onPictureTaken}
-            onPictureProcessed={this.onPictureProcessed}
+            onPictureTaken={(event: any) => this.onPictureTaken(event)}
+            onPictureProcessed={(event: any) => this.onPictureProcessed(event)}
             enableTorch={this.state.flashEnabled}
             ref={this.camera}
-            capturedQuality={0.6}
+            capturedQuality={1.0}
             onRectangleDetected={({detectedRectangle}) =>
               this.setState({detectedRectangle})
             }
@@ -358,7 +392,6 @@ export default class NativeScanner extends Component {
             style={this.props.style}
             onErrorProcessingImage={(err) => console.log('error', err)}
           />
-          {rectangleOverlay}
           <Animated.View
             style={{
               ...styles.overlay,
@@ -392,51 +425,52 @@ export default class NativeScanner extends Component {
   }
 
   render() {
-    if (this.state.image) {
-      return (
-        <View style={styles.previewContainer}>
-          <View style={styles.previewBox}>
-            <Image
-              source={{uri: this.state.image.croppedImage}}
-              style={styles.preview}
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.buttonContainer}
-            onPress={this.retryCapture}>
-            <Text style={styles.buttonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    } else {
-      return (
+    return (
+      <View>
         <View
-          style={styles.container}
+          style={this.props.style}
           onLayout={(event) => {
-            // This is used to detect multi tasking mode on iOS/iPad
-            // Camera use is not allowed
-            this.props.onLayout(event);
-            if (this.state.didLoadInitialLayout && Platform.OS === 'ios') {
-              const screenWidth = Dimensions.get('screen').width;
-              const isMultiTasking = false;
-              if (isMultiTasking) {
-                this.setState({isMultiTasking: true, loadingCamera: false});
-              } else {
-                this.setState({isMultiTasking: false});
-              }
-            } else {
-              this.setState({didLoadInitialLayout: true});
-            }
+            const {width, height} = event.nativeEvent.layout;
+            setPreviewHeight(height);
+            setPreviewWidth(width);
           }}>
-          <StatusBar
-            backgroundColor="black"
-            barStyle="light-content"
-            hidden={Platform.OS !== 'android'}
+          <Scanner
+            useBase64={true}
+            onPictureTaken={(event: any) => this.onPictureTaken(event)}
+            onPictureProcessed={(event: any) => this.onPictureProcessed(event)}
+            enableTorch={this.state.flashEnabled}
+            ref={this.camera}
+            capturedQuality={0.6}
+            onRectangleDetected={({detectedRectangle}) =>
+              this.setState({detectedRectangle})
+            }
+            onDeviceSetup={this.onDeviceSetup}
+            onTorchChanged={({enabled}) =>
+              this.setState({flashEnabled: enabled})
+            }
+            style={this.props.style}
+            onErrorProcessingImage={(err) => console.log('error', err)}
           />
-          {this.renderCameraView()}
+          {!this.state.loadingCamera && !this.state.processingImage && (
+            <RectangleOverlay
+              detectedRectangle={this.state.detectedRectangle}
+              backgroundColor="rgba(255,181,6, 0.2)"
+              borderColor="rgb(255,181,6)"
+              borderWidth={4}
+              detectedBackgroundColor="rgba(255,181,6, 0.3)"
+              detectedBorderWidth={6}
+              detectedBorderColor="rgb(255,218,124)"
+              onDetectedCapture={this.capture}
+              previewRatio={this.getPreviewSize()}
+              allowDetection
+            />
+          )}
         </View>
-      );
-    }
+        <SafeAreaView style={[styles.overlay]}>
+          {this.renderCameraControls()}
+        </SafeAreaView>
+      </View>
+    );
   }
 
   retryCapture = () => {
