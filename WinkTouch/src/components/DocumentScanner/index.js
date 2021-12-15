@@ -197,7 +197,7 @@ export default class NativeScanner extends Component {
             onPictureProcessed={(event: any) => this.onPictureProcessed(event)}
             enableTorch={this.state.flashEnabled}
             ref={this.camera}
-            capturedQuality={0.8}
+            capturedQuality={1}
             onRectangleDetected={({detectedRectangle}) =>
               this.setState({detectedRectangle})
             }
