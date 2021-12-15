@@ -116,18 +116,14 @@ export default class BillingCard extends Component {
 
     return (
       <View
-        style={
-          isWeb
-            ? [styles.tabCard]
-            : [styles.tabCard, {flexGrow: 13}]
-        }>
+        style={[styles.tabCard, { maxWidth: "300px"}]}>
         <Text style={styles.cardTitle}>{strings.billing}</Text>
         {this.state.billing &&
           this.state.billing.length !== 0 &&
           (hasNoAccess ? (
             <NoAccess />
           ) : (
-            <View style={{maxWidth: 300}}>
+            <View style={{ maxWidth: "300px"}}>
               {this.state.billing.map((visitSummary: Exam, index: number) =>
                 visitSummary.noaccess ? (
                   <NoAccess
@@ -141,13 +137,7 @@ export default class BillingCard extends Component {
                     }
                   />
                 ) : (
-                  <View style={styles.rowLayout,{backgroundColor:"#fff" , marginBottom:"5px", padding:"5px"}}>
-                    <View
-                      style={
-                        isWeb
-                          ? [styles.cardColumn, {flex: 1}]
-                          : [styles.listRow]
-                      }>
+                    <View style={styles.rowLayout,{backgroundColor:"#fff" , marginBottom:"5px", padding:"5px"}}>
                       <Text style={styles.text}>
                         {formatDate(
                           getCachedItem(visitSummary.visitId).date,
@@ -159,7 +149,6 @@ export default class BillingCard extends Component {
                         {visitSummary.icdDescription}
                       </Text>
                     </View>
-                  </View>
                 ),
               )}
             </View>
