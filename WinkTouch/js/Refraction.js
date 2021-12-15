@@ -72,7 +72,7 @@ import {
   ImportIcon,
   ExportIcon,
 } from './Favorites';
-import {importData, exportData} from './MappedField';
+import {importData, exportData} from './Machine';
 import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient, getExam} from './Exam';

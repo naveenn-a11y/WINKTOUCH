@@ -276,6 +276,9 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Refractor',
     exportAction: 'Export',
     billing: 'Billing',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
   },
   fr: {
     enterRegisteredEmail:
@@ -550,6 +553,10 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Réfraction',
     exportAction: 'Exporter',
     billing: 'Facturation',
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
   },
 });
 

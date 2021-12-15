@@ -47,7 +47,7 @@ import {fetchAppointments, AppointmentSummary} from './Appointment';
 
 export async function fetchPatientInfo(
   patientId: string,
-  ignoreCache?: boolean = false,
+  ignoreCache: ?boolean = false,
 ): PatientInfo {
   let patientInfo: PatientInfo = await fetchItemById(patientId, ignoreCache);
   return patientInfo;
