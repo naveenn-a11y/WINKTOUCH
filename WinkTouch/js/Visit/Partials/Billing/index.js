@@ -123,7 +123,7 @@ export default class BillingCard extends Component {
           (hasNoAccess ? (
             <NoAccess />
           ) : (
-            <View style={{ maxWidth: "300px"}}>
+            <View style={{width: "100%", maxWidth: "300px"}}>
               {this.state.billing.map((visitSummary: Exam, index: number) =>
                 visitSummary.noaccess ? (
                   <NoAccess
@@ -137,7 +137,7 @@ export default class BillingCard extends Component {
                     }
                   />
                 ) : (
-                    <View style={styles.rowLayout,{backgroundColor:"#fff" , marginBottom:"5px", padding:"5px"}}>
+                    <View style={[styles.rowLayout,{backgroundColor:"#fff" , marginBottom:"5px", padding:"5px"}]}>
                       <Text style={styles.text}>
                         {formatDate(
                           getCachedItem(visitSummary.visitId).date,
