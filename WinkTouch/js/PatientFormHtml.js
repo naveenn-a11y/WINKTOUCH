@@ -879,9 +879,9 @@ async function renderMedia(
       imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
     html += imageValue;
+    html += `<div>`;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
-
     fieldDefinition.fields &&
       (await Promise.all(
         fieldDefinition.fields.map(
@@ -917,16 +917,20 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += ` <g transform="scale(0.96 0.98)">`;
+                html += ` <g transform="scale(0.8 0.8)">`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `</svg>`;
+                console.log('style :>> ', style);
+                console.log(`x`, x)
+                console.log('y :>> ', y);
               }
             }
 
           },
         ),
       ));
+    html += `</div>`;
   }
   if (upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
@@ -1518,25 +1522,36 @@ export function patientHeader() {
     '  width:100%;'+
     // '  page-break-after:always;'+
     '  page-break-inside:avoid;'+
-    // '  display: block;' +
-    // ' page-break-before: always;'+
+    '  position: inherit;' +
+    ' page-break-before: always;'+
+    '}'+
+    '.large-image .xlForm {'+
+    '     max-height: 793px;'+
     '}'+
     `.img-wrap svg {` +
     `  position:absolute;` +
     `  top:0;` +
     `  left:0;` +
     `}` +
+    `.xlForm img {` +
+    '   width: 600px !important;'+
+    '   height: 740px !important;'+
+    '   page-break-before: always;'+
+    '   page-break-inside: avoid;'+
+    `}` +
+    '.xlForm div{'+
+    '   position: absolute;'+
+    '}'+
     `.xlForm svg {` +
-    '   width: 100% !important;'+
-    '   height: auto !important;'+
+   '   width: 600px !important;'+
+   '   height: 740px !important;'+
+   '   margin: auto;'+
+   '   top: -750px;'+
+   '   position: absolute;'+
     `}` +
     
     `.img-wrap img {` +
     `   display:block;` +
-    `}` +
-    `.xlForm img {` +
-    '   width: 100% !important;'+
-    '   height: auto !important;'+
     `}` +
     'span.img-wrap p {'+
     '  border-bottom: 1.5px solid;'+

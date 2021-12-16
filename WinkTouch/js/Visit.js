@@ -410,7 +410,6 @@ async function printPatientFile(visitId: string) {
   visitHtml += printPatientHeader(visit);
   if (exams) {
     let htmlDefinition: HtmlDefinition[] = [];
-    // visitHtml += '<table><thead></thead><tbody>';
     for (const section: string of examSections) {
       let filteredExams = exams.filter(
         (exam: Exam) =>
@@ -456,7 +455,6 @@ async function printPatientFile(visitId: string) {
         }
       }
     }
-    // visitHtml += '</tbody></table>';
     visitHtml += getScannedFiles();
     for (const exam: string of xlExams) {
       if (
@@ -471,7 +469,7 @@ async function printPatientFile(visitId: string) {
       }
     }
     visitHtml = getVisitHtml(visitHtml);
-    printHtml(visitHtml);
+    await printHtml(visitHtml);
   }
 }
 
