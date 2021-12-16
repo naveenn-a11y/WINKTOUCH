@@ -968,8 +968,7 @@ export const styles = StyleSheet.create({
     marginBottom: '5px',
     padding: '5px',
   },
-  view: {maxWidth: 300},
-  viewWeb: {maxWidth: '300px'},
+  billingView: {maxWidth: 300},
   listRow: {
     flex: 10,
     flexDirection: 'row',

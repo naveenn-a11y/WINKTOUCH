@@ -115,7 +115,7 @@ export default class BillingCard extends Component {
     }
 
     return (
-      <View style={[styles.tabCard, isWeb ? styles.viewWeb : styles.view]}>
+      <View style={[styles.tabCard, styles.billingView]}>
         <Text style={styles.cardTitle}>{strings.billing}</Text>
         {this.state.billing &&
           this.state.billing.length !== 0 &&
@@ -123,7 +123,7 @@ export default class BillingCard extends Component {
             <NoAccess />
           ) : (
             <View
-              style={[isWeb ? styles.viewWeb : styles.view, {width: '100%'}]}>
+              style={[styles.billingView, {width: '100%'}]}>
               {this.state.billing.map((visitSummary: Exam, index: number) =>
                 visitSummary.noaccess ? (
                   <NoAccess
