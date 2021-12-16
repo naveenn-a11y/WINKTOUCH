@@ -956,6 +956,20 @@ export const styles = StyleSheet.create({
     right: 8 * fontScale,
     top: 10 * fontScale,
   },
+  bgRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: 5,
+    padding: 5,
+  },
+  bgRowWeb: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: '5px',
+    padding: '5px',
+  },
+  view: {maxWidth: 300},
+  viewWeb: {maxWidth: '300px'},
   listRow: {
     flex: 10,
     flexDirection: 'row',

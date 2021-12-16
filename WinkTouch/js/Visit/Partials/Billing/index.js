@@ -115,15 +115,15 @@ export default class BillingCard extends Component {
     }
 
     return (
-      <View
-        style={[styles.tabCard, { maxWidth: "300px"}]}>
+      <View style={[styles.tabCard, isWeb ? styles.viewWeb : styles.view]}>
         <Text style={styles.cardTitle}>{strings.billing}</Text>
         {this.state.billing &&
           this.state.billing.length !== 0 &&
           (hasNoAccess ? (
             <NoAccess />
           ) : (
-            <View style={{width: "100%", maxWidth: "300px"}}>
+            <View
+              style={[isWeb ? styles.viewWeb : styles.view, {width: '100%'}]}>
               {this.state.billing.map((visitSummary: Exam, index: number) =>
                 visitSummary.noaccess ? (
                   <NoAccess
@@ -137,18 +137,17 @@ export default class BillingCard extends Component {
                     }
                   />
                 ) : (
-                    <View style={[styles.rowLayout,{backgroundColor:"#fff" , marginBottom:"5px", padding:"5px"}]}>
-                      <Text style={styles.text}>
-                        {formatDate(
-                          getCachedItem(visitSummary.visitId).date,
-                          isToyear(getCachedItem(visitSummary.visitId).date)
-                            ? dateFormat
-                            : farDateFormat,
-                        )}
-                        : {visitSummary.description}{' '}
-                        {visitSummary.icdDescription}
-                      </Text>
-                    </View>
+                  <View style={isWeb ? styles.bgRowWeb : styles.bgRow}>
+                    <Text style={styles.text}>
+                      {formatDate(
+                        getCachedItem(visitSummary.visitId).date,
+                        isToyear(getCachedItem(visitSummary.visitId).date)
+                          ? dateFormat
+                          : farDateFormat,
+                      )}
+                      : {visitSummary.description} {visitSummary.icdDescription}
+                    </Text>
+                  </View>
                 ),
               )}
             </View>
