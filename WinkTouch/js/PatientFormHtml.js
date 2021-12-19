@@ -522,9 +522,6 @@ async function renderRowsHtml(
             htmlSubItems += `<div>` + value + `</div>`;
           }
           else{
-          if (groupDefinition.size === 'XL')
-            htmlSubItems += `<div class="xlForm">` + value + `</div>`;
-           else 
             htmlSubItems += `<div><span>` + value + `</span></div>`;
           // else htmlSubItems += `<span>` + value + `</span>`;
           }
@@ -757,9 +754,9 @@ async function renderField(
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
-        html += `<div class="img-wrap large-image"><div class="xlForm">`;
+        html += `<div class="l-img"><span class="img-wrap">`;
       } else {
-        html += `<div class="img-wrap">`;
+        html += `<span class="img-wrap">`;
       }     
       const imageValue = await renderMedia(
         value,
@@ -769,8 +766,8 @@ async function renderField(
       );
       let index =  media.length+1
       html += imageValue;
-      html += `<p>${fieldDefinition.name} (${index})</p>`;
-      html += `</div>`;
+      html += `<span>${fieldDefinition.name} (${index})</span>`;
+      html += `</span>`;
       if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {html += `</div>`;}
       
       media.push(html);
@@ -824,7 +821,7 @@ async function renderMedia(
     fieldAspectRatio,
   );
   let upload: Upload = undefined;
-  const pageWidth: number = 612;
+  const pageWidth: number = 582;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
@@ -846,7 +843,6 @@ async function renderMedia(
   } else {
     filePath = image;
   }
-
   if (style.height > pageHeight) {
     style.height = Math.floor(pageHeight);
     style.width = Math.floor(pageHeight * fieldAspectRatio);
@@ -857,9 +853,8 @@ async function renderMedia(
   }
 
   if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-   
     style.width = style.width * 0.65;
-    style.height = style.height * 0.65;
+    style.height = (style.height) * 0.65;
   }
 
   if (filePath) {
@@ -879,7 +874,7 @@ async function renderMedia(
       imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
     html += imageValue;
-    html += `<div>`;
+    // html += `<div>`;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
     fieldDefinition.fields &&
@@ -917,20 +912,17 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += ` <g transform="scale(0.8 0.8)">`;
+                html += ` <g transform="scale(0.9 0.92)"">`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `</svg>`;
-                console.log('style :>> ', style);
-                console.log(`x`, x)
-                console.log('y :>> ', y);
               }
             }
 
           },
         ),
       ));
-    html += `</div>`;
+    // html += `</div>`;
   }
   if (upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
@@ -1505,51 +1497,37 @@ export function patientHeader() {
     `  padding: 8px 0;` +
     `  text-align: center;` +
     `}` +
+    '.l-img {'+
+    '  display: block;'+
+    // '  width: 100%;'+
+    '  max-height: 1000px;'+
+    '  box-sizing: border-box;'+
+    // '  padding-top: 10px;'+
+    '  page-break-before: always;'+
+    // '  page-break-after: auto;'+
+    '  page-break-inside: avoid;'+
+    '}'+
     `.img-wrap {` +
-    '  margin: 10px;'+
+    '  margin: 0px;'+
+    '  padding: 0px;'+
+    '  float: left;'+
     '  position: relative;'+
     '  text-align: center;'+
-    '  margin-top: 5px;'+
-    '  margin-bottom: 10px;'+
+    // '  margin-top: 5px;'+
+    // '  margin-bottom: 10px;'+
     '  display: flex;'+
     '  flex-direction: column;'+
-    '  align-self: center;'+
-    '  justify-content: center;'+
-    '  align-items: center;'+
-    '   page-break-inside:avoid;'+
-    `}` +
-    '.large-image {'+
-    '  width:100%;'+
-    // '  page-break-after:always;'+
+    '  flex-wrap: wrap;'+
+    '  justify-content: flex-start;'+
+    '  align-content: center;'+
     '  page-break-inside:avoid;'+
-    '  position: inherit;' +
-    ' page-break-before: always;'+
-    '}'+
-    '.large-image .xlForm {'+
-    '     max-height: 793px;'+
-    '}'+
+    '  align-items: center;'+
+    `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +
     `  top:0;` +
     `  left:0;` +
     `}` +
-    `.xlForm img {` +
-    '   width: 600px !important;'+
-    '   height: 740px !important;'+
-    '   page-break-before: always;'+
-    '   page-break-inside: avoid;'+
-    `}` +
-    '.xlForm div{'+
-    '   position: absolute;'+
-    '}'+
-    `.xlForm svg {` +
-   '   width: 600px !important;'+
-   '   height: 740px !important;'+
-   '   margin: auto;'+
-   '   top: -750px;'+
-   '   position: absolute;'+
-    `}` +
-    
     `.img-wrap img {` +
     `   display:block;` +
     `}` +
@@ -1561,15 +1539,15 @@ export function patientHeader() {
     '.groupHeader {' + 
     ' margin-top:10px;'+
     ' padding: 6px 0;'+
-    'border-top: 1px solid #5D6975;'+
-    'border-bottom: 1px solid #5D6975;'+
-    'color: #5D6975;'+
-    'font-size: 1.4em;'+
-    'line-height: 1.4em;'+
-    'font-weight: normal;'+
-    'text-align: center;'+
-    'margin: 0 0 20px 0;'+
-    'background: #F5F5F5;'+
+    ' border-top: 1px solid #5D6975;'+
+    ' border-bottom: 1px solid #5D6975;'+
+    ' color: #5D6975;'+
+    ' font-size: 1.4em;'+
+    ' line-height: 1.4em;'+
+    ' font-weight: normal;'+
+    ' text-align: center;'+
+    ' margin: 0 0 20px 0;'+
+    ' background: #F5F5F5;'+
     '}'+
     `.container    { page-break-inside:avoid; page-break-after:auto; }`+
     '.desc {'+
