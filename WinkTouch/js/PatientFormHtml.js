@@ -53,7 +53,8 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
-let media = [];
+let smallMedia = [];
+let largeMedia = [];
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
   return imageBase64Definition;
@@ -753,10 +754,13 @@ async function renderField(
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
+      let index =  0
       if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
         html += `<div class="l-img"><span class="img-wrap">`;
+        index = `L-${largeMedia.length + 1}`;
       } else {
         html += `<span class="img-wrap">`;
+        index = `S-${smallMedia.length + 1}`;
       }     
       const imageValue = await renderMedia(
         value,
@@ -764,14 +768,19 @@ async function renderField(
         groupDefinition,
         exam,
       );
-      let index =  media.length+1
+      if(isEmpty(imageValue)) return "";
       html += imageValue;
       html += `<span>${fieldDefinition.name} (${index})</span>`;
       html += `</span>`;
-      if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {html += `</div>`;}
-      
-      media.push(html);
-      html = `<span>*Please see annexed image (${index}) at the end of the document.</span>`
+      if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
+        html += `</div>`;
+        largeMedia.push(html);
+        html = `<span>*Please see annexed image L-${index} at the end of the document.</span>`
+      }
+      else {
+        smallMedia.push(html);
+        html = `<span>*Please see annexed image S-${index} at the end of the document.</span>`
+      }
       return html;
     }
 
@@ -1578,7 +1587,10 @@ export function patientHeader() {
 export function patientFooter() {
   let htmlEnd: string = ``;
   htmlEnd += `<div class="wrap-imgs">`;
-  for(var i of media){
+  for(var i of smallMedia){
+    htmlEnd+=i
+  }
+  for(var i of largeMedia){
     htmlEnd+=i
   }
   htmlEnd += `</div></main></body>`;
