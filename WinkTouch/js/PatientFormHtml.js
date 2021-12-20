@@ -830,7 +830,7 @@ async function renderMedia(
     fieldAspectRatio,
   );
   let upload: Upload = undefined;
-  const pageWidth: number = 582;
+  const pageWidth: number = isWeb? 582:612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
@@ -883,7 +883,6 @@ async function renderMedia(
       imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
     html += imageValue;
-    // html += `<div>`;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
     fieldDefinition.fields &&
@@ -931,7 +930,6 @@ async function renderMedia(
           },
         ),
       ));
-    // html += `</div>`;
   }
   if (upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
@@ -1508,7 +1506,7 @@ export function patientHeader() {
     `}` +
     '.l-img {'+
     '  display: block;'+
-    // '  width: 100%;'+
+    '  width: 100%;'+
     '  max-height: 1000px;'+
     '  box-sizing: border-box;'+
     // '  padding-top: 10px;'+
