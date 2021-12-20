@@ -10,7 +10,7 @@ export async function printHtml(html: string) {
 }
 
 export async function generatePDF(html: string, isBase64: boolean) {
-  const pageWidth: number = 612;
+  const pageWidth: number = 582;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let options = {
