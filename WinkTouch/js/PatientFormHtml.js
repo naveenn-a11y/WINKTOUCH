@@ -755,11 +755,11 @@ async function renderField(
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       let index =  0
-      if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
-        html += `<div class="l-img"><span class="img-wrap">`;
+      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
+        html += `<div class="l-img"><div class="img-wrap">`;
         index = `L-${largeMedia.length + 1}`;
       } else {
-        html += `<span class="img-wrap">`;
+        html += `<div class="img-wrap s-img">`;
         index = `S-${smallMedia.length + 1}`;
       }     
       const imageValue = await renderMedia(
@@ -771,8 +771,8 @@ async function renderField(
       if(isEmpty(imageValue)) return "";
       html += imageValue;
       html += `<span>${fieldDefinition.name} (${index})</span>`;
-      html += `</span>`;
-      if (groupDefinition.size === 'L' || groupDefinition.size === 'XL' ) {
+      html += `</div>`;
+      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
         html += `</div>`;
         largeMedia.push(html);
         html = `<span>*Please see annexed image L-${index} at the end of the document.</span>`
@@ -1506,14 +1506,14 @@ export function patientHeader() {
     `  padding: 8px 0;` +
     `  text-align: center;` +
     `}` +
+    '.s-img {'+
+      ' margin: 20px;'+
+    ' }'+
     '.l-img {'+
     '  display: block;'+
-    // '  width: 100%;'+
     '  max-height: 1000px;'+
     '  box-sizing: border-box;'+
-    // '  padding-top: 10px;'+
     '  page-break-before: always;'+
-    // '  page-break-after: auto;'+
     '  page-break-inside: avoid;'+
     '}'+
     `.img-wrap {` +
@@ -1522,8 +1522,6 @@ export function patientHeader() {
     '  float: left;'+
     '  position: relative;'+
     '  text-align: center;'+
-    // '  margin-top: 5px;'+
-    // '  margin-bottom: 10px;'+
     '  display: flex;'+
     '  flex-direction: column;'+
     '  flex-wrap: wrap;'+
