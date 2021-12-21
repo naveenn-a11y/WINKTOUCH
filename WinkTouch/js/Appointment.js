@@ -116,10 +116,8 @@ export async function fetchAppointments(
 
     cacheItem('appointmentsHistory-' + patient.id, patientAppts);
   });
-
   return appointments;
 }
-
 export class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,
@@ -396,12 +394,17 @@ export class AppointmentSummary extends Component {
       locked: false,
     };
   }
-  componentDidMount = async () => {
+  componentDidMount(){this.getLockedState()};
+  componentDidUpdate(){this.getLockedState()};
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.state.locked === nextState.locked) return false
+    return true};
+  getLockedState = async ()=>{
     const {patientId, id: appointmentId} = this.props.appointment;
     const visitHistory: string[] = await fetchVisitHistory(patientId);
     visitHistory.map((visitId) => {
       const visit: Visit = getCachedItem(visitId);
-      if (visit.appointmentId == appointmentId) this.setState({locked: true});
+      if (visit.appointmentId == appointmentId && visit.locked) this.setState({locked: true});
     });
   };
 

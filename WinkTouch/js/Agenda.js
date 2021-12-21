@@ -396,13 +396,18 @@ class Event extends Component {
     this.state = {
      locked: false
     };
-  }
-  componentDidMount = async () => {
+  };
+  componentDidMount(){this.getLockedState()};
+  componentDidUpdate(){this.getLockedState()};
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.state.locked === nextState.locked) return false
+    return true};
+  getLockedState = async ()=>{
     const {patientId, id: appointmentId} = this.props.event;
     const visitHistory: string[] = await fetchVisitHistory(patientId);
     visitHistory.map((visitId) => {
       const visit: Visit = getCachedItem(visitId);
-      if (visit.appointmentId == appointmentId) this.setState({locked: true});
+      if (visit.appointmentId == appointmentId && visit.locked) this.setState({locked: true});
     });
   };
   render() {
@@ -453,7 +458,7 @@ class Event extends Component {
         </View>
       </TouchableOpacity>
     );
-  }
+  };
 }
 
 
@@ -467,6 +472,9 @@ class NativeCalendar extends Component {
 
   constructor(props: any) {
     super(props);
+  }
+  componentDidUpdate= async () => {
+    console.log('appointments :>> ', this.appointments);
   }
   shouldComponentUpdate(nextProps) {
     return (
