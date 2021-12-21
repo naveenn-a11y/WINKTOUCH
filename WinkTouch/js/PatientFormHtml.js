@@ -76,6 +76,8 @@ export function printPatientHeader(visit: Visit) {
   const patient: PatientInfo = getCachedItem(visit.patientId);
   const store: Store = getStore();
   const doctor: User = getCachedItem(visit.userId);
+  largeMedia =[];
+  smallMedia = []
 
   html +=
     `    <header class="clearfix">` +
