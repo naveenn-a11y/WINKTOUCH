@@ -5,17 +5,17 @@ export async function printHtml(html: string) {
   x.document.close();
 
   const job = undefined;
-  x = window.open("");
-  x.document.open();
+  // x = window.open("");
+  // x.document.open();
 
-  const pdf = await generatePDF(html);
-  const blob = base64ToBlob( pdf?.base64, 'application/pdf' );
-  const url = URL.createObjectURL( blob );
+  // const pdf = await generatePDF(html);
+  // const blob = base64ToBlob( pdf?.base64, 'application/pdf' );
+  // const url = URL.createObjectURL( blob );
 
-  x.document.write('<html><title>Patient File</title><body style="margin:0px;">');
-  x.document.write("<iframe width='100%' height='100%' src='" + url + "'></iframe>");
-  x.document.write('</body></html>');
-  x.document.close();
+  // x.document.write('<html><title>Patient File</title><body style="margin:0px;">');
+  // x.document.write("<iframe width='100%' height='100%' src='" + url + "'></iframe>");
+  // x.document.write('</body></html>');
+  // x.document.close();
 
   return job;
 }
