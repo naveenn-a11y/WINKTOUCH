@@ -132,7 +132,7 @@ export class PatientTags extends Component {
       if (this.props.showDescription) return null;
       return (
         <View style={styles.rowLayout}>
-          <Text style={!!this.props.locked ? styles.grayedText : styles.text}>
+          <Text style={this.props.locked ? styles.grayedText : styles.text}>
             ({genderShort})
           </Text>
         </View>
@@ -143,7 +143,7 @@ export class PatientTags extends Component {
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
-              <Text key={index} style={!!this.props.locked ? styles.grayedText : styles.text}>
+              <Text key={index} style={this.props.locked ? styles.grayedText : styles.text}>
                 {patientTag && patientTag.name}{' '}
               </Text>
             ),
@@ -151,16 +151,16 @@ export class PatientTags extends Component {
       </View>
     ) : (
       <View style={styles.rowLayout}>
-        <Text style={!!this.props.locked ? styles.grayedText : styles.text}> ({genderShort}</Text>
+        <Text style={this.props.locked ? styles.grayedText : styles.text}> ({genderShort}</Text>
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
-              <Text key={index} style={!!this.props.locked ? styles.grayedText : styles.text}>
+              <Text key={index} style={this.props.locked ? styles.grayedText : styles.text}>
                 {patientTag && patientTag.letter}
               </Text>
             ),
           )}
-        <Text style={!!this.props.locked ? styles.grayedText : styles.text}>)</Text>
+        <Text style={this.props.locked ? styles.grayedText : styles.text}>)</Text>
       </View>
     );
   }

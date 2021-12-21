@@ -442,13 +442,13 @@ class Event extends Component {
             <AppointmentIcons appointment={event} />
             <View style={{marginHorizontal: 5 * fontScale}}>
               <View style={styles.rowLayout}>
-                <Text style={!!locked ? styles.grayedText : styles.text}>
+                <Text style={locked ? styles.grayedText : styles.text}>
                   {patient && patient.firstName} {patient && patient.lastName}
                 </Text>
                 <PatientTags patient={patient} />
               </View>
-              <Text style={!!locked ? styles.grayedText : styles.text}>{event.title}</Text>
-              <Text  style={!!locked ? styles.grayedText : styles.text}>
+              <Text style={locked ? styles.grayedText : styles.text}>{event.title}</Text>
+              <Text  style={locked ? styles.grayedText : styles.text}>
                 {isToday(event.start)
                   ? formatDate(event.start, timeFormat)
                   : formatDate(event.start, dayYearDateTimeFormat)}
