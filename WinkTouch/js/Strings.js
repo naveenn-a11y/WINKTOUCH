@@ -276,6 +276,7 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Refractor',
     exportAction: 'Export',
     billing: 'Billing',
+    multipleBuiltInTemplate: 'More than 1 template was found, please select which one to use !'
   },
   fr: {
     enterRegisteredEmail:
@@ -550,6 +551,7 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Réfraction',
     exportAction: 'Exporter',
     billing: 'Facturation',
+    multipleBuiltInTemplate: 'Plus d\'un modèle a été trouvé, veuillez sélectionner celui à utiliser !',
   },
 });
 
