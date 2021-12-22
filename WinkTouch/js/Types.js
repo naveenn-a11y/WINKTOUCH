@@ -398,8 +398,7 @@ export type ImageBase64Definition = {
 
 export type ReferralDocument = {
   content: string,
-  subject?: string,
-  body?: string,
+  builtInTemplates?: any,
 };
 
 export type ReferralDefinition = {
@@ -445,6 +444,7 @@ export type EmailDefinition = {
   cc?: string,
   subject?: string,
   body?: string,
+  builtInTemplate?: any,
 };
 
 export type ExamDefinition = {

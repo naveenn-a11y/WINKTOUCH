@@ -18,7 +18,7 @@ import {
 import {NavigationActions} from 'react-navigation';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {styles, selectionColor, isWeb} from './Styles';
-import {Button, TilesField, Label, SelectionList, Binoculars} from './Widgets';
+import {Button, TilesField, Label, SelectionList, Binoculars, Alert} from './Widgets';
 import {FormRow, FormTextInput, FormField, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCodeDefinition} from './Codes';
 import {fetchWinkRest} from './WinkRest';
@@ -102,6 +102,8 @@ type ReferralScreenState = {
   referralHtml: string,
   selectedVisitId: string,
   referralStarted: boolean,
+  builtInTemplates: ?any,
+  showBuiltInDialog: ?boolean,
 };
 
 export class ReferralScreen extends Component<
@@ -169,6 +171,8 @@ export class ReferralScreen extends Component<
       referralHtml: '',
       selectedVisitId: this.props.navigation.state.params.visit.id,
       referralStarted: false,
+      builtInTemplates: {},
+      showBuiltInDialog: false,
     };
     this.unmounted = false;
   }
@@ -293,10 +297,9 @@ export class ReferralScreen extends Component<
               : template;
           let html = htmlHeader + htmlContent.content + htmlEnd;
           const referralHtml = this.mapImageWithBase64(html);
-          this.updateFieldSubject(htmlContent.subject);
-          this.updateFieldBody(htmlContent.body);
+          const builtInTemplates = htmlContent.builtInTemplates;
           this.updateSignatureState(htmlContent.content);
-          this.setState({template, referralHtml});
+          this.setState({builtInTemplates, template, referralHtml});
         }
       }
     }
@@ -355,6 +358,13 @@ export class ReferralScreen extends Component<
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
     if (!emailDefinition) return;
     emailDefinition.body = newValue;
+    this.setState({emailDefinition: emailDefinition});
+  }
+
+  updateFieldBuiltInTemplate(newValue: any) {
+    let emailDefinition: EmailDefinition = this.state.emailDefinition;
+    if (!emailDefinition) return;
+    emailDefinition.builtInTemplate = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
@@ -543,8 +553,15 @@ export class ReferralScreen extends Component<
       alert(strings.doctorReferralMissing);
       return;
     }
-    this.setState({isPopupVisibile: true});
+
     this.setState({command: COMMAND.EMAIL});
+    const builtInTemplates: any = this.state.builtInTemplates;
+    const referralTemplates: any = builtInTemplates ? builtInTemplates.referral : undefined;
+    if(referralTemplates && referralTemplates.length > 1){
+      this.showBuiltInDialog();
+    } else {
+      this.importSelectedTemplate(referralTemplates[0]);
+    }
   }
 
   async fax(): Promise<void> {
@@ -552,8 +569,14 @@ export class ReferralScreen extends Component<
       alert(strings.doctorReferralMissing);
       return;
     }
-    this.setState({isPopupVisibile: true});
     this.setState({command: COMMAND.FAX});
+    const builtInTemplates: any = this.state.builtInTemplates;
+    const referralTemplates: any = builtInTemplates ? builtInTemplates.referral_fax : undefined;
+    if(referralTemplates && referralTemplates.length > 1){
+      this.showBuiltInDialog();
+    } else {
+      this.importSelectedTemplate(referralTemplates[0]);
+    }
   }
 
   async send(): Promise<void> {
@@ -564,7 +587,6 @@ export class ReferralScreen extends Component<
       return;
     }
     this.setState({isActive: false});
-    await this.save();
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
@@ -602,6 +624,7 @@ export class ReferralScreen extends Component<
       if (response.errors) {
         alert(response.errors);
       } else {
+        this.save();
         RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
         this.setState({isPopupVisibile: false});
       }
@@ -688,6 +711,41 @@ export class ReferralScreen extends Component<
     }
     return dropdowns;
   }
+   importSelectedTemplate(data: any) {
+    if(data) {
+      this.updateFieldBuiltInTemplate(data);
+      if(!data.readonly) {
+        this.updateFieldSubject(data.subject);
+        this.updateFieldBody(data.body);
+      }
+    }
+    this.hideBuiltInDialog();
+    this.setState({isPopupVisibile: true});
+
+   }
+  hideBuiltInDialog() {
+    this.setState({showBuiltInDialog: false});
+  }
+  showBuiltInDialog() {
+    this.setState({showBuiltInDialog: true});
+  }
+  renderBuiltInTemplateAlert() {
+    const builtInTemplates: any = this.state.builtInTemplates;
+    const referralTemplates: any = this.state.command == COMMAND.FAX ? builtInTemplates.referral_fax : builtInTemplates.referral;
+    if (!builtInTemplates) return null;
+    return (
+        <Alert
+            title={strings.multipleBuiltInTemplate}
+            data={referralTemplates}
+            dismissable={true}
+            onConfirmAction={(selectedData: any) =>
+                this.importSelectedTemplate(selectedData)
+            }
+            onCancelAction={() => this.hideBuiltInDialog()}
+            style={styles.alert}
+        />
+    );
+  }
 
   renderTemplateTool() {
     return (
@@ -750,6 +808,7 @@ export class ReferralScreen extends Component<
               {this.renderSendPopup()}
             </Modal>
           )}
+          {this.state.showBuiltInDialog && this.renderBuiltInTemplateAlert()}
         </View>
         {this.renderButtons()}
       </View>
@@ -831,31 +890,47 @@ export class ReferralScreen extends Component<
                   />
                 </View>
               </FormRow>
-              <FormRow>
+              {emailDefinition.builtInTemplate && emailDefinition.builtInTemplate.readonly && (
+                  <FormRow>
+                    <View style={styles.flexRow}>
+                      <FormTextInput
+                          label="Template"
+                          value={emailDefinition.builtInTemplate.description}
+                          readonly={true}
+                      />
+                    </View>
+                  </FormRow>
+              )}
+              {emailDefinition.builtInTemplate && !emailDefinition.builtInTemplate.readonly && (
+                  <View>
+                  <FormRow>
+                    <View style={styles.flexRow}>
+                      <FormTextInput
+                          label="Subject"
+                          value={emailDefinition.subject}
+                          readonly={command == COMMAND.FAX}
+                          onChangeText={(newValue: string) =>
+                              this.updateFieldSubject(newValue)
+                          }
+                      />
+                    </View>
+                  </FormRow>
+                <FormRow>
                 <View style={styles.flexRow}>
-                  <FormTextInput
-                    label="Subject"
-                    value={emailDefinition.subject}
-                    readonly={command == COMMAND.FAX}
-                    onChangeText={(newValue: string) =>
-                      this.updateFieldSubject(newValue)
-                    }
-                  />
+                <FormTextInput
+                multiline={true}
+                label="Body"
+                value={emailDefinition.body}
+                readonly={command == COMMAND.FAX}
+                onChangeText={(newValue: string) =>
+                this.updateFieldBody(newValue)
+              }
+                />
                 </View>
-              </FormRow>
-              <FormRow>
-                <View style={styles.flexRow}>
-                  <FormTextInput
-                    multiline={true}
-                    label="Body"
-                    value={emailDefinition.body}
-                    readonly={command == COMMAND.FAX}
-                    onChangeText={(newValue: string) =>
-                      this.updateFieldBody(newValue)
-                    }
-                  />
-                </View>
-              </FormRow>
+                </FormRow>
+                  </View>
+              )
+              }
               <View style={styles.flow}>
                 <Button
                   title={strings.cancel}

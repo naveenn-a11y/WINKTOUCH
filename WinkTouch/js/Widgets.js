@@ -3353,7 +3353,7 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {
-                  const item: any = element.label ? element.label : element;
+                  const item: any = element.label ? element.label : (element.description ? element.description : element);
                   return this.props.multiValue ? (
                     <View>
                       <CheckButton
