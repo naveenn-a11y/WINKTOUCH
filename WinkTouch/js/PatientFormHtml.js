@@ -1516,7 +1516,6 @@ export function patientHeader() {
     ' }'+
     '.groupHeader {' + 
     ' padding: 6px 0;'+
-    ' margin: 5px;'+
     ' border-top: 1px solid #5D6975;'+
     ' border-bottom: 1px solid #5D6975;'+
     ' color: #5D6975;'+
@@ -1524,11 +1523,9 @@ export function patientHeader() {
     ' line-height: 1.4em;'+
     ' font-weight: normal;'+
     ' text-align: center;'+
-    ' page-break-inside:avoid;'+
-    ' page-break-before: avoid;'
-
+    ' margin: 10px 10px 20px 0;'+
     '}'+ 
-    `.container {margin-break:15px; page-break-inside:avoid; page-break-before:auto; }`+
+    `.container {margin-break:15px; page-break-inside:avoid; page-break-after:auto; }`+
     '.desc {'+
     'margin:10px;'+
     'font-size: 15px;'+
