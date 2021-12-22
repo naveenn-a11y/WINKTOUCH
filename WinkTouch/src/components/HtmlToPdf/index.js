@@ -19,7 +19,7 @@ export async function generatePDF(html: string, isBase64: boolean) {
     width: pageWidth,
     height: pageHeight,
     base64: isBase64,
-    padding: 54,
+    padding: 10,
     bgColor: '#FFFFFF',
   };
   let file = await RNHTMLtoPDF.convert(options);

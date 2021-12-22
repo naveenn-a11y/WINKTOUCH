@@ -55,6 +55,7 @@ import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
 let smallMedia = [];
 let largeMedia = [];
+let index=0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
   return imageBase64Definition;
@@ -77,7 +78,8 @@ export function printPatientHeader(visit: Visit) {
   const store: Store = getStore();
   const doctor: User = getCachedItem(visit.userId);
   largeMedia =[];
-  smallMedia = []
+  smallMedia = [];
+  index=0
 
   html +=
     `    <header class="clearfix">` +
@@ -147,6 +149,7 @@ export function renderItemsHtml(
       : exam.definition.name;
     // html += `<tr>`;
     if(isEmpty(value)) return html;
+    
     html += `<div class="container">`;
     html += `<div class="groupHeader">${value}</div>`;
     html += `<div class="desc">`;
@@ -756,15 +759,17 @@ async function renderField(
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
-      let index =  0
-      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
-        html+= isWeb?`<div class="l-img">`:""
+      let ImageIndex =  "";
+      html+= isWeb?`<div class="images-warp">`:""
+      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )) {
+        html += `<div class="breakBefore"></div>`;
         html += `<span class="img-wrap" style="width:100%">`;
-        index = `L-${largeMedia.length + 1}`;
+        ImageIndex = `L-${index + 1}`;
       } else {
-        html += `<span class="img-wrap s-img">`;
-        index = `S-${smallMedia.length + 1}`;
+        html += `<span class="img-wrap s-img" >`;
+        ImageIndex = `S-${index + 1}`;
       }     
+      index+=1
       const imageValue = await renderMedia(
         value,
         fieldDefinition,
@@ -773,16 +778,16 @@ async function renderField(
       );
       if(isEmpty(imageValue)) return "";
       html += imageValue;
-      html += `<span>${fieldDefinition.name} (${index})</span>`;
+      html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
       html += `</span>`;
-      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
-        html += isWeb ? `</div>` : ``;
+      html += isWeb ? `</div>` : ``;
+      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )) {
         largeMedia.push(html);
-        html = `<span>*Please see annexed image L-${index} at the end of the document.</span>`
+        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`
       }
       else {
         smallMedia.push(html);
-        html = `<span>*Please see annexed image S-${index} at the end of the document.</span>`
+        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`
       }
       return html;
     }
@@ -833,7 +838,7 @@ async function renderMedia(
     fieldAspectRatio,
   );
   let upload: Upload = undefined;
-  const pageWidth: number = isWeb ? 562 : 612;
+  const pageWidth: number = isWeb ? 582 : 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
@@ -923,7 +928,7 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += isWeb?`<g transform="scale(0.88 0.9)" >`:` <g transform="scale(0.96 0.98)" >`;
+                html += isWeb?`<g transform="scale(0.92 0.94)" >`:` <g transform="scale(0.96 0.98)" >`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `</svg>`;
@@ -1368,9 +1373,7 @@ export function patientHeader() {
     `  display:block;` +
     `  width :50%;` +
     `}` +
-    `.scannedFiles {` +
-    `  padding:10px` +
-    `}` +
+    `.scannedFiles {padding:10px;}` +
     `.groupLabel {` +
     `  font-weight: bold;` +
     `  text-decoration: underline;` +
@@ -1380,10 +1383,7 @@ export function patientHeader() {
     `  display: table;` +
     `  clear: both;` +
     `}` +
-    `a {` +
-    `  color: #5D6975;` +
-    `  text-decoration: underline;` +
-    `}` +
+    `a { color: #5D6975; text-decoration: underline;}` +
     `body {` +
     `  position: relative;` +
     `  margin: 0 10px 0 10px;` +
@@ -1413,7 +1413,6 @@ export function patientHeader() {
     `  font-weight: normal;` +
     `  text-align: center;` +
     `  margin: 0 0 20px 0;` +
-    `  background: #F5F5F5;` +
     `}` +
     `#client {` +
     `  float: left;` +
@@ -1454,12 +1453,8 @@ export function patientHeader() {
     `  font-weight: normal;` +
     `}` +
     `table .service,` +
-    `table .desc {` +
-    `  text-align: left;` +
-    `}` +
-    `table .service {` +
-    ` width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;` +
-    `}` +
+    `table .desc {text-align: left;}` +
+    `table .service {width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;}` +
     `table td {` +
     `  text-align: right;` +
     `  border: solid;` +
@@ -1493,7 +1488,7 @@ export function patientHeader() {
     `  padding: 8px 0;` +
     `  text-align: center;` +
     `}` +
-    '.s-img {margin: 20px;}'+
+    '.s-img {margin: 5px; page-break-inside:avoid;}'+
     `.img-wrap {` +
     '  margin: 0px;'+
     '  padding: 0px;'+
@@ -1520,8 +1515,8 @@ export function patientHeader() {
     '  font-size: 13px;'+
     ' }'+
     '.groupHeader {' + 
-    ' margin-top:10px;'+
     ' padding: 6px 0;'+
+    ' margin: 5px;'+
     ' border-top: 1px solid #5D6975;'+
     ' border-bottom: 1px solid #5D6975;'+
     ' color: #5D6975;'+
@@ -1529,10 +1524,11 @@ export function patientHeader() {
     ' line-height: 1.4em;'+
     ' font-weight: normal;'+
     ' text-align: center;'+
-    ' margin: 0 0 20px 0;'+
-    ' background: #F5F5F5;'+
-    '}'+
-    `.container { page-break-inside:avoid; page-break-after:auto; }`+
+    ' page-break-inside:avoid;'+
+    ' page-break-before: avoid;'
+
+    '}'+ 
+    `.container {margin-break:15px; page-break-inside:avoid; page-break-before:auto; }`+
     '.desc {'+
     'margin:10px;'+
     'font-size: 15px;'+
@@ -1553,14 +1549,17 @@ export function patientHeader() {
     '   width: 100%;'+
     '   justify-content: space-around;'+
     ' }';
-    htmlHeader += isWeb ?'.l-img { display: block; max-height: 1000px; box-sizing: border-box; page-break-before: always;page-break-inside: avoid; }': ``;
+    htmlHeader += isWeb ?'.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
+    : `.wrap-imgs{page-break-before: always; }`;
+
   htmlHeader +=`</style></head><body><main>`;
   return htmlHeader;
 }
 
 export function patientFooter() {
   let htmlEnd: string = ``;
-  htmlEnd += `<div class="wrap-imgs">`;
+  htmlEnd += `<div class="breakBefore"></div>`;
+  htmlEnd += `<div class="wrap-imgs ">`;
   for(var i of smallMedia){
     htmlEnd+=i
   }
