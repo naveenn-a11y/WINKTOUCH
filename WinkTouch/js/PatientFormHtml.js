@@ -151,6 +151,7 @@ export function renderItemsHtml(
     if(isEmpty(value)) return html;
     
     html += `<div class="container">`;
+    html += `<div class="BreakBeforeHeader"></div>`;
     html += `<div class="groupHeader">${value}</div>`;
     html += `<div class="desc">`;
     let htmlSubItems: string = '';
@@ -224,6 +225,7 @@ export async function renderParentGroupHtml(
 
   let html: string = '';
   html += `<div class="container">`;
+  html += `<div class="BreakBeforeHeader"></div>`;
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
   );
@@ -1524,8 +1526,12 @@ export function patientHeader() {
     ' font-weight: normal;'+
     ' text-align: center;'+
     ' margin: 10px 10px 20px 0;'+
+    ' background: #F5F5F5;'+
+    ' page-break-inside:avoid; '+
+    ' display:block'+
+    ' box-sizings:border-box'+
     '}'+ 
-    `.container {margin-break:15px; page-break-inside:avoid; page-break-after:auto; }`+
+    `.container {page-break-inside:avoid; page-break-after:auto; }`+
     '.desc {'+
     'margin:10px;'+
     'font-size: 15px;'+
@@ -1547,7 +1553,7 @@ export function patientHeader() {
     '   justify-content: space-around;'+
     ' }';
     htmlHeader += isWeb ?'.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
-    : `.wrap-imgs{page-break-before: always; }`;
+    : `.wrap-imgs{page-break-before: always; } .BreakBeforeHeader{min-height:10px; margin:10px;}`;
 
   htmlHeader +=`</style></head><body><main>`;
   return htmlHeader;

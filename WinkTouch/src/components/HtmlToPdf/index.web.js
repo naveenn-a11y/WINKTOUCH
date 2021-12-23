@@ -12,10 +12,10 @@ export async function printHtml(html: string) {
   x.document.write('</body></html>');
   x.document.close();
   
-  x = window.open("");
-  x.document.open();
-  x.document.write(html);
-  x.document.close();
+  // x = window.open("");
+  // x.document.open();
+  // x.document.write(html);
+  // x.document.close();
   return pdf;
 }
 export async function generatePDF(html: string, isBase64: boolean) {
