@@ -94,6 +94,7 @@ import {
   printPatientHeader,
   getScannedFiles,
   setScannedFiles,
+  initValues
 } from './PatientFormHtml';
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
@@ -401,6 +402,7 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
 }
 
 async function printPatientFile(visitId: string) {
+  initValues();
   let visitHtml: string = '';
   const visit: Visit = getCachedItem(visitId);
   const allExams: string[] = allExamIds(visit);

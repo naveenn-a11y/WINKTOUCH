@@ -170,6 +170,7 @@ export class ReferralScreen extends Component<
       selectedVisitId: this.props.navigation.state.params.visit.id,
       referralStarted: false,
     };
+    this.selectedFields= [];
     this.unmounted = false;
   }
 
@@ -280,7 +281,7 @@ export class ReferralScreen extends Component<
         } else {
           const htmlContent: ReferralDocument = response;
           let htmlHeader: string = patientHeader();
-          let htmlEnd: string = patientFooter();
+          let htmlEnd: string = patientFooter(false);
           template =
             this.props.navigation &&
             this.props.navigation.state &&
@@ -372,6 +373,7 @@ export class ReferralScreen extends Component<
       selectedKey = key;
     }
     __DEV__ && console.log('selected key: ' + selectedKey);
+    this.selectedFields.push(selectedKey);
     return selectedKey;
   }
 
@@ -403,7 +405,7 @@ export class ReferralScreen extends Component<
       }
       const htmlContent: ReferralDocument = response;
       let htmlHeader: string = patientHeader();
-      let htmlEnd: string = patientFooter();
+      let htmlEnd: string = patientFooter(false);
       let html = this.mapImageWithBase64(htmlContent.content);
       this.editor.insertContent(html);
       this.updateSignatureState(html);
@@ -458,7 +460,7 @@ export class ReferralScreen extends Component<
   async print(): Promise<void> {
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter();
+    let htmlEnd: string = patientFooter(false,this.selectedFields);
     html = htmlHeader + html + htmlEnd;
     const job = await printHtml(html);
     if (job) {
@@ -470,7 +472,7 @@ export class ReferralScreen extends Component<
   async save(): Promise<any> {
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter();
+    let htmlEnd: string = patientFooter(false);
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
 
@@ -567,7 +569,7 @@ export class ReferralScreen extends Component<
     await this.save();
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter();
+    let htmlEnd: string = patientFooter(false);
     html = htmlHeader + html + htmlEnd;
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;

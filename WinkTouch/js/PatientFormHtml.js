@@ -77,10 +77,6 @@ export function printPatientHeader(visit: Visit) {
   const patient: PatientInfo = getCachedItem(visit.patientId);
   const store: Store = getStore();
   const doctor: User = getCachedItem(visit.userId);
-  largeMedia =[];
-  smallMedia = [];
-  index=0
-
   html +=
     `    <header class="clearfix">` +
     `      <h1>${strings.patientFile}</h1>` +
@@ -504,7 +500,6 @@ async function renderRowsHtml(
         undefined,
         groupIndex,
       );
-
       if (!isEmpty(value)) {
         if (
           groupLabel !== examLabel &&
@@ -759,11 +754,12 @@ async function renderField(
         : form[fieldDefinition.name]
       : undefined;
 
+  let notToBeRendered = undefined;
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       let ImageIndex =  "";
       html+= isWeb?`<div class="images-warp">`:""
-      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )) {
+      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
         html += `<div class="breakBefore"></div>`;
         html += `<span class="img-wrap" style="width:100%">`;
         ImageIndex = `L-${index + 1}`;
@@ -783,17 +779,16 @@ async function renderField(
       html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
       html += `</span>`;
       html += isWeb ? `</div>` : ``;
-      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )) {
-        largeMedia.push(html);
+      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
+        largeMedia.push({name:exam?.definition?.name , html});
         html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`
       }
       else {
-        smallMedia.push(html);
+        smallMedia.push({name:exam?.definition?.name  , html});
         html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`
       }
       return html;
     }
-
     if (fieldDefinition.type === 'age') {
       html += formatAge(value);
     } else {
@@ -812,7 +807,6 @@ async function renderField(
       }
     }
   }
-
   return html;
 }
 
@@ -912,7 +906,6 @@ async function renderMedia(
                 exam,
                 getValue(value, childGroupDefinition.name),
               );
-
               if (!isEmpty(pfValue)) {
                 if (childFieldDefinition.layout) {
                   fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
@@ -1403,9 +1396,7 @@ export function patientHeader() {
     `  text-align: center;` +
     `  margin-bottom: 10px;` +
     `}` +
-    `#logo img {` +
-    `  width: 90px;` +
-    `}` +
+    `#logo img {width: 90px;}` +
     `h1 {` +
     `  border-top: 1px solid  #5D6975;` +
     `  border-bottom: 1px solid  #5D6975;` +
@@ -1441,11 +1432,10 @@ export function patientHeader() {
     `  border-spacing: 0;` +
     `  margin-bottom: 20px;` +
     `}` +
-    `table th,` +
-    `table td {` +
-    `padding: 5px 20px;` +
-    `text-align: center;` +
-    `font-size:11px;` +
+    `table th,table td {` +
+    `  padding: 5px 20px;` +
+    `  text-align: center;` +
+    `  font-size:11px;` +
     `}` +
     `table th {` +
     `  padding: 5px 20px;` +
@@ -1454,8 +1444,7 @@ export function patientHeader() {
     `  white-space: nowrap;` +
     `  font-weight: normal;` +
     `}` +
-    `table .service,` +
-    `table .desc {text-align: left;}` +
+    `table .service,table .desc {text-align: left;}` +
     `table .service {width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;}` +
     `table td {` +
     `  text-align: right;` +
@@ -1466,9 +1455,7 @@ export function patientHeader() {
     `  border: solid;` +
     `  border-width: 1px 0;` +
     `}` +
-    `table thead {` +
-    `  display:table-header-group;` +
-    `}` +
+    `table thead {display:table-header-group;}` +
     `table td.service,table td.desc {vertical-align: top;}` +
     `table td.service {font-weight: bold;}` +
     `table td.unit,table td.qty,table td.total {font-size: 1.2em;}` +
@@ -1528,8 +1515,8 @@ export function patientHeader() {
     ' margin: 10px 10px 20px 0;'+
     ' background: #F5F5F5;'+
     ' page-break-inside:avoid; '+
-    ' display:block'+
-    ' box-sizings:border-box'+
+    ' display:block;'+ 
+    ' box-sizings:border-box;'+
     '}'+ 
     `.container {page-break-inside:avoid; page-break-after:auto; }`+
     '.desc {'+
@@ -1553,22 +1540,32 @@ export function patientHeader() {
     '   justify-content: space-around;'+
     ' }';
     htmlHeader += isWeb ?'.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
-    : `.wrap-imgs{page-break-before: always; } .BreakBeforeHeader{min-height:10px; margin:10px;}`;
+    : `.wrap-imgs{page-break-before: always; } .BreakBeforeHeader{ height:20px; page-break-after: always; page-break-before: always;}`;
 
   htmlHeader +=`</style></head><body><main>`;
   return htmlHeader;
 }
 
-export function patientFooter() {
+export function patientFooter(printImages:boolean = true,selectedFields) {
   let htmlEnd: string = ``;
   htmlEnd += `<div class="breakBefore"></div>`;
   htmlEnd += `<div class="wrap-imgs ">`;
-  for(var i of smallMedia){
-    htmlEnd+=i
-  }
-  for(var i of largeMedia){
-    htmlEnd+=i
-  }
+    for(var image of smallMedia){
+      if(printImages)  htmlEnd+=image.html;
+      else if(selectedFields?.length>0){
+        for(let field of selectedFields){
+          if(field.indexOf("Exam")!==-1&&field.split(".")[1] === image.name)htmlEnd += image.html
+        }
+      }
+    }
+    for(var image of largeMedia){
+      if(printImages)  htmlEnd+=image.html;
+      else if(selectedFields?.length>0){
+        for(let field of selectedFields){
+          if(field.indexOf("Exam")!==-1&&field.split(".")[1] === image.name)htmlEnd += image.html
+        }
+      }
+    }
   htmlEnd += `</div></main></body>`;
   return htmlEnd;
 }
@@ -1583,4 +1580,7 @@ export function getVisitHtml(html: string): string {
 
 export function initValues() {
   imageBase64Definition = [];
+  smallMedia = [];
+  largeMedia = [];
+  index=0
 }
