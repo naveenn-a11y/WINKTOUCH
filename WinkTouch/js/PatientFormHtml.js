@@ -201,7 +201,7 @@ function renderItemHtml(
           htmlSubItems += `<span>${formattedValue}</span>`;
           isFirstField = false;
         } else {
-          htmlSubItems += `<div><span  class="label">${formattedValue}:</span><span class="value">${formattedValue}</span></div>`;
+          htmlSubItems += `<div><span class="label">${formattedValue}:</span><span class="value">${formattedValue}</span></div>`;
         }
       }
       html += htmlSubItems;
@@ -834,7 +834,7 @@ async function renderMedia(
     fieldAspectRatio,
   );
   let upload: Upload = undefined;
-  const pageWidth: number = isWeb ? 582 : 612;
+  const pageWidth: number = isWeb ? 567 : 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
@@ -923,7 +923,7 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += isWeb?`<g transform="scale(0.92 0.94)" >`:` <g transform="scale(0.96 0.98)" >`;
+                html += isWeb?`<g transform="scale(0.9 0.9)" >`:` <g transform="scale(0.96 0.98)" >`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `</svg>`;
@@ -1269,12 +1269,12 @@ function renderRxTable(
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += `<tr>`;
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
-    html += `<td class="desc"></td>`;
-    html += `<td class="desc"></td>`;
-    html += `<td class="desc"></td>`;
-    if (hasPrism(glassesRx)) {
-      html += `<td class="desc"></td>`;
-    }
+    // html += `<td class="desc"></td>`;
+    // html += `<td class="desc"></td>`;
+    // html += `<td class="desc"></td>`;
+    // if (hasPrism(glassesRx)) {
+    //   html += `<td class="desc"></td>`;
+    // }
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
@@ -1520,8 +1520,8 @@ export function patientHeader() {
     '}'+ 
     `.container {page-break-inside:avoid; page-break-after:auto; }`+
     '.desc {'+
-    'margin:10px;'+
-    'font-size: 15px;'+
+    '  margin:10px;'+
+    '  font-size: 15px;'+
     '}'+
     '.desc .value{'+
     'color:#000;'+
