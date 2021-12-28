@@ -834,7 +834,7 @@ async function renderMedia(
     fieldAspectRatio,
   );
   let upload: Upload = undefined;
-  const pageWidth: number = isWeb ? 567 : 612;
+  const pageWidth: number = isWeb ? 572 : 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
@@ -923,7 +923,7 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += isWeb?`<g transform="scale(0.9 0.9)" >`:` <g transform="scale(0.96 0.98)" >`;
+                html += isWeb?`<g transform="scale(0.9 0.92)" >`:` <g transform="scale(0.96 0.98)" >`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `</svg>`;
