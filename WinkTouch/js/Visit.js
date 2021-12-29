@@ -183,14 +183,18 @@ export async function saveVisitTypes(visitTypes: VisitType[]) {
 }
 
 function hasVisitMedicalDataReadAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return (
     visit.medicalDataPrivilege === PRIVILEGE.READONLY ||
     visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS
   );
 }
 function hasVisitPretestReadAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return (
     visit.pretestPrivilege === PRIVILEGE.READONLY ||
     visit.pretestPrivilege === PRIVILEGE.FULLACCESS
@@ -198,11 +202,15 @@ function hasVisitPretestReadAccess(visit: Visit): boolean {
 }
 
 function hasVisitMedicalDataWriteAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS;
 }
 function hasVisitPretestWriteAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
 }
 
@@ -271,6 +279,16 @@ export async function fetchReferralFollowUpHistory(
   const id: string = isEmpty(patientId) ? '*' : patientId;
   cacheItem('referralFollowUpHistory-' + id, allFollowUp);
 }
+export async function fetchVisitForAppointment(appointmentId: string): Visit {
+  const searchCriteria = {appointmentId: appointmentId};
+  let restResponse = await searchItems(
+    'Visit/list/appointment',
+    searchCriteria,
+  );
+  const visit: Visit = restResponse.visit;
+  cacheItemById(visit);
+  return visit;
+}
 
 export async function fetchVisitHistory(patientId: string): string[] {
   const searchCriteria = {patientId: patientId};
@@ -303,10 +321,13 @@ export async function fetchVisitHistory(patientId: string): string[] {
 }
 
 export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
-  if (patientId === undefined || patientId === null || patientId === '')
+  if (patientId === undefined || patientId === null || patientId === '') {
     return undefined;
+  }
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
-  if (!visitHistory || visitHistory.length === 0) return undefined;
+  if (!visitHistory || visitHistory.length === 0) {
+    return undefined;
+  }
   let codeDescriptions: CodeDefinition[] = [];
   //Check if there is two visits of the same type on the same day
   let hasDoubles: boolean = false;
@@ -325,7 +346,9 @@ export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
       } else {
         break;
       }
-      if (hasDoubles) break;
+      if (hasDoubles) {
+        break;
+      }
     }
   }
   const dateFormat: string = hasDoubles ? yearDateTime24Format : yearDateFormat;
@@ -658,7 +681,9 @@ export class StartVisitButtons extends Component<
   }
 
   startVisit(visitType: string) {
-    if (this.state.clicked || this.props.isLoading) return;
+    if (this.state.clicked || this.props.isLoading) {
+      return;
+    }
     this.setState({clicked: true, visitType: visitType}, () => {
       if (this.props.isPretest == false) {
         this.showVisitOptions();
@@ -2135,18 +2160,23 @@ export class VisitHistory extends Component {
     );
   }
   shouldRenderActionButons(): boolean {
-    if (this.props.readonly) return false;
+    if (this.props.readonly) {
+      return false;
+    }
 
     const isNewAppointment: boolean = this.isNewAppointment();
     const userHasPretestWriteAccess: boolean =
       getPrivileges().pretestPrivilege === 'FULLACCESS';
-    if (isNewAppointment && userHasPretestWriteAccess) return true;
+    if (isNewAppointment && userHasPretestWriteAccess) {
+      return true;
+    }
     if (
       !isNewAppointment &&
       userHasPretestWriteAccess &&
       !this.props.hasAppointment
-    )
+    ) {
       return true;
+    }
 
     return false;
   }
