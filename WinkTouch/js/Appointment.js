@@ -77,7 +77,7 @@ export function isAppointmentLocked(appointment: Appointment): boolean {
   );
   if (visitHistory) {
     visitHistory = visitHistory.filter(
-      (visit: Visit) => visit.appointmentId === appointment.id,
+      (visit: Visit) => visit.appointmentId === appointment.id && visit.locked,
     );
     if (visitHistory.length > 0) {
       return true;
