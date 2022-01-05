@@ -144,7 +144,6 @@ export function renderItemsHtml(
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
-    // html += `<tr>`;
     if(isEmpty(value)) return html;
     
     html += `<div class="container">`;
@@ -527,7 +526,6 @@ async function renderRowsHtml(
           }
           else{
             htmlSubItems += `<div><span>` + value + `</span></div>`;
-          // else htmlSubItems += `<span>` + value + `</span>`;
           }
         }
         rowHtmlDefinition.push({
@@ -884,8 +882,6 @@ async function renderMedia(
        imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
       PDFAttachment.push({ name:exam?.definition?.name, base64:filePath,index:`${fieldDefinition.name}(pdf-${PDFAttachment.length+1})` });
-      // PDFAttachment.push(filePath);
-      // imageValue = `<span>${strings.pdfNotSupported}</span>`;
       imageValue = `<span>*Please see annexed document (pdf-${PDFAttachment.length+1}) at the end of the document.</span>`;
     }
     html += imageValue;
@@ -1271,12 +1267,6 @@ function renderRxTable(
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += `<tr>`;
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
-    // html += `<td class="desc"></td>`;
-    // html += `<td class="desc"></td>`;
-    // html += `<td class="desc"></td>`;
-    // if (hasPrism(glassesRx)) {
-    //   html += `<td class="desc"></td>`;
-    // }
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
@@ -1588,7 +1578,6 @@ export function getVisitHtml(html: string): string {
   let finalHtml: string = htmlHeader + html + htmlEnd;
   let Attachments = PDFAttachment
   initValues();
-  // return finalHtml;
   return { html:finalHtml, PDFAttachment:Attachments };
 }
 

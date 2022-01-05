@@ -471,7 +471,6 @@ async function printPatientFile(visitId: string) {
       }
     }
     visitHtml = getVisitHtml(visitHtml);
-    // await printHtml(visitHtml);
     await printHtml( visitHtml.html, visitHtml.PDFAttachment );
   }
 }
