@@ -19,8 +19,15 @@ import type {
   FieldDefinitions,
   CodeDefinition,
   GroupDefinition,
+  Exam,
 } from './Types';
-import {styles, scaleStyle, selectionBorderColor, fontScale} from './Styles';
+import {
+  styles,
+  scaleStyle,
+  selectionBorderColor,
+  fontScale,
+  isWeb,
+} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
   DateField,
@@ -44,6 +51,7 @@ import {
   parseCode,
   formatOptions,
   getAllCodes,
+  getCodeDefinition,
 } from './Codes';
 import {
   capitalize,
@@ -55,11 +63,13 @@ import {
   getValue,
   setValue,
   formatAge,
-  insertNewlines,
+  isEmpty,
 } from './Util';
 import {isNumericField, formatLabel} from './Items';
 import {Microphone} from './Voice';
 import {GeneralPrismInput} from './Refraction';
+import {getFieldValue} from './Exam';
+import {getCachedItem} from './DataCache';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -153,7 +163,7 @@ export class FormTextInput extends Component {
         input = phoneUtil.format(phoneNumber, 'CA');
       } catch (error) {}
     }
-    return input;
+    return input === undefined ? '' : input;
   }
 
   commit(input: string) {
@@ -197,9 +207,6 @@ export class FormTextInput extends Component {
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({text});
   };
 
@@ -250,7 +257,7 @@ export class FormTextInput extends Component {
               }
               onFocus={this.dismissError}
               onChangeText={this.updateText}
-              onBlur={event => this.commit(event.nativeEvent.text)}
+              onBlur={(event) => this.commit(event.nativeEvent.text)}
               editable={this.props.readonly !== true}
               multiline={this.props.multiline === true}
               testID={this.props.testID + 'Field'}
@@ -515,6 +522,7 @@ export class FormTimeInput extends Component {
     type?: string,
     onChangeValue?: (time: ?string) => void,
     testID: string,
+    isTyping?: boolean,
   };
   static defaultProps = {
     showLabel: true,
@@ -550,6 +558,7 @@ export class FormTimeInput extends Component {
               : styles.formField
           }
           onChangeValue={this.updateValue}
+          isTyping={this.props.isTyping}
           testID={this.props.testID + 'Field'}
         />
       </View>
@@ -704,6 +713,7 @@ export class FormOptions extends Component {
     prefix?: string,
     suffix?: string,
     onChangeValue: (newvalue: ?string | ?number) => void,
+    isTyping?: boolean,
     testID: string,
   };
   state: {
@@ -844,6 +854,7 @@ export class FormOptions extends Component {
               prefix={this.props.prefix}
               suffix={this.props.suffix}
               multiline={this.props.multiline}
+              isTyping={this.props.isTyping && this.props.freestyle}
               testID={this.props.testID}
             />
           )}
@@ -875,29 +886,31 @@ export class FormCheckBox extends Component {
   };
 
   isChecked(): boolean {
-    return (
-      this.props.value &&
-      this.props.value !== null &&
-      this.props.value !== undefined &&
-      this.props.value !== '' &&
-      this.props.value !== 0
-    );
+    return this.props.value === this.enabledValue();
   }
 
   select = () => {
+    if (this.props.readonly) {
+      return;
+    }
+    let enabledValue = this.enabledValue();
+    this.props.onChangeValue(enabledValue);
+  };
+
+  enabledValue() {
     if (
-      this.props.readonly ||
       this.props.options === undefined ||
       this.props.options === null ||
       this.props.options.length < 2
-    )
-      return;
-    let selectedValue = this.props.options[1];
-    if (selectedValue instanceof Object) {
-      selectedValue = selectedValue.code;
+    ) {
+      return true;
     }
-    this.props.onChangeValue(selectedValue);
-  };
+    let enabledValue = this.props.options[1];
+    if (enabledValue instanceof Object) {
+      enabledValue = enabledValue.code;
+    }
+    return enabledValue;
+  }
 
   deSelect = () => {
     if (this.props.readonly) return;
@@ -946,6 +959,7 @@ export class FormCode extends Component {
     style?: any,
     onChangeValue?: (newvalue: ?string | ?number) => void,
     testID: string,
+    isTyping?: boolean,
   };
 
   getCodeIdentifier() {
@@ -998,6 +1012,7 @@ export class FormCode extends Component {
         suffix={this.props.suffix}
         style={this.props.style}
         multiline={this.props.multiline}
+        isTyping={this.props.isTyping}
         testID={this.props.testID}
       />
     );
@@ -1137,6 +1152,51 @@ export class FormInput extends Component {
     }
   }
 
+  getIsReadOnly(): ?{} {
+    if (this.props.readonly === true || this.props.definition.readonly === true)
+      return true;
+    return false;
+  }
+
+  isExisingValue(values: any, element: string) {
+    if (values === undefined || values === null) return false;
+    if (!(values instanceof Array)) return false;
+    for (let i: number = 0; i < values.length; i++) {
+      if (element === values[i]) return true;
+    }
+    return false;
+  }
+  getLimitedValues(): any {
+    if (this.props.definition.limitedValues) {
+      const filterEntries: Object = this.props.definition.limitedValues;
+      if (filterEntries && filterEntries instanceof Object) {
+        const filledValue = getValue(
+          this.props.filterValue,
+          filterEntries.code,
+        );
+
+        let filteredCode: CodeDefinition = getCodeDefinition(
+          filterEntries.codes,
+          filledValue,
+        );
+        if (filteredCode && filteredCode.hasLimitedValues) {
+          let filteredCodes: CodeDefinition[] = [];
+          if (
+            filteredCode.limitedValues &&
+            filteredCode.limitedValues instanceof Array
+          ) {
+            const codes: CodeDefinition[] = getAllCodes(filterEntries.options);
+            filteredCodes = codes.filter((element: CodeDefinition) =>
+              this.isExisingValue(filteredCode.limitedValues, element.code),
+            );
+          }
+          return filteredCodes;
+        }
+      }
+    }
+    return this.props.definition.options;
+  }
+
   getFilterValue(): ?{} {
     if (
       this.props.definition.filter instanceof Object &&
@@ -1144,6 +1204,7 @@ export class FormInput extends Component {
     ) {
       let filledFilter = undefined;
       const filterEntries: [][] = Object.entries(this.props.definition.filter);
+
       for (let i: number = 0; i < filterEntries.length; i++) {
         const filterKey: string = filterEntries[i][0];
         const filterValue: string = filterEntries[i][1];
@@ -1249,8 +1310,8 @@ export class FormInput extends Component {
         ];
       }
     }
-    const readonly: boolean =
-      this.props.readonly === true || this.props.definition.readonly === true;
+    const readonly: boolean = this.getIsReadOnly();
+
     if (!this.props.definition || !this.props.visible) return null;
     if (isNumericField(this.props.definition)) {
       return (
@@ -1275,6 +1336,9 @@ export class FormInput extends Component {
       this.props.definition.options.length > 0
     ) {
       let options = this.props.definition.options;
+      if (this.props.definition.limitedValues) {
+        options = this.getLimitedValues();
+      }
       let isNestedCode =
         !(options instanceof Array) &&
         options.endsWith('Codes') &&
@@ -1301,6 +1365,7 @@ export class FormInput extends Component {
               this.props.multiline === true ||
               this.props.definition.maxLength > 150
             }
+            isTyping={this.props.isTyping}
             testID={this.props.testID}
           />
         );
@@ -1342,6 +1407,7 @@ export class FormInput extends Component {
             this.props.multiline === true ||
             this.props.definition.maxLength > 150
           }
+          isTyping={this.props.isTyping}
           testID={this.props.testID}
         />
       );
@@ -1375,6 +1441,7 @@ export class FormInput extends Component {
           type={type}
           style={style}
           errorMessage={this.props.errorMessage}
+          isTyping={this.props.isTyping}
           testID={this.props.testID}
         />
       );
@@ -1391,15 +1458,28 @@ export class FormInput extends Component {
         //An image in a multivalue group
         replaceImage = false;
       }
+      const image = this.props.definition.image;
+      let value = this.props.value;
+      if (
+        image !== undefined &&
+        image !== null &&
+        image.startsWith('[') &&
+        image.endsWith(']')
+      ) {
+        value = {image: this.props.value};
+      }
+
       return (
         <ImageField
           ref="imageField"
-          value={this.props.value}
-          image={this.props.definition.image}
+          value={value}
+          image={image}
           fileName={this.props.definition.name}
           resolution={this.props.definition.resolution}
           size={this.props.definition.size}
           popup={this.props.definition.popup}
+          drawable={this.props.definition.drawable}
+          multiValue={this.props.definition.multiValue}
           sync={this.props.definition.sync}
           readonly={readonly}
           onChangeValue={this.props.onChangeValue}
@@ -1411,6 +1491,7 @@ export class FormInput extends Component {
           enableScroll={this.props.enableScroll}
           disableScroll={this.props.disableScroll}
           replaceImage={replaceImage}
+          forceSync={this.props.definition.forceSync}
           testID={this.props.testID}>
           {this.props.definition.fields &&
             this.props.definition.fields.map(

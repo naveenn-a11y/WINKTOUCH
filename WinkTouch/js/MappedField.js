@@ -119,7 +119,7 @@ async function pushMachineMeasurement(
 ): void {
   measurement.id = 'measurement';
   measurement.machineId = machineId;
-  measurement = await storeItem(measurement);
+  measurement = await storeItem(measurement);  
   if (measurement.errors) {
     alert(measurement.errors.toString());
   }

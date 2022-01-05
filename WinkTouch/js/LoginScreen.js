@@ -12,18 +12,18 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  AsyncStorage,
   PanResponder,
   StatusBar,
   KeyboardAvoidingView,
   InteractionManager,
   Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
 import base64 from 'base-64';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {Button, TilesField} from './Widgets';
 import {
   strings,
@@ -32,10 +32,12 @@ import {
   getUserLanguageIcon,
 } from './Strings';
 import {
-  restUrl,
+  getRestUrl,
   searchItems,
   handleHttpError,
   getNextRequestNumber,
+  getWinkEmrHostFromAccount,
+  switchEmrHost,
 } from './Rest';
 import {
   dbVersion,
@@ -43,13 +45,16 @@ import {
   bundleVersion,
   deploymentVersion,
   restVersion,
+  ecommVersion,
 } from './Version';
 import {fetchCodeDefinitions} from './Codes';
+import {REACT_APP_HOST} from '../env.json';
 
-//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm/WinkRegistrationAccounts';
+//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationAccounts';
-let doctorLoginUrl = restUrl + 'login/doctors';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationAccounts';
 
 async function fetchAccounts(path: string) {
   if (!path) return;
@@ -126,6 +131,11 @@ export class LoginScreen extends Component {
     this.props.onReset();
   };
 
+  switchEmrHost = (account: Account) => {
+    switchEmrHost(getWinkEmrHostFromAccount(account));
+    this.forceUpdate();
+  };
+
   async fetchAccountsStores(registration: Registration) {
     if (!registration) return;
     let accounts: Account[] = await fetchAccounts(this.props.registration.path);
@@ -175,6 +185,7 @@ export class LoginScreen extends Component {
     InteractionManager.runAfterInteractions(() => {
       let account: ?Account = this.getAccount();
       if (!account || account.id === undefined) return;
+      this.switchEmrHost(account);
       fetchCodeDefinitions(getUserLanguage(), account.id);
     });
   }
@@ -205,6 +216,7 @@ export class LoginScreen extends Component {
     )
       AsyncStorage.removeItem('account');
     else AsyncStorage.setItem('account', account);
+
     this.setState({account}, this.fetchCodes());
   };
 
@@ -253,6 +265,7 @@ export class LoginScreen extends Component {
   };
 
   async login() {
+    let doctorLoginUrl = getRestUrl() + 'login/doctors';
     let userName = this.state.userName;
     if (
       userName === undefined ||
@@ -312,7 +325,16 @@ export class LoginScreen extends Component {
           handleHttpError(httpResponse, await httpResponse.text());
         else handleHttpError(httpResponse, await httpResponse.json());
       }
-      let token: string = httpResponse.headers.map.token;
+      let token: string = undefined;
+      if (isWeb) {
+        for (let entry of httpResponse.headers.entries()) {
+          if (entry[0] === 'token') {
+            token = entry[1];
+          }
+        }
+      } else {
+        token = httpResponse.headers.map.token;
+      }
       let responseJson = await httpResponse.json();
       let user: User = responseJson.user;
       store = responseJson.store;
@@ -329,6 +351,10 @@ export class LoginScreen extends Component {
   };
 
   render() {
+    const style = isWeb
+      ? [styles.centeredColumnLayout, {alignItems: 'center'}]
+      : styles.centeredColumnLayout;
+
     const accountNames: string[] = this.state.accounts.map((account: Account) =>
       this.formatAccount(account),
     );
@@ -340,9 +366,9 @@ export class LoginScreen extends Component {
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />
-        <View style={styles.centeredColumnLayout}>
+        <View style={style}>
           <KeyboardAvoidingView behavior="position">
-            <View style={styles.centeredColumnLayout}>
+            <View style={style}>
               {!this.state.isTrial && (
                 <Text style={styles.h1}>{strings.loginscreenTitle}</Text>
               )}
@@ -436,7 +462,12 @@ export class LoginScreen extends Component {
                   />
                 </View>
               )}
-              <View style={styles.buttonsRowLayout}>
+              <View
+                style={
+                  isWeb
+                    ? (styles.buttonsRowLayout, {flex: 1})
+                    : styles.buttonsRowLayout
+                }>
                 <Button
                   title={strings.submitLogin}
                   disabled={account === undefined}
@@ -451,7 +482,11 @@ export class LoginScreen extends Component {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.version}
-          onLongPress={() => codePush.restartApp()}>
+          onLongPress={() =>
+            !isWeb
+              ? codePush.restartApp()
+              : window.location.replace(REACT_APP_HOST)
+          }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
             {dbVersion}

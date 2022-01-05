@@ -1,10 +1,18 @@
 /**
  * @flow
  */
+
 'use strict';
 
-import type {FieldDefinitions, RestResponse} from './Types';
-import {capitalize, deepClone} from './Util';
+import type {
+  FieldDefinitions,
+  RestResponse,
+  Privileges,
+  TokenPayload,
+  Account,
+} from './Types';
+import base64 from 'base-64';
+import {capitalize, deepClone, isEmpty, extractHostname} from './Util';
 import {strings, getUserLanguage} from './Strings';
 import {
   cacheItemById,
@@ -15,27 +23,73 @@ import {
   clearCachedItemById,
 } from './DataCache';
 import {restVersion} from './Version';
+import {setWinkRestUrl} from './WinkRest';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export let restUrl: string = __DEV__
-  ? 'http://192.168.2.53:8080/Web/'
-  : 'https://ws-touch.downloadwink.com/' + restVersion + '/';
+export const defaultHost: string = 'emr.downloadwink.com';
 
 let token: string;
+let privileges: Privileges = {
+  pretestPrivilege: 'NOACCESS',
+  medicalDataPrivilege: 'NOACCESS',
+};
 
 let requestNumber: number = 0;
 
+export function getWinkEmrHostFromAccount(account: Account) {
+  if (account.extraFields instanceof Array) {
+    const winkEmrHost: Object = account.extraFields.find(
+      (extraField: Object) => extraField.key === 'WinkEMRHost',
+    );
+    if (!isEmpty(winkEmrHost) && !isEmpty(winkEmrHost.value)) {
+      return winkEmrHost.value;
+    }
+    return defaultHost;
+  }
+}
 export function getNextRequestNumber(): number {
   return ++requestNumber;
 }
 
+function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
+  privileges.pretestPrivilege = 'NOACCESS';
+  privileges.medicalDataPrivilege = 'NOACCESS';
+  if (tokenPrivileges === undefined || tokenPrivileges === null) return;
+  if (tokenPrivileges.pre === 'F') {
+    privileges.pretestPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.pre === 'R') {
+    privileges.pretestPrivilege = 'READONLY';
+  }
+  if (tokenPrivileges.med === 'F') {
+    privileges.medicalDataPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.med === 'R') {
+    privileges.medicalDataPrivilege = 'READONLY';
+  }
+}
+
+export function decodeTokenPayload(token: string): ?TokenPayload {
+  if (!token) return null;
+  return JSON.parse(base64.decode(token.split('.')[1]));
+}
+
 export function setToken(newToken: ?string) {
-  if (newToken !== undefined) console.log('Token:' + newToken);
+  __DEV__ && console.log('Set token:' + newToken);
   token = newToken;
+  if (!isEmpty(newToken)) {
+    let payLoad: TokenPayload = decodeTokenPayload(newToken);
+    parsePrivileges(payLoad ? payLoad.prv : undefined);
+    __DEV__ &&
+      console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+  }
 }
 
 export function getToken(): string {
   return token;
+}
+
+export function getPrivileges(): Privileges {
+  return privileges;
 }
 
 export function getDataType(id: string): string {
@@ -67,13 +121,13 @@ function getItemFieldName(id: string): string {
 function constructTypeUrl(id: string) {
   //TODO: cache type urls?
   const dataType: string = getDataType(id);
-  const url: string = restUrl + encodeURIComponent(dataType) + '/';
+  const url: string = getRestUrl() + encodeURIComponent(dataType) + '/';
   return url;
 }
 
 function clearErrors(item: Object) {
   if (!(item instanceof Object)) return;
-  Object.keys(item).forEach(key => {
+  Object.keys(item).forEach((key) => {
     if (key.endsWith('rror') || key.endsWith('rrors')) {
       delete item[key];
     } else {
@@ -408,7 +462,7 @@ export function appendParameters(url: string, searchCritera: Object): string {
 }
 
 export async function searchItems(list: string, searchCritera: Object): any {
-  let url: string = restUrl + list;
+  let url: string = getRestUrl() + list;
   const requestNr: number = ++requestNumber;
   try {
     url = appendParameters(url, searchCritera);
@@ -431,6 +485,7 @@ export async function searchItems(list: string, searchCritera: Object): any {
           url +
           ': ' +
           JSON.stringify(Object.keys(restResponse)),
+        //JSON.stringify(restResponse)
       );
     if (restResponse.errors) {
       alert(restResponse.errors);
@@ -452,7 +507,11 @@ export async function searchItems(list: string, searchCritera: Object): any {
   }
 }
 
-export async function performActionOnItem(action: string, item: any): any {
+export async function performActionOnItem(
+  action: string,
+  item: any,
+  httpMethod: ?any = 'PUT',
+): any {
   if (
     (item === null) | (item === undefined) ||
     (item instanceof Array && item.length === 0)
@@ -460,11 +519,10 @@ export async function performActionOnItem(action: string, item: any): any {
     __DEV__ && console.error('item is mandatory');
   }
   let url: string =
-    restUrl +
+    getRestUrl() +
     getDataType(item instanceof Array ? item[0].id : item.id) +
     '/' +
     encodeURIComponent(action);
-  const httpMethod = 'PUT';
   const requestNr = ++requestNumber;
   __DEV__ &&
     console.log(
@@ -547,7 +605,7 @@ export async function performActionOnItem(action: string, item: any): any {
 
 export async function devDelete(path: string) {
   if (__DEV__ === false) return;
-  let url: string = restUrl + 'Dev/' + path;
+  let url: string = getRestUrl() + 'Dev/' + path;
   try {
     let httpResponse = await fetch(url, {
       method: 'delete',
@@ -568,3 +626,26 @@ export async function devDelete(path: string) {
     throw error;
   }
 }
+
+let restUrl: string;
+export function getRestUrl(): string {
+  return __DEV__ ? 'http://192.168.2.53:8080/Web/' : restUrl;
+}
+
+async function setRestUrl(winkEmrHost: string) {
+  console.log('Switching emr host to ' + winkEmrHost);
+  restUrl = 'https://' + winkEmrHost + '/' + restVersion + '/';
+}
+
+export function switchEmrHost(winkEmrHost: string) {
+  const formattedWinkEmrHost: string = extractHostname(winkEmrHost);
+  AsyncStorage.setItem('winkEmrHost', formattedWinkEmrHost);
+  setRestUrl(formattedWinkEmrHost);
+  setWinkRestUrl(formattedWinkEmrHost);
+}
+
+AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
+  if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '')
+    winkEmrHost = defaultHost;
+  setRestUrl(winkEmrHost);
+});

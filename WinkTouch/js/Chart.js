@@ -1,17 +1,17 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import Highcharts from 'highcharts';
-import HighchartsReactNative from '@highcharts/highcharts-react-native';
+import {View, Text, StyleSheet, Platform} from 'react-native';
 import type {Exam} from './Types';
 import {styles, fontScale, windowWidth, windowHeight} from './Styles.js';
 import {getExamHistory} from './Exam';
-import {formatMoment} from './Util';
+import { formatMoment, isEmpty } from "./Util";
 import {getCachedItem} from './DataCache';
+import {Highcharts as HighchartsReactNative} from '../src/components/HighCharts';
 
 type ChartData = {type: string, name: string, data: number[]};
 type ChartSeries = ChartData[];
@@ -28,7 +28,7 @@ class LineChart extends Component {
     let conf = {
       chart: {
         type: 'line',
-        animation: Highcharts.svg,
+        animation: true,
         marginRight: 10 * fontScale,
       },
       title: {
@@ -57,7 +57,7 @@ class LineChart extends Component {
           dataLabels: {
             enabled: true,
           },
-          connectNulls: true,
+          connectNulls: false,
         },
       },
       exporting: {
@@ -69,8 +69,8 @@ class LineChart extends Component {
       <HighchartsReactNative
         useCDN={true}
         useSSL={true}
-        styles={{top: 0, width: windowWidth * 0.85, height: windowHeight}}
-        options={conf}
+        style={{top: 0, width: windowWidth * 0.85, height: windowHeight}}
+        conf={conf}
       />
     );
   }
@@ -108,7 +108,7 @@ export class ExamChartScreen extends Component {
       let data = exam
         ? exam[this.props.navigation.state.params.exam.definition.name]
         : undefined;
-      fieldTree.forEach(fieldName => {
+      fieldTree.forEach((fieldName) => {
         if (data !== undefined) {
           if (data instanceof Array) {
             if (data.length > 0) {
@@ -120,6 +120,11 @@ export class ExamChartScreen extends Component {
           data = data[fieldName];
         }
       });
+      if (isEmpty(data)) {
+        data = null;
+      } else {
+        data = parseFloat(data);
+      }
       series.push(data);
     });
     return {
