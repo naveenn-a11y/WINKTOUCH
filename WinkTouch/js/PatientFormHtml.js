@@ -55,6 +55,7 @@ import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
 let smallMedia = [];
 let largeMedia = [];
+let PDFAttachment = [];
 let index=0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
@@ -754,7 +755,6 @@ async function renderField(
         : form[fieldDefinition.name]
       : undefined;
 
-  let notToBeRendered = undefined;
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       let ImageIndex =  "";
@@ -864,7 +864,6 @@ async function renderMedia(
     style.width = Math.floor(pageWidth);
     style.height = Math.floor(style.width / fieldAspectRatio);
   }
-
   if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
     style.width = style.width * 0.65;
     style.height = (style.height) * 0.65;
@@ -884,7 +883,10 @@ async function renderMedia(
       const base64Image = await getBase64Image(image);
        imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
-      imageValue = `<span>${strings.pdfNotSupported}</span>`;
+      PDFAttachment.push({ name:exam?.definition?.name, base64:filePath,index:`${fieldDefinition.name}(pdf-${PDFAttachment.length+1})` });
+      // PDFAttachment.push(filePath);
+      // imageValue = `<span>${strings.pdfNotSupported}</span>`;
+      imageValue = `<span>*Please see annexed document (pdf-${PDFAttachment.length+1}) at the end of the document.</span>`;
     }
     html += imageValue;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
@@ -1546,8 +1548,10 @@ export function patientHeader() {
   return htmlHeader;
 }
 
-export function patientFooter(printImages:boolean = true,selectedFields) {
+export function patientFooter(printImages:boolean = true  , selectedFields) {
   let htmlEnd: string = ``;
+  let allAttachments = [...PDFAttachment];
+  PDFAttachment = [];
   htmlEnd += `<div class="breakBefore"></div>`;
   htmlEnd += `<div class="wrap-imgs ">`;
     for(var image of smallMedia){
@@ -1566,6 +1570,14 @@ export function patientFooter(printImages:boolean = true,selectedFields) {
         }
       }
     }
+    for(var pdf of allAttachments){
+      if(printImages)  PDFAttachment.push({base64:pdf.base64,index:pdf.index});
+      else if(selectedFields?.length>0){
+        for(let field of selectedFields){
+          if(field.indexOf("Exam")!==-1&&field.split(".")[1] === image.name) PDFAttachment.push({
+            base64:pdf.base64,index:pdf.index
+          });
+        }}}
   htmlEnd += `</div></main></body>`;
   return htmlEnd;
 }
@@ -1574,13 +1586,16 @@ export function getVisitHtml(html: string): string {
   let htmlHeader: string = patientHeader();
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
+  let Attachments = PDFAttachment
   initValues();
-  return finalHtml;
+  // return finalHtml;
+  return { html:finalHtml, PDFAttachment:Attachments };
 }
 
 export function initValues() {
   imageBase64Definition = [];
   smallMedia = [];
   largeMedia = [];
-  index=0
+  PDFAttachment = [];
+  index=0;
 }

@@ -1,8 +1,40 @@
 import html2pdf from 'html2pdf.js';
-export async function printHtml(html: string) {
-  const pdf = await generatePDF(html,false);
+import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
 
-  const blob = base64ToBlob( pdf?.base64, 'application/pdf' );
+export async function printHtml(html: string, PDFAttachment) {
+
+  const pageWidth: number = 612;
+  const pageAspectRatio: number = 8.5 / 11;
+  const pageHeight: number = (pageWidth / pageAspectRatio);
+
+  const pdf = await generatePDF(html,false);
+  let  resultPdf = await PDFDocument.load(pdf?.base64);
+  
+  for(var pdfInstance of PDFAttachment){
+    let index = 0
+    const newPdf = await PDFDocument.load(pdfInstance.base64);
+    for (const page: PDFPage of newPdf.getPages()) {
+      index += 1;
+      const documentPage: PDFPage = resultPdf.addPage();
+      documentPage.setSize(pageWidth, pageHeight);
+      const embedPage = await resultPdf.embedPage(page);
+      const dims = embedPage.scale(0.9);
+      documentPage.drawPage(embedPage, {
+        ...dims,
+        x: 0,
+        y: pageHeight - dims.height ,
+      });
+      if(index ===newPdf.getPages().length){
+        const text = pdfInstance.index
+        const textSize = 15
+        documentPage.drawText(text, {x: 0,y: 10,size: textSize,})
+      }
+    }
+  }
+
+  const resultBase64: string = await resultPdf.saveAsBase64();
+
+  const blob = base64ToBlob( resultBase64, 'application/pdf' );
   const url = URL.createObjectURL( blob );
 
   x = window.open("");
