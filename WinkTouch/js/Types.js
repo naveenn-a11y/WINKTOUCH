@@ -540,3 +540,10 @@ export type TranslationDefinition = {
   label: ?string,
   normalValue: ?string,
 };
+
+export type ExamRoom = {
+  id: string,
+  patientId: string,
+  examRoomId: string,
+  name: string,
+};

@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
-import {getCodeDefinition} from './Codes';
+import {getAllCodes, getCodeDefinition} from './Codes';
 import type {
   Exam,
   Visit,
@@ -29,6 +29,7 @@ import type {
   User,
   Prescription,
   CodeDefinition,
+  ExamRoom,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -103,6 +104,7 @@ import {isReferralsEnabled} from './Referral';
 import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import {BillingCard} from './Visit/Partials';
+import {getExamRoom, updateExamRoom} from './Room';
 
 export const examSections: string[] = [
   'Amendments',
@@ -647,7 +649,9 @@ type StartVisitButtonsState = {
   visitTypes: VisitType[],
   clicked: boolean,
   isVisitOptionsVisible: boolean,
+  isExamRoomOptionsVisible: boolean,
   visitOptions: CodeDefinition[],
+  examRoomOptions: CodeDefinition[],
   visitType: string,
 };
 export class StartVisitButtons extends Component<
@@ -660,8 +664,10 @@ export class StartVisitButtons extends Component<
       visitTypes: [],
       clicked: false,
       isVisitOptionsVisible: false,
+      isExamRoomOptionsVisible: false,
       visitOptions: [],
       visitType: '',
+      examRoomOptions: [],
     };
   }
 
@@ -685,11 +691,7 @@ export class StartVisitButtons extends Component<
       return;
     }
     this.setState({clicked: true, visitType: visitType}, () => {
-      if (this.props.isPretest == false) {
-        this.showVisitOptions();
-      } else {
-        this.props.onStartVisit(visitType);
-      }
+      this.showExamRoomOptions();
       this.setState({clicked: false});
     });
   }
@@ -714,8 +716,26 @@ export class StartVisitButtons extends Component<
     }
   }
 
+  showExamRoomOptions() {
+    const blankRoom: CodeDefinition = {
+      code: undefined,
+      description: strings.startBlank,
+      readonly: true,
+    };
+    const examRooms: CodeDefinition[] =
+      getAllCodes('examRooms').concat(blankRoom);
+    this.setState({
+      examRoomOptions: examRooms,
+      isExamRoomOptionsVisible: true,
+    });
+  }
+
   hideVisitOptions = () => {
     this.setState({isVisitOptionsVisible: false});
+  };
+
+  hideExamRoomOptions = () => {
+    this.setState({isExamRoomOptionsVisible: false});
   };
 
   selectVisit = (visit: ?CodeDefinition) => {
@@ -726,6 +746,34 @@ export class StartVisitButtons extends Component<
       visit ? visit.code : undefined,
     );
   };
+
+  selectExamRoom = (examRoom: ?CodeDefinition) => {
+    this.setState({isExamRoomOptionsVisible: false});
+    const examRoomPatient: ExamRoom = {
+      id: 'room-' + examRoom.code,
+      patientId: this.props.patientInfo.id,
+      examRoomId: 'room-' + examRoom.code,
+    };
+    updateExamRoom(examRoomPatient);
+
+    if (this.props.isPretest == false) {
+      this.showVisitOptions();
+    } else {
+      this.props.onStartVisit(this.state.visitType);
+    }
+  };
+
+  getExamRoom(): CodeDefinition {
+    const examRoom: ExamRoom = getExamRoom(this.props.patientInfo.id);
+    if (examRoom === undefined) {
+      return;
+    }
+    const examRoomCode: CodeDefinition = getCodeDefinition(
+      'examRooms',
+      stripDataType(examRoom.examRoomId),
+    );
+    return examRoomCode;
+  }
 
   render() {
     if (this.state.visitTypes.length === 0) {
@@ -762,6 +810,14 @@ export class StartVisitButtons extends Component<
           options={this.state.visitOptions}
           onSelect={this.selectVisit}
           onCancel={this.hideVisitOptions}
+        />
+        <SelectionDialog
+          visible={this.state.isExamRoomOptionsVisible}
+          label={'Exam Room'}
+          options={this.state.examRoomOptions}
+          value={this.getExamRoom()}
+          onSelect={this.selectExamRoom}
+          onCancel={this.hideExamRoomOptions}
         />
       </View>
     );
