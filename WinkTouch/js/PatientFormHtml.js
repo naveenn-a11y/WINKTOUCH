@@ -144,7 +144,6 @@ export function renderItemsHtml(
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
-    // html += `<tr>`;
     if (isEmpty(value)) return html;
 
     html += `<div class="container">`;
@@ -529,7 +528,6 @@ async function renderRowsHtml(
             htmlSubItems += `<div>` + value + `</div>`;
           } else {
             htmlSubItems += `<div><span>` + value + `</span></div>`;
-            // else htmlSubItems += `<span>` + value + `</span>`;
           }
         }
         rowHtmlDefinition.push({
@@ -895,8 +893,6 @@ async function renderMedia(
         base64: filePath,
         index: `${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`,
       });
-      // PDFAttachment.push(filePath);
-      // imageValue = `<span>${strings.pdfNotSupported}</span>`;
       imageValue = `<span>*Please see annexed document (pdf-${
         PDFAttachment.length + 1
       }) at the end of the document.</span>`;
@@ -1285,12 +1281,6 @@ function renderRxTable(
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += `<tr>`;
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
-    // html += `<td class="desc"></td>`;
-    // html += `<td class="desc"></td>`;
-    // html += `<td class="desc"></td>`;
-    // if (hasPrism(glassesRx)) {
-    //   html += `<td class="desc"></td>`;
-    // }
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
