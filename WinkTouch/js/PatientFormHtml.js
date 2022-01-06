@@ -56,7 +56,7 @@ import {getBase64Image} from './ImageField';
 let smallMedia = [];
 let largeMedia = [];
 let PDFAttachment = [];
-let index=0;
+let index = 0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
   return imageBase64Definition;
@@ -145,8 +145,8 @@ export function renderItemsHtml(
       ? exam.definition.label
       : exam.definition.name;
     // html += `<tr>`;
-    if(isEmpty(value)) return html;
-    
+    if (isEmpty(value)) return html;
+
     html += `<div class="container">`;
     html += `<div class="BreakBeforeHeader"></div>`;
     html += `<div class="groupHeader">${value}</div>`;
@@ -232,7 +232,7 @@ export async function renderParentGroupHtml(
       ? ''
       : await renderAllGroupsHtml(exam, htmlDefinition);
     html += `</div>`;
-    html += `</div>`
+    html += `</div>`;
     parentHtmlDefinition.push({
       name: exam.definition.name,
       html: html,
@@ -241,12 +241,13 @@ export async function renderParentGroupHtml(
   } else {
     if (exam.definition.name === 'Consultation summary') {
       if (!isEmpty(exam.resume)) {
-        
-        html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
+        html += `<div class="groupHeader">${formatLabel(
+          exam.definition,
+        )}</div>`;
         html += `<div class="desc">`;
         html += `<div style="white-space: pre-line">${exam.resume}</div>`;
         html += `</div>`;
-        html += `</div>`
+        html += `</div>`;
         parentHtmlDefinition.push({
           name: exam.definition.name,
           html: `<div style="white-space: pre-line">${exam.resume}</div>`,
@@ -255,12 +256,15 @@ export async function renderParentGroupHtml(
     } else {
       let htmlSubItems: string = '';
       htmlSubItems += await renderAllGroupsHtml(exam, htmlDefinition);
-      if(isEmpty(htmlSubItems)) {html += `</div>`; return html;}
+      if (isEmpty(htmlSubItems)) {
+        html += `</div>`;
+        return html;
+      }
       html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
       html += `<div class="desc">`;
       html += htmlSubItems;
       html += `</div>`;
-      html += `</div>`
+      html += `</div>`;
       parentHtmlDefinition.push({
         name: exam.definition.name,
         html: htmlSubItems,
@@ -491,7 +495,6 @@ async function renderRowsHtml(
         groupIndex,
       );
       html += value;
-
     } else if (columnFieldIndex < 0) {
       const value = await renderField(
         fieldDefinition,
@@ -522,12 +525,11 @@ async function renderRowsHtml(
           htmlSubItems += `<span class="value">${value}</span></div>`;
           htmlSubItems += `</div>`;
         } else {
-          if(fieldDefinition.image){
+          if (fieldDefinition.image) {
             htmlSubItems += `<div>` + value + `</div>`;
-          }
-          else{
+          } else {
             htmlSubItems += `<div><span>` + value + `</span></div>`;
-          // else htmlSubItems += `<span>` + value + `</span>`;
+            // else htmlSubItems += `<span>` + value + `</span>`;
           }
         }
         rowHtmlDefinition.push({
@@ -757,35 +759,40 @@ async function renderField(
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
-      let ImageIndex =  "";
-      html+= isWeb?`<div class="images-warp">`:""
-      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
+      let ImageIndex = '';
+      html += isWeb ? `<div class="images-warp">` : '';
+      if (
+        (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
+        fieldDefinition.size !== 'M'
+      ) {
         html += `<div class="breakBefore"></div>`;
         html += `<span class="img-wrap" style="width:100%">`;
         ImageIndex = `L-${index + 1}`;
       } else {
         html += `<span class="img-wrap s-img" >`;
         ImageIndex = `S-${index + 1}`;
-      }     
-      index+=1
+      }
+      index += 1;
       const imageValue = await renderMedia(
         value,
         fieldDefinition,
         groupDefinition,
         exam,
       );
-      if(isEmpty(imageValue)) return "";
+      if (isEmpty(imageValue)) return '';
       html += imageValue;
       html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
       html += `</span>`;
       html += isWeb ? `</div>` : ``;
-      if ((groupDefinition.size === 'L' || groupDefinition.size === 'XL' )&&fieldDefinition.size!=="M") {
-        largeMedia.push({name:exam?.definition?.name , html});
-        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`
-      }
-      else {
-        smallMedia.push({name:exam?.definition?.name  , html});
-        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`
+      if (
+        (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
+        fieldDefinition.size !== 'M'
+      ) {
+        largeMedia.push({name: exam?.definition?.name, html});
+        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+      } else {
+        smallMedia.push({name: exam?.definition?.name, html});
+        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
       }
       return html;
     }
@@ -866,7 +873,7 @@ async function renderMedia(
   }
   if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
     style.width = style.width * 0.65;
-    style.height = (style.height) * 0.65;
+    style.height = style.height * 0.65;
   }
 
   if (filePath) {
@@ -881,12 +888,18 @@ async function renderMedia(
       }
     } else if (isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
-       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+      imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
-      PDFAttachment.push({ name:exam?.definition?.name, base64:filePath,index:`${fieldDefinition.name}(pdf-${PDFAttachment.length+1})` });
+      PDFAttachment.push({
+        name: exam?.definition?.name,
+        base64: filePath,
+        index: `${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`,
+      });
       // PDFAttachment.push(filePath);
       // imageValue = `<span>${strings.pdfNotSupported}</span>`;
-      imageValue = `<span>*Please see annexed document (pdf-${PDFAttachment.length+1}) at the end of the document.</span>`;
+      imageValue = `<span>*Please see annexed document (pdf-${
+        PDFAttachment.length + 1
+      }) at the end of the document.</span>`;
     }
     html += imageValue;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
@@ -925,13 +938,14 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += isWeb?`<g transform="scale(0.9 0.92)" >`:` <g transform="scale(0.96 0.98)" >`;
+                html += isWeb
+                  ? `<g transform="scale(0.9 0.92)" >`
+                  : ` <g transform="scale(0.96 0.98)" >`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
                 html += `</svg>`;
               }
             }
-
           },
         ),
       ));
@@ -1356,7 +1370,7 @@ export function patientHeader() {
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
     `.xlForm {display: block; page-break-before: always;}` +
-    `.scannedFiles {display: block; page-break-before: always;}` +
+    `.scannedFiles {display: block;}` +
     `}` +
     `@media screen {` +
     `table tr:nth-child(2n-1) td {` +
@@ -1479,20 +1493,20 @@ export function patientHeader() {
     `  padding: 8px 0;` +
     `  text-align: center;` +
     `}` +
-    '.s-img {margin: 5px; page-break-inside:avoid;}'+
+    '.s-img {margin: 5px; page-break-inside:avoid;}' +
     `.img-wrap {` +
-    '  margin: 0px;'+
-    '  padding: 0px;'+
-    '  float: left;'+
-    '  position: relative;'+
-    '  text-align: center;'+
-    '  display: flex;'+
-    '  flex-direction: column;'+
-    '  flex-wrap: wrap;'+
-    '  justify-content: flex-start;'+
-    '  align-content: center;'+
-    '  page-break-inside:avoid;'+
-    '  align-items: center;'+
+    '  margin: 0px;' +
+    '  padding: 0px;' +
+    '  float: left;' +
+    '  position: relative;' +
+    '  text-align: center;' +
+    '  display: flex;' +
+    '  flex-direction: column;' +
+    '  flex-wrap: wrap;' +
+    '  justify-content: flex-start;' +
+    '  align-content: center;' +
+    '  page-break-inside:avoid;' +
+    '  align-items: center;' +
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +
@@ -1500,84 +1514,91 @@ export function patientHeader() {
     `  left:0;` +
     `}` +
     `.img-wrap img {display:block;}` +
-    'span.img-wrap p {'+
-    '  border-bottom: 1.5px solid;'+
-    '  padding: 5px;'+
-    '  font-size: 13px;'+
-    ' }'+
-    '.groupHeader {' + 
-    ' padding: 6px 0;'+
-    ' border-top: 1px solid #5D6975;'+
-    ' border-bottom: 1px solid #5D6975;'+
-    ' color: #5D6975;'+
-    ' font-size: 1.4em;'+
-    ' line-height: 1.4em;'+
-    ' font-weight: normal;'+
-    ' text-align: center;'+
-    ' margin: 10px 10px 20px 0;'+
-    ' background: #F5F5F5;'+
-    ' page-break-inside:avoid; '+
-    ' display:block;'+ 
-    ' box-sizings:border-box;'+
-    '}'+ 
-    `.container {page-break-inside:avoid; page-break-after:auto; }`+
-    '.desc {'+
-    '  margin:10px;'+
-    '  font-size: 15px;'+
-    '}'+
-    '.desc .value{'+
-    'color:#000;'+
-    'font-size: 15px;'+
-    'font-weight: 400;'+
-    '}'+
-    '.desc .label {'+
-    'color:#000;'+
-    'font-size: 16px;'+
-    'font-weight: bold;'+
-    '}'+
-    ' .wrap-imgs {'+
-    '   display: flex;'+
-    '   flex-wrap: wrap;'+
-    '   width: 100%;'+
-    '   justify-content: space-around;'+
+    'span.img-wrap p {' +
+    '  border-bottom: 1.5px solid;' +
+    '  padding: 5px;' +
+    '  font-size: 13px;' +
+    ' }' +
+    '.groupHeader {' +
+    ' padding: 6px 0;' +
+    ' border-top: 1px solid #5D6975;' +
+    ' border-bottom: 1px solid #5D6975;' +
+    ' color: #5D6975;' +
+    ' font-size: 1.4em;' +
+    ' line-height: 1.4em;' +
+    ' font-weight: normal;' +
+    ' text-align: center;' +
+    ' margin: 10px 10px 20px 0;' +
+    ' background: #F5F5F5;' +
+    ' page-break-inside:avoid; ' +
+    ' display:block;' +
+    ' box-sizings:border-box;' +
+    '}' +
+    `.container {page-break-inside:avoid; page-break-after:auto; }` +
+    '.desc {' +
+    '  margin:10px;' +
+    '  font-size: 15px;' +
+    '}' +
+    '.desc .value{' +
+    'color:#000;' +
+    'font-size: 15px;' +
+    'font-weight: 400;' +
+    '}' +
+    '.desc .label {' +
+    'color:#000;' +
+    'font-size: 16px;' +
+    'font-weight: bold;' +
+    '}' +
+    ' .wrap-imgs {' +
+    '   display: flex;' +
+    '   flex-wrap: wrap;' +
+    '   width: 100%;' +
+    '   justify-content: space-around;' +
     ' }';
-    htmlHeader += isWeb ?'.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
-    : `.wrap-imgs{page-break-before: always; } .BreakBeforeHeader{ height:20px; page-break-after: always; page-break-before: always;}`;
+  htmlHeader += isWeb
+    ? '.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
+    : `.wrap-imgs{page-break-before: always; } `;
 
-  htmlHeader +=`</style></head><body><main>`;
+  htmlHeader += `</style></head><body><main>`;
   return htmlHeader;
 }
 
-export function patientFooter(printImages:boolean = true  , selectedFields) {
+export function patientFooter(printImages: boolean = true, selectedFields) {
   let htmlEnd: string = ``;
   let allAttachments = [...PDFAttachment];
   PDFAttachment = [];
   htmlEnd += `<div class="breakBefore"></div>`;
   htmlEnd += `<div class="wrap-imgs ">`;
-    for(var image of smallMedia){
-      if(printImages)  htmlEnd+=image.html;
-      else if(selectedFields?.length>0){
-        for(let field of selectedFields){
-          if(field.indexOf("Exam")!==-1&&field.split(".")[1] === image.name)htmlEnd += image.html
-        }
+  for (var image of smallMedia) {
+    if (printImages) htmlEnd += image.html;
+    else if (selectedFields?.length > 0) {
+      for (let field of selectedFields) {
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name)
+          htmlEnd += image.html;
       }
     }
-    for(var image of largeMedia){
-      if(printImages)  htmlEnd+=image.html;
-      else if(selectedFields?.length>0){
-        for(let field of selectedFields){
-          if(field.indexOf("Exam")!==-1&&field.split(".")[1] === image.name)htmlEnd += image.html
-        }
+  }
+  for (var image of largeMedia) {
+    if (printImages) htmlEnd += image.html;
+    else if (selectedFields?.length > 0) {
+      for (let field of selectedFields) {
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name)
+          htmlEnd += image.html;
       }
     }
-    for(var pdf of allAttachments){
-      if(printImages)  PDFAttachment.push({base64:pdf.base64,index:pdf.index});
-      else if(selectedFields?.length>0){
-        for(let field of selectedFields){
-          if(field.indexOf("Exam")!==-1&&field.split(".")[1] === image.name) PDFAttachment.push({
-            base64:pdf.base64,index:pdf.index
+  }
+  for (var pdf of allAttachments) {
+    if (printImages) PDFAttachment.push({base64: pdf.base64, index: pdf.index});
+    else if (selectedFields?.length > 0) {
+      for (let field of selectedFields) {
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name)
+          PDFAttachment.push({
+            base64: pdf.base64,
+            index: pdf.index,
           });
-        }}}
+      }
+    }
+  }
   htmlEnd += `</div></main></body>`;
   return htmlEnd;
 }
@@ -1586,10 +1607,10 @@ export function getVisitHtml(html: string): string {
   let htmlHeader: string = patientHeader();
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
-  let Attachments = PDFAttachment
+  let Attachments = PDFAttachment;
   initValues();
   // return finalHtml;
-  return { html:finalHtml, PDFAttachment:Attachments };
+  return {html: finalHtml, PDFAttachment: Attachments};
 }
 
 export function initValues() {
@@ -1597,5 +1618,5 @@ export function initValues() {
   smallMedia = [];
   largeMedia = [];
   PDFAttachment = [];
-  index=0;
+  index = 0;
 }

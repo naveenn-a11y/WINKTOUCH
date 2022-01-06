@@ -94,7 +94,7 @@ import {
   printPatientHeader,
   getScannedFiles,
   setScannedFiles,
-  initValues
+  initValues,
 } from './PatientFormHtml';
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
@@ -401,7 +401,7 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   return visitSummaries;
 }
 
-async function printPatientFile(visitId: string) {
+async function printPatientFile(visitId: string, cb) {
   initValues();
   let visitHtml: string = '';
   const visit: Visit = getCachedItem(visitId);
@@ -472,7 +472,7 @@ async function printPatientFile(visitId: string) {
     }
     visitHtml = getVisitHtml(visitHtml);
     // await printHtml(visitHtml);
-    await printHtml( visitHtml.html, visitHtml.PDFAttachment );
+    await printHtml(visitHtml.html, visitHtml.PDFAttachment, cb);
   }
 }
 
@@ -781,6 +781,7 @@ class VisitWorkFlow extends Component {
     showRxPopup: boolean,
     printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
+    printing: boolean,
   };
 
   constructor(props: any) {
@@ -799,6 +800,7 @@ class VisitWorkFlow extends Component {
       appointment: appointment,
       showRxPopup: false,
       showMedicationRxPopup: false,
+      printing: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1565,9 +1567,13 @@ class VisitWorkFlow extends Component {
           )}
           {hasMedicalDataReadAccess && (
             <Button
+              loading={this.state.loading}
               title={strings.printPatientFile}
               onPress={() => {
-                printPatientFile(this.props.visitId);
+                this.setState({loading: true});
+                printPatientFile(this.props.visitId, () =>
+                  this.setState({loading: false}),
+                );
               }}
             />
           )}

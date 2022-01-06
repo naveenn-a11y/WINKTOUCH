@@ -17,6 +17,7 @@ import ReactNative, {
   TextInput,
   Keyboard,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 
 import {
@@ -2696,31 +2697,37 @@ export class Button extends Component {
     title: string,
     visible?: boolean,
     disabled?: boolean,
+    loading?: boolean,
     onPress?: () => void,
     testID?: string,
   };
   static defaultProps = {
     visible: true,
+    loading: false,
   };
   render() {
     if (!this.props.visible) return null;
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
-        disabled={this.props.disabled}
+        disabled={this.props.disabled || this.props.loading}
         testID={
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
           style={this.props.disabled ? styles.buttonDisabled : styles.button}>
-          <Text
-            style={
-              this.props.disabled
-                ? styles.buttonDisabledText
-                : styles.buttonText
-            }>
-            {this.props.title}
-          </Text>
+          {this.props.loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text
+              style={
+                this.props.disabled
+                  ? styles.buttonDisabledText
+                  : styles.buttonText
+              }>
+              {this.props.title}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
     );
