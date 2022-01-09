@@ -40,6 +40,7 @@ import {
   getImageBase64Definition,
   patientHeader,
   patientFooter,
+  getSelectedPDFAttachment,
 } from './PatientFormHtml';
 import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import RNBeep from 'react-native-a-beep';
@@ -280,7 +281,7 @@ export class ReferralScreen extends Component<
           alert(response.errors);
         } else {
           const htmlContent: ReferralDocument = response;
-          let htmlHeader: string = patientHeader();
+          let htmlHeader: string = patientHeader(false);
           let htmlEnd: string = patientFooter(false);
           template =
             this.props.navigation &&
@@ -404,8 +405,6 @@ export class ReferralScreen extends Component<
         return;
       }
       const htmlContent: ReferralDocument = response;
-      let htmlHeader: string = patientHeader();
-      let htmlEnd: string = patientFooter(false);
       let html = this.mapImageWithBase64(htmlContent.content);
       this.editor.insertContent(html);
       this.updateSignatureState(html);
@@ -461,8 +460,9 @@ export class ReferralScreen extends Component<
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter(false,this.selectedFields);
+    let PDFAttachment:Array<any> = getSelectedPDFAttachment();
     html = htmlHeader + html + htmlEnd;
-    const job = await printHtml(html);
+    const job = await printHtml(html,PDFAttachment);
     if (job) {
       this.setState({command: COMMAND.PRINT, isDirty: true});
       await this.save();

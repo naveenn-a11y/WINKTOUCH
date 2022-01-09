@@ -1,7 +1,7 @@
 import html2pdf from 'html2pdf.js';
 import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
 
-export async function printHtml(html: string, PDFAttachment, cb) {
+export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:function=()=>{}) {
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
@@ -37,6 +37,11 @@ export async function printHtml(html: string, PDFAttachment, cb) {
   const url = URL.createObjectURL(blob);
 
   cb();
+
+
+  console.log('html :>> ', html);
+
+
 
   x = window.open('');
   x.document.open();

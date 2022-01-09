@@ -53,9 +53,10 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
-let smallMedia = [];
-let largeMedia = [];
-let PDFAttachment = [];
+let smallMedia=[];
+let largeMedia=[];
+let PDFAttachment=[];
+let SelectedPDFAttachment=[];
 let index = 0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
@@ -893,9 +894,8 @@ async function renderMedia(
         base64: filePath,
         index: `${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`,
       });
-      imageValue = `<span>*Please see annexed document (pdf-${
-        PDFAttachment.length + 1
-      }) at the end of the document.</span>`;
+      imageValue = `<span>*Please see annexed document (pdf-${PDFAttachment.length + 1}) at the end of the document.</span>`;
+      console.log('imageValue :>> ', imageValue);
     }
     html += imageValue;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
@@ -952,7 +952,7 @@ async function renderMedia(
       getCurrentAction() !== undefined &&
       getCurrentAction() == UserAction.REFERRAL
     ) {
-      return html;
+      return '';
     } else {
       return '';
     }
@@ -1346,7 +1346,7 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader() {
+export function patientHeader(shouldAddMain: boolean = true,) {
   let htmlHeader: string =
     `<head><title>Patient File</title><style>` +
     `body {` +
@@ -1548,18 +1548,22 @@ export function patientHeader() {
   htmlHeader += isWeb
     ? '.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
     : `.wrap-imgs{page-break-before: always; } `;
-
-  htmlHeader += `</style></head><body><main>`;
+  if(shouldAddMain){ htmlHeader += `</style></head><body><main>`;}
   return htmlHeader;
 }
 
 export function patientFooter(printImages: boolean = true, selectedFields) {
   let htmlEnd: string = ``;
-  let allAttachments = [...PDFAttachment];
-  PDFAttachment = [];
-  htmlEnd += `<div class="breakBefore"></div>`;
-  htmlEnd += `<div class="wrap-imgs ">`;
+
+  if(!printImages && selectedFields?.length > 0){ SelectedPDFAttachment = []; }
+  else { SelectedPDFAttachment = [...PDFAttachment]; }
+
+  if(printImages){
+    htmlEnd += `<div class="breakBefore"></div>`;
+    htmlEnd += `<div class="wrap-imgs ">`;
+  }
   for (var image of smallMedia) {
+    console.log(`image`, image);
     if (printImages) htmlEnd += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
@@ -1569,6 +1573,7 @@ export function patientFooter(printImages: boolean = true, selectedFields) {
     }
   }
   for (var image of largeMedia) {
+    console.log(`image`, image)
     if (printImages) htmlEnd += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
@@ -1577,36 +1582,36 @@ export function patientFooter(printImages: boolean = true, selectedFields) {
       }
     }
   }
-  for (var pdf of allAttachments) {
-    if (printImages) PDFAttachment.push({base64: pdf.base64, index: pdf.index});
-    else if (selectedFields?.length > 0) {
-      for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name)
-          PDFAttachment.push({
-            base64: pdf.base64,
-            index: pdf.index,
+  if(!printImages && selectedFields?.length > 0){
+    for (let pdf of PDFAttachment) {
+        for (let field of selectedFields) {
+          if (field.indexOf('Exam') !== -1 && field.split('.')[1] === pdf.name)
+          SelectedPDFAttachment.push({
+              base64: pdf.base64,
+              index: pdf.index,
           });
-      }
+        }
     }
   }
-  htmlEnd += `</div></main></body>`;
+  htmlEnd += `</div></body></main>`;
   return htmlEnd;
 }
-
 export function getVisitHtml(html: string): string {
   let htmlHeader: string = patientHeader();
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
-  let Attachments = PDFAttachment;
+  let Attachments = SelectedPDFAttachment;
   initValues();
-  // return finalHtml;
   return {html: finalHtml, PDFAttachment: Attachments};
 }
-
+export function getSelectedPDFAttachment():Array<any>{
+  return SelectedPDFAttachment ;
+}
 export function initValues() {
   imageBase64Definition = [];
   smallMedia = [];
   largeMedia = [];
   PDFAttachment = [];
+  SelectedPDFAttachment = [];
   index = 0;
 }
