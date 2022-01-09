@@ -53,10 +53,10 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
-let smallMedia=[];
-let largeMedia=[];
-let PDFAttachment=[];
-let SelectedPDFAttachment=[];
+let smallMedia:Array<any> = [];
+let largeMedia:Array<any> = [];
+let PDFAttachment:Array<any> = [];
+let SelectedPDFAttachment:Array<any> = [];
 let index = 0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
@@ -758,6 +758,20 @@ async function renderField(
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
+      const imageValue = await renderMedia(
+        value,
+        fieldDefinition,
+        groupDefinition,
+        exam,
+      );
+      if (isEmpty(imageValue)) return '';
+      
+      if(fieldDefinition.image.startsWith('upload')){
+        html += imageValue;
+        console.log('fieldDefinition :>> ', fieldDefinition);
+        console.log('groupDefinition :>> ', groupDefinition);
+      }
+      else{
       let ImageIndex = '';
       html += isWeb ? `<div class="images-warp">` : '';
       if (
@@ -772,13 +786,6 @@ async function renderField(
         ImageIndex = `S-${index + 1}`;
       }
       index += 1;
-      const imageValue = await renderMedia(
-        value,
-        fieldDefinition,
-        groupDefinition,
-        exam,
-      );
-      if (isEmpty(imageValue)) return '';
       html += imageValue;
       html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
       html += `</span>`;
@@ -793,6 +800,7 @@ async function renderField(
         smallMedia.push({name: exam?.definition?.name, html});
         html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
       }
+    }
       return html;
     }
     if (fieldDefinition.type === 'age') {
@@ -898,6 +906,7 @@ async function renderMedia(
       console.log('imageValue :>> ', imageValue);
     }
     html += imageValue;
+    if(!isPdf) {
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
     fieldDefinition.fields &&
@@ -945,6 +954,7 @@ async function renderMedia(
           },
         ),
       ));
+        }
   }
   if (upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
@@ -952,7 +962,7 @@ async function renderMedia(
       getCurrentAction() !== undefined &&
       getCurrentAction() == UserAction.REFERRAL
     ) {
-      return '';
+      return html;
     } else {
       return '';
     }
@@ -1552,36 +1562,36 @@ export function patientHeader(shouldAddMain: boolean = true,) {
   return htmlHeader;
 }
 
-export function patientFooter(printImages: boolean = true, selectedFields) {
+export function patientFooter(printImages: boolean = true, selectedFields:Array<any> = []) {
   let htmlEnd: string = ``;
+  let addImages: string = ``;
+  let hasImage: boolean = false;
 
-  if(!printImages && selectedFields?.length > 0){ SelectedPDFAttachment = []; }
-  else { SelectedPDFAttachment = [...PDFAttachment]; }
-
-  if(printImages){
-    htmlEnd += `<div class="breakBefore"></div>`;
-    htmlEnd += `<div class="wrap-imgs ">`;
-  }
   for (var image of smallMedia) {
-    console.log(`image`, image);
-    if (printImages) htmlEnd += image.html;
+    if (printImages) addImages += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name)
-          htmlEnd += image.html;
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name){addImages += image.html; hasImage=true;}
       }
     }
   }
   for (var image of largeMedia) {
-    console.log(`image`, image)
-    if (printImages) htmlEnd += image.html;
+    if (printImages) addImages += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name)
-          htmlEnd += image.html;
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name){addImages += image.html; hasImage=true;}
       }
     }
   }
+
+  if(!printImages && selectedFields?.length > 0){ SelectedPDFAttachment = []; }
+  else { SelectedPDFAttachment = [...PDFAttachment]; }
+  if(printImages||hasImage){
+    htmlEnd += `<div class="breakBefore"></div>`;
+    htmlEnd += `<div class="wrap-imgs">`;
+    htmlEnd += addImages
+  }
+
   if(!printImages && selectedFields?.length > 0){
     for (let pdf of PDFAttachment) {
         for (let field of selectedFields) {
