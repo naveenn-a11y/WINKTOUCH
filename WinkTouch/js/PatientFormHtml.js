@@ -1565,7 +1565,7 @@ export function patientHeader(shouldAddMain: boolean = true,) {
 export function patientFooter(printImages: boolean = true, selectedFields:Array<any> = []) {
   let htmlEnd: string = ``;
   let addImages: string = ``;
-  let hasImage: boolean = false;
+  let hasImage: boolean = printImages && smallMedia.length>0;
 
   for (var image of smallMedia) {
     if (printImages) addImages += image.html;
@@ -1579,19 +1579,19 @@ export function patientFooter(printImages: boolean = true, selectedFields:Array<
     if (printImages) addImages += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name){addImages += image.html; hasImage=true;}
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name){addImages += image.html;}
       }
     }
   }
 
   if(!printImages && selectedFields?.length > 0){ SelectedPDFAttachment = []; }
   else { SelectedPDFAttachment = [...PDFAttachment]; }
-  if(printImages||hasImage){
+  if(hasImage){
     htmlEnd += `<div class="breakBefore"></div>`;
     htmlEnd += `<div class="wrap-imgs">`;
-    htmlEnd += addImages
   }
-
+  htmlEnd += addImages
+  
   if(!printImages && selectedFields?.length > 0){
     for (let pdf of PDFAttachment) {
         for (let field of selectedFields) {
