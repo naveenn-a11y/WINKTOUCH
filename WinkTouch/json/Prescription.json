@@ -1,6 +1,6 @@
 {
   "name": "Prescription",
-  "label": "Medication",
+  "label": "Medical Rx",
   "addable": true,
   "isAssessment": true,
   "order": 2,
@@ -16,6 +16,10 @@
         {
           "name": "Strength",
           "label": "Concentration"
+        },
+        {
+          "name": "Eye",
+          "label": "Oeil"
         },
         {
           "name": "Dosage",
@@ -45,7 +49,7 @@
       ]
     }
   },
-  "cardFields": ["Label", "Strength"],
+  "cardFields": ["Eye", "Label", "Strength"],
   "starable": true,
   "essentialFields": ["Label"],
   "type": "selectionLists",
@@ -62,6 +66,12 @@
       "simpleSelect": true,
       "freestyle": true,
       "options": "medicationStrengthCodes"
+    },
+    {
+      "name": "Eye",
+      "simpleSelect": true,
+      "freestyle": true,
+      "options": ["OD", "OS", "OU"]
     },
     {
       "name": "Dosage",

@@ -2,35 +2,31 @@
  * @flow
  */
 'use strict';
-
+import {Platform} from 'react-native';
 import type {
   FieldDefinition,
   GroupDefinition,
-  FieldDefinitions,
-  ExamPredefinedValue,
   GlassesRx,
-  GlassRx,
   ImageDrawing,
   Visit,
-  ExamDefinition,
   PatientInfo,
   HtmlDefinition,
   ImageBase64Definition,
 } from './Types';
 import {strings} from './Strings';
-import {styles, scaleStyle, fontScale, imageWidth, imageStyle} from './Styles';
 import {
-  formatMoment,
+  scaleStyle,
+  fontScale,
+  imageStyle,
+  defaultFontSize,
+  isWeb,
+} from './Styles';
+import {
   formatDate,
-  now,
   isEmpty,
-  compareDates,
-  dateFormat,
-  yearDateFormat,
   officialDateFormat,
   prefix,
   postfix,
-  cleanUpArray,
   formatDiopter,
   formatDegree,
   getValue,
@@ -40,7 +36,6 @@ import {
 import {formatPrism, hasPrism} from './Refraction';
 import {
   getFieldDefinition as getExamFieldDefinition,
-  getFieldValue as getExamFieldValue,
   getCurrentAction,
   UserAction,
 } from './Exam';
@@ -54,13 +49,8 @@ import RNFS from 'react-native-fs';
 import {line, curveBasis} from 'd3-shape';
 import {fetchUpload, getMimeType, getAspectRatio} from './Upload';
 import {getColumnFieldIndex, hasColumns} from './GroupedForm';
-import {
-  cacheItemById,
-  getCachedItem,
-  cacheItem,
-  getCachedItems,
-} from './DataCache';
-import {getDoctor, getStore} from './DoctorApp';
+import {getCachedItem} from './DataCache';
+import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
 
@@ -98,19 +88,17 @@ export function printPatientHeader(visit: Visit) {
     `        <div>${store.email}</div>` +
     `      </div>` +
     `      <div id="client">` +
-    `        <div><span>${strings.doctor}</span>${doctor.firstName} ${
-      doctor.lastName
-    }</div>` +
-    `        <div><span>${strings.patient}</span>${patient.firstName} ${
-      patient.lastName
-    }</div>` +
-    `        <div><span></span>${postfix(patient.unit, '-') +
+    `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
+    `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
+    `        <div><span></span>${
+      postfix(patient.unit, '-') +
       postfix(patient.streetNumber, ', ') +
       patient.streetName +
       prefix(patient.city, ', ') +
       prefix(patient.province, ', ') +
       prefix(patient.postalCode, ', ') +
-      prefix(patient.country, ', ')}</div>` +
+      prefix(patient.country, ', ')
+    }</div>` +
     `        <div><span></span>${patient.email}</div>` +
     `        <div><span></span>${
       patient.cell ? patient.cell + ' ' : patient.phone
@@ -763,7 +751,7 @@ async function renderField(
       } else {
         html += `<span class="img-wrap" style="width:100%">`;
       }
-      const imageValue = await renderImage(
+      const imageValue = await renderMedia(
         value,
         fieldDefinition,
         groupDefinition,
@@ -804,7 +792,7 @@ function extractImageName(image: string) {
   return value;
 }
 
-async function renderImage(
+async function renderMedia(
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
   groupDefinition: GroupDefinition,
@@ -823,11 +811,14 @@ async function renderImage(
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
+  let isPdf: boolean = false;
   if (image.startsWith('upload-')) {
     upload = await loadImage(value);
 
     if (upload) {
-      filePath = `data:${getMimeType(upload)},${upload.data}`;
+      const mimeType: string = getMimeType(upload);
+      isPdf = mimeType ? mimeType.includes('application/pdf') : false;
+      filePath = `data:${mimeType},${upload.data}`;
       fieldAspectRatio = getAspectRatio(upload);
       style = imageStyle(fieldDefinition.size, fieldAspectRatio);
       html += `<div>${formatLabel(exam.definition)}</div>`;
@@ -855,21 +846,22 @@ async function renderImage(
   }
 
   if (filePath) {
-    const imageValue: string = `<img src="${filePath}" border="1" style="width: ${
-      style.width
-    }pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
-    html += imageValue;
-    if (image.startsWith('./image')) {
-      const base64Image = getBase64Image(image);
+    let imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+    if (!isWeb && image.startsWith('./image')) {
+      const base64Image = await getBase64Image(image);
       if (base64Image) {
         imageBase64Definition.push({
           key: imageValue,
-          value: `<img src="${base64Image.data}" border="1" style="width: ${
-            style.width
-          }pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
+          value: `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
         });
       }
+    } else if (isWeb && image.startsWith('./image')) {
+      const base64Image = await getBase64Image(image);
+      imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+    } else if (isPdf) {
+      imageValue = `<span>${strings.pdfNotSupported}</span>`;
     }
+    html += imageValue;
     let scale: number = style.width / resolutions(value, fieldDefinition)[0];
     html += renderGraph(value, fieldDefinition, style, scale);
 
@@ -899,21 +891,19 @@ async function renderImage(
                 let x = round(
                   (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                     (parentScaledStyle ? parentScaledStyle.left : 0) +
-                    styles.textfield.fontSize,
+                    defaultFontSize,
                 );
                 let y = round(
                   (fieldScaledStyle ? fieldScaledStyle.top : 0) +
                     (parentScaledStyle ? parentScaledStyle.top : 0) +
-                    styles.textfield.fontSize,
+                    defaultFontSize,
                 );
 
-                html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${
-                  style.width
-                }pt; height:${style.height}pt">`;
+                html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
                 html += ` <g transform="scale(0.96 0.98)">`;
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
                 html += ` </g>`;
-                html += `&nbsp;</svg>`;
+                html += `</svg>`;
               }
             }
           },
@@ -951,11 +941,7 @@ function renderGraph(
   if (!value.lines || value.lines.length === 0) return '';
   const strokeWidth: number = round(fontScale / scale);
   const resolution: number[] = resolutions(value, definition);
-  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${
-    resolution[0]
-  } ${resolution[1]}" style="width:${style.width}pt; height:${
-    style.height
-  }pt">`;
+  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${resolution[0]}pt" height="${resolution[1]}pt" style="width:${style.width}pt; height:${style.height}pt">`;
   value.lines.map((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) return '';
     if (lijn.indexOf(' ') > 0) {
@@ -987,7 +973,7 @@ function aspectRatio(value: ImageDrawing, definition: FieldDefinition): number {
 function round(coordinates: any): any {
   try {
     if (isNaN(coordinates)) {
-      return coordinates.replace(/[\d\.-][\d\.e-]*/g, function(n) {
+      return coordinates.replace(/[\d\.-][\d\.e-]*/g, function (n) {
         return Math.round(n * 10) / 10;
       });
     } else {
@@ -1075,9 +1061,7 @@ function renderRxTable(
     html += `<th class="service">NVA</th>`;
   html += `</thead></tr><tbody><tr>`;
 
-  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${
-    strings.od
-  }</td>`;
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.od}</td>`;
   htmlSubItems += `<span>${strings.od}: </span>`;
 
   htmlChildSubItems = `${glassesRx.od ? formatDiopter(glassesRx.od.sph) : ''}`;
@@ -1168,9 +1152,7 @@ function renderRxTable(
   htmlSubItems = '';
   childHtmlDefinition = [];
   html += `<tr>`;
-  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${
-    strings.os
-  }</td>`;
+  html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.os}</td>`;
   htmlChildSubItems = `${glassesRx.os ? formatDiopter(glassesRx.os.sph) : ''}`;
   html += `<td class="desc">${htmlChildSubItems}</td>`;
   htmlSubItems += `<span>${htmlChildSubItems}</span>`;
@@ -1262,9 +1244,7 @@ function renderRxTable(
 
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += `<tr>`;
-    html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${
-      strings.ou
-    }</td>`;
+    html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
     html += `<td class="desc"></td>`;
     html += `<td class="desc"></td>`;
     html += `<td class="desc"></td>`;
@@ -1339,14 +1319,17 @@ function renderRxTable(
 export function patientHeader() {
   let htmlHeader: string =
     `<head><style>` +
-    `@media print {` +
+    `body {` +
+    `  padding:10px;` +
+    `}` +
+    `@media all {` +
     `table { page-break-after:auto;}` +
     `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
     `tr    { page-break-inside:avoid; page-break-after:auto }` +
     `td    { page-break-inside:avoid; page-break-after:auto }` +
     `thead { display:table-header-group }` +
     `tfoot { display:table-footer-group }` +
-    `.xlForm {display: block; page-break-before: always;}` +
+    `.xlForm {display: block; page-break-before: always;` +
     `.scannedFiles {display: block; page-break-before: always;}` +
     `}` +
     `@media screen {` +
@@ -1505,6 +1488,7 @@ export function patientHeader() {
     `  display: block;` +
     `  float: left;` +
     ` margin-top:5px;` +
+    ` margin-bottom:10px;` +
     `}` +
     `.img-wrap svg {` +
     `  position:absolute;` +

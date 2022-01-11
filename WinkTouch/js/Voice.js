@@ -10,7 +10,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Voice from 'react-native-voice';
 import RNBeep from 'react-native-a-beep';
-import {selectionFontColor, recordingFontColor} from './Styles';
+import {selectionFontColor, recordingFontColor, isWeb} from './Styles';
 import {getUserLanguage} from './Strings';
 
 export class Microphone extends PureComponent {
@@ -84,18 +84,20 @@ export class Microphone extends PureComponent {
   }
 
   render() {
-    return (
-      <TouchableWithoutFeedback
-        onPressIn={() => this.startListening()}
-        onPressOut={() => this.stopListening()}>
-        <Icon
-          name="mic"
-          style={this.props.style}
-          color={
-            this.state.isListening ? recordingFontColor : selectionFontColor
-          }
-        />
-      </TouchableWithoutFeedback>
-    );
+    if (isWeb) return null;
+    else
+      return (
+        <TouchableWithoutFeedback
+          onPressIn={() => this.startListening()}
+          onPressOut={() => this.stopListening()}>
+          <Icon
+            name="mic"
+            style={this.props.style}
+            color={
+              this.state.isListening ? recordingFontColor : selectionFontColor
+            }
+          />
+        </TouchableWithoutFeedback>
+      );
   }
 }
