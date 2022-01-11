@@ -3,7 +3,7 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNFS from 'react-native-fs';
 import {PDFDocument, PDFPage} from 'pdf-lib';
 
-export async function printHtml(html: string, PDFAttachment, cb) {
+export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:function=()=>{}) {
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;

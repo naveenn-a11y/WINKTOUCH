@@ -37,12 +37,6 @@ export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:f
   const url = URL.createObjectURL(blob);
 
   cb();
-
-
-  console.log('html :>> ', html);
-
-
-
   x = window.open('');
   x.document.open();
   x.document.write(

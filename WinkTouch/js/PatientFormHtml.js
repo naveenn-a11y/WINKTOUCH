@@ -768,8 +768,6 @@ async function renderField(
       
       if(fieldDefinition.image.startsWith('upload')){
         html += imageValue;
-        console.log('fieldDefinition :>> ', fieldDefinition);
-        console.log('groupDefinition :>> ', groupDefinition);
       }
       else{
       let ImageIndex = '';
@@ -903,7 +901,6 @@ async function renderMedia(
         index: `${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`,
       });
       imageValue = `<span>*Please see annexed document (pdf-${PDFAttachment.length + 1}) at the end of the document.</span>`;
-      console.log('imageValue :>> ', imageValue);
     }
     html += imageValue;
     if(!isPdf) {
