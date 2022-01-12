@@ -36,7 +36,7 @@ export function clearCachedItemById(data: any) {
   if (data.id) {
     cache.delete(data.id);
   } else {
-    cache.delete(id);
+    cache.delete(data);
   }
 }
 

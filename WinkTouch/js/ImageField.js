@@ -147,9 +147,13 @@ export async function loadBase64ImageForWeb(
         format = 'data:image/jpg;base64,';
       }
     } else {
-      format = image.endsWith('jpg')
-        ? 'data:image/jpg;base64,'
-        : 'data:image/png;base64,';
+      if (image.endsWith('pdf')) {
+        format = 'data:application/pdf;base64,';
+      } else if (image.endsWith('jpg')) {
+        format = 'data:image/jpg;base64,';
+      } else {
+        format = 'data:image/png;base64,';
+      }
     }
 
     const path: string = format.concat(response);
@@ -180,6 +184,7 @@ export class ImageField extends Component {
     enableScroll?: () => void,
     disableScroll?: () => void,
     replaceImage?: boolean,
+    forceSync?: boolean,
   };
   state: {
     isActive: boolean,
@@ -285,6 +290,7 @@ export class ImageField extends Component {
     if (this.state.isActive) {
       this.commitEdit();
     }
+
     if (this.state.pdf) {
       this.uploadScreenShot();
     }
@@ -292,7 +298,9 @@ export class ImageField extends Component {
 
   async loadImage() {
     await this.loadImageForWeb();
-
+    if (this.props.forceSync) {
+      this.scheduleScreenShot();
+    }
     this.setState({upload: undefined});
     const imageDrawing: ImageDrawing = this.props.value;
     if (
@@ -614,9 +622,13 @@ export class ImageField extends Component {
   }
 
   async uploadScreenShot() {
-    const pdfFileName: ?string = this.state.pdf;
-    if (!pdfFileName) return;
-    const pdfData: string = await RNFS.readFile(pdfFileName, 'base64');
+    let pdfData: ?string = this.state.pdf;
+    if (!pdfData) return;
+    if (isWeb) {
+      pdfData = pdfData.split(',')[1];
+    } else {
+      pdfData = await RNFS.readFile(pdfData, 'base64');
+    }
     let visitDate: string = getVisit(getCachedItem(this.props.examId)).date;
     let upload: Upload = {
       id: 'upload',
@@ -811,6 +823,7 @@ export class ImageField extends Component {
       this.refs && this.refs.viewShot
         ? await this.refs.viewShot.capture()
         : undefined;
+
     if (fileUri === undefined) {
       const mimeType: string = getMimeType(this.state.upload);
       const isPdf: boolean = mimeType
@@ -898,6 +911,7 @@ export class ImageField extends Component {
 
   async email() {
     const path: string = await this.generatePdf();
+    console.log("Path: " + JSON.stringify(path));
     const patient: PatientInfo = getCachedItem(this.props.patientId);
     const doctorName: string =
       getDoctor().firstName + ' ' + getDoctor().lastName;
@@ -922,11 +936,11 @@ export class ImageField extends Component {
         ),
         body,
         isHTML: true,
-        attachment: {
+        attachments: [{
           path: path,
           type: 'pdf',
           name: fileName,
-        },
+        }],
       },
       (error, event) => {
         error && console.log('Error opening email app:', error);
@@ -963,6 +977,7 @@ export class ImageField extends Component {
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
+
     if (image === undefined || image === 'upload') return undefined;
     if (image === './image/perimetry.png')
       return require('./image/perimetry.png');
@@ -1184,7 +1199,6 @@ export class ImageField extends Component {
         'XL',
         this.aspectRatio(),
       );
-      const scale: number = style.width / this.resolution()[0];
 
       return (
         <TouchableWithoutFeedback onPress={isWeb ? {} : this.commitEdit}>
@@ -1198,29 +1212,38 @@ export class ImageField extends Component {
                   <UpdateTile commitEdit={this.commitEdit} />
                   <RefreshTile commitEdit={this.cancelEdit} />
                 </View>
-                <View
-                  style={styles.solidWhite}
-                  onStartShouldSetResponder={(event) => true}
-                  onResponderGrant={(event) => this.penDown(event, scale)}
-                  onResponderReject={(event) =>
-                    isWeb ? {} : this.setState({isActive: false})
-                  }
-                  onMoveShouldSetResponder={(event) => true}
-                  onResponderTerminationRequest={(event) => false}
-                  onResponderMove={(event) => this.updatePosition(event, scale)}
-                  onResponderRelease={(event) => this.liftPen()}
-                  onResponderTerminate={(event) =>
-                    isWeb ? {} : this.cancelEdit()
-                  }>
-                  <Image source={this.requireImage()} style={style} />
-                  {this.renderGraph(this.state.lines, style, scale)}
-                </View>
+                {this.renderDrawableView()}
               </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
       );
     }
+  }
+
+  renderDrawableView() {
+    const style: {width: number, height: number} = imageStyle(
+      'XL',
+      this.aspectRatio(),
+    );
+    const scale: number = style.width / this.resolution()[0];
+    return (
+      <View
+        style={styles.solidWhite}
+        onStartShouldSetResponder={(event) => true}
+        onResponderGrant={(event) => this.penDown(event, scale)}
+        onResponderReject={(event) =>
+          isWeb ? {} : this.setState({isActive: false})
+        }
+        onMoveShouldSetResponder={(event) => true}
+        onResponderTerminationRequest={(event) => false}
+        onResponderMove={(event) => this.updatePosition(event, scale)}
+        onResponderRelease={(event) => this.liftPen()}
+        onResponderTerminate={(event) => (isWeb ? {} : this.cancelEdit())}>
+        <Image source={this.requireImage()} style={style} />
+        {this.renderGraph(this.state.lines, style, scale)}
+      </View>
+    );
   }
 
   renderIcons() {

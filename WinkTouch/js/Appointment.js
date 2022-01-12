@@ -109,6 +109,13 @@ export async function fetchAppointments(
   cacheItemsById(appointmentTypes);
   cacheItemsById(appointments);
   cacheItemsById(patients);
+  patients.map((patient: PatientInfo) => {
+    let patientAppts: Appointment[] = appointments.filter(
+      (appointment: Appointment) => appointment.patientId === patient.id,
+    );
+
+    cacheItem('appointmentsHistory-' + patient.id, patientAppts);
+  });
 
   return appointments;
 }
@@ -738,6 +745,13 @@ export class AppointmentScreen extends Component {
     this.setState({appointment});
   };
 
+  hasAppointment(): boolean {
+    return (
+      this.state.appointment ||
+      this.props.navigation.state.params.hasAppointment
+    );
+  }
+
   async storeAppointment(appointment: ?Appointment) {
     if (!appointment) return;
     try {
@@ -835,6 +849,7 @@ export class AppointmentScreen extends Component {
           appointmentStateKey={this.props.navigation.state.key}
           enableScroll={this.enableScroll}
           disableScroll={this.disableScroll}
+          hasAppointment={this.hasAppointment()}
         />
       </KeyboardAwareScrollView>
     );

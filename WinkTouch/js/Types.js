@@ -354,6 +354,7 @@ export type FieldDefinition = {
   visible?: boolean,
   isLabel?: boolean,
   limitedValues?: {},
+  forceSync?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];

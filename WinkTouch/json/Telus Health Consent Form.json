@@ -1,0 +1,287 @@
+{
+    "name": "Telus Health Consent Form",
+    "scrollable": true,
+    "card": true,
+    "readonly": true,
+    "type": "groupedForm",
+    "section": "Form.2",
+    "cardGroup": "Telus Health Consent Form",
+    "fields": [
+        {
+            "name": "Telus Health Consent Form Page 1",
+            "label": "",
+            "size": "XL",
+            "fields": [
+                {
+                    "forceSync": true,
+                    "popup": false,
+                    "drawable": true,
+                    "readonly": true,
+                    "name": "Telus Health Consent Form Page 1",
+                    "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1720/telus_consent_retro.jpg",
+                    "label": "",
+                    "resolution": "1700x2200",
+                    "type": "Patient Consent Form",
+                    "size": "XL",
+                    "fields": [
+                        {
+                            "layout": {
+                                "position": "absolute",
+                                "width": 1000,
+                                "justifyContent": "flex-start",
+                                "left": 0,
+                                "top": 0
+                            },
+                            "name": "Form",
+                            "label": "",
+                            "fields": [
+                                {
+                                    "mappedField": "visit.insurance.accountnickname",
+                                    "maxLength": 100,
+                                    "name": "Insurance Account Nickname",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 700,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 423
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "visit.storeAddress",
+                                    "maxLength": 100,
+                                    "name": "Store Address",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 700,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 473
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "visit.store.city",
+                                    "maxLength": 100,
+                                    "name": "Store City",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 400,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 525
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "visit.store.province",
+                                    "maxLength": 100,
+                                    "name": "Store Province",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 560,
+                                        "fontSize": 20,
+                                        "top": 525
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "visit.store.postalcode",
+                                    "maxLength": 100,
+                                    "name": "Store PostalCode",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 200,
+                                        "left": 795,
+                                        "fontSize": 20,
+                                        "top": 525
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.firstName",
+                                    "name": "Patient First Name",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 450,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 605
+                                    },
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.lastName",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 450,
+                                        "left": 560,
+                                        "fontSize": 20,
+                                        "top": 605
+                                    },
+                                    "name": "Patient Last Name",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.primaryInsurer",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 450,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 655
+                                    },
+                                    "name": "Patient Primary Insurer",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.name",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 450,
+                                        "left": 560,
+                                        "fontSize": 20,
+                                        "top": 655
+                                    },
+                                    "name": "Patient Name",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.primaryInsurerPlanNumber",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 700,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 707
+                                    },
+                                    "name": "Patient Primary Insurer Plan Number",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.primaryInsurerAccountNumber",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 700,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 759
+                                    },
+                                    "name": "Patient Primary Insurer Account Number",
+                                    "readonly": true
+                                },
+                                {
+                                    "mappedField": "patient.secondaryInsurer",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 700,
+                                        "left": 85,
+                                        "fontSize": 20,
+                                        "top": 811
+                                    },
+                                    "name": "Patient Secondary Insurer",
+                                    "readonly": true
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Telus Health Consent Form Page 2",
+            "label": "",
+            "size": "XL",
+            "fields": [
+                {
+                    "sync": true,
+                    "popup": false,
+                    "drawable": true,
+                    "name": "Telus Health Consent Form Page 2",
+                    "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1721/telus_consent_verso.jpg",
+                    "label": "",
+                    "resolution": "1700x2200",
+                    "type": "Patient Consent Form",
+                    "size": "XL",
+                    "fields": [
+                        {
+                            "layout": {
+                                "position": "absolute",
+                                "width": 1000,
+                                "justifyContent": "flex-start",
+                                "left": 0,
+                                "top": 0
+                            },
+                            "name": "Form",
+                            "label": "",
+                            "fields": [
+                                {
+                                    "name": "Consent1",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 100,
+                                        "left": 60,
+                                        "fontSize": 20,
+                                        "top": 507
+                                    },
+                                    "normalValue": "No",
+                                    "defaultValue": "No",
+                                    "options": [
+                                        "No",
+                                        "Yes"
+                                    ]
+                                },
+                                {
+                                    "name": "Consent2",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "borderWidth": 0,
+                                        "width": 100,
+                                        "left": 60,
+                                        "fontSize": 20,
+                                        "top": 933
+                                    },
+                                    "normalValue": "No",
+                                    "defaultValue": "No",
+                                    "options": [
+                                        "No",
+                                        "Yes"
+                                    ]
+                                },
+                                {
+                                    "name": "Signed date",
+                                    "mappedField": "visit.examDate",
+                                    "readonly": true,
+                                    "dateFormat": "DD/MM/yyyy",
+                                    "layout": {
+                                        "position": "absolute",
+                                        "top": 995,
+                                        "left": 90,
+                                        "width": 200,
+                                        "borderWidth": 0,
+                                        "fontSize": 21
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
