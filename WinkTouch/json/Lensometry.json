@@ -26,6 +26,7 @@
       "hasLensType": true,
       "hasAdd": true,
       "hasNotes": true,
+      "hasMPD": true,
       "name": "Lensometry",
       "multiValue": true,
       "import": "machine.lensometer.rx",
@@ -36,6 +37,59 @@
           "label": "Lens type",
           "freestyle": true,
           "options": "lensTypeCodes"
+        },
+        {
+          "name": "mpd",
+          "label": "Pupillary Distance",
+          "keyboardEnabled": true,
+          "columns": [
+            [
+              "Far",
+              "Near"
+            ]
+          ],
+          "fields": [
+            {
+              "name": "Far",
+              "fields": [
+                {
+                  "decimals": 1,
+                  "name": "OD",
+                  "freestyle": true
+                },
+                {
+                  "decimals": 1,
+                  "name": "OS",
+                  "freestyle": true
+                },
+                {
+                  "decimals": 1,
+                  "name": "OU",
+                  "freestyle": true
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "fields": [
+                {
+                  "decimals": 1,
+                  "name": "OD",
+                  "freestyle": true
+                },
+                {
+                  "decimals": 1,
+                  "name": "OS",
+                  "freestyle": true
+                },
+                {
+                  "decimals": 1,
+                  "name": "OU",
+                  "freestyle": true
+                }
+              ]
+            }
+          ]
         }
       ]
     },
