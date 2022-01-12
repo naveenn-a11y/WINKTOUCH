@@ -785,7 +785,7 @@ async function renderField(
       }
       index += 1;
       html += imageValue;
-      html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
+      html += `<span class="imageTitle">${exam.definition.name} (${ImageIndex})</span>`;
       html += `</span>`;
       html += isWeb ? `</div>` : ``;
       if (
@@ -793,10 +793,10 @@ async function renderField(
         fieldDefinition.size !== 'M'
       ) {
         largeMedia.push({name: exam?.definition?.name, html});
-        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+        html = `<span>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</span>`;
       } else {
         smallMedia.push({name: exam?.definition?.name, html});
-        html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+        html = `<span>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</span>`;
       }
     }
       return html;
