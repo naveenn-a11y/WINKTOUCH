@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {
   strings,
   getUserLanguage,
@@ -27,16 +27,25 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
+  ecommVersion,
 } from './Version';
 
 const securityQuestionsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationQuestions';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationQuestions';
 const securityQuestionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationEmail?mac=EMRFree&source=touch';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationEmail?mac=EMRFree&source=touch';
 const registrationUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const touchVersionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm/WinkTouchVersion';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();
@@ -276,12 +285,18 @@ export class RegisterScreen extends Component {
   };
 
   render() {
+    const style = isWeb
+      ? [styles.centeredColumnLayout, {alignItems: 'center'}]
+      : styles.centeredColumnLayout;
+    const buttonsRowLayout = isWeb
+      ? [styles.buttonsRowLayout, {flex: 1}]
+      : styles.buttonsRowLayout;
     return (
       <View style={styles.screeen}>
         <StatusBar hidden={true} />
-        <View style={styles.centeredColumnLayout}>
+        <View style={style}>
           <KeyboardAvoidingView behavior="position">
-            <View style={styles.centeredColumnLayout}>
+            <View style={style}>
               <Text style={styles.h1} testID={'screenTitle'}>
                 {strings.registrationScreenTitle}
               </Text>
@@ -290,7 +305,7 @@ export class RegisterScreen extends Component {
                 style={{width: 250 * fontScale, height: 250 * fontScale}}
               />
               {this.state.securityQuestionIndex === undefined && (
-                <View style={styles.centeredColumnLayout}>
+                <View style={style}>
                   <Text style={styles.label}>
                     {strings.enterRegisteredEmail}
                   </Text>
@@ -309,7 +324,7 @@ export class RegisterScreen extends Component {
                       />
                     </View>
                   </View>
-                  <View style={styles.buttonsRowLayout}>
+                  <View style={buttonsRowLayout}>
                     <Button
                       title={strings.connectToPms}
                       onPress={() => this.submitEmail(true)}
@@ -324,7 +339,7 @@ export class RegisterScreen extends Component {
                 </View>
               )}
               {this.state.securityQuestionIndex !== undefined && (
-                <View style={styles.centeredColumnLayout}>
+                <View style={style}>
                   <View>
                     <TouchableOpacity
                       onPress={this.resetRegistration}
@@ -355,7 +370,7 @@ export class RegisterScreen extends Component {
                       testID={'securityAnswerInput'}
                     />
                   </View>
-                  <View style={styles.buttonsRowLayout}>
+                  <View style={buttonsRowLayout}>
                     <Button
                       title={strings.submitSecurityAnswer}
                       onPress={() => this.submitSecurityAnswer()}

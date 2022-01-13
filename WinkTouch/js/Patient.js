@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   LayoutAnimation,
   ScrollView,
+  Platform,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {NavigationActions} from 'react-navigation';
@@ -25,14 +26,14 @@ import type {
   PatientDocument,
   Upload,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {FormRow, FormTextInput, FormInput, FormField, ErrorCard} from './Form';
 import {ExamCardSpecifics} from './Exam';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix} from './Util';
+import {deepClone, formatAge, prefix, isToday} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
 import {Refresh} from './Favorites';
@@ -96,7 +97,11 @@ export class PatientTags extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.patient.id === prevProps.patient.id) return;
+    if (
+      this.props.patient.id === prevProps.patient.id &&
+      this.props.patient.patientTags === prevProps.patient.patientTags
+    )
+      return;
     this.setState(
       {
         patientTags: getCachedItems(this.props.patient.patientTags),
@@ -165,6 +170,7 @@ export class PatientCard extends Component {
     navigate?: string,
     refreshStateKey: string,
     style?: any,
+    hasAppointment?: boolean,
   };
   static defaultProps = {
     navigate: 'patient',
@@ -178,6 +184,7 @@ export class PatientCard extends Component {
           this.props.navigation.navigate(this.props.navigate, {
             patientInfo: this.props.patientInfo,
             refreshStateKey: this.props.refreshStateKey,
+            hasAppointment: this.props.hasAppointment,
           })
         }
         testID="patientContact">
@@ -571,7 +578,7 @@ export class CabinetScreen extends Component {
   async selectPatient(patient: Patient) {
     if (!patient) {
       if (!this.state.patientInfo) return;
-      LayoutAnimation.easeInEaseOut();
+      !isWeb && LayoutAnimation.easeInEaseOut();
       this.setState({patientInfo: undefined, appointments: undefined});
       return;
     } else if (
@@ -580,11 +587,12 @@ export class CabinetScreen extends Component {
     ) {
       this.props.navigation.navigate('appointment', {
         patientInfo: this.state.patientInfo,
+        hasAppointment: this.hasAppointment(),
       }); //TODO: refreshStateKey: this.props.refreshStateKey?
       return;
     }
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({patientInfo, appointments: undefined});
     patientInfo = await fetchPatientInfo(patient.id);
     if (
@@ -604,8 +612,28 @@ export class CabinetScreen extends Component {
       patient.id !== this.state.patientInfo.id
     )
       return;
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({appointments});
+  }
+
+  hasAppointment(): boolean {
+    let todaysAppointments: Appointment[] = [];
+    if (!this.state.appointments && this.state.patientInfo) {
+      const appointments: Appointment[] = getCachedItem(
+        'appointmentsHistory-' + this.state.patientInfo.id,
+      );
+      todaysAppointments = appointments;
+    } else if (this.state.appointments && this.state.appointments.length > 0) {
+      todaysAppointments = this.state.appointments;
+    }
+    if (todaysAppointments) {
+      todaysAppointments = todaysAppointments.filter(
+        (appointment: Appointment) => isToday(appointment.start),
+      );
+      return todaysAppointments && todaysAppointments.length > 0;
+    }
+
+    return false;
   }
 
   newPatient = () => {
@@ -685,6 +713,7 @@ export class CabinetScreen extends Component {
           navigate="appointment"
           navigation={this.props.navigation}
           style={styles.tabCardS}
+          hasAppointment={this.hasAppointment()}
         />
         {this.renderAppointments()}
       </View>

@@ -10,16 +10,19 @@ import {
   Image,
   LayoutAnimation,
   InteractionManager,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import codePush from 'react-native-code-push';
 import {strings, getUserLanguage} from './Strings';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, backgroundColor, isWeb} from './Styles';
 import type {Exam, ExamDefinition, Scene} from './Types';
-import {Button, BackButton, Clock} from './Widgets';
+import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
 import {getAllCodes} from './Codes';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
+import {ModeContext} from '../src/components/Context/ModeContextProvider';
+import {REACT_APP_HOST} from '../env.json';
 
 export class Notifications extends PureComponent {
   render() {
@@ -40,6 +43,30 @@ export class Notifications extends PureComponent {
 export class MenuBar extends PureComponent {
   props: {
     navigation: any,
+    screenProps: {
+      onLogout: () => void,
+    },
+  };
+
+  componentDidMount() {
+    if (isWeb) {
+      document.addEventListener('keydown', this.handleKeyDown);
+      window.onpopstate = () => {
+        this.props.screenProps.onLogout();
+      };
+    }
+  }
+
+  componentWillUnmount() {
+    if (isWeb) {
+      document.removeEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  handleKeyDown = (event) => {
+    if (event && event.keyCode === 37) {
+      this.props.navigation && this.props.navigation.navigate('back');
+    }
   };
 
   extractExamDefinition(exam: Exam): ExamDefinition {
@@ -47,6 +74,7 @@ export class MenuBar extends PureComponent {
     examDefinition.id = exam.id;
     return examDefinition;
   }
+  static contextType = ModeContext;
 
   render() {
     //if (this.props.scene.menuHidden) return null;
@@ -61,7 +89,7 @@ export class MenuBar extends PureComponent {
       <View style={styles.sideMenu}>
         <Image source={require('./image/menulogo.png')} />
         <Button
-          title={strings.agenda}
+          title={strings.calendar}
           onPress={() => this.props.navigation.navigate('agenda')}
         />
         {(scene === 'appointment' || exam) && (
@@ -75,7 +103,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {exam != undefined && exam.definition.graph && (
+        {exam != undefined && exam.definition && exam.definition.graph && (
           <Button
             title={strings.graph}
             onPress={() =>
@@ -121,10 +149,19 @@ export class MenuBar extends PureComponent {
         {__DEV__ && (
           <Button
             title={strings.restart}
-            onPress={() => codePush.restartApp()}
+            onPress={() =>
+              !isWeb
+                ? codePush.restartApp()
+                : window.location.replace(REACT_APP_HOST)
+            }
           />
         )}
         {__DEV__ && <Notifications />}
+
+        <KeyboardMode
+          mode={this.context.keyboardMode}
+          onPress={this.context.toggleMode}
+        />
       </View>
     );
   }
