@@ -53,10 +53,10 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
-let smallMedia:Array<any> = [];
-let largeMedia:Array<any> = [];
-let PDFAttachment:Array<any> = [];
-let SelectedPDFAttachment:Array<any> = [];
+let smallMedia: Array<any> = [];
+let largeMedia: Array<any> = [];
+let PDFAttachment: Array<any> = [];
+let SelectedPDFAttachment: Array<any> = [];
 let index = 0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
@@ -149,7 +149,7 @@ export function renderItemsHtml(
 
     html += `<div class="container">`;
     html += `<div class="BreakBeforeHeader"></div>`;
-    html += `<div class="groupHeader">${value}</div>`;
+    html += `<div class="groupHeader"><div style="margin: auto;">${value}</div></div>`;
     html += `<div class="desc">`;
     let htmlSubItems: string = '';
     let parentDefinitionName = '';
@@ -241,9 +241,9 @@ export async function renderParentGroupHtml(
   } else {
     if (exam.definition.name === 'Consultation summary') {
       if (!isEmpty(exam.resume)) {
-        html += `<div class="groupHeader">${formatLabel(
+        html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
           exam.definition,
-        )}</div>`;
+        )}</div></div>`;
         html += `<div class="desc">`;
         html += `<div style="white-space: pre-line">${exam.resume}</div>`;
         html += `</div>`;
@@ -260,7 +260,9 @@ export async function renderParentGroupHtml(
         html += `</div>`;
         return html;
       }
-      html += `<div class="groupHeader">${formatLabel(exam.definition)}</div>`;
+      html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
+        exam.definition,
+      )}</div></div>`;
       html += `<div class="desc">`;
       html += htmlSubItems;
       html += `</div>`;
@@ -276,10 +278,10 @@ export async function renderParentGroupHtml(
 }
 
 /**
-This Function accepts 2 parameters :
-  * examKey: the key to get the equivalent html value for it
-  * keyMap: contain map key -> html value of the current exam
- */
+ This Function accepts 2 parameters :
+   * examKey: the key to get the equivalent html value for it
+   * keyMap: contain map key -> html value of the current exam
+  */
 async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
   if (examKey === undefined || keyMap === undefined) {
     return '';
@@ -353,9 +355,9 @@ async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
   }
 }
 /**
-This Function receives as parameter html string containing the template text.
-This Function will filter the text containing exam keys and return all keys..
- */
+ This Function receives as parameter html string containing the template text.
+ This Function will filter the text containing exam keys and return all keys..
+  */
 async function retreiveKeys(html: string) {
   let subValue = html.split('{');
   let examKeys: string[] = [];
@@ -765,40 +767,39 @@ async function renderField(
         exam,
       );
       if (isEmpty(imageValue)) return '';
-      
-      if(fieldDefinition.image.startsWith('upload')){
+
+      if (fieldDefinition.image.startsWith('upload')) {
         html += imageValue;
-      }
-      else{
-      let ImageIndex = '';
-      html += isWeb ? `<div class="images-warp">` : '';
-      if (
-        (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
-        fieldDefinition.size !== 'M'
-      ) {
-        html += `<div class="breakBefore"></div>`;
-        html += `<span class="img-wrap" style="width:100%">`;
-        ImageIndex = `L-${index + 1}`;
       } else {
-        html += `<span class="img-wrap s-img" >`;
-        ImageIndex = `S-${index + 1}`;
+        let ImageIndex = '';
+        html += isWeb ? `<div class="images-warp">` : '';
+        if (
+          (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
+          fieldDefinition.size !== 'M'
+        ) {
+          html += `<div class="breakBefore"></div>`;
+          html += `<span class="img-wrap" style="width:100%">`;
+          ImageIndex = `L-${index + 1}`;
+        } else {
+          html += `<span class="img-wrap s-img" >`;
+          ImageIndex = `S-${index + 1}`;
+        }
+        index += 1;
+        html += imageValue;
+        html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
+        html += `</span>`;
+        html += isWeb ? `</div>` : ``;
+        if (
+          (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
+          fieldDefinition.size !== 'M'
+        ) {
+          largeMedia.push({name: exam?.definition?.name, html});
+          html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+        } else {
+          smallMedia.push({name: exam?.definition?.name, html});
+          html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+        }
       }
-      index += 1;
-      html += imageValue;
-      html += `<span class="imageTitle">${exam.definition.name} (${ImageIndex})</span>`;
-      html += `</span>`;
-      html += isWeb ? `</div>` : ``;
-      if (
-        (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
-        fieldDefinition.size !== 'M'
-      ) {
-        largeMedia.push({name: exam?.definition?.name, html});
-        html = `<span>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</span>`;
-      } else {
-        smallMedia.push({name: exam?.definition?.name, html});
-        html = `<span>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</span>`;
-      }
-    }
       return html;
     }
     if (fieldDefinition.type === 'age') {
@@ -900,58 +901,60 @@ async function renderMedia(
         base64: filePath,
         index: `${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`,
       });
-      imageValue = `<span>*Please see annexed document (pdf-${PDFAttachment.length + 1}) at the end of the document.</span>`;
+      imageValue = `<span>*Please see annexed document (pdf-${
+        PDFAttachment.length + 1
+      }) at the end of the document.</span>`;
     }
     html += imageValue;
-    if(!isPdf) {
-    let scale: number = style.width / resolutions(value, fieldDefinition)[0];
-    html += renderGraph(value, fieldDefinition, style, scale);
-    fieldDefinition.fields &&
-      (await Promise.all(
-        fieldDefinition.fields.map(
-          async (childGroupDefinition: GroupDefinition, index: number) => {
-            let parentScaledStyle: Object = undefined;
-            if (childGroupDefinition.layout) {
-              parentScaledStyle = scaleStyle(childGroupDefinition.layout);
-            }
-
-            for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
-              let fieldScaledStyle = undefined;
-              const pfValue = await renderField(
-                childFieldDefinition,
-                childGroupDefinition,
-                exam,
-                getValue(value, childGroupDefinition.name),
-              );
-              if (!isEmpty(pfValue)) {
-                if (childFieldDefinition.layout) {
-                  fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
-                }
-
-                let x = round(
-                  (fieldScaledStyle ? fieldScaledStyle.left : 0) +
-                    (parentScaledStyle ? parentScaledStyle.left : 0) +
-                    defaultFontSize,
-                );
-                let y = round(
-                  (fieldScaledStyle ? fieldScaledStyle.top : 0) +
-                    (parentScaledStyle ? parentScaledStyle.top : 0) +
-                    defaultFontSize,
-                );
-
-                html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += isWeb
-                  ? `<g transform="scale(0.9 0.92)" >`
-                  : ` <g transform="scale(0.96 0.98)" >`;
-                html += `<text x="${x}" y="${y}">${pfValue}</text>`;
-                html += ` </g>`;
-                html += `</svg>`;
+    if (!isPdf) {
+      let scale: number = style.width / resolutions(value, fieldDefinition)[0];
+      html += renderGraph(value, fieldDefinition, style, scale);
+      fieldDefinition.fields &&
+        (await Promise.all(
+          fieldDefinition.fields.map(
+            async (childGroupDefinition: GroupDefinition, index: number) => {
+              let parentScaledStyle: Object = undefined;
+              if (childGroupDefinition.layout) {
+                parentScaledStyle = scaleStyle(childGroupDefinition.layout);
               }
-            }
-          },
-        ),
-      ));
-        }
+
+              for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
+                let fieldScaledStyle = undefined;
+                const pfValue = await renderField(
+                  childFieldDefinition,
+                  childGroupDefinition,
+                  exam,
+                  getValue(value, childGroupDefinition.name),
+                );
+                if (!isEmpty(pfValue)) {
+                  if (childFieldDefinition.layout) {
+                    fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+                  }
+
+                  let x = round(
+                    (fieldScaledStyle ? fieldScaledStyle.left : 0) +
+                      (parentScaledStyle ? parentScaledStyle.left : 0) +
+                      defaultFontSize,
+                  );
+                  let y = round(
+                    (fieldScaledStyle ? fieldScaledStyle.top : 0) +
+                      (parentScaledStyle ? parentScaledStyle.top : 0) +
+                      defaultFontSize,
+                  );
+
+                  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
+                  html += isWeb
+                    ? `<g transform="scale(0.9 0.92)" >`
+                    : ` <g transform="scale(0.96 0.98)" >`;
+                  html += `<text x="${x}" y="${y}">${pfValue}</text>`;
+                  html += ` </g>`;
+                  html += `</svg>`;
+                }
+              }
+            },
+          ),
+        ));
+    }
   }
   if (upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
@@ -1353,7 +1356,7 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader(shouldAddMain: boolean = true,) {
+export function patientHeader(shouldAddMain: boolean = true) {
   let htmlHeader: string =
     `<head><title>Patient File</title><style>` +
     `body {` +
@@ -1517,21 +1520,23 @@ export function patientHeader(shouldAddMain: boolean = true,) {
     '  font-size: 13px;' +
     ' }' +
     '.groupHeader {' +
-    ' padding: 6px 0;' +
+    ' padding-bottom: 16px;' +
+    ' padding-top: 16px;' +
     ' border-top: 1px solid #5D6975;' +
     ' border-bottom: 1px solid #5D6975;' +
     ' color: #5D6975;' +
     ' font-size: 1.4em;' +
-    ' line-height: 1.4em;' +
+    ' line-height: 0.4em;' +
     ' font-weight: normal;' +
     ' text-align: center;' +
-    ' margin: 10px 10px 20px 0;' +
+    ' margin-top: 16px;' +
+    ' margin-bottom: 16px;' +
     ' background: #F5F5F5;' +
-    ' page-break-inside:avoid; ' +
-    ' display:block;' +
     ' box-sizings:border-box;' +
+    ' page-break-inside:avoid;' +
+    ' display:flex;' +
     '}' +
-    `.container {page-break-inside:avoid; page-break-after:auto; }` +
+    `.container {page-break-inside:avoid; page-break-after:inherit;}` +
     '.desc {' +
     '  margin:10px;' +
     '  font-size: 15px;' +
@@ -1555,20 +1560,31 @@ export function patientHeader(shouldAddMain: boolean = true,) {
   htmlHeader += isWeb
     ? '.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
     : `.wrap-imgs{page-break-before: always; } `;
-  if(shouldAddMain){ htmlHeader += `</style></head><body><main>`;}
+  if (shouldAddMain) {
+    htmlHeader += `</style></head><body><main>`;
+  }
   return htmlHeader;
 }
 
-export function patientFooter(printImages: boolean = true, selectedFields:Array<any> = []) {
+export function patientFooter(
+  printImages: boolean = true,
+  selectedFields: Array<any> = [],
+) {
   let htmlEnd: string = ``;
   let addImages: string = ``;
-  let hasImage: boolean = printImages && smallMedia.length>0;
+  let hasImage: boolean = printImages && smallMedia.length > 0;
 
   for (var image of smallMedia) {
     if (printImages) addImages += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name){addImages += image.html; hasImage=true;}
+        if (
+          field.indexOf('Exam') !== -1 &&
+          field.split('.')[1] === image.name
+        ) {
+          addImages += image.html;
+          hasImage = true;
+        }
       }
     }
   }
@@ -1576,28 +1592,36 @@ export function patientFooter(printImages: boolean = true, selectedFields:Array<
     if (printImages) addImages += image.html;
     else if (selectedFields?.length > 0) {
       for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === image.name){addImages += image.html;}
+        if (
+          field.indexOf('Exam') !== -1 &&
+          field.split('.')[1] === image.name
+        ) {
+          addImages += image.html;
+        }
       }
     }
   }
 
-  if(!printImages && selectedFields?.length > 0){ SelectedPDFAttachment = []; }
-  else { SelectedPDFAttachment = [...PDFAttachment]; }
-  if(hasImage){
+  if (!printImages && selectedFields?.length > 0) {
+    SelectedPDFAttachment = [];
+  } else {
+    SelectedPDFAttachment = [...PDFAttachment];
+  }
+  if (hasImage) {
     htmlEnd += `<div class="breakBefore"></div>`;
     htmlEnd += `<div class="wrap-imgs">`;
   }
-  htmlEnd += addImages
-  
-  if(!printImages && selectedFields?.length > 0){
+  htmlEnd += addImages;
+
+  if (!printImages && selectedFields?.length > 0) {
     for (let pdf of PDFAttachment) {
-        for (let field of selectedFields) {
-          if (field.indexOf('Exam') !== -1 && field.split('.')[1] === pdf.name)
+      for (let field of selectedFields) {
+        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === pdf.name)
           SelectedPDFAttachment.push({
-              base64: pdf.base64,
-              index: pdf.index,
+            base64: pdf.base64,
+            index: pdf.index,
           });
-        }
+      }
     }
   }
   htmlEnd += `</div></body></main>`;
@@ -1611,8 +1635,8 @@ export function getVisitHtml(html: string): string {
   initValues();
   return {html: finalHtml, PDFAttachment: Attachments};
 }
-export function getSelectedPDFAttachment():Array<any>{
-  return SelectedPDFAttachment ;
+export function getSelectedPDFAttachment(): Array<any> {
+  return SelectedPDFAttachment;
 }
 export function initValues() {
   imageBase64Definition = [];
