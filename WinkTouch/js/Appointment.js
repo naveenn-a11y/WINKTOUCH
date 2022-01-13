@@ -73,19 +73,28 @@ export async function fetchAppointment(
   return appointment;
 }
 
+export async function fetchEvents(storeId: ?string): Promise<Appointment> {
+  const searchCritera = {storeId: storeId};
+  let restResponse = await searchItems('Appointment/events', searchCritera);
+  let dayEvents: Appointment[] = restResponse.dayEventsList;
+  cacheItemsById(dayEvents);
+  return dayEvents;
+}
 export async function fetchAppointments(
   storeId: ?string,
   doctorId: ?string,
-  maxDays: number,
-  patientId?: string,
+  maxDays: ?number,
+  patientId: ?string,
+  startDate: ?Date = today(),
+  includeDayEvents: ?boolean = false,
 ): Promise<Appointment[]> {
   //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
     storeId: storeId,
     doctorId: doctorId,
     patientId: patientId,
-    startDate: formatDate(today(), jsonDateFormat),
-    maxDays: maxDays.toString(),
+    startDate: formatDate(startDate, jsonDateFormat),
+    maxDays: maxDays ? maxDays.toString() : undefined,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',
@@ -95,14 +104,23 @@ export async function fetchAppointments(
   let patients: PatientInfo[] = restResponse.patientList;
   let appointmentTypes: AppointmentType[] = restResponse.appointmentTypeList;
   let appointments: Appointment[] = restResponse.appointmentList;
+
   cacheItemsById(users);
   cacheItemsById(appointmentTypes);
   cacheItemsById(appointments);
   cacheItemsById(patients);
+  patients.map((patient: PatientInfo) => {
+    let patientAppts: Appointment[] = appointments.filter(
+      (appointment: Appointment) => appointment.patientId === patient.id,
+    );
+
+    cacheItem('appointmentsHistory-' + patient.id, patientAppts);
+  });
+
   return appointments;
 }
 
-class AppointmentTypes extends Component {
+export class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,
     orientation?: string,
@@ -293,7 +311,7 @@ class AppointmentIcon extends Component {
   }
 }
 
-class AppointmentIcons extends Component {
+export class AppointmentIcons extends Component {
   props: {
     appointment: Appointment,
     orientation?: string,
@@ -438,9 +456,7 @@ export class AppointmentsSummary extends Component {
               refreshing={this.state.refreshing}
               onRefresh={() => this.refresh()}
             />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }>
         <View style={styles.topFlow}>
           {this.props.appointments &&
@@ -548,11 +564,7 @@ export class AppointmentDetails extends Component {
 
   getDateFormat(date: ?string): string {
     if (!date) return yearDateFormat;
-    let sameYear: boolean = date.startsWith(
-      now()
-        .getFullYear()
-        .toString(),
-    );
+    let sameYear: boolean = date.startsWith(now().getFullYear().toString());
     return sameYear ? dayDateTime24Format : dayYearDateTime24Format;
   }
 
@@ -733,6 +745,13 @@ export class AppointmentScreen extends Component {
     this.setState({appointment});
   };
 
+  hasAppointment(): boolean {
+    return (
+      this.state.appointment ||
+      this.props.navigation.state.params.hasAppointment
+    );
+  }
+
   async storeAppointment(appointment: ?Appointment) {
     if (!appointment) return;
     try {
@@ -830,6 +849,7 @@ export class AppointmentScreen extends Component {
           appointmentStateKey={this.props.navigation.state.key}
           enableScroll={this.enableScroll}
           disableScroll={this.disableScroll}
+          hasAppointment={this.hasAppointment()}
         />
       </KeyboardAwareScrollView>
     );

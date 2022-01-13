@@ -77,7 +77,7 @@
     }
   },
   "cardFields": [],
-  "starable": false,
+  "starable": true,
   "type": "selectionLists",
   "section": "History.41",
   "editable": true,
