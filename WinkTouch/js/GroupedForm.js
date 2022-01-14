@@ -580,7 +580,7 @@ export class GroupedCard extends Component {
     fieldDefinition: FieldDefinition,
     showLabel: boolean,
     groupIndex: number,
-    column?: string = undefined,
+    column: ?string = undefined,
   ) {
     if (column === '>>') {
       return null;
@@ -818,7 +818,7 @@ export class GroupedCard extends Component {
   renderSimpleRow(
     groupDefinition: GroupDefinition,
     fieldDefinition: FieldDefinition,
-    groupIndex?: number = 0,
+    groupIndex: ?number = 0,
   ) {
     const showLabel: boolean = true;
     return this.renderField(
@@ -837,7 +837,7 @@ export class GroupedCard extends Component {
     );
   }
 
-  renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
+  renderRows(groupDefinition: GroupDefinition, groupIndex: ?number = 0) {
     let rows: any[] = [];
 
     for (
@@ -2216,6 +2216,7 @@ export class GroupedFormScreen extends Component<
             hasAdd={groupDefinition.hasAdd}
             hasLensType={groupDefinition.hasLensType}
             hasPD={groupDefinition.hasPD}
+            hasMPD={groupDefinition.hasMPD}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -2294,6 +2295,7 @@ export class GroupedFormScreen extends Component<
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2320,6 +2322,7 @@ export class GroupedFormScreen extends Component<
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
