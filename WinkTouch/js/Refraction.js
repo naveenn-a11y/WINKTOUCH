@@ -19,15 +19,13 @@ import type {
   Patient,
   Exam,
   GroupDefinition,
-  FieldDefinition,
   GlassRx,
   Prism,
   Visit,
   Measurement,
   User,
-  Configuration,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles} from './Styles';
 import {strings} from './Strings';
 import {
   NumberField,
@@ -38,7 +36,6 @@ import {
   Alert,
   NoAccess,
 } from './Widgets';
-import {Anesthetics} from './EyeTest';
 import {
   formatDegree,
   formatDiopter,
@@ -50,10 +47,8 @@ import {
   isToyear,
   now,
   jsonDateTimeFormat,
-  jsonDateFormat,
   prefix,
   postfix,
-  parseDate,
 } from './Util';
 import {FormInput} from './Form';
 import {getFieldDefinition, filterFieldDefinition, formatLabel} from './Items';
@@ -62,7 +57,6 @@ import {
   formatCode,
   formatAllCodes,
   parseCode,
-  getAllCodes,
 } from './Codes';
 import {getVisitHistory, fetchVisitHistory} from './Visit';
 import {
@@ -78,9 +72,6 @@ import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient, getExam} from './Exam';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
-
-import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
-import {GroupedForm} from './GroupedForm';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
