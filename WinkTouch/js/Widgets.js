@@ -65,7 +65,6 @@ import {
   addDays,
   formatAge,
   isEmpty,
-  insertNewlines,
   postfix,
 } from './Util';
 import {Camera} from './Favorites';
@@ -324,7 +323,6 @@ export class TextField extends Component {
   }
 
   commitEdit(value: string) {
-    this.setState({value});
     if (this.props.onChangeValue && value !== this.props.value)
       this.props.onChangeValue(value);
   }
@@ -337,9 +335,6 @@ export class TextField extends Component {
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({value: text});
   };
 
@@ -370,7 +365,7 @@ export class TextField extends Component {
             style={style}
             onFocus={this.props.onFocus}
             onChangeText={this.updateText}
-            onBlur={(event) => this.commitEdit(event.nativeEvent.text)}
+            onBlur={() => this.commitEdit(this.state.value)}
             autoFocus={this.props.autoFocus}
             editable={!this.props.readonly}
             multiline={this.props.multiline}
@@ -387,7 +382,7 @@ export class TextField extends Component {
             style={style}
             onFocus={this.props.onFocus}
             onChangeText={this.updateText}
-            onEndEditing={(event) => this.commitEdit(event.nativeEvent.text)}
+            onEndEditing={() => this.commitEdit(this.state.value)}
             autoFocus={this.props.autoFocus}
             editable={!this.props.readonly}
             multiline={this.props.multiline}
@@ -3167,7 +3162,6 @@ export class SelectionList extends React.PureComponent {
       }
     } else if (this.props.selection) {
       let selection: string = stripSelectionPrefix(this.props.selection);
-
       if (!this.props.items.includes(selection)) {
         data = [].concat(this.props.items);
         data.unshift(selection);
@@ -3195,7 +3189,7 @@ export class SelectionList extends React.PureComponent {
       this.state.filter.length > 0
     )
       data.push(this.state.filter);
-    if (data === undefined) data = this.props.items;
+    if (data === undefined) data = [].concat(this.props.items);
     return data;
   }
 

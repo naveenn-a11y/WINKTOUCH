@@ -224,6 +224,21 @@ export function setMappedFieldValue(
   } else if (fieldSrc[0] === 'clFitting') {
     //TODO: we can ignore clFitting for now
     return;
+  } else if (fieldSrc[0] === 'patient') {
+    //TODO: Support other patient Mapped Fields
+    __DEV__ && console.log('Setting ' + fieldIdentifier + ' to ' + value);
+    let patientIdentifier = fieldIdentifier.substring(8);
+    let patient = getPatient(exam);
+    patient = deepClone(patient);
+    if (!patient) return undefined;
+    if (patientIdentifier.includes('patientTag')) {
+      if (!patient.patientTags) {
+        Object.assign(patient, {
+          patientTags: [],
+        });
+      }
+    }
+    cacheItemById(patient);
   } else {
     __DEV__ &&
       console.error(
@@ -1041,10 +1056,10 @@ export class ExamScreen extends Component {
     );
   }
 
-  renderExamIcons() {
+  renderExamIcons(style: any) {
     if (this.state.exam.definition.card === false) return;
     return (
-      <View style={isWeb ? styles.examIconsFlex : styles.examIcons}>
+      <View style={style}>
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
         {this.renderPencilIcon()}
@@ -1081,7 +1096,10 @@ export class ExamScreen extends Component {
   }
 
   render() {
-    if (this.state.exam.definition.scrollable === true)
+    if (
+      this.state.exam.definition.scrollable === true ||
+      this.state.exam.definition.type === 'groupedForm'
+    )
       return (
         <KeyboardAwareScrollView
           style={styles.page}
@@ -1094,7 +1112,7 @@ export class ExamScreen extends Component {
           }
           pinchGestureEnabled={this.state.scrollable}>
           <ErrorCard errors={this.state.exam.errors} />
-          {this.renderExamIcons()}
+          {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </KeyboardAwareScrollView>
@@ -1103,21 +1121,24 @@ export class ExamScreen extends Component {
       return (
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
+          {isWeb && this.renderExamIcons(styles.examIconsFlex)}
           {this.renderRelatedExams()}
           {this.renderExam()}
-          {this.renderExamIcons()}
+          {!isWeb && this.renderExamIcons(styles.examIcons)}
         </View>
       );
     return (
       <KeyboardAwareScrollView
+        style={styles.page}
         contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
         scrollEnabled={isWeb}>
-        {this.renderExamIcons()}
+        {isWeb && this.renderExamIcons(styles.examIconsFlex)}
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
+        {!isWeb && this.renderExamIcons(styles.examIcons)}
       </KeyboardAwareScrollView>
     );
   }

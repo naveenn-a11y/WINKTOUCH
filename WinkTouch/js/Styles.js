@@ -292,7 +292,8 @@ export const styles = StyleSheet.create({
   picker: {
     padding: 10 * fontScale,
     borderColor: 'gray',
-    borderWidth: 0,
+    borderWidth: 1 * fontScale,
+    borderRadius: 6 * fontScale,
   },
   button: {
     padding: 16 * fontScale,
@@ -950,6 +951,11 @@ export const styles = StyleSheet.create({
     bottom: 15 * fontScale,
     right: 8 * fontScale,
   },
+  topRight: {
+    position: 'absolute',
+    right: 8 * fontScale,
+    top: 10 * fontScale,
+  },
   listRow: {
     flex: 10,
     flexDirection: 'row',
@@ -1077,7 +1083,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   examIconsFlex: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
@@ -1324,13 +1329,11 @@ function boardStyle(
       ? 340
       : 340;
   return {
-    flex: isWeb ? 100 : 0,
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
-    maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
     maxHeight:
       isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
@@ -1345,6 +1348,8 @@ function boardStyle(
       height: 0.3,
       width: 0.3,
     },
+    flexGrow: 1,
+    flexShrink: 1,
   };
 }
 
@@ -1358,6 +1363,8 @@ export function imageWidth(size: string): number {
       ? 520
       : size === 'S'
       ? 340
+      : size === 'XS'
+      ? 130
       : 340;
   return width;
 }

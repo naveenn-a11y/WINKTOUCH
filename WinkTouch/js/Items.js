@@ -20,8 +20,9 @@ import type {
   GroupDefinition,
   FieldDefinitions,
   ExamPredefinedValue,
-  GlassesRx, Prescription,
-} from "./Types";
+  GlassesRx,
+  Prescription,
+} from './Types';
 import {strings} from './Strings';
 import {styles, selectionColor, fontScale, scaleStyle, isWeb} from './Styles';
 import {
@@ -31,8 +32,9 @@ import {
   SelectionList,
   stripSelectionPrefix,
   selectionPrefix,
-  FloatingButton, NoAccess,
-} from "./Widgets";
+  FloatingButton,
+  NoAccess,
+} from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {
   formatDate,
@@ -185,6 +187,7 @@ export function formatFieldValue(
   value: ?string | ?number | ?(string[]) | ?(number[]),
   fieldDefinition: FieldDefinition,
 ): string {
+  if (fieldDefinition === undefined) return '';
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }
@@ -293,12 +296,11 @@ export function formatFieldLabel(
   groupDefinition: GroupDefinition,
   groupValue: any,
 ): string {
-  const customDefinition:
-    | ?GroupDefinition
-    | FieldDefinition = groupDefinition.fields.find(
-    (definition: GroupDefinition | FieldDefinition) =>
-      definition.isLabel === true,
-  );
+  const customDefinition: ?GroupDefinition | FieldDefinition =
+    groupDefinition.fields.find(
+      (definition: GroupDefinition | FieldDefinition) =>
+        definition.isLabel === true,
+    );
 
   let label: string = formatLabel(groupDefinition);
   if (customDefinition) {
@@ -400,7 +402,6 @@ function constructItemView(
   titleFields?: string[],
   showLabels: boolean = false,
 ) {
-
   switch (itemView) {
     case 'EditableItem':
       return (
@@ -432,13 +433,13 @@ function constructItemView(
 }
 
 type ItemSummaryProps = {
-    item: any,
-    fieldDefinitions: ?(FieldDefinition[]),
-    editable?: boolean,
-    orientation?: string,
-    showLabels?: boolean,
+  item: any,
+  fieldDefinitions: ?(FieldDefinition[]),
+  editable?: boolean,
+  orientation?: string,
+  showLabels?: boolean,
   titleFields?: string[],
-  };
+};
 class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
@@ -447,19 +448,24 @@ class ItemSummary extends Component<ItemSummaryProps> {
     if (this.props.item?.noaccess) {
       const itemKeys = Object.keys(this.props.item);
       let formattedValue: string = '';
-      this.props.titleFields && this.props.titleFields.forEach((fieldName: string) => {
+      this.props.titleFields &&
+        this.props.titleFields.forEach((fieldName: string) => {
           if (itemKeys.indexOf(fieldName) !== -1) {
             let fieldValue = this.props.item[fieldName];
             if (!isEmpty(fieldValue)) {
-              let fieldDefinition: ?FieldDefinition = this.props.fieldDefinitions.find(fieldDefinition => fieldDefinition.name === fieldName);
+              let fieldDefinition: ?FieldDefinition =
+                this.props.fieldDefinitions.find(
+                  (fieldDefinition) => fieldDefinition.name === fieldName,
+                );
               if (fieldDefinition) {
-                formattedValue += formatFieldValue(fieldValue, fieldDefinition) + ' ';
+                formattedValue +=
+                  formatFieldValue(fieldValue, fieldDefinition) + ' ';
               } else {
                 formattedValue += fieldValue.toString();
               }
             }
           }
-      });
+        });
       return <NoAccess prefix={formattedValue} />;
     }
     if (this.props.orientation !== 'horizontal') {
@@ -642,12 +648,11 @@ export class ItemsCard extends Component {
       ) {
         return false;
       }
-      const fieldDefinition:
-        | ?GroupDefinition
-        | FieldDefinition = this.props.exam.definition.fields.find(
-        (fieldDefinition: GroupDefinition | FieldDefinition) =>
-          fieldDefinition.name === field,
-      );
+      const fieldDefinition: ?GroupDefinition | FieldDefinition =
+        this.props.exam.definition.fields.find(
+          (fieldDefinition: GroupDefinition | FieldDefinition) =>
+            fieldDefinition.name === field,
+        );
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
@@ -680,12 +685,11 @@ export class ItemsCard extends Component {
           if (this.props.exam.definition.fields === undefined) {
             return null;
           }
-          const fieldDefinition:
-            | ?GroupDefinition
-            | FieldDefinition = this.props.exam.definition.fields.find(
-            (fieldDefinition: GroupDefinition | FieldDefinition) =>
-              fieldDefinition.name === field,
-          );
+          const fieldDefinition: ?GroupDefinition | FieldDefinition =
+            this.props.exam.definition.fields.find(
+              (fieldDefinition: GroupDefinition | FieldDefinition) =>
+                fieldDefinition.name === field,
+            );
           if (fieldDefinition === null || fieldDefinition === undefined) {
             return null;
           }
@@ -995,9 +999,8 @@ export class ItemsEditor extends Component {
       (fieldDefinition: FieldDefinition) =>
         fieldDefinition.name === propertyName,
     );
-    const fieldDefinition: ?FieldDefinition = this.props.fieldDefinitions[
-      fieldIndex
-    ];
+    const fieldDefinition: ?FieldDefinition =
+      this.props.fieldDefinitions[fieldIndex];
     if (fieldDefinition === undefined || fieldDefinition === null) {
       return;
     }
