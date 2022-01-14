@@ -1602,7 +1602,7 @@ export class GlassesDetail extends Component {
             </View>
           )}
           {this.props.hasMPD && (
-            <View>
+            <View style={styles.centeredColumnLayout}>
               <Label
                 suffix=""
                 style={this.props.titleStyle}
