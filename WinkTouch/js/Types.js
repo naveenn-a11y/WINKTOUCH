@@ -203,6 +203,8 @@ export type GlassRx = {
   va?: string,
   addVA?: string,
   isEye?: boolean,
+  closePD?: number,
+  farPD?: number,
 };
 
 export type GlassesRx = {
