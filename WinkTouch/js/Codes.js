@@ -11,7 +11,7 @@ import type {
 } from './Types';
 import {strings, getUserLanguage} from './Strings';
 import {
-  restUrl,
+  getRestUrl,
   handleHttpError,
   searchItems,
   getNextRequestNumber,
@@ -203,7 +203,7 @@ export async function fetchCodeDefinitions(
   if (accountId === undefined) return undefined;
   const requestNr: number = getNextRequestNumber();
   const url =
-    restUrl +
+    getRestUrl() +
     'Code/' +
     (codeName ? codeName + '/' : '') +
     'list?accountId=' +

@@ -49,6 +49,7 @@ export type Account = {
   email: string,
   stores: Store[],
   isDemo: boolean,
+  extraFields: any,
 };
 
 export type User = {
@@ -352,6 +353,8 @@ export type FieldDefinition = {
   sync?: boolean,
   visible?: boolean,
   isLabel?: boolean,
+  limitedValues?: {},
+  forceSync?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
