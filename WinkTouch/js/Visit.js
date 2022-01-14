@@ -104,7 +104,7 @@ import {isReferralsEnabled} from './Referral';
 import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import {BillingCard} from './Visit/Partials';
-import {getExamRoom, updateExamRoom} from './Room';
+import {getExamRoom, getExamRoomCode, updateExamRoom} from './Room';
 
 export const examSections: string[] = [
   'Amendments',
@@ -766,15 +766,8 @@ export class StartVisitButtons extends Component<
   };
 
   getExamRoom(): CodeDefinition {
-    const examRoom: ExamRoom = getExamRoom(this.props.patientInfo.id);
-    if (examRoom === undefined) {
-      return;
-    }
-    const examRoomCode: CodeDefinition = getCodeDefinition(
-      'examRooms',
-      stripDataType(examRoom.examRoomId),
-    );
-    return examRoomCode;
+    const examRoom: CodeDefinition = getExamRoomCode(this.props.patientInfo.id);
+    return examRoom;
   }
 
   render() {

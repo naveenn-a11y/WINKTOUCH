@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {PureComponent} from 'react';
@@ -15,7 +16,7 @@ import {
 import codePush from 'react-native-code-push';
 import {strings, getUserLanguage} from './Strings';
 import {styles, fontScale, backgroundColor, isWeb} from './Styles';
-import type {Exam, ExamDefinition, Scene} from './Types';
+import type {Exam, ExamDefinition, PatientInfo, Scene} from './Types';
 import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
 import {getAllCodes} from './Codes';
@@ -82,6 +83,10 @@ export class MenuBar extends PureComponent {
       this.props.navigation.state &&
       this.props.navigation.state.params &&
       this.props.navigation.state.params.exam;
+    const patient: ?PatientInfo =
+      this.props.navigation.state &&
+      this.props.navigation.state.params &&
+      this.props.navigation.state.params.patientInfo;
     const scene: ?string =
       this.props.navigation.state && this.props.navigation.state.routeName;
     const hasConfig: boolean = getPhoropters().length > 1;
@@ -100,6 +105,14 @@ export class MenuBar extends PureComponent {
                 showAppointments: false,
                 showBilling: true,
               })
+            }
+          />
+        )}
+        {scene === 'appointment' && patient && (
+          <Button
+            title={strings.room}
+            onPress={() =>
+              this.props.navigation.navigate('room', {patient: patient})
             }
           />
         )}
@@ -131,7 +144,7 @@ export class MenuBar extends PureComponent {
         )}
         {(isAtWink || __DEV__) &&
           scene === 'overview' &&
-          'en-CA' === getUserLanguage() && (
+          getUserLanguage() === 'en-CA' && (
             <Button
               title={strings.customisation}
               onPress={() => this.props.navigation.navigate('customisation')}
