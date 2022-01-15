@@ -35,9 +35,11 @@ export async function fetchExamRoom(patientId: string): ExamRoom {
 export async function updateExamRoom(examRoom: ExamRoom): ExamRoom {
   const currentExamRoom: ExamRoom = getExamRoom(examRoom.patientId);
   if (
-    currentExamRoom !== undefined &&
-    (currentExamRoom.examRoomId !== examRoom.examRoomId ||
-      currentExamRoom.patientId !== examRoom.patientId)
+    currentExamRoom === undefined ||
+    (currentExamRoom !== undefined &&
+      (currentExamRoom.examRoomId !== examRoom.examRoomId ||
+        currentExamRoom.patientId !== examRoom.patientId ||
+        currentExamRoom.inactive !== examRoom.inactive))
   ) {
     examRoom = await storeItem(examRoom);
   }
