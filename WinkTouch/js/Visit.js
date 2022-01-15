@@ -749,11 +749,17 @@ export class StartVisitButtons extends Component<
 
   selectExamRoom = (examRoom: ?CodeDefinition) => {
     this.setState({isExamRoomOptionsVisible: false});
-    if (examRoom.code) {
+    let inactive: boolean = false;
+    if (!examRoom || !examRoom.code) {
+      examRoom = this.getExamRoom();
+      inactive = true;
+    }
+    if (examRoom && examRoom.code) {
       const examRoomPatient: ExamRoom = {
         id: 'room-' + examRoom.code,
         patientId: this.props.patientInfo.id,
         examRoomId: 'room-' + examRoom.code,
+        inactive: inactive,
       };
       updateExamRoom(examRoomPatient);
     }

@@ -7,6 +7,7 @@ import {GroupedForm} from './GroupedForm';
 import React, {Component} from 'react';
 import {View} from 'react-native';
 import {getCodeDefinition} from './Codes';
+import {isEmpty} from './Util';
 
 const roomScreenDefinition = {
   name: 'Exam Room',
@@ -32,7 +33,14 @@ export async function fetchExamRoom(patientId: string): ExamRoom {
 }
 
 export async function updateExamRoom(examRoom: ExamRoom): ExamRoom {
-  examRoom = await storeItem(examRoom);
+  const currentExamRoom: ExamRoom = getExamRoom(examRoom.patientId);
+  if (
+    currentExamRoom !== undefined &&
+    (currentExamRoom.examRoomId !== examRoom.examRoomId ||
+      currentExamRoom.patientId !== examRoom.patientId)
+  ) {
+    examRoom = await storeItem(examRoom);
+  }
   return examRoom;
 }
 
@@ -78,6 +86,7 @@ export class RoomScreen extends Component {
     if (examRoom === undefined || examRoom === null) {
       return;
     }
+
     if (examRoom.code) {
       const examRoomPatient: ExamRoom = {
         id: 'room-' + examRoom.code,
