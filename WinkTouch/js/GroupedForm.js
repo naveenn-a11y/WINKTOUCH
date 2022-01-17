@@ -1256,11 +1256,15 @@ export class GroupedForm extends Component {
     ) {
       return;
     }
-    const defaultValue: string = getDefaultValue(fieldDefinition);
-    if (defaultValue !== undefined) {
-      this.props.onChangeField(fieldDefinition.name, defaultValue);
+    const value: string = getDefaultValue(fieldDefinition);
+    if (
+      value &&
+      fieldDefinition.defaultValue.startsWith('[') &&
+      fieldDefinition.defaultValue.endsWith(']')
+    ) {
+      this.props.onChangeField(fieldDefinition.name, value);
     }
-    return getDefaultValue(fieldDefinition);
+    return value;
   }
 
   renderAlert() {
