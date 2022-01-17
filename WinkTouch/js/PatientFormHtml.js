@@ -786,18 +786,19 @@ async function renderField(
         }
         index += 1;
         html += imageValue;
-        html += `<span class="imageTitle">${fieldDefinition.name} (${ImageIndex})</span>`;
+        html += `<span class="imageTitle">${exam.definition.name} (${ImageIndex})</span>`;
         html += `</span>`;
         html += isWeb ? `</div>` : ``;
         if (
           (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
           fieldDefinition.size !== 'M'
         ) {
-          largeMedia.push({name: exam?.definition?.name, html});
-          html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+          largeMedia.push({name: exam?.definition?.name, html,index:ImageIndex});
+          html = `<code index=${ImageIndex}>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+         
         } else {
-          smallMedia.push({name: exam?.definition?.name, html});
-          html = `<span>*Please see annexed image (${ImageIndex}) at the end of the document.</span>`;
+          smallMedia.push({name: exam?.definition?.name, html,index:ImageIndex});
+          html = `<code index=${ImageIndex}>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
         }
       }
       return html;
@@ -896,14 +897,15 @@ async function renderMedia(
       const base64Image = await getBase64Image(image);
       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
+      let PdfIdentifier:string =`${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`;
       PDFAttachment.push({
         name: exam?.definition?.name,
         base64: filePath,
-        index: `${fieldDefinition.name}(pdf-${PDFAttachment.length + 1})`,
+        index: PdfIdentifier,
       });
-      imageValue = `<span>*Please see annexed document (pdf-${
+      imageValue = `<code index="${PdfIdentifier}">*Please see annexed document (pdf-${
         PDFAttachment.length + 1
-      }) at the end of the document.</span>`;
+      }) at the end of the document.</code>`;
     }
     html += imageValue;
     if (!isPdf) {
@@ -1568,7 +1570,7 @@ export function patientHeader(shouldAddMain: boolean = true) {
 
 export function patientFooter(
   printImages: boolean = true,
-  selectedFields: Array<any> = [],
+  selectedAttachments: Array<any> = [],
 ) {
   let htmlEnd: string = ``;
   let addImages: string = ``;
@@ -1576,33 +1578,22 @@ export function patientFooter(
 
   for (var image of smallMedia) {
     if (printImages) addImages += image.html;
-    else if (selectedFields?.length > 0) {
-      for (let field of selectedFields) {
-        if (
-          field.indexOf('Exam') !== -1 &&
-          field.split('.')[1] === image.name
-        ) {
-          addImages += image.html;
-          hasImage = true;
-        }
+    else if (selectedAttachments?.length > 0) {
+      for (let AttachmentIndex of selectedAttachments) {
+        if (AttachmentIndex === image.index) {addImages += image.html;hasImage = true;}
       }
     }
   }
   for (var image of largeMedia) {
     if (printImages) addImages += image.html;
-    else if (selectedFields?.length > 0) {
-      for (let field of selectedFields) {
-        if (
-          field.indexOf('Exam') !== -1 &&
-          field.split('.')[1] === image.name
-        ) {
-          addImages += image.html;
-        }
+    else if (selectedAttachments?.length > 0) {
+      for (let AttachmentIndex of selectedAttachments) {
+        if (AttachmentIndex === image.index){addImages += image.html;}
       }
     }
   }
 
-  if (!printImages && selectedFields?.length > 0) {
+  if (!printImages &&  selectedAttachments?.length > 0) {
     SelectedPDFAttachment = [];
   } else {
     SelectedPDFAttachment = [...PDFAttachment];
@@ -1613,10 +1604,10 @@ export function patientFooter(
   }
   htmlEnd += addImages;
 
-  if (!printImages && selectedFields?.length > 0) {
+  if (!printImages &&  selectedAttachments?.length > 0) {
     for (let pdf of PDFAttachment) {
-      for (let field of selectedFields) {
-        if (field.indexOf('Exam') !== -1 && field.split('.')[1] === pdf.name)
+      for (let AttachmentIndex of selectedAttachments) {
+        if (AttachmentIndex === pdf.index)
           SelectedPDFAttachment.push({
             base64: pdf.base64,
             index: pdf.index,

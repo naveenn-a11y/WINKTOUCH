@@ -458,8 +458,15 @@ export class ReferralScreen extends Component<
 
   async print(): Promise<void> {
     let html = await this.editor.getContent();
+    let wrapper = document.createElement('div');
+    wrapper.innerHTML= html;
+    let AttachmentsIndexes = []
+    for(let elem of wrapper.querySelectorAll('code')){
+      const identifier:string = elem.getAttribute("index")
+      if(AttachmentsIndexes.indexOf(identifier)===-1)AttachmentsIndexes.push(identifier)
+    }
     let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter(false,this.selectedFields);
+    let htmlEnd: string = patientFooter(false,AttachmentsIndexes);
     let PDFAttachment:Array<any> = getSelectedPDFAttachment();
     html = htmlHeader + html + htmlEnd;
     const job = await printHtml(html,PDFAttachment);
