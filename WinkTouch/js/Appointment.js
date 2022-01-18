@@ -147,8 +147,9 @@ export class AppointmentTypes extends Component {
                 appointmentType === undefined ||
                 appointmentType.color === undefined ||
                 appointmentType.color === null
-              )
+              ) {
                 return null;
+              }
               return (
                 <View
                   style={{
@@ -174,7 +175,7 @@ class AppointmentIcon extends Component {
   };
   render() {
     const boxSize: number = 22 * fontScale;
-    if ('invoiced' === this.props.name)
+    if (this.props.name === 'invoiced') {
       return (
         <Image
           source={require('./image/calendar/paidx2.png')}
@@ -186,7 +187,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('lastNoShow' === this.props.name)
+    } else if (this.props.name === 'lastNoShow') {
       return (
         <Image
           source={require('./image/calendar/lastNoShowx2.png')}
@@ -198,7 +199,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('existingPatient' === this.props.name)
+    } else if (this.props.name === 'existingPatient') {
       return (
         <Image
           source={require('./image/calendar/existingPatientx2.png')}
@@ -210,7 +211,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('newPatient' === this.props.name)
+    } else if (this.props.name === 'newPatient') {
       return (
         <Image
           source={require('./image/calendar/newPatientx2.png')}
@@ -222,7 +223,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('leftWithRx' === this.props.name)
+    } else if (this.props.name === 'leftWithRx') {
       return (
         <Image
           source={require('./image/calendar/leftWithRxx2.png')}
@@ -234,7 +235,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('unconfirmed' === this.props.name)
+    } else if (this.props.name === 'unconfirmed') {
       return (
         <Image
           source={require('./image/calendar/unconfirmedx2.png')}
@@ -246,7 +247,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('confirmed' === this.props.name)
+    } else if (this.props.name === 'confirmed') {
       return (
         <Image
           source={require('./image/calendar/confirmedx2.png')}
@@ -258,7 +259,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('noShow' === this.props.name)
+    } else if (this.props.name === 'noShow') {
       return (
         <Image
           source={require('./image/calendar/noShowx2.png')}
@@ -270,7 +271,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('waiting' === this.props.name)
+    } else if (this.props.name === 'waiting') {
       return (
         <Image
           source={require('./image/calendar/waitingx2.png')}
@@ -282,7 +283,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('completed' === this.props.name)
+    } else if (this.props.name === 'completed') {
       return (
         <Image
           source={require('./image/calendar/completedx2.png')}
@@ -294,7 +295,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('family' === this.props.name)
+    } else if (this.props.name === 'family') {
       return (
         <Image
           source={require('./image/calendar/familyx2.png')}
@@ -306,7 +307,9 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if (__DEV__) return <Text style={styles.text}>{this.props.name}</Text>;
+    } else if (__DEV__) {
+      return <Text style={styles.text}>{this.props.name}</Text>;
+    }
     return null;
   }
 }
@@ -324,8 +327,9 @@ export class AppointmentIcons extends Component {
       !this.props.appointment ||
       !this.props.appointment.indicators ||
       this.props.appointment.indicators.length == 0
-    )
+    ) {
       return null;
+    }
     const isHorizontal: boolean = this.props.orientation === 'horizontal';
     return (
       <View
@@ -487,7 +491,9 @@ export class AppointmentTitle extends Component {
   };
 
   render() {
-    if (!this.props.appointment || !this.props.appointment.id) return null;
+    if (!this.props.appointment || !this.props.appointment.id) {
+      return null;
+    }
     const date: string = this.props.appointment.start;
     return (
       <View>
@@ -535,7 +541,9 @@ export class AppointmentDetails extends Component {
   }
 
   startEdit() {
-    if (__DEV__ === false) return;
+    if (__DEV__ === false) {
+      return;
+    }
     LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
     this.setState({isEditable: true, editedAppointment: appointmentClone});
@@ -557,13 +565,17 @@ export class AppointmentDetails extends Component {
 
   updateValue(propertyName: string, newValue: any) {
     let editedAppointment: ?Appointment = this.state.editedAppointment;
-    if (!editedAppointment) return;
+    if (!editedAppointment) {
+      return;
+    }
     editedAppointment[propertyName] = newValue;
     this.setState(editedAppointment);
   }
 
   getDateFormat(date: ?string): string {
-    if (!date) return yearDateFormat;
+    if (!date) {
+      return yearDateFormat;
+    }
     let sameYear: boolean = date.startsWith(now().getFullYear().toString());
     return sameYear ? dayDateTime24Format : dayYearDateTime24Format;
   }
@@ -753,10 +765,14 @@ export class AppointmentScreen extends Component {
   }
 
   async storeAppointment(appointment: ?Appointment) {
-    if (!appointment) return;
+    if (!appointment) {
+      return;
+    }
     try {
       appointment = await storeDocument(appointment);
-      if (!this.unmounted) this.setState({appointment});
+      if (!this.unmounted) {
+        this.setState({appointment});
+      }
     } catch (error) {
       if (this.unmounted) {
         let params = this.props.navigation.state.params;
@@ -790,14 +806,19 @@ export class AppointmentScreen extends Component {
 
   async refreshAppointment() {
     let params = this.props.navigation.state.params;
-    if (params.appointment === undefined || params.appointment.id === undefined)
+    if (
+      params.appointment === undefined ||
+      params.appointment.id === undefined
+    ) {
       return;
+    }
     let appointment = await fetchAppointment(params.appointment.id);
     if (
       this.state.appointment &&
       appointment.version !== this.state.appointment.version
-    )
+    ) {
       this.setState({appointment});
+    }
   }
 
   async refreshPatientInfo() {
@@ -809,8 +830,9 @@ export class AppointmentScreen extends Component {
     } else if (
       patientInfo.version &&
       patientInfo.version !== this.state.patientInfo.version
-    )
+    ) {
       this.setState({patientInfo});
+    }
   }
 
   componentWillUnmount() {
@@ -818,12 +840,16 @@ export class AppointmentScreen extends Component {
   }
 
   enableScroll = () => {
-    if (this.state.scrollEnabled === true) return;
+    if (this.state.scrollEnabled === true) {
+      return;
+    }
     this.setState({scrollEnabled: true});
   };
 
   disableScroll = () => {
-    if (this.state.scrollEnabled === false) return;
+    if (this.state.scrollEnabled === false) {
+      return;
+    }
     this.setState({scrollEnabled: false});
   };
 

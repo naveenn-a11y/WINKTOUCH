@@ -200,7 +200,9 @@ export class AgendaScreen extends Component {
   renderContent(event: Appointment) {
     const patient: PatientInfo | Patient = getCachedItem(event.patientId);
     let genderShort: string = formatCode('genderCode', patient.gender);
-    if (genderShort.length > 0) genderShort = genderShort.substring(0, 1);
+    if (genderShort.length > 0) {
+      genderShort = genderShort.substring(0, 1);
+    }
     return (
       <View
         style={

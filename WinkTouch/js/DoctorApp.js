@@ -71,8 +71,9 @@ async function setAccount(selectedAccount: Account) {
     const selectedAccountId: number = selectedAccount.id;
     const accountId: number = await AsyncStorage.getItem('accountId');
     accountChanged = accountId != selectedAccountId;
-    if (accountChanged)
+    if (accountChanged) {
       await AsyncStorage.setItem('accountId', selectedAccountId.toString());
+    }
   }
   if (accountChanged) {
     console.log(
@@ -270,15 +271,18 @@ export class DoctorApp extends Component {
       this.logout();
       return;
     }
-    if (!this.navigator) return;
-    if (routeName === 'back')
+    if (!this.navigator) {
+      return;
+    }
+    if (routeName === 'back') {
       this.navigator.dispatch({type: NavigationActions.BACK});
-    else
+    } else {
       this.navigator.dispatch({
         type: NavigationActions.NAVIGATE,
         routeName,
         params,
       });
+    }
   };
 
   navigationStateChanged = (prevState: any, currentState: any): void => {

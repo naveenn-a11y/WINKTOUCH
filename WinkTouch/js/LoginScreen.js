@@ -57,7 +57,9 @@ const accountsUrl =
   '/WinkRegistrationAccounts';
 
 async function fetchAccounts(path: string) {
-  if (!path) return;
+  if (!path) {
+    return;
+  }
   const url =
     accountsUrl +
     '?dbVersion=' +
@@ -73,7 +75,9 @@ async function fetchAccounts(path: string) {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     let accounts: Account[] = await httpResponse.json();
     return accounts;
   } catch (error) {
@@ -115,8 +119,9 @@ export class LoginScreen extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.registration !== this.props.registration)
+    if (prevProps.registration !== this.props.registration) {
       this.fetchAccountsStores(this.props.registration);
+    }
   }
 
   async componentDidMount() {
@@ -137,9 +142,13 @@ export class LoginScreen extends Component {
   };
 
   async fetchAccountsStores(registration: Registration) {
-    if (!registration) return;
+    if (!registration) {
+      return;
+    }
     let accounts: Account[] = await fetchAccounts(this.props.registration.path);
-    if (!accounts) accounts = [];
+    if (!accounts) {
+      accounts = [];
+    }
     if (accounts !== this.state.accounts) {
       if (accounts.length === 0) {
         alert(strings.noAccountsWarning);
@@ -184,7 +193,9 @@ export class LoginScreen extends Component {
   fetchCodes(): void {
     InteractionManager.runAfterInteractions(() => {
       let account: ?Account = this.getAccount();
-      if (!account || account.id === undefined) return;
+      if (!account || account.id === undefined) {
+        return;
+      }
       this.switchEmrHost(account);
       fetchCodeDefinitions(getUserLanguage(), account.id);
     });
@@ -192,11 +203,17 @@ export class LoginScreen extends Component {
 
   async loadDefaultValues() {
     let account: ?string = await AsyncStorage.getItem('account');
-    if (account == null) account = undefined;
+    if (account == null) {
+      account = undefined;
+    }
     let store: ?string = await AsyncStorage.getItem('store');
-    if (store === null) store = undefined;
+    if (store === null) {
+      store = undefined;
+    }
     let userName: ?string = await AsyncStorage.getItem('userName');
-    if (userName === null) userName = undefined;
+    if (userName === null) {
+      userName = undefined;
+    }
     this.setState({account, store, userName});
   }
 
@@ -213,9 +230,11 @@ export class LoginScreen extends Component {
       account === undefined ||
       account === null ||
       account.trim().length === 0
-    )
+    ) {
       AsyncStorage.removeItem('account');
-    else AsyncStorage.setItem('account', account);
+    } else {
+      AsyncStorage.setItem('account', account);
+    }
 
     this.setState({account}, this.fetchCodes());
   };
@@ -225,9 +244,11 @@ export class LoginScreen extends Component {
   }
 
   setStore = (store: ?string) => {
-    if (store === undefined || store === null || store.trim().length === 0)
+    if (store === undefined || store === null || store.trim().length === 0) {
       AsyncStorage.removeItem('store');
-    else AsyncStorage.setItem('store', store);
+    } else {
+      AsyncStorage.setItem('store', store);
+    }
     this.setState({store});
   };
 
@@ -238,7 +259,9 @@ export class LoginScreen extends Component {
   getStore(): ?Store {
     const selectedStore: ?string = this.state.store;
     let account: ?Account = this.getAccount();
-    if (!account) return undefined;
+    if (!account) {
+      return undefined;
+    }
     const store: ?Store = account.stores.find(
       (store: Store) => this.formatStore(store) === selectedStore,
     );
@@ -250,9 +273,11 @@ export class LoginScreen extends Component {
       userName === undefined ||
       userName === null ||
       userName.trim().length === 0
-    )
+    ) {
       AsyncStorage.removeItem('userName');
-    else AsyncStorage.setItem('userName', userName);
+    } else {
+      AsyncStorage.setItem('userName', userName);
+    }
     this.setState({userName});
   };
 
@@ -271,13 +296,18 @@ export class LoginScreen extends Component {
       userName === undefined ||
       userName === null ||
       userName.trim().length === 0
-    )
+    ) {
       return;
+    }
     let password: ?string = this.state.password;
-    if (password === null || password === undefined) password = '';
+    if (password === null || password === undefined) {
+      password = '';
+    }
     const account: ?Account = this.getAccount();
     let store: ?Store = this.getStore();
-    if (!account || !store) return;
+    if (!account || !store) {
+      return;
+    }
     let loginData = {
       accountsId: account.id.toString(),
       storeId: store.storeId.toString(),
@@ -321,11 +351,13 @@ export class LoginScreen extends Component {
           contentType !== undefined &&
           contentType !== null &&
           contentType.startsWith('text/html')
-        )
+        ) {
           handleHttpError(httpResponse, await httpResponse.text());
-        else handleHttpError(httpResponse, await httpResponse.json());
+        } else {
+          handleHttpError(httpResponse, await httpResponse.json());
+        }
       }
-      let token: string = undefined;
+      let token: string;
       if (isWeb) {
         for (let entry of httpResponse.headers.entries()) {
           if (entry[0] === 'token') {

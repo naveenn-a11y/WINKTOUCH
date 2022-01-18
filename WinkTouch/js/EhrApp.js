@@ -16,8 +16,9 @@ import {isWeb} from './Styles';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
-    if (currentPackage !== null && currentPackage !== undefined)
+    if (currentPackage !== null && currentPackage !== undefined) {
       setDeploymentVersion(currentPackage.label);
+    }
   });
 
 function logUpdateStatus(status: number) {
@@ -55,7 +56,7 @@ function logUpdateStatus(status: number) {
   }
 }
 
-let lastUpdateCheck: ?Date = undefined;
+let lastUpdateCheck: ?Date;
 
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
@@ -63,7 +64,9 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     checkBinaryVersion();
     return;
   }
-  if (!registration || !registration.path) return;
+  if (!registration || !registration.path) {
+    return;
+  }
   checkBinaryVersion();
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
