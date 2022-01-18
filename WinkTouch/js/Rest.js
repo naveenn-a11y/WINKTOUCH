@@ -629,7 +629,7 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return !__DEV__ ? 'http://192.168.2.53:8080/Web/' : restUrl;
+  return __DEV__ ? 'http://192.168.2.53:8080/Web/' : restUrl;
 }
 
 async function setRestUrl(winkEmrHost: string) {

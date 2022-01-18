@@ -33,7 +33,7 @@ export function setWinkRestUrl(winkEmrHost: string) {
 }
 
 export function getWinkRestUrl(): string {
-  if (!__DEV__) {
+  if (__DEV__) {
     return 'http://192.168.2.53:8080/WinkRESTv5.00.40/';
   }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
@@ -72,8 +72,9 @@ export async function postWinkWebSocketUrl(
       },
       body: JSON.stringify(body),
     });
-    if (!httpResponse.ok)
+    if (!httpResponse.ok) {
       handleHttpError(httpResponse, await httpResponse.text());
+    }
     const restResponse = await httpResponse.json();
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
@@ -113,8 +114,9 @@ export async function fetchWinkRest(
       },
       body: JSON.stringify(body),
     });
-    if (!httpResponse.ok)
+    if (!httpResponse.ok) {
       handleHttpError(httpResponse, await httpResponse.text());
+    }
     const restResponse = await httpResponse.json();
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
@@ -147,7 +149,9 @@ export async function createPdf(
       body: body ? JSON.stringify(body) : '',
     });
     //alert(JSON.stringify(httpResponse));
-    if (!httpResponse.ok) await handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      await handleHttpError(httpResponse);
+    }
     const restResponse = await httpResponse.json();
     if (restResponse.errors) {
       alert(restResponse.errors);
@@ -160,7 +164,7 @@ export async function createPdf(
     }
     if (isWeb) {
       const format: string = 'data:application/pdf;base64,';
-      return format.concat(restResponse['data']);
+      return format.concat(restResponse.data);
     } else {
       const fullFilename: string = RNFS.DocumentDirectoryPath + '/' + filename;
       await RNFS.exists(fullFilename).then((exists: boolean) => {
@@ -172,7 +176,7 @@ export async function createPdf(
           }
         }
       });
-      await RNFS.writeFile(fullFilename, restResponse['data'], 'base64');
+      await RNFS.writeFile(fullFilename, restResponse.data, 'base64');
       __DEV__ && console.log('Created local file ' + fullFilename);
       return fullFilename;
     }
