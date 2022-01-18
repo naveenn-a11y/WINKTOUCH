@@ -560,12 +560,16 @@ export function getUserLanguage(): string {
 
 export function getUserLanguageIcon(): string {
   let languageIndex: number = supportedLanguages.indexOf(getUserLanguage());
-  if (languageIndex < 0) languageIndex = 0;
+  if (languageIndex < 0) {
+    languageIndex = 0;
+  }
   return supportedLanguages[languageIndex + 1];
 }
 
 export function getUserLanguageShort(): string {
-  if (userLanguage === undefined) return undefined;
+  if (userLanguage === undefined) {
+    return undefined;
+  }
   return userLanguage.substring(0, 2);
 }
 
@@ -589,8 +593,9 @@ export function switchLanguage() {
 }
 
 AsyncStorage.getItem('userLanguage').then((userLanguage) => {
-  if (userLanguage === null || userLanguage === undefined)
+  if (userLanguage === null || userLanguage === undefined) {
     userLanguage = strings.getInterfaceLanguage();
+  }
   if (supportedLanguages.indexOf(userLanguage) < 0) {
     userLanguage = supportedLanguages[0];
   }

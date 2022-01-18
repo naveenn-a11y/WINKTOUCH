@@ -41,32 +41,28 @@ export default class CustomDateTimePicker extends Component {
 
   render() {
     return (
-
-        <Portal>
-          <Dialog
-            visible={this.props.isVisible}
-            onDismiss={this.cancelDialog}
-            dismissable={true}
-            style={this.props.style}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
-            <Dialog.Content>
-              <DateTimePicker
-                selected={this.state.date}
-                onChange={(date) => this.updateDate(date)}
-                inline
-              />
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button onPress={this.cancelDialog}>
-                {this.props.cancelText}
-              </Button>
-              <Button onPress={this.confirmDialog}>
-                {this.props.confirmText}
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
-
+      <Portal>
+        <Dialog
+          visible={this.props.isVisible}
+          onDismiss={this.cancelDialog}
+          dismissable={true}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>
+            <DateTimePicker
+              selected={this.state.date}
+              onChange={(date) => this.updateDate(date)}
+              inline
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={this.cancelDialog}>{this.props.cancelText}</Button>
+            <Button onPress={this.confirmDialog}>
+              {this.props.confirmText}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }

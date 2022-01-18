@@ -98,8 +98,12 @@ function compareByStart(
   startableA: {start: string},
   startableB: {start: string},
 ): number {
-  if (startableB.start > startableA.start) return -1;
-  if (startableB.start < startableA.start) return 1;
+  if (startableB.start > startableA.start) {
+    return -1;
+  }
+  if (startableB.start < startableA.start) {
+    return 1;
+  }
   return 0;
 }
 
