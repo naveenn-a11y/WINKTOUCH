@@ -45,9 +45,15 @@ function fillPrescriptionDates(
 }
 
 function compareMedication(med1: ?Prescription, med2: ?Prescription): number {
-  if (med1 === med2) return 0;
-  if (!med1) return -10000;
-  if (!med2) return 10000;
+  if (med1 === med2) {
+    return 0;
+  }
+  if (!med1) {
+    return -10000;
+  }
+  if (!med2) {
+    return 10000;
+  }
   let comparison: number = compareDates(med2['Rx Date'], med1['Rx Date']);
   return comparison;
 }
@@ -56,9 +62,11 @@ function getRecentMedication(
   patientId: string,
 ): ?{medications: Prescription[], fieldDefinitions: FieldDefinition[]} {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
-  if (!visitHistory) return undefined;
+  if (!visitHistory) {
+    return undefined;
+  }
   let medications: Prescription[] = [];
-  let fieldDefinitions: ?(FieldDefinition[]) = undefined;
+  let fieldDefinitions: ?(FieldDefinition[]);
   visitHistory.forEach((visit: Visit) => {
     if (
       visit.medicalDataPrivilege !== 'READONLY' &&

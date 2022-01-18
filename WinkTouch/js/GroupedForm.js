@@ -594,6 +594,7 @@ export class GroupedCard extends Component {
     if (fieldDefinition.isLabel) {
       return null;
     }
+
     if (
       this.props.exam[this.props.exam.definition.name] === undefined ||
       this.props.exam[this.props.exam.definition.name][groupDefinition.name] ===
@@ -1023,6 +1024,7 @@ export class GroupedCard extends Component {
         }
       },
     );
+
     if (this.props.showTitle === false) {
       return null;
     }

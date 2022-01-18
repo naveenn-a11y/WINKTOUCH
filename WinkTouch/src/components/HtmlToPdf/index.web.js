@@ -22,7 +22,9 @@ export async function generatePDF(html: string, isBase64: boolean) {
     .from(html)
     .toPdf()
     .output('datauristring');
-  if (data.startsWith('data')) data = data.split(',')[1];
+  if (data.startsWith('data')) {
+    data = data.split(',')[1];
+  }
   const job = {base64: data};
   return job;
 }

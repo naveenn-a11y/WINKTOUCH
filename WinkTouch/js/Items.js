@@ -187,7 +187,9 @@ export function formatFieldValue(
   value: ?string | ?number | ?(string[]) | ?(number[]),
   fieldDefinition: FieldDefinition,
 ): string {
-  if (fieldDefinition === undefined) return '';
+  if (fieldDefinition === undefined) {
+    return '';
+  }
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }

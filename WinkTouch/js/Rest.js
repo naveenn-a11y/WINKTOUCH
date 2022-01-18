@@ -55,7 +55,9 @@ export function getNextRequestNumber(): number {
 function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.pretestPrivilege = 'NOACCESS';
   privileges.medicalDataPrivilege = 'NOACCESS';
-  if (tokenPrivileges === undefined || tokenPrivileges === null) return;
+  if (tokenPrivileges === undefined || tokenPrivileges === null) {
+    return;
+  }
   if (tokenPrivileges.pre === 'F') {
     privileges.pretestPrivilege = 'FULLACCESS';
   } else if (tokenPrivileges.pre === 'R') {
@@ -69,7 +71,9 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
 }
 
 export function decodeTokenPayload(token: string): ?TokenPayload {
-  if (!token) return null;
+  if (!token) {
+    return null;
+  }
   return JSON.parse(base64.decode(token.split('.')[1]));
 }
 
@@ -93,7 +97,9 @@ export function getPrivileges(): Privileges {
 }
 
 export function getDataType(id: string): string {
-  if (!id) return id;
+  if (!id) {
+    return id;
+  }
   const dashIndex = id.indexOf('-');
   const dataType: string = capitalize(
     dashIndex >= 0 ? id.substring(0, dashIndex) : id,
@@ -102,7 +108,9 @@ export function getDataType(id: string): string {
 }
 
 export function stripDataType(id: string | number): number {
-  if (!id) return -1;
+  if (!id) {
+    return -1;
+  }
   if (isNaN(id)) {
     const dashIndex = id.indexOf('-');
     const nummer: number = parseInt(id.substring(dashIndex + 1));
@@ -112,7 +120,9 @@ export function stripDataType(id: string | number): number {
 }
 
 function getItemFieldName(id: string): string {
-  if (!id) return 'response';
+  if (!id) {
+    return 'response';
+  }
   const dashIndex = id.indexOf('-');
   const fieldName: string = dashIndex >= 0 ? id.substring(0, dashIndex) : id;
   return fieldName;
@@ -126,7 +136,9 @@ function constructTypeUrl(id: string) {
 }
 
 function clearErrors(item: Object) {
-  if (!(item instanceof Object)) return;
+  if (!(item instanceof Object)) {
+    return;
+  }
   Object.keys(item).forEach((key) => {
     if (key.endsWith('rror') || key.endsWith('rrors')) {
       delete item[key];
@@ -141,7 +153,9 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
     'HTTP response error ' + httpResponse.status + ': ' + httpResponse.url,
   );
   console.log(httpResponse);
-  if (httpBody && httpBody.errors) throw httpBody.errors;
+  if (httpBody && httpBody.errors) {
+    throw httpBody.errors;
+  }
   throw 'HTTP error ' + httpResponse.status;
 }
 
@@ -157,10 +171,14 @@ export async function fetchItemDefinition(
   id: string,
   language: string,
 ): FieldDefinitions {
-  if (!id) return undefined;
+  if (!id) {
+    return undefined;
+  }
   const cacheKey: string = getDefinitionCacheKey(id, language);
   let definition: FieldDefinitions = getCachedItem(cacheKey);
-  if (definition !== null && definition !== undefined) return definition;
+  if (definition !== null && definition !== undefined) {
+    return definition;
+  }
   const url = constructTypeUrl(id) + 'FieldDefinition';
   const requestNr = ++requestNumber;
   __DEV__ &&
@@ -175,7 +193,9 @@ export async function fetchItemDefinition(
         'Accept-language': language,
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     __DEV__ &&
       console.log(
         'RES ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url,
@@ -198,9 +218,13 @@ export async function fetchItemDefinition(
 }
 
 function cacheResponseItems(restResponse: {}): void {
-  if (!restResponse) return;
+  if (!restResponse) {
+    return;
+  }
   for (let fieldName in restResponse) {
-    if (fieldName === 'errors') continue;
+    if (fieldName === 'errors') {
+      continue;
+    }
     let field = restResponse[fieldName];
     if (field instanceof Array) {
       cacheItemsById(field);
@@ -211,7 +235,9 @@ function cacheResponseItems(restResponse: {}): void {
 }
 
 function cacheLists(restResponse) {
-  if (!restResponse) return;
+  if (!restResponse) {
+    return;
+  }
   const fieldNames: string[] = Object.keys(restResponse);
   fieldNames.map((fieldName: string) => {
     if (fieldName.endsWith('List')) {
@@ -221,7 +247,9 @@ function cacheLists(restResponse) {
 }
 
 export async function fetchItemById(id: string, ignoreCache?: boolean): any {
-  if (!id) return undefined;
+  if (!id) {
+    return undefined;
+  }
   const cachedVersion: number = ignoreCache ? -1 : getCachedVersionNumber(id);
   const url =
     constructTypeUrl(id) +
@@ -238,7 +266,9 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     const restResponse = await httpResponse.json();
     if (restResponse.upToDate) {
       __DEV__ &&
@@ -257,7 +287,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
       restResponse.id === id
         ? restResponse
         : restResponse[getItemFieldName(id)];
-    if (!item)
+    if (!item) {
       throw new Error(
         'The server did not return a ' +
           getItemFieldName(id) +
@@ -265,6 +295,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
           id +
           '.',
       );
+    }
     cacheResponseItems(restResponse);
     return item;
   } catch (error) {
@@ -292,8 +323,12 @@ export function logRestResponse(
       cleanedResponse = cleanedResponse[getItemFieldName(id)];
     }
   }
-  if (cleanedResponse.definition) cleanedResponse.definition = '{...}';
-  if (cleanedResponse.data) cleanedResponse.data = '...';
+  if (cleanedResponse.definition) {
+    cleanedResponse.definition = '{...}';
+  }
+  if (cleanedResponse.data) {
+    cleanedResponse.data = '...';
+  }
   console.log(
     'RES ' +
       requestNr +
@@ -316,7 +351,9 @@ export async function storeItems(itemLsist: any[]) {}
  * Shows a popup and Returns the latest object from the server in case there was a concurrency conflict. //TODO
  */
 export async function storeItem(item: any): any {
-  if (!item || !item.id) return undefined;
+  if (!item || !item.id) {
+    return undefined;
+  }
   clearErrors(item);
   const definition = item.definition;
   item.definition = undefined;
@@ -345,7 +382,9 @@ export async function storeItem(item: any): any {
       },
       body: JSON.stringify(item),
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     const restResponse: RestResponse = await httpResponse.json();
     __DEV__ &&
       logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
@@ -406,7 +445,9 @@ export async function storeItem(item: any): any {
 }
 
 export async function deleteItem(item: any): any {
-  if (!item || !item.id || item.id.indexOf('-') < 0) return undefined;
+  if (!item || !item.id || item.id.indexOf('-') < 0) {
+    return undefined;
+  }
   const url = constructTypeUrl(item.id) + item.id;
   //__DEV__ && alert('deleting '+url);
   try {
@@ -420,7 +461,9 @@ export async function deleteItem(item: any): any {
       },
       body: JSON.stringify(item),
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     const restResponse = await httpResponse.json();
     //alert(JSON.stringify(restResponse));
     if (restResponse.errors) {
@@ -445,14 +488,20 @@ export async function deleteItem(item: any): any {
 }
 
 export function appendParameters(url: string, searchCritera: Object): string {
-  if (!searchCritera) return url;
+  if (!searchCritera) {
+    return url;
+  }
   const keys: string[] = Object.keys(searchCritera);
-  if (keys.length === 0) return url;
+  if (keys.length === 0) {
+    return url;
+  }
   let firstParameter: boolean = true;
   for (let i: number = 0; i < keys.length; i++) {
     const parameterName: string = keys[i];
     const parameterValue: string = searchCritera[parameterName];
-    if (parameterValue === undefined || parameterValue === null) continue;
+    if (parameterValue === undefined || parameterValue === null) {
+      continue;
+    }
     url = url + (firstParameter ? '?' : '&');
     (url = url + encodeURIComponent(parameterName)), (url = url + '=');
     url = url + encodeURIComponent(parameterValue);
@@ -475,7 +524,9 @@ export async function searchItems(list: string, searchCritera: Object): any {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     const restResponse = await httpResponse.json();
     __DEV__ &&
       console.log(
@@ -546,8 +597,9 @@ export async function performActionOnItem(
       },
       body: JSON.stringify(item),
     });
-    if (!httpResponse.ok)
+    if (!httpResponse.ok) {
       handleHttpError(httpResponse, await httpResponse.text());
+    }
     const restResponse = await httpResponse.json();
     __DEV__ &&
       logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
@@ -604,7 +656,9 @@ export async function performActionOnItem(
 }
 
 export async function devDelete(path: string) {
-  if (__DEV__ === false) return;
+  if (__DEV__ === false) {
+    return;
+  }
   let url: string = getRestUrl() + 'Dev/' + path;
   try {
     let httpResponse = await fetch(url, {
@@ -615,7 +669,9 @@ export async function devDelete(path: string) {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     const restResponse = await httpResponse.json();
     return restResponse;
   } catch (error) {
@@ -645,7 +701,8 @@ export function switchEmrHost(winkEmrHost: string) {
 }
 
 AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
-  if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '')
+  if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '') {
     winkEmrHost = defaultHost;
+  }
   setRestUrl(winkEmrHost);
 });
