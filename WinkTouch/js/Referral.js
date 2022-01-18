@@ -68,8 +68,9 @@ export function isReferralsEnabled(): boolean {
     referralTemplates === undefined ||
     referralTemplates === null ||
     referralTemplates.length === 0
-  )
+  ) {
     return false;
+  }
   return true;
 }
 
@@ -171,7 +172,7 @@ export class ReferralScreen extends Component<
       selectedVisitId: this.props.navigation.state.params.visit.id,
       referralStarted: false,
     };
-    this.selectedFields= [];
+    this.selectedFields = [];
     this.unmounted = false;
   }
 
@@ -182,7 +183,9 @@ export class ReferralScreen extends Component<
   getPreviousVisits(): ?(CodeDefinition[]) {
     const patientInfo: PatientInfo =
       this.props.navigation.state.params.patientInfo;
-    if (patientInfo === undefined) return undefined;
+    if (patientInfo === undefined) {
+      return undefined;
+    }
     return getPreviousVisits(patientInfo.id);
   }
 
@@ -281,7 +284,7 @@ export class ReferralScreen extends Component<
           alert(response.errors);
         } else {
           const htmlContent: ReferralDocument = response;
-          let htmlHeader: string = patientHeader(false);
+          let htmlHeader: string = patientHeader(true);
           let htmlEnd: string = patientFooter(false);
           template =
             this.props.navigation &&
@@ -309,8 +312,12 @@ export class ReferralScreen extends Component<
   }
 
   selectVisit(visitId: string) {
-    if (visitId === '' || visitId === undefined) return;
-    if (this.state.selectedVisitId === visitId) return;
+    if (visitId === '' || visitId === undefined) {
+      return;
+    }
+    if (this.state.selectedVisitId === visitId) {
+      return;
+    }
     this.setState({selectedVisitId: visitId});
     const visit: Visit = getCachedItem(visitId);
     const examIds: string[] = allExamIds(visit);
@@ -334,28 +341,36 @@ export class ReferralScreen extends Component<
 
   updateFieldCc(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.cc = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
   updateFieldTo(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.to = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
   updateFieldSubject(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.subject = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
   updateFieldBody(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.body = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
@@ -367,10 +382,12 @@ export class ReferralScreen extends Component<
   };
 
   getSelectedKey(): ?string {
-    let selectedKey: ?string = undefined;
+    let selectedKey: ?string;
     for (let i: number = 0; i < this.state.selectedField.length; i++) {
       let key: ?string = this.state.selectedField[i];
-      if (key === null || key === undefined) break;
+      if (key === null || key === undefined) {
+        break;
+      }
       selectedKey = key;
     }
     __DEV__ && console.log('selected key: ' + selectedKey);
@@ -380,7 +397,9 @@ export class ReferralScreen extends Component<
 
   async insertField(): void {
     const selectedKey: ?string = this.getSelectedKey();
-    if (!selectedKey) return;
+    if (!selectedKey) {
+      return;
+    }
     this.setState({isLoading: true});
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
@@ -459,17 +478,19 @@ export class ReferralScreen extends Component<
   async print(): Promise<void> {
     let html = await this.editor.getContent();
     let wrapper = document.createElement('div');
-    wrapper.innerHTML= html;
-    let AttachmentsIndexes = []
-    for(let elem of wrapper.querySelectorAll('code')){
-      const identifier:string = elem.getAttribute("index")
-      if(AttachmentsIndexes.indexOf(identifier)===-1)AttachmentsIndexes.push(identifier)
+    wrapper.innerHTML = html;
+    let AttachmentsIndexes = [];
+    for (let elem of wrapper.querySelectorAll('code')) {
+      const identifier: string = elem.getAttribute('index');
+      if (AttachmentsIndexes.indexOf(identifier) === -1) {
+        AttachmentsIndexes.push(identifier);
+      }
     }
-    let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter(false,AttachmentsIndexes);
-    let PDFAttachment:Array<any> = getSelectedPDFAttachment();
+    let htmlHeader: string = patientHeader(true);
+    let htmlEnd: string = patientFooter(false, AttachmentsIndexes);
+    let PDFAttachment: Array<any> = getSelectedPDFAttachment();
     html = htmlHeader + html + htmlEnd;
-    const job = await printHtml(html,PDFAttachment);
+    const job = await printHtml(html, PDFAttachment);
     if (job) {
       this.setState({command: COMMAND.PRINT, isDirty: true});
       await this.save();
@@ -478,14 +499,14 @@ export class ReferralScreen extends Component<
 
   async save(): Promise<any> {
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader();
+    let htmlHeader: string = patientHeader(true);
     let htmlEnd: string = patientFooter(false);
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
 
     let file = await generatePDF(htmlHeader + html + htmlEnd, true);
-    let referralId = undefined;
-    let linkedReferralId = undefined;
+    let referralId;
+    let linkedReferralId;
 
     if (this.state.doctorReferral !== undefined) {
       if (stripDataType(this.state.doctorReferral.id) > 0) {
@@ -575,7 +596,7 @@ export class ReferralScreen extends Component<
     this.setState({isActive: false});
     await this.save();
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader();
+    let htmlHeader: string = patientHeader(true);
     let htmlEnd: string = patientFooter(false);
     html = htmlHeader + html + htmlEnd;
     let parameters: {} = {};
@@ -619,7 +640,9 @@ export class ReferralScreen extends Component<
   }
 
   parseExamName(dynamicFieldName: string): string {
-    if (!dynamicFieldName.startsWith('Exam.')) return dynamicFieldName;
+    if (!dynamicFieldName.startsWith('Exam.')) {
+      return dynamicFieldName;
+    }
     let examName = dynamicFieldName.substring('Exam.'.length);
     let firstDotIndex: number = examName.indexOf('.');
     if (firstDotIndex > 0) {
@@ -633,7 +656,9 @@ export class ReferralScreen extends Component<
     exams = exams.filter((examCode: CodeDefinition) => {
       let examName = this.parseExamName(examCode.code);
       const exam = getExam(examName, visit);
-      if (!exam) return false;
+      if (!exam) {
+        return false;
+      }
       let examValue = exam[examName];
       return !isEmpty(examValue);
     });
@@ -641,9 +666,11 @@ export class ReferralScreen extends Component<
   }
 
   compareDynamicFieldDescription(a: CodeDefinition, b: CodeDefinition): number {
-    if (a.description.toLowerCase() < b.description.toLowerCase()) return -1;
-    else if (a.description.toLowerCase() > b.description.toLowerCase())
+    if (a.description.toLowerCase() < b.description.toLowerCase()) {
+      return -1;
+    } else if (a.description.toLowerCase() > b.description.toLowerCase()) {
       return 1;
+    }
     return 0;
   }
 
@@ -661,8 +688,9 @@ export class ReferralScreen extends Component<
       level < this.state.selectedField.length;
       level++
     ) {
-      if (!options || (level > 0 && !this.state.selectedField[level - 1]))
-        break; //Don't render empty dropdowns for nothing
+      if (!options || (level > 0 && !this.state.selectedField[level - 1])) {
+        break;
+      } //Don't render empty dropdowns for nothing
       const selectedValue: ?string = this.state.selectedField[level];
       options.sort(this.compareDynamicFieldDescription);
       dropdowns.push(
