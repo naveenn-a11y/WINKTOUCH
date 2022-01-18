@@ -96,17 +96,28 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
     isVisible.startsWith('[') &&
     isVisible.endsWith(']')
   ) {
-    const key: any = isVisible.substring(1, isVisible.length - 1);
+    let reverseFlag: boolean = false;
+    let key: any = isVisible.substring(1, isVisible.length - 1);
+    if (key.startsWith('!')) {
+      key = key.substring(1, key.length);
+      reverseFlag = true;
+    }
     const keyIdentifier: string[] = key.split('.');
     if (keyIdentifier[0] === 'visit') {
-      const visit: Visit = getCachedItem(item);
+      let visit: Visit = undefined;
+      if (item.startsWith('visit-')) {
+        visit = getCachedItem(item);
+      } else {
+        const exam: Exam = getCachedItem(item);
+        visit = exam !== undefined ? getCachedItem(exam.visitId) : undefined;
+      }
       const value: any =
         visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
-      return !isEmpty(value);
+      return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
       const value: any = exam !== undefined ? getValue(exam, key) : undefined;
-      return !isEmpty(value);
+      return reverseFlag ? isEmpty(value) : !isEmpty(value);
     }
   }
 
@@ -944,7 +955,7 @@ export class GroupedCard extends Component {
                   indexedRow,
                   multiValueGroups,
                 );
-                if (indexedGroup.name === group.name) {
+                if (indexedGroup && indexedGroup.name === group.name) {
                   indexedRow = indexedRow.map((fieldName: string) =>
                     fieldName.replace(
                       group.name + '.',
@@ -983,6 +994,7 @@ export class GroupedCard extends Component {
           this.props.exam,
         );
         let formattedValue = formatFieldValue(fieldValue, fieldDefinition);
+        if (!getIsVisible(this.props.exam.id, fieldDefinition)) return '';
         if (formattedValue === '') return '';
         if (cardRowFields.length === 1) {
           //Add the label for single field rows
@@ -1148,13 +1160,20 @@ export class GroupedForm extends Component {
         fieldDefinition,
       );
     }
-    const value = this.props.form
+    let value = this.props.form
       ? column
         ? this.props.form[column]
           ? this.props.form[column][fieldDefinition.name]
           : undefined
         : this.props.form[fieldDefinition.name]
       : undefined;
+    value =
+      value === undefined
+        ? fieldDefinition.defaultValue
+          ? fieldDefinition.defaultValue
+          : undefined
+        : value;
+
     //if (fieldDefinition.mappedField) {
     //  value = getExamFieldValue(fieldDefinition.mappedField, getCachedItem(this.props.examId));
     //  __DEV__ && console.log('Got mapped field value '+fieldDefinition.mappedField+' from exam :'+value);
@@ -1232,6 +1251,8 @@ export class GroupedForm extends Component {
   }
 
   renderFieldsRow(fieldDefinition: FieldDefinition) {
+    if (this.getIsVisible(fieldDefinition) === false) return null;
+
     let fields: any[] = [];
     const row: string[] = this.props.definition.rows.find(
       (row: string[]) =>
@@ -1405,6 +1426,7 @@ export class GroupedForm extends Component {
   }
 
   renderColumnedRows(columnDefinition: GroupDefinition) {
+    if (this.getIsVisible(columnDefinition) === false) return null;
     let rows: any[] = [];
     rows.push(this.renderColumnsHeader(columnDefinition));
     const columnedFields: FieldDefinition[] = columnDefinition.fields;
@@ -2010,6 +2032,7 @@ export class GroupedFormScreen extends Component<
             }
             hasAdd={groupDefinition.hasAdd}
             hasLensType={groupDefinition.hasLensType}
+            hasPD={groupDefinition.hasPD}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -2087,6 +2110,7 @@ export class GroupedFormScreen extends Component<
           onClear={() => this.clear(groupDefinition.name)}
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
+          hasPD={groupDefinition.hasPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2112,6 +2136,7 @@ export class GroupedFormScreen extends Component<
           onClear={() => this.clear(groupDefinition.name)}
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
+          hasPD={groupDefinition.hasPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}

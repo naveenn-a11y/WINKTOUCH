@@ -11,7 +11,7 @@ import type {
 } from './Types';
 import {strings, getUserLanguage} from './Strings';
 import {
-  restUrl,
+  getRestUrl,
   handleHttpError,
   searchItems,
   getNextRequestNumber,
@@ -77,12 +77,11 @@ export function formatOption(
   const fieldDefinitions: ?FieldDefinitions = getFieldDefinitions(dataType);
   if (fieldDefinitions === undefined || fieldDefinitions === null)
     return code.toString();
-  const fieldDefinition:
-    | ?FieldDefinition
-    | GroupDefinition = fieldDefinitions.find(
-    (fieldDefinition: FieldDefinition | GroupDefinition) =>
-      fieldDefinition.name === field,
-  );
+  const fieldDefinition: ?FieldDefinition | GroupDefinition =
+    fieldDefinitions.find(
+      (fieldDefinition: FieldDefinition | GroupDefinition) =>
+        fieldDefinition.name === field,
+    );
   if (fieldDefinition === undefined || fieldDefinition === null)
     return code.toString();
   const options: ?(CodeDefinition[]) | string = fieldDefinition.options;
@@ -174,9 +173,17 @@ export function parseCode(
   }
   let codeDefinition: CodeDefinition = getAllCodes(codeType).find(
     (codeDefinition: CodeDefinition) =>
-      formatCodeDefinition(codeDefinition).trim().toLowerCase() ===
-      trimmedInput,
+      formatCodeDefinition(
+        codeDefinition,
+        codeDefinition.quantityPerBox !== undefined &&
+          codeDefinition.quantityPerBox !== null
+          ? codeIdentifier
+          : undefined,
+      )
+        .trim()
+        .toLowerCase() === trimmedInput,
   );
+
   let code = input;
   if (codeDefinition !== undefined && codeDefinition !== null) {
     if (codeDefinition instanceof Object) {
@@ -196,7 +203,7 @@ export async function fetchCodeDefinitions(
   if (accountId === undefined) return undefined;
   const requestNr: number = getNextRequestNumber();
   const url =
-    restUrl +
+    getRestUrl() +
     'Code/' +
     (codeName ? codeName + '/' : '') +
     'list?accountId=' +

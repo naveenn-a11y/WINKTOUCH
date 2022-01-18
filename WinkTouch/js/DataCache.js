@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const cache = new Map();
 
@@ -36,7 +36,7 @@ export function clearCachedItemById(data: any) {
   if (data.id) {
     cache.delete(data.id);
   } else {
-    cache.delete(id);
+    cache.delete(data);
   }
 }
 

@@ -65,7 +65,6 @@ import {
   addDays,
   formatAge,
   isEmpty,
-  insertNewlines,
   postfix,
 } from './Util';
 import {Camera} from './Favorites';
@@ -336,9 +335,6 @@ export class TextField extends Component {
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({value: text});
   };
 
@@ -3166,7 +3162,6 @@ export class SelectionList extends React.PureComponent {
       }
     } else if (this.props.selection) {
       let selection: string = stripSelectionPrefix(this.props.selection);
-
       if (!this.props.items.includes(selection)) {
         data = [].concat(this.props.items);
         data.unshift(selection);
@@ -3194,7 +3189,7 @@ export class SelectionList extends React.PureComponent {
       this.state.filter.length > 0
     )
       data.push(this.state.filter);
-    if (data === undefined) data = this.props.items;
+    if (data === undefined) data = [].concat(this.props.items);
     return data;
   }
 
