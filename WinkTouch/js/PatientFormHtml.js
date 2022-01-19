@@ -1593,7 +1593,7 @@ export function patientFooter(
     }
   }
 
-  if (!printImages &&  selectedAttachments?.length > 0) {
+  if (!printImages) {
     SelectedPDFAttachment = [];
   } else {
     SelectedPDFAttachment = [...PDFAttachment];
@@ -1604,7 +1604,7 @@ export function patientFooter(
   }
   htmlEnd += addImages;
 
-  if (!printImages &&  selectedAttachments?.length > 0) {
+  if (!printImages) {
     for (let pdf of PDFAttachment) {
       for (let AttachmentIndex of selectedAttachments) {
         if (AttachmentIndex === pdf.index)
