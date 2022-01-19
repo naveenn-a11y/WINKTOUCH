@@ -295,6 +295,17 @@ export const styles = StyleSheet.create({
     borderWidth: 1 * fontScale,
     borderRadius: 6 * fontScale,
   },
+  chooseButton: {
+    width: 200,
+    padding: 10 * fontScale,
+    height: '77%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'lightgray',
+    borderBottomWidth: 0.7,
+    borderTopWidth: 0.755,
+    marginRight: 10,
+  },
   button: {
     padding: 16 * fontScale,
     marginHorizontal: 13 * fontScale,
@@ -956,6 +967,9 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     right: 8 * fontScale,
     top: 10 * fontScale,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   listRow: {
     flex: 10,

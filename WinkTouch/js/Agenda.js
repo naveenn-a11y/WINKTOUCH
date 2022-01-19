@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
+import {FormTextInput, FormRow, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -48,7 +49,6 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatCode} from './Codes';
-import {FormTextInput} from './Form';
 
 export class AgendaScreen extends Component {
   props: {
@@ -62,6 +62,8 @@ export class AgendaScreen extends Component {
     event: Appointment,
     showDialog: boolean,
     isLoading: boolean,
+    selectedDoctor: Array,
+    isVisible: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -76,6 +78,8 @@ export class AgendaScreen extends Component {
       event: undefined,
       showDialog: false,
       isLoading: false,
+      selectedDoctor: [],
+      isVisible: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -189,6 +193,12 @@ export class AgendaScreen extends Component {
 
   cancelDialog = () => {
     this.setState({event: undefined, showDialog: false});
+  };
+  openDoctorsOptiosn = () => {
+    this.setState({isVisible: true});
+  };
+  cancelDoctorsOptions = () => {
+    this.setState({isVisible: false});
   };
 
   openPatientFile = (event: Appointment) => {
@@ -306,11 +316,70 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderDoctorsOptions() {
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={styles.alert}
+          visible={this.state.isVisible}
+          onDismiss={this.cancelDoctorsOptions}
+          dismissable={true}>
+          <Dialog.Title>{strings.chooseDoctor}</Dialog.Title>
+          <Dialog.Content style={{height: 100}}>
+            <FormInput
+              multiOptions={true}
+              value={this.state.selectedDoctor}
+              // filterValue={this.props.form}
+              label={'choose'}
+              showLabel={false}
+              readonly={false}
+              definition={{
+                options: ['Walid', 'Riad', 'Yaman'],
+                defaultValue: 'Walid',
+              }}
+              onChangeValue={(newValue: string) =>
+                this.setState({selectedDoctor: newValue})
+              }
+              errorMessage={'error'}
+              isTyping={false}
+              // patientId={this.props.patientId}
+              // examId={this.props.examId}
+              // enableScroll={this.props.enableScroll}
+              // disableScroll={this.props.disableScroll}
+              // key={fieldDefinition.name + (column === undefined ? '' : column)}
+              // fieldId={
+              //   this.props.fieldId +
+              //   '.' +
+              //   fieldDefinition.name +
+              //   (column === undefined ? '' : column)
+              // }
+              // testID={
+              //   this.props.fieldId +
+              //   '.' +
+              //   fieldDefinition.name +
+              //   (column === undefined ? '' : column)
+              // }
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDoctorsOptions}>
+              {strings.apply}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.cancelDoctorsOptions}>
+              {strings.close}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
   render() {
     return (
       <View style={styles.page}>
         {this.state.isLoading && this.renderLoading()}
         {this.state.showDialog && this.renderEventDetails()}
+        {this.state.isVisible && this.renderDoctorsOptions()}
+
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -337,13 +406,14 @@ export class AgendaScreen extends Component {
             )}
           </Text>
           <View style={styles.topRight}>
+            <TouchableOpacity
+              style={styles.chooseButton}
+              onPress={this.openDoctorsOptiosn}>
+              <Text>{strings.chooseDoctor}</Text>
+            </TouchableOpacity>
+
             <Picker
-              style={{
-                padding: 10 * fontScale,
-                width: 200,
-                height: 44,
-                alignSelf: 'flex-end',
-              }}
+              style={{padding: 10 * fontScale, width: 200}}
               itemStyle={{height: 44}}
               selectedValue={this.state.mode}
               onValueChange={(mode) => this._onSetMode(mode)}>

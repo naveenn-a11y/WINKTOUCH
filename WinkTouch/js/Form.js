@@ -940,6 +940,69 @@ export class FormCheckBox extends Component {
     );
   }
 }
+export class FormMultiCheckBox extends Component {
+  props: {
+    value: ?number | string,
+    options: CodeDefinition[],
+    label?: string,
+    labelWidth?: number,
+    showLabel?: boolean,
+    prefix?: string,
+    suffix?: string,
+    readonly?: boolean,
+    onChangeValue?: (newvalue?: number | string) => void,
+    style?: any,
+    testID?: string,
+  };
+
+  isChecked(index): boolean {
+    return this.props.value.includes(this.enabledValue(index));
+  }
+
+  select = (index) => {
+    if (this.props.readonly) {
+      return;
+    }
+    let enabledValue = this.enabledValue(index);
+    this.props.onChangeValue([...this.props.value, enabledValue]);
+  };
+
+  enabledValue(index) {
+    if (
+      this.props.options === undefined ||
+      this.props.options === null ||
+      this.props.options.length < 2
+    ) {
+      return true;
+    }
+    let enabledValue = this.props.options[index];
+    if (enabledValue instanceof Object) {
+      enabledValue = enabledValue.code;
+    }
+    return enabledValue;
+  }
+  deSelect = (index) => {
+    if (this.props.readonly) return;
+    let enabledValue = this.enabledValue(index);
+    let newValue = this.props.value.filter((opt) => opt != enabledValue);
+    this.props.onChangeValue(newValue);
+  };
+
+  render() {
+    return this.props.options.map((option, index) => (
+      <View style={styles.formElement}>
+        <Text>{option}</Text>
+        <CheckButton
+          isChecked={this.isChecked(index)}
+          onSelect={() => this.select(index)}
+          onDeselect={() => this.deSelect(index)}
+          style={this.props.style ? this.props.style : styles.checkButtonLabel}
+          testID={this.props.testID}
+        />
+      </View>
+    ));
+  }
+}
 
 export class FormCode extends Component {
   props: {
@@ -1101,6 +1164,7 @@ export class FormSelectionArray extends Component {
 export class FormInput extends Component {
   props: {
     value: ?string | ?number | ?{},
+    singleSelect?: boolean,
     errorMessage?: string,
     definition: FieldDefinition,
     type?: string,
@@ -1369,7 +1433,21 @@ export class FormInput extends Component {
             testID={this.props.testID}
           />
         );
-      } else if (
+      } else if (this.props.multiOptions)
+        return (
+          <FormMultiCheckBox
+            options={options}
+            value={this.props.value}
+            label={label}
+            showLabel={this.props.showLabel}
+            readonly={readonly}
+            onChangeValue={this.props.onChangeValue}
+            style={style}
+            errorMessage={this.props.errorMessage}
+            testID={this.props.testID}
+          />
+        );
+      else if (
         options.length === 2 &&
         (options[0] === undefined ||
           options[0] === null ||
