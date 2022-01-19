@@ -143,9 +143,12 @@ export async function allExamDefinitions(
         : 'examDefinitions',
     ),
   );
-  if (!examDefinitions)
+  if (!examDefinitions) {
     examDefinitions = await fetchExamDefinitions(isPreExam, isAssessment);
-  if (!examDefinitions) examDefinitions = [];
+  }
+  if (!examDefinitions) {
+    examDefinitions = [];
+  }
   return examDefinitions;
 }
 
@@ -169,8 +172,9 @@ export function getExamDefinition(examName: string): ExamDefinition {
     );
   }
   if (__DEV__) {
-    if (examDefinition === undefined)
+    if (examDefinition === undefined) {
       console.log('No exam definition found with name ' + examName + '.');
+    }
   }
   return examDefinition;
 }
@@ -202,14 +206,18 @@ class FieldDefinitionEditor extends Component {
 
   updateFieldDefinition(fieldName: string, value?: any) {
     let fieldDefinition: FieldDefinition = this.props.value;
-    if (!fieldDefinition) return;
+    if (!fieldDefinition) {
+      return;
+    }
     fieldDefinition[fieldName] = value;
     this.props.onUpdate(fieldDefinition);
   }
 
   setNumeric(isNumeric: boolean): void {
     const fieldDefinition: ?FieldDefinition = this.props.value;
-    if (!fieldDefinition) return;
+    if (!fieldDefinition) {
+      return;
+    }
     if (isNumeric) {
       fieldDefinition.minValue = 0;
       fieldDefinition.maxValue = 10;
@@ -232,7 +240,9 @@ class FieldDefinitionEditor extends Component {
 
   render() {
     const fieldDefinition: FieldDefinition = this.props.value;
-    if (!fieldDefinition) return null;
+    if (!fieldDefinition) {
+      return null;
+    }
     const isMapped: boolean =
       fieldDefinition.mappedField !== undefined &&
       fieldDefinition.mappedField !== null;
@@ -454,14 +464,22 @@ class FieldDefinitionEditor extends Component {
 }
 
 function explode(value: ?string | ?(string[])): ?(string[]) {
-  if (value === undefined || value === null) return value;
-  if (value instanceof Array) return value;
+  if (value === undefined || value === null) {
+    return value;
+  }
+  if (value instanceof Array) {
+    return value;
+  }
   return [value];
 }
 
 function implode(value: ?(string[])): ?string | ?(string[]) {
-  if (value === undefined || value === null) return undefined;
-  if (value.length === 1) return value[0];
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (value.length === 1) {
+    return value[0];
+  }
   return value;
 }
 
@@ -488,7 +506,9 @@ class FieldsDefinitionEditor extends Component {
 
   selectField = (index: number): void => {
     let fieldDefinitions: FieldDefinition[] = this.props.value;
-    if (index < 0 || index > fieldDefinitions.length) return;
+    if (index < 0 || index > fieldDefinitions.length) {
+      return;
+    }
     let fieldDefinition: ?FieldDefinition = fieldDefinitions[index];
     this.setState({fieldDefinition});
   };
@@ -518,7 +538,9 @@ class FieldsDefinitionEditor extends Component {
     const duplicateField: ?FieldDefinition = deepClone(
       this.state.fieldDefinition,
     );
-    if (!duplicateField) return;
+    if (!duplicateField) {
+      return;
+    }
     let fieldDefinitions: FieldDefinition[] =
       this.props.value !== undefined ? this.props.value : [];
     duplicateField.name = strings.duplicate;
@@ -529,7 +551,9 @@ class FieldsDefinitionEditor extends Component {
 
   removeField = () => {
     let fieldDefinitions: FieldDefinition[] = this.props.value;
-    if (!fieldDefinitions || fieldDefinitions.length === 0) return;
+    if (!fieldDefinitions || fieldDefinitions.length === 0) {
+      return;
+    }
     const fieldDefinition: ?FieldDefinition = this.state.fieldDefinition;
     const index: number = fieldDefinitions.indexOf(fieldDefinition);
     fieldDefinitions.splice(index, 1);
@@ -539,7 +563,9 @@ class FieldsDefinitionEditor extends Component {
 
   removeLastField = () => {
     let fieldDefinitions: FieldDefinition[] = this.props.value;
-    if (!fieldDefinitions || fieldDefinitions.length === 0) return;
+    if (!fieldDefinitions || fieldDefinitions.length === 0) {
+      return;
+    }
     fieldDefinitions.pop();
     this.props.onUpdate(fieldDefinitions);
     this.dismissPopup();
@@ -596,20 +622,20 @@ class GroupDefinitionEditor extends Component {
   }
 
   componentDidUpdate(prevProps: any): void {
-    if (prevProps.value === this.props.value) return;
+    if (prevProps.value === this.props.value) {
+      return;
+    }
     this.setState({groupDefinition: this.props.value});
   }
 
   updateColumns(columns: string[], groupDefinition: GroupDefinition): void {
     if (columns === undefined) {
-      const fieldDefinitions: FieldDefinition[] = this.getFieldsDefinitions(
-        groupDefinition,
-      );
+      const fieldDefinitions: FieldDefinition[] =
+        this.getFieldsDefinitions(groupDefinition);
       groupDefinition.fields = fieldDefinitions;
     } else {
-      const fieldDefinitions: FieldDefinition[] = this.getFieldsDefinitions(
-        groupDefinition,
-      );
+      const fieldDefinitions: FieldDefinition[] =
+        this.getFieldsDefinitions(groupDefinition);
       groupDefinition.fields = [];
       columns.forEach((column: string) =>
         groupDefinition.fields.push({name: column, fields: fieldDefinitions}),
@@ -626,8 +652,9 @@ class GroupDefinitionEditor extends Component {
         columns == null ||
         columns.length === 0 ||
         (columns.length === 1 && columns[0].trim() === '')
-      )
+      ) {
         columns = undefined;
+      }
       this.updateColumns(columns, groupDefinition);
       groupDefinition[fieldName] = columns;
     } else if (fieldName === 'fields') {
@@ -658,13 +685,17 @@ class GroupDefinitionEditor extends Component {
 
   getFieldsDefinitions(groupDefinition: GroupDefinition): FieldDefinition[] {
     if (this.hasColumns(groupDefinition)) {
-      if (groupDefinition.fields === undefined) return undefined;
+      if (groupDefinition.fields === undefined) {
+        return undefined;
+      }
       const firstColumn: string = groupDefinition.columns[0];
       const columnDefinition: FieldDefinition = groupDefinition.fields.find(
         (fieldDefinition: FieldDefinition) =>
           fieldDefinition.name === firstColumn,
       );
-      if (columnDefinition === undefined) return undefined;
+      if (columnDefinition === undefined) {
+        return undefined;
+      }
       return columnDefinition.fields;
     }
     return groupDefinition.fields;
@@ -672,9 +703,8 @@ class GroupDefinitionEditor extends Component {
 
   render() {
     let groupDefinition: GroupDefinition = this.state.groupDefinition;
-    let fields: FieldDefinition | GroupDefinition[] = this.getFieldsDefinitions(
-      groupDefinition,
-    );
+    let fields: FieldDefinition | GroupDefinition[] =
+      this.getFieldsDefinitions(groupDefinition);
     return (
       <View style={styles.todoExamCardExpanded}>
         <FormRow>
@@ -761,12 +791,14 @@ class ExamDefinitionHeader extends Component {
       !this.props.examDefinition.fields ||
       this.props.examDefinition.fields.length <= index ||
       index < 0
-    )
+    ) {
       return;
-    let selectedField: ?FieldDefinition = this.props.examDefinition.fields[
-      index
-    ];
-    if (this.state.selectedField === selectedField) selectedField = undefined;
+    }
+    let selectedField: ?FieldDefinition =
+      this.props.examDefinition.fields[index];
+    if (this.state.selectedField === selectedField) {
+      selectedField = undefined;
+    }
     LayoutAnimation.easeInEaseOut();
     this.setState({selectedField});
   };
@@ -775,8 +807,9 @@ class ExamDefinitionHeader extends Component {
     if (
       !this.props.examDefinition.fields ||
       this.props.examDefinition.fields.length === 0
-    )
+    ) {
       return;
+    }
     let groups: GroupDefinition[] = this.props.examDefinition.fields;
     if (this.state.selectedGroup) {
       groups.splice(groups.indexOf(this.state.selectedGroup), 1);
@@ -792,12 +825,14 @@ class ExamDefinitionHeader extends Component {
       !this.props.examDefinition.fields ||
       this.props.examDefinition.fields.length <= index ||
       index < 0
-    )
+    ) {
       return;
-    let selectedGroup: ?GroupDefinition = this.props.examDefinition.fields[
-      index
-    ];
-    if (this.state.selectedGroup === selectedGroup) selectedGroup = undefined;
+    }
+    let selectedGroup: ?GroupDefinition =
+      this.props.examDefinition.fields[index];
+    if (this.state.selectedGroup === selectedGroup) {
+      selectedGroup = undefined;
+    }
     LayoutAnimation.easeInEaseOut();
     this.setState({selectedGroup});
   };
@@ -978,8 +1013,8 @@ export class ExamDefinitionScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let examDefinition = (ExamDefinition = this.props.navigation.state.params
-      .examDefinition);
+    let examDefinition = (ExamDefinition =
+      this.props.navigation.state.params.examDefinition);
     const exam: Exam = this.initExam(examDefinition);
     this.state = {
       exam,
@@ -1007,8 +1042,9 @@ export class ExamDefinitionScreen extends Component {
 
   componentWillUnmount() {
     this.unmounted = true;
-    if (this.state.isDirty)
+    if (this.state.isDirty) {
       this.storeExamDefinition(this.state.exam.definition);
+    }
   }
 
   async refreshExamDefinition() {
@@ -1051,7 +1087,9 @@ export class ExamDefinitionScreen extends Component {
       if (!this.unmounted) {
         let exam: Exam = this.state.exam;
         exam.definition = examDefinition;
-        if (!exam[examDefinition.name]) exam[examDefinition.name] = {};
+        if (!exam[examDefinition.name]) {
+          exam[examDefinition.name] = {};
+        }
         this.setState({exam, isDirty: false});
       }
     } catch (error) {
@@ -1123,7 +1161,9 @@ export class ExamDefinitionScreen extends Component {
   }
 
   render() {
-    if (!this.state.exam.definition) return null;
+    if (!this.state.exam.definition) {
+      return null;
+    }
     return (
       <View>
         <ExamDefinitionHeader
@@ -1160,13 +1200,19 @@ export class TemplatesScreen extends Component {
     let preExamDefinitions = getCachedItems(
       getCachedItem('preExamDefinitions'),
     );
-    if (!preExamDefinitions) preExamDefinitions = [];
+    if (!preExamDefinitions) {
+      preExamDefinitions = [];
+    }
     let examDefinitions = getCachedItems(getCachedItem('examDefinitions'));
-    if (!examDefinitions) examDefinitions = [];
+    if (!examDefinitions) {
+      examDefinitions = [];
+    }
     let assessmentDefintions = getCachedItems(
       getCachedItem('assessmentDefintions'),
     );
-    if (!assessmentDefintions) assessmentDefintions = [];
+    if (!assessmentDefintions) {
+      assessmentDefintions = [];
+    }
     this.state = {
       preExamDefinitions,
       examDefinitions,

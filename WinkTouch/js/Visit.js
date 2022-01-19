@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
-import {getCodeDefinition} from './Codes';
+import {getAllCodes, getCodeDefinition} from './Codes';
 import type {
   Exam,
   Visit,
@@ -29,6 +29,7 @@ import type {
   User,
   Prescription,
   CodeDefinition,
+  ExamRoom,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -103,6 +104,7 @@ import {isReferralsEnabled} from './Referral';
 import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import {BillingCard} from './Visit/Partials';
+import {getExamRoom, getExamRoomCode, updateExamRoom} from './Room';
 
 export const examSections: string[] = [
   'Amendments',
@@ -183,14 +185,18 @@ export async function saveVisitTypes(visitTypes: VisitType[]) {
 }
 
 function hasVisitMedicalDataReadAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return (
     visit.medicalDataPrivilege === PRIVILEGE.READONLY ||
     visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS
   );
 }
 function hasVisitPretestReadAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return (
     visit.pretestPrivilege === PRIVILEGE.READONLY ||
     visit.pretestPrivilege === PRIVILEGE.FULLACCESS
@@ -198,11 +204,15 @@ function hasVisitPretestReadAccess(visit: Visit): boolean {
 }
 
 function hasVisitMedicalDataWriteAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return visit.medicalDataPrivilege === PRIVILEGE.FULLACCESS;
 }
 function hasVisitPretestWriteAccess(visit: Visit): boolean {
-  if (!visit) return false;
+  if (!visit) {
+    return false;
+  }
   return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
 }
 
@@ -271,6 +281,16 @@ export async function fetchReferralFollowUpHistory(
   const id: string = isEmpty(patientId) ? '*' : patientId;
   cacheItem('referralFollowUpHistory-' + id, allFollowUp);
 }
+export async function fetchVisitForAppointment(appointmentId: string): Visit {
+  const searchCriteria = {appointmentId: appointmentId};
+  let restResponse = await searchItems(
+    'Visit/list/appointment',
+    searchCriteria,
+  );
+  const visit: Visit = restResponse.visit;
+  cacheItemById(visit);
+  return visit;
+}
 
 export async function fetchVisitHistory(patientId: string): string[] {
   const searchCriteria = {patientId: patientId};
@@ -303,10 +323,13 @@ export async function fetchVisitHistory(patientId: string): string[] {
 }
 
 export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
-  if (patientId === undefined || patientId === null || patientId === '')
+  if (patientId === undefined || patientId === null || patientId === '') {
     return undefined;
+  }
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
-  if (!visitHistory || visitHistory.length === 0) return undefined;
+  if (!visitHistory || visitHistory.length === 0) {
+    return undefined;
+  }
   let codeDescriptions: CodeDefinition[] = [];
   //Check if there is two visits of the same type on the same day
   let hasDoubles: boolean = false;
@@ -325,7 +348,9 @@ export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
       } else {
         break;
       }
-      if (hasDoubles) break;
+      if (hasDoubles) {
+        break;
+      }
     }
   }
   const dateFormat: string = hasDoubles ? yearDateTime24Format : yearDateFormat;
@@ -624,7 +649,9 @@ type StartVisitButtonsState = {
   visitTypes: VisitType[],
   clicked: boolean,
   isVisitOptionsVisible: boolean,
+  isExamRoomOptionsVisible: boolean,
   visitOptions: CodeDefinition[],
+  examRoomOptions: CodeDefinition[],
   visitType: string,
 };
 export class StartVisitButtons extends Component<
@@ -637,8 +664,10 @@ export class StartVisitButtons extends Component<
       visitTypes: [],
       clicked: false,
       isVisitOptionsVisible: false,
+      isExamRoomOptionsVisible: false,
       visitOptions: [],
       visitType: '',
+      examRoomOptions: [],
     };
   }
 
@@ -658,13 +687,11 @@ export class StartVisitButtons extends Component<
   }
 
   startVisit(visitType: string) {
-    if (this.state.clicked || this.props.isLoading) return;
+    if (this.state.clicked || this.props.isLoading) {
+      return;
+    }
     this.setState({clicked: true, visitType: visitType}, () => {
-      if (this.props.isPretest == false) {
-        this.showVisitOptions();
-      } else {
-        this.props.onStartVisit(visitType);
-      }
+      this.showExamRoomOptions();
       this.setState({clicked: false});
     });
   }
@@ -689,8 +716,26 @@ export class StartVisitButtons extends Component<
     }
   }
 
+  showExamRoomOptions() {
+    const blankRoom: CodeDefinition = {
+      code: undefined,
+      description: strings.noRoom,
+    };
+    const examRooms: CodeDefinition[] = [blankRoom].concat(
+      getAllCodes('examRooms'),
+    );
+    this.setState({
+      examRoomOptions: examRooms,
+      isExamRoomOptionsVisible: true,
+    });
+  }
+
   hideVisitOptions = () => {
     this.setState({isVisitOptionsVisible: false});
+  };
+
+  hideExamRoomOptions = () => {
+    this.setState({isExamRoomOptionsVisible: false});
   };
 
   selectVisit = (visit: ?CodeDefinition) => {
@@ -701,6 +746,35 @@ export class StartVisitButtons extends Component<
       visit ? visit.code : undefined,
     );
   };
+
+  selectExamRoom = (examRoom: ?CodeDefinition) => {
+    this.setState({isExamRoomOptionsVisible: false});
+    let inactive: boolean = false;
+    if (!examRoom || !examRoom.code) {
+      examRoom = this.getExamRoom();
+      inactive = true;
+    }
+    if (examRoom && examRoom.code) {
+      const examRoomPatient: ExamRoom = {
+        id: 'room-' + examRoom.code,
+        patientId: this.props.patientInfo.id,
+        examRoomId: 'room-' + examRoom.code,
+        inactive: inactive,
+      };
+      updateExamRoom(examRoomPatient);
+    }
+
+    if (this.props.isPretest == false) {
+      this.showVisitOptions();
+    } else {
+      this.props.onStartVisit(this.state.visitType);
+    }
+  };
+
+  getExamRoom(): CodeDefinition {
+    const examRoom: CodeDefinition = getExamRoomCode(this.props.patientInfo.id);
+    return examRoom;
+  }
 
   render() {
     if (this.state.visitTypes.length === 0) {
@@ -737,6 +811,14 @@ export class StartVisitButtons extends Component<
           options={this.state.visitOptions}
           onSelect={this.selectVisit}
           onCancel={this.hideVisitOptions}
+        />
+        <SelectionDialog
+          visible={this.state.isExamRoomOptionsVisible}
+          label={'Exam Room'}
+          options={this.state.examRoomOptions}
+          value={this.getExamRoom()}
+          onSelect={this.selectExamRoom}
+          onCancel={this.hideExamRoomOptions}
         />
       </View>
     );
@@ -2135,18 +2217,23 @@ export class VisitHistory extends Component {
     );
   }
   shouldRenderActionButons(): boolean {
-    if (this.props.readonly) return false;
+    if (this.props.readonly) {
+      return false;
+    }
 
     const isNewAppointment: boolean = this.isNewAppointment();
     const userHasPretestWriteAccess: boolean =
       getPrivileges().pretestPrivilege === 'FULLACCESS';
-    if (isNewAppointment && userHasPretestWriteAccess) return true;
+    if (isNewAppointment && userHasPretestWriteAccess) {
+      return true;
+    }
     if (
       !isNewAppointment &&
       userHasPretestWriteAccess &&
       !this.props.hasAppointment
-    )
+    ) {
       return true;
+    }
 
     return false;
   }

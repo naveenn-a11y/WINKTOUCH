@@ -115,19 +115,15 @@ export default class BillingCard extends Component {
     }
 
     return (
-      <View
-        style={
-          isWeb
-            ? [styles.tabCard, {flexShrink: 100}]
-            : [styles.tabCard, {flexGrow: 13}]
-        }>
+      <View style={[styles.tabCard, styles.billingView]}>
         <Text style={styles.cardTitle}>{strings.billing}</Text>
         {this.state.billing &&
           this.state.billing.length !== 0 &&
           (hasNoAccess ? (
             <NoAccess />
           ) : (
-            <View style={{maxWidth: 300}}>
+            <View
+              style={[styles.billingView, {width: '100%'}]}>
               {this.state.billing.map((visitSummary: Exam, index: number) =>
                 visitSummary.noaccess ? (
                   <NoAccess
@@ -141,24 +137,16 @@ export default class BillingCard extends Component {
                     }
                   />
                 ) : (
-                  <View style={styles.rowLayout}>
-                    <View
-                      style={
-                        isWeb
-                          ? [styles.cardColumn, {flex: 1}]
-                          : [styles.listRow]
-                      }>
-                      <Text style={styles.text}>
-                        {formatDate(
-                          getCachedItem(visitSummary.visitId).date,
-                          isToyear(getCachedItem(visitSummary.visitId).date)
-                            ? dateFormat
-                            : farDateFormat,
-                        )}
-                        : {visitSummary.description}{' '}
-                        {visitSummary.icdDescription}
-                      </Text>
-                    </View>
+                  <View style={isWeb ? styles.bgRowWeb : styles.bgRow}>
+                    <Text style={styles.text}>
+                      {formatDate(
+                        getCachedItem(visitSummary.visitId).date,
+                        isToyear(getCachedItem(visitSummary.visitId).date)
+                          ? dateFormat
+                          : farDateFormat,
+                      )}
+                      : {visitSummary.description} {visitSummary.icdDescription}
+                    </Text>
                   </View>
                 ),
               )}

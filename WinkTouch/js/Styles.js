@@ -961,6 +961,19 @@ export const styles = StyleSheet.create({
     right: 8 * fontScale,
     top: 10 * fontScale,
   },
+  bgRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: 5,
+    padding: 5,
+  },
+  bgRowWeb: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: '5px',
+    padding: '5px',
+  },
+  billingView: {maxWidth: 300},
   listRow: {
     flex: 10,
     flexDirection: 'row',
@@ -1443,14 +1456,28 @@ function modalTileLabel(isSelected: boolean, isIcon: boolean = false) {
 }
 
 export function scaleStyle(style: Object): Object {
-  if (style === undefined || style === null) return style;
+  if (style === undefined || style === null) {
+    return style;
+  }
   const scaledStyle: Object = JSON.parse(JSON.stringify(style));
-  if (style.top) scaledStyle.top = style.top * fontScale;
-  if (style.left) scaledStyle.left = style.left * fontScale;
-  if (style.right) scaledStyle.right = style.right * fontScale;
-  if (style.bottom) scaledStyle.bottom = style.bottom * fontScale;
-  if (style.width) scaledStyle.width = style.width * fontScale;
-  if (style.height) scaledStyle.height = style.height * fontScale;
+  if (style.top) {
+    scaledStyle.top = style.top * fontScale;
+  }
+  if (style.left) {
+    scaledStyle.left = style.left * fontScale;
+  }
+  if (style.right) {
+    scaledStyle.right = style.right * fontScale;
+  }
+  if (style.bottom) {
+    scaledStyle.bottom = style.bottom * fontScale;
+  }
+  if (style.width) {
+    scaledStyle.width = style.width * fontScale;
+  }
+  if (style.height) {
+    scaledStyle.height = style.height * fontScale;
+  }
 
   return scaledStyle;
 }

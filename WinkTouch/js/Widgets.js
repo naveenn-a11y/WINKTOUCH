@@ -98,17 +98,21 @@ export class Label extends PureComponent {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value === this.state.newLabel || isInTranslateMode()) return;
+    if (this.props.value === this.state.newLabel || isInTranslateMode()) {
+      return;
+    }
     this.setState({newLabel: this.props.value});
   }
 
   saveLabel = () => {
-    if (this.props.value === this.state.newLabel) return;
+    if (this.props.value === this.state.newLabel) {
+      return;
+    }
     updateLabel(this.props.fieldId, this.state.newLabel);
   };
 
   render() {
-    if (isInTranslateMode())
+    if (isInTranslateMode()) {
       return (
         <TextInput
           style={[this.props.style, styles.translateField]}
@@ -118,7 +122,10 @@ export class Label extends PureComponent {
           onBlur={this.saveLabel}
         />
       );
-    if (!this.props.value || this.props.value.length === 0) return null;
+    }
+    if (!this.props.value || this.props.value.length === 0) {
+      return null;
+    }
     const style = this.props.style
       ? this.props.style
       : this.props.width
@@ -271,8 +278,12 @@ export class FocusTile extends Component {
     type: 'next',
   };
   render() {
-    if (!this.props.transferFocus) return null;
-    if (!this.props.transferFocus[this.props.type + 'Field']) return null;
+    if (!this.props.transferFocus) {
+      return null;
+    }
+    if (!this.props.transferFocus[this.props.type + 'Field']) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={() =>
@@ -320,13 +331,16 @@ export class TextField extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.value === this.props.value) return;
+    if (prevProps.value === this.props.value) {
+      return;
+    }
     this.setState({value: this.props.value});
   }
 
   commitEdit(value: string) {
-    if (this.props.onChangeValue && value !== this.props.value)
+    if (this.props.onChangeValue && value !== this.props.value) {
       this.props.onChangeValue(value);
+    }
   }
 
   handleKeyEvent(keyCode: Number) {
@@ -420,26 +434,36 @@ export class TextArrayField extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.value === this.props.value) return;
+    if (prevProps.value === this.props.value) {
+      return;
+    }
     this.setState({value: this.props.value ? this.props.value : []});
   }
 
   commitEdit(value: ?(string[])) {
     this.setState({value});
-    if (this.props.onChangeValue) this.props.onChangeValue(value);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(value);
+    }
   }
 
   changeText(text: string, index: number): void {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     let value: ?(string[]) = this.state.value;
-    if (!value || index >= value.length || index < 0) return;
+    if (!value || index >= value.length || index < 0) {
+      return;
+    }
     value[index] = text;
     this.commitEdit(value);
   }
 
   addItem = () => {
     let items = this.state.value;
-    if (items === undefined || items === null) items = [];
+    if (items === undefined || items === null) {
+      items = [];
+    }
     items.push('');
     this.commitEdit(items);
   };
@@ -447,7 +471,9 @@ export class TextArrayField extends Component {
   removeItem = () => {
     Keyboard.dismiss();
     let items = this.state.value;
-    if (items === undefined || items === null) return;
+    if (items === undefined || items === null) {
+      return;
+    }
     items.pop();
     this.commitEdit(items);
   };
@@ -498,7 +524,9 @@ export class ButtonArray extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value === prevProps.value) return;
+    if (this.props.value === prevProps.value) {
+      return;
+    }
     this.setState({value: this.props.value});
   }
 
@@ -585,8 +613,9 @@ export class NumberField extends Component {
     if (
       this.props.value === prevProps.value &&
       this.props.isTyping === prevProps.isTyping
-    )
+    ) {
       return;
+    }
     this.setState({
       editedValue: this.props.isTyping
         ? this.props.value
@@ -605,7 +634,9 @@ export class NumberField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     const fractions = this.generateFractions(this.props);
     //KeyEvent.onKeyUpListener((keyEvent) => {
     //  console.log(`onKeyUp keyCode: ${keyEvent.keyCode}`);
@@ -623,13 +654,17 @@ export class NumberField extends Component {
   };
 
   openModal = () => {
-    if (!this.state.isTyping) return;
+    if (!this.state.isTyping) {
+      return;
+    }
 
     this.setState({isTyping: false});
     this.startEditing();
   };
   startTyping = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     //KeyEvent.removeKeyUpListener();
     this.setState({isActive: false, isTyping: true});
   };
@@ -666,7 +701,9 @@ export class NumberField extends Component {
     if (this.state.fractions === undefined) {
       //keypad
       const value = Number.parseFloat(this.state.editedValue);
-      if (isFinite(value)) return value;
+      if (isFinite(value)) {
+        return value;
+      }
       return this.state.editedValue;
     }
     if (
@@ -675,9 +712,10 @@ export class NumberField extends Component {
       this.state.editedValue[2] === undefined &&
       this.state.editedValue[3] === undefined &&
       this.state.editedValue[4] === undefined
-    )
+    ) {
       return undefined;
-    let combinedValue: ?number = undefined;
+    }
+    let combinedValue: ?number;
     if (
       this.state.editedValue[0] !== undefined ||
       this.state.editedValue[1] !== undefined ||
@@ -685,32 +723,40 @@ export class NumberField extends Component {
       this.state.editedValue[3] !== undefined
     ) {
       combinedValue = 0;
-      let suffix: ?string = undefined;
-      if (this.state.editedValue[1] !== undefined)
+      let suffix: ?string;
+      if (this.state.editedValue[1] !== undefined) {
         combinedValue += Number(this.state.editedValue[1]);
-      if (this.state.editedValue[2] !== undefined)
+      }
+      if (this.state.editedValue[2] !== undefined) {
         combinedValue += Number(this.state.editedValue[2]);
-      if (this.state.editedValue[3] !== undefined)
+      }
+      if (this.state.editedValue[3] !== undefined) {
         combinedValue += Number(this.state.editedValue[3]);
+      }
       if (
         this.state.editedValue[0] === '-' ||
         (combinedValue !== 0 && this.props.range[1] <= 0)
-      )
+      ) {
         combinedValue = -combinedValue;
-      if (combinedValue < this.props.range[0])
+      }
+      if (combinedValue < this.props.range[0]) {
         combinedValue = this.props.range[0];
-      else if (combinedValue > this.props.range[1])
+      } else if (combinedValue > this.props.range[1]) {
         combinedValue = this.props.range[1];
+      }
     }
-    let suffix: ?string = undefined;
+    let suffix: ?string;
     if (this.state.editedValue[4] !== undefined) {
       if (this.props.options) {
         const option: string = this.state.editedValue[4];
         if (this.props.options instanceof Array) {
-          if (this.props.options.includes(option)) return option;
-        } else {
-          if (formatAllCodes(this.props.options).includes(option))
+          if (this.props.options.includes(option)) {
             return option;
+          }
+        } else {
+          if (formatAllCodes(this.props.options).includes(option)) {
+            return option;
+          }
         }
       }
       if (
@@ -723,8 +769,9 @@ export class NumberField extends Component {
           suffix === '\u2715' ||
           suffix === '\u2328' ||
           suffix === '\u27f3'
-        )
+        ) {
           suffix = undefined;
+        }
       }
     }
     if (suffix) {
@@ -752,8 +799,9 @@ export class NumberField extends Component {
 
   splitValue(value: number | string, fractions: string[]): (?string)[] {
     const originalValue: number | string = value;
-    if (value === undefined || value === null)
+    if (value === undefined || value === null) {
       return [undefined, undefined, undefined, undefined, undefined];
+    }
     //TODO check if value is an option
     //remove prefix
     if (this.props.prefix && this.props.prefix != '+') {
@@ -762,7 +810,7 @@ export class NumberField extends Component {
       }
     }
     //parse suffix
-    let suffix: ?string = undefined;
+    let suffix: ?string;
     if (
       this.props.suffix !== undefined &&
       value.toLowerCase &&
@@ -785,8 +833,9 @@ export class NumberField extends Component {
     }
     if (value.toLowerCase) {
       value = parseFloat(value);
-      if (isNaN(value))
+      if (isNaN(value)) {
         return [undefined, undefined, undefined, undefined, undefined];
+      }
     }
     let sign: ?string =
       value < 0
@@ -879,8 +928,9 @@ export class NumberField extends Component {
 
       //((this.state.fractions[4].length>(this.props.freestyle===true?3:2)?3:2) + (this.props.decimals > 0 ? (this.state.fractions[4].length> 2? 0 : 1) : 0)) <= column;
 
-      if (column >= 1 && newColumnValue === this.state.editedValue[column])
+      if (column >= 1 && newColumnValue === this.state.editedValue[column]) {
         newColumnValue = undefined;
+      }
       editedValue[column] = newColumnValue;
       if (!isSubmitColumn) {
         //Clear following columns
@@ -889,22 +939,29 @@ export class NumberField extends Component {
         }
       }
       this.setState({editedValue, isDirty: true}, () => {
-        if (isSubmitColumn) this.commitEdit();
+        if (isSubmitColumn) {
+          this.commitEdit();
+        }
       });
     }
   }
 
   format(value: ?number | string): string {
-    if (value === undefined || value === null) return '';
-    if (value.toString().trim() === '') return '';
+    if (value === undefined || value === null) {
+      return '';
+    }
+    if (value.toString().trim() === '') {
+      return '';
+    }
 
     if (value instanceof Array) {
       let formattedValue: string = '';
       value.forEach((subValue: number | string) => {
         formattedValue += subValue + ' / ';
       });
-      if (!isEmpty(formattedValue))
+      if (!isEmpty(formattedValue)) {
         value = formattedValue.replace(/\/\s*$/, '');
+      }
     }
     if (
       this.props.options instanceof Array &&
@@ -934,7 +991,9 @@ export class NumberField extends Component {
       this.props.decimals != undefined && this.props.decimals > 0
         ? Number(value).toFixed(this.props.decimals)
         : String(value);
-    if (formattedValue == '') return '';
+    if (formattedValue == '') {
+      return '';
+    }
     if (this.props.prefix) {
       if (this.props.prefix.endsWith('+')) {
         if (formattedValue.length > 0 && formattedValue[0] != '-') {
@@ -952,8 +1011,9 @@ export class NumberField extends Component {
       this.props.suffix != undefined &&
       this.props.suffix instanceof Array === false &&
       this.props.suffix.includes('Code') === false
-    )
+    ) {
       formattedValue = formattedValue + this.props.suffix;
+    }
     return formattedValue;
   }
 
@@ -966,11 +1026,16 @@ export class NumberField extends Component {
       return undefined;
     }
     let fractions: string[][] = [[], [], [], [], []];
-    if (!props.range) return fractions;
+    if (!props.range) {
+      return fractions;
+    }
     //sign + -
     if (props.range[0] < 0) {
-      if (props.range[1] <= 0) fractions[0].push('-');
-      else fractions[0].push('+', '-');
+      if (props.range[1] <= 0) {
+        fractions[0].push('-');
+      } else {
+        fractions[0].push('+', '-');
+      }
     }
     //integer group
     if (
@@ -989,7 +1054,9 @@ export class NumberField extends Component {
         minGroup = 0;
       }
       minGroup = minGroup - (minGroup % props.groupSize);
-      if (minGroup < props.groupSize) minGroup = props.groupSize;
+      if (minGroup < props.groupSize) {
+        minGroup = props.groupSize;
+      }
 
       for (let i = minGroup; i <= maxGroup; i += props.groupSize) {
         fractions[1].push(String(i));
@@ -1147,31 +1214,35 @@ export class NumberField extends Component {
                         let isSelected: boolean =
                           isKeypad === false &&
                           this.state.editedValue[column] === option;
-                        if (option === '\u2328')
+                        if (option === '\u2328') {
                           return (
                             <KeyboardTile
                               commitEdit={this.startTyping}
                               key={row}
                             />
                           );
-                        if (option === '\u2714')
+                        }
+                        if (option === '\u2714') {
                           return (
                             <UpdateTile
                               commitEdit={this.commitEdit}
                               key={row}
                             />
                           );
-                        if (option === '\u2715')
+                        }
+                        if (option === '\u2715') {
                           return (
                             <ClearTile commitEdit={this.clearValue} key={row} />
                           );
-                        if (option === '\u27f3')
+                        }
+                        if (option === '\u27f3') {
                           return (
                             <RefreshTile
                               commitEdit={this.cancelEdit}
                               key={row}
                             />
                           );
+                        }
                         return (
                           <TouchableOpacity
                             key={row}
@@ -1299,13 +1370,17 @@ export class TilesField extends Component {
     };
   }
   componentDidUpdate(prevProps: any) {
-    if (this.props.isTyping === prevProps.isTyping) return;
+    if (this.props.isTyping === prevProps.isTyping) {
+      return;
+    }
     this.setState({
       isTyping: this.props.isTyping,
     });
   }
   startTyping = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({isActive: false, isTyping: true});
   };
 
@@ -1314,7 +1389,9 @@ export class TilesField extends Component {
   };
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       isActive: true,
       editedValue: this.props.combineOptions
@@ -1334,8 +1411,9 @@ export class TilesField extends Component {
       if (
         this.state.editedValue === undefined ||
         this.state.editedValue.length <= columnIndex
-      )
+      ) {
         return undefined;
+      }
       return this.state.editedValue[columnIndex];
     }
     return this.state.editedValue;
@@ -1343,12 +1421,17 @@ export class TilesField extends Component {
 
   updateValue(newValue?: string, columnIndex: number): void {
     let editedColumnValue: ?string = this.getEditedColumnValue(columnIndex);
-    if (newValue === editedColumnValue) newValue = undefined;
+    if (newValue === editedColumnValue) {
+      newValue = undefined;
+    }
     if (this.isMultiColumn()) {
       let editedValue: (?string)[] = this.state.editedValue;
-      if (editedValue instanceof Array === false)
+      if (editedValue instanceof Array === false) {
         editedValue = this.props.options.map((option) => undefined);
-      while (editedValue.length <= columnIndex) editedValue.push(undefined);
+      }
+      while (editedValue.length <= columnIndex) {
+        editedValue.push(undefined);
+      }
       editedValue[columnIndex] = newValue;
       if (this.updateConfirm()) {
         this.setState({editedValue});
@@ -1370,7 +1453,9 @@ export class TilesField extends Component {
       this.state.editedValue instanceof Array
         ? this.format(this.state.editedValue)
         : this.state.editedValue;
-    if (this.props.onChangeValue) this.props.onChangeValue(combinedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(combinedValue);
+    }
     this.setState({isActive: false, isTyping: false});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
@@ -1382,7 +1467,7 @@ export class TilesField extends Component {
   };
 
   clear = () => {
-    let clearedValue = undefined;
+    let clearedValue;
     if (this.state.editedValue instanceof Array) {
       clearedValue = this.state.editedValue.map((columnValue) => undefined);
     }
@@ -1390,7 +1475,9 @@ export class TilesField extends Component {
   };
 
   format(value: ?string | ?(string[])): string {
-    if (value === undefined || value === null || value === '') return '';
+    if (value === undefined || value === null || value === '') {
+      return '';
+    }
     let formattedValue: string = '';
     if (value instanceof Array) {
       value.forEach((columnValue: ?string, columnIndex: number) => {
@@ -1403,8 +1490,9 @@ export class TilesField extends Component {
           ) {
             formattedValue += this.props.prefix[columnIndex];
           }
-          if (columnValue !== undefined && columnValue !== null)
+          if (columnValue !== undefined && columnValue !== null) {
             formattedValue += columnValue;
+          }
           if (
             this.props.suffix !== undefined &&
             this.props.suffix !== null &&
@@ -1419,8 +1507,9 @@ export class TilesField extends Component {
       if (this.props.prefix != undefined && !this.isMultiColumn()) {
         formattedValue += this.props.prefix;
       }
-      if (value !== undefined && value !== null)
+      if (value !== undefined && value !== null) {
         formattedValue += value.toString();
+      }
       if (this.props.suffix != undefined && !this.isMultiColumn()) {
         formattedValue += this.props.suffix;
       }
@@ -1602,19 +1691,24 @@ export class ListField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({isActive: true, editedValue: this.props.value});
   };
 
   updateValue = (newValue?: string): void => {
     let editedValue: ?string = this.state.editedValue;
-    if (newValue == editedValue) newValue = undefined;
+    if (newValue == editedValue) {
+      newValue = undefined;
+    }
     this.setState({editedValue: newValue}, this.commitEdit);
   };
 
   commitEdit = () => {
-    if (this.props.onChangeValue)
+    if (this.props.onChangeValue) {
       this.props.onChangeValue(this.state.editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -1623,7 +1717,9 @@ export class ListField extends Component {
   };
 
   format(value?: string): string {
-    if (value === undefined) return '';
+    if (value === undefined) {
+      return '';
+    }
     return value;
   }
 
@@ -1697,7 +1793,9 @@ export class Clock extends Component {
     hidden?: boolean,
   };
   render() {
-    if (this.props.hidden) return null;
+    if (this.props.hidden) {
+      return null;
+    }
     return (
       <Image
         source={require('./image/clock.png')}
@@ -1746,7 +1844,9 @@ export class TimeField extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.isTyping === prevProps.isTyping) return;
+    if (this.props.isTyping === prevProps.isTyping) {
+      return;
+    }
     this.setState({
       isTyping: this.props.isTyping,
     });
@@ -1757,12 +1857,16 @@ export class TimeField extends Component {
   };
 
   startTyping = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({isActive: false, isTyping: true});
   };
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       editedValue: this.splitValue(),
       isActive: true,
@@ -1772,7 +1876,9 @@ export class TimeField extends Component {
 
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false, isTyping: false});
   };
 
@@ -1788,7 +1894,9 @@ export class TimeField extends Component {
       time.setMinutes(time.getMinutes() + minutes);
     }
     const editedValue: string = formatDate(time, time24Format);
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -1797,7 +1905,9 @@ export class TimeField extends Component {
   };
 
   clear = () => {
-    if (this.props.onChangeValue) this.props.onChangeValue(undefined);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
     this.setState({isActive: false});
   };
 
@@ -1829,7 +1939,9 @@ export class TimeField extends Component {
   }
 
   splitValue(): (?string)[] {
-    if (!this.props.value || this.props.value.length < 5) return [];
+    if (!this.props.value || this.props.value.length < 5) {
+      return [];
+    }
     const time24: string = this.props.value;
     const hour: string = time24.substring(0, 2) + ':00';
     let hour1, hour2, minute1, minute2: ?string;
@@ -1856,7 +1968,9 @@ export class TimeField extends Component {
       this.state.editedValue[0] === undefined
         ? this.state.editedValue[1]
         : this.state.editedValue[0];
-    if (hour === undefined) return undefined;
+    if (hour === undefined) {
+      return undefined;
+    }
     hour = hour.substring(0, 2);
     const minute: ?string =
       this.state.editedValue[2] === undefined
@@ -1867,13 +1981,22 @@ export class TimeField extends Component {
 
   updateValue(column: number, newColumnValue: ?string): void {
     let editedValue: (?string)[] = this.state.editedValue;
-    if (newColumnValue === this.state.editedValue[column])
+    if (newColumnValue === this.state.editedValue[column]) {
       newColumnValue = undefined;
+    }
     editedValue[column] = newColumnValue;
-    if (column === 0) editedValue[1] = undefined;
-    if (column === 1) editedValue[0] = undefined;
-    if (column === 2) editedValue[3] = undefined;
-    if (column === 3) editedValue[2] = undefined;
+    if (column === 0) {
+      editedValue[1] = undefined;
+    }
+    if (column === 1) {
+      editedValue[0] = undefined;
+    }
+    if (column === 2) {
+      editedValue[3] = undefined;
+    }
+    if (column === 3) {
+      editedValue[2] = undefined;
+    }
     if (column === 4) {
       this.commitNow(newColumnValue);
     } else {
@@ -2043,7 +2166,9 @@ export class DateField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       editedValue: this.splitValue(),
       isActive: true,
@@ -2053,7 +2178,9 @@ export class DateField extends Component {
 
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -2062,13 +2189,17 @@ export class DateField extends Component {
   };
 
   clear = () => {
-    if (this.props.onChangeValue) this.props.onChangeValue(undefined);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
     this.setState({isActive: false});
   };
 
   commitToday = () => {
     const editedValue: ?Date = new Date();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -2182,7 +2313,9 @@ export class DateField extends Component {
   }
 
   splitValue(): string[] {
-    if (!this.props.value) return [];
+    if (!this.props.value) {
+      return [];
+    }
     const date: Date = this.props.value;
     if (this.props.includeTime) {
       let year: string = formatDate(date, 'YYYY');
@@ -2236,8 +2369,9 @@ export class DateField extends Component {
         this.state.editedValue[3] === undefined ||
         this.state.editedValue[4] === undefined ||
         this.state.editedValue[5] === undefined
-      )
+      ) {
         return undefined;
+      }
       let combinedValue: Date = new Date();
       let year: number = parseInt(this.state.editedValue[0]);
       combinedValue.setFullYear(year);
@@ -2277,7 +2411,9 @@ export class DateField extends Component {
       const index: number = dayStrings.indexOf(this.state.editedValue[0]);
       if (index >= 0) {
         let value = today();
-        if (index == 2) return value;
+        if (index == 2) {
+          return value;
+        }
         return addDays(value, index - 2);
       }
       return undefined;
@@ -2288,13 +2424,15 @@ export class DateField extends Component {
         this.state.editedValue[3] === undefined) ||
       (this.state.editedValue[4] === undefined &&
         this.state.editedValue[5] === undefined)
-    )
+    ) {
       return undefined;
+    }
     let combinedValue: Date = new Date();
     if (this.state.editedValue[0] !== undefined) {
       let year: number = parseInt(this.state.editedValue[0]);
-      if (this.state.editedValue[1] !== undefined)
+      if (this.state.editedValue[1] !== undefined) {
         year += parseInt(this.state.editedValue[1]);
+      }
       combinedValue.setFullYear(year);
     }
     if (
@@ -2319,27 +2457,36 @@ export class DateField extends Component {
 
   updateValue(column: number, newColumnValue: string): void {
     let editedValue: string[] = this.state.editedValue;
-    if (newColumnValue === this.state.editedValue[column])
+    if (newColumnValue === this.state.editedValue[column]) {
       newColumnValue = undefined;
+    }
     editedValue[column] = newColumnValue;
     if (this.props.includeTime) {
-      if (column === 1) editedValue[2] = undefined;
-      else if (column === 2) editedValue[1] = undefined;
+      if (column === 1) {
+        editedValue[2] = undefined;
+      } else if (column === 2) {
+        editedValue[1] = undefined;
+      }
     } else if (this.props.recent) {
     } else {
-      if (column === 2) editedValue[3] = undefined;
-      else if (column === 3) editedValue[2] = undefined;
+      if (column === 2) {
+        editedValue[3] = undefined;
+      } else if (column === 3) {
+        editedValue[2] = undefined;
+      }
     }
     this.setState({editedValue, isDirty: true});
   }
   getFormat(value: ?Date): string {
     if (this.props.dateFormat) {
-      if ('yyyy-MM-dd' === this.props.dateFormat) {
+      if (this.props.dateFormat === 'yyyy-MM-dd') {
         return officialDateFormat;
       }
       return this.props.dateFormat;
     }
-    if (!value) return yearDateFormat;
+    if (!value) {
+      return yearDateFormat;
+    }
 
     let sameYear: boolean = isToyear(value);
     if (sameYear) {
@@ -2366,9 +2513,13 @@ export class DateField extends Component {
       }
       return formatDate(value, this.getFormat(value));
     }
-    if (value === undefined) return '';
+    if (value === undefined) {
+      return '';
+    }
     let stringValue: string = new String(value).toString();
-    if (stringValue === undefined) return '';
+    if (stringValue === undefined) {
+      return '';
+    }
     return stringValue;
   }
 
@@ -2521,7 +2672,9 @@ export class DurationField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       editedValue: this.splitValue(),
       isActive: true,
@@ -2531,12 +2684,16 @@ export class DurationField extends Component {
 
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
   clear = () => {
-    if (this.props.onChangeValue) this.props.onChangeValue(undefined);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
     this.setState({isActive: false});
   };
 
@@ -2554,7 +2711,9 @@ export class DurationField extends Component {
   }
 
   splitValue(): string[] {
-    if (!this.props.value || !this.props.startDate) return [];
+    if (!this.props.value || !this.props.startDate) {
+      return [];
+    }
     const date: Date = this.props.value;
     const popularValue: string = capitalize(this.format(date));
     return [[popularValue]];
@@ -2562,10 +2721,14 @@ export class DurationField extends Component {
 
   combinedValue(): ?Date {
     const totalFormattedValue: string = this.state.editedValue[0];
-    if (totalFormattedValue === undefined) return undefined;
+    if (totalFormattedValue === undefined) {
+      return undefined;
+    }
     const selectedIndex: number =
       this.state.fractions[0].indexOf(totalFormattedValue);
-    if (selectedIndex < 0) return undefined;
+    if (selectedIndex < 0) {
+      return undefined;
+    }
     const minuteDuration = DurationField.popularDurationMinutes[selectedIndex];
     let end = new Date(this.props.startDate.getTime() + minuteDuration * 60000);
     return end;
@@ -2573,8 +2736,9 @@ export class DurationField extends Component {
 
   updateValue(column: number, newColumnValue: string): void {
     let editedValue: string[] = this.state.editedValue;
-    if (newColumnValue === this.state.editedValue[column])
+    if (newColumnValue === this.state.editedValue[column]) {
       newColumnValue = undefined;
+    }
     editedValue[column] = newColumnValue;
     this.setState({editedValue, isDirty: true});
   }
@@ -2583,9 +2747,13 @@ export class DurationField extends Component {
     if (value instanceof Date) {
       return formatDuration(this.props.startDate, value);
     }
-    if (value === undefined) return '';
+    if (value === undefined) {
+      return '';
+    }
     let stringValue: string = new String(value).toString();
-    if (stringValue === undefined) return '';
+    if (stringValue === undefined) {
+      return '';
+    }
     return stringValue;
   }
 
@@ -2703,7 +2871,9 @@ export class Button extends Component {
     visible: true,
   };
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
@@ -2743,7 +2913,9 @@ export class CheckButton extends Component {
     visible: true,
   };
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TouchableOpacity
         activeOpacity={1}
@@ -2801,7 +2973,9 @@ export class BackButton extends Component {
   };
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={this.navigateBack}
@@ -2825,7 +2999,9 @@ export class AddButton extends Component {
   };
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <NativeBaseButton
         block
@@ -2875,7 +3051,9 @@ export class FloatingButton extends Component {
 
   renderAlert() {
     const options: any = this.state.options;
-    if (!options) return null;
+    if (!options) {
+      return null;
+    }
     return (
       <SelectionDialog
         visible={this.state.active}
@@ -2891,8 +3069,12 @@ export class FloatingButton extends Component {
   }
 
   render() {
-    if (!this.state.options) return null;
-    if (this.state.active) return this.renderAlert();
+    if (!this.state.options) {
+      return null;
+    }
+    if (this.state.active) {
+      return this.renderAlert();
+    }
     return (
       <FAB
         open={this.state.active}
@@ -2914,10 +3096,11 @@ export class Lock extends PureComponent {
     style: any,
   };
   render() {
-    if (this.props.locked === true)
+    if (this.props.locked === true) {
       return (
         <Icon name="lock" style={this.props.style} color={selectionFontColor} />
       );
+    }
     return (
       <Icon
         name="lock-open-outline"
@@ -2959,14 +3142,23 @@ export class SelectionListRow extends PureComponent {
 
   toggleSelect() {
     if (this.props.simpleSelect === true) {
-      if (this.props.selected === true) this.props.onSelect(false);
-      else this.props.onSelect(true);
+      if (this.props.selected === true) {
+        this.props.onSelect(false);
+      } else {
+        this.props.onSelect(true);
+      }
     } else {
-      if (this.props.selected === true) this.props.onSelect('-');
-      else if (this.props.selected === '-') this.props.onSelect('?');
-      else if (this.props.selected === '?') this.props.onSelect('+');
-      else if (this.props.selected === '+') this.props.onSelect(false);
-      else this.props.onSelect(true);
+      if (this.props.selected === true) {
+        this.props.onSelect('-');
+      } else if (this.props.selected === '-') {
+        this.props.onSelect('?');
+      } else if (this.props.selected === '?') {
+        this.props.onSelect('+');
+      } else if (this.props.selected === '+') {
+        this.props.onSelect(false);
+      } else {
+        this.props.onSelect(true);
+      }
     }
   }
 
@@ -2975,8 +3167,9 @@ export class SelectionListRow extends PureComponent {
       this.props.label === undefined ||
       this.props.label === null ||
       this.props.label.length <= this.props.maxLength
-    )
+    ) {
       return this.props.label;
+    }
     return (
       this.props.label.substr(0, 20) +
       '...' +
@@ -3016,11 +3209,16 @@ export function selectionPrefix(selection: ?string): string {
     selection === null ||
     selection === undefined ||
     selection.startsWith === undefined
-  )
+  ) {
     return '';
-  if (selection.startsWith('(+) ')) return '(+) ';
-  else if (selection.startsWith('(-) ')) return '(-) ';
-  else if (selection.startsWith('(?) ')) return '(?) ';
+  }
+  if (selection.startsWith('(+) ')) {
+    return '(+) ';
+  } else if (selection.startsWith('(-) ')) {
+    return '(-) ';
+  } else if (selection.startsWith('(?) ')) {
+    return '(?) ';
+  }
   return '';
 }
 
@@ -3029,14 +3227,16 @@ export function stripSelectionPrefix(selection: ?string): string {
     selection === null ||
     selection === undefined ||
     selection.startsWith === undefined
-  )
+  ) {
     return selection;
+  }
   if (
     selection.startsWith('(+) ') ||
     selection.startsWith('(-) ') ||
     selection.startsWith('(?) ')
-  )
+  ) {
     return selection.substr(4);
+  }
   return selection;
 }
 
@@ -3094,27 +3294,44 @@ export class SelectionList extends React.PureComponent {
       }
       this.props.onUpdateSelection(selection);
     } else {
-      let selection: ?string = undefined;
-      if (select === true) selection = item;
-      else if (select === '+') selection = '(+) ' + item;
-      else if (select === '-') selection = '(-) ' + item;
-      else if (select === '?') selection = '(?) ' + item;
+      let selection: ?string;
+      if (select === true) {
+        selection = item;
+      } else if (select === '+') {
+        selection = '(+) ' + item;
+      } else if (select === '-') {
+        selection = '(-) ' + item;
+      } else if (select === '?') {
+        selection = '(?) ' + item;
+      }
       this.props.onUpdateSelection(selection);
     }
-    if (this.state.filter !== '') this.setState({filter: ''});
+    if (this.state.filter !== '') {
+      this.setState({filter: ''});
+    }
   }
 
   isSelected(item: string): boolean | string {
     const selection: string | string[] | void = this.props.selection;
-    if (!selection) return false;
+    if (!selection) {
+      return false;
+    }
     if (selection instanceof Array) {
       let index = selection.indexOf(item); //TODO: +-?
       return index > -1;
     }
-    if (selection === item) return true;
-    if (selection === '(+) ' + item) return '+';
-    if (selection === '(-) ' + item) return '-';
-    if (selection === '(?) ' + item) return '?';
+    if (selection === item) {
+      return true;
+    }
+    if (selection === '(+) ' + item) {
+      return '+';
+    }
+    if (selection === '(-) ' + item) {
+      return '-';
+    }
+    if (selection === '(?) ' + item) {
+      return '?';
+    }
     return false;
   }
 
@@ -3124,8 +3341,9 @@ export class SelectionList extends React.PureComponent {
 
   selectedCount(): number {
     if (this.props.multiValue) {
-      if (this.props.selection instanceof Array)
+      if (this.props.selection instanceof Array) {
         return this.props.selection.length;
+      }
       return 0;
     }
     if (this.props.selection !== undefined) {
@@ -3135,7 +3353,9 @@ export class SelectionList extends React.PureComponent {
   }
 
   renderFilterField() {
-    if (!this.state.searchable) return null;
+    if (!this.state.searchable) {
+      return null;
+    }
     return (
       <TextInput
         returnKeyType="search"
@@ -3154,11 +3374,13 @@ export class SelectionList extends React.PureComponent {
   }
 
   itemsToShow(): any[] {
-    let data: any[] = undefined;
+    let data: any[];
     if (this.props.selection instanceof Array) {
       for (let selection: string of this.props.selection) {
         if (!this.props.items.includes(selection)) {
-          if (data === undefined) data = [].concat(this.props.items);
+          if (data === undefined) {
+            data = [].concat(this.props.items);
+          }
           data.unshift(selection);
         }
       }
@@ -3174,7 +3396,9 @@ export class SelectionList extends React.PureComponent {
         ? deAccent(this.state.filter.trim().toLowerCase())
         : undefined;
     if (filter) {
-      if (!data) data = this.props.items;
+      if (!data) {
+        data = this.props.items;
+      }
       data = data.filter(
         (item: string) =>
           item != null &&
@@ -3189,9 +3413,12 @@ export class SelectionList extends React.PureComponent {
       data.length === 0 &&
       this.state.filter &&
       this.state.filter.length > 0
-    )
+    ) {
       data.push(this.state.filter);
-    if (data === undefined) data = [].concat(this.props.items);
+    }
+    if (data === undefined) {
+      data = [].concat(this.props.items);
+    }
     return data;
   }
 
@@ -3306,7 +3533,9 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
 
   isDisabled(): boolean {
-    if (!this.props.multiValue) return false;
+    if (!this.props.multiValue) {
+      return false;
+    }
     let data: any = this.state.data;
     data = data.filter((element: any) => element.isChecked);
     return !(data && data.length > 0);
@@ -3362,7 +3591,8 @@ export class Alert extends Component<AlertProps, AlertState> {
                         onDeselect={() => this.toggleCheckbox(index)}
                         style={styles.alertCheckBox}
                         testID={this.props.testID + '.' + item}
-                        suffix={item}></CheckButton>
+                        suffix={item}
+                      />
                       {element.divider && <Divider />}
                     </View>
                   ) : (
@@ -3465,6 +3695,7 @@ export type SelectionDialogProps = {
   onCancel?: () => void,
   visible: boolean,
   testID?: string,
+  value?: any,
 };
 export class SelectionDialog extends Component<
   SelectionDialogProps,
@@ -3475,7 +3706,9 @@ export class SelectionDialog extends Component<
   }
 
   selectOption(option: any): void {
-    if (option.readonly) return;
+    if (option.readonly) {
+      return;
+    }
     this.props.onSelect(option);
   }
 
@@ -3494,6 +3727,12 @@ export class SelectionDialog extends Component<
               <View style={styles.centeredRowLayout}>
                 <View style={styles.modalColumn}>
                   {this.props.options.map((option: any, rowIndex: number) => {
+                    const isSelected: boolean = this.props.value
+                      ? option.code === this.props.value.code
+                      : false;
+                    const popupTileStyle: any = isSelected
+                      ? styles.popupTileSelected
+                      : styles.popupTile;
                     return (
                       <TouchableOpacity
                         key={rowIndex}
@@ -3501,7 +3740,7 @@ export class SelectionDialog extends Component<
                         testID={'option' + (rowIndex + 1)}>
                         <View
                           style={
-                            option.readonly ? styles.readOnly : styles.popupTile
+                            option.readonly ? styles.readOnly : popupTileStyle
                           }>
                           <Text style={styles.modalTileLabel}>
                             {formatCodeDefinition(option)}

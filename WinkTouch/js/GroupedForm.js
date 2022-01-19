@@ -580,7 +580,7 @@ export class GroupedCard extends Component {
     fieldDefinition: FieldDefinition,
     showLabel: boolean,
     groupIndex: number,
-    column?: string = undefined,
+    column: ?string = undefined,
   ) {
     if (column === '>>') {
       return null;
@@ -594,6 +594,7 @@ export class GroupedCard extends Component {
     if (fieldDefinition.isLabel) {
       return null;
     }
+
     if (
       this.props.exam[this.props.exam.definition.name] === undefined ||
       this.props.exam[this.props.exam.definition.name][groupDefinition.name] ===
@@ -818,7 +819,7 @@ export class GroupedCard extends Component {
   renderSimpleRow(
     groupDefinition: GroupDefinition,
     fieldDefinition: FieldDefinition,
-    groupIndex?: number = 0,
+    groupIndex: ?number = 0,
   ) {
     const showLabel: boolean = true;
     return this.renderField(
@@ -837,7 +838,7 @@ export class GroupedCard extends Component {
     );
   }
 
-  renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
+  renderRows(groupDefinition: GroupDefinition, groupIndex: ?number = 0) {
     let rows: any[] = [];
 
     for (
@@ -1023,6 +1024,7 @@ export class GroupedCard extends Component {
         }
       },
     );
+
     if (this.props.showTitle === false) {
       return null;
     }
@@ -1256,11 +1258,15 @@ export class GroupedForm extends Component {
     ) {
       return;
     }
-    const defaultValue: string = getDefaultValue(fieldDefinition);
-    if (defaultValue !== undefined) {
-      this.props.onChangeField(fieldDefinition.name, defaultValue);
+    const value: string = getDefaultValue(fieldDefinition);
+    if (
+      value &&
+      fieldDefinition.defaultValue.startsWith('[') &&
+      fieldDefinition.defaultValue.endsWith(']')
+    ) {
+      this.props.onChangeField(fieldDefinition.name, value);
     }
-    return getDefaultValue(fieldDefinition);
+    return value;
   }
 
   renderAlert() {
@@ -2216,6 +2222,7 @@ export class GroupedFormScreen extends Component<
             hasAdd={groupDefinition.hasAdd}
             hasLensType={groupDefinition.hasLensType}
             hasPD={groupDefinition.hasPD}
+            hasMPD={groupDefinition.hasMPD}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -2294,6 +2301,7 @@ export class GroupedFormScreen extends Component<
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2320,6 +2328,7 @@ export class GroupedFormScreen extends Component<
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}

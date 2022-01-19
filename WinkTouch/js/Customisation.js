@@ -80,7 +80,9 @@ export class CustomisationScreen extends PureComponent<
     let preExamDefinitions: ?(ExamDefinition[]) = getCachedItems(
       getCachedItem('preExamDefinitions'),
     );
-    if (!preExamDefinitions) return;
+    if (!preExamDefinitions) {
+      return;
+    }
     const pretestDefinition = {
       name: 'Pre tests',
       options: preExamDefinitions.map((examDefinition: ExamDefinition) =>
@@ -97,7 +99,9 @@ export class CustomisationScreen extends PureComponent<
     let preExamDefinitions: ?(ExamDefinition[]) = getCachedItems(
       getCachedItem('preExamDefinitions'),
     );
-    if (!examDefinitions) return [];
+    if (!examDefinitions) {
+      return [];
+    }
     if (preExamDefinitions) {
       examDefinitions = examDefinitions.concat(preExamDefinitions);
     }
@@ -125,23 +129,27 @@ export class CustomisationScreen extends PureComponent<
   }
 
   getSelectedVisitType(): ?VisitType {
-    if (!this.state.visitTypes) return undefined;
+    if (!this.state.visitTypes) {
+      return undefined;
+    }
     const selectedVisitTypeIndex: number = this.state.visitTypes
       .map((visitType: VisitType) => visitType.name)
       .indexOf(this.state.visitType);
-    const selectedVisitType: VisitType = this.state.visitTypes[
-      selectedVisitTypeIndex
-    ];
+    const selectedVisitType: VisitType =
+      this.state.visitTypes[selectedVisitTypeIndex];
     return selectedVisitType;
   }
 
   getSelectedExamLabels(sectionDefinition: FieldDefinition): string[] {
     const visitType: ?VisitType = this.getSelectedVisitType();
-    if (!visitType || !visitType.examDefinitionIds) return [];
-    const selectedExamIds: string[] = sectionDefinition.examDefinitionIds.filter(
-      (examDefinitionId: string) =>
-        visitType.examDefinitionIds.indexOf(examDefinitionId) >= 0,
-    );
+    if (!visitType || !visitType.examDefinitionIds) {
+      return [];
+    }
+    const selectedExamIds: string[] =
+      sectionDefinition.examDefinitionIds.filter(
+        (examDefinitionId: string) =>
+          visitType.examDefinitionIds.indexOf(examDefinitionId) >= 0,
+      );
     const selectedExamNames: string[] = selectedExamIds.map(
       (examDefinitionId: string) => getCachedItem(examDefinitionId).name,
     );
@@ -153,7 +161,9 @@ export class CustomisationScreen extends PureComponent<
     selectedExamNames: string | string[],
   ) {
     const visitType: ?VisitType = this.getSelectedVisitType();
-    if (!visitType || !visitType.examDefinitionIds) return;
+    if (!visitType || !visitType.examDefinitionIds) {
+      return;
+    }
     sectionDefinition.examDefinitionIds.forEach((examDefinitionId: string) => {
       const examName: string = getCachedItem(examDefinitionId).name;
       const isSelected: boolean = selectedExamNames.indexOf(examName) >= 0;
@@ -165,9 +175,8 @@ export class CustomisationScreen extends PureComponent<
         }
       } else {
         //Remove the exam from the visit type
-        const index: number = visitType.examDefinitionIds.indexOf(
-          examDefinitionId,
-        );
+        const index: number =
+          visitType.examDefinitionIds.indexOf(examDefinitionId);
         if (index >= 0) {
           visitType.examDefinitionIds.splice(index, 1);
           visitType.isDirty = true;

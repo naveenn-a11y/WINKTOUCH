@@ -132,6 +132,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Far',
+    near: 'Near',
     maxLengthError: 'Too much text',
     minLengthError: 'Not enough text',
     requiredError: 'Mandatory',
@@ -252,6 +254,8 @@ export const strings = new LocalizedStrings({
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
     startBlank: 'Start blank',
+    noRoom: 'No room',
+    room: 'Room',
     startFromVisit: 'Start from previous consultation',
     lockedOn: 'Locked on',
     lastUpdateOn: 'Last update on',
@@ -276,7 +280,11 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Refractor',
     exportAction: 'Export',
     billing: 'Billing',
-    multipleBuiltInTemplate: 'More than 1 template was found, please select which one to use !'
+    multipleBuiltInTemplate:
+      'More than 1 template was found, please select which one to use !',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
   },
   fr: {
     enterRegisteredEmail:
@@ -402,6 +410,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Loin',
+    near: 'Près',
     maxLengthError: 'Trop de texte',
     minLengthError: 'Pas assez de texte',
     requiredError: 'Obligatoire',
@@ -528,6 +538,8 @@ export const strings = new LocalizedStrings({
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
+    noRoom: 'Pas de salle',
+    room: 'Salle',
     startFromVisit: "Commencer sur la base d'une consultation précédente",
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
@@ -551,7 +563,12 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Réfraction',
     exportAction: 'Exporter',
     billing: 'Facturation',
-    multipleBuiltInTemplate: 'Plus d\'un modèle a été trouvé, veuillez sélectionner celui à utiliser !',
+    multipleBuiltInTemplate:
+      "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
   },
 });
 
@@ -576,12 +593,16 @@ export function getUserLanguage(): string {
 
 export function getUserLanguageIcon(): string {
   let languageIndex: number = supportedLanguages.indexOf(getUserLanguage());
-  if (languageIndex < 0) languageIndex = 0;
+  if (languageIndex < 0) {
+    languageIndex = 0;
+  }
   return supportedLanguages[languageIndex + 1];
 }
 
 export function getUserLanguageShort(): string {
-  if (userLanguage === undefined) return undefined;
+  if (userLanguage === undefined) {
+    return undefined;
+  }
   return userLanguage.substring(0, 2);
 }
 
@@ -605,8 +626,9 @@ export function switchLanguage() {
 }
 
 AsyncStorage.getItem('userLanguage').then((userLanguage) => {
-  if (userLanguage === null || userLanguage === undefined)
+  if (userLanguage === null || userLanguage === undefined) {
     userLanguage = strings.getInterfaceLanguage();
+  }
   if (supportedLanguages.indexOf(userLanguage) < 0) {
     userLanguage = supportedLanguages[0];
   }
