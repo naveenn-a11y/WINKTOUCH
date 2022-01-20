@@ -969,12 +969,6 @@ class VisitWorkFlow extends Component {
     }
     const locked: boolean = this.state.locked;
 
-    if (locked) {
-      if (this.state.addableExamTypes.length !== 0) {
-        this.setState({addableExamTypes: []});
-      }
-      return;
-    }
     let allExamTypes: ExamDefinition[] = await allExamDefinitions(true);
     allExamTypes = allExamTypes.concat(await allExamDefinitions(false));
     let unstartedExamTypes: ExamDefinition[] = allExamTypes.filter(
@@ -1719,11 +1713,13 @@ class VisitWorkFlow extends Component {
             examType.section.substring(0, examType.section.indexOf('.')) ===
               section),
       );
+
     addableExamDefinitions = addableExamDefinitions.filter(
       (examType: ExamDefinition) =>
         (examType.isPreExam && hasPreTestWriteAccess) ||
         (!examType.isPreExam && hasMedicalDataWriteAccess),
     );
+
     const addableExamLabels: string[] = addableExamDefinitions.map(
       (examType: ExamDefinition) =>
         examType.label ? examType.label : examType.name,
