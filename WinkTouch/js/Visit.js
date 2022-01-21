@@ -721,9 +721,12 @@ export class StartVisitButtons extends Component<
       code: undefined,
       description: strings.noRoom,
     };
-    const examRooms: CodeDefinition[] = [blankRoom].concat(
-      getAllCodes('examRooms'),
-    );
+    const allRooms: CodeDefinition[] = getAllCodes('examRooms');
+    if (!allRooms || allRooms.length <= 0) {
+      return this.onSelectVisit();
+    }
+
+    const examRooms: CodeDefinition[] = [blankRoom].concat(allRooms);
     this.setState({
       examRoomOptions: examRooms,
       isExamRoomOptionsVisible: true,
@@ -764,12 +767,16 @@ export class StartVisitButtons extends Component<
       updateExamRoom(examRoomPatient);
     }
 
+    this.onSelectVisit();
+  };
+
+  onSelectVisit() {
     if (this.props.isPretest == false) {
       this.showVisitOptions();
     } else {
       this.props.onStartVisit(this.state.visitType);
     }
-  };
+  }
 
   getExamRoom(): CodeDefinition {
     const examRoom: CodeDefinition = getExamRoomCode(this.props.patientInfo.id);

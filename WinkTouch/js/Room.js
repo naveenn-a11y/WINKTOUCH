@@ -7,7 +7,6 @@ import {GroupedForm} from './GroupedForm';
 import React, {Component} from 'react';
 import {View} from 'react-native';
 import {getCodeDefinition} from './Codes';
-import {isEmpty} from './Util';
 
 const roomScreenDefinition = {
   name: 'Exam Room',
