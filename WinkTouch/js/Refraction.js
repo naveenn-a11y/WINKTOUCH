@@ -735,11 +735,13 @@ export class GlassesSummary extends Component {
     visible?: boolean,
     showHeaders?: boolean,
     titleStyle?: any,
+    showPD?: boolean,
   };
   static defaultProps = {
     visible: true,
     showHeaders: true,
     titleStyle: styles.cardTitle,
+    showPD: true,
   };
 
   render() {
@@ -879,7 +881,7 @@ export class GlassesSummary extends Component {
             {strings.binocularPd}: {this.props.glassesRx.pd}
           </Text>
         )}
-        {!isRxPDEmpty(this.props.glassesRx) && (
+        {this.props.showPD && !isRxPDEmpty(this.props.glassesRx) && (
           <Text style={styles.text}>
             {strings.pd} {strings.far}:{' '}
             {prefix(this.props.glassesRx.od.farPD, strings.od + ' ')}
@@ -1857,6 +1859,7 @@ export class PatientRefractionCard extends Component {
                     prefix(refraction.doctor, ' ')
                   }
                   glassesRx={refraction}
+                  showPD={false}
                   key={index}
                 />
               ),
