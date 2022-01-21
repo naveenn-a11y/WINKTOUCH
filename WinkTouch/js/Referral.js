@@ -18,7 +18,14 @@ import {
 import {NavigationActions} from 'react-navigation';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {styles, selectionColor, isWeb} from './Styles';
-import {Button, TilesField, Label, SelectionList, Binoculars, Alert} from './Widgets';
+import {
+  Button,
+  TilesField,
+  Label,
+  SelectionList,
+  Binoculars,
+  Alert,
+} from './Widgets';
 import {FormRow, FormTextInput, FormField, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCodeDefinition} from './Codes';
 import {fetchWinkRest} from './WinkRest';
@@ -378,7 +385,9 @@ export class ReferralScreen extends Component<
 
   updateFieldBuiltInTemplate(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.builtInTemplate = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
@@ -575,11 +584,15 @@ export class ReferralScreen extends Component<
 
     this.setState({command: COMMAND.EMAIL});
     const builtInTemplates: any = this.state.builtInTemplates;
-    const referralTemplates: any = builtInTemplates ? builtInTemplates.referral : undefined;
-    if(referralTemplates && referralTemplates.length > 1){
+    const referralTemplates: any = builtInTemplates
+      ? builtInTemplates.referral
+      : undefined;
+    if (referralTemplates && referralTemplates.length > 1) {
       this.showBuiltInDialog();
-    } else {
+    } else if (referralTemplates && referralTemplates.length == 1) {
       this.importSelectedTemplate(referralTemplates[0]);
+    } else {
+      this.importSelectedTemplate(undefined);
     }
   }
 
@@ -590,11 +603,15 @@ export class ReferralScreen extends Component<
     }
     this.setState({command: COMMAND.FAX});
     const builtInTemplates: any = this.state.builtInTemplates;
-    const referralTemplates: any = builtInTemplates ? builtInTemplates.referral_fax : undefined;
-    if(referralTemplates && referralTemplates.length > 1){
+    const referralTemplates: any = builtInTemplates
+      ? builtInTemplates.referral_fax
+      : undefined;
+    if (referralTemplates && referralTemplates.length > 1) {
       this.showBuiltInDialog();
-    } else {
+    } else if (referralTemplates && referralTemplates.length == 1) {
       this.importSelectedTemplate(referralTemplates[0]);
+    } else {
+      this.importSelectedTemplate(undefined);
     }
   }
 
@@ -737,18 +754,19 @@ export class ReferralScreen extends Component<
     }
     return dropdowns;
   }
-   importSelectedTemplate(data: any) {
-    if(data) {
-      this.updateFieldBuiltInTemplate(data);
-      if(!data.readonly) {
-        this.updateFieldSubject(data.subject);
-        this.updateFieldBody(data.body);
-      }
+  importSelectedTemplate(data: any) {
+    this.updateFieldBuiltInTemplate(data);
+    if (data === undefined || data === null) {
+      this.updateFieldSubject(data);
+      this.updateFieldBody(data);
+    } else if (data && !data.readonly) {
+      this.updateFieldSubject(data.subject);
+      this.updateFieldBody(data.body);
     }
     this.hideBuiltInDialog();
     this.setState({isPopupVisibile: true});
+  }
 
-   }
   hideBuiltInDialog() {
     this.setState({showBuiltInDialog: false});
   }
@@ -757,19 +775,24 @@ export class ReferralScreen extends Component<
   }
   renderBuiltInTemplateAlert() {
     const builtInTemplates: any = this.state.builtInTemplates;
-    const referralTemplates: any = this.state.command == COMMAND.FAX ? builtInTemplates.referral_fax : builtInTemplates.referral;
-    if (!builtInTemplates) return null;
+    const referralTemplates: any =
+      this.state.command == COMMAND.FAX
+        ? builtInTemplates.referral_fax
+        : builtInTemplates.referral;
+    if (!builtInTemplates) {
+      return null;
+    }
     return (
-        <Alert
-            title={strings.multipleBuiltInTemplate}
-            data={referralTemplates}
-            dismissable={true}
-            onConfirmAction={(selectedData: any) =>
-                this.importSelectedTemplate(selectedData)
-            }
-            onCancelAction={() => this.hideBuiltInDialog()}
-            style={styles.alert}
-        />
+      <Alert
+        title={strings.multipleBuiltInTemplate}
+        data={referralTemplates}
+        dismissable={true}
+        onConfirmAction={(selectedData: any) =>
+          this.importSelectedTemplate(selectedData)
+        }
+        onCancelAction={() => this.hideBuiltInDialog()}
+        style={styles.alert}
+      />
     );
   }
 
@@ -916,47 +939,48 @@ export class ReferralScreen extends Component<
                   />
                 </View>
               </FormRow>
-              {emailDefinition.builtInTemplate && emailDefinition.builtInTemplate.readonly && (
+              {emailDefinition.builtInTemplate &&
+                emailDefinition.builtInTemplate.readonly && (
                   <FormRow>
                     <View style={styles.flexRow}>
                       <FormTextInput
-                          label="Template"
-                          value={emailDefinition.builtInTemplate.description}
-                          readonly={true}
+                        label="Template"
+                        value={emailDefinition.builtInTemplate.description}
+                        readonly={true}
                       />
                     </View>
                   </FormRow>
-              )}
-              {emailDefinition.builtInTemplate && !emailDefinition.builtInTemplate.readonly && (
+                )}
+              {emailDefinition.builtInTemplate &&
+                !emailDefinition.builtInTemplate.readonly && (
                   <View>
-                  <FormRow>
-                    <View style={styles.flexRow}>
-                      <FormTextInput
+                    <FormRow>
+                      <View style={styles.flexRow}>
+                        <FormTextInput
                           label="Subject"
                           value={emailDefinition.subject}
                           readonly={command == COMMAND.FAX}
                           onChangeText={(newValue: string) =>
-                              this.updateFieldSubject(newValue)
+                            this.updateFieldSubject(newValue)
                           }
-                      />
-                    </View>
-                  </FormRow>
-                <FormRow>
-                <View style={styles.flexRow}>
-                <FormTextInput
-                multiline={true}
-                label="Body"
-                value={emailDefinition.body}
-                readonly={command == COMMAND.FAX}
-                onChangeText={(newValue: string) =>
-                this.updateFieldBody(newValue)
-              }
-                />
-                </View>
-                </FormRow>
+                        />
+                      </View>
+                    </FormRow>
+                    <FormRow>
+                      <View style={styles.flexRow}>
+                        <FormTextInput
+                          multiline={true}
+                          label="Body"
+                          value={emailDefinition.body}
+                          readonly={command == COMMAND.FAX}
+                          onChangeText={(newValue: string) =>
+                            this.updateFieldBody(newValue)
+                          }
+                        />
+                      </View>
+                    </FormRow>
                   </View>
-              )
-              }
+                )}
               <View style={styles.flow}>
                 <Button
                   title={strings.cancel}
