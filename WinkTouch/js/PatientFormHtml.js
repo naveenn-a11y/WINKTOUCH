@@ -77,17 +77,17 @@ export function printPatientHeader(visit: Visit) {
   const doctor: User = getCachedItem(visit.userId);
 
   html +=
-    `    <header class="clearfix">` +
+    '    <header class="clearfix">' +
     `      <h1>${strings.patientFile}</h1>` +
-    `      <div id="company" class="clearfix">` +
+    '      <div id="company" class="clearfix">' +
     `        <div>${store.companyName}</div>` +
     `        <div>${store.streetName + prefix(store.unit, ', ')}<br />${
       store.postalCode
     } ${store.city}</div>` +
     `        <div>${store.telephone}</div>` +
     `        <div>${store.email}</div>` +
-    `      </div>` +
-    `      <div id="client">` +
+    '      </div>' +
+    '      <div id="client">' +
     `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
     `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
     `        <div><span></span>${
@@ -114,7 +114,7 @@ export function printPatientHeader(visit: Visit) {
       visit.date,
       officialDateFormat,
     )}</div>` +
-    `    </header>`;
+    '    </header>';
 
   return html;
 }
@@ -140,9 +140,9 @@ export function renderItemsHtml(
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
-    html += `<tr>`;
+    html += '<tr>';
     html += `<td class="service">${value}</td>`;
-    html += `<td class="desc">`;
+    html += '<td class="desc">';
     let htmlSubItems: string = '';
     let parentDefinitionName = '';
     exam[exam.definition.name].map((examItem: any, index: number) => {
@@ -155,8 +155,8 @@ export function renderItemsHtml(
       html: htmlSubItems,
       child: htmlDefinition,
     });
-    html += `</td>`;
-    html += `</tr>`;
+    html += '</td>';
+    html += '</tr>';
   }
   return html;
 }
@@ -168,7 +168,9 @@ function renderItemHtml(
   htmlDefinition?: HtmlDefinition[],
 ) {
   let html: String = '';
-  if (exam.definition.fields === undefined) return html;
+  if (exam.definition.fields === undefined) {
+    return html;
+  }
   let isFirstField = true;
   const fieldDefinitions: FieldDefinition[] = exam.definition.fields;
   for (let i: number = 0; i < fieldDefinitions.length; i++) {
@@ -181,7 +183,9 @@ function renderItemHtml(
 
     if (value !== undefined && value !== null) {
       let formattedValue: string = formatFieldValue(value, fieldDefinition);
-      if (isEmpty(formattedValue)) formattedValue = value;
+      if (isEmpty(formattedValue)) {
+        formattedValue = value;
+      }
       if (formattedValue && !isEmpty(formattedValue)) {
         const label = exam.definition.editable
           ? fieldDefinition.label
@@ -190,7 +194,9 @@ function renderItemHtml(
           : '';
 
         if (isEmpty(label)) {
-          if (!isFirstField) html += `<span>,</span>`;
+          if (!isFirstField) {
+            html += '<span>,</span>';
+          }
           htmlSubItems += `<span>${formattedValue}</span>`;
           isFirstField = false;
         } else {
@@ -218,11 +224,11 @@ export async function renderParentGroupHtml(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
   );
   if (xlGroupDefinition && xlGroupDefinition.length > 0) {
-    html += `<div>`;
+    html += '<div>';
     html += isEmpty(exam[exam.definition.name])
       ? ''
       : await renderAllGroupsHtml(exam, htmlDefinition);
-    html += `</div>`;
+    html += '</div>';
     parentHtmlDefinition.push({
       name: exam.definition.name,
       html: html,
@@ -231,12 +237,12 @@ export async function renderParentGroupHtml(
   } else {
     if (exam.definition.name === 'Consultation summary') {
       if (!isEmpty(exam.resume)) {
-        html += `<tr>`;
+        html += '<tr>';
         html += `<td class="service">${formatLabel(exam.definition)}</td>`;
-        html += `<td class="desc">`;
+        html += '<td class="desc">';
         html += `<div style="white-space: pre-line">${exam.resume}</div>`;
-        html += `</td>`;
-        html += `</tr>`;
+        html += '</td>';
+        html += '</tr>';
         parentHtmlDefinition.push({
           name: exam.definition.name,
           html: `<div style="white-space: pre-line">${exam.resume}</div>`,
@@ -244,13 +250,13 @@ export async function renderParentGroupHtml(
       }
     } else {
       let htmlSubItems: string = '';
-      html += `<tr>`;
+      html += '<tr>';
       html += `<td class="service">${formatLabel(exam.definition)}</td>`;
-      html += `<td class="desc">`;
+      html += '<td class="desc">';
       htmlSubItems += await renderAllGroupsHtml(exam, htmlDefinition);
       html += htmlSubItems;
-      html += `</td>`;
-      html += `</tr>`;
+      html += '</td>';
+      html += '</tr>';
       parentHtmlDefinition.push({
         name: exam.definition.name,
         html: htmlSubItems,
@@ -275,7 +281,7 @@ async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
   let fieldNames: string[] = examKey.split('.');
 
   if (fieldNames.length <= 1) {
-    let htmlDefinition: HtmlDefinition | HtmlDefinition[] = undefined;
+    let htmlDefinition: HtmlDefinition | HtmlDefinition[];
     if (keyMap instanceof Array) {
       htmlDefinition = keyMap.filter(
         (htmlDefinition: HtmlDefinition) =>
@@ -302,7 +308,7 @@ async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
       htmlDefinition.name.trim().toLowerCase() ===
       fieldNames[0].trim().toLowerCase(),
   );
-  let subFieldName: string = undefined;
+  let subFieldName: string;
   if (subHtmlDefinition === undefined || subHtmlDefinition.length == 0) {
     subHtmlDefinition = keyMap.filter(
       (htmlDefinition: HtmlDefinition) =>
@@ -361,13 +367,16 @@ async function renderAllGroupsHtml(
 ) {
   let html: string = '';
 
-  if (!exam[exam.definition.name]) return '';
+  if (!exam[exam.definition.name]) {
+    return '';
+  }
   if (
     exam.definition.fields === null ||
     exam.definition.fields === undefined ||
     exam.definition.fields.length === 0
-  )
+  ) {
     return '';
+  }
   await Promise.all(
     exam.definition.fields.map(async (groupDefinition: GroupDefinition) => {
       const result = await renderGroupHtml(
@@ -390,7 +399,9 @@ async function renderGroupHtml(
   htmlDefinition?: HtmlDefinition[],
 ) {
   let html: string = '';
-  if (exam[exam.definition.name] === undefined) return '';
+  if (exam[exam.definition.name] === undefined) {
+    return '';
+  }
   if (groupDefinition.mappedField) {
     groupDefinition = Object.assign(
       {},
@@ -410,16 +421,18 @@ async function renderGroupHtml(
       value === null ||
       value instanceof Array === false ||
       value.length === 0
-    )
+    ) {
       return html;
+    }
     await Promise.all(
       value.map(async (groupValue: any, groupIndex: number) => {
         if (
           groupValue === undefined ||
           groupValue === null ||
           Object.keys(groupValue).length === 0
-        )
+        ) {
           return html;
+        }
 
         const rowValue = await renderRowsHtml(
           groupDefinition,
@@ -438,8 +451,9 @@ async function renderGroupHtml(
       value === undefined ||
       value === null ||
       Object.keys(value).length === 0
-    )
+    ) {
       return null;
+    }
     const rowValue = await renderRowsHtml(
       groupDefinition,
       exam,
@@ -460,7 +474,9 @@ async function renderRowsHtml(
   let html: string = '';
   let rowHtmlDefinition: HtmlDefinition[] = [];
   const form = exam[exam.definition.name][groupDefinition.name];
-  if (!groupDefinition.fields) return null;
+  if (!groupDefinition.fields) {
+    return null;
+  }
 
   const groupLabel = formatLabel(groupDefinition);
   const examLabel = formatLabel(exam.definition);
@@ -499,25 +515,28 @@ async function renderRowsHtml(
           !fieldDefinition.image
         ) {
           htmlSubItems += !labelDisplayed
-            ? `<div class="groupLabel">` +
+            ? '<div class="groupLabel">' +
               formatLabel(groupDefinition) +
-              `</div>`
+              '</div>'
             : '';
           labelDisplayed = true;
         }
         const label: string = formatLabel(fieldDefinition);
         if (label !== undefined && label !== null && label.trim() !== '') {
-          htmlSubItems += `<div>`;
-          if (!fieldDefinition.image)
+          htmlSubItems += '<div>';
+          if (!fieldDefinition.image) {
             htmlSubItems += `<div><span>${label}:</span>`;
+          }
           htmlSubItems += `<span>${value}</span></div>`;
-          htmlSubItems += `</div>`;
+          htmlSubItems += '</div>';
         } else {
-          if (groupDefinition.size === 'XL')
-            htmlSubItems += `<div class="xlForm">` + value + `</div>`;
-          else if (!fieldDefinition.image)
-            htmlSubItems += `<div><span>` + value + `</span></div>`;
-          else htmlSubItems += `<span>` + value + `</span>`;
+          if (groupDefinition.size === 'XL') {
+            htmlSubItems += '<div class="xlForm">' + value + '</div>';
+          } else if (!fieldDefinition.image) {
+            htmlSubItems += '<div><span>' + value + '</span></div>';
+          } else {
+            htmlSubItems += '<span>' + value + '</span>';
+          }
         }
         rowHtmlDefinition.push({
           name: fieldDefinition.name,
@@ -573,22 +592,26 @@ async function renderColumnedRows(
       if (!isEmpty(rowValues[j])) {
         allRowsEmpty = false;
         break;
-      } else allRowsEmpty = true;
+      } else {
+        allRowsEmpty = true;
+      }
     }
-    if (allRowsEmpty == false) break;
+    if (allRowsEmpty == false) {
+      break;
+    }
   }
 
   if (allRowsEmpty == false) {
-    html += `<table class="childTable" style="margin-top:10px; width:50%">`;
+    html += '<table class="childTable" style="margin-top:10px; width:50%">';
     html += renderColumnsHeader(columnDefinition, definition);
     rows.forEach((column: string[]) => {
-      html += `<tr>`;
+      html += '<tr>';
       column.forEach((value: string) => {
         html += `<td class="desc">${value}</td>`;
       });
-      html += `</tr>`;
+      html += '</tr>';
     });
-    html += `</table>`;
+    html += '</table>';
 
     if (
       getCurrentAction() !== undefined &&
@@ -599,17 +622,18 @@ async function renderColumnedRows(
       );
       customColumns.map((header: string, i: number) => {
         let subHtml: string = '';
-        subHtml += `<table class="childTable" style="margin-top:10px; width:50%">`;
+        subHtml +=
+          '<table class="childTable" style="margin-top:10px; width:50%">';
         rows.forEach((column: string[]) => {
-          subHtml += `<tr>`;
+          subHtml += '<tr>';
           column.map((value: string, j: number) => {
             if (j == 0 || j == i + 1) {
               subHtml += `<td class="desc">${value}</td>`;
             }
           });
-          subHtml += `</tr>`;
+          subHtml += '</tr>';
         });
-        subHtml += `</table>`;
+        subHtml += '</table>';
         htmlDefinition.push({name: header, html: subHtml});
       });
     }
@@ -675,12 +699,16 @@ function renderColumnsHeader(
   definition: GroupDefinition,
 ) {
   let html: string = '';
-  if (hasColumns(definition) === false) return null;
+  if (hasColumns(definition) === false) {
+    return null;
+  }
   const columns = definition.columns.find(
     (columns: string[]) => columns[0] === columnDefinition.name,
   );
-  if (columns === undefined || columns.length === 0) return null;
-  html += `<thead><tr>`;
+  if (columns === undefined || columns.length === 0) {
+    return null;
+  }
+  html += '<thead><tr>';
   html += `<th class="desc">${formatLabel(definition)}</th>`;
   columns.map((column: string, index: number) => {
     const columnDefinition: FieldDefinition = definition.fields.find(
@@ -691,7 +719,7 @@ function renderColumnsHeader(
       html += `<th class="desc">${columnLabel}</th>`;
     }
   });
-  html += `</thead></tr>`;
+  html += '</thead></tr>';
   return html;
 }
 function renderHtmlTitle(exam: Exam) {
@@ -700,9 +728,13 @@ function renderHtmlTitle(exam: Exam) {
 function renderCheckListItemHtml(exam: Exam, fieldDefinition: FieldDefinition) {
   let html: string = '';
   const value = exam[exam.definition.name][fieldDefinition.name];
-  if (fieldDefinition.normalValue === value) return '';
+  if (fieldDefinition.normalValue === value) {
+    return '';
+  }
   const formattedValue: string = formatFieldValue(value, fieldDefinition);
-  if (formattedValue === '') return formattedValue;
+  if (formattedValue === '') {
+    return formattedValue;
+  }
   const label: ?string = formatLabel(fieldDefinition);
   html += `<div><span>${label}: </span><span>${formattedValue}</span></div>`;
   return html;
@@ -718,7 +750,9 @@ async function renderField(
 ) {
   let html: string = '';
 
-  if (groupDefinition === undefined || fieldDefinition === undefined) return '';
+  if (groupDefinition === undefined || fieldDefinition === undefined) {
+    return '';
+  }
 
   if (fieldDefinition.mappedField) {
     fieldDefinition = Object.assign(
@@ -747,9 +781,9 @@ async function renderField(
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
       if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-        html += `<span class="img-wrap" style="width:49%">`;
+        html += '<span class="img-wrap" style="width:49%">';
       } else {
-        html += `<span class="img-wrap" style="width:100%">`;
+        html += '<span class="img-wrap" style="width:100%">';
       }
       const imageValue = await renderMedia(
         value,
@@ -758,7 +792,7 @@ async function renderField(
         exam,
       );
       html += imageValue;
-      html += `</span>`;
+      html += '</span>';
       return html;
     }
 
@@ -770,13 +804,17 @@ async function renderField(
         value.forEach((subValue: number | string) => {
           formattedValue += subValue + ' / ';
         });
-        if (!isEmpty(formattedValue))
+        if (!isEmpty(formattedValue)) {
           formattedValue = formattedValue.replace(/\/\s*$/, '');
+        }
         html += formattedValue;
       } else {
         const formattedValue: string = formatFieldValue(value, fieldDefinition);
-        if (isEmpty(formattedValue)) html += value;
-        else html += formattedValue;
+        if (isEmpty(formattedValue)) {
+          html += value;
+        } else {
+          html += formattedValue;
+        }
       }
     }
   }
@@ -807,7 +845,7 @@ async function renderMedia(
     fieldDefinition.size,
     fieldAspectRatio,
   );
-  let upload: Upload = undefined;
+  let upload: Upload;
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
@@ -869,13 +907,13 @@ async function renderMedia(
       (await Promise.all(
         fieldDefinition.fields.map(
           async (childGroupDefinition: GroupDefinition, index: number) => {
-            let parentScaledStyle: Object = undefined;
+            let parentScaledStyle: Object;
             if (childGroupDefinition.layout) {
               parentScaledStyle = scaleStyle(childGroupDefinition.layout);
             }
 
             for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
-              let fieldScaledStyle = undefined;
+              let fieldScaledStyle;
               const pfValue = await renderField(
                 childFieldDefinition,
                 childGroupDefinition,
@@ -900,10 +938,10 @@ async function renderMedia(
                 );
 
                 html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += ` <g transform="scale(0.96 0.98)">`;
+                html += ' <g transform="scale(0.96 0.98)">';
                 html += `<text x="${x}" y="${y}">${pfValue}</text>`;
-                html += ` </g>`;
-                html += `</svg>`;
+                html += ' </g>';
+                html += '</svg>';
               }
             }
           },
@@ -938,12 +976,16 @@ function renderGraph(
   scale: number,
 ) {
   let html: string = '';
-  if (!value.lines || value.lines.length === 0) return '';
+  if (!value.lines || value.lines.length === 0) {
+    return '';
+  }
   const strokeWidth: number = round(fontScale / scale);
   const resolution: number[] = resolutions(value, definition);
   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${resolution[0]}pt" height="${resolution[1]}pt" style="width:${style.width}pt; height:${style.height}pt">`;
   value.lines.map((lijn: string, index: number) => {
-    if (lijn.indexOf('x') > 0) return '';
+    if (lijn.indexOf('x') > 0) {
+      return '';
+    }
     if (lijn.indexOf(' ') > 0) {
       const points = lijn.split(' ');
       const d = line()
@@ -960,7 +1002,7 @@ function renderGraph(
       html += `<circle cx="${x}" cy="${y}" r="${strokeWidth}" fill="black" />`;
     }
   });
-  html += `&nbsp;</svg>`;
+  html += '&nbsp;</svg>';
   return html;
 }
 
@@ -993,9 +1035,10 @@ function resolutions(
       ? value.lines[0]
       : undefined;
 
-  if (resolutionText == undefined)
+  if (resolutionText == undefined) {
     resolutionText =
       definition.resolution !== undefined ? definition.resolution : '640x480';
+  }
   const resolution: string[] = resolutionText.split('x');
   if (resolution.length != 2) {
     console.warn('Image resolution is corrupt: ' + resolutionText);
@@ -1012,12 +1055,15 @@ function renderGlassesSummary(
   htmlDefinition?: HtmlDefinition[],
 ) {
   let html: string = '';
-  if (groupDefinition === undefined || groupDefinition === null) return html;
+  if (groupDefinition === undefined || groupDefinition === null) {
+    return html;
+  }
   if (
     exam[exam.definition.name] === undefined ||
     exam[exam.definition.name][groupDefinition.name] === undefined
-  )
+  ) {
     return html;
+  }
   if (groupDefinition.multiValue) {
     exam[exam.definition.name][groupDefinition.name].map(
       (glassesRx: GlassesRx, index: number) => {
@@ -1046,20 +1092,27 @@ function renderRxTable(
   if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html;
   }
-  html += `<table class="childTable">`;
-  html += `<thead><tr>`;
+  html += '<table class="childTable">';
+  html += '<thead><tr>';
   html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(
     groupDefinition,
   )}</th>`;
-  html += `<th class="service">Sph</th>`;
-  html += `<th class="service">Cyl</th>`;
-  html += `<th class="service">Axis</th>`;
-  if (hasPrism(glassesRx)) html += `<th class="service">Prism</th>`;
-  if (groupDefinition.hasVA) html += `<th class="service">DVA</th>`;
-  if (groupDefinition.hasAdd) html += `<th class="service">Add</th>`;
-  if (groupDefinition.hasAdd && groupDefinition.hasVA)
-    html += `<th class="service">NVA</th>`;
-  html += `</thead></tr><tbody><tr>`;
+  html += '<th class="service">Sph</th>';
+  html += '<th class="service">Cyl</th>';
+  html += '<th class="service">Axis</th>';
+  if (hasPrism(glassesRx)) {
+    html += '<th class="service">Prism</th>';
+  }
+  if (groupDefinition.hasVA) {
+    html += '<th class="service">DVA</th>';
+  }
+  if (groupDefinition.hasAdd) {
+    html += '<th class="service">Add</th>';
+  }
+  if (groupDefinition.hasAdd && groupDefinition.hasVA) {
+    html += '<th class="service">NVA</th>';
+  }
+  html += '</thead></tr><tbody><tr>';
 
   html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.od}</td>`;
   htmlSubItems += `<span>${strings.od}: </span>`;
@@ -1148,10 +1201,10 @@ function renderRxTable(
     html: htmlSubItems,
     child: childHtmlDefinition,
   });
-  html += `</tr>`;
+  html += '</tr>';
   htmlSubItems = '';
   childHtmlDefinition = [];
-  html += `<tr>`;
+  html += '<tr>';
   html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.os}</td>`;
   htmlChildSubItems = `${glassesRx.os ? formatDiopter(glassesRx.os.sph) : ''}`;
   html += `<td class="desc">${htmlChildSubItems}</td>`;
@@ -1238,18 +1291,18 @@ function renderRxTable(
     html: htmlSubItems,
     child: childHtmlDefinition,
   });
-  html += `</tr>`;
+  html += '</tr>';
   htmlSubItems = '';
   childHtmlDefinition = [];
 
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
-    html += `<tr>`;
+    html += '<tr>';
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
-    html += `<td class="desc"></td>`;
-    html += `<td class="desc"></td>`;
-    html += `<td class="desc"></td>`;
+    html += '<td class="desc"></td>';
+    html += '<td class="desc"></td>';
+    html += '<td class="desc"></td>';
     if (hasPrism(glassesRx)) {
-      html += `<td class="desc"></td>`;
+      html += '<td class="desc"></td>';
     }
 
     if (groupDefinition.hasVA) {
@@ -1267,7 +1320,7 @@ function renderRxTable(
         html: `<span>${htmlChildSubItems} </span>`,
       });
     }
-    html += `<td class="desc"></td>`;
+    html += '<td class="desc"></td>';
     if (groupDefinition.hasAdd && groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
         'exam.VA cc.Aided acuities.NVA.OU',
@@ -1283,14 +1336,14 @@ function renderRxTable(
         html: `<span>${htmlChildSubItems} </span>`,
       });
     }
-    html += `</tr>`;
+    html += '</tr>';
     groupHtmlDefinition.push({
       name: 'ou',
       html: htmlSubItems,
       child: childHtmlDefinition,
     });
   }
-  html += `</tbody></table>`;
+  html += '</tbody></table>';
   htmlSubItems = '';
   childHtmlDefinition = [];
   if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes)) {
@@ -1318,192 +1371,192 @@ function renderRxTable(
 
 export function patientHeader() {
   let htmlHeader: string =
-    `<head><style>` +
-    `body {` +
-    `  padding:10px;` +
-    `}` +
-    `@media all {` +
-    `table { page-break-after:auto;}` +
-    `.childTable { page-break-after:auto; page-break-inside:avoid;}` +
-    `tr    { page-break-inside:avoid; page-break-after:auto }` +
-    `td    { page-break-inside:avoid; page-break-after:auto }` +
-    `thead { display:table-header-group }` +
-    `tfoot { display:table-footer-group }` +
-    `.xlForm {display: block; page-break-before: always;` +
-    `.scannedFiles {display: block; page-break-before: always;}` +
-    `}` +
-    `@media screen {` +
-    `table tr:nth-child(2n-1) td {` +
-    `  background: #F5F5F5;` +
-    `}` +
-    `}` +
-    `.uploadForm {` +
-    `  font-weight: bold;` +
-    `  text-decoration: underline;` +
-    `  float:left;` +
-    `  display:block;` +
-    `  width :50%;` +
-    `}` +
-    `.scannedFiles {` +
-    `  padding:10px` +
-    `}` +
-    `.groupLabel {` +
-    `  font-weight: bold;` +
-    `  text-decoration: underline;` +
-    `}` +
-    `.clearfix:after {` +
-    `  content: "";` +
-    `  display: table;` +
-    `  clear: both;` +
-    `}` +
-    `a {` +
-    `  color: #5D6975;` +
-    `  text-decoration: underline;` +
-    `}` +
-    `body {` +
-    `  position: relative;` +
-    `  margin: 0 10px 0 10px;` +
-    `  color: #001028;` +
-    `  background: #FFFFFF;` +
-    `  font-family: Arial, sans-serif;` +
-    `  font-size: 12px;` +
-    `  font-family: Arial;` +
-    `}` +
-    `header {` +
-    `  padding: 10px 0;` +
-    `  margin: 0 10px 20px 10px;` +
-    `}` +
-    `#logo {` +
-    `  text-align: center;` +
-    `  margin-bottom: 10px;` +
-    `}` +
-    `#logo img {` +
-    `  width: 90px;` +
-    `}` +
-    `h1 {` +
-    `  border-top: 1px solid  #5D6975;` +
-    `  border-bottom: 1px solid  #5D6975;` +
-    `  color: #5D6975;` +
-    `  font-size: 2.4em;` +
-    `  line-height: 1.4em;` +
-    `  font-weight: normal;` +
-    `  text-align: center;` +
-    `  margin: 0 0 20px 0;` +
-    `  background: #F5F5F5;` +
-    `}` +
-    `#client {` +
-    `  float: left;` +
-    `}` +
-    `#client span {` +
-    `  color: #5D6975;` +
-    `  text-align: right;` +
-    `  width: 52px;` +
-    `  margin-right: 18px;` +
-    `  display: inline-block;` +
-    `  font-size: 0.8em;` +
-    `}` +
-    `#company {` +
-    `  float: right;` +
-    `  text-align: right;` +
-    `}` +
-    `#client div,` +
-    `#company div {` +
-    `  white-space: nowrap;` +
-    `}` +
-    `table {` +
-    `  width: 100%;` +
-    `  border-collapse: collapse;` +
-    `  border-spacing: 0;` +
-    `  margin-bottom: 20px;` +
-    `}` +
-    `table th,` +
-    `table td {` +
-    `padding: 5px 20px;` +
-    `text-align: center;` +
-    `font-size:11px;` +
-    `}` +
-    `table th {` +
-    `  padding: 5px 20px;` +
-    `  color: #5D6975;` +
-    `  border-bottom: 1px solid #C1CED9;` +
-    `  white-space: nowrap;` +
-    `  font-weight: normal;` +
-    `}` +
-    `table .service,` +
-    `table .desc {` +
-    `  text-align: left;` +
-    `}` +
-    `table .service {` +
-    ` width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;` +
-    `}` +
-    `table td {` +
-    `  text-align: right;` +
-    `  border: solid;` +
-    `  border-width: 0 1px;` +
-    `}` +
-    `table tr {` +
-    `  border: solid;` +
-    `  border-width: 1px 0;` +
-    `}` +
-    `table thead {` +
-    `  display:table-header-group;` +
-    `}` +
-    `table td.service,` +
-    `table td.desc {` +
-    `  vertical-align: top;` +
-    `}` +
-    `table td.service {` +
-    `font-weight: bold;` +
-    `}` +
-    `table td.unit,` +
-    `table td.qty,` +
-    `table td.total {` +
-    `  font-size: 1.2em;` +
-    `}` +
-    `table th.service,` +
-    `table th.desc {` +
-    `font-weight: bold;` +
-    `}` +
-    `table td.grand {` +
-    `  border-top: 1px solid #5D6975;` +
-    `}` +
-    `#forms {` +
-    `  color: #5D6975;` +
-    `  font-size: 1.2em;` +
-    `  font-weight: bold;` +
-    `  margin-bottom:10px;` +
-    `}` +
-    `footer {` +
-    `  color: #5D6975;` +
-    `  width: 100%;` +
-    `  height: 30px;` +
-    `  position: absolute;` +
-    `  bottom: 0;` +
-    `  border-top: 1px solid #C1CED9;` +
-    `  padding: 8px 0;` +
-    `  text-align: center;` +
-    `}` +
-    `.img-wrap {` +
-    `  position: relative;` +
-    `  display: block;` +
-    `  float: left;` +
-    ` margin-top:5px;` +
-    ` margin-bottom:10px;` +
-    `}` +
-    `.img-wrap svg {` +
-    `  position:absolute;` +
-    `  top:0;` +
-    `  left:0;` +
-    `}` +
-    `.img-wrap img {` +
-    `  display:block;` +
-    `}` +
-    `</style></head><body><main>`;
+    '<head><style>' +
+    'body {' +
+    '  padding:10px;' +
+    '}' +
+    '@media all {' +
+    'table { page-break-after:auto;}' +
+    '.childTable { page-break-after:auto; page-break-inside:avoid;}' +
+    'tr    { page-break-inside:avoid; page-break-after:auto }' +
+    'td    { page-break-inside:avoid; page-break-after:auto }' +
+    'thead { display:table-header-group }' +
+    'tfoot { display:table-footer-group }' +
+    '.xlForm {display: block; page-break-before: always;' +
+    '.scannedFiles {display: block; page-break-before: always;}' +
+    '}' +
+    '@media screen {' +
+    'table tr:nth-child(2n-1) td {' +
+    '  background: #F5F5F5;' +
+    '}' +
+    '}' +
+    '.uploadForm {' +
+    '  font-weight: bold;' +
+    '  text-decoration: underline;' +
+    '  float:left;' +
+    '  display:block;' +
+    '  width :50%;' +
+    '}' +
+    '.scannedFiles {' +
+    '  padding:10px' +
+    '}' +
+    '.groupLabel {' +
+    '  font-weight: bold;' +
+    '  text-decoration: underline;' +
+    '}' +
+    '.clearfix:after {' +
+    '  content: "";' +
+    '  display: table;' +
+    '  clear: both;' +
+    '}' +
+    'a {' +
+    '  color: #5D6975;' +
+    '  text-decoration: underline;' +
+    '}' +
+    'body {' +
+    '  position: relative;' +
+    '  margin: 0 10px 0 10px;' +
+    '  color: #001028;' +
+    '  background: #FFFFFF;' +
+    '  font-family: Arial, sans-serif;' +
+    '  font-size: 12px;' +
+    '  font-family: Arial;' +
+    '}' +
+    'header {' +
+    '  padding: 10px 0;' +
+    '  margin: 0 10px 20px 10px;' +
+    '}' +
+    '#logo {' +
+    '  text-align: center;' +
+    '  margin-bottom: 10px;' +
+    '}' +
+    '#logo img {' +
+    '  width: 90px;' +
+    '}' +
+    'h1 {' +
+    '  border-top: 1px solid  #5D6975;' +
+    '  border-bottom: 1px solid  #5D6975;' +
+    '  color: #5D6975;' +
+    '  font-size: 2.4em;' +
+    '  line-height: 1.4em;' +
+    '  font-weight: normal;' +
+    '  text-align: center;' +
+    '  margin: 0 0 20px 0;' +
+    '  background: #F5F5F5;' +
+    '}' +
+    '#client {' +
+    '  float: left;' +
+    '}' +
+    '#client span {' +
+    '  color: #5D6975;' +
+    '  text-align: right;' +
+    '  width: 52px;' +
+    '  margin-right: 18px;' +
+    '  display: inline-block;' +
+    '  font-size: 0.8em;' +
+    '}' +
+    '#company {' +
+    '  float: right;' +
+    '  text-align: right;' +
+    '}' +
+    '#client div,' +
+    '#company div {' +
+    '  white-space: nowrap;' +
+    '}' +
+    'table {' +
+    '  width: 100%;' +
+    '  border-collapse: collapse;' +
+    '  border-spacing: 0;' +
+    '  margin-bottom: 20px;' +
+    '}' +
+    'table th,' +
+    'table td {' +
+    'padding: 5px 20px;' +
+    'text-align: center;' +
+    'font-size:11px;' +
+    '}' +
+    'table th {' +
+    '  padding: 5px 20px;' +
+    '  color: #5D6975;' +
+    '  border-bottom: 1px solid #C1CED9;' +
+    '  white-space: nowrap;' +
+    '  font-weight: normal;' +
+    '}' +
+    'table .service,' +
+    'table .desc {' +
+    '  text-align: left;' +
+    '}' +
+    'table .service {' +
+    ' width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;' +
+    '}' +
+    'table td {' +
+    '  text-align: right;' +
+    '  border: solid;' +
+    '  border-width: 0 1px;' +
+    '}' +
+    'table tr {' +
+    '  border: solid;' +
+    '  border-width: 1px 0;' +
+    '}' +
+    'table thead {' +
+    '  display:table-header-group;' +
+    '}' +
+    'table td.service,' +
+    'table td.desc {' +
+    '  vertical-align: top;' +
+    '}' +
+    'table td.service {' +
+    'font-weight: bold;' +
+    '}' +
+    'table td.unit,' +
+    'table td.qty,' +
+    'table td.total {' +
+    '  font-size: 1.2em;' +
+    '}' +
+    'table th.service,' +
+    'table th.desc {' +
+    'font-weight: bold;' +
+    '}' +
+    'table td.grand {' +
+    '  border-top: 1px solid #5D6975;' +
+    '}' +
+    '#forms {' +
+    '  color: #5D6975;' +
+    '  font-size: 1.2em;' +
+    '  font-weight: bold;' +
+    '  margin-bottom:10px;' +
+    '}' +
+    'footer {' +
+    '  color: #5D6975;' +
+    '  width: 100%;' +
+    '  height: 30px;' +
+    '  position: absolute;' +
+    '  bottom: 0;' +
+    '  border-top: 1px solid #C1CED9;' +
+    '  padding: 8px 0;' +
+    '  text-align: center;' +
+    '}' +
+    '.img-wrap {' +
+    '  position: relative;' +
+    '  display: block;' +
+    '  float: left;' +
+    ' margin-top:5px;' +
+    ' margin-bottom:10px;' +
+    '}' +
+    '.img-wrap svg {' +
+    '  position:absolute;' +
+    '  top:0;' +
+    '  left:0;' +
+    '}' +
+    '.img-wrap img {' +
+    '  display:block;' +
+    '}' +
+    '</style></head><body><main>';
   return htmlHeader;
 }
 
 export function patientFooter() {
-  let htmlEnd: string = `</main></body>`;
+  let htmlEnd: string = '</main></body>';
   return htmlEnd;
 }
 

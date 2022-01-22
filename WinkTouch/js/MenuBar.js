@@ -131,7 +131,7 @@ export class MenuBar extends PureComponent {
         )}
         {(isAtWink || __DEV__) &&
           scene === 'overview' &&
-          'en-CA' === getUserLanguage() && (
+          getUserLanguage() === 'en-CA' && (
             <Button
               title={strings.customisation}
               onPress={() => this.props.navigation.navigate('customisation')}

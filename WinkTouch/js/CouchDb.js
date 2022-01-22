@@ -22,8 +22,11 @@ function encodeKey(key: string | string[]): string {
     let keys: string[] = key;
     let url: string = '[';
     for (let i = 0; i < keys.length; ) {
-      if (keys[i]) url = url + '"' + encodeURIComponent(keys[i]) + '"';
-      else url = url + '""';
+      if (keys[i]) {
+        url = url + '"' + encodeURIComponent(keys[i]) + '"';
+      } else {
+        url = url + '""';
+      }
       if (++i < keys.length) {
         url = url + ',';
       }
@@ -36,7 +39,9 @@ function encodeKey(key: string | string[]): string {
 }
 
 function cacheDocument(doc: any) {
-  if (!doc || !doc._id) return;
+  if (!doc || !doc._id) {
+    return;
+  }
   cacheItem(doc._id, doc);
 }
 
@@ -50,7 +55,9 @@ export async function fetchDocument(documentId: string) {
         Accept: 'application/json',
       },
     });
-    if (!response.ok) throw response.reason;
+    if (!response.ok) {
+      throw response.reason;
+    }
     const document = await response.json();
     cacheDocument(document);
     return document;
@@ -68,7 +75,9 @@ export async function getRevision(documentId: string): string {
   try {
     const requestUrl = restUrl + encodeURIComponent(documentId);
     let response = await fetch(requestUrl, {method: 'head'});
-    if (!response.ok) throw response.reason;
+    if (!response.ok) {
+      throw response.reason;
+    }
     const revisionInQuotes: string = response.headers.map.etag[0];
     const revision: string = revisionInQuotes.substring(
       1,
@@ -101,7 +110,9 @@ export async function fetchViewDocuments(
       encodeKey(endKey) +
       '&include_docs=true';
     let response = await fetch(requestUrl);
-    if (!response.ok) throw response.reason;
+    if (!response.ok) {
+      throw response.reason;
+    }
     let responseJson = await response.json();
     let documents: [] = [];
     let rows: [] = responseJson.rows;

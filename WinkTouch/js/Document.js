@@ -39,8 +39,9 @@ export class Pdf extends Component {
       this.props.uploadId === prevProps.uploadId &&
       this.props.upload === prevProps.upload &&
       this.props.style === prevProps.style
-    )
+    ) {
       return;
+    }
     if (this.props.upload) {
       this.setState({upload: this.props.upload});
     } else {
@@ -52,14 +53,18 @@ export class Pdf extends Component {
   }
 
   async loadUpload(uploadId: string) {
-    if (!uploadId) return;
+    if (!uploadId) {
+      return;
+    }
     let upload: Upload = await fetchUpload(uploadId);
     this.setState({upload});
   }
 
   render() {
     //const source = {uri:'http://samples.leanpub.com/thereactnativebook-sample.pdf',cache:true};
-    if (!this.state.upload) return null;
+    if (!this.state.upload) {
+      return null;
+    }
 
     const source = 'data:application/pdf;base64,' + this.state.upload.data;
 

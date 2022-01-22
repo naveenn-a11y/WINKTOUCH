@@ -105,7 +105,9 @@ function updateMappedExamFields(
   value,
   visitId: string,
 ) {
-  if (!fieldDefinitions) return;
+  if (!fieldDefinitions) {
+    return;
+  }
   fieldDefinitions.forEach(
     (fieldDefinition: FieldDefinition | GroupDefinition) => {
       const fieldValue =
@@ -139,14 +141,18 @@ function updateMappedExamFields(
 }
 
 export function updateMappedExams(exam: Exam) {
-  if (!exam) return;
+  if (!exam) {
+    return;
+  }
   let fieldDefinitions: GroupDefinition[] = exam.definition.fields;
   let examValue = exam[exam.definition.name];
   updateMappedExamFields(fieldDefinitions, examValue, exam.visitId);
 }
 
 export function getVisit(exam: Exam): Visit {
-  if (!exam) return;
+  if (!exam) {
+    return;
+  }
   return getCachedItem(exam.visitId);
 }
 
@@ -156,14 +162,17 @@ export function getPatient(exam: Exam): Patient {
 }
 
 export function getExam(examName: string, visit: Visit): Exam {
-  if (!visit) return;
+  if (!visit) {
+    return;
+  }
   let examId = visit.customExamIds.find(
     (examId: string) => getCachedItem(examId).definition.name === examName,
   );
-  if (!examId)
+  if (!examId) {
     examId = visit.preCustomExamIds.find(
       (examId: string) => getCachedItem(examId).definition.name === examName,
     );
+  }
   const exam: Exam = getCachedItem(examId);
   return exam;
 }
@@ -175,18 +184,24 @@ export function getFieldValue(fieldIdentifier: string, exam: Exam): any {
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0, examIdentifier.indexOf('.'));
     exam = getExam(examName, getVisit(exam));
-    if (!exam) return undefined;
+    if (!exam) {
+      return undefined;
+    }
     let examValue = exam[examName];
     const identifier: string = examIdentifier.substring(examName.length + 1);
     let value = getValue(examValue, identifier);
     return value;
   } else if (fieldSrc[0] === 'patient') {
     let patient = getPatient(exam);
-    if (!patient) return undefined;
+    if (!patient) {
+      return undefined;
+    }
     return patient[fieldSrc[1]];
   } else if (fieldSrc[0] === 'visit') {
     const visit: Visit = getVisit(exam);
-    if (!visit) return undefined;
+    if (!visit) {
+      return undefined;
+    }
     let fieldName: string = fieldSrc[1];
     for (let i: number = 2; i < fieldSrc.length; i++) {
       fieldName = fieldName + '.' + fieldSrc[i];
@@ -216,7 +231,9 @@ export function setMappedFieldValue(
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0, examIdentifier.indexOf('.'));
     exam = getExam(examName, getVisit(exam));
-    if (!exam) return undefined;
+    if (!exam) {
+      return undefined;
+    }
     let examValue = exam[examName];
     const identifier: string = examIdentifier.substring(examName.length + 1);
     setValue(examValue, identifier, value);
@@ -230,7 +247,9 @@ export function setMappedFieldValue(
     let patientIdentifier = fieldIdentifier.substring(8);
     let patient = getPatient(exam);
     patient = deepClone(patient);
-    if (!patient) return undefined;
+    if (!patient) {
+      return undefined;
+    }
     if (patientIdentifier.includes('patientTag')) {
       if (!patient.patientTags) {
         Object.assign(patient, {
@@ -257,7 +276,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
     const examDefinition: ExamDefinition = otherExam
       ? otherExam.definition
       : getExamDefinition(examName);
-    if (!examDefinition) return undefined;
+    if (!examDefinition) {
+      return undefined;
+    }
     const identifiers: string[] = examIdentifier
       .substring(examName.length + 1)
       .split('.');
@@ -268,7 +289,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
         (definition: FieldDefinition | GroupDefinition) =>
           definition.name === stripIndex(identifiers[i]),
       );
-      if (fieldDefinition === undefined) break;
+      if (fieldDefinition === undefined) {
+        break;
+      }
       fields = fieldDefinition.fields;
     }
     if (fieldDefinition === undefined) {
@@ -328,7 +351,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
         (definition: FieldDefinition | GroupDefinition) =>
           definition.name === stripIndex(fieldName),
       );
-      if (fieldDefinition === undefined) break;
+      if (fieldDefinition === undefined) {
+        break;
+      }
       fields = fieldDefinition.fields;
     }
     if (fieldDefinition === undefined) {
@@ -448,7 +473,9 @@ export class ExamCard extends Component {
 
   getStyle(): any {
     let style: string = this.props.style;
-    if (style) return style;
+    if (style) {
+      return style;
+    }
     style =
       this.props.exam.definition.card === false
         ? styles.page
@@ -481,7 +508,9 @@ export class ExamCard extends Component {
 
 export function getExamHistory(exam: Exam): Exam[] {
   const visit = getCachedItem(exam.visitId);
-  if (!visit) return [];
+  if (!visit) {
+    return [];
+  }
   const visitHistory: Visit[] = getCachedItems(
     getCachedItem('visitHistory-' + visit.patientId),
   );
@@ -544,11 +573,15 @@ export class ExamHistoryScreen extends Component {
     let exam: Exam = this.props.navigation.state.params.exam;
     if (exam.definition.addable) {
       let items: any[] = exam[exam.definition.name];
-      if (!items.includes(item)) items.push(deepClone(item));
+      if (!items.includes(item)) {
+        items.push(deepClone(item));
+      }
     } else {
       let examItem: {} = exam[exam.definition.name];
       if (examItem instanceof Array) {
-        if (examItem.length !== 1) return;
+        if (examItem.length !== 1) {
+          return;
+        }
         examItem = examItem[0];
       }
       Object.assign(examItem, deepClone(item));
@@ -587,7 +620,9 @@ export class ExamHistoryScreen extends Component {
       );
     }
     if (groupDefinition.multiValue === true) {
-      if (value instanceof Array === false || value.length === 0) return null;
+      if (value instanceof Array === false || value.length === 0) {
+        return null;
+      }
       if (groupDefinition.options == undefined) {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
@@ -744,7 +779,9 @@ export class ExamHistoryScreen extends Component {
 }
 
 function examIsLocked(exam: Exam): boolean {
-  if (exam === null || exam === undefined) return false;
+  if (exam === null || exam === undefined) {
+    return false;
+  }
   return visitHasEnded(exam.visitId);
 }
 
@@ -789,8 +826,12 @@ export class ExamScreen extends Component {
   }
 
   componentDidMount() {
-    if (this.state.exam.id != undefined && this.state.exam.errors === undefined)
+    if (
+      this.state.exam.id != undefined &&
+      this.state.exam.errors === undefined
+    ) {
       this.fetchExam();
+    }
   }
 
   componentDidUpdate(prevProps: any) {
@@ -840,7 +881,9 @@ export class ExamScreen extends Component {
 
   async refreshExam() {
     let exam: Exam = await fetchExam(this.state.exam.id, true);
-    if (exam === undefined) return;
+    if (exam === undefined) {
+      return;
+    }
     this.setState({exam, isDirty: false});
   }
 
@@ -867,7 +910,9 @@ export class ExamScreen extends Component {
       this.state.appointmentStateKey,
       this.props.navigation,
     );
-    if (exam.errors === undefined) updateMappedExams(exam);
+    if (exam.errors === undefined) {
+      updateMappedExams(exam);
+    }
     if (this.props.exam) {
       if (this.state.exam.id === exam.id) {
         this.setState({exam, isDirty: exam.errors !== undefined});
@@ -898,7 +943,9 @@ export class ExamScreen extends Component {
 
   addFavorite = async (favorite: any, name: string) => {
     const exam: ?Exam = this.state.exam;
-    if (exam === undefined) return;
+    if (exam === undefined) {
+      return;
+    }
     await storeFavorite(favorite, exam.definition.id, name);
     this.setState({favorites: getFavorites(this.state.exam)});
   };
@@ -924,10 +971,11 @@ export class ExamScreen extends Component {
         getCachedItem(examId) !== undefined &&
         getCachedItem(examId).definition.name === examName,
     );
-    if (!examId)
+    if (!examId) {
       examId = visit.preCustomExamIds.find(
         (examId: string) => getCachedItem(examId).definition.name === examName,
       );
+    }
     const exam: Exam = getCachedItem(examId);
     return exam;
   }
@@ -949,7 +997,9 @@ export class ExamScreen extends Component {
   };
 
   renderExam() {
-    if (!this.state.exam) return null;
+    if (!this.state.exam) {
+      return null;
+    }
     const canEdit: boolean = !(this.state.exam.readonly || this.state.locked);
     switch (this.state.exam.definition.type) {
       case 'selectionLists':
@@ -1005,7 +1055,9 @@ export class ExamScreen extends Component {
   }
 
   renderLockIcon() {
-    if (!this.state.locked || this.state.exam.readonly) return null;
+    if (!this.state.locked || this.state.exam.readonly) {
+      return null;
+    }
     return (
       <TouchableOpacity onPress={this.switchLock}>
         <Lock
@@ -1024,11 +1076,15 @@ export class ExamScreen extends Component {
           <Pencil style={styles.screenIcon} />
         </TouchableOpacity>
       );
-    } else return null;
+    } else {
+      return null;
+    }
   }
 
   renderFavoriteIcon() {
-    if (!this.state.exam) return null;
+    if (!this.state.exam) {
+      return null;
+    }
     if (
       this.state.locked ||
       this.state.exam.readonly ||
@@ -1036,8 +1092,9 @@ export class ExamScreen extends Component {
       this.state.exam.definition.starable !== true ||
       (this.state.exam.definition.type !== 'selectionLists' &&
         this.state.exam.definition.type !== 'groupedForm')
-    )
+    ) {
       return null;
+    }
     return (
       <Star
         onAddFavorite={this.addExamFavorite}
@@ -1048,7 +1105,9 @@ export class ExamScreen extends Component {
   }
 
   renderRefreshIcon() {
-    if (this.state.locked) return null;
+    if (this.state.locked) {
+      return null;
+    }
     return (
       <TouchableOpacity onPress={() => this.refreshExam()} testID="refreshExam">
         <Refresh style={styles.screenIcon} />
@@ -1057,7 +1116,9 @@ export class ExamScreen extends Component {
   }
 
   renderExamIcons(style: any) {
-    if (this.state.exam.definition.card === false) return;
+    if (this.state.exam.definition.card === false) {
+      return;
+    }
     return (
       <View style={style}>
         {this.renderRefreshIcon()}
@@ -1073,8 +1134,9 @@ export class ExamScreen extends Component {
       this.state.exam.definition.relatedExams === undefined ||
       this.state.exam.definition.relatedExams === null ||
       this.state.exam.definition.relatedExams.length === 0
-    )
+    ) {
       return null;
+    }
     return (
       <View style={styles.flow}>
         {this.state.exam.definition.relatedExams.map(
@@ -1099,7 +1161,7 @@ export class ExamScreen extends Component {
     if (
       this.state.exam.definition.scrollable === true ||
       this.state.exam.definition.type === 'groupedForm'
-    )
+    ) {
       return (
         <KeyboardAwareScrollView
           style={styles.page}
@@ -1117,7 +1179,8 @@ export class ExamScreen extends Component {
           {this.renderExam()}
         </KeyboardAwareScrollView>
       );
-    if (this.props.disableScroll)
+    }
+    if (this.props.disableScroll) {
       return (
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
@@ -1127,6 +1190,7 @@ export class ExamScreen extends Component {
           {!isWeb && this.renderExamIcons(styles.examIcons)}
         </View>
       );
+    }
     return (
       <KeyboardAwareScrollView
         style={styles.page}

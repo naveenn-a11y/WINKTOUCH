@@ -11,7 +11,7 @@ export const setIconsConfig = () => {
 }`;
   const antDesignOconFontStyles = `@font-face {
   src: url(${antDesignFont});
-  font-family: AntDesign;
+  font-family: AntDesign; 
 }`;
 
   const materialFontStyles = `@font-face {
@@ -26,17 +26,11 @@ export const setIconsConfig = () => {
       style.styleSheet.cssText = materialCommunityFontStyles;
       style.styleSheet.cssText += antDesignOconFontStyles;
       style.styleSheet.cssText += materialFontStyles;
-
-
     } else {
-        style.appendChild(document.createTextNode(materialCommunityFontStyles));
-        style.appendChild(document.createTextNode(antDesignOconFontStyles));
-        style.appendChild(document.createTextNode(materialFontStyles));
-
-
+      style.appendChild(document.createTextNode(materialCommunityFontStyles));
+      style.appendChild(document.createTextNode(antDesignOconFontStyles));
+      style.appendChild(document.createTextNode(materialFontStyles));
     }
     document.head.appendChild(style);
-
-
   }
 };

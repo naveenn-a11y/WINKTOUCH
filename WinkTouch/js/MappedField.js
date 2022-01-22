@@ -95,7 +95,7 @@ export async function importData(
           : identifier;
         if (value instanceof Array) {
           let index: number = 0;
-          value.forEach(subValue => {
+          value.forEach((subValue) => {
             if (subValue != undefined && subValue != null) {
               let data = {label: label + ' ' + ++index, data: subValue};
               dataList.push(data);
@@ -108,8 +108,12 @@ export async function importData(
       }
     }
   }
-  if (dataList.length === 0) return undefined;
-  if (dataList.length === 1) return dataList[0];
+  if (dataList.length === 0) {
+    return undefined;
+  }
+  if (dataList.length === 1) {
+    return dataList[0];
+  }
   return dataList;
 }
 
@@ -119,7 +123,7 @@ async function pushMachineMeasurement(
 ): void {
   measurement.id = 'measurement';
   measurement.machineId = machineId;
-  measurement = await storeItem(measurement);  
+  measurement = await storeItem(measurement);
   if (measurement.errors) {
     alert(measurement.errors.toString());
   }
@@ -130,12 +134,14 @@ export async function exportData(
   measurement: Measurement,
   examId: string,
 ): Measurement {
-  if (measurement === undefined || measurement === null) return;
+  if (measurement === undefined || measurement === null) {
+    return;
+  }
   if (destinationIdentifier.startsWith('machine.')) {
     const machineType: string = destinationIdentifier.substring(
       'machine.'.length,
     );
-    let machineId: number = getConfiguration()['machine'][machineType];
+    let machineId: number = getConfiguration().machine[machineType];
     if (machineId === undefined || machineId == null || machineId === 0) {
       alert(strings.formatString(strings.configMissing, machineType));
       return undefined;
