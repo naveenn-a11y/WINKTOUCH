@@ -3,26 +3,23 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {
-  View,
-  TextInput,
-  StatusBar,
-  AsyncStorage,
-  AppState,
-  InteractionManager,
-} from 'react-native';
+import {AppState} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
-import {fetchItemById} from './Rest';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
+import {isWeb} from './Styles';
 
-codePush.getCurrentPackage().then(currentPackage => {
-  if (currentPackage !== null && currentPackage !== undefined)
-    setDeploymentVersion(currentPackage.label);
-});
+!isWeb &&
+  codePush.getCurrentPackage().then((currentPackage) => {
+    if (currentPackage !== null && currentPackage !== undefined) {
+      setDeploymentVersion(currentPackage.label);
+    }
+  });
 
 function logUpdateStatus(status: number) {
   switch (status) {
@@ -59,7 +56,7 @@ function logUpdateStatus(status: number) {
   }
 }
 
-let lastUpdateCheck: ?Date = undefined;
+let lastUpdateCheck: ?Date;
 
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
@@ -67,7 +64,9 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     checkBinaryVersion();
     return;
   }
-  if (!registration || !registration.path) return;
+  if (!registration || !registration.path) {
+    return;
+  }
   checkBinaryVersion();
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
@@ -89,16 +88,18 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
   //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  codePush.disallowRestart();
-  await codePush.sync(
-    {
-      updateDialog: false,
-      deploymentKey: registration.bundle,
-      installMode: codePush.InstallMode.IMMEDIATE,
-    },
-    logUpdateStatus,
-  );
-  codePush.allowRestart();
+  if (!isWeb) {
+    codePush.disallowRestart();
+    await codePush.sync(
+      {
+        updateDialog: false,
+        deploymentKey: registration.bundle,
+        installMode: codePush.InstallMode.IMMEDIATE,
+      },
+      logUpdateStatus,
+    );
+    codePush.allowRestart();
+  }
 }
 
 export class EhrApp extends Component {
@@ -226,7 +227,7 @@ export class EhrApp extends Component {
     const path: string = await AsyncStorage.getItem('path');
     const registration: Registration = {email, bundle, path};
     console.log(
-      'WinkTouch app is registered to : ' +
+      'WINKemr app is registered to : ' +
         email +
         ' bundle: ' +
         bundle +

@@ -21,9 +21,10 @@ import type {
   FieldDefinitions,
   ExamPredefinedValue,
   GlassesRx,
+  Prescription,
 } from './Types';
 import {strings} from './Strings';
-import {styles, selectionColor, fontScale, scaleStyle} from './Styles';
+import {styles, selectionColor, fontScale, scaleStyle, isWeb} from './Styles';
 import {
   TilesField,
   TextField,
@@ -32,6 +33,7 @@ import {
   stripSelectionPrefix,
   selectionPrefix,
   FloatingButton,
+  NoAccess,
 } from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {
@@ -185,6 +187,9 @@ export function formatFieldValue(
   value: ?string | ?number | ?(string[]) | ?(number[]),
   fieldDefinition: FieldDefinition,
 ): string {
+  if (fieldDefinition === undefined) {
+    return '';
+  }
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }
@@ -208,12 +213,36 @@ export function formatFieldValue(
     }
   }
   if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
+    if (
+      (fieldDefinition.prefix &&
+        fieldDefinition.prefix instanceof Array === false) ||
+      (fieldDefinition.suffix &&
+        fieldDefinition.suffix instanceof Array === false)
+    ) {
+      return (
+        formatPrefix(fieldDefinition, value) +
+        formatDate(value, isToyear(value) ? dateFormat : yearDateFormat) +
+        formatSuffix(fieldDefinition)
+      );
+    }
     return formatDate(value, isToyear(value) ? dateFormat : yearDateFormat);
   }
   if (
     fieldDefinition.type &&
     (fieldDefinition.type === 'time' || fieldDefinition.type.includes('Time'))
   ) {
+    if (
+      (fieldDefinition.prefix &&
+        fieldDefinition.prefix instanceof Array === false) ||
+      (fieldDefinition.suffix &&
+        fieldDefinition.suffix instanceof Array === false)
+    ) {
+      return (
+        formatPrefix(fieldDefinition, value) +
+        formatTime(value) +
+        formatSuffix(fieldDefinition)
+      );
+    }
     return formatTime(value);
   }
   if (fieldDefinition.type && fieldDefinition.type === 'prism') {
@@ -263,6 +292,32 @@ export function isNumericField(fieldDefinition: FieldDefinition): boolean {
     fieldDefinition.minValue !== undefined ||
     fieldDefinition.maxValue !== undefined
   );
+}
+
+export function formatFieldLabel(
+  groupDefinition: GroupDefinition,
+  groupValue: any,
+): string {
+  const customDefinition: ?GroupDefinition | FieldDefinition =
+    groupDefinition.fields.find(
+      (definition: GroupDefinition | FieldDefinition) =>
+        definition.isLabel === true,
+    );
+
+  let label: string = formatLabel(groupDefinition);
+  if (customDefinition) {
+    if (groupValue[customDefinition.name] instanceof Object) {
+      label = !isEmpty(groupValue[customDefinition.name].label)
+        ? groupValue[customDefinition.name].label
+        : label;
+    } else {
+      label = !isEmpty(groupValue[customDefinition.name])
+        ? groupValue[customDefinition.name]
+        : label;
+    }
+  }
+
+  return label;
 }
 
 export function formatLabel(
@@ -347,7 +402,7 @@ function constructItemView(
   onUpdateItem?: (propertyName: string, value: any) => void,
   orientation: string,
   titleFields?: string[],
-  showLabels?: boolean = false,
+  showLabels: boolean = false,
 ) {
   switch (itemView) {
     case 'EditableItem':
@@ -373,23 +428,47 @@ function constructItemView(
         fieldDefinitions={fieldDefinitions}
         editable={editable}
         showLabels={showLabels}
+        titleFields={titleFields}
       />
     </View>
   );
 }
 
-class ItemSummary extends Component {
-  props: {
-    item: any,
-    fieldDefinitions: ?(FieldDefinition[]),
-    editable?: boolean,
-    orientation?: string,
-    showLabels?: boolean,
-  };
-
+type ItemSummaryProps = {
+  item: any,
+  fieldDefinitions: ?(FieldDefinition[]),
+  editable?: boolean,
+  orientation?: string,
+  showLabels?: boolean,
+  titleFields?: string[],
+};
+class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;
+    }
+    if (this.props.item?.noaccess) {
+      const itemKeys = Object.keys(this.props.item);
+      let formattedValue: string = '';
+      this.props.titleFields &&
+        this.props.titleFields.forEach((fieldName: string) => {
+          if (itemKeys.indexOf(fieldName) !== -1) {
+            let fieldValue = this.props.item[fieldName];
+            if (!isEmpty(fieldValue)) {
+              let fieldDefinition: ?FieldDefinition =
+                this.props.fieldDefinitions.find(
+                  (fieldDefinition) => fieldDefinition.name === fieldName,
+                );
+              if (fieldDefinition) {
+                formattedValue +=
+                  formatFieldValue(fieldValue, fieldDefinition) + ' ';
+              } else {
+                formattedValue += fieldValue.toString();
+              }
+            }
+          }
+        });
+      return <NoAccess prefix={formattedValue} />;
     }
     if (this.props.orientation !== 'horizontal') {
       let description = '';
@@ -401,7 +480,7 @@ class ItemSummary extends Component {
         if (value !== undefined && value !== null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
-            if (!isFirstField) {
+            if (!isFirstField && !description.trim().endsWith(':')) {
               description += ', ';
             }
             if (this.props.showLabels && this.props.fieldDefinitions[i].label) {
@@ -480,6 +559,14 @@ class EditableItem extends Component {
       this.props.orientation === 'horizontal' ? styles.flow : styles.form;
     if (this.props.isSelected) {
       style = [style, {backgroundColor: selectionColor}];
+    }
+    if (this.props.item?.noaccess) {
+      return (
+        <View style={style}>
+          {this.renderTitle()}
+          <NoAccess />
+        </View>
+      );
     }
     return (
       <View style={style}>
@@ -563,12 +650,11 @@ export class ItemsCard extends Component {
       ) {
         return false;
       }
-      const fieldDefinition:
-        | ?GroupDefinition
-        | FieldDefinition = this.props.exam.definition.fields.find(
-        (fieldDefinition: GroupDefinition | FieldDefinition) =>
-          fieldDefinition.name === field,
-      );
+      const fieldDefinition: ?GroupDefinition | FieldDefinition =
+        this.props.exam.definition.fields.find(
+          (fieldDefinition: GroupDefinition | FieldDefinition) =>
+            fieldDefinition.name === field,
+        );
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
@@ -601,12 +687,11 @@ export class ItemsCard extends Component {
           if (this.props.exam.definition.fields === undefined) {
             return null;
           }
-          const fieldDefinition:
-            | ?GroupDefinition
-            | FieldDefinition = this.props.exam.definition.fields.find(
-            (fieldDefinition: GroupDefinition | FieldDefinition) =>
-              fieldDefinition.name === field,
-          );
+          const fieldDefinition: ?GroupDefinition | FieldDefinition =
+            this.props.exam.definition.fields.find(
+              (fieldDefinition: GroupDefinition | FieldDefinition) =>
+                fieldDefinition.name === field,
+            );
           if (fieldDefinition === null || fieldDefinition === undefined) {
             return null;
           }
@@ -793,7 +878,7 @@ export class ItemsList extends Component {
   renderList(): Component {
     const itemOrientation: string =
       this.props.orientation === 'vertical' ? 'horizontal' : 'vertical';
-    return this.props.items.map((item: any, index: number) => {
+    return this.props.items.map((item: ?Prescription | any, index: number) => {
       const isSelected: boolean =
         this.props.selectedItem === item && this.props.items.length > 1;
       const itemView = constructItemView(
@@ -916,9 +1001,8 @@ export class ItemsEditor extends Component {
       (fieldDefinition: FieldDefinition) =>
         fieldDefinition.name === propertyName,
     );
-    const fieldDefinition: ?FieldDefinition = this.props.fieldDefinitions[
-      fieldIndex
-    ];
+    const fieldDefinition: ?FieldDefinition =
+      this.props.fieldDefinitions[fieldIndex];
     if (fieldDefinition === undefined || fieldDefinition === null) {
       return;
     }
@@ -1146,7 +1230,9 @@ export class ItemsEditor extends Component {
               freestyle={fieldDefinition.freestyle}
               simpleSelect={fieldDefinition.simpleSelect}
               selection={selection}
-              onUpdateSelection={value => this.updateItem(propertyName, value)}
+              onUpdateSelection={(value) =>
+                this.updateItem(propertyName, value)
+              }
               fieldId={this.props.fieldId + '.' + fieldDefinition.name}
             />
           );
@@ -1224,12 +1310,18 @@ export class ItemsEditor extends Component {
             />
           )}
         </View>
-        {this.props.editable && (
-          <ScrollView horizontal={true}>
-            {this.renderSelectionLists()}
-            {this.renderNonOptionFields()}
-          </ScrollView>
-        )}
+        {this.props.editable &&
+          (isWeb ? (
+            <View style={{flex: 100, flexDirection: 'row', flexWrap: 'wrap'}}>
+              {this.renderSelectionLists()}
+              {this.renderNonOptionFields()}
+            </View>
+          ) : (
+            <ScrollView horizontal={true}>
+              {this.renderSelectionLists()}
+              {this.renderNonOptionFields()}
+            </ScrollView>
+          ))}
       </View>
     );
   }
