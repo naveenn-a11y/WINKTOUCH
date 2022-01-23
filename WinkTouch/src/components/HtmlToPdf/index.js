@@ -4,13 +4,23 @@ import RNFS from 'react-native-fs';
 import {PDFDocument, PDFPage} from 'pdf-lib';
 
 export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:function=()=>{}) {
+
+  let pdf = await generatePDF(html, false);
+  const resultPdf = await addPDFAttachment(pdf,PDFAttachment);
+ 
+  const resultBase64: string = await resultPdf.saveAsBase64();
+  const fPath = `${RNFS.DocumentDirectoryPath}/pdfFileName.pdf`;
+  await RNFS.writeFile(fPath, resultBase64, 'base64');
+  cb();
+  const job: any = await NativeModules.RNPrint.print({filePath: fPath});
+  await RNFS.unlink(fPath);
+  return job;
+}
+export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
-
-  let pdf = await generatePDF(html, false);
   let resultPdf = await PDFDocument.load(pdf?.base64);
-
   for (var pdfInstance of PDFAttachment) {
     let index = 0;
     const newPdf = await PDFDocument.load(pdfInstance.base64);
@@ -32,15 +42,8 @@ export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:f
       }
     }
   }
-  const resultBase64: string = await resultPdf.saveAsBase64();
-  const fPath = `${RNFS.DocumentDirectoryPath}/pdfFileName.pdf`;
-  await RNFS.writeFile(fPath, resultBase64, 'base64');
-  cb();
-  const job: any = await NativeModules.RNPrint.print({filePath: fPath});
-  await RNFS.unlink(fPath);
-  return job;
+  return resultPdf
 }
-
 export async function generatePDF(html: string, isBase64: boolean) {
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
