@@ -1574,14 +1574,8 @@ export function renderAttachment(html:string){
   let hasImage: boolean = false;
   SelectedPDFAttachment = [];
   
-
-
-
   for(let str of html.split('<code index="')){
-    console.log('str :>> ', str);
-
       if(str.indexOf('cuthere')!==-1){
-        console.log('str.split("cuthere")[0].trim() :>> ', str.split('" cuthere="">'));
           const identifier: string = str.split('" cuthere="">')[0].trim()
           if (selectedAttachments.indexOf(identifier) === -1) {
             selectedAttachments.push(identifier)

@@ -746,6 +746,10 @@ export class ReferralScreen extends Component<
   }
 
   renderEditor() {
+    let HTML = this.state.referralHtml
+    if(this.state.referralHtml?.split('<div class="breakBefore"></div><div class="wrap-imgs">')?.length >0){
+      HTML = this.state.referralHtml.split('<div class="breakBefore"></div><div class="wrap-imgs">')[0]
+    }
     return (
       <View style={{flex: 100, flexDirection: 'column'}}>
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
@@ -753,7 +757,7 @@ export class ReferralScreen extends Component<
             <HtmlEditor
               style={styles.page}
               ref={(ref) => (this.editor = ref)}
-              value={this.state.referralHtml}
+              value={HTML}
             />
           </View>
           {this.renderTemplateTool()}
