@@ -48,8 +48,14 @@ import {
   patientHeader,
   patientFooter,
   getSelectedPDFAttachment,
+  renderAttachment,
+  addEmbeddedAttachment,
 } from './PatientFormHtml';
-import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
+import {
+  printHtml,
+  generatePDF,
+  addPDFAttachment,
+} from '../src/components/HtmlToPdf';
 import RNBeep from 'react-native-a-beep';
 import {getStore} from './DoctorApp';
 import {
@@ -295,8 +301,8 @@ export class ReferralScreen extends Component<
           alert(response.errors);
         } else {
           const htmlContent: ReferralDocument = response;
-          let htmlHeader: string = patientHeader(true);
-          let htmlEnd: string = patientFooter(false);
+          let htmlHeader: string = patientHeader();
+          let htmlEnd: string = patientFooter();
           template =
             this.props.navigation &&
             this.props.navigation.state &&
@@ -496,20 +502,12 @@ export class ReferralScreen extends Component<
 
   async print(): Promise<void> {
     let html = await this.editor.getContent();
-    let wrapper = document.createElement('div');
-    wrapper.innerHTML = html;
-    let AttachmentsIndexes = [];
-    for (let elem of wrapper.querySelectorAll('code')) {
-      const identifier: string = elem.getAttribute('index');
-      if (AttachmentsIndexes.indexOf(identifier) === -1) {
-        AttachmentsIndexes.push(identifier);
-      }
-    }
-    let htmlHeader: string = patientHeader(true);
-    let htmlEnd: string = patientFooter(false, AttachmentsIndexes);
-    let PDFAttachment: Array<any> = getSelectedPDFAttachment();
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
-    const job = await printHtml(html, PDFAttachment);
+    let HtmlWithAttachment: string = renderAttachment(html);
+    let PDFAttachment: Array<any> = getSelectedPDFAttachment();
+    const job = await printHtml(HtmlWithAttachment, PDFAttachment);
     if (job) {
       this.setState({command: COMMAND.PRINT, isDirty: true});
       await this.save();
@@ -518,12 +516,24 @@ export class ReferralScreen extends Component<
 
   async save(): Promise<any> {
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader(true);
-    let htmlEnd: string = patientFooter(false);
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
+    html = htmlHeader + html;
+
+    let HtmlWithAttachment: string = renderAttachment(html);
+    let PDFAttachment: Array<any> = getSelectedPDFAttachment();
+    let HtmlEmbeddedAttachment: string = addEmbeddedAttachment(
+      HtmlWithAttachment,
+      PDFAttachment,
+    );
+    html = HtmlEmbeddedAttachment + htmlEnd;
+
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
 
-    let file = await generatePDF(htmlHeader + html + htmlEnd, true);
+    let pdf = await generatePDF(HtmlWithAttachment, true);
+    const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
+    const resultBase64: string = await resultPdf.saveAsBase64();
     let referralId;
     let linkedReferralId;
 
@@ -545,7 +555,7 @@ export class ReferralScreen extends Component<
       action: this.state.command,
       id: referralId,
       linkedReferralId: linkedReferralId,
-      attachment: file.base64,
+      attachment: resultBase64,
       name: this.state.template,
     };
     let response = await fetchWinkRest(
@@ -635,18 +645,22 @@ export class ReferralScreen extends Component<
     }
     this.setState({isActive: false});
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader(true);
-    let htmlEnd: string = patientFooter(false);
+    let htmlHeader: string = patientHeader();
+    let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
+    let HtmlWithAttachment: string = renderAttachment(html);
+    let PDFAttachment: Array<any> = getSelectedPDFAttachment();
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
-    let file = await generatePDF(html, true);
+    let pdf = await generatePDF(HtmlWithAttachment, true);
+    const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
+    const resultBase64: string = await resultPdf.saveAsBase64();
     let body: {} = {};
     if (this.state.command == COMMAND.EMAIL) {
       body = {
         visitId: stripDataType(visit.id),
         doctorId: stripDataType(this.state.doctorId),
-        attachment: file.base64,
+        attachment: resultBase64,
         emailDefinition: this.state.emailDefinition,
         doctorReferral: this.state.doctorReferral,
       };
@@ -654,7 +668,7 @@ export class ReferralScreen extends Component<
       body = {
         visitId: stripDataType(visit.id),
         doctorId: stripDataType(this.state.doctorId),
-        attachment: file.base64,
+        attachment: resultBase64,
         isFax: true,
         emailDefinition: this.state.emailDefinition,
         doctorReferral: this.state.doctorReferral,
@@ -846,6 +860,16 @@ export class ReferralScreen extends Component<
   }
 
   renderEditor() {
+    let HTML = this.state.referralHtml;
+    if (
+      this.state.referralHtml?.split(
+        '<div class="breakBefore"></div><div class="wrap-imgs">',
+      )?.length > 0
+    ) {
+      HTML = this.state.referralHtml.split(
+        '<div class="breakBefore"></div><div class="wrap-imgs">',
+      )[0];
+    }
     return (
       <View style={{flex: 100, flexDirection: 'column'}}>
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
@@ -853,7 +877,7 @@ export class ReferralScreen extends Component<
             <HtmlEditor
               style={styles.page}
               ref={(ref) => (this.editor = ref)}
-              value={this.state.referralHtml}
+              value={HTML}
             />
           </View>
           {this.renderTemplateTool()}

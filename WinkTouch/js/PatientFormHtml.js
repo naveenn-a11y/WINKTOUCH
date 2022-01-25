@@ -833,14 +833,14 @@ async function renderField(
             html,
             index: ImageIndex,
           });
-          html = `<code index=${ImageIndex}>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+          html = `<code index="${ImageIndex}" cuthere="">*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
         } else {
           smallMedia.push({
             name: exam?.definition?.name,
             html,
             index: ImageIndex,
           });
-          html = `<code index=${ImageIndex}>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+          html = `<code index="${ImageIndex}" cuthere="">*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
         }
       }
       return html;
@@ -951,7 +951,7 @@ async function renderMedia(
         base64: filePath,
         index: PdfIdentifier,
       });
-      imageValue = `<code index="${PdfIdentifier}">*Please see annexed document (pdf-${
+      imageValue = `<code index="${PdfIdentifier}" cuthere="">*Please see annexed document (pdf-${
         PDFAttachment.length + 1
       }) at the end of the document.</code>`;
     }
@@ -1421,7 +1421,7 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader(shouldAddMain: boolean = true) {
+export function patientHeader() {
   let htmlHeader: string =
     '<head><title>Patient File</title><style>' +
     'body {' +
@@ -1625,80 +1625,97 @@ export function patientHeader(shouldAddMain: boolean = true) {
   htmlHeader += isWeb
     ? '.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
     : '.wrap-imgs{page-break-before: always; } ';
-  if (shouldAddMain) {
-    htmlHeader += '</style></head><body><main>';
-  }
+
+  htmlHeader += '</style></head>';
+  htmlHeader += '<body><main>';
   return htmlHeader;
 }
-
-export function patientFooter(
-  printImages: boolean = true,
-  selectedAttachments: Array<any> = [],
-) {
-  let htmlEnd: string = '';
+export function renderAttachment(html: string) {
+  let selectedAttachments: any[] = [];
+  let withAttachmentHtml: string = html;
   let addImages: string = '';
-  let hasImage: boolean = printImages && smallMedia.length > 0;
+  let hasImage: boolean = false;
+  SelectedPDFAttachment = [];
 
-  for (var image of smallMedia) {
-    if (printImages) {
-      addImages += image.html;
-    } else if (selectedAttachments?.length > 0) {
-      for (let AttachmentIndex of selectedAttachments) {
-        if (AttachmentIndex === image.index) {
-          addImages += image.html;
-          hasImage = true;
-        }
-      }
-    }
-  }
-  for (var image of largeMedia) {
-    if (printImages) {
-      addImages += image.html;
-    } else if (selectedAttachments?.length > 0) {
-      for (let AttachmentIndex of selectedAttachments) {
-        if (AttachmentIndex === image.index) {
-          addImages += image.html;
-        }
+  for (let str of html.split('<code index="')) {
+    if (str.indexOf('cuthere') !== -1) {
+      const identifier: string = str.split('" cuthere="">')[0].trim();
+      if (selectedAttachments.indexOf(identifier) === -1) {
+        selectedAttachments.push(identifier);
       }
     }
   }
 
-  if (!printImages) {
-    SelectedPDFAttachment = [];
-  } else {
-    SelectedPDFAttachment = [...PDFAttachment];
+  for (let image of smallMedia) {
+    for (let AttachmentIndex of selectedAttachments) {
+      if (AttachmentIndex === image.index) {
+        addImages += image.html;
+        hasImage = true;
+      }
+    }
   }
+
+  for (let image of largeMedia) {
+    for (let AttachmentIndex of selectedAttachments) {
+      if (AttachmentIndex === image.index) {
+        addImages += image.html;
+      }
+    }
+  }
+
+  for (let pdf of PDFAttachment) {
+    for (let AttachmentIndex of selectedAttachments) {
+      if (AttachmentIndex === pdf.index) {
+        SelectedPDFAttachment.push({
+          base64: pdf.base64,
+          index: pdf.index,
+        });
+      }
+    }
+  }
+
   if (hasImage) {
-    htmlEnd += '<div class="breakBefore"></div>';
-    htmlEnd += '<div class="wrap-imgs">';
+    withAttachmentHtml += '<div class="breakBefore"></div>';
+    withAttachmentHtml += '<div class="wrap-imgs">';
   }
-  htmlEnd += addImages;
 
-  if (!printImages) {
-    for (let pdf of PDFAttachment) {
-      for (let AttachmentIndex of selectedAttachments) {
-        if (AttachmentIndex === pdf.index) {
-          SelectedPDFAttachment.push({
-            base64: pdf.base64,
-            index: pdf.index,
-          });
-        }
-      }
-    }
-  }
-  htmlEnd += '</div></body></main>';
-  return htmlEnd;
+  withAttachmentHtml += addImages;
+  return withAttachmentHtml;
+}
+export function patientFooter() {
+  return `</div></body></main>`;
 }
 export function getVisitHtml(html: string): string {
   let htmlHeader: string = patientHeader();
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
-  let Attachments = SelectedPDFAttachment;
-  initValues();
+  let Attachments = PDFAttachment;
+  // initValues();
   return {html: finalHtml, PDFAttachment: Attachments};
 }
 export function getSelectedPDFAttachment(): Array<any> {
   return SelectedPDFAttachment;
+}
+export function addEmbeddedAttachment(
+  html: string,
+  attachments: Array<any> = [],
+) {
+  let EmbeddedAttachmentHtml: string = html;
+  EmbeddedAttachmentHtml += '<script type="text/javascript">';
+  EmbeddedAttachmentHtml += `let attachments=${JSON.stringify(attachments)}`;
+  EmbeddedAttachmentHtml += '</script>';
+  return EmbeddedAttachmentHtml;
+}
+export function getPDFAttachmentFromHtml(html: string) {
+  let PDFAttachment: any[] = [];
+  for (let str of html.split('<script type="text/javascript">')) {
+    if (str.indexOf('let attachments=') !== -1) {
+      let attachments = str.split('let attachments=');
+      attachments = attachments[1].split('</script>');
+      PDFAttachment = JSON.parse(attachments[0]);
+    }
+  }
+  return PDFAttachment;
 }
 export function initValues() {
   imageBase64Definition = [];

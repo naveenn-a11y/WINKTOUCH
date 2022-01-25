@@ -98,6 +98,7 @@ import {
   getScannedFiles,
   setScannedFiles,
   initValues,
+  renderAttachment,
 } from './PatientFormHtml';
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
@@ -499,8 +500,8 @@ async function printPatientFile(visitId: string, cb) {
       }
     }
     visitHtml = getVisitHtml(visitHtml);
-    // await printHtml(visitHtml);
-    await printHtml(visitHtml.html, visitHtml.PDFAttachment, cb);
+    let HtmlWithAttachment:string = renderAttachment(visitHtml.html);
+    await printHtml(HtmlWithAttachment, visitHtml.PDFAttachment, cb);
   }
 }
 
