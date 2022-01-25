@@ -1588,21 +1588,19 @@ export function renderAttachment(html:string){
           }
       }
   }
-  console.log('selectedAttachments :>> ', selectedAttachments);
-  console.log('smallMedia :>> ', smallMedia);
-  for (var image of smallMedia) {
+
+  for (let image of smallMedia) {
       for (let AttachmentIndex of selectedAttachments) {
         if (AttachmentIndex === image.index) {addImages += image.html; hasImage = true;}
       }
   }
-  console.log('largeMedia :>> ', largeMedia);
-  for (var image of largeMedia) {
+
+  for (let image of largeMedia) {
       for (let AttachmentIndex of selectedAttachments) {
         if (AttachmentIndex === image.index){addImages += image.html;}
       }
   }
 
-  console.log('PDFAttachment :>> ', PDFAttachment);
   for (let pdf of PDFAttachment) {
     for (let AttachmentIndex of selectedAttachments) {
       if (AttachmentIndex === pdf.index)
@@ -1612,6 +1610,7 @@ export function renderAttachment(html:string){
         });
     }
   }
+
   if (hasImage) {
     withAttachmentHtml += `<div class="breakBefore"></div>`;
     withAttachmentHtml += `<div class="wrap-imgs">`;
@@ -1634,6 +1633,24 @@ export function getVisitHtml(html: string): string {
 }
 export function getSelectedPDFAttachment(): Array<any> {
   return SelectedPDFAttachment;
+}
+export function addEmbeddedAttachment(html:string,attachments:Array<any> =[]) {
+  let EmbeddedAttachmentHtml: string = html;
+  EmbeddedAttachmentHtml += '<script type="text/javascript">'
+  EmbeddedAttachmentHtml += `let attachments=${JSON.stringify(attachments)}`
+  EmbeddedAttachmentHtml += '</script>'
+  return EmbeddedAttachmentHtml;
+}
+export function getPDFAttachmentFromHtml(html:string) {
+  let PDFAttachment: any[] = [];
+  for(let str of html.split('<script type="text/javascript">')){
+    if(str.indexOf('let attachments=')!==-1){
+      let attachments = str.split('let attachments=');
+      attachments=attachments[1].split("</script>");
+      PDFAttachment = JSON.parse(attachments[0]);
+    }
+  }
+  return PDFAttachment;
 }
 export function initValues() {
   imageBase64Definition = [];

@@ -42,6 +42,7 @@ import {
   patientFooter,
   getSelectedPDFAttachment,
   renderAttachment,
+  addEmbeddedAttachment
 } from './PatientFormHtml';
 import {printHtml, generatePDF, addPDFAttachment} from '../src/components/HtmlToPdf';
 import RNBeep from 'react-native-a-beep';
@@ -475,9 +476,13 @@ export class ReferralScreen extends Component<
     let html = await this.editor.getContent();
     let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
-    html = htmlHeader + html + htmlEnd;
+    html = htmlHeader + html ;
+
     let HtmlWithAttachment:string = renderAttachment(html);
     let PDFAttachment: Array<any> = getSelectedPDFAttachment();
+    let HtmlEmbeddedAttachment:string = addEmbeddedAttachment(HtmlWithAttachment,PDFAttachment);
+    html = HtmlEmbeddedAttachment + htmlEnd;
+
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
 
@@ -499,7 +504,7 @@ export class ReferralScreen extends Component<
     }
 
     let body: {} = {
-      htmlReferral: HtmlWithAttachment,
+      htmlReferral: html,
       visitId: stripDataType(visit.id),
       doctorId: stripDataType(this.state.doctorId),
       action: this.state.command,

@@ -21,7 +21,7 @@ export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let resultPdf = await PDFDocument.load(pdf?.base64);
-  for (var pdfInstance of PDFAttachment) {
+  for (let pdfInstance of PDFAttachment) {
     let index = 0;
     const newPdf = await PDFDocument.load(pdfInstance.base64);
     for (const page: PDFPage of newPdf.getPages()) {
