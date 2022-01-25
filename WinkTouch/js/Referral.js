@@ -981,6 +981,22 @@ export class ReferralScreen extends Component<
                     </FormRow>
                   </View>
                 )}
+
+              {!emailDefinition.builtInTemplate && (
+                <View>
+                  <FormRow>
+                    <View style={styles.flexRow}>
+                      <FormTextInput
+                        label="Notes"
+                        value={emailDefinition.subject}
+                        onChangeText={(newValue: string) =>
+                          this.updateFieldSubject(newValue)
+                        }
+                      />
+                    </View>
+                  </FormRow>
+                </View>
+              )}
               <View style={styles.flow}>
                 <Button
                   title={strings.cancel}
