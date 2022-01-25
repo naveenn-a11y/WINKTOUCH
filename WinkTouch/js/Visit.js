@@ -97,6 +97,7 @@ import {
   printPatientHeader,
   getScannedFiles,
   setScannedFiles,
+  initValues,
 } from './PatientFormHtml';
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
@@ -428,7 +429,8 @@ function getRecentVisitSummaries(patientId: string): ?(Exam[]) {
   return visitSummaries;
 }
 
-async function printPatientFile(visitId: string) {
+async function printPatientFile(visitId: string, cb) {
+  initValues();
   let visitHtml: string = '';
   const visit: Visit = getCachedItem(visitId);
   const allExams: string[] = allExamIds(visit);
@@ -438,7 +440,6 @@ async function printPatientFile(visitId: string) {
   visitHtml += printPatientHeader(visit);
   if (exams) {
     let htmlDefinition: HtmlDefinition[] = [];
-    visitHtml += '<table><thead></thead><tbody>';
     for (const section: string of examSections) {
       let filteredExams = exams.filter(
         (exam: Exam) =>
@@ -484,7 +485,6 @@ async function printPatientFile(visitId: string) {
         }
       }
     }
-    visitHtml += '</tbody></table>';
     visitHtml += getScannedFiles();
     for (const exam: string of xlExams) {
       if (
@@ -499,7 +499,8 @@ async function printPatientFile(visitId: string) {
       }
     }
     visitHtml = getVisitHtml(visitHtml);
-    printHtml(visitHtml);
+    // await printHtml(visitHtml);
+    await printHtml(visitHtml.html, visitHtml.PDFAttachment, cb);
   }
 }
 
@@ -872,6 +873,7 @@ class VisitWorkFlow extends Component {
     showRxPopup: boolean,
     printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
+    printing: boolean,
   };
 
   constructor(props: any) {
@@ -890,6 +892,7 @@ class VisitWorkFlow extends Component {
       appointment: appointment,
       showRxPopup: false,
       showMedicationRxPopup: false,
+      printing: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1656,9 +1659,13 @@ class VisitWorkFlow extends Component {
           )}
           {hasMedicalDataReadAccess && (
             <Button
+              loading={this.state.loading}
               title={strings.printPatientFile}
               onPress={() => {
-                printPatientFile(this.props.visitId);
+                this.setState({loading: true});
+                printPatientFile(this.props.visitId, () =>
+                  this.setState({loading: false}),
+                );
               }}
             />
           )}

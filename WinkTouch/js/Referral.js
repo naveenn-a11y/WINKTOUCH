@@ -47,6 +47,7 @@ import {
   getImageBase64Definition,
   patientHeader,
   patientFooter,
+  getSelectedPDFAttachment,
 } from './PatientFormHtml';
 import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
 import RNBeep from 'react-native-a-beep';
@@ -182,6 +183,7 @@ export class ReferralScreen extends Component<
       builtInTemplates: {},
       showBuiltInDialog: false,
     };
+    this.selectedFields = [];
     this.unmounted = false;
   }
 
@@ -293,8 +295,8 @@ export class ReferralScreen extends Component<
           alert(response.errors);
         } else {
           const htmlContent: ReferralDocument = response;
-          let htmlHeader: string = patientHeader();
-          let htmlEnd: string = patientFooter();
+          let htmlHeader: string = patientHeader(true);
+          let htmlEnd: string = patientFooter(false);
           template =
             this.props.navigation &&
             this.props.navigation.state &&
@@ -408,6 +410,7 @@ export class ReferralScreen extends Component<
       selectedKey = key;
     }
     __DEV__ && console.log('selected key: ' + selectedKey);
+    this.selectedFields.push(selectedKey);
     return selectedKey;
   }
 
@@ -440,8 +443,6 @@ export class ReferralScreen extends Component<
         return;
       }
       const htmlContent: ReferralDocument = response;
-      let htmlHeader: string = patientHeader();
-      let htmlEnd: string = patientFooter();
       let html = this.mapImageWithBase64(htmlContent.content);
       this.editor.insertContent(html);
       this.updateSignatureState(html);
@@ -495,10 +496,20 @@ export class ReferralScreen extends Component<
 
   async print(): Promise<void> {
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter();
+    let wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    let AttachmentsIndexes = [];
+    for (let elem of wrapper.querySelectorAll('code')) {
+      const identifier: string = elem.getAttribute('index');
+      if (AttachmentsIndexes.indexOf(identifier) === -1) {
+        AttachmentsIndexes.push(identifier);
+      }
+    }
+    let htmlHeader: string = patientHeader(true);
+    let htmlEnd: string = patientFooter(false, AttachmentsIndexes);
+    let PDFAttachment: Array<any> = getSelectedPDFAttachment();
     html = htmlHeader + html + htmlEnd;
-    const job = await printHtml(html);
+    const job = await printHtml(html, PDFAttachment);
     if (job) {
       this.setState({command: COMMAND.PRINT, isDirty: true});
       await this.save();
@@ -507,8 +518,8 @@ export class ReferralScreen extends Component<
 
   async save(): Promise<any> {
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter();
+    let htmlHeader: string = patientHeader(true);
+    let htmlEnd: string = patientFooter(false);
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;
 
@@ -624,8 +635,8 @@ export class ReferralScreen extends Component<
     }
     this.setState({isActive: false});
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader();
-    let htmlEnd: string = patientFooter();
+    let htmlHeader: string = patientHeader(true);
+    let htmlEnd: string = patientFooter(false);
     html = htmlHeader + html + htmlEnd;
     let parameters: {} = {};
     const visit: Visit = this.props.navigation.state.params.visit;

@@ -53,7 +53,11 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
-
+let smallMedia: Array<any> = [];
+let largeMedia: Array<any> = [];
+let PDFAttachment: Array<any> = [];
+let SelectedPDFAttachment: Array<any> = [];
+let index = 0;
 let imageBase64Definition: ImageBase64Definition[] = [];
 export function getImageBase64Definition() {
   return imageBase64Definition;
@@ -75,7 +79,6 @@ export function printPatientHeader(visit: Visit) {
   const patient: PatientInfo = getCachedItem(visit.patientId);
   const store: Store = getStore();
   const doctor: User = getCachedItem(visit.userId);
-
   html +=
     '    <header class="clearfix">' +
     `      <h1>${strings.patientFile}</h1>` +
@@ -134,15 +137,22 @@ export function renderItemsHtml(
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
+
     html += `<div style="display:none;">${value}</div>`;
   } else {
     let examKeyFound: boolean = false;
+
     const value: any = exam.definition.label
       ? exam.definition.label
       : exam.definition.name;
-    html += '<tr>';
-    html += `<td class="service">${value}</td>`;
-    html += '<td class="desc">';
+    if (isEmpty(value)) {
+      return html;
+    }
+
+    html += '<div class="container">';
+    html += '<div class="BreakBeforeHeader"></div>';
+    html += `<div class="groupHeader"><div style="margin: auto;">${value}</div></div>`;
+    html += '<div class="desc">';
     let htmlSubItems: string = '';
     let parentDefinitionName = '';
     exam[exam.definition.name].map((examItem: any, index: number) => {
@@ -155,8 +165,8 @@ export function renderItemsHtml(
       html: htmlSubItems,
       child: htmlDefinition,
     });
-    html += '</td>';
-    html += '</tr>';
+    html += '</div>';
+    html += '</div>';
   }
   return html;
 }
@@ -200,7 +210,7 @@ function renderItemHtml(
           htmlSubItems += `<span>${formattedValue}</span>`;
           isFirstField = false;
         } else {
-          htmlSubItems += `<div><span>${label}: </span><span>${formattedValue}</span></div>`;
+          htmlSubItems += `<div><span class="label">${formattedValue}:</span><span class="value">${formattedValue}</span></div>`;
         }
       }
       html += htmlSubItems;
@@ -219,7 +229,8 @@ export async function renderParentGroupHtml(
   let htmlDefinition: HtmlDefinition[] = [];
 
   let html: string = '';
-
+  html += '<div class="container">';
+  html += '<div class="BreakBeforeHeader"></div>';
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
     (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
   );
@@ -229,6 +240,7 @@ export async function renderParentGroupHtml(
       ? ''
       : await renderAllGroupsHtml(exam, htmlDefinition);
     html += '</div>';
+    html += '</div>';
     parentHtmlDefinition.push({
       name: exam.definition.name,
       html: html,
@@ -237,12 +249,13 @@ export async function renderParentGroupHtml(
   } else {
     if (exam.definition.name === 'Consultation summary') {
       if (!isEmpty(exam.resume)) {
-        html += '<tr>';
-        html += `<td class="service">${formatLabel(exam.definition)}</td>`;
-        html += '<td class="desc">';
+        html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
+          exam.definition,
+        )}</div></div>`;
+        html += '<div class="desc">';
         html += `<div style="white-space: pre-line">${exam.resume}</div>`;
-        html += '</td>';
-        html += '</tr>';
+        html += '</div>';
+        html += '</div>';
         parentHtmlDefinition.push({
           name: exam.definition.name,
           html: `<div style="white-space: pre-line">${exam.resume}</div>`,
@@ -250,13 +263,18 @@ export async function renderParentGroupHtml(
       }
     } else {
       let htmlSubItems: string = '';
-      html += '<tr>';
-      html += `<td class="service">${formatLabel(exam.definition)}</td>`;
-      html += '<td class="desc">';
       htmlSubItems += await renderAllGroupsHtml(exam, htmlDefinition);
+      if (isEmpty(htmlSubItems)) {
+        html += '</div>';
+        return html;
+      }
+      html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
+        exam.definition,
+      )}</div></div>`;
+      html += '<div class="desc">';
       html += htmlSubItems;
-      html += '</td>';
-      html += '</tr>';
+      html += '</div>';
+      html += '</div>';
       parentHtmlDefinition.push({
         name: exam.definition.name,
         html: htmlSubItems,
@@ -264,14 +282,13 @@ export async function renderParentGroupHtml(
       });
     }
   }
-
   return html;
 }
 
 /**
-This Function accepts 2 parameters :
-  * examKey: the key to get the equivalent html value for it
-  * keyMap: contain map key -> html value of the current exam
+ This Function accepts 2 parameters :
+ * examKey: the key to get the equivalent html value for it
+ * keyMap: contain map key -> html value of the current exam
  */
 async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
   if (examKey === undefined || keyMap === undefined) {
@@ -346,8 +363,8 @@ async function getSubValue(examKey: string, keyMap: HtmlDefinition[]) {
   }
 }
 /**
-This Function receives as parameter html string containing the template text.
-This Function will filter the text containing exam keys and return all keys..
+ This Function receives as parameter html string containing the template text.
+ This Function will filter the text containing exam keys and return all keys..
  */
 async function retreiveKeys(html: string) {
   let subValue = html.split('{');
@@ -507,7 +524,6 @@ async function renderRowsHtml(
         undefined,
         groupIndex,
       );
-
       if (!isEmpty(value)) {
         if (
           groupLabel !== examLabel &&
@@ -525,17 +541,15 @@ async function renderRowsHtml(
         if (label !== undefined && label !== null && label.trim() !== '') {
           htmlSubItems += '<div>';
           if (!fieldDefinition.image) {
-            htmlSubItems += `<div><span>${label}:</span>`;
+            htmlSubItems += `<div><span class="label">${label}:</span>`;
           }
-          htmlSubItems += `<span>${value}</span></div>`;
+          htmlSubItems += `<span class="value">${value}</span></div>`;
           htmlSubItems += '</div>';
         } else {
-          if (groupDefinition.size === 'XL') {
-            htmlSubItems += '<div class="xlForm">' + value + '</div>';
-          } else if (!fieldDefinition.image) {
-            htmlSubItems += '<div><span>' + value + '</span></div>';
+          if (fieldDefinition.image) {
+            htmlSubItems += '<div>' + value + '</div>';
           } else {
-            htmlSubItems += '<span>' + value + '</span>';
+            htmlSubItems += '<div><span>' + value + '</span></div>';
           }
         }
         rowHtmlDefinition.push({
@@ -602,7 +616,7 @@ async function renderColumnedRows(
   }
 
   if (allRowsEmpty == false) {
-    html += '<table class="childTable" style="margin-top:10px; width:50%">';
+    html += '<table class="childTable" style="margin:10px;">';
     html += renderColumnsHeader(columnDefinition, definition);
     rows.forEach((column: string[]) => {
       html += '<tr>';
@@ -622,8 +636,7 @@ async function renderColumnedRows(
       );
       customColumns.map((header: string, i: number) => {
         let subHtml: string = '';
-        subHtml +=
-          '<table class="childTable" style="margin-top:10px; width:50%">';
+        subHtml += '<table class="childTable" style="margin:10px;">';
         rows.forEach((column: string[]) => {
           subHtml += '<tr>';
           column.map((value: string, j: number) => {
@@ -780,22 +793,58 @@ async function renderField(
 
   if (value) {
     if (fieldDefinition && fieldDefinition.image !== undefined) {
-      if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
-        html += '<span class="img-wrap" style="width:49%">';
-      } else {
-        html += '<span class="img-wrap" style="width:100%">';
-      }
       const imageValue = await renderMedia(
         value,
         fieldDefinition,
         groupDefinition,
         exam,
       );
-      html += imageValue;
-      html += '</span>';
+      if (isEmpty(imageValue)) {
+        return '';
+      }
+
+      if (fieldDefinition.image.startsWith('upload')) {
+        html += imageValue;
+      } else {
+        let ImageIndex = '';
+        html += isWeb ? '<div class="images-warp">' : '';
+        if (
+          (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
+          fieldDefinition.size !== 'M'
+        ) {
+          html += '<div class="breakBefore"></div>';
+          html += '<span class="img-wrap" style="width:100%">';
+          ImageIndex = `L-${index + 1}`;
+        } else {
+          html += '<span class="img-wrap s-img" >';
+          ImageIndex = `S-${index + 1}`;
+        }
+        index += 1;
+        html += imageValue;
+        html += `<span class="imageTitle">${exam.definition.name} (${ImageIndex})</span>`;
+        html += '</span>';
+        html += isWeb ? '</div>' : '';
+        if (
+          (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
+          fieldDefinition.size !== 'M'
+        ) {
+          largeMedia.push({
+            name: exam?.definition?.name,
+            html,
+            index: ImageIndex,
+          });
+          html = `<code index=${ImageIndex}>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+        } else {
+          smallMedia.push({
+            name: exam?.definition?.name,
+            html,
+            index: ImageIndex,
+          });
+          html = `<code index=${ImageIndex}>*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+        }
+      }
       return html;
     }
-
     if (fieldDefinition.type === 'age') {
       html += formatAge(value);
     } else {
@@ -818,7 +867,6 @@ async function renderField(
       }
     }
   }
-
   return html;
 }
 
@@ -846,7 +894,7 @@ async function renderMedia(
     fieldAspectRatio,
   );
   let upload: Upload;
-  const pageWidth: number = 612;
+  const pageWidth: number = isWeb ? 572 : 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
@@ -868,7 +916,6 @@ async function renderMedia(
   } else {
     filePath = image;
   }
-
   if (style.height > pageHeight) {
     style.height = Math.floor(pageHeight);
     style.width = Math.floor(pageHeight * fieldAspectRatio);
@@ -877,7 +924,6 @@ async function renderMedia(
     style.width = Math.floor(pageWidth);
     style.height = Math.floor(style.width / fieldAspectRatio);
   }
-
   if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
     style.width = style.width * 0.65;
     style.height = style.height * 0.65;
@@ -897,56 +943,68 @@ async function renderMedia(
       const base64Image = await getBase64Image(image);
       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
-      imageValue = `<span>${strings.pdfNotSupported}</span>`;
+      let PdfIdentifier: string = `${fieldDefinition.name}(pdf-${
+        PDFAttachment.length + 1
+      })`;
+      PDFAttachment.push({
+        name: exam?.definition?.name,
+        base64: filePath,
+        index: PdfIdentifier,
+      });
+      imageValue = `<code index="${PdfIdentifier}">*Please see annexed document (pdf-${
+        PDFAttachment.length + 1
+      }) at the end of the document.</code>`;
     }
     html += imageValue;
-    let scale: number = style.width / resolutions(value, fieldDefinition)[0];
-    html += renderGraph(value, fieldDefinition, style, scale);
-
-    fieldDefinition.fields &&
-      (await Promise.all(
-        fieldDefinition.fields.map(
-          async (childGroupDefinition: GroupDefinition, index: number) => {
-            let parentScaledStyle: Object;
-            if (childGroupDefinition.layout) {
-              parentScaledStyle = scaleStyle(childGroupDefinition.layout);
-            }
-
-            for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
-              let fieldScaledStyle;
-              const pfValue = await renderField(
-                childFieldDefinition,
-                childGroupDefinition,
-                exam,
-                getValue(value, childGroupDefinition.name),
-              );
-
-              if (!isEmpty(pfValue)) {
-                if (childFieldDefinition.layout) {
-                  fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
-                }
-
-                let x = round(
-                  (fieldScaledStyle ? fieldScaledStyle.left : 0) +
-                    (parentScaledStyle ? parentScaledStyle.left : 0) +
-                    defaultFontSize,
-                );
-                let y = round(
-                  (fieldScaledStyle ? fieldScaledStyle.top : 0) +
-                    (parentScaledStyle ? parentScaledStyle.top : 0) +
-                    defaultFontSize,
-                );
-
-                html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
-                html += ' <g transform="scale(0.96 0.98)">';
-                html += `<text x="${x}" y="${y}">${pfValue}</text>`;
-                html += ' </g>';
-                html += '</svg>';
+    if (!isPdf) {
+      let scale: number = style.width / resolutions(value, fieldDefinition)[0];
+      html += renderGraph(value, fieldDefinition, style, scale);
+      fieldDefinition.fields &&
+        (await Promise.all(
+          fieldDefinition.fields.map(
+            async (childGroupDefinition: GroupDefinition, index: number) => {
+              let parentScaledStyle: Object;
+              if (childGroupDefinition.layout) {
+                parentScaledStyle = scaleStyle(childGroupDefinition.layout);
               }
-            }
-          },
-        ),
-      ));
+
+              for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
+                let fieldScaledStyle;
+                const pfValue = await renderField(
+                  childFieldDefinition,
+                  childGroupDefinition,
+                  exam,
+                  getValue(value, childGroupDefinition.name),
+                );
+                if (!isEmpty(pfValue)) {
+                  if (childFieldDefinition.layout) {
+                    fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+                  }
+
+                  let x = round(
+                    (fieldScaledStyle ? fieldScaledStyle.left : 0) +
+                      (parentScaledStyle ? parentScaledStyle.left : 0) +
+                      defaultFontSize,
+                  );
+                  let y = round(
+                    (fieldScaledStyle ? fieldScaledStyle.top : 0) +
+                      (parentScaledStyle ? parentScaledStyle.top : 0) +
+                      defaultFontSize,
+                  );
+
+                  html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
+                  html += isWeb
+                    ? '<g transform="scale(0.9 0.92)" >'
+                    : ' <g transform="scale(0.96 0.98)" >';
+                  html += `<text x="${x}" y="${y}">${pfValue}</text>`;
+                  html += ' </g>';
+                  html += '</svg>';
+                }
+              }
+            },
+          ),
+        ));
+    }
   }
   if (upload) {
     scannedFilesHtml += `<div class="uploadForm">${html}</div>`;
@@ -1298,12 +1356,6 @@ function renderRxTable(
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += '<tr>';
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
-    html += '<td class="desc"></td>';
-    html += '<td class="desc"></td>';
-    html += '<td class="desc"></td>';
-    if (hasPrism(glassesRx)) {
-      html += '<td class="desc"></td>';
-    }
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
@@ -1369,9 +1421,9 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader() {
+export function patientHeader(shouldAddMain: boolean = true) {
   let htmlHeader: string =
-    '<head><style>' +
+    '<head><title>Patient File</title><style>' +
     'body {' +
     '  padding:10px;' +
     '}' +
@@ -1382,8 +1434,8 @@ export function patientHeader() {
     'td    { page-break-inside:avoid; page-break-after:auto }' +
     'thead { display:table-header-group }' +
     'tfoot { display:table-footer-group }' +
-    '.xlForm {display: block; page-break-before: always;' +
-    '.scannedFiles {display: block; page-break-before: always;}' +
+    '.xlForm {display: block; page-break-before: always;}' +
+    '.scannedFiles {display: block;}' +
     '}' +
     '@media screen {' +
     'table tr:nth-child(2n-1) td {' +
@@ -1397,9 +1449,7 @@ export function patientHeader() {
     '  display:block;' +
     '  width :50%;' +
     '}' +
-    '.scannedFiles {' +
-    '  padding:10px' +
-    '}' +
+    '.scannedFiles {padding:10px;}' +
     '.groupLabel {' +
     '  font-weight: bold;' +
     '  text-decoration: underline;' +
@@ -1409,10 +1459,7 @@ export function patientHeader() {
     '  display: table;' +
     '  clear: both;' +
     '}' +
-    'a {' +
-    '  color: #5D6975;' +
-    '  text-decoration: underline;' +
-    '}' +
+    'a { color: #5D6975; text-decoration: underline;}' +
     'body {' +
     '  position: relative;' +
     '  margin: 0 10px 0 10px;' +
@@ -1430,9 +1477,7 @@ export function patientHeader() {
     '  text-align: center;' +
     '  margin-bottom: 10px;' +
     '}' +
-    '#logo img {' +
-    '  width: 90px;' +
-    '}' +
+    '#logo img {width: 90px;}' +
     'h1 {' +
     '  border-top: 1px solid  #5D6975;' +
     '  border-bottom: 1px solid  #5D6975;' +
@@ -1442,7 +1487,6 @@ export function patientHeader() {
     '  font-weight: normal;' +
     '  text-align: center;' +
     '  margin: 0 0 20px 0;' +
-    '  background: #F5F5F5;' +
     '}' +
     '#client {' +
     '  float: left;' +
@@ -1469,11 +1513,10 @@ export function patientHeader() {
     '  border-spacing: 0;' +
     '  margin-bottom: 20px;' +
     '}' +
-    'table th,' +
-    'table td {' +
-    'padding: 5px 20px;' +
-    'text-align: center;' +
-    'font-size:11px;' +
+    'table th,table td {' +
+    '  padding: 5px 20px;' +
+    '  text-align: center;' +
+    '  font-size:11px;' +
     '}' +
     'table th {' +
     '  padding: 5px 20px;' +
@@ -1482,13 +1525,8 @@ export function patientHeader() {
     '  white-space: nowrap;' +
     '  font-weight: normal;' +
     '}' +
-    'table .service,' +
-    'table .desc {' +
-    '  text-align: left;' +
-    '}' +
-    'table .service {' +
-    ' width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;' +
-    '}' +
+    'table .service,table .desc {text-align: left;}' +
+    'table .service {width: 65px; max-width: 70; min-width:40px; padding: 5px 10px;}' +
     'table td {' +
     '  text-align: right;' +
     '  border: solid;' +
@@ -1498,28 +1536,12 @@ export function patientHeader() {
     '  border: solid;' +
     '  border-width: 1px 0;' +
     '}' +
-    'table thead {' +
-    '  display:table-header-group;' +
-    '}' +
-    'table td.service,' +
-    'table td.desc {' +
-    '  vertical-align: top;' +
-    '}' +
-    'table td.service {' +
-    'font-weight: bold;' +
-    '}' +
-    'table td.unit,' +
-    'table td.qty,' +
-    'table td.total {' +
-    '  font-size: 1.2em;' +
-    '}' +
-    'table th.service,' +
-    'table th.desc {' +
-    'font-weight: bold;' +
-    '}' +
-    'table td.grand {' +
-    '  border-top: 1px solid #5D6975;' +
-    '}' +
+    'table thead {display:table-header-group;}' +
+    'table td.service,table td.desc {vertical-align: top;}' +
+    'table td.service {font-weight: bold;}' +
+    'table td.unit,table td.qty,table td.total {font-size: 1.2em;}' +
+    'table th.service,table th.desc {font-weight: bold;}' +
+    'table td.grand {border-top: 1px solid #5D6975;}' +
     '#forms {' +
     '  color: #5D6975;' +
     '  font-size: 1.2em;' +
@@ -1536,38 +1558,153 @@ export function patientHeader() {
     '  padding: 8px 0;' +
     '  text-align: center;' +
     '}' +
+    '.s-img {margin: 5px; page-break-inside:avoid;}' +
     '.img-wrap {' +
-    '  position: relative;' +
-    '  display: block;' +
+    '  margin: 0px;' +
+    '  padding: 0px;' +
     '  float: left;' +
-    ' margin-top:5px;' +
-    ' margin-bottom:10px;' +
+    '  position: relative;' +
+    '  text-align: center;' +
+    '  display: flex;' +
+    '  flex-direction: column;' +
+    '  flex-wrap: wrap;' +
+    '  justify-content: flex-start;' +
+    '  align-content: center;' +
+    '  page-break-inside:avoid;' +
+    '  align-items: center;' +
     '}' +
     '.img-wrap svg {' +
     '  position:absolute;' +
     '  top:0;' +
     '  left:0;' +
     '}' +
-    '.img-wrap img {' +
-    '  display:block;' +
+    '.img-wrap img {display:block;}' +
+    'span.img-wrap p {' +
+    '  border-bottom: 1.5px solid;' +
+    '  padding: 5px;' +
+    '  font-size: 13px;' +
+    ' }' +
+    '.groupHeader {' +
+    ' padding-bottom: 16px;' +
+    ' padding-top: 16px;' +
+    ' border-top: 1px solid #5D6975;' +
+    ' border-bottom: 1px solid #5D6975;' +
+    ' color: #5D6975;' +
+    ' font-size: 1.4em;' +
+    ' line-height: 0.4em;' +
+    ' font-weight: normal;' +
+    ' text-align: center;' +
+    ' margin-top: 16px;' +
+    ' margin-bottom: 16px;' +
+    ' background: #F5F5F5;' +
+    ' box-sizings:border-box;' +
+    ' page-break-inside:avoid;' +
+    ' display:flex;' +
     '}' +
-    '</style></head><body><main>';
+    '.container {page-break-inside:avoid; page-break-after:inherit;}' +
+    '.desc {' +
+    '  margin:10px;' +
+    '  font-size: 15px;' +
+    '}' +
+    '.desc .value{' +
+    'color:#000;' +
+    'font-size: 15px;' +
+    'font-weight: 400;' +
+    '}' +
+    '.desc .label {' +
+    'color:#000;' +
+    'font-size: 16px;' +
+    'font-weight: bold;' +
+    '}' +
+    ' .wrap-imgs {' +
+    '   display: flex;' +
+    '   flex-wrap: wrap;' +
+    '   width: 100%;' +
+    '   justify-content: space-around;' +
+    ' }';
+  htmlHeader += isWeb
+    ? '.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
+    : '.wrap-imgs{page-break-before: always; } ';
+  if (shouldAddMain) {
+    htmlHeader += '</style></head><body><main>';
+  }
   return htmlHeader;
 }
 
-export function patientFooter() {
-  let htmlEnd: string = '</main></body>';
+export function patientFooter(
+  printImages: boolean = true,
+  selectedAttachments: Array<any> = [],
+) {
+  let htmlEnd: string = '';
+  let addImages: string = '';
+  let hasImage: boolean = printImages && smallMedia.length > 0;
+
+  for (var image of smallMedia) {
+    if (printImages) {
+      addImages += image.html;
+    } else if (selectedAttachments?.length > 0) {
+      for (let AttachmentIndex of selectedAttachments) {
+        if (AttachmentIndex === image.index) {
+          addImages += image.html;
+          hasImage = true;
+        }
+      }
+    }
+  }
+  for (var image of largeMedia) {
+    if (printImages) {
+      addImages += image.html;
+    } else if (selectedAttachments?.length > 0) {
+      for (let AttachmentIndex of selectedAttachments) {
+        if (AttachmentIndex === image.index) {
+          addImages += image.html;
+        }
+      }
+    }
+  }
+
+  if (!printImages) {
+    SelectedPDFAttachment = [];
+  } else {
+    SelectedPDFAttachment = [...PDFAttachment];
+  }
+  if (hasImage) {
+    htmlEnd += '<div class="breakBefore"></div>';
+    htmlEnd += '<div class="wrap-imgs">';
+  }
+  htmlEnd += addImages;
+
+  if (!printImages) {
+    for (let pdf of PDFAttachment) {
+      for (let AttachmentIndex of selectedAttachments) {
+        if (AttachmentIndex === pdf.index) {
+          SelectedPDFAttachment.push({
+            base64: pdf.base64,
+            index: pdf.index,
+          });
+        }
+      }
+    }
+  }
+  htmlEnd += '</div></body></main>';
   return htmlEnd;
 }
-
 export function getVisitHtml(html: string): string {
   let htmlHeader: string = patientHeader();
   let htmlEnd: string = patientFooter();
   let finalHtml: string = htmlHeader + html + htmlEnd;
+  let Attachments = SelectedPDFAttachment;
   initValues();
-  return finalHtml;
+  return {html: finalHtml, PDFAttachment: Attachments};
 }
-
+export function getSelectedPDFAttachment(): Array<any> {
+  return SelectedPDFAttachment;
+}
 export function initValues() {
   imageBase64Definition = [];
+  smallMedia = [];
+  largeMedia = [];
+  PDFAttachment = [];
+  SelectedPDFAttachment = [];
+  index = 0;
 }
