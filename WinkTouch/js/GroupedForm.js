@@ -143,11 +143,11 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
 
 function getDefaultValue(groupDefinition: GroupDefinition): any {
   const defaultValue: any = groupDefinition.defaultValue;
-  if (
-    defaultValue != undefined &&
-    defaultValue.startsWith('[') &&
-    defaultValue.endsWith(']')
-  ) {
+  const isDynamicValue: string =
+    defaultValue && typeof defaultValue === 'string'
+      ? defaultValue.startsWith('[') && defaultValue.endsWith(']')
+      : false;
+  if (isDynamicValue) {
     let key: any = defaultValue.substring(1, defaultValue.length - 1);
     const keyIdentifier: string[] = key.split('.');
     if (keyIdentifier[0] === 'user') {
@@ -368,7 +368,7 @@ export class CheckList extends PureComponent {
       }
       return false;
     }
-    if (value.startsWith('(')) {
+    if (typeof value === 'string' && value.startsWith('(')) {
       value = value.substring(4);
     }
     return value === option;
@@ -626,8 +626,9 @@ export class GroupedCard extends Component {
       }
 
       const label: ?string = formatFieldLabel(groupDefinition, groupValue);
+
       const icon =
-        value && value.startsWith && value.startsWith('upload-') ? (
+        value && typeof value === 'string' && value.startsWith('upload-') ? (
           <PaperClip style={styles.textIcon} color="black" key="paperclip" />
         ) : (
           <DrawingIcon style={styles.textIcon} color="black" key="drawing" />
@@ -1259,11 +1260,13 @@ export class GroupedForm extends Component {
       return;
     }
     const value: string = getDefaultValue(fieldDefinition);
-    if (
-      value &&
-      fieldDefinition.defaultValue.startsWith('[') &&
-      fieldDefinition.defaultValue.endsWith(']')
-    ) {
+    const isDynamicValue: string =
+      fieldDefinition.defaultValue &&
+      typeof fieldDefinition.defaultValue === 'string'
+        ? fieldDefinition.defaultValue.startsWith('[') &&
+          fieldDefinition.defaultValue.endsWith(']')
+        : false;
+    if (value && isDynamicValue) {
       this.props.onChangeField(fieldDefinition.name, value);
     }
     return value;
