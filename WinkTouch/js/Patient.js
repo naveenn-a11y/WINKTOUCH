@@ -25,6 +25,7 @@ import type {
   RestResponse,
   PatientDocument,
   Upload,
+  Appointment,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
@@ -43,11 +44,15 @@ import {fetchUpload, getMimeType} from './Upload';
 import {VisitHistoryCard} from './Visit';
 import {FindPatient} from './FindPatient';
 import {Button} from './Widgets';
-import {fetchAppointments, AppointmentSummary} from './Appointment';
+import {
+  fetchAppointments,
+  AppointmentSummary,
+  isAppointmentLocked,
+} from './Appointment';
 
 export async function fetchPatientInfo(
   patientId: string,
-  ignoreCache?: boolean = false,
+  ignoreCache: ?boolean = false,
 ): PatientInfo {
   let patientInfo: PatientInfo = await fetchItemById(patientId, ignoreCache);
   return patientInfo;
@@ -74,6 +79,7 @@ export async function storePatientDocument(patientDocument: PatientDocument) {
 
 export class PatientTags extends Component {
   props: {
+    locked: boolean,
     patient: Patient | PatientInfo,
     showDescription?: boolean,
   };
@@ -138,7 +144,9 @@ export class PatientTags extends Component {
       }
       return (
         <View style={styles.rowLayout}>
-          <Text style={styles.text}> ({genderShort})</Text>
+          <Text style={this.props.locked ? styles.grayedText : styles.text}>
+            ({genderShort})
+          </Text>
         </View>
       );
     }
@@ -147,7 +155,9 @@ export class PatientTags extends Component {
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
-              <Text key={index} style={styles.text}>
+              <Text
+                key={index}
+                style={this.props.locked ? styles.grayedText : styles.text}>
                 {patientTag && patientTag.name}{' '}
               </Text>
             ),
@@ -155,16 +165,23 @@ export class PatientTags extends Component {
       </View>
     ) : (
       <View style={styles.rowLayout}>
-        <Text style={styles.text}> ({genderShort}</Text>
+        <Text style={this.props.locked ? styles.grayedText : styles.text}>
+          {' '}
+          ({genderShort}
+        </Text>
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
-              <Text key={index} style={styles.text}>
+              <Text
+                key={index}
+                style={this.props.locked ? styles.grayedText : styles.text}>
                 {patientTag && patientTag.letter}
               </Text>
             ),
           )}
-        <Text style={styles.text}>)</Text>
+        <Text style={this.props.locked ? styles.grayedText : styles.text}>
+          )
+        </Text>
       </View>
     );
   }
@@ -704,6 +721,7 @@ export class CabinetScreen extends Component {
               <AppointmentSummary
                 key={index}
                 appointment={appointment}
+                locked={isAppointmentLocked(appointment)}
                 onPress={() =>
                   this.props.navigation.navigate('appointment', {appointment})
                 }

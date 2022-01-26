@@ -19,14 +19,13 @@ import type {
   Patient,
   Exam,
   GroupDefinition,
-  FieldDefinition,
   GlassRx,
   Prism,
   Visit,
   Measurement,
   User,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles} from './Styles';
 import {strings} from './Strings';
 import {
   NumberField,
@@ -37,7 +36,6 @@ import {
   Alert,
   NoAccess,
 } from './Widgets';
-import {Anesthetics} from './EyeTest';
 import {
   formatDegree,
   formatDiopter,
@@ -49,10 +47,8 @@ import {
   isToyear,
   now,
   jsonDateTimeFormat,
-  jsonDateFormat,
   prefix,
   postfix,
-  parseDate,
 } from './Util';
 import {FormInput} from './Form';
 import {getFieldDefinition, filterFieldDefinition, formatLabel} from './Items';
@@ -61,7 +57,6 @@ import {
   formatCode,
   formatAllCodes,
   parseCode,
-  getAllCodes,
 } from './Codes';
 import {getVisitHistory, fetchVisitHistory} from './Visit';
 import {
@@ -72,13 +67,11 @@ import {
   ImportIcon,
   ExportIcon,
 } from './Favorites';
-import {importData, exportData} from './MappedField';
+import {importData, exportData} from './Machine';
 import {getCachedItem} from './DataCache';
 import {getConfiguration} from './Configuration';
 import {getPatient, getExam} from './Exam';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
-
-import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
@@ -141,6 +134,19 @@ export function initRefraction(glassesRx: GlassesRx) {
   if (glassesRx.ou === undefined) {
     glassesRx.ou = {};
   }
+}
+function isRxPDEmpty(glassesRx: ?GlassesRx): boolean {
+  if (isRxEmpty(glassesRx)) {
+    return true;
+  }
+  return (
+    isEmpty(glassesRx.od.farPD) &&
+    isEmpty(glassesRx.od.closePD) &&
+    isEmpty(glassesRx.os.farPD) &&
+    isEmpty(glassesRx.os.closePD) &&
+    isEmpty(glassesRx.ou.farPD) &&
+    isEmpty(glassesRx.ou.closePD)
+  );
 }
 
 export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
@@ -345,7 +351,7 @@ export function hasPrism(glassesRx: GlassesRx): boolean {
   return false;
 }
 
-function getLensometry(visitId: string): GlassesRx {
+export function getLensometries(visitId: string): GlassesRx[] {
   if (!visitId) {
     return undefined;
   }
@@ -361,11 +367,17 @@ function getLensometry(visitId: string): GlassesRx {
   if (!lensometry || lensometry.length === undefined || lensometry.length < 0) {
     return undefined;
   }
-  lensometry = lensometry[0];
   return lensometry;
 }
+export function getLensometry(visitId: string): GlassesRx {
+  const lensometry: GlassesRx[] = getLensometries(visitId);
+  if (!lensometry || lensometry.length === undefined || lensometry.length < 0) {
+    return undefined;
+  }
+  return lensometry[0];
+}
 
-function getKeratometry(visitId: string): GlassesRx {
+export function getKeratometry(visitId: string): GlassesRx {
   if (!visitId) {
     return undefined;
   }
@@ -381,6 +393,28 @@ function getKeratometry(visitId: string): GlassesRx {
   return keratometry;
 }
 
+export function getAutoRefractor(visitId: string): GlassesRx[] {
+  if (!visitId) {
+    return undefined;
+  }
+  let autoRefractor = getExam('Auto refractor', getCachedItem(visitId));
+  if (!autoRefractor) {
+    return undefined;
+  }
+  autoRefractor = autoRefractor['Auto refractor'];
+  if (!autoRefractor) {
+    return undefined;
+  }
+  autoRefractor = autoRefractor['Auto refractor'];
+  if (
+    !autoRefractor ||
+    autoRefractor.length === undefined ||
+    autoRefractor.length < 0
+  ) {
+    return undefined;
+  }
+  return autoRefractor;
+}
 export class VA extends Component {
   state: {
     value: number,
@@ -701,11 +735,13 @@ export class GlassesSummary extends Component {
     visible?: boolean,
     showHeaders?: boolean,
     titleStyle?: any,
+    showPD?: boolean,
   };
   static defaultProps = {
     visible: true,
     showHeaders: true,
     titleStyle: styles.cardTitle,
+    showPD: true,
   };
 
   render() {
@@ -845,6 +881,23 @@ export class GlassesSummary extends Component {
             {strings.binocularPd}: {this.props.glassesRx.pd}
           </Text>
         )}
+        {this.props.showPD && !isRxPDEmpty(this.props.glassesRx) && (
+          <Text style={styles.text}>
+            {strings.pd} {strings.far}:{' '}
+            {prefix(this.props.glassesRx.od.farPD, strings.od + ' ')}
+            {!isEmpty(this.props.glassesRx.od.farPD) && ' '}
+            {prefix(this.props.glassesRx.os.farPD, strings.os + ' ')}
+            {!isEmpty(this.props.glassesRx.os.farPD) && ' '}
+            {prefix(this.props.glassesRx.ou.farPD, strings.ou + ' ')}
+            {!isEmpty(this.props.glassesRx.ou.farPD) && ' '}
+            {strings.near}:{' '}
+            {prefix(this.props.glassesRx.od.closePD, strings.od + ' ')}
+            {!isEmpty(this.props.glassesRx.od.closePD) && ' '}
+            {prefix(this.props.glassesRx.os.closePD, strings.os + ' ')}
+            {!isEmpty(this.props.glassesRx.od.closePD) && ' '}
+            {prefix(this.props.glassesRx.ou.closePD, strings.ou + ' ')}
+          </Text>
+        )}
       </View>
     );
   }
@@ -862,6 +915,7 @@ export class GlassesDetail extends Component {
     hasAdd?: boolean,
     hasLensType?: boolean,
     hasPD?: boolean,
+    hasMPD?: boolean,
     hasNotes?: boolean,
     titleStyle?: string,
     style?: string,
@@ -917,6 +971,28 @@ export class GlassesDetail extends Component {
       glassesRx[oculus][propertyName] = value;
     } else {
       glassesRx[propertyName] = value;
+    }
+    if (this.props.onChangeGlassesRx) {
+      this.props.onChangeGlassesRx(glassesRx);
+    }
+  }
+
+  updateGroupedForm(
+    groupName: string,
+    fieldName: string,
+    newValue: any,
+    column: ?string,
+  ): void {
+    let glassesRx: GlassesRx = this.props.glassesRx;
+    if (column !== undefined) {
+      if (fieldName !== undefined) {
+        if (glassesRx[groupName][column] === undefined) {
+          glassesRx[groupName][column] = {};
+        }
+        glassesRx[groupName][column][fieldName] = newValue;
+      } else {
+        glassesRx[groupName][column] = newValue;
+      }
     }
     if (this.props.onChangeGlassesRx) {
       this.props.onChangeGlassesRx(glassesRx);
@@ -1001,6 +1077,7 @@ export class GlassesDetail extends Component {
     glassesRx.lensType = importData.data.lensType;
     glassesRx.od = {...importData.data.od};
     glassesRx.os = {...importData.data.os};
+    glassesRx.ou = {...importData.data.ou};
     if (this.props.onChangeGlassesRx) {
       this.setState({prism: hasPrism(glassesRx)});
       this.props.onChangeGlassesRx(glassesRx);
@@ -1022,6 +1099,7 @@ export class GlassesDetail extends Component {
       glassesRx.lensType = data.data.lensType;
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
+      glassesRx.ou = {...data.data.ou};
       if (this.props.onChangeGlassesRx) {
         this.setState({prism: hasPrism(glassesRx)});
         this.props.onChangeGlassesRx(glassesRx);
@@ -1032,9 +1110,15 @@ export class GlassesDetail extends Component {
   hasVA(): boolean {
     return (
       this.props.hasVA ||
-      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.od.va)) ||
-      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.os.va)) ||
-      (this.props.isPrescriptionCard && !isEmpty(this.props.glassesRx.ou.va))
+      (this.props.isPrescriptionCard &&
+        !isEmpty(this.props.glassesRx.od) &&
+        !isEmpty(this.props.glassesRx.od.va)) ||
+      (this.props.isPrescriptionCard &&
+        !isEmpty(this.props.glassesRx.os) &&
+        !isEmpty(this.props.glassesRx.os.va)) ||
+      (this.props.isPrescriptionCard &&
+        !isEmpty(this.props.glassesRx.ou) &&
+        !isEmpty(this.props.glassesRx.ou.va))
     );
   }
 
@@ -1519,6 +1603,110 @@ export class GlassesDetail extends Component {
               />
             </View>
           )}
+          {this.props.hasMPD && (
+            <View style={styles.centeredColumnLayout}>
+              <Label
+                suffix=""
+                style={this.props.titleStyle}
+                value={strings.pd}
+                fieldId={this.props.fieldId}
+              />
+              <View style={styles.formRow}>
+                <Text style={styles.formTableRowHeader} />
+                <Text style={styles.formTableColumnHeader}>{strings.far}</Text>
+                <Text style={styles.formTableColumnHeader}>{strings.near}</Text>
+              </View>
+              <View style={styles.formRow}>
+                <Text style={styles.formTableRowHeader}>{strings.od}:</Text>
+                <FormInput
+                  value={this.props.glassesRx.od.farPD}
+                  definition={getFieldDefinition('visit.prescription.od.farPD')}
+                  showLabel={false}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) =>
+                    this.updateGlassesRx('od', 'farPD', value)
+                  }
+                  errorMessage={this.props.glassesRx.od.farPDError}
+                  isTyping={isTyping}
+                  autoFocus={true}
+                  testID={this.props.fieldId + '.od.farPD'}
+                />
+                <FormInput
+                  value={this.props.glassesRx.od.closePD}
+                  definition={getFieldDefinition(
+                    'visit.prescription.od.closePD',
+                  )}
+                  showLabel={false}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) =>
+                    this.updateGlassesRx('od', 'closePD', value)
+                  }
+                  errorMessage={this.props.glassesRx.od.closePDError}
+                  isTyping={isTyping}
+                  autoFocus={true}
+                  testID={this.props.fieldId + '.od.closePD'}
+                />
+              </View>
+              <View style={styles.formRow}>
+                <Text style={styles.formTableRowHeader}>{strings.os}:</Text>
+                <FormInput
+                  value={this.props.glassesRx.os.farPD}
+                  definition={getFieldDefinition('visit.prescription.os.farPD')}
+                  showLabel={false}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) =>
+                    this.updateGlassesRx('os', 'farPD', value)
+                  }
+                  errorMessage={this.props.glassesRx.os.farPDError}
+                  isTyping={isTyping}
+                  testID={this.props.fieldId + '.os.farPD'}
+                />
+                <FormInput
+                  value={this.props.glassesRx.os.closePD}
+                  definition={getFieldDefinition(
+                    'visit.prescription.os.closePD',
+                  )}
+                  showLabel={false}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) =>
+                    this.updateGlassesRx('os', 'closePD', value)
+                  }
+                  errorMessage={this.props.glassesRx.os.closePDError}
+                  isTyping={isTyping}
+                  testID={this.props.fieldId + '.os.closePD'}
+                />
+              </View>
+              <View style={styles.formRow}>
+                <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>
+                <FormInput
+                  value={this.props.glassesRx.ou.farPD}
+                  definition={getFieldDefinition('visit.prescription.ou.farPD')}
+                  showLabel={false}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) =>
+                    this.updateGlassesRx('ou', 'farPD', value)
+                  }
+                  errorMessage={this.props.glassesRx.ou.farPDError}
+                  isTyping={isTyping}
+                  testID={this.props.fieldId + '.ou.farPD'}
+                />
+                <FormInput
+                  value={this.props.glassesRx.ou.closePD}
+                  definition={getFieldDefinition(
+                    'visit.prescription.ou.closePD',
+                  )}
+                  showLabel={false}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?number) =>
+                    this.updateGlassesRx('ou', 'closePD', value)
+                  }
+                  errorMessage={this.props.glassesRx.ou.closePDError}
+                  isTyping={isTyping}
+                  testID={this.props.fieldId + '.ou.closePD'}
+                />
+              </View>
+            </View>
+          )}
 
           {this.props.editable === true && this.props.hasAdd === true && (
             <View style={styles.buttonsRowLayout}>
@@ -1671,6 +1859,7 @@ export class PatientRefractionCard extends Component {
                     prefix(refraction.doctor, ' ')
                   }
                   glassesRx={refraction}
+                  showPD={false}
                   key={index}
                 />
               ),

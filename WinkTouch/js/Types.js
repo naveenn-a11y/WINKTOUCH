@@ -203,6 +203,8 @@ export type GlassRx = {
   va?: string,
   addVA?: string,
   isEye?: boolean,
+  closePD?: number,
+  farPD?: number,
 };
 
 export type GlassesRx = {
@@ -379,6 +381,7 @@ export type GroupDefinition = {
   hasAdd?: boolean,
   hasLensType?: boolean,
   hasPD?: boolean,
+  hasMPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
@@ -398,8 +401,7 @@ export type ImageBase64Definition = {
 
 export type ReferralDocument = {
   content: string,
-  subject?: string,
-  body?: string,
+  builtInTemplates?: any,
 };
 
 export type ReferralDefinition = {
@@ -445,6 +447,7 @@ export type EmailDefinition = {
   cc?: string,
   subject?: string,
   body?: string,
+  builtInTemplate?: any,
 };
 
 export type ExamDefinition = {
@@ -473,6 +476,9 @@ export type ExamDefinition = {
   layout?: any,
   signable?: boolean,
   showSubtitles?: boolean,
+  multiValue?: boolean, //Can Add more than 1 exam,
+  addablePostLock?: boolean,
+  export?: string | string[],
 };
 
 export type ExamPredefinedValue = {
@@ -536,4 +542,11 @@ export type TranslationDefinition = {
   language: string,
   label: ?string,
   normalValue: ?string,
+};
+
+export type ExamRoom = {
+  id: string,
+  patientId: string,
+  examRoomId: string,
+  name: string,
 };

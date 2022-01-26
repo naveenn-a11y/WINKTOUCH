@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {PureComponent} from 'react';
@@ -15,7 +16,13 @@ import {
 import codePush from 'react-native-code-push';
 import {strings, getUserLanguage} from './Strings';
 import {styles, fontScale, backgroundColor, isWeb} from './Styles';
-import type {Exam, ExamDefinition, Scene} from './Types';
+import type {
+  Appointment,
+  Exam,
+  ExamDefinition,
+  PatientInfo,
+  Scene,
+} from './Types';
 import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
 import {getAllCodes} from './Codes';
@@ -23,6 +30,7 @@ import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
 import {REACT_APP_HOST} from '../env.json';
+import {getCachedItem} from './DataCache';
 
 export class Notifications extends PureComponent {
   render() {
@@ -74,6 +82,21 @@ export class MenuBar extends PureComponent {
     examDefinition.id = exam.id;
     return examDefinition;
   }
+
+  getPatient(): PatientInfo | Patient {
+    let patient: ?PatientInfo =
+      this.props.navigation.state &&
+      this.props.navigation.state.params &&
+      this.props.navigation.state.params.patientInfo;
+    const appointment: ?Appointment =
+      this.props.navigation.state &&
+      this.props.navigation.state.params &&
+      this.props.navigation.state.params.appointment;
+    if (!patient && appointment && appointment.patientId) {
+      patient = getCachedItem(appointment.patientId);
+    }
+    return patient;
+  }
   static contextType = ModeContext;
 
   render() {
@@ -82,6 +105,8 @@ export class MenuBar extends PureComponent {
       this.props.navigation.state &&
       this.props.navigation.state.params &&
       this.props.navigation.state.params.exam;
+    const patient: PatientInfo | Patient = this.getPatient();
+
     const scene: ?string =
       this.props.navigation.state && this.props.navigation.state.routeName;
     const hasConfig: boolean = getPhoropters().length > 1;
@@ -100,6 +125,14 @@ export class MenuBar extends PureComponent {
                 showAppointments: false,
                 showBilling: true,
               })
+            }
+          />
+        )}
+        {scene === 'appointment' && patient && (
+          <Button
+            title={strings.room}
+            onPress={() =>
+              this.props.navigation.navigate('room', {patient: patient})
             }
           />
         )}

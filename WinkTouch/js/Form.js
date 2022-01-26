@@ -1563,7 +1563,7 @@ export class FormInput extends Component {
                   key={groupDefinition.name}
                   onChangeField={(field: string, value: any) => {
                     this.updateSubValue(groupDefinition, field, value);
-                    if (this.props.definition.sync) {
+                    if (this.props.definition.sync && this.refs.imageField) {
                       this.refs.imageField.scheduleScreenShot();
                     }
                   }}

@@ -636,14 +636,14 @@ export function replaceFileExtension(
 }
 
 export function prefix(text: ?string, prefix: string): string {
-  if (text === undefined || text === null || text.trim() === '') {
+  if (isEmpty(text)) {
     return '';
   }
   return prefix + text;
 }
 
 export function postfix(text: ?string, postfix: string): string {
-  if (text === undefined || text === null || text.trim() === '') {
+  if (isEmpty(text)) {
     return '';
   }
   return '' + text + postfix;

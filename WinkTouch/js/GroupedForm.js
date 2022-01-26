@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -18,7 +19,17 @@ import {strings} from './Strings';
 import {styles, scaleStyle, fontScale, isWeb} from './Styles';
 import {FloatingButton, Alert} from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
-import {deepClone, deepAssign, isEmpty, cleanUpArray, getValue} from './Util';
+import {
+  deepClone,
+  deepAssign,
+  isEmpty,
+  cleanUpArray,
+  getValue,
+  formatDate,
+  now,
+  jsonDateTimeFormat,
+  yearDateFormat,
+} from './Util';
 import {formatAllCodes} from './Codes';
 import {getCachedItem} from './DataCache';
 import {
@@ -66,6 +77,7 @@ export function hasColumns(groupDefinition: GroupDefinition): boolean {
   );
 }
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
+import {getDoctor} from './DoctorApp';
 
 export function getColumnFieldIndex(
   groupDefinition: GroupDefinition,
@@ -127,6 +139,36 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
   }
 
   return true;
+}
+
+function getDefaultValue(groupDefinition: GroupDefinition): any {
+  const defaultValue: any = groupDefinition.defaultValue;
+  const isDynamicValue: string =
+    defaultValue && typeof defaultValue === 'string'
+      ? defaultValue.startsWith('[') && defaultValue.endsWith(']')
+      : false;
+  if (isDynamicValue) {
+    let key: any = defaultValue.substring(1, defaultValue.length - 1);
+    const keyIdentifier: string[] = key.split('.');
+    if (keyIdentifier[0] === 'user') {
+      if (keyIdentifier[1] === 'name') {
+        const doctorName: string =
+          getDoctor().firstName + ' ' + getDoctor().lastName;
+        return doctorName;
+      } else if (keyIdentifier[1] === 'id') {
+        const doctorId: string = getDoctor().id;
+        return doctorId;
+      }
+    } else if (key === 'currentDate') {
+      const dateFormat: string = groupDefinition.dateFormat
+        ? groupDefinition.dateFormat
+        : yearDateFormat;
+      const currentDate: string = formatDate(now(), dateFormat);
+      return currentDate;
+    }
+  } else {
+    return defaultValue;
+  }
 }
 
 function isRowField(
@@ -326,7 +368,7 @@ export class CheckList extends PureComponent {
       }
       return false;
     }
-    if (value.startsWith('(')) {
+    if (typeof value === 'string' && value.startsWith('(')) {
       value = value.substring(4);
     }
     return value === option;
@@ -538,7 +580,7 @@ export class GroupedCard extends Component {
     fieldDefinition: FieldDefinition,
     showLabel: boolean,
     groupIndex: number,
-    column?: string = undefined,
+    column: ?string = undefined,
   ) {
     if (column === '>>') {
       return null;
@@ -549,6 +591,10 @@ export class GroupedCard extends Component {
     if (fieldDefinition === undefined) {
       return null;
     }
+    if (fieldDefinition.isLabel) {
+      return null;
+    }
+
     if (
       this.props.exam[this.props.exam.definition.name] === undefined ||
       this.props.exam[this.props.exam.definition.name][groupDefinition.name] ===
@@ -580,8 +626,9 @@ export class GroupedCard extends Component {
       }
 
       const label: ?string = formatFieldLabel(groupDefinition, groupValue);
+
       const icon =
-        value && value.startsWith && value.startsWith('upload-') ? (
+        value && typeof value === 'string' && value.startsWith('upload-') ? (
           <PaperClip style={styles.textIcon} color="black" key="paperclip" />
         ) : (
           <DrawingIcon style={styles.textIcon} color="black" key="drawing" />
@@ -773,7 +820,7 @@ export class GroupedCard extends Component {
   renderSimpleRow(
     groupDefinition: GroupDefinition,
     fieldDefinition: FieldDefinition,
-    groupIndex?: number = 0,
+    groupIndex: ?number = 0,
   ) {
     const showLabel: boolean = true;
     return this.renderField(
@@ -792,7 +839,7 @@ export class GroupedCard extends Component {
     );
   }
 
-  renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
+  renderRows(groupDefinition: GroupDefinition, groupIndex: ?number = 0) {
     let rows: any[] = [];
 
     for (
@@ -966,6 +1013,19 @@ export class GroupedCard extends Component {
   }
 
   renderTitle() {
+    let title: string = formatLabel(this.props.exam.definition);
+    this.props.exam.definition.fields.map(
+      (groupDefinition: GroupDefinition) => {
+        const groupValue = getExamFieldValue(
+          groupDefinition.name,
+          this.props.exam,
+        );
+        if (groupValue && groupDefinition && groupDefinition.fields) {
+          title = formatFieldLabel(groupDefinition, groupValue, title);
+        }
+      },
+    );
+
     if (this.props.showTitle === false) {
       return null;
     }
@@ -973,7 +1033,7 @@ export class GroupedCard extends Component {
       <Label
         style={styles.cardTitle}
         key="cardTitle"
-        value={formatLabel(this.props.exam.definition)}
+        value={title}
         suffix=""
         fieldId={this.props.exam.definition.id}
       />
@@ -1192,6 +1252,26 @@ export class GroupedForm extends Component {
     return getIsVisible(this.props.examId, fieldDefinition);
   }
 
+  getDefinitionDefaultValue(fieldDefinition: FieldDefinition): any {
+    if (
+      fieldDefinition.defaultValue === undefined ||
+      fieldDefinition.defaultValue === null
+    ) {
+      return;
+    }
+    const value: string = getDefaultValue(fieldDefinition);
+    const isDynamicValue: string =
+      fieldDefinition.defaultValue &&
+      typeof fieldDefinition.defaultValue === 'string'
+        ? fieldDefinition.defaultValue.startsWith('[') &&
+          fieldDefinition.defaultValue.endsWith(']')
+        : false;
+    if (value && isDynamicValue) {
+      this.props.onChangeField(fieldDefinition.name, value);
+    }
+    return value;
+  }
+
   renderAlert() {
     const importedData: any = this.state.importedData;
     if (!importedData) {
@@ -1218,6 +1298,7 @@ export class GroupedForm extends Component {
       />
     );
   }
+
   renderField(fieldDefinition: FieldDefinition, column?: string) {
     if (fieldDefinition === undefined) {
       return (
@@ -1243,9 +1324,7 @@ export class GroupedForm extends Component {
       : undefined;
     value =
       value === undefined
-        ? fieldDefinition.defaultValue
-          ? fieldDefinition.defaultValue
-          : undefined
+        ? this.getDefinitionDefaultValue(fieldDefinition)
         : value;
 
     //if (fieldDefinition.mappedField) {
@@ -2146,6 +2225,7 @@ export class GroupedFormScreen extends Component<
             hasAdd={groupDefinition.hasAdd}
             hasLensType={groupDefinition.hasLensType}
             hasPD={groupDefinition.hasPD}
+            hasMPD={groupDefinition.hasMPD}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -2224,6 +2304,7 @@ export class GroupedFormScreen extends Component<
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2250,6 +2331,7 @@ export class GroupedFormScreen extends Component<
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
