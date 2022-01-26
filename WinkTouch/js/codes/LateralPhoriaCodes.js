@@ -4,10 +4,9 @@
 'use strict';
 
 export const lateralPhoriaCodes = [
-{"code":" OD Esophoria"},
-{"code":" OS Esophoria"},
-{"code":" Alternating Esophoria"},
-{"code":" OD Exophoria"},
-{"code":" OS Exophoria"},
-{"code":" Alternating Exophoria"},
-]
+  {code: ' Esophoria'},
+  {code: ' Exophoria'},
+  {code: ' Alternating Esophoria'},
+  {code: ' Alternating Exophoria'},
+  {code: ' Intermittent Alternating'},
+];

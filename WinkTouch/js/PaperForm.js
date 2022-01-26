@@ -269,7 +269,9 @@ export class PaperFormScreen extends Component {
   };
 
   renderToulchExam() {
-    if (!this.props.exam) return null;
+    if (!this.props.exam) {
+      return null;
+    }
     const examName: string = this.props.exam.definition.name;
     return (
       <ScrollView
@@ -285,6 +287,7 @@ export class PaperFormScreen extends Component {
             resolution="810x1068"
             size="XL"
             popup={false}
+            drawable={true}
             value={this.props.exam[examName]['Exam Front Page']}
             sync={true}
             disableScroll={this.disableScroll}
@@ -644,6 +647,7 @@ export class PaperFormScreen extends Component {
             resolution="811x1071"
             size="XL"
             popup={false}
+            drawable={true}
             value={this.props.exam[examName]['Exam Back Page']}
             disableScroll={this.disableScroll}
             enableScroll={this.enableScroll}
@@ -661,6 +665,7 @@ export class PaperFormScreen extends Component {
             resolution="600x826"
             size="L"
             popup={false}
+            drawable={true}
             value={this.props.exam[examName]['Medication Rx']}
             disableScroll={this.disableScroll}
             enableScroll={this.enableScroll}
@@ -682,7 +687,9 @@ export class PaperFormScreen extends Component {
   }
 
   renderEyeExamTemplate() {
-    if (!this.props.exam) return null;
+    if (!this.props.exam) {
+      return null;
+    }
     const examName: string = this.props.exam.definition.name;
     return (
       <ScrollView
@@ -697,7 +704,8 @@ export class PaperFormScreen extends Component {
           resolution="763x965"
           size="XL"
           popup={false}
-          value={this.props.exam[examName]['Chart']}
+          drawable={true}
+          value={this.props.exam[examName].Chart}
           disableScroll={this.disableScroll}
           enableScroll={this.enableScroll}
           examId={this.props.exam.id}
@@ -1228,10 +1236,12 @@ export class PaperFormScreen extends Component {
   }
 
   render() {
-    if (this.props.exam.definition.image === './image/eyeexamtemplate.png')
+    if (this.props.exam.definition.image === './image/eyeexamtemplate.png') {
       return this.renderEyeExamTemplate();
-    if (this.props.exam.definition.image === './image/ToulchExam.pdf')
+    }
+    if (this.props.exam.definition.image === './image/ToulchExam.pdf') {
       return this.renderToulchExam();
+    }
     return null;
   }
 }

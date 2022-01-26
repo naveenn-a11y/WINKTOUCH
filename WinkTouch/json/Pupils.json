@@ -117,7 +117,7 @@
               "options": "pupilMGunnCodes"
             },
             {
-              "name": "Accom.",
+              "name": "Accom",
               "freestyle": true,
               "options": "pupilAccomodationCodes"
             },
@@ -165,7 +165,7 @@
               "options": "pupilMGunnCodes"
             },
             {
-              "name": "Accom.",
+              "name": "Accom",
               "freestyle": true,
               "options": "pupilAccomodationCodes"
             },

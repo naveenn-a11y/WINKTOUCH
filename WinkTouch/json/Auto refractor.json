@@ -9,7 +9,13 @@
       "fields": [
         {
           "name": "Auto refractor",
-          "label": "Auto-réfraction"
+          "label": "Auto-réfraction",
+          "fields": [
+            {
+              "name": "pd",
+              "label": "PD Binoculaire"
+            }
+          ]
         }
       ]
     }
@@ -21,10 +27,22 @@
   "fields": [
     {
       "hasAdd": false,
+      "hasPD": true,
+      "hasNotes": true,
       "name": "Auto refractor",
       "multiValue": true,
       "type": "SRx",
-      "import": ["machine.autorefractor.rx", "machine.tonoref.rx"]
+      "import": ["machine.autorefractor.rx", "machine.tonoref.rx"],
+      "fields": [
+        {
+          "freestyle": true,
+          "name": "pd",
+          "label": "Binocular PD",
+          "minValue": 0,
+          "suffix": " mm",
+          "maxValue": 100
+        }
+      ]
     },
     {
       "name": "Scan",

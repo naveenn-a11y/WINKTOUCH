@@ -31,7 +31,7 @@ export class ImagePicker extends Component {
 
     ImagePickerIOS.openCameraDialog(
       {},
-      photoURI => this.setState({photo: {uri: photoURI}}),
+      (photoURI) => this.setState({photo: {uri: photoURI}}),
       () => console.log('camera cancelled'),
     );
   }
