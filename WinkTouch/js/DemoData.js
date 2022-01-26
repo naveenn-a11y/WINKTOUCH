@@ -13,6 +13,7 @@ export async function resetDatabase() {
   let restResponse = await devDelete('ResetDatabase');
   clearDataCache();
   await fetchAppointments(getStore().storeId.toString(), getDoctor().id, 100);
-  if (!restResponse.response === 'success')
+  if (!restResponse.response === 'success') {
     alert('Database reset: ' + JSON.stringify(restResponse));
+  }
 }

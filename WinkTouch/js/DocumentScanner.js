@@ -113,8 +113,9 @@ export class DocumentScanner extends Component {
 
   async setImageFromUpload(patientDocument: PatientDocument) {
     let upload: ?Upload = getCachedItem(patientDocument.uploadId);
-    if (upload === undefined)
+    if (upload === undefined) {
       upload = await fetchUpload(patientDocument.uploadId);
+    }
     const data: string = upload ? upload.data : undefined;
     const mimeType: string = getMimeType(upload);
     if (mimeType && !mimeType.includes('application/pdf')) {
@@ -184,7 +185,7 @@ export class DocumentScanner extends Component {
     return isPdf;
   }
   async addPage(pageWidth: number, pageHeight: number) {
-    let pdfDoc: PDFDocument = undefined;
+    let pdfDoc: PDFDocument;
     const upload: ?Upload = getCachedItem(this.props.uploadId);
     const isExistingPdf: boolean = this.isPdf(upload);
     pdfDoc =
@@ -213,9 +214,11 @@ export class DocumentScanner extends Component {
   }
 
   async saveDocument(): Upload {
-    if (!this.state.file) return;
+    if (!this.state.file) {
+      return;
+    }
     this.setState({saving: true});
-    let upload: Upload = undefined;
+    let upload: Upload;
     const parentUpload: ?Upload = getCachedItem(this.props.uploadId);
     //check if current upload arg1 and arg2 are the same as current arg1 & arg2
     let uploadId: string = parentUpload
@@ -310,7 +313,7 @@ export class DocumentScanner extends Component {
     size?: string = 'L',
     mimeType?: string = 'image/jpeg;base64',
   ) {
-    let dimension: Dimension = undefined;
+    let dimension: Dimension;
     let resized: boolean = false;
     if (mimeType.includes('image/png')) {
       dimension = getPng64Dimension(image);
@@ -361,13 +364,16 @@ export class DocumentScanner extends Component {
   };
 
   sizeOnChange = (field: name) => {
-    if (field === undefined || field === null || field === '') return;
+    if (field === undefined || field === null || field === '') {
+      return;
+    }
     if (
       this.state.file === undefined ||
       this.state.file === null ||
       this.state.file === ''
-    )
+    ) {
       return;
+    }
 
     const mimeType: string = this.state.file.split(',')[0];
     const base64Data: string = this.state.file.split(',')[1];
@@ -585,7 +591,7 @@ export class DocumentScanner extends Component {
                             style={styles.scannedImage}
                             source={{
                               uri: `data:${
-                                mimeType ? mimeType : `image/jpeg;base64`
+                                mimeType ? mimeType : 'image/jpeg;base64'
                               },${this.state.scaledFile}`,
                             }}
                             resizeMode="contain"

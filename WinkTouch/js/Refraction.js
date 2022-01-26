@@ -80,10 +80,11 @@ import {ModeContext} from '../src/components/Context/ModeContextProvider';
 
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 
-
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
-  if (!visitHistory) return undefined;
+  if (!visitHistory) {
+    return undefined;
+  }
   let refractions: GlassesRx[] = [];
   visitHistory.forEach((visit: Visit) => {
     if (visit.prescription) {
@@ -98,7 +99,9 @@ function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
       refractions = [...refractions, refraction];
     }
   });
-  if (refractions.length > 3) refractions = refractions.slice(0, 3);
+  if (refractions.length > 3) {
+    refractions = refractions.slice(0, 3);
+  }
   return refractions;
 }
 
@@ -114,7 +117,9 @@ export function newRefraction(): GlassesRx {
 }
 
 export function clearRefraction(glassesRx: GlassesRx) {
-  if (!glassesRx) return;
+  if (!glassesRx) {
+    return;
+  }
   glassesRx.os = {};
   glassesRx.od = {};
   glassesRx.ou = {};
@@ -124,14 +129,24 @@ export function clearRefraction(glassesRx: GlassesRx) {
 }
 
 export function initRefraction(glassesRx: GlassesRx) {
-  if (!glassesRx) return;
-  if (glassesRx.od === undefined) glassesRx.od = {};
-  if (glassesRx.os === undefined) glassesRx.os = {};
-  if (glassesRx.ou === undefined) glassesRx.ou = {};
+  if (!glassesRx) {
+    return;
+  }
+  if (glassesRx.od === undefined) {
+    glassesRx.od = {};
+  }
+  if (glassesRx.os === undefined) {
+    glassesRx.os = {};
+  }
+  if (glassesRx.ou === undefined) {
+    glassesRx.ou = {};
+  }
 }
 
 export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
-  if (!glassesRx) return true;
+  if (!glassesRx) {
+    return true;
+  }
   return (
     isEmpty(glassesRx.lensType) &&
     isEmpty(glassesRx.notes) &&
@@ -142,12 +157,16 @@ export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
 }
 
 export function isPDEmpty(pd: ?any): boolean {
-  if (!pd) return true;
+  if (!pd) {
+    return true;
+  }
 
   const farPD: any = pd.Far;
   const nearPD: any = pd.Near;
 
-  if (!farPD && !nearPD) return true;
+  if (!farPD && !nearPD) {
+    return true;
+  }
   return (
     (isEmpty(farPD.OS) || farPD.OS === 0) &&
     (isEmpty(farPD.OD) || farPD.OD === 0) &&
@@ -157,46 +176,55 @@ export function isPDEmpty(pd: ?any): boolean {
 }
 
 function isAstigmatic(glassesRx: GlassesRx): boolean {
-  if (!glassesRx) return false;
+  if (!glassesRx) {
+    return false;
+  }
   if (
     glassesRx.od &&
     glassesRx.od.cylinder != undefined &&
     glassesRx.od.cylinder != null &&
     glassesRx.od.cylinder != 0.0
-  )
+  ) {
     return true;
+  }
   if (
     glassesRx.os &&
     glassesRx.os.cylinder != undefined &&
     glassesRx.os.cylinder != null &&
     glassesRx.os.cylinder != 0.0
-  )
+  ) {
     return true;
+  }
   return false;
 }
 
 function isMultiFocal(glassesRx: GlassesRx): boolean {
-  if (!glassesRx) return false;
+  if (!glassesRx) {
+    return false;
+  }
   if (
     glassesRx.od &&
     glassesRx.od.add != undefined &&
     glassesRx.od.add != null &&
     glassesRx.od.add != 0.0
-  )
+  ) {
     return true;
+  }
   if (
     glassesRx.os &&
     glassesRx.os.add != undefined &&
     glassesRx.os.add != null &&
     glassesRx.os.add != 0.0
-  )
+  ) {
     return true;
+  }
   return false;
 }
 
 function parsePrismDiopter(text?: string): ?number {
-  if (text === null || text === undefined || text.trim() === '')
+  if (text === null || text === undefined || text.trim() === '') {
     return undefined;
+  }
   let number: number = parseFloat(text);
   if (number === 0.0 || isNaN(number)) {
     return undefined;
@@ -205,18 +233,19 @@ function parsePrismDiopter(text?: string): ?number {
 }
 
 export function parsePrism(prismText?: string): ?Prism {
-  if (prismText === undefined || prismText == null || prismText.trim() === '')
+  if (prismText === undefined || prismText == null || prismText.trim() === '') {
     return undefined;
+  }
   //TODO: parse oldest stye prism ?
   let prismTexts: string[] = prismText.trim().split(' ');
   if (prismTexts === undefined || prismTexts.length === 0) {
     __DEV__ && console.error("Can't parse a prism out of: '" + prismText + "'");
     return undefined;
   }
-  let prismH: ?number = undefined;
-  let prismHDirection: ?string = undefined;
-  let prismV: ?number = undefined;
-  let prismVDirection: ?string = undefined;
+  let prismH: ?number;
+  let prismHDirection: ?string;
+  let prismV: ?number;
+  let prismVDirection: ?string;
   if (prismTexts.length === 1) {
     prismH = parsePrismDiopter(prismTexts[0]);
   } else if (prismTexts.length === 2) {
@@ -260,8 +289,9 @@ export function parsePrism(prismText?: string): ?Prism {
     prismHDirection === undefined &&
     prismV === undefined &&
     prismVDirection === undefined
-  )
+  ) {
     return undefined;
+  }
   let prism: Prism = {prismH, prismHDirection, prismV, prismVDirection};
   return prism;
 }
@@ -274,26 +304,30 @@ function hasPrismEye(glassRx: GlassRx): boolean {
         prism.prismH != undefined &&
         prism.prismH != null &&
         prism.prismH != 0.0
-      )
+      ) {
         return true;
+      }
       if (
         prism.prismHDirection != undefined &&
         prism.prismHDirection != null &&
         prism.prismHDirection != ''
-      )
+      ) {
         return true;
+      }
       if (
         prism.prismV != undefined &&
         prism.prismV != null &&
         prism.prismV != 0.0
-      )
+      ) {
         return true;
+      }
       if (
         prism.prismVDirection != undefined &&
         prism.prismVDirection != null &&
         prism.prismVDirection != ''
-      )
+      ) {
         return true;
+      }
     }
   }
   return false;
@@ -301,35 +335,51 @@ function hasPrismEye(glassRx: GlassRx): boolean {
 
 export function hasPrism(glassesRx: GlassesRx): boolean {
   if (glassesRx) {
-    if (hasPrismEye(glassesRx.od)) return true;
-    if (hasPrismEye(glassesRx.os)) return true;
+    if (hasPrismEye(glassesRx.od)) {
+      return true;
+    }
+    if (hasPrismEye(glassesRx.os)) {
+      return true;
+    }
   }
   return false;
 }
 
 function getLensometry(visitId: string): GlassesRx {
-  if (!visitId) return undefined;
-  let lensometry = getExam('Lensometry', getCachedItem(visitId));
-  if (!lensometry) return undefined;
-  lensometry = lensometry.Lensometry;
-  if (!lensometry) return undefined;
-  lensometry = lensometry.Lensometry;
-  if (!lensometry || lensometry.length === undefined || lensometry.length < 0)
+  if (!visitId) {
     return undefined;
+  }
+  let lensometry = getExam('Lensometry', getCachedItem(visitId));
+  if (!lensometry) {
+    return undefined;
+  }
+  lensometry = lensometry.Lensometry;
+  if (!lensometry) {
+    return undefined;
+  }
+  lensometry = lensometry.Lensometry;
+  if (!lensometry || lensometry.length === undefined || lensometry.length < 0) {
+    return undefined;
+  }
   lensometry = lensometry[0];
   return lensometry;
 }
 
 function getKeratometry(visitId: string): GlassesRx {
-  if (!visitId) return undefined;
+  if (!visitId) {
+    return undefined;
+  }
   let keratometry = getExam('Keratometry', getCachedItem(visitId));
-  if (!keratometry) return undefined;
+  if (!keratometry) {
+    return undefined;
+  }
   keratometry = keratometry.Keratometry;
-  if (!keratometry) return undefined;
+  if (!keratometry) {
+    return undefined;
+  }
   keratometry = keratometry.Keratometry;
   return keratometry;
 }
-
 
 export class VA extends Component {
   state: {
@@ -378,7 +428,9 @@ export class DiopterField extends Component {
   }
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <NumberField
         range={[-20, 20]}
@@ -420,7 +472,9 @@ export class DegreeField extends Component {
   }
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <NumberField
         range={[0, 180]}
@@ -441,9 +495,13 @@ export class DegreeField extends Component {
 }
 
 export function formatPrism(prism: string): string {
-  if (prism === undefined) return '';
+  if (prism === undefined) {
+    return '';
+  }
   let parsedPrism: ?Prism = parsePrism(prism);
-  if (parsedPrism === undefined || parsedPrism === null) return '';
+  if (parsedPrism === undefined || parsedPrism === null) {
+    return '';
+  }
   let formattedPrism: string = '';
   if (
     parsedPrism.prismH !== undefined &&
@@ -458,11 +516,15 @@ export function formatPrism(prism: string): string {
     parsedPrism.prismV !== null &&
     parsedPrism.prismV !== 0
   ) {
-    if (formattedPrism != '') formattedPrism += ' ';
+    if (formattedPrism != '') {
+      formattedPrism += ' ';
+    }
     formattedPrism += parsedPrism.prismV;
     formattedPrism += formatCode('prism2b', parsedPrism.prismVDirection);
   }
-  if (formattedPrism != '') formattedPrism = '\u25b3' + formattedPrism;
+  if (formattedPrism != '') {
+    formattedPrism = '\u25b3' + formattedPrism;
+  }
   return formattedPrism;
 }
 
@@ -503,7 +565,9 @@ export class GeneralPrismInput extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value === prevProps.value) return;
+    if (this.props.value === prevProps.value) {
+      return;
+    }
     this.setState({splittedValue: this.splitValue(this.props.value)});
   }
 
@@ -516,9 +580,13 @@ export class GeneralPrismInput extends Component {
       undefined,
       undefined,
     ];
-    if (value === undefined || value === null) return splittedValue;
+    if (value === undefined || value === null) {
+      return splittedValue;
+    }
     let prism: Prism = parsePrism(value);
-    if (prism === undefined || prism === null) return splittedValue;
+    if (prism === undefined || prism === null) {
+      return splittedValue;
+    }
     splittedValue[0] =
       isNaN(prism.prismH) || prism.prismH == 0
         ? undefined
@@ -560,7 +628,9 @@ export class GeneralPrismInput extends Component {
       prismH = editedValue[0];
     }
     if (editedValue[1] !== undefined && editedValue[1] !== '.00') {
-      if (prismH === '') prismH = '0';
+      if (prismH === '') {
+        prismH = '0';
+      }
       prismH += editedValue[1];
     }
     let prismHDirection: ?string =
@@ -575,7 +645,9 @@ export class GeneralPrismInput extends Component {
       prismV = editedValue[3];
     }
     if (editedValue[4] !== undefined && editedValue[4] !== '.00') {
-      if (prismV === '') prismV = '0';
+      if (prismV === '') {
+        prismV = '0';
+      }
       prismV += editedValue[4];
     }
     let prismVDirection: ?string =
@@ -602,7 +674,9 @@ export class GeneralPrismInput extends Component {
       : this.props.errorMessage
       ? styles.formFieldError
       : styles.formField;
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TilesField
         style={style}
@@ -635,8 +709,9 @@ export class GlassesSummary extends Component {
   };
 
   render() {
-    if (this.props.visible !== true || isRxEmpty(this.props.glassesRx))
+    if (this.props.visible !== true || isRxEmpty(this.props.glassesRx)) {
       return null;
+    }
 
     return (
       <View style={styles.columnLayout} key={this.props.title}>
@@ -834,18 +909,29 @@ export class GlassesDetail extends Component {
     propertyName: string,
     value: ?number | string,
   ): void {
-    if (!this.props.editable) return;
+    if (!this.props.editable) {
+      return;
+    }
     let glassesRx: GlassesRx = this.props.glassesRx;
-    if (oculus) glassesRx[oculus][propertyName] = value;
-    else glassesRx[propertyName] = value;
-    if (this.props.onChangeGlassesRx) this.props.onChangeGlassesRx(glassesRx);
+    if (oculus) {
+      glassesRx[oculus][propertyName] = value;
+    } else {
+      glassesRx[propertyName] = value;
+    }
+    if (this.props.onChangeGlassesRx) {
+      this.props.onChangeGlassesRx(glassesRx);
+    }
   }
 
   updatePrism(oculus: string, prism: String): void {
-    if (!this.props.editable) return;
+    if (!this.props.editable) {
+      return;
+    }
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx[oculus].prism = prism;
-    if (this.props.onChangeGlassesRx) this.props.onChangeGlassesRx(glassesRx);
+    if (this.props.onChangeGlassesRx) {
+      this.props.onChangeGlassesRx(glassesRx);
+    }
   }
 
   togglePrism = () => {
@@ -877,7 +963,9 @@ export class GlassesDetail extends Component {
   copyOdOs = (): void => {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.os = {...glassesRx.od};
-    if (this.props.onChangeGlassesRx) this.props.onChangeGlassesRx(glassesRx);
+    if (this.props.onChangeGlassesRx) {
+      this.props.onChangeGlassesRx(glassesRx);
+    }
   };
 
   clear = (): void => {
@@ -886,7 +974,9 @@ export class GlassesDetail extends Component {
     } else {
       let glassesRx: GlassesRx = this.props.glassesRx;
       clearRefraction(glassesRx);
-      if (this.props.onChangeGlassesRx) this.props.onChangeGlassesRx(glassesRx);
+      if (this.props.onChangeGlassesRx) {
+        this.props.onChangeGlassesRx(glassesRx);
+      }
     }
   };
 
@@ -953,7 +1043,9 @@ export class GlassesDetail extends Component {
   }
 
   async exportData() {
-    if (this.props.definition.export === undefined) return;
+    if (this.props.definition.export === undefined) {
+      return;
+    }
     const exam: Exam = getCachedItem(this.props.examId);
     const patient: Patient = getPatient(exam);
     let data: any = deepClone(this.props.glassesRx);
@@ -992,7 +1084,9 @@ export class GlassesDetail extends Component {
 
   renderAlert() {
     const importedData: any = this.state.importedData;
-    if (!importedData) return null;
+    if (!importedData) {
+      return null;
+    }
     return (
       <Alert
         title={strings.importDataQuestion}
@@ -1017,8 +1111,12 @@ export class GlassesDetail extends Component {
   }
 
   render() {
-    if (!this.props.glassesRx) return null;
-    if (!this.props.glassesRx.od || !this.props.glassesRx.os) return null;
+    if (!this.props.glassesRx) {
+      return null;
+    }
+    if (!this.props.glassesRx.od || !this.props.glassesRx.os) {
+      return null;
+    }
     const isTyping =
       this.context.keyboardMode === 'desktop' || this.state.isTyping;
 
@@ -1507,7 +1605,9 @@ export class PatientRefractionCard extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.patientInfo === prevProps.patientInfo) return;
+    if (this.props.patientInfo === prevProps.patientInfo) {
+      return;
+    }
     this.setState(
       {refractions: getRecentRefraction(this.props.patientInfo.id)},
       this.refreshPatientInfo,
@@ -1515,7 +1615,9 @@ export class PatientRefractionCard extends Component {
   }
 
   async refreshPatientInfo(patientId: string) {
-    if (this.state.refractions) return;
+    if (this.state.refractions) {
+      return;
+    }
     let refractions: ?(GlassesRx[]) = getRecentRefraction(
       this.props.patientInfo.id,
     );

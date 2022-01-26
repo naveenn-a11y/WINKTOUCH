@@ -45,17 +45,26 @@ export async function searchUsers(
   };
   let restResponse = await searchItems('User/list', searchCriteria);
   let users: User[] = restResponse.doctors;
-  if (users && users.length > maxUserListSize)
+  if (users && users.length > maxUserListSize) {
     users = users.slice(0, maxUserListSize);
+  }
   return users;
 }
 
 function formatDoctorName(user: User): string {
   let name = '';
-  if (!user) return name;
-  if (user.firstName) name += user.firstName.trim() + ' ';
-  if (user.lastName) name += user.lastName.trim() + ' ';
-  if (user.instituteName) name += user.instituteName.trim();
+  if (!user) {
+    return name;
+  }
+  if (user.firstName) {
+    name += user.firstName.trim() + ' ';
+  }
+  if (user.lastName) {
+    name += user.lastName.trim() + ' ';
+  }
+  if (user.instituteName) {
+    name += user.instituteName.trim();
+  }
   name = name.trim();
   return name;
 }
@@ -70,7 +79,9 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
   }
 
   render() {
-    if (!this.props.user) return <View style={styles.tabCard} />;
+    if (!this.props.user) {
+      return <View style={styles.tabCard} />;
+    }
     return (
       <View style={styles.tabCard}>
         <ErrorCard errors={this.props.user.errors} />
@@ -171,7 +182,9 @@ export type UserListProps = {
 };
 class UserList extends PureComponent<UserListProps> {
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <FlatList
         style={styles.columnCard}
@@ -308,12 +321,16 @@ export class ManageUsers extends PureComponent<
 
   selectUser = (user: ?User) => {
     let cachedUser: ?User = user ? getCachedItem(user.id) : undefined;
-    if (cachedUser) user = cachedUser;
+    if (cachedUser) {
+      user = cachedUser;
+    }
     this.setState({user}, () => this.fetchUser(user));
   };
 
   async fetchUser(user: ?User) {
-    if (!user || user.id === 'user') return;
+    if (!user || user.id === 'user') {
+      return;
+    }
     user = await fetchUser(user.id);
     if (user.id === this.state.user.id) {
       this.setState({user});
