@@ -203,6 +203,8 @@ export type GlassRx = {
   va?: string,
   addVA?: string,
   isEye?: boolean,
+  closePD?: number,
+  farPD?: number,
 };
 
 export type GlassesRx = {
@@ -379,6 +381,7 @@ export type GroupDefinition = {
   hasAdd?: boolean,
   hasLensType?: boolean,
   hasPD?: boolean,
+  hasMPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
@@ -539,4 +542,11 @@ export type TranslationDefinition = {
   language: string,
   label: ?string,
   normalValue: ?string,
+};
+
+export type ExamRoom = {
+  id: string,
+  patientId: string,
+  examRoomId: string,
+  name: string,
 };

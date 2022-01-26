@@ -217,6 +217,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18 * fontScale,
   },
+  grayedText: {
+    fontSize: 18 * fontScale,
+    color: 'gray',
+  },
   noAccessText: {
     fontSize: 18 * fontScale,
     fontStyle: 'italic',
@@ -957,6 +961,19 @@ export const styles = StyleSheet.create({
     right: 8 * fontScale,
     top: 10 * fontScale,
   },
+  bgRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: 5,
+    padding: 5,
+  },
+  bgRowWeb: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: '5px',
+    padding: '5px',
+  },
+  billingView: {maxWidth: 300},
   listRow: {
     flex: 10,
     flexDirection: 'row',
