@@ -462,7 +462,7 @@ export class ReferralScreen extends Component<
         this.setState({hasSignatureField: false});
       }
     }
-    const hasSignatureField: boolean = html.includes('.DigitalSignature}');
+    const hasSignatureField: boolean = html?.includes('.DigitalSignature}');
     if (this.state.hasSignatureField != hasSignatureField) {
       this.setState({hasSignatureField});
     }
@@ -534,6 +534,7 @@ export class ReferralScreen extends Component<
     let pdf = await generatePDF(HtmlWithAttachment, true);
     const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
     const resultBase64: string = await resultPdf.saveAsBase64();
+
     let referralId;
     let linkedReferralId;
 
@@ -859,17 +860,29 @@ export class ReferralScreen extends Component<
     );
   }
 
-  renderEditor() {
-    let HTML = this.state.referralHtml;
-    if (
-      this.state.referralHtml?.split(
-        '<div class="breakBefore"></div><div class="wrap-imgs">',
-      )?.length > 0
-    ) {
-      HTML = this.state.referralHtml.split(
-        '<div class="breakBefore"></div><div class="wrap-imgs">',
-      )[0];
+  filterHtml(html, OpenTag: String, CloseTag: String) {
+    let FilteredHtml = html;
+    if (FilteredHtml?.split(`${OpenTag}`).length > 1) {
+      let restHTML = FilteredHtml?.split(`${OpenTag}`)[1]?.split(`${CloseTag}`);
+      FilteredHtml = FilteredHtml.split(`${OpenTag}`)[0];
+      FilteredHtml += restHTML[1];
     }
+    return FilteredHtml;
+  }
+
+  renderEditor() {
+    let HTML = this.state.referralHtml || '';
+    HTML = this.filterHtml(
+      HTML,
+      '<div class="breakBefore"></div><section class="wrap-imgs">',
+      '</section>',
+    );
+    HTML = this.filterHtml(HTML, '<section class="wrap-imgs">', '</section>');
+    HTML = this.filterHtml(
+      HTML,
+      '<script type="text/javascript">',
+      '</script>',
+    );
     return (
       <View style={{flex: 100, flexDirection: 'column'}}>
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
