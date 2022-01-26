@@ -744,21 +744,23 @@ export class ReferralScreen extends Component<
         </FormRow>
       </View>
     );
+  } 
+
+  filterHtml(html,OpenTag:String,CloseTag:String){
+    let FilteredHtml = html;
+    if(FilteredHtml?.split(`${OpenTag}`).length > 1){
+      let restHTML = FilteredHtml?.split(`${OpenTag}`)[1]?.split(`${CloseTag}`);
+      FilteredHtml = FilteredHtml.split(`${OpenTag}`)[0];
+      FilteredHtml += restHTML[1]
+    }
+    return FilteredHtml
   }
 
   renderEditor() {
     let HTML = this.state.referralHtml || '';
-
-    if(HTML?.split('<div class="breakBefore"></div><section class="wrap-imgs">').length > 1){
-      let restHTML = HTML?.split('<div class="breakBefore"></div><section class="wrap-imgs">')[1]?.split('</section>');
-      HTML = this.state.referralHtml.split('<div class="breakBefore"></div><section class="wrap-imgs">')[0];
-      HTML += restHTML[1]
-    }
-    if(HTML?.split('<script type="text/javascript">').length > 1){
-      let restHTML = HTML?.split('<script type="text/javascript">')[1]?.split('</script>');
-      HTML = HTML?.split('<script type="text/javascript">')[0];
-      HTML += restHTML[1]
-    }
+    HTML = this.filterHtml(HTML,'<div class="breakBefore"></div><section class="wrap-imgs">','</section>');
+    HTML = this.filterHtml(HTML,'<section class="wrap-imgs">','</section>');
+    HTML = this.filterHtml(HTML,'<script type="text/javascript">','</script>');
     return (
       <View style={{flex: 100, flexDirection: 'column'}}>
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
