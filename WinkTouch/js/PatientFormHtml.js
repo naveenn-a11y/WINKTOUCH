@@ -1605,17 +1605,16 @@ export function renderAttachment(html:string){
     }
   }
 
-  if (hasImage) {
-    withAttachmentHtml += `<div class="breakBefore"></div>`;
-    withAttachmentHtml += `<div class="wrap-imgs">`;
-  }
+  if (hasImage) withAttachmentHtml += `<div class="breakBefore"></div>`;
 
-
+  withAttachmentHtml += `<section class="wrap-imgs">`;
   withAttachmentHtml += addImages;
+  withAttachmentHtml += `</section>`;
+
   return withAttachmentHtml
 }
 export function patientFooter() {
-  return  `</div></body></main>`;
+  return  `</body></main>`;
 }
 export function getVisitHtml(html: string): string {
   let htmlHeader: string = patientHeader();
