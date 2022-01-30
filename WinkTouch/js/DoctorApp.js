@@ -55,6 +55,7 @@ import {Provider} from 'react-native-paper';
 import {clearDataCache} from './DataCache';
 import {cacheDefinitions} from './Items';
 import {getUserLanguage} from './Strings';
+import {RoomScreen} from './Room';
 
 let account: Account;
 let doctor: User;
@@ -124,6 +125,7 @@ const DoctorNavigator = createStackNavigator(
     referral: {screen: ReferralScreen, path: '/'},
     followup: {screen: FollowUpScreen, path: '/'},
     customisation: {screen: CustomisationScreen, path: '/'},
+    room: {screen: RoomScreen, path: '/'},
   },
   {
     headerMode: 'none',

@@ -297,6 +297,7 @@ export function isNumericField(fieldDefinition: FieldDefinition): boolean {
 export function formatFieldLabel(
   groupDefinition: GroupDefinition,
   groupValue: any,
+  defaultLabel: ?string,
 ): string {
   const customDefinition: ?GroupDefinition | FieldDefinition =
     groupDefinition.fields.find(
@@ -304,7 +305,9 @@ export function formatFieldLabel(
         definition.isLabel === true,
     );
 
-  let label: string = formatLabel(groupDefinition);
+  let label: string = isEmpty(defaultLabel)
+    ? formatLabel(groupDefinition)
+    : defaultLabel;
   if (customDefinition) {
     if (groupValue[customDefinition.name] instanceof Object) {
       label = !isEmpty(groupValue[customDefinition.name].label)

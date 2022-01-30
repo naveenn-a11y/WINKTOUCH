@@ -87,6 +87,7 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxRows() {
     let rows: any[] = [];
     const purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
+    if (purchaseRx === undefined) return null;
     rows.push(this.renderPurchaseRxTitle());
     purchaseRx.map((recomm: any, index: number) => {
       rows.push(this.renderPurchaseRxSimpleRow(recomm, index));

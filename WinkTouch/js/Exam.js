@@ -25,6 +25,7 @@ import type {
   ExamDefinition,
   FieldDefinition,
   GroupDefinition,
+  Measurement,
 } from './Types';
 import {styles, fontScale, selectionFontColor, isWeb} from './Styles';
 import {strings} from './Strings';
@@ -50,20 +51,40 @@ import {
   cacheItem,
   getCachedItems,
 } from './DataCache';
-import {deepClone, formatMoment, getValue, stripIndex, setValue} from './Util';
+import {
+  deepClone,
+  formatMoment,
+  getValue,
+  stripIndex,
+  setValue,
+  isEmpty,
+  formatDate,
+  now,
+  jsonDateTimeFormat,
+} from './Util';
 import {allExamIds, fetchVisit, visitHasEnded} from './Visit';
-import {GlassesDetail} from './Refraction';
+import {
+  getLensometries,
+  getKeratometry,
+  getAutoRefractor,
+  GlassesDetail,
+  getLensometry,
+} from './Refraction';
 import {
   getFavorites,
   removeFavorite,
   Star,
   Refresh,
   storeFavorite,
+  ExportIcon,
 } from './Favorites';
 import {getExamDefinition} from './ExamDefinition';
-import {Lock, NoAccess, Pencil} from './Widgets';
+import {Alert, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
+import {getConfiguration} from './Configuration';
+import {formatCode, getCodeDefinition} from './Codes';
+import {Machine, exportData} from './Machine';
 
 export async function fetchExam(
   examId: string,
@@ -800,6 +821,9 @@ export class ExamScreen extends Component {
     locked: boolean,
     scrollable: boolean,
     favorites: ExamPredefinedValue[],
+    showExportDataPopup: boolean,
+    showSnackBar: ?boolean,
+    snackBarMessage: ?string,
   };
 
   constructor(props: any) {
@@ -821,7 +845,10 @@ export class ExamScreen extends Component {
       isDirty: exam.errors !== undefined,
       locked: this.props.unlocked !== true && examIsLocked(exam),
       scrollable: true,
-      favorites: exam.definition.starable ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id
+      favorites: exam.definition.starable ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id,
+      showExportDataPopup: false,
+      showSnackBar: false,
+      snackBarMessage: '',
     };
   }
 
@@ -961,6 +988,134 @@ export class ExamScreen extends Component {
 
   getVisit(): Visit {
     return getVisit(this.state.exam);
+  }
+
+  showSnackBar() {
+    this.setState({showSnackBar: true});
+  }
+  hideSnackBar() {
+    this.setState({showSnackBar: false});
+  }
+
+  setSnackBarMessage(message: string) {
+    this.setState({snackBarMessage: message});
+  }
+
+  async confirmExportData(items: any) {
+    let data: any = {};
+    const patient: Patient = getPatient(this.state.exam);
+
+    items.map((rxData: any) => {
+      const isChecked: boolean = rxData.isChecked;
+      const entityId: string = rxData.entityId;
+      if (isChecked) {
+        if (entityId === strings.autoRefractor) {
+          data = deepClone(rxData.data);
+        } else if (entityId === strings.lensometry) {
+          data.lensometry = deepClone(rxData.data);
+        } else if (entityId === strings.keratometry) {
+          data.keratometry = deepClone(rxData.data);
+        }
+      }
+    });
+    let measurement: Measurement = {
+      label: formatLabel(this.state.exam.definition),
+      date: formatDate(now(), jsonDateTimeFormat),
+      patientId: patient.id,
+      data,
+    };
+    let machineIdentifier = this.state.exam.definition.export;
+    if (machineIdentifier instanceof Array && machineIdentifier.length > 0) {
+      machineIdentifier = machineIdentifier[0]; //TODO: send to all destinations
+    }
+    data = await exportData(
+      machineIdentifier,
+      measurement,
+      this.state.exam.examId,
+    );
+    if (data && !data.errors) {
+      const machine: Machine = new Machine(machineIdentifier);
+      machine.bind = (type, data) => {
+        switch (type) {
+          case 'message':
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+          case 'closed':
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+          case 'connected':
+            machine.push();
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+        }
+      };
+      machine.connect(() => {});
+    }
+    this.hideExportDataPopup();
+  }
+
+  hideExportDataPopup() {
+    this.setState({showExportDataPopup: false});
+  }
+
+  showExportDataPopup() {
+    this.setState({showExportDataPopup: true});
+  }
+
+  buildExportData(): any {
+    const exportRxOptions: any = [];
+    const lensometry: GlassesRx[] = getLensometries(this.state.exam.visitId);
+    const keratometry: GlassesRx = getKeratometry(this.state.exam.visitId);
+    const autoRefractor = getAutoRefractor(this.state.exam.visitId);
+
+    if (autoRefractor !== undefined && autoRefractor.length > 0) {
+      autoRefractor.map((prescription: GlassesRx, index: number) => {
+        exportRxOptions.push({
+          label: strings.autoRefractor + ' ' + (index + 1),
+          isChecked: index === 0,
+          entityId: strings.autoRefractor,
+          data: prescription,
+          divider: index === autoRefractor.length - 1,
+          singleSelection: true,
+        });
+      });
+    }
+    if (lensometry !== undefined && lensometry.length > 0) {
+      lensometry.map((prescription: GlassesRx, index: number) => {
+        if (!isEmpty(prescription.lensType))
+          exportRxOptions.push({
+            label: strings.lensometry + ': ' + prescription.lensType,
+            isChecked: index === 0,
+            entityId: strings.lensometry,
+            data: prescription,
+            divider: index === lensometry.length - 1,
+            singleSelection: true,
+          });
+        else
+          exportRxOptions.push({
+            label: strings.lensometry + ' ' + (index + 1),
+            isChecked: index === 0,
+            entityId: strings.lensometry,
+            data: prescription,
+            divider: index === lensometry.length - 1,
+            singleSelection: true,
+          });
+      });
+    }
+    if (keratometry !== undefined) {
+      exportRxOptions.push({
+        label: strings.keratometry,
+        isChecked: true,
+        entityId: strings.keratometry,
+        data: keratometry,
+        singleSelection: true,
+      });
+    }
+
+    return exportRxOptions;
   }
 
   getRelatedExam(examName: string): Exam {
@@ -1121,12 +1276,61 @@ export class ExamScreen extends Component {
     }
     return (
       <View style={style}>
+        {this.renderExportSection()}
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
         {this.renderPencilIcon()}
         {this.renderLockIcon()}
       </View>
     );
+  }
+  renderExportSection() {
+    if (
+      this.state.exam.definition.export === undefined ||
+      this.state.exam.definition.export === null ||
+      this.state.exam.definition.export.length === 0 ||
+      getConfiguration().machine.phoropter === undefined
+    )
+      return null;
+    return (
+      <View style={styles.flow}>
+        <TouchableOpacity
+          onPress={() => this.showExportDataPopup()}
+          testID={this.props.fieldId + '.exportButton'}>
+          <ExportIcon style={styles.screenIcon} />
+        </TouchableOpacity>
+        {this.state.showExportDataPopup && this.renderExportPopup()}
+      </View>
+    );
+  }
+
+  renderExportPopup() {
+    const exportRxOptions: any = this.buildExportData();
+
+    return (
+      <Alert
+        title={strings.printExportLabel}
+        data={exportRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmExportData(exportRxOptions)}
+        onCancelAction={() => this.hideExportDataPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.exportAction}
+        cancelActionLabel={strings.cancel}
+        multiValue={true}
+      />
+    );
+  }
+
+  renderSnackBar() {
+    if (this.state.showSnackBar)
+      return (
+        <NativeBar
+          message={this.state.snackBarMessage}
+          onDismissAction={() => this.hideSnackBar()}
+        />
+      );
+    return null;
   }
 
   renderRelatedExams() {
@@ -1175,6 +1379,7 @@ export class ExamScreen extends Component {
           pinchGestureEnabled={this.state.scrollable}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
+          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </KeyboardAwareScrollView>
@@ -1185,6 +1390,7 @@ export class ExamScreen extends Component {
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {isWeb && this.renderExamIcons(styles.examIconsFlex)}
+          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
           {!isWeb && this.renderExamIcons(styles.examIcons)}
@@ -1199,6 +1405,7 @@ export class ExamScreen extends Component {
         {isWeb && this.renderExamIcons(styles.examIconsFlex)}
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
+          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
