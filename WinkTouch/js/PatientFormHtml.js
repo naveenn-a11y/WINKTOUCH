@@ -1558,10 +1558,11 @@ export function patientHeader() {
     '   flex-wrap: wrap;' +
     '   width: 100%;' +
     '   justify-content: space-around;' +
-    ' }';
+    ' }'+
+    '.breakBeforeImage { page-break-before: always; }';
   htmlHeader += isWeb
-    ? '.images-warp{page-break-inside:avoid;} .breakBefore { height:10px;page-break-before: always; }'
-    : `.wrap-imgs{page-break-before: always; } `;
+    ? '.images-warp{page-break-inside:avoid;} '
+    : `.wrap-imgs{} `;
   
   htmlHeader += `</style></head>`;
   htmlHeader += `<body><main>`
@@ -1581,6 +1582,14 @@ export function renderAttachment(html:string){
             selectedAttachments.push(identifier)
           }
       }
+  }
+  for(let str of html.split('<code')){
+    if(str.indexOf('(')!==-1){
+        const identifier: string = str.split('(')[1].split(')')[0].trim();
+        if (selectedAttachments.indexOf(identifier) === -1) {
+          selectedAttachments.push(identifier)
+        }
+    }
   }
 
   for (let image of smallMedia) {
@@ -1605,7 +1614,7 @@ export function renderAttachment(html:string){
     }
   }
 
-  if (hasImage) withAttachmentHtml += `<div class="breakBefore"></div>`;
+  if (hasImage) withAttachmentHtml += `<div class="breakBeforeImage"></div>`;
 
   withAttachmentHtml += `<section class="wrap-imgs">`;
   withAttachmentHtml += addImages;
