@@ -34,16 +34,70 @@
                 "label": "",
                 "fields": [
 
+
+                  {
+                    "mappedField": "visit.storeName",
+                    "name": "Store name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 245,
+                      "left": 160,
+                      "fontSize": 21,
+                      "top": 10
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.storeAddress",
+                    "name": "Store address",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 400,
+                      "left": 160,
+                      "fontSize": 17,
+                      "top": 35
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.storeCity",
+                    "name": "Store city",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 400,
+                      "left": 160,
+                      "fontSize": 17,
+                      "top": 60
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.storeContact",
+                    "name": "Store contact",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 600,
+                      "left": 160,
+                      "fontSize": 17,
+                      "top": 85
+                    },
+                    "readonly": true
+                  },
+
                   {
                     "mappedField": "patient.name",
                     "name": "Patient Name",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
-                      "width": 320,
-                      "left": 150,
-                      "fontSize": 21,
-                      "top": 1160
+                      "width": 280,
+                      "left": 160,
+                      "fontSize": 20,
+                      "top": 1230
                     },
                     "readonly": true
                   },
@@ -54,11 +108,11 @@
                     "dateFormat": "DD/MM/yyyy",
                     "layout": {
                       "position": "absolute",
-                      "top": 1160,
-                      "left": 780,
+                      "top": 1230,
+                      "left": 700,
                       "width": 200,
                       "borderWidth": 0,
-                      "fontSize": 21
+                      "fontSize": 20
                     }
                   },
                   {
@@ -68,29 +122,76 @@
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
-                      "width": 420,
-                      "left": 50,
-                      "fontSize": 21,
-                      "top": 200
+                      "width": 245,
+                      "left": 255,
+                      "fontSize": 18,
+                      "top": 167
                     },
                     "readonly": true
                   },
-
                   {
-                    "name": "Doctor signature",
-                    "mappedField": "visit.doctor.signature",
-                    "image": "[visit.doctor.signature]",
-                    "readonly": true,
-                    "size": "XS",
+                    "mappedField": "visit.doctor",
+                    "name": "Doctor",
                     "layout": {
                       "position": "absolute",
-                      "top": 1095,
-                      "left": 320,
-                      "width": 300,
-                      "height": 60,
                       "borderWidth": 0,
-                      "fontSize": 21
-                    }
+                      "width": 220,
+                      "left": 668,
+                      "fontSize": 18,
+                      "top": 345
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "name": "Consent1",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 590
+                    },
+                    "normalValue": "No",
+                    "defaultValue": "No",
+                    "options": [
+                      "No",
+                      "Yes"
+                    ]
+                  },
+                  {
+                    "name": "Consent2",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 647
+                    },
+                    "normalValue": "No",
+                    "defaultValue": "No",
+                    "options": [
+                      "No",
+                      "Yes"
+                    ]
+                  },
+                  {
+                    "name": "Consent3",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 925
+                    },
+                    "normalValue": "No",
+                    "defaultValue": "No",
+                    "options": [
+                      "No",
+                      "Yes"
+                    ]
                   }
                 ]
               }
