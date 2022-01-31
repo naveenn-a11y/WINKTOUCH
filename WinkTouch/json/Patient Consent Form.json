@@ -1,0 +1,102 @@
+{
+    "name": "Patient Consent Form",
+    "scrollable": true,
+    "card": true,
+    "type": "groupedForm",
+    "section": "Form.2",
+    "cardGroup": "Patient Consent Form",
+    "fields": [
+      {
+        "name": "Patient Consent Form",
+        "label": "",
+        "size": "XL",
+        "fields": [
+          {
+            "sync": true,
+            "popup": false,
+            "drawable":true,
+            "name": "Patient Consent Form",
+            "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1726/PatientConsentForm.jpg",
+            "label": "",
+            "resolution": "1700x2200",
+            "type": "Patient Consent Form",
+            "size": "XL",
+            "fields": [
+              {
+                "layout": {
+                  "position": "absolute",
+                  "width": 1000,
+                  "justifyContent": "flex-start",
+                  "left": 0,
+                  "top": 0
+                },
+                "name": "Form",
+                "label": "",
+                "fields": [
+
+                  {
+                    "mappedField": "patient.name",
+                    "name": "Patient Name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 320,
+                      "left": 150,
+                      "fontSize": 21,
+                      "top": 1160
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "name": "Patient signed date",
+                    "mappedField": "visit.examDate",
+                    "readonly": true,
+                    "dateFormat": "DD/MM/yyyy",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 1160,
+                      "left": 780,
+                      "width": 200,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  },
+                  {
+                    "mappedField": "visit.store.companyname",
+                    "maxLength": 100,
+                    "name": "Company Name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 420,
+                      "left": 50,
+                      "fontSize": 21,
+                      "top": 200
+                    },
+                    "readonly": true
+                  },
+
+                  {
+                    "name": "Doctor signature",
+                    "mappedField": "visit.doctor.signature",
+                    "image": "[visit.doctor.signature]",
+                    "readonly": true,
+                    "size": "XS",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 1095,
+                      "left": 320,
+                      "width": 300,
+                      "height": 60,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
