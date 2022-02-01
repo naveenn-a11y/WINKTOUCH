@@ -1,10 +1,11 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
-import {View, Text, Button, TouchableOpacity, Alert} from 'react-native';
+import {View, Text, Button, TouchableOpacity, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {
   FieldDefinition,
@@ -15,10 +16,20 @@ import type {
   Measurement,
 } from './Types';
 import {strings} from './Strings';
-import {styles, scaleStyle, fontScale} from './Styles';
-import {FloatingButton} from './Widgets';
+import {styles, scaleStyle, fontScale, isWeb} from './Styles';
+import {FloatingButton, Alert} from './Widgets';
 import {FormTextInput, FormRow, FormInput} from './Form';
-import {deepClone, deepAssign, isEmpty, cleanUpArray} from './Util';
+import {
+  deepClone,
+  deepAssign,
+  isEmpty,
+  cleanUpArray,
+  getValue,
+  formatDate,
+  now,
+  jsonDateTimeFormat,
+  yearDateFormat,
+} from './Util';
 import {formatAllCodes} from './Codes';
 import {getCachedItem} from './DataCache';
 import {
@@ -30,9 +41,8 @@ import {
   DrawingIcon,
   CopyRow,
   CopyColumn,
-  Keyboard,
   ImportIcon,
-  ExportIcon,
+  Copy,
 } from './Favorites';
 import {getConfiguration} from './Configuration';
 import {importData} from './MappedField';
@@ -48,8 +58,13 @@ import {
   getFieldValue as getExamFieldValue,
   setMappedFieldValue,
 } from './Exam';
-import {CheckButton, Label} from './Widgets';
-import {formatLabel, formatFieldValue, getFieldDefinition} from './Items';
+import {CheckButton, Label, NativeBar} from './Widgets';
+import {
+  formatLabel,
+  formatFieldValue,
+  getFieldDefinition,
+  formatFieldLabel,
+} from './Items';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -61,6 +76,8 @@ export function hasColumns(groupDefinition: GroupDefinition): boolean {
     groupDefinition.columns[0][0].trim() !== ''
   );
 }
+import {ModeContext} from '../src/components/Context/ModeContextProvider';
+import {getDoctor} from './DoctorApp';
 
 export function getColumnFieldIndex(
   groupDefinition: GroupDefinition,
@@ -70,16 +87,88 @@ export function getColumnFieldIndex(
     groupDefinition.columns === undefined ||
     groupDefinition.columns === null ||
     groupDefinition.columns.length === 0
-  )
+  ) {
     return -1;
+  }
   for (const columns: string[] of groupDefinition.columns) {
     if (columns instanceof Array) {
       for (let i: number = 0; i < columns.length; i++) {
-        if (columns[i] === fieldName) return i;
+        if (columns[i] === fieldName) {
+          return i;
+        }
       }
     }
   }
   return -1;
+}
+
+function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
+  const isVisible: any = groupDefinition.visible;
+  if (isVisible === true || isVisible === false) {
+    return isVisible;
+  }
+
+  if (
+    isVisible != undefined &&
+    isVisible.startsWith('[') &&
+    isVisible.endsWith(']')
+  ) {
+    let reverseFlag: boolean = false;
+    let key: any = isVisible.substring(1, isVisible.length - 1);
+    if (key.startsWith('!')) {
+      key = key.substring(1, key.length);
+      reverseFlag = true;
+    }
+    const keyIdentifier: string[] = key.split('.');
+    if (keyIdentifier[0] === 'visit') {
+      let visit: Visit;
+      if (item.startsWith('visit-')) {
+        visit = getCachedItem(item);
+      } else {
+        const exam: Exam = getCachedItem(item);
+        visit = exam !== undefined ? getCachedItem(exam.visitId) : undefined;
+      }
+      const value: any =
+        visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
+      return reverseFlag ? isEmpty(value) : !isEmpty(value);
+    } else {
+      const exam: Exam = getCachedItem(item);
+      const value: any = exam !== undefined ? getValue(exam, key) : undefined;
+      return reverseFlag ? isEmpty(value) : !isEmpty(value);
+    }
+  }
+
+  return true;
+}
+
+function getDefaultValue(groupDefinition: GroupDefinition): any {
+  const defaultValue: any = groupDefinition.defaultValue;
+  const isDynamicValue: string =
+    defaultValue && typeof defaultValue === 'string'
+      ? defaultValue.startsWith('[') && defaultValue.endsWith(']')
+      : false;
+  if (isDynamicValue) {
+    let key: any = defaultValue.substring(1, defaultValue.length - 1);
+    const keyIdentifier: string[] = key.split('.');
+    if (keyIdentifier[0] === 'user') {
+      if (keyIdentifier[1] === 'name') {
+        const doctorName: string =
+          getDoctor().firstName + ' ' + getDoctor().lastName;
+        return doctorName;
+      } else if (keyIdentifier[1] === 'id') {
+        const doctorId: string = getDoctor().id;
+        return doctorId;
+      }
+    } else if (key === 'currentDate') {
+      const dateFormat: string = groupDefinition.dateFormat
+        ? groupDefinition.dateFormat
+        : yearDateFormat;
+      const currentDate: string = formatDate(now(), dateFormat);
+      return currentDate;
+    }
+  } else {
+    return defaultValue;
+  }
 }
 
 function isRowField(
@@ -90,11 +179,14 @@ function isRowField(
     groupDefinition.rows === undefined ||
     groupDefinition.rows === null ||
     groupDefinition.rows.length === 0
-  )
+  ) {
     return false;
+  }
   for (let row of groupDefinition.rows) {
     let index: number = row.indexOf(fieldName);
-    if (index >= 0) return index;
+    if (index >= 0) {
+      return index;
+    }
   }
   return false;
 }
@@ -110,10 +202,66 @@ function getMultiValueGroup(
         (groupDefinition: GroupDefinition) =>
           groupDefinition.name === groupName,
       );
-      if (groupDefinition !== undefined) return groupDefinition;
+      if (groupDefinition !== undefined) {
+        return groupDefinition;
+      }
     }
   }
   return undefined;
+}
+
+export function addGroupItem(
+  exam: Exam,
+  groupDefinition: GroupDefinition,
+  groupValue: ?{},
+  isNew: ?boolean = false,
+  childValue: ?{},
+) {
+  let values = exam[exam.definition.name][groupDefinition.name];
+  if (values instanceof Array === false) {
+    values = [values];
+  } //auto convert old style exams to be nice
+  if (
+    groupDefinition.maxLength !== undefined &&
+    values.length >= groupDefinition.maxLength
+  ) {
+    alert(
+      strings.formatString(
+        strings.maximumAddableGroupError,
+        groupDefinition.maxLength - 1,
+        groupDefinition.name.toLowerCase(),
+      ),
+    );
+  } else {
+    let newValue = groupValue
+      ? groupValue
+      : groupDefinition.type === 'SRx'
+      ? newRefraction()
+      : {};
+    groupDefinition.fields instanceof Array &&
+      groupDefinition.fields.forEach(
+        (fieldDefinition: FieldDefinition | GroupDefinition) => {
+          if (
+            fieldDefinition.fields instanceof Array &&
+            fieldDefinition.fields.length !== 0
+          ) {
+            if (
+              newValue[fieldDefinition.name] === undefined ||
+              newValue[fieldDefinition.name] === null
+            ) {
+              newValue[fieldDefinition.name] = {}; //Add empty column
+            }
+          }
+        },
+      );
+    if (groupDefinition.clone instanceof Array && values.length > 0 && !isNew) {
+      const lastValue = deepClone(isEmpty(childValue) ? values[0] : childValue);
+      groupDefinition.clone.forEach((fieldName: string) => {
+        newValue[fieldName] = lastValue[fieldName];
+      });
+    }
+    values.unshift(newValue);
+  }
 }
 
 export class CheckList extends PureComponent {
@@ -152,8 +300,9 @@ export class CheckList extends PureComponent {
     if (
       this.props.value === prevProps.value &&
       this.props.definition.options === prevProps.definition.options
-    )
+    ) {
       return;
+    }
     let formattedOptions = this.formatOptions(this.props.definition.options);
     this.addValueAsOption(formattedOptions, this.props.value);
     this.setState({
@@ -170,13 +319,16 @@ export class CheckList extends PureComponent {
     } else {
       formattedOptions = [...options];
     }
-    if (formattedOptions === undefined || formattedOptions === null)
+    if (formattedOptions === undefined || formattedOptions === null) {
       formattedOptions = [];
+    }
     return formattedOptions;
   }
 
   addValueAsOption(formattedOptions: string[], value: string | string[]): void {
-    if (value === undefined) return;
+    if (value === undefined) {
+      return;
+    }
     if (value instanceof Array) {
       value.forEach((subValue: string) => {
         if (!formattedOptions.includes(subValue)) {
@@ -192,7 +344,9 @@ export class CheckList extends PureComponent {
 
   isSelected(option: string): boolean | string {
     let value: string | string[] = this.props.value;
-    if (value === undefined) return false;
+    if (value === undefined) {
+      return false;
+    }
     if (value instanceof Array) {
       for (let i: number = 0; i < value.length; i++) {
         if (this.props.definition.prefix instanceof Array) {
@@ -207,12 +361,14 @@ export class CheckList extends PureComponent {
           }
         } else {
           let selection: string = value[i];
-          if (selection === option) return true;
+          if (selection === option) {
+            return true;
+          }
         }
       }
       return false;
     }
-    if (value.startsWith('(')) {
+    if (typeof value === 'string' && value.startsWith('(')) {
       value = value.substring(4);
     }
     return value === option;
@@ -222,7 +378,7 @@ export class CheckList extends PureComponent {
     let value: string | string[] = this.props.value;
     if (value instanceof Array) {
       if (this.props.definition.prefix instanceof Array) {
-        let prefix = undefined;
+        let prefix;
         if (option.startsWith('(')) {
           prefix = option.substring(1, 2);
           option = option.substring(4);
@@ -299,7 +455,9 @@ export class CheckList extends PureComponent {
   };
 
   addValue = (option: string) => {
-    if (option === undefined || option === null || option === '') return;
+    if (option === undefined || option === null || option === '') {
+      return;
+    }
     let value: string | string[] = this.props.value;
     if (value instanceof Array) {
       if (this.props.definition.multiValue) {
@@ -334,26 +492,37 @@ export class CheckList extends PureComponent {
           value={formatLabel(this.props.definition)}
           fieldId={this.props.fieldId}
         />
-        <View style={this.props.style ? undefined : styles.wrapBoard}>
-          {this.state.formattedOptions.map((option: string, index: number) => {
-            const isSelected: boolean | string = this.isSelected(option);
-            const prefix: string =
-              isSelected === true || isSelected === false
-                ? ''
-                : '(' + isSelected + ') ';
-            return (
-              <View style={styles.formRow} key={option}>
-                <CheckButton
-                  isChecked={isSelected !== false}
-                  suffix={prefix + option}
-                  onSelect={() => this.select(prefix + option)}
-                  onDeselect={() => this.select(prefix + option)}
-                  readonly={this.props.editable != true}
-                  testID={this.props.fieldId + '.option' + (index + 1)}
-                />
-              </View>
-            );
-          })}
+        <View
+          style={
+            this.props.style
+              ? undefined
+              : isWeb
+              ? {maxHeight: 500 * fontScale}
+              : styles.wrapBoard
+          }>
+          <ScrollView scrollEnabled={true}>
+            {this.state.formattedOptions.map(
+              (option: string, index: number) => {
+                const isSelected: boolean | string = this.isSelected(option);
+                const prefix: string =
+                  isSelected === true || isSelected === false
+                    ? ''
+                    : '(' + isSelected + ') ';
+                return (
+                  <View style={[styles.formRow]} key={option}>
+                    <CheckButton
+                      isChecked={isSelected !== false}
+                      suffix={prefix + option}
+                      onSelect={() => this.select(prefix + option)}
+                      onDeselect={() => this.select(prefix + option)}
+                      readonly={this.props.editable != true}
+                      testID={this.props.fieldId + '.option' + (index + 1)}
+                    />
+                  </View>
+                );
+              },
+            )}
+          </ScrollView>
         </View>
         {this.props.definition.freestyle && this.props.editable && (
           <View style={styles.formRow} key="freestyle">
@@ -383,25 +552,27 @@ export class GroupedCard extends Component {
     showTitle?: boolean,
     exam: Exam,
   };
-  groupDefinition: ?GroupDefinition;
   static defaultProps = {
     showTitle: true,
   };
 
   constructor(props: any) {
     super(props);
-    this.groupDefinition = this.props.exam.definition.fields.find(
-      (fieldDefinition: GroupDefinition | FieldDefinition) =>
-        fieldDefinition.name === this.props.exam.definition.cardGroup,
-    );
   }
 
-  componentDidUpdate(prevProps: any) {
-    if (this.props.exam === prevProps.exam) return;
-    this.groupDefinition = this.props.exam.definition.fields.find(
-      (fieldDefinition: GroupDefinition | FieldDefinition) =>
-        fieldDefinition.name === this.props.exam.definition.cardGroup,
-    );
+  getCardGroup(): ?GroupDefinition {
+    if (
+      this.props.exam.definition.cardGroup === undefined ||
+      this.props.exam.definition.cardGroup === null
+    ) {
+      return undefined;
+    }
+    const groupDefinition: GroupDefinition =
+      this.props.exam.definition.fields.find(
+        (fieldDefinition: GroupDefinition | FieldDefinition) =>
+          fieldDefinition.name === this.props.exam.definition.cardGroup,
+      );
+    return groupDefinition;
   }
 
   renderField(
@@ -409,17 +580,28 @@ export class GroupedCard extends Component {
     fieldDefinition: FieldDefinition,
     showLabel: boolean,
     groupIndex: number,
-    column?: string = undefined,
+    column: ?string = undefined,
   ) {
-    if (column === '>>') return null;
-    if (groupDefinition === undefined || groupDefinition === null) return null;
-    if (fieldDefinition === undefined) return null;
+    if (column === '>>') {
+      return null;
+    }
+    if (groupDefinition === undefined || groupDefinition === null) {
+      return null;
+    }
+    if (fieldDefinition === undefined) {
+      return null;
+    }
+    if (fieldDefinition.isLabel) {
+      return null;
+    }
+
     if (
       this.props.exam[this.props.exam.definition.name] === undefined ||
       this.props.exam[this.props.exam.definition.name][groupDefinition.name] ===
         undefined
-    )
+    ) {
       return null;
+    }
     const groupValue =
       groupDefinition.multiValue === true
         ? this.props.exam[this.props.exam.definition.name][
@@ -428,7 +610,9 @@ export class GroupedCard extends Component {
         : this.props.exam[this.props.exam.definition.name][
             groupDefinition.name
           ];
-    if (isEmpty(groupValue)) return null;
+    if (isEmpty(groupValue)) {
+      return null;
+    }
     const fieldName: string = fieldDefinition.name;
     let value =
       column === undefined
@@ -437,11 +621,14 @@ export class GroupedCard extends Component {
         ? groupValue[column][fieldName]
         : undefined;
     if (fieldDefinition.image) {
-      if (value === undefined || value === null) return null;
-      const label: ?string = formatLabel(groupDefinition);
+      if (isEmpty(value)) {
+        return null;
+      }
+
+      const label: ?string = formatFieldLabel(groupDefinition, groupValue);
 
       const icon =
-        value && value.startsWith && value.startsWith('upload-') ? (
+        value && typeof value === 'string' && value.startsWith('upload-') ? (
           <PaperClip style={styles.textIcon} color="black" key="paperclip" />
         ) : (
           <DrawingIcon style={styles.textIcon} color="black" key="drawing" />
@@ -498,10 +685,14 @@ export class GroupedCard extends Component {
       );
     }
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
-    if (formattedValue === '') return null;
+    if (formattedValue === '') {
+      return null;
+    }
     const label: ?string = formatLabel(fieldDefinition);
 
-    if (formattedValue == label) showLabel = false;
+    if (formattedValue == label) {
+      showLabel = false;
+    }
     if (
       showLabel === true &&
       label !== undefined &&
@@ -547,12 +738,16 @@ export class GroupedCard extends Component {
   }
 
   renderCheckListItem(fieldDefinition: FieldDefinition) {
-    const value = this.props.exam[this.props.exam.definition.name][
-      fieldDefinition.name
-    ];
-    if (fieldDefinition.normalValue === value) return null;
+    const value =
+      this.props.exam[this.props.exam.definition.name][fieldDefinition.name];
+
+    if (fieldDefinition.normalValue === value) {
+      return null;
+    }
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
-    if (formattedValue === '') return null;
+    if (formattedValue === '') {
+      return null;
+    }
     const label: ?string = formatLabel(fieldDefinition);
     return (
       <Text style={styles.textLeft} key={fieldDefinition.name}>
@@ -583,7 +778,9 @@ export class GroupedCard extends Component {
           groupIndex,
           column,
         );
-        if (field != null) showLabel = false;
+        if (field != null) {
+          showLabel = false;
+        }
         return field;
       }
     });
@@ -613,7 +810,9 @@ export class GroupedCard extends Component {
       const cr = cleanUpArray(
         this.renderColumnedRow(groupDefinition, columns, rowIndex, groupIndex),
       );
-      if (!isEmpty(cr)) rows.push(cr);
+      if (!isEmpty(cr)) {
+        rows.push(cr);
+      }
     }
     return rows;
   }
@@ -621,7 +820,7 @@ export class GroupedCard extends Component {
   renderSimpleRow(
     groupDefinition: GroupDefinition,
     fieldDefinition: FieldDefinition,
-    groupIndex?: number = 0,
+    groupIndex: ?number = 0,
   ) {
     const showLabel: boolean = true;
     return this.renderField(
@@ -640,7 +839,7 @@ export class GroupedCard extends Component {
     );
   }
 
-  renderRows(groupDefinition: GroupDefinition, groupIndex?: number = 0) {
+  renderRows(groupDefinition: GroupDefinition, groupIndex: ?number = 0) {
     let rows: any[] = [];
 
     for (
@@ -660,28 +859,35 @@ export class GroupedCard extends Component {
           fieldDefinition,
           groupIndex,
         );
-        if (!isEmpty(cr)) rows.push(cr);
+        if (!isEmpty(cr)) {
+          rows.push(cr);
+        }
       } else if (columnFieldIndex < 0) {
         const sr = this.renderSimpleRow(
           groupDefinition,
           fieldDefinition,
           groupIndex,
         );
-        if (sr !== null) rows.push(sr);
+        if (sr !== null) {
+          rows.push(sr);
+        }
       }
     }
     return rows;
   }
 
   renderGlassesSummary(groupDefinition: GroupDefinition) {
-    if (groupDefinition === undefined || groupDefinition === null) return null;
+    if (groupDefinition === undefined || groupDefinition === null) {
+      return null;
+    }
     if (
       isEmpty(this.props.exam[this.props.exam.definition.name]) ||
       isEmpty(
         this.props.exam[this.props.exam.definition.name][groupDefinition.name],
       )
-    )
+    ) {
       return null;
+    }
     if (
       groupDefinition.multiValue &&
       this.props.exam[this.props.exam.definition.name][
@@ -710,8 +916,9 @@ export class GroupedCard extends Component {
   }
 
   renderGroup(groupDefinition: GroupDefinition) {
-    if (this.props.exam[this.props.exam.definition.name] === undefined)
+    if (this.props.exam[this.props.exam.definition.name] === undefined) {
       return null;
+    }
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign(
         {},
@@ -725,23 +932,24 @@ export class GroupedCard extends Component {
       groupDefinition.multiValue === true &&
       groupDefinition.options === undefined
     ) {
-      const value = this.props.exam[this.props.exam.definition.name][
-        groupDefinition.name
-      ];
+      const value =
+        this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (
         value === undefined ||
         value === null ||
         value instanceof Array === false ||
         value.length === 0
-      )
+      ) {
         return null;
+      }
       return value.map((groupValue: any, groupIndex: number) => {
         if (
           groupValue === undefined ||
           groupValue === null ||
           Object.keys(groupValue).length === 0
-        )
+        ) {
           return null;
+        }
         return this.renderRows(groupDefinition, groupIndex);
       });
     } else if (
@@ -755,17 +963,18 @@ export class GroupedCard extends Component {
       if (
         this.props.exam.definition.fields.length === 1 &&
         this.props.exam.definition.fields[0].multiValue !== true
-      )
+      ) {
         showSubtitles = false;
-      const value: any = this.props.exam[this.props.exam.definition.name][
-        groupDefinition.name
-      ];
+      }
+      const value: any =
+        this.props.exam[this.props.exam.definition.name][groupDefinition.name];
       if (
         value === undefined ||
         value === null ||
         Object.keys(value).length === 0
-      )
+      ) {
         return null;
+      }
       let valueRows = this.renderRows(groupDefinition);
       let rows = [];
       if (showSubtitles && !isEmpty(valueRows) && valueRows.length !== 0) {
@@ -783,26 +992,48 @@ export class GroupedCard extends Component {
     }
   }
 
-  renderAllGroups() {
-    if (!this.props.exam[this.props.exam.definition.name]) return null;
+  renderGroups() {
+    if (!this.props.exam[this.props.exam.definition.name]) {
+      return null;
+    }
     if (
       this.props.exam.definition.fields === null ||
       this.props.exam.definition.fields === undefined ||
       this.props.exam.definition.fields.length === 0
-    )
+    ) {
       return null;
+    }
+    let cardGroup: ?GroupDefinition = this.getCardGroup();
+    if (cardGroup) {
+      return this.renderGroup(cardGroup);
+    }
     return this.props.exam.definition.fields.map(
       (groupDefinition: GroupDefinition) => this.renderGroup(groupDefinition),
     );
   }
 
   renderTitle() {
-    if (this.props.showTitle === false) return null;
+    let title: string = formatLabel(this.props.exam.definition);
+    this.props.exam.definition.fields.map(
+      (groupDefinition: GroupDefinition) => {
+        const groupValue = getExamFieldValue(
+          groupDefinition.name,
+          this.props.exam,
+        );
+        if (groupValue && groupDefinition && groupDefinition.fields) {
+          title = formatFieldLabel(groupDefinition, groupValue, title);
+        }
+      },
+    );
+
+    if (this.props.showTitle === false) {
+      return null;
+    }
     return (
       <Label
         style={styles.cardTitle}
         key="cardTitle"
-        value={formatLabel(this.props.exam.definition)}
+        value={title}
         suffix=""
         fieldId={this.props.exam.definition.id}
       />
@@ -810,21 +1041,24 @@ export class GroupedCard extends Component {
   }
 
   getGroupDefinition(fullFieldName: string): GroupDefinition {
-    if (fullFieldName.startsWith('exam.'))
+    if (fullFieldName.startsWith('exam.')) {
       fullFieldName = fullFieldName.substring(5);
+    }
     const groupName = fullFieldName.substring(0, fullFieldName.indexOf('.'));
     return getExamFieldDefinition(groupName, this.props.exam);
   }
 
   expandMultiValueCardFields(): string[][] {
     //This is kind of advanced logic which I should document. Don't tamper with it if you are a rookie.
-    let multiValueGroups: GroupDefinition[] = this.props.exam.definition.fields.filter(
-      (groupDefinition: GroupDefinition) =>
-        groupDefinition.multiValue === true &&
-        groupDefinition.options === undefined,
-    );
-    if (multiValueGroups.length === 0)
+    let multiValueGroups: GroupDefinition[] =
+      this.props.exam.definition.fields.filter(
+        (groupDefinition: GroupDefinition) =>
+          groupDefinition.multiValue === true &&
+          groupDefinition.options === undefined,
+      );
+    if (multiValueGroups.length === 0) {
       return this.props.exam.definition.cardFields;
+    }
     let cardFields: string[][] = [];
     let renderedGroups: string[] = [];
     this.props.exam.definition.cardFields.forEach((cardRow: string[]) => {
@@ -844,7 +1078,7 @@ export class GroupedCard extends Component {
                   indexedRow,
                   multiValueGroups,
                 );
-                if (indexedGroup.name === group.name) {
+                if (indexedGroup && indexedGroup.name === group.name) {
                   indexedRow = indexedRow.map((fieldName: string) =>
                     fieldName.replace(
                       group.name + '.',
@@ -883,15 +1117,23 @@ export class GroupedCard extends Component {
           this.props.exam,
         );
         let formattedValue = formatFieldValue(fieldValue, fieldDefinition);
-        if (formattedValue === '') return '';
+        if (!getIsVisible(this.props.exam.id, fieldDefinition)) {
+          return '';
+        }
+        if (formattedValue === '') {
+          return '';
+        }
         if (cardRowFields.length === 1) {
           //Add the label for single field rows
           const label: string = formatLabel(fieldDefinition);
-          if (formattedValue != label && formattedValue != '')
+          if (formattedValue != label && formattedValue != '') {
             return label + ': ' + formattedValue;
+          }
           return formattedValue;
         }
-        if (formattedValue.length > 0) formattedValue = formattedValue + ' ';
+        if (formattedValue.length > 0) {
+          formattedValue = formattedValue + ' ';
+        }
         return formattedValue;
       });
       if (
@@ -903,9 +1145,10 @@ export class GroupedCard extends Component {
               item.trim().endsWith(':') === false,
           ),
         )
-      )
+      ) {
         //Filter label only fields before checking if line is empty
         rowValues.push(rowValue);
+      }
     });
     return rowValues.map((rowValue: string[], index: number) => (
       <Text style={styles.textLeft} key={index}>
@@ -922,9 +1165,7 @@ export class GroupedCard extends Component {
           ? null
           : this.props.exam.definition.cardFields
           ? this.renderCardRows()
-          : this.groupDefinition
-          ? this.renderGroup(this.groupDefinition)
-          : this.renderAllGroups()}
+          : this.renderGroups()}
       </View>
     );
   }
@@ -935,12 +1176,14 @@ export class GroupedForm extends Component {
     form: {},
     definition: GroupDefinition,
     editable?: boolean,
+    cloneable?: boolean,
     style?: any,
     onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
     onUpdateForm?: (groupName: string, newValue: any) => void,
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
     onAdd?: (groupValue?: {}) => void,
+    onCopy?: (groupValue?: {}) => void,
     patientId: string,
     examId: string,
     enableScroll?: () => void,
@@ -949,30 +1192,45 @@ export class GroupedForm extends Component {
   };
   state: {
     isTyping: boolean,
+    showDialog: boolean,
+    importedData: any,
+    showSnackBar: boolean,
   };
 
   static defaultProps = {
     editable: true,
+    cloneable: false,
   };
+  static contextType = ModeContext;
 
   constructor(props: any) {
     super(props);
     this.state = {
       isTyping: false,
+      showDialog: false,
+      showSnackBar: false,
     };
   }
 
-  toggleTyping = (): void => {
-    this.setState({isTyping: this.state.isTyping ? false : true});
-  };
+  hideDialog() {
+    this.setState({showDialog: false});
+  }
+  showDialog(data: any) {
+    this.setState({importedData: data, showDialog: true});
+  }
+  showSnackBar() {
+    this.setState({showSnackBar: true});
+  }
+  hideSnackBar() {
+    this.setState({showSnackBar: false});
+  }
 
   formatColumnLabel(column: string): string {
-    const columnDefinition:
-      | ?GroupDefinition
-      | FieldDefinition = this.props.definition.fields.find(
-      (columnDefinition: GroupDefinition | FieldDefinition) =>
-        columnDefinition.name === column,
-    );
+    const columnDefinition: ?GroupDefinition | FieldDefinition =
+      this.props.definition.fields.find(
+        (columnDefinition: GroupDefinition | FieldDefinition) =>
+          columnDefinition.name === column,
+      );
     return formatLabel(columnDefinition);
   }
 
@@ -990,13 +1248,65 @@ export class GroupedForm extends Component {
     }
   }
 
+  getIsVisible(fieldDefinition: FieldDefinition): ?{} {
+    return getIsVisible(this.props.examId, fieldDefinition);
+  }
+
+  getDefinitionDefaultValue(fieldDefinition: FieldDefinition): any {
+    if (
+      fieldDefinition.defaultValue === undefined ||
+      fieldDefinition.defaultValue === null
+    ) {
+      return;
+    }
+    const value: string = getDefaultValue(fieldDefinition);
+    const isDynamicValue: string =
+      fieldDefinition.defaultValue &&
+      typeof fieldDefinition.defaultValue === 'string'
+        ? fieldDefinition.defaultValue.startsWith('[') &&
+          fieldDefinition.defaultValue.endsWith(']')
+        : false;
+    if (value && isDynamicValue) {
+      this.props.onChangeField(fieldDefinition.name, value);
+    }
+    return value;
+  }
+
+  renderAlert() {
+    const importedData: any = this.state.importedData;
+    if (!importedData) {
+      return null;
+    }
+    return (
+      <Alert
+        title={strings.importDataQuestion}
+        data={importedData}
+        dismissable={true}
+        onConfirmAction={(selectedData: Measurement) =>
+          this.importSelectedData(selectedData)
+        }
+        onCancelAction={() => this.hideDialog()}
+        style={styles.alert}
+      />
+    );
+  }
+  renderSnackBar() {
+    return (
+      <NativeBar
+        message={strings.importDataNotFound}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
+  }
+
   renderField(fieldDefinition: FieldDefinition, column?: string) {
-    if (fieldDefinition === undefined)
+    if (fieldDefinition === undefined) {
       return (
         <View style={styles.fieldFlexContainer} key={column}>
           <Text style={styles.text} />
         </View>
       );
+    }
     if (fieldDefinition.mappedField) {
       let exam: Exam = getCachedItem(this.props.examId);
       fieldDefinition = Object.assign(
@@ -1005,13 +1315,18 @@ export class GroupedForm extends Component {
         fieldDefinition,
       );
     }
-    const value = this.props.form
+    let value = this.props.form
       ? column
         ? this.props.form[column]
           ? this.props.form[column][fieldDefinition.name]
           : undefined
         : this.props.form[fieldDefinition.name]
       : undefined;
+    value =
+      value === undefined
+        ? this.getDefinitionDefaultValue(fieldDefinition)
+        : value;
+
     //if (fieldDefinition.mappedField) {
     //  value = getExamFieldValue(fieldDefinition.mappedField, getCachedItem(this.props.examId));
     //  __DEV__ && console.log('Got mapped field value '+fieldDefinition.mappedField+' from exam :'+value);
@@ -1033,6 +1348,9 @@ export class GroupedForm extends Component {
         ? ' ' + this.formatColumnLabel(column) + ' '
         : ' ') +
       formatLabel(fieldDefinition);
+    const isTyping =
+      this.context.keyboardMode === ('desktop' || this.state.isTyping) &&
+      this.props.editable;
     return (
       <FormInput
         value={value}
@@ -1045,7 +1363,7 @@ export class GroupedForm extends Component {
           this.changeField(fieldDefinition, newValue, column)
         }
         errorMessage={error}
-        isTyping={this.state.isTyping}
+        isTyping={isTyping}
         patientId={this.props.patientId}
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
@@ -1068,8 +1386,14 @@ export class GroupedForm extends Component {
   }
 
   renderSimpleRow(fieldDefinition: FieldDefinition) {
+    if (this.getIsVisible(fieldDefinition) === false) {
+      return null;
+    }
+
     const label: string = formatLabel(fieldDefinition);
-    if (fieldDefinition.layout) return this.renderField(fieldDefinition);
+    if (fieldDefinition.layout) {
+      return this.renderField(fieldDefinition);
+    }
     return (
       <View style={styles.formRow} key={fieldDefinition.name}>
         <View style={styles.formRowHeader}>
@@ -1084,12 +1408,18 @@ export class GroupedForm extends Component {
   }
 
   renderFieldsRow(fieldDefinition: FieldDefinition) {
+    if (this.getIsVisible(fieldDefinition) === false) {
+      return null;
+    }
+
     let fields: any[] = [];
     const row: string[] = this.props.definition.rows.find(
       (row: string[]) =>
         row && row.length > 0 && row[0] === fieldDefinition.name,
     );
-    if (row === undefined) return null;
+    if (row === undefined) {
+      return null;
+    }
     const fieldDefinitions: FieldDefinition[] = row.map((fieldName: string) =>
       this.props.definition.fields.find(
         (field: FieldDefinition) => field.name === fieldName,
@@ -1126,21 +1456,26 @@ export class GroupedForm extends Component {
   }
 
   renderColumnsHeader(columnDefinition: GroupDefinition) {
-    if (this.hasColumns() === false) return null;
+    if (this.hasColumns() === false) {
+      return null;
+    }
     const columns = this.props.definition.columns.find(
       (columns: string[]) => columns[0] === columnDefinition.name,
     );
-    if (columns === undefined || columns.length === 0) return null;
+    if (columns === undefined || columns.length === 0) {
+      return null;
+    }
     return (
       <View
         style={styles.formRow}
         key={'columnHeader-' + columnDefinition.name}>
         <Text style={styles.formTableRowHeader}> </Text>
         {columns.map((column: string, index: number) => {
-          const columnDefinition: FieldDefinition = this.props.definition.fields.find(
-            (fieldDefinition: FieldDefinition) =>
-              fieldDefinition.name === column,
-          );
+          const columnDefinition: FieldDefinition =
+            this.props.definition.fields.find(
+              (fieldDefinition: FieldDefinition) =>
+                fieldDefinition.name === column,
+            );
           if (columnDefinition) {
             const columnLabel: string = formatLabel(columnDefinition);
             return (
@@ -1197,10 +1532,11 @@ export class GroupedForm extends Component {
           fieldId={labelId}
         />
         {columns.map((column: string, columnIndex: number) => {
-          const columnDefinition: GroupDefinition = this.props.definition.fields.find(
-            (columnDefinition: FieldDefinition) =>
-              columnDefinition.name === column,
-          );
+          const columnDefinition: GroupDefinition =
+            this.props.definition.fields.find(
+              (columnDefinition: FieldDefinition) =>
+                columnDefinition.name === column,
+            );
           if (columnDefinition) {
             const fieldDefinition: FieldDefinition =
               columnDefinition.fields[rowIndex];
@@ -1236,20 +1572,25 @@ export class GroupedForm extends Component {
     rowIndexTo: number,
     columns: string[],
   ) {
-    if (this.props.form === undefined) return;
+    if (this.props.form === undefined) {
+      return;
+    }
     const fromRowName: string = rowFields[rowIndexFrom].name;
     const toRowName: string = rowFields[rowIndexTo].name;
     for (let i: number = 0; i < columns.length; i++) {
-      if (columns[i] === '>>') continue;
+      if (columns[i] === '>>') {
+        continue;
+      }
       const value = this.props.form[columns[i]][fromRowName];
       this.props.onChangeField(toRowName, value, columns[i]);
     }
   }
 
   copyColumn(fromColumn: string, toColumn: string): void {
-    const fieldDefinitions: FieldDefinition[] = this.props.definition.fields.find(
-      (field: FieldDefinition) => field.name === fromColumn,
-    ).fields;
+    const fieldDefinitions: FieldDefinition[] =
+      this.props.definition.fields.find(
+        (field: FieldDefinition) => field.name === fromColumn,
+      ).fields;
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
       const value = this.props.form[fromColumn][fieldDefinition.name];
       this.props.onChangeField(fieldDefinition.name, value, toColumn);
@@ -1257,6 +1598,9 @@ export class GroupedForm extends Component {
   }
 
   renderColumnedRows(columnDefinition: GroupDefinition) {
+    if (this.getIsVisible(columnDefinition) === false) {
+      return null;
+    }
     let rows: any[] = [];
     rows.push(this.renderColumnsHeader(columnDefinition));
     const columnedFields: FieldDefinition[] = columnDefinition.fields;
@@ -1306,44 +1650,36 @@ export class GroupedForm extends Component {
     return rows;
   }
 
+  importSelectedData(measurement: Measurement) {
+    if (measurement.data) {
+      if (this.props.onAdd && measurement.data instanceof Array) {
+        if (measurement.data.length > 0) {
+          this.props.onUpdateForm(
+            this.props.definition.name,
+            measurement.data.slice(-1)[0],
+          );
+          let groupValues: {}[] = measurement.data.slice(0, -1).reverse();
+          groupValues.forEach((groupValue: {}) => this.props.onAdd(groupValue));
+        }
+      } else {
+        this.props.onUpdateForm(this.props.definition.name, measurement.data);
+      }
+    }
+    this.hideDialog();
+  }
   async importData() {
-    if (!this.props.onUpdateForm) return;
+    if (!this.props.onUpdateForm) {
+      return;
+    }
     let measurement: Measurement | Measurement[] = await importData(
       this.props.definition.import,
       this.props.examId,
     );
-    if (measurement === undefined || measurement === null) return;
+    if (measurement === undefined || measurement === null) {
+      this.showSnackBar();
+    }
     if (measurement instanceof Array) {
-      const options = measurement.map((measurement: Measurement) => {
-        return {
-          text: measurement.label,
-          onPress: () => {
-            if (measurement.data) {
-              if (this.props.onAdd && measurement.data instanceof Array) {
-                if (measurement.data.length > 0) {
-                  this.props.onUpdateForm(
-                    this.props.definition.name,
-                    measurement.data.slice(-1)[0],
-                  );
-                  let groupValues: {}[] = measurement.data
-                    .slice(0, -1)
-                    .reverse();
-                  groupValues.forEach((groupValue: {}) =>
-                    this.props.onAdd(groupValue),
-                  );
-                }
-              } else {
-                this.props.onUpdateForm(
-                  this.props.definition.name,
-                  measurement.data,
-                );
-              }
-            }
-          },
-        };
-      });
-      options.push({text: strings.cancel});
-      Alert.alert(strings.importDataQuestion, undefined, options);
+      this.showDialog(measurement);
     } else {
       if (measurement.data) {
         if (this.props.onAdd && measurement.data instanceof Array) {
@@ -1368,14 +1704,35 @@ export class GroupedForm extends Component {
     // TODO export data
   }
 
+  renderCopyIcon() {
+    return (
+      this.props.onCopy &&
+      this.props.definition.clone && (
+        <TouchableOpacity
+          onPress={() => this.props.onCopy()}
+          testID={this.props.fieldId + '.copyIcon'}>
+          <Copy style={styles.groupIcon} />
+        </TouchableOpacity>
+      )
+    );
+  }
+
   renderIcons() {
+    if (this.props.cloneable && this.props.definition.clone) {
+      return (
+        <View style={styles.groupIcons} key="icons">
+          {this.renderCopyIcon()}
+        </View>
+      );
+    }
     if (
       !this.props.editable ||
       (!this.props.onAddFavorite &&
         !this.props.onClear &&
         !this.props.definition.keyboardEnabled)
-    )
+    ) {
       return null;
+    }
     return [
       <View style={styles.groupIcons} key="icons">
         {this.props.onClear && (
@@ -1392,13 +1749,7 @@ export class GroupedForm extends Component {
             <Plus style={styles.groupIcon} />
           </TouchableOpacity>
         )}
-        {this.props.definition.keyboardEnabled && (
-          <TouchableOpacity
-            onPress={this.toggleTyping}
-            testID={this.props.fieldId + '.keyboardIcon'}>
-            <Keyboard style={styles.groupIcon} disabled={this.state.isTyping} />
-          </TouchableOpacity>
-        )}
+        {this.renderCopyIcon()}
         {this.props.onAddFavorite && (
           <Star
             onAddFavorite={this.props.onAddFavorite}
@@ -1433,11 +1784,13 @@ export class GroupedForm extends Component {
           style={styles.sectionTitle}
           key="title"
           suffix=""
-          value={formatLabel(this.props.definition)}
+          value={formatFieldLabel(this.props.definition, this.props.form)}
           fieldId={this.props.fieldId}
         />
         {this.renderRows()}
         {this.renderIcons()}
+        {this.state.importedData && this.state.showDialog && this.renderAlert()}
+        {this.state.showSnackBar && this.renderSnackBar()}
       </View>
     );
   }
@@ -1491,8 +1844,9 @@ export class GroupedFormScreen extends Component<
     if (
       exam.definition.fields === undefined ||
       exam.definition.fields.length === 0
-    )
+    ) {
       return;
+    }
     exam.definition.fields.forEach(
       (groupDefinition: GroupDefinition | FieldDefinition) => {
         //Create a value for each group
@@ -1546,7 +1900,7 @@ export class GroupedFormScreen extends Component<
             //Initialise SRx
             if (groupDefinition.type === 'SRx') {
               if (groupDefinition.multiValue) {
-                groupValue.forEach(value => {
+                groupValue.forEach((value) => {
                   initRefraction(value);
                 });
               } else {
@@ -1564,7 +1918,7 @@ export class GroupedFormScreen extends Component<
                     //Initialise a subfield that has columns
                     if (groupDefinition.multiValue) {
                       //Initialise every value in the array
-                      groupValue.forEach(value => {
+                      groupValue.forEach((value) => {
                         let fieldValue = value[fieldDefinition.name];
                         if (fieldValue === undefined) {
                           value[fieldDefinition.name] = {}; //Add empty column
@@ -1590,52 +1944,12 @@ export class GroupedFormScreen extends Component<
     return getCachedItem(this.props.exam.visitId).patientId;
   }
 
-  addGroupItem = (groupDefinition: GroupDefinition, groupValue: ?{}) => {
-    let values = this.props.exam[this.props.exam.definition.name][
-      groupDefinition.name
-    ];
-    if (values instanceof Array === false) values = [values]; //auto convert old style exams to be nice
-    if (
-      groupDefinition.maxLength !== undefined &&
-      values.length >= groupDefinition.maxLength
-    ) {
-      alert(
-        strings.formatString(
-          strings.maximumAddableGroupError,
-          groupDefinition.maxLength - 1,
-          groupDefinition.name.toLowerCase(),
-        ),
-      );
-    } else {
-      let newValue = groupValue
-        ? groupValue
-        : groupDefinition.type === 'SRx'
-        ? newRefraction()
-        : {};
-      groupDefinition.fields instanceof Array &&
-        groupDefinition.fields.forEach(
-          (fieldDefinition: FieldDefinition | GroupDefinition) => {
-            if (
-              fieldDefinition.fields instanceof Array &&
-              fieldDefinition.fields.length !== 0
-            ) {
-              if (
-                newValue[fieldDefinition.name] === undefined ||
-                newValue[fieldDefinition.name] === null
-              ) {
-                newValue[fieldDefinition.name] = {}; //Add empty column
-              }
-            }
-          },
-        );
-      if (groupDefinition.clone instanceof Array && values.length > 0) {
-        const lastValue = deepClone(values[0]);
-        groupDefinition.clone.forEach((fieldName: string) => {
-          newValue[fieldName] = lastValue[fieldName];
-        });
-      }
-      values.unshift(newValue);
-    }
+  addGroupItem = (
+    groupDefinition: GroupDefinition,
+    groupValue: ?{},
+    isNew: ?boolean = false,
+  ) => {
+    addGroupItem(this.props.exam, groupDefinition, groupValue, isNew);
     this.props.onUpdateExam(this.props.exam);
   };
 
@@ -1663,9 +1977,8 @@ export class GroupedFormScreen extends Component<
             fieldName
           ] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][groupName][
-            column
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][column] =
+            newValue;
         }
       }
     } else {
@@ -1675,9 +1988,8 @@ export class GroupedFormScreen extends Component<
             fieldName
           ] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][groupName][
-            index
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][index] =
+            newValue;
         }
       } else {
         if (fieldName !== undefined) {
@@ -1685,9 +1997,8 @@ export class GroupedFormScreen extends Component<
             fieldName
           ] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][
-            groupName
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName] =
+            newValue;
         }
       }
     }
@@ -1695,7 +2006,9 @@ export class GroupedFormScreen extends Component<
   }
 
   updateRefraction(groupName: string, refraction: GlassesRx) {
-    if (!this.props.editable) return;
+    if (!this.props.editable) {
+      return;
+    }
     //this.props.exam[this.props.exam.definition.name][refractionType] = refraction;
     this.props.onUpdateExam(this.props.exam);
   }
@@ -1716,7 +2029,9 @@ export class GroupedFormScreen extends Component<
   };
 
   copyFromFinal = (glassesRx: GlassesRx): void => {
-    if (!this.props.editable) return;
+    if (!this.props.editable) {
+      return;
+    }
     const finalRx: GlassesRx = deepClone(
       this.props.exam[this.props.exam.definition.name]['Final Rx'],
     );
@@ -1761,28 +2076,27 @@ export class GroupedFormScreen extends Component<
   }
 
   clear(groupName: string, index?: number): void {
-    let formDefinition: GroupDefinition = this.props.exam.definition.fields.find(
-      (groupDefinition: GroupDefinition) =>
-        groupDefinition.name.toLowerCase() === groupName.toLowerCase(),
-    );
+    let formDefinition: GroupDefinition =
+      this.props.exam.definition.fields.find(
+        (groupDefinition: GroupDefinition) =>
+          groupDefinition.name.toLowerCase() === groupName.toLowerCase(),
+      );
     if (!formDefinition) {
       __DEV__ && console.error('No group definition ' + groupName + ' found.');
       return;
     }
     //Clearing a grouped form part of a multivalue array
     if (index !== undefined && index >= 0) {
-      const forms: {}[] = this.props.exam[this.props.exam.definition.name][
-        groupName
-      ];
+      const forms: {}[] =
+        this.props.exam[this.props.exam.definition.name][groupName];
       if (forms === null || forms === undefined || forms.length === 0) {
         return;
       }
       if (forms.length === 1) {
         //Last element in the array
         if (formDefinition.optional) {
-          this.props.exam[this.props.exam.definition.name][
-            groupName
-          ] = undefined;
+          this.props.exam[this.props.exam.definition.name][groupName] =
+            undefined;
           this.setState({addableGroups: this.initialiseExam(this.props.exam)});
         } else {
           const form = forms[0];
@@ -1807,7 +2121,9 @@ export class GroupedFormScreen extends Component<
   }
 
   selectFavorite = (predefinedValue: ExamPredefinedValue) => {
-    if (!predefinedValue || !predefinedValue.predefinedValue) return;
+    if (!predefinedValue || !predefinedValue.predefinedValue) {
+      return;
+    }
     predefinedValue = deepClone(predefinedValue.predefinedValue);
     let value = this.props.exam[this.props.exam.definition.name];
     deepAssign(value, predefinedValue);
@@ -1829,7 +2145,9 @@ export class GroupedFormScreen extends Component<
           ? groupDefinition.label === groupType
           : groupDefinition.name === groupType,
     );
-    if (!groupDefinition) return;
+    if (!groupDefinition) {
+      return;
+    }
     if (isEmpty(exam[exam.definition.name][groupDefinition.name])) {
       if (groupDefinition.type === 'SRx') {
         if (groupDefinition.multiValue === true) {
@@ -1848,15 +2166,26 @@ export class GroupedFormScreen extends Component<
     );
   }
 
+  getIsVisible(groupDefinition: GroupDefinition): ?{} {
+    return getIsVisible(this.props.exam.visitId, groupDefinition);
+  }
+
   renderGroup(groupDefinition: GroupDefinition, index: number) {
+    if (this.getIsVisible(groupDefinition) === false) {
+      return null;
+    }
+
     const fieldId: string =
       this.props.exam.definition.name + '.' + groupDefinition.name;
     //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));
     let value: any = this.props.exam[this.props.exam.definition.name];
-    if (!value) return null;
-    value = value[groupDefinition.name];
-    if (value === undefined && groupDefinition.options === undefined)
+    if (!value) {
       return null;
+    }
+    value = value[groupDefinition.name];
+    if (value === undefined && groupDefinition.options === undefined) {
+      return null;
+    }
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign(
         {},
@@ -1870,7 +2199,9 @@ export class GroupedFormScreen extends Component<
     ) {
       groupDefinition = deepClone(groupDefinition);
       groupDefinition.multiValue = false;
-      if (value instanceof Array === false) return null;
+      if (value instanceof Array === false) {
+        return null;
+      }
       return value.map((childValue: any, subIndex: number) =>
         groupDefinition.type === 'SRx' ? (
           <GlassesDetail
@@ -1893,6 +2224,8 @@ export class GroupedFormScreen extends Component<
             }
             hasAdd={groupDefinition.hasAdd}
             hasLensType={groupDefinition.hasLensType}
+            hasPD={groupDefinition.hasPD}
+            hasMPD={groupDefinition.hasMPD}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -1925,6 +2258,9 @@ export class GroupedFormScreen extends Component<
             }
             onClear={() => this.clear(groupDefinition.name, subIndex)}
             onAdd={(groupValue: ?{}) =>
+              this.addGroupItem(groupDefinition, groupValue, true)
+            }
+            onCopy={(groupValue: ?{}) =>
               this.addGroupItem(groupDefinition, groupValue)
             }
             onAddFavorite={
@@ -1967,6 +2303,8 @@ export class GroupedFormScreen extends Component<
           onClear={() => this.clear(groupDefinition.name)}
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
+          hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -1992,6 +2330,8 @@ export class GroupedFormScreen extends Component<
           onClear={() => this.clear(groupDefinition.name)}
           hasAdd={groupDefinition.hasAdd}
           hasLensType={groupDefinition.hasLensType}
+          hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2065,8 +2405,12 @@ export class GroupedFormScreen extends Component<
   }
 
   renderAddableGroupsButton() {
-    if (this.state.addableGroups.length === 0) return null;
-    if (this.props.editable === false) return null;
+    if (this.state.addableGroups.length === 0) {
+      return null;
+    }
+    if (this.props.editable === false) {
+      return null;
+    }
     return (
       <FloatingButton
         options={this.state.addableGroups}

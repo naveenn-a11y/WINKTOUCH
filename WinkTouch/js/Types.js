@@ -24,6 +24,7 @@ export type VisitType = {
 };
 
 export type Store = {
+  id: string,
   storeId: number, //TODO Chris
   name: string,
   companyName: string,
@@ -39,6 +40,7 @@ export type Store = {
   winkToWinkId?: number,
   winkToWinkEmail?: string,
   eFaxUsed?: boolean,
+  fax?: string,
 };
 
 export type Account = {
@@ -47,6 +49,7 @@ export type Account = {
   email: string,
   stores: Store[],
   isDemo: boolean,
+  extraFields: any,
 };
 
 export type User = {
@@ -67,6 +70,27 @@ export type User = {
   postalcode?: string,
   city?: string,
   isExternal: boolean,
+  providerType?: string,
+};
+
+export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+
+export type Privileges = {
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+};
+
+export type TokenPrivilege = 'N' | 'R' | 'F';
+
+export type TokenPrivileges = {
+  pre: ?TokenPrivilege,
+  med: ?TokenPrivilege,
+};
+
+export type TokenPayload = {
+  sub: string,
+  exp: number,
+  prv: TokenPrivileges,
 };
 
 export type Patient = {
@@ -115,6 +139,22 @@ export type PatientDrug = {
   repeat: number,
   duration: string,
   note: string,
+  noaccess?: boolean,
+};
+
+export type Prescription = {
+  label?: string,
+  strength?: string,
+  dosage?: string,
+  frequency?: string,
+  duration?: string,
+  instructions?: string,
+  refill?: string,
+  doNotSubstitute?: string,
+  comment?: string,
+  rxDate?: string,
+  noaccess?: boolean,
+  readonly?: boolean,
 };
 
 export type PatientTag = {
@@ -138,11 +178,13 @@ export type Appointment = {
   patientId: string,
   userId: string,
   title: string,
-  start: string,
-  end: string,
+  start: string | Date,
+  end: string | Date,
   status: number,
   appointmentTypes?: string[],
   indicators?: string[],
+  comment?: string,
+  supplierName?: string,
 };
 
 export type Prism = {
@@ -161,6 +203,8 @@ export type GlassRx = {
   va?: string,
   addVA?: string,
   isEye?: boolean,
+  closePD?: number,
+  farPD?: number,
 };
 
 export type GlassesRx = {
@@ -174,6 +218,9 @@ export type GlassesRx = {
   vaNear?: string,
   lensType?: string,
   notes?: string,
+  doctor?: string,
+  readonly?: boolean,
+  noaccess?: boolean,
 };
 
 export type Recall = {
@@ -205,6 +252,7 @@ export type Visit = {
   appointmentId?: string,
   patientId: string,
   userId?: string,
+  enteredByUserId?: string,
   preCustomExamIds: string[],
   customExamIds: string[],
   date: string,
@@ -212,11 +260,23 @@ export type Visit = {
   locked: boolean,
   typeName: string,
   isDigital: boolean,
-  location?: string,
+  storeId?: string,
   prescription: GlassesRx,
   recall: Recall,
   purchase: {add: number, comment: string, purchaseReasonId: string}[],
   inactive: boolean,
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+  consultationDetail?: ConsultationDetail,
+};
+
+export type ConsultationDetail = {
+  lastUpdateOn?: string,
+  lastUpdateBy?: string,
+  lockedOn?: string,
+  pretestPrivilege?: Privilege,
+  medicalDataPrivilege?: Privilege,
+  enteredByUserId?: string,
 };
 
 export type CodeDefinition =
@@ -224,12 +284,18 @@ export type CodeDefinition =
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
+      readonly?: boolean,
     }
   | string;
 
 export type FieldLayout = {
   top: number,
   left: number,
+  width: number,
+  height: number,
+};
+
+export type Dimension = {
   width: number,
   height: number,
 };
@@ -285,7 +351,12 @@ export type FieldDefinition = {
   simpleSelect?: boolean,
   newLine?: boolean,
   popup?: boolean,
+  drawable?: boolean,
   sync?: boolean,
+  visible?: boolean,
+  isLabel?: boolean,
+  limitedValues?: {},
+  forceSync?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -309,6 +380,8 @@ export type GroupDefinition = {
   hasVA?: boolean,
   hasAdd?: boolean,
   hasLensType?: boolean,
+  hasPD?: boolean,
+  hasMPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
@@ -328,8 +401,7 @@ export type ImageBase64Definition = {
 
 export type ReferralDocument = {
   content: string,
-  subject?: string,
-  body?: string,
+  builtInTemplates?: any,
 };
 
 export type ReferralDefinition = {
@@ -375,6 +447,7 @@ export type EmailDefinition = {
   cc?: string,
   subject?: string,
   body?: string,
+  builtInTemplate?: any,
 };
 
 export type ExamDefinition = {
@@ -403,6 +476,9 @@ export type ExamDefinition = {
   layout?: any,
   signable?: boolean,
   showSubtitles?: boolean,
+  multiValue?: boolean, //Can Add more than 1 exam,
+  addablePostLock?: boolean,
+  export?: string | string[],
 };
 
 export type ExamPredefinedValue = {
@@ -423,7 +499,10 @@ export type Exam = {
   definition: ExamDefinition,
   hasStarted: boolean,
   isDirty?: boolean,
+  isInvalid?: boolean,
   isHidden?: boolean,
+  readonly?: boolean,
+  noaccess?: boolean,
 };
 
 export type Scene = {
@@ -463,4 +542,11 @@ export type TranslationDefinition = {
   language: string,
   label: ?string,
   normalValue: ?string,
+};
+
+export type ExamRoom = {
+  id: string,
+  patientId: string,
+  examRoomId: string,
+  name: string,
 };
