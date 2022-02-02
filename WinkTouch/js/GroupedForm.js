@@ -45,7 +45,7 @@ import {
   Copy,
 } from './Favorites';
 import {getConfiguration} from './Configuration';
-import {importData} from './MappedField';
+import {importData} from './Machine';
 import {
   GlassesDetail,
   GlassesSummary,
