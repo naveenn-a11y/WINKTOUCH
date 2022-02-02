@@ -260,7 +260,7 @@ PODS:
     - React-jsi (= 0.64.1)
     - React-perflogger (= 0.64.1)
   - React-jsinspector (0.64.1)
-  - react-native-blob-util (0.13.16):
+  - react-native-blob-util (0.13.18):
     - React-Core
   - react-native-html-to-pdf (0.8.0):
     - React
@@ -280,7 +280,7 @@ PODS:
     - React
   - react-native-voice (0.3.0):
     - React
-  - react-native-webview (11.14.2):
+  - react-native-webview (11.14.3):
     - React-Core
   - React-perflogger (0.64.1)
   - React-RCTActionSheet (0.64.1):
@@ -348,7 +348,7 @@ PODS:
     - React-perflogger (= 0.64.1)
   - ReactNativeLocalization (2.1.7):
     - React-Core
-  - RNCAsyncStorage (1.15.11):
+  - RNCAsyncStorage (1.15.14):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
@@ -614,7 +614,7 @@ SPEC CHECKSUMS:
   React-jsi: 5de8204706bd872b78ea646aee5d2561ca1214b6
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
-  react-native-blob-util: 6e75bea8ffce35c4009c0e519cd0a96432a93e2b
+  react-native-blob-util: 600972b1782380a5a7d5db61a3817ea32349dae9
   react-native-html-to-pdf: 1d1199917f56a98377d431bce84c2f275e48eb71
   react-native-image-resizer: d9fb629a867335bdc13230ac2a58702bb8c8828f
   react-native-mail: 8fdcd3aef007c33a6877a18eb4cf7447a1d4ce4a
@@ -624,7 +624,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-view-shot: 4475fde003fe8a210053d1f98fb9e06c1d834e1c
   react-native-voice: 9829ac5dc9300687c5f215bddf6c9645e82923fc
-  react-native-webview: cc4ac8f021a832dce2979e1f48c5595341dd2fb5
+  react-native-webview: b83cf1aa6b4453fe53ffcc5896c36cdf37f0383f
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a
   React-RCTAnimation: ba0a1c3a2738be224a08092fa7f1b444ab77d309
@@ -638,7 +638,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: ff951a0c241bfaefc4940a3f1f1a229e7cb32fa6
   ReactCommon: bedc99ed4dae329c4fcf128d0c31b9115e5365ca
   ReactNativeLocalization: 90a1181b7672309701dd7e5364fbf587319d41c6
-  RNCAsyncStorage: eb05c0284dd6b50b32f92fad55e2a41e03358c43
+  RNCAsyncStorage: ea6b5c280997b2b32a587793163b1f10e580c4f7
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNDateTimePicker: 7658208086d86d09e1627b5c34ba0cf237c60140
   RNDeviceInfo: 9538a884f862fe4aa0d7cead9f34e292d41ba8f6
