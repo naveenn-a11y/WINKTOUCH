@@ -144,6 +144,7 @@
                   },
                   {
                     "name": "Consent1",
+                    "mappedField": "patient.patientPrivacyConsentFormSignedOn",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
@@ -161,6 +162,7 @@
                   },
                   {
                     "name": "Consent2",
+                    "mappedField": "patient.patientPrivacyConsentAcceptODTransfer",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
@@ -178,6 +180,7 @@
                   },
                   {
                     "name": "Consent3",
+                    "mappedField": "patient.patientPrivacyConsentAcceptAds",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
