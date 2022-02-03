@@ -459,7 +459,10 @@ export class PatientDocumentAttachments extends Component {
     let patientDocuments: PatientDocument[] = getCachedItem(
       'patientConsentForm-' + this.props.patientInfo.id,
     );
-    if (patientDocuments === undefined) {
+    if (
+      patientDocuments === undefined ||
+      (patientDocuments && patientDocuments.length === 0)
+    ) {
       patientDocuments = await loadDocuments(
         filterId,
         this.props.patientInfo.id,
