@@ -34,7 +34,14 @@ import {ExamCardSpecifics} from './Exam';
 import {cacheItem, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix, isToday} from './Util';
+import {
+  deepClone,
+  formatAge,
+  prefix,
+  isToday,
+  formatDate,
+  yearDateTimeFormat,
+} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
 import {PaperClip, Refresh} from './Favorites';
@@ -512,7 +519,11 @@ export class PatientDocumentAttachments extends Component {
                         {patientDocument.name}{' '}
                       </Text>
                       <Text style={styles.textLeft}>
-                        {strings.lastUpdateOn}: {patientDocument.postedOn}
+                        {strings.lastUpdateOn}:
+                        {formatDate(
+                          patientDocument.postedOn,
+                          yearDateTimeFormat,
+                        )}
                       </Text>
                       <PaperClip
                         style={styles.textIcon}
