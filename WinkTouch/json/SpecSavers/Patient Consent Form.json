@@ -4,7 +4,7 @@
     "card": true,
     "type": "groupedForm",
     "section": "Form.2",
-    "cardGroup": "Patient Consent Form",
+  "cardGroup": "Formulaire De Consentement",
     "fields": [
       {
         "name": "Patient Consent Form",
@@ -21,6 +21,9 @@
             "resolution": "1700x2200",
             "type": "Patient Consent Form",
             "size": "XL",
+            "cardFields": [["Patient Consent Form.Patient Consent Form.Form.Consent1"],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent2"],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent3"]],
             "fields": [
               {
                 "layout": {
@@ -33,8 +36,6 @@
                 "name": "Form",
                 "label": "",
                 "fields": [
-
-
                   {
                     "mappedField": "visit.storeName",
                     "name": "Store name",
@@ -144,7 +145,8 @@
                   },
                   {
                     "name": "Consent1",
-                    "mappedField": "patient.patientPrivacyConsentFormSignedOn",
+                    "label": "Term 1",
+                    "mappedField": "patient.patientPrivacyConsentFormSigned",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
@@ -162,6 +164,7 @@
                   },
                   {
                     "name": "Consent2",
+                    "label": "Term 2",
                     "mappedField": "patient.patientPrivacyConsentAcceptODTransfer",
                     "layout": {
                       "position": "absolute",
@@ -180,6 +183,7 @@
                   },
                   {
                     "name": "Consent3",
+                    "label": "Term 3",
                     "mappedField": "patient.patientPrivacyConsentAcceptAds",
                     "layout": {
                       "position": "absolute",
