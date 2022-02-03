@@ -65,6 +65,7 @@
     "react-native-paper": "^4.5.0",
     "react-native-pdf": "^6.2.2",
     "react-native-pdf-lib": "github:zilicon/react-native-pdf-lib#fix-fonts",
+    "react-native-popup-menu": "^0.15.12",
     "react-native-print": "^0.7.0",
     "react-native-public-ip": "^1.0.2",
     "react-native-reanimated": "^1.13.2",

@@ -10,6 +10,8 @@ import {cacheDefinitions} from './Items';
 
 export const strings = new LocalizedStrings({
   en: {
+    apply: 'Apply',
+    chooseDoctor: 'Choose Doctor',
     enterRegisteredEmail:
       'Please enter your email adress to connect to your WINK database\nor try with a demo database',
     trialWarning:

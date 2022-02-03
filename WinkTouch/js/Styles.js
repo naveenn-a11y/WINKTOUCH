@@ -234,6 +234,18 @@ export const styles = StyleSheet.create({
     fontSize: 28 * fontScale,
     padding: 10 * fontScale,
   },
+  chooseButton: {
+    width: 200,
+    padding: 10 * fontScale,
+    height: '77%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'lightgray',
+    borderBottomWidth: 0.7,
+    borderTopWidth: 0.755,
+    marginRight: 10,
+  },
+
   checkButtonLayout: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -960,6 +972,9 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     right: 8 * fontScale,
     top: 10 * fontScale,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bgRow: {
     flexDirection: 'row',

@@ -14,7 +14,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
+import {FormTextInput, FormRow, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -49,9 +51,14 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatCode} from './Codes';
-import {FormTextInput} from './Form';
 import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
 import type {Visit} from './Types';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 
 export class AgendaScreen extends Component {
   props: {
@@ -65,6 +72,8 @@ export class AgendaScreen extends Component {
     event: Appointment,
     showDialog: boolean,
     isLoading: boolean,
+    selectedDoctors: Array,
+    isVisible: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -79,20 +88,28 @@ export class AgendaScreen extends Component {
       event: undefined,
       showDialog: false,
       isLoading: false,
+      selectedDoctors: ['Walid'],
+      isVisible: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
       this.refreshAppointments(true, true, this.daysInWeek);
+      this.getSelectedDoctorsFromStorage();
     });
   }
 
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event, showDialog: true});
   };
+  async getSelectedDoctorsFromStorage() {
+    const selectedDoctors = await AsyncStorage.getItem('selectedDoctors');
+    !!selectedDoctors &&
+      this.setState({selectedDoctors: JSON.parse(selectedDoctors)});
+  }
   async refreshAppointments(
     refresh: ?boolean,
     includeDayEvents: ?boolean = false,
@@ -193,6 +210,12 @@ export class AgendaScreen extends Component {
   cancelDialog = () => {
     this.setState({event: undefined, showDialog: false});
   };
+  openDoctorsOptiosn = () => {
+    this.setState({isVisible: true});
+  };
+  cancelDoctorsOptions = () => {
+    this.setState({isVisible: false});
+  };
 
   openPatientFile = (event: Appointment) => {
     this.cancelDialog();
@@ -201,11 +224,11 @@ export class AgendaScreen extends Component {
     });
   };
   renderContent(event: Appointment) {
-    const patient: PatientInfo | Patient = getCachedItem(event.patientId);
-    let genderShort: string = formatCode('genderCode', patient.gender);
-    if (genderShort.length > 0) {
-      genderShort = genderShort.substring(0, 1);
-    }
+    // const patient: PatientInfo | Patient = getCachedItem(event.patientId);
+    // let genderShort: string = formatCode('genderCode', patient.gender);
+    // if (genderShort.length > 0) {
+    //   genderShort = genderShort.substring(0, 1);
+    // }
     return (
       <View
         style={
@@ -311,11 +334,73 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderDoctorsOptions() {
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={styles.alert}
+          visible={this.state.isVisible}
+          onDismiss={this.cancelDoctorsOptions}
+          dismissable={true}>
+          <Dialog.Title>{strings.chooseDoctor}</Dialog.Title>
+          <Dialog.Content style={{height: 100}}>
+            <FormInput
+              multiOptions={true}
+              value={this.state.selectedDoctors}
+              // filterValue={this.props.form}
+              label={'choose'}
+              showLabel={false}
+              readonly={false}
+              definition={{
+                options: ['Walid', 'Riad', 'Yaman'],
+              }}
+              onChangeValue={(newValue: string) => {
+                AsyncStorage.setItem(
+                  'selectedDoctors',
+                  JSON.stringify(newValue),
+                );
+                this.setState({selectedDoctors: newValue});
+              }}
+              errorMessage={'error'}
+              isTyping={false}
+              // patientId={this.props.patientId}
+              // examId={this.props.examId}
+              // enableScroll={this.props.enableScroll}
+              // disableScroll={this.props.disableScroll}
+              // key={fieldDefinition.name + (column === undefined ? '' : column)}
+              // fieldId={
+              //   this.props.fieldId +
+              //   '.' +
+              //   fieldDefinition.name +
+              //   (column === undefined ? '' : column)
+              // }
+              // testID={
+              //   this.props.fieldId +
+              //   '.' +
+              //   fieldDefinition.name +
+              //   (column === undefined ? '' : column)
+              // }
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDoctorsOptions}>
+              {strings.apply}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.cancelDoctorsOptions}>
+              {strings.close}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
   render() {
     return (
       <View style={styles.page}>
         {this.state.isLoading && this.renderLoading()}
         {this.state.showDialog && this.renderEventDetails()}
+        {this.state.isVisible && this.renderDoctorsOptions()}
+
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -342,13 +427,14 @@ export class AgendaScreen extends Component {
             )}
           </Text>
           <View style={styles.topRight}>
+            <TouchableOpacity
+              style={styles.chooseButton}
+              onPress={this.openDoctorsOptiosn}>
+              <Text>{strings.chooseDoctor}</Text>
+            </TouchableOpacity>
+
             <Picker
-              style={{
-                padding: 10 * fontScale,
-                width: 200,
-                height: 44,
-                alignSelf: 'flex-end',
-              }}
+              style={{padding: 10 * fontScale, width: 200}}
               itemStyle={{height: 44}}
               selectedValue={this.state.mode}
               onValueChange={(mode) => this._onSetMode(mode)}>
@@ -393,12 +479,14 @@ class Event extends Component {
     touchableOpacityProps: CalendarTouchableOpacityProps,
   };
   state: {
+    opened: boolean,
     locked: boolean,
   };
   constructor(props: any) {
     super(props);
     this.state = {
       locked: false,
+      opened: false,
     };
   }
   componentDidMount() {
@@ -418,57 +506,111 @@ class Event extends Component {
       this.setState({locked: visit ? visit.locked : false});
     }
   };
+  openMenue = () => {
+    this.setState({opened: true});
+  };
+  closeMenue = () => {
+    this.setState({opened: false});
+  };
 
   render() {
-    const {event, touchableOpacityProps} = this.props;
-    const {locked} = this.state;
-    const patient: Patient = getCachedItem(event.patientId);
-    const appointmentType: AppointmentType =
-      event && event.appointmentTypes
-        ? getCachedItem(event.appointmentTypes[0])
-        : undefined;
-    return (
+    const {opened, locked} = this.state;
+    const {events, event, touchableOpacityProps, mode} = this.props;
+
+    const maxNum = mode == 'day' ? 10 : 4;
+    // const patient: Patient = getCachedItem(event.patientId);
+    // const appointmentType: AppointmentType =
+    //   event && event.appointmentTypes
+    //     ? getCachedItem(event.appointmentTypes[0])
+    //     : undefined;
+    return event.id == maxNum ? (
+      <TouchableOpacity
+        {...touchableOpacityProps}
+        onPress={this.openMenue}
+        style={[
+          ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
+          {start: 0, height: 22, marginTop: 25, backgroundColor: 'transparent'},
+        ]}>
+        <View>
+          <View style={styles.rowLayout}>
+            {/* <AppointmentIcons appointment={event} />
+       <View style={{marginHorizontal: 5 * fontScale}}>
+         <View style={styles.rowLayout}>
+           <Text style={locked ? styles.grayedText : styles.text}>
+             {patient && patient.firstName} {patient && patient.lastName}
+           </Text>
+           <PatientTags patient={patient} locked={locked} />
+         </View> */}
+            <Menu opened={opened} onBackdropPress={this.closeMenue}>
+              <MenuTrigger
+                text={`Show all(${events.length})`}
+                onPress={this.openMenue}
+              />
+              <MenuOptions>
+                {events.map((e) => (
+                  <MenuOption
+                    text={e.title}
+                    onSelect={touchableOpacityProps.onPress}
+                  />
+                ))}
+              </MenuOptions>
+            </Menu>
+
+            {/* <Text style={locked ? styles.grayedText : styles.text}>
+         {isToday(event.start)
+           ? formatDate(event.start, timeFormat)
+           : formatDate(event.start, dayYearDateTimeFormat)}
+       </Text> */}
+          </View>
+        </View>
+        {/* </View> */}
+      </TouchableOpacity>
+    ) : event.id < maxNum ? (
       <TouchableOpacity
         {...touchableOpacityProps}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           {
-            backgroundColor: 'white',
-            borderWidth: 1,
-            borderColor: 'lightgrey',
-            borderLeftColor:
-              appointmentType && appointmentType.color
-                ? appointmentType.color
-                : 'white',
-            borderLeftWidth: 10,
-            borderStyle: 'solid',
-            borderRadius: 6,
-            padding: 0,
+            height: 22,
+            width: 50,
+            start: 50 * event.id,
+            // marginTop: event.id * 27,
+            // backgroundColor: 'white',
+            // borderWidth: 1,
+            // borderColor: 'lightgrey',
+            // borderLeftColor:
+            //   appointmentType && appointmentType.color
+            //     ? appointmentType.color
+            //     : 'white',
+            // borderLeftWidth: 10,
+            // borderStyle: 'solid',
+            // borderRadius: 6,
+            // padding: 0,
           },
         ]}>
         <View>
           <View style={styles.rowLayout}>
-            <AppointmentIcons appointment={event} />
-            <View style={{marginHorizontal: 5 * fontScale}}>
-              <View style={styles.rowLayout}>
-                <Text style={locked ? styles.grayedText : styles.text}>
-                  {patient && patient.firstName} {patient && patient.lastName}
-                </Text>
-                <PatientTags patient={patient} locked={locked} />
-              </View>
-              <Text style={locked ? styles.grayedText : styles.text}>
-                {event.title}
-              </Text>
-              <Text style={locked ? styles.grayedText : styles.text}>
-                {isToday(event.start)
-                  ? formatDate(event.start, timeFormat)
-                  : formatDate(event.start, dayYearDateTimeFormat)}
-              </Text>
-            </View>
+            {/* <AppointmentIcons appointment={event} />
+             <View style={{marginHorizontal: 5 * fontScale}}>
+               <View style={styles.rowLayout}>
+                 <Text style={locked ? styles.grayedText : styles.text}>
+                   {patient && patient.firstName} {patient && patient.lastName}
+                 </Text>
+                 <PatientTags patient={patient} locked={locked} />
+               </View> */}
+            <Text style={locked ? styles.grayedText : styles.text}>
+              {event.title}
+            </Text>
+            {/* <Text style={locked ? styles.grayedText : styles.text}>
+               {isToday(event.start)
+                 ? formatDate(event.start, timeFormat)
+                 : formatDate(event.start, dayYearDateTimeFormat)}
+             </Text> */}
           </View>
         </View>
+        {/* </View> */}
       </TouchableOpacity>
-    );
+    ) : null;
   }
 }
 
@@ -482,6 +624,7 @@ class NativeCalendar extends Component {
 
   constructor(props: any) {
     super(props);
+    this.state = {opened: true};
   }
 
   shouldComponentUpdate(nextProps) {
@@ -493,23 +636,119 @@ class NativeCalendar extends Component {
   }
 
   render() {
+    const events = [
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T04:00',
+        id: 0,
+        title: 'Test0',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 1,
+        title: 'Test1',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 2,
+        title: 'Test2',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 3,
+        title: 'Test3',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 4,
+        title: 'Test4',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 5,
+        title: 'Test5',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 6,
+        title: 'Test6',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 7,
+        title: 'Test7',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 8,
+        title: 'Test8',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 9,
+        title: 'Test9',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 10,
+        title: 'Test10',
+        version: 0,
+      },
+      {
+        start: '2022-01-26T3:00',
+        end: '2022-01-26T4:00',
+        id: 11,
+        title: 'Test11',
+        version: 0,
+      },
+    ];
     return (
-      <Calendar
-        date={this.props.date}
-        height={windowHeight}
-        events={this.props.appointments}
-        onPressEvent={(event) => this.props._onSetEvent(event)}
-        mode={this.props.mode}
-        ampm={true}
-        weekStartsOn={1}
-        weekEndsOn={6}
-        renderEvent={(
-          event: ICalendarEvent<T>,
-          touchableOpacityProps: CalendarTouchableOpacityProps,
-        ) => (
-          <Event event={event} touchableOpacityProps={touchableOpacityProps} />
-        )}
-      />
+      <>
+        <Calendar
+          date={this.props.date}
+          height={windowHeight}
+          events={events}
+          onPressEvent={(event) => this.props._onSetEvent(event)}
+          mode={this.props.mode}
+          ampm={true}
+          weekStartsOn={1}
+          weekEndsOn={6}
+          overlapOffset={this.props.mode == 'day' ? 60 : 27}
+          renderEvent={(
+            event: ICalendarEvent<T>,
+            touchableOpacityProps: CalendarTouchableOpacityProps,
+          ) => (
+            <Event
+              mode={this.props.mode}
+              event={event}
+              events={events}
+              touchableOpacityProps={touchableOpacityProps}
+            />
+          )}
+          eventCellStyle={{backgroundColor: 'red', height: 1000}}
+          hourRowHeight={200}
+        />
+      </>
     );
   }
 }
