@@ -746,7 +746,7 @@ class NativeCalendar extends Component {
             />
           )}
           eventCellStyle={{backgroundColor: 'red', height: 1000}}
-          hourRowHeight={200}
+          hourRowHeight="500"
         />
       </>
     );
