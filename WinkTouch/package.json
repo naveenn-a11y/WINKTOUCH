@@ -48,7 +48,7 @@
     "react-localization": "^1.0.15",
     "react-native": "0.64.1",
     "react-native-a-beep": "^1.0.7",
-    "react-native-big-calendar": "^2.1.0",
+    "react-native-big-calendar": "^2.9.0",
     "react-native-blob-util": "^0.13.16",
     "react-native-calendar": "^0.13.1",
     "react-native-code-push": "^6.4.1",

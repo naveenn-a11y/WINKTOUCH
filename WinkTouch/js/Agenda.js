@@ -12,10 +12,18 @@ import {
   Picker,
   Modal,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
+import {
+  styles,
+  windowHeight,
+  windowWidth,
+  fontScale,
+  isWeb,
+  selectionColor,
+} from './Styles';
 import {FormTextInput, FormRow, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
@@ -481,16 +489,20 @@ class Event extends Component {
   state: {
     opened: boolean,
     locked: boolean,
+    width: Number,
   };
   constructor(props: any) {
     super(props);
     this.state = {
       locked: false,
       opened: false,
+      width: 0,
     };
   }
   componentDidMount() {
     this.getLockedState();
+    this.setWidth();
+    Dimensions.addEventListener('change', () => this.setWidth());
   }
 
   getLockedState = async () => {
@@ -512,24 +524,39 @@ class Event extends Component {
   closeMenue = () => {
     this.setState({opened: false});
   };
+  setWidth = () => {
+    const dim = Dimensions.get('screen');
+    this.setState({width: dim.width});
+  };
 
   render() {
-    const {opened, locked} = this.state;
+    const {opened, locked, width} = this.state;
     const {events, event, touchableOpacityProps, mode} = this.props;
-
-    const maxNum = mode == 'day' ? 10 : 4;
+    const calendarWidth = width - 300;
+    const maxNum = mode == 'day' ? Math.floor(calendarWidth / 70) : 3;
     // const patient: Patient = getCachedItem(event.patientId);
     // const appointmentType: AppointmentType =
     //   event && event.appointmentTypes
     //     ? getCachedItem(event.appointmentTypes[0])
     //     : undefined;
+    const eventStyleProps =
+      mode == 'day'
+        ? {
+            marginTop: 20,
+            width: calendarWidth / maxNum,
+            start: (calendarWidth / maxNum + 5) * event.id,
+          }
+        : {start: 0, marginTop: event.id * 25};
+    const showMoreStyleProps =
+      mode == 'day' ? {marginTop: 40} : {marginTop: 70};
     return event.id == maxNum ? (
       <TouchableOpacity
         {...touchableOpacityProps}
         onPress={this.openMenue}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
-          {start: 0, height: 22, marginTop: 25, backgroundColor: 'transparent'},
+          showMoreStyleProps,
+          {start: 0, height: 22, backgroundColor: 'transparent'},
         ]}>
         <View>
           <View style={styles.rowLayout}>
@@ -570,11 +597,10 @@ class Event extends Component {
         {...touchableOpacityProps}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
+          eventStyleProps,
           {
             height: 22,
-            width: 50,
-            start: 50 * event.id,
-            // marginTop: event.id * 27,
+
             // backgroundColor: 'white',
             // borderWidth: 1,
             // borderColor: 'lightgrey',
@@ -638,87 +664,108 @@ class NativeCalendar extends Component {
   render() {
     const events = [
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T04:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T04:00',
         id: 0,
         title: 'Test0',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 1,
         title: 'Test1',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 2,
         title: 'Test2',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 3,
         title: 'Test3',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 4,
         title: 'Test4',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 5,
         title: 'Test5',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 6,
         title: 'Test6',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 7,
         title: 'Test7',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 8,
         title: 'Test8',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 9,
         title: 'Test9',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 10,
         title: 'Test10',
         version: 0,
       },
       {
-        start: '2022-01-26T3:00',
-        end: '2022-01-26T4:00',
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
         id: 11,
         title: 'Test11',
+        version: 0,
+      },
+      {
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
+        id: 12,
+        title: 'Test12',
+        version: 0,
+      },
+      {
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
+        id: 13,
+        title: 'Test13',
+        version: 0,
+      },
+      {
+        start: '2022-02-3T3:00',
+        end: '2022-02-3T4:00',
+        id: 14,
+        title: 'Test14',
         version: 0,
       },
     ];
@@ -733,7 +780,6 @@ class NativeCalendar extends Component {
           ampm={true}
           weekStartsOn={1}
           weekEndsOn={6}
-          overlapOffset={this.props.mode == 'day' ? 60 : 27}
           renderEvent={(
             event: ICalendarEvent<T>,
             touchableOpacityProps: CalendarTouchableOpacityProps,
@@ -745,8 +791,8 @@ class NativeCalendar extends Component {
               touchableOpacityProps={touchableOpacityProps}
             />
           )}
-          eventCellStyle={{backgroundColor: 'red', height: 1000}}
-          hourRowHeight="500"
+          hourRowHeight={this.props.mode == 'day' ? 50 : 95}
+          showAllDayEventCell={false}
         />
       </>
     );
