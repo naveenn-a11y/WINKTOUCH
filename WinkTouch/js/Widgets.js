@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import type {FieldDefinition, CodeDefinition} from './Types';
@@ -16,6 +17,7 @@ import ReactNative, {
   TextInput,
   Keyboard,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 
 import {
@@ -26,6 +28,7 @@ import {
   Snackbar,
   Paragraph,
   Dialog,
+  Divider,
 } from 'react-native-paper';
 import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -2862,11 +2865,13 @@ export class Button extends Component {
     title: string,
     visible?: boolean,
     disabled?: boolean,
+    loading?: boolean,
     onPress?: () => void,
     testID?: string,
   };
   static defaultProps = {
     visible: true,
+    loading: false,
   };
   render() {
     if (!this.props.visible) {
@@ -2875,20 +2880,24 @@ export class Button extends Component {
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
-        disabled={this.props.disabled}
+        disabled={this.props.disabled || this.props.loading}
         testID={
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
           style={this.props.disabled ? styles.buttonDisabled : styles.button}>
-          <Text
-            style={
-              this.props.disabled
-                ? styles.buttonDisabledText
-                : styles.buttonText
-            }>
-            {this.props.title}
-          </Text>
+          {this.props.loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text
+              style={
+                this.props.disabled
+                  ? styles.buttonDisabledText
+                  : styles.buttonText
+              }>
+              {this.props.title}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -3530,6 +3539,14 @@ export class Alert extends Component<AlertProps, AlertState> {
     dismissable: false,
   };
 
+  isDisabled(): boolean {
+    if (!this.props.multiValue) {
+      return false;
+    }
+    let data: any = this.state.data;
+    data = data.filter((element: any) => element.isChecked);
+    return !(data && data.length > 0);
+  }
   cancelDialog = () => {
     this.setState({visible: false});
     this.props.onCancelAction();
@@ -3543,6 +3560,16 @@ export class Alert extends Component<AlertProps, AlertState> {
 
   toggleCheckbox(index: number) {
     let data: any = this.state.data;
+    const item: any = data[index];
+
+    if (item.singleSelection) {
+      data.map((element: any, i: number) => {
+        if (element.entityId === item.entityId && index !== i) {
+          data[i].isChecked = false;
+        }
+      });
+    }
+
     data[index].isChecked = !data[index].isChecked;
     this.setState({data});
   }
@@ -3562,16 +3589,19 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {
-                  const item: any = element.label ? element.label : element;
+                  const item: any = element.label ? element.label : (element.description ? element.description : element);
                   return this.props.multiValue ? (
-                    <CheckButton
-                      isChecked={element.isChecked}
-                      onSelect={() => this.toggleCheckbox(index)}
-                      onDeselect={() => this.toggleCheckbox(index)}
-                      style={styles.alertCheckBox}
-                      testID={this.props.testID + '.' + item}
-                      suffix={item}
-                    />
+                    <View>
+                      <CheckButton
+                        isChecked={element.isChecked}
+                        onSelect={() => this.toggleCheckbox(index)}
+                        onDeselect={() => this.toggleCheckbox(index)}
+                        style={styles.alertCheckBox}
+                        testID={this.props.testID + '.' + item}
+                        suffix={item}
+                      />
+                      {element.divider && <Divider />}
+                    </View>
                   ) : (
                     <NativeBaseButton
                       onPress={() => this.confirmDialog(element)}>
@@ -3595,6 +3625,8 @@ export class Alert extends Component<AlertProps, AlertState> {
     }
   }
   render() {
+    const disabled: boolean = this.isDisabled();
+
     return (
       <Portal>
         <Dialog
@@ -3608,7 +3640,7 @@ export class Alert extends Component<AlertProps, AlertState> {
             <NativeBaseButton onPress={this.cancelDialog}>
               {this.props.cancelActionLabel}
             </NativeBaseButton>
-            <NativeBaseButton onPress={this.confirmDialog}>
+            <NativeBaseButton onPress={this.confirmDialog} disabled={disabled}>
               {this.props.confirmActionLabel}
             </NativeBaseButton>
           </Dialog.Actions>
@@ -3670,6 +3702,7 @@ export type SelectionDialogProps = {
   onCancel?: () => void,
   visible: boolean,
   testID?: string,
+  value?: any,
 };
 export class SelectionDialog extends Component<
   SelectionDialogProps,
@@ -3701,6 +3734,12 @@ export class SelectionDialog extends Component<
               <View style={styles.centeredRowLayout}>
                 <View style={styles.modalColumn}>
                   {this.props.options.map((option: any, rowIndex: number) => {
+                    const isSelected: boolean = this.props.value
+                      ? option.code === this.props.value.code
+                      : false;
+                    const popupTileStyle: any = isSelected
+                      ? styles.popupTileSelected
+                      : styles.popupTile;
                     return (
                       <TouchableOpacity
                         key={rowIndex}
@@ -3708,7 +3747,7 @@ export class SelectionDialog extends Component<
                         testID={'option' + (rowIndex + 1)}>
                         <View
                           style={
-                            option.readonly ? styles.readOnly : styles.popupTile
+                            option.readonly ? styles.readOnly : popupTileStyle
                           }>
                           <Text style={styles.modalTileLabel}>
                             {formatCodeDefinition(option)}

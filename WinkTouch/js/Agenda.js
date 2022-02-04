@@ -22,6 +22,7 @@ import {
   AppointmentIcons,
   fetchAppointments,
   fetchEvents,
+  isAppointmentLocked,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -37,7 +38,7 @@ import {
   formatAge,
   prefix,
 } from './Util';
-import {getCachedItem} from './DataCache';
+import {getCachedItem, getCachedItems} from './DataCache';
 import {PatientTags} from './Patient';
 import {getStore, getDoctor} from './DoctorApp';
 import {
@@ -49,6 +50,8 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatCode} from './Codes';
 import {FormTextInput} from './Form';
+import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
+import type {Visit} from './Types';
 
 export class AgendaScreen extends Component {
   props: {
@@ -384,26 +387,41 @@ export class AgendaScreen extends Component {
   }
 }
 
-class NativeCalendar extends Component {
+class Event extends Component {
   props: {
-    date: Date,
-    mode: any,
-    appointments: Appointment[],
-    _onSetEvent: (event: Appointment) => void,
+    event: ICalendarEvent<T>,
+    touchableOpacityProps: CalendarTouchableOpacityProps,
   };
-
+  state: {
+    locked: boolean,
+  };
   constructor(props: any) {
     super(props);
+    this.state = {
+      locked: false,
+    };
   }
-  shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.mode !== this.props.mode ||
-      nextProps.date !== this.props.date ||
-      nextProps.appointments !== this.props.appointments
-    );
+  componentDidMount() {
+    this.getLockedState();
   }
 
-  renderAppointment(event, touchableOpacityProps) {
+  getLockedState = async () => {
+    const appointment: Appointment = this.props.event;
+    let visitHistory: Visit[] = getCachedItems(
+      getCachedItem('visitHistory-' + appointment.patientId),
+    );
+    if (visitHistory) {
+      const locked: boolean = isAppointmentLocked(appointment);
+      this.setState({locked: locked});
+    } else {
+      const visit: Visit = await fetchVisitForAppointment(appointment.id);
+      this.setState({locked: visit ? visit.locked : false});
+    }
+  };
+
+  render() {
+    const {event, touchableOpacityProps} = this.props;
+    const {locked} = this.state;
     const patient: Patient = getCachedItem(event.patientId);
     const appointmentType: AppointmentType =
       event && event.appointmentTypes
@@ -433,13 +451,15 @@ class NativeCalendar extends Component {
             <AppointmentIcons appointment={event} />
             <View style={{marginHorizontal: 5 * fontScale}}>
               <View style={styles.rowLayout}>
-                <Text style={styles.text}>
+                <Text style={locked ? styles.grayedText : styles.text}>
                   {patient && patient.firstName} {patient && patient.lastName}
                 </Text>
-                <PatientTags patient={patient} />
+                <PatientTags patient={patient} locked={locked} />
               </View>
-              <Text style={styles.text}>{event.title}</Text>
-              <Text style={styles.text}>
+              <Text style={locked ? styles.grayedText : styles.text}>
+                {event.title}
+              </Text>
+              <Text style={locked ? styles.grayedText : styles.text}>
                 {isToday(event.start)
                   ? formatDate(event.start, timeFormat)
                   : formatDate(event.start, dayYearDateTimeFormat)}
@@ -448,6 +468,27 @@ class NativeCalendar extends Component {
           </View>
         </View>
       </TouchableOpacity>
+    );
+  }
+}
+
+class NativeCalendar extends Component {
+  props: {
+    date: Date,
+    mode: any,
+    appointments: Appointment[],
+    _onSetEvent: (event: Appointment) => void,
+  };
+
+  constructor(props: any) {
+    super(props);
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return (
+      nextProps.mode !== this.props.mode ||
+      nextProps.date !== this.props.date ||
+      nextProps.appointments !== this.props.appointments
     );
   }
 
@@ -465,7 +506,9 @@ class NativeCalendar extends Component {
         renderEvent={(
           event: ICalendarEvent<T>,
           touchableOpacityProps: CalendarTouchableOpacityProps,
-        ) => this.renderAppointment(event, touchableOpacityProps)}
+        ) => (
+          <Event event={event} touchableOpacityProps={touchableOpacityProps} />
+        )}
       />
     );
   }

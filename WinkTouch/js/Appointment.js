@@ -53,19 +53,38 @@ import {
   FormDurationInput,
   FormCode,
 } from './Form';
-import {VisitHistory, fetchVisitHistory} from './Visit';
+import {
+  VisitHistory,
+  fetchVisitHistory,
+  fetchVisitForAppointment,
+} from './Visit';
 import {PatientCard, fetchPatientInfo, PatientTags} from './Patient';
 import {
   cacheItem,
   getCachedItem,
   getCachedItems,
   cacheItemsById,
-  cacheItemById,
-  clearCachedItemById,
 } from './DataCache';
 import {searchItems, fetchItemById, stripDataType} from './Rest';
 import {formatCode} from './Codes';
 
+export function isAppointmentLocked(appointment: Appointment): boolean {
+  if (appointment === undefined) {
+    return false;
+  }
+  let visitHistory: Visit[] = getCachedItems(
+    getCachedItem('visitHistory-' + appointment.patientId),
+  );
+  if (visitHistory) {
+    visitHistory = visitHistory.filter(
+      (visit: Visit) => visit.appointmentId === appointment.id && visit.locked,
+    );
+    if (visitHistory.length > 0) {
+      return true;
+    }
+  }
+  return false;
+}
 export async function fetchAppointment(
   appointmentId: string,
 ): Promise<Appointment> {
@@ -389,11 +408,38 @@ export class AppointmentSummary extends Component {
   props: {
     appointment: Appointment,
     onPress: () => void,
+    locked: boolean,
+  };
+  state: {
+    locked: ?boolean,
+  };
+  static defaultProps = {
+    locked: false,
   };
 
   constructor(props: any) {
     super(props);
+    this.state = {
+      locked: this.props.locked,
+    };
   }
+  componentDidMount() {
+    this.getLockedState();
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.locked === this.props.locked) {
+      return;
+    }
+
+    this.setState({locked: this.props.locked});
+  }
+
+  getLockedState = async () => {
+    const appointment: Appointment = this.props.appointment;
+    const visit: Visit = await fetchVisitForAppointment(appointment.id);
+    this.setState({locked: visit ? visit.locked : false});
+  };
 
   render() {
     const patient: Patient = getCachedItem(this.props.appointment.patientId);
@@ -407,19 +453,32 @@ export class AppointmentSummary extends Component {
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
             <View style={{marginHorizontal: 5 * fontScale}}>
-              <Text style={styles.text}>
+              <Text
+                style={
+                  this.state.locked === true ? styles.grayedText : styles.text
+                }>
                 {isToday(date)
                   ? formatDate(date, timeFormat)
                   : formatDate(date, dayYearDateTimeFormat)}
               </Text>
-              <Text style={styles.text}>{this.props.appointment.title}</Text>
+              <Text
+                style={
+                  this.state.locked === true ? styles.grayedText : styles.text
+                }>
+                {this.props.appointment.title}
+              </Text>
               <View style={{flexDirection: 'row'}}>
-                <Text style={styles.text}>
+                <Text
+                  style={
+                    this.state.locked === true ? styles.grayedText : styles.text
+                  }>
                   {patient && patient.firstName} {patient && patient.lastName}
                 </Text>
-                <PatientTags patient={patient} />
+                <PatientTags
+                  patient={patient}
+                  locked={this.state.locked === true}
+                />
               </View>
-              {/**<Text style={styles.text}>{formatCode('appointmentStatusCode', this.props.appointment.status)}</Text>*/}
             </View>
           </View>
         </View>
@@ -436,6 +495,7 @@ export class AppointmentsSummary extends Component {
   };
   state: {
     refreshing: boolean,
+    isLocked: false,
   };
   constructor(props: any) {
     super(props);
@@ -470,6 +530,7 @@ export class AppointmentsSummary extends Component {
                   <AppointmentSummary
                     key={index}
                     appointment={appointment}
+                    locked={isAppointmentLocked(appointment)}
                     onPress={() =>
                       this.props.navigation.navigate('appointment', {
                         appointment,
