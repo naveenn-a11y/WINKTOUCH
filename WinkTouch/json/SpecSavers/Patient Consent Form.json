@@ -88,6 +88,22 @@
                     },
                     "readonly": true
                   },
+                  {
+                    "name": "Image",
+                    "image": "[visit.store.logo]",
+                    "mappedField": "visit.store.logo",
+                    "readonly": true,
+                    "size": "XS",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 10,
+                      "left": 800,
+                      "width": 300,
+                      "height": 60,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  },
 
                   {
                     "mappedField": "patient.name",
