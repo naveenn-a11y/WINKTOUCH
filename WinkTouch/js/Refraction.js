@@ -139,14 +139,20 @@ function isRxPDEmpty(glassesRx: ?GlassesRx): boolean {
   if (isRxEmpty(glassesRx)) {
     return true;
   }
-  return (
-    isEmpty(glassesRx.od.farPD) &&
-    isEmpty(glassesRx.od.closePD) &&
-    isEmpty(glassesRx.os.farPD) &&
-    isEmpty(glassesRx.os.closePD) &&
-    isEmpty(glassesRx.ou.farPD) &&
-    isEmpty(glassesRx.ou.closePD)
-  );
+  if (isEmpty(glassesRx.od) && isEmpty(glassesRx.os) && isEmpty(glassesRx.ou)) {
+    return true;
+  }
+  const isOdEmpty: boolean = !isEmpty(glassesRx.od)
+    ? isEmpty(glassesRx.od.farPD) && isEmpty(glassesRx.od.closePD)
+    : true;
+  const isOsEmpty: boolean = !isEmpty(glassesRx.os)
+    ? isEmpty(glassesRx.os.farPD) && isEmpty(glassesRx.os.closePD)
+    : true;
+  const isOuEmpty: boolean = !isEmpty(glassesRx.ou)
+    ? isEmpty(glassesRx.ou.farPD) && isEmpty(glassesRx.ou.closePD)
+    : true;
+
+  return isOdEmpty && isOsEmpty && isOuEmpty;
 }
 
 export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
