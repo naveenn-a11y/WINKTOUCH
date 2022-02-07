@@ -31,13 +31,20 @@ import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {FormRow, FormTextInput, FormInput, FormField, ErrorCard} from './Form';
 import {ExamCardSpecifics} from './Exam';
-import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
+import {cacheItem, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix, isToday} from './Util';
+import {
+  deepClone,
+  formatAge,
+  prefix,
+  isToday,
+  formatDate,
+  yearDateTimeFormat,
+} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
-import {Refresh} from './Favorites';
+import {PaperClip, Refresh} from './Favorites';
 import {PatientRefractionCard} from './Refraction';
 import {Pdf} from './Document';
 import {fetchUpload, getMimeType} from './Upload';
@@ -49,6 +56,8 @@ import {
   AppointmentSummary,
   isAppointmentLocked,
 } from './Appointment';
+import {loadDocuments} from './ImageField';
+import {printBase64Pdf} from './Print';
 
 export async function fetchPatientInfo(
   patientId: string,
@@ -435,6 +444,104 @@ export class PatientContact extends Component {
   }
 }
 
+export class PatientDocumentAttachments extends Component {
+  props: {
+    patientInfo: PatientInfo,
+  };
+  state: {
+    patientDocuments: PatientDocument[],
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      patientDocuments: [],
+    };
+  }
+  componentDidMount() {
+    this.loadPatientDocument();
+  }
+  async loadPatientDocument() {
+    const filterId: string = 'Patient Consent Form';
+    let patientDocuments: PatientDocument[] = getCachedItem(
+      'patientConsentForm-' + this.props.patientInfo.id,
+    );
+    if (
+      patientDocuments === undefined ||
+      (patientDocuments && patientDocuments.length === 0)
+    ) {
+      patientDocuments = await loadDocuments(
+        filterId,
+        this.props.patientInfo.id,
+      );
+      patientDocuments = patientDocuments.filter(
+        (patientDocument: PatientDocument) => patientDocument.name === filterId,
+      );
+      cacheItem(
+        'patientConsentForm-' + this.props.patientInfo.id,
+        patientDocuments,
+      );
+    }
+
+    this.setState({patientDocuments});
+  }
+
+  async getUpload(patientDocument: PatientDocument) {
+    let upload: ?Upload = getCachedItem(patientDocument.uploadId);
+    if (upload === undefined) {
+      upload = await fetchUpload(patientDocument.uploadId);
+    }
+    if (upload && upload.data) {
+      printBase64Pdf(upload.data);
+    }
+  }
+
+  render() {
+    if (
+      this.state.patientDocuments === undefined ||
+      this.state.patientDocuments.length < 1
+    ) {
+      return null;
+    }
+    return (
+      <View style={styles.tabCard}>
+        <Text style={styles.cardTitle}>{strings.patientAttachments}</Text>
+        <View style={styles.form}>
+          {this.state.patientDocuments.map(
+            (patientDocument: PatientDocument) => {
+              return (
+                <FormRow>
+                  {patientDocument.uploadId && (
+                    <TouchableOpacity
+                      onPress={() => this.getUpload(patientDocument)}
+                      testID={this.props.fieldId + '.paperclipIcon'}>
+                      <Text style={styles.textLeft}>
+                        {patientDocument.name}{' '}
+                      </Text>
+                      <Text style={styles.textLeft}>
+                        {strings.lastUpdateOn}:
+                        {formatDate(
+                          patientDocument.postedOn,
+                          yearDateTimeFormat,
+                        )}
+                      </Text>
+                      <PaperClip
+                        style={styles.textIcon}
+                        color="black"
+                        key="paperclip"
+                      />
+                    </TouchableOpacity>
+                  )}
+                </FormRow>
+              );
+            },
+          )}
+        </View>
+      </View>
+    );
+  }
+}
+
 export class PatientDocumentPage extends Component {
   props: {
     id: string,
@@ -592,6 +699,7 @@ export class PatientScreen extends Component {
           patientInfo={this.state.patientInfo}
           onUpdatePatientInfo={this.updatePatientInfo}
         />
+        <PatientDocumentAttachments patientInfo={this.state.patientInfo} />
         {this.renderIcons()}
       </KeyboardAwareScrollView>
     );
