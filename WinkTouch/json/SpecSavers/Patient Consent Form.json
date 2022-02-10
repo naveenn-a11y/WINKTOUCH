@@ -4,7 +4,8 @@
     "card": true,
     "type": "groupedForm",
     "section": "Form.2",
-  "cardGroup": "Formulaire De Consentement",
+    "cardGroup": "Formulaire De Consentement",
+    "isPatientFileHidden": true,
     "fields": [
       {
         "name": "Patient Consent Form",
@@ -171,11 +172,11 @@
                       "fontSize": 18,
                       "top": 590
                     },
-                    "normalValue": "No",
-                    "defaultValue": "No",
+                    "normalValue": "refused",
+                    "defaultValue": "refused",
                     "options": [
-                      "No",
-                      "Yes"
+                      "refused",
+                      "accepted"
                     ]
                   },
                   {
@@ -190,11 +191,11 @@
                       "fontSize": 18,
                       "top": 647
                     },
-                    "normalValue": "No",
-                    "defaultValue": "No",
+                    "normalValue": "refused",
+                    "defaultValue": "refused",
                     "options": [
-                      "No",
-                      "Yes"
+                      "refused",
+                      "accepted"
                     ]
                   },
                   {
@@ -209,11 +210,11 @@
                       "fontSize": 18,
                       "top": 925
                     },
-                    "normalValue": "No",
-                    "defaultValue": "No",
+                    "normalValue": "refused",
+                    "defaultValue": "refused",
                     "options": [
-                      "No",
-                      "Yes"
+                      "refused",
+                      "accepted"
                     ]
                   }
                 ]

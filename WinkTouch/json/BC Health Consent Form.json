@@ -5,6 +5,7 @@
     "type": "groupedForm",
     "section": "Form.2",
     "cardGroup": "BC Health Consent Form",
+    "isPatientFileHidden": true,
     "fields": [
       {
         "name": "BC Health Consent Form",
@@ -166,4 +167,3 @@
       }
     ]
   }
-  
