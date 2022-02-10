@@ -229,6 +229,14 @@ export async function renderParentGroupHtml(
   let htmlDefinition: HtmlDefinition[] = [];
 
   let html: string = '';
+  if (
+    exam.definition &&
+    exam.definition.isPatientFileHidden &&
+    getCurrentAction() !== undefined &&
+    getCurrentAction() == UserAction.PATIENTFILE
+  ) {
+    return html;
+  }
   html += '<div class="container">';
   html += '<div class="BreakBeforeHeader"></div>';
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
@@ -893,6 +901,7 @@ async function renderMedia(
     fieldDefinition.size,
     fieldAspectRatio,
   );
+
   let upload: Upload;
   const pageWidth: number = isWeb ? 572 : 612;
   const pageAspectRatio: number = 8.5 / 11;

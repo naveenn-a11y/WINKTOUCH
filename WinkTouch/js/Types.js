@@ -479,6 +479,7 @@ export type ExamDefinition = {
   multiValue?: boolean, //Can Add more than 1 exam,
   addablePostLock?: boolean,
   export?: string | string[],
+  isPatientFileHidden?: boolean,
 };
 
 export type ExamPredefinedValue = {
