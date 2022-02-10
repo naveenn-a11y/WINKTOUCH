@@ -162,7 +162,7 @@
                   },
                   {
                     "name": "Consent1",
-                    "label": "Term 1",
+                    "label": "Term 1: accepted",
                     "mappedField": "patient.patientPrivacyConsentFormSigned",
                     "layout": {
                       "position": "absolute",
@@ -172,16 +172,16 @@
                       "fontSize": 18,
                       "top": 590
                     },
-                    "normalValue": "refused",
-                    "defaultValue": "refused",
+                    "normalValue": false,
+                    "defaultValue": false,
                     "options": [
-                      "refused",
-                      "accepted"
+                      false,
+                      true
                     ]
                   },
                   {
                     "name": "Consent2",
-                    "label": "Term 2",
+                    "label": "Term 2: accepted",
                     "mappedField": "patient.patientPrivacyConsentAcceptODTransfer",
                     "layout": {
                       "position": "absolute",
@@ -191,16 +191,16 @@
                       "fontSize": 18,
                       "top": 647
                     },
-                    "normalValue": "refused",
-                    "defaultValue": "refused",
+                    "normalValue": false,
+                    "defaultValue": false,
                     "options": [
-                      "refused",
-                      "accepted"
+                      false,
+                      true
                     ]
                   },
                   {
                     "name": "Consent3",
-                    "label": "Term 3",
+                    "label": "Term 3: accepted",
                     "mappedField": "patient.patientPrivacyConsentAcceptAds",
                     "layout": {
                       "position": "absolute",
@@ -210,11 +210,11 @@
                       "fontSize": 18,
                       "top": 925
                     },
-                    "normalValue": "refused",
-                    "defaultValue": "refused",
+                    "normalValue": false,
+                    "defaultValue": false,
                     "options": [
-                      "refused",
-                      "accepted"
+                      false,
+                      true
                     ]
                   }
                 ]
