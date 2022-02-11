@@ -89,6 +89,9 @@ export async function storePatientDocument(patientDocument: PatientDocument) {
 }
 
 export function getPatientFullName(patient: Patient | PatientInfo): string {
+  if (patient === undefined || patient === null) {
+    return;
+  }
   const alias: string = isEmpty(patient.alias)
     ? ' '
     : ' (' + patient.alias + ') ';

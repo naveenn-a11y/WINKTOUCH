@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 import {NativeModules} from 'react-native';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
@@ -31,6 +32,7 @@ import {isWeb} from './Styles';
 import {base64ToBlob} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
+import {getPatientFullName} from './Patient';
 
 export async function printRx(
   visitId: string,
@@ -263,7 +265,7 @@ function addPatientHeader(
   let x: number = column1;
   let y: number = top;
   y -= fontSize * 1.15;
-  page.drawText(postfix(patient.lastName, ' ') + patient.firstName, {
+  page.drawText(getPatientFullName(patient), {
     x,
     y,
     fontSize: fontSize + 2,

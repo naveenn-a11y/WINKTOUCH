@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
@@ -39,7 +40,7 @@ import {
   prefix,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
-import {PatientTags} from './Patient';
+import {getPatientFullName, PatientTags} from './Patient';
 import {getStore, getDoctor} from './DoctorApp';
 import {
   Button as NativeBaseButton,
@@ -452,7 +453,7 @@ class Event extends Component {
             <View style={{marginHorizontal: 5 * fontScale}}>
               <View style={styles.rowLayout}>
                 <Text style={locked ? styles.grayedText : styles.text}>
-                  {patient && patient.firstName} {patient && patient.lastName}
+                  {getPatientFullName(patient)}
                 </Text>
                 <PatientTags patient={patient} locked={locked} />
               </View>

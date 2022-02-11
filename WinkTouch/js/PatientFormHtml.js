@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 import {Platform} from 'react-native';
 import type {
@@ -53,6 +54,7 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
+import {getPatientFullName} from './Patient';
 let smallMedia: Array<any> = [];
 let largeMedia: Array<any> = [];
 let PDFAttachment: Array<any> = [];
@@ -92,7 +94,9 @@ export function printPatientHeader(visit: Visit) {
     '      </div>' +
     '      <div id="client">' +
     `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
-    `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
+    `        <div><span>${strings.patient}</span>${getPatientFullName(
+      patient,
+    )}</div>` +
     `        <div><span></span>${
       postfix(patient.unit, '-') +
       postfix(patient.streetNumber, ', ') +
