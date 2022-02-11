@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -41,6 +42,7 @@ import {
   isToday,
   formatDate,
   yearDateTimeFormat,
+  isEmpty,
 } from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
@@ -84,6 +86,13 @@ export async function searchPatientDocuments(
 export async function storePatientDocument(patientDocument: PatientDocument) {
   patientDocument = await storeItem(patientDocument);
   return patientDocument;
+}
+
+export function getPatientFullName(patient: Patient | PatientInfo): string {
+  const alias: string = isEmpty(patient.alias)
+    ? ' '
+    : ' (' + patient.alias + ') ';
+  return patient.firstName + alias + patient.lastName;
 }
 
 export class PatientTags extends Component {
@@ -225,9 +234,7 @@ export class PatientCard extends Component {
         testID="patientContact">
         <View style={this.props.style ? this.props.style : styles.paragraph}>
           <Text style={styles.cardTitleLeft}>
-            {this.props.patientInfo.firstName +
-              ' ' +
-              this.props.patientInfo.lastName}
+            {getPatientFullName(this.props.patientInfo)}
           </Text>
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
