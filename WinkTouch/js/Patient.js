@@ -300,7 +300,7 @@ export class PatientTitle extends Component {
     }
     return (
       <Text style={styles.screenTitle}>
-        {this.props.patientInfo.firstName} {this.props.patientInfo.lastName}
+        {getPatientFullName(this.props.patientInfo)}
       </Text>
     );
   }

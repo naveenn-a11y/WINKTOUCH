@@ -217,7 +217,7 @@ export class AgendaScreen extends Component {
         <AppointmentIcons appointment={event} orientation="horizontal" />
 
         <Title>
-          {patient && patient.firstName} {patient && patient.lastName}
+          {getPatientFullName(patient)}
           <View style={styles.rowLayout}>
             <Text style={styles.text}>({genderShort}) </Text>
             <PatientTags patient={patient} showDescription={true} />
