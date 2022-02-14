@@ -479,25 +479,13 @@ export class PatientDocumentAttachments extends Component {
   }
   async loadPatientDocument() {
     const filterId: string = 'Patient Consent Form';
-    let patientDocuments: PatientDocument[] = getCachedItem(
-      'patientConsentForm-' + this.props.patientInfo.id,
+    let patientDocuments = await loadDocuments(
+      filterId,
+      this.props.patientInfo.id,
     );
-    if (
-      patientDocuments === undefined ||
-      (patientDocuments && patientDocuments.length === 0)
-    ) {
-      patientDocuments = await loadDocuments(
-        filterId,
-        this.props.patientInfo.id,
-      );
-      patientDocuments = patientDocuments.filter(
-        (patientDocument: PatientDocument) => patientDocument.name === filterId,
-      );
-      cacheItem(
-        'patientConsentForm-' + this.props.patientInfo.id,
-        patientDocuments,
-      );
-    }
+    patientDocuments = patientDocuments.filter(
+      (patientDocument: PatientDocument) => patientDocument.name === filterId,
+    );
 
     this.setState({patientDocuments});
   }
