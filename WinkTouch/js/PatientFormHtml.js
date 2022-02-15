@@ -97,6 +97,10 @@ export function printPatientHeader(visit: Visit) {
     `        <div><span>${strings.patient}</span>${getPatientFullName(
       patient,
     )}</div>` +
+    `      <div><span></span>${formatCode(
+      'genderCode',
+      patient.gender,
+    )}</div>` +
     `        <div><span></span>${
       postfix(patient.unit, '-') +
       postfix(patient.streetNumber, ', ') +

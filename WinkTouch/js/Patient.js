@@ -801,7 +801,7 @@ export class CabinetScreen extends Component {
       id: 'patient',
       countryId: store.country,
       province: store.pr,
-      gender: 0,
+      gender: 2,
     };
     this.setState({patientInfo: newPatient});
   };
