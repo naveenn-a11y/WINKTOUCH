@@ -1290,6 +1290,16 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
+  searchColumn: {
+    flex: 100,
+    minWidth: 300 * fontScale,
+    padding: 10 * fontScale,
+    minHeight: 300 * fontScale,
+    borderRadius: 30 * fontScale,
+    borderColor: selectionFontColor,
+    borderWidth: 2 * fontScale,
+    margin: 7 * fontScale,
+  },
 });
 
 function cardStyle(color: Color) {

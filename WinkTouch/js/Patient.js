@@ -42,7 +42,7 @@ import {PatientRefractionCard} from './Refraction';
 import {Pdf} from './Document';
 import {fetchUpload, getMimeType} from './Upload';
 import {VisitHistoryCard} from './Visit';
-import {FindPatient} from './FindPatient';
+import {PatientSearch} from './FindPatient';
 import {Button} from './Widgets';
 import {
   fetchAppointments,
@@ -692,6 +692,7 @@ export class CabinetScreen extends Component {
       gender: 0,
     };
     this.setState({patientInfo: newPatient});
+    return newPatient;
   };
 
   updatePatientInfo = (patientInfo: PatientInfo): void => {
@@ -733,26 +734,27 @@ export class CabinetScreen extends Component {
     );
   }
 
+  renderNewPatient() {
+    return (
+      <View style={styles.separator}>
+        <PatientContact
+          patientInfo={this.state.patientInfo}
+          onUpdatePatientInfo={this.updatePatientInfo}
+        />
+        <View style={styles.centeredRowLayout}>
+          <Button
+            title={strings.createPatient}
+            onPress={() => this.createPatient()}
+            testID="createPatientButton"
+          />
+        </View>
+      </View>
+    );
+  }
+
   renderPatientInfo() {
     if (!this.state.patientInfo) {
       return;
-    }
-    if (this.state.patientInfo.id === 'patient') {
-      return (
-        <View style={styles.separator}>
-          <PatientContact
-            patientInfo={this.state.patientInfo}
-            onUpdatePatientInfo={this.updatePatientInfo}
-          />
-          <View style={styles.centeredRowLayout}>
-            <Button
-              title={strings.createPatient}
-              onPress={() => this.createPatient()}
-              testID="createPatientButton"
-            />
-          </View>
-        </View>
-      );
     }
     return (
       <View style={styles.separator}>
@@ -763,6 +765,18 @@ export class CabinetScreen extends Component {
           style={styles.tabCardS}
           hasAppointment={this.hasAppointment()}
         />
+        <View style={{width: '50%', textAlign: 'center', margin: 'auto'}}>
+          <Button
+            title={'Open'}
+            onPress={() =>
+              this.props.navigation.navigate('appointment', {
+                patientInfo: this.state.patientInfo,
+                refreshStateKey: this.props.refreshStateKey,
+                hasAppointment: this.props.hasAppointment,
+              })
+            }
+          />
+        </View>
         {this.renderAppointments()}
       </View>
     );
@@ -773,11 +787,12 @@ export class CabinetScreen extends Component {
       <KeyboardAwareScrollView
         scrollEnable={true}
         keyboardShouldPersistTaps="handled">
-        <FindPatient
+        <PatientSearch
           onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
           onNewPatient={this.newPatient}
+          renderPatientInfo={() => this.renderPatientInfo()}
+          renderNewPatient={() => this.renderNewPatient()}
         />
-        {this.renderPatientInfo()}
       </KeyboardAwareScrollView>
     );
   }
