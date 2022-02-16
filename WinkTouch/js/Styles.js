@@ -1299,6 +1299,7 @@ export const styles = StyleSheet.create({
   alert: {
     alignSelf: 'center',
     top: 10 * fontScale,
+    backgroundColor: '#fff',
   },
   alertCheckBox: {
     flexDirection: 'column',
