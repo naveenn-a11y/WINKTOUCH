@@ -215,7 +215,7 @@ export const styles = StyleSheet.create({
   modalTileLabelSelected: modalTileLabel(true),
   modalTileIcon: modalTileLabel(false, true),
   text: {
-    fontSize: 18 * fontScale,
+    fontSize: 17 * fontScale,
   },
   grayedText: {
     fontSize: 18 * fontScale,
@@ -256,6 +256,16 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     textAlign: 'center',
     color: fontColor,
+  },
+  multiCheckButtonLabel: {
+    fontSize: 25 * fontScale,
+    textAlign: 'center',
+    color: fontColor,
+  },
+  checkButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 5,
   },
   checkButtonIcon: {
     fontSize: 36 * fontScale,

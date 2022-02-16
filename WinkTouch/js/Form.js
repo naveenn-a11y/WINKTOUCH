@@ -984,7 +984,7 @@ export class FormCheckBox extends Component {
 export class FormMultiCheckBox extends Component {
   props: {
     value: ?number | string,
-    options: CodeDefinition[],
+    options: string[],
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
@@ -996,52 +996,58 @@ export class FormMultiCheckBox extends Component {
     testID?: string,
   };
 
-  isChecked(index): boolean {
-    return this.props.value.includes(this.enabledValue(index));
+  isChecked(value): boolean {
+    return this.props.value.includes(value);
   }
-
-  select = (index) => {
-    if (this.props.readonly) {
-      return;
-    }
-    let enabledValue = this.enabledValue(index);
-    this.props.onChangeValue([...this.props.value, enabledValue]);
-  };
-
-  enabledValue(index) {
-    if (
-      this.props.options === undefined ||
-      this.props.options === null ||
-      this.props.options.length < 2
-    ) {
-      return true;
-    }
-    let enabledValue = this.props.options[index];
-    if (enabledValue instanceof Object) {
-      enabledValue = enabledValue.code;
-    }
-    return enabledValue;
-  }
-  deSelect = (index) => {
+  select = (value) => {
     if (this.props.readonly) return;
-    let enabledValue = this.enabledValue(index);
-    let newValue = this.props.value.filter((opt) => opt != enabledValue);
+    else this.props.onChangeValue([...this.props.value, value]);
+  };
+  selectAll = () => {
+    this.props.onChangeValue(this.props.options.map(({value}) => value));
+  };
+  deSelect = (value) => {
+    if (this.props.readonly) return;
+    let newValue = this.props.value.filter((opt) => opt != value);
     this.props.onChangeValue(newValue);
+  };
+  deSelectAll = () => {
+    this.props.onChangeValue([]);
   };
 
   render() {
-    return this.props.options.map((option, index) => (
-      <View style={styles.formElement}>
-        <Text>{option}</Text>
-        <CheckButton
-          isChecked={this.isChecked(index)}
-          onSelect={() => this.select(index)}
-          onDeselect={() => this.deSelect(index)}
-          style={this.props.style ? this.props.style : styles.checkButtonLabel}
-          testID={this.props.testID}
-        />
-      </View>
-    ));
+    return (
+      <>
+        <View style={styles.checkButtonRow}>
+          <Text>All Doctors</Text>
+          <CheckButton
+            isChecked={this.props.options.length == this.props.value.length}
+            onSelect={this.selectAll}
+            onDeselect={this.deSelectAll}
+            style={
+              this.props.style ? this.props.style : styles.multiCheckButtonLabel
+            }
+            testID={this.props.testID}
+          />
+        </View>
+        {this.props.options.map((option) => (
+          <View style={styles.checkButtonRow}>
+            <Text>{option?.label || option}</Text>
+            <CheckButton
+              isChecked={this.isChecked(option.value || option)}
+              onSelect={() => this.select(option.value || option)}
+              onDeselect={() => this.deSelect(option.value || option)}
+              style={
+                this.props.style
+                  ? this.props.style
+                  : styles.multiCheckButtonLabel
+              }
+              testID={this.props.testID}
+            />
+          </View>
+        ))}
+      </>
+    );
   }
 }
 
