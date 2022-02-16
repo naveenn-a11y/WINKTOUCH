@@ -259,7 +259,7 @@ export class AgendaScreen extends Component {
       'selectedDoctors',
       JSON.stringify(this.state.selectedDoctors),
     );
-    if (this.state.selectedDoctors.length > 1) this._onSetMode('day');
+    if (this.state.selectedDoctors.length > 1 && !isWeb) this._onSetMode('day');
     else
       this.refreshAppointments(
         true,
@@ -390,7 +390,12 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={{width: '50%', height: '70%', alignSelf: 'center'}}
+          style={{
+            width: '50%',
+            height: '70%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}
           visible={this.state.isVisible}
           onDismiss={this.cancelDoctorsOptions}
           dismissable={true}>
@@ -468,7 +473,8 @@ export class AgendaScreen extends Component {
               selectedValue={this.state.mode}
               onValueChange={(mode) => this._onSetMode(mode)}>
               <Picker.Item value="day" label={strings.daily} />
-              {this.state.selectedDoctors.length <= 1 && (
+
+              {(this.state.selectedDoctors.length <= 1 || isWeb) && (
                 <Picker.Item value="custom" label={strings.weekly} />
               )}
             </Picker>
