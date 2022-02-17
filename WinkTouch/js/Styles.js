@@ -409,7 +409,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 0 * fontScale,
   },
-
   examPreview: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -1295,6 +1294,18 @@ export const styles = StyleSheet.create({
     minWidth: 300 * fontScale,
     padding: 10 * fontScale,
     minHeight: 300 * fontScale,
+    borderRadius: 30 * fontScale,
+    borderColor: selectionFontColor,
+    borderWidth: 2 * fontScale,
+    margin: 7 * fontScale,
+  },
+  searchList: {
+    backgroundColor: '#fff',
+    flex: 30,
+    flexGrow: 30,
+    minWidth: 240 * fontScale,
+    padding: 10 * fontScale,
+    minHeight: 260 * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: selectionFontColor,
     borderWidth: 2 * fontScale,

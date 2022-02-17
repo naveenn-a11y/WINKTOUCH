@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {Patient, PatientInfo} from './Types';
-import {styles, isWeb} from './Styles';
+import {styles, isWeb, fontScale} from './Styles';
 import {strings} from './Strings';
 import {Button, SelectionListRow} from './Widgets';
 import {PatientCard, fetchPatientInfo} from './Patient';
@@ -87,7 +87,9 @@ class PatientList extends Component {
   props: {
     visible: boolean,
     patients: Patient[],
+    selectedPatientId: ?string,
     onSelect: (patient: Patient) => void,
+    exceedLimit: ?boolean,
   };
 
   render() {
@@ -96,16 +98,19 @@ class PatientList extends Component {
     }
     return (
       <FlatList
-        style={styles.columnCard}
+        style={[
+          styles.searchList,
+          this?.props?.exceedLimit ? {maxHeight: 300 * fontScale} : {},
+        ]}
         initialNumToRender={10}
         data={this.props.patients}
-        extraData={{selection: this.props.selectedUserId}}
+        extraData={{selection: this.props.selectedPatientId}}
         keyExtractor={(user, index) => user.id}
         renderItem={({item, index}: {item: Patient, index: number}) => (
           <SelectionListRow
             label={formatPatientName(item)}
             simpleSelect={true}
-            selected={item?.id === this.props.selectedUserId}
+            selected={item?.id === this.props.selectedPatientId}
             onSelect={(isSelected: boolean | string) =>
               this.props.onSelect(item)
             }
@@ -122,9 +127,11 @@ export type PatientProps = {
 };
 type PatientState = {
   searchCriterium: string,
+  selectedPatientId: ?string,
   patients: Patient[],
   showPatientList: boolean,
   showNewPatientButton: boolean,
+  exceedLimit: ?boolean,
 };
 export class FindPatient extends PureComponent<PatientProps, PatientState> {
   constructor(props: PatientProps) {
@@ -195,7 +202,9 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
         <PatientList
           patients={this.state.patients}
           visible={this.state.showPatientList}
+          selectedPatientId={this.props.selectedPatientId}
           onSelect={this.props.onSelectPatient}
+          exceedLimit={this.props.exceedLimit}
         />
 
         {this.props.onNewPatient && this.state.showNewPatientButton ? (
@@ -260,6 +269,11 @@ export class PatientSearch extends Component {
           <View style={styles.centeredScreenLayout}>
             <FindPatient
               onSelectPatient={(patient) => this.onSelectPatient(patient)}
+              selectedPatientId={
+                this.state?.selectedPatient
+                  ? this.state?.selectedPatient.id
+                  : undefined
+              }
               onNewPatient={() => this.onNewPatient()}
             />
             <PatientDetails
@@ -355,6 +369,10 @@ export class FindPatientScreen extends Component {
         keyboardShouldPersistTaps="handled">
         <FindPatient
           onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
+          exceedLimit={true}
+          selectedPatientId={
+            this.state?.patientInfo ? this.state?.patientInfo.id : undefined
+          }
         />
         {this.state.patientInfo && (
           <View style={styles.separator}>
