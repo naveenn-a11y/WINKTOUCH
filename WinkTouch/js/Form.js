@@ -1019,7 +1019,6 @@ export class FormMultiCheckBox extends Component {
     return (
       <>
         <View style={styles.checkButtonRow}>
-          <Text>All Doctors</Text>
           <CheckButton
             isChecked={this.props.options.length == this.props.value.length}
             onSelect={this.selectAll}
@@ -1029,10 +1028,10 @@ export class FormMultiCheckBox extends Component {
             }
             testID={this.props.testID}
           />
+          <Text>All Doctors</Text>
         </View>
         {this.props.options.map((option) => (
           <View style={styles.checkButtonRow}>
-            <Text>{option?.label || option}</Text>
             <CheckButton
               isChecked={this.isChecked(option.value || option)}
               onSelect={() => this.select(option.value || option)}
@@ -1044,6 +1043,7 @@ export class FormMultiCheckBox extends Component {
               }
               testID={this.props.testID}
             />
+            <Text>{option?.label || option}</Text>
           </View>
         ))}
       </>

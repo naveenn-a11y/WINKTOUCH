@@ -5,6 +5,7 @@
 
 import React, {Component} from 'react';
 import {
+  StyleSheet,
   View,
   ScrollView,
   Text,
@@ -169,18 +170,41 @@ export class AgendaScreen extends Component {
         const events = await fetchEvents('store-' + getStore().storeId);
         this.setState({events});
       }
-      appointments = [...appointments, ...this.state.events];
+      // appointments = [...appointments, ...this.state.events];
+
       let temp = {};
       let events = [];
       appointments.map((ev) => {
-        temp[ev.start] = (temp[ev.start] || 0) + 1;
-        events.push({...ev, index: temp[ev.start] - 1});
+        const time = ev.start.split(':')[0];
+        // ev.start.split(':')[0];
+        temp[time] = (temp[time] || 0) + 1;
+        events.push({...ev, start: time, index: temp[time] - 1});
       });
-      this.setState({appointments: events, isLoading: false});
+      console.log('a', events);
+      this.setState({
+        appointments: events,
+        isLoading: false,
+      });
     } catch (e) {
       this.setState({isLoading: false});
     }
   }
+  // [
+  //   {
+  //     patientId: 'patient-652',
+  //     start: '2022-02-16T10:30',
+  //     end: '2022-02-16T11:00',
+  //     comment: '',
+  //     id: 'appointment-11946',
+  //     title: 'Partial Exam',
+  //     appointmentTypes: ['appointmentType-15'],
+  //     indicators: ['unconfirmed', 'existingPatient', 'family'],
+  //     userId: 'user-13',
+  //     version: 1,
+  //     status: 0,
+  //     index: 0,
+  //   },
+  // ]
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event, showDialog: true});
   };
@@ -481,6 +505,8 @@ export class AgendaScreen extends Component {
           </View>
         </View>
         <NativeCalendar
+          selectedDoctors={this.state.selectedDoctors}
+          doctors={this.state.doctors}
           date={this.state.date}
           mode={this.state.mode}
           appointments={this.state.appointments}
@@ -512,26 +538,17 @@ export class AgendaScreen extends Component {
 
 class Event extends Component {
   props: {
+    selectedDoctors: [],
+    eventWidth: Number,
     event: ICalendarEvent<T>,
     touchableOpacityProps: CalendarTouchableOpacityProps,
   };
   state: {
-    opened: boolean,
     locked: boolean,
-    width: Number,
   };
   constructor(props: any) {
     super(props);
-    this.state = {
-      locked: false,
-      opened: false,
-      width: 0,
-    };
-  }
-  componentDidMount() {
-    this.getLockedState();
-    this.setWidth();
-    Dimensions.addEventListener('change', () => this.setWidth());
+    this.state = {locked: false};
   }
 
   getLockedState = async () => {
@@ -547,74 +564,28 @@ class Event extends Component {
       this.setState({locked: visit ? visit.locked : false});
     }
   };
-  openMenue = () => {
-    this.setState({opened: true});
-  };
-  closeMenue = () => {
-    this.setState({opened: false});
-  };
-  setWidth = () => {
-    const dim = Dimensions.get('screen');
-    this.setState({width: dim.width});
-  };
 
   render() {
-    const {opened, locked, width} = this.state;
-    const {mode, events, event, touchableOpacityProps} = this.props;
-    const calendarWidth = width - 300;
-    const maxNum = mode == 'day' ? Math.floor(calendarWidth / 130) : 3;
+    const {locked} = this.state;
+    const {event, eventWidth, selectedDoctors, touchableOpacityProps} =
+      this.props;
+
+    const index = selectedDoctors.findIndex((u) => u == event.userId);
+    const eventStyleProps = {width: eventWidth, start: eventWidth * index};
+
     const patient: Patient = getCachedItem(event.patientId);
     const appointmentType: AppointmentType =
       event && event.appointmentTypes
         ? getCachedItem(event.appointmentTypes[0])
         : undefined;
-    const eventStyleProps =
-      mode == 'day'
-        ? {
-            marginTop: 20,
-            width: calendarWidth / maxNum,
-            start: (calendarWidth / maxNum + 5) * event.index,
-          }
-        : {start: 0, marginTop: event.index * 25};
-    const showMoreStyleProps =
-      mode == 'day' ? {marginTop: 50} : {marginTop: 70};
 
-    return event.index == maxNum ? (
-      <TouchableOpacity
-        {...touchableOpacityProps}
-        onPress={this.openMenue}
-        style={[
-          ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
-          showMoreStyleProps,
-          {start: 0, height: 22, backgroundColor: 'transparent'},
-        ]}>
-        <View>
-          <View style={styles.rowLayout}>
-            <Menu opened={opened} onBackdropPress={this.closeMenue}>
-              <MenuTrigger
-                text={`Show all(${events.length})`}
-                onPress={this.openMenue}
-              />
-              <MenuOptions>
-                {events.map((e) => (
-                  <MenuOption
-                    text={e.title}
-                    onSelect={touchableOpacityProps.onPress}
-                  />
-                ))}
-              </MenuOptions>
-            </Menu>
-          </View>
-        </View>
-      </TouchableOpacity>
-    ) : event.index < maxNum ? (
+    return (
       <TouchableOpacity
         {...touchableOpacityProps}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
           {
-            height: 22,
             backgroundColor: 'white',
             borderWidth: 0.5,
             borderColor: 'lightgrey',
@@ -633,24 +604,25 @@ class Event extends Component {
         <View style={[styles.rowLayout, {height: '100%'}]}>
           <AppointmentIcons appointment={event} />
           {/* <View style={{marginHorizontal: 5 * fontScale}}>
-               <View style={styles.rowLayout}>
-                 <Text style={locked ? styles.grayedText : styles.text}>
-                   {patient && patient.firstName} {patient && patient.lastName}
-                 </Text>
-                 <PatientTags patient={patient} locked={locked} />
-               </View> */}
+           <View style={styles.rowLayout}>
+             <Text style={locked ? styles.grayedText : styles.text}>
+               {patient && patient.firstName} {patient && patient.lastName}
+             </Text>
+             <PatientTags patient={patient} locked={locked} />
+           </View> */}
           <Text style={locked ? styles.grayedText : styles.text}>
-            {event.title}
+            {/* {event.title} */}
+            {patient && patient.firstName} {patient && patient.lastName}
           </Text>
           {/* <Text style={locked ? styles.grayedText : styles.text}>
-              {isToday(event.start)
-                ? formatDate(event.start, timeFormat)
-                : formatDate(event.start, dayYearDateTimeFormat)}
-            </Text> */}
+          {isToday(event.start)
+            ? formatDate(event.start, timeFormat)
+            : formatDate(event.start, dayYearDateTimeFormat)}
+        </Text> */}
         </View>
         {/* </View> */}
       </TouchableOpacity>
-    ) : null;
+    );
   }
 }
 
@@ -658,6 +630,8 @@ class NativeCalendar extends Component {
   props: {
     date: Date,
     mode: any,
+    selectedDoctors: [],
+    doctors: [],
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
   };
@@ -669,33 +643,83 @@ class NativeCalendar extends Component {
       nextProps.appointments !== this.props.appointments
     );
   }
+
   render() {
+    const {selectedDoctors, doctors, date, appointments, mode} = this.props;
+    const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50; //window - sidebar - hour range
+
+    const weekCellWidth = calendarWidth / 6;
+    const weekEventWidth = weekCellWidth / selectedDoctors.length;
+
+    const dayCellWidth = calendarWidth;
+    const dayEventWidth = dayCellWidth / selectedDoctors.length;
+
+    const cellWidth = mode == 'day' ? dayCellWidth : weekCellWidth;
+    const eventWidth = mode == 'day' ? dayEventWidth : weekEventWidth;
+
     return (
       <>
         <Calendar
-          date={this.props.date}
+          ampm
+          mode={mode}
+          date={date}
           height={windowHeight}
-          events={this.props.appointments}
-          onPressEvent={(event) => this.props._onSetEvent(event)}
-          mode={this.props.mode}
-          ampm={true}
+          events={appointments}
           weekStartsOn={1}
           weekEndsOn={6}
+          hourRowHeight={90}
+          showAllDayEventCell={false}
+          onPressEvent={(event) => this.props._onSetEvent(event)}
           renderEvent={(
             event: ICalendarEvent<T>,
             touchableOpacityProps: CalendarTouchableOpacityProps,
           ) => (
             <Event
               event={event}
-              events={this.props.appointments}
-              mode={this.props.mode}
+              eventWidth={eventWidth}
               touchableOpacityProps={touchableOpacityProps}
+              selectedDoctors={this.props.selectedDoctors}
             />
           )}
-          hourRowHeight={90}
-          showAllDayEventCell={false}
+          renderHeader={(header: ICalendarEvent<T>) => {
+            return (
+              <View style={agendaStyles.header(calendarWidth)}>
+                {header.dateRange.map((d) => (
+                  <View style={agendaStyles.cell(cellWidth)}>
+                    <Text style={agendaStyles.date}>
+                      {new Date(d).toDateString()}
+                    </Text>
+                    <View style={agendaStyles.row}>
+                      {selectedDoctors.map((d) => {
+                        const doc = doctors.find((doc) => doc.value == d);
+                        return (
+                          <View style={agendaStyles.label(eventWidth)}>
+                            <Text numberOfLines={2}>{doc?.label}</Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            );
+          }}
         />
       </>
     );
   }
 }
+
+const agendaStyles = StyleSheet.create({
+  header: (w) => ({width: w, flexDirection: 'row', alignSelf: 'flex-end'}),
+  cell: (w) => ({width: w, alignItems: 'center', justifyContent: 'center'}),
+  date: {fontSize: 15, marginTop: 7, marginBottom: 7, fontWeight: 'bold'},
+  row: {flexDirection: 'row'},
+  label: (w) => ({
+    width: w,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 0.8,
+    borderColor: 'lightgray',
+  }),
+});
