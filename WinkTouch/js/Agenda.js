@@ -130,7 +130,7 @@ export class AgendaScreen extends Component {
       this.setState(
         {
           selectedDoctors: doctors,
-          mode: doctors.length <= 1 ? 'custom' : 'day',
+          // mode: doctors.length <= 1 ? 'custom' : 'day',
         },
         () => this.refreshAppointments(true, true, this.daysInWeek),
       );
@@ -710,7 +710,7 @@ class NativeCalendar extends Component {
   }
 }
 
-const agendaStyles = StyleSheet.create({
+const agendaStyles = {
   header: (w) => ({width: w, flexDirection: 'row', alignSelf: 'flex-end'}),
   cell: (w) => ({width: w, alignItems: 'center', justifyContent: 'center'}),
   date: {fontSize: 15, marginTop: 7, marginBottom: 7, fontWeight: 'bold'},
@@ -722,4 +722,4 @@ const agendaStyles = StyleSheet.create({
     borderRightWidth: 0.8,
     borderColor: 'lightgray',
   }),
-});
+};
