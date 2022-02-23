@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -17,7 +18,7 @@ import type {Patient, PatientInfo} from './Types';
 import {styles, isWeb, fontScale} from './Styles';
 import {strings} from './Strings';
 import {Button, SelectionListRow} from './Widgets';
-import {PatientCard, fetchPatientInfo} from './Patient';
+import {PatientCard, fetchPatientInfo, getPatientFullName} from './Patient';
 import {searchItems} from './Rest';
 import {cacheItemsById, getCachedItem} from './DataCache';
 import {fetchVisitHistory, VisitHistory} from './Visit';
@@ -40,24 +41,6 @@ export async function searchPatients(searchText: string): Patient[] {
   }
   cacheItemsById(patients);
   return patients;
-}
-
-function formatPatientName(patient: Patient): string {
-  let name = '';
-  if (!patient) {
-    return name;
-  }
-  if (patient.firstName) {
-    name += patient.firstName.trim() + ' ';
-  }
-  if (patient.lastName) {
-    name += patient.lastName.trim() + ' ';
-  }
-  if (patient.instituteName) {
-    name += patient.instituteName.trim();
-  }
-  name = name.trim();
-  return name;
 }
 
 export type PatientDetailsProps = {
@@ -108,7 +91,7 @@ class PatientList extends Component {
         keyExtractor={(user, index) => user.id}
         renderItem={({item, index}: {item: Patient, index: number}) => (
           <SelectionListRow
-            label={formatPatientName(item)}
+            label={getPatientFullName(item)}
             simpleSelect={true}
             selected={item?.id === this.props.selectedPatientId}
             onSelect={(isSelected: boolean | string) =>

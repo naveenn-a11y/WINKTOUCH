@@ -669,18 +669,24 @@ export class GroupedCard extends Component {
         );
       }
       return (
-        <View
-          style={styles.rowLayout}
-          key={
-            groupDefinition.name +
-            '-' +
-            fieldName +
-            '-' +
-            groupIndex +
-            '-' +
-            column
-          }>
-          {icon}
+        <View style={styles.columnLayout}>
+          <View
+            style={styles.rowLayout}
+            key={
+              groupDefinition.name +
+              '-' +
+              fieldName +
+              '-' +
+              groupIndex +
+              '-' +
+              column
+            }>
+            {icon}
+          </View>
+          <View style={styles.columnLayout}>
+            {fieldDefinition.cardFields &&
+              this.renderCardRows(fieldDefinition.cardFields)}
+          </View>
         </View>
       );
     }
@@ -1098,10 +1104,11 @@ export class GroupedCard extends Component {
     return cardFields;
   }
 
-  renderCardRows() {
+  renderCardRows(cardFields?: any) {
     let i: number = 0;
     let rowValues: string[][] = [];
-    const cardFields = this.expandMultiValueCardFields();
+    cardFields =
+      cardFields === undefined ? this.expandMultiValueCardFields() : cardFields;
     cardFields.forEach((cardRowFields: string[]) => {
       let rowValue: ?(string[]) = cardRowFields.map((fullFieldName: string) => {
         if (fullFieldName.indexOf('.') === -1) {
