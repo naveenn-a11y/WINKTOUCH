@@ -346,13 +346,15 @@ export class PatientContact extends Component {
             />
             <FormField
               value={this.props.patientInfo}
-              fieldName="alias"
+              fieldName="lastName"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
+          </FormRow>
+          <FormRow>
             <FormField
               value={this.props.patientInfo}
-              fieldName="lastName"
+              fieldName="alias"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -433,6 +435,8 @@ export class PatientContact extends Component {
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
+          </FormRow>
+          <FormRow>
             <FormField
               value={this.props.patientInfo}
               fieldName="medicalCardVersion"
@@ -801,7 +805,7 @@ export class CabinetScreen extends Component {
       id: 'patient',
       countryId: store.country,
       province: store.pr,
-      gender: 2,
+      gender: 'Male',
     };
     this.setState({patientInfo: newPatient});
     return newPatient;
