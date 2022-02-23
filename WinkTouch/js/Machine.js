@@ -76,7 +76,14 @@ export async function importData(
           let index: number = 0;
           value.forEach((subValue) => {
             if (subValue != undefined && subValue != null) {
-              let data = {label: label + ' ' + ++index, data: subValue};
+              let label2: string = '';
+              if (identifier.trim().toLowerCase().includes('lensometry')) {
+                label2 = subValue.lensType;
+              }
+              let data = {
+                label: label + ' ' + (!isEmpty(label2) ? label2 : ++index),
+                data: subValue,
+              };
               dataList.push(data);
             }
           });
@@ -87,8 +94,12 @@ export async function importData(
       }
     }
   }
-  if (dataList.length === 0) return undefined;
-  if (dataList.length === 1) return dataList[0];
+  if (dataList.length === 0) {
+    return undefined;
+  }
+  if (dataList.length === 1) {
+    return dataList[0];
+  }
   return dataList;
 }
 
@@ -110,12 +121,14 @@ export async function exportData(
   measurement: Measurement,
   examId: string,
 ): Measurement {
-  if (measurement === undefined || measurement === null) return;
+  if (measurement === undefined || measurement === null) {
+    return;
+  }
   if (destinationIdentifier.startsWith('machine.')) {
     const machineType: string = destinationIdentifier.substring(
       'machine.'.length,
     );
-    let machineId: number = getConfiguration()['machine'][machineType];
+    let machineId: number = getConfiguration().machine[machineType];
     if (machineId === undefined || machineId == null || machineId === 0) {
       alert(strings.formatString(strings.configMissing, machineType));
       return undefined;
@@ -142,12 +155,12 @@ export class Machine {
       const machineType: string = destinationIdentifier.substring(
         'machine.'.length,
       );
-      this.machineId = getConfiguration()['machine'][machineType];
+      this.machineId = getConfiguration().machine[machineType];
     }
   }
 
   buildUrl(authInfo: any): string {
-    let url: string = undefined;
+    let url: string;
     if (authInfo && authInfo.token && authInfo.apiKey) {
       const jsonURLParam: any = encodeURI(
         '{"user_details":{"id":"' + getDoctor().id + '"}}',
@@ -204,7 +217,7 @@ export class Machine {
   }
 
   async login(): any {
-    let authInfo: string = undefined;
+    let authInfo: string;
     const path: string = 'Stream/Connect';
     const wsLoginUrl: string = wsRestUrl + path + '/';
     const requestNr = getNextRequestNumber();
@@ -232,9 +245,11 @@ export class Machine {
           contentType !== undefined &&
           contentType !== null &&
           contentType.startsWith('text/html')
-        )
+        ) {
           handleHttpError(httpResponse, await httpResponse.text());
-        else handleHttpError(httpResponse, await httpResponse.json());
+        } else {
+          handleHttpError(httpResponse, await httpResponse.json());
+        }
       }
 
       const responseJson = await httpResponse.json();
@@ -271,9 +286,11 @@ export class Machine {
           contentType !== undefined &&
           contentType !== null &&
           contentType.startsWith('text/html')
-        )
+        ) {
           handleHttpError(httpResponse, await httpResponse.text());
-        else handleHttpError(httpResponse, await httpResponse.json());
+        } else {
+          handleHttpError(httpResponse, await httpResponse.json());
+        }
       }
 
       const responseJson = await httpResponse.json();

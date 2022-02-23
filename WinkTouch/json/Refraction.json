@@ -40,6 +40,7 @@
   },
   "fields": [
     {
+      "hasLensType": true,
       "hasVA": true,
       "hasAdd": true,
       "canBeCopied": true,
@@ -50,7 +51,14 @@
       ],
       "name": "Subjective refraction",
       "multiValue": true,
-      "type": "SRx"
+      "type": "SRx",
+      "fields": [
+        {
+          "freestyle": true,
+          "name": "lensType",
+          "label": "Data from"
+        }
+      ]
     },
     {
       "hasVA": true,
