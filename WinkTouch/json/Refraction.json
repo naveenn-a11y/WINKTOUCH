@@ -13,7 +13,13 @@
       "fields": [
         {
           "name": "Subjective refraction",
-          "label": "Subjectif"
+          "label": "Subjectif",
+          "fields": [
+            {
+              "name": "lensType",
+              "label": "Données de"
+            }
+          ]
         },
         {
           "name": "Compensated refraction",
