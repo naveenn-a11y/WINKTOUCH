@@ -1311,6 +1311,11 @@ export const styles = StyleSheet.create({
     borderWidth: 2 * fontScale,
     margin: 7 * fontScale,
   },
+  searchPage: {
+    backgroundColor: '#fff',
+    height: windowHeight,
+    padding: '10',
+  },
 });
 
 function cardStyle(color: Color) {

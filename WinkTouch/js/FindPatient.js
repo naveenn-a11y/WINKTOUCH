@@ -242,31 +242,24 @@ export class PatientSearch extends Component {
 
   render() {
     return (
-      <View style={styles.page}>
-        <View
-          style={{
-            height: '100vh',
-            padding: '10px',
-            backgroundColor: '#fff',
-          }}>
-          <View style={styles.centeredScreenLayout}>
-            <FindPatient
-              onSelectPatient={(patient) => this.onSelectPatient(patient)}
-              selectedPatientId={
-                this.state?.selectedPatient
-                  ? this.state?.selectedPatient.id
-                  : undefined
-              }
-              onNewPatient={() => this.onNewPatient()}
-            />
-            <PatientDetails
-              patient={this.state?.selectedPatient}
-              renderPatientInfo={this.props.renderPatientInfo}
-              renderNewPatient={this.props.renderNewPatient}
-            />
-          </View>
-          {this.renderIcons()}
+      <View style={styles.searchPage}>
+        <View style={styles.centeredScreenLayout}>
+          <FindPatient
+            onSelectPatient={(patient) => this.onSelectPatient(patient)}
+            selectedPatientId={
+              this.state?.selectedPatient
+                ? this.state?.selectedPatient.id
+                : undefined
+            }
+            onNewPatient={() => this.onNewPatient()}
+          />
+          <PatientDetails
+            patient={this.state?.selectedPatient}
+            renderPatientInfo={this.props.renderPatientInfo}
+            renderNewPatient={this.props.renderNewPatient}
+          />
         </View>
+        {this.renderIcons()}
       </View>
     );
   }
