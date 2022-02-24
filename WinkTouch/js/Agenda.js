@@ -64,12 +64,6 @@ import {formatCode} from './Codes';
 import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
 import {searchUsers} from './User';
 import type {Visit} from './Types';
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from 'react-native-popup-menu';
 
 export class AgendaScreen extends Component {
   props: {
@@ -130,7 +124,7 @@ export class AgendaScreen extends Component {
       this.setState(
         {
           selectedDoctors: doctors,
-          // mode: doctors.length <= 1 ? 'custom' : 'day',
+          mode: selectedDoctors.length > 1 && !isWeb ? 'day' : 'custom',
         },
         () => this.refreshAppointments(true, true, this.daysInWeek),
       );
@@ -171,40 +165,12 @@ export class AgendaScreen extends Component {
         this.setState({events});
       }
       // appointments = [...appointments, ...this.state.events];
-
-      let temp = {};
-      let events = [];
-      appointments.map((ev) => {
-        const time = ev.start.split(':')[0];
-        // ev.start.split(':')[0];
-        temp[time] = (temp[time] || 0) + 1;
-        events.push({...ev, start: time, index: temp[time] - 1});
-      });
-      console.log('a', events);
-      this.setState({
-        appointments: events,
-        isLoading: false,
-      });
+      this.setState({appointments, isLoading: false});
     } catch (e) {
       this.setState({isLoading: false});
     }
   }
-  // [
-  //   {
-  //     patientId: 'patient-652',
-  //     start: '2022-02-16T10:30',
-  //     end: '2022-02-16T11:00',
-  //     comment: '',
-  //     id: 'appointment-11946',
-  //     title: 'Partial Exam',
-  //     appointmentTypes: ['appointmentType-15'],
-  //     indicators: ['unconfirmed', 'existingPatient', 'family'],
-  //     userId: 'user-13',
-  //     version: 1,
-  //     status: 0,
-  //     index: 0,
-  //   },
-  // ]
+
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event, showDialog: true});
   };
@@ -301,6 +267,7 @@ export class AgendaScreen extends Component {
   };
   renderContent(event: Appointment) {
     const patient: PatientInfo | Patient = getCachedItem(event.patientId);
+    const doctor = this.state.doctors.find(({value}) => event.userId == value);
     let genderShort: string = formatCode('genderCode', patient.gender);
     if (genderShort.length > 0) {
       genderShort = genderShort.substring(0, 1);
@@ -312,8 +279,8 @@ export class AgendaScreen extends Component {
             ? {height: 400 * fontScale, maxHeight: 800 * fontScale}
             : undefined
         }>
+        <Text style={styles.text}>Doctor: {doctor.label} </Text>
         <AppointmentIcons appointment={event} orientation="horizontal" />
-
         <Title>
           {patient && patient.firstName} {patient && patient.lastName}
           <View style={styles.rowLayout}>
@@ -395,7 +362,7 @@ export class AgendaScreen extends Component {
           dismissable={true}>
           <Dialog.Title>
             <AppointmentTypes appointment={event} />
-            {event.title}
+            <Text style={{color: 'black'}}> {event.title}</Text>
           </Dialog.Title>
           <Dialog.Content>{this.renderContent(event)}</Dialog.Content>
           <Dialog.Actions>
@@ -423,7 +390,9 @@ export class AgendaScreen extends Component {
           visible={this.state.isVisible}
           onDismiss={this.cancelDoctorsOptions}
           dismissable={true}>
-          <Dialog.Title>{strings.chooseDoctor}</Dialog.Title>
+          <Dialog.Title>
+            <Text style={{color: 'black'}}> {strings.chooseDoctor}</Text>
+          </Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView contentContainerStyle={{padding: 10}}>
               <FormInput
@@ -490,14 +459,12 @@ export class AgendaScreen extends Component {
               onPress={this.openDoctorsOptiosn}>
               <Text>{strings.chooseDoctor}</Text>
             </TouchableOpacity>
-
             <Picker
-              style={{padding: 10 * fontScale, width: 200}}
-              itemStyle={{height: 44}}
+              style={{width: 200, padding: 10 * fontScale}}
+              itemStyle={{height: 44, borderWidth: 1, borderColor: 'gray'}}
               selectedValue={this.state.mode}
               onValueChange={(mode) => this._onSetMode(mode)}>
               <Picker.Item value="day" label={strings.daily} />
-
               {(this.state.selectedDoctors.length <= 1 || isWeb) && (
                 <Picker.Item value="custom" label={strings.weekly} />
               )}
@@ -569,9 +536,12 @@ class Event extends Component {
     const {locked} = this.state;
     const {event, eventWidth, selectedDoctors, touchableOpacityProps} =
       this.props;
-
     const index = selectedDoctors.findIndex((u) => u == event.userId);
-    const eventStyleProps = {width: eventWidth, start: eventWidth * index};
+    const eventStyleProps = {
+      minWidth: '1%',
+      width: eventWidth / 1.05,
+      start: eventWidth * index,
+    };
 
     const patient: Patient = getCachedItem(event.patientId);
     const appointmentType: AppointmentType =
@@ -586,9 +556,9 @@ class Event extends Component {
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
           {
-            backgroundColor: 'white',
             borderWidth: 0.5,
             borderColor: 'lightgrey',
+            backgroundColor: '#fff',
             borderLeftColor:
               appointmentType && appointmentType.color
                 ? appointmentType.color

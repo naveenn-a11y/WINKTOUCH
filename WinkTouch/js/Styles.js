@@ -236,14 +236,13 @@ export const styles = StyleSheet.create({
   },
   chooseButton: {
     width: 200,
-    padding: 10 * fontScale,
-    height: '77%',
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: 'lightgray',
-    borderBottomWidth: 0.7,
-    borderTopWidth: 0.755,
+    borderColor: 'gray',
+    borderWidth: 1,
     marginRight: 10,
+    borderRadius: 2,
+    padding: 10 * fontScale,
   },
 
   checkButtonLayout: {

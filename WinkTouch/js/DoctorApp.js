@@ -10,7 +10,6 @@ import {
   StackActions,
 } from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-import {MenuProvider} from 'react-native-popup-menu';
 import type {
   Appointment,
   PatientInfo,
@@ -298,30 +297,28 @@ export class DoctorApp extends Component {
       <ErrorBoundary>
         <ModeContextProvider>
           <Provider>
-            <MenuProvider>
-              <View style={styles.screeen}>
-                <StatusBar hidden={true} />
-                <DocatorAppContainer
-                  ref={(navigator) => (this.navigator = navigator)}
-                  screenProps={{
-                    doctorId: this.props.user.id,
-                    storeId: this.props.store.storeId,
-                    onLogout: this.logout,
-                  }}
-                  onNavigationStateChange={this.navigationStateChanged}
-                />
-                <MenuBar
-                  scene={{}}
-                  navigation={{
-                    state: this.state.currentRoute,
-                    navigate: this.navigate,
-                  }}
-                  screenProps={{
-                    onLogout: this.logout,
-                  }}
-                />
-              </View>
-            </MenuProvider>
+            <View style={styles.screeen}>
+              <StatusBar hidden={true} />
+              <DocatorAppContainer
+                ref={(navigator) => (this.navigator = navigator)}
+                screenProps={{
+                  doctorId: this.props.user.id,
+                  storeId: this.props.store.storeId,
+                  onLogout: this.logout,
+                }}
+                onNavigationStateChange={this.navigationStateChanged}
+              />
+              <MenuBar
+                scene={{}}
+                navigation={{
+                  state: this.state.currentRoute,
+                  navigate: this.navigate,
+                }}
+                screenProps={{
+                  onLogout: this.logout,
+                }}
+              />
+            </View>
           </Provider>
         </ModeContextProvider>
       </ErrorBoundary>
