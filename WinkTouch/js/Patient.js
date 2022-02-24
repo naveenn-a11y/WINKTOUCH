@@ -883,7 +883,7 @@ export class CabinetScreen extends Component {
         />
         <View style={{width: '50%', textAlign: 'center', margin: 'auto'}}>
           <Button
-            title={'Open'}
+            title={strings.open}
             onPress={() =>
               this.props.navigation.navigate('appointment', {
                 patientInfo: this.state.patientInfo,
