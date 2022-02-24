@@ -55,11 +55,11 @@ export class PatientDetails extends PureComponent<PatientDetailsProps> {
     }
     if (this.props.patient.id === 'patient') {
       return (
-        <View style={styles.searchColumn}>{this.props.renderNewPatient()}</View>
+        <View style={styles.tabCard}>{this.props.renderNewPatient()}</View>
       );
     }
     return (
-      <View style={styles.searchColumn}>
+      <View style={styles.tabCard}>
         <ErrorCard errors={this.props.patient?.errors} />
         {this.props.renderPatientInfo()}
       </View>
