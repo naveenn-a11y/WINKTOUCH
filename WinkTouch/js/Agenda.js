@@ -119,7 +119,7 @@ export class AgendaScreen extends Component {
   }
   getSelectedDoctorsFromStorage = async () => {
     const selectedDoctors = await AsyncStorage.getItem('selectedDoctors');
-    if (!!selectedDoctors) {
+    if (selectedDoctors) {
       const doctors = JSON.parse(selectedDoctors);
       this.setState(
         {
@@ -237,7 +237,7 @@ export class AgendaScreen extends Component {
   cancelDialog = () => {
     this.setState({event: undefined, showDialog: false});
   };
-  openDoctorsOptiosn = () => {
+  openDoctorsOptions = () => {
     this.setState({isVisible: true});
   };
   cancelDoctorsOptions = () => {
@@ -249,13 +249,15 @@ export class AgendaScreen extends Component {
       'selectedDoctors',
       JSON.stringify(this.state.selectedDoctors),
     );
-    if (this.state.selectedDoctors.length > 1 && !isWeb) this._onSetMode('day');
-    else
+    if (this.state.selectedDoctors.length > 1 && !isWeb) {
+      this._onSetMode('day');
+    } else {
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
+    }
     this.cancelDoctorsOptions();
   };
 
@@ -409,11 +411,11 @@ export class AgendaScreen extends Component {
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <NativeBaseButton onPress={this.getAppoitmentsForSelectedDoctors}>
-              {strings.apply}
-            </NativeBaseButton>
             <NativeBaseButton onPress={this.cancelDoctorsOptions}>
               {strings.close}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.getAppoitmentsForSelectedDoctors}>
+              {strings.apply}
             </NativeBaseButton>
           </Dialog.Actions>
         </Dialog>
@@ -456,7 +458,7 @@ export class AgendaScreen extends Component {
           <View style={styles.topRight}>
             <TouchableOpacity
               style={styles.chooseButton}
-              onPress={this.openDoctorsOptiosn}>
+              onPress={this.openDoctorsOptions}>
               <Text>{strings.chooseDoctor}</Text>
             </TouchableOpacity>
             <Picker
@@ -563,7 +565,7 @@ class Event extends Component {
               appointmentType && appointmentType.color
                 ? appointmentType.color
                 : 'white',
-            borderLeftWidth: 10,
+            borderLeftWidth: 5,
             borderStyle: 'solid',
             borderRadius: 4,
             justifyContent: 'center',
@@ -572,23 +574,13 @@ class Event extends Component {
           },
         ]}>
         <View style={[styles.rowLayout, {height: '100%'}]}>
-          <AppointmentIcons appointment={event} />
-          {/* <View style={{marginHorizontal: 5 * fontScale}}>
-           <View style={styles.rowLayout}>
-             <Text style={locked ? styles.grayedText : styles.text}>
-               {patient && patient.firstName} {patient && patient.lastName}
-             </Text>
-             <PatientTags patient={patient} locked={locked} />
-           </View> */}
           <Text style={locked ? styles.grayedText : styles.text}>
-            {/* {event.title} */}
             {patient && patient.firstName} {patient && patient.lastName}
           </Text>
-          {/* <Text style={locked ? styles.grayedText : styles.text}>
-          {isToday(event.start)
-            ? formatDate(event.start, timeFormat)
-            : formatDate(event.start, dayYearDateTimeFormat)}
-        </Text> */}
+          <PatientTags patient={patient} locked={locked} />
+          <View style={{flexGrow: 100, alignItems: 'flex-end'}}>
+            <AppointmentIcons appointment={event} />
+          </View>
         </View>
         {/* </View> */}
       </TouchableOpacity>
