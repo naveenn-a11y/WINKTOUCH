@@ -1312,7 +1312,7 @@ export const styles = StyleSheet.create({
   },
   searchPage: {
     backgroundColor: '#fff',
-    height: windowHeight,
+    flex: 100,
     padding: 10,
   },
 });

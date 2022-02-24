@@ -900,16 +900,12 @@ export class CabinetScreen extends Component {
 
   render() {
     return (
-      <KeyboardAwareScrollView
-        scrollEnable={true}
-        keyboardShouldPersistTaps="handled">
-        <PatientSearch
-          onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
-          onNewPatient={this.newPatient}
-          renderPatientInfo={() => this.renderPatientInfo()}
-          renderNewPatient={() => this.renderNewPatient()}
-        />
-      </KeyboardAwareScrollView>
+      <PatientSearch
+        onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
+        onNewPatient={this.newPatient}
+        renderPatientInfo={() => this.renderPatientInfo()}
+        renderNewPatient={() => this.renderNewPatient()}
+      />
     );
   }
 }

@@ -215,6 +215,12 @@ export class PatientSearch extends Component {
   state: {
     selectedPatient: Patient,
   };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      selectedPatient: undefined,
+    };
+  }
 
   onSelectPatient(patient) {
     this.setState({selectedPatient: patient});
@@ -224,6 +230,11 @@ export class PatientSearch extends Component {
   onNewPatient() {
     const NewPatient = this.props.onNewPatient();
     this.setState({selectedPatient: NewPatient});
+  }
+  isNewPatient(): boolean {
+    return (
+      this.state.selectedPatient && this.state.selectedPatient.id === 'patient'
+    );
   }
 
   renderIcons() {
@@ -244,15 +255,17 @@ export class PatientSearch extends Component {
     return (
       <View style={styles.searchPage}>
         <View style={styles.centeredScreenLayout}>
-          <FindPatient
-            onSelectPatient={(patient) => this.onSelectPatient(patient)}
-            selectedPatientId={
-              this.state?.selectedPatient
-                ? this.state?.selectedPatient.id
-                : undefined
-            }
-            onNewPatient={() => this.onNewPatient()}
-          />
+          {!this.isNewPatient() && (
+            <FindPatient
+              onSelectPatient={(patient) => this.onSelectPatient(patient)}
+              selectedPatientId={
+                this.state?.selectedPatient
+                  ? this.state?.selectedPatient.id
+                  : undefined
+              }
+              onNewPatient={() => this.onNewPatient()}
+            />
+          )}
           <PatientDetails
             patient={this.state?.selectedPatient}
             renderPatientInfo={this.props.renderPatientInfo}
