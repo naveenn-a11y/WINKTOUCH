@@ -286,6 +286,7 @@ export const strings = new LocalizedStrings({
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
     patientAttachments: 'Patient Attachments',
+    open: 'open',
   },
   fr: {
     enterRegisteredEmail:
@@ -571,6 +572,7 @@ export const strings = new LocalizedStrings({
     clientConnected: 'Client connecté !',
     clientDisconnected: 'Client déconnecté !',
     patientAttachments: 'Pièces jointes pour patients',
+    open: 'Ouvrir',
   },
 });
 

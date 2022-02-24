@@ -1314,7 +1314,7 @@ export const styles = StyleSheet.create({
   searchPage: {
     backgroundColor: '#fff',
     height: windowHeight,
-    padding: '10',
+    padding: 10,
   },
 });
 
