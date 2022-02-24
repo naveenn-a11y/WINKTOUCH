@@ -399,7 +399,6 @@ export class AgendaScreen extends Component {
           <Dialog.ScrollArea>
             <ScrollView contentContainerStyle={{padding: 10}}>
               <FormInput
-                label={'choose'}
                 multiOptions={true}
                 value={this.state.selectedDoctors}
                 showLabel={false}
@@ -598,6 +597,7 @@ class NativeCalendar extends Component {
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
   };
+  numOfDays: Number = 7;
 
   shouldComponentUpdate(nextProps) {
     return (
@@ -611,7 +611,7 @@ class NativeCalendar extends Component {
     const {selectedDoctors, doctors, date, appointments, mode} = this.props;
     const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50; //window - sidebar - hour range
 
-    const weekCellWidth = calendarWidth / 6;
+    const weekCellWidth = calendarWidth / this.numOfDays;
     const weekEventWidth = weekCellWidth / selectedDoctors.length;
 
     const dayCellWidth = calendarWidth;
@@ -629,7 +629,7 @@ class NativeCalendar extends Component {
           height={windowHeight}
           events={appointments}
           weekStartsOn={1}
-          weekEndsOn={6}
+          weekEndsOn={this.numOfDays}
           hourRowHeight={90}
           showAllDayEventCell={false}
           onPressEvent={(event) => this.props._onSetEvent(event)}
