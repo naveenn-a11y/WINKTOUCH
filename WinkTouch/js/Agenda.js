@@ -538,7 +538,11 @@ class Event extends Component {
     const {locked} = this.state;
     const {event, eventWidth, selectedDoctors, touchableOpacityProps} =
       this.props;
+
     const index = selectedDoctors.findIndex((u) => u == event.userId);
+    if (index < 0) {
+      return null;
+    }
     const eventStyleProps = {
       minWidth: '1%',
       width: eventWidth / 1.05,
