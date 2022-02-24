@@ -51,15 +51,15 @@ export type PatientDetailsProps = {
 export class PatientDetails extends PureComponent<PatientDetailsProps> {
   render() {
     if (!this.props.patient) {
-      return <View style={styles.tabCard} />;
+      return <View style={styles.searchColumn} />;
     }
     if (this.props.patient.id === 'patient') {
       return (
-        <View style={styles.tabCard}>{this.props.renderNewPatient()}</View>
+        <View style={styles.searchColumn}>{this.props.renderNewPatient()}</View>
       );
     }
     return (
-      <View style={styles.tabCard}>
+      <View style={styles.searchColumn}>
         <ErrorCard errors={this.props.patient?.errors} />
         {this.props.renderPatientInfo()}
       </View>

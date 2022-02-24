@@ -881,7 +881,7 @@ export class CabinetScreen extends Component {
           style={styles.tabCardS}
           hasAppointment={this.hasAppointment()}
         />
-        <View style={{width: '50%', textAlign: 'center', margin: 'auto'}}>
+        <View style={styles.checkButtonLayout}>
           <Button
             title={strings.open}
             onPress={() =>

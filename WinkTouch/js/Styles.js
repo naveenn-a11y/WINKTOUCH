@@ -1301,9 +1301,8 @@ export const styles = StyleSheet.create({
   },
   searchList: {
     backgroundColor: '#fff',
-    flex: 30,
-    flexGrow: 30,
-    minWidth: 240 * fontScale,
+    flex: 100,
+    minWidth: 300 * fontScale,
     padding: 10 * fontScale,
     minHeight: 260 * fontScale,
     borderRadius: 30 * fontScale,
