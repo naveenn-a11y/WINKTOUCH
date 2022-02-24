@@ -289,6 +289,7 @@ export const strings = new LocalizedStrings({
     machinePullSuccess: 'Machine Interface has pulled successfully the data !',
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
+    patientAttachments: 'Patient Attachments',
   },
   fr: {
     enterRegisteredEmail:
@@ -573,6 +574,7 @@ export const strings = new LocalizedStrings({
       "L'interface machine a extrait avec succès les données !",
     clientConnected: 'Client connecté !',
     clientDisconnected: 'Client déconnecté !',
+    patientAttachments: 'Pièces jointes pour patients',
   },
 });
 

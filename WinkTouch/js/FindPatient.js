@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
@@ -27,6 +28,7 @@ import {
   PatientCard,
   fetchPatientInfo,
   storePatientInfo,
+  getPatientFullName,
 } from './Patient';
 import {PrescriptionCard} from './Assessment';
 import {searchItems} from './Rest';
@@ -72,7 +74,7 @@ class PatientList extends Component {
           return (
             <View style={styles.centeredRowLayout} key={index}>
               <Button
-                title={patient.firstName + ' ' + patient.lastName}
+                title={getPatientFullName(patient)}
                 onPress={() => this.props.onSelect(patient)}
                 testID={'patientName' + (index + 1) + 'Button'}
               />

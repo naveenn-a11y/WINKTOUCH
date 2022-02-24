@@ -58,7 +58,12 @@ import {
   fetchVisitHistory,
   fetchVisitForAppointment,
 } from './Visit';
-import {PatientCard, fetchPatientInfo, PatientTags} from './Patient';
+import {
+  PatientCard,
+  fetchPatientInfo,
+  PatientTags,
+  getPatientFullName,
+} from './Patient';
 import {
   cacheItem,
   getCachedItem,
@@ -472,7 +477,7 @@ export class AppointmentSummary extends Component {
                   style={
                     this.state.locked === true ? styles.grayedText : styles.text
                   }>
-                  {patient && patient.firstName} {patient && patient.lastName}
+                  {getPatientFullName(patient)}
                 </Text>
                 <PatientTags
                   patient={patient}

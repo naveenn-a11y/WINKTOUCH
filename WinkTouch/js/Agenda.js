@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
@@ -51,7 +52,7 @@ import {
   prefix,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
-import {PatientTags} from './Patient';
+import {getPatientFullName, PatientTags} from './Patient';
 import {getStore, getDoctor} from './DoctorApp';
 import {
   Button as NativeBaseButton,
@@ -284,7 +285,7 @@ export class AgendaScreen extends Component {
         <Text style={styles.text}>Doctor: {doctor.label} </Text>
         <AppointmentIcons appointment={event} orientation="horizontal" />
         <Title>
-          {patient && patient.firstName} {patient && patient.lastName}
+          {getPatientFullName(patient)}
           <View style={styles.rowLayout}>
             <Text style={styles.text}>({genderShort}) </Text>
             <PatientTags patient={patient} showDescription={true} />
@@ -575,7 +576,7 @@ class Event extends Component {
         ]}>
         <View style={[styles.rowLayout, {height: '100%'}]}>
           <Text style={locked ? styles.grayedText : styles.text}>
-            {patient && patient.firstName} {patient && patient.lastName}
+            {getPatientFullName(patient)}
           </Text>
           <PatientTags patient={patient} locked={locked} />
           <View style={{flexGrow: 100, alignItems: 'flex-end'}}>

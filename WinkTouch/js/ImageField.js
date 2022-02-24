@@ -1145,7 +1145,10 @@ export class ImageField extends Component {
       return require('./image/eyeexamtemplate.png');
     }
     if (!image.startsWith('http:') && !image.startsWith('https:')) {
-      return undefined;
+      const imageValue = !image.startsWith('data:image/png;base64,')
+        ? 'data:image/png;base64,' + image
+        : image;
+      return {uri: imageValue, cache: 'force-cache'};
     }
     if (isWeb && (image.startsWith('http:') || image.startsWith('https:'))) {
       const path: string = this.state.imageWebUri;

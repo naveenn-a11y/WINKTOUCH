@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component, PureComponent} from 'react';
@@ -31,13 +32,21 @@ import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {FormRow, FormTextInput, FormInput, FormField, ErrorCard} from './Form';
 import {ExamCardSpecifics} from './Exam';
-import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
+import {cacheItem, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix, isToday} from './Util';
+import {
+  deepClone,
+  formatAge,
+  prefix,
+  isToday,
+  formatDate,
+  yearDateTimeFormat,
+  isEmpty,
+} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
-import {Refresh} from './Favorites';
+import {PaperClip, Refresh} from './Favorites';
 import {PatientRefractionCard} from './Refraction';
 import {Pdf} from './Document';
 import {fetchUpload, getMimeType} from './Upload';
@@ -49,6 +58,8 @@ import {
   AppointmentSummary,
   isAppointmentLocked,
 } from './Appointment';
+import {loadDocuments} from './ImageField';
+import {printBase64Pdf} from './Print';
 
 export async function fetchPatientInfo(
   patientId: string,
@@ -75,6 +86,16 @@ export async function searchPatientDocuments(
 export async function storePatientDocument(patientDocument: PatientDocument) {
   patientDocument = await storeItem(patientDocument);
   return patientDocument;
+}
+
+export function getPatientFullName(patient: Patient | PatientInfo): string {
+  if (patient === undefined || patient === null) {
+    return;
+  }
+  const alias: string = isEmpty(patient.alias)
+    ? ' '
+    : ' (' + patient.alias + ') ';
+  return patient.firstName + alias + patient.lastName;
 }
 
 export class PatientTags extends Component {
@@ -216,9 +237,7 @@ export class PatientCard extends Component {
         testID="patientContact">
         <View style={this.props.style ? this.props.style : styles.paragraph}>
           <Text style={styles.cardTitleLeft}>
-            {this.props.patientInfo.firstName +
-              ' ' +
-              this.props.patientInfo.lastName}
+            {getPatientFullName(this.props.patientInfo)}
           </Text>
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
@@ -281,7 +300,7 @@ export class PatientTitle extends Component {
     }
     return (
       <Text style={styles.screenTitle}>
-        {this.props.patientInfo.firstName} {this.props.patientInfo.lastName}
+        {getPatientFullName(this.props.patientInfo)}
       </Text>
     );
   }
@@ -322,6 +341,12 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="firstName"
+              onChangeValue={this.props.onUpdatePatientInfo}
+              autoCapitalize="words"
+            />
+            <FormField
+              value={this.props.patientInfo}
+              fieldName="alias"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -429,6 +454,92 @@ export class PatientContact extends Component {
               type="email-address"
             />
           </FormRow>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class PatientDocumentAttachments extends Component {
+  props: {
+    patientInfo: PatientInfo,
+  };
+  state: {
+    patientDocuments: PatientDocument[],
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      patientDocuments: [],
+    };
+  }
+  componentDidMount() {
+    this.loadPatientDocument();
+  }
+  async loadPatientDocument() {
+    const filterId: string = 'Patient Consent Form';
+    let patientDocuments = await loadDocuments(
+      filterId,
+      this.props.patientInfo.id,
+    );
+    patientDocuments = patientDocuments.filter(
+      (patientDocument: PatientDocument) => patientDocument.name === filterId,
+    );
+
+    this.setState({patientDocuments});
+  }
+
+  async getUpload(patientDocument: PatientDocument) {
+    let upload: ?Upload = getCachedItem(patientDocument.uploadId);
+    if (upload === undefined) {
+      upload = await fetchUpload(patientDocument.uploadId);
+    }
+    if (upload && upload.data) {
+      printBase64Pdf(upload.data);
+    }
+  }
+
+  render() {
+    if (
+      this.state.patientDocuments === undefined ||
+      this.state.patientDocuments.length < 1
+    ) {
+      return null;
+    }
+    return (
+      <View style={styles.tabCard}>
+        <Text style={styles.cardTitle}>{strings.patientAttachments}</Text>
+        <View style={styles.form}>
+          {this.state.patientDocuments.map(
+            (patientDocument: PatientDocument) => {
+              return (
+                <FormRow>
+                  {patientDocument.uploadId && (
+                    <TouchableOpacity
+                      onPress={() => this.getUpload(patientDocument)}
+                      testID={this.props.fieldId + '.paperclipIcon'}>
+                      <Text style={styles.textLeft}>
+                        {patientDocument.name}{' '}
+                      </Text>
+                      <Text style={styles.textLeft}>
+                        {strings.lastUpdateOn}:
+                        {formatDate(
+                          patientDocument.postedOn,
+                          yearDateTimeFormat,
+                        )}
+                      </Text>
+                      <PaperClip
+                        style={styles.textIcon}
+                        color="black"
+                        key="paperclip"
+                      />
+                    </TouchableOpacity>
+                  )}
+                </FormRow>
+              );
+            },
+          )}
         </View>
       </View>
     );
@@ -592,6 +703,7 @@ export class PatientScreen extends Component {
           patientInfo={this.state.patientInfo}
           onUpdatePatientInfo={this.updatePatientInfo}
         />
+        <PatientDocumentAttachments patientInfo={this.state.patientInfo} />
         {this.renderIcons()}
       </KeyboardAwareScrollView>
     );
@@ -689,7 +801,7 @@ export class CabinetScreen extends Component {
       id: 'patient',
       countryId: store.country,
       province: store.pr,
-      gender: 0,
+      gender: 2,
     };
     this.setState({patientInfo: newPatient});
   };
