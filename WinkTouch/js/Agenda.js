@@ -519,6 +519,9 @@ class Event extends Component {
     super(props);
     this.state = {locked: false};
   }
+  componentDidMount() {
+    this.getLockedState();
+  }
 
   getLockedState = async () => {
     const appointment: Appointment = this.props.event;
@@ -527,6 +530,7 @@ class Event extends Component {
     );
     if (visitHistory) {
       const locked: boolean = isAppointmentLocked(appointment);
+
       this.setState({locked: locked});
     } else {
       const visit: Visit = await fetchVisitForAppointment(appointment.id);
