@@ -75,12 +75,13 @@ export async function importData(
             if (subValue != undefined && subValue != null) {
               let subLabel: string = '';
               if (identifier.trim().toLowerCase().includes('lensometry')) {
-                subLabel = subValue.lensType;
+                subLabel = label + ' ' + subValue.lensType;
               }
-              if (isEmpty(subLabel)) {
+              if (isEmpty(subValue.lensType)) {
                 subLabel = label + ' ' + ++index;
-                Object.assign(subValue, {lensType: subLabel});
               }
+              Object.assign(subValue, {customField: subLabel});
+
               let data = {
                 label: subLabel,
                 data: subValue,

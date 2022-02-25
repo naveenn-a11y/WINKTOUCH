@@ -16,7 +16,7 @@
           "label": "Subjectif",
           "fields": [
             {
-              "name": "lensType",
+              "name": "customField",
               "label": "Données de"
             }
           ]
@@ -46,7 +46,7 @@
   },
   "fields": [
     {
-      "hasLensType": true,
+      "hasCustomField": true,
       "hasVA": true,
       "hasAdd": true,
       "canBeCopied": true,
@@ -61,7 +61,7 @@
       "fields": [
         {
           "freestyle": true,
-          "name": "lensType",
+          "name": "customField",
           "label": "Data from"
         }
       ]

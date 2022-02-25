@@ -2233,6 +2233,7 @@ export class GroupedFormScreen extends Component<
             hasLensType={groupDefinition.hasLensType}
             hasPD={groupDefinition.hasPD}
             hasMPD={groupDefinition.hasMPD}
+            hasCustomField={groupDefinition.hasCustomField}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -2312,6 +2313,7 @@ export class GroupedFormScreen extends Component<
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
           hasMPD={groupDefinition.hasMPD}
+          hasCustomField={groupDefinition.hasCustomField}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2339,6 +2341,7 @@ export class GroupedFormScreen extends Component<
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
           hasMPD={groupDefinition.hasMPD}
+          hasCustomField={groupDefinition.hasCustomField}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}

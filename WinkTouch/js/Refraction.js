@@ -922,6 +922,7 @@ export class GlassesDetail extends Component {
     hasLensType?: boolean,
     hasPD?: boolean,
     hasMPD?: boolean,
+    hasCustomField?: boolean,
     hasNotes?: boolean,
     titleStyle?: string,
     style?: string,
@@ -1081,6 +1082,7 @@ export class GlassesDetail extends Component {
   importSelectedData(importData: Measurement) {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.lensType = importData.data.lensType;
+    glassesRx.customField = importData.data.customField;
     glassesRx.od = {...importData.data.od};
     glassesRx.os = {...importData.data.os};
     glassesRx.ou = {...importData.data.ou};
@@ -1103,6 +1105,7 @@ export class GlassesDetail extends Component {
     } else {
       let glassesRx: GlassesRx = this.props.glassesRx;
       glassesRx.lensType = data.data.lensType;
+      glassesRx.customField = data.data.customField;
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
       glassesRx.ou = {...data.data.ou};
@@ -1280,6 +1283,19 @@ export class GlassesDetail extends Component {
                 autoFocus={true}
                 errorMessage={this.props.glassesRx.pdError}
                 testID={this.props.fieldId + '.pd'}
+              />
+            </View>
+          )}
+          {this.props.hasCustomField && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.customField}
+                definition={filterFieldDefinition(
+                  this.props.definition.fields,
+                  'customField',
+                )}
+                readonly={!this.props.editable}
+                testID={this.props.fieldId + '.customField'}
               />
             </View>
           )}
