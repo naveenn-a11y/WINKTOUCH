@@ -64,9 +64,6 @@ export async function importData(
     } else {
       let value = getFieldValue(identifier, exam);
 
-      if (value instanceof Array && value.length === 1) {
-        value = value[0];
-      }
       if (value !== undefined && value !== null) {
         const fieldDefinition = getFieldDefinition(identifier);
         let label: string = fieldDefinition
@@ -76,20 +73,21 @@ export async function importData(
           let index: number = 0;
           value.forEach((subValue) => {
             if (subValue != undefined && subValue != null) {
-              let label2: string = '';
+              let subLabel: string = '';
               if (identifier.trim().toLowerCase().includes('lensometry')) {
-                label2 = subValue.lensType;
+                subLabel = subValue.lensType;
+              }
+              if (isEmpty(subLabel)) {
+                subLabel = label + ' ' + ++index;
+                Object.assign(subValue, {lensType: subLabel});
               }
               let data = {
-                label: label + ' ' + (!isEmpty(label2) ? label2 : ++index),
+                label: subLabel,
                 data: subValue,
               };
               dataList.push(data);
             }
           });
-        } else {
-          let data = {label: label, data: value};
-          dataList.push(data);
         }
       }
     }
