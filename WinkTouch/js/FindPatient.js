@@ -51,15 +51,15 @@ export type PatientDetailsProps = {
 export class PatientDetails extends PureComponent<PatientDetailsProps> {
   render() {
     if (!this.props.patient) {
-      return <View style={styles.searchColumn} />;
+      return <View style={styles.leftSearchColumn} />;
     }
     if (this.props.patient.id === 'patient') {
       return (
-        <View style={styles.searchColumn}>{this.props.renderNewPatient()}</View>
+        <View style={styles.leftSearchColumn}>{this.props.renderNewPatient()}</View>
       );
     }
     return (
-      <View style={styles.searchColumn}>
+      <View style={styles.leftSearchColumn}>
         <ErrorCard errors={this.props.patient?.errors} />
         {this.props.renderPatientInfo()}
       </View>
@@ -123,7 +123,6 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       searchCriterium: '',
       patients: [],
       showPatientList: false,
-      showNewPatientButton: false,
     };
   }
   async searchPatients() {
@@ -148,15 +147,12 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
     !isWeb && LayoutAnimation.spring();
     this.setState({
       showPatientList: patients != undefined && patients.length > 0,
-      showNewPatientButton:
-        patients === undefined || patients.length < maxPatientListSize,
       patients,
     });
   }
   newPatient() {
     this.setState({
       showPatientList: false,
-      showNewPatientButton: false,
       patients: [],
     });
     this.props.onNewPatient();
@@ -168,7 +164,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
 
   render() {
     return (
-      <View style={styles.searchColumn}>
+      <View style={styles.rightSearchColumn}>
         <TextInput
           placeholder={strings.findPatient}
           returnKeyType="search"
@@ -190,11 +186,10 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
           exceedLimit={this.props.exceedLimit}
         />
 
-        {this.props.onNewPatient && this.state.showNewPatientButton ? (
+        {this.props.onNewPatient ? (
           <View style={styles.centeredRowLayout}>
             <Button
               title={strings.newPatient}
-              visible={this.state.showNewPatientButton}
               onPress={() => this.newPatient()}
               testID="newPatientButton"
             />

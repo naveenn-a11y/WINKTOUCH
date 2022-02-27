@@ -1314,9 +1314,20 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
-  searchColumn: {
+  leftSearchColumn: {
     flex: 100,
     minWidth: 300 * fontScale,
+    padding: 10 * fontScale,
+    minHeight: 300 * fontScale,
+    borderRadius: 30 * fontScale,
+    borderColor: selectionFontColor,
+    borderWidth: 2 * fontScale,
+    margin: 7 * fontScale,
+
+  },
+  rightSearchColumn: {
+    flex: 75,
+    minWidth: 240 * fontScale,
     padding: 10 * fontScale,
     minHeight: 300 * fontScale,
     borderRadius: 30 * fontScale,
@@ -1326,8 +1337,8 @@ export const styles = StyleSheet.create({
   },
   searchList: {
     backgroundColor: '#fff',
-    flex: 100,
-    minWidth: 300 * fontScale,
+    flex: 75,
+    minWidth: 240 * fontScale,
     padding: 10 * fontScale,
     minHeight: 260 * fontScale,
     borderRadius: 30 * fontScale,
@@ -1340,6 +1351,20 @@ export const styles = StyleSheet.create({
     flex: 100,
     padding: 10,
   },
+  appointment:{
+    flex: 100,
+    justifyContent: 'center',
+    alignSelf:"flex-start",
+    alignItems: 'baseline',
+  },
+  appointments:{
+    maxHeight: 700 * fontScale,
+    minWidth: 300 * fontScale,
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "nowrap",
+    alignContent: "center",
+  }
 });
 
 function cardStyle(color: Color) {

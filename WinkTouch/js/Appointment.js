@@ -453,7 +453,7 @@ export class AppointmentSummary extends Component {
     const date: string = this.props.appointment.start;
     return (
       <TouchableOpacity onPress={this.props.onPress}>
-        <View style={cardStyle}>
+        <View style={[cardStyle, styles.appointment]}>
           <View style={{flexDirection: 'row'}}>
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
@@ -473,16 +473,20 @@ export class AppointmentSummary extends Component {
                 {this.props.appointment.title}
               </Text>
               <View style={{flexDirection: 'row'}}>
+              <View style={{maxWidth:330*fontScale}}>
                 <Text
                   style={
                     this.state.locked === true ? styles.grayedText : styles.text
                   }>
                   {getPatientFullName(patient)}
                 </Text>
-                <PatientTags
-                  patient={patient}
-                  locked={this.state.locked === true}
-                />
+                </View>
+                <View>
+                  <PatientTags
+                    patient={{}}
+                    locked={this.state.locked === true}
+                  />
+                </View>
               </View>
             </View>
           </View>
