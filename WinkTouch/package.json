@@ -63,6 +63,7 @@
     "react-native-mail": "^6.0.0",
     "react-native-modal-datetime-picker": "^9.1.0",
     "react-native-paper": "^4.5.0",
+    "react-native-paper-dropdown": "^1.0.7",
     "react-native-pdf": "^6.2.2",
     "react-native-pdf-lib": "github:zilicon/react-native-pdf-lib#fix-fonts",
     "react-native-popup-menu": "^0.15.12",
