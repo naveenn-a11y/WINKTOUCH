@@ -62,7 +62,8 @@
         {
           "freestyle": true,
           "name": "customField",
-          "label": "Data from"
+          "label": "Data from",
+          "readonly": true
         }
       ]
     },
