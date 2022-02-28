@@ -121,12 +121,12 @@ export class AgendaScreen extends Component {
     this.setState({doctors});
   }
   getSelectedDoctorsFromStorage = async () => {
-    const selectedDoctors = await AsyncStorage.getItem('selectedDoctors');
-    if (selectedDoctors) {
-      const doctors = JSON.parse(selectedDoctors);
+    const doctors = await AsyncStorage.getItem('selectedDoctors');
+    if (doctors) {
+      const selectedDoctors = JSON.parse(doctors);
       this.setState(
         {
-          selectedDoctors: doctors,
+          selectedDoctors,
           mode: selectedDoctors.length > 1 && !isWeb ? 'day' : 'custom',
         },
         () => this.refreshAppointments(true, true, this.daysInWeek),
