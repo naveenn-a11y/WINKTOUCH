@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 import {NativeModules} from 'react-native';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
@@ -28,9 +29,10 @@ import {
 } from './Upload';
 import {getWinkRestUrl} from './WinkRest';
 import {isWeb} from './Styles';
-import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
+import {base64ToBlob} from '../src/components/HtmlToPdf';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
+import {getPatientFullName} from './Patient';
 
 export async function printRx(
   visitId: string,
@@ -263,7 +265,7 @@ function addPatientHeader(
   let x: number = column1;
   let y: number = top;
   y -= fontSize * 1.15;
-  page.drawText(postfix(patient.lastName, ' ') + patient.firstName, {
+  page.drawText(getPatientFullName(patient), {
     x,
     y,
     fontSize: fontSize + 2,
@@ -558,4 +560,23 @@ export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   }
 
   __DEV__ && console.log('printed medical rx for ' + visitId);
+}
+
+export async function printBase64Pdf(pdfData: string) {
+  if (isWeb) {
+    const blob = base64ToBlob(pdfData, 'application/pdf');
+    const path = URL.createObjectURL(blob);
+    const htmlContent: string = `<iframe src="${path}" height="100%" width="100%" frameBorder="0"></iframe>`;
+
+    var x = window.open();
+    x.document.open();
+    x.document.write(htmlContent);
+    x.document.close();
+  } else {
+    const docsDir = await PDFLib.getDocumentsDirectory();
+    const pdfPath = `${docsDir}/print.pdf`;
+    await RNFS.writeFile(pdfPath, pdfData, 'base64');
+    const job: any = await NativeModules.RNPrint.print({filePath: pdfPath});
+    await RNFS.unlink(pdfPath);
+  }
 }

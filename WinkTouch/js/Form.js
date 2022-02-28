@@ -1000,14 +1000,19 @@ export class FormMultiCheckBox extends Component {
     return this.props.value.includes(value);
   }
   select = (value) => {
-    if (this.props.readonly) return;
-    else this.props.onChangeValue([...this.props.value, value]);
+    if (this.props.readonly) {
+      return;
+    } else {
+      this.props.onChangeValue([...this.props.value, value]);
+    }
   };
   selectAll = () => {
     this.props.onChangeValue(this.props.options.map(({value}) => value));
   };
   deSelect = (value) => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     let newValue = this.props.value.filter((opt) => opt != value);
     this.props.onChangeValue(newValue);
   };
@@ -1028,7 +1033,7 @@ export class FormMultiCheckBox extends Component {
             }
             testID={this.props.testID}
           />
-          <Text>All Doctors</Text>
+          <Text>{strings.all}</Text>
         </View>
         {this.props.options.map((option) => (
           <View style={styles.checkButtonRow}>

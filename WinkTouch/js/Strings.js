@@ -10,8 +10,6 @@ import {cacheDefinitions} from './Items';
 
 export const strings = new LocalizedStrings({
   en: {
-    apply: 'Apply',
-    chooseDoctor: 'Choose Doctor',
     enterRegisteredEmail:
       'Please enter your email adress to connect to your WINK database\nor try with a demo database',
     trialWarning:
@@ -289,6 +287,7 @@ export const strings = new LocalizedStrings({
     machinePullSuccess: 'Machine Interface has pulled successfully the data !',
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
+    patientAttachments: 'Patient Attachments',
   },
   fr: {
     enterRegisteredEmail:
@@ -573,6 +572,9 @@ export const strings = new LocalizedStrings({
       "L'interface machine a extrait avec succès les données !",
     clientConnected: 'Client connecté !',
     clientDisconnected: 'Client déconnecté !',
+    patientAttachments: 'Pièces jointes pour patients',
+    apply: 'Appliquer',
+    chooseDoctor: 'Choisir Docteur',
   },
 });
 

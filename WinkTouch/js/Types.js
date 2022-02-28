@@ -97,6 +97,7 @@ export type Patient = {
   id: string,
   firstName: string,
   lastName: string,
+  alias: string,
   phone: ?string,
   cell: ?string,
   patientTags: string[],
@@ -108,6 +109,7 @@ export type PatientInfo = {
   errors?: string[],
   firstName: string,
   lastName: string,
+  alias: string,
   dateOfBirth: string,
   gender: number,
   phone: ?string,
@@ -479,6 +481,7 @@ export type ExamDefinition = {
   multiValue?: boolean, //Can Add more than 1 exam,
   addablePostLock?: boolean,
   export?: string | string[],
+  isPatientFileHidden?: boolean,
 };
 
 export type ExamPredefinedValue = {
