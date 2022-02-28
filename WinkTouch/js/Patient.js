@@ -251,12 +251,10 @@ export class PatientCard extends Component {
                 {prefix(this.props.patientInfo.medicalCardVersion, '-')}
                 {prefix(this.props.patientInfo.medicalCardExp, '-')}
               </Text>
-              <Text style={styles.text}>
-                <PatientTags
-                  patient={this.props.patientInfo}
-                  showDescription={true}
-                />
-              </Text>
+              <PatientTags
+                patient={this.props.patientInfo}
+                showDescription={true}
+              />
             </View>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
@@ -823,22 +821,18 @@ export class CabinetScreen extends Component {
       return null;
     }
     return (
-      <View style={styles.centeredColumnLayout}>
-        <View style={styles.topFlow}>
-          {this.state.appointments.map(
-            (appointment: Appointment, index: number) => (
-              <AppointmentSummary
-                key={index}
-                appointment={appointment}
-                locked={isAppointmentLocked(appointment)}
-                onPress={() =>
-                  this.props.navigation.navigate('appointment', {appointment})
-                }
-              />
-            ),
-          )}
-        </View>
-      </View>
+      <ScrollView style={styles.appointments}>
+        {this.state.appointments.map((appointment: Appointment, index: number) => (
+          <AppointmentSummary
+            key={index}
+            appointment={appointment}
+            locked={isAppointmentLocked(appointment)}
+            onPress={() =>
+              this.props.navigation.navigate('appointment', {appointment})
+            }
+          />
+        ))}
+      </ScrollView>
     );
   }
 

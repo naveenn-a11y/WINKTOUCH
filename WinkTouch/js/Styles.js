@@ -384,7 +384,9 @@ export const styles = StyleSheet.create({
     backgroundColor: 'orange',
   },
   rowLayout: {
-    flexDirection: 'row',
+    display:"flex",
+    flexDirection:'row',
+     flexWrap:'wrap'
   },
   flexRow: {
     flex: 100,
@@ -1358,7 +1360,7 @@ export const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   appointments:{
-    maxHeight: 700 * fontScale,
+    maxHeight: 600 * fontScale,
     minWidth: 300 * fontScale,
     display: "flex",
     flexDirection: "column",
