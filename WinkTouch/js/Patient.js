@@ -4,24 +4,20 @@
 
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import React, {Component} from 'react';
 import {
   Image,
   View,
-  TouchableHighlight,
   Text,
   TouchableOpacity,
   LayoutAnimation,
   ScrollView,
-  Platform,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {NavigationActions} from 'react-navigation';
 import type {
   Patient,
   PatientInfo,
-  FieldDefinition,
-  CodeDefinition,
   PatientTag,
   RestResponse,
   PatientDocument,
@@ -30,13 +26,10 @@ import type {
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
-import {FormRow, FormTextInput, FormInput, FormField, ErrorCard} from './Form';
-import {ExamCardSpecifics} from './Exam';
-import {cacheItem, getCachedItem, getCachedItems} from './DataCache';
+import {FormRow, FormField, ErrorCard} from './Form';
+import {getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
-import {getFieldDefinitions, getFieldDefinition} from './Items';
 import {
-  deepClone,
   formatAge,
   prefix,
   isToday,
@@ -44,13 +37,11 @@ import {
   yearDateTimeFormat,
   isEmpty,
 } from './Util';
-import {formatOption, formatCode} from './Codes';
-import {getDoctor, getStore} from './DoctorApp';
+import {formatCode} from './Codes';
+import {getStore} from './DoctorApp';
 import {PaperClip, Refresh} from './Favorites';
-import {PatientRefractionCard} from './Refraction';
 import {Pdf} from './Document';
 import {fetchUpload, getMimeType} from './Upload';
-import {VisitHistoryCard} from './Visit';
 import {PatientSearch} from './FindPatient';
 import {Button} from './Widgets';
 import {
@@ -147,7 +138,6 @@ export class PatientTags extends Component {
       patientTags: getCachedItems(patient.patientTags),
     });
   }
-
   render() {
     if (!this.props.patient) {
       return null;
@@ -831,22 +821,18 @@ export class CabinetScreen extends Component {
       return null;
     }
     return (
-      <View style={styles.centeredColumnLayout}>
-        <View style={styles.topFlow}>
-          {this.state.appointments.map(
-            (appointment: Appointment, index: number) => (
-              <AppointmentSummary
-                key={index}
-                appointment={appointment}
-                locked={isAppointmentLocked(appointment)}
-                onPress={() =>
-                  this.props.navigation.navigate('appointment', {appointment})
-                }
-              />
-            ),
-          )}
-        </View>
-      </View>
+      <ScrollView style={styles.appointments}>
+        {this.state.appointments.map((appointment: Appointment, index: number) => (
+          <AppointmentSummary
+            key={index}
+            appointment={appointment}
+            locked={isAppointmentLocked(appointment)}
+            onPress={() =>
+              this.props.navigation.navigate('appointment', {appointment})
+            }
+          />
+        ))}
+      </ScrollView>
     );
   }
 
