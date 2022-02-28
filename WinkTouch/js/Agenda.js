@@ -11,7 +11,6 @@ import {
   Text,
   TouchableOpacity,
   InteractionManager,
-  Picker,
   Modal,
   ActivityIndicator,
   Dimensions,
@@ -64,6 +63,7 @@ import {formatCode} from './Codes';
 import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
 import {searchUsers} from './User';
 import type {Visit} from './Types';
+import DropDown from '../src/components/Picker';
 
 export class AgendaScreen extends Component {
   props: {
@@ -80,6 +80,7 @@ export class AgendaScreen extends Component {
     doctors: Array,
     selectedDoctors: Array,
     isVisible: boolean,
+    dropDown: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -97,6 +98,7 @@ export class AgendaScreen extends Component {
       doctors: [],
       selectedDoctors: [],
       isVisible: false,
+      dropDown: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -420,14 +422,27 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  openDropDown = () => {
+    this.setState({dropDown: true});
+  };
+  closeDropDown = () => {
+    this.setState({dropDown: false});
+  };
   render() {
-    const {isLoading, showDialog, isVisible} = this.state;
+    const {isLoading, showDialog, isVisible, mode, dropDown} = this.state;
+    const options =
+      this.state.selectedDoctors.length > 1 && !isWeb
+        ? [{label: strings.daily, value: 'day'}]
+        : [
+            {label: strings.daily, value: 'day'},
+            {label: strings.weekly, value: 'custom'},
+          ];
+
     return (
       <View style={styles.page}>
         {isLoading && this.renderLoading()}
         {showDialog && this.renderEventDetails()}
         {isVisible && this.renderDoctorsOptions()}
-
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -459,16 +474,16 @@ export class AgendaScreen extends Component {
               onPress={this.openDoctorsOptiosn}>
               <Text>{strings.chooseDoctor}</Text>
             </TouchableOpacity>
-            <Picker
-              style={{width: 200, padding: 10 * fontScale}}
-              itemStyle={{height: 44, borderWidth: 1, borderColor: 'gray'}}
-              selectedValue={this.state.mode}
-              onValueChange={(mode) => this._onSetMode(mode)}>
-              <Picker.Item value="day" label={strings.daily} />
-              {(this.state.selectedDoctors.length <= 1 || isWeb) && (
-                <Picker.Item value="custom" label={strings.weekly} />
-              )}
-            </Picker>
+            <View>
+              <DropDown
+                mode={mode}
+                visible={dropDown}
+                onClose={this.closeDropDown}
+                onShow={this.openDropDown}
+                onChange={(mode) => this._onSetMode(mode)}
+                options={options}
+              />
+            </View>
           </View>
         </View>
         <NativeCalendar

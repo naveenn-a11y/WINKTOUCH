@@ -1463,6 +1463,21 @@ export class FormInput extends Component {
           testID={this.props.testID}
         />
       );
+    } else if (this.props.multiOptions) {
+      let options = this.props.definition.options;
+      return (
+        <FormMultiCheckBox
+          options={options}
+          value={this.props.value}
+          label={label}
+          showLabel={this.props.showLabel}
+          readonly={readonly}
+          onChangeValue={this.props.onChangeValue}
+          style={style}
+          errorMessage={this.props.errorMessage}
+          testID={this.props.testID}
+        />
+      );
     } else if (
       this.props.definition.options &&
       this.props.definition.options.length > 0
@@ -1501,21 +1516,7 @@ export class FormInput extends Component {
             testID={this.props.testID}
           />
         );
-      } else if (this.props.multiOptions)
-        return (
-          <FormMultiCheckBox
-            options={options}
-            value={this.props.value}
-            label={label}
-            showLabel={this.props.showLabel}
-            readonly={readonly}
-            onChangeValue={this.props.onChangeValue}
-            style={style}
-            errorMessage={this.props.errorMessage}
-            testID={this.props.testID}
-          />
-        );
-      else if (
+      } else if (
         options.length === 2 &&
         (options[0] === undefined ||
           options[0] === null ||
