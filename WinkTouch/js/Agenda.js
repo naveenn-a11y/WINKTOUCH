@@ -65,7 +65,7 @@ import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
 import {searchUsers} from './User';
 import type {Visit} from './Types';
 import DropDown from '../src/components/Picker';
-
+import moment from 'moment';
 export class AgendaScreen extends Component {
   props: {
     navigation: any,
@@ -645,6 +645,7 @@ class NativeCalendar extends Component {
           ampm
           mode={mode}
           date={date}
+          swipeEnabled={false}
           height={windowHeight}
           events={appointments}
           weekStartsOn={1}
@@ -668,8 +669,11 @@ class NativeCalendar extends Component {
               <View style={agendaStyles.header(calendarWidth)}>
                 {header.dateRange.map((d) => (
                   <View style={agendaStyles.cell(cellWidth)}>
+                    <Text style={agendaStyles.day}>
+                      {moment(new Date(d)).format('ddd').toUpperCase()}
+                    </Text>
                     <Text style={agendaStyles.date}>
-                      {new Date(d).toDateString()}
+                      {moment(new Date(d)).format('D')}
                     </Text>
                     <View style={agendaStyles.row}>
                       {selectedDoctors.map((d) => {
@@ -695,7 +699,14 @@ class NativeCalendar extends Component {
 const agendaStyles = {
   header: (w) => ({width: w, flexDirection: 'row', alignSelf: 'flex-end'}),
   cell: (w) => ({width: w, alignItems: 'center', justifyContent: 'center'}),
-  date: {fontSize: 15, marginTop: 7, marginBottom: 7, fontWeight: 'bold'},
+  day: {fontSize: 12, fontWeight: 'bold', color: 'gray', marginTop: 10},
+  date: {
+    fontSize: 18,
+    marginTop: 3,
+    marginBottom: 8,
+    fontWeight: '400',
+    opacity: 0.8,
+  },
   row: {flexDirection: 'row'},
   label: (w) => ({
     width: w,
