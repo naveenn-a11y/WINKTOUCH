@@ -6,7 +6,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {WebView, WebViewMessageEvent} from 'react-native-webview';
-import {styles, windowHeight, fontScale} from './Styles';
+import {styles, windowHeight, fontScale, isWeb} from '../../../js/Styles';
 
 interface EditorProps {
   /**
@@ -63,6 +63,7 @@ export class HtmlEditor extends React.Component<EditorProps> {
 
   setContent(html: string) {
     __DEV__ && console.log('Set raw html: ' + html);
+    
     let javaScript: string = `tinymce.activeEditor.setContent(\`${html}\`, {format: 'raw'})`;
     this.refs.webref.injectJavaScript(javaScript);
   }
