@@ -13,7 +13,9 @@ export class Highcharts extends Component {
   }
   render() {
     let config: any = this.props.conf;
-    if (config === undefined || config === null) return null;
+    if (config === undefined || config === null) {
+      return null;
+    }
     config.series.map((series: any, index: Number) => {
       const data: any = series.data.map((e: Number) =>
         e === undefined ? null : e,

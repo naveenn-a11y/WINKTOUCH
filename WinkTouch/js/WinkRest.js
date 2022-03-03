@@ -10,29 +10,46 @@ import {
   getNextRequestNumber,
   logRestResponse,
   handleHttpError,
+  defaultHost,
 } from './Rest';
 import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {restVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
 
 //export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
 //export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.04/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.04/';
-export let winkRestUrl = __DEV__
-  ? 'http://192.168.2.53:8080/WinkRESTv5.00.40/'
-  : 'https://emr.downloadwink.com/WinkRESTv' + restVersion + '/';
 
-export async function fetchWinkRest(
+export const winkWebSocketUrl: string = __DEV__
+  ? 'http://192.168.2.53:8080/WinkWebSocket/'
+  : 'https://' + defaultHost + '/WinkWebSocket/';
+
+let winkRestUrl: string;
+export function setWinkRestUrl(winkEmrHost: string) {
+  winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + restVersion + '/';
+}
+
+export function getWinkRestUrl(): string {
+  if (__DEV__) {
+    return 'http://192.168.2.53:8080/WinkRESTv5.00.40/';
+  }
+  if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
+    return setWinkRestUrl(defaultHost);
+  } else {
+    return winkRestUrl;
+  }
+}
+
+export async function postWinkWebSocketUrl(
   uri: string,
   parameters: Object,
-  httpMethod: string = 'GET',
+  httpMethod: string = 'POST',
   body?: any,
 ): any {
-  const url: string = appendParameters(winkRestUrl + uri, parameters);
+  const url: string = appendParameters(winkWebSocketUrl + uri, parameters);
   const requestNr = getNextRequestNumber();
   __DEV__ &&
     console.log(
@@ -55,8 +72,51 @@ export async function fetchWinkRest(
       },
       body: JSON.stringify(body),
     });
-    if (!httpResponse.ok)
+    if (!httpResponse.ok) {
       handleHttpError(httpResponse, await httpResponse.text());
+    }
+    const restResponse = await httpResponse.json();
+    __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
+    return restResponse;
+  } catch (error) {
+    console.log(error);
+    alert(strings.formatString(strings.serverError, error));
+    return undefined;
+  }
+}
+
+export async function fetchWinkRest(
+  uri: string,
+  parameters: Object,
+  httpMethod: string = 'GET',
+  body?: any,
+): any {
+  const url: string = appendParameters(getWinkRestUrl() + uri, parameters);
+  const requestNr = getNextRequestNumber();
+  __DEV__ &&
+    console.log(
+      'REQ ' +
+        requestNr +
+        ' ' +
+        httpMethod +
+        ' ' +
+        url +
+        ' body: ' +
+        JSON.stringify(body),
+    );
+  try {
+    let httpResponse = await fetch(url, {
+      method: httpMethod,
+      headers: {
+        token: getToken(),
+        'Content-Type': 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(body),
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse, await httpResponse.text());
+    }
     const restResponse = await httpResponse.json();
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
@@ -74,7 +134,7 @@ export async function createPdf(
   method: string = 'post',
   body?: any,
 ): any {
-  const url: string = appendParameters(winkRestUrl + uri, parameters);
+  const url: string = appendParameters(getWinkRestUrl() + uri, parameters);
   __DEV__ &&
     console.log(method + ' ' + url + ': ' + (body ? JSON.stringify(body) : ''));
   try {
@@ -89,7 +149,9 @@ export async function createPdf(
       body: body ? JSON.stringify(body) : '',
     });
     //alert(JSON.stringify(httpResponse));
-    if (!httpResponse.ok) await handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      await handleHttpError(httpResponse);
+    }
     const restResponse = await httpResponse.json();
     if (restResponse.errors) {
       alert(restResponse.errors);
@@ -102,7 +164,7 @@ export async function createPdf(
     }
     if (isWeb) {
       const format: string = 'data:application/pdf;base64,';
-      return format.concat(restResponse['data']);
+      return format.concat(restResponse.data);
     } else {
       const fullFilename: string = RNFS.DocumentDirectoryPath + '/' + filename;
       await RNFS.exists(fullFilename).then((exists: boolean) => {
@@ -114,7 +176,7 @@ export async function createPdf(
           }
         }
       });
-      await RNFS.writeFile(fullFilename, restResponse['data'], 'base64');
+      await RNFS.writeFile(fullFilename, restResponse.data, 'base64');
       __DEV__ && console.log('Created local file ' + fullFilename);
       return fullFilename;
     }

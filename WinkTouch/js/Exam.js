@@ -25,6 +25,7 @@ import type {
   ExamDefinition,
   FieldDefinition,
   GroupDefinition,
+  Measurement,
 } from './Types';
 import {styles, fontScale, selectionFontColor, isWeb} from './Styles';
 import {strings} from './Strings';
@@ -50,20 +51,40 @@ import {
   cacheItem,
   getCachedItems,
 } from './DataCache';
-import {deepClone, formatMoment, getValue, stripIndex, setValue} from './Util';
+import {
+  deepClone,
+  formatMoment,
+  getValue,
+  stripIndex,
+  setValue,
+  isEmpty,
+  formatDate,
+  now,
+  jsonDateTimeFormat,
+} from './Util';
 import {allExamIds, fetchVisit, visitHasEnded} from './Visit';
-import {GlassesDetail} from './Refraction';
+import {
+  getLensometries,
+  getKeratometry,
+  getAutoRefractor,
+  GlassesDetail,
+  getLensometry,
+} from './Refraction';
 import {
   getFavorites,
   removeFavorite,
   Star,
   Refresh,
   storeFavorite,
+  ExportIcon,
 } from './Favorites';
 import {getExamDefinition} from './ExamDefinition';
-import {Lock, NoAccess, Pencil} from './Widgets';
+import {Alert, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
+import {getConfiguration} from './Configuration';
+import {formatCode, getCodeDefinition} from './Codes';
+import {Machine, exportData} from './Machine';
 
 export async function fetchExam(
   examId: string,
@@ -105,7 +126,9 @@ function updateMappedExamFields(
   value,
   visitId: string,
 ) {
-  if (!fieldDefinitions) return;
+  if (!fieldDefinitions) {
+    return;
+  }
   fieldDefinitions.forEach(
     (fieldDefinition: FieldDefinition | GroupDefinition) => {
       const fieldValue =
@@ -139,14 +162,18 @@ function updateMappedExamFields(
 }
 
 export function updateMappedExams(exam: Exam) {
-  if (!exam) return;
+  if (!exam) {
+    return;
+  }
   let fieldDefinitions: GroupDefinition[] = exam.definition.fields;
   let examValue = exam[exam.definition.name];
   updateMappedExamFields(fieldDefinitions, examValue, exam.visitId);
 }
 
 export function getVisit(exam: Exam): Visit {
-  if (!exam) return;
+  if (!exam) {
+    return;
+  }
   return getCachedItem(exam.visitId);
 }
 
@@ -156,14 +183,17 @@ export function getPatient(exam: Exam): Patient {
 }
 
 export function getExam(examName: string, visit: Visit): Exam {
-  if (!visit) return;
+  if (!visit) {
+    return;
+  }
   let examId = visit.customExamIds.find(
     (examId: string) => getCachedItem(examId).definition.name === examName,
   );
-  if (!examId)
+  if (!examId) {
     examId = visit.preCustomExamIds.find(
       (examId: string) => getCachedItem(examId).definition.name === examName,
     );
+  }
   const exam: Exam = getCachedItem(examId);
   return exam;
 }
@@ -175,18 +205,24 @@ export function getFieldValue(fieldIdentifier: string, exam: Exam): any {
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0, examIdentifier.indexOf('.'));
     exam = getExam(examName, getVisit(exam));
-    if (!exam) return undefined;
+    if (!exam) {
+      return undefined;
+    }
     let examValue = exam[examName];
     const identifier: string = examIdentifier.substring(examName.length + 1);
     let value = getValue(examValue, identifier);
     return value;
   } else if (fieldSrc[0] === 'patient') {
     let patient = getPatient(exam);
-    if (!patient) return undefined;
+    if (!patient) {
+      return undefined;
+    }
     return patient[fieldSrc[1]];
   } else if (fieldSrc[0] === 'visit') {
     const visit: Visit = getVisit(exam);
-    if (!visit) return undefined;
+    if (!visit) {
+      return undefined;
+    }
     let fieldName: string = fieldSrc[1];
     for (let i: number = 2; i < fieldSrc.length; i++) {
       fieldName = fieldName + '.' + fieldSrc[i];
@@ -216,7 +252,9 @@ export function setMappedFieldValue(
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0, examIdentifier.indexOf('.'));
     exam = getExam(examName, getVisit(exam));
-    if (!exam) return undefined;
+    if (!exam) {
+      return undefined;
+    }
     let examValue = exam[examName];
     const identifier: string = examIdentifier.substring(examName.length + 1);
     setValue(examValue, identifier, value);
@@ -224,6 +262,23 @@ export function setMappedFieldValue(
   } else if (fieldSrc[0] === 'clFitting') {
     //TODO: we can ignore clFitting for now
     return;
+  } else if (fieldSrc[0] === 'patient') {
+    //TODO: Support other patient Mapped Fields
+    __DEV__ && console.log('Setting ' + fieldIdentifier + ' to ' + value);
+    let patientIdentifier = fieldIdentifier.substring(8);
+    let patient = getPatient(exam);
+    patient = deepClone(patient);
+    if (!patient) {
+      return undefined;
+    }
+    if (patientIdentifier.includes('patientTag')) {
+      if (!patient.patientTags) {
+        Object.assign(patient, {
+          patientTags: [],
+        });
+      }
+    }
+    cacheItemById(patient);
   } else {
     __DEV__ &&
       console.error(
@@ -242,7 +297,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
     const examDefinition: ExamDefinition = otherExam
       ? otherExam.definition
       : getExamDefinition(examName);
-    if (!examDefinition) return undefined;
+    if (!examDefinition) {
+      return undefined;
+    }
     const identifiers: string[] = examIdentifier
       .substring(examName.length + 1)
       .split('.');
@@ -253,7 +310,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
         (definition: FieldDefinition | GroupDefinition) =>
           definition.name === stripIndex(identifiers[i]),
       );
-      if (fieldDefinition === undefined) break;
+      if (fieldDefinition === undefined) {
+        break;
+      }
       fields = fieldDefinition.fields;
     }
     if (fieldDefinition === undefined) {
@@ -313,7 +372,9 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
         (definition: FieldDefinition | GroupDefinition) =>
           definition.name === stripIndex(fieldName),
       );
-      if (fieldDefinition === undefined) break;
+      if (fieldDefinition === undefined) {
+        break;
+      }
       fields = fieldDefinition.fields;
     }
     if (fieldDefinition === undefined) {
@@ -433,7 +494,9 @@ export class ExamCard extends Component {
 
   getStyle(): any {
     let style: string = this.props.style;
-    if (style) return style;
+    if (style) {
+      return style;
+    }
     style =
       this.props.exam.definition.card === false
         ? styles.page
@@ -466,7 +529,9 @@ export class ExamCard extends Component {
 
 export function getExamHistory(exam: Exam): Exam[] {
   const visit = getCachedItem(exam.visitId);
-  if (!visit) return [];
+  if (!visit) {
+    return [];
+  }
   const visitHistory: Visit[] = getCachedItems(
     getCachedItem('visitHistory-' + visit.patientId),
   );
@@ -529,11 +594,15 @@ export class ExamHistoryScreen extends Component {
     let exam: Exam = this.props.navigation.state.params.exam;
     if (exam.definition.addable) {
       let items: any[] = exam[exam.definition.name];
-      if (!items.includes(item)) items.push(deepClone(item));
+      if (!items.includes(item)) {
+        items.push(deepClone(item));
+      }
     } else {
       let examItem: {} = exam[exam.definition.name];
       if (examItem instanceof Array) {
-        if (examItem.length !== 1) return;
+        if (examItem.length !== 1) {
+          return;
+        }
         examItem = examItem[0];
       }
       Object.assign(examItem, deepClone(item));
@@ -572,7 +641,9 @@ export class ExamHistoryScreen extends Component {
       );
     }
     if (groupDefinition.multiValue === true) {
-      if (value instanceof Array === false || value.length === 0) return null;
+      if (value instanceof Array === false || value.length === 0) {
+        return null;
+      }
       if (groupDefinition.options == undefined) {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
@@ -729,7 +800,9 @@ export class ExamHistoryScreen extends Component {
 }
 
 function examIsLocked(exam: Exam): boolean {
-  if (exam === null || exam === undefined) return false;
+  if (exam === null || exam === undefined) {
+    return false;
+  }
   return visitHasEnded(exam.visitId);
 }
 
@@ -748,6 +821,9 @@ export class ExamScreen extends Component {
     locked: boolean,
     scrollable: boolean,
     favorites: ExamPredefinedValue[],
+    showExportDataPopup: boolean,
+    showSnackBar: ?boolean,
+    snackBarMessage: ?string,
   };
 
   constructor(props: any) {
@@ -769,13 +845,20 @@ export class ExamScreen extends Component {
       isDirty: exam.errors !== undefined,
       locked: this.props.unlocked !== true && examIsLocked(exam),
       scrollable: true,
-      favorites: exam.definition.starable ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id
+      favorites: exam.definition.starable ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id,
+      showExportDataPopup: false,
+      showSnackBar: false,
+      snackBarMessage: '',
     };
   }
 
   componentDidMount() {
-    if (this.state.exam.id != undefined && this.state.exam.errors === undefined)
+    if (
+      this.state.exam.id != undefined &&
+      this.state.exam.errors === undefined
+    ) {
       this.fetchExam();
+    }
   }
 
   componentDidUpdate(prevProps: any) {
@@ -825,7 +908,9 @@ export class ExamScreen extends Component {
 
   async refreshExam() {
     let exam: Exam = await fetchExam(this.state.exam.id, true);
-    if (exam === undefined) return;
+    if (exam === undefined) {
+      return;
+    }
     this.setState({exam, isDirty: false});
   }
 
@@ -852,7 +937,9 @@ export class ExamScreen extends Component {
       this.state.appointmentStateKey,
       this.props.navigation,
     );
-    if (exam.errors === undefined) updateMappedExams(exam);
+    if (exam.errors === undefined) {
+      updateMappedExams(exam);
+    }
     if (this.props.exam) {
       if (this.state.exam.id === exam.id) {
         this.setState({exam, isDirty: exam.errors !== undefined});
@@ -883,7 +970,9 @@ export class ExamScreen extends Component {
 
   addFavorite = async (favorite: any, name: string) => {
     const exam: ?Exam = this.state.exam;
-    if (exam === undefined) return;
+    if (exam === undefined) {
+      return;
+    }
     await storeFavorite(favorite, exam.definition.id, name);
     this.setState({favorites: getFavorites(this.state.exam)});
   };
@@ -901,6 +990,134 @@ export class ExamScreen extends Component {
     return getVisit(this.state.exam);
   }
 
+  showSnackBar() {
+    this.setState({showSnackBar: true});
+  }
+  hideSnackBar() {
+    this.setState({showSnackBar: false});
+  }
+
+  setSnackBarMessage(message: string) {
+    this.setState({snackBarMessage: message});
+  }
+
+  async confirmExportData(items: any) {
+    let data: any = {};
+    const patient: Patient = getPatient(this.state.exam);
+
+    items.map((rxData: any) => {
+      const isChecked: boolean = rxData.isChecked;
+      const entityId: string = rxData.entityId;
+      if (isChecked) {
+        if (entityId === strings.autoRefractor) {
+          data = deepClone(rxData.data);
+        } else if (entityId === strings.lensometry) {
+          data.lensometry = deepClone(rxData.data);
+        } else if (entityId === strings.keratometry) {
+          data.keratometry = deepClone(rxData.data);
+        }
+      }
+    });
+    let measurement: Measurement = {
+      label: formatLabel(this.state.exam.definition),
+      date: formatDate(now(), jsonDateTimeFormat),
+      patientId: patient.id,
+      data,
+    };
+    let machineIdentifier = this.state.exam.definition.export;
+    if (machineIdentifier instanceof Array && machineIdentifier.length > 0) {
+      machineIdentifier = machineIdentifier[0]; //TODO: send to all destinations
+    }
+    data = await exportData(
+      machineIdentifier,
+      measurement,
+      this.state.exam.examId,
+    );
+    if (data && !data.errors) {
+      const machine: Machine = new Machine(machineIdentifier);
+      machine.bind = (type, data) => {
+        switch (type) {
+          case 'message':
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+          case 'closed':
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+          case 'connected':
+            machine.push();
+            this.setSnackBarMessage(data);
+            this.showSnackBar();
+            break;
+        }
+      };
+      machine.connect(() => {});
+    }
+    this.hideExportDataPopup();
+  }
+
+  hideExportDataPopup() {
+    this.setState({showExportDataPopup: false});
+  }
+
+  showExportDataPopup() {
+    this.setState({showExportDataPopup: true});
+  }
+
+  buildExportData(): any {
+    const exportRxOptions: any = [];
+    const lensometry: GlassesRx[] = getLensometries(this.state.exam.visitId);
+    const keratometry: GlassesRx = getKeratometry(this.state.exam.visitId);
+    const autoRefractor = getAutoRefractor(this.state.exam.visitId);
+
+    if (autoRefractor !== undefined && autoRefractor.length > 0) {
+      autoRefractor.map((prescription: GlassesRx, index: number) => {
+        exportRxOptions.push({
+          label: strings.autoRefractor + ' ' + (index + 1),
+          isChecked: index === 0,
+          entityId: strings.autoRefractor,
+          data: prescription,
+          divider: index === autoRefractor.length - 1,
+          singleSelection: true,
+        });
+      });
+    }
+    if (lensometry !== undefined && lensometry.length > 0) {
+      lensometry.map((prescription: GlassesRx, index: number) => {
+        if (!isEmpty(prescription.lensType))
+          exportRxOptions.push({
+            label: strings.lensometry + ': ' + prescription.lensType,
+            isChecked: index === 0,
+            entityId: strings.lensometry,
+            data: prescription,
+            divider: index === lensometry.length - 1,
+            singleSelection: true,
+          });
+        else
+          exportRxOptions.push({
+            label: strings.lensometry + ' ' + (index + 1),
+            isChecked: index === 0,
+            entityId: strings.lensometry,
+            data: prescription,
+            divider: index === lensometry.length - 1,
+            singleSelection: true,
+          });
+      });
+    }
+    if (keratometry !== undefined) {
+      exportRxOptions.push({
+        label: strings.keratometry,
+        isChecked: true,
+        entityId: strings.keratometry,
+        data: keratometry,
+        singleSelection: true,
+      });
+    }
+
+    return exportRxOptions;
+  }
+
   getRelatedExam(examName: string): Exam {
     const visit: Visit = this.getVisit();
     let examId = visit.customExamIds.find(
@@ -909,10 +1126,11 @@ export class ExamScreen extends Component {
         getCachedItem(examId) !== undefined &&
         getCachedItem(examId).definition.name === examName,
     );
-    if (!examId)
+    if (!examId) {
       examId = visit.preCustomExamIds.find(
         (examId: string) => getCachedItem(examId).definition.name === examName,
       );
+    }
     const exam: Exam = getCachedItem(examId);
     return exam;
   }
@@ -934,7 +1152,9 @@ export class ExamScreen extends Component {
   };
 
   renderExam() {
-    if (!this.state.exam) return null;
+    if (!this.state.exam) {
+      return null;
+    }
     const canEdit: boolean = !(this.state.exam.readonly || this.state.locked);
     switch (this.state.exam.definition.type) {
       case 'selectionLists':
@@ -990,7 +1210,9 @@ export class ExamScreen extends Component {
   }
 
   renderLockIcon() {
-    if (!this.state.locked || this.state.exam.readonly) return null;
+    if (!this.state.locked || this.state.exam.readonly) {
+      return null;
+    }
     return (
       <TouchableOpacity onPress={this.switchLock}>
         <Lock
@@ -1009,11 +1231,15 @@ export class ExamScreen extends Component {
           <Pencil style={styles.screenIcon} />
         </TouchableOpacity>
       );
-    } else return null;
+    } else {
+      return null;
+    }
   }
 
   renderFavoriteIcon() {
-    if (!this.state.exam) return null;
+    if (!this.state.exam) {
+      return null;
+    }
     if (
       this.state.locked ||
       this.state.exam.readonly ||
@@ -1021,8 +1247,9 @@ export class ExamScreen extends Component {
       this.state.exam.definition.starable !== true ||
       (this.state.exam.definition.type !== 'selectionLists' &&
         this.state.exam.definition.type !== 'groupedForm')
-    )
+    ) {
       return null;
+    }
     return (
       <Star
         onAddFavorite={this.addExamFavorite}
@@ -1033,7 +1260,9 @@ export class ExamScreen extends Component {
   }
 
   renderRefreshIcon() {
-    if (this.state.locked) return null;
+    if (this.state.locked) {
+      return null;
+    }
     return (
       <TouchableOpacity onPress={() => this.refreshExam()} testID="refreshExam">
         <Refresh style={styles.screenIcon} />
@@ -1042,9 +1271,12 @@ export class ExamScreen extends Component {
   }
 
   renderExamIcons(style: any) {
-    if (this.state.exam.definition.card === false) return;
+    if (this.state.exam.definition.card === false) {
+      return;
+    }
     return (
       <View style={style}>
+        {this.renderExportSection()}
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
         {this.renderPencilIcon()}
@@ -1052,14 +1284,63 @@ export class ExamScreen extends Component {
       </View>
     );
   }
+  renderExportSection() {
+    if (
+      this.state.exam.definition.export === undefined ||
+      this.state.exam.definition.export === null ||
+      this.state.exam.definition.export.length === 0 ||
+      getConfiguration().machine.phoropter === undefined
+    )
+      return null;
+    return (
+      <View style={styles.flow}>
+        <TouchableOpacity
+          onPress={() => this.showExportDataPopup()}
+          testID={this.props.fieldId + '.exportButton'}>
+          <ExportIcon style={styles.screenIcon} />
+        </TouchableOpacity>
+        {this.state.showExportDataPopup && this.renderExportPopup()}
+      </View>
+    );
+  }
+
+  renderExportPopup() {
+    const exportRxOptions: any = this.buildExportData();
+
+    return (
+      <Alert
+        title={strings.printExportLabel}
+        data={exportRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmExportData(exportRxOptions)}
+        onCancelAction={() => this.hideExportDataPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.exportAction}
+        cancelActionLabel={strings.cancel}
+        multiValue={true}
+      />
+    );
+  }
+
+  renderSnackBar() {
+    if (this.state.showSnackBar)
+      return (
+        <NativeBar
+          message={this.state.snackBarMessage}
+          onDismissAction={() => this.hideSnackBar()}
+        />
+      );
+    return null;
+  }
 
   renderRelatedExams() {
     if (
       this.state.exam.definition.relatedExams === undefined ||
       this.state.exam.definition.relatedExams === null ||
       this.state.exam.definition.relatedExams.length === 0
-    )
+    ) {
       return null;
+    }
     return (
       <View style={styles.flow}>
         {this.state.exam.definition.relatedExams.map(
@@ -1084,7 +1365,7 @@ export class ExamScreen extends Component {
     if (
       this.state.exam.definition.scrollable === true ||
       this.state.exam.definition.type === 'groupedForm'
-    )
+    ) {
       return (
         <KeyboardAwareScrollView
           style={styles.page}
@@ -1098,20 +1379,24 @@ export class ExamScreen extends Component {
           pinchGestureEnabled={this.state.scrollable}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
+          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </KeyboardAwareScrollView>
       );
-    if (this.props.disableScroll)
+    }
+    if (this.props.disableScroll) {
       return (
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
           {isWeb && this.renderExamIcons(styles.examIconsFlex)}
+          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
           {!isWeb && this.renderExamIcons(styles.examIcons)}
         </View>
       );
+    }
     return (
       <KeyboardAwareScrollView
         style={styles.page}
@@ -1120,6 +1405,7 @@ export class ExamScreen extends Component {
         {isWeb && this.renderExamIcons(styles.examIconsFlex)}
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
+          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>

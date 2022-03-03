@@ -57,7 +57,7 @@ async function fetchPublicIp(): string {
   return ip;
 }
 
-export let isAtWink: boolean = undefined;
+export let isAtWink: boolean;
 
 async function determineIfAtWink(): void {
   const localIp = await fetchIp();
@@ -80,9 +80,13 @@ async function fetchSecurityQuestions() {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     let body: string = await httpResponse.text();
-    if (!body) return [];
+    if (!body) {
+      return [];
+    }
     let questions: string[] = body.split('\n');
     questions = questions.map((question: string) =>
       question.substring(question.indexOf(' ') + 1),
@@ -96,13 +100,17 @@ async function fetchSecurityQuestions() {
 }
 
 async function fetchSecurityQuestionIndex(email: string) {
-  if (!email) return undefined;
+  if (!email) {
+    return undefined;
+  }
   const ip: string = await fetchIp();
   const url =
     securityQuestionUrl + '&email=' + encodeURIComponent(email) + '&ip=' + ip;
   try {
     let httpResponse = await fetch(url);
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     let body: string = await httpResponse.text();
     let questionIndex: number = parseInt(body);
     return questionIndex;
@@ -118,7 +126,9 @@ async function fetchRegistration(
   securityQuestionIndex: number,
   securityAnswer: string,
 ) {
-  if (!email || !securityAnswer) return undefined;
+  if (!email || !securityAnswer) {
+    return undefined;
+  }
   const ip: string = await fetchIp();
   const url =
     registrationUrl +
@@ -139,7 +149,9 @@ async function fetchRegistration(
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     let registration: Registration = await httpResponse.json();
     //TODO handle error
     /**
@@ -157,7 +169,9 @@ async function fetchRegistration(
 }
 
 export async function fetchTouchVersion(path: string): string {
-  if (!path) return undefined;
+  if (!path) {
+    return undefined;
+  }
   const url = touchVersionUrl + '?path=' + encodeURIComponent(path);
   __DEV__ && console.log('REQ touch version:' + url);
   try {
@@ -168,7 +182,9 @@ export async function fetchTouchVersion(path: string): string {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     let touchVersion: string = await httpResponse.text();
     //TODO handle error
     __DEV__ && console.log('RES touch version: ' + touchVersion);
@@ -213,7 +229,9 @@ export class RegisterScreen extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.email === this.props.email) return;
+    if (prevProps.email === this.props.email) {
+      return;
+    }
     this.loadSecurityQuestions();
     this.setState({
       email: this.props.email,
@@ -228,7 +246,9 @@ export class RegisterScreen extends Component {
 
   async loadSecurityQuestions() {
     let securityQuestions: string[] = await fetchSecurityQuestions();
-    if (!this.unmounted) this.setState({securityQuestions});
+    if (!this.unmounted) {
+      this.setState({securityQuestions});
+    }
   }
 
   async submitEmail(isRegistered: boolean) {
@@ -250,7 +270,9 @@ export class RegisterScreen extends Component {
       return;
     }
     let securityQuestionIndex: number = await fetchSecurityQuestionIndex(email);
-    if (securityQuestionIndex < 0) securityQuestionIndex = undefined;
+    if (securityQuestionIndex < 0) {
+      securityQuestionIndex = undefined;
+    }
     if (securityQuestionIndex === undefined) {
       alert(strings.unRegisteredEmail);
     }

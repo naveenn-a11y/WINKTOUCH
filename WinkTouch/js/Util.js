@@ -31,8 +31,12 @@ export const jsonDateTimeFormat: string = 'YYYY-MM-DD[T]HH:mm';
 export const jsonDateFormat: string = 'YYYY-MM-DD';
 
 export function deepClone(object: any): any {
-  if (object === undefined) return undefined;
-  if (object === null) return null;
+  if (object === undefined) {
+    return undefined;
+  }
+  if (object === null) {
+    return null;
+  }
   return JSON.parse(JSON.stringify(object));
 }
 
@@ -106,8 +110,12 @@ export function isToyear(date: Date | string): boolean {
 }
 
 export function compareDates(d1: string, d2: string) {
-  if (d1 === d2) return 0;
-  if (d1 < d2) return -1;
+  if (d1 === d2) {
+    return 0;
+  }
+  if (d1 < d2) {
+    return -1;
+  }
   return 1;
 }
 
@@ -154,8 +162,9 @@ export function parseDate(jsonDate: ?string): ?Date {
     jsonDate === undefined ||
     jsonDate === null ||
     jsonDate.trim().length === 0
-  )
+  ) {
     return undefined;
+  }
   const date = moment(jsonDate).toDate();
   return date;
 }
@@ -166,24 +175,31 @@ export function formatDate(date: ?Date | ?string, format: string): string {
     date === undefined ||
     date === '' ||
     date.toString().trim() === ''
-  )
+  ) {
     return '';
+  }
   const formattedDate: string = moment(date).format(format);
-  if (formattedDate === 'Invalid date') return date;
+  if (formattedDate === 'Invalid date') {
+    return date;
+  }
   return formattedDate;
 }
 
 export function formatTime(time: ?string): string {
-  if (time === null || time === undefined || time.toString().trim() === '')
+  if (time === null || time === undefined || time.toString().trim() === '') {
     return '';
+  }
   const formattedTime: string = moment(time, time24Format).format('LT');
-  if (formattedTime === 'Invalid date') return time;
+  if (formattedTime === 'Invalid date') {
+    return time;
+  }
   return formattedTime;
 }
 
 export function formatHour(time: ?string): string {
-  if (time === null || time === undefined || time.toString().trim() === '')
+  if (time === null || time === undefined || time.toString().trim() === '') {
     return '';
+  }
   const formattedTime: string = formatTime(time);
   const hour = formattedTime.substring(0, formattedTime.indexOf(':'));
   const suffix: ?string = formattedTime.includes(' ')
@@ -207,22 +223,40 @@ export function formatDuration(
       startDate = new Date(startDate);
     }
   } else {
-    if (!(date instanceof Date)) date = parseDate(date);
+    if (!(date instanceof Date)) {
+      date = parseDate(date);
+    }
   }
-  if (!(startDate instanceof Date)) startDate = parseDate(startDate);
-  if (date === startDate) return '';
+  if (!(startDate instanceof Date)) {
+    startDate = parseDate(startDate);
+  }
+  if (date === startDate) {
+    return '';
+  }
   if (isSameDay(date, startDate)) {
     const minuteCount: number = Math.abs(minuteDifference(date, startDate));
-    if (minuteCount === 0) return '';
-    if (minuteCount === 1) return '1 ' + strings.minute;
-    if (minuteCount === 30) return strings.halfAnHour;
-    if (minuteCount === 60) return '1 ' + strings.hour;
-    if (minuteCount < 120) return minuteCount + ' ' + strings.minutes;
+    if (minuteCount === 0) {
+      return '';
+    }
+    if (minuteCount === 1) {
+      return '1 ' + strings.minute;
+    }
+    if (minuteCount === 30) {
+      return strings.halfAnHour;
+    }
+    if (minuteCount === 60) {
+      return '1 ' + strings.hour;
+    }
+    if (minuteCount < 120) {
+      return minuteCount + ' ' + strings.minutes;
+    }
     const hourCount = Math.abs(hourDifference(date, startDate));
     return hourCount + ' ' + strings.hours; //TODO minutes as decimals?
   }
   const dayCount: number = Math.abs(dayDifference(date, startDate));
-  if (dayCount === 1) return '1 ' + strings.day;
+  if (dayCount === 1) {
+    return '1 ' + strings.day;
+  }
   return dayCount + ' ' + strings.days;
 }
 
@@ -231,10 +265,13 @@ export function formatAge(date: ?Date | ?string): string {
     date === undefined ||
     date === null ||
     date.toString().trim().length === 0
-  )
+  ) {
     return '';
+  }
   try {
-    if (!(date instanceof Date)) date = parseDate(date);
+    if (!(date instanceof Date)) {
+      date = parseDate(date);
+    }
     const nu = now();
     const age: number = yearDifference(nu, date);
     return age.toString() + ' ' + strings.years;
@@ -245,31 +282,45 @@ export function formatAge(date: ?Date | ?string): string {
 }
 
 export function formatMoment(date: Date | string): string {
-  if (__DEV__ && !(date instanceof Date) && !isNaN(date))
+  if (__DEV__ && !(date instanceof Date) && !isNaN(date)) {
     console.error('Date is a number: ' + date);
+  }
   try {
     if (
       date === undefined ||
       date === null ||
       date.toString().trim().length === 0
-    )
+    ) {
       return '';
-    if (!(date instanceof Date)) date = parseDate(date);
+    }
+    if (!(date instanceof Date)) {
+      date = parseDate(date);
+    }
     const nu = now();
     if (isSameDay(date, nu)) {
       return formatTime(date);
     }
     const dayCount: number = dayDifference(nu, date);
-    if (dayCount < -100) return formatDate(date, farDateFormat);
-    if (dayCount < -14) return formatDate(date, dateFormat);
-    if (dayCount <= -1) return formatDate(date, dateTime24Format);
+    if (dayCount < -100) {
+      return formatDate(date, farDateFormat);
+    }
+    if (dayCount < -14) {
+      return formatDate(date, dateFormat);
+    }
+    if (dayCount <= -1) {
+      return formatDate(date, dateTime24Format);
+    }
     //if (dayCount===-1) return 'Tomorrow '+formatDate(date, time24Format);
-    if (dayCount === 0) return formatDate(date, time24Format);
+    if (dayCount === 0) {
+      return formatDate(date, time24Format);
+    }
     //if (dayCount===1) return 'Yesterday';
     //if (dayCount <= 14)  return dayCount+' days ago';
     //const weekCount : number = weekDifference(nu, date);
     //if (weekCount <=8) return weekCount+' weeks ago';
-    if (dayCount <= 100) return formatDate(date, dateFormat);
+    if (dayCount <= 100) {
+      return formatDate(date, dateFormat);
+    }
     return formatDate(date, farDateFormat);
   } catch (error) {
     console.log(error);
@@ -278,23 +329,39 @@ export function formatMoment(date: Date | string): string {
 }
 
 export function capitalize(text: string): string {
-  if (!text || text.length == 0) return text;
-  if (text.length === 1) return text.toUpperCase();
+  if (!text || text.length == 0) {
+    return text;
+  }
+  if (text.length === 1) {
+    return text.toUpperCase();
+  }
   return text.substring(0, 1).toUpperCase() + text.substring(1);
 }
 
 export function formatStickySign(number: ?number, decimals: number): string {
-  if (number === undefined || number === null) return '';
-  if (number < 0) return number.toFixed(decimals);
+  if (number === undefined || number === null) {
+    return '';
+  }
+  if (number < 0) {
+    return number.toFixed(decimals);
+  }
   return '+' + number.toFixed(decimals);
 }
 
 export function formatDecimals(number: ?number, decimals: number): string {
-  if (number === undefined || number === null) return '';
+  if (number === undefined || number === null) {
+    return '';
+  }
   if (number === 0 || number % 1 === 0) {
-    if (decimals === 1) return '.0';
-    if (decimals === 2) return '.00';
-    if (decimals === 3) return '.000';
+    if (decimals === 1) {
+      return '.0';
+    }
+    if (decimals === 2) {
+      return '.00';
+    }
+    if (decimals === 3) {
+      return '.000';
+    }
     return '.0000';
   }
   let formatted: string = Math.abs(number % 1)
@@ -304,25 +371,32 @@ export function formatDecimals(number: ?number, decimals: number): string {
 }
 
 export function formatDegree(number: ?number): string {
-  if (!number) return '';
+  if (!number) {
+    return '';
+  }
   const degreeSymbol: string = '\u{00B0}';
   return number.toString() + degreeSymbol;
 }
 
 export function formatDiopter(sph: ?string | ?number) {
-  if (isEmpty(sph)) return '';
+  if (isEmpty(sph)) {
+    return '';
+  }
   if (isFinite(sph)) {
     //'-1.25'|-1.25
-    if (Number.isFinite(sph))
+    if (Number.isFinite(sph)) {
       //-1.25
       return formatStickySign(sph, 2);
+    }
     return formatStickySign(parseFloat(sph), 2);
   } //'balanced'
   return sph;
 }
 
 export function deAccent(text: string): string {
-  if (text == undefined) return text;
+  if (text == undefined) {
+    return text;
+  }
   let accents = {
     à: 'a',
     á: 'a',
@@ -344,10 +418,15 @@ export function deAccent(text: string): string {
 }
 
 export function isEmpty(value: any): boolean {
-  if (value === undefined || value === null) return true;
-  if (value === '' || (value.trim !== undefined && value.trim().length === 0))
+  if (value === undefined || value === null) {
     return true;
-  if (value.length === 0) return true;
+  }
+  if (value === '' || (value.trim !== undefined && value.trim().length === 0)) {
+    return true;
+  }
+  if (value.length === 0) {
+    return true;
+  }
   if (value instanceof Array) {
     if (value.length === 0) {
       return true;
@@ -360,9 +439,13 @@ export function isEmpty(value: any): boolean {
       return true;
     }
   } else if (value instanceof Object) {
-    if (Object.keys(value).length === 0) return true;
+    if (Object.keys(value).length === 0) {
+      return true;
+    }
     for (let subValue of Object.values(value)) {
-      if (!isEmpty(subValue)) return false;
+      if (!isEmpty(subValue)) {
+        return false;
+      }
     }
     return true;
   }
@@ -418,29 +501,39 @@ export function split(value: ?string, options: string[][]): string[] {
     return option;
   });
   if (value.length > 0) {
-    if (splittedValue[splittedValue.length - 1] === undefined)
+    if (splittedValue[splittedValue.length - 1] === undefined) {
       splittedValue[splittedValue.length - 1] = value;
-    else splittedValue[splittedValue.length - 1] += value;
+    } else {
+      splittedValue[splittedValue.length - 1] += value;
+    }
   }
   return splittedValue;
 }
 
 export function combine(value: string[]): ?string {
-  if (value === undefined) return undefined;
-  let combinedValue = undefined;
+  if (value === undefined) {
+    return undefined;
+  }
+  let combinedValue;
   value.forEach((subValue: string) => {
     if (subValue !== undefined) {
-      if (combinedValue === undefined) combinedValue = '';
+      if (combinedValue === undefined) {
+        combinedValue = '';
+      }
       subValue = subValue.toString();
       combinedValue += subValue;
     }
   });
-  if (combinedValue !== undefined) combinedValue = combinedValue.trim();
+  if (combinedValue !== undefined) {
+    combinedValue = combinedValue.trim();
+  }
   return combinedValue;
 }
 
 export function passesFilter(value: Object, filter: {}): boolean {
-  if (filter === undefined) return true;
+  if (filter === undefined) {
+    return true;
+  }
   const filterEntries: [][] = Object.entries(filter);
   for (let i: number = 0; i < filterEntries.length; i++) {
     const filterKey: string = filterEntries[i][0];
@@ -455,7 +548,9 @@ export function passesFilter(value: Object, filter: {}): boolean {
         typeof subValue === 'string'
           ? subValue.trim().toLowerCase() === filterValue.trim().toLowerCase()
           : subValue === filterValue;
-      if (!passesFilter) return false;
+      if (!passesFilter) {
+        return false;
+      }
     }
   }
   return true;
@@ -480,7 +575,9 @@ function getIndex(identifier: string): ?number {
 }
 
 function subValue(value, identifier: string) {
-  if (value === undefined || value === null) return value;
+  if (value === undefined || value === null) {
+    return value;
+  }
   let subValue = value[stripIndex(identifier)];
   const index: ?number = getIndex(identifier);
   if (index !== undefined) {
@@ -503,7 +600,9 @@ export function setValue(value: {}, fieldIdentifier: string, fieldValue: any) {
     const identifier: string = identifiers[i];
     let childValue = subValue(value, identifier);
     if (childValue === undefined) {
-      if (value === undefined) return;
+      if (value === undefined) {
+        return;
+      }
       childValue = {};
       value[identifier] = childValue;
     }
@@ -522,22 +621,31 @@ export function replaceFileExtension(
     fileName === undefined ||
     extension === null ||
     extension === undefined
-  )
+  ) {
     return fileName;
+  }
   const dotIndex: number = fileName.lastIndexOf('.');
-  if (dotIndex <= 0) return fileName;
-  if (extension.startsWith('.')) extension = extension.substring(1);
+  if (dotIndex <= 0) {
+    return fileName;
+  }
+  if (extension.startsWith('.')) {
+    extension = extension.substring(1);
+  }
   fileName = fileName.substring(0, dotIndex + 1) + extension;
   return fileName;
 }
 
 export function prefix(text: ?string, prefix: string): string {
-  if (text === undefined || text === null || text.trim() === '') return '';
+  if (isEmpty(text)) {
+    return '';
+  }
   return prefix + text;
 }
 
 export function postfix(text: ?string, postfix: string): string {
-  if (text === undefined || text === null || text.trim() === '') return '';
+  if (isEmpty(text)) {
+    return '';
+  }
   return '' + text + postfix;
 }
 
@@ -548,7 +656,25 @@ export function sort(array: []): [] {
 }
 
 export function insertNewlines(text: string): string {
-  if (text === undefined || text === null) return text;
+  if (text === undefined || text === null) {
+    return text;
+  }
   text = text.replace(/  +/g, '\n');
   return text;
+}
+
+export function extractHostname(url) {
+  let hostname;
+  //find & remove protocol (http, ftp, etc.) and get hostname
+  if (url.indexOf('//') > -1) {
+    hostname = url.split('/')[2];
+  } else {
+    hostname = url.split('/')[0];
+  }
+  //find & remove port number
+  hostname = hostname.split(':')[0];
+  //find & remove "?"
+  hostname = hostname.split('?')[0];
+
+  return hostname;
 }

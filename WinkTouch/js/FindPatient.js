@@ -48,8 +48,9 @@ export async function searchPatients(searchText: string): Patient[] {
   };
   let restResponse = await searchItems('Patient/list', searchCriteria);
   let patients: Patient[] = restResponse.patientList;
-  if (patients && patients.length > maxPatientListSize)
+  if (patients && patients.length > maxPatientListSize) {
     patients = patients.slice(0, maxPatientListSize);
+  }
   cacheItemsById(patients);
   return patients;
 }
@@ -62,7 +63,9 @@ class PatientList extends Component {
   };
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <View style={styles.flow}>
         {this.props.patients.map((patient: Patient, index: number) => {
@@ -218,7 +221,9 @@ export class FindPatientScreen extends Component {
 
   async selectPatient(patient: Patient) {
     if (!patient) {
-      if (!this.state.patientInfo) return;
+      if (!this.state.patientInfo) {
+        return;
+      }
       !isWeb && LayoutAnimation.easeInEaseOut();
       this.setState({
         patientInfo: undefined,
@@ -228,7 +233,9 @@ export class FindPatientScreen extends Component {
       });
       return;
     }
+
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
+
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({
       patientInfo,
@@ -240,8 +247,9 @@ export class FindPatientScreen extends Component {
     if (
       this.state.patientInfo === undefined ||
       patient.id !== this.state.patientInfo.id
-    )
+    ) {
       return;
+    }
     this.setState({patientInfo, isNewPatient: false}, () =>
       this.showVisitHistory(patient.id),
     );

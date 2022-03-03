@@ -25,8 +25,9 @@ async function loadConfiguration() {
     localConfiguration === undefined ||
     localConfiguration === null ||
     localConfiguration === ''
-  )
+  ) {
     return;
+  }
   configuration = JSON.parse(localConfiguration);
 }
 

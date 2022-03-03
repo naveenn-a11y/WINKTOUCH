@@ -9,7 +9,7 @@ import {View, Text, StyleSheet, Platform} from 'react-native';
 import type {Exam} from './Types';
 import {styles, fontScale, windowWidth, windowHeight} from './Styles.js';
 import {getExamHistory} from './Exam';
-import { formatMoment, isEmpty } from "./Util";
+import {formatMoment, isEmpty} from './Util';
 import {getCachedItem} from './DataCache';
 import {Highcharts as HighchartsReactNative} from '../src/components/HighCharts';
 
@@ -24,7 +24,9 @@ class LineChart extends Component {
   };
 
   render() {
-    if (this.props.series === undefined) return null;
+    if (this.props.series === undefined) {
+      return null;
+    }
     let conf = {
       chart: {
         type: 'line',
@@ -138,8 +140,9 @@ export class ExamChartScreen extends Component {
     if (
       exam.definition.graph === undefined ||
       exam.definition.graph.fields === undefined
-    )
+    ) {
       return undefined;
+    }
     const examHistory: Exam[] = getExamHistory(exam).reverse();
     let labels: string[] = examHistory.map((exam: Exam) =>
       exam ? formatMoment(getCachedItem(exam.visitId).date) : undefined,

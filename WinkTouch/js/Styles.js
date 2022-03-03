@@ -217,6 +217,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18 * fontScale,
   },
+  grayedText: {
+    fontSize: 18 * fontScale,
+    color: 'gray',
+  },
   noAccessText: {
     fontSize: 18 * fontScale,
     fontStyle: 'italic',
@@ -644,9 +648,10 @@ export const styles = StyleSheet.create({
     margin: 0 * fontScale,
   },
   cardSubTitle: {
-    fontSize: 19 * fontScale,
+    fontSize: 17 * fontScale,
     fontWeight: '500',
-    marginTop: 3 * fontScale,
+    alignItems: 'center',
+    marginTop: 1 * fontScale,
   },
   cardColumn: {
     marginHorizontal: 3 * fontScale,
@@ -956,6 +961,19 @@ export const styles = StyleSheet.create({
     right: 8 * fontScale,
     top: 10 * fontScale,
   },
+  bgRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: 5,
+    padding: 5,
+  },
+  bgRowWeb: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: '5px',
+    padding: '5px',
+  },
+  billingView: {maxWidth: 300},
   listRow: {
     flex: 10,
     flexDirection: 'row',
@@ -1334,7 +1352,6 @@ function boardStyle(
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
-    maxWidth: isWeb ? undefined : 1040 * fontScale,
     minHeight: minHeight * fontScale,
     maxHeight:
       isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
@@ -1364,6 +1381,8 @@ export function imageWidth(size: string): number {
       ? 520
       : size === 'S'
       ? 340
+      : size === 'XS'
+      ? 130
       : 340;
   return width;
 }
@@ -1437,14 +1456,28 @@ function modalTileLabel(isSelected: boolean, isIcon: boolean = false) {
 }
 
 export function scaleStyle(style: Object): Object {
-  if (style === undefined || style === null) return style;
+  if (style === undefined || style === null) {
+    return style;
+  }
   const scaledStyle: Object = JSON.parse(JSON.stringify(style));
-  if (style.top) scaledStyle.top = style.top * fontScale;
-  if (style.left) scaledStyle.left = style.left * fontScale;
-  if (style.right) scaledStyle.right = style.right * fontScale;
-  if (style.bottom) scaledStyle.bottom = style.bottom * fontScale;
-  if (style.width) scaledStyle.width = style.width * fontScale;
-  if (style.height) scaledStyle.height = style.height * fontScale;
+  if (style.top) {
+    scaledStyle.top = style.top * fontScale;
+  }
+  if (style.left) {
+    scaledStyle.left = style.left * fontScale;
+  }
+  if (style.right) {
+    scaledStyle.right = style.right * fontScale;
+  }
+  if (style.bottom) {
+    scaledStyle.bottom = style.bottom * fontScale;
+  }
+  if (style.width) {
+    scaledStyle.width = style.width * fontScale;
+  }
+  if (style.height) {
+    scaledStyle.height = style.height * fontScale;
+  }
 
   return scaledStyle;
 }

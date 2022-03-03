@@ -132,6 +132,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Far',
+    near: 'Near',
     maxLengthError: 'Too much text',
     minLengthError: 'Not enough text',
     requiredError: 'Mandatory',
@@ -230,6 +232,7 @@ export const strings = new LocalizedStrings({
     close: 'Close',
     open: 'Open',
     transferRxSuccess: 'Rx transferred successfully !',
+    exportDataSuccess: 'Data exported successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
     snapshot: 'Snapshot',
@@ -244,12 +247,15 @@ export const strings = new LocalizedStrings({
     location: 'Location',
     noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
+    printExportLabel: 'Please select what to export:',
     pd: 'PD',
     binocularPd: 'Binocular PD',
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
     startBlank: 'Start blank',
+    noRoom: 'No room',
+    room: 'Room',
     startFromVisit: 'Start from previous consultation',
     lockedOn: 'Locked on',
     lastUpdateOn: 'Last update on',
@@ -269,6 +275,16 @@ export const strings = new LocalizedStrings({
     next: 'Next',
     weekly: 'Weekly',
     daily: 'Daily',
+    lensometry: 'Lensometry',
+    keratometry: 'Keratometry',
+    autoRefractor: 'Auto Refractor',
+    exportAction: 'Export',
+    billing: 'Billing',
+    multipleBuiltInTemplate:
+      'More than 1 template was found, please select which one to use !',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
   },
   fr: {
     enterRegisteredEmail:
@@ -394,6 +410,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Loin',
+    near: 'Près',
     maxLengthError: 'Trop de texte',
     minLengthError: 'Pas assez de texte',
     requiredError: 'Obligatoire',
@@ -498,6 +516,7 @@ export const strings = new LocalizedStrings({
     close: 'Fermer',
     open: 'Ouvrir',
     transferRxSuccess: 'Rx transféré avec succès !',
+    exportDataSuccess: 'Données transférées avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
     snapshot: 'Snapshot',
@@ -511,13 +530,16 @@ export const strings = new LocalizedStrings({
     signedOn: 'Signé le',
     location: 'Lieu',
     noAccess: 'Vous n’avez pas accès à cette information',
-    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer:', //need to change accordingly,
+    printExportLabel: 'Veuillez sélectionner ce que vous souhaitez exporter:',
     pd: 'PD',
     binocularPd: 'PD Binoculaire',
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
+    noRoom: 'Pas de salle',
+    room: 'Salle',
     startFromVisit: "Commencer sur la base d'une consultation précédente",
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
@@ -536,6 +558,17 @@ export const strings = new LocalizedStrings({
     next: 'Suivant',
     weekly: 'Semaines',
     daily: 'Journalier',
+    lensometry: 'Lensométrie',
+    keratometry: 'Kératométrie',
+    autoRefractor: 'Auto Réfraction',
+    exportAction: 'Exporter',
+    billing: 'Facturation',
+    multipleBuiltInTemplate:
+      "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
   },
 });
 
@@ -560,12 +593,16 @@ export function getUserLanguage(): string {
 
 export function getUserLanguageIcon(): string {
   let languageIndex: number = supportedLanguages.indexOf(getUserLanguage());
-  if (languageIndex < 0) languageIndex = 0;
+  if (languageIndex < 0) {
+    languageIndex = 0;
+  }
   return supportedLanguages[languageIndex + 1];
 }
 
 export function getUserLanguageShort(): string {
-  if (userLanguage === undefined) return undefined;
+  if (userLanguage === undefined) {
+    return undefined;
+  }
   return userLanguage.substring(0, 2);
 }
 
@@ -589,8 +626,9 @@ export function switchLanguage() {
 }
 
 AsyncStorage.getItem('userLanguage').then((userLanguage) => {
-  if (userLanguage === null || userLanguage === undefined)
+  if (userLanguage === null || userLanguage === undefined) {
     userLanguage = strings.getInterfaceLanguage();
+  }
   if (supportedLanguages.indexOf(userLanguage) < 0) {
     userLanguage = supportedLanguages[0];
   }
