@@ -80,7 +80,7 @@ export class AgendaScreen extends Component {
     isLoading: boolean,
     doctors: Array,
     selectedDoctors: Array,
-    isVisible: boolean,
+    doctorsModal: boolean,
     dropDown: boolean,
   };
   today = new Date();
@@ -98,7 +98,7 @@ export class AgendaScreen extends Component {
       isLoading: false,
       doctors: [],
       selectedDoctors: [],
-      isVisible: false,
+      doctorsModal: false,
       dropDown: false,
     };
     this.lastRefresh = 0;
@@ -241,10 +241,10 @@ export class AgendaScreen extends Component {
     this.setState({event: undefined, showDialog: false});
   };
   openDoctorsOptions = () => {
-    this.setState({isVisible: true});
+    this.setState({doctorsModal: true});
   };
   cancelDoctorsOptions = () => {
-    this.setState({isVisible: false});
+    this.setState({doctorsModal: false});
   };
 
   getAppoitmentsForSelectedDoctors = () => {
@@ -392,7 +392,7 @@ export class AgendaScreen extends Component {
             alignSelf: 'center',
             backgroundColor: '#fff',
           }}
-          visible={this.state.isVisible}
+          visible={this.state.doctorsModal}
           onDismiss={this.cancelDoctorsOptions}
           dismissable={true}>
           <Dialog.Title>
@@ -424,6 +424,7 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+
   openDropDown = () => {
     this.setState({dropDown: true});
   };
@@ -431,7 +432,7 @@ export class AgendaScreen extends Component {
     this.setState({dropDown: false});
   };
   render() {
-    const {isLoading, showDialog, isVisible, mode, dropDown} = this.state;
+    const {isLoading, showDialog, doctorsModal, mode, dropDown} = this.state;
     const options =
       this.state.selectedDoctors.length > 1 && !isWeb
         ? [{label: strings.daily, value: 'day'}]
@@ -444,7 +445,8 @@ export class AgendaScreen extends Component {
       <View style={styles.page}>
         {isLoading && this.renderLoading()}
         {showDialog && this.renderEventDetails()}
-        {isVisible && this.renderDoctorsOptions()}
+        {doctorsModal && this.renderDoctorsOptions()}
+
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -545,7 +547,6 @@ class Event extends Component {
     );
     if (visitHistory) {
       const locked: boolean = isAppointmentLocked(appointment);
-
       this.setState({locked: locked});
     } else {
       const visit: Visit = await fetchVisitForAppointment(appointment.id);
@@ -559,41 +560,58 @@ class Event extends Component {
       this.props;
 
     const index = selectedDoctors.findIndex((u) => u == event.userId);
-    if (index < 0) {
-      return null;
-    }
-    const eventStyleProps = {
-      minWidth: '1%',
-      width: eventWidth / 1.05,
-      start: eventWidth * index,
-    };
+    if (index < 0) return null;
 
     const patient: Patient = getCachedItem(event.patientId);
+
     const appointmentType: AppointmentType =
       event && event.appointmentTypes
         ? getCachedItem(event.appointmentTypes[0])
         : undefined;
 
-    return (
+    const eventStyleProps = {
+      minWidth: '1%',
+      width: eventWidth / 1.05,
+      start: eventWidth * index,
+      justifyContent: 'center',
+      paddingTop: 1,
+      paddingBottom: 0,
+      borderRadius: 4,
+      borderWidth: 0.5,
+      borderColor: 'lightgray',
+      borderStyle: 'solid',
+      backgroundColor: '#fff',
+    };
+
+    return event.isBusy && !patient ? (
+      <View
+        style={[
+          ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
+          eventStyleProps,
+          {backgroundColor: '#EFEFEF'},
+        ]}>
+        <Text style={styles.grayedText}>{strings.unAvailable}</Text>
+      </View>
+    ) : !event.isBusy && !patient ? (
+      <TouchableOpacity
+        style={[
+          ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
+          eventStyleProps,
+        ]}>
+        <Text style={styles.grayedText}>{strings.available}</Text>
+      </TouchableOpacity>
+    ) : (
       <TouchableOpacity
         {...touchableOpacityProps}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
           {
-            borderWidth: 0.5,
-            borderColor: 'lightgrey',
-            backgroundColor: '#fff',
+            borderLeftWidth: 5,
             borderLeftColor:
               appointmentType && appointmentType.color
                 ? appointmentType.color
                 : 'white',
-            borderLeftWidth: 5,
-            borderStyle: 'solid',
-            borderRadius: 4,
-            justifyContent: 'center',
-            paddingTop: 1,
-            paddingBottom: 0,
           },
         ]}>
         <View style={[styles.rowLayout, {height: '100%'}]}>
@@ -605,7 +623,6 @@ class Event extends Component {
             <AppointmentIcons appointment={event} />
           </View>
         </View>
-        {/* </View> */}
       </TouchableOpacity>
     );
   }
