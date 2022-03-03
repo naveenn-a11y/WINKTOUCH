@@ -25,6 +25,7 @@ import type {
   RestResponse,
   PatientDocument,
   Upload,
+  Appointment,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
@@ -33,7 +34,7 @@ import {ExamCardSpecifics} from './Exam';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
 import {getFieldDefinitions, getFieldDefinition} from './Items';
-import {deepClone, formatAge, prefix} from './Util';
+import {deepClone, formatAge, prefix, isToday} from './Util';
 import {formatOption, formatCode} from './Codes';
 import {getDoctor, getStore} from './DoctorApp';
 import {Refresh} from './Favorites';
@@ -43,11 +44,15 @@ import {fetchUpload, getMimeType} from './Upload';
 import {VisitHistoryCard} from './Visit';
 import {FindPatient} from './FindPatient';
 import {Button} from './Widgets';
-import {fetchAppointments, AppointmentSummary} from './Appointment';
+import {
+  fetchAppointments,
+  AppointmentSummary,
+  isAppointmentLocked,
+} from './Appointment';
 
 export async function fetchPatientInfo(
   patientId: string,
-  ignoreCache?: boolean = false,
+  ignoreCache: ?boolean = false,
 ): PatientInfo {
   let patientInfo: PatientInfo = await fetchItemById(patientId, ignoreCache);
   return patientInfo;
@@ -74,6 +79,7 @@ export async function storePatientDocument(patientDocument: PatientDocument) {
 
 export class PatientTags extends Component {
   props: {
+    locked: boolean,
     patient: Patient | PatientInfo,
     showDescription?: boolean,
   };
@@ -97,7 +103,12 @@ export class PatientTags extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.patient.id === prevProps.patient.id) return;
+    if (
+      this.props.patient.id === prevProps.patient.id &&
+      this.props.patient.patientTags === prevProps.patient.patientTags
+    ) {
+      return;
+    }
     this.setState(
       {
         patientTags: getCachedItems(this.props.patient.patientTags),
@@ -117,17 +128,25 @@ export class PatientTags extends Component {
   }
 
   render() {
-    if (!this.props.patient) return null;
+    if (!this.props.patient) {
+      return null;
+    }
     let genderShort: string = formatCode(
       'genderCode',
       this.props.patient.gender,
     );
-    if (genderShort.length > 0) genderShort = genderShort.substring(0, 1);
+    if (genderShort.length > 0) {
+      genderShort = genderShort.substring(0, 1);
+    }
     if (!this.state.patientTags || this.state.patientTags.length === 0) {
-      if (this.props.showDescription) return null;
+      if (this.props.showDescription) {
+        return null;
+      }
       return (
         <View style={styles.rowLayout}>
-          <Text style={styles.text}> ({genderShort})</Text>
+          <Text style={this.props.locked ? styles.grayedText : styles.text}>
+            ({genderShort})
+          </Text>
         </View>
       );
     }
@@ -136,7 +155,9 @@ export class PatientTags extends Component {
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
-              <Text key={index} style={styles.text}>
+              <Text
+                key={index}
+                style={this.props.locked ? styles.grayedText : styles.text}>
                 {patientTag && patientTag.name}{' '}
               </Text>
             ),
@@ -144,16 +165,23 @@ export class PatientTags extends Component {
       </View>
     ) : (
       <View style={styles.rowLayout}>
-        <Text style={styles.text}> ({genderShort}</Text>
+        <Text style={this.props.locked ? styles.grayedText : styles.text}>
+          {' '}
+          ({genderShort}
+        </Text>
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
-              <Text key={index} style={styles.text}>
+              <Text
+                key={index}
+                style={this.props.locked ? styles.grayedText : styles.text}>
                 {patientTag && patientTag.letter}
               </Text>
             ),
           )}
-        <Text style={styles.text}>)</Text>
+        <Text style={this.props.locked ? styles.grayedText : styles.text}>
+          )
+        </Text>
       </View>
     );
   }
@@ -166,19 +194,23 @@ export class PatientCard extends Component {
     navigate?: string,
     refreshStateKey: string,
     style?: any,
+    hasAppointment?: boolean,
   };
   static defaultProps = {
     navigate: 'patient',
   };
 
   render() {
-    if (!this.props.patientInfo) return null;
+    if (!this.props.patientInfo) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={() =>
           this.props.navigation.navigate(this.props.navigate, {
             patientInfo: this.props.patientInfo,
             refreshStateKey: this.props.refreshStateKey,
+            hasAppointment: this.props.hasAppointment,
           })
         }
         testID="patientContact">
@@ -244,7 +276,9 @@ export class PatientTitle extends Component {
     patientInfo: PatientInfo,
   };
   render() {
-    if (!this.props.patientInfo) return null;
+    if (!this.props.patientInfo) {
+      return null;
+    }
     return (
       <Text style={styles.screenTitle}>
         {this.props.patientInfo.firstName} {this.props.patientInfo.lastName}
@@ -258,7 +292,9 @@ export class PatientBillingInfo extends Component {
     patient: PatientInfo,
   };
   render() {
-    if (!this.props.patient) return null;
+    if (!this.props.patient) {
+      return null;
+    }
     return (
       <View style={styles.tabCard}>
         <Text style={styles.cardTitle}>Insurance and Billing</Text>
@@ -418,7 +454,9 @@ export class PatientDocumentPage extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.id === this.props.id) return;
+    if (prevProps.id === this.props.id) {
+      return;
+    }
     const patientDocument: PatientDocument = getCachedItem(this.props.id);
     const uploadId: ?string = patientDocument.uploadId;
     this.state = {
@@ -428,17 +466,22 @@ export class PatientDocumentPage extends Component {
   }
 
   async loadUpload(uploadId: ?string) {
-    if (!uploadId) return;
+    if (!uploadId) {
+      return;
+    }
     let upload: Upload = await fetchUpload(uploadId);
     this.setState({upload});
   }
 
   render() {
-    if (!this.state.upload) return null;
+    if (!this.state.upload) {
+      return null;
+    }
     const mimeType: string = getMimeType(this.state.upload);
-    if (mimeType === 'application/pdf;base64')
+    if (mimeType === 'application/pdf;base64') {
       return <Pdf upload={this.state.upload} style={styles.patientDocument} />;
-    if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64')
+    }
+    if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64') {
       return (
         <ScrollView
           style={styles.patientDocument}
@@ -450,6 +493,7 @@ export class PatientDocumentPage extends Component {
           />
         </ScrollView>
       );
+    }
     return (
       <View style={styles.errorCard}>
         <Text style={styles.cardTitle}>
@@ -525,7 +569,9 @@ export class PatientScreen extends Component {
   };
 
   renderRefreshIcon() {
-    if (!this.state.isDirty) return null;
+    if (!this.state.isDirty) {
+      return null;
+    }
     return (
       <TouchableOpacity onPress={() => this.refreshPatientInfo()}>
         <Refresh style={styles.screenIcon} />
@@ -571,7 +617,9 @@ export class CabinetScreen extends Component {
 
   async selectPatient(patient: Patient) {
     if (!patient) {
-      if (!this.state.patientInfo) return;
+      if (!this.state.patientInfo) {
+        return;
+      }
       !isWeb && LayoutAnimation.easeInEaseOut();
       this.setState({patientInfo: undefined, appointments: undefined});
       return;
@@ -581,6 +629,7 @@ export class CabinetScreen extends Component {
     ) {
       this.props.navigation.navigate('appointment', {
         patientInfo: this.state.patientInfo,
+        hasAppointment: this.hasAppointment(),
       }); //TODO: refreshStateKey: this.props.refreshStateKey?
       return;
     }
@@ -591,8 +640,9 @@ export class CabinetScreen extends Component {
     if (
       this.state.patientInfo === undefined ||
       patient.id !== this.state.patientInfo.id
-    )
+    ) {
       return;
+    }
     this.setState({patientInfo});
     let appointments: ?(Appointment[]) = await fetchAppointments(
       undefined,
@@ -603,10 +653,31 @@ export class CabinetScreen extends Component {
     if (
       this.state.patientInfo === undefined ||
       patient.id !== this.state.patientInfo.id
-    )
+    ) {
       return;
+    }
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({appointments});
+  }
+
+  hasAppointment(): boolean {
+    let todaysAppointments: Appointment[] = [];
+    if (!this.state.appointments && this.state.patientInfo) {
+      const appointments: Appointment[] = getCachedItem(
+        'appointmentsHistory-' + this.state.patientInfo.id,
+      );
+      todaysAppointments = appointments;
+    } else if (this.state.appointments && this.state.appointments.length > 0) {
+      todaysAppointments = this.state.appointments;
+    }
+    if (todaysAppointments) {
+      todaysAppointments = todaysAppointments.filter(
+        (appointment: Appointment) => isToday(appointment.start),
+      );
+      return todaysAppointments && todaysAppointments.length > 0;
+    }
+
+    return false;
   }
 
   newPatient = () => {
@@ -639,8 +710,9 @@ export class CabinetScreen extends Component {
   }
 
   renderAppointments() {
-    if (!this.state.appointments || this.state.appointments.length === 0)
+    if (!this.state.appointments || this.state.appointments.length === 0) {
       return null;
+    }
     return (
       <View style={styles.centeredColumnLayout}>
         <View style={styles.topFlow}>
@@ -649,6 +721,7 @@ export class CabinetScreen extends Component {
               <AppointmentSummary
                 key={index}
                 appointment={appointment}
+                locked={isAppointmentLocked(appointment)}
                 onPress={() =>
                   this.props.navigation.navigate('appointment', {appointment})
                 }
@@ -661,7 +734,9 @@ export class CabinetScreen extends Component {
   }
 
   renderPatientInfo() {
-    if (!this.state.patientInfo) return;
+    if (!this.state.patientInfo) {
+      return;
+    }
     if (this.state.patientInfo.id === 'patient') {
       return (
         <View style={styles.separator}>
@@ -686,6 +761,7 @@ export class CabinetScreen extends Component {
           navigate="appointment"
           navigation={this.props.navigation}
           style={styles.tabCardS}
+          hasAppointment={this.hasAppointment()}
         />
         {this.renderAppointments()}
       </View>

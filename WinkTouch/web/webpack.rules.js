@@ -23,7 +23,7 @@ module.exports = [
       path.resolve(rootDir, './node_modules/react-native-gesture-handler'),
       path.resolve(rootDir, './node_modules/react-native-screens'),
       path.resolve(rootDir, './node_modules/react-native-webview'),
-      path.resolve(rootDir, './node_modules/react-native-document-scanner'),
+      path.resolve(rootDir, './node_modules/react-native-rectangle-scanner'),
       path.resolve(rootDir, './node_modules/react-native-pdf'),
       path.resolve(rootDir, './node_modules/react-native-pdf-lib'),
       path.resolve(rootDir, './node_modules/rn-fetch-blob'),

@@ -19,7 +19,7 @@ import {AppointmentsSummary, fetchAppointments} from './Appointment';
 import {Button} from './Widgets';
 import {StartVisitButtons, fetchReferralFollowUpHistory} from './Visit';
 import {getStore, getDoctor} from './DoctorApp';
-import {now} from './Util';
+import {now, isToday} from './Util';
 import {strings} from './Strings';
 import {isAtWink} from './Registration';
 import {toggleTranslateMode, isInTranslateMode} from './ExamDefinition';
@@ -98,8 +98,12 @@ function compareByStart(
   startableA: {start: string},
   startableB: {start: string},
 ): number {
-  if (startableB.start > startableA.start) return -1;
-  if (startableB.start < startableA.start) return 1;
+  if (startableB.start > startableA.start) {
+    return -1;
+  }
+  if (startableB.start < startableA.start) {
+    return 1;
+  }
   return 0;
 }
 
@@ -146,11 +150,15 @@ export class OverviewScreen extends PureComponent {
     InteractionManager.runAfterInteractions(() =>
       this.props.navigation.setParams({refreshAppointments: false}),
     );
-    const appointments = await fetchAppointments(
+    let appointments = await fetchAppointments(
       'store-' + getStore().storeId,
       getDoctor().id,
       1,
     );
+    appointments = appointments.filter((appointment: Appointment) =>
+      isToday(appointment.start),
+    );
+
     //appointments && appointments.sort(compareByStart);
     this.setState({appointments});
   }

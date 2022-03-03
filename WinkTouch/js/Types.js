@@ -40,6 +40,7 @@ export type Store = {
   winkToWinkId?: number,
   winkToWinkEmail?: string,
   eFaxUsed?: boolean,
+  fax?: string,
 };
 
 export type Account = {
@@ -48,6 +49,7 @@ export type Account = {
   email: string,
   stores: Store[],
   isDemo: boolean,
+  extraFields: any,
 };
 
 export type User = {
@@ -68,6 +70,7 @@ export type User = {
   postalcode?: string,
   city?: string,
   isExternal: boolean,
+  providerType?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
@@ -175,11 +178,13 @@ export type Appointment = {
   patientId: string,
   userId: string,
   title: string,
-  start: string,
-  end: string,
+  start: string | Date,
+  end: string | Date,
   status: number,
   appointmentTypes?: string[],
   indicators?: string[],
+  comment?: string,
+  supplierName?: string,
 };
 
 export type Prism = {
@@ -198,6 +203,8 @@ export type GlassRx = {
   va?: string,
   addVA?: string,
   isEye?: boolean,
+  closePD?: number,
+  farPD?: number,
 };
 
 export type GlassesRx = {
@@ -273,11 +280,11 @@ export type ConsultationDetail = {
 };
 
 export type CodeDefinition =
-  {
+  | {
       code: string | number,
       description?: string,
       key?: string, //this is a reference to the Strings.js constants
-      readonly? : boolean,
+      readonly?: boolean,
     }
   | string;
 
@@ -348,6 +355,8 @@ export type FieldDefinition = {
   sync?: boolean,
   visible?: boolean,
   isLabel?: boolean,
+  limitedValues?: {},
+  forceSync?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -371,6 +380,8 @@ export type GroupDefinition = {
   hasVA?: boolean,
   hasAdd?: boolean,
   hasLensType?: boolean,
+  hasPD?: boolean,
+  hasMPD?: boolean,
   hasNotes?: boolean,
   import?: string | string[],
   export?: string | string[],
@@ -390,8 +401,7 @@ export type ImageBase64Definition = {
 
 export type ReferralDocument = {
   content: string,
-  subject?: string,
-  body?: string,
+  builtInTemplates?: any,
 };
 
 export type ReferralDefinition = {
@@ -437,6 +447,7 @@ export type EmailDefinition = {
   cc?: string,
   subject?: string,
   body?: string,
+  builtInTemplate?: any,
 };
 
 export type ExamDefinition = {
@@ -465,6 +476,9 @@ export type ExamDefinition = {
   layout?: any,
   signable?: boolean,
   showSubtitles?: boolean,
+  multiValue?: boolean, //Can Add more than 1 exam,
+  addablePostLock?: boolean,
+  export?: string | string[],
 };
 
 export type ExamPredefinedValue = {
@@ -528,4 +542,11 @@ export type TranslationDefinition = {
   language: string,
   label: ?string,
   normalValue: ?string,
+};
+
+export type ExamRoom = {
+  id: string,
+  patientId: string,
+  examRoomId: string,
+  name: string,
 };
