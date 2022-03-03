@@ -1,0 +1,67 @@
+{
+  "order": "1",
+  "name": "Amendments",
+  "locale": {
+    "fr-CA": {
+      "label": "Amendements",
+      "fields": [
+        {
+          "name": "Amendments",
+          "label": "Amendements"
+        }
+      ]
+    }
+  },
+  "scrollable": false,
+  "type": "groupedForm",
+  "section": "Amendments.1",
+  "multiValue": true,
+  "addablePostLock": true,
+  "fields": [
+    {
+      "name": "Scan",
+      "multiValue": true,
+      "size": "XL",
+      "fields": [
+        {
+          "name": "Scan",
+          "image": "upload",
+          "label": "",
+          "popup": true,
+          "drawable": false,
+          "size": "S",
+          "type": "Patient Documents"
+        }
+      ]
+    },
+    {
+      "name": "Amendments",
+      "size": "M",
+      "fields": [
+         {
+          "name": "Doctor",
+          "defaultValue": "[user.name]",
+          "maxLength": 100,
+          "readonly": true,
+          "isLabel": true,
+          "label": "",
+          "freestyle": true
+        },
+        {
+          "name": "Creation Date",
+          "dateFormat": "MMM Do YYYY",
+          "label": "",
+          "defaultValue": "[currentDate]",
+          "readonly": true,
+          "freestyle": true
+        },
+        {
+          "maxLength": 500,
+          "name": "Main Amendment",
+          "freestyle": true,
+          "label": ""
+        }
+      ]
+    }
+  ]
+}

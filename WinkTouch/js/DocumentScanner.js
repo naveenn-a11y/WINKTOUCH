@@ -18,7 +18,7 @@ import {
 import NativeScanner from '../src/components/DocumentScanner';
 import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
-import type { Upload, CodeDefinition, PatientDocument, Dimension } from "./Types";
+import type {Upload, CodeDefinition, PatientDocument, Dimension} from './Types';
 import {
   ClearTile,
   UpdateTile,
@@ -28,7 +28,14 @@ import {
   SizeTile,
   Label,
 } from './Widgets';
-import { styles, fontScale, imageStyle, isWeb, printWidth, imageWidth } from "./Styles";
+import {
+  styles,
+  fontScale,
+  imageStyle,
+  isWeb,
+  printWidth,
+  imageWidth,
+} from './Styles';
 import {
   storeUpload,
   getJpeg64Dimension,
@@ -82,9 +89,8 @@ export class DocumentScanner extends Component {
   constructor(props) {
     super(props);
 
-    const documentCategories: CodeDefinition[] = getAllCodes(
-      'documentCategories',
-    );
+    const documentCategories: CodeDefinition[] =
+      getAllCodes('documentCategories');
     const documentCategory: CodeDefinition = documentCategories.find(
       (dc: CodeDefinition) =>
         (dc.description ? dc.description : dc.code) === this.props.type,
@@ -107,8 +113,9 @@ export class DocumentScanner extends Component {
 
   async setImageFromUpload(patientDocument: PatientDocument) {
     let upload: ?Upload = getCachedItem(patientDocument.uploadId);
-    if (upload === undefined)
+    if (upload === undefined) {
       upload = await fetchUpload(patientDocument.uploadId);
+    }
     const data: string = upload ? upload.data : undefined;
     const mimeType: string = getMimeType(upload);
     if (mimeType && !mimeType.includes('application/pdf')) {
@@ -178,7 +185,7 @@ export class DocumentScanner extends Component {
     return isPdf;
   }
   async addPage(pageWidth: number, pageHeight: number) {
-    let pdfDoc: PDFDocument = undefined;
+    let pdfDoc: PDFDocument;
     const upload: ?Upload = getCachedItem(this.props.uploadId);
     const isExistingPdf: boolean = this.isPdf(upload);
     pdfDoc =
@@ -207,9 +214,11 @@ export class DocumentScanner extends Component {
   }
 
   async saveDocument(): Upload {
-    if (!this.state.file) return;
+    if (!this.state.file) {
+      return;
+    }
     this.setState({saving: true});
-    let upload: Upload = undefined;
+    let upload: Upload;
     const parentUpload: ?Upload = getCachedItem(this.props.uploadId);
     //check if current upload arg1 and arg2 are the same as current arg1 & arg2
     let uploadId: string = parentUpload
@@ -304,7 +313,7 @@ export class DocumentScanner extends Component {
     size?: string = 'L',
     mimeType?: string = 'image/jpeg;base64',
   ) {
-    let dimension: Dimension = undefined;
+    let dimension: Dimension;
     let resized: boolean = false;
     if (mimeType.includes('image/png')) {
       dimension = getPng64Dimension(image);
@@ -312,28 +321,38 @@ export class DocumentScanner extends Component {
       dimension = getJpeg64Dimension(image);
     }
     const maxWidth: number = Math.round(imageWidth(size) * 1.1);
-    if (dimension.width > maxWidth) {//Image is too big so lets resize
-      const tempFolder = 'temp';
-      let resizedImage = await resizeFile(
-        image,
-        maxWidth,
-        dimension.height,
-        'JPEG',
-        75,
-        0,
-        tempFolder,
-      );
-      if (isWeb) {
-        image = resizedImage.split(',')[1];
-      } else {
-        image = await RNFS.readFile(resizedImage.path, 'base64');
-        RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
-      }
-      const dimensionAfter = getJpeg64Dimension(image);
-      __DEV__ && console.log('Resized image from '+dimension.width +'x' + dimension.height,' to ' +
-        dimensionAfter.width +'x' + dimensionAfter.height+ ' '+Math.round(resizedImage.size/1024)+'Kb');
-      resized = true;
+
+    //Image is too big so lets resize
+    const tempFolder = 'temp';
+    let resizedImage = await resizeFile(
+      image,
+      dimension.width > maxWidth ? maxWidth : dimension.width,
+      dimension.height,
+      'JPEG',
+      75,
+      0,
+      tempFolder,
+    );
+    if (isWeb) {
+      image = resizedImage.split(',')[1];
+    } else {
+      image = await RNFS.readFile(resizedImage.path, 'base64');
+      RNFS.unlink(RNFS.DocumentDirectoryPath + '/' + tempFolder);
     }
+    const dimensionAfter = getJpeg64Dimension(image);
+    __DEV__ &&
+      console.log(
+        'Resized image from ' + dimension.width + 'x' + dimension.height,
+        ' to ' +
+          dimensionAfter.width +
+          'x' +
+          dimensionAfter.height +
+          ' ' +
+          Math.round(resizedImage.size / 1024) +
+          'Kb',
+      );
+    resized = true;
+
     this.setState({
       scaledFile: image,
       isDirty: this.state.isDirty || resized,
@@ -345,7 +364,17 @@ export class DocumentScanner extends Component {
   };
 
   sizeOnChange = (field: name) => {
-    if (field === undefined || field === null || field === '') return;
+    if (field === undefined || field === null || field === '') {
+      return;
+    }
+    if (
+      this.state.file === undefined ||
+      this.state.file === null ||
+      this.state.file === ''
+    ) {
+      return;
+    }
+
     const mimeType: string = this.state.file.split(',')[0];
     const base64Data: string = this.state.file.split(',')[1];
     if (field === 'size-s') {
@@ -397,9 +426,8 @@ export class DocumentScanner extends Component {
   }
 
   renderDocumentCategories() {
-    const documentCategories: CodeDefinition[] = getAllCodes(
-      'documentCategories',
-    );
+    const documentCategories: CodeDefinition[] =
+      getAllCodes('documentCategories');
 
     return (
       documentCategories &&
@@ -563,7 +591,7 @@ export class DocumentScanner extends Component {
                             style={styles.scannedImage}
                             source={{
                               uri: `data:${
-                                mimeType ? mimeType : `image/jpeg;base64`
+                                mimeType ? mimeType : 'image/jpeg;base64'
                               },${this.state.scaledFile}`,
                             }}
                             resizeMode="contain"

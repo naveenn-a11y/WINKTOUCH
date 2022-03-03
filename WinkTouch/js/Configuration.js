@@ -5,7 +5,7 @@
 
 import React, {Component, PureComponent} from 'react';
 import {View, Text} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {Configuration, GroupDefinition} from './Types';
@@ -25,8 +25,9 @@ async function loadConfiguration() {
     localConfiguration === undefined ||
     localConfiguration === null ||
     localConfiguration === ''
-  )
+  ) {
     return;
+  }
   configuration = JSON.parse(localConfiguration);
 }
 

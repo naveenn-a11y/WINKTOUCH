@@ -269,7 +269,9 @@ export class PaperFormScreen extends Component {
   };
 
   renderToulchExam() {
-    if (!this.props.exam) return null;
+    if (!this.props.exam) {
+      return null;
+    }
     const examName: string = this.props.exam.definition.name;
     return (
       <ScrollView
@@ -685,7 +687,9 @@ export class PaperFormScreen extends Component {
   }
 
   renderEyeExamTemplate() {
-    if (!this.props.exam) return null;
+    if (!this.props.exam) {
+      return null;
+    }
     const examName: string = this.props.exam.definition.name;
     return (
       <ScrollView
@@ -701,7 +705,7 @@ export class PaperFormScreen extends Component {
           size="XL"
           popup={false}
           drawable={true}
-          value={this.props.exam[examName]['Chart']}
+          value={this.props.exam[examName].Chart}
           disableScroll={this.disableScroll}
           enableScroll={this.enableScroll}
           examId={this.props.exam.id}
@@ -1232,10 +1236,12 @@ export class PaperFormScreen extends Component {
   }
 
   render() {
-    if (this.props.exam.definition.image === './image/eyeexamtemplate.png')
+    if (this.props.exam.definition.image === './image/eyeexamtemplate.png') {
       return this.renderEyeExamTemplate();
-    if (this.props.exam.definition.image === './image/ToulchExam.pdf')
+    }
+    if (this.props.exam.definition.image === './image/ToulchExam.pdf') {
       return this.renderToulchExam();
+    }
     return null;
   }
 }

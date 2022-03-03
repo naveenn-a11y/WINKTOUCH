@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LocalizedStrings from 'react-native-localization';
 import Moment from 'moment';
 import {cacheDefinitions} from './Items';
@@ -38,7 +38,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       'Something went wrong trying to get the accounts from the server. Please try again.',
     loginFailed: 'Login failed',
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graph',
@@ -132,6 +132,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Far',
+    near: 'Near',
     maxLengthError: 'Too much text',
     minLengthError: 'Not enough text',
     requiredError: 'Mandatory',
@@ -176,6 +178,7 @@ export const strings = new LocalizedStrings({
     deleteVisitTitle: 'Delete consultation',
     deleteVisitQuestion:
       'Are you sure you want to permanently delete the {0} of {1} ?',
+    deletedVisitMessage: 'Cannot open deleted visits !',
     findPatient: 'Search by patient name or #Z',
     findDoctor: "Search by doctor's name",
     visit: 'Consultation',
@@ -227,7 +230,9 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'No data found to import !',
     consultationDate: 'Consultation date',
     close: 'Close',
+    open: 'Open',
     transferRxSuccess: 'Rx transferred successfully !',
+    exportDataSuccess: 'Data exported successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
     snapshot: 'Snapshot',
@@ -242,11 +247,15 @@ export const strings = new LocalizedStrings({
     location: 'Location',
     noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
+    printExportLabel: 'Please select what to export:',
     pd: 'PD',
+    binocularPd: 'Binocular PD',
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
     startBlank: 'Start blank',
+    noRoom: 'No room',
+    room: 'Room',
     startFromVisit: 'Start from previous consultation',
     lockedOn: 'Locked on',
     lastUpdateOn: 'Last update on',
@@ -261,6 +270,21 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Add a new exam',
     pdfNotSupported:
       'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
+    dob: 'DOB',
+    previous: 'Previous',
+    next: 'Next',
+    weekly: 'Weekly',
+    daily: 'Daily',
+    lensometry: 'Lensometry',
+    keratometry: 'Keratometry',
+    autoRefractor: 'Auto Refractor',
+    exportAction: 'Export',
+    billing: 'Billing',
+    multipleBuiltInTemplate:
+      'More than 1 template was found, please select which one to use !',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
   },
   fr: {
     enterRegisteredEmail:
@@ -292,7 +316,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
-    agenda: 'Agenda',
+    calendar: 'Calendrier',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graphique',
@@ -386,6 +410,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Loin',
+    near: 'Près',
     maxLengthError: 'Trop de texte',
     minLengthError: 'Pas assez de texte',
     requiredError: 'Obligatoire',
@@ -436,6 +462,7 @@ export const strings = new LocalizedStrings({
     deleteVisitTitle: 'Supprimer une consultation',
     deleteVisitQuestion:
       'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
+    deletedVisitMessage: "Impossible d'ouvrir les visites supprimées !",
     findPatient: 'Entrer le nom du patient ou le #Z',
     findDoctor: 'Entrer le nom du docteur',
     visit: 'Consultation',
@@ -487,7 +514,9 @@ export const strings = new LocalizedStrings({
     importDataNotFound: 'Aucun élément trouvée !',
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
+    open: 'Ouvrir',
     transferRxSuccess: 'Rx transféré avec succès !',
+    exportDataSuccess: 'Données transférées avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
     snapshot: 'Snapshot',
@@ -501,12 +530,16 @@ export const strings = new LocalizedStrings({
     signedOn: 'Signé le',
     location: 'Lieu',
     noAccess: 'Vous n’avez pas accès à cette information',
-    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer:', //need to change accordingly,
+    printExportLabel: 'Veuillez sélectionner ce que vous souhaitez exporter:',
     pd: 'PD',
+    binocularPd: 'PD Binoculaire',
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
+    noRoom: 'Pas de salle',
+    room: 'Salle',
     startFromVisit: "Commencer sur la base d'une consultation précédente",
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
@@ -520,6 +553,22 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Ajouter un nouvel examen',
     pdfNotSupported:
       'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
+    dob: 'Date de Naissance',
+    previous: 'Précédent',
+    next: 'Suivant',
+    weekly: 'Semaines',
+    daily: 'Journalier',
+    lensometry: 'Lensométrie',
+    keratometry: 'Kératométrie',
+    autoRefractor: 'Auto Réfraction',
+    exportAction: 'Exporter',
+    billing: 'Facturation',
+    multipleBuiltInTemplate:
+      "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
   },
 });
 
@@ -544,12 +593,16 @@ export function getUserLanguage(): string {
 
 export function getUserLanguageIcon(): string {
   let languageIndex: number = supportedLanguages.indexOf(getUserLanguage());
-  if (languageIndex < 0) languageIndex = 0;
+  if (languageIndex < 0) {
+    languageIndex = 0;
+  }
   return supportedLanguages[languageIndex + 1];
 }
 
 export function getUserLanguageShort(): string {
-  if (userLanguage === undefined) return undefined;
+  if (userLanguage === undefined) {
+    return undefined;
+  }
   return userLanguage.substring(0, 2);
 }
 
@@ -573,8 +626,9 @@ export function switchLanguage() {
 }
 
 AsyncStorage.getItem('userLanguage').then((userLanguage) => {
-  if (userLanguage === null || userLanguage === undefined)
+  if (userLanguage === null || userLanguage === undefined) {
     userLanguage = strings.getInterfaceLanguage();
+  }
   if (supportedLanguages.indexOf(userLanguage) < 0) {
     userLanguage = supportedLanguages[0];
   }

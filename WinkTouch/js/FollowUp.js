@@ -9,46 +9,28 @@ import React, {Component} from 'react';
 import ReactNative, {
   View,
   Text,
-  Image,
-  LayoutAnimation,
-  TouchableHighlight,
-  ScrollView,
   Modal,
-  Dimensions,
   TouchableOpacity,
   TouchableWithoutFeedback,
   InteractionManager,
   TextInput,
   Keyboard,
   FlatList,
-  NativeModules,
 } from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {
   styles,
   fontScale,
   selectionColor,
   selectionFontColor,
-  fieldBorderColor,
   isWeb,
   windowHeight,
 } from './Styles';
-import {
-  Button,
-  TilesField,
-  Label,
-  SelectionList,
-  Alert,
-  TextField,
-} from './Widgets';
-import {FormRow, FormTextInput, FormField, FormCode} from './Form';
+import {Button, TilesField, Alert, TextField} from './Widgets';
+import {FormRow, FormTextInput, FormCode} from './Form';
 import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
 import {fetchWinkRest} from './WinkRest';
 import type {
   PatientInfo,
-  HtmlDefinition,
-  ReferralDocument,
-  ImageBase64Definition,
   ReferralDefinition,
   CodeDefinition,
   EmailDefinition,
@@ -56,19 +38,19 @@ import type {
   ReferralStatusCode,
   Upload,
 } from './Types';
-import {allExamIds, fetchReferralFollowUpHistory} from './Visit';
-import {getCachedItems, getCachedItem, cacheItem} from './DataCache';
+import {fetchReferralFollowUpHistory, fetchVisit} from './Visit';
+import {getCachedItem, cacheItem} from './DataCache';
 
 import {stripDataType} from './Rest';
 import RNBeep from 'react-native-a-beep';
-import {getStore, getDoctor} from './DoctorApp';
+import {getDoctor} from './DoctorApp';
 import {strings} from './Strings';
 import {getMimeType} from './Upload';
-import {printHtml, generatePDF} from '../src/components/HtmlToPdf';
+import {printHtml} from '../src/components/HtmlToPdf';
 import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {fetchPatientInfo} from './Patient';
-
+import {getPDFAttachmentFromHtml} from './PatientFormHtml';
 const COMMAND = {
   RESEND: 0,
   REPLY: 1,
@@ -162,28 +144,36 @@ export class FollowUpScreen extends Component<
 
   updateFieldCc(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.cc = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
   updateFieldTo(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.to = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
   updateFieldSubject(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.subject = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
 
   updateFieldBody(newValue: any) {
     let emailDefinition: EmailDefinition = this.state.emailDefinition;
-    if (!emailDefinition) return;
+    if (!emailDefinition) {
+      return;
+    }
     emailDefinition.body = newValue;
     this.setState({emailDefinition: emailDefinition});
   }
@@ -447,8 +437,8 @@ export class FollowUpScreen extends Component<
         const data = {uri: `data:${getMimeType(upload)};base64,${upload.data}`};
         html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
       }
-
-      await printHtml(html);
+      let PDFAttachment = getPDFAttachmentFromHtml(html)
+      await printHtml(html,PDFAttachment);
     }
   }
 
@@ -487,7 +477,9 @@ export class FollowUpScreen extends Component<
 
   async openPatientFile() {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return;
+    if (!selectedItem) {
+      return;
+    }
     let patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
       : this.props.navigation.state.params.patientInfo !== undefined
@@ -498,14 +490,22 @@ export class FollowUpScreen extends Component<
         ? await fetchPatientInfo(selectedItem.patientInfo.id)
         : patientInfo;
     const params = this.props.navigation.state.params;
-    if (params && params.overview) {
-      this.props.navigation.navigate('appointment', {
-        patientInfo: patientInfo,
-        selectedVisitId: selectedItem.visitId,
-        refreshStateKey: this.props.navigation.state.key,
-      });
+    let visit: Visit = getCachedItem(selectedItem.visitId);
+    if (visit === undefined) {
+      visit = await fetchVisit(selectedItem.visitId);
+    }
+    if (visit && !visit.inactive) {
+      if (params && params.overview) {
+        this.props.navigation.navigate('appointment', {
+          patientInfo: patientInfo,
+          selectedVisitId: selectedItem.visitId,
+          refreshStateKey: this.props.navigation.state.key,
+        });
+      } else {
+        this.props.onUpdateVisitSelection(selectedItem.visitId);
+      }
     } else {
-      this.props.onUpdateVisitSelection(selectedItem.visitId);
+      alert(strings.deletedVisitMessage);
     }
   }
 
@@ -528,7 +528,9 @@ export class FollowUpScreen extends Component<
 
   shouldUpdateStatus(): void {
     let selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return;
+    if (!selectedItem) {
+      return;
+    }
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
       this.state.selectedItem.status,
@@ -559,7 +561,9 @@ export class FollowUpScreen extends Component<
 
   shouldActivateEdit(): boolean {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return false;
+    if (!selectedItem) {
+      return false;
+    }
 
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
@@ -577,7 +581,13 @@ export class FollowUpScreen extends Component<
 
   shouldActivateResend() {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return false;
+    if (!selectedItem) {
+      return false;
+    }
+    const params = this.props.navigation.state.params;
+    if (params && params.overview) {
+      return false;
+    }
 
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
@@ -595,7 +605,9 @@ export class FollowUpScreen extends Component<
 
   shouldActivateReply() {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return false;
+    if (!selectedItem) {
+      return false;
+    }
 
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
@@ -614,8 +626,13 @@ export class FollowUpScreen extends Component<
 
   shouldActivateForward() {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return false;
-
+    if (!selectedItem) {
+      return false;
+    }
+    const params = this.props.navigation.state.params;
+    if (params && params.overview) {
+      return false;
+    }
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
       this.state.selectedItem.status,
@@ -629,7 +646,9 @@ export class FollowUpScreen extends Component<
 
   shouldActivateFollowUp() {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return false;
+    if (!selectedItem) {
+      return false;
+    }
 
     const statusCode: CodeDefinition = getCodeDefinition(
       'referralStatus',
@@ -643,9 +662,12 @@ export class FollowUpScreen extends Component<
   }
   shouldActivateDelete() {
     const selectedItem: FollowUp = this.state.selectedItem;
-    if (!selectedItem) return false;
-    if (isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn))
+    if (!selectedItem) {
+      return false;
+    }
+    if (isEmpty(selectedItem.emailOn) && isEmpty(selectedItem.faxedOn)) {
       return true;
+    }
     return false;
   }
 
@@ -878,7 +900,10 @@ export class FollowUpScreen extends Component<
                 />
                 <Button
                   title={strings.send}
-                  onPress={() => this.send()}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    this.send();
+                  }}
                   disabled={!this.state.isActive}
                 />
               </View>
@@ -893,7 +918,9 @@ export class FollowUpScreen extends Component<
     const listFollowUp: FollowUp[] = this.state.allFollowUp;
     if (Array.isArray(listFollowUp) && listFollowUp.length > 0) {
       return <View style={styles.page}>{this.renderFollowUp()}</View>;
-    } else if (!this.props.isDraft) return <Text>{strings.noDataFound}</Text>;
+    } else if (!this.props.isDraft) {
+      return <Text>{strings.noDataFound}</Text>;
+    }
 
     return null;
   }
@@ -1149,8 +1176,12 @@ export class TableList extends React.PureComponent {
 
   isSelected(item: any): boolean | string {
     const selection: any = this.props.selection;
-    if (!selection) return false;
-    if (selection === item) return true;
+    if (!selection) {
+      return false;
+    }
+    if (selection === item) {
+      return true;
+    }
 
     return false;
   }
@@ -1188,7 +1219,9 @@ export class TableList extends React.PureComponent {
         ? deAccent(this.state.filter.trim().toLowerCase())
         : undefined;
     if (filter) {
-      if (!data) data = [...this.props.items];
+      if (!data) {
+        data = [...this.props.items];
+      }
       data = data.filter(
         (item: any) =>
           item != null &&
@@ -1232,7 +1265,9 @@ export class TableList extends React.PureComponent {
   }
 
   resetItems(): any {
-    if (!this.props.items) return;
+    if (!this.props.items) {
+      return;
+    }
     let data: any[] = [...this.props.items];
     data.map((followUp: FollowUp, index: number) => {
       followUp.ref = followUp.ref.trim();
@@ -1277,7 +1312,9 @@ export class TableList extends React.PureComponent {
   }
 
   groupByReferral(): any {
-    if (!this.props.items) return;
+    if (!this.props.items) {
+      return;
+    }
     let groupedData: any = new Map();
     let data: any[] = [...this.props.items];
     for (const element: FollowUp of data) {
@@ -1320,24 +1357,36 @@ export class TableList extends React.PureComponent {
   }
 
   compareFollowUp(a: FollowUp, b: FollowUp): number {
-    if (a.id < b.id) return -1;
-    else if (a.id > b.id) return 1;
+    if (a.id < b.id) {
+      return -1;
+    } else if (a.id > b.id) {
+      return 1;
+    }
     return 0;
   }
 
   compareFromFollowUp(a: FollowUp, b: FollowUp): number {
-    if (b.from.name.toLowerCase() < a.from.name.toLowerCase()) return -1;
-    else if (b.from.name.toLowerCase() > a.from.name.toLowerCase()) return 1;
+    if (b.from.name.toLowerCase() < a.from.name.toLowerCase()) {
+      return -1;
+    } else if (b.from.name.toLowerCase() > a.from.name.toLowerCase()) {
+      return 1;
+    }
     return 0;
   }
   compareToFollowUp(a: FollowUp, b: FollowUp): number {
-    if (b.to.name.toLowerCase() < a.to.name.toLowerCase()) return -1;
-    else if (b.to.name.toLowerCase() > a.to.name.toLowerCase()) return 1;
+    if (b.to.name.toLowerCase() < a.to.name.toLowerCase()) {
+      return -1;
+    } else if (b.to.name.toLowerCase() > a.to.name.toLowerCase()) {
+      return 1;
+    }
     return 0;
   }
   compareDateFollowUp(a: FollowUp, b: FollowUp): number {
-    if (b.date < a.date) return -1;
-    else if (b.date > a.date) return 1;
+    if (b.date < a.date) {
+      return -1;
+    } else if (b.date > a.date) {
+      return 1;
+    }
     return 0;
   }
   compareStatusFollowUp(a: FollowUp, b: FollowUp): number {
@@ -1349,27 +1398,39 @@ export class TableList extends React.PureComponent {
       'referralStatus',
       b.status,
     );
-    if (aStatusCode === undefined || bStatusCode === undefined) return 0;
+    if (aStatusCode === undefined || bStatusCode === undefined) {
+      return 0;
+    }
     if (
       bStatusCode.description.toLowerCase() <
       aStatusCode.description.toLowerCase()
-    )
+    ) {
       return -1;
-    else if (
+    } else if (
       bStatusCode.description.toLowerCase() >
       aStatusCode.description.toLowerCase()
-    )
+    ) {
       return 1;
+    }
     return 0;
   }
 
   compareCommentFollowUp(a: FollowUp, b: FollowUp): number {
-    if (isEmpty(b.comment) && !isEmpty(a.comment)) return -10;
-    if (isEmpty(a.comment) && !isEmpty(b.comment)) return 10;
-    if (isEmpty(a.comment) && isEmpty(b.comment)) return 0;
+    if (isEmpty(b.comment) && !isEmpty(a.comment)) {
+      return -10;
+    }
+    if (isEmpty(a.comment) && !isEmpty(b.comment)) {
+      return 10;
+    }
+    if (isEmpty(a.comment) && isEmpty(b.comment)) {
+      return 0;
+    }
 
-    if (b.comment.toLowerCase() < a.comment.toLowerCase()) return -1;
-    else if (b.comment.toLowerCase() > a.comment.toLowerCase()) return 1;
+    if (b.comment.toLowerCase() < a.comment.toLowerCase()) {
+      return -1;
+    } else if (b.comment.toLowerCase() > a.comment.toLowerCase()) {
+      return 1;
+    }
     return 0;
   }
 
@@ -1377,13 +1438,14 @@ export class TableList extends React.PureComponent {
     if (
       b.patientInfo.firstName.toLowerCase() <
       a.patientInfo.firstName.toLowerCase()
-    )
+    ) {
       return -1;
-    else if (
+    } else if (
       b.patientInfo.firstName.toLowerCase() >
       a.patientInfo.firstName.toLowerCase()
-    )
+    ) {
       return 1;
+    }
     return 0;
   }
   updateOrder() {

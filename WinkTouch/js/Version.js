@@ -7,11 +7,12 @@ import DeviceInfo from 'react-native-device-info';
 import {strings} from './Strings';
 import {isWeb} from './Styles';
 
-export let deploymentVersion: string = 'v406';
-export let restVersion: string = 'EHR-4.1';
+export let deploymentVersion: string = 'v410';
+export let restVersion: string = 'EHR-410';
+export let ecommVersion: string = 'V4';
 export const dbVersion: string = '1685'; //TODO move to plist
-export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '0';
-export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '0';
+export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
+export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
 const minimalTouchVersion = 3.0;
 
 export function setDeploymentVersion(version: string): void {

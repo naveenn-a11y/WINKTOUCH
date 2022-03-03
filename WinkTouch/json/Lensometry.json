@@ -25,6 +25,8 @@
     {
       "hasLensType": true,
       "hasAdd": true,
+      "hasNotes": true,
+      "hasMPD": true,
       "name": "Lensometry",
       "multiValue": true,
       "import": "machine.lensometer.rx",

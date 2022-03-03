@@ -45,18 +45,28 @@ function fillPrescriptionDates(
 }
 
 function compareMedication(med1: ?Prescription, med2: ?Prescription): number {
-  if (med1 === med2) return 0;
-  if (!med1) return -10000;
-  if (!med2) return 10000;
+  if (med1 === med2) {
+    return 0;
+  }
+  if (!med1) {
+    return -10000;
+  }
+  if (!med2) {
+    return 10000;
+  }
   let comparison: number = compareDates(med2['Rx Date'], med1['Rx Date']);
   return comparison;
 }
 
-function getRecentMedication(patientId: string): ?({ medications: Prescription[], fieldDefinitions: FieldDefinition[] }) {
+function getRecentMedication(
+  patientId: string,
+): ?{medications: Prescription[], fieldDefinitions: FieldDefinition[]} {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
-  if (!visitHistory) return undefined;
+  if (!visitHistory) {
+    return undefined;
+  }
   let medications: Prescription[] = [];
-  let fieldDefinitions: ?(FieldDefinition[]) = undefined;
+  let fieldDefinitions: ?(FieldDefinition[]);
   visitHistory.forEach((visit: Visit) => {
     if (
       visit.medicalDataPrivilege !== 'READONLY' &&
@@ -72,9 +82,18 @@ function getRecentMedication(patientId: string): ?({ medications: Prescription[]
           if (exam.Prescription) {
             if (fieldDefinitions === undefined) {
               fieldDefinitions = exam.definition.fields;
-              let fieldDefinition = fieldDefinitions.find(fd => fd.name === 'Rx Date');
+              let fieldDefinition = fieldDefinitions.find(
+                (fd) => fd.name === 'Rx Date',
+              );
               if (fieldDefinition === undefined) {
-                let date: ?(FieldDefinition[]) = [{"name":"Rx Date","type":"pastDate","required":true, "suffix":': '}];
+                let date: ?(FieldDefinition[]) = [
+                  {
+                    name: 'Rx Date',
+                    type: 'pastDate',
+                    required: true,
+                    suffix: ': ',
+                  },
+                ];
                 fieldDefinitions = [...date, ...fieldDefinitions];
               }
             }
@@ -103,7 +122,10 @@ export class PatientMedicationCard extends Component {
 
   constructor(props: any) {
     super(props);
-    let recentMedication: ?({ medications: Prescription[], fieldDefinitions: FieldDefinition[] }) = getRecentMedication(props.patientInfo.id);
+    let recentMedication: ?{
+      medications: Prescription[],
+      fieldDefinitions: FieldDefinition[],
+    } = getRecentMedication(props.patientInfo.id);
     this.state = {
       medications: recentMedication.medications,
       fieldDefinitions: recentMedication.fieldDefinitions,
@@ -113,7 +135,10 @@ export class PatientMedicationCard extends Component {
 
   componentDidUpdate(prevProps: any) {
     if (prevProps.patientInfo !== this.props.patientInfo) {
-      let recentMedication: ?({ medications: Prescription[], fieldDefinitions: FieldDefinition[] }) = getRecentMedication(this.props.patientInfo.id);
+      let recentMedication: ?{
+        medications: Prescription[],
+        fieldDefinitions: FieldDefinition[],
+      } = getRecentMedication(this.props.patientInfo.id);
       this.setState(
         {
           medications: recentMedication.medications,
@@ -128,7 +153,10 @@ export class PatientMedicationCard extends Component {
     if (this.state.medications) {
       return;
     }
-    let recentMedication: ?({ medications: Prescription[], fieldDefinitions: FieldDefinition[] }) = getRecentMedication(this.props.patientInfo.id);
+    let recentMedication: ?{
+      medications: Prescription[],
+      fieldDefinitions: FieldDefinition[],
+    } = getRecentMedication(this.props.patientInfo.id);
     if (recentMedication.medications === undefined) {
       await fetchVisitHistory(this.props.patientInfo.id);
       recentMedication = getRecentMedication(this.props.patientInfo.id);
@@ -146,7 +174,8 @@ export class PatientMedicationCard extends Component {
     let hasNoAccesAtAll = true;
     this.state.medications.map(
       (item: Prescription) =>
-        (hasNoAccesAtAll = hasNoAccesAtAll && 'noaccess' in item ? item.noaccess : false),
+        (hasNoAccesAtAll =
+          hasNoAccesAtAll && 'noaccess' in item ? item.noaccess : false),
     );
     return hasNoAccesAtAll;
   }
@@ -161,15 +190,16 @@ export class PatientMedicationCard extends Component {
         {hasNoAccess && (
           <Text style={styles.cardTitle}>{strings.medicationRxTitle}</Text>
         )}
-        {this.state.medications && this.state.medications.length !== 0 && (
-          hasNoAccess ? (
+        {this.state.medications &&
+          this.state.medications.length !== 0 &&
+          (hasNoAccess ? (
             <NoAccess />
           ) : (
             <ItemsList
               title={strings.medicationRxTitle}
               items={this.state.medications}
               showLabels={false}
-              style={styles.tabCard}
+              style={[styles.tabCard, {flexGrow: 0}]}
               fieldDefinitions={this.state.fieldDefinitions}
               editable={false}
               titleFields={['Rx Date']}
