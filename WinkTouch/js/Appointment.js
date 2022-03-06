@@ -111,6 +111,7 @@ export async function fetchAppointments(
   patientId: ?string,
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
+  includeAvailableSlots: ?boolean = true,
 ): Promise<Appointment[]> {
   //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
@@ -119,6 +120,7 @@ export async function fetchAppointments(
     patientId: patientId,
     startDate: formatDate(startDate, jsonDateFormat),
     maxDays: maxDays ? maxDays.toString() : undefined,
+    includeAvailableSlots,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',
@@ -473,13 +475,15 @@ export class AppointmentSummary extends Component {
                 {this.props.appointment.title}
               </Text>
               <View style={{flexDirection: 'row'}}>
-              <View style={{maxWidth:330*fontScale}}>
-                <Text
-                  style={
-                    this.state.locked === true ? styles.grayedText : styles.text
-                  }>
-                  {getPatientFullName(patient)}
-                </Text>
+                <View style={{maxWidth: 330 * fontScale}}>
+                  <Text
+                    style={
+                      this.state.locked === true
+                        ? styles.grayedText
+                        : styles.text
+                    }>
+                    {getPatientFullName(patient)}
+                  </Text>
                 </View>
                 <View>
                   <PatientTags
