@@ -288,6 +288,9 @@ export const strings = new LocalizedStrings({
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
     patientAttachments: 'Patient Attachments',
+    copy:"copy",
+    appointmentFor:"Appointment for",
+    successfullyCopied:"was successfully copied! Please move it to an available cell."
   },
   fr: {
     enterRegisteredEmail:
@@ -575,6 +578,9 @@ export const strings = new LocalizedStrings({
     patientAttachments: 'Pièces jointes pour patients',
     apply: 'Appliquer',
     chooseDoctor: 'Choisir Docteur',
+    copy:"copie",
+    appointmentFor:"Le rendez vous de",
+    successfullyCopied:"a été copié ! Veuillez le reporter à une autre plage horaire."
   },
 });
 

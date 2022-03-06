@@ -384,9 +384,9 @@ export const styles = StyleSheet.create({
     backgroundColor: 'orange',
   },
   rowLayout: {
-    display:"flex",
-    flexDirection:'row',
-     flexWrap:'wrap'
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   flexRow: {
     flex: 100,
@@ -1325,7 +1325,6 @@ export const styles = StyleSheet.create({
     borderColor: selectionFontColor,
     borderWidth: 2 * fontScale,
     margin: 7 * fontScale,
-
   },
   rightSearchColumn: {
     flex: 75,
@@ -1353,20 +1352,34 @@ export const styles = StyleSheet.create({
     flex: 100,
     padding: 10,
   },
-  appointment:{
+  appointment: {
     flex: 100,
     justifyContent: 'center',
-    alignSelf:"flex-start",
+    alignSelf: 'flex-start',
     alignItems: 'baseline',
   },
-  appointments:{
+  appointments: {
     maxHeight: 600 * fontScale,
     minWidth: 300 * fontScale,
-    display: "flex",
-    flexDirection: "column",
-    flexWrap: "nowrap",
-    alignContent: "center",
-  }
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    alignContent: 'center',
+  },
+  copyDialog: {
+    backgroundColor: 'rgb(51, 51, 51)',
+    zIndex: 1,
+    minWidth: '100%',
+    minHeight: 50 * fontScale,
+    position: 'absolute',
+    bottom: '0px',
+  },
+  copyText: {
+    color: 'white',
+    fontSize: 18 * fontScale,
+    lineHeight: '3rem',
+    paddingLeft: 10 * fontScale,
+  },
 });
 
 function cardStyle(color: Color) {

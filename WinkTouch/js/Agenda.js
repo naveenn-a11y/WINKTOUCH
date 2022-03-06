@@ -6,7 +6,6 @@
 
 import React, {Component} from 'react';
 import {
-  StyleSheet,
   View,
   ScrollView,
   Text,
@@ -18,15 +17,8 @@ import {
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  styles,
-  windowHeight,
-  windowWidth,
-  fontScale,
-  isWeb,
-  selectionColor,
-} from './Styles';
-import {FormTextInput, FormRow, FormInput} from './Form';
+import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
+import {FormTextInput, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -52,7 +44,7 @@ import {
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {getPatientFullName, PatientTags} from './Patient';
-import {getStore, getDoctor} from './DoctorApp';
+import {getStore} from './DoctorApp';
 import {
   Button as NativeBaseButton,
   Portal,
@@ -61,7 +53,7 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatCode} from './Codes';
-import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
+import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
 import type {Visit} from './Types';
 import DropDown from '../src/components/Picker';
@@ -82,6 +74,7 @@ export class AgendaScreen extends Component {
     selectedDoctors: Array,
     isVisible: boolean,
     dropDown: boolean,
+    copyDialog: string,
   };
   today = new Date();
   lastRefresh: number;
@@ -100,6 +93,7 @@ export class AgendaScreen extends Component {
       selectedDoctors: [],
       isVisible: false,
       dropDown: false,
+      copyDialog: null,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -371,6 +365,9 @@ export class AgendaScreen extends Component {
           </Dialog.Title>
           <Dialog.Content>{this.renderContent(event)}</Dialog.Content>
           <Dialog.Actions>
+            <NativeBaseButton onPress={() => this.setCopyDialog(event)}>
+              {strings.copy}
+            </NativeBaseButton>
             <NativeBaseButton onPress={this.cancelDialog}>
               {strings.close}
             </NativeBaseButton>
@@ -424,14 +421,38 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderCopyDialog() {
+    return (
+      <View
+        style={styles.copyDialog}>
+        <Text
+          style={styles.copyText}>
+          {this.state.copyDialog}
+        </Text>
+      </View>
+    );
+  }
   openDropDown = () => {
     this.setState({dropDown: true});
   };
   closeDropDown = () => {
     this.setState({dropDown: false});
   };
+  setCopyDialog = (event = null) => {
+    if (event) {
+      const patient: PatientInfo | Patient = getCachedItem(event.patientId);
+      this.cancelDialog();
+      console.log('event :>> ', patient);
+      this.setState({
+        copyDialog: `${strings.appointmentFor} ${getPatientFullName(patient)} ${
+          strings.successfullyCopied
+        }`,
+      });
+    } else this.setState({copyDialog: null});
+  };
   render() {
-    const {isLoading, showDialog, isVisible, mode, dropDown} = this.state;
+    const {isLoading, showDialog, isVisible, mode, dropDown, copyDialog} =
+      this.state;
     const options =
       this.state.selectedDoctors.length > 1 && !isWeb
         ? [{label: strings.daily, value: 'day'}]
@@ -439,12 +460,12 @@ export class AgendaScreen extends Component {
             {label: strings.daily, value: 'day'},
             {label: strings.weekly, value: 'custom'},
           ];
-
     return (
       <View style={styles.page}>
         {isLoading && this.renderLoading()}
         {showDialog && this.renderEventDetails()}
         {isVisible && this.renderDoctorsOptions()}
+        {copyDialog && this.renderCopyDialog()}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
