@@ -53,6 +53,7 @@ export const strings = new LocalizedStrings({
     logout: 'Logout',
     newPatient: 'New patient',
     newDoctor: 'Add a doctor',
+    newAppointment: 'New appointment',
     preExams: 'Pre test',
     exams: 'Exams',
     odSphere: 'OD Sphere',
@@ -232,6 +233,7 @@ export const strings = new LocalizedStrings({
     close: 'Close',
     apply: 'Apply',
     open: 'Open',
+    select: 'Select',
     chooseDoctor: 'Choose Doctor',
     transferRxSuccess: 'Rx transferred successfully !',
     exportDataSuccess: 'Data exported successfully !',
@@ -288,6 +290,9 @@ export const strings = new LocalizedStrings({
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
     patientAttachments: 'Patient Attachments',
+    selfPaid: 'Self Paid',
+    bookingAppointmentError:
+      'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
   },
   fr: {
     enterRegisteredEmail:
@@ -334,6 +339,7 @@ export const strings = new LocalizedStrings({
     logout: 'Déconnexion',
     newPatient: 'Nouveau patient',
     newDoctor: 'Ajouter docteur',
+    newAppointment: 'Nouveau rendez-vous',
     preExams: 'Prétests',
     exams: 'Examens',
     odSphere: 'OD Sphere',
@@ -518,6 +524,7 @@ export const strings = new LocalizedStrings({
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
     open: 'Ouvrir',
+    select: 'Sélectionner ',
     transferRxSuccess: 'Rx transféré avec succès !',
     exportDataSuccess: 'Données transférées avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
@@ -575,6 +582,9 @@ export const strings = new LocalizedStrings({
     patientAttachments: 'Pièces jointes pour patients',
     apply: 'Appliquer',
     chooseDoctor: 'Choisir Docteur',
+    selfPaid: 'Paiement personnel',
+    bookingAppointmentError:
+      "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
   },
 });
 
