@@ -818,7 +818,7 @@ export class AppointmentDetails extends Component {
           labelWidth={labelWidth}
           options={this.getAppointmentTypes()}
           showLabel={true}
-          label={'Appointment Type'}
+          label={strings.AppointmentType}
           value={appointmentsType ? appointmentsType[0] : ''}
           onChangeValue={(code: ?string | ?number) => {
             this.updateValue('appointmentTypes', code, 0);
@@ -836,7 +836,7 @@ export class AppointmentDetails extends Component {
                 labelWidth={labelWidth}
                 options={this.getAppointmentTypes()}
                 showLabel={true}
-                label={'Appointment Type'}
+                label={strings.AppointmentType}
                 value={appointmentsType[i]}
                 onChangeValue={(code: ?string | ?number) => {
                   this.updateValue('appointmentTypes', code, i);
@@ -964,7 +964,7 @@ export class AppointmentDetails extends Component {
           <FormRow>
             <FormTextInput
               labelWidth={labelWidth}
-              label="Patient"
+              label={strings.patient}
               readonly={true}
               value={getPatientFullName(patient)}
             />
@@ -975,7 +975,7 @@ export class AppointmentDetails extends Component {
               labelWidth={labelWidth}
               options={this.getInsuranceProviders()}
               showLabel={true}
-              label={'Insurer'}
+              label={strings.insurer}
               value={
                 this.state.editedAppointment.supplierName
                   ? this.state.editedAppointment.supplierName
@@ -990,7 +990,7 @@ export class AppointmentDetails extends Component {
             <FormCheckBox
               labelWidth={labelWidth}
               showLabel={true}
-              label="Waiting List"
+              label={strings.waitingList}
               options={this.getWaitingListOptions()}
               value={this.state.editedAppointment.earlyRequest}
               onChangeValue={(code: ?string | ?number) => {
@@ -1006,7 +1006,7 @@ export class AppointmentDetails extends Component {
             <FormRow>
               <FormTextInput
                 labelWidth={labelWidth}
-                label="Waiting List Comment"
+                label={strings.waitingListComment}
                 value={this.state.editedAppointment.earlyRequestComment}
                 onChangeText={(newValue: ?string) =>
                   this.updateValue('earlyRequestComment', newValue)
@@ -1017,7 +1017,7 @@ export class AppointmentDetails extends Component {
           <FormRow>
             <FormNumberInput
               labelWidth={labelWidth}
-              label="Number of Slots"
+              label={strings.numberOfSlots}
               required={true}
               minValue={1}
               maxValue={9}
@@ -1038,7 +1038,7 @@ export class AppointmentDetails extends Component {
             <FormRow>
               <FormCode
                 labelWidth={labelWidth}
-                label="Status"
+                label={strings.status}
                 readonly={false}
                 code="appointmentStatusCode"
                 value={this.state.editedAppointment.status}
@@ -1052,7 +1052,7 @@ export class AppointmentDetails extends Component {
             <FormRow>
               <FormTextInput
                 labelWidth={labelWidth}
-                label="Doctor"
+                label={strings.doctor}
                 readonly={true}
                 value={user.firstName + ' ' + user.lastName}
               />
@@ -1061,7 +1061,7 @@ export class AppointmentDetails extends Component {
           <FormRow>
             <FormTextInput
               labelWidth={labelWidth}
-              label="Comment"
+              label={strings.comment}
               multiline={true}
               value={this.state.editedAppointment.comment}
               onChangeText={(newValue: ?string) =>
@@ -1072,12 +1072,12 @@ export class AppointmentDetails extends Component {
         </View>
         <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
           <NativeBaseButton onPress={() => this.cancelEdit()}>
-            {'Cancel'}
+            {strings.cancel}
           </NativeBaseButton>
           <NativeBaseButton
             disabled={!this.props.isNewAppointment}
             onPress={() => this.commitEdit()}>
-            {'Book'}
+            {strings.book}
           </NativeBaseButton>
         </View>
       </View>

@@ -87,6 +87,8 @@ export const strings = new LocalizedStrings({
     cancelled: 'Cancelled',
     noShow: 'No show',
     waiting: 'Waiting',
+    waitingList: 'Waiting List',
+    waitingListComment: 'Waiting List Comment',
     completed: 'Completed',
     start: 'Start',
     scheduledAt: 'Scheduled at',
@@ -295,6 +297,10 @@ export const strings = new LocalizedStrings({
     selfPaid: 'Self Paid',
     bookingAppointmentError:
       'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
+    insurer: 'Insurer',
+    numberOfSlots: 'Number of Slots',
+    book: 'Book',
+    AppointmentType: 'Appointment Type',
   },
   fr: {
     enterRegisteredEmail:
@@ -375,6 +381,8 @@ export const strings = new LocalizedStrings({
     cancelled: 'Annulé',
     noShow: "Ne s'est pas présenté",
     waiting: 'En attente',
+    waitingList: "Liste d'attente",
+    waitingListComment: "Commentaire Liste d'attente",
     completed: 'Completé',
     start: 'Début',
     scheduledAt: 'Planifié pour',
@@ -589,6 +597,10 @@ export const strings = new LocalizedStrings({
     selfPaid: 'Paiement personnel',
     bookingAppointmentError:
       "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
+    insurer: 'Assureur',
+    numberOfSlots: 'Nombre de créneaux',
+    book: 'Réserver',
+    AppointmentType: 'Type rendez-vous',
   },
 });
 
