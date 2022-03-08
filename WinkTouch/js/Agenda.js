@@ -26,7 +26,7 @@ import {
   isWeb,
   selectionColor,
 } from './Styles';
-import {FormTextInput, FormRow, FormInput} from './Form';
+import {FormTextInput, FormRow, FormInput, FormOptions, FormCode} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -35,6 +35,8 @@ import {
   fetchAppointments,
   fetchEvents,
   isAppointmentLocked,
+  AppointmentDetails,
+  bookAppointment,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -51,7 +53,12 @@ import {
   prefix,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
-import {getPatientFullName, PatientTags} from './Patient';
+import {
+  CabinetScreen,
+  getPatientFullName,
+  PatientCard,
+  PatientTags,
+} from './Patient';
 import {getStore, getDoctor} from './DoctorApp';
 import {
   Button as NativeBaseButton,
@@ -60,12 +67,16 @@ import {
   Title,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {formatCode} from './Codes';
+import {formatCode, getAllCodes} from './Codes';
 import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
 import {searchUsers} from './User';
-import type {Visit} from './Types';
+import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
+import {PatientSearch} from './FindPatient';
+
+const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
+
 export class AgendaScreen extends Component {
   props: {
     navigation: any,
@@ -81,7 +92,9 @@ export class AgendaScreen extends Component {
     doctors: Array,
     selectedDoctors: Array,
     doctorsModal: boolean,
+    isPatientDialogVisible: boolean,
     dropDown: boolean,
+    selectedPatient?: patient | PatientInfo,
   };
   today = new Date();
   lastRefresh: number;
@@ -99,7 +112,9 @@ export class AgendaScreen extends Component {
       doctors: [],
       selectedDoctors: [],
       doctorsModal: false,
+      isPatientDialogVisible: false,
       dropDown: false,
+      selectedPatient: undefined,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -173,9 +188,17 @@ export class AgendaScreen extends Component {
       this.setState({isLoading: false});
     }
   }
+  isNewEvent(event: Appointment): boolean {
+    return isEmpty(event.patientId) && !event.isBusy;
+  }
 
   _onSetEvent = (event: Appointment) => {
-    this.setState({event: event, showDialog: true});
+    this.setState({event: event});
+    if (this.isNewEvent(event)) {
+      this.openPatientDialog();
+    } else {
+      this.setState({showDialog: true});
+    }
   };
   _onToday = () => {
     this.setState({date: this.today}, () => {
@@ -247,6 +270,13 @@ export class AgendaScreen extends Component {
     this.setState({doctorsModal: false});
   };
 
+  openPatientDialog = () => {
+    this.setState({isPatientDialogVisible: true});
+  };
+  cancelPatientDialog = () => {
+    this.setState({isPatientDialogVisible: false});
+  };
+
   getAppoitmentsForSelectedDoctors = () => {
     AsyncStorage.setItem(
       'selectedDoctors',
@@ -270,118 +300,101 @@ export class AgendaScreen extends Component {
       appointment: event,
     });
   };
-  renderContent(event: Appointment) {
-    const patient: PatientInfo | Patient = getCachedItem(event.patientId);
-    const doctor = this.state.doctors.find(({value}) => event.userId == value);
-    let genderShort: string = formatCode('genderCode', patient.gender);
-    if (genderShort.length > 0) {
-      genderShort = genderShort.substring(0, 1);
-    }
-    return (
-      <View
-        style={
-          !isWeb
-            ? {height: 400 * fontScale, maxHeight: 800 * fontScale}
-            : undefined
-        }>
-        <Text style={styles.text}>Doctor: {doctor.label} </Text>
-        <AppointmentIcons appointment={event} orientation="horizontal" />
-        <Title>
-          {getPatientFullName(patient)}
-          <View style={styles.rowLayout}>
-            <Text style={styles.text}>({genderShort}) </Text>
-            <PatientTags patient={patient} showDescription={true} />
-            <Text style={styles.text}>
-              {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
-            </Text>
-          </View>
-        </Title>
 
-        <View style={styles.formRow}>
-          <Text style={styles.text}>
-            {isToday(event.start)
-              ? formatDate(event.start, timeFormat)
-              : formatDate(event.start, dayYearDateTimeFormat)}
-          </Text>
-          <Text style={styles.text}>{' - '}</Text>
-          <Text style={styles.text}>
-            {isToday(event.end)
-              ? formatDate(event.end, timeFormat)
-              : formatDate(event.end, dayYearDateTimeFormat)}
-          </Text>
-        </View>
-        <View style={styles.flexColumnLayout}>
-          {!isEmpty(event.supplierName) && (
-            <View style={styles.formRow}>
-              <Text style={styles.text}>{event.supplierName}</Text>
-            </View>
-          )}
-          {!isEmpty(patient.medicalCard) && (
-            <View style={styles.formRow}>
-              <Icon name="card-account-details" style={styles.text} />
-              <Text style={styles.text}>
-                {prefix(patient.medicalCard, '  ')}
-                {prefix(patient.medicalCardVersion, '-')}
-                {prefix(patient.medicalCardExp, '-')}
-              </Text>
-            </View>
-          )}
-          {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
-            <View style={styles.formRow}>
-              <Icon name="cellphone" style={styles.text} />
-              <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
-                {patient.cell ? patient.cell + ' ' : patient.phone}
-              </Text>
-            </View>
-          )}
-          {!isEmpty(patient.email) && (
-            <View style={styles.formRow}>
-              <Icon name="email" style={styles.text} />
-              <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
-                {patient.email}
-              </Text>
-            </View>
-          )}
-          {!isEmpty(event.comment) && (
-            <View style={styles.formRow}>
-              <FormTextInput
-                label=""
-                multiline={true}
-                readonly={true}
-                value={event.comment}
-              />
-            </View>
-          )}
-        </View>
-      </View>
+  updateEvent = async (appointment: Appointment) => {
+    //Call Backend
+    this.cancelDialog();
+
+    const bookedAppointment: Appointment = await bookAppointment(
+      appointment.patientId,
+      appointment.appointmentTypes,
+      appointment.numberOfSlots,
+      appointment.id,
+      appointment.supplierName,
+      appointment.earlyRequest,
+      appointment.earlyRequestComment,
+      false,
+      appointment.comment,
     );
+    const index = this.state.appointments.findIndex(
+      (e: Appointment) => e.id === bookedAppointment.id,
+    );
+
+    if (index >= 0) {
+      let appointments: Appointment[] = [...this.state.appointments];
+      appointments[index] = bookedAppointment;
+      this.setState({appointments: appointments});
+    }
+  };
+  selectPatient(patient: Patient | PatientInfo) {
+    this.cancelPatientDialog();
+
+    this.setState({selectedPatient: patient, showDialog: true});
   }
+
   renderEventDetails() {
-    const event: Appointment = this.state.event;
+    let event: Appointment = this.state.event;
+    if (event === undefined || event === null) {
+      return null;
+    }
+    const isNewEvent: boolean = this.isNewEvent(event);
+    if (isNewEvent) {
+      event = Object.assign({patientId: this.state.selectedPatient.id}, event);
+      event.title = strings.newAppointment;
+    }
+    return this.renderAppointmentDetail(event, isNewEvent);
+  }
+
+  renderPatientScreen() {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={styles.alert}
-          visible={this.state.showDialog}
-          onDismiss={this.cancelDialog}
+          style={[styles.screeen, {width: calendarWidth}]}
+          visible={this.state.isPatientDialogVisible}
+          onDismiss={this.cancelPatientDialog}
           dismissable={true}>
-          <Dialog.Title>
-            <AppointmentTypes appointment={event} />
-            <Text style={{color: 'black'}}> {event.title}</Text>
-          </Dialog.Title>
-          <Dialog.Content>{this.renderContent(event)}</Dialog.Content>
-          <Dialog.Actions>
-            <NativeBaseButton onPress={this.cancelDialog}>
-              {strings.close}
-            </NativeBaseButton>
-            <NativeBaseButton onPress={() => this.openPatientFile(event)}>
-              {strings.open}
-            </NativeBaseButton>
-          </Dialog.Actions>
+          <CabinetScreen
+            onSelectPatient={(patient: Patient | PatientInfo) =>
+              this.selectPatient(patient)
+            }
+            navigation={this.props.navigation}
+            isBookingAppointment={true}
+          />
         </Dialog>
       </Portal>
     );
   }
+
+  renderAppointmentDetail(event: Appointment, isNewEvent: boolean) {
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          visible={this.state.showDialog}
+          onDismiss={this.cancelDialog}
+          dismissable={true}
+          style={styles.alert}>
+          <Dialog.Title>
+            {!isNewEvent && <AppointmentTypes appointment={event} />}
+            <Text style={{color: 'black'}}> {event.title}</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <AppointmentDetails
+              appointment={event}
+              isNewAppointment={isNewEvent}
+              onUpdateAppointment={(appointment: Appointment) =>
+                this.updateEvent(appointment)
+              }
+              onOpenAppointment={(appointment: Appointment) =>
+                this.openPatientFile(appointment)
+              }
+              onCloseAppointment={() => this.cancelDialog()}
+            />
+          </Dialog.Content>
+        </Dialog>
+      </Portal>
+    );
+  }
+
   renderDoctorsOptions() {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
@@ -432,7 +445,15 @@ export class AgendaScreen extends Component {
     this.setState({dropDown: false});
   };
   render() {
-    const {isLoading, showDialog, doctorsModal, mode, dropDown} = this.state;
+    const {
+      isLoading,
+      showDialog,
+      doctorsModal,
+      mode,
+      dropDown,
+      isPatientDialogVisible,
+    } = this.state;
+
     const options =
       this.state.selectedDoctors.length > 1 && !isWeb
         ? [{label: strings.daily, value: 'day'}]
@@ -444,6 +465,7 @@ export class AgendaScreen extends Component {
     return (
       <View style={styles.page}>
         {isLoading && this.renderLoading()}
+        {isPatientDialogVisible && this.renderPatientScreen()}
         {showDialog && this.renderEventDetails()}
         {doctorsModal && this.renderDoctorsOptions()}
 
@@ -560,7 +582,9 @@ class Event extends Component {
       this.props;
 
     const index = selectedDoctors.findIndex((u) => u == event.userId);
-    if (index < 0) return null;
+    if (index < 0) {
+      return null;
+    }
 
     const patient: Patient = getCachedItem(event.patientId);
 
@@ -594,6 +618,7 @@ class Event extends Component {
       </View>
     ) : !event.isBusy && !patient ? (
       <TouchableOpacity
+        {...touchableOpacityProps}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -616,9 +641,9 @@ class Event extends Component {
         ]}>
         <View style={[styles.rowLayout, {height: '100%'}]}>
           <Text style={locked ? styles.grayedText : styles.text}>
-            {getPatientFullName(patient)}
+            {patient ? getPatientFullName(patient) : 'Available'}
           </Text>
-          <PatientTags patient={patient} locked={locked} />
+          {patient && <PatientTags patient={patient} locked={locked} />}
           <View style={{flexGrow: 100, alignItems: 'flex-end'}}>
             <AppointmentIcons appointment={event} />
           </View>
@@ -649,7 +674,6 @@ class NativeCalendar extends Component {
 
   render() {
     const {selectedDoctors, doctors, date, appointments, mode} = this.props;
-    const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50; //window - sidebar - hour range
 
     const weekCellWidth = calendarWidth / this.numOfDays;
     const weekEventWidth = weekCellWidth / selectedDoctors.length;

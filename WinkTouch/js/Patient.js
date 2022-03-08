@@ -206,9 +206,12 @@ export class PatientCard extends Component {
     refreshStateKey: string,
     style?: any,
     hasAppointment?: boolean,
+    isBookingAppointment?: boolean,
+    onSelectPatient: (patient: Patient | PatientInfo) => void,
   };
   static defaultProps = {
     navigate: 'patient',
+    isBookingAppointment: false,
   };
 
   render() {
@@ -218,11 +221,13 @@ export class PatientCard extends Component {
     return (
       <TouchableOpacity
         onPress={() =>
-          this.props.navigation.navigate(this.props.navigate, {
-            patientInfo: this.props.patientInfo,
-            refreshStateKey: this.props.refreshStateKey,
-            hasAppointment: this.props.hasAppointment,
-          })
+          this.props.isBookingAppointment
+            ? this.props.onSelectPatient(this.props.patientInfo)
+            : this.props.navigation.navigate(this.props.navigate, {
+                patientInfo: this.props.patientInfo,
+                refreshStateKey: this.props.refreshStateKey,
+                hasAppointment: this.props.hasAppointment,
+              })
         }
         testID="patientContact">
         <View style={this.props.style ? this.props.style : styles.paragraph}>
@@ -707,6 +712,8 @@ export class PatientScreen extends Component {
 export class CabinetScreen extends Component {
   props: {
     navigation: any,
+    onSelectPatient: (patient: Patient | PatientInfo) => void,
+    isBookingAppointment?: boolean,
   };
   state: {
     patientInfo: ?PatientInfo,
@@ -720,6 +727,9 @@ export class CabinetScreen extends Component {
       appointments: undefined,
     };
   }
+  static defaultProps = {
+    isBookingAppointment: false,
+  };
 
   async selectPatient(patient: Patient) {
     if (!patient) {
@@ -733,10 +743,14 @@ export class CabinetScreen extends Component {
       this.state.patientInfo &&
       this.state.patientInfo.id === patient.id
     ) {
-      this.props.navigation.navigate('appointment', {
-        patientInfo: this.state.patientInfo,
-        hasAppointment: this.hasAppointment(),
-      }); //TODO: refreshStateKey: this.props.refreshStateKey?
+      if (this.props.isBookingAppointment) {
+        this.props.onSelectPatient(patient);
+      } else {
+        this.props.navigation.navigate('appointment', {
+          patientInfo: this.state.patientInfo,
+          hasAppointment: this.hasAppointment(),
+        }); //TODO: refreshStateKey: this.props.refreshStateKey?
+      }
       return;
     }
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
@@ -813,7 +827,11 @@ export class CabinetScreen extends Component {
       return;
     }
     const appointment: Appointment = {id: undefined, patientId: patientInfo.id};
-    this.props.navigation.navigate('appointment', {appointment});
+    if (this.props.isBookingAppointment) {
+      this.props.onSelectPatient(patientInfo);
+    } else {
+      this.props.navigation.navigate('appointment', {appointment});
+    }
   }
 
   renderAppointments() {
@@ -822,16 +840,18 @@ export class CabinetScreen extends Component {
     }
     return (
       <ScrollView style={styles.appointments}>
-        {this.state.appointments.map((appointment: Appointment, index: number) => (
-          <AppointmentSummary
-            key={index}
-            appointment={appointment}
-            locked={isAppointmentLocked(appointment)}
-            onPress={() =>
-              this.props.navigation.navigate('appointment', {appointment})
-            }
-          />
-        ))}
+        {this.state.appointments.map(
+          (appointment: Appointment, index: number) => (
+            <AppointmentSummary
+              key={index}
+              appointment={appointment}
+              locked={isAppointmentLocked(appointment)}
+              onPress={() =>
+                this.props.navigation.navigate('appointment', {appointment})
+              }
+            />
+          ),
+        )}
       </ScrollView>
     );
   }
@@ -866,20 +886,28 @@ export class CabinetScreen extends Component {
           navigation={this.props.navigation}
           style={styles.tabCardS}
           hasAppointment={this.hasAppointment()}
+          isBookingAppointment={this.props.isBookingAppointment}
+          onSelectPatient={(patient: Patient | PatientInfo) =>
+            this.props.onSelectPatient(patient)
+          }
         />
         <View style={styles.checkButtonLayout}>
           <Button
-            title={strings.open}
-            onPress={() =>
-              this.props.navigation.navigate('appointment', {
-                patientInfo: this.state.patientInfo,
-                refreshStateKey: this.props.refreshStateKey,
-                hasAppointment: this.props.hasAppointment,
-              })
+            title={
+              this.props.isBookingAppointment ? strings.select : strings.open
             }
+            onPress={() => {
+              this.props.isBookingAppointment
+                ? this.props.onSelectPatient(this.state.patientInfo)
+                : this.props.navigation.navigate('appointment', {
+                    patientInfo: this.state.patientInfo,
+                    refreshStateKey: this.props.refreshStateKey,
+                    hasAppointment: this.props.hasAppointment,
+                  });
+            }}
           />
         </View>
-        {this.renderAppointments()}
+        {!this.props.isBookingAppointment && this.renderAppointments()}
       </View>
     );
   }

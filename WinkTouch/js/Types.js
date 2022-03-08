@@ -188,6 +188,10 @@ export type Appointment = {
   indicators?: string[],
   comment?: string,
   supplierName?: string,
+  isBusy?: boolean,
+  earlyRequest?: boolean,
+  earlyRequestComment?: string,
+  numberOfSlots?: number,
 };
 
 export type Prism = {
