@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
@@ -25,8 +26,9 @@ import type {
   Visit,
   User,
   AppointmentType,
+  CodeDefinition,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {
   formatDate,
@@ -44,6 +46,10 @@ import {
   jsonDateFormat,
   today,
   dayYearDateTimeFormat,
+  farDateFormat2,
+  isEmpty,
+  formatAge,
+  prefix,
 } from './Util';
 import {
   FormRow,
@@ -52,6 +58,9 @@ import {
   FormDateTimeInput,
   FormDurationInput,
   FormCode,
+  FormCheckBox,
+  FormNumberInput,
+  FormOptions,
 } from './Form';
 import {
   VisitHistory,
@@ -70,8 +79,16 @@ import {
   getCachedItems,
   cacheItemsById,
 } from './DataCache';
-import {searchItems, fetchItemById, stripDataType} from './Rest';
-import {formatCode} from './Codes';
+import {
+  searchItems,
+  fetchItemById,
+  stripDataType,
+  performActionOnItem,
+} from './Rest';
+import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
+import {getStore} from './DoctorApp';
+import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export function isAppointmentLocked(appointment: Appointment): boolean {
   if (appointment === undefined) {
@@ -111,14 +128,15 @@ export async function fetchAppointments(
   patientId: ?string,
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
+  includeAvailableSlots: ?boolean = true,
 ): Promise<Appointment[]> {
-  //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
     storeId: storeId,
     doctorId: doctorId,
     patientId: patientId,
     startDate: formatDate(startDate, jsonDateFormat),
     maxDays: maxDays ? maxDays.toString() : undefined,
+    includeAvailableSlots,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',
@@ -142,6 +160,41 @@ export async function fetchAppointments(
   });
 
   return appointments;
+}
+
+export async function bookAppointment(
+  patientId: ?string,
+  appointmentTypeId: ?(string[]),
+  numberOfSlots: ?number,
+  slotId: ?string,
+  supplierId: ?string,
+  earlyRequest: ?boolean,
+  earlyRequestComment: ?string,
+  rescheduled: ?boolean,
+  comment: ?string,
+): Promise<Appointment> {
+  const searchCriteria = {
+    patientId: patientId,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+    numberOfSlots: numberOfSlots,
+    slotId: slotId,
+    earlyRequest: earlyRequest ? true : false,
+    earlyRequestComment: !isEmpty(earlyRequestComment)
+      ? earlyRequestComment
+      : '',
+    rescheduled: rescheduled,
+    emrOnly: true,
+    id: slotId,
+    storeId: getStore().id,
+    supplierId: !isEmpty(supplierId) ? supplierId : 0,
+    comment: comment,
+  };
+  const appointment: Appointment = await performActionOnItem(
+    '',
+    searchCriteria,
+    'POST',
+  );
+  return appointment;
 }
 
 export class AppointmentTypes extends Component {
@@ -473,13 +526,15 @@ export class AppointmentSummary extends Component {
                 {this.props.appointment.title}
               </Text>
               <View style={{flexDirection: 'row'}}>
-              <View style={{maxWidth:330*fontScale}}>
-                <Text
-                  style={
-                    this.state.locked === true ? styles.grayedText : styles.text
-                  }>
-                  {getPatientFullName(patient)}
-                </Text>
+                <View style={{maxWidth: 330 * fontScale}}>
+                  <Text
+                    style={
+                      this.state.locked === true
+                        ? styles.grayedText
+                        : styles.text
+                    }>
+                    {getPatientFullName(patient)}
+                  </Text>
                 </View>
                 <View>
                   <PatientTags
@@ -597,6 +652,9 @@ export class AppointmentDetails extends Component {
   props: {
     appointment: Appointment,
     onUpdateAppointment: (appointment: Appointment) => void,
+    onOpenAppointment: (appointment: Appointment) => void,
+    onCloseAppointment: () => void,
+    isNewAppointment: boolean,
   };
   state: {
     isEditable: boolean,
@@ -609,36 +667,135 @@ export class AppointmentDetails extends Component {
       editedAppointment: undefined,
     };
   }
+  componentDidMount() {
+    if (this.props.isNewAppointment) {
+      this.startEdit();
+    }
+  }
 
   startEdit() {
-    if (__DEV__ === false) {
-      return;
-    }
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
+
     this.setState({isEditable: true, editedAppointment: appointmentClone});
   }
 
+  getWaitingListOptions(): CodeDefinition[] {
+    const noOption: CodeDefinition = {code: false, description: 0};
+    const yesOption: CodeDefinition = {code: true, description: 1};
+    const waitingListOptions: CodeDefinition[] = [noOption, yesOption];
+    return waitingListOptions;
+  }
+
   cancelEdit() {
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({isEditable: false});
   }
 
   commitEdit() {
-    LayoutAnimation.easeInEaseOut();
-    let appointment = this.props.onUpdateAppointment(
-      this.state.editedAppointment,
-    );
-    this.props.onUpdateAppointment(appointment);
+    !isWeb && LayoutAnimation.easeInEaseOut();
+
+    this.props.onUpdateAppointment(this.state.editedAppointment);
     this.setState({isEditable: false, editedAppointment: undefined});
   }
 
-  updateValue(propertyName: string, newValue: any) {
+  openAppointment() {
+    !isWeb && LayoutAnimation.easeInEaseOut();
+    this.props.onOpenAppointment(this.props.appointment);
+  }
+
+  closeAppointment() {
+    !isWeb && LayoutAnimation.easeInEaseOut();
+    this.props.onCloseAppointment();
+  }
+
+  getInsuranceProviders(): CodeDefinition[] {
+    const selfPaid: CodeDefinition = {
+      code: 0,
+      description: strings.selfPaid,
+    };
+
+    const allInsuranceProviders: CodeDefinition[] =
+      getAllCodes('insuranceProviders');
+    const options: CodeDefinition[] = [selfPaid].concat(allInsuranceProviders);
+    return options;
+  }
+
+  getAppointmentTypes(): CodeDefinition[] {
+    let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
+    if (appointmentTypes && appointmentTypes.length > 0) {
+      appointmentTypes = appointmentTypes.filter(
+        (type: CodeDefinition) => type.isAppointmentType,
+      );
+    }
+    return appointmentTypes;
+  }
+
+  validateNumberOfSlots(code: ?string, numberOfSlots: ?number): boolean {
+    const appointment: Appointment = this.state.editedAppointment;
+
+    if (!code) {
+      const appointmentTypes: any = appointment.appointmentTypes;
+      if (appointmentTypes === undefined || appointmentTypes === null) {
+        return true;
+      }
+
+      for (let i = 0; i < appointmentTypes.length; i++) {
+        const appointmentType: CodeDefinition = getCodeDefinition(
+          'procedureCodes',
+          appointmentTypes[i],
+        );
+        if (!appointmentType) {
+          continue;
+        }
+        if (!numberOfSlots || numberOfSlots < appointmentType.numberOfSlots) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      const appointmentType: CodeDefinition = getCodeDefinition(
+        'procedureCodes',
+        code,
+      );
+
+      if (
+        !appointment.numberOfSlots ||
+        appointmentType.numberOfSlots > appointment.numberOfSlots
+      ) {
+        appointment.numberOfSlots = appointmentType.numberOfSlots;
+        this.setState({editedAppointment: appointment});
+      }
+    }
+    return true;
+  }
+
+  updateValue(propertyName: string, newValue: any, index?: number) {
     let editedAppointment: ?Appointment = this.state.editedAppointment;
+
     if (!editedAppointment) {
       return;
     }
-    editedAppointment[propertyName] = newValue;
+    if (index >= 0) {
+      if (
+        editedAppointment[propertyName] === undefined ||
+        editedAppointment[propertyName] === null
+      ) {
+        editedAppointment[propertyName] = [];
+      }
+      editedAppointment[propertyName][index] = newValue;
+
+      if (newValue === undefined || newValue === null) {
+        editedAppointment[propertyName] = editedAppointment[
+          propertyName
+        ].filter((element) => {
+          return !(element === null || element === undefined);
+        });
+      }
+    } else {
+      editedAppointment[propertyName] = newValue;
+    }
+
     this.setState(editedAppointment);
   }
 
@@ -646,102 +803,282 @@ export class AppointmentDetails extends Component {
     if (!date) {
       return yearDateFormat;
     }
-    let sameYear: boolean = date.startsWith(now().getFullYear().toString());
-    return sameYear ? dayDateTime24Format : dayYearDateTime24Format;
+
+    return farDateFormat2;
+  }
+
+  renderAppointmentsTypes() {
+    const labelWidth: number = 200 * fontScale;
+    const appointmentsType: string[] =
+      this.state.editedAppointment.appointmentTypes;
+    let dropdowns = [];
+    dropdowns.push(
+      <FormRow>
+        <FormOptions
+          labelWidth={labelWidth}
+          options={this.getAppointmentTypes()}
+          showLabel={true}
+          label={strings.AppointmentType}
+          value={appointmentsType ? appointmentsType[0] : ''}
+          onChangeValue={(code: ?string | ?number) => {
+            this.updateValue('appointmentTypes', code, 0);
+            this.validateNumberOfSlots(code);
+          }}
+        />
+      </FormRow>,
+    );
+    if (appointmentsType && appointmentsType.length >= 1) {
+      for (let i: number = 1; i <= appointmentsType.length; i++) {
+        if (i < 5) {
+          dropdowns.push(
+            <FormRow>
+              <FormOptions
+                labelWidth={labelWidth}
+                options={this.getAppointmentTypes()}
+                showLabel={true}
+                label={strings.AppointmentType}
+                value={appointmentsType[i]}
+                onChangeValue={(code: ?string | ?number) => {
+                  this.updateValue('appointmentTypes', code, i);
+                  this.validateNumberOfSlots(code);
+                }}
+              />
+            </FormRow>,
+          );
+        }
+      }
+    }
+
+    return dropdowns;
   }
 
   render() {
-    const user: User = getCachedItem(this.props.appointment.userId);
+    const appointment: Appointment = this.props.appointment;
+    const user: User = getCachedItem(appointment.userId);
+    const patient: PatientInfo | Patient = getCachedItem(appointment.patientId);
+
+    let genderShort: string = formatCode('genderCode', patient.gender);
+    if (genderShort.length > 0) {
+      genderShort = genderShort.substring(0, 1);
+    }
     if (!this.state.isEditable || !this.state.editedAppointment) {
       return (
-        <TouchableOpacity onPress={() => this.startEdit()}>
-          <View style={styles.card}>
-            <View style={styles.centeredRowLayout}>
-              <Text style={styles.screenTitle}>
-                {this.props.appointment.title}
+        <View>
+          <TouchableOpacity onPress={() => this.startEdit()}>
+            <View style={styles.card} />
+            {user && (
+              <Text style={styles.text}>
+                {strings.doctor}: {user.firstName} {user.lastName}
               </Text>
-              <AppointmentTypes
-                appointment={this.props.appointment}
-                orientation="horizontal"
-              />
-              <AppointmentIcons
-                appointment={this.props.appointment}
-                orientation="horizontal"
-              />
+            )}
+
+            <AppointmentIcons
+              appointment={appointment}
+              orientation="horizontal"
+            />
+            <Title>
+              {getPatientFullName(patient)}
+              <View style={styles.rowLayout}>
+                <Text style={styles.text}>({genderShort}) </Text>
+                <PatientTags patient={patient} showDescription={true} />
+                <Text style={styles.text}>
+                  {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
+                </Text>
+              </View>
+            </Title>
+
+            <View style={styles.formRow}>
+              <Text style={styles.text}>
+                {isToday(appointment.start)
+                  ? formatDate(appointment.start, timeFormat)
+                  : formatDate(appointment.start, dayYearDateTimeFormat)}
+              </Text>
+              <Text style={styles.text}>{' - '}</Text>
+              <Text style={styles.text}>
+                {isToday(appointment.end)
+                  ? formatDate(appointment.end, timeFormat)
+                  : formatDate(appointment.end, dayYearDateTimeFormat)}
+              </Text>
             </View>
-            <Text style={styles.text}>
-              {strings.scheduledAt}{' '}
-              {formatDate(
-                this.props.appointment.start,
-                this.getDateFormat(this.props.appointment.start),
-              )}{' '}
-              {strings.forDuration}{' '}
-              {formatDuration(
-                this.props.appointment.end,
-                this.props.appointment.start,
+            <View style={styles.flexColumnLayout}>
+              {!isEmpty(appointment.supplierName) && (
+                <View style={styles.formRow}>
+                  <Text style={styles.text}>{appointment.supplierName}</Text>
+                </View>
               )}
-              .
-            </Text>
-            <Text style={styles.text}>
-              {strings.status}:{' '}
-              {formatCode(
-                'appointmentStatusCode',
-                this.props.appointment.status,
+              {!isEmpty(patient.medicalCard) && (
+                <View style={styles.formRow}>
+                  <Icon name="card-account-details" style={styles.text} />
+                  <Text style={styles.text}>
+                    {prefix(patient.medicalCard, '  ')}
+                    {prefix(patient.medicalCardVersion, '-')}
+                    {prefix(patient.medicalCardExp, '-')}
+                  </Text>
+                </View>
               )}
-            </Text>
-            <Text style={styles.text}>
-              {strings.doctor}: {user.firstName} {user.lastName}
-            </Text>
-          </View>
-        </TouchableOpacity>
+              {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
+                <View style={styles.formRow}>
+                  <Icon name="cellphone" style={styles.text} />
+                  <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                    {patient.cell ? patient.cell + ' ' : patient.phone}
+                  </Text>
+                </View>
+              )}
+              {!isEmpty(patient.email) && (
+                <View style={styles.formRow}>
+                  <Icon name="email" style={styles.text} />
+                  <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                    {patient.email}
+                  </Text>
+                </View>
+              )}
+              {!isEmpty(appointment.comment) && (
+                <View style={styles.formRow}>
+                  <FormTextInput
+                    label=""
+                    multiline={true}
+                    readonly={true}
+                    value={appointment.comment}
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+          {!this.props.isNewAppointment && (
+            <Dialog.Actions>
+              <NativeBaseButton onPress={() => this.closeAppointment()}>
+                {strings.close}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={() => this.openAppointment()}>
+                {strings.open}
+              </NativeBaseButton>
+            </Dialog.Actions>
+          )}
+        </View>
       );
     }
     const labelWidth: number = 200 * fontScale;
     return (
-      <View style={styles.form}>
-        <Text style={styles.screenTitle}>
-          {this.state.editedAppointment.title} {strings.appointmentTitle}
-        </Text>
-        <FormRow>
-          <FormDateTimeInput
-            labelWidth={labelWidth}
-            readonly={true}
-            includeDay={true}
-            label="Scheduled start time"
-            value={this.state.editedAppointment.start}
-          />
-          <FormDurationInput
-            label="Duration"
-            value={this.state.editedAppointment.end}
-            startDate={this.state.editedAppointment.start}
-            onChangeValue={(newValue: ?string) =>
-              this.updateValue('end', newValue)
-            }
-          />
-        </FormRow>
-        <FormRow>
-          <FormCode
-            labelWidth={labelWidth}
-            label="Status"
-            readonly={false}
-            code="appointmentStatusCode"
-            value={this.state.editedAppointment.status}
-            onChangeValue={(code: ?string | ?number) =>
-              this.updateValue('status', code)
-            }
-          />
-        </FormRow>
-        <FormRow>
-          <FormTextInput
-            labelWidth={labelWidth}
-            label="Doctor"
-            readonly={true}
-            value={user.firstName + ' ' + user.lastName}
-          />
-        </FormRow>
-        <View style={styles.buttonsRowLayout}>
-          <Button title="Cancel" onPress={() => this.cancelEdit()} />
-          <Button title="Update" onPress={() => this.commitEdit()} />
+      <View>
+        <View style={styles.form}>
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.patient}
+              readonly={true}
+              value={getPatientFullName(patient)}
+            />
+          </FormRow>
+          {this.renderAppointmentsTypes()}
+          <FormRow>
+            <FormOptions
+              labelWidth={labelWidth}
+              options={this.getInsuranceProviders()}
+              showLabel={true}
+              label={strings.insurer}
+              value={
+                this.state.editedAppointment.supplierName
+                  ? this.state.editedAppointment.supplierName
+                  : 0
+              }
+              onChangeValue={(code: ?string | ?number) =>
+                this.updateValue('supplierName', code)
+              }
+            />
+          </FormRow>
+          <FormRow>
+            <FormCheckBox
+              labelWidth={labelWidth}
+              showLabel={true}
+              label={strings.waitingList}
+              options={this.getWaitingListOptions()}
+              value={this.state.editedAppointment.earlyRequest}
+              onChangeValue={(code: ?string | ?number) => {
+                this.updateValue('earlyRequest', code);
+                if (code === false || code === undefined || code === null) {
+                  this.updateValue('earlyRequestComment', '');
+                }
+              }}
+            />
+          </FormRow>
+
+          {this.state.editedAppointment.earlyRequest && (
+            <FormRow>
+              <FormTextInput
+                labelWidth={labelWidth}
+                label={strings.waitingListComment}
+                value={this.state.editedAppointment.earlyRequestComment}
+                onChangeText={(newValue: ?string) =>
+                  this.updateValue('earlyRequestComment', newValue)
+                }
+              />
+            </FormRow>
+          )}
+          <FormRow>
+            <FormNumberInput
+              labelWidth={labelWidth}
+              label={strings.numberOfSlots}
+              required={true}
+              minValue={1}
+              maxValue={9}
+              value={
+                this.state.editedAppointment.numberOfSlots
+                  ? this.state.editedAppointment.numberOfSlots
+                  : 1
+              }
+              onChangeValue={(newValue: ?number) => {
+                if (this.validateNumberOfSlots(undefined, newValue)) {
+                  this.updateValue('numberOfSlots', newValue);
+                }
+              }}
+            />
+          </FormRow>
+
+          {!this.props.isNewAppointment && (
+            <FormRow>
+              <FormCode
+                labelWidth={labelWidth}
+                label={strings.status}
+                readonly={false}
+                code="appointmentStatusCode"
+                value={this.state.editedAppointment.status}
+                onChangeValue={(code: ?string | ?number) =>
+                  this.updateValue('status', code)
+                }
+              />
+            </FormRow>
+          )}
+          {user && (
+            <FormRow>
+              <FormTextInput
+                labelWidth={labelWidth}
+                label={strings.doctor}
+                readonly={true}
+                value={user.firstName + ' ' + user.lastName}
+              />
+            </FormRow>
+          )}
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.comment}
+              multiline={true}
+              value={this.state.editedAppointment.comment}
+              onChangeText={(newValue: ?string) =>
+                this.updateValue('comment', newValue)
+              }
+            />
+          </FormRow>
+        </View>
+        <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
+          <NativeBaseButton onPress={() => this.cancelEdit()}>
+            {strings.cancel}
+          </NativeBaseButton>
+          <NativeBaseButton
+            disabled={!this.props.isNewAppointment}
+            onPress={() => this.commitEdit()}>
+            {strings.book}
+          </NativeBaseButton>
         </View>
       </View>
     );

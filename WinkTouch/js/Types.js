@@ -183,10 +183,15 @@ export type Appointment = {
   start: string | Date,
   end: string | Date,
   status: number,
+  isBusy?: boolean,
   appointmentTypes?: string[],
   indicators?: string[],
   comment?: string,
   supplierName?: string,
+  isBusy?: boolean,
+  earlyRequest?: boolean,
+  earlyRequestComment?: string,
+  numberOfSlots?: number,
 };
 
 export type Prism = {
