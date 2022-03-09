@@ -162,6 +162,7 @@ export class AgendaScreen extends Component {
         undefined,
         fromDate.format(jsonDateFormat),
         true,
+        true,
       );
       if (includeDayEvents) {
         const events = await fetchEvents('store-' + getStore().storeId);

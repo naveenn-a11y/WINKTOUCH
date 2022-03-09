@@ -111,7 +111,7 @@ export async function fetchAppointments(
   patientId: ?string,
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
-  includeAvailableSlots: ?boolean = true,
+  includeAvailableSlots: ?boolean = false,
 ): Promise<Appointment[]> {
   //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
