@@ -61,7 +61,8 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatCode} from './Codes';
-import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
+import {fetchVisitForAppointment} from './Visit';
+import {cancelAppoitment} from './Rest';
 import {searchUsers} from './User';
 import type {Visit} from './Types';
 import DropDown from '../src/components/Picker';
@@ -80,8 +81,12 @@ export class AgendaScreen extends Component {
     isLoading: boolean,
     doctors: Array,
     selectedDoctors: Array,
-    isVisible: boolean,
+    doctorsModal: boolean,
+    cancelModal: boolean,
+    cancelReason: string,
+    cancelNotes: string,
     dropDown: boolean,
+    deleting: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -98,8 +103,12 @@ export class AgendaScreen extends Component {
       isLoading: false,
       doctors: [],
       selectedDoctors: [],
-      isVisible: false,
+      doctorsModal: false,
+      cancelModal: false,
+      cancelReason: 'patient',
+      cancelNotes: '',
       dropDown: false,
+      deleting: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -133,8 +142,14 @@ export class AgendaScreen extends Component {
       );
     }
   };
-  onChangeSelectedDoctors = async (selectedDoctors) => {
+  onChangeSelectedDoctors = (selectedDoctors) => {
     this.setState({selectedDoctors});
+  };
+  onChangeCancelReason = (cancelReason) => {
+    this.setState({cancelReason});
+  };
+  onChangeCancelNotes = (cancelNotes) => {
+    this.setState({cancelNotes});
   };
   async refreshAppointments(
     refresh: ?boolean,
@@ -241,10 +256,42 @@ export class AgendaScreen extends Component {
     this.setState({event: undefined, showDialog: false});
   };
   openDoctorsOptions = () => {
-    this.setState({isVisible: true});
+    this.setState({doctorsModal: true});
   };
   cancelDoctorsOptions = () => {
-    this.setState({isVisible: false});
+    this.setState({doctorsModal: false});
+  };
+
+  openCancelDialog = () => {
+    this.setState({cancelModal: true});
+  };
+  cancelCancelDialog = () => {
+    this.setState({cancelModal: false});
+  };
+  cancelAppoitment = async () => {
+    this.setState({deleting: true});
+    const event: Appointment = this.state.event;
+    const res = await cancelAppoitment({
+      emrOnly: true,
+      appointmentId: event.id,
+      cancelledComment: this.state.cancelNotes,
+      cancelledReason: this.state.cancelReason == 'store' ? 1 : 2,
+    });
+    if (!!res) {
+      this.setState({
+        cancelModal: false,
+        event: undefined,
+        showDialog: false,
+        deleting: false,
+        cancelNotes: '',
+        cancelReason: 'patient',
+      });
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    }
   };
 
   getAppoitmentsForSelectedDoctors = () => {
@@ -288,7 +335,7 @@ export class AgendaScreen extends Component {
         <AppointmentIcons appointment={event} orientation="horizontal" />
         <Title>
           {getPatientFullName(patient)}
-          <View style={styles.rowLayout}>
+          <View style={{display: 'flex', flexDirection: 'row'}}>
             <Text style={styles.text}>({genderShort}) </Text>
             <PatientTags patient={patient} showDescription={true} />
             <Text style={styles.text}>
@@ -353,6 +400,19 @@ export class AgendaScreen extends Component {
             </View>
           )}
         </View>
+
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TouchableOpacity
+            onPress={() => this.setState({cancelModal: true})}
+            style={{
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 5,
+              backgroundColor: '#1db3b3',
+            }}>
+            <Text style={{color: '#fff'}}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -392,7 +452,7 @@ export class AgendaScreen extends Component {
             alignSelf: 'center',
             backgroundColor: '#fff',
           }}
-          visible={this.state.isVisible}
+          visible={this.state.doctorsModal}
           onDismiss={this.cancelDoctorsOptions}
           dismissable={true}>
           <Dialog.Title>
@@ -424,6 +484,110 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderCancellationDialog() {
+    const event: Appointment = this.state.event;
+    const patient: PatientInfo | Patient = getCachedItem(event.patientId);
+
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={[
+            {
+              width: '45%',
+              height: '41%',
+              alignSelf: 'center',
+              backgroundColor: '#fff',
+            },
+          ]}
+          visible={this.state.cancelModal}
+          onDismiss={this.cancelCancelDialog}
+          dismissable={true}>
+          <Dialog.Title>
+            <Text style={{color: 'black'}}> Appointment Cacnellation</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginVertical: 5,
+              }}>
+              <Text style={{fontSize: fontScale * 20, fontWeight: '400'}}>
+                Patient:{' '}
+              </Text>
+              <Text style={{fontSize: fontScale * 18, fontWeight: '500'}}>
+                {patient.firstName} {patient.lastName}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginVertical: 5,
+              }}>
+              <Text style={{fontSize: fontScale * 20, fontWeight: '400'}}>
+                Cancelled by:{' '}
+              </Text>
+              <FormInput
+                multiOptions
+                singleSelect
+                value={this.state.cancelReason}
+                showLabel={false}
+                readonly={false}
+                definition={{
+                  options: [
+                    {label: 'Patient', value: 'patient'},
+                    {label: 'Store', value: 'store'},
+                  ],
+                }}
+                onChangeValue={this.onChangeCancelReason}
+                errorMessage={'error'}
+                isTyping={false}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginVertical: 5,
+              }}>
+              <Text style={{fontSize: fontScale * 20, fontWeight: '400'}}>
+                Notes:{'    '}
+              </Text>
+              <FormInput
+                value={this.state.cancelNotes}
+                showLabel={false}
+                readonly={false}
+                onChangeValue={this.onChangeCancelNotes}
+                definition={{}}
+                multiline
+                isTyping={false}
+                style={{
+                  height: 100,
+                  width: '85%',
+                  backgroundColor: '#EFEFEF',
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                }}
+              />
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelCancelDialog}>
+              {strings.close}
+            </NativeBaseButton>
+            <NativeBaseButton
+              onPress={this.cancelAppoitment}
+              disabled={this.state.deleting}>
+              {this.state.deleting ? <ActivityIndicator /> : strings.cancel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
+
   openDropDown = () => {
     this.setState({dropDown: true});
   };
@@ -431,7 +595,8 @@ export class AgendaScreen extends Component {
     this.setState({dropDown: false});
   };
   render() {
-    const {isLoading, showDialog, isVisible, mode, dropDown} = this.state;
+    const {isLoading, showDialog, doctorsModal, cancelModal, mode, dropDown} =
+      this.state;
     const options =
       this.state.selectedDoctors.length > 1 && !isWeb
         ? [{label: strings.daily, value: 'day'}]
@@ -444,7 +609,9 @@ export class AgendaScreen extends Component {
       <View style={styles.page}>
         {isLoading && this.renderLoading()}
         {showDialog && this.renderEventDetails()}
-        {isVisible && this.renderDoctorsOptions()}
+        {doctorsModal && this.renderDoctorsOptions()}
+        {cancelModal && this.renderCancellationDialog()}
+
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
