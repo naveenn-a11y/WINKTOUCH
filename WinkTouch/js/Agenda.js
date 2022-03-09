@@ -291,7 +291,7 @@ export class AgendaScreen extends Component {
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
-    }
+    } else this.setState({deleting: false});
   };
 
   getAppoitmentsForSelectedDoctors = () => {

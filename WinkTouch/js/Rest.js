@@ -153,6 +153,10 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
     'HTTP response error ' + httpResponse.status + ': ' + httpResponse.url,
   );
   console.log(httpResponse);
+  // To be refactored to map proper error message with status Code
+  if (httpResponse.status === 406) {
+    throw strings.bookingAppointmentError;
+  }
   if (httpBody && httpBody.errors) {
     throw httpBody.errors;
   }
@@ -474,6 +478,43 @@ export async function deleteItem(item: any): any {
     } else {
       clearCachedItemById(item);
     }
+  } catch (error) {
+    console.log(error);
+    alert(
+      strings.formatString(
+        strings.storeItemError,
+        getDataType(item.id).toLowerCase(),
+        error,
+      ),
+    );
+    throw error;
+  }
+}
+export async function cancelAppoitment(item: any): any {
+  if (!item) return undefined;
+  const url = getRestUrl() + 'Appointment/cancel';
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: token,
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(item),
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    const restResponse = await httpResponse.json();
+    if (restResponse.errors) {
+      alert(restResponse.errors);
+      console.log(
+        'restResponse contains a system error: ' + JSON.stringify(restResponse),
+      );
+    }
+    return restResponse;
   } catch (error) {
     console.log(error);
     alert(
