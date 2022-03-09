@@ -952,6 +952,11 @@ export class AppointmentDetails extends Component {
               <NativeBaseButton onPress={() => this.openAppointment()}>
                 {strings.open}
               </NativeBaseButton>
+              {this.props.onCopyAppointment && (
+                <NativeBaseButton onPress={() => this.props.onCopyAppointment(this.props.appointment)}>
+                  {strings.copy}
+                </NativeBaseButton>
+              )}
             </Dialog.Actions>
           )}
         </View>

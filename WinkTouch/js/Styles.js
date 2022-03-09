@@ -1376,9 +1376,8 @@ export const styles = StyleSheet.create({
   },
   copyText: {
     color: 'white',
-    fontSize: 18 * fontScale,
-    lineHeight: '3rem',
-    paddingLeft: 10 * fontScale,
+    fontSize: 20 * fontScale,
+    padding: 10 * fontScale
   },
 });
 

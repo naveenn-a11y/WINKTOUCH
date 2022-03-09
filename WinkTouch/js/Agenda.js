@@ -116,6 +116,7 @@ export class AgendaScreen extends Component {
       dropDown: false,
       copyDialog: null,
       selectedPatient: undefined,
+      copedAppointment: undefined,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -378,18 +379,6 @@ export class AgendaScreen extends Component {
             {!isNewEvent && <AppointmentTypes appointment={event} />}
             <Text style={{color: 'black'}}> {event.title}</Text>
           </Dialog.Title>
-          {/* <Dialog.Content>{this.renderContent(event)}</Dialog.Content>
-          <Dialog.Actions>
-            <NativeBaseButton onPress={() => this.setCopyDialog(event)}>
-              {strings.copy}
-            </NativeBaseButton>
-            <NativeBaseButton onPress={this.cancelDialog}>
-              {strings.close}
-            </NativeBaseButton>
-            <NativeBaseButton onPress={() => this.openPatientFile(event)}>
-              {strings.open}
-            </NativeBaseButton>
-          </Dialog.Actions> */}
           <Dialog.Content>
             <AppointmentDetails
               appointment={event}
@@ -401,6 +390,7 @@ export class AgendaScreen extends Component {
                 this.openPatientFile(appointment)
               }
               onCloseAppointment={() => this.cancelDialog()}
+              onCopyAppointment={(appointment: Appointment)=>this.setCopyDialog(appointment)}
             />
           </Dialog.Content>
         </Dialog>
@@ -467,7 +457,7 @@ export class AgendaScreen extends Component {
   closeDropDown = () => {
     this.setState({dropDown: false});
   };
-  setCopyDialog = (event = null) => {
+  setCopyDialog = (event:Appointment = null) => {
     if (event) {
       const patient: PatientInfo | Patient = getCachedItem(event.patientId);
       this.cancelDialog();
@@ -476,6 +466,7 @@ export class AgendaScreen extends Component {
         copyDialog: `${strings.appointmentFor} ${getPatientFullName(patient)} ${
           strings.successfullyCopied
         }`,
+        copedAppointment: event
       });
     } else this.setState({copyDialog: null});
   };
@@ -502,7 +493,6 @@ export class AgendaScreen extends Component {
         {isLoading && this.renderLoading()}
         {isPatientDialogVisible && this.renderPatientScreen()}
         {showDialog && this.renderEventDetails()}
-        {/* {isVisible && this.renderDoctorsOptions()} */}
         {copyDialog && this.renderCopyDialog()}
         {doctorsModal && this.renderDoctorsOptions()}
         
