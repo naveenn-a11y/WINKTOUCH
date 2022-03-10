@@ -128,7 +128,7 @@ export async function fetchAppointments(
   patientId: ?string,
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
-  includeAvailableSlots: ?boolean = true,
+  includeAvailableSlots: ?boolean = false,
 ): Promise<Appointment[]> {
   const searchCriteria = {
     storeId: storeId,
