@@ -869,8 +869,9 @@ export class AppointmentDetails extends Component {
     if (!this.state.isEditable || !this.state.editedAppointment) {
       return (
         <View>
-          <TouchableOpacity onPress={() => this.startEdit()}>
-            <View style={styles.card} />
+          <TouchableOpacity
+            onPress={() => this.startEdit()}
+            styles={{flexDirection: 'column', flex: 100}}>
             {user && (
               <Text style={styles.text}>
                 {strings.doctor}: {user.firstName} {user.lastName}
@@ -881,16 +882,14 @@ export class AppointmentDetails extends Component {
               appointment={appointment}
               orientation="horizontal"
             />
-            <Title>
-              {getPatientFullName(patient)}
-              <View style={styles.rowLayout}>
-                <Text style={styles.text}>({genderShort}) </Text>
-                <PatientTags patient={patient} showDescription={true} />
-                <Text style={styles.text}>
-                  {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
-                </Text>
-              </View>
-            </Title>
+            <Title>{getPatientFullName(patient)} </Title>
+            <View style={styles.rowLayout}>
+              <Text style={styles.text}>({genderShort}) </Text>
+              <PatientTags patient={patient} showDescription={true} />
+              <Text style={styles.text}>
+                {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
+              </Text>
+            </View>
 
             <View style={styles.formRow}>
               <Text style={styles.text}>
@@ -905,49 +904,47 @@ export class AppointmentDetails extends Component {
                   : formatDate(appointment.end, dayYearDateTimeFormat)}
               </Text>
             </View>
-            <View style={styles.flexColumnLayout}>
-              {!isEmpty(appointment.supplierName) && (
-                <View style={styles.formRow}>
-                  <Text style={styles.text}>{appointment.supplierName}</Text>
-                </View>
-              )}
-              {!isEmpty(patient.medicalCard) && (
-                <View style={styles.formRow}>
-                  <Icon name="card-account-details" style={styles.text} />
-                  <Text style={styles.text}>
-                    {prefix(patient.medicalCard, '  ')}
-                    {prefix(patient.medicalCardVersion, '-')}
-                    {prefix(patient.medicalCardExp, '-')}
-                  </Text>
-                </View>
-              )}
-              {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
-                <View style={styles.formRow}>
-                  <Icon name="cellphone" style={styles.text} />
-                  <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
-                    {patient.cell ? patient.cell + ' ' : patient.phone}
-                  </Text>
-                </View>
-              )}
-              {!isEmpty(patient.email) && (
-                <View style={styles.formRow}>
-                  <Icon name="email" style={styles.text} />
-                  <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
-                    {patient.email}
-                  </Text>
-                </View>
-              )}
-              {!isEmpty(appointment.comment) && (
-                <View style={styles.formRow}>
-                  <FormTextInput
-                    label=""
-                    multiline={true}
-                    readonly={true}
-                    value={appointment.comment}
-                  />
-                </View>
-              )}
-            </View>
+            {!isEmpty(appointment.supplierName) && (
+              <View style={styles.formRow}>
+                <Text style={styles.text}>{appointment.supplierName}</Text>
+              </View>
+            )}
+            {!isEmpty(patient.medicalCard) && (
+              <View style={styles.formRow}>
+                <Icon name="card-account-details" style={styles.text} />
+                <Text style={styles.text}>
+                  {prefix(patient.medicalCard, '  ')}
+                  {prefix(patient.medicalCardVersion, '-')}
+                  {prefix(patient.medicalCardExp, '-')}
+                </Text>
+              </View>
+            )}
+            {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
+              <View style={styles.formRow}>
+                <Icon name="cellphone" style={styles.text} />
+                <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                  {patient.cell ? patient.cell + ' ' : patient.phone}
+                </Text>
+              </View>
+            )}
+            {!isEmpty(patient.email) && (
+              <View style={styles.formRow}>
+                <Icon name="email" style={styles.text} />
+                <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                  {patient.email}
+                </Text>
+              </View>
+            )}
+            {!isEmpty(appointment.comment) && (
+              <View style={styles.formRow}>
+                <FormTextInput
+                  label=""
+                  multiline={true}
+                  readonly={true}
+                  value={appointment.comment}
+                />
+              </View>
+            )}
           </TouchableOpacity>
           {!this.props.isNewAppointment && (
             <Dialog.Actions>
@@ -965,116 +962,114 @@ export class AppointmentDetails extends Component {
     const labelWidth: number = 200 * fontScale;
     return (
       <View>
-        <View style={styles.form}>
+        <FormRow>
+          <FormTextInput
+            labelWidth={labelWidth}
+            label={strings.patient}
+            readonly={true}
+            value={getPatientFullName(patient)}
+          />
+        </FormRow>
+        {this.renderAppointmentsTypes()}
+        <FormRow>
+          <FormOptions
+            labelWidth={labelWidth}
+            options={this.getInsuranceProviders()}
+            showLabel={true}
+            label={strings.insurer}
+            value={
+              this.state.editedAppointment.supplierName
+                ? this.state.editedAppointment.supplierName
+                : 0
+            }
+            onChangeValue={(code: ?string | ?number) =>
+              this.updateValue('supplierName', code)
+            }
+          />
+        </FormRow>
+        <FormRow>
+          <FormCheckBox
+            labelWidth={labelWidth}
+            showLabel={true}
+            label={strings.waitingList}
+            options={this.getWaitingListOptions()}
+            value={this.state.editedAppointment.earlyRequest}
+            onChangeValue={(code: ?string | ?number) => {
+              this.updateValue('earlyRequest', code);
+              if (code === false || code === undefined || code === null) {
+                this.updateValue('earlyRequestComment', '');
+              }
+            }}
+          />
+        </FormRow>
+
+        {this.state.editedAppointment.earlyRequest && (
           <FormRow>
             <FormTextInput
               labelWidth={labelWidth}
-              label={strings.patient}
-              readonly={true}
-              value={getPatientFullName(patient)}
-            />
-          </FormRow>
-          {this.renderAppointmentsTypes()}
-          <FormRow>
-            <FormOptions
-              labelWidth={labelWidth}
-              options={this.getInsuranceProviders()}
-              showLabel={true}
-              label={strings.insurer}
-              value={
-                this.state.editedAppointment.supplierName
-                  ? this.state.editedAppointment.supplierName
-                  : 0
-              }
-              onChangeValue={(code: ?string | ?number) =>
-                this.updateValue('supplierName', code)
-              }
-            />
-          </FormRow>
-          <FormRow>
-            <FormCheckBox
-              labelWidth={labelWidth}
-              showLabel={true}
-              label={strings.waitingList}
-              options={this.getWaitingListOptions()}
-              value={this.state.editedAppointment.earlyRequest}
-              onChangeValue={(code: ?string | ?number) => {
-                this.updateValue('earlyRequest', code);
-                if (code === false || code === undefined || code === null) {
-                  this.updateValue('earlyRequestComment', '');
-                }
-              }}
-            />
-          </FormRow>
-
-          {this.state.editedAppointment.earlyRequest && (
-            <FormRow>
-              <FormTextInput
-                labelWidth={labelWidth}
-                label={strings.waitingListComment}
-                value={this.state.editedAppointment.earlyRequestComment}
-                onChangeText={(newValue: ?string) =>
-                  this.updateValue('earlyRequestComment', newValue)
-                }
-              />
-            </FormRow>
-          )}
-          <FormRow>
-            <FormNumberInput
-              labelWidth={labelWidth}
-              label={strings.numberOfSlots}
-              required={true}
-              minValue={1}
-              maxValue={9}
-              value={
-                this.state.editedAppointment.numberOfSlots
-                  ? this.state.editedAppointment.numberOfSlots
-                  : 1
-              }
-              onChangeValue={(newValue: ?number) => {
-                if (this.validateNumberOfSlots(undefined, newValue)) {
-                  this.updateValue('numberOfSlots', newValue);
-                }
-              }}
-            />
-          </FormRow>
-
-          {!this.props.isNewAppointment && (
-            <FormRow>
-              <FormCode
-                labelWidth={labelWidth}
-                label={strings.status}
-                readonly={false}
-                code="appointmentStatusCode"
-                value={this.state.editedAppointment.status}
-                onChangeValue={(code: ?string | ?number) =>
-                  this.updateValue('status', code)
-                }
-              />
-            </FormRow>
-          )}
-          {user && (
-            <FormRow>
-              <FormTextInput
-                labelWidth={labelWidth}
-                label={strings.doctor}
-                readonly={true}
-                value={user.firstName + ' ' + user.lastName}
-              />
-            </FormRow>
-          )}
-          <FormRow>
-            <FormTextInput
-              labelWidth={labelWidth}
-              label={strings.comment}
-              multiline={true}
-              value={this.state.editedAppointment.comment}
+              label={strings.waitingListComment}
+              value={this.state.editedAppointment.earlyRequestComment}
               onChangeText={(newValue: ?string) =>
-                this.updateValue('comment', newValue)
+                this.updateValue('earlyRequestComment', newValue)
               }
             />
           </FormRow>
-        </View>
+        )}
+        <FormRow>
+          <FormNumberInput
+            labelWidth={labelWidth}
+            label={strings.numberOfSlots}
+            required={true}
+            minValue={1}
+            maxValue={9}
+            value={
+              this.state.editedAppointment.numberOfSlots
+                ? this.state.editedAppointment.numberOfSlots
+                : 1
+            }
+            onChangeValue={(newValue: ?number) => {
+              if (this.validateNumberOfSlots(undefined, newValue)) {
+                this.updateValue('numberOfSlots', newValue);
+              }
+            }}
+          />
+        </FormRow>
+
+        {!this.props.isNewAppointment && (
+          <FormRow>
+            <FormCode
+              labelWidth={labelWidth}
+              label={strings.status}
+              readonly={false}
+              code="appointmentStatusCode"
+              value={this.state.editedAppointment.status}
+              onChangeValue={(code: ?string | ?number) =>
+                this.updateValue('status', code)
+              }
+            />
+          </FormRow>
+        )}
+        {user && (
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.doctor}
+              readonly={true}
+              value={user.firstName + ' ' + user.lastName}
+            />
+          </FormRow>
+        )}
+        <FormRow>
+          <FormTextInput
+            labelWidth={labelWidth}
+            label={strings.comment}
+            multiline={true}
+            value={this.state.editedAppointment.comment}
+            onChangeText={(newValue: ?string) =>
+              this.updateValue('comment', newValue)
+            }
+          />
+        </FormRow>
         <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
           <NativeBaseButton onPress={() => this.cancelEdit()}>
             {strings.cancel}

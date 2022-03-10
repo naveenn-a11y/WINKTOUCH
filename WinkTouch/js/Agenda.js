@@ -376,7 +376,13 @@ export class AgendaScreen extends Component {
           visible={this.state.showDialog}
           onDismiss={this.cancelDialog}
           dismissable={true}
-          style={styles.alert}>
+          style={{
+            width: '50%',
+            minHeight: '40%',
+            maxHeight: '90%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}>
           <Dialog.Title>
             {!isNewEvent && <AppointmentTypes appointment={event} />}
             <Text style={{color: 'black'}}> {event.title}</Text>
