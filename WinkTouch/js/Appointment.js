@@ -690,13 +690,18 @@ export class AppointmentDetails extends Component {
   cancelEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({isEditable: false});
+    if (this.props.isNewAppointment) {
+      this.props.onCloseAppointment();
+    }
   }
 
   commitEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
 
     this.props.onUpdateAppointment(this.state.editedAppointment);
-    this.setState({isEditable: false, editedAppointment: undefined});
+    if (!this.props.isNewAppointment) {
+      this.setState({isEditable: false, editedAppointment: undefined});
+    }
   }
 
   openAppointment() {

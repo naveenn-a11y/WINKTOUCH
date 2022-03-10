@@ -303,7 +303,6 @@ export class AgendaScreen extends Component {
 
   updateEvent = async (appointment: Appointment) => {
     //Call Backend
-    this.cancelDialog();
 
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
@@ -316,6 +315,10 @@ export class AgendaScreen extends Component {
       false,
       appointment.comment,
     );
+    if (bookedAppointment) {
+      this.cancelDialog();
+    }
+
     const index = this.state.appointments.findIndex(
       (e: Appointment) => e.id === bookedAppointment.id,
     );
