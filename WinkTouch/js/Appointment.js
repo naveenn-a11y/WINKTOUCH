@@ -506,7 +506,7 @@ export class AppointmentSummary extends Component {
     const date: string = this.props.appointment.start;
     return (
       <TouchableOpacity onPress={this.props.onPress}>
-        <View style={[cardStyle, styles.appointment]}>
+        <View style={cardStyle}>
           <View style={{flexDirection: 'row'}}>
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
