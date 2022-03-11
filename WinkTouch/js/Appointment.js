@@ -183,7 +183,6 @@ export async function bookAppointment(
       ? earlyRequestComment
       : '',
     rescheduled: rescheduled,
-    emrOnly: true,
     id: slotId,
     storeId: getStore().id,
     supplierId: !isEmpty(supplierId) ? supplierId : 0,

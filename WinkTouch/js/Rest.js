@@ -566,6 +566,7 @@ export async function performActionOnItem(
   action: string,
   item: any,
   httpMethod: ?any = 'PUT',
+  parameters: ?any = '',
 ): any {
   if (
     (item === null) | (item === undefined) ||
@@ -578,6 +579,7 @@ export async function performActionOnItem(
     getDataType(item instanceof Array ? item[0].id : item.id) +
     '/' +
     encodeURIComponent(action);
+  url = appendParameters(url, parameters);
   const requestNr = ++requestNumber;
   __DEV__ &&
     console.log(
