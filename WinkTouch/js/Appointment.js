@@ -188,10 +188,14 @@ export async function bookAppointment(
     supplierId: !isEmpty(supplierId) ? supplierId : 0,
     comment: comment,
   };
+  const params = {
+    emrOnly: true,
+  };
   const appointment: Appointment = await performActionOnItem(
     '',
     searchCriteria,
     'POST',
+    params,
   );
   return appointment;
 }
