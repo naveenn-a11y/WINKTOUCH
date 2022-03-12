@@ -179,6 +179,7 @@ export class AgendaScreen extends Component {
         undefined,
         fromDate.format(jsonDateFormat),
         true,
+        true,
       );
       if (includeDayEvents) {
         const events = await fetchEvents('store-' + getStore().storeId);
@@ -305,7 +306,6 @@ export class AgendaScreen extends Component {
 
   updateEvent = async (appointment: Appointment) => {
     //Call Backend
-    this.cancelDialog();
 
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
@@ -318,6 +318,10 @@ export class AgendaScreen extends Component {
       false,
       appointment.comment,
     );
+    if (bookedAppointment) {
+      this.cancelDialog();
+    }
+
     const index = this.state.appointments.findIndex(
       (e: Appointment) => e.id === bookedAppointment.id,
     );
@@ -374,7 +378,13 @@ export class AgendaScreen extends Component {
           visible={this.state.showDialog}
           onDismiss={this.cancelDialog}
           dismissable={true}
-          style={styles.alert}>
+          style={{
+            width: '50%',
+            minHeight: '40%',
+            maxHeight: '90%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}>
           <Dialog.Title>
             {!isNewEvent && <AppointmentTypes appointment={event} />}
             <Text style={{color: 'black'}}> {event.title}</Text>
