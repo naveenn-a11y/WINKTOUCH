@@ -8,12 +8,9 @@ import React, {Component} from 'react';
 import {
   Image,
   View,
-  TouchableHighlight,
   Text,
-  Button,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   LayoutAnimation,
   InteractionManager,
   RefreshControl,
@@ -33,16 +30,9 @@ import {strings} from './Strings';
 import {
   formatDate,
   timeFormat,
-  time24Format,
-  dateTimeFormat,
-  dayDateTime24Format,
-  dayYearDateTime24Format,
-  now,
   isToday,
-  formatMoment,
   capitalize,
   formatDuration,
-  jsonDateTimeFormat,
   jsonDateFormat,
   today,
   dayYearDateTimeFormat,
@@ -54,9 +44,6 @@ import {
 import {
   FormRow,
   FormTextInput,
-  FormDateInput,
-  FormDateTimeInput,
-  FormDurationInput,
   FormCode,
   FormCheckBox,
   FormNumberInput,
@@ -79,12 +66,7 @@ import {
   getCachedItems,
   cacheItemsById,
 } from './DataCache';
-import {
-  searchItems,
-  fetchItemById,
-  stripDataType,
-  performActionOnItem,
-} from './Rest';
+import {searchItems, fetchItemById, performActionOnItem} from './Rest';
 import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
@@ -172,7 +154,16 @@ export async function bookAppointment(
   earlyRequestComment: ?string,
   rescheduled: ?boolean,
   comment: ?string,
+  oldappointmentId: ?string,
 ): Promise<Appointment> {
+  const reschedulingParms = rescheduled
+    ? {
+        oldappointmentId: oldappointmentId?.split('-')[1],
+        emrOnly: true,
+        appointmentModification: true,
+        slotId: slotId?.split('-')[1],
+      }
+    : {};
   const searchCriteria = {
     patientId: patientId,
     appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
@@ -187,6 +178,7 @@ export async function bookAppointment(
     storeId: getStore().id,
     supplierId: !isEmpty(supplierId) ? supplierId : 0,
     comment: comment,
+    ...reschedulingParms,
   };
   const params = {
     emrOnly: true,
@@ -658,6 +650,7 @@ export class AppointmentDetails extends Component {
     onOpenAppointment: (appointment: Appointment) => void,
     onCloseAppointment: () => void,
     isNewAppointment: boolean,
+    rescheduleAppointment: boolean,
   };
   state: {
     isEditable: boolean,
@@ -679,7 +672,6 @@ export class AppointmentDetails extends Component {
   startEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
-
     this.setState({isEditable: true, editedAppointment: appointmentClone});
   }
 
@@ -816,6 +808,9 @@ export class AppointmentDetails extends Component {
   }
 
   renderAppointmentsTypes() {
+    if (this.props.rescheduleAppointment) {
+      return null;
+    }
     const labelWidth: number = 200 * fontScale;
     const appointmentsType: string[] =
       this.state.editedAppointment.appointmentTypes;
@@ -958,7 +953,10 @@ export class AppointmentDetails extends Component {
                 {strings.open}
               </NativeBaseButton>
               {this.props.onCopyAppointment && (
-                <NativeBaseButton onPress={() => this.props.onCopyAppointment(this.props.appointment)}>
+                <NativeBaseButton
+                  onPress={() =>
+                    this.props.onCopyAppointment(this.props.appointment)
+                  }>
                   {strings.copy}
                 </NativeBaseButton>
               )}
@@ -984,6 +982,7 @@ export class AppointmentDetails extends Component {
             labelWidth={labelWidth}
             options={this.getInsuranceProviders()}
             showLabel={true}
+            readonly={!!this.props.rescheduleAppointment}
             label={strings.insurer}
             value={
               this.state.editedAppointment.supplierName
@@ -999,6 +998,7 @@ export class AppointmentDetails extends Component {
           <FormCheckBox
             labelWidth={labelWidth}
             showLabel={true}
+            readonly={!!this.props.rescheduleAppointment}
             label={strings.waitingList}
             options={this.getWaitingListOptions()}
             value={this.state.editedAppointment.earlyRequest}
@@ -1015,6 +1015,7 @@ export class AppointmentDetails extends Component {
           <FormRow>
             <FormTextInput
               labelWidth={labelWidth}
+              readonly={!!this.props.rescheduleAppointment}
               label={strings.waitingListComment}
               value={this.state.editedAppointment.earlyRequestComment}
               onChangeText={(newValue: ?string) =>
@@ -1027,6 +1028,7 @@ export class AppointmentDetails extends Component {
           <FormNumberInput
             labelWidth={labelWidth}
             label={strings.numberOfSlots}
+            readonly={!!this.props.rescheduleAppointment}
             required={true}
             minValue={1}
             maxValue={9}
@@ -1051,6 +1053,7 @@ export class AppointmentDetails extends Component {
               readonly={false}
               code="appointmentStatusCode"
               value={this.state.editedAppointment.status}
+              readonly={!!this.props.rescheduleAppointment}
               onChangeValue={(code: ?string | ?number) =>
                 this.updateValue('status', code)
               }
@@ -1085,7 +1088,9 @@ export class AppointmentDetails extends Component {
           <NativeBaseButton
             disabled={!this.props.isNewAppointment}
             onPress={() => this.commitEdit()}>
-            {strings.book}
+            {!this.props.rescheduleAppointment
+              ? strings.book
+              : strings.reschedule}
           </NativeBaseButton>
         </View>
       </View>

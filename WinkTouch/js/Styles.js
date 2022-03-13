@@ -1372,7 +1372,7 @@ export const styles = StyleSheet.create({
     minWidth: '100%',
     minHeight: 50 * fontScale,
     position: 'absolute',
-    bottom: '0px',
+    bottom: 0,
   },
   copyText: {
     color: 'white',

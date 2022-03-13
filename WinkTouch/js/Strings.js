@@ -304,6 +304,8 @@ export const strings = new LocalizedStrings({
     numberOfSlots: 'Number of Slots',
     book: 'Book',
     AppointmentType: 'Appointment Type',
+    rescheduleAppointment: 'Reschedule Appointment',
+    reschedule: 'Reschedule',
   },
   fr: {
     enterRegisteredEmail:
@@ -607,6 +609,8 @@ export const strings = new LocalizedStrings({
     numberOfSlots: 'Nombre de créneaux',
     book: 'Réserver',
     AppointmentType: 'Type rendez-vous',
+    rescheduleAppointment: 'Re-planifier un rendez-vous',
+    reschedule: 'Re-planifier',
   },
 });
 

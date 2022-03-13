@@ -17,15 +17,8 @@ import {
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  styles,
-  windowHeight,
-  windowWidth,
-  fontScale,
-  isWeb,
-  selectionColor,
-} from './Styles';
-import {FormTextInput, FormRow, FormInput, FormOptions, FormCode} from './Form';
+import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
+import {FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -40,39 +33,23 @@ import {
 import {Appointment, AppointmentType} from './Types';
 import {
   formatDate,
-  timeFormat,
-  isToday,
-  dayYearDateTimeFormat,
   now,
   jsonDateFormat,
   farDateFormat2,
   yearDateFormat,
   isEmpty,
-  formatAge,
-  prefix,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
-import {
-  CabinetScreen,
-  getPatientFullName,
-  PatientCard,
-  PatientTags,
-} from './Patient';
-import {getStore, getDoctor} from './DoctorApp';
-import {
-  Button as NativeBaseButton,
-  Portal,
-  Dialog,
-  Title,
-} from 'react-native-paper';
+import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
+import {getStore} from './DoctorApp';
+import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {formatCode, getAllCodes} from './Codes';
-import {fetchVisitForAppointment, fetchVisitHistory} from './Visit';
+import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
-import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
+import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
-import {PatientSearch} from './FindPatient';
+import {getPatient} from './Exam';
 
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
@@ -93,8 +70,10 @@ export class AgendaScreen extends Component {
     doctorsModal: boolean,
     isPatientDialogVisible: boolean,
     dropDown: boolean,
-    copyDialog: string,
     selectedPatient?: patient | PatientInfo,
+    copedAppointment: Appointment,
+    rescheduleAppointment: boolean,
+    newAppointment: Appointment
   };
   today = new Date();
   lastRefresh: number;
@@ -114,9 +93,9 @@ export class AgendaScreen extends Component {
       doctorsModal: false,
       isPatientDialogVisible: false,
       dropDown: false,
-      copyDialog: null,
       selectedPatient: undefined,
       copedAppointment: undefined,
+      rescheduleAppointment: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -198,7 +177,11 @@ export class AgendaScreen extends Component {
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event});
     if (this.isNewEvent(event)) {
-      this.openPatientDialog();
+      if (this.state.copedAppointment) {
+        this.setState({rescheduleAppointment: true , newAppointment:event});
+      } else {
+        this.openPatientDialog();
+      }
     } else {
       this.setState({showDialog: true});
     }
@@ -266,6 +249,14 @@ export class AgendaScreen extends Component {
   cancelDialog = () => {
     this.setState({event: undefined, showDialog: false});
   };
+  endReschedule = () => {
+    this.setState({
+      copedAppointment: undefined,
+      rescheduleAppointment: false,
+      showDialog: false,
+      newAppointment:undefined,
+    });
+  };
   openDoctorsOptions = () => {
     this.setState({doctorsModal: true});
   };
@@ -304,9 +295,39 @@ export class AgendaScreen extends Component {
     });
   };
 
+  rescheduleEvent = async (appointment: Appointment) => {
+    //Call Backend
+    this.cancelDialog();
+    this.endReschedule();
+
+    const bookedAppointment: Appointment = await bookAppointment(
+      appointment.patientId,
+      appointment.appointmentTypes,
+      appointment.numberOfSlots,
+      this.state.newAppointment.id,
+      appointment.supplierName,
+      appointment.earlyRequest,
+      appointment.earlyRequestComment,
+      true,
+      appointment.comment,
+      appointment.id
+    );
+
+    const oldAppointmentIndex = this.state.appointments.findIndex(
+      (e: Appointment) => e.id === appointment.id,
+    );
+    const index = this.state.appointments.findIndex(
+      (e: Appointment) => e.id === bookedAppointment.id,
+    );
+
+    if (index >= 0) {
+      let appointments: Appointment[] = [...this.state.appointments];
+      appointments[index] = bookedAppointment;
+      this.setState({appointments: appointments});
+    }
+  };
   updateEvent = async (appointment: Appointment) => {
     //Call Backend
-
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
@@ -371,12 +392,22 @@ export class AgendaScreen extends Component {
     );
   }
 
-  renderAppointmentDetail(event: Appointment, isNewEvent: boolean) {
+  renderAppointmentDetail(
+    event: Appointment,
+    isNewEvent: boolean,
+    rescheduleAppointment: boolean,
+  ) {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          visible={this.state.showDialog}
-          onDismiss={this.cancelDialog}
+          visible={
+            rescheduleAppointment
+              ? this.state.rescheduleAppointment
+              : this.state.showDialog
+          }
+          onDismiss={
+            rescheduleAppointment ? this.endReschedule : this.cancelDialog
+          }
           dismissable={true}
           style={{
             width: '50%',
@@ -392,15 +423,20 @@ export class AgendaScreen extends Component {
           <Dialog.Content>
             <AppointmentDetails
               appointment={event}
+              rescheduleAppointment={rescheduleAppointment}
               isNewAppointment={isNewEvent}
-              onUpdateAppointment={(appointment: Appointment) =>
-                this.updateEvent(appointment)
-              }
+              onUpdateAppointment={(appointment: Appointment) => {
+                rescheduleAppointment
+                  ? this.rescheduleEvent(appointment)
+                  : this.updateEvent(appointment);
+              }}
               onOpenAppointment={(appointment: Appointment) =>
                 this.openPatientFile(appointment)
               }
               onCloseAppointment={() => this.cancelDialog()}
-              onCopyAppointment={(appointment: Appointment)=>this.setCopyDialog(appointment)}
+              onCopyAppointment={(appointment: Appointment) => {
+                this.setCopedAppointment(appointment);
+              }}
             />
           </Dialog.Content>
         </Dialog>
@@ -451,15 +487,29 @@ export class AgendaScreen extends Component {
     );
   }
   renderCopyDialog() {
+    const patient: PatientInfo | Patient = getCachedItem(
+      this.state.copedAppointment.patientId,
+    );
     return (
-      <View
-        style={styles.copyDialog}>
-        <Text
-          style={styles.copyText}>
-          {this.state.copyDialog}
+      <View style={styles.copyDialog}>
+        <Text style={styles.copyText}>
+          {`${strings.appointmentFor} ${getPatientFullName(patient)} ${
+            strings.successfullyCopied
+          }`}
         </Text>
       </View>
     );
+  }
+  renderRescheduleDialog() {
+    let event: Appointment = this.state.copedAppointment;
+    if (event === undefined || event === null) {
+      return null;
+    }
+    event = Object.assign({patientId: event.patientId}, event);
+    event.title = strings.rescheduleAppointment;
+    // const Patient = getPatient({patientId:event.patientId})
+    // this.setState({showDialog: true});
+    return this.renderAppointmentDetail(event, true, true);
   }
   openDropDown = () => {
     this.setState({dropDown: true});
@@ -467,18 +517,13 @@ export class AgendaScreen extends Component {
   closeDropDown = () => {
     this.setState({dropDown: false});
   };
-  setCopyDialog = (event:Appointment = null) => {
+  setCopedAppointment = (event: Appointment = null) => {
     if (event) {
-      const patient: PatientInfo | Patient = getCachedItem(event.patientId);
       this.cancelDialog();
-      console.log('event :>> ', patient);
       this.setState({
-        copyDialog: `${strings.appointmentFor} ${getPatientFullName(patient)} ${
-          strings.successfullyCopied
-        }`,
-        copedAppointment: event
+        copedAppointment: event,
       });
-    } else this.setState({copyDialog: null});
+    } else this.setState({copedAppointment: null});
   };
   render() {
     const {
@@ -488,7 +533,8 @@ export class AgendaScreen extends Component {
       mode,
       dropDown,
       isPatientDialogVisible,
-      copyDialog,
+      copedAppointment,
+      rescheduleAppointment,
     } = this.state;
 
     const options =
@@ -502,10 +548,10 @@ export class AgendaScreen extends Component {
       <View style={styles.page}>
         {isLoading && this.renderLoading()}
         {isPatientDialogVisible && this.renderPatientScreen()}
-        {showDialog && this.renderEventDetails()}
-        {copyDialog && this.renderCopyDialog()}
+        {showDialog && !rescheduleAppointment && this.renderEventDetails()}
         {doctorsModal && this.renderDoctorsOptions()}
-        
+        {copedAppointment && this.renderCopyDialog()}
+        {rescheduleAppointment && this.renderRescheduleDialog()}
 
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
@@ -623,7 +669,6 @@ class Event extends Component {
     if (index < 0) {
       return null;
     }
-
     const patient: Patient = getCachedItem(event.patientId);
 
     const appointmentType: AppointmentType =
