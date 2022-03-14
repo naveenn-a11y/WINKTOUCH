@@ -73,7 +73,7 @@ export class AgendaScreen extends Component {
     selectedPatient?: patient | PatientInfo,
     copedAppointment: Appointment,
     rescheduleAppointment: boolean,
-    newAppointment: Appointment
+    newAppointment: Appointment,
   };
   today = new Date();
   lastRefresh: number;
@@ -178,7 +178,7 @@ export class AgendaScreen extends Component {
     this.setState({event: event});
     if (this.isNewEvent(event)) {
       if (this.state.copedAppointment) {
-        this.setState({rescheduleAppointment: true , newAppointment:event});
+        this.setState({rescheduleAppointment: true, newAppointment: event});
       } else {
         this.openPatientDialog();
       }
@@ -254,7 +254,7 @@ export class AgendaScreen extends Component {
       copedAppointment: undefined,
       rescheduleAppointment: false,
       showDialog: false,
-      newAppointment:undefined,
+      newAppointment: undefined,
     });
   };
   openDoctorsOptions = () => {
@@ -297,9 +297,6 @@ export class AgendaScreen extends Component {
 
   rescheduleEvent = async (appointment: Appointment) => {
     //Call Backend
-    this.cancelDialog();
-    this.endReschedule();
-
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
@@ -310,19 +307,26 @@ export class AgendaScreen extends Component {
       appointment.earlyRequestComment,
       true,
       appointment.comment,
-      appointment.id
+      appointment.id,
     );
-
+    if (bookedAppointment) {
+      this.cancelDialog();
+      this.endReschedule();
+    }
     const oldAppointmentIndex = this.state.appointments.findIndex(
       (e: Appointment) => e.id === appointment.id,
     );
     const index = this.state.appointments.findIndex(
       (e: Appointment) => e.id === bookedAppointment.id,
     );
-
     if (index >= 0) {
       let appointments: Appointment[] = [...this.state.appointments];
       appointments[index] = bookedAppointment;
+      delete appointments[oldAppointmentIndex]?.patientId;
+      appointments[oldAppointmentIndex] = {
+        ...appointments[oldAppointmentIndex],
+        isBusy: false,
+      };
       this.setState({appointments: appointments});
     }
   };
