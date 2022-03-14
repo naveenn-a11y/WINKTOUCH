@@ -158,11 +158,8 @@ export async function bookAppointment(
 ): Promise<Appointment> {
   const reschedulingParms = rescheduled
     ? {
-        emrOnly: true,
         appointmentModification: true,
-        oldappointmentId: oldappointmentId?.split('-')[1],
-        slotId: slotId?.split('-')[1],
-        storeId: getStore().id?.split('-')[1],
+        oldappointmentId: oldappointmentId,
       }
     : {};
   const searchCriteria = {
