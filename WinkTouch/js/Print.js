@@ -149,9 +149,9 @@ async function addLogo(
     const image = await pdfDoc.embedJpg(rxLogo);
     page.drawImage(image, {
       x: border,
-      y: pageHeight - border - 100,
-      width: 100,
-      height: 100,
+      y: pageHeight - border - 65,
+      width: 65,
+      height: 65,
     });
   } else {
     if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
@@ -162,19 +162,53 @@ async function addLogo(
     }
     page.drawImage(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg', 'jpg', {
       x: border,
-      y: pageHeight - border - 100,
-      width: 100,
-      height: 100,
+      y: pageHeight - border - 65,
+      width: 65,
+      height: 65,
+    });
+  }
+}
+async function addStoreLogo(
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+  x: number,
+  y: number,
+) {
+  if (isWeb) {
+    const rxLogo: string = await loadRxLogo();
+    if (rxLogo === undefined || rxLogo === null || rxLogo === '') {
+      return;
+    }
+    const image = await pdfDoc.embedJpg(rxLogo);
+    page.drawImage(image, {
+      x,
+      y: y - 50,
+      width: 50,
+      height: 50,
+    });
+  } else {
+    if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
+      await loadRxLogo();
+      if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
+        return;
+      }
+    }
+    page.drawImage(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg', 'jpg', {
+      x,
+      y: y - 50,
+      width: 50,
+      height: 50,
     });
   }
 }
 
-function addDrHeader(
+async function addDrHeader(
   visitId: string,
   page: PDFPage,
   pageWidth: number,
   pageHeight: number,
   border: number,
+  pdfDoc?: PDFDocument,
 ) {
   const visit: Visit = getCachedItem(visitId);
   //const doctor = getDoctor();
@@ -192,7 +226,11 @@ function addDrHeader(
   let x: number = leftBorder;
   let y: number = top;
   let fontSize: number = 10;
-  y -= fontSize * 1.15;
+
+  await addStoreLogo(page, pdfDoc, x, y);
+
+  y -= fontSize * 2 + 50;
+
   //page.drawText('Dr FirstName Latname - License Number', {x,y,fontSize});
   page.drawText(
     doctor.firstName +
@@ -340,27 +378,25 @@ function addMedicalRxLines(
       labelsArray.indexOf(formattedRxLine) !== -1
     ) {
       formattedRxLine += prefix(prescription.Strength, ', ');
+      formattedRxLine += prefix(prescription.Eye, ', ');
       formattedRxLine += prefix(prescription.Dosage, ', ');
-      formattedRxLine += prefix(prescription.Frequency, ', ');
-      formattedRxLine += prefix(prescription.Refill, ', ');
-      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
-      page.drawText(formattedRxLine, {x, y, size: fontSize});
-      y -= fontSize * 1.5;
-      formattedRxLine = prefix(prescription.Instructions, '       ');
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
       }
-      formattedRxLine = prefix(
+
+      formattedRxLine = prefix(prescription.Frequency, '       ');
+      formattedRxLine += prefix(
         prescription.Duration,
-        '       ' + strings.during + ' ',
+        ', ' + strings.duration + ': ',
       );
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
       }
-      formattedRxLine = prefix(prescription.Eye, '       ');
-
+      formattedRxLine = prefix(prescription.Instructions, '       ');
+      formattedRxLine += prefix(prescription.Refill, ', ');
+      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
@@ -538,7 +574,7 @@ export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   }
 
   await addLogo(rxPage, pageHeight, border, pdfDoc);
-  addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
+  await addDrHeader(visitId, rxPage, pageWidth, pageHeight, border, pdfDoc);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
