@@ -490,43 +490,6 @@ export async function deleteItem(item: any): any {
     throw error;
   }
 }
-export async function cancelAppoitment(item: any): any {
-  if (!item) return undefined;
-  const url = getRestUrl() + 'Appointment/cancel';
-  try {
-    let httpResponse = await fetch(url, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        token: token,
-        Accept: 'application/json',
-        'Accept-language': getUserLanguage(),
-      },
-      body: JSON.stringify(item),
-    });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
-    }
-    const restResponse = await httpResponse.json();
-    if (restResponse.errors) {
-      alert(restResponse.errors);
-      console.log(
-        'restResponse contains a system error: ' + JSON.stringify(restResponse),
-      );
-    }
-    return restResponse;
-  } catch (error) {
-    console.log(error);
-    alert(
-      strings.formatString(
-        strings.storeItemError,
-        getDataType(item.id).toLowerCase(),
-        error,
-      ),
-    );
-    throw error;
-  }
-}
 
 export function appendParameters(url: string, searchCritera: Object): string {
   if (!searchCritera) {
@@ -603,6 +566,7 @@ export async function performActionOnItem(
   action: string,
   item: any,
   httpMethod: ?any = 'PUT',
+  parameters: ?any = '',
 ): any {
   if (
     (item === null) | (item === undefined) ||
@@ -615,6 +579,7 @@ export async function performActionOnItem(
     getDataType(item instanceof Array ? item[0].id : item.id) +
     '/' +
     encodeURIComponent(action);
+  url = appendParameters(url, parameters);
   const requestNr = ++requestNumber;
   __DEV__ &&
     console.log(
