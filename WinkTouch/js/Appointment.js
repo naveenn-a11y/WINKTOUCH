@@ -201,8 +201,7 @@ export async function bookAppointment(
 }
 export async function cancelAppointment(body) {
   const appointment: Appointment = await performActionOnItem(
-    // 'Appointment/cancel',
-    '',
+    'cancel',
     body,
     'POST',
     {emrOnly: true},
@@ -959,6 +958,19 @@ export class AppointmentDetails extends Component {
               </View>
             )}
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.props.onCancelAppointment()}
+            style={{
+              width: 150,
+              marginTop: 20,
+              borderRadius: 10,
+              paddingVertical: 10,
+              backgroundColor: '#1db3b3',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{color: '#fff'}}> {'Cancel Appointment'}</Text>
+          </TouchableOpacity>
           {!this.props.isNewAppointment && (
             <Dialog.Actions>
               <NativeBaseButton onPress={() => this.closeAppointment()}>
@@ -966,10 +978,6 @@ export class AppointmentDetails extends Component {
               </NativeBaseButton>
               <NativeBaseButton onPress={() => this.openAppointment()}>
                 {strings.open}
-              </NativeBaseButton>
-              <NativeBaseButton
-                onPress={() => this.props.onCancelAppointment()}>
-                {'Cancel Appointment'}
               </NativeBaseButton>
             </Dialog.Actions>
           )}

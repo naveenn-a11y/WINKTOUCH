@@ -324,7 +324,7 @@ export class AgendaScreen extends Component {
     this.setState({deleting: true});
     const event: Appointment = this.state.event;
     const res = await cancelAppointment({
-      emrOnly: true,
+      id: event.id,
       appointmentId: event.id,
       cancelledComment: this.state.cancelNotes,
       cancelledReason: this.state.cancelReason == 'store' ? 1 : 2,
