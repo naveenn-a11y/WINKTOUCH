@@ -20,7 +20,7 @@ import {
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
 import {getDoctor, getStore} from './DoctorApp';
-import {fetchItemById} from './Rest';
+import {fetchItemById, searchItems} from './Rest';
 import {
   fetchUpload,
   getJpeg64Dimension,
@@ -124,6 +124,7 @@ async function loadRxLogo(): Promise<string> {
     getWinkRestUrl() + 'webresources/attachement/845/431/Rx.jpg';
   if (isWeb) {
     const path: string = await loadBase64ImageForWeb(url);
+    console.log('path1', path);
     return path;
   } else {
     await RNFS.downloadFile({
@@ -132,8 +133,6 @@ async function loadRxLogo(): Promise<string> {
     });
   }
 }
-
-loadRxLogo();
 
 async function addLogo(
   page: PDFPage,
@@ -174,12 +173,14 @@ async function addStoreLogo(
   x: number,
   y: number,
 ) {
+  const res = await searchItems(`Store/logo/${getStore().id}`);
+  const storeLogo = res.logo;
+
   if (isWeb) {
-    const rxLogo: string = await loadRxLogo();
-    if (rxLogo === undefined || rxLogo === null || rxLogo === '') {
+    if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
       return;
     }
-    const image = await pdfDoc.embedJpg(rxLogo);
+    const image = await pdfDoc.embedPng(storeLogo);
     page.drawImage(image, {
       x,
       y: y - 50,
@@ -187,13 +188,9 @@ async function addStoreLogo(
       height: 50,
     });
   } else {
-    if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
-      await loadRxLogo();
-      if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
-        return;
-      }
-    }
-    page.drawImage(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg', 'jpg', {
+    const fPath = `${RNFS.DocumentDirectoryPath}/Store-logo.png`;
+    await RNFS.writeFile(fPath, storeLogo, 'base64');
+    page.drawImage(fPath, 'png', {
       x,
       y: y - 50,
       width: 50,
