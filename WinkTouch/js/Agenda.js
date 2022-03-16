@@ -437,7 +437,11 @@ export class AgendaScreen extends Component {
               onOpenAppointment={(appointment: Appointment) =>
                 this.openPatientFile(appointment)
               }
-              onCloseAppointment={() => this.cancelDialog()}
+              onCloseAppointment={() => {
+                rescheduleAppointment
+                  ?this.endReschedule()
+                  : this.cancelDialog()
+              }}
               onCopyAppointment={(appointment: Appointment) => {
                 this.setCopedAppointment(appointment);
               }}

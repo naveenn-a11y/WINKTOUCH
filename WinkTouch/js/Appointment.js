@@ -955,7 +955,7 @@ export class AppointmentDetails extends Component {
                   onPress={() =>
                     this.props.onCopyAppointment(this.props.appointment)
                   }>
-                  {strings.copy}
+                  {strings.reschedule}
                 </NativeBaseButton>
               )}
             </Dialog.Actions>
