@@ -1366,6 +1366,9 @@ export const styles = StyleSheet.create({
     flexDirection: "column",
     flexWrap: "nowrap",
     alignContent: "center",
+  },
+  alignPopup :{
+    alignItems: 'center'
   }
 });
 

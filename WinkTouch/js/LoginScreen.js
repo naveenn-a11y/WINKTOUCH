@@ -462,6 +462,7 @@ export class LoginScreen extends Component {
                   containerStyle={styles.fieldContainer}
                   options={storeNames}
                   onChangeValue={this.setStore}
+                  popupStyle={styles.alignPopup}
                   testID="login.store"
                 />
               </View>

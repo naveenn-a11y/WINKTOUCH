@@ -1676,6 +1676,7 @@ export class ListField extends Component {
     freestyle?: boolean,
     style?: any,
     containerStyle?: any,
+    popupStyle?: any,
     onChangeValue?: (newvalue: ?string) => void,
   };
   state: {
@@ -1731,7 +1732,7 @@ export class ListField extends Component {
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
           </Text>
-          <View style={styles.flexColumnLayout}>
+          <View style={[styles.flexColumnLayout,this.props.popupStyle]}>
             <View style={styles.modalColumn}>
               <SelectionList
                 items={this.props.options}
