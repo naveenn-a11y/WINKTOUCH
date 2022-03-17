@@ -301,6 +301,9 @@ export const strings = new LocalizedStrings({
     numberOfSlots: 'Number of Slots',
     book: 'Book',
     AppointmentType: 'Appointment Type',
+    cancelAppointment: 'Cancel Appointment ',
+    patientName: 'Patient Name',
+    cancelledBy: 'Cancelled By',
   },
   fr: {
     enterRegisteredEmail:
@@ -601,6 +604,10 @@ export const strings = new LocalizedStrings({
     numberOfSlots: 'Nombre de créneaux',
     book: 'Réserver',
     AppointmentType: 'Type rendez-vous',
+    cancelAppointment: 'Annuler le rendez-vous ',
+    patientName: 'Nom du patient',
+    cancelledBy: 'Annulé par',
+    store: 'Magasin',
   },
 });
 
