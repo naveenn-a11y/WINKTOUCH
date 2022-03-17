@@ -11,8 +11,6 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  ScrollView,
-  PanResponder,
   StatusBar,
   KeyboardAvoidingView,
   InteractionManager,
@@ -24,7 +22,7 @@ import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
 import base64 from 'base-64';
 import {styles, fontScale, isWeb} from './Styles';
-import {Button, TilesField} from './Widgets';
+import {Button, TilesField, ListField} from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -33,7 +31,6 @@ import {
 } from './Strings';
 import {
   getRestUrl,
-  searchItems,
   handleHttpError,
   getNextRequestNumber,
   getWinkEmrHostFromAccount,
@@ -44,7 +41,6 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
-  restVersion,
   ecommVersion,
 } from './Version';
 import {fetchCodeDefinitions} from './Codes';
@@ -117,10 +113,18 @@ export class LoginScreen extends Component {
       isTrial: false,
     };
   }
-
-  componentDidUpdate(prevProps: any) {
+  componentDidUpdate(prevProps: any, prevState: any) {
     if (prevProps.registration !== this.props.registration) {
       this.fetchAccountsStores(this.props.registration);
+    }
+    if (prevState.account !== this.state.account) {
+      let currAccount = this.state.accounts.find(
+        (account) => account.name === this.state.account,
+      );
+      if (currAccount) {
+        let store = currAccount.stores?.length > 0 && this.formatStore(currAccount.stores[0]);
+        this.setStore(store);
+      }
     }
   }
 
@@ -235,7 +239,6 @@ export class LoginScreen extends Component {
     } else {
       AsyncStorage.setItem('account', account);
     }
-
     this.setState({account}, this.fetchCodes());
   };
 
@@ -451,8 +454,9 @@ export class LoginScreen extends Component {
                 />
               </View>
               <View>
-                <TilesField
+                <ListField
                   label={strings.store}
+                  freestyle={true}
                   value={this.state.store}
                   style={styles.field400}
                   containerStyle={styles.fieldContainer}
