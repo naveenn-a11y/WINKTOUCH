@@ -274,7 +274,7 @@ function addCurrentDate(page: PDFPage, pageHeight: number, border: number) {
   page.drawText('Date: ' + formatDate(now(), officialDateFormat), {
     x: border,
     y: pageHeight - 150 - border,
-    fontSize,
+    size: fontSize,
   });
 }
 
@@ -293,7 +293,7 @@ function addPatientHeader(
   if (!patient) {
     return;
   }
-  const top: number = pageHeight - 175 - border;
+  const top: number = pageHeight - 170 - border;
   const fontSize: number = 10;
   let column1: number = border;
   let column2: number = pageWidth - border - 300;
@@ -303,7 +303,7 @@ function addPatientHeader(
   page.drawText(getPatientFullName(patient), {
     x,
     y,
-    fontSize: fontSize + 2,
+    size: fontSize + 2,
   });
   y -= (fontSize + 2) * 1.15;
   page.drawText(
