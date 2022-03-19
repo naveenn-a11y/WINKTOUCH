@@ -443,13 +443,15 @@ export class LoginScreen extends Component {
                 }}
               />
               <View>
-                <TilesField
+                <ListField
                   label={strings.account}
+                  freestyle={true}
                   value={this.state.account}
                   style={styles.field400}
                   containerStyle={styles.fieldContainer}
                   options={accountNames}
                   onChangeValue={this.setAccount}
+                  popupStyle={styles.alignPopup}
                   testID="login.account"
                 />
               </View>
