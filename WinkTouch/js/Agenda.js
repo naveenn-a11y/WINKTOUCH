@@ -310,24 +310,9 @@ export class AgendaScreen extends Component {
       appointment.id,
     );
     if (bookedAppointment) {
+      this.refreshAppointments(true, true, this.state.mode === 'day' ? 1 : this.daysInWeek);
       this.cancelDialog();
       this.endReschedule();
-    }
-    const oldAppointmentIndex = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === appointment.id,
-    );
-    const index = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === bookedAppointment.id,
-    );
-    if (index >= 0) {
-      let appointments: Appointment[] = [...this.state.appointments];
-      appointments[index] = bookedAppointment;
-      delete appointments[oldAppointmentIndex]?.patientId;
-      appointments[oldAppointmentIndex] = {
-        ...appointments[oldAppointmentIndex],
-        isBusy: false,
-      };
-      this.setState({appointments: appointments});
     }
   };
   updateEvent = async (appointment: Appointment) => {
