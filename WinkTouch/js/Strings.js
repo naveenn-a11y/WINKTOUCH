@@ -24,11 +24,14 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail: 'This email adress was not registered before with Wink',
     userName: 'User name',
     password: 'password',
+    enterCode: 'Enter Code',
     submitLogin: 'Login',
+    verifyCode: 'Verify',
     touchNotConfigured:
       'Your account is not set up to use the mobile app yet. Please contact customer support.',
     registrationScreenTitle: 'WINKemr registration',
     loginscreenTitle: 'WINKemr login',
+    mfaScreenTitle: 'WINKemr code verification',
     account: 'Account',
     store: 'Store',
     securityQuestionsError:
@@ -320,11 +323,14 @@ export const strings = new LocalizedStrings({
       "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
     userName: "Nom d'utilisateur",
     password: 'Mot de passe',
+    enterCode: 'Entrez le code',
     submitLogin: 'Ouvrir la session',
+    verifyCode: 'Vérifier',
     touchNotConfigured:
       "Votre compte n'est pas configuré pour utiliser l'application mobile à cet instant. Veuillez contacter le service à la clientèle",
     registrationScreenTitle: 'Registration WINKemr',
     loginscreenTitle: 'Se connecter à WINKemr',
+    mfaScreenTitle: 'Vérification du code WINKemr',
     account: 'Compte',
     store: 'Magasin',
     securityQuestionsError:
