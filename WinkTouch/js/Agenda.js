@@ -309,10 +309,29 @@ export class AgendaScreen extends Component {
       appointment.comment,
       appointment.id,
     );
+    const oldAppointmentIndex = this.state.appointments.findIndex(
+      (e: Appointment) => e.id === appointment.id,
+    );
+    const index = this.state.appointments.findIndex(
+      (e: Appointment) => e.id === this.state.newAppointment.id,
+    );
     if (bookedAppointment) {
-      this.refreshAppointments(true, true, this.state.mode === 'day' ? 1 : this.daysInWeek);
       this.cancelDialog();
       this.endReschedule();
+    }
+    if (index >= 0) {
+      let appointments: Appointment[] = [...this.state.appointments];
+      appointments[index] = {
+        ...appointments[index],
+        patientId: appointments[oldAppointmentIndex].patientId,
+      };
+      delete appointments[oldAppointmentIndex]?.patientId;
+      appointments[oldAppointmentIndex] = {
+        ...appointments[oldAppointmentIndex],
+        id: bookedAppointment.id,
+        isBusy: false,
+      };
+      this.setState({appointments: appointments});
     }
   };
   updateEvent = async (appointment: Appointment) => {
@@ -424,8 +443,8 @@ export class AgendaScreen extends Component {
               }
               onCloseAppointment={() => {
                 rescheduleAppointment
-                  ?this.endReschedule()
-                  : this.cancelDialog()
+                  ? this.endReschedule()
+                  : this.cancelDialog();
               }}
               onCopyAppointment={(appointment: Appointment) => {
                 this.setCopedAppointment(appointment);
