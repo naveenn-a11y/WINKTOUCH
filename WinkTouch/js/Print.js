@@ -184,8 +184,8 @@ async function addStoreLogo(
     page.drawImage(image, {
       x,
       y: y - 50,
-      width: 50,
-      height: 50,
+      width: 110,
+      height: 54,
     });
   } else {
     const fPath = `${RNFS.DocumentDirectoryPath}/Store-logo.png`;
@@ -193,8 +193,8 @@ async function addStoreLogo(
     page.drawImage(fPath, 'png', {
       x,
       y: y - 50,
-      width: 50,
-      height: 50,
+      width: 110,
+      height: 54,
     });
   }
 }
