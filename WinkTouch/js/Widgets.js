@@ -1727,7 +1727,7 @@ export class ListField extends Component {
 
   renderPopup() {
     return (
-      <TouchableWithoutFeedback onPress={this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? undefined : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
