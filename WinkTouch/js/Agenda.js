@@ -37,6 +37,7 @@ import {
   isAppointmentLocked,
   AppointmentDetails,
   bookAppointment,
+  updateAppointmentStatus,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -330,6 +331,34 @@ export class AgendaScreen extends Component {
       this.setState({appointments: appointments});
     }
   };
+  updateAppointmentStatus = async (
+    appointment: Appointment,
+    status: Number,
+    eventId: Number,
+  ) => {
+    const updatedAppointment: Appointment = await updateAppointmentStatus(
+      appointment,
+      status,
+    );
+    if (status == 2) {
+      //cancelled
+      let appointments: Appointment[] = this.state.appointments.filter(
+        (a) => a.id != eventId,
+      );
+      appointments = [...appointments, updatedAppointment];
+      this.setState({appointments});
+      this.cancelDialog();
+    } else {
+      const index = this.state.appointments.findIndex(
+        (e: Appointment) => e.id === updatedAppointment.id,
+      );
+      if (index >= 0) {
+        let appointments: Appointment[] = [...this.state.appointments];
+        appointments[index] = updatedAppointment;
+        this.setState({appointments});
+      }
+    }
+  };
   selectPatient(patient: Patient | PatientInfo) {
     this.cancelPatientDialog();
 
@@ -397,6 +426,10 @@ export class AgendaScreen extends Component {
               onOpenAppointment={(appointment: Appointment) =>
                 this.openPatientFile(appointment)
               }
+              onUpdateAppointmentStatus={(
+                appointment: Appointment,
+                status: Number,
+              ) => this.updateAppointmentStatus(appointment, status)}
               onCloseAppointment={() => this.cancelDialog()}
             />
           </Dialog.Content>

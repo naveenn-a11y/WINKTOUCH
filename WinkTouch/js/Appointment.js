@@ -85,7 +85,12 @@ import {
   stripDataType,
   performActionOnItem,
 } from './Rest';
-import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
+import {
+  formatCode,
+  formatAllCodes,
+  getAllCodes,
+  getCodeDefinition,
+} from './Codes';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -198,6 +203,31 @@ export async function bookAppointment(
     params,
   );
   return appointment;
+}
+export async function updateAppointmentStatus(
+  appointment: Appointment,
+  status: Number,
+) {
+  const searchCriteria = {
+    patientId: appointment.patientId,
+    comment: appointment.comment,
+    appointmentTypeId: appointment.appointmentTypes
+      ? appointment.appointmentTypes.map((type) => type.split('-')[1])
+      : 0,
+    earlyRequest: false,
+    id: appointment.id,
+    status: status,
+  };
+  const params = {
+    emrOnly: true,
+  };
+  const updatedAppointment: Appointment = await performActionOnItem(
+    'update',
+    searchCriteria,
+    'PUT',
+    params,
+  );
+  return updatedAppointment;
 }
 
 export class AppointmentTypes extends Component {
@@ -327,7 +357,31 @@ class AppointmentIcon extends Component {
           }}
         />
       );
+    } else if (this.props.name === 'cancelled') {
+      return (
+        <Image
+          source={require('./image/calendar/confirmedx2.png')}
+          style={{
+            width: boxSize,
+            height: boxSize,
+            margin: 1 * fontScale,
+            resizeMode: 'contain',
+          }}
+        />
+      );
     } else if (this.props.name === 'confirmed') {
+      return (
+        <Image
+          source={require('./image/calendar/confirmedx2.png')}
+          style={{
+            width: boxSize,
+            height: boxSize,
+            margin: 1 * fontScale,
+            resizeMode: 'contain',
+          }}
+        />
+      );
+    } else if (this.props.name === 'cancelled') {
       return (
         <Image
           source={require('./image/calendar/confirmedx2.png')}
@@ -656,10 +710,12 @@ export class AppointmentDetails extends Component {
     appointment: Appointment,
     onUpdateAppointment: (appointment: Appointment) => void,
     onOpenAppointment: (appointment: Appointment) => void,
+    onUpdateAppointmentStatus: (appointment: Appointment) => void,
     onCloseAppointment: () => void,
     isNewAppointment: boolean,
   };
   state: {
+    status: Number,
     isEditable: boolean,
     editedAppointment: ?Appointment,
   };
@@ -668,6 +724,7 @@ export class AppointmentDetails extends Component {
     this.state = {
       isEditable: false,
       editedAppointment: undefined,
+      status: props.appointment.status,
     };
   }
   componentDidMount() {
@@ -864,8 +921,15 @@ export class AppointmentDetails extends Component {
     const appointment: Appointment = this.props.appointment;
     const user: User = getCachedItem(appointment.userId);
     const patient: PatientInfo | Patient = getCachedItem(appointment.patientId);
-
     let genderShort: string = formatCode('genderCode', patient.gender);
+    const allDescriptions: string[] = [
+      'pending',
+      'confirmed',
+      'cancelled',
+      'noShow',
+      'waiting',
+      'completed',
+    ];
     if (genderShort.length > 0) {
       genderShort = genderShort.substring(0, 1);
     }
@@ -949,6 +1013,30 @@ export class AppointmentDetails extends Component {
               </View>
             )}
           </TouchableOpacity>
+          <View style={{width: '30%'}}>
+            <FormRow>
+              <AppointmentIcon
+                key={this.state.status}
+                name={allDescriptions[this.state.status]}
+              />
+              <FormCode
+                showLabel={false}
+                readonly={false}
+                code="appointmentStatusCode"
+                value={this.state.status}
+                onChangeValue={(code: ?string | ?number) => {
+                  code !== undefined &&
+                    this.setState({status: code}, () =>
+                      this.props.onUpdateAppointmentStatus(
+                        this.props.appointment,
+                        this.state.status,
+                        appointment.id,
+                      ),
+                    );
+                }}
+              />
+            </FormRow>
+          </View>
           {!this.props.isNewAppointment && (
             <Dialog.Actions>
               <NativeBaseButton onPress={() => this.closeAppointment()}>
