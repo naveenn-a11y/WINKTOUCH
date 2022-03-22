@@ -321,16 +321,21 @@ export class AgendaScreen extends Component {
     }
     if (index >= 0) {
       let appointments: Appointment[] = [...this.state.appointments];
+      let availableAppointment: Appointment = appointments[index]
       appointments[index] = {
-        ...appointments[index],
+        ...appointment,
+        end: appointments[index].end,
+        start: appointments[index].start,
         patientId: appointments[oldAppointmentIndex].patientId,
       };
-      delete appointments[oldAppointmentIndex]?.patientId;
       appointments[oldAppointmentIndex] = {
-        ...appointments[oldAppointmentIndex],
+        ...availableAppointment,
+        end: appointments[oldAppointmentIndex].end,
+        start: appointments[oldAppointmentIndex].start,
         id: bookedAppointment.id,
         isBusy: false,
       };
+      delete appointments[oldAppointmentIndex]?.patientId;
       this.setState({appointments: appointments});
     }
   };
