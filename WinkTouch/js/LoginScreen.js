@@ -22,7 +22,7 @@ import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
 import base64 from 'base-64';
 import {styles, fontScale, isWeb} from './Styles';
-import {Button, TilesField, ListField} from './Widgets';
+import {Button, ListField,TilesField} from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -124,7 +124,10 @@ export class LoginScreen extends Component {
       if (currAccount) {
         let store = currAccount.stores?.length > 0 && this.formatStore(currAccount.stores[0]);
         this.setStore(store);
+      }else if(!currAccount && !this.state.account){
+        this.setStore(undefined);
       }
+
     }
   }
 
@@ -452,6 +455,7 @@ export class LoginScreen extends Component {
                   options={accountNames}
                   onChangeValue={this.setAccount}
                   popupStyle={styles.alignPopup}
+                  simpleSelect={true}
                   testID="login.account"
                 />
               </View>
@@ -464,6 +468,7 @@ export class LoginScreen extends Component {
                   containerStyle={styles.fieldContainer}
                   options={storeNames}
                   onChangeValue={this.setStore}
+                  simpleSelect={true}
                   popupStyle={styles.alignPopup}
                   testID="login.store"
                 />

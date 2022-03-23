@@ -1677,6 +1677,8 @@ export class ListField extends Component {
     style?: any,
     containerStyle?: any,
     popupStyle?: any,
+    simpleSelect?: boolean,
+    multiValue?: boolean,
     onChangeValue?: (newvalue: ?string) => void,
   };
   state: {
@@ -1727,17 +1729,18 @@ export class ListField extends Component {
 
   renderPopup() {
     return (
-      <TouchableWithoutFeedback onPress={isWeb ? undefined : this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
           </Text>
-          <View style={[styles.flexColumnLayout,this.props.popupStyle]}>
+          <View style={[styles.flexColumnLayout, this.props.popupStyle]}>
             <View style={styles.modalColumn}>
               <SelectionList
                 items={this.props.options}
                 selection={this.state.editedValue}
-                multiValue={false}
+                simpleSelect={this.props.simpleSelect}
+                multiValue={this.props.multiValue}
                 required={false}
                 freestyle={this.props.freestyle}
                 onUpdateSelection={this.updateValue}
@@ -3365,15 +3368,17 @@ export class SelectionList extends React.PureComponent {
       return null;
     }
     return (
-      <TextInput
-        returnKeyType="search"
-        autoCorrect={false}
-        autoCapitalize="none"
-        style={styles.searchField}
-        value={this.state.filter}
-        onChangeText={(filter: string) => this.setState({filter})}
-        testID={this.props.fieldId + '.filter'}
-      />
+      <TouchableWithoutFeedback>
+        <TextInput
+          returnKeyType="search"
+          autoCorrect={false}
+          autoCapitalize="none"
+          style={styles.searchField}
+          value={this.state.filter}
+          onChangeText={(filter: string) => this.setState({filter})}
+          testID={this.props.fieldId + '.filter'}
+        />
+      </TouchableWithoutFeedback>
     );
   }
 
@@ -3590,7 +3595,11 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {
-                  const item: any = element.label ? element.label : (element.description ? element.description : element);
+                  const item: any = element.label
+                    ? element.label
+                    : element.description
+                    ? element.description
+                    : element;
                   return this.props.multiValue ? (
                     <View>
                       <CheckButton
