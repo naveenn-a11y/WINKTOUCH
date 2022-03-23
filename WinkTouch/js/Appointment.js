@@ -357,10 +357,10 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    } else if (this.props.name === 'cancelled') {
+    } else if (this.props.name === 'pending') {
       return (
         <Image
-          source={require('./image/calendar/confirmedx2.png')}
+          source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
             height: boxSize,
@@ -384,7 +384,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'cancelled') {
       return (
         <Image
-          source={require('./image/calendar/confirmedx2.png')}
+          source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
             height: boxSize,
