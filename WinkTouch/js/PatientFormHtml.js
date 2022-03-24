@@ -1438,7 +1438,7 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader() {
+export function patientHeader(Refrral:boolean) {
   let htmlHeader: string =
     '<head><title>Patient File</title><style>' +
     'body {' +
@@ -1638,8 +1638,11 @@ export function patientHeader() {
     '   flex-wrap: wrap;' +
     '   width: 100%;' +
     '   justify-content: space-around;' +
-    ' }' +
-    '.breakBeforeImage { page-break-before: always; }';
+    ' }'+
+    '.breakBeforeImage{ page-break-before: avoid; }'
+    htmlHeader += Refrral
+    ? '.breakBeforeImage{ page-break-before: avoid; } .breakBeforeImage ~ section{ page-break-before: always; }'
+    : '.breakBeforeImage { page-break-before: always; }'
   htmlHeader += isWeb
     ? '.images-warp{page-break-inside:avoid;} '
     : '.wrap-imgs{} ';
