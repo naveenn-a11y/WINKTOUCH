@@ -90,6 +90,41 @@ import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const PRIVILEGE = {
+  NOACCESS: 'NOACCESS',
+  READONLY: 'READONLY',
+  BOOKONLY: 'BOOKONLY',
+  FULLACCESS: 'FULLACCESS',
+};
+
+function hasAppointmentReadAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return (
+    appointment.appointmentPrivilege === PRIVILEGE.READONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.BOOKONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+export function hasAppointmentBookAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return (
+    appointment.appointmentPrivilege === PRIVILEGE.BOOKONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+function hasAppointmentFullAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS;
+}
+
 export function isAppointmentLocked(appointment: Appointment): boolean {
   if (appointment === undefined) {
     return false;
@@ -883,7 +918,8 @@ export class AppointmentDetails extends Component {
         <View>
           <TouchableOpacity
             onPress={() => this.startEdit()}
-            styles={{flexDirection: 'column', flex: 100}}>
+            styles={{flexDirection: 'column', flex: 100}}
+            disabled={!hasAppointmentBookAccess(appointment)}>
             {user && (
               <Text style={styles.text}>
                 {strings.doctor}: {user.firstName} {user.lastName}
@@ -1095,16 +1131,18 @@ export class AppointmentDetails extends Component {
             }
           />
         </FormRow>
-        <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
-          <NativeBaseButton onPress={() => this.cancelEdit()}>
-            {strings.cancel}
-          </NativeBaseButton>
-          <NativeBaseButton
-            disabled={!this.props.isNewAppointment}
-            onPress={() => this.commitEdit()}>
-            {strings.book}
-          </NativeBaseButton>
-        </View>
+        {hasAppointmentBookAccess(appointment) && (
+          <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
+            <NativeBaseButton onPress={() => this.cancelEdit()}>
+              {strings.cancel}
+            </NativeBaseButton>
+            <NativeBaseButton
+              disabled={!this.props.isNewAppointment}
+              onPress={() => this.commitEdit()}>
+              {strings.book}
+            </NativeBaseButton>
+          </View>
+        )}
       </View>
     );
   }

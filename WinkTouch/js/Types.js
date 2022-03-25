@@ -73,18 +73,20 @@ export type User = {
   providerType?: string,
 };
 
-export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
 
 export type Privileges = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
+  appointmentPrivilege?: Privilege,
 };
 
-export type TokenPrivilege = 'N' | 'R' | 'F';
+export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
 
 export type TokenPrivileges = {
   pre: ?TokenPrivilege,
   med: ?TokenPrivilege,
+  app: ?TokenPrivilege,
 };
 
 export type TokenPayload = {
@@ -187,6 +189,11 @@ export type Appointment = {
   indicators?: string[],
   comment?: string,
   supplierName?: string,
+  isBusy?: boolean,
+  earlyRequest?: boolean,
+  earlyRequestComment?: string,
+  numberOfSlots?: number,
+  appointmentPrivilege?: Privilege,
 };
 
 export type Prism = {

@@ -38,6 +38,7 @@ import {
   AppointmentDetails,
   bookAppointment,
   cancelAppointment,
+  hasAppointmentBookAccess,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -794,7 +795,8 @@ class Event extends Component {
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
-        ]}>
+        ]}
+        disabled={!hasAppointmentBookAccess(event)}>
         <Text style={styles.grayedText}>{strings.available}</Text>
       </TouchableOpacity>
     ) : (
