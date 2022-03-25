@@ -329,21 +329,26 @@ export class AgendaScreen extends Component {
       cancelledComment: this.state.cancelNotes,
       cancelledReason: this.state.cancelReason == 'store' ? 1 : 2,
     });
-    if (!!res) {
-      this.setState({
-        cancelModal: false,
-        event: undefined,
-        showDialog: false,
-        deleting: false,
-        cancelNotes: '',
-        cancelReason: 'patient',
-      });
-      this.refreshAppointments(
-        true,
-        false,
-        this.state.mode === 'day' ? 1 : this.daysInWeek,
+    if (res) {
+      const index = this.state.appointments.findIndex(
+        (e: Appointment) => e.id === event.id,
       );
-    } else this.setState({deleting: false});
+      if (index > 0) {
+        let appointments: Appointment[] = [...this.state.appointments];
+        appointments[index] = res;
+        this.setState({
+          cancelModal: false,
+          event: undefined,
+          showDialog: false,
+          deleting: false,
+          cancelNotes: '',
+          cancelReason: 'patient',
+          appointments,
+        });
+      }
+    } else {
+      this.setState({deleting: false});
+    }
   };
 
   openPatientFile = (event: Appointment) => {
@@ -521,7 +526,7 @@ export class AgendaScreen extends Component {
           onDismiss={this.cancelCancelDialog}
           dismissable={true}>
           <Dialog.Title>
-            <Text style={{color: 'black'}}> Appointment Cancellation</Text>
+            <Text style={{color: 'black'}}>{strings.cancelAppointment}</Text>
           </Dialog.Title>
           <Dialog.Content>
             <View
@@ -530,9 +535,6 @@ export class AgendaScreen extends Component {
                 alignItems: 'center',
                 marginVertical: 5,
               }}>
-              <Text style={{fontSize: fontScale * 20, fontWeight: '400'}}>
-                Patient Name:{' '}
-              </Text>
               <Text style={{fontSize: fontScale * 18, fontWeight: '500'}}>
                 {patient.firstName} {patient.lastName}
               </Text>
@@ -544,7 +546,7 @@ export class AgendaScreen extends Component {
                 marginVertical: 5,
               }}>
               <Text style={{fontSize: fontScale * 20, fontWeight: '400'}}>
-                Cancelled by:{' '}
+                {strings.cancelledBy}
               </Text>
               <FormInput
                 multiOptions
@@ -601,7 +603,7 @@ export class AgendaScreen extends Component {
               {this.state.deleting ? (
                 <ActivityIndicator />
               ) : (
-                'Cancel Appointment'
+                strings.cancelAppointment
               )}
             </NativeBaseButton>
           </Dialog.Actions>

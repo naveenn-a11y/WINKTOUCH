@@ -302,7 +302,6 @@ export const strings = new LocalizedStrings({
     book: 'Book',
     AppointmentType: 'Appointment Type',
     cancelAppointment: 'Cancel Appointment ',
-    patientName: 'Patient Name',
     cancelledBy: 'Cancelled By',
   },
   fr: {
@@ -605,9 +604,7 @@ export const strings = new LocalizedStrings({
     book: 'Réserver',
     AppointmentType: 'Type rendez-vous',
     cancelAppointment: 'Annuler le rendez-vous ',
-    patientName: 'Nom du patient',
     cancelledBy: 'Annulé par',
-    store: 'Magasin',
   },
 });
 

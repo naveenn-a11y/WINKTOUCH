@@ -969,7 +969,7 @@ export class AppointmentDetails extends Component {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{color: '#fff'}}> {'Cancel Appointment'}</Text>
+            <Text style={{color: '#fff'}}> {strings.cancelAppointment}</Text>
           </TouchableOpacity>
           {!this.props.isNewAppointment && (
             <Dialog.Actions>
