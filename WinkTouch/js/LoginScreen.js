@@ -456,6 +456,8 @@ export class LoginScreen extends Component {
                   onChangeValue={this.setAccount}
                   popupStyle={styles.alignPopup}
                   simpleSelect={true}
+                  renderOptionsOnly={true}
+                  isValueRequired={true}
                   testID="login.account"
                 />
               </View>
@@ -469,6 +471,8 @@ export class LoginScreen extends Component {
                   options={storeNames}
                   onChangeValue={this.setStore}
                   simpleSelect={true}
+                  isValueRequired={true}
+                  renderOptionsOnly={true}
                   popupStyle={styles.alignPopup}
                   testID="login.store"
                 />

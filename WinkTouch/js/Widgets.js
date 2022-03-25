@@ -1678,7 +1678,9 @@ export class ListField extends Component {
     containerStyle?: any,
     popupStyle?: any,
     simpleSelect?: boolean,
+    renderOptionsOnly?: boolean,
     multiValue?: boolean,
+    isValueRequired?: boolean,
     onChangeValue?: (newvalue: ?string) => void,
   };
   state: {
@@ -1703,8 +1705,11 @@ export class ListField extends Component {
 
   updateValue = (newValue?: string): void => {
     let editedValue: ?string = this.state.editedValue;
-    if (newValue == editedValue) {
+    if (!this.props.isValueRequired && newValue == editedValue) {
       newValue = undefined;
+    }
+    if (this.props.isValueRequired && !newValue) {
+      newValue = editedValue;
     }
     this.setState({editedValue: newValue}, this.commitEdit);
   };
@@ -1741,6 +1746,7 @@ export class ListField extends Component {
                 selection={this.state.editedValue}
                 simpleSelect={this.props.simpleSelect}
                 multiValue={this.props.multiValue}
+                renderOptionsOnly={this.props.renderOptionsOnly}
                 required={false}
                 freestyle={this.props.freestyle}
                 onUpdateSelection={this.updateValue}
@@ -3260,6 +3266,7 @@ export class SelectionList extends React.PureComponent {
     multiValue?: boolean,
     freestyle?: boolean,
     simpleSelect?: boolean,
+    renderOptionsOnly?: boolean,
     onUpdateSelection: (selection: ?(string[] | string)) => void,
     fieldId: string,
   };
@@ -3425,7 +3432,8 @@ export class SelectionList extends React.PureComponent {
       data !== undefined &&
       data.length === 0 &&
       this.state.filter &&
-      this.state.filter.length > 0
+      this.state.filter.length > 0 &&
+      !this.props.renderOptionsOnly
     ) {
       data.push(this.state.filter);
     }
