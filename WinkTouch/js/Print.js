@@ -124,7 +124,6 @@ async function loadRxLogo(): Promise<string> {
     getWinkRestUrl() + 'webresources/attachement/845/431/Rx.jpg';
   if (isWeb) {
     const path: string = await loadBase64ImageForWeb(url);
-    console.log('path1', path);
     return path;
   } else {
     await RNFS.downloadFile({
