@@ -301,7 +301,7 @@ export class ReferralScreen extends Component<
           alert(response.errors);
         } else {
           const htmlContent: ReferralDocument = response;
-          let htmlHeader: string = patientHeader(true);
+          let htmlHeader: string = patientHeader();
           let htmlEnd: string = patientFooter();
           template =
             this.props.navigation &&
@@ -502,7 +502,7 @@ export class ReferralScreen extends Component<
 
   async print(): Promise<void> {
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader(true);
+    let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html + htmlEnd;
     let HtmlWithAttachment: string = renderAttachment(html);
@@ -516,7 +516,7 @@ export class ReferralScreen extends Component<
 
   async save(): Promise<any> {
     let html = await this.editor.getContent();
-    let htmlHeader: string = patientHeader(true);
+    let htmlHeader: string = patientHeader();
     let htmlEnd: string = patientFooter();
     html = htmlHeader + html;
 
