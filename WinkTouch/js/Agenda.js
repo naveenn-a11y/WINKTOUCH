@@ -121,7 +121,7 @@ export class AgendaScreen extends Component {
       dropDown: false,
       selectedPatient: undefined,
       cancelModal: false,
-      cancelReason: 'patient',
+      cancelReason: 2,
       cancelNotes: '',
       deleting: false,
     };
@@ -300,7 +300,7 @@ export class AgendaScreen extends Component {
     this.setState({
       cancelModal: false,
       cancelNotes: '',
-      cancelReason: 'patient',
+      cancelReason: 2,
     });
   };
 
@@ -327,7 +327,7 @@ export class AgendaScreen extends Component {
       id: event.id,
       appointmentId: event.id,
       cancelledComment: this.state.cancelNotes,
-      cancelledReason: this.state.cancelReason == 'store' ? 1 : 2,
+      cancelledReason: this.state.cancelReason,
     });
     if (res) {
       const index = this.state.appointments.findIndex(
@@ -342,7 +342,7 @@ export class AgendaScreen extends Component {
           showDialog: false,
           deleting: false,
           cancelNotes: '',
-          cancelReason: 'patient',
+          cancelReason: 2,
           appointments,
         });
       }
@@ -512,10 +512,6 @@ export class AgendaScreen extends Component {
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
           style={{
-            // width: '45%',
-            // height: '41%',
-            // alignSelf: 'center',
-            // backgroundColor: '#fff',
             width: '50%',
             minHeight: '40%',
             maxHeight: '90%',
@@ -556,8 +552,8 @@ export class AgendaScreen extends Component {
                 readonly={false}
                 definition={{
                   options: [
-                    {label: 'Patient', value: 'patient'},
-                    {label: 'Store', value: 'store'},
+                    {label: strings.patient, value: 2},
+                    {label: strings.store, value: 1},
                   ],
                 }}
                 onChangeValue={this.onChangeCancelReason}
