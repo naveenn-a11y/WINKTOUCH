@@ -20,7 +20,7 @@ import {
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
 import {getDoctor, getStore} from './DoctorApp';
-import {fetchItemById} from './Rest';
+import {fetchItemById, searchItems} from './Rest';
 import {
   fetchUpload,
   getJpeg64Dimension,
@@ -133,8 +133,6 @@ async function loadRxLogo(): Promise<string> {
   }
 }
 
-loadRxLogo();
-
 async function addLogo(
   page: PDFPage,
   pageHeight: number,
@@ -149,9 +147,9 @@ async function addLogo(
     const image = await pdfDoc.embedJpg(rxLogo);
     page.drawImage(image, {
       x: border,
-      y: pageHeight - border - 100,
-      width: 100,
-      height: 100,
+      y: pageHeight - border - 65,
+      width: 65,
+      height: 65,
     });
   } else {
     if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg'))) {
@@ -162,19 +160,51 @@ async function addLogo(
     }
     page.drawImage(RNFS.DocumentDirectoryPath + '/Rx-logo.jpg', 'jpg', {
       x: border,
-      y: pageHeight - border - 100,
-      width: 100,
-      height: 100,
+      y: pageHeight - border - 65,
+      width: 65,
+      height: 65,
+    });
+  }
+}
+async function addStoreLogo(
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+  x: number,
+  y: number,
+) {
+  const res = await searchItems(`Store/logo/${getStore().id}`);
+  const storeLogo = res.logo;
+
+  if (isWeb) {
+    if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
+      return;
+    }
+    const image = await pdfDoc.embedPng(storeLogo);
+    page.drawImage(image, {
+      x,
+      y: y - 50,
+      width: 110,
+      height: 54,
+    });
+  } else {
+    const fPath = `${RNFS.DocumentDirectoryPath}/Store-logo.png`;
+    await RNFS.writeFile(fPath, storeLogo, 'base64');
+    page.drawImage(fPath, 'png', {
+      x,
+      y: y - 50,
+      width: 110,
+      height: 54,
     });
   }
 }
 
-function addDrHeader(
+async function addDrHeader(
   visitId: string,
   page: PDFPage,
   pageWidth: number,
   pageHeight: number,
   border: number,
+  pdfDoc?: PDFDocument,
 ) {
   const visit: Visit = getCachedItem(visitId);
   //const doctor = getDoctor();
@@ -192,7 +222,11 @@ function addDrHeader(
   let x: number = leftBorder;
   let y: number = top;
   let fontSize: number = 10;
-  y -= fontSize * 1.15;
+
+  await addStoreLogo(page, pdfDoc, x, y);
+
+  y -= fontSize * 2 + 50;
+
   //page.drawText('Dr FirstName Latname - License Number', {x,y,fontSize});
   page.drawText(
     doctor.firstName +
@@ -239,7 +273,7 @@ function addCurrentDate(page: PDFPage, pageHeight: number, border: number) {
   page.drawText('Date: ' + formatDate(now(), officialDateFormat), {
     x: border,
     y: pageHeight - 150 - border,
-    fontSize,
+    size: fontSize,
   });
 }
 
@@ -258,7 +292,7 @@ function addPatientHeader(
   if (!patient) {
     return;
   }
-  const top: number = pageHeight - 175 - border;
+  const top: number = pageHeight - 170 - border;
   const fontSize: number = 10;
   let column1: number = border;
   let column2: number = pageWidth - border - 300;
@@ -268,7 +302,7 @@ function addPatientHeader(
   page.drawText(getPatientFullName(patient), {
     x,
     y,
-    fontSize: fontSize + 2,
+    size: fontSize + 2,
   });
   y -= (fontSize + 2) * 1.15;
   page.drawText(
@@ -340,27 +374,25 @@ function addMedicalRxLines(
       labelsArray.indexOf(formattedRxLine) !== -1
     ) {
       formattedRxLine += prefix(prescription.Strength, ', ');
+      formattedRxLine += prefix(prescription.Eye, ', ');
       formattedRxLine += prefix(prescription.Dosage, ', ');
-      formattedRxLine += prefix(prescription.Frequency, ', ');
-      formattedRxLine += prefix(prescription.Refill, ', ');
-      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
-      page.drawText(formattedRxLine, {x, y, size: fontSize});
-      y -= fontSize * 1.5;
-      formattedRxLine = prefix(prescription.Instructions, '       ');
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
       }
-      formattedRxLine = prefix(
+
+      formattedRxLine = prefix(prescription.Frequency, '       ');
+      formattedRxLine += prefix(
         prescription.Duration,
-        '       ' + strings.during + ' ',
+        ', ' + strings.duration + ': ',
       );
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
       }
-      formattedRxLine = prefix(prescription.Eye, '       ');
-
+      formattedRxLine = prefix(prescription.Instructions, '       ');
+      formattedRxLine += prefix(prescription.Refill, ', ');
+      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
@@ -538,7 +570,7 @@ export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   }
 
   await addLogo(rxPage, pageHeight, border, pdfDoc);
-  addDrHeader(visitId, rxPage, pageWidth, pageHeight, border);
+  await addDrHeader(visitId, rxPage, pageWidth, pageHeight, border, pdfDoc);
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
