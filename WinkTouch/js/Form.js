@@ -744,6 +744,7 @@ export class FormOptions extends Component {
     onChangeValue: (newvalue: ?string | ?number) => void,
     isTyping?: boolean,
     testID: string,
+    hideClear?: boolean,
   };
   state: {
     dismissedError: boolean,
@@ -881,6 +882,7 @@ export class FormOptions extends Component {
             />
           ) : (
             <TilesField
+              hideClear={this.props.hideClear}
               label={this.props.label}
               style={style}
               readonly={this.props.readonly}
@@ -1075,6 +1077,7 @@ export class FormCode extends Component {
     onChangeValue?: (newvalue: ?string | ?number) => void,
     testID: string,
     isTyping?: boolean,
+    hideClear?: boolean,
   };
 
   getCodeIdentifier() {
@@ -1117,6 +1120,7 @@ export class FormCode extends Component {
       <FormOptions
         labelWidth={this.props.labelWidth}
         label={this.props.label}
+        hideClear={this.props.hideClear}
         showLabel={this.props.showLabel}
         readonly={this.props.readonly}
         freestyle={this.props.freestyle}
@@ -1233,6 +1237,7 @@ export class FormInput extends Component {
     examId: string,
     filterValue: {},
     isTyping?: boolean,
+    hideClear?: Boolean,
     autoFocus?: boolean,
     enableScroll?: () => void,
     disableScroll?: () => void,
@@ -1504,6 +1509,7 @@ export class FormInput extends Component {
             filter={this.getFilterValue()}
             freestyle={this.props.definition.freestyle}
             value={this.props.value}
+            hideClear={this.props.hideClear}
             label={label}
             showLabel={this.props.showLabel}
             readonly={readonly}

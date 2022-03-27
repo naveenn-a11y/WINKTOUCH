@@ -1020,6 +1020,7 @@ export class AppointmentDetails extends Component {
                 name={allDescriptions[this.state.status]}
               />
               <FormCode
+                hideClear
                 showLabel={false}
                 readonly={false}
                 code="appointmentStatusCode"

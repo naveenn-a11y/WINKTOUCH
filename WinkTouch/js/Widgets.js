@@ -1355,6 +1355,7 @@ export class TilesField extends Component {
     },
     testID?: string,
     isTyping?: boolean,
+    hideClear?: boolean,
   };
   state: {
     isActive: boolean,
@@ -1583,7 +1584,7 @@ export class TilesField extends Component {
                         </TouchableOpacity>
                       );
                     })}
-                    {allOptions.length === 1 && (
+                    {allOptions.length === 1 && !this.props.hideClear && (
                       <ClearTile commitEdit={this.clear} />
                     )}
                     {allOptions.length === 1 &&
@@ -1592,7 +1593,7 @@ export class TilesField extends Component {
                       )}
                   </View>
                 ))}
-                {allOptions.length > 1 && (
+                {allOptions.length > 1 && !this.props.hideClear && (
                   <View style={styles.modalColumn}>
                     <UpdateTile commitEdit={this.commitEdit} />
                     <ClearTile commitEdit={this.clear} />
@@ -3589,7 +3590,11 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {
-                  const item: any = element.label ? element.label : (element.description ? element.description : element);
+                  const item: any = element.label
+                    ? element.label
+                    : element.description
+                    ? element.description
+                    : element;
                   return this.props.multiValue ? (
                     <View>
                       <CheckButton
