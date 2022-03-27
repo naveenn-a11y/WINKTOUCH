@@ -46,10 +46,10 @@ import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
-import type {Patient, PatientInfo, Visit} from './Types';
+import type {Patient, PatientInfo, Visit, CodeDefinition} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
-import {getPatient} from './Exam';
+import {getAllCodes} from './Codes';
 
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
@@ -295,6 +295,16 @@ export class AgendaScreen extends Component {
     });
   };
 
+  getAppointmentTypes(): CodeDefinition[] {
+    let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
+    if (appointmentTypes && appointmentTypes.length > 0) {
+      appointmentTypes = appointmentTypes.filter(
+        (type: CodeDefinition) => type.isAppointmentType,
+      );
+    }
+    return appointmentTypes;
+  }
+
   rescheduleEvent = async (appointment: Appointment) => {
     //Call Backend
     const bookedAppointment: Appointment = await bookAppointment(
@@ -309,33 +319,53 @@ export class AgendaScreen extends Component {
       appointment.comment,
       appointment.id,
     );
-    const oldAppointmentIndex = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === appointment.id,
-    );
-    const index = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === this.state.newAppointment.id,
-    );
+    const oldAppointmentIndex = this.state.appointments.findIndex((e: Appointment) => e.id === appointment.id);
+    const index = this.state.appointments.findIndex((e: Appointment) => e.id === this.state.newAppointment.id);
+    const availableAppointment = this.state.newAppointment;
     if (bookedAppointment) {
       this.cancelDialog();
       this.endReschedule();
     }
     if (index >= 0) {
+      const halfAnHour = 30 * 60000;
       let appointments: Appointment[] = [...this.state.appointments];
-      let availableAppointment: Appointment = appointments[index]
+      let endDate = appointments[index].end;
+      let expiredAppointments = appointments.filter((ele: Appointment) => ele.start === endDate);
+      let slotsGap = appointment.numberOfSlots - availableAppointment.numberOfSlots;
+      if (slotsGap > 0) {
+        for (let i = 0; i < slotsGap; i++) {
+          endDate = new Date(new Date(endDate).getTime() + halfAnHour);
+          expiredAppointments = [
+            ...expiredAppointments,
+            ...appointments.filter((ele: Appointment) => ele.start === endDate),
+          ];
+        }
+      }
+      let appointmentTypesIDs: CodeDefinition[] = [];
+      if (appointment?.appointmentTypes?.length > 0) {
+        for (const type of appointment.appointmentTypes) {
+          if (type.indexOf('appointmentType-') === -1) {
+            appointmentTypesIDs.push('appointmentType-' + type);
+          } else appointmentTypesIDs.push(type);
+        }
+      }
       appointments[index] = {
         ...appointment,
-        end: appointments[index].end,
+        appointmentTypes: appointmentTypesIDs,
         start: appointments[index].start,
-        patientId: appointments[oldAppointmentIndex].patientId,
+        end: endDate,
+        id: appointments[index].id,
       };
-      appointments[oldAppointmentIndex] = {
-        ...availableAppointment,
-        end: appointments[oldAppointmentIndex].end,
-        start: appointments[oldAppointmentIndex].start,
-        id: bookedAppointment.id,
-        isBusy: false,
-      };
-      delete appointments[oldAppointmentIndex]?.patientId;
+      appointments[oldAppointmentIndex] = {...bookedAppointment};
+
+      if(slotsGap > 0){
+        for (var object of expiredAppointments) {
+          const index = appointments.findIndex(
+            (e: Appointment) => e.id === object.id,
+          );
+          appointments.splice(index, 1);
+        }
+      }
       this.setState({appointments: appointments});
     }
   };

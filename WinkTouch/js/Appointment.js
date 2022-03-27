@@ -670,6 +670,17 @@ export class AppointmentDetails extends Component {
   startEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
+    if (this.props.rescheduleAppointment && appointmentClone?.appointmentTypes?.length>0) {
+      let splittedAppointmentsCode = []
+      for (let type of appointmentClone.appointmentTypes) {
+        const appointmentTypeId = type?.split('-')[1];
+        splittedAppointmentsCode.push(appointmentTypeId);
+      }
+      appointmentClone={
+        ...appointmentClone,
+        appointmentTypes:[...splittedAppointmentsCode]
+      }
+    }
     this.setState({isEditable: true, editedAppointment: appointmentClone});
   }
 
@@ -806,12 +817,9 @@ export class AppointmentDetails extends Component {
   }
 
   renderAppointmentsTypes() {
-    if (this.props.rescheduleAppointment) {
-      return null;
-    }
+    let appointmentsType: string[] =
+    this.state.editedAppointment.appointmentTypes;
     const labelWidth: number = 200 * fontScale;
-    const appointmentsType: string[] =
-      this.state.editedAppointment.appointmentTypes;
     let dropdowns = [];
     dropdowns.push(
       <FormRow>
@@ -980,7 +988,6 @@ export class AppointmentDetails extends Component {
             labelWidth={labelWidth}
             options={this.getInsuranceProviders()}
             showLabel={true}
-            readonly={!!this.props.rescheduleAppointment}
             label={strings.insurer}
             value={
               this.state.editedAppointment.supplierName
@@ -996,7 +1003,6 @@ export class AppointmentDetails extends Component {
           <FormCheckBox
             labelWidth={labelWidth}
             showLabel={true}
-            readonly={!!this.props.rescheduleAppointment}
             label={strings.waitingList}
             options={this.getWaitingListOptions()}
             value={this.state.editedAppointment.earlyRequest}
@@ -1013,7 +1019,6 @@ export class AppointmentDetails extends Component {
           <FormRow>
             <FormTextInput
               labelWidth={labelWidth}
-              readonly={!!this.props.rescheduleAppointment}
               label={strings.waitingListComment}
               value={this.state.editedAppointment.earlyRequestComment}
               onChangeText={(newValue: ?string) =>
@@ -1026,7 +1031,6 @@ export class AppointmentDetails extends Component {
           <FormNumberInput
             labelWidth={labelWidth}
             label={strings.numberOfSlots}
-            readonly={!!this.props.rescheduleAppointment}
             required={true}
             minValue={1}
             maxValue={9}
@@ -1051,7 +1055,6 @@ export class AppointmentDetails extends Component {
               readonly={false}
               code="appointmentStatusCode"
               value={this.state.editedAppointment.status}
-              readonly={!!this.props.rescheduleAppointment}
               onChangeValue={(code: ?string | ?number) =>
                 this.updateValue('status', code)
               }
