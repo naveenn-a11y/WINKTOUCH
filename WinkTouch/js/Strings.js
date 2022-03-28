@@ -31,7 +31,9 @@ export const strings = new LocalizedStrings({
       'Your account is not set up to use the mobile app yet. Please contact customer support.',
     registrationScreenTitle: 'WINKemr registration',
     loginscreenTitle: 'WINKemr login',
-    mfaScreenTitle: 'WINKemr code verification',
+    mfaCodeVerificationTitle: 'WINKemr code verification',
+    mfaCodeScanTitle: 'WINKemr QR Code scan',
+    mfaCodeScanned: 'I have scanned the code',
     account: 'Account',
     store: 'Store',
     securityQuestionsError:
@@ -330,7 +332,9 @@ export const strings = new LocalizedStrings({
       "Votre compte n'est pas configuré pour utiliser l'application mobile à cet instant. Veuillez contacter le service à la clientèle",
     registrationScreenTitle: 'Registration WINKemr',
     loginscreenTitle: 'Se connecter à WINKemr',
-    mfaScreenTitle: 'Vérification du code WINKemr',
+    mfaCodeVerificationTitle: 'Vérification du code WINKemr',
+    mfaCodeScanTitle: 'Numérisation du code QR WINKemr',
+    mfaCodeScanned: "J'ai scanné le code",
     account: 'Compte',
     store: 'Magasin',
     securityQuestionsError:

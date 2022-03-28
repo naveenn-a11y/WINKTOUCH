@@ -100,6 +100,8 @@ export class MfaScreen extends Component {
       token: string,
     ) => void,
     onMfaReset: () => void,
+    qrImageUrl: ?string,
+    onScanQrCode: () => void,
   };
 
   state: {
@@ -206,7 +208,11 @@ export class MfaScreen extends Component {
         <View style={style}>
           <KeyboardAvoidingView behavior="position">
             <View style={style}>
-              <Text style={styles.h1}>{strings.mfaScreenTitle}</Text>
+              <Text style={styles.h1}>
+                {this.props.qrImageUrl
+                  ? strings.mfaCodeScanTitle
+                  : strings.mfaCodeVerificationTitle}
+              </Text>
               <View>
                 <TouchableOpacity
                   onLongPress={this.props.onMfaReset}
@@ -216,17 +222,27 @@ export class MfaScreen extends Component {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <Image
-                source={require('./image/winklogo-big.png')}
-                style={{
-                  width: 250 * fontScale,
-                  height: 250 * fontScale,
-                  margin: 20 * fontScale,
-                }}
-              />
-
-              {
-                <View style={styles.fieldContainer}>
+              {!this.props.qrImageUrl && (
+                <Image
+                  source={require('./image/winklogo-big.png')}
+                  style={{
+                    width: 250 * fontScale,
+                    height: 250 * fontScale,
+                    margin: 20 * fontScale,
+                  }}
+                />
+              )}
+              <View style={styles.fieldContainer}>
+                {this.props.qrImageUrl ? (
+                  <Image
+                    source={`data:image/png;base64,${this.props.qrImageUrl}`}
+                    style={{
+                      width: 360 * fontScale,
+                      height: 360 * fontScale,
+                      margin: 20 * fontScale,
+                    }}
+                  />
+                ) : (
                   <TextInput
                     placeholder={strings.enterCode}
                     autoCapitalize="none"
@@ -241,18 +257,26 @@ export class MfaScreen extends Component {
                     onChangeText={this.setCode}
                     onSubmitEditing={() => this.verify()}
                   />
-                </View>
-              }
+                )}
+              </View>
+
               <View
                 style={
                   isWeb
                     ? (styles.buttonsRowLayout, {flex: 1})
                     : styles.buttonsRowLayout
                 }>
-                <Button
-                  title={strings.verifyCode}
-                  onPress={() => this.verify()}
-                />
+                {this.props.qrImageUrl ? (
+                  <Button
+                    title={strings.mfaCodeScanned}
+                    onPress={() => this.props.onScanQrCode()}
+                  />
+                ) : (
+                  <Button
+                    title={strings.verifyCode}
+                    onPress={() => this.verify()}
+                  />
+                )}
               </View>
             </View>
           </KeyboardAvoidingView>
@@ -296,6 +320,7 @@ export class LoginScreen extends Component {
     password: ?string,
     isTrial: boolean,
     isMfaRequired: ?boolean,
+    qrImageUrl: ?string,
   };
   constructor(props: any) {
     super(props);
@@ -307,6 +332,7 @@ export class LoginScreen extends Component {
       password: __DEV__ ? 'test' : undefined,
       isTrial: false,
       isMfaRequired: false,
+      qrImageUrl: undefined,
     };
   }
 
@@ -551,6 +577,9 @@ export class LoginScreen extends Component {
       }
       let responseJson = await httpResponse.json();
       if (responseJson.mfa === true) {
+        if (responseJson.secretImageUri) {
+          this.setQRImageUrl(responseJson.secretImageUri);
+        }
         this.setMfaRequired(true);
       } else {
         let token: string;
@@ -573,6 +602,11 @@ export class LoginScreen extends Component {
     }
   }
 
+  setQRImageUrl = (qrImageUrl: string) => {
+    this.setState({
+      qrImageUrl: qrImageUrl,
+    });
+  };
   setMfaRequired = (mfa: boolean) => {
     this.setState({
       isMfaRequired: mfa,
@@ -596,6 +630,8 @@ export class LoginScreen extends Component {
           this.props.onLogin(account, user, store, token)
         }
         onMfaReset={() => this.setMfaRequired(false)}
+        onScanQrCode={() => this.setQRImageUrl(undefined)}
+        qrImageUrl={this.state.qrImageUrl}
       />
     );
   }
