@@ -12,8 +12,6 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  ScrollView,
-  PanResponder,
   StatusBar,
   KeyboardAvoidingView,
   InteractionManager,
@@ -25,7 +23,7 @@ import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
 import base64 from 'base-64';
 import {styles, fontScale, isWeb} from './Styles';
-import {Button, TilesField} from './Widgets';
+import {Button, ListField,TilesField} from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -335,10 +333,21 @@ export class LoginScreen extends Component {
       qrImageUrl: undefined,
     };
   }
-
-  componentDidUpdate(prevProps: any) {
+  componentDidUpdate(prevProps: any, prevState: any) {
     if (prevProps.registration !== this.props.registration) {
       this.fetchAccountsStores(this.props.registration);
+    }
+    if (prevState.account !== this.state.account) {
+      let currAccount = this.state.accounts.find(
+        (account) => account.name === this.state.account,
+      );
+      if (currAccount) {
+        let store = currAccount.stores?.length > 0 && this.formatStore(currAccount.stores[0]);
+        this.setStore(store);
+      }else if(!currAccount && !this.state.account){
+        this.setStore(undefined);
+      }
+
     }
   }
 
@@ -453,7 +462,6 @@ export class LoginScreen extends Component {
     } else {
       AsyncStorage.setItem('account', account);
     }
-
     this.setState({account}, this.fetchCodes());
   };
 
@@ -696,24 +704,34 @@ export class LoginScreen extends Component {
                 }}
               />
               <View>
-                <TilesField
+                <ListField
                   label={strings.account}
+                  freestyle={true}
                   value={this.state.account}
                   style={styles.field400}
                   containerStyle={styles.fieldContainer}
                   options={accountNames}
                   onChangeValue={this.setAccount}
+                  popupStyle={styles.alignPopup}
+                  simpleSelect={true}
+                  renderOptionsOnly={true}
+                  isValueRequired={true}
                   testID="login.account"
                 />
               </View>
               <View>
-                <TilesField
+                <ListField
                   label={strings.store}
+                  freestyle={true}
                   value={this.state.store}
                   style={styles.field400}
                   containerStyle={styles.fieldContainer}
                   options={storeNames}
                   onChangeValue={this.setStore}
+                  simpleSelect={true}
+                  isValueRequired={true}
+                  renderOptionsOnly={true}
+                  popupStyle={styles.alignPopup}
                   testID="login.store"
                 />
               </View>
