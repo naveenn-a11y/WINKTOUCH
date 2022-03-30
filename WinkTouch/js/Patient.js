@@ -206,9 +206,12 @@ export class PatientCard extends Component {
     refreshStateKey: string,
     style?: any,
     hasAppointment?: boolean,
+    isBookingAppointment?: boolean,
+    onSelectPatient: (patient: Patient | PatientInfo) => void,
   };
   static defaultProps = {
     navigate: 'patient',
+    isBookingAppointment: false,
   };
 
   render() {
@@ -216,66 +219,68 @@ export class PatientCard extends Component {
       return null;
     }
     return (
-      <TouchableOpacity
-        onPress={() =>
-          this.props.navigation.navigate(this.props.navigate, {
-            patientInfo: this.props.patientInfo,
-            refreshStateKey: this.props.refreshStateKey,
-            hasAppointment: this.props.hasAppointment,
-          })
-        }
-        testID="patientContact">
-        <View style={this.props.style ? this.props.style : styles.paragraph}>
-          <Text style={styles.cardTitleLeft}>
-            {getPatientFullName(this.props.patientInfo)}
-          </Text>
-          <View style={styles.formRow}>
-            <View style={styles.flexColumnLayout}>
-              <Text style={styles.text}>
-                {formatCode('genderCode', this.props.patientInfo.gender)}{' '}
-                {this.props.patientInfo.dateOfBirth
-                  ? this.props.patientInfo.gender === 0
-                    ? strings.ageM
-                    : strings.ageF
-                  : ''}{' '}
-                {this.props.patientInfo.dateOfBirth
-                  ? formatAge(this.props.patientInfo.dateOfBirth) +
-                    '  (' +
-                    this.props.patientInfo.dateOfBirth +
-                    ')'
-                  : ''}
-              </Text>
-              <Text style={styles.text}>
-                z{stripDataType(this.props.patientInfo.id)}
-                {prefix(this.props.patientInfo.medicalCard, '  ')}
-                {prefix(this.props.patientInfo.medicalCardVersion, '-')}
-                {prefix(this.props.patientInfo.medicalCardExp, '-')}
-              </Text>
-              <PatientTags
-                patient={this.props.patientInfo}
-                showDescription={true}
-              />
-            </View>
-            <View style={styles.flexColumnLayout}>
-              <Text style={styles.text}>
-                {this.props.patientInfo.cell
-                  ? this.props.patientInfo.cell + ' '
-                  : this.props.patientInfo.phone}
-              </Text>
-              <Text style={styles.text}>
-                {this.props.patientInfo.streetNumber}{' '}
-                {this.props.patientInfo.streetName
-                  ? this.props.patientInfo.streetName + ','
-                  : ''}{' '}
-                {this.props.patientInfo.province}{' '}
-                {this.props.patientInfo.postalCode}{' '}
-                {this.props.patientInfo.city}
-              </Text>
-              <Text style={styles.text}>{this.props.patientInfo.email}</Text>
+        <TouchableOpacity
+            onPress={() =>
+                this.props.isBookingAppointment
+                    ? this.props.onSelectPatient(this.props.patientInfo)
+                    : this.props.navigation.navigate(this.props.navigate, {
+                      patientInfo: this.props.patientInfo,
+                      refreshStateKey: this.props.refreshStateKey,
+                      hasAppointment: this.props.hasAppointment,
+                    })
+            }
+            testID="patientContact">
+          <View style={this.props.style ? this.props.style : styles.paragraph}>
+            <Text style={styles.cardTitleLeft}>
+              {getPatientFullName(this.props.patientInfo)}
+            </Text>
+            <View style={styles.formRow}>
+              <View style={styles.flexColumnLayout}>
+                <Text style={styles.text}>
+                  {formatCode('genderCode', this.props.patientInfo.gender)}{' '}
+                  {this.props.patientInfo.dateOfBirth
+                      ? this.props.patientInfo.gender === 0
+                          ? strings.ageM
+                          : strings.ageF
+                      : ''}{' '}
+                  {this.props.patientInfo.dateOfBirth
+                      ? formatAge(this.props.patientInfo.dateOfBirth) +
+                      '  (' +
+                      this.props.patientInfo.dateOfBirth +
+                      ')'
+                      : ''}
+                </Text>
+                <Text style={styles.text}>
+                  z{stripDataType(this.props.patientInfo.id)}
+                  {prefix(this.props.patientInfo.medicalCard, '  ')}
+                  {prefix(this.props.patientInfo.medicalCardVersion, '-')}
+                  {prefix(this.props.patientInfo.medicalCardExp, '-')}
+                </Text>
+                <PatientTags
+                    patient={this.props.patientInfo}
+                    showDescription={true}
+                />
+              </View>
+              <View style={styles.flexColumnLayout}>
+                <Text style={styles.text}>
+                  {this.props.patientInfo.cell
+                      ? this.props.patientInfo.cell + ' '
+                      : this.props.patientInfo.phone}
+                </Text>
+                <Text style={styles.text}>
+                  {this.props.patientInfo.streetNumber}{' '}
+                  {this.props.patientInfo.streetName
+                      ? this.props.patientInfo.streetName + ','
+                      : ''}{' '}
+                  {this.props.patientInfo.province}{' '}
+                  {this.props.patientInfo.postalCode}{' '}
+                  {this.props.patientInfo.city}
+                </Text>
+                <Text style={styles.text}>{this.props.patientInfo.email}</Text>
+              </View>
             </View>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
     );
   }
 }
@@ -707,6 +712,8 @@ export class PatientScreen extends Component {
 export class CabinetScreen extends Component {
   props: {
     navigation: any,
+    onSelectPatient: (patient: Patient | PatientInfo) => void,
+    isBookingAppointment?: boolean,
   };
   state: {
     patientInfo: ?PatientInfo,
@@ -720,6 +727,9 @@ export class CabinetScreen extends Component {
       appointments: undefined,
     };
   }
+  static defaultProps = {
+    isBookingAppointment: false,
+  };
 
   async selectPatient(patient: Patient) {
     if (!patient) {
@@ -730,13 +740,17 @@ export class CabinetScreen extends Component {
       this.setState({patientInfo: undefined, appointments: undefined});
       return;
     } else if (
-      this.state.patientInfo &&
-      this.state.patientInfo.id === patient.id
+        this.state.patientInfo &&
+        this.state.patientInfo.id === patient.id
     ) {
-      this.props.navigation.navigate('appointment', {
-        patientInfo: this.state.patientInfo,
-        hasAppointment: this.hasAppointment(),
-      }); //TODO: refreshStateKey: this.props.refreshStateKey?
+      if (this.props.isBookingAppointment) {
+        this.props.onSelectPatient(patient);
+      } else {
+        this.props.navigation.navigate('appointment', {
+          patientInfo: this.state.patientInfo,
+          hasAppointment: this.hasAppointment(),
+        }); //TODO: refreshStateKey: this.props.refreshStateKey?
+      }
       return;
     }
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
@@ -744,21 +758,21 @@ export class CabinetScreen extends Component {
     this.setState({patientInfo, appointments: undefined});
     patientInfo = await fetchPatientInfo(patient.id);
     if (
-      this.state.patientInfo === undefined ||
-      patient.id !== this.state.patientInfo.id
+        this.state.patientInfo === undefined ||
+        patient.id !== this.state.patientInfo.id
     ) {
       return;
     }
     this.setState({patientInfo});
     let appointments: ?(Appointment[]) = await fetchAppointments(
-      undefined,
-      undefined,
-      1,
-      patientInfo.id,
+        undefined,
+        undefined,
+        1,
+        patientInfo.id,
     );
     if (
-      this.state.patientInfo === undefined ||
-      patient.id !== this.state.patientInfo.id
+        this.state.patientInfo === undefined ||
+        patient.id !== this.state.patientInfo.id
     ) {
       return;
     }
@@ -770,7 +784,7 @@ export class CabinetScreen extends Component {
     let todaysAppointments: Appointment[] = [];
     if (!this.state.appointments && this.state.patientInfo) {
       const appointments: Appointment[] = getCachedItem(
-        'appointmentsHistory-' + this.state.patientInfo.id,
+          'appointmentsHistory-' + this.state.patientInfo.id,
       );
       todaysAppointments = appointments;
     } else if (this.state.appointments && this.state.appointments.length > 0) {
@@ -778,7 +792,7 @@ export class CabinetScreen extends Component {
     }
     if (todaysAppointments) {
       todaysAppointments = todaysAppointments.filter(
-        (appointment: Appointment) => isToday(appointment.start),
+          (appointment: Appointment) => isToday(appointment.start),
       );
       return todaysAppointments && todaysAppointments.length > 0;
     }
@@ -813,7 +827,11 @@ export class CabinetScreen extends Component {
       return;
     }
     const appointment: Appointment = {id: undefined, patientId: patientInfo.id};
-    this.props.navigation.navigate('appointment', {appointment});
+    if (this.props.isBookingAppointment) {
+      this.props.onSelectPatient(patientInfo);
+    } else {
+      this.props.navigation.navigate('appointment', {appointment});
+    }
   }
 
   renderAppointments() {
@@ -821,36 +839,38 @@ export class CabinetScreen extends Component {
       return null;
     }
     return (
-      <ScrollView style={styles.appointments}>
-        {this.state.appointments.map((appointment: Appointment, index: number) => (
-          <AppointmentSummary
-            key={index}
-            appointment={appointment}
-            locked={isAppointmentLocked(appointment)}
-            onPress={() =>
-              this.props.navigation.navigate('appointment', {appointment})
-            }
-          />
-        ))}
-      </ScrollView>
+        <ScrollView style={styles.appointments}>
+          {this.state.appointments.map(
+              (appointment: Appointment, index: number) => (
+                  <AppointmentSummary
+                      key={index}
+                      appointment={appointment}
+                      locked={isAppointmentLocked(appointment)}
+                      onPress={() =>
+                          this.props.navigation.navigate('appointment', {appointment})
+                      }
+                  />
+              ),
+          )}
+        </ScrollView>
     );
   }
 
   renderNewPatient() {
     return (
-      <View style={styles.separator}>
-        <PatientContact
-          patientInfo={this.state.patientInfo}
-          onUpdatePatientInfo={this.updatePatientInfo}
-        />
-        <View style={styles.centeredRowLayout}>
-          <Button
-            title={strings.createPatient}
-            onPress={() => this.createPatient()}
-            testID="createPatientButton"
+        <View style={styles.separator}>
+          <PatientContact
+              patientInfo={this.state.patientInfo}
+              onUpdatePatientInfo={this.updatePatientInfo}
           />
+          <View style={styles.centeredRowLayout}>
+            <Button
+                title={strings.createPatient}
+                onPress={() => this.createPatient()}
+                testID="createPatientButton"
+            />
+          </View>
         </View>
-      </View>
     );
   }
 
@@ -859,39 +879,48 @@ export class CabinetScreen extends Component {
       return;
     }
     return (
-      <View style={styles.separator}>
-        <PatientCard
-          patientInfo={this.state.patientInfo}
-          navigate="appointment"
-          navigation={this.props.navigation}
-          style={styles.tabCardS}
-          hasAppointment={this.hasAppointment()}
-        />
-        <View style={styles.checkButtonLayout}>
-          <Button
-            title={strings.open}
-            onPress={() =>
-              this.props.navigation.navigate('appointment', {
-                patientInfo: this.state.patientInfo,
-                refreshStateKey: this.props.refreshStateKey,
-                hasAppointment: this.props.hasAppointment,
-              })
-            }
+        <View style={styles.separator}>
+          <PatientCard
+              patientInfo={this.state.patientInfo}
+              navigate="appointment"
+              navigation={this.props.navigation}
+              style={styles.tabCardS}
+              hasAppointment={this.hasAppointment()}
+              isBookingAppointment={this.props.isBookingAppointment}
+              onSelectPatient={(patient: Patient | PatientInfo) =>
+                  this.props.onSelectPatient(patient)
+              }
           />
+          <View style={styles.checkButtonLayout}>
+            <Button
+                title={
+                  this.props.isBookingAppointment ? strings.select : strings.open
+                }
+                onPress={() => {
+                  this.props.isBookingAppointment
+                      ? this.props.onSelectPatient(this.state.patientInfo)
+                      : this.props.navigation.navigate('appointment', {
+                        patientInfo: this.state.patientInfo,
+                        refreshStateKey: this.props.refreshStateKey,
+                        hasAppointment: this.props.hasAppointment,
+                      });
+                }}
+            />
+          </View>
+          {!this.props.isBookingAppointment && this.renderAppointments()}
         </View>
-        {this.renderAppointments()}
-      </View>
     );
   }
 
   render() {
     return (
-      <PatientSearch
-        onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
-        onNewPatient={this.newPatient}
-        renderPatientInfo={() => this.renderPatientInfo()}
-        renderNewPatient={() => this.renderNewPatient()}
-      />
+        <PatientSearch
+            onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
+            onNewPatient={this.newPatient}
+            renderPatientInfo={() => this.renderPatientInfo()}
+            renderNewPatient={() => this.renderNewPatient()}
+        />
     );
   }
 }
+
