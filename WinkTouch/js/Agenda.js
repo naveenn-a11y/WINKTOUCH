@@ -330,14 +330,16 @@ export class AgendaScreen extends Component {
       const halfAnHour = 30 * 60000;
       let appointments: Appointment[] = [...this.state.appointments];
       let endDate = appointments[index].end;
-      let expiredAppointments = appointments.filter((ele: Appointment) => ele.start === endDate);
+      let expiredAppointments = []
       let slotsGap = appointment.numberOfSlots - availableAppointment.numberOfSlots;
       if (slotsGap > 0) {
+         expiredAppointments = appointments.filter((ele: Appointment) => new Date(ele.start).getTime() === new Date(endDate).getTime());
         for (let i = 0; i < slotsGap; i++) {
           endDate = new Date(new Date(endDate).getTime() + halfAnHour);
           expiredAppointments = [
             ...expiredAppointments,
-            ...appointments.filter((ele: Appointment) => ele.start === endDate),
+            ...appointments.filter((ele: Appointment) => {
+              return new Date(ele.end).getTime() === new Date(endDate).getTime()}),
           ];
         }
       }
