@@ -14,6 +14,7 @@ import {
   Modal,
   ActivityIndicator,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,6 +22,7 @@ import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
 import {FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
+import {TableListRow} from './FollowUp';
 import {
   AppointmentTypes,
   AppointmentIcons,
@@ -74,6 +76,12 @@ export class AgendaScreen extends Component {
     copedAppointment: Appointment,
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
+    waitingListModal: boolean,
+    selectedWaitingEvent?: Appointment,
+    rescheduling: boolean,
+    fetchingWaitingList: boolean,
+    allStores: boolean,
+    rescheduledAppointment: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -96,6 +104,12 @@ export class AgendaScreen extends Component {
       selectedPatient: undefined,
       copedAppointment: undefined,
       rescheduleAppointment: false,
+      waitingListModal: false,
+      selectedWaitingEvent: undefined,
+      rescheduling: false,
+      fetchingWaitingList: false,
+      allStores: false,
+      rescheduledAppointment: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -168,6 +182,28 @@ export class AgendaScreen extends Component {
       this.setState({appointments, isLoading: false});
     } catch (e) {
       this.setState({isLoading: false});
+    }
+  }
+  async waitingListAppointments() {
+    try {
+      this.setState({fetchingWaitingList: true});
+      let appointments = await fetchAppointments(
+        this.state.allStores ? undefined : 'store-' + getStore().storeId,
+        [this.state.event.userId],
+        undefined,
+        undefined,
+        this.state.event.start,
+        false,
+        false,
+        true,
+        this.state.allStores,
+      );
+      this.setState({
+        waitingListAppointments: appointments,
+        fetchingWaitingList: false,
+      });
+    } catch (e) {
+      this.setState({fetchingWaitingList: false});
     }
   }
   isNewEvent(event: Appointment): boolean {
@@ -270,6 +306,13 @@ export class AgendaScreen extends Component {
   cancelPatientDialog = () => {
     this.setState({isPatientDialogVisible: false});
   };
+  openWaitingListDialog = () => {
+    this.waitingListAppointments();
+    this.setState({waitingListModal: true, isPatientDialogVisible: false});
+  };
+  cancelWaitingListDialog = () => {
+    this.setState({waitingListModal: false, selectedWaitingEvent: undefined});
+  };
 
   getAppoitmentsForSelectedDoctors = () => {
     AsyncStorage.setItem(
@@ -296,12 +339,16 @@ export class AgendaScreen extends Component {
   };
 
   rescheduleEvent = async (appointment: Appointment) => {
+    this.setState({rescheduling: true});
     //Call Backend
+    const newId = this.state.newAppointment
+      ? this.state.newAppointment.id
+      : appointment.newId;
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
       appointment.numberOfSlots,
-      this.state.newAppointment.id,
+      newId,
       appointment.supplierName,
       appointment.earlyRequest,
       appointment.earlyRequestComment,
@@ -313,15 +360,12 @@ export class AgendaScreen extends Component {
       (e: Appointment) => e.id === appointment.id,
     );
     const index = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === this.state.newAppointment.id,
+      (e: Appointment) => e.id === newId,
     );
-    if (bookedAppointment) {
-      this.cancelDialog();
-      this.endReschedule();
-    }
+
     if (index >= 0) {
       let appointments: Appointment[] = [...this.state.appointments];
-      let availableAppointment: Appointment = appointments[index]
+      let availableAppointment: Appointment = appointments[index];
       appointments[index] = {
         ...appointment,
         end: appointments[index].end,
@@ -336,7 +380,18 @@ export class AgendaScreen extends Component {
         isBusy: false,
       };
       delete appointments[oldAppointmentIndex]?.patientId;
-      this.setState({appointments: appointments});
+      this.setState({
+        appointments: appointments,
+        waitingListModal: false,
+        selectedWaitingEvent: undefined,
+        rescheduling: false,
+        rescheduledAppointment: true,
+      });
+      if (bookedAppointment) {
+        this.cancelDialog();
+        this.endReschedule();
+      }
+      setTimeout(() => this.setState({rescheduledAppointment: false}), 5000);
     }
   };
   updateEvent = async (appointment: Appointment) => {
@@ -399,6 +454,7 @@ export class AgendaScreen extends Component {
             }
             navigation={this.props.navigation}
             isBookingAppointment={true}
+            openWaitingListDialog={this.openWaitingListDialog}
           />
         </Dialog>
       </Portal>
@@ -517,6 +573,13 @@ export class AgendaScreen extends Component {
       </View>
     );
   }
+  renderRescheduleFromWaitingListDialog() {
+    return (
+      <View style={styles.copyDialog}>
+        <Text style={styles.copyText}>{strings.successfullyRescheduled}</Text>
+      </View>
+    );
+  }
   renderRescheduleDialog() {
     let event: Appointment = this.state.copedAppointment;
     if (event === undefined || event === null) {
@@ -542,6 +605,194 @@ export class AgendaScreen extends Component {
       });
     } else this.setState({copedAppointment: null});
   };
+  renderWaitingList() {
+    const event: Appointment = this.state.event;
+    const user: User = getCachedItem(event.userId);
+    const appointments = this.state.waitingListAppointments;
+    const headers = [
+      strings.patient,
+      strings.age,
+      strings.cell,
+      strings.work,
+      strings.store,
+      strings.doctor,
+      strings.appDateAndTime,
+      strings.comment,
+    ];
+    const titleStyle = {
+      marginBottom: 5,
+      fontWeight: '500',
+      fontSize: fontScale * 23,
+    };
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={{
+            width: '70%',
+            minHeight: '60%',
+            maxHeight: '90%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}
+          visible={this.state.waitingListModal}
+          onDismiss={this.cancelWaitingListDialog}
+          dismissable={true}>
+          <Dialog.Title>
+            <Text style={{color: 'black'}}>{strings.waitingList}</Text>
+          </Dialog.Title>
+          <Dialog.ScrollArea>
+            <ScrollView contentContainerStyle={{padding: 10, flexGrow: 1}}>
+              <View style={{marginVertical: 15}}>
+                <Text style={titleStyle}>
+                  {strings.date}:{'  '}
+                  {moment(new Date(event.start)).format('DD/MM/YYYY HH:MM A')}
+                </Text>
+                <Text style={titleStyle}>
+                  {strings.store}: {'  '}
+                  {getStore().name}
+                </Text>
+                <Text style={titleStyle}>
+                  {strings.doctor}:{'  '}
+                  {user?.firstName} {user?.lastName}
+                </Text>
+              </View>
+              <View style={{marginBottom: 20, alignSelf: 'flex-end'}}>
+                <FormInput
+                  optional
+                  singleSelect
+                  multiOptions
+                  value={this.state.allStores}
+                  showLabel={false}
+                  readonly={false}
+                  definition={{
+                    options: [{label: strings.showAllStores, value: true}],
+                  }}
+                  onChangeValue={(v) => {
+                    this.setState({allStores: v ? true : false}, () =>
+                      this.waitingListAppointments(),
+                    );
+                  }}
+                  errorMessage={'error'}
+                  isTyping={false}
+                />
+              </View>
+              {this.state.fetchingWaitingList ? (
+                <ActivityIndicator
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                />
+              ) : (
+                <>
+                  <View>
+                    <View style={styles.listRow}>
+                      {headers.map((h) => (
+                        <Text
+                          style={{
+                            flex: 1,
+                            fontWeight: '500',
+                            textAlign: 'center',
+                            fontSize: fontScale * 23,
+                          }}>
+                          {h}
+                        </Text>
+                      ))}
+                    </View>
+                    <View
+                      style={{
+                        height: 1,
+                        width: '100%',
+                        backgroundColor: 'gray',
+                        marginVertical: 5,
+                      }}
+                    />
+                  </View>
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    initialNumToRender={20}
+                    data={appointments}
+                    renderItem={({item, index}) => {
+                      const patient: PatientInfo | Patient = getCachedItem(
+                        item.patientId,
+                      );
+                      const doctor: User = getCachedItem(item.userId);
+                      const selected =
+                        this.state.selectedWaitingEvent?.id == item.id;
+                      const textStyle = {
+                        flex: 1,
+                        textAlign: 'center',
+                        color: selected ? '#1db3b3' : 'black',
+                      };
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({selectedWaitingEvent: item})
+                          }
+                          style={[
+                            styles.listRow,
+                            {
+                              backgroundColor:
+                                index % 2 === 0 ? '#F9F9F9' : '#FFFFFF',
+                            },
+                          ]}>
+                          <Text style={textStyle}>
+                            {patient?.firstName} {patient?.lastName}
+                          </Text>
+                          <Text style={textStyle}>{patient?.age}</Text>
+                          <Text style={textStyle}>{patient?.cell}</Text>
+                          <Text style={textStyle}>{patient?.work}</Text>
+                          <Text style={textStyle}>{getStore().name}</Text>
+                          <Text style={textStyle}>
+                            {doctor?.firstName} {doctor?.lastName}
+                          </Text>
+                          <Text style={textStyle}>
+                            {moment(new Date(item.start)).format(
+                              'DD/MM/YYYY HH:MM A',
+                            )}
+                            <Text style={{fontWeight: '500'}}>
+                              {item?.title}
+                            </Text>
+                          </Text>
+                          <Text style={textStyle}>{item?.comment}</Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </ScrollView>
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelWaitingListDialog}>
+              {strings.close}
+            </NativeBaseButton>
+            <NativeBaseButton
+              onPress={() => {
+                this.rescheduleEvent({
+                  ...event,
+                  earlyRequest: false,
+                  newId: event.id,
+                  id: this.state.selectedWaitingEvent.id,
+                  patientId: this.state.selectedWaitingEvent.patientId,
+                });
+              }}
+              disabled={
+                this.state.rescheduling || !this.state.selectedWaitingEvent
+              }>
+              {this.state.rescheduling ? (
+                <ActivityIndicator />
+              ) : (
+                strings.reschedule
+              )}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
+
   render() {
     const {
       isLoading,
@@ -552,6 +803,8 @@ export class AgendaScreen extends Component {
       isPatientDialogVisible,
       copedAppointment,
       rescheduleAppointment,
+      waitingListModal,
+      rescheduledAppointment,
     } = this.state;
 
     const options =
@@ -568,7 +821,9 @@ export class AgendaScreen extends Component {
         {showDialog && !rescheduleAppointment && this.renderEventDetails()}
         {doctorsModal && this.renderDoctorsOptions()}
         {copedAppointment && this.renderCopyDialog()}
+        {rescheduledAppointment && this.renderRescheduleFromWaitingListDialog()}
         {rescheduleAppointment && this.renderRescheduleDialog()}
+        {waitingListModal && this.renderWaitingList()}
 
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>

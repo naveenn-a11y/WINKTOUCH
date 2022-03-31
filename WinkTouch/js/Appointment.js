@@ -111,6 +111,8 @@ export async function fetchAppointments(
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
   includeAvailableSlots: ?boolean = false,
+  earlyRequest: ?boolean = false,
+  showAllStores: ?boolean = false,
 ): Promise<Appointment[]> {
   const searchCriteria = {
     storeId: storeId,
@@ -119,6 +121,8 @@ export async function fetchAppointments(
     startDate: formatDate(startDate, jsonDateFormat),
     maxDays: maxDays ? maxDays.toString() : undefined,
     includeAvailableSlots,
+    earlyRequestOnly: earlyRequest,
+    showAllStores,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',

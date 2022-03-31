@@ -85,7 +85,7 @@ export const strings = new LocalizedStrings({
     pending: 'Pending',
     confirmed: 'Confirmed',
     cancelled: 'Cancelled',
-    noShow: 'No show',
+    noShow: 'No Patient',
     waiting: 'Waiting',
     waitingList: 'Waiting List',
     waitingListComment: 'Waiting List Comment',
@@ -294,8 +294,9 @@ export const strings = new LocalizedStrings({
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
     patientAttachments: 'Patient Attachments',
-    appointmentFor:"Appointment for",
-    successfullyCopied:"was successfully copied! Please move it to an available cell.",
+    appointmentFor: 'Appointment for',
+    successfullyCopied:
+      'was successfully copied! Please move it to an available cell.',
     selfPaid: 'Self Paid',
     bookingAppointmentError:
       'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
@@ -305,6 +306,13 @@ export const strings = new LocalizedStrings({
     AppointmentType: 'Appointment Type',
     rescheduleAppointment: 'Reschedule Appointment',
     reschedule: 'Reschedule',
+    viewWaitingList: 'View waiting list',
+    showAllStores: 'Show all stores',
+    age: 'Age',
+    cell: 'Cell',
+    work: 'Work',
+    appDateAndTime: 'Appointment Date & Type',
+    successfullyRescheduled: 'Appointment has been successfully rescheduled',
   },
   fr: {
     enterRegisteredEmail:
@@ -385,6 +393,7 @@ export const strings = new LocalizedStrings({
     cancelled: 'Annulé',
     noShow: "Ne s'est pas présenté",
     waiting: 'En attente',
+    viewWaitingList: "Afficher liste d'attente",
     waitingList: "Liste d'attente",
     waitingListComment: "Commentaire Liste d'attente",
     completed: 'Completé',
@@ -598,8 +607,9 @@ export const strings = new LocalizedStrings({
     patientAttachments: 'Pièces jointes pour patients',
     apply: 'Appliquer',
     chooseDoctor: 'Choisir Docteur',
-    appointmentFor:"Le rendez vous de",
-    successfullyCopied:"a été copié ! Veuillez le reporter à une autre plage horaire.",
+    appointmentFor: 'Le rendez vous de',
+    successfullyCopied:
+      'a été copié ! Veuillez le reporter à une autre plage horaire.',
     selfPaid: 'Paiement personnel',
     bookingAppointmentError:
       "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
@@ -609,6 +619,13 @@ export const strings = new LocalizedStrings({
     AppointmentType: 'Type rendez-vous',
     rescheduleAppointment: 'Re-planifier un rendez-vous',
     reschedule: 'Re-planifier',
+    showAllStores: 'Show all stores',
+    age: 'Age',
+    cell: 'Cell',
+    work: 'Work',
+    comment: 'Comment',
+    appDateAndTime: 'Appointment Date & Type',
+    successfullyRescheduled: 'Appointment has been successfully rescheduled',
   },
 });
 

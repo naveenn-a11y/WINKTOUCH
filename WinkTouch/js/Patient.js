@@ -713,6 +713,7 @@ export class CabinetScreen extends Component {
   props: {
     navigation: any,
     onSelectPatient: (patient: Patient | PatientInfo) => void,
+    openWaitingListDialog: () => void,
     isBookingAppointment?: boolean,
   };
   state: {
@@ -916,6 +917,7 @@ export class CabinetScreen extends Component {
     return (
       <PatientSearch
         onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
+        openWaitingListDialog={this.props.openWaitingListDialog}
         onNewPatient={this.newPatient}
         renderPatientInfo={() => this.renderPatientInfo()}
         renderNewPatient={() => this.renderNewPatient()}
