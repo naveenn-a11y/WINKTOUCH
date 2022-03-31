@@ -76,7 +76,7 @@ function getOptions() {
     filename: 'Print.pdf',
     pagebreak: {
       mode: ['css', 'avoid-all'],
-      before: '.breakBefore',
+      // before: '.breakBefore',
       avoid: ['img', 'div'],
     },
     margin: 15,
