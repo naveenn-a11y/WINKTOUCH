@@ -389,16 +389,11 @@ export class AgendaScreen extends Component {
     );
     if (bookedAppointment) {
       this.cancelDialog();
-    }
-
-    const index = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === bookedAppointment.id,
-    );
-
-    if (index >= 0) {
-      let appointments: Appointment[] = [...this.state.appointments];
-      appointments[index] = bookedAppointment;
-      this.setState({appointments: appointments});
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
     }
   };
   selectPatient(patient: Patient | PatientInfo) {
