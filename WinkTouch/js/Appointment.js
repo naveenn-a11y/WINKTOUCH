@@ -8,12 +8,9 @@ import React, {Component} from 'react';
 import {
   Image,
   View,
-  TouchableHighlight,
   Text,
-  Button,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   LayoutAnimation,
   InteractionManager,
   RefreshControl,
@@ -33,16 +30,9 @@ import {strings} from './Strings';
 import {
   formatDate,
   timeFormat,
-  time24Format,
-  dateTimeFormat,
-  dayDateTime24Format,
-  dayYearDateTime24Format,
-  now,
   isToday,
-  formatMoment,
   capitalize,
   formatDuration,
-  jsonDateTimeFormat,
   jsonDateFormat,
   today,
   dayYearDateTimeFormat,
@@ -54,9 +44,6 @@ import {
 import {
   FormRow,
   FormTextInput,
-  FormDateInput,
-  FormDateTimeInput,
-  FormDurationInput,
   FormCode,
   FormCheckBox,
   FormNumberInput,
@@ -79,12 +66,7 @@ import {
   getCachedItems,
   cacheItemsById,
 } from './DataCache';
-import {
-  searchItems,
-  fetchItemById,
-  stripDataType,
-  performActionOnItem,
-} from './Rest';
+import {searchItems, fetchItemById, performActionOnItem} from './Rest';
 import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
@@ -123,6 +105,16 @@ function hasAppointmentFullAccess(appointment: Appointment): boolean {
     return false;
   }
   return appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS;
+}
+
+export function getAppointmentTypes(): CodeDefinition[] {
+  let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
+  if (appointmentTypes && appointmentTypes.length > 0) {
+    appointmentTypes = appointmentTypes.filter(
+      (type: CodeDefinition) => type.isAppointmentType,
+    );
+  }
+  return appointmentTypes;
 }
 
 export function isAppointmentLocked(appointment: Appointment): boolean {
@@ -207,7 +199,14 @@ export async function bookAppointment(
   earlyRequestComment: ?string,
   rescheduled: ?boolean,
   comment: ?string,
+  oldappointmentId: ?string,
 ): Promise<Appointment> {
+  const reschedulingParms = rescheduled
+    ? {
+        appointmentModification: true,
+        oldappointmentId: oldappointmentId,
+      }
+    : {};
   const searchCriteria = {
     patientId: patientId,
     appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
@@ -222,6 +221,7 @@ export async function bookAppointment(
     storeId: getStore().id,
     supplierId: !isEmpty(supplierId) ? supplierId : 0,
     comment: comment,
+    ...reschedulingParms,
   };
   const params = {
     emrOnly: true,
@@ -702,6 +702,7 @@ export class AppointmentDetails extends Component {
     onOpenAppointment: (appointment: Appointment) => void,
     onCloseAppointment: () => void,
     isNewAppointment: boolean,
+    rescheduleAppointment: boolean,
   };
   state: {
     isEditable: boolean,
@@ -723,7 +724,20 @@ export class AppointmentDetails extends Component {
   startEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
-
+    if (
+      this.props.rescheduleAppointment &&
+      appointmentClone?.appointmentTypes?.length > 0
+    ) {
+      let splittedAppointmentsCode = [];
+      for (let type of appointmentClone.appointmentTypes) {
+        const appointmentTypeId = type?.split('-')[1];
+        splittedAppointmentsCode.push(appointmentTypeId);
+      }
+      appointmentClone = {
+        ...appointmentClone,
+        appointmentTypes: [...splittedAppointmentsCode],
+      };
+    }
     this.setState({isEditable: true, editedAppointment: appointmentClone});
   }
 
@@ -771,16 +785,6 @@ export class AppointmentDetails extends Component {
       getAllCodes('insuranceProviders');
     const options: CodeDefinition[] = [selfPaid].concat(allInsuranceProviders);
     return options;
-  }
-
-  getAppointmentTypes(): CodeDefinition[] {
-    let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
-    if (appointmentTypes && appointmentTypes.length > 0) {
-      appointmentTypes = appointmentTypes.filter(
-        (type: CodeDefinition) => type.isAppointmentType,
-      );
-    }
-    return appointmentTypes;
   }
 
   validateNumberOfSlots(code: ?string, numberOfSlots: ?number): boolean {
@@ -860,15 +864,15 @@ export class AppointmentDetails extends Component {
   }
 
   renderAppointmentsTypes() {
-    const labelWidth: number = 200 * fontScale;
-    const appointmentsType: string[] =
+    let appointmentsType: string[] =
       this.state.editedAppointment.appointmentTypes;
+    const labelWidth: number = 200 * fontScale;
     let dropdowns = [];
     dropdowns.push(
       <FormRow>
         <FormOptions
           labelWidth={labelWidth}
-          options={this.getAppointmentTypes()}
+          options={getAppointmentTypes()}
           showLabel={true}
           label={strings.AppointmentType}
           value={appointmentsType ? appointmentsType[0] : ''}
@@ -886,7 +890,7 @@ export class AppointmentDetails extends Component {
             <FormRow>
               <FormOptions
                 labelWidth={labelWidth}
-                options={this.getAppointmentTypes()}
+                options={getAppointmentTypes()}
                 showLabel={true}
                 label={strings.AppointmentType}
                 value={appointmentsType[i]}
@@ -1015,6 +1019,14 @@ export class AppointmentDetails extends Component {
               <NativeBaseButton onPress={() => this.openAppointment()}>
                 {strings.open}
               </NativeBaseButton>
+              {this.props.onCopyAppointment && (
+                <NativeBaseButton
+                  onPress={() =>
+                    this.props.onCopyAppointment(this.props.appointment)
+                  }>
+                  {strings.reschedule}
+                </NativeBaseButton>
+              )}
             </Dialog.Actions>
           )}
         </View>
@@ -1139,7 +1151,9 @@ export class AppointmentDetails extends Component {
             <NativeBaseButton
               disabled={!this.props.isNewAppointment}
               onPress={() => this.commitEdit()}>
-              {strings.book}
+              {!this.props.rescheduleAppointment
+                ? strings.book
+                : strings.reschedule}
             </NativeBaseButton>
           </View>
         )}

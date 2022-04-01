@@ -299,6 +299,9 @@ export const strings = new LocalizedStrings({
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
     patientAttachments: 'Patient Attachments',
+    appointmentFor: 'Appointment for',
+    successfullyCopied:
+      'was successfully copied! Please move it to an available cell.',
     selfPaid: 'Self Paid',
     bookingAppointmentError:
       'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
@@ -308,6 +311,8 @@ export const strings = new LocalizedStrings({
     AppointmentType: 'Appointment Type',
     cancelAppointment: 'Cancel Appointment ',
     cancelledBy: 'Cancelled By',
+    rescheduleAppointment: 'Reschedule Appointment',
+    reschedule: 'Reschedule',
   },
   fr: {
     enterRegisteredEmail:
@@ -606,6 +611,9 @@ export const strings = new LocalizedStrings({
     patientAttachments: 'Pièces jointes pour patients',
     apply: 'Appliquer',
     chooseDoctor: 'Choisir Docteur',
+    appointmentFor: 'Le rendez vous de',
+    successfullyCopied:
+      'a été copié ! Veuillez le reporter à une autre plage horaire.',
     selfPaid: 'Paiement personnel',
     bookingAppointmentError:
       "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
@@ -615,6 +623,8 @@ export const strings = new LocalizedStrings({
     AppointmentType: 'Type rendez-vous',
     cancelAppointment: 'Annuler le rendez-vous ',
     cancelledBy: 'Annulé par',
+    rescheduleAppointment: 'Re-planifier un rendez-vous',
+    reschedule: 'Re-planifier',
   },
 });
 
