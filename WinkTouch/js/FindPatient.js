@@ -33,6 +33,7 @@ export async function searchPatients(searchText: string): Patient[] {
   }
   const searchCriteria = {
     searchData: searchText,
+    size: 100,
   };
   let restResponse = await searchItems('Patient/list', searchCriteria);
   let patients: Patient[] = restResponse.patientList;
@@ -55,7 +56,9 @@ export class PatientDetails extends PureComponent<PatientDetailsProps> {
     }
     if (this.props.patient.id === 'patient') {
       return (
-        <View style={styles.leftSearchColumn}>{this.props.renderNewPatient()}</View>
+        <View style={styles.leftSearchColumn}>
+          {this.props.renderNewPatient()}
+        </View>
       );
     }
     return (
