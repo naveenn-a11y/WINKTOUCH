@@ -331,22 +331,19 @@ export class AgendaScreen extends Component {
       cancelledReason: this.state.cancelReason,
     });
     if (res) {
-      const index = this.state.appointments.findIndex(
-        (e: Appointment) => e.id === event.id,
+      this.setState({
+        cancelModal: false,
+        event: undefined,
+        showDialog: false,
+        deleting: false,
+        cancelNotes: '',
+        cancelReason: 2,
+      });
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
-      if (index > 0) {
-        let appointments: Appointment[] = [...this.state.appointments];
-        appointments[index] = res;
-        this.setState({
-          cancelModal: false,
-          event: undefined,
-          showDialog: false,
-          deleting: false,
-          cancelNotes: '',
-          cancelReason: 2,
-          appointments,
-        });
-      }
     } else {
       this.setState({deleting: false});
     }
