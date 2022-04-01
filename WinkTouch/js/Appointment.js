@@ -72,6 +72,16 @@ import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+export function getAppointmentTypes(): CodeDefinition[] {
+  let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
+  if (appointmentTypes && appointmentTypes.length > 0) {
+    appointmentTypes = appointmentTypes.filter(
+      (type: CodeDefinition) => type.isAppointmentType,
+    );
+  }
+  return appointmentTypes;
+}
+
 export function isAppointmentLocked(appointment: Appointment): boolean {
   if (appointment === undefined) {
     return false;
@@ -670,16 +680,19 @@ export class AppointmentDetails extends Component {
   startEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
-    if (this.props.rescheduleAppointment && appointmentClone?.appointmentTypes?.length>0) {
-      let splittedAppointmentsCode = []
+    if (
+      this.props.rescheduleAppointment &&
+      appointmentClone?.appointmentTypes?.length > 0
+    ) {
+      let splittedAppointmentsCode = [];
       for (let type of appointmentClone.appointmentTypes) {
         const appointmentTypeId = type?.split('-')[1];
         splittedAppointmentsCode.push(appointmentTypeId);
       }
-      appointmentClone={
+      appointmentClone = {
         ...appointmentClone,
-        appointmentTypes:[...splittedAppointmentsCode]
-      }
+        appointmentTypes: [...splittedAppointmentsCode],
+      };
     }
     this.setState({isEditable: true, editedAppointment: appointmentClone});
   }
@@ -728,16 +741,6 @@ export class AppointmentDetails extends Component {
       getAllCodes('insuranceProviders');
     const options: CodeDefinition[] = [selfPaid].concat(allInsuranceProviders);
     return options;
-  }
-
-  getAppointmentTypes(): CodeDefinition[] {
-    let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
-    if (appointmentTypes && appointmentTypes.length > 0) {
-      appointmentTypes = appointmentTypes.filter(
-        (type: CodeDefinition) => type.isAppointmentType,
-      );
-    }
-    return appointmentTypes;
   }
 
   validateNumberOfSlots(code: ?string, numberOfSlots: ?number): boolean {
@@ -818,14 +821,14 @@ export class AppointmentDetails extends Component {
 
   renderAppointmentsTypes() {
     let appointmentsType: string[] =
-    this.state.editedAppointment.appointmentTypes;
+      this.state.editedAppointment.appointmentTypes;
     const labelWidth: number = 200 * fontScale;
     let dropdowns = [];
     dropdowns.push(
       <FormRow>
         <FormOptions
           labelWidth={labelWidth}
-          options={this.getAppointmentTypes()}
+          options={getAppointmentTypes()}
           showLabel={true}
           label={strings.AppointmentType}
           value={appointmentsType ? appointmentsType[0] : ''}
@@ -843,7 +846,7 @@ export class AppointmentDetails extends Component {
             <FormRow>
               <FormOptions
                 labelWidth={labelWidth}
-                options={this.getAppointmentTypes()}
+                options={getAppointmentTypes()}
                 showLabel={true}
                 label={strings.AppointmentType}
                 value={appointmentsType[i]}
