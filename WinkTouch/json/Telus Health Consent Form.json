@@ -6,6 +6,7 @@
     "type": "groupedForm",
     "section": "Form.2",
     "cardGroup": "Telus Health Consent Form",
+    "isPatientFileHidden": true,
     "fields": [
         {
             "name": "Telus Health Consent Form Page 1",

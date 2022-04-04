@@ -215,7 +215,7 @@ export const styles = StyleSheet.create({
   modalTileLabelSelected: modalTileLabel(true),
   modalTileIcon: modalTileLabel(false, true),
   text: {
-    fontSize: 18 * fontScale,
+    fontSize: 17 * fontScale,
   },
   grayedText: {
     fontSize: 18 * fontScale,
@@ -234,6 +234,17 @@ export const styles = StyleSheet.create({
     fontSize: 28 * fontScale,
     padding: 10 * fontScale,
   },
+  chooseButton: {
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginRight: 10,
+    borderRadius: 2,
+    padding: 10 * fontScale,
+  },
+
   checkButtonLayout: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -244,6 +255,16 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     textAlign: 'center',
     color: fontColor,
+  },
+  multiCheckButtonLabel: {
+    fontSize: 25 * fontScale,
+    textAlign: 'center',
+    color: fontColor,
+  },
+  checkButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 5,
   },
   checkButtonIcon: {
     fontSize: 36 * fontScale,
@@ -363,7 +384,9 @@ export const styles = StyleSheet.create({
     backgroundColor: 'orange',
   },
   rowLayout: {
+    display: 'flex',
     flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   flexRow: {
     flex: 100,
@@ -409,7 +432,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 0 * fontScale,
   },
-
   examPreview: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -960,6 +982,9 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     right: 8 * fontScale,
     top: 10 * fontScale,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bgRow: {
     flexDirection: 'row',
@@ -1274,6 +1299,7 @@ export const styles = StyleSheet.create({
   alert: {
     alignSelf: 'center',
     top: 10 * fontScale,
+    backgroundColor: '#fff',
   },
   alertCheckBox: {
     flexDirection: 'column',
@@ -1289,6 +1315,73 @@ export const styles = StyleSheet.create({
   bottomItems: {
     flexDirection: 'row',
     alignItems: 'flex-end',
+  },
+  leftSearchColumn: {
+    flex: 100,
+    minWidth: 300 * fontScale,
+    padding: 10 * fontScale,
+    minHeight: 300 * fontScale,
+    borderRadius: 30 * fontScale,
+    borderColor: selectionFontColor,
+    borderWidth: 2 * fontScale,
+    margin: 7 * fontScale,
+  },
+  rightSearchColumn: {
+    flex: 75,
+    minWidth: 240 * fontScale,
+    padding: 10 * fontScale,
+    minHeight: 300 * fontScale,
+    borderRadius: 30 * fontScale,
+    borderColor: selectionFontColor,
+    borderWidth: 2 * fontScale,
+    margin: 7 * fontScale,
+  },
+  searchList: {
+    backgroundColor: '#fff',
+    flex: 75,
+    minWidth: 240 * fontScale,
+    padding: 10 * fontScale,
+    minHeight: 260 * fontScale,
+    borderRadius: 30 * fontScale,
+    borderColor: selectionFontColor,
+    borderWidth: 2 * fontScale,
+    margin: 7 * fontScale,
+  },
+  searchPage: {
+    backgroundColor: '#fff',
+    flex: 100,
+    padding: 10,
+  },
+  appointment: {
+    flex: 100,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    alignItems: 'baseline',
+  },
+  appointments: {
+    maxHeight: 600 * fontScale,
+    minWidth: 300 * fontScale,
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    alignContent: 'center',
+  },
+  alignPopup: {
+    alignItems: 'center',
+  },
+
+  copyDialog: {
+    backgroundColor: 'rgb(51, 51, 51)',
+    zIndex: 1,
+    minWidth: '100%',
+    minHeight: 50 * fontScale,
+    position: 'absolute',
+    bottom: 0,
+  },
+  copyText: {
+    color: 'white',
+    fontSize: 20 * fontScale,
+    padding: 10 * fontScale,
   },
 });
 

@@ -180,7 +180,7 @@ export type UserListProps = {
   selectedUserId: ?string,
   onSelectUser?: (user: ?User) => void,
 };
-class UserList extends PureComponent<UserListProps> {
+export class UserList extends PureComponent<UserListProps> {
   render() {
     if (!this.props.visible) {
       return null;

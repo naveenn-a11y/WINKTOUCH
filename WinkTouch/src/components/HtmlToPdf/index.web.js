@@ -1,9 +1,13 @@
 import html2pdf from 'html2pdf.js';
 import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
 
-export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:function=()=>{}) {
+export async function printHtml(
+  html: string,
+  PDFAttachment: Array<any> = [],
+  cb: function = () => {},
+) {
   const pdf = await generatePDF(html, false);
-  const resultPdf = await addPDFAttachment(pdf,PDFAttachment);
+  const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
   const resultBase64: string = await resultPdf.saveAsBase64();
 
   const blob = base64ToBlob(resultBase64, 'application/pdf');
@@ -12,13 +16,17 @@ export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:f
   cb();
   x = window.open('');
   x.document.open();
-  x.document.write('<html><title>Patient File</title><body style="margin:0px;">');
-  x.document.write("<iframe width='100%' height='100%' src='" + url + "'></iframe>");
+  x.document.write(
+    '<html><title>Patient File</title><body style="margin:0px;">',
+  );
+  x.document.write(
+    "<iframe width='100%' height='100%' src='" + url + "'></iframe>",
+  );
   x.document.write('</body></html>');
   x.document.close();
   return pdf;
 }
-export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
+export async function addPDFAttachment(pdf, PDFAttachment: Array<any> = []) {
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
@@ -45,7 +53,7 @@ export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
       }
     }
   }
-  return resultPdf
+  return resultPdf;
 }
 export async function generatePDF(html: string, isBase64: boolean) {
   let data = await html2pdf()
@@ -59,7 +67,7 @@ export async function generatePDF(html: string, isBase64: boolean) {
   const job = {base64: data};
   return job;
 }
-function base64ToBlob(base64, type = '') {
+export function base64ToBlob(base64, type = '') {
   const binStr = atob(base64);
   const len = binStr.length;
   const arr = new Uint8Array(len);
