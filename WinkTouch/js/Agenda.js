@@ -107,7 +107,7 @@ export class AgendaScreen extends Component {
       rescheduleAppointment: false,
     };
     this.lastRefresh = 0;
-    this.daysInWeek = 6;
+    this.daysInWeek = 7;
   }
 
   async componentDidMount() {
