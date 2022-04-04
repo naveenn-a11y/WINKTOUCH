@@ -33,6 +33,7 @@ let token: string;
 let privileges: Privileges = {
   pretestPrivilege: 'NOACCESS',
   medicalDataPrivilege: 'NOACCESS',
+  appointmentPrivilege: 'NOACCESS',
 };
 
 let requestNumber: number = 0;
@@ -55,6 +56,7 @@ export function getNextRequestNumber(): number {
 function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.pretestPrivilege = 'NOACCESS';
   privileges.medicalDataPrivilege = 'NOACCESS';
+  privileges.appointmentPrivilege = 'NOACCESS';
   if (tokenPrivileges === undefined || tokenPrivileges === null) {
     return;
   }
