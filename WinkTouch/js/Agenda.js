@@ -48,10 +48,9 @@ import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
-import type {Patient, PatientInfo, Visit, CodeDefinition} from './Types';
+import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
-import {getAllCodes} from './Codes';
 
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 

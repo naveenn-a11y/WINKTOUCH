@@ -912,7 +912,7 @@ export class AppointmentDetails extends Component {
     const appointment: Appointment = this.props.appointment;
     const user: User = getCachedItem(appointment.userId);
     const patient: PatientInfo | Patient = getCachedItem(appointment.patientId);
-
+    const hasBookAccess: boolean = hasAppointmentBookAccess(appointment);
     let genderShort: string = formatCode('genderCode', patient.gender);
     if (genderShort.length > 0) {
       genderShort = genderShort.substring(0, 1);
@@ -923,7 +923,7 @@ export class AppointmentDetails extends Component {
           <TouchableOpacity
             onPress={() => this.startEdit()}
             styles={{flexDirection: 'column', flex: 100}}
-            disabled={!hasAppointmentBookAccess(appointment)}>
+            disabled={!hasBookAccess}>
             {user && (
               <Text style={styles.text}>
                 {strings.doctor}: {user.firstName} {user.lastName}
@@ -998,19 +998,21 @@ export class AppointmentDetails extends Component {
               </View>
             )}
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.props.onCancelAppointment()}
-            style={{
-              width: 150,
-              marginTop: 20,
-              borderRadius: 10,
-              paddingVertical: 10,
-              backgroundColor: '#1db3b3',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{color: '#fff'}}> {strings.cancelAppointment}</Text>
-          </TouchableOpacity>
+          {hasBookAccess && (
+            <TouchableOpacity
+              onPress={() => this.props.onCancelAppointment()}
+              style={{
+                width: 150,
+                marginTop: 20,
+                borderRadius: 10,
+                paddingVertical: 10,
+                backgroundColor: '#1db3b3',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text style={{color: '#fff'}}> {strings.cancelAppointment}</Text>
+            </TouchableOpacity>
+          )}
           {!this.props.isNewAppointment && (
             <Dialog.Actions>
               <NativeBaseButton onPress={() => this.closeAppointment()}>
@@ -1019,7 +1021,7 @@ export class AppointmentDetails extends Component {
               <NativeBaseButton onPress={() => this.openAppointment()}>
                 {strings.open}
               </NativeBaseButton>
-              {this.props.onCopyAppointment && (
+              {this.props.onCopyAppointment && hasBookAccess && (
                 <NativeBaseButton
                   onPress={() =>
                     this.props.onCopyAppointment(this.props.appointment)
@@ -1143,7 +1145,7 @@ export class AppointmentDetails extends Component {
             }
           />
         </FormRow>
-        {hasAppointmentBookAccess(appointment) && (
+        {hasBookAccess && (
           <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
             <NativeBaseButton onPress={() => this.cancelEdit()}>
               {strings.cancel}
