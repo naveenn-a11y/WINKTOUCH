@@ -219,6 +219,7 @@ export class FormTextInput extends Component {
 
   updateText = (text: string) => {
     this.setState({text});
+    this.props.onChangeText(text);
   };
 
   render() {
@@ -981,6 +982,87 @@ export class FormCheckBox extends Component {
     );
   }
 }
+export class FormMultiCheckBox extends Component {
+  props: {
+    value: ?string | string[],
+    options: string[],
+    singleSelect: boolean,
+    label?: string,
+    labelWidth?: number,
+    showLabel?: boolean,
+    prefix?: string,
+    suffix?: string,
+    readonly?: boolean,
+    onChangeValue?: (newvalue?: number | string) => void,
+    style?: any,
+    testID?: string,
+  };
+
+  isChecked(value): boolean {
+    return this.props.singleSelect
+      ? this.props.value == value
+      : this.props.value.includes(value);
+  }
+  select = (value) => {
+    if (this.props.readonly) return;
+    else
+      this.props.singleSelect
+        ? this.props.onChangeValue(value)
+        : this.props.onChangeValue([...this.props.value, value]);
+  };
+  selectAll = () => {
+    this.props.onChangeValue(this.props.options.map(({value}) => value));
+  };
+  deSelect = (value) => {
+    if (this.props.readonly || this.props.singleSelect) return;
+    else {
+      let newValue = this.props.value.filter((opt) => opt != value);
+      this.props.onChangeValue(newValue);
+    }
+  };
+  deSelectAll = () => {
+    this.props.onChangeValue(this.props.singleSelect ? '' : []);
+  };
+
+  render() {
+    return (
+      <>
+        {!this.props.singleSelect && (
+          <View style={styles.checkButtonRow}>
+            <CheckButton
+              isChecked={this.props.options.length == this.props.value.length}
+              onSelect={this.selectAll}
+              onDeselect={this.deSelectAll}
+              style={
+                this.props.style
+                  ? this.props.style
+                  : styles.multiCheckButtonLabel
+              }
+              testID={this.props.testID}
+            />
+            <Text>{strings.all}</Text>
+          </View>
+        )}
+        {this.props.options.map((option) => (
+          <View style={styles.checkButtonRow}>
+            <CheckButton
+              isChecked={this.isChecked(option.value || option)}
+              onSelect={() => this.select(option.value || option)}
+              onDeselect={() => this.deSelect(option.value || option)}
+              style={
+                this.props.style
+                  ? this.props.style
+                  : styles.multiCheckButtonLabel
+              }
+              testID={this.props.testID}
+            />
+            <Text>{option?.label || option}</Text>
+          </View>
+        ))}
+      </>
+    );
+  }
+}
 
 export class FormCode extends Component {
   props: {
@@ -1143,6 +1225,7 @@ export class FormSelectionArray extends Component {
 export class FormInput extends Component {
   props: {
     value: ?string | ?number | ?{},
+    singleSelect?: boolean,
     errorMessage?: string,
     definition: FieldDefinition,
     type?: string,
@@ -1390,6 +1473,22 @@ export class FormInput extends Component {
           isTyping={this.props.isTyping}
           autoFocus={this.props.autoFocus}
           style={style}
+          testID={this.props.testID}
+        />
+      );
+    } else if (this.props.multiOptions) {
+      let options = this.props.definition.options;
+      return (
+        <FormMultiCheckBox
+          options={options}
+          value={this.props.value}
+          singleSelect={this.props.singleSelect}
+          label={label}
+          showLabel={this.props.showLabel}
+          readonly={readonly}
+          onChangeValue={this.props.onChangeValue}
+          style={style}
+          errorMessage={this.props.errorMessage}
           testID={this.props.testID}
         />
       );

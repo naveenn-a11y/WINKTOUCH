@@ -488,7 +488,7 @@
               "name": "OD",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
@@ -500,7 +500,7 @@
               "name": "OS",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
@@ -512,7 +512,7 @@
               "name": "OU",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
@@ -529,7 +529,7 @@
               "name": "OD",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
@@ -541,7 +541,7 @@
               "name": "OS",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
@@ -553,7 +553,7 @@
               "name": "OU",
               "prefix": "6/\u200B",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "+1", "+2", "+3"],
               "freestyle": true,
@@ -920,6 +920,86 @@
             {
               "name": "Lid",
               "label": "Paupière"
+            }
+          ]
+        }
+      ]
+    },
+    "en-UK": {
+      "fields": [
+        {
+          "name": "Contact Lens Trial",
+          "fields": [
+            {
+              "name": "NVA",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": [
+                    "N4.5",
+                    "N5",
+                    "N6",
+                    "N8",
+                    "N10",
+                    "N12",
+                    "N14",
+                    "N18",
+                    "N24",
+                    "N36",
+                    "N48",
+                    "NLP"
+                  ],
+                  "prefix": null,
+                  "minValue": null,
+                  "maxValue": null,
+                  "stepSize": null,
+                  "suffix": null
+                },
+                {
+                  "name": "OS",
+                  "options": [
+                    "N4.5",
+                    "N5",
+                    "N6",
+                    "N8",
+                    "N10",
+                    "N12",
+                    "N14",
+                    "N18",
+                    "N24",
+                    "N36",
+                    "N48",
+                    "NLP"
+                  ],
+                  "prefix": null,
+                  "minValue": null,
+                  "maxValue": null,
+                  "stepSize": null,
+                  "suffix": null
+                },
+                {
+                  "name": "OU",
+                  "options": [
+                    "N4.5",
+                    "N5",
+                    "N6",
+                    "N8",
+                    "N10",
+                    "N12",
+                    "N14",
+                    "N18",
+                    "N24",
+                    "N36",
+                    "N48",
+                    "NLP"
+                  ],
+                  "prefix": null,
+                  "minValue": null,
+                  "maxValue": null,
+                  "stepSize": null,
+                  "suffix": null
+                }
+              ]
             }
           ]
         }
