@@ -23,7 +23,7 @@ import DeviceInfo from 'react-native-device-info';
 import type {Account, Store, User, Registration} from './Types';
 import base64 from 'base-64';
 import {styles, fontScale, isWeb} from './Styles';
-import {Button, ListField,TilesField} from './Widgets';
+import {Button, ListField, TilesField} from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -191,6 +191,57 @@ export class MfaScreen extends Component {
     }
   }
 
+  async scanCode() {
+    let mfaScanUrl = getRestUrl() + 'login/scanCode';
+    const userName = this.props.userName;
+    const password: ?string = this.props.password;
+    if (isEmpty(userName) || isEmpty(password)) {
+      return;
+    }
+
+    const account: ?Account = this.props.account;
+    let store: ?Store = this.props.store;
+    if (!account || !store) {
+      return;
+    }
+    let loginData = {
+      accountsId: account.id.toString(),
+      storeId: store.storeId.toString(),
+      expiration: 24 * 365,
+      deviceId: DeviceInfo.getUniqueId(),
+    };
+    const requestNr = getNextRequestNumber();
+    __DEV__ &&
+      console.log(
+        'REQ ' + requestNr + ' POST ' + mfaScanUrl + ' login for ' + userName,
+      );
+    try {
+      let httpResponse = await fetch(mfaScanUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'Accept-language': getUserLanguage(),
+          Authorization: 'Basic ' + base64.encode(userName + ':' + password),
+        },
+        body: JSON.stringify(loginData),
+      });
+      console.log(
+        'RES ' +
+          requestNr +
+          ' POST ' +
+          mfaScanUrl +
+          ' login OK for ' +
+          userName +
+          ':' +
+          httpResponse.ok,
+      );
+      this.props.onScanQrCode();
+    } catch (error) {
+      alert(strings.loginFailed + ': ' + error);
+    }
+  }
+
   setCode = (code: ?string) => {
     this.setState({code});
   };
@@ -267,7 +318,7 @@ export class MfaScreen extends Component {
                 {this.props.qrImageUrl ? (
                   <Button
                     title={strings.mfaCodeScanned}
-                    onPress={() => this.props.onScanQrCode()}
+                    onPress={() => this.scanCode()}
                   />
                 ) : (
                   <Button
@@ -342,12 +393,13 @@ export class LoginScreen extends Component {
         (account) => account.name === this.state.account,
       );
       if (currAccount) {
-        let store = currAccount.stores?.length > 0 && this.formatStore(currAccount.stores[0]);
+        let store =
+          currAccount.stores?.length > 0 &&
+          this.formatStore(currAccount.stores[0]);
         this.setStore(store);
-      }else if(!currAccount && !this.state.account){
+      } else if (!currAccount && !this.state.account) {
         this.setStore(undefined);
       }
-
     }
   }
 
