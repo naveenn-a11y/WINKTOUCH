@@ -15,10 +15,18 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  TextInput,
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
+import {
+  styles,
+  windowHeight,
+  fontScale,
+  isWeb,
+  selectionColor,
+  selectionFontColor,
+} from './Styles';
 import {FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
@@ -40,12 +48,14 @@ import {
   farDateFormat2,
   yearDateFormat,
   isEmpty,
+  deAccent,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
 import type {Patient, PatientInfo, Visit} from './Types';
@@ -63,6 +73,7 @@ export class AgendaScreen extends Component {
     date: Date,
     mode: any,
     appointments: Appointment[],
+    waitingListAppointments: Appointment[],
     events: Appointment[],
     event: Appointment,
     showDialog: boolean,
@@ -82,6 +93,11 @@ export class AgendaScreen extends Component {
     fetchingWaitingList: boolean,
     allStores: boolean,
     rescheduledAppointment: boolean,
+    filter: string,
+    docHeaderSelected: boolean,
+    storeHeaderSelected: boolean,
+    dateHeaderSelected: boolean,
+    orderDesc: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -92,6 +108,7 @@ export class AgendaScreen extends Component {
       mode: 'custom',
       date: this.today,
       appointments: [],
+      waitingListAppointments: [],
       events: [],
       event: undefined,
       showDialog: false,
@@ -110,6 +127,11 @@ export class AgendaScreen extends Component {
       fetchingWaitingList: false,
       allStores: false,
       rescheduledAppointment: false,
+      filter: '',
+      docHeaderSelected: false,
+      storeHeaderSelected: false,
+      dateHeaderSelected: false,
+      orderDesc: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -119,6 +141,7 @@ export class AgendaScreen extends Component {
     InteractionManager.runAfterInteractions(() => {
       this.getDoctors();
       this.getSelectedDoctorsFromStorage();
+      this.orderByDate();
     });
   }
 
@@ -605,23 +628,166 @@ export class AgendaScreen extends Component {
       });
     } else this.setState({copedAppointment: null});
   };
+  updateOrder = () => {
+    const order: boolean = this.state.orderDesc;
+    this.setState({orderDesc: !order});
+  };
+  compareDate(a, b): number {
+    if (b.start < a.start) {
+      return -1;
+    } else if (b.start > a.start) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByDate(): any {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareDate);
+    return data;
+  }
+  orderByDate = () => {
+    if (!this.state.dateHeaderSelected) {
+      this.setState({
+        groupBy: 'Date',
+        dateHeaderSelected: true,
+        docHeaderSelected: false,
+        storeHeaderSelected: false,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+  compareDoctor(a, b): number {
+    const doctor1: User = getCachedItem(a.userId);
+    const doctor2: User = getCachedItem(b.userId);
+    if (doctor1.firstName.toLowerCase() < doctor2.firstName.toLowerCase()) {
+      return -1;
+    } else if (
+      doctor1.firstName.toLowerCase() > doctor2.firstName.toLowerCase()
+    ) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByDoctor() {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareDoctor);
+    return data;
+  }
+  orderByDoctor = () => {
+    if (!this.state.docHeaderSelected) {
+      this.setState({
+        groupBy: 'Doctor',
+        dateHeaderSelected: false,
+        docHeaderSelected: true,
+        storeHeaderSelected: false,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+  compareStore(a, b): number {
+    // const store1: User = getCachedItem(a.storeId);
+    // const store2: User = getCachedItem(b.storeId);
+    // if (store1.name.toLowerCase() < store2.name.toLowerCase()) {
+    //   return -1;
+    // } else if (
+    //   store1.name.toLowerCase() > store2.name.toLowerCase()
+    // ) {
+    //   return 1;
+    // }
+    return 0;
+  }
+  groupByStore() {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareStore);
+    return data;
+  }
+  orderByStore = () => {
+    if (!this.state.storeHeaderSelected) {
+      this.setState({
+        groupBy: 'Store',
+        dateHeaderSelected: false,
+        docHeaderSelected: false,
+        storeHeaderSelected: true,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+
+  renderFilterField() {
+    const style = [styles.searchField, {minWidth: 350 * fontScale}];
+
+    return (
+      <TextInput
+        returnKeyType="search"
+        placeholder={strings.findRow}
+        autoCorrect={false}
+        autoCapitalize="none"
+        style={style}
+        value={this.state.filter}
+        onChangeText={(filter: string) => this.setState({filter})}
+        // testID={this.props.fieldId + '.filter'}
+      />
+    );
+  }
+
+  getItems(): any[] {
+    let data: any[] = [...this.state.waitingListAppointments];
+    if (this.state.groupBy === 'Date') {
+      data = this.groupByDate();
+    } else if (this.state.groupBy === 'Doctor') {
+      data = this.groupByDoctor();
+    } else if (this.state.groupBy === 'Store') {
+      data = this.groupByStore();
+    }
+    if (!this.state.orderDesc) {
+      data.reverse();
+    }
+    const filter: ?string =
+      this.state.filter !== undefined && this.state.filter !== ''
+        ? deAccent(this.state.filter.trim().toLowerCase())
+        : undefined;
+    data = data.map((item) => {
+      const patient: PatientInfo | Patient = getCachedItem(item.patientId);
+      const doctor: User = getCachedItem(item.userId);
+      return {
+        ...item,
+        patient: `${patient?.firstName} ${patient?.lastName}`,
+        age: patient.age,
+        cell: patient.cell,
+        work: patient.work,
+        store: getStore().name,
+        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+      };
+    });
+    if (filter) {
+      data = data.filter(
+        (item: any) =>
+          item != null &&
+          item !== undefined &&
+          JSON.stringify(item).trim().length > 0 &&
+          deAccent(JSON.stringify(item).toLowerCase()).indexOf(filter) >= 0,
+      );
+    }
+    return data;
+  }
   renderWaitingList() {
     const event: Appointment = this.state.event;
     const user: User = getCachedItem(event.userId);
-    const appointments = this.state.waitingListAppointments;
-    const headers = [
-      strings.patient,
-      strings.age,
-      strings.cell,
-      strings.work,
-      strings.store,
-      strings.doctor,
-      strings.appDateAndTime,
-      strings.comment,
-    ];
+    const appointments = this.getItems();
     const titleStyle = {
       marginBottom: 5,
       fontWeight: '500',
+      fontSize: fontScale * 23,
+    };
+    const headerStyle = {
+      fontWeight: '500',
+      textAlign: 'center',
       fontSize: fontScale * 23,
     };
     return (
@@ -656,25 +822,34 @@ export class AgendaScreen extends Component {
                   {user?.firstName} {user?.lastName}
                 </Text>
               </View>
-              <View style={{marginBottom: 20, alignSelf: 'flex-end'}}>
-                <FormInput
-                  optional
-                  singleSelect
-                  multiOptions
-                  value={this.state.allStores}
-                  showLabel={false}
-                  readonly={false}
-                  definition={{
-                    options: [{label: strings.showAllStores, value: true}],
-                  }}
-                  onChangeValue={(v) => {
-                    this.setState({allStores: v ? true : false}, () =>
-                      this.waitingListAppointments(),
-                    );
-                  }}
-                  errorMessage={'error'}
-                  isTyping={false}
-                />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 20,
+                }}>
+                <View>{this.renderFilterField()}</View>
+                <View>
+                  <FormInput
+                    optional
+                    singleSelect
+                    multiOptions
+                    value={this.state.allStores}
+                    showLabel={false}
+                    readonly={false}
+                    definition={{
+                      options: [{label: strings.showAllStores, value: true}],
+                    }}
+                    onChangeValue={(v) => {
+                      this.setState({allStores: v ? true : false}, () =>
+                        this.waitingListAppointments(),
+                      );
+                    }}
+                    errorMessage={'error'}
+                    isTyping={false}
+                  />
+                </View>
               </View>
               {this.state.fetchingWaitingList ? (
                 <ActivityIndicator
@@ -688,17 +863,105 @@ export class AgendaScreen extends Component {
                 <>
                   <View>
                     <View style={styles.listRow}>
-                      {headers.map((h) => (
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.patient}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.age}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.cell}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.work}
+                      </Text>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByStore}>
+                        {this.state.storeHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
                         <Text
                           style={{
-                            flex: 1,
-                            fontWeight: '500',
-                            textAlign: 'center',
-                            fontSize: fontScale * 23,
+                            ...headerStyle,
+                            color: this.state.storeHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
                           }}>
-                          {h}
+                          {strings.store}
                         </Text>
-                      ))}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByDoctor}>
+                        {this.state.docHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.docHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.doctor}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByDate}>
+                        {this.state.dateHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.dateHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.appDateAndTime}
+                        </Text>
+                      </TouchableOpacity>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.comment}
+                      </Text>
                     </View>
                     <View
                       style={{
@@ -710,14 +973,11 @@ export class AgendaScreen extends Component {
                     />
                   </View>
                   <FlatList
-                    showsVerticalScrollIndicator={false}
-                    initialNumToRender={20}
                     data={appointments}
+                    initialNumToRender={20}
+                    showsVerticalScrollIndicator={false}
+                    extraData={{filter: this.state.filter}}
                     renderItem={({item, index}) => {
-                      const patient: PatientInfo | Patient = getCachedItem(
-                        item.patientId,
-                      );
-                      const doctor: User = getCachedItem(item.userId);
                       const selected =
                         this.state.selectedWaitingEvent?.id == item.id;
                       const textStyle = {
@@ -737,24 +997,22 @@ export class AgendaScreen extends Component {
                                 index % 2 === 0 ? '#F9F9F9' : '#FFFFFF',
                             },
                           ]}>
-                          <Text style={textStyle}>
-                            {patient?.firstName} {patient?.lastName}
-                          </Text>
-                          <Text style={textStyle}>{patient?.age}</Text>
-                          <Text style={textStyle}>{patient?.cell}</Text>
-                          <Text style={textStyle}>{patient?.work}</Text>
-                          <Text style={textStyle}>{getStore().name}</Text>
-                          <Text style={textStyle}>
-                            {doctor?.firstName} {doctor?.lastName}
-                          </Text>
-                          <Text style={textStyle}>
-                            {moment(new Date(item.start)).format(
-                              'DD/MM/YYYY HH:MM A',
-                            )}
-                            <Text style={{fontWeight: '500'}}>
+                          <Text style={textStyle}>{item.patient}</Text>
+                          <Text style={textStyle}>{item?.age}</Text>
+                          <Text style={textStyle}>{item?.cell}</Text>
+                          <Text style={textStyle}>{item?.work}</Text>
+                          <Text style={textStyle}>{item.store}</Text>
+                          <Text style={textStyle}>{item.doctor}</Text>
+                          <View style={{flex: 1}}>
+                            <Text style={textStyle}>
+                              {moment(new Date(item.start)).format(
+                                'DD/MM/YYYY HH:MM A',
+                              )}
+                            </Text>
+                            <Text style={{fontWeight: '500', ...textStyle}}>
                               {item?.title}
                             </Text>
-                          </Text>
+                          </View>
                           <Text style={textStyle}>{item?.comment}</Text>
                         </TouchableOpacity>
                       );

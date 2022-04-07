@@ -197,13 +197,15 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
             />
           </View>
         ) : null}
-        <View style={styles.centeredRowLayout}>
-          <Button
-            title={strings.viewWaitingList}
-            onPress={this.props.openWaitingListDialog}
-            testID="viewWaitingList"
-          />
-        </View>
+        {this.props.openWaitingListDialog ? (
+          <View style={styles.centeredRowLayout}>
+            <Button
+              title={strings.viewWaitingList}
+              onPress={this.props.openWaitingListDialog}
+              testID="viewWaitingList"
+            />
+          </View>
+        ) : null}
       </View>
     );
   }
