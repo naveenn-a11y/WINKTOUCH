@@ -79,6 +79,7 @@ export type Privileges = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
   appointmentPrivilege?: Privilege,
+  referralPrivilege?: Privilege,
 };
 
 export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
@@ -87,6 +88,7 @@ export type TokenPrivileges = {
   pre: ?TokenPrivilege,
   med: ?TokenPrivilege,
   app: ?TokenPrivilege,
+  ref: ?TokenPrivilege,
 };
 
 export type TokenPayload = {

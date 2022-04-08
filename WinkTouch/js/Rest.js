@@ -34,6 +34,7 @@ let privileges: Privileges = {
   pretestPrivilege: 'NOACCESS',
   medicalDataPrivilege: 'NOACCESS',
   appointmentPrivilege: 'NOACCESS',
+  referralPrivilege: 'NOACCESS',
 };
 
 let requestNumber: number = 0;
@@ -57,6 +58,7 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.pretestPrivilege = 'NOACCESS';
   privileges.medicalDataPrivilege = 'NOACCESS';
   privileges.appointmentPrivilege = 'NOACCESS';
+  privileges.referralPrivilege = 'NOACCESS';
   if (tokenPrivileges === undefined || tokenPrivileges === null) {
     return;
   }
@@ -79,6 +81,12 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
     privileges.appointmentPrivilege = 'BOOKONLY';
   } else if (tokenPrivileges.app === 'R') {
     privileges.appointmentPrivilege = 'READONLY';
+  }
+  //Referral permission
+  if (tokenPrivileges.ref === 'F') {
+    privileges.referralPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.ref === 'R') {
+    privileges.referralPrivilege = 'READONLY';
   }
 }
 

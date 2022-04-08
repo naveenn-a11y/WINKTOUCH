@@ -106,7 +106,7 @@ import {isReferralsEnabled} from './Referral';
 import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import {BillingCard} from './Visit/Partials';
-import {getExamRoom, getExamRoomCode, updateExamRoom} from './Room';
+import {getExamRoomCode, updateExamRoom} from './Room';
 
 export const examSections: string[] = [
   'Amendments',
@@ -1609,8 +1609,8 @@ class VisitWorkFlow extends Component {
     const hasMedicalDataReadAccess: boolean =
       hasVisitMedicalDataReadAccess(visit);
     const hasPreTestReadAccess: boolean = hasVisitPretestReadAccess(visit);
-    const hasMedicalDataWriteAccess: boolean =
-      hasVisitMedicalDataWriteAccess(visit);
+    const userReferralFullAccess: boolean =
+      getPrivileges().referralPrivilege === 'FULLACCESS';
 
     return (
       <View
@@ -1670,7 +1670,7 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {isReferralsEnabled() && (
+          {userReferralFullAccess && isReferralsEnabled() && (
             <Button
               title={strings.referral}
               onPress={() => {
@@ -2330,6 +2330,11 @@ export class VisitHistory extends Component {
     if (!this.state.history) {
       return null;
     }
+    const userReferralFullAccess: boolean =
+      getPrivileges().referralPrivilege === 'FULLACCESS';
+    const userReferralReadOnlyAccess: boolean =
+      getPrivileges().referralPrivilege === 'READONLY';
+
     const patientInfo: PatientInfo = this.props.patientInfo;
     const listFollowUp: ?(FollowUp[]) = getCachedItem(
       'referralFollowUpHistory-' + patientInfo.id,
@@ -2345,7 +2350,8 @@ export class VisitHistory extends Component {
             isSelected={this.state.selectedId === undefined}
             onPress={() => this.showVisit(undefined)}
           />
-          {listFollowUp &&
+          {(userReferralFullAccess || userReferralReadOnlyAccess) &&
+            listFollowUp &&
             Array.isArray(listFollowUp) &&
             listFollowUp.length > 0 && (
               <FollowUpButton

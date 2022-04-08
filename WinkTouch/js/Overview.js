@@ -25,6 +25,7 @@ import {isAtWink} from './Registration';
 import {toggleTranslateMode, isInTranslateMode} from './ExamDefinition';
 import {getCachedItem} from './DataCache';
 import {isReferralsEnabled} from './Referral';
+import {getPrivileges} from './Rest';
 
 class MainActivities extends Component {
   props: {
@@ -67,6 +68,8 @@ class MainActivities extends Component {
   };
 
   render() {
+    const userReferralNoAccess: boolean =
+      getPrivileges().referralPrivilege === 'NOACCESS';
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
@@ -82,7 +85,7 @@ class MainActivities extends Component {
               onPress={this.switchTranslate}
             />
           )}
-          {isReferralsEnabled() && (
+          {!userReferralNoAccess && isReferralsEnabled() && (
             <Button
               title={strings.referral}
               onPress={() => this.openReferral()}
