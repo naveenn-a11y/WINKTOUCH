@@ -194,7 +194,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
 
   onEndReached = async () => {
     if (!this.state.loading) {
-      const offset = this.state.offset + 1;
+      const offset = this.state.offset + 100;
       this.setState({offset ,loading: true});
       this.props.onSelectPatient(undefined);
       if (
@@ -222,15 +222,9 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       !isWeb && LayoutAnimation.spring();
       const updatedPatients = this.state.patients.concat(patients);
       if (this.state?.patients?.length < updatedPatients.length) {
-        this.setState({
-          patients: updatedPatients,
-          loading: false,
-        });
+        this.setState({patients: updatedPatients,loading: false});
       } else {
-        this.setState({
-          loadMoreData: false,
-          loading:false
-        });
+        this.setState({ loadMoreData: false, loading:false });
       }
     }
   };
