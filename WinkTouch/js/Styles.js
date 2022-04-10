@@ -1383,6 +1383,50 @@ export const styles = StyleSheet.create({
     fontSize: 20 * fontScale,
     padding: 10 * fontScale,
   },
+  alignPopup :{
+    alignItems: 'center'
+  },
+  AppointmentDialog:{
+    width: '55%',
+    minHeight: '40%',
+    maxHeight: '90%',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+  },
+  appointmentActionButton:{
+    maxWidth: 150,
+    minWidth: 100,
+    marginTop: 20,
+    borderRadius: 10,
+    padding: 5,
+    backgroundColor: selectionFontColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  doubleBookingTimeField:{
+    color: "black",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10 * fontScale,
+    
+  },
+  doubleBookingSearchField:{
+    fontSize: defaultFontSize,
+    height: (26 + 15) * fontScale,
+    minWidth: 80 * fontScale,
+    textAlign: 'left',
+    backgroundColor: 'white',
+    borderWidth: 1 * fontScale,
+    borderRadius: 6 * fontScale,
+    marginRight: 10 * fontScale,
+    borderColor: fieldBorderColor,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale,
+  }
+
 });
 
 function cardStyle(color: Color) {

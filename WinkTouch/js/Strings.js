@@ -313,6 +313,10 @@ export const strings = new LocalizedStrings({
     cancelledBy: 'Cancelled By',
     rescheduleAppointment: 'Reschedule Appointment',
     reschedule: 'Reschedule',
+    doubleBook: 'Double Book ',
+    sameSlot: 'Same Slot',
+    first: 'First',
+    last: 'Last',
   },
   fr: {
     enterRegisteredEmail:
@@ -625,6 +629,10 @@ export const strings = new LocalizedStrings({
     cancelledBy: 'Annulé par',
     rescheduleAppointment: 'Re-planifier un rendez-vous',
     reschedule: 'Re-planifier',
+    doubleBook: 'livre double',
+    sameSlot: 'Même créneau',
+    first: 'Premier',
+    Last: 'Dernier',
   },
 });
 

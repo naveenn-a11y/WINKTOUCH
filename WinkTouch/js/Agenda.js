@@ -18,7 +18,7 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {FormInput} from './Form';
+import {FormInput, FormOptions, FormRow} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -31,6 +31,7 @@ import {
   bookAppointment,
   cancelAppointment,
   hasAppointmentBookAccess,
+  doubleBook
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -51,7 +52,7 @@ import {searchUsers} from './User';
 import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
-
+import {Button, TilesField} from './Widgets';
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
 export class AgendaScreen extends Component {
@@ -79,6 +80,8 @@ export class AgendaScreen extends Component {
     copiedAppointment: Appointment,
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
+    doubleBookingModal: boolean,
+    selectedTime: string | undefined,
   };
   today = new Date();
   lastRefresh: number;
@@ -105,6 +108,8 @@ export class AgendaScreen extends Component {
       deleting: false,
       copiedAppointment: undefined,
       rescheduleAppointment: false,
+      doubleBookingModal: false,
+      selectedTime: undefined,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -264,6 +269,9 @@ export class AgendaScreen extends Component {
 
   cancelDialog = () => {
     this.setState({event: undefined, showDialog: false});
+    if(this.state.selectedTime) {
+      this.setState({doubleBookingModal: false,selectedTime: undefined,});
+    }
   };
   endReschedule = () => {
     this.setState({
@@ -289,12 +297,18 @@ export class AgendaScreen extends Component {
   openCancelDialog = () => {
     this.setState({cancelModal: true});
   };
+  openDoubleBookDialog = () => {
+    this.setState({doubleBookingModal: true});
+  };
   cancelCancelDialog = () => {
     this.setState({
       cancelModal: false,
       cancelNotes: '',
       cancelReason: 2,
     });
+  };
+  cancelDoubleBookDialog = () => {
+    this.setState({doubleBookingModal: false});
   };
 
   getAppoitmentsForSelectedDoctors = () => {
@@ -395,9 +409,32 @@ export class AgendaScreen extends Component {
       );
     }
   };
+
+  onDoubleBooking = async (appointment: Appointment) => {
+    const selectedTime = this.state.selectedTime;
+
+    const res = await doubleBook(
+      appointment.patientId,
+      appointment.appointmentTypes,
+      appointment.id,
+      selectedTime.time,
+      selectedTime.atEnd,
+      appointment.comment,
+    );
+    if (res) {
+      let appointments: Appointment[] = [...this.state.appointments];
+      appointments.push(res);
+      this.setState({
+        doubleBookingModal: false,
+        showDialog: false,
+        selectedTime: undefined,
+        appointments: appointments,
+      });
+    }
+  };
+
   selectPatient(patient: Patient | PatientInfo) {
     this.cancelPatientDialog();
-
     this.setState({selectedPatient: patient, showDialog: true});
   }
 
@@ -407,11 +444,19 @@ export class AgendaScreen extends Component {
       return null;
     }
     const isNewEvent: boolean = this.isNewEvent(event);
+    let isDoublebooking: boolean = false;
+
     if (isNewEvent) {
       event = Object.assign({patientId: this.state.selectedPatient.id}, event);
       event.title = strings.newAppointment;
     }
-    return this.renderAppointmentDetail(event, isNewEvent);
+    if (this.state.selectedTime) {
+      isDoublebooking = true;
+      event.patientId = this.state.selectedPatient?.id;
+      event.title = strings.doubleBook;
+      event.comment = '';
+    }
+    return this.renderAppointmentDetail(event, isNewEvent, isDoublebooking);
   }
 
   renderPatientScreen() {
@@ -434,9 +479,28 @@ export class AgendaScreen extends Component {
     );
   }
 
+  doubleBookingTimeField = () => {
+    return (
+      <View style={styles.doubleBookingTimeField}>
+        <Text>
+          {this.state.selectedTime.atEnd ? strings.last : strings.first} :{' '}
+        </Text>
+        <TilesField
+          options={[5, 10, 15, 20, 25, 30, 45, 60]}
+          value={this.state.selectedTime.time}
+          style={styles.doubleBookingSearchField}
+          onChangeValue={(value: string) =>
+            this.setState({selectedTime: {atEnd: this.state.selectedTime.atEnd, time: value}})
+          }/>
+        <Text>mins</Text>
+      </View>
+    );
+  };
+
   renderAppointmentDetail(
     event: Appointment,
     isNewEvent: boolean,
+    isDoublebooking: boolean,
     rescheduleAppointment: boolean,
   ) {
     return (
@@ -451,38 +515,35 @@ export class AgendaScreen extends Component {
             rescheduleAppointment ? this.endReschedule : this.cancelDialog
           }
           dismissable={true}
-          style={{
-            width: '50%',
-            minHeight: '40%',
-            maxHeight: '90%',
-            alignSelf: 'center',
-            backgroundColor: '#fff',
-          }}>
+          style={styles.AppointmentDialog}>
           <Dialog.Title>
-            {!isNewEvent && <AppointmentTypes appointment={event} />}
-            <Text style={{color: 'black'}}> {event.title}</Text>
+            <FormRow>
+              {!isNewEvent && <AppointmentTypes appointment={event} />}
+              <Text style={{color: 'black'}}> {event.title}</Text>
+              {isDoublebooking && this.doubleBookingTimeField()}
+            </FormRow>
           </Dialog.Title>
+
           <Dialog.Content>
             <AppointmentDetails
               appointment={event}
-              rescheduleAppointment={rescheduleAppointment}
               isNewAppointment={isNewEvent}
-              onUpdateAppointment={(appointment: Appointment) => {
-                rescheduleAppointment
-                  ? this.rescheduleEvent(appointment)
-                  : this.updateEvent(appointment);
-              }}
-              onOpenAppointment={(appointment: Appointment) =>
-                this.openPatientFile(appointment)
-              }
-              onCancelAppointment={() => this.openCancelDialog()}
+              isDoublebooking={isDoublebooking}
+              rescheduleAppointment={rescheduleAppointment}
+              onOpenAppointment={this.openPatientFile}
+              onCancelAppointment={this.openCancelDialog}
+              onDoubleBooking={this.onDoubleBooking}
+              onCopyAppointment={this.setCopiedAppointment}
+              openDoubleBookingModal={this.openDoubleBookDialog}
               onCloseAppointment={() => {
                 rescheduleAppointment
                   ? this.endReschedule()
                   : this.cancelDialog();
               }}
-              onCopyAppointment={(appointment: Appointment) => {
-                this.setCopiedAppointment(appointment);
+              onUpdateAppointment={(appointment: Appointment) => {
+                rescheduleAppointment
+                  ? this.rescheduleEvent(appointment)
+                  : this.updateEvent(appointment);
               }}
             />
           </Dialog.Content>
@@ -541,13 +602,7 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={{
-            width: '50%',
-            minHeight: '40%',
-            maxHeight: '90%',
-            alignSelf: 'center',
-            backgroundColor: '#fff',
-          }}
+          style={styles.AppointmentDialog}
           visible={this.state.cancelModal}
           onDismiss={this.cancelCancelDialog}
           dismissable={true}>
@@ -637,6 +692,130 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderDoubleBookDialog() {
+    const times = [5, 10, 15, 20, 25, 30, 45, 60];
+    const onSelectTime = (atEnd: Boolean, time: number) => {
+      this.setState({
+        selectedTime: {atEnd, time},
+        isPatientDialogVisible: true,
+        showDialog: false,
+        doubleBookingModal: false,
+        rescheduleAppointment: false,
+      });
+    };
+
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={[styles.AppointmentDialog, {minHeight: '45%'}]}
+          visible={this.state.doubleBookingModal}
+          onDismiss={this.cancelDoubleBookDialog}
+          dismissable={true}>
+          <Dialog.Title>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: '100%',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={{color: 'black'}}>{strings.doubleBook}</Text>
+              <Button
+                buttonStyle={{paddingHorizontal: 14, paddingVertical: 7}}
+                title={strings.sameSlot}
+                onPress={() => {}}
+              />
+            </View>
+          </Dialog.Title>
+          <Dialog.Content>
+            <View style={{display: 'flex', flexDirection: 'column'}}>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                }}>
+                <View style={{width: 80}}>
+                  <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
+                    {strings.first}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    maxWidth: '85%',
+                  }}>
+                  {times.map((time, index) => {
+                    return (
+                      <Button
+                        buttonStyle={{
+                          paddingHorizontal: 18,
+                          paddingVertical: 7,
+                          width: 92,
+                          textAlign: 'center',
+                        }}
+                        key={'time' + index}
+                        title={time === 60 ? '1 hour' : time + ' mins'}
+                        onPress={() => onSelectTime(false, time)}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View
+                style={{
+                  marginTop: 10,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                }}>
+                <View style={{width: 80}}>
+                  <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
+                    {strings.last}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    maxWidth: '85%',
+                  }}>
+                  {times.map((time, index) => {
+                    return (
+                      <Button
+                        key={'time' + index}
+                        buttonStyle={{
+                          paddingHorizontal: 18,
+                          paddingVertical: 7,
+                          width: 92,
+                          textAlign: 'center',
+                        }}
+                        title={time === 60 ? '1 hour' : time + ' mins'}
+                        onPress={() => onSelectTime(true, time)}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDoubleBookDialog}>
+              {strings.close}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
 
   renderCopyDialog() {
     const patient: PatientInfo | Patient = getCachedItem(
@@ -659,7 +838,7 @@ export class AgendaScreen extends Component {
     }
     event = Object.assign({patientId: event.patientId}, event);
     event.title = strings.rescheduleAppointment;
-    return this.renderAppointmentDetail(event, true, true);
+    return this.renderAppointmentDetail(event, true, false, true);
   }
 
   openDropDown = () => {
@@ -689,6 +868,7 @@ export class AgendaScreen extends Component {
       cancelModal,
       copiedAppointment,
       rescheduleAppointment,
+      doubleBookingModal,
     } = this.state;
 
     const options =
@@ -707,6 +887,7 @@ export class AgendaScreen extends Component {
         {cancelModal && this.renderCancellationDialog()}
         {copiedAppointment && this.renderCopyDialog()}
         {rescheduleAppointment && this.renderRescheduleDialog()}
+        {doubleBookingModal && this.renderDoubleBookDialog()}
 
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
