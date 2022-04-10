@@ -731,6 +731,23 @@ export class CabinetScreen extends Component {
     isBookingAppointment: false,
   };
 
+  componentDidUpdate(prevProps: any) {
+    let params = this.props.navigation.state.params;
+    if (params && params.refresh === true) {
+      if (this.state.patientInfo)
+        this.updateAppointments(this.state.patientInfo);
+      this.props.navigation.setParams({refresh: false});
+    }
+  }
+  async updateAppointments(patient: Patient) {
+    let appointments: ?(Appointment[]) = await fetchAppointments(
+      undefined,
+      undefined,
+      1,
+      patient.id,
+    );
+    this.setState({appointments});
+  }
   async selectPatient(patient: Patient) {
     if (!patient) {
       if (!this.state.patientInfo) {

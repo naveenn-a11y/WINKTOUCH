@@ -109,13 +109,17 @@ export class MenuBar extends PureComponent {
 
     const scene: ?string =
       this.props.navigation.state && this.props.navigation.state.routeName;
+    const key: ?string =
+      this.props.navigation.state && this.props.navigation.state.key;
     const hasConfig: boolean = getPhoropters().length > 1;
     return (
       <View style={styles.sideMenu}>
         <Image source={require('./image/menulogo.png')} />
         <Button
           title={strings.calendar}
-          onPress={() => this.props.navigation.navigate('agenda')}
+          onPress={() =>
+            this.props.navigation.navigate('agenda', {refreshStateKey: key})
+          }
         />
         {(scene === 'appointment' || exam) && (
           <Button

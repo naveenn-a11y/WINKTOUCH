@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NavigationActions} from 'react-navigation';
 import {
   styles,
   windowHeight,
@@ -96,6 +97,7 @@ export class AgendaScreen extends Component {
     isPatientDialogVisible: boolean,
     dropDown: boolean,
     selectedPatient?: patient | PatientInfo,
+    refresh: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -116,6 +118,7 @@ export class AgendaScreen extends Component {
       isPatientDialogVisible: false,
       dropDown: false,
       selectedPatient: undefined,
+      refresh: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -126,6 +129,22 @@ export class AgendaScreen extends Component {
       this.getDoctors();
       this.getSelectedDoctorsFromStorage();
     });
+  }
+
+  componentWillUnmount() {
+    if (this.state.refresh) {
+      this.asyncComponentWillUnmount();
+    }
+  }
+
+  async asyncComponentWillUnmount() {
+    if (this.props.navigation.state.params.refreshStateKey) {
+      const setParamsAction = NavigationActions.setParams({
+        params: {refresh: true},
+        key: this.props.navigation.state.params.refreshStateKey,
+      });
+      this.props.navigation.dispatch(setParamsAction);
+    }
   }
 
   async getDoctors() {
@@ -346,7 +365,7 @@ export class AgendaScreen extends Component {
         (a) => a.id != eventId,
       );
       appointments = [...appointments, updatedAppointment];
-      this.setState({appointments});
+      this.setState({appointments, refresh: true});
       this.cancelDialog();
     } else {
       const index = this.state.appointments.findIndex(
@@ -355,7 +374,7 @@ export class AgendaScreen extends Component {
       if (index >= 0) {
         let appointments: Appointment[] = [...this.state.appointments];
         appointments[index] = updatedAppointment;
-        this.setState({appointments});
+        this.setState({appointments, refresh: true});
       }
     }
   };
