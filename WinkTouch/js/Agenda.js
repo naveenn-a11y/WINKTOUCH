@@ -17,6 +17,7 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
+import {getAccount} from './DoctorApp';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -755,14 +756,19 @@ export class AgendaScreen extends Component {
     data = data.map((item) => {
       const patient: PatientInfo | Patient = getCachedItem(item.patientId);
       const doctor: User = getCachedItem(item.userId);
+      const storeId = item.storeId?.split('-')[1];
+      const store = getAccount().stores.find(
+        (store) => store.storeId == storeId,
+      );
       return {
         ...item,
         patient: `${patient?.firstName} ${patient?.lastName}`,
         age: patient.age,
         cell: patient.cell,
         work: patient.work,
-        store: getStore().name,
+        // store: getStore().name,
         doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+        store,
       };
     });
     if (filter) {
@@ -1001,7 +1007,7 @@ export class AgendaScreen extends Component {
                           <Text style={textStyle}>{item?.age}</Text>
                           <Text style={textStyle}>{item?.cell}</Text>
                           <Text style={textStyle}>{item?.work}</Text>
-                          <Text style={textStyle}>{item.store}</Text>
+                          <Text style={textStyle}>{item.store?.name}</Text>
                           <Text style={textStyle}>{item.doctor}</Text>
                           <View style={{flex: 1}}>
                             <Text style={textStyle}>
