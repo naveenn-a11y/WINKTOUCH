@@ -138,7 +138,7 @@ export class AgendaScreen extends Component {
   }
 
   async asyncComponentWillUnmount() {
-    if (this.props.navigation.state.params.refreshStateKey) {
+    if (this.props.navigation.state.params?.refreshStateKey) {
       const setParamsAction = NavigationActions.setParams({
         params: {refresh: true},
         key: this.props.navigation.state.params.refreshStateKey,
