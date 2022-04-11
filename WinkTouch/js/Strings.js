@@ -317,6 +317,7 @@ export const strings = new LocalizedStrings({
     sameSlot: 'Same Slot',
     first: 'First',
     last: 'Last',
+    mins: 'mins',
   },
   fr: {
     enterRegisteredEmail:
@@ -633,6 +634,7 @@ export const strings = new LocalizedStrings({
     sameSlot: 'Même créneau',
     first: 'Premier',
     Last: 'Dernier',
+    mins: 'mins',
   },
 });
 

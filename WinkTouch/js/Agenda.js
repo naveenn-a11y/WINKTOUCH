@@ -18,7 +18,7 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {FormInput, FormOptions, FormRow} from './Form';
+import {FormInput, FormRow} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -482,7 +482,7 @@ export class AgendaScreen extends Component {
     return (
       <View style={styles.doubleBookingTimeField}>
         <Text>
-          {this.state.selectedTime.atEnd ? strings.last : strings.first} :{' '}
+          {this.state.selectedTime.atEnd ? strings.last : strings.first} :
         </Text>
         <TilesField
           options={[5, 10, 15, 20, 25, 30, 45, 60]}
@@ -491,7 +491,7 @@ export class AgendaScreen extends Component {
           onChangeValue={(value: string) =>
             this.setState({selectedTime: {atEnd: this.state.selectedTime.atEnd, time: value}})
           }/>
-        <Text>mins</Text>
+        <Text>strings.mins</Text>
       </View>
     );
   };
@@ -757,7 +757,7 @@ export class AgendaScreen extends Component {
                           textAlign: 'center',
                         }}
                         key={'time' + index}
-                        title={time === 60 ? '1 hour' : time + ' mins'}
+                        title={time === 60 ? '1 hour' : time +" "+strings.mins}
                         onPress={() => onSelectTime(false, time)}
                       />
                     );
@@ -796,7 +796,7 @@ export class AgendaScreen extends Component {
                           width: 92,
                           textAlign: 'center',
                         }}
-                        title={time === 60 ? '1 hour' : time + ' mins'}
+                        title={time === 60 ? '1 hour' : time +" "+strings.mins}
                         onPress={() => onSelectTime(true, time)}
                       />
                     );
@@ -1009,11 +1009,16 @@ class Event extends Component {
       event && event.appointmentTypes
         ? getCachedItem(event.appointmentTypes[0])
         : undefined;
-
+    let start = 0
+    for(let item of this.props?.touchableOpacityProps?.style) {
+        if(typeof(item)==='object' && item.start>3) {
+          start=item.start
+        }
+    }
     const eventStyleProps = {
       minWidth: '1%',
-      width: eventWidth / 1.05,
-      start: eventWidth * index,
+      width: (eventWidth / 1.05) - start,
+      start: (eventWidth * index) + start,
       justifyContent: 'center',
       paddingTop: 1,
       paddingBottom: 0,
@@ -1106,6 +1111,7 @@ class NativeCalendar extends Component {
       <>
         <Calendar
           ampm
+          overlapOffset={20}
           mode={mode}
           date={date}
           swipeEnabled={false}
