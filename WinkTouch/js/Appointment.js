@@ -1063,14 +1063,6 @@ export class AppointmentDetails extends Component {
                 <NativeBaseButton onPress={() => this.openAppointment()}>
                   {strings.open}
                 </NativeBaseButton>
-                {this.props.onCopyAppointment && hasBookAccess && (
-                  <NativeBaseButton
-                    onPress={() =>
-                      this.props.onCopyAppointment(this.props.appointment)
-                    }>
-                    {strings.reschedule}
-                  </NativeBaseButton>
-                )}
               </Dialog.Actions>
             ))}
         </View>
@@ -1192,7 +1184,6 @@ export class AppointmentDetails extends Component {
             <NativeBaseButton onPress={() => this.cancelEdit()}>
               {strings.cancel}
             </NativeBaseButton>
-            {console.log("this.props :>>",this.props)}
             <NativeBaseButton
               disabled={!(this.props.isDoublebooking || this.props.isNewAppointment)}
               onPress={() => this.commitEdit()}>

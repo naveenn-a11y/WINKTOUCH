@@ -292,13 +292,13 @@ export class AgendaScreen extends Component {
     this.setState({isPatientDialogVisible: true});
   };
   cancelPatientDialog = () => {
-    this.setState({isPatientDialogVisible: false});
+    this.setState({isPatientDialogVisible: false,doubleBookingModal: false,selectedTime: undefined,selectedPatient:undefined});
   };
   openCancelDialog = () => {
     this.setState({cancelModal: true});
   };
   openDoubleBookDialog = () => {
-    this.setState({doubleBookingModal: true});
+    this.setState({doubleBookingModal: true,rescheduleAppointment: false,copiedAppointment:undefined});
   };
   cancelCancelDialog = () => {
     this.setState({
@@ -434,8 +434,7 @@ export class AgendaScreen extends Component {
   };
 
   selectPatient(patient: Patient | PatientInfo) {
-    this.cancelPatientDialog();
-    this.setState({selectedPatient: patient, showDialog: true});
+    this.setState({selectedPatient: patient, showDialog: true, isPatientDialogVisible: false});
   }
 
   renderEventDetails() {
@@ -700,7 +699,6 @@ export class AgendaScreen extends Component {
         isPatientDialogVisible: true,
         showDialog: false,
         doubleBookingModal: false,
-        rescheduleAppointment: false,
       });
     };
 
@@ -723,7 +721,7 @@ export class AgendaScreen extends Component {
               <Button
                 buttonStyle={{paddingHorizontal: 14, paddingVertical: 7}}
                 title={strings.sameSlot}
-                onPress={() => {}}
+                onPress={() =>  onSelectTime(false, 0)}
               />
             </View>
           </Dialog.Title>
