@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LocalizedStrings from 'react-native-localization';
 import Moment from 'moment';
 import {cacheDefinitions} from './Items';
@@ -24,11 +24,16 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail: 'This email adress was not registered before with Wink',
     userName: 'User name',
     password: 'password',
+    enterCode: 'Enter Code',
     submitLogin: 'Login',
+    verifyCode: 'Verify',
     touchNotConfigured:
       'Your account is not set up to use the mobile app yet. Please contact customer support.',
     registrationScreenTitle: 'WINKemr registration',
     loginscreenTitle: 'WINKemr login',
+    mfaCodeVerificationTitle: 'WINKemr code verification',
+    mfaCodeScanTitle: 'WINKemr QR Code scan',
+    mfaCodeScanned: 'I have scanned the code',
     account: 'Account',
     store: 'Store',
     securityQuestionsError:
@@ -38,7 +43,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       'Something went wrong trying to get the accounts from the server. Please try again.',
     loginFailed: 'Login failed',
-    agenda: 'Agenda',
+    calendar: 'Calendar',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graph',
@@ -53,6 +58,7 @@ export const strings = new LocalizedStrings({
     logout: 'Logout',
     newPatient: 'New patient',
     newDoctor: 'Add a doctor',
+    newAppointment: 'Reserve Appointment',
     preExams: 'Pre test',
     exams: 'Exams',
     odSphere: 'OD Sphere',
@@ -86,6 +92,8 @@ export const strings = new LocalizedStrings({
     cancelled: 'Cancelled',
     noShow: 'No show',
     waiting: 'Waiting',
+    waitingList: 'Waiting List',
+    waitingListComment: 'Waiting List Comment',
     completed: 'Completed',
     start: 'Start',
     scheduledAt: 'Scheduled at',
@@ -107,7 +115,8 @@ export const strings = new LocalizedStrings({
     beforeYesterday: 'Before yesterday',
     tomorrow: 'Tomorrow',
     in2Days: 'In 2 days',
-    endVisit: 'End consultation',
+    lockVisit: 'Lock',
+    complete: 'Complete',
     years: 'years',
     ageM: 'age',
     ageF: 'age',
@@ -131,6 +140,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Far',
+    near: 'Near',
     maxLengthError: 'Too much text',
     minLengthError: 'Not enough text',
     requiredError: 'Mandatory',
@@ -175,6 +186,7 @@ export const strings = new LocalizedStrings({
     deleteVisitTitle: 'Delete consultation',
     deleteVisitQuestion:
       'Are you sure you want to permanently delete the {0} of {1} ?',
+    deletedVisitMessage: 'Cannot open deleted visits !',
     findPatient: 'Search by patient name or #Z',
     findDoctor: "Search by doctor's name",
     visit: 'Consultation',
@@ -221,8 +233,86 @@ export const strings = new LocalizedStrings({
     from: 'From',
     to: 'To',
     date: 'Date',
-    status: 'Status',
     comment: 'Comment',
+    itemNotSelected: 'No item was selected',
+    importDataNotFound: 'No data found to import !',
+    consultationDate: 'Consultation date',
+    close: 'Close',
+    apply: 'Apply',
+    open: 'Open',
+    select: 'Select',
+    chooseDoctor: 'Choose Doctor',
+    transferRxSuccess: 'Rx transferred successfully !',
+    exportDataSuccess: 'Data exported successfully !',
+    NoCameraAccess: 'No access to camera',
+    flip: 'Flip',
+    snapshot: 'Snapshot',
+    somethingWentWrongTitle: 'Oops! Something went wrong.',
+    somethingWentWrongMessage:
+      'Sorry, Something went wrong there. See the action below !',
+    restartApp: 'Click here to restart the app !',
+    dragNDrop: 'Drag and drop some files here !',
+    takePicture: 'Take a picture',
+    uploadFile: 'Upload a file',
+    signedOn: 'Signed on',
+    location: 'Location',
+    noAccess: 'You do not have access to this information',
+    printRxLabel: 'Please select what to print:',
+    printExportLabel: 'Please select what to export:',
+    pd: 'PD',
+    binocularPd: 'Binocular PD',
+    notesOnRx: 'Notes on Rx',
+    drRecommendation: 'Dr Recommendation ',
+    all: 'All',
+    startBlank: 'Start blank',
+    noRoom: 'No room',
+    room: 'Room',
+    startFromVisit: 'Start from previous consultation',
+    lockedOn: 'Locked on',
+    lastUpdateOn: 'Last update on',
+    lastUpdateBy: 'Last update by',
+    visitDeniedAccessError:
+      'You do not have access to view this patient file !',
+    deniedAccessTitle: 'Access Denied',
+    documentSize: 'Document Size',
+    documentCategory: 'Document Category',
+    attachment: 'Attachment',
+    documentName: 'Document Name',
+    addExamMessage: 'Add a new exam',
+    pdfNotSupported:
+      'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
+    dob: 'DOB',
+    previous: 'Previous',
+    next: 'Next',
+    weekly: 'Weekly',
+    daily: 'Daily',
+    available: 'Available',
+    unAvailable: 'Not Available',
+    lensometry: 'Lensometry',
+    keratometry: 'Keratometry',
+    autoRefractor: 'Auto Refractor',
+    exportAction: 'Export',
+    billing: 'Billing',
+    multipleBuiltInTemplate:
+      'More than 1 template was found, please select which one to use !',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
+    patientAttachments: 'Patient Attachments',
+    appointmentFor: 'Appointment for',
+    successfullyCopied:
+      'was successfully copied! Please move it to an available cell.',
+    selfPaid: 'Self Paid',
+    bookingAppointmentError:
+      'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
+    insurer: 'Insurer',
+    numberOfSlots: 'Number of Slots',
+    book: 'Book',
+    AppointmentType: 'Appointment Type',
+    cancelAppointment: 'Cancel Appointment ',
+    cancelledBy: 'Cancelled By',
+    rescheduleAppointment: 'Reschedule Appointment',
+    reschedule: 'Reschedule',
   },
   fr: {
     enterRegisteredEmail:
@@ -240,11 +330,16 @@ export const strings = new LocalizedStrings({
       "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
     userName: "Nom d'utilisateur",
     password: 'Mot de passe',
+    enterCode: 'Entrez le code',
     submitLogin: 'Ouvrir la session',
+    verifyCode: 'Vérifier',
     touchNotConfigured:
       "Votre compte n'est pas configuré pour utiliser l'application mobile à cet instant. Veuillez contacter le service à la clientèle",
     registrationScreenTitle: 'Registration WINKemr',
     loginscreenTitle: 'Se connecter à WINKemr',
+    mfaCodeVerificationTitle: 'Vérification du code WINKemr',
+    mfaCodeScanTitle: 'Numérisation du code QR WINKemr',
+    mfaCodeScanned: "J'ai scanné le code",
     account: 'Compte',
     store: 'Magasin',
     securityQuestionsError:
@@ -254,7 +349,7 @@ export const strings = new LocalizedStrings({
     fetchAccountsError:
       "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
-    agenda: 'Agenda',
+    calendar: 'Calendrier',
     patient: 'Patient',
     back: 'Back',
     graph: 'Graphique',
@@ -269,6 +364,7 @@ export const strings = new LocalizedStrings({
     logout: 'Déconnexion',
     newPatient: 'Nouveau patient',
     newDoctor: 'Ajouter docteur',
+    newAppointment: 'Réservation rendez-vous',
     preExams: 'Prétests',
     exams: 'Examens',
     odSphere: 'OD Sphere',
@@ -302,7 +398,9 @@ export const strings = new LocalizedStrings({
     cancelled: 'Annulé',
     noShow: "Ne s'est pas présenté",
     waiting: 'En attente',
-    completed: 'Terminé',
+    waitingList: "Liste d'attente",
+    waitingListComment: "Commentaire Liste d'attente",
+    completed: 'Completé',
     start: 'Début',
     scheduledAt: 'Planifié pour',
     forDuration: 'pour',
@@ -323,7 +421,8 @@ export const strings = new LocalizedStrings({
     beforeYesterday: 'Avant hier',
     tomorrow: 'Demain',
     in2Days: 'Dans 2 jours',
-    endVisit: 'Conclure la consultation',
+    lockVisit: 'Vérouiller ',
+    complete: 'Compléter',
     years: 'ans',
     ageM: 'âgé de',
     ageF: 'âgée de',
@@ -347,6 +446,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Loin',
+    near: 'Près',
     maxLengthError: 'Trop de texte',
     minLengthError: 'Pas assez de texte',
     requiredError: 'Obligatoire',
@@ -397,6 +498,7 @@ export const strings = new LocalizedStrings({
     deleteVisitTitle: 'Supprimer une consultation',
     deleteVisitQuestion:
       'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
+    deletedVisitMessage: "Impossible d'ouvrir les visites supprimées !",
     findPatient: 'Entrer le nom du patient ou le #Z',
     findDoctor: 'Entrer le nom du docteur',
     visit: 'Consultation',
@@ -443,8 +545,86 @@ export const strings = new LocalizedStrings({
     from: 'De',
     to: 'Á',
     date: 'Date',
-    status: 'Statut',
     comment: 'Commentaire',
+    itemNotSelected: 'Aucun élément sélectionné',
+    importDataNotFound: 'Aucun élément trouvée !',
+    consultationDate: 'Date de la consultation',
+    close: 'Fermer',
+    open: 'Ouvrir',
+    select: 'Sélectionner ',
+    transferRxSuccess: 'Rx transféré avec succès !',
+    exportDataSuccess: 'Données transférées avec succès !',
+    NoCameraAccess: 'Webcam non trouvé !',
+    flip: 'Retourner',
+    snapshot: 'Snapshot',
+    somethingWentWrongTitle: "Oops! Quelque chose s'est mal passé.",
+    somethingWentWrongMessage:
+      "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
+    restartApp: "Cliquez ici pour redémarrer l'application !",
+    dragNDrop: 'Faites glisser et déposez votre fichier ici !',
+    takePicture: 'Prendre une Photo',
+    uploadFile: 'Téléverser un Fichier',
+    signedOn: 'Signé le',
+    location: 'Lieu',
+    noAccess: 'Vous n’avez pas accès à cette information',
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer:', //need to change accordingly,
+    printExportLabel: 'Veuillez sélectionner ce que vous souhaitez exporter:',
+    pd: 'PD',
+    binocularPd: 'PD Binoculaire',
+    notesOnRx: 'Notes sur Rx',
+    drRecommendation: 'Dr Recommandation',
+    all: 'Tout',
+    startBlank: 'Commencer avec un dossier vierge',
+    noRoom: 'Pas de salle',
+    room: 'Salle',
+    startFromVisit: "Commencer sur la base d'une consultation précédente",
+    lockedOn: 'Verrouillé le',
+    lastUpdateOn: 'Modifié le',
+    lastUpdateBy: 'Modifié par',
+    visitDeniedAccessError: "vous n'avez pas accès à ce dossier patient !",
+    deniedAccessTitle: 'Accès Refusé',
+    documentSize: 'Taille du document',
+    documentCategory: 'Catégorie du document',
+    attachment: 'Attachment',
+    documentName: 'Nom du document',
+    addExamMessage: 'Ajouter un nouvel examen',
+    pdfNotSupported:
+      'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
+    dob: 'Date de Naissance',
+    previous: 'Précédent',
+    next: 'Suivant',
+    weekly: 'Semaines',
+    daily: 'Journalier',
+    available: 'disponible',
+    unAvailable: 'indisponible',
+    lensometry: 'Lensométrie',
+    keratometry: 'Kératométrie',
+    autoRefractor: 'Auto Réfraction',
+    exportAction: 'Exporter',
+    billing: 'Facturation',
+    multipleBuiltInTemplate:
+      "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
+    patientAttachments: 'Pièces jointes pour patients',
+    apply: 'Appliquer',
+    chooseDoctor: 'Choisir Docteur',
+    appointmentFor: 'Le rendez vous de',
+    successfullyCopied:
+      'a été copié ! Veuillez le reporter à une autre plage horaire.',
+    selfPaid: 'Paiement personnel',
+    bookingAppointmentError:
+      "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
+    insurer: 'Assureur',
+    numberOfSlots: 'Nombre de créneaux',
+    book: 'Réserver',
+    AppointmentType: 'Type rendez-vous',
+    cancelAppointment: 'Annuler le rendez-vous ',
+    cancelledBy: 'Annulé par',
+    rescheduleAppointment: 'Re-planifier un rendez-vous',
+    reschedule: 'Re-planifier',
   },
 });
 
@@ -469,12 +649,16 @@ export function getUserLanguage(): string {
 
 export function getUserLanguageIcon(): string {
   let languageIndex: number = supportedLanguages.indexOf(getUserLanguage());
-  if (languageIndex < 0) languageIndex = 0;
+  if (languageIndex < 0) {
+    languageIndex = 0;
+  }
   return supportedLanguages[languageIndex + 1];
 }
 
 export function getUserLanguageShort(): string {
-  if (userLanguage === undefined) return undefined;
+  if (userLanguage === undefined) {
+    return undefined;
+  }
   return userLanguage.substring(0, 2);
 }
 
@@ -498,8 +682,9 @@ export function switchLanguage() {
 }
 
 AsyncStorage.getItem('userLanguage').then((userLanguage) => {
-  if (userLanguage === null || userLanguage === undefined)
+  if (userLanguage === null || userLanguage === undefined) {
     userLanguage = strings.getInterfaceLanguage();
+  }
   if (supportedLanguages.indexOf(userLanguage) < 0) {
     userLanguage = supportedLanguages[0];
   }

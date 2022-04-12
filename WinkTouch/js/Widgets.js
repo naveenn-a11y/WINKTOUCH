@@ -1,39 +1,35 @@
 /**
  * @flow
  */
+
 'use strict';
 
-import type {
-  FieldDefinition,
-  CodeDefinition,
-  PatientDocument,
-  ImageDrawing,
-  PatientInfo,
-} from './Types';
+import type {FieldDefinition, CodeDefinition} from './Types';
 import React, {Component, PureComponent} from 'react';
 import ReactNative, {
   View,
   Text,
   Image,
-  LayoutAnimation,
-  TouchableHighlight,
   ScrollView,
   Modal,
-  Dimensions,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  InteractionManager,
   TextInput,
   Keyboard,
   FlatList,
-  NativeModules,
+  ActivityIndicator,
 } from 'react-native';
+
 import {
   Button as NativeBaseButton,
-  Icon as NativeBaseIcon,
-  Fab as NativeBaseFab,
-  Container,
-} from 'native-base';
+  Button as NativeBaseIcon,
+  FAB,
+  Portal,
+  Snackbar,
+  Paragraph,
+  Dialog,
+  Divider,
+} from 'react-native-paper';
 import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
@@ -42,8 +38,7 @@ import {
   fontScale,
   selectionColor,
   selectionFontColor,
-  imageStyle,
-  imageWidth,
+  isWeb,
 } from './Styles';
 import {strings} from './Strings';
 import {formatCodeDefinition, formatAllCodes} from './Codes';
@@ -65,7 +60,6 @@ import {
   deAccent,
   formatDecimals,
   split,
-  combine,
   formatTime,
   formatHour,
   time24Format,
@@ -74,7 +68,6 @@ import {
   addDays,
   formatAge,
   isEmpty,
-  insertNewlines,
   postfix,
 } from './Util';
 import {Camera} from './Favorites';
@@ -106,17 +99,21 @@ export class Label extends PureComponent {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value === this.state.newLabel || isInTranslateMode()) return;
+    if (this.props.value === this.state.newLabel || isInTranslateMode()) {
+      return;
+    }
     this.setState({newLabel: this.props.value});
   }
 
   saveLabel = () => {
-    if (this.props.value === this.state.newLabel) return;
+    if (this.props.value === this.state.newLabel) {
+      return;
+    }
     updateLabel(this.props.fieldId, this.state.newLabel);
   };
 
   render() {
-    if (isInTranslateMode())
+    if (isInTranslateMode()) {
       return (
         <TextInput
           style={[this.props.style, styles.translateField]}
@@ -126,7 +123,10 @@ export class Label extends PureComponent {
           onBlur={this.saveLabel}
         />
       );
-    if (!this.props.value || this.props.value.length === 0) return null;
+    }
+    if (!this.props.value || this.props.value.length === 0) {
+      return null;
+    }
     const style = this.props.style
       ? this.props.style
       : this.props.width
@@ -279,8 +279,12 @@ export class FocusTile extends Component {
     type: 'next',
   };
   render() {
-    if (!this.props.transferFocus) return null;
-    if (!this.props.transferFocus[this.props.type + 'Field']) return null;
+    if (!this.props.transferFocus) {
+      return null;
+    }
+    if (!this.props.transferFocus[this.props.type + 'Field']) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={() =>
@@ -311,6 +315,7 @@ export class TextField extends Component {
     autoFocus?: boolean,
     onFocus?: () => void,
     testID: string,
+    onOpenModal?: () => void,
   };
   state: {
     value: string,
@@ -327,20 +332,26 @@ export class TextField extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.value === this.props.value) return;
+    if (prevProps.value === this.props.value) {
+      return;
+    }
     this.setState({value: this.props.value});
   }
 
   commitEdit(value: string) {
-    this.setState({value});
-    if (this.props.onChangeValue && value !== this.props.value)
+    if (this.props.onChangeValue && value !== this.props.value) {
       this.props.onChangeValue(value);
+    }
+  }
+
+  handleKeyEvent(keyCode: Number) {
+    //ArrowDown
+    if (keyCode === 40) {
+      this.props.onOpenModal();
+    }
   }
 
   updateText = (text: string) => {
-    if (this.props.multiline) {
-      text = insertNewlines(text);
-    }
     this.setState({value: text});
   };
 
@@ -350,6 +361,9 @@ export class TextField extends Component {
       : this.state.isActive
       ? styles.inputFieldActive
       : styles.inputField;
+    if (isWeb) {
+      style = [{width: 36 * fontScale}, style];
+    }
     if (this.props.width) {
       style = [{width: this.props.width}, style];
     }
@@ -358,21 +372,41 @@ export class TextField extends Component {
         {this.props.prefix != undefined && (
           <Text style={styles.formPrefix}>{this.props.prefix}</Text>
         )}
-        <TextInput
-          value={this.state.value}
-          autoCapitalize="sentences"
-          autoCorrect={false}
-          placeholder={''}
-          keyboardType={this.props.type}
-          style={style}
-          onFocus={this.props.onFocus}
-          onChangeText={this.updateText}
-          onEndEditing={event => this.commitEdit(event.nativeEvent.text)}
-          autoFocus={this.props.autoFocus}
-          editable={!this.props.readonly}
-          multiline={this.props.multiline}
-          testID={this.props.testID}
-        />
+        {isWeb ? (
+          <TextInput
+            value={this.state.value}
+            autoCapitalize="sentences"
+            autoCorrect={false}
+            placeholder={''}
+            keyboardType={this.props.type}
+            style={style}
+            onFocus={this.props.onFocus}
+            onChangeText={this.updateText}
+            onBlur={() => this.commitEdit(this.state.value)}
+            autoFocus={this.props.autoFocus}
+            editable={!this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+            onKeyPress={(event) => this.handleKeyEvent(event.keyCode)}
+          />
+        ) : (
+          <TextInput
+            value={this.state.value}
+            autoCapitalize="sentences"
+            autoCorrect={false}
+            placeholder={''}
+            keyboardType={this.props.type}
+            style={style}
+            onFocus={this.props.onFocus}
+            onChangeText={this.updateText}
+            onEndEditing={() => this.commitEdit(this.state.value)}
+            autoFocus={this.props.autoFocus}
+            editable={!this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+          />
+        )}
+
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
         )}
@@ -401,26 +435,36 @@ export class TextArrayField extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (prevProps.value === this.props.value) return;
+    if (prevProps.value === this.props.value) {
+      return;
+    }
     this.setState({value: this.props.value ? this.props.value : []});
   }
 
   commitEdit(value: ?(string[])) {
     this.setState({value});
-    if (this.props.onChangeValue) this.props.onChangeValue(value);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(value);
+    }
   }
 
   changeText(text: string, index: number): void {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     let value: ?(string[]) = this.state.value;
-    if (!value || index >= value.length || index < 0) return;
+    if (!value || index >= value.length || index < 0) {
+      return;
+    }
     value[index] = text;
     this.commitEdit(value);
   }
 
   addItem = () => {
     let items = this.state.value;
-    if (items === undefined || items === null) items = [];
+    if (items === undefined || items === null) {
+      items = [];
+    }
     items.push('');
     this.commitEdit(items);
   };
@@ -428,7 +472,9 @@ export class TextArrayField extends Component {
   removeItem = () => {
     Keyboard.dismiss();
     let items = this.state.value;
-    if (items === undefined || items === null) return;
+    if (items === undefined || items === null) {
+      return;
+    }
     items.pop();
     this.commitEdit(items);
   };
@@ -479,7 +525,9 @@ export class ButtonArray extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.value === prevProps.value) return;
+    if (this.props.value === prevProps.value) {
+      return;
+    }
     this.setState({value: this.props.value});
   }
 
@@ -566,8 +614,9 @@ export class NumberField extends Component {
     if (
       this.props.value === prevProps.value &&
       this.props.isTyping === prevProps.isTyping
-    )
+    ) {
       return;
+    }
     this.setState({
       editedValue: this.props.isTyping
         ? this.props.value
@@ -586,7 +635,9 @@ export class NumberField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     const fractions = this.generateFractions(this.props);
     //KeyEvent.onKeyUpListener((keyEvent) => {
     //  console.log(`onKeyUp keyCode: ${keyEvent.keyCode}`);
@@ -603,8 +654,18 @@ export class NumberField extends Component {
     });
   };
 
+  openModal = () => {
+    if (!this.state.isTyping) {
+      return;
+    }
+
+    this.setState({isTyping: false});
+    this.startEditing();
+  };
   startTyping = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     //KeyEvent.removeKeyUpListener();
     this.setState({isActive: false, isTyping: true});
   };
@@ -641,7 +702,9 @@ export class NumberField extends Component {
     if (this.state.fractions === undefined) {
       //keypad
       const value = Number.parseFloat(this.state.editedValue);
-      if (isFinite(value)) return value;
+      if (isFinite(value)) {
+        return value;
+      }
       return this.state.editedValue;
     }
     if (
@@ -650,9 +713,10 @@ export class NumberField extends Component {
       this.state.editedValue[2] === undefined &&
       this.state.editedValue[3] === undefined &&
       this.state.editedValue[4] === undefined
-    )
+    ) {
       return undefined;
-    let combinedValue: ?number = undefined;
+    }
+    let combinedValue: ?number;
     if (
       this.state.editedValue[0] !== undefined ||
       this.state.editedValue[1] !== undefined ||
@@ -660,32 +724,40 @@ export class NumberField extends Component {
       this.state.editedValue[3] !== undefined
     ) {
       combinedValue = 0;
-      let suffix: ?string = undefined;
-      if (this.state.editedValue[1] !== undefined)
+      let suffix: ?string;
+      if (this.state.editedValue[1] !== undefined) {
         combinedValue += Number(this.state.editedValue[1]);
-      if (this.state.editedValue[2] !== undefined)
+      }
+      if (this.state.editedValue[2] !== undefined) {
         combinedValue += Number(this.state.editedValue[2]);
-      if (this.state.editedValue[3] !== undefined)
+      }
+      if (this.state.editedValue[3] !== undefined) {
         combinedValue += Number(this.state.editedValue[3]);
+      }
       if (
         this.state.editedValue[0] === '-' ||
         (combinedValue !== 0 && this.props.range[1] <= 0)
-      )
+      ) {
         combinedValue = -combinedValue;
-      if (combinedValue < this.props.range[0])
+      }
+      if (combinedValue < this.props.range[0]) {
         combinedValue = this.props.range[0];
-      else if (combinedValue > this.props.range[1])
+      } else if (combinedValue > this.props.range[1]) {
         combinedValue = this.props.range[1];
+      }
     }
-    let suffix: ?string = undefined;
+    let suffix: ?string;
     if (this.state.editedValue[4] !== undefined) {
       if (this.props.options) {
         const option: string = this.state.editedValue[4];
         if (this.props.options instanceof Array) {
-          if (this.props.options.includes(option)) return option;
-        } else {
-          if (formatAllCodes(this.props.options).includes(option))
+          if (this.props.options.includes(option)) {
             return option;
+          }
+        } else {
+          if (formatAllCodes(this.props.options).includes(option)) {
+            return option;
+          }
         }
       }
       if (
@@ -698,8 +770,9 @@ export class NumberField extends Component {
           suffix === '\u2715' ||
           suffix === '\u2328' ||
           suffix === '\u27f3'
-        )
+        ) {
           suffix = undefined;
+        }
       }
     }
     if (suffix) {
@@ -726,8 +799,10 @@ export class NumberField extends Component {
   }
 
   splitValue(value: number | string, fractions: string[]): (?string)[] {
-    if (value === undefined || value === null)
+    const originalValue: number | string = value;
+    if (value === undefined || value === null) {
       return [undefined, undefined, undefined, undefined, undefined];
+    }
     //TODO check if value is an option
     //remove prefix
     if (this.props.prefix && this.props.prefix != '+') {
@@ -736,7 +811,7 @@ export class NumberField extends Component {
       }
     }
     //parse suffix
-    let suffix: ?string = undefined;
+    let suffix: ?string;
     if (
       this.props.suffix !== undefined &&
       value.toLowerCase &&
@@ -750,14 +825,18 @@ export class NumberField extends Component {
             return [undefined, undefined, undefined, undefined, suffix];
           }
           value = parseFloat(value);
+          if (isNaN(value)) {
+            return [undefined, undefined, undefined, undefined, originalValue];
+          }
           break;
         }
       }
     }
     if (value.toLowerCase) {
       value = parseFloat(value);
-      if (isNaN(value))
+      if (isNaN(value)) {
         return [undefined, undefined, undefined, undefined, undefined];
+      }
     }
     let sign: ?string =
       value < 0
@@ -850,8 +929,9 @@ export class NumberField extends Component {
 
       //((this.state.fractions[4].length>(this.props.freestyle===true?3:2)?3:2) + (this.props.decimals > 0 ? (this.state.fractions[4].length> 2? 0 : 1) : 0)) <= column;
 
-      if (column >= 1 && newColumnValue === this.state.editedValue[column])
+      if (column >= 1 && newColumnValue === this.state.editedValue[column]) {
         newColumnValue = undefined;
+      }
       editedValue[column] = newColumnValue;
       if (!isSubmitColumn) {
         //Clear following columns
@@ -860,22 +940,29 @@ export class NumberField extends Component {
         }
       }
       this.setState({editedValue, isDirty: true}, () => {
-        if (isSubmitColumn) this.commitEdit();
+        if (isSubmitColumn) {
+          this.commitEdit();
+        }
       });
     }
   }
 
   format(value: ?number | string): string {
-    if (value === undefined || value === null) return '';
-    if (value.toString().trim() === '') return '';
+    if (value === undefined || value === null) {
+      return '';
+    }
+    if (value.toString().trim() === '') {
+      return '';
+    }
 
     if (value instanceof Array) {
       let formattedValue: string = '';
       value.forEach((subValue: number | string) => {
         formattedValue += subValue + ' / ';
       });
-      if (!isEmpty(formattedValue))
+      if (!isEmpty(formattedValue)) {
         value = formattedValue.replace(/\/\s*$/, '');
+      }
     }
     if (
       this.props.options instanceof Array &&
@@ -905,7 +992,9 @@ export class NumberField extends Component {
       this.props.decimals != undefined && this.props.decimals > 0
         ? Number(value).toFixed(this.props.decimals)
         : String(value);
-    if (formattedValue == '') return '';
+    if (formattedValue == '') {
+      return '';
+    }
     if (this.props.prefix) {
       if (this.props.prefix.endsWith('+')) {
         if (formattedValue.length > 0 && formattedValue[0] != '-') {
@@ -921,10 +1010,11 @@ export class NumberField extends Component {
     }
     if (
       this.props.suffix != undefined &&
-      (this.props.suffix instanceof Array === false &&
-        this.props.suffix.includes('Code') === false)
-    )
+      this.props.suffix instanceof Array === false &&
+      this.props.suffix.includes('Code') === false
+    ) {
       formattedValue = formattedValue + this.props.suffix;
+    }
     return formattedValue;
   }
 
@@ -937,11 +1027,16 @@ export class NumberField extends Component {
       return undefined;
     }
     let fractions: string[][] = [[], [], [], [], []];
-    if (!props.range) return fractions;
+    if (!props.range) {
+      return fractions;
+    }
     //sign + -
     if (props.range[0] < 0) {
-      if (props.range[1] <= 0) fractions[0].push('-');
-      else fractions[0].push('+', '-');
+      if (props.range[1] <= 0) {
+        fractions[0].push('-');
+      } else {
+        fractions[0].push('+', '-');
+      }
     }
     //integer group
     if (
@@ -960,7 +1055,9 @@ export class NumberField extends Component {
         minGroup = 0;
       }
       minGroup = minGroup - (minGroup % props.groupSize);
-      if (minGroup < props.groupSize) minGroup = props.groupSize;
+      if (minGroup < props.groupSize) {
+        minGroup = props.groupSize;
+      }
 
       for (let i = minGroup; i <= maxGroup; i += props.groupSize) {
         fractions[1].push(String(i));
@@ -1010,9 +1107,8 @@ export class NumberField extends Component {
       let c = 0;
       for (let i = minInt; i <= maxInt; c++) {
         fractions[2].push(String(i));
-        let stepSize = this.props.stepSize[
-          Math.min(this.props.stepSize.length - 1, c)
-        ];
+        let stepSize =
+          this.props.stepSize[Math.min(this.props.stepSize.length - 1, c)];
         i = i + Math.max(1, stepSize);
       }
     } else {
@@ -1106,65 +1202,77 @@ export class NumberField extends Component {
         accessible={false}
         testID={'popupBackground'}>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {formattedValue}
-          </Text>
-          <View style={styles.flexColumnLayout}>
-            <View style={styles.centeredRowLayout}>
-              {fractions.map((options: string[], column: number) => {
-                return (
-                  <View style={columnStyle} key={column}>
-                    {options.map((option: string, row: number) => {
-                      let isSelected: boolean =
-                        isKeypad === false &&
-                        this.state.editedValue[column] === option;
-                      if (option === '\u2328')
+          <ScrollView scrollEnabled={true}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {formattedValue}
+            </Text>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={columnStyle} key={column}>
+                      {options.map((option: string, row: number) => {
+                        let isSelected: boolean =
+                          isKeypad === false &&
+                          this.state.editedValue[column] === option;
+                        if (option === '\u2328') {
+                          return (
+                            <KeyboardTile
+                              commitEdit={this.startTyping}
+                              key={row}
+                            />
+                          );
+                        }
+                        if (option === '\u2714') {
+                          return (
+                            <UpdateTile
+                              commitEdit={this.commitEdit}
+                              key={row}
+                            />
+                          );
+                        }
+                        if (option === '\u2715') {
+                          return (
+                            <ClearTile commitEdit={this.clearValue} key={row} />
+                          );
+                        }
+                        if (option === '\u27f3') {
+                          return (
+                            <RefreshTile
+                              commitEdit={this.cancelEdit}
+                              key={row}
+                            />
+                          );
+                        }
                         return (
-                          <KeyboardTile
-                            commitEdit={this.startTyping}
+                          <TouchableOpacity
                             key={row}
-                          />
-                        );
-                      if (option === '\u2714')
-                        return (
-                          <UpdateTile commitEdit={this.commitEdit} key={row} />
-                        );
-                      if (option === '\u2715')
-                        return (
-                          <ClearTile commitEdit={this.clearValue} key={row} />
-                        );
-                      if (option === '\u27f3')
-                        return (
-                          <RefreshTile commitEdit={this.cancelEdit} key={row} />
-                        );
-                      return (
-                        <TouchableOpacity
-                          key={row}
-                          onPress={() => this.updateValue(column, option)}
-                          testID={'option' + (column + 1) + '-' + (row + 1)}>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
-                            }>
-                            <Text
+                            onPress={() => this.updateValue(column, option)}
+                            testID={'option' + (column + 1) + '-' + (row + 1)}>
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {option}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                );
-              })}
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {option}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </TouchableWithoutFeedback>
     );
@@ -1188,9 +1296,7 @@ export class NumberField extends Component {
       );
     }
     if (this.state.isTyping) {
-      const formattedValue: string = this.props.value
-        ? this.props.value.toString()
-        : '';
+      // const formattedValue: string = this.props.value? this.props.value.toString() : '';
       return (
         <TextField
           value={formattedValue}
@@ -1198,7 +1304,8 @@ export class NumberField extends Component {
           autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
-          onChangeValue={newValue => this.commitTyping(newValue)}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
+          onOpenModal={this.openModal}
         />
       );
     }
@@ -1247,6 +1354,7 @@ export class TilesField extends Component {
       onTransferFocus: (field: string) => void,
     },
     testID?: string,
+    isTyping?: boolean,
   };
   state: {
     isActive: boolean,
@@ -1258,13 +1366,22 @@ export class TilesField extends Component {
     super(props);
     this.state = {
       isActive: false,
-      isTyping: false,
+      isTyping: props.isTyping,
       editedValue: undefined,
     };
   }
-
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) {
+      return;
+    }
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
   startTyping = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({isActive: false, isTyping: true});
   };
 
@@ -1273,7 +1390,9 @@ export class TilesField extends Component {
   };
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       isActive: true,
       editedValue: this.props.combineOptions
@@ -1293,8 +1412,9 @@ export class TilesField extends Component {
       if (
         this.state.editedValue === undefined ||
         this.state.editedValue.length <= columnIndex
-      )
+      ) {
         return undefined;
+      }
       return this.state.editedValue[columnIndex];
     }
     return this.state.editedValue;
@@ -1302,12 +1422,17 @@ export class TilesField extends Component {
 
   updateValue(newValue?: string, columnIndex: number): void {
     let editedColumnValue: ?string = this.getEditedColumnValue(columnIndex);
-    if (newValue === editedColumnValue) newValue = undefined;
+    if (newValue === editedColumnValue) {
+      newValue = undefined;
+    }
     if (this.isMultiColumn()) {
       let editedValue: (?string)[] = this.state.editedValue;
-      if (editedValue instanceof Array === false)
-        editedValue = this.props.options.map(option => undefined);
-      while (editedValue.length <= columnIndex) editedValue.push(undefined);
+      if (editedValue instanceof Array === false) {
+        editedValue = this.props.options.map((option) => undefined);
+      }
+      while (editedValue.length <= columnIndex) {
+        editedValue.push(undefined);
+      }
       editedValue[columnIndex] = newValue;
       if (this.updateConfirm()) {
         this.setState({editedValue});
@@ -1329,7 +1454,9 @@ export class TilesField extends Component {
       this.state.editedValue instanceof Array
         ? this.format(this.state.editedValue)
         : this.state.editedValue;
-    if (this.props.onChangeValue) this.props.onChangeValue(combinedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(combinedValue);
+    }
     this.setState({isActive: false, isTyping: false});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
@@ -1341,15 +1468,17 @@ export class TilesField extends Component {
   };
 
   clear = () => {
-    let clearedValue = undefined;
+    let clearedValue;
     if (this.state.editedValue instanceof Array) {
-      clearedValue = this.state.editedValue.map(columnValue => undefined);
+      clearedValue = this.state.editedValue.map((columnValue) => undefined);
     }
     this.setState({editedValue: clearedValue}, () => this.commitEdit());
   };
 
   format(value: ?string | ?(string[])): string {
-    if (value === undefined || value === null || value === '') return '';
+    if (value === undefined || value === null || value === '') {
+      return '';
+    }
     let formattedValue: string = '';
     if (value instanceof Array) {
       value.forEach((columnValue: ?string, columnIndex: number) => {
@@ -1362,8 +1491,9 @@ export class TilesField extends Component {
           ) {
             formattedValue += this.props.prefix[columnIndex];
           }
-          if (columnValue !== undefined && columnValue !== null)
+          if (columnValue !== undefined && columnValue !== null) {
             formattedValue += columnValue;
+          }
           if (
             this.props.suffix !== undefined &&
             this.props.suffix !== null &&
@@ -1378,8 +1508,9 @@ export class TilesField extends Component {
       if (this.props.prefix != undefined && !this.isMultiColumn()) {
         formattedValue += this.props.prefix;
       }
-      if (value !== undefined && value !== null)
+      if (value !== undefined && value !== null) {
         formattedValue += value.toString();
+      }
       if (this.props.suffix != undefined && !this.isMultiColumn()) {
         formattedValue += this.props.suffix;
       }
@@ -1496,7 +1627,7 @@ export class TilesField extends Component {
           autoFocus={true}
           style={style}
           multiline={this.props.multiline}
-          onChangeValue={newValue => this.commitTyping(newValue)}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
           testID={
             this.props.testID ? this.props.testID + 'ActiveField' : undefined
           }
@@ -1545,6 +1676,11 @@ export class ListField extends Component {
     freestyle?: boolean,
     style?: any,
     containerStyle?: any,
+    popupStyle?: any,
+    simpleSelect?: boolean,
+    renderOptionsOnly?: boolean,
+    multiValue?: boolean,
+    isValueRequired?: boolean,
     onChangeValue?: (newvalue: ?string) => void,
   };
   state: {
@@ -1561,19 +1697,27 @@ export class ListField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({isActive: true, editedValue: this.props.value});
   };
 
   updateValue = (newValue?: string): void => {
     let editedValue: ?string = this.state.editedValue;
-    if (newValue == editedValue) newValue = undefined;
+    if (!this.props.isValueRequired && newValue == editedValue) {
+      newValue = undefined;
+    }
+    if (this.props.isValueRequired && !newValue) {
+      newValue = editedValue;
+    }
     this.setState({editedValue: newValue}, this.commitEdit);
   };
 
   commitEdit = () => {
-    if (this.props.onChangeValue)
+    if (this.props.onChangeValue) {
       this.props.onChangeValue(this.state.editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -1582,7 +1726,9 @@ export class ListField extends Component {
   };
 
   format(value?: string): string {
-    if (value === undefined) return '';
+    if (value === undefined) {
+      return '';
+    }
     return value;
   }
 
@@ -1593,12 +1739,14 @@ export class ListField extends Component {
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
           </Text>
-          <View style={styles.flexColumnLayout}>
+          <View style={[styles.flexColumnLayout, this.props.popupStyle]}>
             <View style={styles.modalColumn}>
               <SelectionList
                 items={this.props.options}
                 selection={this.state.editedValue}
-                multiValue={false}
+                simpleSelect={this.props.simpleSelect}
+                multiValue={this.props.multiValue}
+                renderOptionsOnly={this.props.renderOptionsOnly}
                 required={false}
                 freestyle={this.props.freestyle}
                 onUpdateSelection={this.updateValue}
@@ -1656,7 +1804,9 @@ export class Clock extends Component {
     hidden?: boolean,
   };
   render() {
-    if (this.props.hidden) return null;
+    if (this.props.hidden) {
+      return null;
+    }
     return (
       <Image
         source={require('./image/clock.png')}
@@ -1678,12 +1828,14 @@ export class TimeField extends Component {
     readonly?: boolean,
     past?: boolean,
     future?: boolean,
+    isTyping?: boolean,
   };
   state: {
     isActive: boolean,
     isDirty: boolean,
     fractions: string[][],
     editedValue: (?string)[],
+    isTyping: boolean,
   };
   static defaultProps = {
     readonly: false,
@@ -1698,11 +1850,34 @@ export class TimeField extends Component {
       isActive: false,
       fractions: this.generateFractions(),
       isDirty: false,
+      isTyping: props.isTyping,
     };
   }
 
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) {
+      return;
+    }
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
+
+  commitTyping = (newValue: string) => {
+    this.setState({editedValue: newValue}, this.commitEdit);
+  };
+
+  startTyping = () => {
+    if (this.props.readonly) {
+      return;
+    }
+    this.setState({isActive: false, isTyping: true});
+  };
+
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       editedValue: this.splitValue(),
       isActive: true,
@@ -1712,8 +1887,10 @@ export class TimeField extends Component {
 
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
-    this.setState({isActive: false});
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
+    this.setState({isActive: false, isTyping: false});
   };
 
   commitNow = (offset?: ?string) => {
@@ -1728,16 +1905,20 @@ export class TimeField extends Component {
       time.setMinutes(time.getMinutes() + minutes);
     }
     const editedValue: string = formatDate(time, time24Format);
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
   cancelEdit = () => {
-    this.setState({isActive: false});
+    this.setState({isActive: false, isTyping: false});
   };
 
   clear = () => {
-    if (this.props.onChangeValue) this.props.onChangeValue(undefined);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
     this.setState({isActive: false});
   };
 
@@ -1769,7 +1950,9 @@ export class TimeField extends Component {
   }
 
   splitValue(): (?string)[] {
-    if (!this.props.value || this.props.value.length < 5) return [];
+    if (!this.props.value || this.props.value.length < 5) {
+      return [];
+    }
     const time24: string = this.props.value;
     const hour: string = time24.substring(0, 2) + ':00';
     let hour1, hour2, minute1, minute2: ?string;
@@ -1796,7 +1979,9 @@ export class TimeField extends Component {
       this.state.editedValue[0] === undefined
         ? this.state.editedValue[1]
         : this.state.editedValue[0];
-    if (hour === undefined) return undefined;
+    if (hour === undefined) {
+      return undefined;
+    }
     hour = hour.substring(0, 2);
     const minute: ?string =
       this.state.editedValue[2] === undefined
@@ -1807,13 +1992,22 @@ export class TimeField extends Component {
 
   updateValue(column: number, newColumnValue: ?string): void {
     let editedValue: (?string)[] = this.state.editedValue;
-    if (newColumnValue === this.state.editedValue[column])
+    if (newColumnValue === this.state.editedValue[column]) {
       newColumnValue = undefined;
+    }
     editedValue[column] = newColumnValue;
-    if (column === 0) editedValue[1] = undefined;
-    if (column === 1) editedValue[0] = undefined;
-    if (column === 2) editedValue[3] = undefined;
-    if (column === 3) editedValue[2] = undefined;
+    if (column === 0) {
+      editedValue[1] = undefined;
+    }
+    if (column === 1) {
+      editedValue[0] = undefined;
+    }
+    if (column === 2) {
+      editedValue[3] = undefined;
+    }
+    if (column === 3) {
+      editedValue[2] = undefined;
+    }
     if (column === 4) {
       this.commitNow(newColumnValue);
     } else {
@@ -1878,6 +2072,7 @@ export class TimeField extends Component {
                 <UpdateTile commitEdit={this.commitEdit} />
                 <ClearTile commitEdit={this.clear} />
                 <RefreshTile commitEdit={this.cancelEdit} />
+                <KeyboardTile commitEdit={this.startTyping} />
               </View>
             </View>
           </ScrollView>
@@ -1898,6 +2093,18 @@ export class TimeField extends Component {
             {this.props.suffix}
           </Text>
         </View>
+      );
+    }
+    if (this.state.isTyping) {
+      return (
+        <TextField
+          prefix={this.props.prefix}
+          value={formattedValue}
+          suffix={this.props.suffix}
+          autoFocus={true}
+          style={style}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
+        />
       );
     }
     return (
@@ -1970,7 +2177,9 @@ export class DateField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       editedValue: this.splitValue(),
       isActive: true,
@@ -1980,7 +2189,9 @@ export class DateField extends Component {
 
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -1989,13 +2200,17 @@ export class DateField extends Component {
   };
 
   clear = () => {
-    if (this.props.onChangeValue) this.props.onChangeValue(undefined);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
     this.setState({isActive: false});
   };
 
   commitToday = () => {
     const editedValue: ?Date = new Date();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
@@ -2080,6 +2295,7 @@ export class DateField extends Component {
             '1990',
             '2000',
             '2010',
+            '2020',
           ]
       : ['2010', '2020'];
     const dateOptions: string[][] = [
@@ -2108,7 +2324,9 @@ export class DateField extends Component {
   }
 
   splitValue(): string[] {
-    if (!this.props.value) return [];
+    if (!this.props.value) {
+      return [];
+    }
     const date: Date = this.props.value;
     if (this.props.includeTime) {
       let year: string = formatDate(date, 'YYYY');
@@ -2162,8 +2380,9 @@ export class DateField extends Component {
         this.state.editedValue[3] === undefined ||
         this.state.editedValue[4] === undefined ||
         this.state.editedValue[5] === undefined
-      )
+      ) {
         return undefined;
+      }
       let combinedValue: Date = new Date();
       let year: number = parseInt(this.state.editedValue[0]);
       combinedValue.setFullYear(year);
@@ -2203,7 +2422,9 @@ export class DateField extends Component {
       const index: number = dayStrings.indexOf(this.state.editedValue[0]);
       if (index >= 0) {
         let value = today();
-        if (index == 2) return value;
+        if (index == 2) {
+          return value;
+        }
         return addDays(value, index - 2);
       }
       return undefined;
@@ -2214,13 +2435,15 @@ export class DateField extends Component {
         this.state.editedValue[3] === undefined) ||
       (this.state.editedValue[4] === undefined &&
         this.state.editedValue[5] === undefined)
-    )
+    ) {
       return undefined;
+    }
     let combinedValue: Date = new Date();
     if (this.state.editedValue[0] !== undefined) {
       let year: number = parseInt(this.state.editedValue[0]);
-      if (this.state.editedValue[1] !== undefined)
+      if (this.state.editedValue[1] !== undefined) {
         year += parseInt(this.state.editedValue[1]);
+      }
       combinedValue.setFullYear(year);
     }
     if (
@@ -2245,27 +2468,36 @@ export class DateField extends Component {
 
   updateValue(column: number, newColumnValue: string): void {
     let editedValue: string[] = this.state.editedValue;
-    if (newColumnValue === this.state.editedValue[column])
+    if (newColumnValue === this.state.editedValue[column]) {
       newColumnValue = undefined;
+    }
     editedValue[column] = newColumnValue;
     if (this.props.includeTime) {
-      if (column === 1) editedValue[2] = undefined;
-      else if (column === 2) editedValue[1] = undefined;
+      if (column === 1) {
+        editedValue[2] = undefined;
+      } else if (column === 2) {
+        editedValue[1] = undefined;
+      }
     } else if (this.props.recent) {
     } else {
-      if (column === 2) editedValue[3] = undefined;
-      else if (column === 3) editedValue[2] = undefined;
+      if (column === 2) {
+        editedValue[3] = undefined;
+      } else if (column === 3) {
+        editedValue[2] = undefined;
+      }
     }
     this.setState({editedValue, isDirty: true});
   }
   getFormat(value: ?Date): string {
     if (this.props.dateFormat) {
-      if ('yyyy-MM-dd' === this.props.dateFormat) {
+      if (this.props.dateFormat === 'yyyy-MM-dd') {
         return officialDateFormat;
       }
       return this.props.dateFormat;
     }
-    if (!value) return yearDateFormat;
+    if (!value) {
+      return yearDateFormat;
+    }
 
     let sameYear: boolean = isToyear(value);
     if (sameYear) {
@@ -2292,9 +2524,13 @@ export class DateField extends Component {
       }
       return formatDate(value, this.getFormat(value));
     }
-    if (value === undefined) return '';
+    if (value === undefined) {
+      return '';
+    }
     let stringValue: string = new String(value).toString();
-    if (stringValue === undefined) return '';
+    if (stringValue === undefined) {
+      return '';
+    }
     return stringValue;
   }
 
@@ -2433,16 +2669,7 @@ export class DurationField extends Component {
     editedValue: string[],
   };
   static popularDurationMinutes: number[] = [
-    5,
-    10,
-    15,
-    30,
-    45,
-    60,
-    90,
-    120,
-    180,
-    240,
+    5, 10, 15, 30, 45, 60, 90, 120, 180, 240,
   ];
 
   constructor(props: any) {
@@ -2456,7 +2683,9 @@ export class DurationField extends Component {
   }
 
   startEditing = () => {
-    if (this.props.readonly) return;
+    if (this.props.readonly) {
+      return;
+    }
     this.setState({
       editedValue: this.splitValue(),
       isActive: true,
@@ -2466,12 +2695,16 @@ export class DurationField extends Component {
 
   commitEdit = () => {
     const editedValue: ?Date = this.combinedValue();
-    if (this.props.onChangeValue) this.props.onChangeValue(editedValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
     this.setState({isActive: false});
   };
 
   clear = () => {
-    if (this.props.onChangeValue) this.props.onChangeValue(undefined);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
     this.setState({isActive: false});
   };
 
@@ -2489,7 +2722,9 @@ export class DurationField extends Component {
   }
 
   splitValue(): string[] {
-    if (!this.props.value || !this.props.startDate) return [];
+    if (!this.props.value || !this.props.startDate) {
+      return [];
+    }
     const date: Date = this.props.value;
     const popularValue: string = capitalize(this.format(date));
     return [[popularValue]];
@@ -2497,11 +2732,14 @@ export class DurationField extends Component {
 
   combinedValue(): ?Date {
     const totalFormattedValue: string = this.state.editedValue[0];
-    if (totalFormattedValue === undefined) return undefined;
-    const selectedIndex: number = this.state.fractions[0].indexOf(
-      totalFormattedValue,
-    );
-    if (selectedIndex < 0) return undefined;
+    if (totalFormattedValue === undefined) {
+      return undefined;
+    }
+    const selectedIndex: number =
+      this.state.fractions[0].indexOf(totalFormattedValue);
+    if (selectedIndex < 0) {
+      return undefined;
+    }
     const minuteDuration = DurationField.popularDurationMinutes[selectedIndex];
     let end = new Date(this.props.startDate.getTime() + minuteDuration * 60000);
     return end;
@@ -2509,8 +2747,9 @@ export class DurationField extends Component {
 
   updateValue(column: number, newColumnValue: string): void {
     let editedValue: string[] = this.state.editedValue;
-    if (newColumnValue === this.state.editedValue[column])
+    if (newColumnValue === this.state.editedValue[column]) {
       newColumnValue = undefined;
+    }
     editedValue[column] = newColumnValue;
     this.setState({editedValue, isDirty: true});
   }
@@ -2519,9 +2758,13 @@ export class DurationField extends Component {
     if (value instanceof Date) {
       return formatDuration(this.props.startDate, value);
     }
-    if (value === undefined) return '';
+    if (value === undefined) {
+      return '';
+    }
     let stringValue: string = new String(value).toString();
-    if (stringValue === undefined) return '';
+    if (stringValue === undefined) {
+      return '';
+    }
     return stringValue;
   }
 
@@ -2632,31 +2875,39 @@ export class Button extends Component {
     title: string,
     visible?: boolean,
     disabled?: boolean,
+    loading?: boolean,
     onPress?: () => void,
     testID?: string,
   };
   static defaultProps = {
     visible: true,
+    loading: false,
   };
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
-        disabled={this.props.disabled}
+        disabled={this.props.disabled || this.props.loading}
         testID={
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
           style={this.props.disabled ? styles.buttonDisabled : styles.button}>
-          <Text
-            style={
-              this.props.disabled
-                ? styles.buttonDisabledText
-                : styles.buttonText
-            }>
-            {this.props.title}
-          </Text>
+          {this.props.loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text
+              style={
+                this.props.disabled
+                  ? styles.buttonDisabledText
+                  : styles.buttonText
+              }>
+              {this.props.title}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -2679,7 +2930,9 @@ export class CheckButton extends Component {
     visible: true,
   };
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TouchableOpacity
         activeOpacity={1}
@@ -2737,14 +2990,16 @@ export class BackButton extends Component {
   };
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <TouchableOpacity
         onPress={this.navigateBack}
         enable={this.props.disabled != true}
         testID="backButton">
-        <View style={styles.backButton}>
-          <Icon name="arrow-left" style={styles.backIcon} />
+        <View style={styles.menuButton}>
+          <Icon name="arrow-left" style={styles.menuIcon} />
         </View>
       </TouchableOpacity>
     );
@@ -2761,13 +3016,15 @@ export class AddButton extends Component {
   };
 
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <NativeBaseButton
         block
         style={styles.addButton}
         onPress={this.props.onPress}>
-        <NativeBaseIcon name="md-add" />
+        <NativeBaseIcon icon="plus" />
       </NativeBaseButton>
     );
   }
@@ -2809,36 +3066,43 @@ export class FloatingButton extends Component {
     //if (!wasActive) setTimeout(() => {this.setState({active: false, options: []})}, 5000);
   };
 
-  render() {
-    if (!this.state.options) return null;
+  renderAlert() {
+    const options: any = this.state.options;
+    if (!options) {
+      return null;
+    }
     return (
-      <NativeBaseFab
-        active={this.state.active}
-        onPress={this.toggleActive}
-        direction="up"
+      <SelectionDialog
+        visible={this.state.active}
+        label={strings.addExamMessage}
+        options={options}
+        onSelect={(selectedData: any) => {
+          this.toggleActive();
+          this.props.onPress(selectedData);
+        }}
+        onCancel={() => this.toggleActive()}
+      />
+    );
+  }
+
+  render() {
+    if (!this.state.options) {
+      return null;
+    }
+    if (this.state.active) {
+      return this.renderAlert();
+    }
+    return (
+      <FAB
+        open={this.state.active}
+        onStateChange={this.toggleActive}
         position="bottomRight"
         style={styles.floatingButton}
-        containerStyle={styles.floatingContainer}>
-        {this.state.active === true ? (
-          <NativeBaseIcon name="md-remove" />
-        ) : (
-          <NativeBaseIcon name="md-add" />
-        )}
-        {this.state.active === true &&
-          this.state.options.map((option: string, index: number) => {
-            return (
-              <NativeBaseButton
-                style={styles.floatingSubButton}
-                onPress={() => {
-                  this.toggleActive();
-                  this.props.onPress(option);
-                }}
-                key={index}>
-                <Text style={styles.fabButtonText}>{option}</Text>
-              </NativeBaseButton>
-            );
-          })}
-      </NativeBaseFab>
+        icon={this.state.active ? 'minus' : 'plus'}
+        onPress={() => {
+          this.toggleActive();
+        }}
+      />
     );
   }
 }
@@ -2849,13 +3113,29 @@ export class Lock extends PureComponent {
     style: any,
   };
   render() {
-    if (this.props.locked === true)
+    if (this.props.locked === true) {
       return (
         <Icon name="lock" style={this.props.style} color={selectionFontColor} />
       );
+    }
     return (
       <Icon
         name="lock-open-outline"
+        style={this.props.style}
+        color={selectionFontColor}
+      />
+    );
+  }
+}
+
+export class Pencil extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <Icon
+        name="pencil-off-outline"
         style={this.props.style}
         color={selectionFontColor}
       />
@@ -2879,14 +3159,23 @@ export class SelectionListRow extends PureComponent {
 
   toggleSelect() {
     if (this.props.simpleSelect === true) {
-      if (this.props.selected === true) this.props.onSelect(false);
-      else this.props.onSelect(true);
+      if (this.props.selected === true) {
+        this.props.onSelect(false);
+      } else {
+        this.props.onSelect(true);
+      }
     } else {
-      if (this.props.selected === true) this.props.onSelect('-');
-      else if (this.props.selected === '-') this.props.onSelect('?');
-      else if (this.props.selected === '?') this.props.onSelect('+');
-      else if (this.props.selected === '+') this.props.onSelect(false);
-      else this.props.onSelect(true);
+      if (this.props.selected === true) {
+        this.props.onSelect('-');
+      } else if (this.props.selected === '-') {
+        this.props.onSelect('?');
+      } else if (this.props.selected === '?') {
+        this.props.onSelect('+');
+      } else if (this.props.selected === '+') {
+        this.props.onSelect(false);
+      } else {
+        this.props.onSelect(true);
+      }
     }
   }
 
@@ -2895,8 +3184,9 @@ export class SelectionListRow extends PureComponent {
       this.props.label === undefined ||
       this.props.label === null ||
       this.props.label.length <= this.props.maxLength
-    )
+    ) {
       return this.props.label;
+    }
     return (
       this.props.label.substr(0, 20) +
       '...' +
@@ -2936,11 +3226,16 @@ export function selectionPrefix(selection: ?string): string {
     selection === null ||
     selection === undefined ||
     selection.startsWith === undefined
-  )
+  ) {
     return '';
-  if (selection.startsWith('(+) ')) return '(+) ';
-  else if (selection.startsWith('(-) ')) return '(-) ';
-  else if (selection.startsWith('(?) ')) return '(?) ';
+  }
+  if (selection.startsWith('(+) ')) {
+    return '(+) ';
+  } else if (selection.startsWith('(-) ')) {
+    return '(-) ';
+  } else if (selection.startsWith('(?) ')) {
+    return '(?) ';
+  }
   return '';
 }
 
@@ -2949,14 +3244,16 @@ export function stripSelectionPrefix(selection: ?string): string {
     selection === null ||
     selection === undefined ||
     selection.startsWith === undefined
-  )
+  ) {
     return selection;
+  }
   if (
     selection.startsWith('(+) ') ||
     selection.startsWith('(-) ') ||
     selection.startsWith('(?) ')
-  )
+  ) {
     return selection.substr(4);
+  }
   return selection;
 }
 
@@ -2969,6 +3266,7 @@ export class SelectionList extends React.PureComponent {
     multiValue?: boolean,
     freestyle?: boolean,
     simpleSelect?: boolean,
+    renderOptionsOnly?: boolean,
     onUpdateSelection: (selection: ?(string[] | string)) => void,
     fieldId: string,
   };
@@ -3014,27 +3312,44 @@ export class SelectionList extends React.PureComponent {
       }
       this.props.onUpdateSelection(selection);
     } else {
-      let selection: ?string = undefined;
-      if (select === true) selection = item;
-      else if (select === '+') selection = '(+) ' + item;
-      else if (select === '-') selection = '(-) ' + item;
-      else if (select === '?') selection = '(?) ' + item;
+      let selection: ?string;
+      if (select === true) {
+        selection = item;
+      } else if (select === '+') {
+        selection = '(+) ' + item;
+      } else if (select === '-') {
+        selection = '(-) ' + item;
+      } else if (select === '?') {
+        selection = '(?) ' + item;
+      }
       this.props.onUpdateSelection(selection);
     }
-    if (this.state.filter !== '') this.setState({filter: ''});
+    if (this.state.filter !== '') {
+      this.setState({filter: ''});
+    }
   }
 
   isSelected(item: string): boolean | string {
     const selection: string | string[] | void = this.props.selection;
-    if (!selection) return false;
+    if (!selection) {
+      return false;
+    }
     if (selection instanceof Array) {
       let index = selection.indexOf(item); //TODO: +-?
       return index > -1;
     }
-    if (selection === item) return true;
-    if (selection === '(+) ' + item) return '+';
-    if (selection === '(-) ' + item) return '-';
-    if (selection === '(?) ' + item) return '?';
+    if (selection === item) {
+      return true;
+    }
+    if (selection === '(+) ' + item) {
+      return '+';
+    }
+    if (selection === '(-) ' + item) {
+      return '-';
+    }
+    if (selection === '(?) ' + item) {
+      return '?';
+    }
     return false;
   }
 
@@ -3044,8 +3359,9 @@ export class SelectionList extends React.PureComponent {
 
   selectedCount(): number {
     if (this.props.multiValue) {
-      if (this.props.selection instanceof Array)
+      if (this.props.selection instanceof Array) {
         return this.props.selection.length;
+      }
       return 0;
     }
     if (this.props.selection !== undefined) {
@@ -3055,17 +3371,21 @@ export class SelectionList extends React.PureComponent {
   }
 
   renderFilterField() {
-    if (!this.state.searchable) return null;
+    if (!this.state.searchable) {
+      return null;
+    }
     return (
-      <TextInput
-        returnKeyType="search"
-        autoCorrect={false}
-        autoCapitalize="none"
-        style={styles.searchField}
-        value={this.state.filter}
-        onChangeText={(filter: string) => this.setState({filter})}
-        testID={this.props.fieldId + '.filter'}
-      />
+      <TouchableWithoutFeedback>
+        <TextInput
+          returnKeyType="search"
+          autoCorrect={false}
+          autoCapitalize="none"
+          style={styles.searchField}
+          value={this.state.filter}
+          onChangeText={(filter: string) => this.setState({filter})}
+          testID={this.props.fieldId + '.filter'}
+        />
+      </TouchableWithoutFeedback>
     );
   }
 
@@ -3074,17 +3394,18 @@ export class SelectionList extends React.PureComponent {
   }
 
   itemsToShow(): any[] {
-    let data: any[] = undefined;
+    let data: any[];
     if (this.props.selection instanceof Array) {
       for (let selection: string of this.props.selection) {
         if (!this.props.items.includes(selection)) {
-          if (data === undefined) data = [].concat(this.props.items);
+          if (data === undefined) {
+            data = [].concat(this.props.items);
+          }
           data.unshift(selection);
         }
       }
     } else if (this.props.selection) {
       let selection: string = stripSelectionPrefix(this.props.selection);
-
       if (!this.props.items.includes(selection)) {
         data = [].concat(this.props.items);
         data.unshift(selection);
@@ -3095,7 +3416,9 @@ export class SelectionList extends React.PureComponent {
         ? deAccent(this.state.filter.trim().toLowerCase())
         : undefined;
     if (filter) {
-      if (!data) data = this.props.items;
+      if (!data) {
+        data = this.props.items;
+      }
       data = data.filter(
         (item: string) =>
           item != null &&
@@ -3109,12 +3432,30 @@ export class SelectionList extends React.PureComponent {
       data !== undefined &&
       data.length === 0 &&
       this.state.filter &&
-      this.state.filter.length > 0
-    )
+      this.state.filter.length > 0 &&
+      !this.props.renderOptionsOnly
+    ) {
       data.push(this.state.filter);
-    if (data === undefined) data = this.props.items;
+    }
+    if (data === undefined) {
+      data = [].concat(this.props.items);
+    }
     return data;
   }
+
+  renderItem = ({item}) => {
+    return (
+      <SelectionListRow
+        label={item}
+        simpleSelect={this.props.simpleSelect}
+        selected={this.isSelected(item)}
+        onSelect={(isSelected: boolean | string) =>
+          this.select(item, isSelected)
+        }
+        testID={this.props.label + '.option.' + item}
+      />
+    );
+  };
 
   render() {
     let style: string =
@@ -3136,24 +3477,347 @@ export class SelectionList extends React.PureComponent {
         <FlatList
           initialNumToRender={20}
           data={data}
-          extraData={{
-            filter: this.state.filter,
-            selection: this.props.selection,
-          }}
-          keyExtractor={(item, index) => index}
-          renderItem={item => (
-            <SelectionListRow
-              label={item.item}
-              simpleSelect={this.props.simpleSelect}
-              selected={this.isSelected(item.item)}
-              onSelect={(isSelected: boolean | string) =>
-                this.select(item.item, isSelected)
-              }
-              testID={this.props.label + '.option' + (item.index + 1)}
-            />
-          )}
+          keyExtractor={(item) => item}
+          renderItem={this.renderItem}
         />
       </View>
+    );
+  }
+}
+
+export class NativeBar extends Component {
+  props: {
+    message: string,
+    onDismissAction: () => void,
+  };
+  state: {
+    visible: boolean,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      visible: true,
+    };
+  }
+  onDismiss = () => {
+    this.setState({visible: false});
+    this.props.onDismissAction();
+  };
+  render() {
+    return (
+      <View style={styles.bottomBar}>
+        <Snackbar
+          visible={this.state.visible}
+          onDismiss={this.onDismiss}
+          action={{
+            label: strings.close,
+            onPress: () => {
+              this.onDismiss;
+            },
+          }}>
+          {this.props.message}
+        </Snackbar>
+      </View>
+    );
+  }
+}
+
+type AlertProps = {
+  style: any,
+  title?: string,
+  message?: string,
+  data?: any,
+  dismissable?: boolean,
+  confirmActionLabel: string,
+  cancelActionLabel: string,
+  onConfirmAction: (selectedData: ?any) => void,
+  onCancelAction: () => void,
+  multiValue?: boolean,
+};
+type AlertState = {
+  visible: boolean,
+  data?: any,
+};
+
+export class Alert extends Component<AlertProps, AlertState> {
+  constructor(props: AlertProps) {
+    super(props);
+    this.state = {
+      visible: true,
+      data: this.props.data,
+    };
+  }
+  static defaultProps = {
+    title: '',
+    message: '',
+    dismissable: false,
+  };
+
+  isDisabled(): boolean {
+    if (!this.props.multiValue) {
+      return false;
+    }
+    let data: any = this.state.data;
+    data = data.filter((element: any) => element.isChecked);
+    return !(data && data.length > 0);
+  }
+  cancelDialog = () => {
+    this.setState({visible: false});
+    this.props.onCancelAction();
+  };
+  confirmDialog = (selectedData: ?any) => {
+    this.setState({visible: false});
+    this.props.onConfirmAction(
+      selectedData === undefined ? this.state.data : selectedData,
+    );
+  };
+
+  toggleCheckbox(index: number) {
+    let data: any = this.state.data;
+    const item: any = data[index];
+
+    if (item.singleSelection) {
+      data.map((element: any, i: number) => {
+        if (element.entityId === item.entityId && index !== i) {
+          data[i].isChecked = false;
+        }
+      });
+    }
+
+    data[index].isChecked = !data[index].isChecked;
+    this.setState({data});
+  }
+
+  renderContent() {
+    if (!isEmpty(this.props.message)) {
+      return <Paragraph>{this.props.message}</Paragraph>;
+    } else if (!isEmpty(this.props.data)) {
+      if (this.props.data instanceof Array) {
+        return (
+          <View
+            style={
+              isWeb
+                ? {Height: 'auto', maxHeight: 200}
+                : {Height: 'auto', maxHeight: 150}
+            }>
+            <Dialog.ScrollArea>
+              <ScrollView>
+                {this.state.data.map((element: any, index: number) => {
+                  const item: any = element.label
+                    ? element.label
+                    : element.description
+                    ? element.description
+                    : element;
+                  return this.props.multiValue ? (
+                    <View>
+                      <CheckButton
+                        isChecked={element.isChecked}
+                        onSelect={() => this.toggleCheckbox(index)}
+                        onDeselect={() => this.toggleCheckbox(index)}
+                        style={styles.alertCheckBox}
+                        testID={this.props.testID + '.' + item}
+                        suffix={item}
+                      />
+                      {element.divider && <Divider />}
+                    </View>
+                  ) : (
+                    <NativeBaseButton
+                      onPress={() => this.confirmDialog(element)}>
+                      {item}
+                    </NativeBaseButton>
+                  );
+                })}
+              </ScrollView>
+            </Dialog.ScrollArea>
+          </View>
+        );
+      } else {
+        return (
+          <NativeBaseButton onPress={this.confirmDialog}>
+            {this.props.data.label}
+          </NativeBaseButton>
+        );
+      }
+    } else {
+      return null;
+    }
+  }
+  render() {
+    const disabled: boolean = this.isDisabled();
+
+    return (
+      <Portal>
+        <Dialog
+          visible={this.state.visible}
+          onDismiss={this.cancelDialog}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDialog}>
+              {this.props.cancelActionLabel}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.confirmDialog} disabled={disabled}>
+              {this.props.confirmActionLabel}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
+}
+
+export class KeyboardMode extends Component {
+  props: {
+    mode: any,
+    onPress: () => void,
+  };
+  state: {
+    isKeyBoard: boolean,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      isKeyBoard: isWeb,
+    };
+  }
+  onUpdate() {
+    this.props.onPress();
+  }
+  render() {
+    const icon: string = this.props.mode === 'desktop' ? 'tablet' : 'keyboard';
+    return (
+      <TouchableOpacity
+        onPress={() => this.onUpdate()}
+        testID="keyboardModeIcon">
+        <View style={styles.menuButton}>
+          <Icon name={icon} style={styles.menuIcon} />
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+type NoAccessProps = {
+  prefix?: string,
+};
+export class NoAccess extends Component<NoAccessProps> {
+  render() {
+    return (
+      <View>
+        <Text style={styles.noAccessText}>
+          {(this.props.prefix ? this.props.prefix : '') + strings.noAccess}
+        </Text>
+      </View>
+    );
+  }
+}
+export type SelectionDialogProps = {
+  label?: string,
+  options: any[],
+  onSelect?: (option: ?any) => void,
+  onCancel?: () => void,
+  visible: boolean,
+  testID?: string,
+  value?: any,
+};
+export class SelectionDialog extends Component<
+  SelectionDialogProps,
+  SelectionDialogState,
+> {
+  constructor(props: SelectionDialogProps) {
+    super(props);
+  }
+
+  selectOption(option: any): void {
+    if (option.readonly) {
+      return;
+    }
+    this.props.onSelect(option);
+  }
+
+  renderPopup() {
+    return (
+      <TouchableWithoutFeedback
+        onPress={this.props.onCancel}
+        accessible={false}
+        testID="popupBackground">
+        <View style={styles.popupBackground}>
+          {this.props.label && (
+            <Text style={styles.modalTitle}>{this.props.label}</Text>
+          )}
+          <ScrollView>
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                <View style={styles.modalColumn}>
+                  {this.props.options.map((option: any, rowIndex: number) => {
+                    const isSelected: boolean = this.props.value
+                      ? option.code === this.props.value.code
+                      : false;
+                    const popupTileStyle: any = isSelected
+                      ? styles.popupTileSelected
+                      : styles.popupTile;
+                    return (
+                      <TouchableOpacity
+                        key={rowIndex}
+                        onPress={() => this.selectOption(option)}
+                        testID={'option' + (rowIndex + 1)}>
+                        <View
+                          style={
+                            option.readonly ? styles.readOnly : popupTileStyle
+                          }>
+                          <Text style={styles.modalTileLabel}>
+                            {formatCodeDefinition(option)}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        visible={this.props.visible}
+        transparent={true}
+        animationType={'slide'}
+        onRequestClose={this.props.onCancel}>
+        {this.renderPopup()}
+      </Modal>
+    );
+  }
+}
+export class SizeTile extends Component {
+  props: {
+    commitEdit: (field?: string) => void,
+    name: string,
+    isSelected: boolean,
+    minWidth: number,
+  };
+  render() {
+    const style = this.props.isSelected
+      ? this.props.minWidth
+        ? [styles.popupTileSelected, {minWidth: this.props.minWidth}]
+        : styles.popupTileSelected
+      : this.props.minWidth
+      ? [styles.popupTile, {minWidth: this.props.minWidth}]
+      : styles.popupTile;
+    return (
+      <TouchableOpacity
+        onPress={() => this.props.commitEdit(this.props.name)}
+        testID="SizeIcon">
+        <View style={style}>
+          <Icon name={this.props.name} style={styles.modalTileIcon} />
+        </View>
+      </TouchableOpacity>
     );
   }
 }
