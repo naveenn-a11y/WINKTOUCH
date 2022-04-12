@@ -34,7 +34,7 @@ export async function searchPatients(searchText: string, offset:number): Patient
   }
   const searchCriteria = {
     searchData: searchText,
-    size: 100,
+    size: maxPatientListSize,
     offset:offset ? offset : 0,
   };
   let restResponse = await searchItems('Patient/list', searchCriteria);
@@ -194,9 +194,8 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
 
   onEndReached = async () => {
     if (!this.state.loading) {
-      const offset = this.state.offset + 100;
+      const offset = this.state.offset + maxPatientListSize;
       this.setState({offset ,loading: true});
-      this.props.onSelectPatient(undefined);
       if (
         !this.state.searchCriterium ||
         this.state.searchCriterium.trim().length === 0
