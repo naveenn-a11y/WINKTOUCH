@@ -902,7 +902,7 @@ export class CabinetScreen extends Component {
                       : this.props.navigation.navigate('appointment', {
                         patientInfo: this.state.patientInfo,
                         refreshStateKey: this.props.refreshStateKey,
-                        hasAppointment: this.props.hasAppointment,
+                        hasAppointment: this.hasAppointment(),
                       });
                 }}
             />
