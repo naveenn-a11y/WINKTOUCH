@@ -71,6 +71,7 @@ export type User = {
   city?: string,
   isExternal: boolean,
   providerType?: string,
+  username?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';

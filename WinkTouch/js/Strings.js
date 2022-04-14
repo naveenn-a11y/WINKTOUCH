@@ -313,6 +313,11 @@ export const strings = new LocalizedStrings({
     cancelledBy: 'Cancelled By',
     rescheduleAppointment: 'Reschedule Appointment',
     reschedule: 'Reschedule',
+    lockScreenTitle: 'Your Session has Expired',
+    enterPassword: 'Enter your password to pick up from where you left',
+    notLabel: 'Not',
+    resumeSession: 'Resume Session',
+    iForgot: 'I forgot',
   },
   fr: {
     enterRegisteredEmail:
@@ -625,6 +630,11 @@ export const strings = new LocalizedStrings({
     cancelledBy: 'Annulé par',
     rescheduleAppointment: 'Re-planifier un rendez-vous',
     reschedule: 'Re-planifier',
+    lockScreenTitle: 'Votre session a expiré',
+    enterPassword: 'Entrez votre mot de passe pour récupérer votre session',
+    notLabel: 'Pas',
+    resumeSession: 'Reprendre la session',
+    iForgot: "J'ai oublié",
   },
 });
 
