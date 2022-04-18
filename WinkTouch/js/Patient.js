@@ -755,9 +755,11 @@ export class CabinetScreen extends Component {
       return;
     }
     let patientInfo: ?PatientInfo = getCachedItem(patient.id);
+    console.log('patientInfo', patientInfo);
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({patientInfo, appointments: undefined});
     patientInfo = await fetchPatientInfo(patient.id);
+    console.log('patientInfo1', patientInfo);
     if (
       this.state.patientInfo === undefined ||
       patient.id !== this.state.patientInfo.id

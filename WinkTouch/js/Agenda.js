@@ -50,6 +50,7 @@ import {
   yearDateFormat,
   isEmpty,
   deAccent,
+  formatAge,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
@@ -213,7 +214,7 @@ export class AgendaScreen extends Component {
       this.setState({fetchingWaitingList: true});
       let appointments = await fetchAppointments(
         this.state.allStores ? undefined : 'store-' + getStore().storeId,
-        [this.state.event.userId],
+        undefined,
         undefined,
         undefined,
         this.state.event.start,
@@ -335,7 +336,11 @@ export class AgendaScreen extends Component {
     this.setState({waitingListModal: true, isPatientDialogVisible: false});
   };
   cancelWaitingListDialog = () => {
-    this.setState({waitingListModal: false, selectedWaitingEvent: undefined});
+    this.setState({
+      filter: '',
+      waitingListModal: false,
+      selectedWaitingEvent: undefined,
+    });
   };
 
   getAppoitmentsForSelectedDoctors = () => {
@@ -754,16 +759,28 @@ export class AgendaScreen extends Component {
         ? deAccent(this.state.filter.trim().toLowerCase())
         : undefined;
     data = data.map((item) => {
+      let type = '';
       const patient: PatientInfo | Patient = getCachedItem(item.patientId);
+      console.log('patient', patient);
       const doctor: User = getCachedItem(item.userId);
       const storeId = item.storeId?.split('-')[1];
       const store = getAccount().stores.find(
         (store) => store.storeId == storeId,
       );
+      if (item.appointmentTypes)
+        item.appointmentTypes.map((id, index) => {
+          const t = getCachedItem(id);
+          type +=
+            index == item.appointmentTypes.length - 1
+              ? `${t.name}.`
+              : `${t.name}, `;
+        });
       return {
         ...item,
+        type,
         patient: `${patient?.firstName} ${patient?.lastName}`,
-        age: patient.age,
+        age: formatAge(patient.dateOfBirth),
+        home: patient.phone,
         cell: patient.cell,
         work: patient.work,
         // store: getStore().name,
@@ -810,14 +827,14 @@ export class AgendaScreen extends Component {
           onDismiss={this.cancelWaitingListDialog}
           dismissable={true}>
           <Dialog.Title>
-            <Text style={{color: 'black'}}>{strings.waitingList}</Text>
+            <Text style={{color: '#1db3b3'}}>{strings.waitingList}</Text>
           </Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView contentContainerStyle={{padding: 10, flexGrow: 1}}>
               <View style={{marginVertical: 15}}>
                 <Text style={titleStyle}>
                   {strings.date}:{'  '}
-                  {moment(new Date(event.start)).format('DD/MM/YYYY HH:MM A')}
+                  {moment(new Date(event.start)).format('YYYY-MM-DD HH:MM')}
                 </Text>
                 <Text style={titleStyle}>
                   {strings.store}: {'  '}
@@ -874,6 +891,9 @@ export class AgendaScreen extends Component {
                       </Text>
                       <Text style={[headerStyle, styles.container]}>
                         {strings.age}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.home}
                       </Text>
                       <Text style={[headerStyle, styles.container]}>
                         {strings.cell}
@@ -1005,6 +1025,7 @@ export class AgendaScreen extends Component {
                           ]}>
                           <Text style={textStyle}>{item.patient}</Text>
                           <Text style={textStyle}>{item?.age}</Text>
+                          <Text style={textStyle}>{item?.home}</Text>
                           <Text style={textStyle}>{item?.cell}</Text>
                           <Text style={textStyle}>{item?.work}</Text>
                           <Text style={textStyle}>{item.store?.name}</Text>
@@ -1016,10 +1037,12 @@ export class AgendaScreen extends Component {
                               )}
                             </Text>
                             <Text style={{fontWeight: '500', ...textStyle}}>
-                              {item?.title}
+                              {item?.type}
                             </Text>
                           </View>
-                          <Text style={textStyle}>{item?.comment}</Text>
+                          <Text style={textStyle}>
+                            {item?.earlyRequestComment}
+                          </Text>
                         </TouchableOpacity>
                       );
                     }}
