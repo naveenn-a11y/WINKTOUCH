@@ -633,7 +633,7 @@ export const strings = new LocalizedStrings({
     doubleBook: 'livre double',
     sameSlot: 'Même créneau',
     first: 'Premier',
-    Last: 'Dernier',
+    last: 'Dernier',
     mins: 'mins',
   },
 });

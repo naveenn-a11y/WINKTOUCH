@@ -269,8 +269,8 @@ export class AgendaScreen extends Component {
 
   cancelDialog = () => {
     this.setState({event: undefined, showDialog: false});
-    if(this.state.selectedTime) {
-      this.setState({doubleBookingModal: false,selectedTime: undefined,});
+    if (this.state.selectedTime) {
+      this.setState({doubleBookingModal: false, selectedTime: undefined});
     }
   };
   endReschedule = () => {
@@ -482,16 +482,9 @@ export class AgendaScreen extends Component {
     return (
       <View style={styles.doubleBookingTimeField}>
         <Text>
-          {this.state.selectedTime.atEnd ? strings.last : strings.first} :
+          {this.state.selectedTime.atEnd ? strings.last : strings.first}
+          {this.state.selectedTime.time} {strings.mins}
         </Text>
-        <TilesField
-          options={[5, 10, 15, 20, 25, 30, 45, 60]}
-          value={this.state.selectedTime.time}
-          style={styles.doubleBookingSearchField}
-          onChangeValue={(value: string) =>
-            this.setState({selectedTime: {atEnd: this.state.selectedTime.atEnd, time: value}})
-          }/>
-        <Text>strings.mins</Text>
       </View>
     );
   };
