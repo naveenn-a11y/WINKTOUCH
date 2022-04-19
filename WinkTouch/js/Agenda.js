@@ -483,7 +483,7 @@ export class AgendaScreen extends Component {
       <View style={styles.doubleBookingTimeField}>
         <Text>
           {this.state.selectedTime.atEnd ? strings.last : strings.first}
-          {this.state.selectedTime.time} {strings.mins}
+          {" "+this.state.selectedTime.time} {strings.mins}
         </Text>
       </View>
     );
