@@ -139,14 +139,20 @@ function isRxPDEmpty(glassesRx: ?GlassesRx): boolean {
   if (isRxEmpty(glassesRx)) {
     return true;
   }
-  return (
-    isEmpty(glassesRx.od.farPD) &&
-    isEmpty(glassesRx.od.closePD) &&
-    isEmpty(glassesRx.os.farPD) &&
-    isEmpty(glassesRx.os.closePD) &&
-    isEmpty(glassesRx.ou.farPD) &&
-    isEmpty(glassesRx.ou.closePD)
-  );
+  if (isEmpty(glassesRx.od) && isEmpty(glassesRx.os) && isEmpty(glassesRx.ou)) {
+    return true;
+  }
+  const isOdEmpty: boolean = !isEmpty(glassesRx.od)
+    ? isEmpty(glassesRx.od.farPD) && isEmpty(glassesRx.od.closePD)
+    : true;
+  const isOsEmpty: boolean = !isEmpty(glassesRx.os)
+    ? isEmpty(glassesRx.os.farPD) && isEmpty(glassesRx.os.closePD)
+    : true;
+  const isOuEmpty: boolean = !isEmpty(glassesRx.ou)
+    ? isEmpty(glassesRx.ou.farPD) && isEmpty(glassesRx.ou.closePD)
+    : true;
+
+  return isOdEmpty && isOsEmpty && isOuEmpty;
 }
 
 export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
@@ -916,6 +922,7 @@ export class GlassesDetail extends Component {
     hasLensType?: boolean,
     hasPD?: boolean,
     hasMPD?: boolean,
+    hasCustomField?: boolean,
     hasNotes?: boolean,
     titleStyle?: string,
     style?: string,
@@ -1075,6 +1082,7 @@ export class GlassesDetail extends Component {
   importSelectedData(importData: Measurement) {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.lensType = importData.data.lensType;
+    glassesRx.customField = importData.data.customField;
     glassesRx.od = {...importData.data.od};
     glassesRx.os = {...importData.data.os};
     glassesRx.ou = {...importData.data.ou};
@@ -1097,6 +1105,7 @@ export class GlassesDetail extends Component {
     } else {
       let glassesRx: GlassesRx = this.props.glassesRx;
       glassesRx.lensType = data.data.lensType;
+      glassesRx.customField = data.data.customField;
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
       glassesRx.ou = {...data.data.ou};
@@ -1274,6 +1283,19 @@ export class GlassesDetail extends Component {
                 autoFocus={true}
                 errorMessage={this.props.glassesRx.pdError}
                 testID={this.props.fieldId + '.pd'}
+              />
+            </View>
+          )}
+          {this.props.hasCustomField && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.customField}
+                definition={filterFieldDefinition(
+                  this.props.definition.fields,
+                  'customField',
+                )}
+                readonly={!this.props.editable}
+                testID={this.props.fieldId + '.customField'}
               />
             </View>
           )}

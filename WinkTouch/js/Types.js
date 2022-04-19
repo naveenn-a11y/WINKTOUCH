@@ -73,18 +73,20 @@ export type User = {
   providerType?: string,
 };
 
-export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
 
 export type Privileges = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
+  appointmentPrivilege?: Privilege,
 };
 
-export type TokenPrivilege = 'N' | 'R' | 'F';
+export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
 
 export type TokenPrivileges = {
   pre: ?TokenPrivilege,
   med: ?TokenPrivilege,
+  app: ?TokenPrivilege,
 };
 
 export type TokenPayload = {
@@ -97,6 +99,7 @@ export type Patient = {
   id: string,
   firstName: string,
   lastName: string,
+  alias: string,
   phone: ?string,
   cell: ?string,
   patientTags: string[],
@@ -108,6 +111,7 @@ export type PatientInfo = {
   errors?: string[],
   firstName: string,
   lastName: string,
+  alias: string,
   dateOfBirth: string,
   gender: number,
   phone: ?string,
@@ -185,6 +189,11 @@ export type Appointment = {
   indicators?: string[],
   comment?: string,
   supplierName?: string,
+  isBusy?: boolean,
+  earlyRequest?: boolean,
+  earlyRequestComment?: string,
+  numberOfSlots?: number,
+  appointmentPrivilege?: Privilege,
 };
 
 export type Prism = {
@@ -217,6 +226,7 @@ export type GlassesRx = {
   vaFar?: string,
   vaNear?: string,
   lensType?: string,
+  customField?: string,
   notes?: string,
   doctor?: string,
   readonly?: boolean,
@@ -383,6 +393,7 @@ export type GroupDefinition = {
   hasPD?: boolean,
   hasMPD?: boolean,
   hasNotes?: boolean,
+  hasCustomField?: boolean,
   import?: string | string[],
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
@@ -479,6 +490,7 @@ export type ExamDefinition = {
   multiValue?: boolean, //Can Add more than 1 exam,
   addablePostLock?: boolean,
   export?: string | string[],
+  isPatientFileHidden?: boolean,
 };
 
 export type ExamPredefinedValue = {
