@@ -51,6 +51,7 @@ import {
   isEmpty,
   deAccent,
   formatAge,
+  yearDateTimeFormat,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
@@ -744,6 +745,7 @@ export class AgendaScreen extends Component {
 
   getItems(): any[] {
     let data: any[] = [...this.state.waitingListAppointments];
+    let filterData: any[] = [];
     if (this.state.groupBy === 'Date') {
       data = this.groupByDate();
     } else if (this.state.groupBy === 'Doctor') {
@@ -761,7 +763,6 @@ export class AgendaScreen extends Component {
     data = data.map((item) => {
       let type = '';
       const patient: PatientInfo | Patient = getCachedItem(item.patientId);
-      console.log('patient', patient);
       const doctor: User = getCachedItem(item.userId);
       const storeId = item.storeId?.split('-')[1];
       const store = getAccount().stores.find(
@@ -775,6 +776,15 @@ export class AgendaScreen extends Component {
               ? `${t.name}.`
               : `${t.name}, `;
         });
+      filterData.push({
+        patient: `${patient?.firstName} ${patient?.lastName}`,
+        home: patient.phone,
+        cell: patient.cell,
+        work: patient.work,
+        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+        store: store?.name,
+        comment: item.earlyRequestComment || '',
+      });
       return {
         ...item,
         type,
@@ -783,18 +793,19 @@ export class AgendaScreen extends Component {
         home: patient.phone,
         cell: patient.cell,
         work: patient.work,
-        // store: getStore().name,
         doctor: `${doctor?.firstName} ${doctor?.lastName}`,
         store,
       };
     });
     if (filter) {
       data = data.filter(
-        (item: any) =>
+        (item: any, index) =>
           item != null &&
           item !== undefined &&
-          JSON.stringify(item).trim().length > 0 &&
-          deAccent(JSON.stringify(item).toLowerCase()).indexOf(filter) >= 0,
+          JSON.stringify(Object.values(filterData[index])).trim().length > 0 &&
+          deAccent(
+            JSON.stringify(Object.values(filterData[index])).toLowerCase(),
+          ).indexOf(filter) >= 0,
       );
     }
     return data;
@@ -834,7 +845,7 @@ export class AgendaScreen extends Component {
               <View style={{marginVertical: 15}}>
                 <Text style={titleStyle}>
                   {strings.date}:{'  '}
-                  {moment(new Date(event.start)).format('YYYY-MM-DD HH:MM')}
+                  {formatDate(event.start, yearDateTimeFormat)}
                 </Text>
                 <Text style={titleStyle}>
                   {strings.store}: {'  '}
@@ -1032,9 +1043,7 @@ export class AgendaScreen extends Component {
                           <Text style={textStyle}>{item.doctor}</Text>
                           <View style={{flex: 1}}>
                             <Text style={textStyle}>
-                              {moment(new Date(item.start)).format(
-                                'DD/MM/YYYY HH:MM A',
-                              )}
+                              {formatDate(item.start, yearDateTimeFormat)}
                             </Text>
                             <Text style={{fontWeight: '500', ...textStyle}}>
                               {item?.type}
