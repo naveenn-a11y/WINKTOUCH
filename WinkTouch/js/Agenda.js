@@ -81,7 +81,7 @@ export class AgendaScreen extends Component {
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
     doubleBookingModal: boolean,
-    selectedTime: string | undefined,
+    selectedTime: string,
   };
   today = new Date();
   lastRefresh: number;
@@ -727,7 +727,7 @@ export class AgendaScreen extends Component {
                   width: '100%',
                   alignItems: 'center',
                 }}>
-                <View style={{width: 80}}>
+                <View style={{width:fontScale * 80}}>
                   <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
                     {strings.first}
                   </Text>
@@ -750,7 +750,7 @@ export class AgendaScreen extends Component {
                           textAlign: 'center',
                         }}
                         key={'time' + index}
-                        title={time === 60 ? '1 hour' : time +" "+strings.mins}
+                        title={time === 60 ? strings.oneHour  : time + " " + strings.mins}
                         onPress={() => onSelectTime(false, time)}
                       />
                     );
@@ -766,7 +766,7 @@ export class AgendaScreen extends Component {
                   width: '100%',
                   alignItems: 'center',
                 }}>
-                <View style={{width: 80}}>
+                <View style={{width: fontScale * 80}}>
                   <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
                     {strings.last}
                   </Text>
@@ -789,7 +789,7 @@ export class AgendaScreen extends Component {
                           width: 92,
                           textAlign: 'center',
                         }}
-                        title={time === 60 ? '1 hour' : time +" "+strings.mins}
+                        title={time === 60 ? strings.oneHour : time +" "+strings.mins}
                         onPress={() => onSelectTime(true, time)}
                       />
                     );
@@ -1004,8 +1004,8 @@ class Event extends Component {
         : undefined;
     let start = 0
     for(let item of this.props?.touchableOpacityProps?.style) {
-        if(typeof(item)==='object' && item.start>3) {
-          start=item.start
+        if(typeof(item)==='object' && item.start > 3) {
+          start = item.start
         }
     }
     const eventStyleProps = {
