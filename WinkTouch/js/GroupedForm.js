@@ -1776,11 +1776,7 @@ export class GroupedForm extends Component {
       </View>,
     ];
   }
-
-  formatLabel(label: string) {
-    return label === 'Contact Lens Trial' ? 'Contact Lens Fitting' : label;
-  }
-
+  
 
   render() {
     const style = this.props.style
@@ -1796,7 +1792,7 @@ export class GroupedForm extends Component {
           style={styles.sectionTitle}
           key="title"
           suffix=""
-          value={this.formatLabel(formatFieldLabel(this.props.definition, this.props.form))}
+          value={formatFieldLabel(this.props.definition, this.props.form)}
           fieldId={this.props.fieldId}
         />
         {this.renderRows()}

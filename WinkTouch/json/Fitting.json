@@ -753,6 +753,7 @@
       "fields": [
         {
           "name": "Contact Lens Trial",
+          "label": "Contact Lens Fitting",
           "fields": [
             {
               "name": "DVA",
@@ -929,6 +930,7 @@
       "fields": [
         {
           "name": "Contact Lens Trial",
+          "label": "Contact Lens Fitting",
           "fields": [
             {
               "name": "NVA",
