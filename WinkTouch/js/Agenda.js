@@ -18,7 +18,7 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {FormInput} from './Form';
+import {FormInput, FormOptions, FormRow} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -31,6 +31,7 @@ import {
   bookAppointment,
   cancelAppointment,
   hasAppointmentBookAccess,
+  getAppointmentTypes,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -38,8 +39,11 @@ import {
   now,
   jsonDateFormat,
   farDateFormat2,
-  yearDateFormat,
   isEmpty,
+  yearDateFormat,
+  timeFormat,
+  dateFormat,
+  yearDateTimeFormat,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
@@ -79,6 +83,8 @@ export class AgendaScreen extends Component {
     copiedAppointment: Appointment,
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
+    manageAvailabilities: boolean,
+    slot: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -105,6 +111,10 @@ export class AgendaScreen extends Component {
       deleting: false,
       copiedAppointment: undefined,
       rescheduleAppointment: false,
+      manageAvailabilities: true,
+      slot: 1,
+      duration: 30,
+      appointmentTypes: [],
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -278,6 +288,9 @@ export class AgendaScreen extends Component {
   };
   cancelDoctorsOptions = () => {
     this.setState({doctorsModal: false});
+  };
+  cancelManageAvailabilities = () => {
+    this.setState({manageAvailabilities: false});
   };
 
   openPatientDialog = () => {
@@ -533,6 +546,218 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderAppointmentsTypes() {
+    const updateValue = (val, index) => {
+      let apps = this.state.appointmentTypes;
+      if (val) apps.push(val);
+      else apps.splice(index, 1);
+      this.setState({appointmentTypes: apps});
+    };
+    let appointmentsType: string[] = this.state.appointmentTypes;
+    let dropdowns = [];
+    dropdowns.push(
+      <FormRow>
+        <FormOptions
+          options={getAppointmentTypes()}
+          showLabel={false}
+          label={strings.AppointmentType}
+          value={appointmentsType ? appointmentsType[0] : ''}
+          onChangeValue={(code: ?string | ?number) => updateValue(code, 0)}
+        />
+      </FormRow>,
+    );
+    if (appointmentsType && appointmentsType.length >= 1) {
+      for (let i: number = 1; i <= appointmentsType.length; i++) {
+        if (i < 5) {
+          dropdowns.push(
+            <FormRow>
+              <FormOptions
+                options={getAppointmentTypes()}
+                showLabel={false}
+                label={strings.AppointmentType}
+                value={appointmentsType[i]}
+                onChangeValue={(code: ?string | ?number) =>
+                  updateValue(code, i)
+                }
+              />
+            </FormRow>,
+          );
+        }
+      }
+    }
+
+    return dropdowns;
+  }
+  renderManageAvailabilities() {
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={{
+            width: '50%',
+            height: '70%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}
+          visible={this.state.manageAvailabilities}
+          onDismiss={this.cancelManageAvailabilities}
+          dismissable={true}>
+          {/* <Dialog.Title>
+            <Text style={{color: 'black'}}> {strings.chooseDoctor}</Text>
+          </Dialog.Title> */}
+          <Dialog.Content>
+            <FormInput
+              multiOptions
+              singleSelect
+              value={this.state.slot}
+              style={{flexDirection: 'row', justifyContent: 'space-evenly'}}
+              showLabel={false}
+              readonly={false}
+              definition={{
+                options: [
+                  {label: 'Create Availability', value: 1},
+                  {label: 'Mark as unavailable', value: 2},
+                ],
+              }}
+              onChangeValue={(slot) => this.setState({slot})}
+              errorMessage={'error'}
+              isTyping={false}
+            />
+            <View style={{marginTop: 25}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '70%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={[styles.textfield, {padding: 7}]}>
+                  {strings.store} :
+                </Text>
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: 'lightgray',
+                    width: '75%',
+                    paddingVertical: 5,
+                    paddingHorizontal: 5,
+                  }}>
+                  <Text style={{opacity: 0.7}}>{getStore().name}</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '70%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={[styles.textfield, {padding: 7}]}>
+                  {strings.doctor} :
+                </Text>
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: 'lightgray',
+                    width: '75%',
+                    paddingVertical: 5,
+                    paddingHorizontal: 5,
+                  }}>
+                  <Text style={{opacity: 0.7}}>{getStore().name}</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '70%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={[styles.textfield, {padding: 7}]}>
+                  {strings.duration} :
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    width: '75%',
+                  }}>
+                  <FormOptions
+                    readonly
+                    showLabel={false}
+                    options={[30, 60, 90]}
+                    label={strings.duration}
+                    value={this.state.duration}
+                    onChangeValue={(code: ?string | ?number) => {
+                      this.setState({duration: code});
+                    }}
+                  />
+                  <Text style={{marginLeft: 10}}>{strings.minutes}</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '70%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={[styles.textfield, {padding: 7}]}>
+                  {strings.type} :
+                </Text>
+                <View style={{width: '75%'}}>
+                  {this.renderAppointmentsTypes()}
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '70%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={[styles.textfield, {padding: 7}]}>
+                  {strings.time} :
+                </Text>
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: 'lightgray',
+                    width: '75%',
+                    paddingVertical: 5,
+                    paddingHorizontal: 5,
+                  }}>
+                  <Text style={{opacity: 0.7}}>
+                    {' '}
+                    {formatDate('2022-04-20T09:30', dateFormat)}
+                    {'  '}
+                    {moment('2022-04-20T09:30').format('h:mm a')}
+                    {' - '}
+                    {formatDate(
+                      moment('2022-04-20T09:30')
+                        .add(this.state.duration, 'minutes')
+                        .format('h:mm a'),
+                      timeFormat,
+                    )}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelManageAvailabilities}>
+              {strings.close}
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.getAppoitmentsForSelectedDoctors}>
+              {strings.apply}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
 
   renderCancellationDialog() {
     const event: Appointment = this.state.event;
@@ -689,6 +914,7 @@ export class AgendaScreen extends Component {
       cancelModal,
       copiedAppointment,
       rescheduleAppointment,
+      manageAvailabilities,
     } = this.state;
 
     const options =
@@ -707,6 +933,7 @@ export class AgendaScreen extends Component {
         {cancelModal && this.renderCancellationDialog()}
         {copiedAppointment && this.renderCopyDialog()}
         {rescheduleAppointment && this.renderRescheduleDialog()}
+        {manageAvailabilities && this.renderManageAvailabilities()}
 
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>

@@ -1026,7 +1026,7 @@ export class FormMultiCheckBox extends Component {
 
   render() {
     return (
-      <>
+      <View style={this.props.style}>
         {!this.props.singleSelect && (
           <View style={styles.checkButtonRow}>
             <CheckButton
@@ -1059,7 +1059,7 @@ export class FormMultiCheckBox extends Component {
             <Text>{option?.label || option}</Text>
           </View>
         ))}
-      </>
+      </View>
     );
   }
 }
@@ -1490,6 +1490,7 @@ export class FormInput extends Component {
           style={style}
           errorMessage={this.props.errorMessage}
           testID={this.props.testID}
+          style={style}
         />
       );
     } else if (

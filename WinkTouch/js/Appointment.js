@@ -878,7 +878,7 @@ export class AppointmentDetails extends Component {
           value={appointmentsType ? appointmentsType[0] : ''}
           onChangeValue={(code: ?string | ?number) => {
             this.updateValue('appointmentTypes', code, 0);
-            this.validateNumberOfSlots(code);
+            // this.validateNumberOfSlots(code);
           }}
         />
       </FormRow>,
@@ -896,7 +896,7 @@ export class AppointmentDetails extends Component {
                 value={appointmentsType[i]}
                 onChangeValue={(code: ?string | ?number) => {
                   this.updateValue('appointmentTypes', code, i);
-                  this.validateNumberOfSlots(code);
+                  // this.validateNumberOfSlots(code);
                 }}
               />
             </FormRow>,
