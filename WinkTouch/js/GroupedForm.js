@@ -2031,7 +2031,15 @@ export class GroupedFormScreen extends Component<
 
   copyToFinal = (glassesRx: GlassesRx): void => {
     glassesRx = deepClone(glassesRx);
-    this.props.exam[this.props.exam.definition.name]['Final Rx'] = glassesRx;
+    const finalRx: GlassesRx = deepClone(
+      this.props.exam[this.props.exam.definition.name]['Final Rx'],
+    );
+    if (finalRx) {
+      finalRx.od = glassesRx.od;
+      finalRx.os = glassesRx.os;
+      finalRx.ou = glassesRx.ou;
+    }
+    this.props.exam[this.props.exam.definition.name]['Final Rx'] = finalRx;
     this.props.onUpdateExam(this.props.exam);
   };
 
