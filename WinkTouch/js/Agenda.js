@@ -292,13 +292,22 @@ export class AgendaScreen extends Component {
     this.setState({isPatientDialogVisible: true});
   };
   cancelPatientDialog = () => {
-    this.setState({isPatientDialogVisible: false,doubleBookingModal: false,selectedTime: undefined,selectedPatient:undefined});
+    this.setState({
+      isPatientDialogVisible: false,
+      doubleBookingModal: false,
+      selectedTime: undefined,
+      selectedPatient: undefined,
+    });
   };
   openCancelDialog = () => {
     this.setState({cancelModal: true});
   };
   openDoubleBookDialog = () => {
-    this.setState({doubleBookingModal: true,rescheduleAppointment: false,copiedAppointment:undefined});
+    this.setState({
+      doubleBookingModal: true,
+      rescheduleAppointment: false,
+      copiedAppointment: undefined,
+    });
   };
   cancelCancelDialog = () => {
     this.setState({
@@ -434,7 +443,11 @@ export class AgendaScreen extends Component {
   };
 
   selectPatient(patient: Patient | PatientInfo) {
-    this.setState({selectedPatient: patient, showDialog: true, isPatientDialogVisible: false});
+    this.setState({
+      selectedPatient: patient,
+      showDialog: true,
+      isPatientDialogVisible: false,
+    });
   }
 
   renderEventDetails() {
@@ -483,10 +496,23 @@ export class AgendaScreen extends Component {
       <View style={styles.doubleBookingTimeField}>
         <Text>
           {this.state.selectedTime.atEnd ? strings.last : strings.first}
-          {" "+this.state.selectedTime.time} {strings.mins}
+          {' ' + this.state.selectedTime.time} {strings.mins}
         </Text>
       </View>
     );
+  };
+  onUpdateAppointment = (
+    appointment: Appointment,
+    isDoublebooking: boolean,
+    rescheduleAppointment: boolean,
+  ) => {
+    if (isDoublebooking) {
+      this.onDoubleBooking()
+    } else if (rescheduleAppointment) {
+      this.rescheduleEvent(appointment)
+    } else {
+      this.updateEvent(appointment);
+    }
   };
 
   renderAppointmentDetail(
@@ -524,7 +550,6 @@ export class AgendaScreen extends Component {
               rescheduleAppointment={rescheduleAppointment}
               onOpenAppointment={this.openPatientFile}
               onCancelAppointment={this.openCancelDialog}
-              onDoubleBooking={this.onDoubleBooking}
               onCopyAppointment={this.setCopiedAppointment}
               openDoubleBookingModal={this.openDoubleBookDialog}
               onCloseAppointment={() => {
@@ -533,9 +558,7 @@ export class AgendaScreen extends Component {
                   : this.cancelDialog();
               }}
               onUpdateAppointment={(appointment: Appointment) => {
-                rescheduleAppointment
-                  ? this.rescheduleEvent(appointment)
-                  : this.updateEvent(appointment);
+                onUpdateAppointment(appointment,isDoublebooking,rescheduleAppointment)
               }}
             />
           </Dialog.Content>
@@ -714,7 +737,7 @@ export class AgendaScreen extends Component {
               <Button
                 buttonStyle={{paddingHorizontal: 14, paddingVertical: 7}}
                 title={strings.sameSlot}
-                onPress={() =>  onSelectTime(false, 0)}
+                onPress={() => onSelectTime(false, 0)}
               />
             </View>
           </Dialog.Title>
@@ -727,7 +750,7 @@ export class AgendaScreen extends Component {
                   width: '100%',
                   alignItems: 'center',
                 }}>
-                <View style={{width:fontScale * 80}}>
+                <View style={{width: fontScale * 80}}>
                   <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
                     {strings.first}
                   </Text>
@@ -750,7 +773,11 @@ export class AgendaScreen extends Component {
                           textAlign: 'center',
                         }}
                         key={'time' + index}
-                        title={time === 60 ? strings.oneHour  : time + " " + strings.mins}
+                        title={
+                          time === 60
+                            ? strings.oneHour
+                            : time + ' ' + strings.mins
+                        }
                         onPress={() => onSelectTime(false, time)}
                       />
                     );
@@ -789,7 +816,11 @@ export class AgendaScreen extends Component {
                           width: 92,
                           textAlign: 'center',
                         }}
-                        title={time === 60 ? strings.oneHour : time +" "+strings.mins}
+                        title={
+                          time === 60
+                            ? strings.oneHour
+                            : time + ' ' + strings.mins
+                        }
                         onPress={() => onSelectTime(true, time)}
                       />
                     );
@@ -1005,6 +1036,7 @@ class Event extends Component {
     let start = 0
     for(let item of this.props?.touchableOpacityProps?.style) {
         if(typeof(item)==='object' && item.start > 3) {
+          console.log('item.start  :>> ', item.start );
           start = item.start
         }
     }

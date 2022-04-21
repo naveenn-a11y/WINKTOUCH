@@ -789,9 +789,7 @@ export class AppointmentDetails extends Component {
   commitEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
 
-    if(this.props.isDoublebooking){
-      this.props.onDoubleBooking(this.state.editedAppointment);
-    }else this.props.onUpdateAppointment(this.state.editedAppointment);
+    this.props.onUpdateAppointment(this.state.editedAppointment);
 
     if (!this.props.isNewAppointment || !this.props.isDoublebooking) {
       this.setState({isEditable: false, editedAppointment: undefined});
