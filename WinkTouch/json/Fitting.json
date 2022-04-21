@@ -816,7 +816,7 @@
       "fields": [
         {
           "name": "Contact Lens Trial",
-          "label": "Essai LC",
+          "label": "Adaptation des lentilles de contact",
           "fields": [
             {
               "name": "Doctor",
