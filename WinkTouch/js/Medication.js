@@ -139,13 +139,15 @@ export class PatientMedicationCard extends Component {
         medications: Prescription[],
         fieldDefinitions: FieldDefinition[],
       } = getRecentMedication(this.props.patientInfo.id);
-      this.setState(
-        {
-          medications: recentMedication.medications,
-          fieldDefinitions: recentMedication.fieldDefinitions,
-        },
-        this.refreshPatientInfo,
-      );
+      if (recentMedication) {
+        this.setState(
+          {
+            medications: recentMedication.medications,
+            fieldDefinitions: recentMedication.fieldDefinitions,
+          },
+          this.refreshPatientInfo,
+        );
+      }
     }
   }
 

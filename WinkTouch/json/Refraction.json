@@ -13,7 +13,13 @@
       "fields": [
         {
           "name": "Subjective refraction",
-          "label": "Subjectif"
+          "label": "Subjectif",
+          "fields": [
+            {
+              "name": "customField",
+              "label": "Données de"
+            }
+          ]
         },
         {
           "name": "Compensated refraction",
@@ -40,6 +46,7 @@
   },
   "fields": [
     {
+      "hasCustomField": true,
       "hasVA": true,
       "hasAdd": true,
       "canBeCopied": true,
@@ -50,7 +57,15 @@
       ],
       "name": "Subjective refraction",
       "multiValue": true,
-      "type": "SRx"
+      "type": "SRx",
+      "fields": [
+        {
+          "freestyle": true,
+          "name": "customField",
+          "label": "Data from",
+          "readonly": true
+        }
+      ]
     },
     {
       "hasVA": true,
