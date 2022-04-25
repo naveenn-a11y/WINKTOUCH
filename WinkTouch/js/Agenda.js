@@ -31,7 +31,7 @@ import {
   bookAppointment,
   cancelAppointment,
   hasAppointmentBookAccess,
-  doubleBook
+  doubleBook,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -507,9 +507,9 @@ export class AgendaScreen extends Component {
     rescheduleAppointment: boolean,
   ) => {
     if (isDoublebooking) {
-      this.onDoubleBooking()
+      this.onDoubleBooking(appointment);
     } else if (rescheduleAppointment) {
-      this.rescheduleEvent(appointment)
+      this.rescheduleEvent(appointment);
     } else {
       this.updateEvent(appointment);
     }
@@ -558,7 +558,11 @@ export class AgendaScreen extends Component {
                   : this.cancelDialog();
               }}
               onUpdateAppointment={(appointment: Appointment) => {
-                onUpdateAppointment(appointment,isDoublebooking,rescheduleAppointment)
+                this.onUpdateAppointment(
+                  appointment,
+                  isDoublebooking,
+                  rescheduleAppointment,
+                );
               }}
             />
           </Dialog.Content>
@@ -775,7 +779,7 @@ export class AgendaScreen extends Component {
                         key={'time' + index}
                         title={
                           time === 60
-                            ? strings.oneHour
+                            ? '1 ' + strings.hour
                             : time + ' ' + strings.mins
                         }
                         onPress={() => onSelectTime(false, time)}
@@ -818,7 +822,7 @@ export class AgendaScreen extends Component {
                         }}
                         title={
                           time === 60
-                            ? strings.oneHour
+                            ? '1 ' + strings.hour
                             : time + ' ' + strings.mins
                         }
                         onPress={() => onSelectTime(true, time)}
@@ -1033,17 +1037,17 @@ class Event extends Component {
       event && event.appointmentTypes
         ? getCachedItem(event.appointmentTypes[0])
         : undefined;
-    let start = 0
-    for(let item of this.props?.touchableOpacityProps?.style) {
-        if(typeof(item)==='object' && item.start > 3) {
-          console.log('item.start  :>> ', item.start );
-          start = item.start
-        }
+    let start = 0;
+    for (let item of this.props?.touchableOpacityProps?.style) {
+      if (typeof item === 'object' && item.start > 3) {
+        console.log('item.start  :>> ', item.start);
+        start = item.start;
+      }
     }
     const eventStyleProps = {
       minWidth: '1%',
-      width: (eventWidth / 1.05) - start,
-      start: (eventWidth * index) + start,
+      width: eventWidth / 1.05 - start,
+      start: eventWidth * index + start,
       justifyContent: 'center',
       paddingTop: 1,
       paddingBottom: 0,

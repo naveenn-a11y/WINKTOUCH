@@ -318,7 +318,7 @@ export const strings = new LocalizedStrings({
     first: 'First',
     last: 'Last',
     mins: 'mins',
-    oneHour: '1 Hour',
+    hour: 'hour',
   },
   fr: {
     enterRegisteredEmail:
@@ -636,7 +636,7 @@ export const strings = new LocalizedStrings({
     first: 'Premier',
     last: 'Dernier',
     mins: 'mins',
-    oneHour: '1 heure',
+    hour: 'heure',
   },
 });
 
