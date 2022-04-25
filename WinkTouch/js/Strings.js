@@ -309,12 +309,13 @@ export const strings = new LocalizedStrings({
     numberOfSlots: 'Number of Slots',
     book: 'Book',
     AppointmentType: 'Appointment Type',
-    type: 'Type',
     cancelAppointment: 'Cancel Appointment ',
     cancelledBy: 'Cancelled By',
     rescheduleAppointment: 'Reschedule Appointment',
     reschedule: 'Reschedule',
     time: 'Time',
+    createAvailability: 'Create Availability',
+    markAsUnavailable: 'Mark as unavailable',
   },
   fr: {
     enterRegisteredEmail:
@@ -623,12 +624,13 @@ export const strings = new LocalizedStrings({
     numberOfSlots: 'Nombre de créneaux',
     book: 'Réserver',
     AppointmentType: 'Type rendez-vous',
-    type: 'Type',
     cancelAppointment: 'Annuler le rendez-vous ',
     cancelledBy: 'Annulé par',
     rescheduleAppointment: 'Re-planifier un rendez-vous',
     reschedule: 'Re-planifier',
-    time: 'Time',
+    time: 'Temps',
+    createAvailability: 'Créer une disponibilité',
+    markAsUnavailable: 'Marquer comme indisponible',
   },
 });
 

@@ -26,7 +26,7 @@ import type {
   CodeDefinition,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
-import {strings} from './Strings';
+import {strings, getUserLanguage} from './Strings';
 import {
   formatDate,
   timeFormat,
@@ -66,7 +66,15 @@ import {
   getCachedItems,
   cacheItemsById,
 } from './DataCache';
-import {searchItems, fetchItemById, performActionOnItem} from './Rest';
+import {
+  searchItems,
+  fetchItemById,
+  performActionOnItem,
+  getRestUrl,
+  appendParameters,
+  getToken,
+  handleHttpError,
+} from './Rest';
 import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
@@ -233,6 +241,46 @@ export async function bookAppointment(
     params,
   );
   return appointment;
+}
+export async function manageAvailability(
+  doctorId: ?string,
+  action: ?number,
+  duration: ?number,
+  startDateTime: string,
+  endDateTime: string,
+  appointmentTypeId: ?(string[]),
+): Promise<Appointment> {
+  const searchCriteria = {
+    doctorId,
+    action,
+    duration,
+    frequency: 0,
+    startDateTime,
+    endDateTime,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+  };
+  let url = getRestUrl() + 'Appointment/manageSlots?emrOnly=true';
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(searchCriteria),
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let appointments: Appointment[] = await httpResponse.json();
+    return appointments;
+  } catch (error) {
+    console.log(error);
+    alert(strings.fetchItemError);
+    throw error;
+  }
 }
 export async function cancelAppointment(body) {
   const appointment: Appointment = await performActionOnItem(

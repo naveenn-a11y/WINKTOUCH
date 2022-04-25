@@ -29,6 +29,7 @@ import {
   isAppointmentLocked,
   AppointmentDetails,
   bookAppointment,
+  manageAvailability,
   cancelAppointment,
   hasAppointmentBookAccess,
   getAppointmentTypes,
@@ -111,7 +112,7 @@ export class AgendaScreen extends Component {
       deleting: false,
       copiedAppointment: undefined,
       rescheduleAppointment: false,
-      manageAvailabilities: true,
+      manageAvailabilities: false,
       slot: 1,
       duration: 30,
       appointmentTypes: [],
@@ -190,8 +191,11 @@ export class AgendaScreen extends Component {
         const events = await fetchEvents('store-' + getStore().storeId);
         this.setState({events});
       }
-      const emptySlots =this.createEmptySlots(appointments);
-      this.setState({appointments:[...emptySlots,...appointments], isLoading: false});
+      const emptySlots = this.createEmptySlots(appointments);
+      this.setState({
+        appointments: [...emptySlots, ...appointments],
+        isLoading: false,
+      });
     } catch (e) {
       this.setState({isLoading: false});
     }
@@ -202,10 +206,9 @@ export class AgendaScreen extends Component {
 
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event});
-    if(event.emptySlot){
-      console.log('event :>> ', event);
-    }
-    else if (this.isNewEvent(event)) {
+    if (event.emptySlot) {
+      this.openManageAvailabilities();
+    } else if (this.isNewEvent(event)) {
       if (this.state.copiedAppointment) {
         this.setState({rescheduleAppointment: true, newAppointment: event});
       } else {
@@ -292,10 +295,12 @@ export class AgendaScreen extends Component {
   cancelDoctorsOptions = () => {
     this.setState({doctorsModal: false});
   };
-  cancelManageAvailabilities = () => {
-    this.setState({manageAvailabilities: false});
+  openManageAvailabilities = () => {
+    this.setState({manageAvailabilities: true});
   };
-
+  cancelManageAvailabilities = () => {
+    this.setState({manageAvailabilities: false, appointmentTypes: [], slot: 1});
+  };
   openPatientDialog = () => {
     this.setState({isPatientDialogVisible: true});
   };
@@ -404,6 +409,29 @@ export class AgendaScreen extends Component {
     );
     if (bookedAppointment) {
       this.cancelDialog();
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    }
+  };
+  updateAvailability = async () => {
+    const start = moment(this.state.event.start).toISOString(true);
+    const end = moment(start)
+      .add(this.state.duration, 'minutes')
+      .toISOString(true);
+    const {errors, appointment}: Appointment = await manageAvailability(
+      this.state.event?.userId,
+      this.state.slot == 1 ? 0 : 3,
+      this.state.duration,
+      start,
+      end,
+      this.state.appointmentTypes,
+    );
+    if (errors) alert(errors[0]);
+    else {
+      this.cancelManageAvailabilities();
       this.refreshAppointments(
         true,
         false,
@@ -592,21 +620,15 @@ export class AgendaScreen extends Component {
     return dropdowns;
   }
   renderManageAvailabilities() {
+    const doctor: User = getCachedItem(this.state.event?.userId);
+    const start = this.state.event?.start;
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={{
-            width: '50%',
-            height: '70%',
-            alignSelf: 'center',
-            backgroundColor: '#fff',
-          }}
+          style={{width: '50%', alignSelf: 'center', backgroundColor: '#fff'}}
           visible={this.state.manageAvailabilities}
           onDismiss={this.cancelManageAvailabilities}
           dismissable={true}>
-          {/* <Dialog.Title>
-            <Text style={{color: 'black'}}> {strings.chooseDoctor}</Text>
-          </Dialog.Title> */}
           <Dialog.Content>
             <FormInput
               multiOptions
@@ -617,8 +639,8 @@ export class AgendaScreen extends Component {
               readonly={false}
               definition={{
                 options: [
-                  {label: 'Create Availability', value: 1},
-                  {label: 'Mark as unavailable', value: 2},
+                  {label: strings.createAvailability, value: 1},
+                  {label: strings.markAsUnavailable, value: 2},
                 ],
               }}
               onChangeValue={(slot) => this.setState({slot})}
@@ -626,65 +648,34 @@ export class AgendaScreen extends Component {
               isTyping={false}
             />
             <View style={{marginTop: 25}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '70%',
-                  justifyContent: 'space-between',
-                }}>
+              <View style={agendaStyles.field}>
                 <Text style={[styles.textfield, {padding: 7}]}>
                   {strings.store} :
                 </Text>
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    borderColor: 'lightgray',
-                    width: '75%',
-                    paddingVertical: 5,
-                    paddingHorizontal: 5,
-                  }}>
+                <View style={agendaStyles.input}>
                   <Text style={{opacity: 0.7}}>{getStore().name}</Text>
                 </View>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '70%',
-                  justifyContent: 'space-between',
-                }}>
+              <View style={agendaStyles.field}>
                 <Text style={[styles.textfield, {padding: 7}]}>
                   {strings.doctor} :
                 </Text>
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    borderColor: 'lightgray',
-                    width: '75%',
-                    paddingVertical: 5,
-                    paddingHorizontal: 5,
-                  }}>
-                  <Text style={{opacity: 0.7}}>{getStore().name}</Text>
+                <View style={agendaStyles.input}>
+                  <Text
+                    style={{
+                      opacity: 0.7,
+                    }}>{`${doctor?.firstName} ${doctor?.lastName}`}</Text>
                 </View>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '70%',
-                  justifyContent: 'space-between',
-                }}>
+              <View style={agendaStyles.field}>
                 <Text style={[styles.textfield, {padding: 7}]}>
                   {strings.duration} :
                 </Text>
                 <View
                   style={{
+                    width: '75%',
                     flexDirection: 'row',
                     alignItems: 'center',
-                    width: '75%',
                   }}>
                   <FormOptions
                     readonly
@@ -699,47 +690,27 @@ export class AgendaScreen extends Component {
                   <Text style={{marginLeft: 10}}>{strings.minutes}</Text>
                 </View>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '70%',
-                  justifyContent: 'space-between',
-                }}>
+              <View style={agendaStyles.field}>
                 <Text style={[styles.textfield, {padding: 7}]}>
-                  {strings.type} :
+                  {strings.AppointmentType} :
                 </Text>
                 <View style={{width: '75%'}}>
                   {this.renderAppointmentsTypes()}
                 </View>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '70%',
-                  justifyContent: 'space-between',
-                }}>
+              <View style={agendaStyles.field}>
                 <Text style={[styles.textfield, {padding: 7}]}>
                   {strings.time} :
                 </Text>
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    borderColor: 'lightgray',
-                    width: '75%',
-                    paddingVertical: 5,
-                    paddingHorizontal: 5,
-                  }}>
+                <View style={agendaStyles.input}>
                   <Text style={{opacity: 0.7}}>
                     {' '}
-                    {formatDate('2022-04-20T09:30', dateFormat)}
+                    {formatDate(start, dateFormat)}
                     {'  '}
-                    {moment('2022-04-20T09:30').format('h:mm a')}
+                    {moment(start).format('h:mm a')}
                     {' - '}
                     {formatDate(
-                      moment('2022-04-20T09:30')
+                      moment(start)
                         .add(this.state.duration, 'minutes')
                         .format('h:mm a'),
                       timeFormat,
@@ -753,7 +724,7 @@ export class AgendaScreen extends Component {
             <NativeBaseButton onPress={this.cancelManageAvailabilities}>
               {strings.close}
             </NativeBaseButton>
-            <NativeBaseButton onPress={this.getAppoitmentsForSelectedDoctors}>
+            <NativeBaseButton onPress={this.updateAvailability}>
               {strings.apply}
             </NativeBaseButton>
           </Dialog.Actions>
@@ -907,7 +878,7 @@ export class AgendaScreen extends Component {
     }
   };
 
-  createEmptySlots = (appointments=[]) => {
+  createEmptySlots = (appointments = []) => {
     const store = 'store-' + getStore().storeId;
     const {date, mode, selectedDoctors} = this.state;
     const emptyAppointments = [];
@@ -918,14 +889,16 @@ export class AgendaScreen extends Component {
     const endDate =
       mode === 'day'
         ? moment(date).endOf('day')
-        : moment(date).endOf('isoWeek').set({hour: 21, minute: 0, second: 0, millisecond: 0});
+        : moment(date)
+            .endOf('isoWeek')
+            .set({hour: 21, minute: 0, second: 0, millisecond: 0});
     const halfHour = 1000 * 60 * 30;
     const AppointmentByStartDate = {};
-    for(let appointment of appointments){
+    for (let appointment of appointments) {
       const key = new Date(appointment.start).toString();
       AppointmentByStartDate[key] = appointment;
     }
-    for(let doctor of selectedDoctors){
+    for (let doctor of selectedDoctors) {
       let loop = new Date(startDate).getTime();
       const end = new Date(endDate).getTime();
       while (loop <= end) {
@@ -933,16 +906,17 @@ export class AgendaScreen extends Component {
           moment(loop).isBefore(moment(loop).set({hour: 21})) &&
           moment(loop).isAfter(moment(loop).set({hour: 7})) &&
           (!AppointmentByStartDate[new Date(loop).toString()] ||
-          AppointmentByStartDate[new Date(loop).toString()]?.userId !== doctor)
-          ) {
+            AppointmentByStartDate[new Date(loop).toString()]?.userId !==
+              doctor)
+        ) {
           emptyAppointments.push({
-            userId:doctor,
+            userId: doctor,
             storeId: store,
             start: new Date(loop),
             end: new Date(loop + halfHour),
             emptySlot: true,
           });
-        } 
+        }
         loop += halfHour;
       }
     }
@@ -1135,11 +1109,12 @@ class Event extends Component {
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
-          event.emptySlot ? {backgroundColor: '#EFEFEF', zIndex: 0,} : {},
+          event.emptySlot ? {backgroundColor: '#EFEFEF', zIndex: 0} : {},
         ]}
         disabled={!hasAppointmentBookAccess(event) && !event.emptySlot}>
-        {!event.emptySlot && <Text style={styles.grayedText}>{strings.available}</Text>}
-        
+        {!event.emptySlot && (
+          <Text style={styles.grayedText}>{strings.available}</Text>
+        )}
       </TouchableOpacity>
     ) : (
       <TouchableOpacity
@@ -1229,8 +1204,8 @@ class NativeCalendar extends Component {
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
               <View style={agendaStyles.header(calendarWidth)}>
-                {header.dateRange.map((d,index) => (
-                  <View style={agendaStyles.cell(cellWidth)} key={index+d}>
+                {header.dateRange.map((d, index) => (
+                  <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
                       {moment(new Date(d)).format('ddd').toUpperCase()}
                     </Text>
@@ -1241,7 +1216,9 @@ class NativeCalendar extends Component {
                       {selectedDoctors.map((d) => {
                         const doc = doctors.find((doc) => doc.value == d);
                         return (
-                          <View key={doc?.label+index} style={agendaStyles.label(eventWidth)}>
+                          <View
+                            key={doc?.label + index}
+                            style={agendaStyles.label(eventWidth)}>
                             <Text numberOfLines={2}>{doc?.label}</Text>
                           </View>
                         );
@@ -1277,4 +1254,18 @@ const agendaStyles = {
     borderRightWidth: 0.8,
     borderColor: 'lightgray',
   }),
+  input: {
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'lightgray',
+    width: '75%',
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+  },
+  field: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '70%',
+    justifyContent: 'space-between',
+  },
 };

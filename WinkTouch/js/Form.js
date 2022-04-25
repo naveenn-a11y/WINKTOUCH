@@ -1490,7 +1490,7 @@ export class FormInput extends Component {
           style={style}
           errorMessage={this.props.errorMessage}
           testID={this.props.testID}
-          style={style}
+          style={this.props.style}
         />
       );
     } else if (
