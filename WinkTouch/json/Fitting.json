@@ -812,11 +812,11 @@
       ]
     },
     "fr-CA": {
-      "label": "Essai LC",
+      "label": "Ajustement LC",
       "fields": [
         {
           "name": "Contact Lens Trial",
-          "label": "Adaptation des lentilles de contact",
+          "label": "Ajustement LC",
           "fields": [
             {
               "name": "Doctor",
