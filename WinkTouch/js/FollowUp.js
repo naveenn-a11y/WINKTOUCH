@@ -49,7 +49,7 @@ import {getMimeType} from './Upload';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {fetchPatientInfo} from './Patient';
+import {fetchPatientInfo, getPatientFullName} from './Patient';
 import {getPDFAttachmentFromHtml} from './PatientFormHtml';
 const COMMAND = {
   RESEND: 0,
@@ -437,8 +437,8 @@ export class FollowUpScreen extends Component<
         const data = {uri: `data:${getMimeType(upload)};base64,${upload.data}`};
         html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
       }
-      let PDFAttachment = getPDFAttachmentFromHtml(html)
-      await printHtml(html,PDFAttachment);
+      let PDFAttachment = getPDFAttachmentFromHtml(html);
+      await printHtml(html, PDFAttachment);
     }
   }
 
@@ -1054,9 +1054,7 @@ export class TableListRow extends React.PureComponent {
           <Text style={textStyle}>{this.props.rowValue.ref}</Text>
           {this.props.isVisible && (
             <Text style={textStyle}>
-              {this.props.rowValue.patientInfo.firstName +
-                ' ' +
-                this.props.rowValue.patientInfo.lastName}
+              {getPatientFullName(this.props.rowValue.patientInfo)}
             </Text>
           )}
           <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
