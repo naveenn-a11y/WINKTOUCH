@@ -18,7 +18,8 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {FormInput} from './Form';
+import {NavigationActions} from 'react-navigation';
+import {FormTextInput, FormRow, FormInput, FormOptions, FormCode} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -31,6 +32,7 @@ import {
   bookAppointment,
   cancelAppointment,
   hasAppointmentBookAccess,
+  updateAppointment,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -79,6 +81,7 @@ export class AgendaScreen extends Component {
     copiedAppointment: Appointment,
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
+    refresh: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -105,6 +108,7 @@ export class AgendaScreen extends Component {
       deleting: false,
       copiedAppointment: undefined,
       rescheduleAppointment: false,
+      refresh: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -115,6 +119,22 @@ export class AgendaScreen extends Component {
       this.getDoctors();
       this.getSelectedDoctorsFromStorage();
     });
+  }
+
+  componentWillUnmount() {
+    if (this.state.refresh) {
+      this.asyncComponentWillUnmount();
+    }
+  }
+
+  async asyncComponentWillUnmount() {
+    if (this.props.navigation.state.params?.refreshStateKey) {
+      const setParamsAction = NavigationActions.setParams({
+        params: {refresh: true},
+        key: this.props.navigation.state.params.refreshStateKey,
+      });
+      this.props.navigation.dispatch(setParamsAction);
+    }
   }
 
   async getDoctors() {
@@ -373,31 +393,61 @@ export class AgendaScreen extends Component {
       );
     }
   };
-  updateEvent = async (appointment: Appointment) => {
-    //Call Backend
-    const bookedAppointment: Appointment = await bookAppointment(
-      appointment.patientId,
-      appointment.appointmentTypes,
-      appointment.numberOfSlots,
-      appointment.id,
-      appointment.supplierName,
-      appointment.earlyRequest,
-      appointment.earlyRequestComment,
-      false,
-      appointment.comment,
-    );
-    if (bookedAppointment) {
-      this.cancelDialog();
-      this.refreshAppointments(
-        true,
+
+  updateEvent = async (appointment: Appointment, isNewEvent?: boolean) => {
+    let updatedAppointment: Appointment;
+    if (isNewEvent) {
+      updatedAppointment = await bookAppointment(
+        appointment.patientId,
+        appointment.appointmentTypes,
+        appointment.numberOfSlots,
+        appointment.id,
+        appointment.supplierName,
+        appointment.earlyRequest,
+        appointment.earlyRequestComment,
         false,
-        this.state.mode === 'day' ? 1 : this.daysInWeek,
+        appointment.comment,
       );
+    } else {
+      updatedAppointment = await updateAppointment(appointment);
+    }
+    if (
+      (isNewEvent && updatedAppointment) ||
+      (updatedAppointment && appointment.status === 2)
+    ) {
+      this.cancelDialog();
+    }
+    let appointments: Appointment[];
+    if (appointment.status === 2) {
+      appointments = this.state.appointments.filter(
+        (a) => a.id !== appointment.id,
+      );
+      appointments = [...appointments, updatedAppointment];
+    } else {
+      const index = this.state.appointments.findIndex(
+        (e: Appointment) => e.id === updatedAppointment.id,
+      );
+      if (index >= 0) {
+        appointments = [...this.state.appointments];
+        appointments[index] = updatedAppointment;
+      }
+    }
+
+    if (!isNewEvent && appointment.status !== 2) {
+      this.setState({
+        event: updatedAppointment,
+        appointments: appointments,
+        refresh: true,
+      });
+    } else {
+      this.setState({
+        appointments: appointments,
+        refresh: true,
+      });
     }
   };
   selectPatient(patient: Patient | PatientInfo) {
     this.cancelPatientDialog();
-
     this.setState({selectedPatient: patient, showDialog: true});
   }
 
@@ -470,7 +520,7 @@ export class AgendaScreen extends Component {
               onUpdateAppointment={(appointment: Appointment) => {
                 rescheduleAppointment
                   ? this.rescheduleEvent(appointment)
-                  : this.updateEvent(appointment);
+                  : this.updateEvent(appointment, isNewEvent);
               }}
               onOpenAppointment={(appointment: Appointment) =>
                 this.openPatientFile(appointment)
