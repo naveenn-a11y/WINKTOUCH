@@ -14,20 +14,10 @@ import {
   Modal,
   ActivityIndicator,
   Dimensions,
-  FlatList,
-  TextInput,
 } from 'react-native';
-import {getAccount} from './DoctorApp';
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  styles,
-  windowHeight,
-  fontScale,
-  isWeb,
-  selectionColor,
-  selectionFontColor,
-} from './Styles';
+import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
 import {FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
@@ -40,6 +30,7 @@ import {
   isAppointmentLocked,
   AppointmentDetails,
   bookAppointment,
+  WaitingList,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -49,16 +40,12 @@ import {
   farDateFormat2,
   yearDateFormat,
   isEmpty,
-  deAccent,
-  formatAge,
-  yearDateTimeFormat,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
 import type {Patient, PatientInfo, Visit} from './Types';
@@ -91,16 +78,7 @@ export class AgendaScreen extends Component {
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
     waitingListModal: boolean,
-    selectedWaitingEvent?: Appointment,
-    rescheduling: boolean,
-    fetchingWaitingList: boolean,
-    allStores: boolean,
     rescheduledAppointment: boolean,
-    filter: string,
-    docHeaderSelected: boolean,
-    storeHeaderSelected: boolean,
-    dateHeaderSelected: boolean,
-    orderDesc: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -125,16 +103,7 @@ export class AgendaScreen extends Component {
       copedAppointment: undefined,
       rescheduleAppointment: false,
       waitingListModal: false,
-      selectedWaitingEvent: undefined,
-      rescheduling: false,
-      fetchingWaitingList: false,
-      allStores: false,
       rescheduledAppointment: false,
-      filter: '',
-      docHeaderSelected: false,
-      storeHeaderSelected: false,
-      dateHeaderSelected: false,
-      orderDesc: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 6;
@@ -144,7 +113,6 @@ export class AgendaScreen extends Component {
     InteractionManager.runAfterInteractions(() => {
       this.getDoctors();
       this.getSelectedDoctorsFromStorage();
-      this.orderByDate();
     });
   }
 
@@ -214,7 +182,7 @@ export class AgendaScreen extends Component {
     try {
       this.setState({fetchingWaitingList: true});
       let appointments = await fetchAppointments(
-        this.state.allStores ? undefined : 'store-' + getStore().storeId,
+        this.state.allStores ? undefined : getStore().id,
         undefined,
         undefined,
         undefined,
@@ -333,15 +301,10 @@ export class AgendaScreen extends Component {
     this.setState({isPatientDialogVisible: false});
   };
   openWaitingListDialog = () => {
-    this.waitingListAppointments();
     this.setState({waitingListModal: true, isPatientDialogVisible: false});
   };
   cancelWaitingListDialog = () => {
-    this.setState({
-      filter: '',
-      waitingListModal: false,
-      selectedWaitingEvent: undefined,
-    });
+    this.setState({waitingListModal: false});
   };
 
   getAppoitmentsForSelectedDoctors = () => {
@@ -369,11 +332,11 @@ export class AgendaScreen extends Component {
   };
 
   rescheduleEvent = async (appointment: Appointment) => {
-    this.setState({rescheduling: true});
     //Call Backend
     const newId = this.state.newAppointment
       ? this.state.newAppointment.id
       : appointment.newId;
+
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
@@ -392,6 +355,8 @@ export class AgendaScreen extends Component {
     const index = this.state.appointments.findIndex(
       (e: Appointment) => e.id === newId,
     );
+    console.log('oldAppointmentIndex', oldAppointmentIndex);
+    console.log('index', index);
 
     if (index >= 0) {
       let appointments: Appointment[] = [...this.state.appointments];
@@ -413,8 +378,6 @@ export class AgendaScreen extends Component {
       this.setState({
         appointments: appointments,
         waitingListModal: false,
-        selectedWaitingEvent: undefined,
-        rescheduling: false,
         rescheduledAppointment: true,
       });
       if (bookedAppointment) {
@@ -635,457 +598,17 @@ export class AgendaScreen extends Component {
       });
     } else this.setState({copedAppointment: null});
   };
-  updateOrder = () => {
-    const order: boolean = this.state.orderDesc;
-    this.setState({orderDesc: !order});
-  };
-  compareDate(a, b): number {
-    if (b.start < a.start) {
-      return -1;
-    } else if (b.start > a.start) {
-      return 1;
-    }
-    return 0;
-  }
-  groupByDate(): any {
-    let data: any[] = [...this.state.waitingListAppointments];
-    data.sort(this.compareDate);
-    return data;
-  }
-  orderByDate = () => {
-    if (!this.state.dateHeaderSelected) {
-      this.setState({
-        groupBy: 'Date',
-        dateHeaderSelected: true,
-        docHeaderSelected: false,
-        storeHeaderSelected: false,
-        orderDesc: true,
-      });
-    } else {
-      this.updateOrder();
-    }
-  };
-  compareDoctor(a, b): number {
-    const doctor1: User = getCachedItem(a.userId);
-    const doctor2: User = getCachedItem(b.userId);
-    if (doctor1.firstName.toLowerCase() < doctor2.firstName.toLowerCase()) {
-      return -1;
-    } else if (
-      doctor1.firstName.toLowerCase() > doctor2.firstName.toLowerCase()
-    ) {
-      return 1;
-    }
-    return 0;
-  }
-  groupByDoctor() {
-    let data: any[] = [...this.state.waitingListAppointments];
-    data.sort(this.compareDoctor);
-    return data;
-  }
-  orderByDoctor = () => {
-    if (!this.state.docHeaderSelected) {
-      this.setState({
-        groupBy: 'Doctor',
-        dateHeaderSelected: false,
-        docHeaderSelected: true,
-        storeHeaderSelected: false,
-        orderDesc: true,
-      });
-    } else {
-      this.updateOrder();
-    }
-  };
-  compareStore(a, b): number {
-    // const store1: User = getCachedItem(a.storeId);
-    // const store2: User = getCachedItem(b.storeId);
-    // if (store1.name.toLowerCase() < store2.name.toLowerCase()) {
-    //   return -1;
-    // } else if (
-    //   store1.name.toLowerCase() > store2.name.toLowerCase()
-    // ) {
-    //   return 1;
-    // }
-    return 0;
-  }
-  groupByStore() {
-    let data: any[] = [...this.state.waitingListAppointments];
-    data.sort(this.compareStore);
-    return data;
-  }
-  orderByStore = () => {
-    if (!this.state.storeHeaderSelected) {
-      this.setState({
-        groupBy: 'Store',
-        dateHeaderSelected: false,
-        docHeaderSelected: false,
-        storeHeaderSelected: true,
-        orderDesc: true,
-      });
-    } else {
-      this.updateOrder();
-    }
-  };
 
-  renderFilterField() {
-    const style = [styles.searchField, {minWidth: 350 * fontScale}];
-
-    return (
-      <TextInput
-        returnKeyType="search"
-        placeholder={strings.findRow}
-        autoCorrect={false}
-        autoCapitalize="none"
-        style={style}
-        value={this.state.filter}
-        onChangeText={(filter: string) => this.setState({filter})}
-        // testID={this.props.fieldId + '.filter'}
-      />
-    );
-  }
-
-  getItems(): any[] {
-    let data: any[] = [...this.state.waitingListAppointments];
-    let filterData: any[] = [];
-    if (this.state.groupBy === 'Date') {
-      data = this.groupByDate();
-    } else if (this.state.groupBy === 'Doctor') {
-      data = this.groupByDoctor();
-    } else if (this.state.groupBy === 'Store') {
-      data = this.groupByStore();
-    }
-    if (!this.state.orderDesc) {
-      data.reverse();
-    }
-    const filter: ?string =
-      this.state.filter !== undefined && this.state.filter !== ''
-        ? deAccent(this.state.filter.trim().toLowerCase())
-        : undefined;
-    data = data.map((item) => {
-      let type = '';
-      const patient: PatientInfo | Patient = getCachedItem(item.patientId);
-      const doctor: User = getCachedItem(item.userId);
-      const storeId = item.storeId?.split('-')[1];
-      const store = getAccount().stores.find(
-        (store) => store.storeId == storeId,
-      );
-      if (item.appointmentTypes)
-        item.appointmentTypes.map((id, index) => {
-          const t = getCachedItem(id);
-          type +=
-            index == item.appointmentTypes.length - 1
-              ? `${t.name}.`
-              : `${t.name}, `;
-        });
-      filterData.push({
-        patient: `${patient?.firstName} ${patient?.lastName}`,
-        home: patient.phone,
-        cell: patient.cell,
-        work: patient.work,
-        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
-        store: store?.name,
-        comment: item.earlyRequestComment || '',
-      });
-      return {
-        ...item,
-        type,
-        patient: `${patient?.firstName} ${patient?.lastName}`,
-        age: formatAge(patient.dateOfBirth),
-        home: patient.phone,
-        cell: patient.cell,
-        work: patient.work,
-        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
-        store,
-      };
-    });
-    if (filter) {
-      data = data.filter(
-        (item: any, index) =>
-          item != null &&
-          item !== undefined &&
-          JSON.stringify(Object.values(filterData[index])).trim().length > 0 &&
-          deAccent(
-            JSON.stringify(Object.values(filterData[index])).toLowerCase(),
-          ).indexOf(filter) >= 0,
-      );
-    }
-    return data;
-  }
   renderWaitingList() {
-    const event: Appointment = this.state.event;
-    const user: User = getCachedItem(event.userId);
-    const appointments = this.getItems();
-    const titleStyle = {
-      marginBottom: 5,
-      fontWeight: '500',
-      fontSize: fontScale * 23,
-    };
-    const headerStyle = {
-      fontWeight: '500',
-      textAlign: 'center',
-      fontSize: fontScale * 23,
-    };
     return (
-      <Portal theme={{colors: {backdrop: 'transparent'}}}>
-        <Dialog
-          style={{
-            width: '70%',
-            minHeight: '60%',
-            maxHeight: '90%',
-            alignSelf: 'center',
-            backgroundColor: '#fff',
-          }}
-          visible={this.state.waitingListModal}
-          onDismiss={this.cancelWaitingListDialog}
-          dismissable={true}>
-          <Dialog.Title>
-            <Text style={{color: '#1db3b3'}}>{strings.waitingList}</Text>
-          </Dialog.Title>
-          <Dialog.ScrollArea>
-            <ScrollView contentContainerStyle={{padding: 10, flexGrow: 1}}>
-              <View style={{marginVertical: 15}}>
-                <Text style={titleStyle}>
-                  {strings.date}:{'  '}
-                  {formatDate(event.start, yearDateTimeFormat)}
-                </Text>
-                <Text style={titleStyle}>
-                  {strings.store}: {'  '}
-                  {getStore().name}
-                </Text>
-                <Text style={titleStyle}>
-                  {strings.doctor}:{'  '}
-                  {user?.firstName} {user?.lastName}
-                </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 20,
-                }}>
-                <View>{this.renderFilterField()}</View>
-                <View>
-                  <FormInput
-                    optional
-                    singleSelect
-                    multiOptions
-                    value={this.state.allStores}
-                    showLabel={false}
-                    readonly={false}
-                    definition={{
-                      options: [{label: strings.showAllStores, value: true}],
-                    }}
-                    onChangeValue={(v) => {
-                      this.setState({allStores: v ? true : false}, () =>
-                        this.waitingListAppointments(),
-                      );
-                    }}
-                    errorMessage={'error'}
-                    isTyping={false}
-                  />
-                </View>
-              </View>
-              {this.state.fetchingWaitingList ? (
-                <ActivityIndicator
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                />
-              ) : (
-                <>
-                  <View>
-                    <View style={styles.listRow}>
-                      <Text style={[headerStyle, styles.container]}>
-                        {strings.patient}
-                      </Text>
-                      <Text style={[headerStyle, styles.container]}>
-                        {strings.age}
-                      </Text>
-                      <Text style={[headerStyle, styles.container]}>
-                        {strings.home}
-                      </Text>
-                      <Text style={[headerStyle, styles.container]}>
-                        {strings.cell}
-                      </Text>
-                      <Text style={[headerStyle, styles.container]}>
-                        {strings.work}
-                      </Text>
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                        onPress={this.orderByStore}>
-                        {this.state.storeHeaderSelected && (
-                          <ArrowIcon
-                            name={
-                              this.state.orderDesc
-                                ? 'arrow-downward'
-                                : 'arrow-upward'
-                            }
-                            color={selectionFontColor}
-                          />
-                        )}
-                        <Text
-                          style={{
-                            ...headerStyle,
-                            color: this.state.storeHeaderSelected
-                              ? '#5ed4d4'
-                              : 'black',
-                          }}>
-                          {strings.store}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                        onPress={this.orderByDoctor}>
-                        {this.state.docHeaderSelected && (
-                          <ArrowIcon
-                            name={
-                              this.state.orderDesc
-                                ? 'arrow-downward'
-                                : 'arrow-upward'
-                            }
-                            color={selectionFontColor}
-                          />
-                        )}
-                        <Text
-                          style={{
-                            ...headerStyle,
-                            color: this.state.docHeaderSelected
-                              ? '#5ed4d4'
-                              : 'black',
-                          }}>
-                          {strings.doctor}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                        onPress={this.orderByDate}>
-                        {this.state.dateHeaderSelected && (
-                          <ArrowIcon
-                            name={
-                              this.state.orderDesc
-                                ? 'arrow-downward'
-                                : 'arrow-upward'
-                            }
-                            color={selectionFontColor}
-                          />
-                        )}
-                        <Text
-                          style={{
-                            ...headerStyle,
-                            color: this.state.dateHeaderSelected
-                              ? '#5ed4d4'
-                              : 'black',
-                          }}>
-                          {strings.appDateAndTime}
-                        </Text>
-                      </TouchableOpacity>
-                      <Text style={[headerStyle, styles.container]}>
-                        {strings.comment}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        height: 1,
-                        width: '100%',
-                        backgroundColor: 'gray',
-                        marginVertical: 5,
-                      }}
-                    />
-                  </View>
-                  <FlatList
-                    data={appointments}
-                    initialNumToRender={20}
-                    showsVerticalScrollIndicator={false}
-                    extraData={{filter: this.state.filter}}
-                    renderItem={({item, index}) => {
-                      const selected =
-                        this.state.selectedWaitingEvent?.id == item.id;
-                      const textStyle = {
-                        flex: 1,
-                        textAlign: 'center',
-                        color: selected ? '#1db3b3' : 'black',
-                      };
-                      return (
-                        <TouchableOpacity
-                          onPress={() =>
-                            this.setState({selectedWaitingEvent: item})
-                          }
-                          style={[
-                            styles.listRow,
-                            {
-                              backgroundColor:
-                                index % 2 === 0 ? '#F9F9F9' : '#FFFFFF',
-                            },
-                          ]}>
-                          <Text style={textStyle}>{item.patient}</Text>
-                          <Text style={textStyle}>{item?.age}</Text>
-                          <Text style={textStyle}>{item?.home}</Text>
-                          <Text style={textStyle}>{item?.cell}</Text>
-                          <Text style={textStyle}>{item?.work}</Text>
-                          <Text style={textStyle}>{item.store?.name}</Text>
-                          <Text style={textStyle}>{item.doctor}</Text>
-                          <View style={{flex: 1}}>
-                            <Text style={textStyle}>
-                              {formatDate(item.start, yearDateTimeFormat)}
-                            </Text>
-                            <Text style={{fontWeight: '500', ...textStyle}}>
-                              {item?.type}
-                            </Text>
-                          </View>
-                          <Text style={textStyle}>
-                            {item?.earlyRequestComment}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    }}
-                  />
-                </>
-              )}
-            </ScrollView>
-          </Dialog.ScrollArea>
-          <Dialog.Actions>
-            <NativeBaseButton onPress={this.cancelWaitingListDialog}>
-              {strings.close}
-            </NativeBaseButton>
-            <NativeBaseButton
-              onPress={() => {
-                this.rescheduleEvent({
-                  ...event,
-                  earlyRequest: false,
-                  newId: event.id,
-                  id: this.state.selectedWaitingEvent.id,
-                  patientId: this.state.selectedWaitingEvent.patientId,
-                });
-              }}
-              disabled={
-                this.state.rescheduling || !this.state.selectedWaitingEvent
-              }>
-              {this.state.rescheduling ? (
-                <ActivityIndicator />
-              ) : (
-                strings.reschedule
-              )}
-            </NativeBaseButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      <WaitingList
+        event={this.state.event}
+        waitingListModal={this.state.waitingListModal}
+        onCloseWaitingList={this.cancelWaitingListDialog}
+        onUpdateAppointment={(appointment: Appointment) =>
+          this.rescheduleEvent(appointment)
+        }
+      />
     );
   }
 
