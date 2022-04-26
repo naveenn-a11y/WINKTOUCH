@@ -1384,7 +1384,7 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
   },
   availabilitiesField: {
-    shadowRadius: 'none',
+    shadowRadius: 0,
     paddingRight: 7 * fontScale,
     fontSize: 18 * fontScale,
     minWidth: 220 * fontScale,
