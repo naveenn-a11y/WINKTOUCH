@@ -649,6 +649,7 @@ export class AgendaScreen extends Component {
             />
             <View style={{marginTop: 25}}>
               <View style={agendaStyles.field}>
+                <Text style={[styles.textfield, styles.availabilitiesField]}>
                   {strings.store} :
                 </Text>
                 <View style={agendaStyles.input}>
@@ -656,7 +657,6 @@ export class AgendaScreen extends Component {
                 </View>
               </View>
               <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, {padding: 7}]}>
                 <Text style={[styles.textfield, styles.availabilitiesField]}>
                   {strings.doctor} :
                 </Text>
