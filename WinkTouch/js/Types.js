@@ -183,7 +183,6 @@ export type Appointment = {
   start: string | Date,
   end: string | Date,
   status: number,
-  isBusy?: boolean,
   appointmentTypes?: string[],
   indicators?: string[],
   comment?: string,
