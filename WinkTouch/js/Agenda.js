@@ -38,7 +38,7 @@ import {
   isAppointmentLocked,
   AppointmentDetails,
   bookAppointment,
-  updateAppointmentStatus,
+  updateAppointment,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -322,65 +322,60 @@ export class AgendaScreen extends Component {
     });
   };
 
-  updateEvent = async (appointment: Appointment) => {
-    //Call Backend
-
-    const bookedAppointment: Appointment = await bookAppointment(
-      appointment.patientId,
-      appointment.appointmentTypes,
-      appointment.numberOfSlots,
-      appointment.id,
-      appointment.supplierName,
-      appointment.earlyRequest,
-      appointment.earlyRequestComment,
-      false,
-      appointment.comment,
-    );
-    if (bookedAppointment) {
+  updateEvent = async (appointment: Appointment, isNewEvent?: boolean) => {
+    let updatedAppointment: Appointment;
+    if (isNewEvent) {
+      updatedAppointment = await bookAppointment(
+        appointment.patientId,
+        appointment.appointmentTypes,
+        appointment.numberOfSlots,
+        appointment.id,
+        appointment.supplierName,
+        appointment.earlyRequest,
+        appointment.earlyRequestComment,
+        false,
+        appointment.comment,
+      );
+    } else {
+      updatedAppointment = await updateAppointment(appointment);
+    }
+    if (
+      (isNewEvent && updatedAppointment) ||
+      (updatedAppointment && appointment.status === 2)
+    ) {
       this.cancelDialog();
     }
-
-    const index = this.state.appointments.findIndex(
-      (e: Appointment) => e.id === bookedAppointment.id,
-    );
-
-    if (index >= 0) {
-      let appointments: Appointment[] = [...this.state.appointments];
-      appointments[index] = bookedAppointment;
-      this.setState({appointments: appointments});
-    }
-  };
-  updateAppointmentStatus = async (
-    appointment: Appointment,
-    status: Number,
-    eventId: Number,
-  ) => {
-    const updatedAppointment: Appointment = await updateAppointmentStatus(
-      appointment,
-      status,
-    );
-    if (status == 2) {
-      //cancelled
-      let appointments: Appointment[] = this.state.appointments.filter(
-        (a) => a.id != eventId,
+    let appointments: Appointment[];
+    if (appointment.status === 2) {
+      appointments = this.state.appointments.filter(
+        (a) => a.id !== appointment.id,
       );
       appointments = [...appointments, updatedAppointment];
-      this.setState({appointments, refresh: true});
-      this.cancelDialog();
     } else {
       const index = this.state.appointments.findIndex(
         (e: Appointment) => e.id === updatedAppointment.id,
       );
       if (index >= 0) {
-        let appointments: Appointment[] = [...this.state.appointments];
+        appointments = [...this.state.appointments];
         appointments[index] = updatedAppointment;
-        this.setState({appointments, refresh: true});
       }
+    }
+
+    if (!isNewEvent && appointment.status !== 2) {
+      this.setState({
+        event: updatedAppointment,
+        appointments: appointments,
+        refresh: true,
+      });
+    } else {
+      this.setState({
+        appointments: appointments,
+        refresh: true,
+      });
     }
   };
   selectPatient(patient: Patient | PatientInfo) {
     this.cancelPatientDialog();
-
     this.setState({selectedPatient: patient, showDialog: true});
   }
 
@@ -440,15 +435,11 @@ export class AgendaScreen extends Component {
               appointment={event}
               isNewAppointment={isNewEvent}
               onUpdateAppointment={(appointment: Appointment) =>
-                this.updateEvent(appointment)
+                this.updateEvent(appointment, isNewEvent)
               }
               onOpenAppointment={(appointment: Appointment) =>
                 this.openPatientFile(appointment)
               }
-              onUpdateAppointmentStatus={(
-                appointment: Appointment,
-                status: Number,
-              ) => this.updateAppointmentStatus(appointment, status)}
               onCloseAppointment={() => this.cancelDialog()}
             />
           </Dialog.Content>

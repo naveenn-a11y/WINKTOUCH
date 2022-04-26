@@ -84,6 +84,7 @@ import {
   fetchItemById,
   stripDataType,
   performActionOnItem,
+  storeItem,
 } from './Rest';
 import {
   formatCode,
@@ -204,30 +205,12 @@ export async function bookAppointment(
   );
   return appointment;
 }
-export async function updateAppointmentStatus(
-  appointment: Appointment,
-  status: Number,
-) {
-  const searchCriteria = {
-    patientId: appointment.patientId,
-    comment: appointment.comment,
-    appointmentTypeId: appointment.appointmentTypes
-      ? appointment.appointmentTypes.map((type) => type.split('-')[1])
-      : 0,
-    earlyRequest: false,
-    id: appointment.id,
-    status: status,
-  };
-  const params = {
-    emrOnly: true,
-  };
-  const updatedAppointment: Appointment = await performActionOnItem(
-    'update',
-    searchCriteria,
-    'PUT',
-    params,
-  );
-  return updatedAppointment;
+export async function updateAppointment(appointment: Appointment) {
+  if (appointment === undefined || appointment === null) {
+    return;
+  }
+  appointment = await storeItem(appointment);
+  return appointment;
 }
 
 export class AppointmentTypes extends Component {
@@ -710,7 +693,6 @@ export class AppointmentDetails extends Component {
     appointment: Appointment,
     onUpdateAppointment: (appointment: Appointment) => void,
     onOpenAppointment: (appointment: Appointment) => void,
-    onUpdateAppointmentStatus: (appointment: Appointment) => void,
     onCloseAppointment: () => void,
     isNewAppointment: boolean,
   };
@@ -735,9 +717,14 @@ export class AppointmentDetails extends Component {
 
   startEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
-    let appointmentClone: Appointment = {...this.props.appointment};
+    this.cloneAppointment();
+    this.setState({isEditable: true});
+  }
 
-    this.setState({isEditable: true, editedAppointment: appointmentClone});
+  cloneAppointment(): Appointment {
+    let appointmentClone: Appointment = {...this.props.appointment};
+    this.setState({editedAppointment: appointmentClone});
+    return appointmentClone;
   }
 
   getWaitingListOptions(): CodeDefinition[] {
@@ -835,12 +822,22 @@ export class AppointmentDetails extends Component {
     return true;
   }
 
-  updateValue(propertyName: string, newValue: any, index?: number) {
-    let editedAppointment: ?Appointment = this.state.editedAppointment;
+  updateValue(
+    propertyName: string,
+    newValue: any,
+    index?: number,
+  ): Appointment {
+    let editedAppointment: ?Appointment;
 
+    if (!this.state.editedAppointment) {
+      editedAppointment = this.cloneAppointment();
+    } else {
+      editedAppointment = this.state.editedAppointment;
+    }
     if (!editedAppointment) {
       return;
     }
+
     if (index >= 0) {
       if (
         editedAppointment[propertyName] === undefined ||
@@ -862,6 +859,7 @@ export class AppointmentDetails extends Component {
     }
 
     this.setState(editedAppointment);
+    return editedAppointment;
   }
 
   getDateFormat(date: ?string): string {
@@ -876,7 +874,11 @@ export class AppointmentDetails extends Component {
     const labelWidth: number = 200 * fontScale;
     const appointmentsType: string[] =
       this.state.editedAppointment.appointmentTypes;
+
     let dropdowns = [];
+    let appointmentDataTypeId: number = appointmentsType
+      ? stripDataType(appointmentsType[0])
+      : -1;
     dropdowns.push(
       <FormRow>
         <FormOptions
@@ -884,7 +886,9 @@ export class AppointmentDetails extends Component {
           options={this.getAppointmentTypes()}
           showLabel={true}
           label={strings.AppointmentType}
-          value={appointmentsType ? appointmentsType[0] : ''}
+          value={
+            appointmentDataTypeId > 0 ? appointmentDataTypeId.toString() : ''
+          }
           onChangeValue={(code: ?string | ?number) => {
             this.updateValue('appointmentTypes', code, 0);
             this.validateNumberOfSlots(code);
@@ -895,6 +899,7 @@ export class AppointmentDetails extends Component {
     if (appointmentsType && appointmentsType.length >= 1) {
       for (let i: number = 1; i <= appointmentsType.length; i++) {
         if (i < 5) {
+          appointmentDataTypeId = stripDataType(appointmentsType[i]);
           dropdowns.push(
             <FormRow>
               <FormOptions
@@ -902,7 +907,11 @@ export class AppointmentDetails extends Component {
                 options={this.getAppointmentTypes()}
                 showLabel={true}
                 label={strings.AppointmentType}
-                value={appointmentsType[i]}
+                value={
+                  appointmentDataTypeId > 0
+                    ? appointmentDataTypeId.toString()
+                    : ''
+                }
                 onChangeValue={(code: ?string | ?number) => {
                   this.updateValue('appointmentTypes', code, i);
                   this.validateNumberOfSlots(code);
@@ -1026,14 +1035,9 @@ export class AppointmentDetails extends Component {
                 code="appointmentStatusCode"
                 value={this.state.status}
                 onChangeValue={(code: ?string | ?number) => {
-                  code !== undefined &&
-                    this.setState({status: code}, () =>
-                      this.props.onUpdateAppointmentStatus(
-                        this.props.appointment,
-                        this.state.status,
-                        appointment.id,
-                      ),
-                    );
+                  this.props.onUpdateAppointment(
+                    this.updateValue('status', code),
+                  );
                 }}
               />
             </FormRow>
@@ -1166,10 +1170,8 @@ export class AppointmentDetails extends Component {
           <NativeBaseButton onPress={() => this.cancelEdit()}>
             {strings.cancel}
           </NativeBaseButton>
-          <NativeBaseButton
-            disabled={!this.props.isNewAppointment}
-            onPress={() => this.commitEdit()}>
-            {strings.book}
+          <NativeBaseButton onPress={() => this.commitEdit()}>
+            {this.props.isNewAppointment ? strings.book : strings.update}
           </NativeBaseButton>
         </View>
       </View>
