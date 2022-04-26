@@ -1,18 +1,16 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
 import {
   Image,
   View,
-  TouchableHighlight,
   Text,
-  Button,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   LayoutAnimation,
   InteractionManager,
   RefreshControl,
@@ -25,47 +23,117 @@ import type {
   Visit,
   User,
   AppointmentType,
+  CodeDefinition,
 } from './Types';
-import {styles, fontScale} from './Styles';
+import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
 import {
   formatDate,
   timeFormat,
-  time24Format,
-  dateTimeFormat,
-  dayDateTime24Format,
-  dayYearDateTime24Format,
-  now,
   isToday,
-  formatMoment,
   capitalize,
   formatDuration,
-  jsonDateTimeFormat,
   jsonDateFormat,
   today,
   dayYearDateTimeFormat,
+  farDateFormat2,
+  isEmpty,
+  formatAge,
+  prefix,
 } from './Util';
 import {
   FormRow,
   FormTextInput,
-  FormDateInput,
-  FormDateTimeInput,
-  FormDurationInput,
   FormCode,
+  FormCheckBox,
+  FormNumberInput,
+  FormOptions,
 } from './Form';
-import {VisitHistory, fetchVisitHistory} from './Visit';
-import {PatientCard, fetchPatientInfo, PatientTags} from './Patient';
+import {
+  VisitHistory,
+  fetchVisitHistory,
+  fetchVisitForAppointment,
+} from './Visit';
+import {
+  PatientCard,
+  fetchPatientInfo,
+  PatientTags,
+  getPatientFullName,
+} from './Patient';
 import {
   cacheItem,
   getCachedItem,
   getCachedItems,
   cacheItemsById,
-  cacheItemById,
-  clearCachedItemById,
 } from './DataCache';
-import {searchItems, fetchItemById, stripDataType} from './Rest';
-import {formatCode} from './Codes';
+import {searchItems, fetchItemById, performActionOnItem} from './Rest';
+import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
+import {getStore} from './DoctorApp';
+import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const PRIVILEGE = {
+  NOACCESS: 'NOACCESS',
+  READONLY: 'READONLY',
+  BOOKONLY: 'BOOKONLY',
+  FULLACCESS: 'FULLACCESS',
+};
+
+function hasAppointmentReadAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return (
+    appointment.appointmentPrivilege === PRIVILEGE.READONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.BOOKONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+export function hasAppointmentBookAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return (
+    appointment.appointmentPrivilege === PRIVILEGE.BOOKONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+function hasAppointmentFullAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS;
+}
+
+export function getAppointmentTypes(): CodeDefinition[] {
+  let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
+  if (appointmentTypes && appointmentTypes.length > 0) {
+    appointmentTypes = appointmentTypes.filter(
+      (type: CodeDefinition) => type.isAppointmentType,
+    );
+  }
+  return appointmentTypes;
+}
+
+export function isAppointmentLocked(appointment: Appointment): boolean {
+  if (appointment === undefined) {
+    return false;
+  }
+  let visitHistory: Visit[] = getCachedItems(
+    getCachedItem('visitHistory-' + appointment.patientId),
+  );
+  if (visitHistory) {
+    visitHistory = visitHistory.filter(
+      (visit: Visit) => visit.appointmentId === appointment.id && visit.locked,
+    );
+    if (visitHistory.length > 0) {
+      return true;
+    }
+  }
+  return false;
+}
 export async function fetchAppointment(
   appointmentId: string,
 ): Promise<Appointment> {
@@ -73,19 +141,29 @@ export async function fetchAppointment(
   return appointment;
 }
 
+export async function fetchEvents(storeId: ?string): Promise<Appointment> {
+  const searchCritera = {storeId: storeId};
+  let restResponse = await searchItems('Appointment/events', searchCritera);
+  let dayEvents: Appointment[] = restResponse.dayEventsList;
+  cacheItemsById(dayEvents);
+  return dayEvents;
+}
 export async function fetchAppointments(
   storeId: ?string,
   doctorId: ?string,
-  maxDays: number,
-  patientId?: string,
+  maxDays: ?number,
+  patientId: ?string,
+  startDate: ?Date = today(),
+  includeDayEvents: ?boolean = false,
+  includeAvailableSlots: ?boolean = false,
 ): Promise<Appointment[]> {
-  //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
     storeId: storeId,
     doctorId: doctorId,
     patientId: patientId,
-    startDate: formatDate(today(), jsonDateFormat),
-    maxDays: maxDays.toString(),
+    startDate: formatDate(startDate, jsonDateFormat),
+    maxDays: maxDays ? maxDays.toString() : undefined,
+    includeAvailableSlots,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',
@@ -95,14 +173,78 @@ export async function fetchAppointments(
   let patients: PatientInfo[] = restResponse.patientList;
   let appointmentTypes: AppointmentType[] = restResponse.appointmentTypeList;
   let appointments: Appointment[] = restResponse.appointmentList;
+
   cacheItemsById(users);
   cacheItemsById(appointmentTypes);
   cacheItemsById(appointments);
   cacheItemsById(patients);
+  patients.map((patient: PatientInfo) => {
+    let patientAppts: Appointment[] = appointments.filter(
+      (appointment: Appointment) => appointment.patientId === patient.id,
+    );
+
+    cacheItem('appointmentsHistory-' + patient.id, patientAppts);
+  });
+
   return appointments;
 }
 
-class AppointmentTypes extends Component {
+export async function bookAppointment(
+  patientId: ?string,
+  appointmentTypeId: ?(string[]),
+  numberOfSlots: ?number,
+  slotId: ?string,
+  supplierId: ?string,
+  earlyRequest: ?boolean,
+  earlyRequestComment: ?string,
+  rescheduled: ?boolean,
+  comment: ?string,
+  oldappointmentId: ?string,
+): Promise<Appointment> {
+  const reschedulingParms = rescheduled
+    ? {
+        appointmentModification: true,
+        oldappointmentId: oldappointmentId,
+      }
+    : {};
+  const searchCriteria = {
+    patientId: patientId,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+    numberOfSlots: numberOfSlots,
+    slotId: slotId,
+    earlyRequest: earlyRequest ? true : false,
+    earlyRequestComment: !isEmpty(earlyRequestComment)
+      ? earlyRequestComment
+      : '',
+    rescheduled: rescheduled,
+    id: slotId,
+    storeId: getStore().id,
+    supplierId: !isEmpty(supplierId) ? supplierId : 0,
+    comment: comment,
+    ...reschedulingParms,
+  };
+  const params = {
+    emrOnly: true,
+  };
+  const appointment: Appointment = await performActionOnItem(
+    '',
+    searchCriteria,
+    'POST',
+    params,
+  );
+  return appointment;
+}
+export async function cancelAppointment(body) {
+  const appointment: Appointment = await performActionOnItem(
+    'cancel',
+    body,
+    'POST',
+    {emrOnly: true},
+  );
+  return appointment;
+}
+
+export class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,
     orientation?: string,
@@ -129,8 +271,9 @@ class AppointmentTypes extends Component {
                 appointmentType === undefined ||
                 appointmentType.color === undefined ||
                 appointmentType.color === null
-              )
+              ) {
                 return null;
+              }
               return (
                 <View
                   style={{
@@ -156,7 +299,7 @@ class AppointmentIcon extends Component {
   };
   render() {
     const boxSize: number = 22 * fontScale;
-    if ('invoiced' === this.props.name)
+    if (this.props.name === 'invoiced') {
       return (
         <Image
           source={require('./image/calendar/paidx2.png')}
@@ -168,7 +311,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('lastNoShow' === this.props.name)
+    } else if (this.props.name === 'lastNoShow') {
       return (
         <Image
           source={require('./image/calendar/lastNoShowx2.png')}
@@ -180,7 +323,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('existingPatient' === this.props.name)
+    } else if (this.props.name === 'existingPatient') {
       return (
         <Image
           source={require('./image/calendar/existingPatientx2.png')}
@@ -192,7 +335,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('newPatient' === this.props.name)
+    } else if (this.props.name === 'newPatient') {
       return (
         <Image
           source={require('./image/calendar/newPatientx2.png')}
@@ -204,7 +347,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('leftWithRx' === this.props.name)
+    } else if (this.props.name === 'leftWithRx') {
       return (
         <Image
           source={require('./image/calendar/leftWithRxx2.png')}
@@ -216,7 +359,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('unconfirmed' === this.props.name)
+    } else if (this.props.name === 'unconfirmed') {
       return (
         <Image
           source={require('./image/calendar/unconfirmedx2.png')}
@@ -228,7 +371,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('confirmed' === this.props.name)
+    } else if (this.props.name === 'confirmed') {
       return (
         <Image
           source={require('./image/calendar/confirmedx2.png')}
@@ -240,7 +383,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('noShow' === this.props.name)
+    } else if (this.props.name === 'noShow') {
       return (
         <Image
           source={require('./image/calendar/noShowx2.png')}
@@ -252,7 +395,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('waiting' === this.props.name)
+    } else if (this.props.name === 'waiting') {
       return (
         <Image
           source={require('./image/calendar/waitingx2.png')}
@@ -264,7 +407,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('completed' === this.props.name)
+    } else if (this.props.name === 'completed') {
       return (
         <Image
           source={require('./image/calendar/completedx2.png')}
@@ -276,7 +419,7 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if ('family' === this.props.name)
+    } else if (this.props.name === 'family') {
       return (
         <Image
           source={require('./image/calendar/familyx2.png')}
@@ -288,12 +431,14 @@ class AppointmentIcon extends Component {
           }}
         />
       );
-    else if (__DEV__) return <Text style={styles.text}>{this.props.name}</Text>;
+    } else if (__DEV__) {
+      return <Text style={styles.text}>{this.props.name}</Text>;
+    }
     return null;
   }
 }
 
-class AppointmentIcons extends Component {
+export class AppointmentIcons extends Component {
   props: {
     appointment: Appointment,
     orientation?: string,
@@ -306,8 +451,9 @@ class AppointmentIcons extends Component {
       !this.props.appointment ||
       !this.props.appointment.indicators ||
       this.props.appointment.indicators.length == 0
-    )
+    ) {
       return null;
+    }
     const isHorizontal: boolean = this.props.orientation === 'horizontal';
     return (
       <View
@@ -367,11 +513,38 @@ export class AppointmentSummary extends Component {
   props: {
     appointment: Appointment,
     onPress: () => void,
+    locked: boolean,
+  };
+  state: {
+    locked: ?boolean,
+  };
+  static defaultProps = {
+    locked: false,
   };
 
   constructor(props: any) {
     super(props);
+    this.state = {
+      locked: this.props.locked,
+    };
   }
+  componentDidMount() {
+    this.getLockedState();
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.locked === this.props.locked) {
+      return;
+    }
+
+    this.setState({locked: this.props.locked});
+  }
+
+  getLockedState = async () => {
+    const appointment: Appointment = this.props.appointment;
+    const visit: Visit = await fetchVisitForAppointment(appointment.id);
+    this.setState({locked: visit ? visit.locked : false});
+  };
 
   render() {
     const patient: Patient = getCachedItem(this.props.appointment.patientId);
@@ -385,19 +558,38 @@ export class AppointmentSummary extends Component {
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
             <View style={{marginHorizontal: 5 * fontScale}}>
-              <Text style={styles.text}>
+              <Text
+                style={
+                  this.state.locked === true ? styles.grayedText : styles.text
+                }>
                 {isToday(date)
                   ? formatDate(date, timeFormat)
                   : formatDate(date, dayYearDateTimeFormat)}
               </Text>
-              <Text style={styles.text}>{this.props.appointment.title}</Text>
+              <Text
+                style={
+                  this.state.locked === true ? styles.grayedText : styles.text
+                }>
+                {this.props.appointment.title}
+              </Text>
               <View style={{flexDirection: 'row'}}>
-                <Text style={styles.text}>
-                  {patient && patient.firstName} {patient && patient.lastName}
-                </Text>
-                <PatientTags patient={patient} />
+                <View style={{maxWidth: 330 * fontScale}}>
+                  <Text
+                    style={
+                      this.state.locked === true
+                        ? styles.grayedText
+                        : styles.text
+                    }>
+                    {getPatientFullName(patient)}
+                  </Text>
+                </View>
+                <View>
+                  <PatientTags
+                    patient={{}}
+                    locked={this.state.locked === true}
+                  />
+                </View>
               </View>
-              {/**<Text style={styles.text}>{formatCode('appointmentStatusCode', this.props.appointment.status)}</Text>*/}
             </View>
           </View>
         </View>
@@ -414,6 +606,7 @@ export class AppointmentsSummary extends Component {
   };
   state: {
     refreshing: boolean,
+    isLocked: false,
   };
   constructor(props: any) {
     super(props);
@@ -438,9 +631,7 @@ export class AppointmentsSummary extends Component {
               refreshing={this.state.refreshing}
               onRefresh={() => this.refresh()}
             />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }>
         <View style={styles.topFlow}>
           {this.props.appointments &&
@@ -450,6 +641,7 @@ export class AppointmentsSummary extends Component {
                   <AppointmentSummary
                     key={index}
                     appointment={appointment}
+                    locked={isAppointmentLocked(appointment)}
                     onPress={() =>
                       this.props.navigation.navigate('appointment', {
                         appointment,
@@ -471,7 +663,9 @@ export class AppointmentTitle extends Component {
   };
 
   render() {
-    if (!this.props.appointment || !this.props.appointment.id) return null;
+    if (!this.props.appointment || !this.props.appointment.id) {
+      return null;
+    }
     const date: string = this.props.appointment.start;
     return (
       <View>
@@ -505,6 +699,10 @@ export class AppointmentDetails extends Component {
   props: {
     appointment: Appointment,
     onUpdateAppointment: (appointment: Appointment) => void,
+    onOpenAppointment: (appointment: Appointment) => void,
+    onCloseAppointment: () => void,
+    isNewAppointment: boolean,
+    rescheduleAppointment: boolean,
   };
   state: {
     isEditable: boolean,
@@ -517,138 +715,450 @@ export class AppointmentDetails extends Component {
       editedAppointment: undefined,
     };
   }
+  componentDidMount() {
+    if (this.props.isNewAppointment) {
+      this.startEdit();
+    }
+  }
 
   startEdit() {
-    if (__DEV__ === false) return;
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
+    if (
+      this.props.rescheduleAppointment &&
+      appointmentClone?.appointmentTypes?.length > 0
+    ) {
+      let splittedAppointmentsCode = [];
+      for (let type of appointmentClone.appointmentTypes) {
+        const appointmentTypeId = type?.split('-')[1];
+        splittedAppointmentsCode.push(appointmentTypeId);
+      }
+      appointmentClone = {
+        ...appointmentClone,
+        appointmentTypes: [...splittedAppointmentsCode],
+      };
+    }
     this.setState({isEditable: true, editedAppointment: appointmentClone});
   }
 
+  getWaitingListOptions(): CodeDefinition[] {
+    const noOption: CodeDefinition = {code: false, description: 0};
+    const yesOption: CodeDefinition = {code: true, description: 1};
+    const waitingListOptions: CodeDefinition[] = [noOption, yesOption];
+    return waitingListOptions;
+  }
+
   cancelEdit() {
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({isEditable: false});
+    if (this.props.isNewAppointment) {
+      this.props.onCloseAppointment();
+    }
   }
 
   commitEdit() {
-    LayoutAnimation.easeInEaseOut();
-    let appointment = this.props.onUpdateAppointment(
-      this.state.editedAppointment,
-    );
-    this.props.onUpdateAppointment(appointment);
-    this.setState({isEditable: false, editedAppointment: undefined});
+    !isWeb && LayoutAnimation.easeInEaseOut();
+
+    this.props.onUpdateAppointment(this.state.editedAppointment);
+    if (!this.props.isNewAppointment) {
+      this.setState({isEditable: false, editedAppointment: undefined});
+    }
   }
 
-  updateValue(propertyName: string, newValue: any) {
+  openAppointment() {
+    !isWeb && LayoutAnimation.easeInEaseOut();
+    this.props.onOpenAppointment(this.props.appointment);
+  }
+
+  closeAppointment() {
+    !isWeb && LayoutAnimation.easeInEaseOut();
+    this.props.onCloseAppointment();
+  }
+
+  getInsuranceProviders(): CodeDefinition[] {
+    const selfPaid: CodeDefinition = {
+      code: 0,
+      description: strings.selfPaid,
+    };
+
+    const allInsuranceProviders: CodeDefinition[] =
+      getAllCodes('insuranceProviders');
+    const options: CodeDefinition[] = [selfPaid].concat(allInsuranceProviders);
+    return options;
+  }
+
+  validateNumberOfSlots(code: ?string, numberOfSlots: ?number): boolean {
+    const appointment: Appointment = this.state.editedAppointment;
+
+    if (!code) {
+      const appointmentTypes: any = appointment.appointmentTypes;
+      if (appointmentTypes === undefined || appointmentTypes === null) {
+        return true;
+      }
+
+      for (let i = 0; i < appointmentTypes.length; i++) {
+        const appointmentType: CodeDefinition = getCodeDefinition(
+          'procedureCodes',
+          appointmentTypes[i],
+        );
+        if (!appointmentType) {
+          continue;
+        }
+        if (!numberOfSlots || numberOfSlots < appointmentType.numberOfSlots) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      const appointmentType: CodeDefinition = getCodeDefinition(
+        'procedureCodes',
+        code,
+      );
+
+      if (
+        !appointment.numberOfSlots ||
+        appointmentType.numberOfSlots > appointment.numberOfSlots
+      ) {
+        appointment.numberOfSlots = appointmentType.numberOfSlots;
+        this.setState({editedAppointment: appointment});
+      }
+    }
+    return true;
+  }
+
+  updateValue(propertyName: string, newValue: any, index?: number) {
     let editedAppointment: ?Appointment = this.state.editedAppointment;
-    if (!editedAppointment) return;
-    editedAppointment[propertyName] = newValue;
+
+    if (!editedAppointment) {
+      return;
+    }
+    if (index >= 0) {
+      if (
+        editedAppointment[propertyName] === undefined ||
+        editedAppointment[propertyName] === null
+      ) {
+        editedAppointment[propertyName] = [];
+      }
+      editedAppointment[propertyName][index] = newValue;
+
+      if (newValue === undefined || newValue === null) {
+        editedAppointment[propertyName] = editedAppointment[
+          propertyName
+        ].filter((element) => {
+          return !(element === null || element === undefined);
+        });
+      }
+    } else {
+      editedAppointment[propertyName] = newValue;
+    }
+
     this.setState(editedAppointment);
   }
 
   getDateFormat(date: ?string): string {
-    if (!date) return yearDateFormat;
-    let sameYear: boolean = date.startsWith(
-      now()
-        .getFullYear()
-        .toString(),
+    if (!date) {
+      return yearDateFormat;
+    }
+
+    return farDateFormat2;
+  }
+
+  renderAppointmentsTypes() {
+    let appointmentsType: string[] =
+      this.state.editedAppointment.appointmentTypes;
+    const labelWidth: number = 200 * fontScale;
+    let dropdowns = [];
+    dropdowns.push(
+      <FormRow>
+        <FormOptions
+          labelWidth={labelWidth}
+          options={getAppointmentTypes()}
+          showLabel={true}
+          label={strings.AppointmentType}
+          value={appointmentsType ? appointmentsType[0] : ''}
+          onChangeValue={(code: ?string | ?number) => {
+            this.updateValue('appointmentTypes', code, 0);
+            this.validateNumberOfSlots(code);
+          }}
+        />
+      </FormRow>,
     );
-    return sameYear ? dayDateTime24Format : dayYearDateTime24Format;
+    if (appointmentsType && appointmentsType.length >= 1) {
+      for (let i: number = 1; i <= appointmentsType.length; i++) {
+        if (i < 5) {
+          dropdowns.push(
+            <FormRow>
+              <FormOptions
+                labelWidth={labelWidth}
+                options={getAppointmentTypes()}
+                showLabel={true}
+                label={strings.AppointmentType}
+                value={appointmentsType[i]}
+                onChangeValue={(code: ?string | ?number) => {
+                  this.updateValue('appointmentTypes', code, i);
+                  this.validateNumberOfSlots(code);
+                }}
+              />
+            </FormRow>,
+          );
+        }
+      }
+    }
+
+    return dropdowns;
   }
 
   render() {
-    const user: User = getCachedItem(this.props.appointment.userId);
+    const appointment: Appointment = this.props.appointment;
+    const user: User = getCachedItem(appointment.userId);
+    const patient: PatientInfo | Patient = getCachedItem(appointment.patientId);
+    const hasBookAccess: boolean = hasAppointmentBookAccess(appointment);
+    let genderShort: string = formatCode('genderCode', patient.gender);
+    if (genderShort.length > 0) {
+      genderShort = genderShort.substring(0, 1);
+    }
     if (!this.state.isEditable || !this.state.editedAppointment) {
       return (
-        <TouchableOpacity onPress={() => this.startEdit()}>
-          <View style={styles.card}>
-            <View style={styles.centeredRowLayout}>
-              <Text style={styles.screenTitle}>
-                {this.props.appointment.title}
+        <View>
+          <TouchableOpacity
+            onPress={() => this.startEdit()}
+            styles={{flexDirection: 'column', flex: 100}}
+            disabled={!hasBookAccess}>
+            {user && (
+              <Text style={styles.text}>
+                {strings.doctor}: {user.firstName} {user.lastName}
               </Text>
-              <AppointmentTypes
-                appointment={this.props.appointment}
-                orientation="horizontal"
-              />
-              <AppointmentIcons
-                appointment={this.props.appointment}
-                orientation="horizontal"
-              />
+            )}
+
+            <AppointmentIcons
+              appointment={appointment}
+              orientation="horizontal"
+            />
+            <Title>{getPatientFullName(patient)} </Title>
+            <View style={styles.rowLayout}>
+              <Text style={styles.text}>({genderShort}) </Text>
+              <PatientTags patient={patient} showDescription={true} />
+              <Text style={styles.text}>
+                {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
+              </Text>
             </View>
-            <Text style={styles.text}>
-              {strings.scheduledAt}{' '}
-              {formatDate(
-                this.props.appointment.start,
-                this.getDateFormat(this.props.appointment.start),
-              )}{' '}
-              {strings.forDuration}{' '}
-              {formatDuration(
-                this.props.appointment.end,
-                this.props.appointment.start,
+
+            <View style={styles.formRow}>
+              <Text style={styles.text}>
+                {isToday(appointment.start)
+                  ? formatDate(appointment.start, timeFormat)
+                  : formatDate(appointment.start, dayYearDateTimeFormat)}
+              </Text>
+              <Text style={styles.text}>{' - '}</Text>
+              <Text style={styles.text}>
+                {isToday(appointment.end)
+                  ? formatDate(appointment.end, timeFormat)
+                  : formatDate(appointment.end, dayYearDateTimeFormat)}
+              </Text>
+            </View>
+            {!isEmpty(appointment.supplierName) && (
+              <View style={styles.formRow}>
+                <Text style={styles.text}>{appointment.supplierName}</Text>
+              </View>
+            )}
+            {!isEmpty(patient.medicalCard) && (
+              <View style={styles.formRow}>
+                <Icon name="card-account-details" style={styles.text} />
+                <Text style={styles.text}>
+                  {prefix(patient.medicalCard, '  ')}
+                  {prefix(patient.medicalCardVersion, '-')}
+                  {prefix(patient.medicalCardExp, '-')}
+                </Text>
+              </View>
+            )}
+            {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
+              <View style={styles.formRow}>
+                <Icon name="cellphone" style={styles.text} />
+                <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                  {patient.cell ? patient.cell + ' ' : patient.phone}
+                </Text>
+              </View>
+            )}
+            {!isEmpty(patient.email) && (
+              <View style={styles.formRow}>
+                <Icon name="email" style={styles.text} />
+                <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                  {patient.email}
+                </Text>
+              </View>
+            )}
+            {!isEmpty(appointment.comment) && (
+              <View style={styles.formRow}>
+                <FormTextInput
+                  label=""
+                  multiline={true}
+                  readonly={true}
+                  value={appointment.comment}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+          {hasBookAccess && (
+            <TouchableOpacity
+              onPress={() => this.props.onCancelAppointment()}
+              style={{
+                width: 150,
+                marginTop: 20,
+                borderRadius: 10,
+                paddingVertical: 10,
+                backgroundColor: '#1db3b3',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text style={{color: '#fff'}}> {strings.cancelAppointment}</Text>
+            </TouchableOpacity>
+          )}
+          {!this.props.isNewAppointment && (
+            <Dialog.Actions>
+              <NativeBaseButton onPress={() => this.closeAppointment()}>
+                {strings.close}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={() => this.openAppointment()}>
+                {strings.open}
+              </NativeBaseButton>
+              {this.props.onCopyAppointment && hasBookAccess && (
+                <NativeBaseButton
+                  onPress={() =>
+                    this.props.onCopyAppointment(this.props.appointment)
+                  }>
+                  {strings.reschedule}
+                </NativeBaseButton>
               )}
-              .
-            </Text>
-            <Text style={styles.text}>
-              {strings.status}:{' '}
-              {formatCode(
-                'appointmentStatusCode',
-                this.props.appointment.status,
-              )}
-            </Text>
-            <Text style={styles.text}>
-              {strings.doctor}: {user.firstName} {user.lastName}
-            </Text>
-          </View>
-        </TouchableOpacity>
+            </Dialog.Actions>
+          )}
+        </View>
       );
     }
     const labelWidth: number = 200 * fontScale;
     return (
-      <View style={styles.form}>
-        <Text style={styles.screenTitle}>
-          {this.state.editedAppointment.title} {strings.appointmentTitle}
-        </Text>
-        <FormRow>
-          <FormDateTimeInput
-            labelWidth={labelWidth}
-            readonly={true}
-            includeDay={true}
-            label="Scheduled start time"
-            value={this.state.editedAppointment.start}
-          />
-          <FormDurationInput
-            label="Duration"
-            value={this.state.editedAppointment.end}
-            startDate={this.state.editedAppointment.start}
-            onChangeValue={(newValue: ?string) =>
-              this.updateValue('end', newValue)
-            }
-          />
-        </FormRow>
-        <FormRow>
-          <FormCode
-            labelWidth={labelWidth}
-            label="Status"
-            readonly={false}
-            code="appointmentStatusCode"
-            value={this.state.editedAppointment.status}
-            onChangeValue={(code: ?string | ?number) =>
-              this.updateValue('status', code)
-            }
-          />
-        </FormRow>
+      <View>
         <FormRow>
           <FormTextInput
             labelWidth={labelWidth}
-            label="Doctor"
+            label={strings.patient}
             readonly={true}
-            value={user.firstName + ' ' + user.lastName}
+            value={getPatientFullName(patient)}
           />
         </FormRow>
-        <View style={styles.buttonsRowLayout}>
-          <Button title="Cancel" onPress={() => this.cancelEdit()} />
-          <Button title="Update" onPress={() => this.commitEdit()} />
-        </View>
+        {this.renderAppointmentsTypes()}
+        <FormRow>
+          <FormOptions
+            labelWidth={labelWidth}
+            options={this.getInsuranceProviders()}
+            showLabel={true}
+            label={strings.insurer}
+            value={
+              this.state.editedAppointment.supplierName
+                ? this.state.editedAppointment.supplierName
+                : 0
+            }
+            onChangeValue={(code: ?string | ?number) =>
+              this.updateValue('supplierName', code)
+            }
+          />
+        </FormRow>
+        <FormRow>
+          <FormCheckBox
+            labelWidth={labelWidth}
+            showLabel={true}
+            label={strings.waitingList}
+            options={this.getWaitingListOptions()}
+            value={this.state.editedAppointment.earlyRequest}
+            onChangeValue={(code: ?string | ?number) => {
+              this.updateValue('earlyRequest', code);
+              if (code === false || code === undefined || code === null) {
+                this.updateValue('earlyRequestComment', '');
+              }
+            }}
+          />
+        </FormRow>
+
+        {this.state.editedAppointment.earlyRequest && (
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.waitingListComment}
+              value={this.state.editedAppointment.earlyRequestComment}
+              onChangeText={(newValue: ?string) =>
+                this.updateValue('earlyRequestComment', newValue)
+              }
+            />
+          </FormRow>
+        )}
+        <FormRow>
+          <FormNumberInput
+            labelWidth={labelWidth}
+            label={strings.numberOfSlots}
+            required={true}
+            minValue={1}
+            maxValue={9}
+            value={
+              this.state.editedAppointment.numberOfSlots
+                ? this.state.editedAppointment.numberOfSlots
+                : 1
+            }
+            onChangeValue={(newValue: ?number) => {
+              if (this.validateNumberOfSlots(undefined, newValue)) {
+                this.updateValue('numberOfSlots', newValue);
+              }
+            }}
+          />
+        </FormRow>
+
+        {!this.props.isNewAppointment && (
+          <FormRow>
+            <FormCode
+              labelWidth={labelWidth}
+              label={strings.status}
+              readonly={false}
+              code="appointmentStatusCode"
+              value={this.state.editedAppointment.status}
+              onChangeValue={(code: ?string | ?number) =>
+                this.updateValue('status', code)
+              }
+            />
+          </FormRow>
+        )}
+        {user && (
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.doctor}
+              readonly={true}
+              value={user.firstName + ' ' + user.lastName}
+            />
+          </FormRow>
+        )}
+        <FormRow>
+          <FormTextInput
+            labelWidth={labelWidth}
+            label={strings.comment}
+            multiline={true}
+            value={this.state.editedAppointment.comment}
+            onChangeText={(newValue: ?string) =>
+              this.updateValue('comment', newValue)
+            }
+          />
+        </FormRow>
+        {hasBookAccess && (
+          <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
+            <NativeBaseButton onPress={() => this.cancelEdit()}>
+              {strings.cancel}
+            </NativeBaseButton>
+            <NativeBaseButton
+              disabled={!this.props.isNewAppointment}
+              onPress={() => this.commitEdit()}>
+              {!this.props.rescheduleAppointment
+                ? strings.book
+                : strings.reschedule}
+            </NativeBaseButton>
+          </View>
+        )}
       </View>
     );
   }
@@ -733,11 +1243,22 @@ export class AppointmentScreen extends Component {
     this.setState({appointment});
   };
 
+  hasAppointment(): boolean {
+    return (
+      this.state.appointment ||
+      this.props.navigation.state.params.hasAppointment
+    );
+  }
+
   async storeAppointment(appointment: ?Appointment) {
-    if (!appointment) return;
+    if (!appointment) {
+      return;
+    }
     try {
       appointment = await storeDocument(appointment);
-      if (!this.unmounted) this.setState({appointment});
+      if (!this.unmounted) {
+        this.setState({appointment});
+      }
     } catch (error) {
       if (this.unmounted) {
         let params = this.props.navigation.state.params;
@@ -771,14 +1292,19 @@ export class AppointmentScreen extends Component {
 
   async refreshAppointment() {
     let params = this.props.navigation.state.params;
-    if (params.appointment === undefined || params.appointment.id === undefined)
+    if (
+      params.appointment === undefined ||
+      params.appointment.id === undefined
+    ) {
       return;
+    }
     let appointment = await fetchAppointment(params.appointment.id);
     if (
       this.state.appointment &&
       appointment.version !== this.state.appointment.version
-    )
+    ) {
       this.setState({appointment});
+    }
   }
 
   async refreshPatientInfo() {
@@ -790,8 +1316,9 @@ export class AppointmentScreen extends Component {
     } else if (
       patientInfo.version &&
       patientInfo.version !== this.state.patientInfo.version
-    )
+    ) {
       this.setState({patientInfo});
+    }
   }
 
   componentWillUnmount() {
@@ -799,12 +1326,16 @@ export class AppointmentScreen extends Component {
   }
 
   enableScroll = () => {
-    if (this.state.scrollEnabled === true) return;
+    if (this.state.scrollEnabled === true) {
+      return;
+    }
     this.setState({scrollEnabled: true});
   };
 
   disableScroll = () => {
-    if (this.state.scrollEnabled === false) return;
+    if (this.state.scrollEnabled === false) {
+      return;
+    }
     this.setState({scrollEnabled: false});
   };
 
@@ -830,6 +1361,7 @@ export class AppointmentScreen extends Component {
           appointmentStateKey={this.props.navigation.state.key}
           enableScroll={this.enableScroll}
           disableScroll={this.disableScroll}
+          hasAppointment={this.hasAppointment()}
         />
       </KeyboardAwareScrollView>
     );
