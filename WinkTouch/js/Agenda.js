@@ -649,7 +649,6 @@ export class AgendaScreen extends Component {
             />
             <View style={{marginTop: 25}}>
               <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, {padding: 7}]}>
                   {strings.store} :
                 </Text>
                 <View style={agendaStyles.input}>
@@ -658,6 +657,7 @@ export class AgendaScreen extends Component {
               </View>
               <View style={agendaStyles.field}>
                 <Text style={[styles.textfield, {padding: 7}]}>
+                <Text style={[styles.textfield, styles.availabilitiesField]}>
                   {strings.doctor} :
                 </Text>
                 <View style={agendaStyles.input}>
@@ -668,7 +668,7 @@ export class AgendaScreen extends Component {
                 </View>
               </View>
               <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, {padding: 7}]}>
+                <Text style={[styles.textfield, styles.availabilitiesField]}>
                   {strings.duration} :
                 </Text>
                 <View
@@ -691,7 +691,7 @@ export class AgendaScreen extends Component {
                 </View>
               </View>
               <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, {padding: 7}]}>
+                <Text style={[styles.textfield, styles.availabilitiesField]}>
                   {strings.AppointmentType} :
                 </Text>
                 <View style={{width: '75%'}}>
@@ -699,7 +699,7 @@ export class AgendaScreen extends Component {
                 </View>
               </View>
               <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, {padding: 7}]}>
+                <Text style={[styles.textfield, styles.availabilitiesField]}>
                   {strings.time} :
                 </Text>
                 <View style={agendaStyles.input}>
