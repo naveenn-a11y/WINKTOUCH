@@ -1384,12 +1384,12 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
   },
   availabilitiesField: {
-    boxShadow: 'none',
+    shadowRadius: 'none',
     paddingRight: 7 * fontScale,
     fontSize: 18 * fontScale,
     minWidth: 220 * fontScale,
     textAlign: 'justify',
-  }
+  },
 });
 
 function cardStyle(color: Color) {
