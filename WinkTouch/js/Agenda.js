@@ -492,11 +492,15 @@ export class AgendaScreen extends Component {
   }
 
   doubleBookingTimeField = () => {
+    const Label = this.state.selectedTime.atEnd ? strings.last : strings.first;
     return (
       <View style={styles.doubleBookingTimeField}>
         <Text>
-          {this.state.selectedTime.atEnd ? strings.last : strings.first}
-          {' ' + this.state.selectedTime.time} {strings.mins}
+          {this.state.selectedTime.time === 0
+            ? strings.sameSlot
+            : `${
+                Label + ' ' + this.state.selectedTime.time + ' ' + strings.mins
+              }`}
         </Text>
       </View>
     );
@@ -754,7 +758,7 @@ export class AgendaScreen extends Component {
                   width: '100%',
                   alignItems: 'center',
                 }}>
-                <View style={{width: fontScale * 80}}>
+                <View style={{width: fontScale * 90}}>
                   <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
                     {strings.first}
                   </Text>
@@ -797,7 +801,7 @@ export class AgendaScreen extends Component {
                   width: '100%',
                   alignItems: 'center',
                 }}>
-                <View style={{width: fontScale * 80}}>
+                <View style={{width: fontScale * 90}}>
                   <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
                     {strings.last}
                   </Text>
@@ -1040,7 +1044,6 @@ class Event extends Component {
     let start = 0;
     for (let item of this.props?.touchableOpacityProps?.style) {
       if (typeof item === 'object' && item.start > 3) {
-        console.log('item.start  :>> ', item.start);
         start = item.start;
       }
     }

@@ -1383,18 +1383,18 @@ export const styles = StyleSheet.create({
     fontSize: 20 * fontScale,
     padding: 10 * fontScale,
   },
-  alignPopup :{
-    alignItems: 'center'
+  alignPopup: {
+    alignItems: 'center',
   },
-  AppointmentDialog:{
+  AppointmentDialog: {
     width: '55%',
     minHeight: '40%',
     maxHeight: '90%',
     alignSelf: 'center',
     backgroundColor: '#fff',
   },
-  appointmentActionButton:{
-    maxWidth: 150,
+  appointmentActionButton: {
+    maxWidth: 180,
     minWidth: 100,
     marginTop: 20,
     borderRadius: 10,
@@ -1404,15 +1404,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 2,
   },
-  doubleBookingTimeField:{
-    color: "black",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
+  doubleBookingTimeField: {
+    color: 'black',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
     marginLeft: 10 * fontScale,
-    
   },
-  doubleBookingSearchField:{
+  doubleBookingSearchField: {
     fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
     minWidth: 80 * fontScale,
@@ -1426,8 +1425,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 0,
     paddingLeft: 10 * fontScale,
     paddingRight: 10 * fontScale,
-  }
-
+  },
 });
 
 function cardStyle(color: Color) {

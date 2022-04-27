@@ -1122,25 +1122,27 @@ export class AppointmentDetails extends Component {
             />
           </FormRow>
         )}
-        <FormRow>
-          <FormNumberInput
-            labelWidth={labelWidth}
-            label={strings.numberOfSlots}
-            required={true}
-            minValue={1}
-            maxValue={9}
-            value={
-              this.state.editedAppointment.numberOfSlots
-                ? this.state.editedAppointment.numberOfSlots
-                : 1
-            }
-            onChangeValue={(newValue: ?number) => {
-              if (this.validateNumberOfSlots(undefined, newValue)) {
-                this.updateValue('numberOfSlots', newValue);
+        {!this.props.isDoublebooking && (
+          <FormRow>
+            <FormNumberInput
+              labelWidth={labelWidth}
+              label={strings.numberOfSlots}
+              required={true}
+              minValue={1}
+              maxValue={9}
+              value={
+                this.state.editedAppointment.numberOfSlots
+                  ? this.state.editedAppointment.numberOfSlots
+                  : 1
               }
-            }}
-          />
-        </FormRow>
+              onChangeValue={(newValue: ?number) => {
+                if (this.validateNumberOfSlots(undefined, newValue)) {
+                  this.updateValue('numberOfSlots', newValue);
+                }
+              }}
+            />
+          </FormRow>
+        )}
 
         {!this.props.isNewAppointment && !this.props.isDoublebooking &&(
           <FormRow>
