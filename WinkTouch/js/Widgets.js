@@ -2879,6 +2879,7 @@ export class Button extends Component {
     loading?: boolean,
     onPress?: () => void,
     testID?: string,
+    buttonStyle?: String,
   };
   static defaultProps = {
     visible: true,
@@ -2896,7 +2897,7 @@ export class Button extends Component {
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
-          style={this.props.disabled ? styles.buttonDisabled : styles.button}>
+          style={[this.props.disabled ? styles.buttonDisabled : styles.button, this.props.buttonStyle]}>
           {this.props.loading ? (
             <ActivityIndicator color="#fff" />
           ) : (

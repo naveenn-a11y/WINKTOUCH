@@ -245,6 +245,33 @@ export async function bookAppointment(
   );
   return appointment;
 }
+export async function doubleBook(
+  patientId: ?string,
+  appointmentTypeId: ?(string[]),
+  id: ?string,
+  durationMinutes: ?number,
+  atEnd: ?boolean,
+  comment: ?string,
+): Promise<Appointment> {
+  const searchCriteria = {
+    patientId: patientId,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+    id: id,
+    durationMinutes: durationMinutes,
+    atEnd: atEnd,
+    comment: comment,
+  };
+  const params = {
+    emrOnly: true,
+  };
+  const appointment: Appointment = await performActionOnItem(
+    'doubleBook',
+    searchCriteria,
+    'POST',
+    params,
+  );
+  return appointment;
+}
 export async function cancelAppointment(body) {
   const appointment: Appointment = await performActionOnItem(
     'cancel',
@@ -746,6 +773,7 @@ export class AppointmentDetails extends Component {
     onCloseAppointment: () => void,
     isNewAppointment: boolean,
     rescheduleAppointment: boolean,
+    isDoublebooking: boolean,
   };
   state: {
     status: Number,
@@ -761,7 +789,7 @@ export class AppointmentDetails extends Component {
     };
   }
   componentDidMount() {
-    if (this.props.isNewAppointment) {
+    if (this.props.isNewAppointment || this.props.isDoublebooking) {
       this.startEdit();
     }
   }
@@ -776,7 +804,7 @@ export class AppointmentDetails extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
     if (
-      this.props.rescheduleAppointment &&
+      (this.props.rescheduleAppointment || this.props.isDoublebooking) &&
       appointmentClone?.appointmentTypes?.length > 0
     ) {
       let splittedAppointmentsCode = [];
@@ -810,7 +838,7 @@ export class AppointmentDetails extends Component {
   cancelEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({isEditable: false});
-    if (this.props.isNewAppointment) {
+    if (this.props.isNewAppointment || this.props.isDoublebooking) {
       this.props.onCloseAppointment();
     }
   }
@@ -819,7 +847,8 @@ export class AppointmentDetails extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
 
     this.props.onUpdateAppointment(this.state.editedAppointment);
-    if (!this.props.isNewAppointment) {
+
+    if (!this.props.isNewAppointment || !this.props.isDoublebooking) {
       this.setState({isEditable: false, editedAppointment: undefined});
     }
   }
@@ -1108,39 +1137,47 @@ export class AppointmentDetails extends Component {
             </FormRow>
           </View>
           {hasBookAccess && (
-            <TouchableOpacity
-              onPress={() => this.props.onCancelAppointment()}
+            <View
               style={{
-                width: 150,
-                marginTop: 20,
-                borderRadius: 10,
-                paddingVertical: 10,
-                backgroundColor: '#1db3b3',
-                justifyContent: 'center',
-                alignItems: 'center',
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 10,
               }}>
-              <Text style={{color: '#fff'}}> {strings.cancelAppointment}</Text>
-            </TouchableOpacity>
-          )}
-
-          {!this.props.isNewAppointment && (
-            <Dialog.Actions>
-              <NativeBaseButton onPress={() => this.closeAppointment()}>
-                {strings.close}
-              </NativeBaseButton>
-              <NativeBaseButton onPress={() => this.openAppointment()}>
-                {strings.open}
-              </NativeBaseButton>
-              {this.props.onCopyAppointment && hasBookAccess && (
-                <NativeBaseButton
+              <TouchableOpacity
+                onPress={() => this.props.onCancelAppointment()}
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}>{strings.cancelAppointment}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={(appointment) =>
+                  this.props.openDoubleBookingModal(appointment)
+                }
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}> {strings.doubleBook}</Text>
+              </TouchableOpacity>
+              {this.props.onCopyAppointment && (
+                <TouchableOpacity
                   onPress={() =>
                     this.props.onCopyAppointment(this.props.appointment)
-                  }>
-                  {strings.reschedule}
-                </NativeBaseButton>
+                  }
+                  style={styles.appointmentActionButton}>
+                  <Text style={{color: '#fff'}}> {strings.reschedule}</Text>
+                </TouchableOpacity>
               )}
-            </Dialog.Actions>
+            </View>
           )}
+          {!this.props.isNewAppointment ||
+            (!this.props.isDoublebooking && (
+              <Dialog.Actions>
+                <NativeBaseButton onPress={() => this.closeAppointment()}>
+                  {strings.close}
+                </NativeBaseButton>
+                <NativeBaseButton onPress={() => this.openAppointment()}>
+                  {strings.open}
+                </NativeBaseButton>
+              </Dialog.Actions>
+            ))}
         </View>
       );
     }
@@ -1200,27 +1237,29 @@ export class AppointmentDetails extends Component {
             />
           </FormRow>
         )}
-        <FormRow>
-          <FormNumberInput
-            labelWidth={labelWidth}
-            label={strings.numberOfSlots}
-            required={true}
-            minValue={1}
-            maxValue={9}
-            value={
-              this.state.editedAppointment.numberOfSlots
-                ? this.state.editedAppointment.numberOfSlots
-                : 1
-            }
-            onChangeValue={(newValue: ?number) => {
-              if (this.validateNumberOfSlots(undefined, newValue)) {
-                this.updateValue('numberOfSlots', newValue);
+        {!this.props.isDoublebooking && (
+          <FormRow>
+            <FormNumberInput
+              labelWidth={labelWidth}
+              label={strings.numberOfSlots}
+              required={true}
+              minValue={1}
+              maxValue={9}
+              value={
+                this.state.editedAppointment.numberOfSlots
+                  ? this.state.editedAppointment.numberOfSlots
+                  : 1
               }
-            }}
-          />
-        </FormRow>
+              onChangeValue={(newValue: ?number) => {
+                if (this.validateNumberOfSlots(undefined, newValue)) {
+                  this.updateValue('numberOfSlots', newValue);
+                }
+              }}
+            />
+          </FormRow>
+        )}
 
-        {!this.props.isNewAppointment && (
+        {!this.props.isNewAppointment && !this.props.isDoublebooking && (
           <FormRow>
             <FormCode
               labelWidth={labelWidth}
@@ -1260,8 +1299,13 @@ export class AppointmentDetails extends Component {
             <NativeBaseButton onPress={() => this.cancelEdit()}>
               {strings.cancel}
             </NativeBaseButton>
-            <NativeBaseButton onPress={() => this.commitEdit()}>
-              {this.props.isNewAppointment && !this.props.rescheduleAppointment
+
+            <NativeBaseButton
+              disabled={
+                !(this.props.isDoublebooking || this.props.isNewAppointment)
+              }
+              onPress={() => this.commitEdit()}>
+              {!this.props.isNewAppointment && !this.props.rescheduleAppointment
                 ? strings.book
                 : this.props.isNewAppointment &&
                   this.props.rescheduleAppointment

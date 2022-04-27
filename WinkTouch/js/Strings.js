@@ -102,7 +102,6 @@ export const strings = new LocalizedStrings({
     duration: 'Duration',
     minutes: 'minutes',
     minute: 'minute',
-    hour: 'hour',
     hours: 'hours',
     day: 'day',
     days: 'days',
@@ -318,6 +317,12 @@ export const strings = new LocalizedStrings({
     notLabel: 'Not',
     resumeSession: 'Resume Session',
     iForgot: 'I forgot',
+    doubleBook: 'Double Book ',
+    sameSlot: 'Same Slot',
+    first: 'First',
+    last: 'Last',
+    mins: 'mins',
+    hour: 'hour',
   },
   fr: {
     enterRegisteredEmail:
@@ -635,6 +640,11 @@ export const strings = new LocalizedStrings({
     notLabel: 'Pas',
     resumeSession: 'Reprendre la session',
     iForgot: "J'ai oublié",
+    doubleBook: 'Double réservation',
+    sameSlot: 'Même créneau',
+    first: 'Premier',
+    last: 'Dernier',
+    mins: 'mins',
   },
 });
 
