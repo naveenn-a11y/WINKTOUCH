@@ -81,7 +81,7 @@ export class AgendaScreen extends Component {
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
     doubleBookingModal: boolean,
-    selectedTime: string,
+    selectedTime: any,
   };
   today = new Date();
   lastRefresh: number;

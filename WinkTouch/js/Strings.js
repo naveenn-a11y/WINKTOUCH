@@ -102,7 +102,6 @@ export const strings = new LocalizedStrings({
     duration: 'Duration',
     minutes: 'minutes',
     minute: 'minute',
-    hour: 'hour',
     hours: 'hours',
     day: 'day',
     days: 'days',
@@ -631,12 +630,11 @@ export const strings = new LocalizedStrings({
     cancelledBy: 'Annulé par',
     rescheduleAppointment: 'Re-planifier un rendez-vous',
     reschedule: 'Re-planifier',
-    doubleBook: 'livre double',
+    doubleBook: 'Double réservation',
     sameSlot: 'Même créneau',
     first: 'Premier',
     last: 'Dernier',
     mins: 'mins',
-    hour: 'heure',
   },
 });
 
