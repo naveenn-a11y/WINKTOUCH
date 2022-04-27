@@ -315,9 +315,8 @@ export class FollowUpScreen extends Component<
   }
 
   componentDidMount() {
-    this.loadFollowUp();
     InteractionManager.runAfterInteractions(() => {
-      //this.refreshList();
+      this.refreshList();
     });
   }
   onRefresh(refresh: boolean) {}
@@ -346,14 +345,18 @@ export class FollowUpScreen extends Component<
     const response = patientInfo? await fetchReferralFollowUpHistory(patientInfo.id) : await fetchReferralFollowUpHistory();
 
 
-    this.loadFollowUp();
     if (response) {
-      this.setState({
-        pageNumber: (response.currentPage) ? response.currentPage : this.state.pageNumber,
-        pageSize: (response.pageSize ? response.pageSize : this.state.pageSize),
-        loadMoreData: !response.lastPage,
-        loading: false
-      });
+      if (response.followUp) {
+        const allFollowUp = this.filterFollowUp(response.followUp);
+
+        this.setState({
+          allFollowUp: allFollowUp,
+          pageNumber: (response.currentPage) ? response.currentPage : this.state.pageNumber,
+          pageSize: (response.pageSize ? response.pageSize : this.state.pageSize),
+          loadMoreData: !response.lastPage,
+          loading: false
+        });
+      }
     } 
   }
 
@@ -414,20 +417,6 @@ export class FollowUpScreen extends Component<
       const allRefStatusCode: ReferralStatusCode[] = response.referralStatus;
       this.setState({allRefStatusCode});
     }
-  }
-
-  loadFollowUp(id?: string | number) {
-    const patientInfo: PatientInfo = this.props.patientInfo
-      ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo;
-    
-    const patientId: string = isEmpty(patientInfo) ? '*' : patientInfo.id;
-    let allFollowUp: ?(FollowUp[]) = getCachedItem(
-      'referralFollowUpHistory-' + patientId,
-    );
-
-    allFollowUp = this.filterFollowUp(allFollowUp); 
-    this.setState({allFollowUp});
   }
 
   filterFollowUp(data: FollowUp[]) {
@@ -983,7 +972,7 @@ export class FollowUpScreen extends Component<
 
   render() {
     const listFollowUp: FollowUp[] = this.state.allFollowUp;
-    if (Array.isArray(listFollowUp) && listFollowUp.length > 0) {
+    if ((Array.isArray(listFollowUp) && listFollowUp.length > 0) || this.state.loading) {
       return <View style={styles.page}>{this.renderFollowUp()}</View>;
     } else if (!this.props.isDraft) {
       return <Text>{strings.noDataFound}</Text>;

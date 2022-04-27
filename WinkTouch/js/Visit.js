@@ -287,8 +287,8 @@ export async function fetchReferralFollowUpHistory(
     allFollowUp = response.followUp;
   }
 
-  //only cache here if it is loading the first time
-  if (pageNumber == 1) {
+  //only cache here if it is a patient's referral
+  if (!isEmpty(patientId)) {
     const id: string = isEmpty(patientId) ? '*' : patientId;
     cacheItem('referralFollowUpHistory-' + id, allFollowUp);
   } 
