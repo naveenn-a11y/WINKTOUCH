@@ -771,6 +771,9 @@ export class AppointmentDetails extends Component {
     onUpdateAppointment: (appointment: Appointment) => void,
     onOpenAppointment: (appointment: Appointment) => void,
     onCloseAppointment: () => void,
+    onCancelAppointment: () => void,
+    openDoubleBookingModal: (appointment: Appointment) => void,
+    onCopyAppointment: (appointment: Appointment) => void,
     isNewAppointment: boolean,
     rescheduleAppointment: boolean,
     isDoublebooking: boolean,
@@ -792,12 +795,6 @@ export class AppointmentDetails extends Component {
     if (this.props.isNewAppointment || this.props.isDoublebooking) {
       this.startEdit();
     }
-  }
-
-  startEdit() {
-    !isWeb && LayoutAnimation.easeInEaseOut();
-    this.cloneAppointment();
-    this.setState({isEditable: true});
   }
 
   startEdit() {
@@ -1167,17 +1164,16 @@ export class AppointmentDetails extends Component {
               )}
             </View>
           )}
-          {!this.props.isNewAppointment ||
-            (!this.props.isDoublebooking && (
-              <Dialog.Actions>
-                <NativeBaseButton onPress={() => this.closeAppointment()}>
-                  {strings.close}
-                </NativeBaseButton>
-                <NativeBaseButton onPress={() => this.openAppointment()}>
-                  {strings.open}
-                </NativeBaseButton>
-              </Dialog.Actions>
-            ))}
+          {!this.props.isNewAppointment && (
+            <Dialog.Actions>
+              <NativeBaseButton onPress={() => this.closeAppointment()}>
+                {strings.close}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={() => this.openAppointment()}>
+                {strings.open}
+              </NativeBaseButton>
+            </Dialog.Actions>
+          )}
         </View>
       );
     }
@@ -1300,12 +1296,8 @@ export class AppointmentDetails extends Component {
               {strings.cancel}
             </NativeBaseButton>
 
-            <NativeBaseButton
-              disabled={
-                !(this.props.isDoublebooking || this.props.isNewAppointment)
-              }
-              onPress={() => this.commitEdit()}>
-              {!this.props.isNewAppointment && !this.props.rescheduleAppointment
+            <NativeBaseButton onPress={() => this.commitEdit()}>
+              {this.props.isNewAppointment && !this.props.rescheduleAppointment
                 ? strings.book
                 : this.props.isNewAppointment &&
                   this.props.rescheduleAppointment

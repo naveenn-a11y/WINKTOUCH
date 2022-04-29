@@ -19,7 +19,7 @@ import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
 import {NavigationActions} from 'react-navigation';
-import {FormTextInput, FormRow, FormInput, FormOptions, FormCode} from './Form';
+import {FormRow, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -54,7 +54,7 @@ import {searchUsers} from './User';
 import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
-import {Button, TilesField} from './Widgets';
+import {Button} from './Widgets';
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
 export class AgendaScreen extends Component {
@@ -179,7 +179,6 @@ export class AgendaScreen extends Component {
     maxDays: number = this.daysInWeek,
   ) {
     if (!refresh && now().getTime() - this.lastRefresh < 5 * 1000) {
-      this.setState(this.state.appointments);
       return;
     }
     this.lastRefresh = now().getTime();
@@ -205,7 +204,6 @@ export class AgendaScreen extends Component {
         const events = await fetchEvents('store-' + getStore().storeId);
         this.setState({events});
       }
-      // appointments = [...appointments, ...this.state.events];
       this.setState({appointments, isLoading: false});
     } catch (e) {
       this.setState({isLoading: false});
@@ -229,11 +227,13 @@ export class AgendaScreen extends Component {
   };
   _onToday = () => {
     this.setState({date: this.today}, () => {
-      this.refreshAppointments(
-        true,
-        false,
-        this.state.mode === 'day' ? 1 : this.daysInWeek,
-      );
+      InteractionManager.runAfterInteractions(() => {
+        this.refreshAppointments(
+          true,
+          false,
+          this.state.mode === 'day' ? 1 : this.daysInWeek,
+        );
+      });
     });
   };
   _onPrevDate = () => {
@@ -251,11 +251,13 @@ export class AgendaScreen extends Component {
             .toDate(),
         },
         () => {
-          this.refreshAppointments(
-            true,
-            false,
-            this.state.mode === 'day' ? 1 : this.daysInWeek,
-          );
+          InteractionManager.runAfterInteractions(() => {
+            this.refreshAppointments(
+              true,
+              false,
+              this.state.mode === 'day' ? 1 : this.daysInWeek,
+            );
+          });
         },
       );
     }
@@ -268,22 +270,26 @@ export class AgendaScreen extends Component {
           .toDate(),
       },
       () => {
-        this.refreshAppointments(
-          true,
-          false,
-          this.state.mode === 'day' ? 1 : this.daysInWeek,
-        );
+        InteractionManager.runAfterInteractions(() => {
+          this.refreshAppointments(
+            true,
+            false,
+            this.state.mode === 'day' ? 1 : this.daysInWeek,
+          );
+        });
       },
     );
   };
 
   _onSetMode = (mode: string) => {
-    this.setState({mode: mode}, () => {
-      this.refreshAppointments(
-        true,
-        false,
-        this.state.mode === 'day' ? 1 : this.daysInWeek,
-      );
+    InteractionManager.runAfterInteractions(() => {
+      this.setState({mode: mode}, () => {
+        this.refreshAppointments(
+          true,
+          false,
+          this.state.mode === 'day' ? 1 : this.daysInWeek,
+        );
+      });
     });
   };
 
@@ -965,7 +971,6 @@ export class AgendaScreen extends Component {
           ];
     return (
       <View style={styles.page}>
-        {isLoading && this.renderLoading()}
         {isPatientDialogVisible && this.renderPatientScreen()}
         {showDialog && !rescheduleAppointment && this.renderEventDetails()}
         {doctorsModal && this.renderDoctorsOptions()}
@@ -1025,27 +1030,17 @@ export class AgendaScreen extends Component {
           appointments={this.state.appointments}
           _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
         />
+        {isLoading && this.renderLoading()}
       </View>
     );
   }
 
   renderLoading() {
-    if (this.state.isLoading) {
-      return (
-        <Modal
-          visible={this.state.isLoading}
-          transparent={true}
-          animationType={'none'}
-          onRequestClose={this.cancelEdit}>
-          <View style={styles.container}>
-            {this.state.isLoading && (
-              <ActivityIndicator size="large" color={selectionColor} />
-            )}
-          </View>
-        </Modal>
-      );
-    }
-    return null;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={selectionColor} />
+      </View>
+    );
   }
 }
 
@@ -1218,6 +1213,7 @@ class NativeCalendar extends Component {
               eventWidth={eventWidth}
               touchableOpacityProps={touchableOpacityProps}
               selectedDoctors={this.props.selectedDoctors}
+              key={event?.id}
             />
           )}
           renderHeader={(header: ICalendarEvent<T>) => {
