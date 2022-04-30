@@ -316,10 +316,10 @@ export class EhrApp extends Component {
     __DEV__ && console.log('next app state =' + nextState);
     if (nextState === 'active') {
       this.checkForUpdate();
-      this.tracker.appIsActive();
+      this.tracker && this.tracker.appIsActive();
     }
     if (nextState === 'background') {
-      this.tracker.appIsInBackground();
+      this.tracker && this.tracker.appIsInBackground();
     }
   }
   setLoading = (loading) => {
@@ -373,6 +373,7 @@ export class EhrApp extends Component {
         onStartLockingDog={(ttlInMins: number) =>
           this.startLockingDog(ttlInMins)
         }
+        panResponder={this.tracker && this.tracker.getResponder()}
       />
     );
   }

@@ -2,6 +2,8 @@
  * @flow
  */
 'use strict';
+
+import { PanResponder } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {cacheItem, getCachedItem, clearCachedItemById} from '../DataCache';
 
@@ -14,6 +16,7 @@ class InactivityTracker {
     this.LOGOUT_TIME_KEY = '_logoutTime';
     this.IS_ACTIVE = '_isActiveKey';
     this.IS_LOADED = '_isLoaded';
+    this.panResponder = null;
   }
 
   async load() {
@@ -54,6 +57,10 @@ class InactivityTracker {
     this.saveToStorage(this.IS_ACTIVE, false, 'STOP');
     this.onSessionTimeout();
     __DEV__ && console.log('Inactivity Tracker stopped.');
+  }
+
+  getResponder() {
+    return this.panResponder ? this.panResponder.panHandlers : {} ;
   }
 
   async hasTimeExpired() {
@@ -144,7 +151,7 @@ class InactivityTracker {
   }
 
   saveToStorage(id: String, data: any, source: string) {
-    AsyncStorage.setItem(id, data);
+    AsyncStorage.setItem(id, JSON.stringify(data));
   }
 
   async fetchFromStorage(id) {
@@ -158,15 +165,16 @@ class InactivityTracker {
   }
 
   observeEvents() {
-    window.addEventListener('mousemove', this.resetLogoutTime);
-    window.addEventListener('scroll', this.resetLogoutTime);
-    window.addEventListener('keydown', this.resetLogoutTime);
+    this.panResponder = PanResponder.create({
+      onMoveShouldSetPanResponderCapture: this.resetLogoutTime,
+      onPanResponderTerminationRequest: this.resetLogoutTime,
+      onStartShouldSetPanResponderCapture: this.resetLogoutTime,
+      onScrollShouldSetResponderCapture: this.resetLogoutTime,
+    });
   }
 
   stopObserveEvents() {
-    window.removeEventListener('mousemove', this.resetLogoutTime);
-    window.removeEventListener('scroll', this.resetLogoutTime);
-    window.removeEventListener('keydown', this.resetLogoutTime);
+    this.panResponder = null;
   }
 
   //use destroy when user completely logs out

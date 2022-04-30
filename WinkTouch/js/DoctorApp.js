@@ -198,6 +198,7 @@ export class DoctorApp extends Component {
   state: {
     statusMessage: string,
     currentRoute: any,
+    panResponder: any,
   };
   navigator: any;
   constructor(props: any) {
@@ -256,7 +257,7 @@ export class DoctorApp extends Component {
     const inactivitiesTimer: CodeDefinition[] = getAllCodes('inactivityTimer');
     if (inactivitiesTimer && inactivitiesTimer instanceof Array) {
       const inactivityTimer: CodeDefinition = inactivitiesTimer[0];
-      if (inactivityTimer.code) {
+      if (inactivityTimer && inactivityTimer.code) {
         this.props.onStartLockingDog(inactivityTimer.code);
       }
     }
@@ -317,7 +318,10 @@ export class DoctorApp extends Component {
       <ErrorBoundary>
         <ModeContextProvider>
           <Provider>
-            <View style={styles.screeen}>
+            <View 
+              style={styles.screeen} 
+              {...this.props.panResponder}
+            >
               <StatusBar hidden={true} />
               <DocatorAppContainer
                 ref={(navigator) => this.setNavigator(navigator)}

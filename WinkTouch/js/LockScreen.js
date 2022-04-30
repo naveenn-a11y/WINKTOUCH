@@ -26,6 +26,7 @@ import {
 import type {Account, Store, User} from './Types';
 import DeviceInfo from 'react-native-device-info';
 import base64 from 'base-64';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export class LockScreen extends Component {
   state: {
@@ -41,6 +42,7 @@ export class LockScreen extends Component {
   async login() {
     let doctorLoginUrl = getRestUrl() + 'login/doctors';
     const user: User = getDoctor();
+    user.username = await AsyncStorage.getItem('userName'); //no username in getDoctor.
     const token: string = getToken();
     const account: ?Account = getAccount();
     const store: ?Store = getStore();
@@ -111,7 +113,7 @@ export class LockScreen extends Component {
         }
       }
       let responseJson = await httpResponse.json();
-      if (responseJson.success === true) {
+      if (responseJson.user) {
         this.props.navigation.state.params.onUserLogin(); //restart tracker
         this.props.navigation.goBack();
       }
