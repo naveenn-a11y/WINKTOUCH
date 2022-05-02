@@ -1,41 +1,29 @@
 /**
  * @flow
  */
+
 'use strict';
 
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import {
-  Image,
   View,
-  TouchableHighlight,
-  Text,
-  ScrollView,
   TextInput,
-  Modal,
   LayoutAnimation,
   InteractionManager,
+  FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import type {Patient, PatientInfo, Appointment, Visit, Store} from './Types';
-import {styles, fontScale, isWeb} from './Styles';
+import type {Patient, PatientInfo} from './Types';
+import {styles, isWeb, fontScale} from './Styles';
 import {strings} from './Strings';
-import {Button} from './Widgets';
-import {
-  PatientTitle,
-  PatientBillingInfo,
-  PatientContact,
-  PatientCard,
-  fetchPatientInfo,
-  storePatientInfo,
-} from './Patient';
-import {PrescriptionCard} from './Assessment';
+import {Button, SelectionListRow} from './Widgets';
+import {PatientCard, fetchPatientInfo, getPatientFullName} from './Patient';
 import {searchItems} from './Rest';
 import {cacheItemsById, getCachedItem} from './DataCache';
-import {hourDifference, now} from './Util';
-import {VisitHistoryCard, fetchVisitHistory, VisitHistory} from './Visit';
-import {PatientRefractionCard} from './Refraction';
-import {getFieldDefinitions} from './Items';
-import {getStore} from './DoctorApp';
+import {fetchVisitHistory, VisitHistory} from './Visit';
+import {ErrorCard} from './Form';
+import {Close} from './Favorites';
 
 const maxPatientListSize: number = 50;
 
@@ -45,6 +33,7 @@ export async function searchPatients(searchText: string): Patient[] {
   }
   const searchCriteria = {
     searchData: searchText,
+    size: 100,
   };
   let restResponse = await searchItems('Patient/list', searchCriteria);
   let patients: Patient[] = restResponse.patientList;
@@ -55,11 +44,38 @@ export async function searchPatients(searchText: string): Patient[] {
   return patients;
 }
 
+export type PatientDetailsProps = {
+  patient: ?Patient,
+  renderPatientInfo: () => React.ReactNode,
+  renderNewPatient: () => React.ReactNode,
+};
+export class PatientDetails extends PureComponent<PatientDetailsProps> {
+  render() {
+    if (!this.props.patient) {
+      return <View style={styles.leftSearchColumn} />;
+    }
+    if (this.props.patient.id === 'patient') {
+      return (
+        <View style={styles.leftSearchColumn}>
+          {this.props.renderNewPatient()}
+        </View>
+      );
+    }
+    return (
+      <View style={styles.leftSearchColumn}>
+        <ErrorCard errors={this.props.patient?.errors} />
+        {this.props.renderPatientInfo()}
+      </View>
+    );
+  }
+}
 class PatientList extends Component {
   props: {
     visible: boolean,
     patients: Patient[],
+    selectedPatientId: ?string,
     onSelect: (patient: Patient) => void,
+    exceedLimit: ?boolean,
   };
 
   render() {
@@ -67,44 +83,51 @@ class PatientList extends Component {
       return null;
     }
     return (
-      <View style={styles.flow}>
-        {this.props.patients.map((patient: Patient, index: number) => {
-          return (
-            <View style={styles.centeredRowLayout} key={index}>
-              <Button
-                title={patient.firstName + ' ' + patient.lastName}
-                onPress={() => this.props.onSelect(patient)}
-                testID={'patientName' + (index + 1) + 'Button'}
-              />
-            </View>
-          );
-        })}
-      </View>
+      <FlatList
+        style={[
+          styles.searchList,
+          this?.props?.exceedLimit ? {maxHeight: 300 * fontScale} : {},
+        ]}
+        initialNumToRender={10}
+        data={this.props.patients}
+        extraData={{selection: this.props.selectedPatientId}}
+        keyExtractor={(user, index) => user.id}
+        renderItem={({item, index}: {item: Patient, index: number}) => (
+          <SelectionListRow
+            label={getPatientFullName(item)}
+            simpleSelect={true}
+            selected={item?.id === this.props.selectedPatientId}
+            onSelect={(isSelected: boolean | string) =>
+              this.props.onSelect(item)
+            }
+            testID={'patientName' + (index + 1) + 'Button'}
+          />
+        )}
+      />
     );
   }
 }
-
-export class FindPatient extends Component {
-  props: {
-    onSelectPatient: (patient: Patient) => void,
-    onNewPatient: () => void,
-  };
-  state: {
-    searchCriterium: string,
-    patients: Patient[],
-    showPatientList: boolean,
-    showNewPatientButton: boolean,
-  };
-  constructor(props: any) {
+export type PatientProps = {
+  onSelectPatient?: (patient: Patient) => void,
+  onNewPatient?: () => void,
+};
+type PatientState = {
+  searchCriterium: string,
+  selectedPatientId: ?string,
+  patients: Patient[],
+  showPatientList: boolean,
+  showNewPatientButton: boolean,
+  exceedLimit: ?boolean,
+};
+export class FindPatient extends PureComponent<PatientProps, PatientState> {
+  constructor(props: PatientProps) {
     super(props);
     this.state = {
       searchCriterium: '',
       patients: [],
       showPatientList: false,
-      showNewPatientButton: false,
     };
   }
-
   async searchPatients() {
     this.props.onSelectPatient(undefined);
     this.setState({showPatientList: false, patients: []});
@@ -127,16 +150,12 @@ export class FindPatient extends Component {
     !isWeb && LayoutAnimation.spring();
     this.setState({
       showPatientList: patients != undefined && patients.length > 0,
-      showNewPatientButton:
-        patients === undefined || patients.length < maxPatientListSize,
       patients,
     });
   }
-
   newPatient() {
     this.setState({
       showPatientList: false,
-      showNewPatientButton: false,
       patients: [],
     });
     this.props.onNewPatient();
@@ -148,7 +167,7 @@ export class FindPatient extends Component {
 
   render() {
     return (
-      <View style={styles.tabCard}>
+      <View style={styles.rightSearchColumn}>
         <TextInput
           placeholder={strings.findPatient}
           returnKeyType="search"
@@ -156,27 +175,102 @@ export class FindPatient extends Component {
           autoFocus={true}
           style={styles.searchField}
           value={this.state.searchCriterium}
-          onChangeText={(text: string) =>
-            this.setState({searchCriterium: text})
-          }
+          onChangeText={(text: string) => {
+            this.setState({searchCriterium: text});
+          }}
           onSubmitEditing={() => this.searchPatients()}
           testID="patientSearchCriterium"
         />
         <PatientList
           patients={this.state.patients}
           visible={this.state.showPatientList}
+          selectedPatientId={this.props.selectedPatientId}
           onSelect={this.props.onSelectPatient}
+          exceedLimit={this.props.exceedLimit}
         />
-        {this.props.onNewPatient && this.state.showNewPatientButton ? (
+
+        {this.props.onNewPatient ? (
           <View style={styles.centeredRowLayout}>
             <Button
               title={strings.newPatient}
-              visible={this.state.showNewPatientButton}
               onPress={() => this.newPatient()}
               testID="newPatientButton"
             />
           </View>
         ) : null}
+      </View>
+    );
+  }
+}
+
+export class PatientSearch extends Component {
+  props: {
+    onSelectPatient: (patient: Patient) => void,
+    onNewPatient: () => void,
+    renderPatientInfo: () => React.ReactNode,
+    renderNewPatient: () => React.ReactNode,
+  };
+  state: {
+    selectedPatient: Patient,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      selectedPatient: undefined,
+    };
+  }
+
+  onSelectPatient(patient) {
+    this.setState({selectedPatient: patient});
+    this.props.onSelectPatient(patient);
+  }
+
+  onNewPatient() {
+    const NewPatient = this.props.onNewPatient();
+    this.setState({selectedPatient: NewPatient});
+  }
+  isNewPatient(): boolean {
+    return (
+      this.state.selectedPatient && this.state.selectedPatient.id === 'patient'
+    );
+  }
+
+  renderIcons() {
+    return (
+      <View style={styles.examIcons}>
+        {this.props.onClose && (
+          <TouchableOpacity
+            onPress={this.props.onClose}
+            testID="closeManageUser">
+            <Close style={styles.screenIcon} />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
+  render() {
+    return (
+      <View style={styles.searchPage}>
+        <View style={styles.centeredScreenLayout}>
+          {!this.isNewPatient() && (
+            <FindPatient
+              onSelectPatient={(patient) => this.onSelectPatient(patient)}
+              selectedPatientId={
+                this.state?.selectedPatient
+                  ? this.state?.selectedPatient.id
+                  : undefined
+              }
+              onNewPatient={() => this.onNewPatient()}
+            />
+          )}
+          <PatientDetails
+            patient={this.state?.selectedPatient}
+            renderPatientInfo={this.props.renderPatientInfo}
+            renderNewPatient={this.props.renderNewPatient}
+          />
+        </View>
+        {this.renderIcons()}
       </View>
     );
   }
@@ -262,6 +356,10 @@ export class FindPatientScreen extends Component {
         keyboardShouldPersistTaps="handled">
         <FindPatient
           onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
+          exceedLimit={true}
+          selectedPatientId={
+            this.state?.patientInfo ? this.state?.patientInfo.id : undefined
+          }
         />
         {this.state.patientInfo && (
           <View style={styles.separator}>
