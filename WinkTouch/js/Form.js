@@ -219,7 +219,6 @@ export class FormTextInput extends Component {
 
   updateText = (text: string) => {
     this.setState({text});
-    this.props.onChangeText(text);
   };
 
   render() {
