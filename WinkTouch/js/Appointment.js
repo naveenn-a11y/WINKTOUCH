@@ -73,7 +73,12 @@ import {
   getCachedItems,
   cacheItemsById,
 } from './DataCache';
-import {searchItems, fetchItemById, performActionOnItem} from './Rest';
+import {
+  searchItems,
+  fetchItemById,
+  performActionOnItem,
+  stripDataType,
+} from './Rest';
 import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {
@@ -1375,7 +1380,6 @@ export class WaitingList extends Component {
         waitingListAppointments: appointments,
       });
     } catch (e) {
-      console.log('eeee', e);
       this.setState({fetchingWaitingList: false});
     }
   }
@@ -1440,8 +1444,8 @@ export class WaitingList extends Component {
     }
   };
   compareStore(a, b): number {
-    const id1 = a.storeId?.split('-')[1];
-    const id2 = b.storeId?.split('-')[1];
+    const id1 = stripDataType(a.storeId);
+    const id2 = stripDataType(b.storeId);
     const store1 = getAccount().stores.find((store) => store.storeId == id1);
     const store2 = getAccount().stores.find((store) => store.storeId == id2);
     if (store1.name.toLowerCase() < store2.name.toLowerCase()) {
