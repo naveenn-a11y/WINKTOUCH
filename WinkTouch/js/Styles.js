@@ -1366,9 +1366,6 @@ export const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     alignContent: 'center',
   },
-  alignPopup: {
-    alignItems: 'center',
-  },
 
   copyDialog: {
     backgroundColor: 'rgb(51, 51, 51)',
