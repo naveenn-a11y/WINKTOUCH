@@ -121,6 +121,7 @@ export function printPatientHeader(visit: Visit) {
       patient.medicalCardExp,
       'EXP:',
     )}</div>` +
+    `        <div><span>${strings.familyDoctor}</span>${patient.familyDoctor ?  patient.familyDoctor.firstName.trim()+" "+patient.familyDoctor.lastName.trim() : "" }</div>` +
     `        <div><span>${strings.examDate}</span>${formatDate(
       visit.date,
       officialDateFormat,

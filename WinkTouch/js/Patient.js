@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   LayoutAnimation,
   ScrollView,
+  Modal,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {NavigationActions} from 'react-navigation';
@@ -51,6 +52,10 @@ import {
 } from './Appointment';
 import {loadDocuments} from './ImageField';
 import {printBase64Pdf} from './Print';
+import {
+  Binoculars,
+} from './Widgets';
+import {ManageUsers} from './User';
 
 export async function fetchPatientInfo(
   patientId: string,
@@ -322,6 +327,7 @@ export class PatientContact extends Component {
   props: {
     patientInfo: PatientInfo,
     onUpdatePatientInfo: (patientInfo: PatientInfo) => void,
+    findDoctor: () => void,
   };
 
   constructor(props: any) {
@@ -444,6 +450,18 @@ export class PatientContact extends Component {
               fieldName="medicalCardExp"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
+            />
+          </FormRow>
+          <FormRow>
+            <FormField
+              value={this.props.patientInfo}
+              fieldName="familyDoctorId"
+              onChangeValue={this.props.onUpdatePatientInfo}
+              autoCapitalize="characters"
+            />
+            <Binoculars
+              style={styles.groupIcon}
+              onClick={this.props.findDoctor}
             />
           </FormRow>
           <FormRow>
@@ -629,6 +647,7 @@ export class PatientScreen extends Component {
   state: {
     patientInfo: PatientInfo,
     isDirty: boolean,
+    isPopupVisibile: Boolean,
   };
 
   constructor(props: any) {
@@ -640,6 +659,7 @@ export class PatientScreen extends Component {
         ? params.patientInfo
         : getCachedItem(params.patientInfo.id),
       isDirty,
+      isPopupVisibile: false
     };
     if (!isDirty) {
       this.refreshPatientInfo();
@@ -694,6 +714,22 @@ export class PatientScreen extends Component {
     return <View style={styles.examIcons}>{this.renderRefreshIcon()}</View>;
   }
 
+  cancelEdit = () => {
+    this.setState({isPopupVisibile: false});
+  };
+
+  renderManageUsersPopup() {
+    return (
+      <View style={styles.screeen}>
+        <ManageUsers onClose={this.cancelEdit} />
+      </View>
+    );
+  }
+
+  renderSearchDoctorModal = () => {
+    this.setState({isPopupVisibile: true});
+  }
+
   render() {
     return (
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
@@ -702,9 +738,19 @@ export class PatientScreen extends Component {
         <PatientContact
           patientInfo={this.state.patientInfo}
           onUpdatePatientInfo={this.updatePatientInfo}
+          findDoctor={this.renderSearchDoctorModal}
         />
         <PatientDocumentAttachments patientInfo={this.state.patientInfo} />
         {this.renderIcons()}
+        {this.state.isPopupVisibile && (
+          <Modal
+            visible={this.state.isPopupVisibile}
+            transparent={true}
+            animationType={'fade'}
+            onRequestClose={this.cancelEdit}>
+            {this.renderManageUsersPopup()}
+          </Modal>
+        )}
       </KeyboardAwareScrollView>
     );
   }
@@ -719,6 +765,7 @@ export class CabinetScreen extends Component {
   state: {
     patientInfo: ?PatientInfo,
     appointments: ?(Appointment[]),
+    isPopupVisibile: Boolean,
   };
 
   constructor(props: any) {
@@ -726,6 +773,7 @@ export class CabinetScreen extends Component {
     this.state = {
       patientInfo: undefined,
       appointments: undefined,
+      isPopupVisibile: false,
     };
   }
   static defaultProps = {
@@ -851,6 +899,22 @@ export class CabinetScreen extends Component {
     }
   }
 
+  cancelEdit = () => {
+    this.setState({isPopupVisibile: false});
+  };
+
+  renderManageUsersPopup() {
+    return (
+      <View style={styles.screeen}>
+        <ManageUsers onClose={this.cancelEdit} />
+      </View>
+    );
+  }
+
+  renderSearchDoctorModal = () => {
+    this.setState({isPopupVisibile: true});
+  }
+
   renderAppointments() {
     if (!this.state.appointments || this.state.appointments.length === 0) {
       return null;
@@ -879,6 +943,7 @@ export class CabinetScreen extends Component {
         <PatientContact
           patientInfo={this.state.patientInfo}
           onUpdatePatientInfo={this.updatePatientInfo}
+          findDoctor={this.renderSearchDoctorModal}
         />
         <View style={styles.centeredRowLayout}>
           <Button
@@ -887,6 +952,15 @@ export class CabinetScreen extends Component {
             testID="createPatientButton"
           />
         </View>
+        {this.state.isPopupVisibile && (
+          <Modal
+            visible={this.state.isPopupVisibile}
+            transparent={true}
+            animationType={'fade'}
+            onRequestClose={this.cancelEdit}>
+            {this.renderManageUsersPopup()}
+          </Modal>
+        )}
       </View>
     );
   }
