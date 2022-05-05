@@ -71,6 +71,7 @@ export type User = {
   city?: string,
   isExternal: boolean,
   providerType?: string,
+  username?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
@@ -367,6 +368,7 @@ export type FieldDefinition = {
   isLabel?: boolean,
   limitedValues?: {},
   forceSync?: boolean,
+  listField?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
