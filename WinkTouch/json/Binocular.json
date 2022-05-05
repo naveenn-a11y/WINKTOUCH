@@ -285,7 +285,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -293,14 +293,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -312,7 +312,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -320,14 +320,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -346,7 +346,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -354,14 +354,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -373,7 +373,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -381,14 +381,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -408,7 +408,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -416,14 +416,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -435,7 +435,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -443,14 +443,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -470,7 +470,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -478,14 +478,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
@@ -497,7 +497,7 @@
               "name": "Blur",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "options": ["X"],
               "maxValue": 50
             },
@@ -505,14 +505,14 @@
               "name": "Break",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             },
             {
               "name": "Recov.",
               "minValue": 0,
               "freestyle": true,
-              "suffix": " Δ",
+              "suffix": " \u0394",
               "maxValue": 50
             }
           ]
