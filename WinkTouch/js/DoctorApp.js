@@ -194,11 +194,11 @@ export class DoctorApp extends Component {
     token: string,
     onLogout: () => void,
     onStartLockingDog: (ttlInMins: number) => void,
+    panResponder: any,
   };
   state: {
     statusMessage: string,
     currentRoute: any,
-    panResponder: any,
   };
   navigator: any;
   constructor(props: any) {

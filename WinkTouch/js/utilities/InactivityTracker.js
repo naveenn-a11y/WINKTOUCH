@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { PanResponder } from "react-native";
+import { PanResponder, Keyboard } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {cacheItem, getCachedItem, clearCachedItemById} from '../DataCache';
 
@@ -17,9 +17,11 @@ class InactivityTracker {
     this.IS_ACTIVE = '_isActiveKey';
     this.IS_LOADED = '_isLoaded';
     this.panResponder = null;
+    this._keyboardDidShowListener = null
+    this._keyboardDidHideListener = null
   }
 
-  async load() {
+  async load(): void {
     const isTrackerActive = await this.fetchFromStorage(this.IS_ACTIVE);
     if (isTrackerActive === null) {
       //Tracker is not initialised
@@ -37,7 +39,7 @@ class InactivityTracker {
     }
   }
 
-  start() {
+  start(): void {
     let newExpectedLogoutTime = Date.now() + this.ttlInSeconds;
     this.saveToStorage(this.LOGOUT_TIME_KEY, newExpectedLogoutTime, 'START');
     this.saveToStorage(this.IS_ACTIVE, true, 'START');
@@ -51,7 +53,7 @@ class InactivityTracker {
     __DEV__ && console.log('Inactivity Tracker started.');
   }
 
-  stop() {
+  stop(): void {
     clearInterval(this.monitor);
     this.stopObserveEvents();
     this.saveToStorage(this.IS_ACTIVE, false, 'STOP');
@@ -59,11 +61,11 @@ class InactivityTracker {
     __DEV__ && console.log('Inactivity Tracker stopped.');
   }
 
-  getResponder() {
+  getResponder(): any {
     return this.panResponder ? this.panResponder.panHandlers : {} ;
   }
 
-  async hasTimeExpired() {
+  async hasTimeExpired(): boolean {
     const logoutTime = await this.fetchFromStorage(this.LOGOUT_TIME_KEY);
     const expectedLogoutTime = parseInt(logoutTime || 0, 10);
     return (
@@ -73,7 +75,7 @@ class InactivityTracker {
     );
   }
 
-  async isRunning() {
+  async isRunning(): boolean {
     const isTrackerInit = await this.fetchFromStorage(this.IS_LOADED);
     if (isTrackerInit === null) {
       return false; //tracker is not loaded
@@ -87,7 +89,7 @@ class InactivityTracker {
     }
   }
 
-  async isInit() {
+  async isInit(): boolean {
     const isTrackerInit = await this.fetchFromStorage(this.IS_LOADED);
     if (isTrackerInit === null) {
       return false;
@@ -109,7 +111,7 @@ class InactivityTracker {
     }, 100);
   };
 
-  monitorLogoutTimeHasNotExpired() {
+  monitorLogoutTimeHasNotExpired(): void {
     if (!this.monitor) {
       this.startInterval();
     } else {
@@ -118,7 +120,7 @@ class InactivityTracker {
     }
   }
 
-  startInterval() {
+  startInterval(): void {
     this.monitor = setInterval(() => {
       const expectedLogoutTime = parseInt(
         getCachedItem(this.LOGOUT_TIME_KEY) || 0,
@@ -130,7 +132,7 @@ class InactivityTracker {
     }, 1000);
   }
 
-  async appIsInBackground() {
+  async appIsInBackground(): void {
     //save time to localstorage when app moves to background
     const isActive = await this.isRunning();
     if (isActive) {
@@ -143,42 +145,50 @@ class InactivityTracker {
     }
   }
 
-  async appIsActive() {
+  async appIsActive(): void {
     const isInit = await this.isInit();
     if (isInit) {
       this.load();
     }
   }
 
-  saveToStorage(id: String, data: any, source: string) {
+  saveToStorage(id: String, data: any, source: string): void {
     AsyncStorage.setItem(id, JSON.stringify(data));
   }
 
-  async fetchFromStorage(id) {
+  async fetchFromStorage(id): void {
     const expectedTime = await AsyncStorage.getItem(id);
     return expectedTime;
   }
 
-  removeFromStorage(key) {
+  removeFromStorage(key): void {
     //(Platform.OS === 'web') ? localStorage.removeItem(key) : AsyncStorage.removeItem(key);
     AsyncStorage.removeItem(key);
   }
 
-  observeEvents() {
+  keyboardEvent = () => {
+    console.log("Keyboard event detected")
+  }
+
+  observeEvents(): void {
     this.panResponder = PanResponder.create({
       onMoveShouldSetPanResponderCapture: this.resetLogoutTime,
       onPanResponderTerminationRequest: this.resetLogoutTime,
       onStartShouldSetPanResponderCapture: this.resetLogoutTime,
       onScrollShouldSetResponderCapture: this.resetLogoutTime,
     });
+    this._keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.resetLogoutTime);
+    this._keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.resetLogoutTime);
   }
 
-  stopObserveEvents() {
+  stopObserveEvents(): void {
     this.panResponder = null;
+    this._keyboardDidShowListener.remove();
+    this._keyboardDidHideListener.remove();
   }
 
   //use destroy when user completely logs out
-  destroy() {
+  destroy(): void {
     clearInterval(this.monitor);
     this.stopObserveEvents();
     clearCachedItemById(this.LOGOUT_TIME_KEY);
