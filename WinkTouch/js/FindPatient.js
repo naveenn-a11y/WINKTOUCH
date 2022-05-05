@@ -109,6 +109,7 @@ class PatientList extends Component {
 export type PatientProps = {
   onSelectPatient?: (patient: Patient) => void,
   onNewPatient?: () => void,
+  openWaitingListDialog: () => void,
 };
 type PatientState = {
   searchCriterium: string,

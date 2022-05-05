@@ -1446,8 +1446,8 @@ export class WaitingList extends Component {
   compareStore(a, b): number {
     const id1 = stripDataType(a.storeId);
     const id2 = stripDataType(b.storeId);
-    const store1 = getAccount().stores.find((store) => store.storeId == id1);
-    const store2 = getAccount().stores.find((store) => store.storeId == id2);
+    const store1 = getAccount().stores.find((store) => store.storeId === id1);
+    const store2 = getAccount().stores.find((store) => store.storeId === id2);
     if (store1.name.toLowerCase() < store2.name.toLowerCase()) {
       return -1;
     } else if (store1.name.toLowerCase() > store2.name.toLowerCase()) {
@@ -1486,7 +1486,7 @@ export class WaitingList extends Component {
         style={style}
         value={this.state.filter}
         onChangeText={(filter: string) => this.setState({filter})}
-        // testID={this.props.fieldId + '.filter'}
+        testID={'waitingListFilter'}
       />
     );
   }
@@ -1516,7 +1516,7 @@ export class WaitingList extends Component {
       const store = getAccount().stores.find(
         (store) => store.storeId == storeId,
       );
-      if (item.appointmentTypes)
+      if (item.appointmentTypes) {
         item.appointmentTypes.map((id, index) => {
           const t = getCachedItem(id);
           type +=
@@ -1524,6 +1524,7 @@ export class WaitingList extends Component {
               ? `${t.name}.`
               : `${t.name}, `;
         });
+      }
       filterData.push({
         patient: `${patient?.firstName} ${patient?.lastName}`,
         home: patient.phone,
@@ -1625,7 +1626,7 @@ export class WaitingList extends Component {
                       options: [{label: strings.showAllStores, value: true}],
                     }}
                     onChangeValue={(v) => {
-                      this.setState({allStores: v ? true : false}, () =>
+                      this.setState({allStores: !!v}, () =>
                         this.waitingListAppointments(),
                       );
                     }}
@@ -1765,7 +1766,7 @@ export class WaitingList extends Component {
                     extraData={{filter: this.state.filter}}
                     renderItem={({item, index}) => {
                       const selected =
-                        this.state.selectedWaitingEvent?.id == item.id;
+                        this.state.selectedWaitingEvent?.id === item.id;
                       const textStyle = {
                         flex: 1,
                         textAlign: 'center',

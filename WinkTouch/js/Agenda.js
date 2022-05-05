@@ -21,7 +21,6 @@ import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
 import {FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
-import {TableListRow} from './FollowUp';
 import {
   AppointmentTypes,
   AppointmentIcons,
@@ -577,7 +576,9 @@ export class AgendaScreen extends Component {
       this.setState({
         copedAppointment: event,
       });
-    } else this.setState({copedAppointment: null});
+    } else {
+      this.setState({copedAppointment: null});
+    }
   };
 
   renderWaitingList() {
