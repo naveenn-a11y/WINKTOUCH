@@ -438,6 +438,7 @@ export class AgendaScreen extends Component {
         showDialog: false,
         selectedTime: undefined,
         appointments: appointments,
+        event: null,
       });
     }
   };
@@ -451,7 +452,7 @@ export class AgendaScreen extends Component {
   }
 
   renderEventDetails() {
-    let event: Appointment = this.state.event;
+    let event: Appointment = {...this.state.event};
     if (event === undefined || event === null) {
       return null;
     }

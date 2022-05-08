@@ -965,7 +965,9 @@ export class AppointmentDetails extends Component {
               appointment={appointment}
               orientation="horizontal"
             />
-            <Title>{getPatientFullName(patient)} </Title>
+            <Title style={{color: '#000'}}>
+              {getPatientFullName(patient)}{' '}
+            </Title>
             <View style={styles.rowLayout}>
               <Text style={styles.text}>({genderShort}) </Text>
               <PatientTags patient={patient} showDescription={true} />
@@ -1034,9 +1036,7 @@ export class AppointmentDetails extends Component {
               <TouchableOpacity
                 onPress={() => this.props.onCancelAppointment()}
                 style={styles.appointmentActionButton}>
-                <Text style={{color: '#fff'}}>
-                  {strings.cancelAppointment}
-                </Text>
+                <Text style={{color: '#fff'}}>{strings.cancelAppointment}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={(appointment) => this.props.openDoubleBookingModal(appointment)}
