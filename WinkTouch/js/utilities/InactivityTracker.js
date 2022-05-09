@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { PanResponder, Keyboard } from "react-native";
+import { Platform, NativeEventEmitter, NativeModules } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {cacheItem, getCachedItem, clearCachedItemById} from '../DataCache';
 
@@ -16,9 +16,8 @@ class InactivityTracker {
     this.LOGOUT_TIME_KEY = '_logoutTime';
     this.IS_ACTIVE = '_isActiveKey';
     this.IS_LOADED = '_isLoaded';
-    this.panResponder = null;
-    this._keyboardDidShowListener = null
-    this._keyboardDidHideListener = null
+    this._iosEventTrackerEmitter = NativeModules.EventTrackerModule ? new NativeEventEmitter(NativeModules.EventTrackerModule) : null;
+    this._iosEventSubscription = null
   }
 
   async load(): void {
@@ -59,10 +58,6 @@ class InactivityTracker {
     this.saveToStorage(this.IS_ACTIVE, false, 'STOP');
     this.onSessionTimeout();
     __DEV__ && console.log('Inactivity Tracker stopped.');
-  }
-
-  getResponder(): any {
-    return this.panResponder ? this.panResponder.panHandlers : {} ;
   }
 
   async hasTimeExpired(): boolean {
@@ -166,25 +161,32 @@ class InactivityTracker {
     AsyncStorage.removeItem(key);
   }
 
-  keyboardEvent = () => {
-    console.log("Keyboard event detected")
+  observeEvents(): void {
+    (Platform.OS === 'web') ? this.observeWebEvents() : (Platform.OS === 'ios') ? this.observeIosEvents() : () => {};
   }
 
-  observeEvents(): void {
-    this.panResponder = PanResponder.create({
-      onMoveShouldSetPanResponderCapture: this.resetLogoutTime,
-      onPanResponderTerminationRequest: this.resetLogoutTime,
-      onStartShouldSetPanResponderCapture: this.resetLogoutTime,
-      onScrollShouldSetResponderCapture: this.resetLogoutTime,
-    });
-    this._keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.resetLogoutTime);
-    this._keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.resetLogoutTime);
+  observeWebEvents(): void {
+    window.addEventListener('mousemove', this.resetLogoutTime);
+    window.addEventListener('scroll', this.resetLogoutTime);
+    window.addEventListener('keydown', this.resetLogoutTime);
+  }
+
+  observeIosEvents(): void {
+    this._iosEventSubscription = this._iosEventTrackerEmitter.addListener('eventDetected', this.resetLogoutTime);
   }
 
   stopObserveEvents(): void {
-    this.panResponder = null;
-    this._keyboardDidShowListener.remove();
-    this._keyboardDidHideListener.remove();
+    (Platform.OS === 'web') ? this.stopObserveWebEvents() : (Platform.OS === 'ios') ? this.stopObserveIosEvents() : () => {};
+  }
+
+  stopObserveWebEvents(): void {
+    window.removeEventListener('mousemove', this.resetLogoutTime);
+    window.removeEventListener('scroll', this.resetLogoutTime);
+    window.removeEventListener('keydown', this.resetLogoutTime);
+  }
+
+  stopObserveIosEvents(): void {
+    this._iosEventSubscription ? this._iosEventSubscription.remove() : () => {};
   }
 
   //use destroy when user completely logs out

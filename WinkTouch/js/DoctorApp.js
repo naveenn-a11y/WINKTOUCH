@@ -194,7 +194,6 @@ export class DoctorApp extends Component {
     token: string,
     onLogout: () => void,
     onStartLockingDog: (ttlInMins: number) => void,
-    panResponder: any,
   };
   state: {
     statusMessage: string,
@@ -320,7 +319,6 @@ export class DoctorApp extends Component {
           <Provider>
             <View 
               style={styles.screeen} 
-              {...this.props.panResponder}
             >
               <StatusBar hidden={true} />
               <DocatorAppContainer

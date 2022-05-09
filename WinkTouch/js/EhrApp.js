@@ -373,7 +373,6 @@ export class EhrApp extends Component {
         onStartLockingDog={(ttlInMins: number) =>
           this.startLockingDog(ttlInMins)
         }
-        panResponder={this.tracker && this.tracker.getResponder()}
       />
     );
   }
