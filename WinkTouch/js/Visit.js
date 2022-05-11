@@ -1578,7 +1578,7 @@ class VisitWorkFlow extends Component {
     ) {
       medicationExam.Prescription.forEach((prescription, i) => {
         label = prescription.Label;
-        if (!labelAlreadyExist.has(label)) {
+        if (label && !labelAlreadyExist.has(label)) {
           printMedicationRxOptions.push({label: label, isChecked: false});
           labelAlreadyExist.add(label);
         }
