@@ -420,7 +420,7 @@ export class FollowUpScreen extends Component<
   }
 
   filterFollowUp(data: FollowUp[]) {
-    const allFollowUp = data;
+    let allFollowUp = data;
     const visit: Visit = this.props.navigation.state.params.visit;
     const isDraft: Boolean = this.props.isDraft;
 
