@@ -1372,6 +1372,32 @@ let codeDefinitions = {
       code: 1,
     },
   ],
+  providerTypeCodes: [
+      {
+          code: "",
+          description: ""
+      },
+      {
+          code: "RO",
+          description: "Registered Optician (RO)"
+      },
+      {
+          code: "OD",
+          description: "Doctor of Optometry (OD)"
+      },
+      {
+          code: "MD",
+          description: "Ophthalmologist (MD)"
+      },
+      {
+          code: "DO",
+          description: "Doctor of Osteopathy (DO)"
+      },
+      {
+          code: "Optometrist",
+          description: "Doctor of Optometry (Optometrist)"
+      }
+  ],
 };
 
 initialiseWinkCodes(codeDefinitions);

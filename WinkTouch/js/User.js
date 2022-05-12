@@ -92,6 +92,14 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
           <FormRow>
             <FormField
               value={this.props.user}
+              fieldName="providerType"
+              onChangeValue={this.props.onUpdateUser}
+              autoCapitalize="characters"
+            />
+          </FormRow>
+          <FormRow>
+            <FormField
+              value={this.props.user}
               fieldName="firstName"
               onChangeValue={this.props.onUpdateUser}
               autoCapitalize="words"
