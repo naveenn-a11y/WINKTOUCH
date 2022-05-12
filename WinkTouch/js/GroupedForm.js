@@ -747,9 +747,6 @@ export class GroupedCard extends Component {
     const value =
       this.props.exam[this.props.exam.definition.name][fieldDefinition.name];
 
-    if (fieldDefinition.normalValue === value) {
-      return null;
-    }
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
     if (formattedValue === '') {
       return null;

@@ -105,6 +105,10 @@ export async function storeExam(
   refreshStateKey: ?string,
   navigation: ?any,
 ): Exam {
+  exam.hasStarted = true;
+  if (isEmpty(exam[exam.definition.name])) {
+    exam.hasStarted = false;
+  }
   exam = deepClone(exam);
   exam = await storeItem(exam);
   if (exam.errors) {
@@ -494,6 +498,9 @@ export class ExamCard extends Component {
 
   getStyle(): any {
     let style: string = this.props.style;
+    const isEmptyExam: boolean = isEmpty(
+      this.props.exam[this.props.exam.definition.name],
+    );
     if (style) {
       return style;
     }
@@ -502,7 +509,7 @@ export class ExamCard extends Component {
         ? styles.page
         : this.props.exam.isInvalid
         ? styles.unverifiedExamCard
-        : this.props.exam.hasStarted
+        : this.props.exam.hasStarted && !isEmptyExam
         ? styles.finishedExamCard
         : styles.todoExamCard;
     return style;
@@ -930,7 +937,6 @@ export class ExamScreen extends Component {
   }
 
   async storeExam(exam: Exam) {
-    exam.hasStarted = true;
     exam.isInvalid = false;
     exam = await storeExam(
       exam,
@@ -1085,7 +1091,7 @@ export class ExamScreen extends Component {
     }
     if (lensometry !== undefined && lensometry.length > 0) {
       lensometry.map((prescription: GlassesRx, index: number) => {
-        if (!isEmpty(prescription.lensType))
+        if (!isEmpty(prescription.lensType)) {
           exportRxOptions.push({
             label: strings.lensometry + ': ' + prescription.lensType,
             isChecked: index === 0,
@@ -1094,7 +1100,7 @@ export class ExamScreen extends Component {
             divider: index === lensometry.length - 1,
             singleSelection: true,
           });
-        else
+        } else {
           exportRxOptions.push({
             label: strings.lensometry + ' ' + (index + 1),
             isChecked: index === 0,
@@ -1103,6 +1109,7 @@ export class ExamScreen extends Component {
             divider: index === lensometry.length - 1,
             singleSelection: true,
           });
+        }
       });
     }
     if (keratometry !== undefined) {
@@ -1290,8 +1297,9 @@ export class ExamScreen extends Component {
       this.state.exam.definition.export === null ||
       this.state.exam.definition.export.length === 0 ||
       getConfiguration().machine.phoropter === undefined
-    )
+    ) {
       return null;
+    }
     return (
       <View style={styles.flow}>
         <TouchableOpacity
@@ -1323,13 +1331,14 @@ export class ExamScreen extends Component {
   }
 
   renderSnackBar() {
-    if (this.state.showSnackBar)
+    if (this.state.showSnackBar) {
       return (
         <NativeBar
           message={this.state.snackBarMessage}
           onDismissAction={() => this.hideSnackBar()}
         />
       );
+    }
     return null;
   }
 
