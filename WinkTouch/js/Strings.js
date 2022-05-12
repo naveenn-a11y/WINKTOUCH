@@ -324,6 +324,7 @@ export const strings = new LocalizedStrings({
     mins: 'mins',
     hour: 'hour',
     familyDoctor: 'Family Doctor',
+    createUser: 'Create User',
   },
   fr: {
     enterRegisteredEmail:
@@ -647,6 +648,7 @@ export const strings = new LocalizedStrings({
     last: 'Dernier',
     mins: 'mins',
     familyDoctor: 'Médecin de famille',
+    createUser: 'Créer un utilisateur',
   },
 });
 
