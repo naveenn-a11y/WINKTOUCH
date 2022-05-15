@@ -1387,7 +1387,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 0,
     paddingRight: 7 * fontScale,
     fontSize: 18 * fontScale,
-    minWidth: 220 * fontScale,
+    minWidth: 225 * fontScale,
     textAlign: 'justify',
   },
 });

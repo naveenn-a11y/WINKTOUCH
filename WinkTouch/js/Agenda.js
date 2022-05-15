@@ -18,7 +18,7 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {FormInput, FormOptions, FormRow} from './Form';
+import {FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -32,7 +32,6 @@ import {
   manageAvailability,
   cancelAppointment,
   hasAppointmentBookAccess,
-  getAppointmentTypes,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -42,9 +41,6 @@ import {
   farDateFormat2,
   isEmpty,
   yearDateFormat,
-  timeFormat,
-  dateFormat,
-  yearDateTimeFormat,
 } from './Util';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
@@ -56,6 +52,7 @@ import {searchUsers} from './User';
 import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
+import {AvailabilityModal} from './agendaComponents';
 
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
@@ -85,7 +82,6 @@ export class AgendaScreen extends Component {
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
     manageAvailabilities: boolean,
-    slot: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -113,9 +109,6 @@ export class AgendaScreen extends Component {
       copiedAppointment: undefined,
       rescheduleAppointment: false,
       manageAvailabilities: false,
-      slot: 1,
-      duration: 30,
-      appointmentTypes: [],
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -191,9 +184,8 @@ export class AgendaScreen extends Component {
         const events = await fetchEvents('store-' + getStore().storeId);
         this.setState({events});
       }
-      const emptySlots = this.createEmptySlots(appointments);
       this.setState({
-        appointments: [...emptySlots, ...appointments],
+        appointments: [...appointments],
         isLoading: false,
       });
     } catch (e) {
@@ -204,11 +196,23 @@ export class AgendaScreen extends Component {
     return isEmpty(event.patientId) && !event.isBusy;
   }
 
-  _onSetEvent = (event: Appointment) => {
+  _onCellPress = (date: date) => {
+    const oneHour = 60 * 60 * 1000;
+    const time = new Date(date).getTime();
+    const store = 'store-' + getStore().storeId;
+    const event = {
+      storeId: store,
+      start: new Date(moment(time).set({second: 0, millisecond: 0})),
+      end: new Date(moment(time + oneHour).set({second: 0, millisecond: 0})),
+      emptySlot: true,
+    };
     this.setState({event: event});
-    if (event.emptySlot) {
-      this.openManageAvailabilities();
-    } else if (this.isNewEvent(event)) {
+    this.openManageAvailabilities();
+  };
+  _onSetEvent = (event: Appointment) => {
+    console.log('event :>>', event);
+    this.setState({event: event});
+    if (this.isNewEvent(event)) {
       if (this.state.copiedAppointment) {
         this.setState({rescheduleAppointment: true, newAppointment: event});
       } else {
@@ -299,7 +303,7 @@ export class AgendaScreen extends Component {
     this.setState({manageAvailabilities: true});
   };
   cancelManageAvailabilities = () => {
-    this.setState({manageAvailabilities: false, appointmentTypes: [], slot: 1});
+    this.setState({manageAvailabilities: false});
   };
   openPatientDialog = () => {
     this.setState({isPatientDialogVisible: true});
@@ -416,18 +420,18 @@ export class AgendaScreen extends Component {
       );
     }
   };
-  updateAvailability = async () => {
-    const start = moment(this.state.event.start).toISOString(true);
-    const end = moment(start)
-      .add(this.state.duration, 'minutes')
-      .toISOString(true);
+  updateAvailability = async (event: Appointment) => {
+    this.setState({isLoading: true});
+    const start = moment(event.start).toISOString(true);
+    const end = moment(event.end).toISOString(true);
+    const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
     const {errors, appointment}: Appointment = await manageAvailability(
-      this.state.event?.userId,
-      this.state.slot == 1 ? 0 : 3,
-      this.state.duration,
+      event?.userId,
+      event.slotType == 1 ? 0 : 3,
+      duration,
       start,
       end,
-      this.state.appointmentTypes,
+      event.appointmentTypes,
     );
     if (errors) alert(errors[0]);
     else {
@@ -438,6 +442,7 @@ export class AgendaScreen extends Component {
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
     }
+    this.setState({isLoading: false});
   };
   selectPatient(patient: Patient | PatientInfo) {
     this.cancelPatientDialog();
@@ -570,161 +575,6 @@ export class AgendaScreen extends Component {
               {strings.close}
             </NativeBaseButton>
             <NativeBaseButton onPress={this.getAppoitmentsForSelectedDoctors}>
-              {strings.apply}
-            </NativeBaseButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    );
-  }
-  renderAppointmentsTypes() {
-    const updateValue = (val, index) => {
-      let apps = this.state.appointmentTypes;
-      if (val) apps.push(val);
-      else apps.splice(index, 1);
-      this.setState({appointmentTypes: apps});
-    };
-    let appointmentsType: string[] = this.state.appointmentTypes;
-    let dropdowns = [];
-    dropdowns.push(
-      <FormRow>
-        <FormOptions
-          options={getAppointmentTypes()}
-          showLabel={false}
-          label={strings.AppointmentType}
-          value={appointmentsType ? appointmentsType[0] : ''}
-          onChangeValue={(code: ?string | ?number) => updateValue(code, 0)}
-        />
-      </FormRow>,
-    );
-    if (appointmentsType && appointmentsType.length >= 1) {
-      for (let i: number = 1; i <= appointmentsType.length; i++) {
-        if (i < 5) {
-          dropdowns.push(
-            <FormRow>
-              <FormOptions
-                options={getAppointmentTypes()}
-                showLabel={false}
-                label={strings.AppointmentType}
-                value={appointmentsType[i]}
-                onChangeValue={(code: ?string | ?number) =>
-                  updateValue(code, i)
-                }
-              />
-            </FormRow>,
-          );
-        }
-      }
-    }
-
-    return dropdowns;
-  }
-  renderManageAvailabilities() {
-    const doctor: User = getCachedItem(this.state.event?.userId);
-    const start = this.state.event?.start;
-    return (
-      <Portal theme={{colors: {backdrop: 'transparent'}}}>
-        <Dialog
-          style={{width: '50%', alignSelf: 'center', backgroundColor: '#fff'}}
-          visible={this.state.manageAvailabilities}
-          onDismiss={this.cancelManageAvailabilities}
-          dismissable={true}>
-          <Dialog.Content>
-            <FormInput
-              multiOptions
-              singleSelect
-              value={this.state.slot}
-              style={{flexDirection: 'row', justifyContent: 'space-evenly'}}
-              showLabel={false}
-              readonly={false}
-              definition={{
-                options: [
-                  {label: strings.createAvailability, value: 1},
-                  {label: strings.markAsUnavailable, value: 2},
-                ],
-              }}
-              onChangeValue={(slot) => this.setState({slot})}
-              errorMessage={'error'}
-              isTyping={false}
-            />
-            <View style={{marginTop: 25}}>
-              <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, styles.availabilitiesField]}>
-                  {strings.store} :
-                </Text>
-                <View style={agendaStyles.input}>
-                  <Text style={{opacity: 0.7}}>{getStore().name}</Text>
-                </View>
-              </View>
-              <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, styles.availabilitiesField]}>
-                  {strings.doctor} :
-                </Text>
-                <View style={agendaStyles.input}>
-                  <Text
-                    style={{
-                      opacity: 0.7,
-                    }}>{`${doctor?.firstName} ${doctor?.lastName}`}</Text>
-                </View>
-              </View>
-              <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, styles.availabilitiesField]}>
-                  {strings.duration} :
-                </Text>
-                <View
-                  style={{
-                    width: '75%',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <FormOptions
-                    readonly
-                    showLabel={false}
-                    options={[30, 60, 90]}
-                    label={strings.duration}
-                    value={this.state.duration}
-                    onChangeValue={(code: ?string | ?number) => {
-                      this.setState({duration: code});
-                    }}
-                  />
-                  <Text style={{marginLeft: 10}}>{strings.minutes}</Text>
-                </View>
-              </View>
-              <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, styles.availabilitiesField]}>
-                  {strings.AppointmentType} :
-                </Text>
-                <View style={{width: '75%'}}>
-                  {this.renderAppointmentsTypes()}
-                </View>
-              </View>
-              <View style={agendaStyles.field}>
-                <Text style={[styles.textfield, styles.availabilitiesField]}>
-                  {strings.time} :
-                </Text>
-                <View style={agendaStyles.input}>
-                  <Text style={{opacity: 0.7}}>
-                    {' '}
-                    {formatDate(start, dateFormat)}
-                    {'  '}
-                    {moment(start).format('h:mm a')}
-                    {' - '}
-                    {formatDate(
-                      moment(start)
-                        .add(this.state.duration, 'minutes')
-                        .format('h:mm a'),
-                      timeFormat,
-                    )}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <NativeBaseButton onPress={this.cancelManageAvailabilities}>
-              {strings.close}
-            </NativeBaseButton>
-            <NativeBaseButton onPress={this.updateAvailability}>
               {strings.apply}
             </NativeBaseButton>
           </Dialog.Actions>
@@ -878,52 +728,8 @@ export class AgendaScreen extends Component {
     }
   };
 
-  createEmptySlots = (appointments = []) => {
-    const store = 'store-' + getStore().storeId;
-    const {date, mode, selectedDoctors} = this.state;
-    const emptyAppointments = [];
-    const startDate =
-      mode === 'day'
-        ? moment(date).startOf('day')
-        : moment(date).startOf('isoWeek').set({hour: 8});
-    const endDate =
-      mode === 'day'
-        ? moment(date).endOf('day')
-        : moment(date)
-            .endOf('isoWeek')
-            .set({hour: 21, minute: 0, second: 0, millisecond: 0});
-    const halfHour = 1000 * 60 * 30;
-    const AppointmentByStartDate = {};
-    for (let appointment of appointments) {
-      const key = new Date(appointment.start).toString();
-      AppointmentByStartDate[key] = appointment;
-    }
-    for (let doctor of selectedDoctors) {
-      let loop = new Date(startDate).getTime();
-      const end = new Date(endDate).getTime();
-      while (loop <= end) {
-        if (
-          moment(loop).isBefore(moment(loop).set({hour: 21})) &&
-          moment(loop).isAfter(moment(loop).set({hour: 7})) &&
-          (!AppointmentByStartDate[new Date(loop).toString()] ||
-            AppointmentByStartDate[new Date(loop).toString()]?.userId !==
-              doctor)
-        ) {
-          emptyAppointments.push({
-            userId: doctor,
-            storeId: store,
-            start: new Date(loop),
-            end: new Date(loop + halfHour),
-            emptySlot: true,
-          });
-        }
-        loop += halfHour;
-      }
-    }
-    return emptyAppointments;
-  };
-
   render() {
+    console.log('render :>> ');
     const {
       isLoading,
       showDialog,
@@ -953,8 +759,15 @@ export class AgendaScreen extends Component {
         {cancelModal && this.renderCancellationDialog()}
         {copiedAppointment && this.renderCopyDialog()}
         {rescheduleAppointment && this.renderRescheduleDialog()}
-        {manageAvailabilities && this.renderManageAvailabilities()}
-
+        {manageAvailabilities && (
+          <AvailabilityModal
+            show={this.state.manageAvailabilities}
+            selectedDoctors={this.state.selectedDoctors}
+            event={this.state.event}
+            updateAvailability={this.updateAvailability}
+            cancelManageAvailabilities={this.cancelManageAvailabilities}
+          />
+        )}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -1005,6 +818,7 @@ export class AgendaScreen extends Component {
           mode={this.state.mode}
           appointments={this.state.appointments}
           _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
+          _onCellPress={(event: Appointment) => this._onCellPress(event)}
         />
       </View>
     );
@@ -1152,6 +966,7 @@ class NativeCalendar extends Component {
     doctors: [],
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
+    _onCellPress: (event: Appointment) => void,
   };
   numOfDays: Number = 7;
 
@@ -1189,6 +1004,7 @@ class NativeCalendar extends Component {
           hourRowHeight={90}
           scrollOffsetMinutes={480}
           showAllDayEventCell={false}
+          onPressCell={(event) => this.props._onCellPress(event)}
           onPressEvent={(event) => this.props._onSetEvent(event)}
           renderEvent={(
             event: ICalendarEvent<T>,
@@ -1235,7 +1051,7 @@ class NativeCalendar extends Component {
   }
 }
 
-const agendaStyles = {
+export const agendaStyles = {
   header: (w) => ({width: w, flexDirection: 'row', alignSelf: 'flex-end'}),
   cell: (w) => ({width: w, alignItems: 'center', justifyContent: 'center'}),
   day: {fontSize: 12, fontWeight: 'bold', color: 'gray', marginTop: 10},
@@ -1258,14 +1074,13 @@ const agendaStyles = {
     borderWidth: 1,
     borderRadius: 5,
     borderColor: 'lightgray',
-    width: '75%',
     paddingVertical: 5,
     paddingHorizontal: 5,
+    flex: 100,
   },
   field: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '70%',
-    justifyContent: 'space-between',
+    width: '80%',
   },
 };
