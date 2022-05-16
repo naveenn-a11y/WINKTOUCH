@@ -1824,6 +1824,7 @@ export class WaitingList extends Component {
                   patientId: this.state.selectedWaitingEvent.patientId,
                   appointmentTypes:
                     this.state.selectedWaitingEvent.appointmentTypes,
+                  title: this.state.selectedWaitingEvent.title,
                 });
               }}
               disabled={!this.state.selectedWaitingEvent}>
