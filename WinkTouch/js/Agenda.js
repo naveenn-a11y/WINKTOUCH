@@ -268,7 +268,7 @@ export class AgendaScreen extends Component {
   };
 
   cancelDialog = () => {
-    this.setState({event: undefined, showDialog: false});
+    this.setState({event: undefined, showDialog: false, isLoading: false});
     if (this.state.selectedTime) {
       this.setState({doubleBookingModal: false, selectedTime: undefined});
     }
@@ -337,7 +337,12 @@ export class AgendaScreen extends Component {
     this.cancelDoctorsOptions();
   };
   cancelAppointment = async () => {
-    this.setState({deleting: true});
+    this.setState({
+      deleting: true,
+      isLoading: true,
+      cancelModal: false,
+      showDialog: false,
+    });
     const event: Appointment = this.state.event;
     const res = await cancelAppointment({
       id: event.id,
@@ -346,22 +351,19 @@ export class AgendaScreen extends Component {
       cancelledReason: this.state.cancelReason,
     });
     if (res) {
-      this.setState({
-        cancelModal: false,
-        event: undefined,
-        showDialog: false,
-        deleting: false,
-        cancelNotes: '',
-        cancelReason: 2,
-      });
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
-    } else {
-      this.setState({deleting: false});
     }
+    this.setState({
+      isLoading: false,
+      event: undefined,
+      deleting: false,
+      cancelNotes: '',
+      cancelReason: 2,
+    });
   };
 
   openPatientFile = (event: Appointment) => {
@@ -373,6 +375,11 @@ export class AgendaScreen extends Component {
 
   rescheduleEvent = async (appointment: Appointment) => {
     //Call Backend
+    this.setState({
+      isLoading: true,
+      showDialog: false,
+      rescheduleAppointment: false,
+    });
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
@@ -387,17 +394,18 @@ export class AgendaScreen extends Component {
     );
 
     if (bookedAppointment) {
-      this.cancelDialog();
-      this.endReschedule();
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
     }
+    this.cancelDialog();
+    this.endReschedule();
   };
   updateEvent = async (appointment: Appointment) => {
     //Call Backend
+    this.setState({isLoading: true, showDialog: false});
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
@@ -410,16 +418,17 @@ export class AgendaScreen extends Component {
       appointment.comment,
     );
     if (bookedAppointment) {
-      this.cancelDialog();
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
     }
+    this.cancelDialog();
   };
 
   onDoubleBooking = async (appointment: Appointment) => {
+    this.setState({isLoading: true, showDialog: false});
     const selectedTime = this.state.selectedTime;
 
     const res = await doubleBook(
@@ -430,17 +439,17 @@ export class AgendaScreen extends Component {
       selectedTime.atEnd,
       appointment.comment,
     );
+    let appointments: Appointment[] = [...this.state.appointments];
     if (res) {
-      let appointments: Appointment[] = [...this.state.appointments];
       appointments.push(res);
-      this.setState({
-        doubleBookingModal: false,
-        showDialog: false,
-        selectedTime: undefined,
-        appointments: appointments,
-        event: null,
-      });
     }
+    this.setState({
+      isLoading: false,
+      doubleBookingModal: false,
+      selectedTime: undefined,
+      appointments: appointments,
+      event: null,
+    });
   };
 
   selectPatient(patient: Patient | PatientInfo) {
@@ -1044,13 +1053,16 @@ class Event extends Component {
         : undefined;
     let start = 0;
     for (let item of this.props?.touchableOpacityProps?.style) {
-      if (typeof item === 'object' && item.start > 3) {
-        start = item.start;
+      const appointmentStart = (index + 1) * 20 + 3;
+      if (typeof item === 'object' && item.start > appointmentStart) {
+        start = item.start - (index + 1) * 20 - 3;
       }
     }
+    let startRatio = start / 1.05;
+
     const eventStyleProps = {
       minWidth: '1%',
-      width: eventWidth / 1.05 - start,
+      width: eventWidth / 1.05 - startRatio,
       start: eventWidth * index + start,
       justifyContent: 'center',
       paddingTop: 1,
