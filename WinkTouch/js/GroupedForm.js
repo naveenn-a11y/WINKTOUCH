@@ -1685,7 +1685,7 @@ export class GroupedForm extends Component {
     if (measurement instanceof Array) {
       this.showDialog(measurement);
     } else {
-      if (measurement.data) {
+      if (measurement && measurement.data) {
         if (this.props.onAdd && measurement.data instanceof Array) {
           if (measurement.data.length > 0) {
             this.props.onUpdateForm(
