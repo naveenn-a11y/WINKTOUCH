@@ -251,7 +251,7 @@ export const strings = new LocalizedStrings({
     somethingWentWrongMessage:
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
-    dragNDrop: 'Drag and drop some files here !',
+    dragNDrop: 'Click to upload or drag and drop your file here',
     takePicture: 'Take a picture',
     uploadFile: 'Upload a file',
     signedOn: 'Signed on',
@@ -567,7 +567,7 @@ export const strings = new LocalizedStrings({
     somethingWentWrongMessage:
       "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
     restartApp: "Cliquez ici pour redémarrer l'application !",
-    dragNDrop: 'Faites glisser et déposez votre fichier ici !',
+    dragNDrop: 'Cliquez pour téléverser ou déposez votre document ici',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
     signedOn: 'Signé le',
