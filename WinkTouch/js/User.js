@@ -75,6 +75,7 @@ export type UserDetailsProps = {
   onUpdateUser: (user: User) => void,
   onButtonPress: () => void,
   buttonTitle: string,
+  showButton: bool,
 };
 export class UserDetails extends PureComponent<UserDetailsProps> {
   constructor(props: UserDetailsProps) {
@@ -172,7 +173,7 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
             />
           </FormRow>
         </View>
-        {this.props.onButtonPress && 
+        {this.props.showButton && 
         <View style={styles.centeredRowLayout}>
           <Button
             title={this.props.buttonTitle ? this.props.buttonTitle : '' }
@@ -366,6 +367,9 @@ export class ManageUsers extends PureComponent<
 
   updateUserInfo = (user: User): void => {
     this.setState({user});
+    if (user && user.id !== 'user') {
+      this.updateUser(); //update existing user
+    }
   };
 
   updateUser = async (): Promise<void> => {
@@ -382,6 +386,7 @@ export class ManageUsers extends PureComponent<
     }
     fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
     this.setState({ isLoading: false });
+    (isNewUser & user.errors === undefined) ? this.props.onClose() : () => undefined; //close modal when you create a new user
   }
 
   renderIcons() {
@@ -417,6 +422,7 @@ export class ManageUsers extends PureComponent<
             onButtonPress={this.updateUser}
             buttonTitle={this.isNewUser() ? strings.createUser : strings.update }
             buttonLoading={this.state.isLoading}
+            showButton={this.isNewUser()}
           />
         </View>
         {this.renderIcons()}
