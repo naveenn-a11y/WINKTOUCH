@@ -1055,11 +1055,10 @@ class Event extends Component {
     for (let item of this.props?.touchableOpacityProps?.style) {
       const appointmentStart = (index + 1) * 20 + 3;
       if (typeof item === 'object') {
-        if (item.start > appointmentStart) {
-          start = item.start - (index + 1) * 20 - 3;
-        }
-        if (selectedDoctors.length === 1) {
+        if (index === 0) {
           start = item.start - 3;
+        } else if (item.start > appointmentStart) {
+          start = item.start - (index + 1) * 20 - 3;
         }
       }
     }
