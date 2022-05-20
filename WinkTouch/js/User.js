@@ -393,6 +393,7 @@ export class ManageUsers extends PureComponent<
       this.setState({user});
     }
     fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
+    fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'familyDoctors');
     this.setState({ isLoading: false });
     (isNewUser & user.errors === undefined) ? this.props.onClose() : () => undefined; //close modal when you create a new user
   }
