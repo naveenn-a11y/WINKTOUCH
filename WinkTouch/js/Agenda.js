@@ -1056,7 +1056,7 @@ class Event extends Component {
       const appointmentStart = index * 20 + 3;
       if (typeof item === 'object') {
         start =
-          appointmentStart < item.star
+          appointmentStart < item.start
             ? item.start - appointmentStart
             : item.start;
       }
