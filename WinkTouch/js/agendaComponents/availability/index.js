@@ -49,7 +49,6 @@ export function AvailabilityModal({
   ];
 
   const renderAppointmentsTypes = () => {
-    console.log('getAppointmentTypes() :>>', getAppointmentTypes());
     const updateValue = (val, index) => {
       let apps = [...appointmentTypes];
       if (val) apps.push(val);

@@ -42,7 +42,7 @@ import {
   isEmpty,
   yearDateFormat,
 } from './Util';
-import {getCachedItem, getCachedItems} from './DataCache';
+import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
@@ -123,6 +123,7 @@ export class AgendaScreen extends Component {
 
   async getDoctors() {
     let users: User[] = await searchUsers('', false);
+    cacheItemsById(users);
     const doctors = users.map((u) => ({
       label: `${u.firstName} ${u.lastName}`,
       value: u.id,
@@ -210,7 +211,6 @@ export class AgendaScreen extends Component {
     this.openManageAvailabilities();
   };
   _onSetEvent = (event: Appointment) => {
-    console.log('event :>>', event);
     this.setState({event: event});
     if (this.isNewEvent(event)) {
       if (this.state.copiedAppointment) {
@@ -729,7 +729,6 @@ export class AgendaScreen extends Component {
   };
 
   render() {
-    console.log('render :>> ');
     const {
       isLoading,
       showDialog,
