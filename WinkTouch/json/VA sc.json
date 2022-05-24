@@ -156,21 +156,21 @@
               "fields": [
                 {
                   "name": "OD",
-                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
+                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
                   "minValue": 3,
                   "prefix": "6/",
                   "maxValue": 60
                 },
                 {
                   "name": "OS",
-                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
+                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
                   "minValue": 3,
                   "prefix": "6/",
                   "maxValue": 60
                 },
                 {
                   "name": "OU",
-                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
+                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
                   "minValue": 3,
                   "prefix": "6/",
                   "maxValue": 60
@@ -182,14 +182,14 @@
               "fields": [
                 {
                   "name": "OD",
-                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
+                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
                   "minValue": 3,
                   "prefix": "6/",
                   "maxValue": 60
                 },
                 {
                   "name": "OS",
-                  "stepSize": [1, 1, 1, 3, 3, 6, 6, 12, 24],
+                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
                   "minValue": 3,
                   "prefix": "6/",
                   "maxValue": 60
@@ -290,7 +290,7 @@
               "name": "OD",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -301,7 +301,7 @@
               "name": "OS",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -312,7 +312,7 @@
               "name": "OU",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -328,7 +328,7 @@
               "name": "OD",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -339,7 +339,7 @@
               "name": "OS",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -355,7 +355,7 @@
               "name": "OD",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -366,7 +366,7 @@
               "name": "OS",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
@@ -377,7 +377,7 @@
               "name": "OU",
               "prefix": "6/",
               "minValue": 4.5,
-              "stepSize": [1.5, 3, 3, 6, 6, 12, 24],
+              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
               "groupSize": 0,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,

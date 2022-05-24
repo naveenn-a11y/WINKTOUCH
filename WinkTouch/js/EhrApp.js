@@ -3,9 +3,8 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {AppState} from 'react-native';
+import {View, ActivityIndicator, AppState} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
@@ -16,8 +15,9 @@ import {isWeb} from './Styles';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
-    if (currentPackage !== null && currentPackage !== undefined)
+    if (currentPackage !== null && currentPackage !== undefined) {
       setDeploymentVersion(currentPackage.label);
+    }
   });
 
 function logUpdateStatus(status: number) {
@@ -55,7 +55,7 @@ function logUpdateStatus(status: number) {
   }
 }
 
-let lastUpdateCheck: ?Date = undefined;
+let lastUpdateCheck: ?Date;
 
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
@@ -63,7 +63,9 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     checkBinaryVersion();
     return;
   }
-  if (!registration || !registration.path) return;
+  if (!registration || !registration.path) {
+    return;
+  }
   checkBinaryVersion();
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
@@ -109,6 +111,7 @@ export class EhrApp extends Component {
     user: ?User,
     store: ?Store,
     token: ?string,
+    isMfaProvided: ?boolean,
   };
 
   constructor() {
@@ -122,6 +125,8 @@ export class EhrApp extends Component {
       user: undefined,
       store: undefined,
       token: undefined,
+      loading: true,
+      isMfaProvided: false,
     };
   }
 
@@ -140,6 +145,13 @@ export class EhrApp extends Component {
       account: null,
       user: null,
       store: null,
+      isMfaProvided: false,
+    });
+  };
+
+  mfaRequired = () => {
+    this.setState({
+      isMfaProvided: true,
     });
   };
 
@@ -153,7 +165,7 @@ export class EhrApp extends Component {
       registration.bundle !== null &&
       registration.bundle.length > 0;
     this.setState(
-      {isRegistered, registration},
+      {isRegistered, registration, loading: false},
       () => isRegistered && this.checkForUpdate(),
     );
   }
@@ -193,13 +205,16 @@ export class EhrApp extends Component {
       user !== undefined &&
       token !== undefined &&
       store !== undefined;
-    this.setState({
-      isLoggedOn,
-      account,
-      user,
-      store,
-      token,
-    });
+    this.setState(
+      {
+        isLoggedOn,
+        account,
+        user,
+        store,
+        token,
+      },
+      () => console.log('done set loading'),
+    );
   }
 
   logout = () => {
@@ -209,6 +224,7 @@ export class EhrApp extends Component {
       user: undefined,
       account: undefined,
       store: undefined,
+      isMfaProvided: false,
     });
     lastUpdateCheck = undefined;
     this.checkForUpdate();
@@ -259,8 +275,18 @@ export class EhrApp extends Component {
       this.checkForUpdate();
     }
   }
+  setLoading = (loading) => {
+    this.setState({loading});
+  };
 
   render() {
+    if (this.state.loading) {
+      return (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
     if (!this.state.isRegistered) {
       return (
         <RegisterScreen
@@ -284,10 +310,12 @@ export class EhrApp extends Component {
             store: Store,
             token: string,
           ) => this.userLoggedOn(account, user, store, token)}
+          onMfaRequired={this.mfaRequired}
           onReset={this.reset}
         />
       );
     }
+
     return (
       <DoctorApp
         registration={this.state.registration}
