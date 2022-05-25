@@ -66,6 +66,7 @@ import {
   Copy,
   ImportIcon,
   ExportIcon,
+  Paste,
 } from './Favorites';
 import {importData, exportData} from './Machine';
 import {getCachedItem} from './DataCache';
@@ -916,7 +917,8 @@ export class GlassesDetail extends Component {
     title: string,
     editable?: boolean,
     onCopy?: (glassesRx: GlassesRx) => void,
-    onPaste?: (glassesRx: GlassesRX) => void,
+    onCopyToFinalRx?: (glassesRx: GlassesRx) => void,
+    onPaste?: (fieldDefinition: FieldDefinition) => void,
     hasVA?: boolean,
     hasAdd?: boolean,
     hasLensType?: boolean,
@@ -939,6 +941,7 @@ export class GlassesDetail extends Component {
     importedData: any,
     showDialog: boolean,
     showSnackBar: boolean,
+    snackBarMessage?: string,
   };
   static defaultProps = {
     editable: true,
@@ -954,6 +957,7 @@ export class GlassesDetail extends Component {
       isTyping: false,
       showDialog: false,
       showSnackBar: false,
+      snackBarMessage: "",
     };
   }
 
@@ -1073,7 +1077,8 @@ export class GlassesDetail extends Component {
   showDialog(data: any) {
     this.setState({importedData: data, showDialog: true});
   }
-  showSnackBar() {
+  showSnackBar(message: ?string) {
+    this.setState({snackBarMessage: message || strings.importDataNotFound})
     this.setState({showSnackBar: true});
   }
   hideSnackBar() {
@@ -1197,10 +1202,15 @@ export class GlassesDetail extends Component {
   renderSnackBar() {
     return (
       <NativeBar
-        message={strings.importDataNotFound}
+        message={this.state.snackBarMessage}
         onDismissAction={() => this.hideSnackBar()}
       />
     );
+  }
+
+  copyData = (glassesRx: GlassesRx): void => {
+    this.props.onCopy(glassesRx)
+    this.showSnackBar(strings.copyMessage);
   }
 
   render() {
@@ -1730,19 +1740,20 @@ export class GlassesDetail extends Component {
             </View>
           )}
 
-          {this.props.editable === true && this.props.hasAdd === true && (
+          {this.props.editable === true &&  (
             <View style={styles.buttonsRowLayout}>
+              {this.props.hasAdd === true && (
               <Button
                 title={formatLabel(
                   getFieldDefinition('visit.prescription.od.prism'),
                 )}
                 onPress={this.togglePrism}
                 testID={this.props.fieldId + '.prismButton'}
-              />
-              {this.props.onCopy !== undefined && (
+              />)}
+              {this.props.onCopyToFinalRx !== undefined && (
                 <Button
                   title={strings.copyToFinal}
-                  onPress={() => this.props.onCopy(this.props.glassesRx)}
+                  onPress={() => this.props.onCopyToFinalRx(this.props.glassesRx)}
                   testID={this.props.fieldId + '.copyOsOdButton'}
                   testID={this.props.fieldId + '.copyFinalRxButton'}
                 />
@@ -1785,8 +1796,15 @@ export class GlassesDetail extends Component {
           )}
           {this.props.editable && this.props.onPaste && (
             <TouchableOpacity
-              onPress={() => this.props.onPaste(this.props.glassesRx)}
+              onPress={() => this.props.onPaste(this.props.definition)}
               testID={this.props.fieldId + '.pateIcon'}>
+              <Paste style={styles.groupIcon} />
+            </TouchableOpacity>
+          )}
+          {this.props.editable && this.props.onCopy && (
+            <TouchableOpacity
+              onPress={() => this.copyData(this.props.glassesRx)}
+            >
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>
           )}
