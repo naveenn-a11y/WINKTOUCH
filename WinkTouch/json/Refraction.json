@@ -59,6 +59,7 @@
       "name": "Subjective refraction",
       "multiValue": true,
       "type": "SRx",
+      "canBePaste": true,
       "fields": [
         {
           "freestyle": true,
@@ -107,6 +108,7 @@
       "optional": true,
       "name": "Cyclopegia",
       "type": "SRx",
+      "copyToFinalRx": true,
       "canBePaste": true
     },
     {

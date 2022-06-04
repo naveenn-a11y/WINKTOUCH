@@ -629,6 +629,12 @@ export class ExamHistoryScreen extends Component {
     this.props.navigation.goBack();
   };
 
+  copyFinalRx = (glassesRx: GlassesRx): void => {
+    let clonedGlassesRx = deepClone(glassesRx);
+    cacheItem('copiedData', clonedGlassesRx);
+    this.props.navigation.goBack();
+  }
+
   renderGroup(groupDefinition: GroupDefinition, value: any, index: number) {
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign(
@@ -667,6 +673,9 @@ export class ExamHistoryScreen extends Component {
                 hasVA={groupDefinition.hasVA}
                 hasAdd={groupDefinition.hasAdd}
                 examId={exam.id}
+                onCopy={
+                  groupDefinition.name == "Final Rx" ? this.copyFinalRx : undefined
+                }
               />
             );
           } else {
@@ -705,6 +714,9 @@ export class ExamHistoryScreen extends Component {
           hasVA={groupDefinition.hasVA}
           hasAdd={groupDefinition.hasAdd}
           examId={exam.id}
+          onCopy={
+            groupDefinition.name === "Final Rx" ? this.copyFinalRx : undefined
+          }
         />
       );
     }
@@ -1007,6 +1019,11 @@ export class ExamScreen extends Component {
     this.setState({snackBarMessage: message});
   }
 
+  showSnackBarMessage = (message: string): void => {
+    this.setState({snackBarMessage: message});
+    this.setState({showSnackBar: true});
+  }
+
   async confirmExportData(items: any) {
     let data: any = {};
     const patient: Patient = getPatient(this.state.exam);
@@ -1194,6 +1211,7 @@ export class ExamScreen extends Component {
             }
             enableScroll={this.enableScroll}
             disableScroll={this.disableScroll}
+            showSnackBarMessage={this.showSnackBarMessage}
           />
         );
       case 'paperForm':

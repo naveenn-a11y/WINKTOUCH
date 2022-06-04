@@ -1801,7 +1801,7 @@ export class GlassesDetail extends Component {
               <Paste style={styles.groupIcon} />
             </TouchableOpacity>
           )}
-          {this.props.editable && this.props.onCopy && (
+          {this.props.onCopy && !this.props.onPaste && (
             <TouchableOpacity
               onPress={() => this.copyData(this.props.glassesRx)}
             >

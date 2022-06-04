@@ -324,6 +324,7 @@ export const strings = new LocalizedStrings({
     mins: 'mins',
     hour: 'hour',
     copyMessage: 'Data was copied successfully, please paste it in the appropriate box',
+    finalRxCopyMessage: 'Final Rx copied successfully! Please paste in the current visit\'s appropriate box',
   },
   fr: {
     enterRegisteredEmail:
@@ -647,6 +648,7 @@ export const strings = new LocalizedStrings({
     last: 'Dernier',
     mins: 'mins',
     copyMessage: 'Les données ont été copiées avec succès, veuillez les coller dans la case appropriée',
+    finalRxCopyMessage: 'Rx Finale copié avec succès! Veuillez coller dans la case appropriée de la visite en cours',
   },
 });
 
