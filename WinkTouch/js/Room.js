@@ -83,16 +83,20 @@ export class RoomScreen extends Component {
   }
 
   componentWillUnmount() {
-    const examRoom: CodeDefinition = this.state.room;
+    let examRoom: CodeDefinition = this.state.room;
+    let inactive: boolean = false;
+    
     if (examRoom === undefined || examRoom === null) {
-      return;
+      examRoom = getExamRoomCode(this.props.navigation.state.params.patient.id);
+      inactive = true;
     }
 
-    if (examRoom.code) {
+    if (examRoom && examRoom.code) {
       const examRoomPatient: ExamRoom = {
         id: 'room-' + examRoom.code,
         patientId: this.props.navigation.state.params.patient.id,
         examRoomId: 'room-' + examRoom.code,
+        inactive: inactive,
       };
       updateExamRoom(examRoomPatient);
     }

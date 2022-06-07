@@ -85,7 +85,7 @@ import {
   stripDataType,
   getPrivileges,
 } from './Rest';
-import {fetchAppointment} from './Appointment';
+import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
 import {printRx, printClRx, printMedicalRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
@@ -500,7 +500,7 @@ async function printPatientFile(visitId: string, cb) {
       }
     }
     visitHtml = getVisitHtml(visitHtml);
-    let HtmlWithAttachment:string = renderAttachment(visitHtml.html);
+    let HtmlWithAttachment: string = renderAttachment(visitHtml.html);
     await printHtml(HtmlWithAttachment, visitHtml.PDFAttachment, cb);
   }
 }
@@ -1578,7 +1578,7 @@ class VisitWorkFlow extends Component {
     ) {
       medicationExam.Prescription.forEach((prescription, i) => {
         label = prescription.Label;
-        if (!labelAlreadyExist.has(label)) {
+        if (label && !labelAlreadyExist.has(label)) {
           printMedicationRxOptions.push({label: label, isChecked: false});
           labelAlreadyExist.add(label);
         }
@@ -1691,7 +1691,7 @@ class VisitWorkFlow extends Component {
           {visit &&
             visit.appointmentId &&
             !this.props.readonly &&
-            (hasMedicalDataWriteAccess ||
+            (hasAppointmentBookAccess(appointment) ||
               (appointment && appointment.status === 5)) && (
               <Button
                 title={
@@ -2235,6 +2235,7 @@ export class VisitHistory extends Component {
     const isNewAppointment: boolean = this.isNewAppointment();
     const userHasPretestWriteAccess: boolean =
       getPrivileges().pretestPrivilege === 'FULLACCESS';
+
     if (isNewAppointment && userHasPretestWriteAccess) {
       return true;
     }
@@ -2252,6 +2253,7 @@ export class VisitHistory extends Component {
     let isNewAppointment: boolean = this.isNewAppointment();
     const userHasPretestWriteAccess: boolean =
       getPrivileges().pretestPrivilege === 'FULLACCESS';
+
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>

@@ -33,6 +33,7 @@ let token: string;
 let privileges: Privileges = {
   pretestPrivilege: 'NOACCESS',
   medicalDataPrivilege: 'NOACCESS',
+  appointmentPrivilege: 'NOACCESS',
 };
 
 let requestNumber: number = 0;
@@ -55,18 +56,29 @@ export function getNextRequestNumber(): number {
 function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.pretestPrivilege = 'NOACCESS';
   privileges.medicalDataPrivilege = 'NOACCESS';
+  privileges.appointmentPrivilege = 'NOACCESS';
   if (tokenPrivileges === undefined || tokenPrivileges === null) {
     return;
   }
+  //Pretest permission
   if (tokenPrivileges.pre === 'F') {
     privileges.pretestPrivilege = 'FULLACCESS';
   } else if (tokenPrivileges.pre === 'R') {
     privileges.pretestPrivilege = 'READONLY';
   }
+  //Medical permission
   if (tokenPrivileges.med === 'F') {
     privileges.medicalDataPrivilege = 'FULLACCESS';
   } else if (tokenPrivileges.med === 'R') {
     privileges.medicalDataPrivilege = 'READONLY';
+  }
+  //Appointment permission
+  if (tokenPrivileges.app === 'F') {
+    privileges.appointmentPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.app === 'B') {
+    privileges.appointmentPrivilege = 'BOOKONLY';
+  } else if (tokenPrivileges.app === 'R') {
+    privileges.appointmentPrivilege = 'READONLY';
   }
 }
 
@@ -691,7 +703,7 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return __DEV__ ? 'http://192.168.2.53:8080/Web/' : restUrl;
+  return __DEV__ ? 'http://localhost:8080/Web/' : restUrl;
 }
 
 async function setRestUrl(winkEmrHost: string) {

@@ -747,9 +747,6 @@ export class GroupedCard extends Component {
     const value =
       this.props.exam[this.props.exam.definition.name][fieldDefinition.name];
 
-    if (fieldDefinition.normalValue === value) {
-      return null;
-    }
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
     if (formattedValue === '') {
       return null;
@@ -1688,7 +1685,7 @@ export class GroupedForm extends Component {
     if (measurement instanceof Array) {
       this.showDialog(measurement);
     } else {
-      if (measurement.data) {
+      if (measurement && measurement.data) {
         if (this.props.onAdd && measurement.data instanceof Array) {
           if (measurement.data.length > 0) {
             this.props.onUpdateForm(
@@ -2031,7 +2028,15 @@ export class GroupedFormScreen extends Component<
 
   copyToFinal = (glassesRx: GlassesRx): void => {
     glassesRx = deepClone(glassesRx);
-    this.props.exam[this.props.exam.definition.name]['Final Rx'] = glassesRx;
+    const finalRx: GlassesRx = deepClone(
+      this.props.exam[this.props.exam.definition.name]['Final Rx'],
+    );
+    if (finalRx) {
+      finalRx.od = glassesRx.od;
+      finalRx.os = glassesRx.os;
+      finalRx.ou = glassesRx.ou;
+    }
+    this.props.exam[this.props.exam.definition.name]['Final Rx'] = finalRx;
     this.props.onUpdateExam(this.props.exam);
   };
 

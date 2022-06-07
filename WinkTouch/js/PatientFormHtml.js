@@ -967,10 +967,10 @@ async function renderMedia(
         name: exam?.definition?.name,
         base64: filePath,
         index: PdfIdentifier,
+        indexInArray: `pdf-${PDFAttachment.length + 1}`,
       });
-      imageValue = `<code index="${PdfIdentifier}" cuthere="">*Please see annexed document (pdf-${
-        PDFAttachment.length + 1
-      }) at the end of the document.</code>`;
+      imageValue = `<code index="${PdfIdentifier}" cuthere="">*Please see annexed document (pdf-${PDFAttachment.length}) at the end of the document.
+      </code>`;
     }
     html += imageValue;
     if (!isPdf) {
@@ -1438,7 +1438,7 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader() {
+export function patientHeader(referral: boolean) {
   let htmlHeader: string =
     '<head><title>Patient File</title><style>' +
     'body {' +
@@ -1639,7 +1639,10 @@ export function patientHeader() {
     '   width: 100%;' +
     '   justify-content: space-around;' +
     ' }' +
-    '.breakBeforeImage { page-break-before: always; }';
+    '.breakBeforeImage{ page-break-before: avoid; }';
+  htmlHeader += referral
+    ? '.breakBeforeImage{ page-break-before: avoid; } .breakBeforeImage ~ section{ page-break-before: always; }'
+    : '.breakBeforeImage { page-break-before: always; }';
   htmlHeader += isWeb
     ? '.images-warp{page-break-inside:avoid;} '
     : '.wrap-imgs{} ';
@@ -1695,6 +1698,11 @@ export function renderAttachment(html: string) {
         SelectedPDFAttachment.push({
           base64: pdf.base64,
           index: pdf.index,
+        });
+      } else if (AttachmentIndex === pdf.indexInArray) {
+        SelectedPDFAttachment.push({
+          base64: pdf.base64,
+          index: pdf.indexInArray,
         });
       }
     }

@@ -106,12 +106,13 @@ export class PatientTags extends Component {
   }
 
   componentDidMount() {
+    /*
     if (
       this.state.patientTags === undefined ||
       this.state.patientTags.includes(undefined)
     ) {
       this.refreshPatientTags();
-    }
+    }*/
   }
 
   componentDidUpdate(prevProps) {
@@ -732,6 +733,22 @@ export class CabinetScreen extends Component {
     isBookingAppointment: false,
   };
 
+  componentDidUpdate(prevProps: any) {
+    let params = this.props.navigation.state.params;
+    if (params && params.refresh === true) {
+      if (this.state.patientInfo) {
+        this.updateAppointments();
+      }
+      this.props.navigation.setParams({refresh: false});
+    }
+  }
+  updateAppointments() {
+    const appointments: Appointment[] = getCachedItems(
+      this.state.appointments.map((app) => app.id),
+    );
+    this.setState({appointments});
+  }
+
   async selectPatient(patient: Patient) {
     if (!patient) {
       if (!this.state.patientInfo) {
@@ -903,7 +920,7 @@ export class CabinetScreen extends Component {
                 : this.props.navigation.navigate('appointment', {
                     patientInfo: this.state.patientInfo,
                     refreshStateKey: this.props.refreshStateKey,
-                    hasAppointment: this.props.hasAppointment,
+                    hasAppointment: this.hasAppointment(),
                   });
             }}
           />

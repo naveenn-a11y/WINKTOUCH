@@ -71,20 +71,23 @@ export type User = {
   city?: string,
   isExternal: boolean,
   providerType?: string,
+  username?: string,
 };
 
-export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
 
 export type Privileges = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
+  appointmentPrivilege?: Privilege,
 };
 
-export type TokenPrivilege = 'N' | 'R' | 'F';
+export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
 
 export type TokenPrivileges = {
   pre: ?TokenPrivilege,
   med: ?TokenPrivilege,
+  app: ?TokenPrivilege,
 };
 
 export type TokenPayload = {
@@ -183,7 +186,6 @@ export type Appointment = {
   start: string | Date,
   end: string | Date,
   status: number,
-  isBusy?: boolean,
   appointmentTypes?: string[],
   indicators?: string[],
   comment?: string,
@@ -192,6 +194,7 @@ export type Appointment = {
   earlyRequest?: boolean,
   earlyRequestComment?: string,
   numberOfSlots?: number,
+  appointmentPrivilege?: Privilege,
 };
 
 export type Prism = {
@@ -365,6 +368,7 @@ export type FieldDefinition = {
   isLabel?: boolean,
   limitedValues?: {},
   forceSync?: boolean,
+  listField?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];

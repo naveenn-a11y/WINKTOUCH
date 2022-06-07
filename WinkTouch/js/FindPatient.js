@@ -12,10 +12,11 @@ import {
   InteractionManager,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {Patient, PatientInfo} from './Types';
-import {styles, isWeb, fontScale} from './Styles';
+import {styles, isWeb, fontScale, selectionColor} from './Styles';
 import {strings} from './Strings';
 import {Button, SelectionListRow} from './Widgets';
 import {PatientCard, fetchPatientInfo, getPatientFullName} from './Patient';
@@ -25,20 +26,19 @@ import {fetchVisitHistory, VisitHistory} from './Visit';
 import {ErrorCard} from './Form';
 import {Close} from './Favorites';
 
-const maxPatientListSize: number = 50;
+const maxPatientListSize: number = 100;
 
-export async function searchPatients(searchText: string): Patient[] {
+export async function searchPatients(searchText: string, offset:number): Patient[] {
   if (!searchText || searchText.trim().length === 0) {
     return [];
   }
   const searchCriteria = {
     searchData: searchText,
+    size: maxPatientListSize,
+    offset:offset ? offset : 0,
   };
   let restResponse = await searchItems('Patient/list', searchCriteria);
   let patients: Patient[] = restResponse.patientList;
-  if (patients && patients.length > maxPatientListSize) {
-    patients = patients.slice(0, maxPatientListSize);
-  }
   cacheItemsById(patients);
   return patients;
 }
@@ -75,33 +75,48 @@ class PatientList extends Component {
     selectedPatientId: ?string,
     onSelect: (patient: Patient) => void,
     exceedLimit: ?boolean,
+    onEndReached: () => void,
+    loading: boolean,
   };
+
+  renderFooter = () =>{
+    return (
+      <View>
+          {this.props.loading ? (
+            <ActivityIndicator size="large" color={selectionColor} />
+          ) : <></>}
+      </View>
+    );
+  }
 
   render() {
     if (!this.props.visible) {
       return null;
     }
+    const {patients, selectedPatientId, onSelect, exceedLimit, onEndReached, loadMoreData} = this.props;
     return (
       <FlatList
         style={[
           styles.searchList,
-          this?.props?.exceedLimit ? {maxHeight: 300 * fontScale} : {},
+          exceedLimit ? {maxHeight: 300 * fontScale} : {},
         ]}
         initialNumToRender={10}
-        data={this.props.patients}
-        extraData={{selection: this.props.selectedPatientId}}
-        keyExtractor={(user, index) => user.id}
+        data={patients}
+        extraData={{selection: selectedPatientId}}
+        keyExtractor={(user, index) => user?.id}
         renderItem={({item, index}: {item: Patient, index: number}) => (
           <SelectionListRow
             label={getPatientFullName(item)}
             simpleSelect={true}
-            selected={item?.id === this.props.selectedPatientId}
-            onSelect={(isSelected: boolean | string) =>
-              this.props.onSelect(item)
-            }
+            selected={item?.id === selectedPatientId}
+            onSelect={(isSelected: boolean | string) => onSelect(item)}
             testID={'patientName' + (index + 1) + 'Button'}
           />
         )}
+        ListFooterComponent={this.renderFooter}
+        onEndReached={loadMoreData && patients.length >= maxPatientListSize ? onEndReached : null}
+        onEndReachedThreshold ={0.1}
+        
       />
     );
   }
@@ -118,6 +133,9 @@ type PatientState = {
   showPatientList: boolean,
   showNewPatientButton: boolean,
   exceedLimit: ?boolean,
+  offset: number,
+  loading: boolean,
+  loadMoreData: boolean,
 };
 export class FindPatient extends PureComponent<PatientProps, PatientState> {
   constructor(props: PatientProps) {
@@ -126,11 +144,20 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       searchCriterium: '',
       patients: [],
       showPatientList: false,
+      offset: 0,
+      loading: false,
+      loadMoreData: true,
     };
   }
   async searchPatients() {
     this.props.onSelectPatient(undefined);
-    this.setState({showPatientList: false, patients: []});
+    this.setState({
+      showPatientList: false,
+      patients: [],
+      loadMoreData: true,
+      offset: 0,
+      loading:true
+    });
     if (
       !this.state.searchCriterium ||
       this.state.searchCriterium.trim().length === 0
@@ -151,6 +178,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
     this.setState({
       showPatientList: patients != undefined && patients.length > 0,
       patients,
+      loading:false
     });
   }
   newPatient() {
@@ -164,6 +192,42 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
         LayoutAnimation.easeInEaseOut(),
       );
   }
+
+  onEndReached = async () => {
+    if (!this.state.loading) {
+      const offset = this.state.offset + maxPatientListSize;
+      this.setState({offset ,loading: true});
+      if (
+        !this.state.searchCriterium ||
+        this.state.searchCriterium.trim().length === 0
+      ) {
+        alert(strings.searchCriteriumMissingError);
+        return;
+      }
+      const patients: Patient[] = await searchPatients(
+        this.state.searchCriterium,
+        offset,
+      );
+      if (!patients || patients.length === 0 ) {
+        if (!this.props.onNewPatient) {
+          alert(strings.noPatientsFound);
+          return;
+        }
+      }
+      if(!Array.isArray(patients)){
+        this.setState({ loadMoreData: false, loading:false });
+        return;
+      }
+
+      !isWeb && LayoutAnimation.spring();
+      const updatedPatients = this.state.patients.concat(patients);
+      if (this.state?.patients?.length < updatedPatients.length) {
+        this.setState({patients: updatedPatients,loading: false});
+      } else {
+        this.setState({ loadMoreData: false, loading:false });
+      }
+    }
+  };
 
   render() {
     return (
@@ -187,6 +251,9 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
           selectedPatientId={this.props.selectedPatientId}
           onSelect={this.props.onSelectPatient}
           exceedLimit={this.props.exceedLimit}
+          onEndReached={this.onEndReached}
+          loading={this.state.loading}
+          loadMoreData={this.state.loadMoreData}
         />
 
         {this.props.onNewPatient ? (
