@@ -31,6 +31,7 @@ import {
   AppointmentDetails,
   bookAppointment,
   WaitingList,
+  manageAvailability,
   cancelAppointment,
   hasAppointmentBookAccess,
   updateAppointment,
@@ -42,10 +43,10 @@ import {
   now,
   jsonDateFormat,
   farDateFormat2,
-  yearDateFormat,
   isEmpty,
+  yearDateFormat,
 } from './Util';
-import {getCachedItem, getCachedItems} from './DataCache';
+import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
@@ -56,6 +57,8 @@ import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
 import {Button} from './Widgets';
+import {AvailabilityModal} from './agendas';
+
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
 export class AgendaScreen extends Component {
@@ -89,6 +92,7 @@ export class AgendaScreen extends Component {
     refresh: boolean,
     doubleBookingModal: boolean,
     selectedTime: any,
+    manageAvailabilities: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -121,6 +125,7 @@ export class AgendaScreen extends Component {
       refresh: false,
       doubleBookingModal: false,
       selectedTime: undefined,
+      manageAvailabilities: false,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -151,6 +156,7 @@ export class AgendaScreen extends Component {
 
   async getDoctors() {
     let users: User[] = await searchUsers('', false);
+    cacheItemsById(users);
     const doctors = users.map((u) => ({
       label: `${u.firstName} ${u.lastName}`,
       value: u.id,
@@ -211,7 +217,10 @@ export class AgendaScreen extends Component {
         const events = await fetchEvents('store-' + getStore().storeId);
         this.setState({events});
       }
-      this.setState({appointments, isLoading: false});
+      this.setState({
+        appointments: [...appointments],
+        isLoading: false,
+      });
     } catch (e) {
       this.setState({isLoading: false});
     }
@@ -221,6 +230,19 @@ export class AgendaScreen extends Component {
     return isEmpty(event.patientId) && !event.isBusy;
   }
 
+  _onCellPress = (date: date) => {
+    const oneHour = 60 * 60 * 1000;
+    const time = new Date(date).getTime();
+    const store = getStore().id;
+    const event = {
+      storeId: store,
+      start: new Date(moment(time).set({second: 0, millisecond: 0})),
+      end: new Date(moment(time + oneHour).set({second: 0, millisecond: 0})),
+      emptySlot: true,
+    };
+    this.setState({event: event});
+    this.openManageAvailabilities();
+  };
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event});
     if (this.isNewEvent(event)) {
@@ -321,7 +343,12 @@ export class AgendaScreen extends Component {
   cancelDoctorsOptions = () => {
     this.setState({doctorsModal: false});
   };
-
+  openManageAvailabilities = () => {
+    this.setState({manageAvailabilities: true});
+  };
+  cancelManageAvailabilities = () => {
+    this.setState({manageAvailabilities: false});
+  };
   openPatientDialog = () => {
     this.setState({isPatientDialogVisible: true});
   };
@@ -531,6 +558,32 @@ export class AgendaScreen extends Component {
       selectedTime: undefined,
       event: null,
     });
+  };
+
+  updateAvailability = async (event: Appointment) => {
+    this.setState({isLoading: true});
+    const start = moment(event.start).toISOString(true);
+    const end = moment(event.end).toISOString(true);
+    const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
+    const {errors, appointment}: Appointment = await manageAvailability(
+      event?.userId,
+      event.slotType == 1 ? 0 : 3,
+      duration,
+      start,
+      end,
+      event.appointmentTypes,
+    );
+    if (errors) {
+      alert(errors[0]);
+    } else {
+      this.cancelManageAvailabilities();
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    }
+    this.setState({isLoading: false});
   };
 
   selectPatient(patient: Patient | PatientInfo) {
@@ -992,7 +1045,6 @@ export class AgendaScreen extends Component {
   };
 
   renderWaitingList() {
-    console.log('Eventtt: ' + JSON.stringify(this.state.event));
     return (
       <WaitingList
         event={this.state.event}
@@ -1019,6 +1071,7 @@ export class AgendaScreen extends Component {
       waitingListModal,
       rescheduledAppointment,
       doubleBookingModal,
+      manageAvailabilities,
     } = this.state;
 
     const options =
@@ -1039,7 +1092,15 @@ export class AgendaScreen extends Component {
         {doubleBookingModal && this.renderDoubleBookDialog()}
         {rescheduledAppointment && this.renderRescheduleFromWaitingListDialog()}
         {waitingListModal && this.renderWaitingList()}
-
+        {manageAvailabilities && (
+          <AvailabilityModal
+            show={this.state.manageAvailabilities}
+            selectedDoctors={this.state.selectedDoctors}
+            event={this.state.event}
+            updateAvailability={this.updateAvailability}
+            cancelManageAvailabilities={this.cancelManageAvailabilities}
+          />
+        )}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -1090,6 +1151,7 @@ export class AgendaScreen extends Component {
           mode={this.state.mode}
           appointments={this.state.appointments}
           _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
+          _onCellPress={(event: Appointment) => this._onCellPress(event)}
         />
         {isLoading && this.renderLoading()}
       </View>
@@ -1125,15 +1187,17 @@ class Event extends Component {
 
   getLockedState = async () => {
     const appointment: Appointment = this.props.event;
-    let visitHistory: Visit[] = getCachedItems(
-      getCachedItem('visitHistory-' + appointment.patientId),
-    );
-    if (visitHistory) {
-      const locked: boolean = isAppointmentLocked(appointment);
-      this.setState({locked: locked});
-    } else {
-      const visit: Visit = await fetchVisitForAppointment(appointment.id);
-      this.setState({locked: visit ? visit.locked : false});
+    if (!appointment.emptySlot) {
+      let visitHistory: Visit[] = getCachedItems(
+        getCachedItem('visitHistory-' + appointment.patientId),
+      );
+      if (visitHistory) {
+        const locked: boolean = isAppointmentLocked(appointment);
+        this.setState({locked: locked});
+      } else {
+        const visit: Visit = await fetchVisitForAppointment(appointment.id);
+        this.setState({locked: visit ? visit.locked : false});
+      }
     }
   };
 
@@ -1176,8 +1240,8 @@ class Event extends Component {
       borderColor: 'lightgray',
       borderStyle: 'solid',
       backgroundColor: '#fff',
+      zIndex: 10,
     };
-
     return event.isBusy && !patient ? (
       <View
         style={[
@@ -1193,9 +1257,12 @@ class Event extends Component {
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
+          event.emptySlot ? {backgroundColor: '#EFEFEF', zIndex: 0} : {},
         ]}
-        disabled={!hasAppointmentBookAccess(event)}>
-        <Text style={styles.grayedText}>{strings.available}</Text>
+        disabled={!hasAppointmentBookAccess(event) && !event.emptySlot}>
+        {!event.emptySlot && (
+          <Text style={styles.grayedText}>{strings.available}</Text>
+        )}
       </TouchableOpacity>
     ) : (
       <TouchableOpacity
@@ -1233,6 +1300,7 @@ class NativeCalendar extends Component {
     doctors: [],
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
+    _onCellPress: (event: Appointment) => void,
   };
   numOfDays: Number = 7;
 
@@ -1269,7 +1337,9 @@ class NativeCalendar extends Component {
           weekStartsOn={1}
           weekEndsOn={this.numOfDays}
           hourRowHeight={90}
+          scrollOffsetMinutes={480}
           showAllDayEventCell={false}
+          onPressCell={(event) => this.props._onCellPress(event)}
           onPressEvent={(event) => this.props._onSetEvent(event)}
           renderEvent={(
             event: ICalendarEvent<T>,
@@ -1286,8 +1356,8 @@ class NativeCalendar extends Component {
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
               <View style={agendaStyles.header(calendarWidth)}>
-                {header.dateRange.map((d) => (
-                  <View style={agendaStyles.cell(cellWidth)}>
+                {header.dateRange.map((d, index) => (
+                  <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
                       {moment(new Date(d)).format('ddd').toUpperCase()}
                     </Text>
@@ -1298,7 +1368,9 @@ class NativeCalendar extends Component {
                       {selectedDoctors.map((d) => {
                         const doc = doctors.find((doc) => doc.value == d);
                         return (
-                          <View style={agendaStyles.label(eventWidth)}>
+                          <View
+                            key={doc?.label + index}
+                            style={agendaStyles.label(eventWidth)}>
                             <Text numberOfLines={2}>{doc?.label}</Text>
                           </View>
                         );
@@ -1315,7 +1387,7 @@ class NativeCalendar extends Component {
   }
 }
 
-const agendaStyles = {
+export const agendaStyles = {
   header: (w) => ({width: w, flexDirection: 'row', alignSelf: 'flex-end'}),
   cell: (w) => ({width: w, alignItems: 'center', justifyContent: 'center'}),
   day: {fontSize: 12, fontWeight: 'bold', color: 'gray', marginTop: 10},
@@ -1334,4 +1406,17 @@ const agendaStyles = {
     borderRightWidth: 0.8,
     borderColor: 'lightgray',
   }),
+  input: {
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'lightgray',
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    flex: 100,
+  },
+  field: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '80%',
+  },
 };

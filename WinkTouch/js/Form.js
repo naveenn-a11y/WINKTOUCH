@@ -747,6 +747,7 @@ export class FormOptions extends Component {
     hideClear?: boolean,
     listField?: boolean,
     simpleSelect?: boolean,
+    isValueRequired?: boolean,
   };
   state: {
     dismissedError: boolean,
@@ -875,10 +876,11 @@ export class FormOptions extends Component {
               options={this.state.formattedOptions}
               value={this.formatValue(this.props.value)}
               onChangeValue={this.changeValue}
-              prefix={this.props.prefx}
+              prefix={this.props.prefix}
               suffix={this.props.suffix}
               multiline={this.props.multiline}
               simpleSelect={this.props.simpleSelect}
+              isValueRequired={this.props.isValueRequired}
               popupStyle={styles.alignPopup}
               testID={this.props.testID}
             />
@@ -1040,7 +1042,7 @@ export class FormMultiCheckBox extends Component {
 
   render() {
     return (
-      <>
+      <View style={this.props.style}>
         {!this.props.singleSelect && (
           <View style={styles.checkButtonRow}>
             <CheckButton
@@ -1073,7 +1075,7 @@ export class FormMultiCheckBox extends Component {
             <Text>{option?.label || option}</Text>
           </View>
         ))}
-      </>
+      </View>
     );
   }
 }
@@ -1512,6 +1514,7 @@ export class FormInput extends Component {
           style={style}
           errorMessage={this.props.errorMessage}
           testID={this.props.testID}
+          style={this.props.style}
         />
       );
     } else if (

@@ -331,6 +331,9 @@ export const strings = new LocalizedStrings({
     last: 'Last',
     mins: 'mins',
     hour: 'hour',
+    time: 'Time',
+    createAvailability: 'Create Availability',
+    markAsUnavailable: 'Mark as unavailable',
   },
   fr: {
     enterRegisteredEmail:
@@ -661,6 +664,9 @@ export const strings = new LocalizedStrings({
     first: 'Premier',
     last: 'Dernier',
     mins: 'mins',
+    time: 'Temps',
+    createAvailability: 'Créer une disponibilité',
+    markAsUnavailable: 'Marquer comme indisponible',
   },
 });
 

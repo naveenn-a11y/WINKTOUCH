@@ -30,7 +30,7 @@ import type {
 } from './Types';
 import {getAccount} from './DoctorApp';
 import {styles, fontScale, isWeb, selectionFontColor} from './Styles';
-import {strings} from './Strings';
+import {strings, getUserLanguage} from './Strings';
 import {
   formatDate,
   timeFormat,
@@ -46,6 +46,7 @@ import {
   formatAge,
   prefix,
   deAccent,
+  yearDateFormat,
 } from './Util';
 import {
   FormRow,
@@ -79,13 +80,11 @@ import {
   stripDataType,
   performActionOnItem,
   storeItem,
+  getRestUrl,
+  getToken,
+  handleHttpError,
 } from './Rest';
-import {
-  formatCode,
-  formatAllCodes,
-  getAllCodes,
-  getCodeDefinition,
-} from './Codes';
+import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {
   Button as NativeBaseButton,
@@ -288,6 +287,46 @@ export async function doubleBook(
     params,
   );
   return appointment;
+}
+export async function manageAvailability(
+  doctorId: ?string,
+  action: ?number,
+  duration: ?number,
+  startDateTime: string,
+  endDateTime: string,
+  appointmentTypeId: ?(string[]),
+): Promise<Appointment> {
+  const searchCriteria = {
+    doctorId,
+    action,
+    duration,
+    frequency: 0,
+    startDateTime,
+    endDateTime,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+  };
+  let url = getRestUrl() + 'Appointment/manageSlots?emrOnly=true';
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(searchCriteria),
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let appointments: Appointment[] = await httpResponse.json();
+    return appointments;
+  } catch (error) {
+    console.log(error);
+    alert(strings.fetchItemError);
+    throw error;
+  }
 }
 export async function cancelAppointment(body) {
   const appointment: Appointment = await performActionOnItem(
