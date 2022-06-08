@@ -52,7 +52,7 @@ import {searchUsers} from './User';
 import type {Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
-import {AvailabilityModal} from './agendaComponents';
+import {AvailabilityModal} from './agendas';
 
 const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
 
@@ -200,7 +200,7 @@ export class AgendaScreen extends Component {
   _onCellPress = (date: date) => {
     const oneHour = 60 * 60 * 1000;
     const time = new Date(date).getTime();
-    const store = 'store-' + getStore().storeId;
+    const store = getStore().id;
     const event = {
       storeId: store,
       start: new Date(moment(time).set({second: 0, millisecond: 0})),
@@ -433,8 +433,9 @@ export class AgendaScreen extends Component {
       end,
       event.appointmentTypes,
     );
-    if (errors) alert(errors[0]);
-    else {
+    if (errors) {
+      alert(errors[0]);
+    } else {
       this.cancelManageAvailabilities();
       this.refreshAppointments(
         true,
