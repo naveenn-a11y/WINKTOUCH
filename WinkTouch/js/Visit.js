@@ -261,10 +261,16 @@ export function allExamIds(visit: Visit): string[] {
 
 export async function fetchReferralFollowUpHistory(
   patientId?: string,
+  pageNumber?: number = 1,
+  pageSize?: number = 20
 ): FollowUp[] {
-  let parameters: {} = {};
+  let parameters: {} = {
+    pageNumber,
+    pageSize
+  };
   let body: {} = {
     patientId: !isEmpty(patientId) ? stripDataType(patientId) : undefined,
+
   };
   let allFollowUp: FollowUp[] = [];
   let response = await fetchWinkRest(
@@ -280,9 +286,15 @@ export async function fetchReferralFollowUpHistory(
     }
     allFollowUp = response.followUp;
   }
-  const id: string = isEmpty(patientId) ? '*' : patientId;
-  cacheItem('referralFollowUpHistory-' + id, allFollowUp);
+
+  //only cache here if it is a patient's referral
+  if (!isEmpty(patientId)) {
+    const id: string = isEmpty(patientId) ? '*' : patientId;
+    cacheItem('referralFollowUpHistory-' + id, allFollowUp);
+  } 
+  return response;
 }
+
 export async function fetchVisitForAppointment(appointmentId: string): Visit {
   const searchCriteria = {appointmentId: appointmentId};
   let restResponse = await searchItems(
