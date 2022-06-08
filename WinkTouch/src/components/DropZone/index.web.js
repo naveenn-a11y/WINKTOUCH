@@ -56,7 +56,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 200 * fontScale,
+    height: 400 * fontScale,
     cursor: 'pointer',
   },
   dropzoneText: {width: '50%', fontSize: fontScale * 40, textAlign: 'center'},
