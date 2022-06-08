@@ -1066,7 +1066,9 @@ export class AppointmentDetails extends Component {
               appointment={appointment}
               orientation="horizontal"
             />
-            <Title>{getPatientFullName(patient)} </Title>
+            <Title style={{color: '#000'}}>
+              {getPatientFullName(patient)}{' '}
+            </Title>
             <View style={styles.rowLayout}>
               <Text style={styles.text}>({genderShort}) </Text>
               <PatientTags patient={patient} showDescription={true} />
@@ -1319,6 +1321,8 @@ export class AppointmentDetails extends Component {
                 : this.props.isNewAppointment &&
                   this.props.rescheduleAppointment
                 ? strings.reschedule
+                : this.props.isDoublebooking
+                ? strings.doubleBook
                 : strings.update}
             </NativeBaseButton>
           </View>
