@@ -1706,7 +1706,7 @@ export class ListField extends Component {
 
   updateValue = (newValue?: string): void => {
     let editedValue: ?string = this.state.editedValue;
-    if (!this.props.isValueRequired && newValue == editedValue) {
+    if (!this.props.isValueRequired && newValue === editedValue) {
       newValue = undefined;
     }
     if (this.props.isValueRequired && !newValue) {
@@ -2897,7 +2897,10 @@ export class Button extends Component {
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
-          style={[this.props.disabled ? styles.buttonDisabled : styles.button, this.props.buttonStyle]}>
+          style={[
+            this.props.disabled ? styles.buttonDisabled : styles.button,
+            this.props.buttonStyle,
+          ]}>
           {this.props.loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
