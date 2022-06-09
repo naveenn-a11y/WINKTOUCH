@@ -25,6 +25,7 @@ import {getCachedItem, cacheItemById} from './DataCache';
 import {Close} from './Favorites';
 import {fetchCodeDefinitions} from './Codes';
 import {getAccount} from './DoctorApp';
+import {deepClone} from './Util';
 
 const maxUserListSize: number = 200;
 
@@ -374,7 +375,7 @@ export class ManageUsers extends PureComponent<
   }
 
   updateUserInfo = (user: User): void => {
-    this.setState({user});
+    this.setState({user: deepClone(user)});
     if (user && user.id !== 'user') {
       this.updateUser(); //update existing user
     }
@@ -427,7 +428,7 @@ export class ManageUsers extends PureComponent<
           />}
           <UserDetails
             user={this.state.user}
-            onUpdateUser={(user: ?User) => this.updateUserInfo(user)}
+            onUpdateUser={this.updateUserInfo}
             onButtonPress={this.updateUser}
             buttonTitle={this.isNewUser() ? strings.createUser : strings.update }
             buttonLoading={this.state.isLoading}
