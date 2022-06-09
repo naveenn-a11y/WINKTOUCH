@@ -1423,6 +1423,13 @@ export const styles = StyleSheet.create({
     paddingLeft: 10 * fontScale,
     paddingRight: 10 * fontScale,
   },
+  availabilitiesField: {
+    shadowRadius: 0,
+    paddingRight: 7 * fontScale,
+    fontSize: 18 * fontScale,
+    minWidth: 225 * fontScale,
+    textAlign: 'justify',
+  },
 });
 
 function cardStyle(color: Color) {

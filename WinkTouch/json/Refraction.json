@@ -38,8 +38,8 @@
           "label": "Rétinoscopie"
         },
         {
-          "name": "Cyclopegia",
-          "label": "Cyclopégie"
+          "name": "Cycloplegia",
+          "label": "Cycloplégie"
         }
       ]
     }
@@ -106,7 +106,7 @@
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
-      "name": "Cyclopegia",
+      "name": "Cycloplegia",
       "type": "SRx"
     },
     {

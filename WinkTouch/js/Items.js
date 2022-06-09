@@ -193,12 +193,7 @@ export function formatFieldValue(
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }
-  if (
-    value === undefined ||
-    value === null ||
-    value === '' ||
-    value === fieldDefinition.normalValue
-  ) {
+  if (value === undefined || value === null || value === '') {
     return '';
   }
   const label: ?string = formatLabel(fieldDefinition);
@@ -661,9 +656,7 @@ export class ItemsCard extends Component {
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
-      if (fieldDefinition.normalValue == String(value)) {
-        return false;
-      }
+
       if (String(value).startsWith('(-)')) {
         return false;
       } //TODO is this a general rule

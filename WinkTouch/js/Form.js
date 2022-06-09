@@ -747,6 +747,7 @@ export class FormOptions extends Component {
     hideClear?: boolean,
     listField?: boolean,
     simpleSelect?: boolean,
+    isValueRequired?: boolean,
   };
   state: {
     dismissedError: boolean,
@@ -875,10 +876,11 @@ export class FormOptions extends Component {
               options={this.state.formattedOptions}
               value={this.formatValue(this.props.value)}
               onChangeValue={this.changeValue}
-              prefix={this.props.prefx}
+              prefix={this.props.prefix}
               suffix={this.props.suffix}
               multiline={this.props.multiline}
               simpleSelect={this.props.simpleSelect}
+              isValueRequired={this.props.isValueRequired}
               popupStyle={styles.alignPopup}
               testID={this.props.testID}
             />
@@ -990,6 +992,7 @@ export class FormMultiCheckBox extends Component {
     value: ?string | string[],
     options: string[],
     singleSelect: boolean,
+    optional: boolean,
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
@@ -1019,10 +1022,17 @@ export class FormMultiCheckBox extends Component {
     this.props.onChangeValue(this.props.options.map(({value}) => value));
   };
   deSelect = (value) => {
-    if (this.props.readonly || this.props.singleSelect) {
+    if (this.props.readonly) {
       return;
+    }
+    if (this.props.singleSelect) {
+      if (this.props.optional) {
+        this.props.onChangeValue(null);
+      } else {
+        return;
+      }
     } else {
-      let newValue = this.props.value.filter((opt) => opt != value);
+      let newValue = this.props.value.filter((opt) => opt !== value);
       this.props.onChangeValue(newValue);
     }
   };
@@ -1032,7 +1042,7 @@ export class FormMultiCheckBox extends Component {
 
   render() {
     return (
-      <>
+      <View style={this.props.style}>
         {!this.props.singleSelect && (
           <View style={styles.checkButtonRow}>
             <CheckButton
@@ -1065,7 +1075,7 @@ export class FormMultiCheckBox extends Component {
             <Text>{option?.label || option}</Text>
           </View>
         ))}
-      </>
+      </View>
     );
   }
 }
@@ -1495,6 +1505,7 @@ export class FormInput extends Component {
         <FormMultiCheckBox
           options={options}
           value={this.props.value}
+          optional={this.props.optional}
           singleSelect={this.props.singleSelect}
           label={label}
           showLabel={this.props.showLabel}
@@ -1503,6 +1514,7 @@ export class FormInput extends Component {
           style={style}
           errorMessage={this.props.errorMessage}
           testID={this.props.testID}
+          style={this.props.style}
         />
       );
     } else if (

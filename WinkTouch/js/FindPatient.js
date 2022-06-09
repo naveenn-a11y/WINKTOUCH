@@ -124,6 +124,7 @@ class PatientList extends Component {
 export type PatientProps = {
   onSelectPatient?: (patient: Patient) => void,
   onNewPatient?: () => void,
+  openWaitingListDialog: () => void,
 };
 type PatientState = {
   searchCriterium: string,
@@ -264,6 +265,15 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
             />
           </View>
         ) : null}
+        {this.props.openWaitingListDialog ? (
+          <View style={styles.centeredRowLayout}>
+            <Button
+              title={strings.viewWaitingList}
+              onPress={this.props.openWaitingListDialog}
+              testID="viewWaitingList"
+            />
+          </View>
+        ) : null}
       </View>
     );
   }
@@ -272,6 +282,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
 export class PatientSearch extends Component {
   props: {
     onSelectPatient: (patient: Patient) => void,
+    openWaitingListDialog: () => void,
     onNewPatient: () => void,
     renderPatientInfo: () => React.ReactNode,
     renderNewPatient: () => React.ReactNode,
@@ -322,6 +333,7 @@ export class PatientSearch extends Component {
           {!this.isNewPatient() && (
             <FindPatient
               onSelectPatient={(patient) => this.onSelectPatient(patient)}
+              openWaitingListDialog={this.props.openWaitingListDialog}
               selectedPatientId={
                 this.state?.selectedPatient
                   ? this.state?.selectedPatient.id

@@ -239,14 +239,14 @@
             {
               "name": "H",
               "minValue": 0,
-              "suffix": [" Eso", " Exo"],
+              "suffix": " \u0394",
               "maxValue": 50,
               "options": ["Ortho"]
             },
             {
               "name": "V",
               "minValue": 0,
-              "suffix": [" Hyper", " Hypo"],
+              "suffix": " \u0394",
               "maxValue": 20,
               "options": ["Ortho"]
             }
@@ -258,14 +258,14 @@
             {
               "name": "H",
               "minValue": 0,
-              "suffix": [" Eso", " Exo"],
+              "suffix": " \u0394",
               "maxValue": 50,
               "options": ["Ortho"]
             },
             {
               "name": "V",
               "minValue": 0,
-              "suffix": [" Hyper", " Hypo"],
+              "suffix": " \u0394",
               "maxValue": 20,
               "options": ["Ortho"]
             }
