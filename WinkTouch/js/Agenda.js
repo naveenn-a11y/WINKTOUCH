@@ -616,6 +616,7 @@ export class AgendaScreen extends Component {
   }
 
   renderPatientScreen() {
+    const isDoubleBooking: boolean = this.state.selectedTime;
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
@@ -629,7 +630,9 @@ export class AgendaScreen extends Component {
             }
             navigation={this.props.navigation}
             isBookingAppointment={true}
-            openWaitingListDialog={this.openWaitingListDialog}
+            openWaitingListDialog={
+              !isDoubleBooking && this.openWaitingListDialog
+            }
           />
         </Dialog>
       </Portal>

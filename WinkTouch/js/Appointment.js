@@ -1815,7 +1815,6 @@ export class WaitingList extends Component {
 
   render() {
     const event: Appointment = this.props.event;
-    console.log('Event: ' + JSON.stringify(event));
     const user: User = getCachedItem(event.userId);
     const appointments = this.getItems();
     const titleStyle = {
