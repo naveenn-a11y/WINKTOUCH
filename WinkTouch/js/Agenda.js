@@ -611,6 +611,8 @@ export class AgendaScreen extends Component {
       event.patientId = this.state.selectedPatient?.id;
       event.title = strings.doubleBook;
       event.comment = '';
+      event.earlyRequest = false;
+      event.earlyRequestComment = '';
     }
     return this.renderAppointmentDetail(event, isNewEvent, isDoublebooking);
   }
