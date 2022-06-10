@@ -1231,8 +1231,10 @@ class Event extends Component {
             : item.start;
       }
     }
+    if (start === undefined || start === null) {
+      start = 0;
+    }
     let startRatio = start / 1.05;
-
     const eventStyleProps = {
       minWidth: '1%',
       width: eventWidth / 1.05 - startRatio,
