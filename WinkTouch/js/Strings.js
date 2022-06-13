@@ -331,6 +331,8 @@ export const strings = new LocalizedStrings({
     last: 'Last',
     mins: 'mins',
     hour: 'hour',
+    copyMessage:
+      'Data was copied successfully, please paste it in the appropriate box',
     time: 'Time',
     createAvailability: 'Create Availability',
     markAsUnavailable: 'Mark as unavailable',
@@ -664,6 +666,8 @@ export const strings = new LocalizedStrings({
     first: 'Premier',
     last: 'Dernier',
     mins: 'mins',
+    copyMessage:
+      'Les données ont été copiées avec succès, veuillez les coller dans la case appropriée',
     time: 'Temps',
     createAvailability: 'Créer une disponibilité',
     markAsUnavailable: 'Marquer comme indisponible',

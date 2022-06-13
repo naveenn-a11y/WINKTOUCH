@@ -50,6 +50,7 @@
       "hasVA": true,
       "hasAdd": true,
       "canBeCopied": true,
+      "copyToFinalRx": true,
       "import": [
         "exam.Lensometry.Lensometry",
         "exam.Auto refractor.Auto refractor",
@@ -72,21 +73,25 @@
       "hasAdd": false,
       "optional": true,
       "name": "Maximum VA refraction",
-      "type": "SRx"
+      "type": "SRx",
+      "canBePaste": true
     },
     {
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
       "name": "Compensated refraction",
-      "type": "SRx"
+      "type": "SRx",
+      "canBePaste": true
     },
     {
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
       "name": "Duochrome",
-      "type": "SRx"
+      "type": "SRx",
+      "copyToFinalRx": true,
+      "canBePaste": true
     },
     {
       "hasVA": true,
@@ -106,8 +111,9 @@
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
-      "name": "Cycloplegia",
-      "type": "SRx"
+      "name": "Cyclopegia",
+      "type": "SRx",
+      "canBePaste": true
     },
     {
       "hasVA": true,

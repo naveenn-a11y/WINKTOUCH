@@ -399,6 +399,7 @@ export type GroupDefinition = {
   import?: string | string[],
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
+  copyToFinalRx?: boolean,
 };
 
 export type HtmlDefinition = {
