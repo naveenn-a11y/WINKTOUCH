@@ -50,6 +50,7 @@ import {
   getCachedItem,
   cacheItem,
   getCachedItems,
+  clearCachedItemById,
 } from './DataCache';
 import {
   deepClone,
@@ -586,6 +587,7 @@ export class ExamHistoryScreen extends Component {
       patient,
       zoomScale: new Animated.Value(1),
     };
+    clearCachedItemById("copiedData");
   }
 
   componentDidMount() {
@@ -843,6 +845,7 @@ export class ExamScreen extends Component {
     showExportDataPopup: boolean,
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
+    copiedData?: GlassesRx,
   };
 
   constructor(props: any) {
@@ -868,6 +871,7 @@ export class ExamScreen extends Component {
       showExportDataPopup: false,
       showSnackBar: false,
       snackBarMessage: '',
+      copiedData: null
     };
   }
 
@@ -881,6 +885,10 @@ export class ExamScreen extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
+    if (getCachedItem('copiedData') === undefined && this.state.copiedData != null ) {
+      this.deleteCopiedData();
+    } 
+
     let exam: Exam =
       this.props.navigation &&
       this.props.navigation.state &&
@@ -911,6 +919,7 @@ export class ExamScreen extends Component {
   }
 
   componentWillUnmount() {
+    this.deleteCopiedData();
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
     if (this.state.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
@@ -931,6 +940,7 @@ export class ExamScreen extends Component {
       return;
     }
     this.setState({exam, isDirty: false});
+    this.deleteCopiedData();
   }
 
   async storePreviousExam(exam: Exam) {
@@ -1020,8 +1030,10 @@ export class ExamScreen extends Component {
   }
 
   showSnackBarMessage = (message: string): void => {
-    this.setState({snackBarMessage: message});
-    this.setState({showSnackBar: true});
+    if(!this.state.showSnackBar) {
+      this.setState({snackBarMessage: message});
+      this.setState({showSnackBar: true});
+    }
   }
 
   async confirmExportData(items: any) {
@@ -1175,6 +1187,17 @@ export class ExamScreen extends Component {
     }
   };
 
+  deleteCopiedData = () : void => {
+    clearCachedItemById("copiedData");
+    this.setState({ "copiedData": null }); //refresh copied data
+  }
+
+  copyData = (glassesRx: GlassesRx): void => { 
+    let clonedGlassesRx = deepClone(glassesRx);
+    cacheItem('copiedData', clonedGlassesRx);
+    this.setState({ "copiedData": clonedGlassesRx });
+  }
+
   renderExam() {
     if (!this.state.exam) {
       return null;
@@ -1212,6 +1235,9 @@ export class ExamScreen extends Component {
             enableScroll={this.enableScroll}
             disableScroll={this.disableScroll}
             showSnackBarMessage={this.showSnackBarMessage}
+            copiedData={this.state.copiedData}
+            copyData={this.copyData}
+            deleteCopiedData={this.deleteCopiedData}
           />
         );
       case 'paperForm':

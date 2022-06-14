@@ -1355,7 +1355,6 @@ export class TilesField extends Component {
     },
     testID?: string,
     isTyping?: boolean,
-    hideClear?: boolean,
   };
   state: {
     isActive: boolean,
@@ -2879,7 +2878,6 @@ export class Button extends Component {
     loading?: boolean,
     onPress?: () => void,
     testID?: string,
-    buttonStyle?: String,
   };
   static defaultProps = {
     visible: true,
@@ -3510,19 +3508,23 @@ export class NativeBar extends Component {
   };
   render() {
     return (
-      <View style={styles.bottomBar}>
-        <Snackbar
-          visible={this.state.visible}
-          onDismiss={this.onDismiss}
-          action={{
-            label: strings.close,
-            onPress: () => {
-              this.onDismiss;
-            },
-          }}>
-          {this.props.message}
-        </Snackbar>
-      </View>
+      <Modal transparent visible={this.state.visible} >
+        <TouchableWithoutFeedback  onPress={() => this.onDismiss()}>
+          <View style={styles.bottomBar}>
+            <Snackbar
+              visible={this.state.visible}
+              onDismiss={this.onDismiss}
+              action={{
+                label: strings.close,
+                onPress: () => {
+                  this.onDismiss;
+                },
+              }}>
+              {this.props.message}
+            </Snackbar>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     );
   }
 }

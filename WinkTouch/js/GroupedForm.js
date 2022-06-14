@@ -31,7 +31,7 @@ import {
   yearDateFormat,
 } from './Util';
 import {formatAllCodes} from './Codes';
-import {getCachedItem, cacheItem, clearCachedItemById} from './DataCache';
+import {getCachedItem} from './DataCache';
 import {
   Favorites,
   Star,
@@ -1810,10 +1810,12 @@ export type GroupedFormScreenProps = {
   enableScroll?: () => void,
   disableScroll?: () => void,
   showSnackBarMessage?: (message: string) => void,
+  copiedData?: GlassesRx,
+  copyData?: (glassesRx: GlassesRx) => void,
+  deleteCopiedData?: () => void,
 };
 type GroupedFormScreenState = {
   addableGroups: string[],
-  copiedData?: GlassesRx,
 };
 export class GroupedFormScreen extends Component<
   GroupedFormScreenProps,
@@ -1823,14 +1825,13 @@ export class GroupedFormScreen extends Component<
     super(props);
     this.state = {
       addableGroups: this.initialiseExam(this.props.exam),
-      copiedData: null
     };
   }
 
   componentDidUpdate(prevProps: GroupedFormScreenProps) {
 
-    if (getCachedItem('copiedData') !== undefined && this.state.copiedData == null ) {
-      this.setState({ "copiedData": getCachedItem('copiedData') });
+    if (getCachedItem('copiedData') !== undefined && this.props.copiedData == null ) {
+      this.props.copyData(getCachedItem('copiedData'));
       this.props.showSnackBarMessage(strings.finalRxCopyMessage);
     } 
 
@@ -2024,7 +2025,7 @@ export class GroupedFormScreen extends Component<
     }
     //this.props.exam[this.props.exam.definition.name][refractionType] = refraction;
     this.props.onUpdateExam(this.props.exam);
-    this.deleteCopiedData();
+    this.props.deleteCopiedData();
   }
 
   updateGroup = (groupName: string, form: any, index?: number) => {
@@ -2036,25 +2037,15 @@ export class GroupedFormScreen extends Component<
     this.props.onUpdateExam(this.props.exam);
   };
 
-  deleteCopiedData() : void {
-    this.setState({ "copiedData": null }); //refresh copied data
-    clearCachedItemById("copiedData");
-  }
-
-  copyData = (glassesRx: GlassesRx): void => { 
-    let clonedGlassesRx = deepClone(glassesRx);
-    this.setState({ "copiedData": clonedGlassesRx });
-  }
-
   pasteData = async (fieldDefinition: FieldDefinition, index?: number): void => {
     const existingGlassesRx: GlassesRx = (index !== undefined && index !== null) ?  deepClone( this.props.exam[this.props.exam.definition.name][fieldDefinition.name][index]) : deepClone( this.props.exam[this.props.exam.definition.name][fieldDefinition.name]);
     if (existingGlassesRx) {
-      existingGlassesRx.od.sph = this.state.copiedData.od.sph;
-      existingGlassesRx.od.cyl = this.state.copiedData.od.cyl;
-      existingGlassesRx.od.axis = this.state.copiedData.od.axis;
-      existingGlassesRx.os.sph = this.state.copiedData.os.sph;
-      existingGlassesRx.os.cyl = this.state.copiedData.os.cyl;
-      existingGlassesRx.os.axis = this.state.copiedData.os.axis;
+      existingGlassesRx.od.sph = this.props.copiedData.od.sph;
+      existingGlassesRx.od.cyl = this.props.copiedData.od.cyl;
+      existingGlassesRx.od.axis = this.props.copiedData.od.axis;
+      existingGlassesRx.os.sph = this.props.copiedData.os.sph;
+      existingGlassesRx.os.cyl = this.props.copiedData.os.cyl;
+      existingGlassesRx.os.axis = this.props.copiedData.os.axis;
     }
 
     if (index !== undefined && index !== null) {
@@ -2063,7 +2054,7 @@ export class GroupedFormScreen extends Component<
       this.props.exam[this.props.exam.definition.name][fieldDefinition.name] = existingGlassesRx;
     }
     this.props.onUpdateExam(this.props.exam);
-    this.deleteCopiedData();
+    this.props.deleteCopiedData();
   }
 
   copyToFinal = (glassesRx: GlassesRx): void => {
@@ -2267,10 +2258,10 @@ export class GroupedFormScreen extends Component<
                 : undefined
             }
             onCopy={
-              groupDefinition.canBeCopied === true ? this.copyData : undefined
+              groupDefinition.canBeCopied === true ? this.props.copyData : undefined
             }
             onPaste={
-              (groupDefinition.canBePaste === true && this.state.copiedData)
+              (groupDefinition.canBePaste === true && this.props.copiedData)
                 ? (fieldDefinition: FieldDefinition) => this.pasteData(fieldDefinition, subIndex)
                 : undefined
             }
@@ -2350,10 +2341,10 @@ export class GroupedFormScreen extends Component<
             groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
           }
           onCopy={
-            groupDefinition.canBeCopied === true ? this.copyData : undefined
+            groupDefinition.canBeCopied === true ? this.props.copyData : undefined
           }
           onPaste={
-            (groupDefinition.canBePaste === true && this.state.copiedData)
+            (groupDefinition.canBePaste === true && this.props.copiedData)
               ? this.pasteData
               : undefined
           }
@@ -2386,10 +2377,10 @@ export class GroupedFormScreen extends Component<
             groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
           }
           onCopy={
-            groupDefinition.canBeCopied === true ? this.copyData : undefined
+            groupDefinition.canBeCopied === true ? this.props.copyData : undefined
           }
           onPaste={
-            (groupDefinition.canBePaste === true && this.state.copiedData)
+            (groupDefinition.canBePaste === true && this.props.copiedData)
               ? this.pasteData
               : undefined
           }

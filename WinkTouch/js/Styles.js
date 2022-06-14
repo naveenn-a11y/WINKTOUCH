@@ -1311,6 +1311,7 @@ export const styles = StyleSheet.create({
   bottomBar: {
     flex: 1,
     justifyContent: 'flex-end',
+    backgroundColor: 'rgba(52, 52, 52, 0.3)'
   },
   bottomItems: {
     flexDirection: 'row',
