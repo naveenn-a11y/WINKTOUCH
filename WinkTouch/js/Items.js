@@ -295,10 +295,12 @@ export function formatFieldLabel(
   defaultLabel: ?string,
 ): string {
   const customDefinition: ?GroupDefinition | FieldDefinition =
-    groupDefinition.fields.find(
-      (definition: GroupDefinition | FieldDefinition) =>
-        definition.isLabel === true,
-    );
+    groupDefinition.fields
+      ? groupDefinition.fields.find(
+          (definition: GroupDefinition | FieldDefinition) =>
+            definition.isLabel === true,
+        )
+      : undefined;
 
   let label: string = isEmpty(defaultLabel)
     ? formatLabel(groupDefinition)
