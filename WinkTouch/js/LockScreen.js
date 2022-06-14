@@ -12,6 +12,7 @@ import {
   View,
   TouchableOpacity,
   Modal,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {styles, fontScale, isWeb} from './Styles';
 import {getUserLanguage, strings} from './Strings';
@@ -135,80 +136,88 @@ export class LockScreen extends Component {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <View
-              style={{
-                backgroundColor: '#eee',
-                flexDirection: 'row',
-                padding: '10%',
-                justifyContent: 'space-evenly',
-                borderRadius: 20,
-              }}>
-              <View>
-                <Image
-                  source={require('./image/winklogo-big.png')}
-                  style={{
-                    width: 250 * fontScale,
-                    height: 250 * fontScale,
-                  }}
-                />
-              </View>
-              <View style={{marginLeft: 20, marginRight: 20}} />
-              <View>
-                <View style={{marginBottom: 10}}>
-                  <Text
-                    style={{fontSize: 30, marginBottom: 5, fontWeight: '500'}}>
-                    {strings.lockScreenTitle}
-                  </Text>
-                  <Text style={{fontSize: 12}}>{strings.enterPassword}</Text>
-                </View>
-
+            <KeyboardAvoidingView
+              behavior="position"
+              style={{flex: 1, justifyContent: 'center', flexWrap: 'wrap'}}>
+              <View
+                style={{
+                  backgroundColor: '#eee',
+                  flexDirection: 'row',
+                  padding: '10%',
+                  justifyContent: 'space-evenly',
+                  borderRadius: 20,
+                }}>
                 <View>
-                  <TextInput
-                    placeholder={strings.password}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    returnKeyType="go"
-                    secureTextEntry={true}
-                    ref="focusField"
-                    style={styles.field400}
-                    value={this.state.password}
-                    selectTextOnFocus={true}
-                    testID="lockscreen.passwordField"
-                    onChangeText={this.setPassword}
-                    onSubmitEditing={() => this.login()}
+                  <Image
+                    source={require('./image/winklogo-big.png')}
+                    style={{
+                      width: 250 * fontScale,
+                      height: 250 * fontScale,
+                    }}
                   />
                 </View>
-                <View
-                  style={
-                    isWeb
-                      ? [styles.buttonsRowLayout, {flex: 1}]
-                      : styles.buttonsRowLayout
-                  }>
-                  <Button
-                    onPress={() => this.login()}
-                    title={strings.resumeSession}
-                  />
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: 5,
-                    justifyContent: 'flex-end',
-                  }}>
-                  <Text>
-                    {strings.notLabel}{' '}
-                    {getDoctor().firstName + ' ' + getDoctor().lastName} ?
-                  </Text>
-                  <TouchableOpacity
-                    style={{marginLeft: 10}}
-                    onPress={() =>
-                      this.props.navigation.state.params.onUserLogout()
+                <View style={{marginLeft: 20, marginRight: 20}} />
+                <View>
+                  <View style={{marginBottom: 10}}>
+                    <Text
+                      style={{
+                        fontSize: 30,
+                        marginBottom: 5,
+                        fontWeight: '500',
+                      }}>
+                      {strings.lockScreenTitle}
+                    </Text>
+                    <Text style={{fontSize: 12}}>{strings.enterPassword}</Text>
+                  </View>
+
+                  <View>
+                    <TextInput
+                      placeholder={strings.password}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      returnKeyType="go"
+                      secureTextEntry={true}
+                      ref="focusField"
+                      style={styles.field400}
+                      value={this.state.password}
+                      selectTextOnFocus={true}
+                      testID="lockscreen.passwordField"
+                      onChangeText={this.setPassword}
+                      onSubmitEditing={() => this.login()}
+                    />
+                  </View>
+                  <View
+                    style={
+                      isWeb
+                        ? [styles.buttonsRowLayout, {flex: 1}]
+                        : styles.buttonsRowLayout
                     }>
-                    <Text>{strings.logout}</Text>
-                  </TouchableOpacity>
+                    <Button
+                      onPress={() => this.login()}
+                      title={strings.resumeSession}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 5,
+                      justifyContent: 'flex-end',
+                    }}>
+                    <Text>
+                      {strings.notLabel}{' '}
+                      {getDoctor().firstName + ' ' + getDoctor().lastName} ?
+                    </Text>
+                    <TouchableOpacity
+                      style={{marginLeft: 10}}
+                      onPress={() =>
+                        this.props.navigation.state.params.onUserLogout()
+                      }>
+                      <Text>{strings.logout}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
+            </KeyboardAvoidingView>
           </View>
         </View>
       </Modal>

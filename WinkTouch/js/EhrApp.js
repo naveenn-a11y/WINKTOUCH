@@ -229,7 +229,7 @@ export class EhrApp extends Component {
       isMfaProvided: false,
     });
     lastUpdateCheck = undefined;
-    this.tracker.stop();
+    this.tracker && this.tracker.stop();
     this.checkForUpdate();
   };
 
@@ -281,7 +281,7 @@ export class EhrApp extends Component {
   }
 
   onUserLogin = () => {
-    this.tracker.start();
+    this.tracker && this.tracker.start();
   };
 
   componentDidMount() {
