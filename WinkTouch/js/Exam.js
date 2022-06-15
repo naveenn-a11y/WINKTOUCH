@@ -1420,8 +1420,11 @@ export class ExamScreen extends Component {
       this.state.exam.definition.type === 'groupedForm'
     ) {
       return (
+        <View 
+          style={styles.scrollviewContainer}>
+          {this.renderSnackBar()}
         <KeyboardAwareScrollView
-          style={styles.page}
+          contentContainerStyle={styles.scrollviewFixed}
           minimumZoomScale={1.0}
           maximumZoomScale={2.0}
           bounces={false}
@@ -1432,10 +1435,10 @@ export class ExamScreen extends Component {
           pinchGestureEnabled={this.state.scrollable}>
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
-          {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </KeyboardAwareScrollView>
+        </View>
       );
     }
     if (this.props.disableScroll) {

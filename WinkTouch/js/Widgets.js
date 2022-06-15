@@ -3508,23 +3508,19 @@ export class NativeBar extends Component {
   };
   render() {
     return (
-      <Modal transparent visible={this.state.visible} >
-        <TouchableWithoutFeedback  onPress={() => this.onDismiss()}>
-          <View style={styles.bottomBar}>
-            <Snackbar
-              visible={this.state.visible}
-              onDismiss={this.onDismiss}
-              action={{
-                label: strings.close,
-                onPress: () => {
-                  this.onDismiss;
-                },
-              }}>
-              {this.props.message}
-            </Snackbar>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      <View style={styles.snackbarFixed}>
+        <Snackbar
+          visible={this.state.visible}
+          onDismiss={this.onDismiss}
+          action={{
+            label: strings.close,
+            onPress: () => {
+              this.onDismiss;
+            },
+          }}>
+          {this.props.message}
+        </Snackbar>
+      </View>
     );
   }
 }

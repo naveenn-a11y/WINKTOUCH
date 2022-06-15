@@ -104,6 +104,23 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: backgroundColor,
   },
+  scrollviewContainer: {
+    position: 'relative',
+    flex: 1,
+  },
+  scrollviewFixed: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  snackbarFixed: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
   paragraph: {
     flex: 100,
     flexDirection: 'column',
@@ -1309,9 +1326,10 @@ export const styles = StyleSheet.create({
     color: fontColor,
   },
   bottomBar: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(52, 52, 52, 0.3)'
+    zIndex: 1,
+    minWidth: '100%',
+    position: 'absolute',
+    bottom: 0,
   },
   bottomItems: {
     flexDirection: 'row',
