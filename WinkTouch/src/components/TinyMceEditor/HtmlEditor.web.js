@@ -62,13 +62,14 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
   }
 
   afterSave() {
-    let javaScript: string = `tinymce.activeEditor.setDirty(false)`;
+    let javaScript: string = 'tinymce.activeEditor.setDirty(false)';
     this.state.activeEditor.setDirty(false);
   }
 
   render() {
     return (
       <Editor
+        tinymceScriptSrc="https://ws-touch.downloadwink.com/tinymce/js/tinymce/tinymce.min.js"
         initialValue={this.props.value}
         init={{
           setup: (editor) => {

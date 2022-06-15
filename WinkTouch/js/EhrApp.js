@@ -111,6 +111,7 @@ export class EhrApp extends Component {
     user: ?User,
     store: ?Store,
     token: ?string,
+    isMfaProvided: ?boolean,
   };
 
   constructor() {
@@ -125,6 +126,7 @@ export class EhrApp extends Component {
       store: undefined,
       token: undefined,
       loading: true,
+      isMfaProvided: false,
     };
   }
 
@@ -143,6 +145,13 @@ export class EhrApp extends Component {
       account: null,
       user: null,
       store: null,
+      isMfaProvided: false,
+    });
+  };
+
+  mfaRequired = () => {
+    this.setState({
+      isMfaProvided: true,
     });
   };
 
@@ -215,6 +224,7 @@ export class EhrApp extends Component {
       user: undefined,
       account: undefined,
       store: undefined,
+      isMfaProvided: false,
     });
     lastUpdateCheck = undefined;
     this.checkForUpdate();
@@ -270,12 +280,13 @@ export class EhrApp extends Component {
   };
 
   render() {
-    if (this.state.loading)
+    if (this.state.loading) {
       return (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ActivityIndicator size="large" />
         </View>
       );
+    }
     if (!this.state.isRegistered) {
       return (
         <RegisterScreen
@@ -299,10 +310,12 @@ export class EhrApp extends Component {
             store: Store,
             token: string,
           ) => this.userLoggedOn(account, user, store, token)}
+          onMfaRequired={this.mfaRequired}
           onReset={this.reset}
         />
       );
     }
+
     return (
       <DoctorApp
         registration={this.state.registration}
