@@ -1078,7 +1078,7 @@ export class GlassesDetail extends Component {
     this.setState({importedData: data, showDialog: true});
   }
   showSnackBar(message: ?string) {
-    this.setState({snackBarMessage: message || strings.importDataNotFound})
+    this.setState({snackBarMessage: message})
     this.setState({showSnackBar: true});
   }
   hideSnackBar() {
@@ -1103,7 +1103,7 @@ export class GlassesDetail extends Component {
       this.props.examId,
     );
     if (data === undefined || data === null) {
-      this.showSnackBar();
+      this.showSnackBar(strings.importDataNotFound);
     }
     if (data instanceof Array) {
       this.showDialog(data);
@@ -1206,11 +1206,6 @@ export class GlassesDetail extends Component {
         onDismissAction={() => this.hideSnackBar()}
       />
     );
-  }
-
-  copyData = (glassesRx: GlassesRx): void => {
-    this.props.onCopy(glassesRx)
-    this.showSnackBar(strings.copyMessage);
   }
 
   render() {
@@ -1803,7 +1798,7 @@ export class GlassesDetail extends Component {
           )}
           {this.props.onCopy && !this.props.onPaste && (
             <TouchableOpacity
-              onPress={() => this.copyData(this.props.glassesRx)}
+              onPress={() => this.props.onCopy(this.props.glassesRx)}
             >
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>

@@ -1809,7 +1809,6 @@ export type GroupedFormScreenProps = {
   onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
   enableScroll?: () => void,
   disableScroll?: () => void,
-  showSnackBarMessage?: (message: string) => void,
   copiedData?: GlassesRx,
   copyData?: (glassesRx: GlassesRx) => void,
   deleteCopiedData?: () => void,
@@ -1829,12 +1828,6 @@ export class GroupedFormScreen extends Component<
   }
 
   componentDidUpdate(prevProps: GroupedFormScreenProps) {
-
-    if (getCachedItem('copiedData') !== undefined && this.props.copiedData == null ) {
-      this.props.copyData(getCachedItem('copiedData'));
-      this.props.showSnackBarMessage(strings.finalRxCopyMessage);
-    } 
-
     if (
       prevProps.exam === this.props.exam &&
       prevProps.exam[prevProps.exam.definition.name] ===

@@ -48,9 +48,7 @@ import {fetchItemById, storeItem, searchItems} from './Rest';
 import {
   cacheItemById,
   getCachedItem,
-  cacheItem,
   getCachedItems,
-  clearCachedItemById,
 } from './DataCache';
 import {
   deepClone,
@@ -86,6 +84,7 @@ import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
 import {formatCode, getCodeDefinition} from './Codes';
 import {Machine, exportData} from './Machine';
+import NavigationService from './utilities/NavigationService';
 
 export async function fetchExam(
   examId: string,
@@ -587,7 +586,6 @@ export class ExamHistoryScreen extends Component {
       patient,
       zoomScale: new Animated.Value(1),
     };
-    clearCachedItemById("copiedData");
   }
 
   componentDidMount() {
@@ -632,8 +630,12 @@ export class ExamHistoryScreen extends Component {
   };
 
   copyFinalRx = (glassesRx: GlassesRx): void => {
-    let clonedGlassesRx = deepClone(glassesRx);
-    cacheItem('copiedData', clonedGlassesRx);
+    let previousRoute = NavigationService.getPreviousRoute();
+    const setParamsAction = NavigationActions.setParams({
+      params: {copiedData: glassesRx},
+      key: previousRoute ? previousRoute.key : '',
+    });
+    this.props.navigation.dispatch(setParamsAction);
     this.props.navigation.goBack();
   }
 
@@ -884,10 +886,16 @@ export class ExamScreen extends Component {
     }
   }
 
-  componentDidUpdate(prevProps: any) {
-    if (getCachedItem('copiedData') === undefined && this.state.copiedData != null ) {
-      this.deleteCopiedData();
-    } 
+  componentDidUpdate(prevProps: any) { 
+    let copiedData = this.props.navigation &&
+    this.props.navigation.state &&
+    this.props.navigation.state.params && 
+    this.props.navigation.state.params.copiedData ? this.props.navigation.state.params.copiedData : undefined;
+
+    if (copiedData && this.state.copiedData !== copiedData) {
+      this.copyData(copiedData);
+      this.props.navigation.setParams({copiedData: undefined});
+    }
 
     let exam: Exam =
       this.props.navigation &&
@@ -1188,14 +1196,13 @@ export class ExamScreen extends Component {
   };
 
   deleteCopiedData = () : void => {
-    clearCachedItemById("copiedData");
     this.setState({ "copiedData": null }); //refresh copied data
   }
 
   copyData = (glassesRx: GlassesRx): void => { 
     let clonedGlassesRx = deepClone(glassesRx);
-    cacheItem('copiedData', clonedGlassesRx);
     this.setState({ "copiedData": clonedGlassesRx });
+    this.showSnackBarMessage(strings.copyMessage);
   }
 
   renderExam() {
@@ -1234,7 +1241,6 @@ export class ExamScreen extends Component {
             }
             enableScroll={this.enableScroll}
             disableScroll={this.disableScroll}
-            showSnackBarMessage={this.showSnackBarMessage}
             copiedData={this.state.copiedData}
             copyData={this.copyData}
             deleteCopiedData={this.deleteCopiedData}
