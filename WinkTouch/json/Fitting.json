@@ -61,6 +61,7 @@
       ],
       "maxLength": 8,
       "name": "Contact Lens Trial",
+      "label": "Contact Lens Fitting",
       "entity": "clFitting",
       "columns": [
         ["Manufacturer", "Brand", "Design", "Qty/Box", ">>"],
