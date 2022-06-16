@@ -493,12 +493,14 @@ export class AgendaScreen extends Component {
     ) {
       this.cancelDialog();
     }
+
     let appointments: Appointment[];
     if (appointment.status === 2) {
-      appointments = this.state.appointments.filter(
-        (a) => a.id !== appointment.id,
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
-      appointments = [...appointments, updatedAppointment];
     } else {
       const index = this.state.appointments.findIndex(
         (e: Appointment) => e.id === updatedAppointment.id,
@@ -515,7 +517,7 @@ export class AgendaScreen extends Component {
         appointments: appointments,
         refresh: true,
       });
-    } else {
+    } else if (isNewEvent && appointment.status !== 2) {
       this.setState({
         appointments: appointments,
         refresh: true,

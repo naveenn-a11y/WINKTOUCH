@@ -261,16 +261,15 @@ export function allExamIds(visit: Visit): string[] {
 
 export async function fetchReferralFollowUpHistory(
   patientId?: string,
-  pageNumber?: number = 1,
-  pageSize?: number = 20
+  pageNumber: number = 1,
+  pageSize: number = 20,
 ): FollowUp[] {
   let parameters: {} = {
     pageNumber,
-    pageSize
+    pageSize,
   };
   let body: {} = {
     patientId: !isEmpty(patientId) ? stripDataType(patientId) : undefined,
-
   };
   let allFollowUp: FollowUp[] = [];
   let response = await fetchWinkRest(
@@ -291,7 +290,7 @@ export async function fetchReferralFollowUpHistory(
   if (!isEmpty(patientId)) {
     const id: string = isEmpty(patientId) ? '*' : patientId;
     cacheItem('referralFollowUpHistory-' + id, allFollowUp);
-  } 
+  }
   return response;
 }
 
@@ -1874,7 +1873,7 @@ export class VisitHistoryCard extends Component {
     if (this.state.summaries) {
       return;
     }
-    const summaries: ?(Exam[]) = getRecentVisitSummaries(
+    let summaries: ?(Exam[]) = getRecentVisitSummaries(
       this.props.patientInfo.id,
     );
     if (summaries === undefined) {
