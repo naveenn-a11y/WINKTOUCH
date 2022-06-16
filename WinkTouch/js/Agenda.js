@@ -132,10 +132,8 @@ export class AgendaScreen extends Component {
   }
 
   async componentDidMount() {
-    InteractionManager.runAfterInteractions(() => {
-      this.getDoctors();
-      this.getSelectedDoctorsFromStorage();
-    });
+    this.getDoctors();
+    this.getSelectedDoctorsFromStorage();
   }
 
   componentWillUnmount() {
@@ -257,13 +255,11 @@ export class AgendaScreen extends Component {
   };
   _onToday = () => {
     this.setState({date: this.today}, () => {
-      InteractionManager.runAfterInteractions(() => {
-        this.refreshAppointments(
-          true,
-          false,
-          this.state.mode === 'day' ? 1 : this.daysInWeek,
-        );
-      });
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
     });
   };
   _onPrevDate = () => {
@@ -281,13 +277,11 @@ export class AgendaScreen extends Component {
             .toDate(),
         },
         () => {
-          InteractionManager.runAfterInteractions(() => {
-            this.refreshAppointments(
-              true,
-              false,
-              this.state.mode === 'day' ? 1 : this.daysInWeek,
-            );
-          });
+          this.refreshAppointments(
+            true,
+            false,
+            this.state.mode === 'day' ? 1 : this.daysInWeek,
+          );
         },
       );
     }
@@ -300,26 +294,22 @@ export class AgendaScreen extends Component {
           .toDate(),
       },
       () => {
-        InteractionManager.runAfterInteractions(() => {
-          this.refreshAppointments(
-            true,
-            false,
-            this.state.mode === 'day' ? 1 : this.daysInWeek,
-          );
-        });
-      },
-    );
-  };
-
-  _onSetMode = (mode: string) => {
-    InteractionManager.runAfterInteractions(() => {
-      this.setState({mode: mode}, () => {
         this.refreshAppointments(
           true,
           false,
           this.state.mode === 'day' ? 1 : this.daysInWeek,
         );
-      });
+      },
+    );
+  };
+
+  _onSetMode = (mode: string) => {
+    this.setState({mode: mode}, () => {
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
     });
   };
 
@@ -1199,7 +1189,7 @@ class Event extends Component {
       if (visitHistory) {
         const locked: boolean = isAppointmentLocked(appointment);
         this.setState({locked: locked});
-      } else {
+      } else if (appointment.patientId && appointment.status !== 2) {
         const visit: Visit = await fetchVisitForAppointment(appointment.id);
         this.setState({locked: visit ? visit.locked : false});
       }
