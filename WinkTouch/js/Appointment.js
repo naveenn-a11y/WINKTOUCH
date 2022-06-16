@@ -901,7 +901,7 @@ export class AppointmentDetails extends Component {
 
     this.props.onUpdateAppointment(this.state.editedAppointment);
 
-    if (!this.props.isNewAppointment || !this.props.isDoublebooking) {
+    if (!this.props.isNewAppointment && !this.props.isDoublebooking) {
       this.setState({isEditable: false, editedAppointment: undefined});
     }
   }
