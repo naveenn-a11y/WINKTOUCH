@@ -386,6 +386,10 @@ export class ManageUsers extends PureComponent<
     let user: User = this.state.user;
     const isNewUser: boolean = user && user.id === 'user';
     user = await storeItem(user);
+
+    !user.errors && fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
+    !user.errors && await fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'familyDoctors');
+
     if (
       (this.state.user && this.state.user.id === user.id) ||
       user.errors ||
@@ -393,8 +397,7 @@ export class ManageUsers extends PureComponent<
     ) {
       this.setState({user});
     }
-    fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
-    fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'familyDoctors');
+    
     this.setState({ isLoading: false });
     (isNewUser & user.errors === undefined) ? this.props.onClose() : () => undefined; //close modal when you create a new user
   }
