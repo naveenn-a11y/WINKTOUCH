@@ -107,6 +107,7 @@ export const styles = StyleSheet.create({
   scrollviewContainer: {
     position: 'relative',
     flex: 1,
+    backgroundColor: backgroundColor,
   },
   scrollviewFixed: {
     position: 'absolute',

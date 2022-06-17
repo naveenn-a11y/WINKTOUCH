@@ -33,16 +33,8 @@ function dismissLockScreen() {
   }
 }
 
-function getPreviousRoute() {
-  return  this._navigator &&
-  this._navigator.state.nav.routes &&
-  Array.isArray(this._navigator.state.nav.routes) &&
-  this._navigator.state.nav.routes.length > 1 ? this._navigator.state.nav.routes[this._navigator.state.nav.routes.length - 2] : undefined;
-}
-
 export default {
   navigate,
   setTopLevelNavigator,
   dismissLockScreen,
-  getPreviousRoute,
 };
