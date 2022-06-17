@@ -333,6 +333,8 @@ export const strings = new LocalizedStrings({
     hour: 'hour',
     copyMessage:
       'Data was copied successfully, please paste it in the appropriate box',
+    finalRxCopyMessage:
+      "Final Rx copied successfully! Please paste in the current visit's appropriate box",
     time: 'Time',
     createAvailability: 'Create Availability',
     markAsUnavailable: 'Mark as unavailable',
@@ -668,6 +670,8 @@ export const strings = new LocalizedStrings({
     mins: 'mins',
     copyMessage:
       'Les données ont été copiées avec succès, veuillez les coller dans la case appropriée',
+    finalRxCopyMessage:
+      'Rx Finale copié avec succès! Veuillez coller dans la case appropriée de la visite en cours',
     time: 'Temps',
     createAvailability: 'Créer une disponibilité',
     markAsUnavailable: 'Marquer comme indisponible',

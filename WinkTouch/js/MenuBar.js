@@ -156,7 +156,10 @@ export class MenuBar extends PureComponent {
           <Button
             title={strings.history}
             onPress={() =>
-              this.props.navigation.navigate('examHistory', {exam: exam})
+              this.props.navigation.navigate('examHistory', {
+                exam: exam,
+                stateKey: this.props.navigation.state.key,
+              })
             }
           />
         )}

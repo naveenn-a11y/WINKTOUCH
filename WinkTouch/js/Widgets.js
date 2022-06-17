@@ -1355,7 +1355,6 @@ export class TilesField extends Component {
     },
     testID?: string,
     isTyping?: boolean,
-    hideClear?: boolean,
   };
   state: {
     isActive: boolean,
@@ -2879,7 +2878,6 @@ export class Button extends Component {
     loading?: boolean,
     onPress?: () => void,
     testID?: string,
-    buttonStyle?: String,
   };
   static defaultProps = {
     visible: true,
@@ -3510,7 +3508,7 @@ export class NativeBar extends Component {
   };
   render() {
     return (
-      <View style={styles.bottomBar}>
+      <View style={styles.snackbarFixed}>
         <Snackbar
           visible={this.state.visible}
           onDismiss={this.onDismiss}
