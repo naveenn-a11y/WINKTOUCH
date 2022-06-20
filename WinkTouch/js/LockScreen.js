@@ -111,7 +111,7 @@ export class LockScreen extends Component {
         }
       }
       let responseJson = await httpResponse.json();
-      if (responseJson.success === true) {
+      if (responseJson.success === true || responseJson.user) {
         this.props.navigation.state.params.onUserLogin(); //restart tracker
         this.props.navigation.goBack();
       }
