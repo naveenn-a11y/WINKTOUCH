@@ -124,9 +124,6 @@ export class AgendaScreen extends Component {
       doubleBookingModal: false,
       selectedTime: undefined,
       manageAvailabilities: false,
-      slot: 1,
-      duration: 30,
-      appointmentTypes: [],
       calendarWidth: Dimensions.get('window').width - 180 * fontScale - 50,
     };
     this.lastRefresh = 0;
