@@ -261,8 +261,13 @@ export function allExamIds(visit: Visit): string[] {
 
 export async function fetchReferralFollowUpHistory(
   patientId?: string,
+  pageNumber: number = 1,
+  pageSize: number = 20,
 ): FollowUp[] {
-  let parameters: {} = {};
+  let parameters: {} = {
+    pageNumber,
+    pageSize,
+  };
   let body: {} = {
     patientId: !isEmpty(patientId) ? stripDataType(patientId) : undefined,
   };
@@ -280,9 +285,15 @@ export async function fetchReferralFollowUpHistory(
     }
     allFollowUp = response.followUp;
   }
-  const id: string = isEmpty(patientId) ? '*' : patientId;
-  cacheItem('referralFollowUpHistory-' + id, allFollowUp);
+
+  //only cache here if it is a patient's referral
+  if (!isEmpty(patientId)) {
+    const id: string = isEmpty(patientId) ? '*' : patientId;
+    cacheItem('referralFollowUpHistory-' + id, allFollowUp);
+  }
+  return response;
 }
+
 export async function fetchVisitForAppointment(appointmentId: string): Visit {
   const searchCriteria = {appointmentId: appointmentId};
   let restResponse = await searchItems(
@@ -1578,7 +1589,7 @@ class VisitWorkFlow extends Component {
     ) {
       medicationExam.Prescription.forEach((prescription, i) => {
         label = prescription.Label;
-        if (!labelAlreadyExist.has(label)) {
+        if (label && !labelAlreadyExist.has(label)) {
           printMedicationRxOptions.push({label: label, isChecked: false});
           labelAlreadyExist.add(label);
         }
@@ -1862,7 +1873,7 @@ export class VisitHistoryCard extends Component {
     if (this.state.summaries) {
       return;
     }
-    const summaries: ?(Exam[]) = getRecentVisitSummaries(
+    let summaries: ?(Exam[]) = getRecentVisitSummaries(
       this.props.patientInfo.id,
     );
     if (summaries === undefined) {

@@ -54,10 +54,6 @@ class MainActivities extends Component {
   };
 
   async openReferral() {
-    let allFollowUp: ?(FollowUp[]) = getCachedItem('referralFollowUpHistory-*');
-    if (allFollowUp === undefined) {
-      await fetchReferralFollowUpHistory();
-    }
     this.props.navigation.navigate('followup', {overview: true});
   }
 

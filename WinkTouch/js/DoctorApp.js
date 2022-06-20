@@ -56,6 +56,9 @@ import {clearDataCache} from './DataCache';
 import {cacheDefinitions} from './Items';
 import {getUserLanguage} from './Strings';
 import {RoomScreen} from './Room';
+import {LockScreen} from './LockScreen';
+import NavigationService from './utilities/NavigationService';
+import InactivityTracker from './utilities/InactivityTracker';
 
 let account: Account;
 let doctor: User;
@@ -126,6 +129,7 @@ const DoctorNavigator = createStackNavigator(
     followup: {screen: FollowUpScreen, path: '/'},
     customisation: {screen: CustomisationScreen, path: '/'},
     room: {screen: RoomScreen, path: '/'},
+    lock: {screen: LockScreen, path: '/'},
   },
   {
     headerMode: 'none',
@@ -136,7 +140,6 @@ const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
 const replaceRoutes: string[] = [
-  'agenda',
   'findPatient',
   'templates',
   'examHistory',
@@ -190,6 +193,7 @@ export class DoctorApp extends Component {
     store: Store,
     token: string,
     onLogout: () => void,
+    onStartLockingDog: (ttlInMins: number) => void,
   };
   state: {
     statusMessage: string,
@@ -235,6 +239,7 @@ export class DoctorApp extends Component {
     await fetchVisitTypes();
     await fetchUserDefinedCodes();
     this.initConfiguration();
+    this.startLockingDog();
     this.forceUpdate();
     await allExamDefinitions(true, false);
     await allExamDefinitions(false, false);
@@ -245,6 +250,16 @@ export class DoctorApp extends Component {
 
   initConfiguration(): void {
     this.initPhoropter();
+  }
+
+  startLockingDog() {
+    const inactivitiesTimer: CodeDefinition[] = getAllCodes('inactivityTimer');
+    if (inactivitiesTimer && inactivitiesTimer instanceof Array) {
+      const inactivityTimer: CodeDefinition = inactivitiesTimer[0];
+      if (inactivityTimer.code) {
+        this.props.onStartLockingDog(inactivityTimer.code);
+      }
+    }
   }
 
   initPhoropter(): void {
@@ -266,6 +281,11 @@ export class DoctorApp extends Component {
     clearDataCache();
     cacheDefinitions(getUserLanguage());
     this.props.onLogout();
+  };
+
+  setNavigator = (navigatorRef) => {
+    this.navigator = navigatorRef;
+    NavigationService.setTopLevelNavigator(navigatorRef);
   };
 
   navigate = (routeName: string, params: any): void => {
@@ -300,7 +320,7 @@ export class DoctorApp extends Component {
             <View style={styles.screeen}>
               <StatusBar hidden={true} />
               <DocatorAppContainer
-                ref={(navigator) => (this.navigator = navigator)}
+                ref={(navigator) => this.setNavigator(navigator)}
                 screenProps={{
                   doctorId: this.props.user.id,
                   storeId: this.props.store.storeId,

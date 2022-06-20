@@ -71,6 +71,7 @@ export type User = {
   city?: string,
   isExternal: boolean,
   providerType?: string,
+  username?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
@@ -367,6 +368,7 @@ export type FieldDefinition = {
   isLabel?: boolean,
   limitedValues?: {},
   forceSync?: boolean,
+  listField?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -397,6 +399,7 @@ export type GroupDefinition = {
   import?: string | string[],
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
+  copyToFinalRx?: boolean,
 };
 
 export type HtmlDefinition = {

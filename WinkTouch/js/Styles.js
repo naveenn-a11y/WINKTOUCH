@@ -104,6 +104,24 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: backgroundColor,
   },
+  scrollviewContainer: {
+    position: 'relative',
+    flex: 1,
+    backgroundColor: backgroundColor,
+  },
+  scrollviewFixed: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  snackbarFixed: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
   paragraph: {
     flex: 100,
     flexDirection: 'column',
@@ -1309,8 +1327,10 @@ export const styles = StyleSheet.create({
     color: fontColor,
   },
   bottomBar: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    zIndex: 1,
+    minWidth: '100%',
+    position: 'absolute',
+    bottom: 0,
   },
   bottomItems: {
     flexDirection: 'row',
@@ -1366,9 +1386,6 @@ export const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     alignContent: 'center',
   },
-  alignPopup: {
-    alignItems: 'center',
-  },
 
   copyDialog: {
     backgroundColor: 'rgb(51, 51, 51)',
@@ -1383,11 +1400,54 @@ export const styles = StyleSheet.create({
     fontSize: 20 * fontScale,
     padding: 10 * fontScale,
   },
+  alignPopup: {
+    alignItems: 'center',
+  },
+  AppointmentDialog: {
+    width: '55%',
+    minHeight: '40%',
+    maxHeight: '90%',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+  },
+  appointmentActionButton: {
+    maxWidth: 180,
+    minWidth: 100,
+    marginTop: 20,
+    borderRadius: 10,
+    padding: 5,
+    backgroundColor: selectionFontColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 2,
+  },
+  doubleBookingTimeField: {
+    color: 'black',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10 * fontScale,
+  },
+  doubleBookingSearchField: {
+    fontSize: defaultFontSize,
+    height: (26 + 15) * fontScale,
+    minWidth: 80 * fontScale,
+    textAlign: 'left',
+    backgroundColor: 'white',
+    borderWidth: 1 * fontScale,
+    borderRadius: 6 * fontScale,
+    marginRight: 10 * fontScale,
+    borderColor: fieldBorderColor,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale,
+  },
   availabilitiesField: {
     shadowRadius: 0,
     paddingRight: 7 * fontScale,
     fontSize: 18 * fontScale,
-    minWidth: 220 * fontScale,
+    minWidth: 225 * fontScale,
     textAlign: 'justify',
   },
 });

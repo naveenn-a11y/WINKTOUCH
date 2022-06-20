@@ -193,12 +193,7 @@ export function formatFieldValue(
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }
-  if (
-    value === undefined ||
-    value === null ||
-    value === '' ||
-    value === fieldDefinition.normalValue
-  ) {
+  if (value === undefined || value === null || value === '') {
     return '';
   }
   const label: ?string = formatLabel(fieldDefinition);
@@ -300,10 +295,12 @@ export function formatFieldLabel(
   defaultLabel: ?string,
 ): string {
   const customDefinition: ?GroupDefinition | FieldDefinition =
-    groupDefinition.fields.find(
-      (definition: GroupDefinition | FieldDefinition) =>
-        definition.isLabel === true,
-    );
+    groupDefinition.fields
+      ? groupDefinition.fields.find(
+          (definition: GroupDefinition | FieldDefinition) =>
+            definition.isLabel === true,
+        )
+      : undefined;
 
   let label: string = isEmpty(defaultLabel)
     ? formatLabel(groupDefinition)
@@ -661,9 +658,7 @@ export class ItemsCard extends Component {
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
-      if (fieldDefinition.normalValue == String(value)) {
-        return false;
-      }
+
       if (String(value).startsWith('(-)')) {
         return false;
       } //TODO is this a general rule

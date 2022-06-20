@@ -14,6 +14,9 @@ import {
   LayoutAnimation,
   InteractionManager,
   RefreshControl,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
@@ -25,7 +28,8 @@ import type {
   AppointmentType,
   CodeDefinition,
 } from './Types';
-import {styles, fontScale, isWeb} from './Styles';
+import {getAccount} from './DoctorApp';
+import {styles, fontScale, isWeb, selectionFontColor} from './Styles';
 import {strings, getUserLanguage} from './Strings';
 import {
   formatDate,
@@ -35,11 +39,14 @@ import {
   formatDuration,
   jsonDateFormat,
   today,
+  yearDateTimeFormat,
   dayYearDateTimeFormat,
   farDateFormat2,
   isEmpty,
   formatAge,
   prefix,
+  deAccent,
+  yearDateFormat,
 } from './Util';
 import {
   FormRow,
@@ -48,6 +55,7 @@ import {
   FormCheckBox,
   FormNumberInput,
   FormOptions,
+  FormInput,
 } from './Form';
 import {
   VisitHistory,
@@ -69,16 +77,23 @@ import {
 import {
   searchItems,
   fetchItemById,
+  stripDataType,
   performActionOnItem,
+  storeItem,
   getRestUrl,
-  appendParameters,
   getToken,
   handleHttpError,
 } from './Rest';
 import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
-import {Button as NativeBaseButton, Dialog, Title} from 'react-native-paper';
+import {
+  Button as NativeBaseButton,
+  Dialog,
+  Portal,
+  Title,
+} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
 
 const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
@@ -164,6 +179,8 @@ export async function fetchAppointments(
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
   includeAvailableSlots: ?boolean = false,
+  earlyRequest: ?boolean = false,
+  showAllStores: ?boolean = false,
 ): Promise<Appointment[]> {
   const searchCriteria = {
     storeId: storeId,
@@ -172,6 +189,8 @@ export async function fetchAppointments(
     startDate: formatDate(startDate, jsonDateFormat),
     maxDays: maxDays ? maxDays.toString() : undefined,
     includeAvailableSlots,
+    earlyRequestOnly: earlyRequest,
+    showAllStores,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',
@@ -242,6 +261,33 @@ export async function bookAppointment(
   );
   return appointment;
 }
+export async function doubleBook(
+  patientId: ?string,
+  appointmentTypeId: ?(string[]),
+  id: ?string,
+  durationMinutes: ?number,
+  atEnd: ?boolean,
+  comment: ?string,
+): Promise<Appointment> {
+  const searchCriteria = {
+    patientId: patientId,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+    id: id,
+    durationMinutes: durationMinutes,
+    atEnd: atEnd,
+    comment: comment,
+  };
+  const params = {
+    emrOnly: true,
+  };
+  const appointment: Appointment = await performActionOnItem(
+    'doubleBook',
+    searchCriteria,
+    'POST',
+    params,
+  );
+  return appointment;
+}
 export async function manageAvailability(
   doctorId: ?string,
   action: ?number,
@@ -289,6 +335,14 @@ export async function cancelAppointment(body) {
     'POST',
     {emrOnly: true},
   );
+  return appointment;
+}
+
+export async function updateAppointment(appointment: Appointment) {
+  if (appointment === undefined || appointment === null) {
+    return;
+  }
+  appointment = await storeItem(appointment);
   return appointment;
 }
 
@@ -419,10 +473,34 @@ class AppointmentIcon extends Component {
           }}
         />
       );
+    } else if (this.props.name === 'pending') {
+      return (
+        <Image
+          source={require('./image/calendar/unconfirmedx2.png')}
+          style={{
+            width: boxSize,
+            height: boxSize,
+            margin: 1 * fontScale,
+            resizeMode: 'contain',
+          }}
+        />
+      );
     } else if (this.props.name === 'confirmed') {
       return (
         <Image
           source={require('./image/calendar/confirmedx2.png')}
+          style={{
+            width: boxSize,
+            height: boxSize,
+            margin: 1 * fontScale,
+            resizeMode: 'contain',
+          }}
+        />
+      );
+    } else if (this.props.name === 'cancelled') {
+      return (
+        <Image
+          source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
             height: boxSize,
@@ -749,10 +827,15 @@ export class AppointmentDetails extends Component {
     onUpdateAppointment: (appointment: Appointment) => void,
     onOpenAppointment: (appointment: Appointment) => void,
     onCloseAppointment: () => void,
+    onCancelAppointment: () => void,
+    openDoubleBookingModal: (appointment: Appointment) => void,
+    onCopyAppointment: (appointment: Appointment) => void,
     isNewAppointment: boolean,
     rescheduleAppointment: boolean,
+    isDoublebooking: boolean,
   };
   state: {
+    status: Number,
     isEditable: boolean,
     editedAppointment: ?Appointment,
   };
@@ -761,10 +844,11 @@ export class AppointmentDetails extends Component {
     this.state = {
       isEditable: false,
       editedAppointment: undefined,
+      status: props.appointment.status,
     };
   }
   componentDidMount() {
-    if (this.props.isNewAppointment) {
+    if (this.props.isNewAppointment || this.props.isDoublebooking) {
       this.startEdit();
     }
   }
@@ -773,20 +857,28 @@ export class AppointmentDetails extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
     if (
-      this.props.rescheduleAppointment &&
+      (this.props.rescheduleAppointment || this.props.isDoublebooking) &&
       appointmentClone?.appointmentTypes?.length > 0
     ) {
       let splittedAppointmentsCode = [];
       for (let type of appointmentClone.appointmentTypes) {
-        const appointmentTypeId = type?.split('-')[1];
+        const appointmentTypeId = stripDataType(type).toString();
         splittedAppointmentsCode.push(appointmentTypeId);
       }
       appointmentClone = {
         ...appointmentClone,
         appointmentTypes: [...splittedAppointmentsCode],
       };
+      this.setState({editedAppointment: appointmentClone});
     }
-    this.setState({isEditable: true, editedAppointment: appointmentClone});
+    this.cloneAppointment();
+    this.setState({isEditable: true});
+  }
+
+  cloneAppointment(): Appointment {
+    let appointmentClone: Appointment = {...this.props.appointment};
+    this.setState({editedAppointment: appointmentClone});
+    return appointmentClone;
   }
 
   getWaitingListOptions(): CodeDefinition[] {
@@ -799,7 +891,7 @@ export class AppointmentDetails extends Component {
   cancelEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({isEditable: false});
-    if (this.props.isNewAppointment) {
+    if (this.props.isNewAppointment || this.props.isDoublebooking) {
       this.props.onCloseAppointment();
     }
   }
@@ -808,7 +900,8 @@ export class AppointmentDetails extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
 
     this.props.onUpdateAppointment(this.state.editedAppointment);
-    if (!this.props.isNewAppointment) {
+
+    if (!this.props.isNewAppointment && !this.props.isDoublebooking) {
       this.setState({isEditable: false, editedAppointment: undefined});
     }
   }
@@ -874,12 +967,22 @@ export class AppointmentDetails extends Component {
     return true;
   }
 
-  updateValue(propertyName: string, newValue: any, index?: number) {
-    let editedAppointment: ?Appointment = this.state.editedAppointment;
+  updateValue(
+    propertyName: string,
+    newValue: any,
+    index?: number,
+  ): Appointment {
+    let editedAppointment: ?Appointment;
 
+    if (!this.state.editedAppointment) {
+      editedAppointment = this.cloneAppointment();
+    } else {
+      editedAppointment = this.state.editedAppointment;
+    }
     if (!editedAppointment) {
       return;
     }
+
     if (index >= 0) {
       if (
         editedAppointment[propertyName] === undefined ||
@@ -901,6 +1004,7 @@ export class AppointmentDetails extends Component {
     }
 
     this.setState(editedAppointment);
+    return editedAppointment;
   }
 
   getDateFormat(date: ?string): string {
@@ -916,6 +1020,9 @@ export class AppointmentDetails extends Component {
       this.state.editedAppointment.appointmentTypes;
     const labelWidth: number = 200 * fontScale;
     let dropdowns = [];
+    let appointmentDataTypeId: number = appointmentsType
+      ? stripDataType(appointmentsType[0])
+      : -1;
     dropdowns.push(
       <FormRow>
         <FormOptions
@@ -923,10 +1030,12 @@ export class AppointmentDetails extends Component {
           options={getAppointmentTypes()}
           showLabel={true}
           label={strings.AppointmentType}
-          value={appointmentsType ? appointmentsType[0] : ''}
+          value={
+            appointmentDataTypeId > 0 ? appointmentDataTypeId.toString() : ''
+          }
           onChangeValue={(code: ?string | ?number) => {
             this.updateValue('appointmentTypes', code, 0);
-            // this.validateNumberOfSlots(code);
+            this.validateNumberOfSlots(code);
           }}
         />
       </FormRow>,
@@ -934,6 +1043,7 @@ export class AppointmentDetails extends Component {
     if (appointmentsType && appointmentsType.length >= 1) {
       for (let i: number = 1; i <= appointmentsType.length; i++) {
         if (i < 5) {
+          appointmentDataTypeId = stripDataType(appointmentsType[i]);
           dropdowns.push(
             <FormRow>
               <FormOptions
@@ -941,10 +1051,14 @@ export class AppointmentDetails extends Component {
                 options={getAppointmentTypes()}
                 showLabel={true}
                 label={strings.AppointmentType}
-                value={appointmentsType[i]}
+                value={
+                  appointmentDataTypeId > 0
+                    ? appointmentDataTypeId.toString()
+                    : ''
+                }
                 onChangeValue={(code: ?string | ?number) => {
                   this.updateValue('appointmentTypes', code, i);
-                  // this.validateNumberOfSlots(code);
+                  this.validateNumberOfSlots(code);
                 }}
               />
             </FormRow>,
@@ -961,7 +1075,16 @@ export class AppointmentDetails extends Component {
     const user: User = getCachedItem(appointment.userId);
     const patient: PatientInfo | Patient = getCachedItem(appointment.patientId);
     const hasBookAccess: boolean = hasAppointmentBookAccess(appointment);
+
     let genderShort: string = formatCode('genderCode', patient.gender);
+    const allDescriptions: string[] = [
+      'pending',
+      'confirmed',
+      'cancelled',
+      'noShow',
+      'waiting',
+      'completed',
+    ];
     if (genderShort.length > 0) {
       genderShort = genderShort.substring(0, 1);
     }
@@ -982,7 +1105,9 @@ export class AppointmentDetails extends Component {
               appointment={appointment}
               orientation="horizontal"
             />
-            <Title>{getPatientFullName(patient)} </Title>
+            <Title style={{color: '#000'}}>
+              {getPatientFullName(patient)}{' '}
+            </Title>
             <View style={styles.rowLayout}>
               <Text style={styles.text}>({genderShort}) </Text>
               <PatientTags patient={patient} showDescription={true} />
@@ -1046,20 +1171,56 @@ export class AppointmentDetails extends Component {
               </View>
             )}
           </TouchableOpacity>
+          <View style={{width: '30%'}}>
+            <FormRow>
+              <AppointmentIcon
+                key={this.state.status}
+                name={allDescriptions[this.state.status]}
+              />
+              <FormCode
+                hideClear
+                showLabel={false}
+                readonly={false}
+                code="appointmentStatusCode"
+                value={this.state.status}
+                onChangeValue={(code: ?string | ?number) => {
+                  this.props.onUpdateAppointment(
+                    this.updateValue('status', code),
+                  );
+                }}
+              />
+            </FormRow>
+          </View>
           {hasBookAccess && (
-            <TouchableOpacity
-              onPress={() => this.props.onCancelAppointment()}
+            <View
               style={{
-                width: 150,
-                marginTop: 20,
-                borderRadius: 10,
-                paddingVertical: 10,
-                backgroundColor: '#1db3b3',
-                justifyContent: 'center',
-                alignItems: 'center',
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 10,
               }}>
-              <Text style={{color: '#fff'}}> {strings.cancelAppointment}</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.props.onCancelAppointment()}
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}>{strings.cancelAppointment}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={(appointment) =>
+                  this.props.openDoubleBookingModal(appointment)
+                }
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}> {strings.doubleBook}</Text>
+              </TouchableOpacity>
+              {this.props.onCopyAppointment && (
+                <TouchableOpacity
+                  onPress={() =>
+                    this.props.onCopyAppointment(this.props.appointment)
+                  }
+                  style={styles.appointmentActionButton}>
+                  <Text style={{color: '#fff'}}> {strings.reschedule}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
           {!this.props.isNewAppointment && (
             <Dialog.Actions>
@@ -1069,14 +1230,6 @@ export class AppointmentDetails extends Component {
               <NativeBaseButton onPress={() => this.openAppointment()}>
                 {strings.open}
               </NativeBaseButton>
-              {this.props.onCopyAppointment && hasBookAccess && (
-                <NativeBaseButton
-                  onPress={() =>
-                    this.props.onCopyAppointment(this.props.appointment)
-                  }>
-                  {strings.reschedule}
-                </NativeBaseButton>
-              )}
             </Dialog.Actions>
           )}
         </View>
@@ -1138,27 +1291,29 @@ export class AppointmentDetails extends Component {
             />
           </FormRow>
         )}
-        <FormRow>
-          <FormNumberInput
-            labelWidth={labelWidth}
-            label={strings.numberOfSlots}
-            required={true}
-            minValue={1}
-            maxValue={9}
-            value={
-              this.state.editedAppointment.numberOfSlots
-                ? this.state.editedAppointment.numberOfSlots
-                : 1
-            }
-            onChangeValue={(newValue: ?number) => {
-              if (this.validateNumberOfSlots(undefined, newValue)) {
-                this.updateValue('numberOfSlots', newValue);
+        {!this.props.isDoublebooking && (
+          <FormRow>
+            <FormNumberInput
+              labelWidth={labelWidth}
+              label={strings.numberOfSlots}
+              required={true}
+              minValue={1}
+              maxValue={9}
+              value={
+                this.state.editedAppointment.numberOfSlots
+                  ? this.state.editedAppointment.numberOfSlots
+                  : 1
               }
-            }}
-          />
-        </FormRow>
+              onChangeValue={(newValue: ?number) => {
+                if (this.validateNumberOfSlots(undefined, newValue)) {
+                  this.updateValue('numberOfSlots', newValue);
+                }
+              }}
+            />
+          </FormRow>
+        )}
 
-        {!this.props.isNewAppointment && (
+        {!this.props.isNewAppointment && !this.props.isDoublebooking && (
           <FormRow>
             <FormCode
               labelWidth={labelWidth}
@@ -1198,12 +1353,16 @@ export class AppointmentDetails extends Component {
             <NativeBaseButton onPress={() => this.cancelEdit()}>
               {strings.cancel}
             </NativeBaseButton>
-            <NativeBaseButton
-              disabled={!this.props.isNewAppointment}
-              onPress={() => this.commitEdit()}>
-              {!this.props.rescheduleAppointment
+
+            <NativeBaseButton onPress={() => this.commitEdit()}>
+              {this.props.isNewAppointment && !this.props.rescheduleAppointment
                 ? strings.book
-                : strings.reschedule}
+                : this.props.isNewAppointment &&
+                  this.props.rescheduleAppointment
+                ? strings.reschedule
+                : this.props.isDoublebooking
+                ? strings.doubleBook
+                : strings.update}
             </NativeBaseButton>
           </View>
         )}
@@ -1412,6 +1571,521 @@ export class AppointmentScreen extends Component {
           hasAppointment={this.hasAppointment()}
         />
       </KeyboardAwareScrollView>
+    );
+  }
+}
+export class WaitingList extends Component {
+  props: {
+    event: Appointment,
+    waitingListModal: boolean,
+    onCloseWaitingList: () => void,
+    onUpdateAppointment: (appointment: Appointment) => void,
+  };
+  state: {
+    fetchingWaitingList: boolean,
+    waitingListAppointments: Array,
+    allStores: boolean,
+    orderDesc: boolean,
+    docHeaderSelected: boolean,
+    storeHeaderSelected: boolean,
+    dateHeaderSelected: boolean,
+    filter: string,
+    selectedWaitingEvent?: Appointment,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      fetchingWaitingList: false,
+      waitingListAppointments: [],
+      allStores: false,
+      orderDesc: false,
+      docHeaderSelected: false,
+      storeHeaderSelected: false,
+      dateHeaderSelected: false,
+      filter: '',
+      selectedWaitingEvent: undefined,
+    };
+  }
+  componentDidMount = () => {
+    this.waitingListAppointments();
+    this.orderByDate();
+  };
+
+  closeDialog = () => {
+    this.props.onCloseWaitingList();
+  };
+  async waitingListAppointments() {
+    try {
+      this.setState({fetchingWaitingList: true});
+      let appointments = await fetchAppointments(
+        this.state.allStores ? undefined : getStore().id,
+        undefined,
+        undefined,
+        undefined,
+        this.props.event.start,
+        false,
+        false,
+        true,
+        this.state.allStores,
+      );
+      this.setState({
+        fetchingWaitingList: false,
+        waitingListAppointments: appointments,
+      });
+    } catch (e) {
+      this.setState({fetchingWaitingList: false});
+    }
+  }
+  updateOrder = () => {
+    const order: boolean = this.state.orderDesc;
+    this.setState({orderDesc: !order});
+  };
+  compareDate(a, b): number {
+    if (b.start < a.start) {
+      return -1;
+    } else if (b.start > a.start) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByDate(): any {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareDate);
+    return data;
+  }
+  orderByDate = () => {
+    if (!this.state.dateHeaderSelected) {
+      this.setState({
+        groupBy: 'Date',
+        dateHeaderSelected: true,
+        docHeaderSelected: false,
+        storeHeaderSelected: false,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+  compareDoctor(a, b): number {
+    const doctor1: User = getCachedItem(a.userId);
+    const doctor2: User = getCachedItem(b.userId);
+    if (doctor1.firstName.toLowerCase() < doctor2.firstName.toLowerCase()) {
+      return -1;
+    } else if (
+      doctor1.firstName.toLowerCase() > doctor2.firstName.toLowerCase()
+    ) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByDoctor() {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareDoctor);
+    return data;
+  }
+  orderByDoctor = () => {
+    if (!this.state.docHeaderSelected) {
+      this.setState({
+        groupBy: 'Doctor',
+        dateHeaderSelected: false,
+        docHeaderSelected: true,
+        storeHeaderSelected: false,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+  compareStore(a, b): number {
+    const id1 = stripDataType(a.storeId);
+    const id2 = stripDataType(b.storeId);
+    const store1 = getAccount().stores.find((store) => store.storeId === id1);
+    const store2 = getAccount().stores.find((store) => store.storeId === id2);
+    if (store1.name.toLowerCase() < store2.name.toLowerCase()) {
+      return -1;
+    } else if (store1.name.toLowerCase() > store2.name.toLowerCase()) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByStore() {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareStore);
+    return data;
+  }
+  orderByStore = () => {
+    if (!this.state.storeHeaderSelected) {
+      this.setState({
+        groupBy: 'Store',
+        dateHeaderSelected: false,
+        docHeaderSelected: false,
+        storeHeaderSelected: true,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+
+  renderFilterField() {
+    const style = [styles.searchField, {minWidth: 350 * fontScale}];
+
+    return (
+      <TextInput
+        returnKeyType="search"
+        placeholder={strings.findRow}
+        autoCorrect={false}
+        autoCapitalize="none"
+        style={style}
+        value={this.state.filter}
+        onChangeText={(filter: string) => this.setState({filter})}
+        testID={'waitingListFilter'}
+      />
+    );
+  }
+
+  getItems(): any[] {
+    let data: any[] = [...this.state.waitingListAppointments];
+    let filterData: any[] = [];
+    if (this.state.groupBy === 'Date') {
+      data = this.groupByDate();
+    } else if (this.state.groupBy === 'Doctor') {
+      data = this.groupByDoctor();
+    } else if (this.state.groupBy === 'Store') {
+      data = this.groupByStore();
+    }
+    if (!this.state.orderDesc) {
+      data.reverse();
+    }
+    const filter: ?string =
+      this.state.filter !== undefined && this.state.filter !== ''
+        ? deAccent(this.state.filter.trim().toLowerCase())
+        : undefined;
+    data = data.map((item) => {
+      let type = '';
+      const patient: PatientInfo | Patient = getCachedItem(item.patientId);
+      const doctor: User = getCachedItem(item.userId);
+      const storeId = item.storeId?.split('-')[1];
+      const store = getAccount().stores.find(
+        (store) => store.storeId == storeId,
+      );
+      if (item.appointmentTypes) {
+        item.appointmentTypes.map((id, index) => {
+          const t = getCachedItem(id);
+          type +=
+            index == item.appointmentTypes.length - 1
+              ? `${t.name}.`
+              : `${t.name}, `;
+        });
+      }
+      filterData.push({
+        patient: `${patient?.firstName} ${patient?.lastName}`,
+        home: patient.phone,
+        cell: patient.cell,
+        work: patient.work,
+        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+        store: store?.name,
+        comment: item.earlyRequestComment || '',
+      });
+      return {
+        ...item,
+        type,
+        patient: `${patient?.firstName} ${patient?.lastName}`,
+        age: formatAge(patient.dateOfBirth),
+        home: patient.phone,
+        cell: patient.cell,
+        work: patient.work,
+        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+        store,
+      };
+    });
+    if (filter) {
+      data = data.filter(
+        (item: any, index) =>
+          item != null &&
+          item !== undefined &&
+          JSON.stringify(Object.values(filterData[index])).trim().length > 0 &&
+          deAccent(
+            JSON.stringify(Object.values(filterData[index])).toLowerCase(),
+          ).indexOf(filter) >= 0,
+      );
+    }
+    return data;
+  }
+
+  render() {
+    const event: Appointment = this.props.event;
+    const user: User = getCachedItem(event.userId);
+    const appointments = this.getItems();
+    const titleStyle = {
+      marginBottom: 5,
+      fontWeight: '500',
+      fontSize: fontScale * 23,
+    };
+    const headerStyle = {
+      fontWeight: '500',
+      textAlign: 'center',
+      fontSize: fontScale * 23,
+    };
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={{
+            width: '70%',
+            minHeight: '60%',
+            maxHeight: '90%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}
+          visible={this.props.waitingListModal}
+          onDismiss={this.closeDialog}
+          dismissable={true}>
+          <Dialog.Title>
+            <Text style={{color: '#1db3b3'}}>{strings.waitingList}</Text>
+          </Dialog.Title>
+          <Dialog.ScrollArea>
+            <ScrollView contentContainerStyle={{padding: 10, flexGrow: 1}}>
+              <View style={{marginVertical: 15}}>
+                <Text style={titleStyle}>
+                  {strings.date}:{'  '}
+                  {formatDate(event.start, yearDateTimeFormat)}
+                </Text>
+                <Text style={titleStyle}>
+                  {strings.store}: {'  '}
+                  {getStore().name}
+                </Text>
+                <Text style={titleStyle}>
+                  {strings.doctor}:{'  '}
+                  {user?.firstName} {user?.lastName}
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 20 * fontScale,
+                }}>
+                <View>{this.renderFilterField()}</View>
+                <View>
+                  <FormInput
+                    optional
+                    singleSelect
+                    multiOptions
+                    value={this.state.allStores}
+                    showLabel={false}
+                    readonly={false}
+                    definition={{
+                      options: [{label: strings.showAllStores, value: true}],
+                    }}
+                    onChangeValue={(v) => {
+                      this.setState({allStores: !!v}, () =>
+                        this.waitingListAppointments(),
+                      );
+                    }}
+                    errorMessage={'error'}
+                    isTyping={false}
+                  />
+                </View>
+              </View>
+              {this.state.fetchingWaitingList ? (
+                <ActivityIndicator
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                />
+              ) : (
+                <>
+                  <View>
+                    <View style={styles.listRow}>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.patient}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.age}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.home}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.cell}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.work}
+                      </Text>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByStore}>
+                        {this.state.storeHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.storeHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.store}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByDoctor}>
+                        {this.state.docHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.docHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.doctor}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByDate}>
+                        {this.state.dateHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.dateHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.appDateAndTime}
+                        </Text>
+                      </TouchableOpacity>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.comment}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        height: 1,
+                        width: '100%',
+                        backgroundColor: 'gray',
+                        marginVertical: 5,
+                      }}
+                    />
+                  </View>
+                  <FlatList
+                    data={appointments}
+                    initialNumToRender={20}
+                    showsVerticalScrollIndicator={false}
+                    extraData={{filter: this.state.filter}}
+                    renderItem={({item, index}) => {
+                      const selected =
+                        this.state.selectedWaitingEvent?.id === item.id;
+                      const textStyle = {
+                        flex: 1,
+                        textAlign: 'center',
+                        color: selected ? '#1db3b3' : 'black',
+                      };
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({selectedWaitingEvent: item})
+                          }
+                          style={[
+                            styles.listRow,
+                            {
+                              backgroundColor:
+                                index % 2 === 0 ? '#F9F9F9' : '#FFFFFF',
+                            },
+                          ]}>
+                          <Text style={textStyle}>{item.patient}</Text>
+                          <Text style={textStyle}>{item?.age}</Text>
+                          <Text style={textStyle}>{item?.home}</Text>
+                          <Text style={textStyle}>{item?.cell}</Text>
+                          <Text style={textStyle}>{item?.work}</Text>
+                          <Text style={textStyle}>{item.store?.name}</Text>
+                          <Text style={textStyle}>{item.doctor}</Text>
+                          <View style={{flex: 1}}>
+                            <Text style={textStyle}>
+                              {formatDate(item.start, yearDateTimeFormat)}
+                            </Text>
+                            <Text style={{fontWeight: '500', ...textStyle}}>
+                              {item?.type}
+                            </Text>
+                          </View>
+                          <Text style={textStyle}>
+                            {item?.earlyRequestComment}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </ScrollView>
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.closeDialog}>
+              {strings.close}
+            </NativeBaseButton>
+            <NativeBaseButton
+              onPress={() => {
+                this.props.onUpdateAppointment({
+                  ...event,
+                  earlyRequest: false,
+                  newId: event.id,
+                  id: this.state.selectedWaitingEvent.id,
+                  patientId: this.state.selectedWaitingEvent.patientId,
+                  appointmentTypes:
+                    this.state.selectedWaitingEvent.appointmentTypes,
+                  title: this.state.selectedWaitingEvent.title,
+                });
+              }}
+              disabled={!this.state.selectedWaitingEvent}>
+              {strings.reschedule}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }

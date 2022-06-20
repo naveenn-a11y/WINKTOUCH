@@ -38,8 +38,8 @@
           "label": "Rétinoscopie"
         },
         {
-          "name": "Cyclopegia",
-          "label": "Cyclopégie"
+          "name": "Cycloplegia",
+          "label": "Cycloplégie"
         }
       ]
     }
@@ -50,6 +50,7 @@
       "hasVA": true,
       "hasAdd": true,
       "canBeCopied": true,
+      "copyToFinalRx": true,
       "import": [
         "exam.Lensometry.Lensometry",
         "exam.Auto refractor.Auto refractor",
@@ -58,6 +59,7 @@
       "name": "Subjective refraction",
       "multiValue": true,
       "type": "SRx",
+      "canBePaste": true,
       "fields": [
         {
           "freestyle": true,
@@ -72,25 +74,35 @@
       "hasAdd": false,
       "optional": true,
       "name": "Maximum VA refraction",
-      "type": "SRx"
+      "type": "SRx",
+      "canBePaste": true
     },
     {
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
       "name": "Compensated refraction",
-      "type": "SRx"
+      "type": "SRx",
+      "canBePaste": true
     },
     {
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
       "name": "Duochrome",
-      "type": "SRx"
+      "type": "SRx",
+      "copyToFinalRx": true,
+      "canBePaste": true
     },
     {
       "hasVA": true,
-      "hasAdd": false,
+      "hasAdd": true,
+      "canBeCopied": true,
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
       "optional": true,
       "name": "Retinoscopy",
       "multiValue": true,
@@ -101,7 +113,9 @@
       "hasAdd": false,
       "optional": true,
       "name": "Cyclopegia",
-      "type": "SRx"
+      "type": "SRx",
+      "copyToFinalRx": true,
+      "canBePaste": true
     },
     {
       "hasVA": true,
@@ -212,6 +226,12 @@
       ]
     }
   ],
-  "relatedExams": ["VA sc", "VA cc","Auto refractor", "Lensometry", "Binocular"],
+  "relatedExams": [
+    "VA sc",
+    "VA cc",
+    "Auto refractor",
+    "Lensometry",
+    "Binocular"
+  ],
   "export": "machine.phoropter"
 }

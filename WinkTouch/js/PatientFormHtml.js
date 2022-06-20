@@ -1428,7 +1428,7 @@ function renderRxTable(
     if (fieldDefinition.options && fieldDefinition.options.length > 0) {
       let options = fieldDefinition.options;
       const value: string = formatCode(options, glassesRx.lensType);
-      html += `<div>${formatLabel(fieldDefinition)}: ${value}</div>`;
+      html = `<div>${formatLabel(fieldDefinition)}: ${value}</div>` + html;
       groupHtmlDefinition.push({name: fieldDefinition.name, html: value});
     }
   }
@@ -1446,7 +1446,7 @@ export function patientHeader(referral: boolean) {
     '}' +
     '@media all {' +
     'table { page-break-after:auto;}' +
-    '.childTable { page-break-after:auto; page-break-inside:avoid;}' +
+    '.childTable { page-break-after:auto; page-break-inside:avoid; margin: 10px 10px 20px 10px !important;}' +
     'tr    { page-break-inside:avoid; page-break-after:auto }' +
     'td    { page-break-inside:avoid; page-break-after:auto }' +
     'thead { display:table-header-group }' +
