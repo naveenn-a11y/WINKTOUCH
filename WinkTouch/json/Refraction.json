@@ -106,7 +106,8 @@
       "optional": true,
       "name": "Retinoscopy",
       "multiValue": true,
-      "type": "SRx"
+      "type": "SRx",
+      "copyToFinalRx": true
     },
     {
       "hasVA": true,
