@@ -59,8 +59,6 @@ import moment from 'moment';
 import {Button} from './Widgets';
 import {AvailabilityModal} from './agendas';
 
-const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
-
 export class AgendaScreen extends Component {
   props: {
     navigation: any,
@@ -126,6 +124,7 @@ export class AgendaScreen extends Component {
       doubleBookingModal: false,
       selectedTime: undefined,
       manageAvailabilities: false,
+      calendarWidth: Dimensions.get('window').width - 180 * fontScale - 50,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -134,9 +133,11 @@ export class AgendaScreen extends Component {
   async componentDidMount() {
     this.getDoctors();
     this.getSelectedDoctorsFromStorage();
+    Dimensions.addEventListener('change', this._onDimensionsChange);
   }
 
   componentWillUnmount() {
+    Dimensions.removeEventListener('change', this._onDimensionsChange);
     if (this.state.refresh) {
       this.asyncComponentWillUnmount();
     }
@@ -151,6 +152,10 @@ export class AgendaScreen extends Component {
       this.props.navigation.dispatch(setParamsAction);
     }
   }
+  _onDimensionsChange = () => {
+    const width = Dimensions.get('window').width - 180 * fontScale - 50;
+    this.setState({calendarWidth: width});
+  };
 
   async getDoctors() {
     let users: User[] = await searchUsers('', false);
@@ -614,7 +619,7 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={[styles.screeen, {width: calendarWidth}]}
+          style={[styles.screeen, {width: this.state.calendarWidth}]}
           visible={this.state.isPatientDialogVisible}
           onDismiss={this.cancelPatientDialog}
           dismissable={true}>
@@ -1142,6 +1147,7 @@ export class AgendaScreen extends Component {
           </View>
         </View>
         <NativeCalendar
+          calendarWidth={this.state.calendarWidth}
           selectedDoctors={this.state.selectedDoctors}
           doctors={this.state.doctors}
           date={this.state.date}
@@ -1297,6 +1303,7 @@ class NativeCalendar extends Component {
     mode: any,
     selectedDoctors: [],
     doctors: [],
+    calendarWidth: any,
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
     _onCellPress: (event: Appointment) => void,
@@ -1307,12 +1314,14 @@ class NativeCalendar extends Component {
     return (
       nextProps.mode !== this.props.mode ||
       nextProps.date !== this.props.date ||
-      nextProps.appointments !== this.props.appointments
+      nextProps.appointments !== this.props.appointments ||
+      nextProps.calendarWidth !== this.props.calendarWidth
     );
   }
 
   render() {
-    const {selectedDoctors, doctors, date, appointments, mode} = this.props;
+    const {selectedDoctors, doctors, date, appointments, mode, calendarWidth} =
+      this.props;
 
     const weekCellWidth = calendarWidth / this.numOfDays;
     const weekEventWidth = weekCellWidth / selectedDoctors.length;
