@@ -1225,13 +1225,14 @@ class Event extends Component {
       if (typeof item === 'object') {
         start =
           appointmentStart < item.start
-            ? item.start - appointmentStart
+            ? (item.start * appointmentStart) / 1.5
             : item.start;
       }
     }
     if (start === undefined || start === null) {
       start = 0;
     }
+
     let startRatio = start / 1.05;
     const eventStyleProps = {
       minWidth: '1%',
