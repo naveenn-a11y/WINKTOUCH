@@ -13,7 +13,13 @@
       "fields": [
         {
           "name": "Subjective refraction",
-          "label": "Subjectif"
+          "label": "Subjectif",
+          "fields": [
+            {
+              "name": "customField",
+              "label": "Données de"
+            }
+          ]
         },
         {
           "name": "Compensated refraction",
@@ -40,6 +46,7 @@
   },
   "fields": [
     {
+      "hasCustomField": true,
       "hasVA": true,
       "hasAdd": true,
       "canBeCopied": true,
@@ -48,10 +55,17 @@
         "exam.Auto refractor.Auto refractor",
         "machine.phoropter.rx"
       ],
-      "export": "machine.phoropter",
       "name": "Subjective refraction",
       "multiValue": true,
-      "type": "SRx"
+      "type": "SRx",
+      "fields": [
+        {
+          "freestyle": true,
+          "name": "customField",
+          "label": "Data from",
+          "readonly": true
+        }
+      ]
     },
     {
       "hasVA": true,
@@ -94,6 +108,11 @@
       "hasAdd": true,
       "name": "Final Rx",
       "type": "SRx",
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
       "fields": [
         {
           "name": "expiry",
@@ -193,5 +212,6 @@
       ]
     }
   ],
-  "relatedExams": ["VA sc", "VA cc","Auto refractor", "Lensometry", "Binocular"]
+  "relatedExams": ["VA sc", "VA cc","Auto refractor", "Lensometry", "Binocular"],
+  "export": "machine.phoropter"
 }

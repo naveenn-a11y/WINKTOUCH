@@ -47,8 +47,9 @@ export default class NativeScanner extends Component {
     if (this.camera) {
       const options = {base64: true};
       let data = await this.camera.takePictureAsync(options);
-      if (data && data.base64.startsWith('data'))
+      if (data && data.base64.startsWith('data')) {
         data = data.base64.split(',')[1];
+      }
       this.props.onPictureTaken({croppedImage: data});
     }
   }
