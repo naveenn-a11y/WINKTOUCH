@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 import {Platform} from 'react-native';
 import type {
@@ -53,6 +54,7 @@ import {getCachedItem} from './DataCache';
 import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
+import {getPatientFullName} from './Patient';
 let smallMedia: Array<any> = [];
 let largeMedia: Array<any> = [];
 let PDFAttachment: Array<any> = [];
@@ -92,7 +94,13 @@ export function printPatientHeader(visit: Visit) {
     '      </div>' +
     '      <div id="client">' +
     `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
-    `        <div><span>${strings.patient}</span>${patient.firstName} ${patient.lastName}</div>` +
+    `        <div><span>${strings.patient}</span>${getPatientFullName(
+      patient,
+    )}</div>` +
+    `      <div><span></span>${formatCode(
+      'genderCode',
+      patient.gender,
+    )}</div>` +
     `        <div><span></span>${
       postfix(patient.unit, '-') +
       postfix(patient.streetNumber, ', ') +
@@ -229,6 +237,14 @@ export async function renderParentGroupHtml(
   let htmlDefinition: HtmlDefinition[] = [];
 
   let html: string = '';
+  if (
+    exam.definition &&
+    exam.definition.isPatientFileHidden &&
+    getCurrentAction() !== undefined &&
+    getCurrentAction() == UserAction.PATIENTFILE
+  ) {
+    return html;
+  }
   html += '<div class="container">';
   html += '<div class="BreakBeforeHeader"></div>';
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
@@ -893,6 +909,7 @@ async function renderMedia(
     fieldDefinition.size,
     fieldAspectRatio,
   );
+
   let upload: Upload;
   const pageWidth: number = isWeb ? 572 : 612;
   const pageAspectRatio: number = 8.5 / 11;
@@ -950,10 +967,10 @@ async function renderMedia(
         name: exam?.definition?.name,
         base64: filePath,
         index: PdfIdentifier,
+        indexInArray: `pdf-${PDFAttachment.length + 1}`,
       });
-      imageValue = `<code index="${PdfIdentifier}" cuthere="">*Please see annexed document (pdf-${
-        PDFAttachment.length + 1
-      }) at the end of the document.</code>`;
+      imageValue = `<code index="${PdfIdentifier}" cuthere="">*Please see annexed document (pdf-${PDFAttachment.length}) at the end of the document.
+      </code>`;
     }
     html += imageValue;
     if (!isPdf) {
@@ -1421,7 +1438,7 @@ function renderRxTable(
   return html;
 }
 
-export function patientHeader() {
+export function patientHeader(referral: boolean) {
   let htmlHeader: string =
     '<head><title>Patient File</title><style>' +
     'body {' +
@@ -1622,7 +1639,10 @@ export function patientHeader() {
     '   width: 100%;' +
     '   justify-content: space-around;' +
     ' }' +
-    '.breakBeforeImage { page-break-before: always; }';
+    '.breakBeforeImage{ page-break-before: avoid; }';
+  htmlHeader += referral
+    ? '.breakBeforeImage{ page-break-before: avoid; } .breakBeforeImage ~ section{ page-break-before: always; }'
+    : '.breakBeforeImage { page-break-before: always; }';
   htmlHeader += isWeb
     ? '.images-warp{page-break-inside:avoid;} '
     : '.wrap-imgs{} ';
@@ -1678,6 +1698,11 @@ export function renderAttachment(html: string) {
         SelectedPDFAttachment.push({
           base64: pdf.base64,
           index: pdf.index,
+        });
+      } else if (AttachmentIndex === pdf.indexInArray) {
+        SelectedPDFAttachment.push({
+          base64: pdf.base64,
+          index: pdf.indexInArray,
         });
       }
     }
