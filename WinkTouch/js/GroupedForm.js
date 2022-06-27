@@ -2250,6 +2250,9 @@ export class GroupedFormScreen extends Component<
                 ? this.copyToFinal
                 : undefined
             }
+            onCopyFromFinal={
+              groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+            }
             onCopy={
               groupDefinition.canBeCopied === true ? this.props.copyData : undefined
             }
@@ -2333,6 +2336,9 @@ export class GroupedFormScreen extends Component<
           onCopyToFinalRx={
             groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
           }
+          onCopyFromFinal={
+            groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+          }
           onCopy={
             groupDefinition.canBeCopied === true ? this.props.copyData : undefined
           }
@@ -2368,6 +2374,9 @@ export class GroupedFormScreen extends Component<
           hasVA={groupDefinition.hasVA}
           onCopyToFinalRx={
             groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
+          }
+          onCopyFromFinal={
+            groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
           }
           onCopy={
             groupDefinition.canBeCopied === true ? this.props.copyData : undefined

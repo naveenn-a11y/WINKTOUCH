@@ -918,6 +918,7 @@ export class GlassesDetail extends Component {
     editable?: boolean,
     onCopy?: (glassesRx: GlassesRx) => void,
     onCopyToFinalRx?: (glassesRx: GlassesRx) => void,
+    onCopyFromFinal?: (glassesRx: GlassesRx) => void,
     onPaste?: (fieldDefinition: FieldDefinition) => void,
     hasVA?: boolean,
     hasAdd?: boolean,
@@ -1799,6 +1800,13 @@ export class GlassesDetail extends Component {
           {this.props.onCopy && !this.props.onPaste && (
             <TouchableOpacity
               onPress={() => this.props.onCopy(this.props.glassesRx)}
+            >
+              <Copy style={styles.groupIcon} />
+            </TouchableOpacity>
+          )}
+          {this.props.editable && this.props.onCopyFromFinal && (
+            <TouchableOpacity
+              onPress={() => this.props.onCopyFromFinal(this.props.glassesRx)}
             >
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>
