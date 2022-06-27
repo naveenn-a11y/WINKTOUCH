@@ -29,7 +29,7 @@
   "fields": [
     {
       "hasVA": true,
-      "canBeCopied": true,
+      "copyToFinalRx": true,
       "hasAdd": true,
       "name": "Subjective over refraction",
       "type": "SRx"
