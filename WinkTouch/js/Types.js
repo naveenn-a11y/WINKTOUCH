@@ -565,3 +565,14 @@ export type ExamRoom = {
   examRoomId: string,
   name: string,
 };
+
+export type VisitSummary = {
+  visitId: string,
+  refraction: ?GlassesRx,
+  summary: ?Exam[],
+  billing: ?Exam[],
+  medications: ?Prescription[],
+  fieldDefinitions: ?FieldDefinition[],
+  noaccess: ?boolean,
+  visit: ?Visit,
+};

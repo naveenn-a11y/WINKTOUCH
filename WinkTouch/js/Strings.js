@@ -338,6 +338,8 @@ export const strings = new LocalizedStrings({
     time: 'Time',
     createAvailability: 'Create Availability',
     markAsUnavailable: 'Mark as unavailable',
+    providerTitle: 'Provider',
+    loadMoreSummariesTitle: 'Load more summaries...',
   },
   fr: {
     enterRegisteredEmail:
@@ -675,6 +677,8 @@ export const strings = new LocalizedStrings({
     time: 'Temps',
     createAvailability: 'Créer une disponibilité',
     markAsUnavailable: 'Marquer comme indisponible',
+    providerTitle: 'Pourvoyeur',
+    loadMoreSummariesTitle: 'Charger plus de résumés...',
   },
 });
 
