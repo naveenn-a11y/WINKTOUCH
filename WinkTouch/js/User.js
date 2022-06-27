@@ -35,6 +35,7 @@ export async function fetchUser(userId: string): Promise<User> {
 export async function searchUsers(
   searchText: string,
   external: boolean,
+  store?: string,
 ): Promise<User[]> {
   if (!searchText || searchText.trim().length === 0) {
     searchText = undefined;
@@ -42,6 +43,7 @@ export async function searchUsers(
   const searchCriteria = {
     searchData: searchText,
     external: external,
+    store: store,
   };
   let restResponse = await searchItems('User/list', searchCriteria);
   let users: User[] = restResponse.doctors;

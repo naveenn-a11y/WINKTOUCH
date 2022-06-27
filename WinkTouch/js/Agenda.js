@@ -45,6 +45,7 @@ import {
   farDateFormat2,
   isEmpty,
   yearDateFormat,
+  deepClone,
 } from './Util';
 import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
@@ -158,18 +159,24 @@ export class AgendaScreen extends Component {
   };
 
   async getDoctors() {
-    let users: User[] = await searchUsers('', false);
+    let users: User[] = await searchUsers('', false, getStore().id);
     cacheItemsById(users);
-    const doctors = users.map((u) => ({
-      label: `${u.firstName} ${u.lastName}`,
-      value: u.id,
-    }));
+    const doctors = users.map((u) => this.convertUserToJson(u));
     this.setState({doctors});
+    this.fetchUsersFromAppointments();
+  }
+
+  convertUserToJson(user: User): any {
+    const userJson: any = {
+      label: `${user.firstName} ${user.lastName}`,
+      value: user.id,
+    };
+    return userJson;
   }
   getSelectedDoctorsFromStorage = async () => {
     const doctors = await AsyncStorage.getItem('selectedDoctors');
     if (doctors) {
-      const selectedDoctors = JSON.parse(doctors);
+      let selectedDoctors = JSON.parse(doctors);
       this.setState(
         {
           selectedDoctors,
@@ -227,6 +234,38 @@ export class AgendaScreen extends Component {
     } catch (e) {
       this.setState({isLoading: false});
     }
+  }
+
+  async fetchUsersFromAppointments() {
+    const fromDate =
+      this.state.mode === 'custom'
+        ? dayjs(this.state.date).startOf('week')
+        : dayjs(this.state.date);
+    let doctors: any = deepClone(this.state.doctors);
+    let appointments = await fetchAppointments(
+      'store-' + getStore().storeId,
+      undefined,
+      this.daysInWeek,
+      undefined,
+      fromDate.format(jsonDateFormat),
+      false,
+      true,
+    );
+    appointments.map((app: Appointment) => {
+      const doc: any = doctors.find((doc) => doc.value === app.userId);
+      if (doc === undefined || doc === null) {
+        const userJson: any = this.convertUserToJson(getCachedItem(app.userId));
+        doctors.push(userJson);
+      }
+    });
+    const selectedDoctors = this.state.selectedDoctors.filter(
+      (value: string) => {
+        const doc: any = doctors.find((doc) => doc.value === value);
+        return doc !== undefined;
+      },
+    );
+    AsyncStorage.setItem('selectedDoctors', JSON.stringify(selectedDoctors));
+    this.setState({doctors, selectedDoctors});
   }
 
   isNewEvent(event: Appointment): boolean {
@@ -287,6 +326,7 @@ export class AgendaScreen extends Component {
             false,
             this.state.mode === 'day' ? 1 : this.daysInWeek,
           );
+          this.fetchUsersFromAppointments();
         },
       );
     }
@@ -304,6 +344,7 @@ export class AgendaScreen extends Component {
           false,
           this.state.mode === 'day' ? 1 : this.daysInWeek,
         );
+        this.fetchUsersFromAppointments();
       },
     );
   };
@@ -1315,6 +1356,7 @@ class NativeCalendar extends Component {
     return (
       nextProps.mode !== this.props.mode ||
       nextProps.date !== this.props.date ||
+      nextProps.selectedDoctors !== this.props.selectedDoctors ||
       nextProps.appointments !== this.props.appointments ||
       nextProps.calendarWidth !== this.props.calendarWidth
     );
