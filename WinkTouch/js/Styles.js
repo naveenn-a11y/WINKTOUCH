@@ -1464,6 +1464,11 @@ export const styles = StyleSheet.create({
     marginTop: 1 * fontScale,
     minWidth: 150 * fontScale,
   },
+  textWrap: {
+    fontSize: 17 * fontScale,
+    flexWrap: 'wrap',
+    flexShrink: 1,
+  },
 });
 
 function cardStyle(color: Color) {

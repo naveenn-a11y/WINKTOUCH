@@ -317,7 +317,7 @@ const pageSize: number = 2;
   
           <View style={styles.summaryGroupContainer}>
             <Text style={styles.summarySubTitle}>{strings.medicationRxTitle}:</Text>
-            <View>
+            <View style={styles.textWrap}>
               {visitSummary.medications && 
               visitSummary.fieldDefinitions &&
               visitSummary.medications.map((medicationItem: ?Prescription, index) => (
@@ -337,7 +337,7 @@ const pageSize: number = 2;
   
           <View style={styles.summaryGroupContainer}>
             <Text style={styles.summarySubTitle}>{strings.billing}:</Text>
-            <View>
+            <View style={styles.textWrap}>
               {visitSummary.billing &&
               visitSummary.billing.map((eachBill: Exam, _index: number) => (<Text style={styles.text}>
                 {formatDate(
@@ -354,7 +354,7 @@ const pageSize: number = 2;
   
           <View style={styles.summaryGroupContainer}>
             <Text style={styles.summarySubTitle}>{strings.summaryTitle}:</Text>
-            <View>
+            <View style={styles.textWrap}>
               {visitSummary.summary &&
               visitSummary.summary.map((eachSummary: Exam, _index: number) => (<View
                 style={
