@@ -138,7 +138,11 @@ export class LockScreen extends Component {
             }}>
             <KeyboardAvoidingView
               behavior="position"
-              style={{flex: 1, justifyContent: 'center', flexWrap: 'wrap'}}>
+              style={
+                isWeb
+                  ? {flex: 1, justifyContent: 'center', flexWrap: 'wrap'}
+                  : {}
+              }>
               <View
                 style={{
                   backgroundColor: '#eee',
