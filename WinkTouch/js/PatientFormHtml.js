@@ -121,6 +121,7 @@ export function printPatientHeader(visit: Visit) {
       patient.medicalCardExp,
       'EXP:',
     )}</div>` +
+    `        <div><span>${strings.familyDoctor}</span>${patient.familyDoctor ?  patient.familyDoctor.firstName.trim()+" "+patient.familyDoctor.lastName.trim() : "" }</div>` +
     `        <div><span>${strings.examDate}</span>${formatDate(
       visit.date,
       officialDateFormat,
@@ -1511,7 +1512,7 @@ export function patientHeader(referral: boolean) {
     '#client span {' +
     '  color: #5D6975;' +
     '  text-align: right;' +
-    '  width: 52px;' +
+    '  width: 78px;' +
     '  margin-right: 18px;' +
     '  display: inline-block;' +
     '  font-size: 0.8em;' +

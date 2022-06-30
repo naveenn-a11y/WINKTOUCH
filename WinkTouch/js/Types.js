@@ -131,6 +131,8 @@ export type PatientInfo = {
   unit: string,
   patientTags: string[],
   patientDrugs: string[], //TODO wais rename patientDrugIds
+  familyDoctorId: ?number,
+  familyDoctor: ?User,
 };
 
 export type PatientDrug = {
