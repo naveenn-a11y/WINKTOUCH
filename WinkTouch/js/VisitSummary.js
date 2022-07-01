@@ -339,7 +339,7 @@ const pageSize: number = 2;
             <Text style={styles.summarySubTitle}>{strings.billing}:</Text>
             <View style={styles.textWrap}>
               {visitSummary.billing &&
-              visitSummary.billing.map((eachBill: Exam, _index: number) => (<Text style={styles.text}>
+              visitSummary.billing.map((eachBill: Exam, _index: number) => (<View><Text style={styles.text}>
                 {formatDate(
                   getCachedItem(eachBill.visitId).date,
                   isToyear(getCachedItem(eachBill.visitId).date)
@@ -347,7 +347,7 @@ const pageSize: number = 2;
                     : farDateFormat,
                 )}
                 : {eachBill.description} {eachBill.icdDescription}
-              </Text>))
+              </Text></View>))
               }
             </View>
           </View>
