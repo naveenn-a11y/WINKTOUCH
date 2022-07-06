@@ -101,6 +101,54 @@ export async function printClRx(visitId: string) {
   }
 }
 
+export async function emailRx(
+  visitId: string,
+  printFinalRx: boolean,
+  printPDs: boolean,
+  printNotesOnRx: boolean,
+  drRecommendationArray: string[],
+) {
+  try {
+    const filename: string = 'Rx.pdf';
+    const response = await createPdf(
+      'webresources/reports/email',
+      filename,
+      {type: 'eye-exam'},
+      'post',
+      {
+        visitId: visitId,
+        rxRecommendations: drRecommendationArray,
+        printFinalRx: printFinalRx,
+        printPDs: printPDs,
+        printNotesOnRx: printNotesOnRx,
+      },
+    );
+    
+    console.log("Response: ", response)
+  } catch (error) {
+    alert(strings.serverError); //TODO rxError
+  }
+}
+
+export async function emailClRx(visitId: string) {
+  try {
+    const filename: string = 'Rx.pdf';
+    const path = await createPdf(
+      'webresources/reports/email',
+      filename,
+      {type: 'clRx'},
+      'post',
+      {
+        visitId: visitId,
+        showTrialDetails: false,
+      },
+    );
+    
+  } catch (error) {
+    alert(strings.serverError); //TODO clrxError
+  }
+}
+
 async function listLocalFiles(): string[] {
   const fileNames: string[] = await RNFS.readdir(RNFS.DocumentDirectoryPath);
   __DEV__ && fileNames.forEach((fileName) => console.log(fileName));

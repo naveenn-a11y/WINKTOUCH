@@ -86,7 +86,7 @@ import {
   getPrivileges,
 } from './Rest';
 import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
-import {printRx, printClRx, printMedicalRx} from './Print';
+import {printRx, printClRx, printMedicalRx, emailRx, emailClRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
 import {PatientMedicationCard} from './Medication';
@@ -886,6 +886,9 @@ class VisitWorkFlow extends Component {
     printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
     printing: boolean,
+    showClRxPopup: boolean,
+    isPrintingRx: boolean,
+    isPrintingCLRx: boolean
   };
 
   constructor(props: any) {
@@ -905,6 +908,9 @@ class VisitWorkFlow extends Component {
       showRxPopup: false,
       showMedicationRxPopup: false,
       printing: false,
+      showClRxPopup: false,
+      isPrintingRx: false,
+      isPrintingCLRx: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1490,7 +1496,8 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
 
-  confirmPrintRxDialog = (data: any) => {
+  confirmPrintRxDialog = async (data: any, shouldSendEmail?: boolean = false) => {
+    this.setState({isPrintingRx: true});
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
     let printNotesOnRx: boolean = false;
@@ -1508,14 +1515,26 @@ class VisitWorkFlow extends Component {
         drRecommendationArray.push(importData.entityId);
       }
     });
-    printRx(
-      this.props.visitId,
-      printFinalRx,
-      printPDs,
-      printNotesOnRx,
-      drRecommendationArray,
-    );
+
     this.hidePrintRxPopup();
+    if (shouldSendEmail) {
+      await emailRx(
+        this.props.visitId,
+        printFinalRx,
+        printPDs,
+        printNotesOnRx,
+        drRecommendationArray,
+      );
+    } else {
+      await printRx(
+        this.props.visitId,
+        printFinalRx,
+        printPDs,
+        printNotesOnRx,
+        drRecommendationArray,
+      );
+    }
+    this.setState({isPrintingRx: false});
   };
 
   renderPrintRxPopup() {
@@ -1551,6 +1570,8 @@ class VisitWorkFlow extends Component {
         confirmActionLabel={strings.printRx}
         cancelActionLabel={strings.cancel}
         multiValue={true}
+        emailActionLabel={strings.emailRx}
+        onEmailAction={() => this.confirmPrintRxDialog(printRxOptions, true)}
       />
     );
   }
@@ -1613,6 +1634,49 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  showCLRxPopup(): void {
+    this.setState({showClRxPopup: true});
+  }
+
+  hidePrintCLRxPopup = (): void => {
+    this.setState({showClRxPopup: false});
+  };
+
+  confirmPrintClRxDialog = async() : void => {
+    this.setState({isPrintingCLRx: true});
+    this.hidePrintCLRxPopup();
+    await printClRx(this.props.visitId);
+    this.setState({isPrintingCLRx: false});
+  }
+
+  confirmEmailClRxDialog = async() : void => {
+    this.setState({isPrintingCLRx: true});
+    this.hidePrintCLRxPopup();
+    await emailClRx(this.props.visitId);
+    this.setState({isPrintingCLRx: false});
+  }
+
+  renderPrintCLRxPopup() {
+    const printCLRxOptions: any = [];
+
+    return (
+      <Alert
+        title={strings.printClRx}
+        data={printCLRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintClRxDialog()}
+        onCancelAction={() => this.hidePrintCLRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printClRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={false}
+        emailActionLabel={strings.emailClRx}
+        onEmailAction={() => this.confirmEmailClRxDialog()}
+        isActionVertical={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
@@ -1627,6 +1691,7 @@ class VisitWorkFlow extends Component {
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
         {this.state.showRxPopup && this.renderPrintRxPopup()}
+        {this.state.showClRxPopup && this.renderPrintCLRxPopup()}
         {this.state.showMedicationRxPopup &&
           this.renderPrintMedicationRxPopup()}
         <View style={styles.flow}>
@@ -1643,6 +1708,8 @@ class VisitWorkFlow extends Component {
               onPress={() => {
                 this.showRxPopup();
               }}
+              loading={this.state.isPrintingRx}
+              disabled={this.state.isPrintingRx}
             />
           )}
           {hasMedicalDataReadAccess && this.hasMedicalRx() && (
@@ -1657,8 +1724,10 @@ class VisitWorkFlow extends Component {
             <Button
               title={strings.printClRx}
               onPress={() => {
-                printClRx(this.props.visitId);
+                this.showCLRxPopup();
               }}
+              loading={this.state.isPrintingCLRx}
+              disabled={this.state.isPrintingCLRx}
             />
           )}
           {this.canTransfer() && (
