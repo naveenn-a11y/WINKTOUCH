@@ -54,11 +54,80 @@ import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
-import type {Patient, PatientInfo, Visit} from './Types';
+import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
 import {Button} from './Widgets';
 import {AvailabilityModal} from './agendas';
+import {getAllCodes} from './Codes';
+
+const WEEKDAYS = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+function isStoreOpen(
+  date: Date,
+  minInclusive?: boolean,
+  hourRowIndex?: number,
+): boolean {
+  const storeHours: CodeDefinition[] = getAllCodes('storeHours');
+  if (
+    storeHours === null ||
+    storeHours === undefined ||
+    storeHours.length === 0
+  ) {
+    return true;
+  }
+
+  const workDay: CodeDefinition = storeHours.find(
+    (element: CodeDefinition) => element.code === date.getDay(),
+  );
+  if (!workDay.isOpen) {
+    return false;
+  }
+  const strHourOpen: string = workDay.open.substr(0, workDay.open.indexOf(':'));
+  const strHourClose: string = workDay.close.substr(
+    0,
+    workDay.close.indexOf(':'),
+  );
+
+  const openHour: number = parseInt(strHourOpen);
+  const openMin: number = parseInt(workDay.open.substr(strHourOpen.length + 1));
+  const closeHour: number = parseInt(strHourClose);
+  const closeMin: number = parseInt(
+    workDay.close.substr(strHourClose.length + 1),
+  );
+
+  const dateTimeOpen: Date = new Date(date);
+  const dateTimeClose: Date = new Date(date);
+
+  const storeOpenTime: number = dateTimeOpen.setHours(
+    openHour,
+    minInclusive ? openMin : 0,
+    0,
+  );
+  const storeCloseTime: number = dateTimeClose.setHours(
+    closeHour,
+    minInclusive ? closeMin : 0,
+    0,
+  );
+
+  if (date.getTime() < storeOpenTime || date.getTime() > storeCloseTime) {
+    return false;
+  }
+
+  if (hourRowIndex < openHour || hourRowIndex >= closeHour) {
+    return false;
+  }
+
+  return true;
+}
 
 export class AgendaScreen extends Component {
   props: {
@@ -272,16 +341,23 @@ export class AgendaScreen extends Component {
     return isEmpty(event.patientId) && !event.isBusy;
   }
 
-  _onCellPress = (date: date) => {
+  _onCellPress = (date: Date) => {
     const oneHour = 60 * 60 * 1000;
     const time = new Date(date).getTime();
     const store = getStore().id;
+    if (!isStoreOpen(date, false)) {
+      alert(strings.closedStoreTimeSlotErrorMessage);
+      return;
+    }
+
     const event = {
       storeId: store,
       start: new Date(moment(time).set({second: 0, millisecond: 0})),
       end: new Date(moment(time + oneHour).set({second: 0, millisecond: 0})),
       emptySlot: true,
     };
+    // Check if its within store open Hours
+
     this.setState({event: event});
     this.openManageAvailabilities();
   };
@@ -603,6 +679,11 @@ export class AgendaScreen extends Component {
     const start = moment(event.start).toISOString(true);
     const end = moment(event.end).toISOString(true);
     const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
+    if (!isStoreOpen(event.start, true)) {
+      this.setState({isLoading: false});
+      alert(strings.closedStoreTimeSlotErrorMessage);
+      return;
+    }
     const {errors, appointment}: Appointment = await manageAvailability(
       event?.userId,
       event.slotType == 1 ? 0 : 3,
@@ -1392,6 +1473,25 @@ class NativeCalendar extends Component {
           showAllDayEventCell={false}
           onPressCell={(event) => this.props._onCellPress(event)}
           onPressEvent={(event) => this.props._onSetEvent(event)}
+          calendarCellStyle={(date, hourRowIndex) => {
+            let cellStyles = {
+              backgroundColor: 'white',
+              color: 'white',
+            };
+
+            if (!isStoreOpen(date, true, hourRowIndex)) {
+              cellStyles = {
+                ...cellStyles,
+                backgroundColor: '#f5f5f5',
+              };
+            } else {
+              cellStyles = {
+                ...cellStyles,
+              };
+            }
+
+            return cellStyles;
+          }}
           renderEvent={(
             event: ICalendarEvent<T>,
             touchableOpacityProps: CalendarTouchableOpacityProps,

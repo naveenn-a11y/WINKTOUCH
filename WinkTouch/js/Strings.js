@@ -340,6 +340,8 @@ export const strings = new LocalizedStrings({
     markAsUnavailable: 'Mark as unavailable',
     familyDoctor: 'Family Doctor',
     createUser: 'Create User',
+    closedStoreTimeSlotErrorMessage:
+      'The time slot you selected is outside store opening hours. You cannot create an availability !',
   },
   fr: {
     enterRegisteredEmail:
@@ -679,6 +681,8 @@ export const strings = new LocalizedStrings({
     markAsUnavailable: 'Marquer comme indisponible',
     familyDoctor: 'Médecin de famille',
     createUser: 'Créer un utilisateur',
+    closedStoreTimeSlotErrorMessage:
+      'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
   },
 });
 
