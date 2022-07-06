@@ -88,6 +88,7 @@ function isStoreOpen(
   const workDay: CodeDefinition = storeHours.find(
     (element: CodeDefinition) => element.code === date.getDay(),
   );
+
   if (!workDay.isOpen) {
     return false;
   }
@@ -117,12 +118,13 @@ function isStoreOpen(
     minInclusive ? closeMin : 0,
     0,
   );
-
-  if (date.getTime() < storeOpenTime || date.getTime() > storeCloseTime) {
-    return false;
+  if (hourRowIndex >= 0) {
+    if (hourRowIndex < openHour || hourRowIndex >= closeHour) {
+      return false;
+    }
+    return true;
   }
-
-  if (hourRowIndex < openHour || hourRowIndex >= closeHour) {
+  if (date.getTime() < storeOpenTime || date.getTime() >= storeCloseTime) {
     return false;
   }
 
