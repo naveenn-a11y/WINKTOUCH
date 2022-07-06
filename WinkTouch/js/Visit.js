@@ -107,6 +107,7 @@ import {formatCode, formatOptions} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import {BillingCard} from './Visit/Partials';
 import {getExamRoom, getExamRoomCode, updateExamRoom} from './Room';
+import {VisitSummaryTable} from './VisitSummary';
 
 export const examSections: string[] = [
   'Amendments',
@@ -2306,14 +2307,8 @@ export class VisitHistory extends Component {
   renderSummary() {
     return (
       <View>
-        <View style={styles.flow}>
-          <PatientRefractionCard patientInfo={this.props.patientInfo} />
-          <PatientMedicationCard
-            patientInfo={this.props.patientInfo}
-            editable={false}
-          />
-          <BillingCard patientInfo={this.props.patientInfo} />
-          <VisitHistoryCard patientInfo={this.props.patientInfo} />
+        <View >
+          <VisitSummaryTable patientInfo={this.props.patientInfo} />
         </View>
         {this.shouldRenderActionButons() && this.renderActionButtons()}
       </View>

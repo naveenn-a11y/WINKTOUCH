@@ -1450,6 +1450,25 @@ export const styles = StyleSheet.create({
     minWidth: 225 * fontScale,
     textAlign: 'justify',
   },
+  paddingLeft40: {
+    paddingLeft: 40 * fontScale,
+  },
+  summaryGroupContainer: { 
+    flexDirection: 'row',
+    marginBottom: 10 * fontScale, 
+  },
+  summarySubTitle: {
+    fontSize: 17 * fontScale,
+    fontWeight: '500',
+    alignItems: 'center',
+    marginTop: 1 * fontScale,
+    minWidth: 150 * fontScale,
+  },
+  textWrap: {
+    fontSize: 17 * fontScale,
+    flexWrap: 'wrap',
+    flexShrink: 1,
+  },
 });
 
 function cardStyle(color: Color) {
