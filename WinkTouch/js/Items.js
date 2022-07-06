@@ -442,7 +442,7 @@ type ItemSummaryProps = {
   showLabels?: boolean,
   titleFields?: string[],
 };
-class ItemSummary extends Component<ItemSummaryProps> {
+export class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;

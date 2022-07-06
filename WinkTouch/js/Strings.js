@@ -342,6 +342,8 @@ export const strings = new LocalizedStrings({
     createUser: 'Create User',
     closedStoreTimeSlotErrorMessage:
       'The time slot you selected is outside store opening hours. You cannot create an availability !',
+    providerTitle: 'Provider',
+    loadMoreSummariesTitle: 'Load more summaries...',
   },
   fr: {
     enterRegisteredEmail:
@@ -683,6 +685,8 @@ export const strings = new LocalizedStrings({
     createUser: 'Créer un utilisateur',
     closedStoreTimeSlotErrorMessage:
       'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
+    providerTitle: 'Pourvoyeur',
+    loadMoreSummariesTitle: 'Charger plus de résumés...',
   },
 });
 
