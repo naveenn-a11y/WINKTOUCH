@@ -93,7 +93,9 @@ export function printPatientHeader(visit: Visit) {
     `        <div>${store.email}</div>` +
     '      </div>' +
     '      <div id="client">' +
-    `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
+    `        <div><span>${strings.doctor}</span>${
+      doctor ? doctor.firstName + ' ' + doctor.lastName : ''
+    }</div>` +
     `        <div><span>${strings.patient}</span>${getPatientFullName(
       patient,
     )}</div>` +
@@ -121,7 +123,13 @@ export function printPatientHeader(visit: Visit) {
       patient.medicalCardExp,
       'EXP:',
     )}</div>` +
-    `        <div><span>${strings.familyDoctor}</span>${patient.familyDoctor ?  patient.familyDoctor.firstName.trim()+" "+patient.familyDoctor.lastName.trim() : "" }</div>` +
+    `        <div><span>${strings.familyDoctor}</span>${
+      patient.familyDoctor
+        ? patient.familyDoctor.firstName.trim() +
+          ' ' +
+          patient.familyDoctor.lastName.trim()
+        : ''
+    }</div>` +
     `        <div><span>${strings.examDate}</span>${formatDate(
       visit.date,
       officialDateFormat,

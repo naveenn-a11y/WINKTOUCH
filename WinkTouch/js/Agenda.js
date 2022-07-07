@@ -84,7 +84,6 @@ function isStoreOpen(
   ) {
     return true;
   }
-
   const workDay: CodeDefinition = storeHours.find(
     (element: CodeDefinition) => element.code === date.getDay(),
   );
@@ -681,7 +680,7 @@ export class AgendaScreen extends Component {
     const start = moment(event.start).toISOString(true);
     const end = moment(event.end).toISOString(true);
     const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
-    if (!isStoreOpen(event.start, true)) {
+    if (!isStoreOpen(new Date(event.start), true)) {
       this.setState({isLoading: false});
       alert(strings.closedStoreTimeSlotErrorMessage);
       return;
