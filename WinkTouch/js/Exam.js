@@ -45,12 +45,7 @@ import {
 } from './GroupedForm';
 import {PaperFormScreen} from './PaperForm';
 import {fetchItemById, storeItem, searchItems} from './Rest';
-import {
-  cacheItemById,
-  getCachedItem,
-  cacheItem,
-  getCachedItems,
-} from './DataCache';
+import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {
   deepClone,
   formatMoment,
@@ -105,6 +100,10 @@ export async function storeExam(
   refreshStateKey: ?string,
   navigation: ?any,
 ): Exam {
+  exam.hasStarted = true;
+  if (isEmpty(exam[exam.definition.name])) {
+    exam.hasStarted = false;
+  }
   exam = deepClone(exam);
   exam = await storeItem(exam);
   if (exam.errors) {
@@ -494,6 +493,9 @@ export class ExamCard extends Component {
 
   getStyle(): any {
     let style: string = this.props.style;
+    const isEmptyExam: boolean = isEmpty(
+      this.props.exam[this.props.exam.definition.name],
+    );
     if (style) {
       return style;
     }
@@ -502,7 +504,7 @@ export class ExamCard extends Component {
         ? styles.page
         : this.props.exam.isInvalid
         ? styles.unverifiedExamCard
-        : this.props.exam.hasStarted
+        : this.props.exam.hasStarted && !isEmptyExam
         ? styles.finishedExamCard
         : styles.todoExamCard;
     return style;
@@ -622,6 +624,21 @@ export class ExamHistoryScreen extends Component {
     this.props.navigation.goBack();
   };
 
+  copyFinalRx = (glassesRx: GlassesRx): void => {
+    const examStateKey =
+      this.props.navigation &&
+      this.props.navigation.state &&
+      this.props.navigation.state.params
+        ? this.props.navigation.state.params.stateKey
+        : undefined;
+    const setParamsAction = NavigationActions.setParams({
+      params: {copiedData: glassesRx},
+      key: examStateKey,
+    });
+    this.props.navigation.dispatch(setParamsAction);
+    this.props.navigation.goBack();
+  };
+
   renderGroup(groupDefinition: GroupDefinition, value: any, index: number) {
     if (groupDefinition.mappedField) {
       groupDefinition = Object.assign(
@@ -636,7 +653,6 @@ export class ExamHistoryScreen extends Component {
           definition={groupDefinition}
           editable={this.props.editable}
           value={value}
-          editable={false}
         />
       );
     }
@@ -660,6 +676,11 @@ export class ExamHistoryScreen extends Component {
                 hasVA={groupDefinition.hasVA}
                 hasAdd={groupDefinition.hasAdd}
                 examId={exam.id}
+                onCopy={
+                  groupDefinition.name == 'Final Rx'
+                    ? this.copyFinalRx
+                    : undefined
+                }
               />
             );
           } else {
@@ -698,6 +719,9 @@ export class ExamHistoryScreen extends Component {
           hasVA={groupDefinition.hasVA}
           hasAdd={groupDefinition.hasAdd}
           examId={exam.id}
+          onCopy={
+            groupDefinition.name === 'Final Rx' ? this.copyFinalRx : undefined
+          }
         />
       );
     }
@@ -824,6 +848,7 @@ export class ExamScreen extends Component {
     showExportDataPopup: boolean,
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
+    copiedData?: GlassesRx,
   };
 
   constructor(props: any) {
@@ -849,6 +874,7 @@ export class ExamScreen extends Component {
       showExportDataPopup: false,
       showSnackBar: false,
       snackBarMessage: '',
+      copiedData: null,
     };
   }
 
@@ -862,6 +888,19 @@ export class ExamScreen extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
+    let copiedData =
+      this.props.navigation &&
+      this.props.navigation.state &&
+      this.props.navigation.state.params &&
+      this.props.navigation.state.params.copiedData
+        ? this.props.navigation.state.params.copiedData
+        : undefined;
+
+    if (copiedData && this.state.copiedData !== copiedData) {
+      this.copyData(copiedData);
+      this.props.navigation.setParams({copiedData: undefined});
+    }
+
     let exam: Exam =
       this.props.navigation &&
       this.props.navigation.state &&
@@ -892,6 +931,7 @@ export class ExamScreen extends Component {
   }
 
   componentWillUnmount() {
+    this.deleteCopiedData();
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
     if (this.state.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
@@ -912,6 +952,7 @@ export class ExamScreen extends Component {
       return;
     }
     this.setState({exam, isDirty: false});
+    this.deleteCopiedData();
   }
 
   async storePreviousExam(exam: Exam) {
@@ -930,7 +971,6 @@ export class ExamScreen extends Component {
   }
 
   async storeExam(exam: Exam) {
-    exam.hasStarted = true;
     exam.isInvalid = false;
     exam = await storeExam(
       exam,
@@ -1000,6 +1040,13 @@ export class ExamScreen extends Component {
   setSnackBarMessage(message: string) {
     this.setState({snackBarMessage: message});
   }
+
+  showSnackBarMessage = (message: string): void => {
+    if (!this.state.showSnackBar) {
+      this.setState({snackBarMessage: message});
+      this.setState({showSnackBar: true});
+    }
+  };
 
   async confirmExportData(items: any) {
     let data: any = {};
@@ -1085,7 +1132,7 @@ export class ExamScreen extends Component {
     }
     if (lensometry !== undefined && lensometry.length > 0) {
       lensometry.map((prescription: GlassesRx, index: number) => {
-        if (!isEmpty(prescription.lensType))
+        if (!isEmpty(prescription.lensType)) {
           exportRxOptions.push({
             label: strings.lensometry + ': ' + prescription.lensType,
             isChecked: index === 0,
@@ -1094,7 +1141,7 @@ export class ExamScreen extends Component {
             divider: index === lensometry.length - 1,
             singleSelection: true,
           });
-        else
+        } else {
           exportRxOptions.push({
             label: strings.lensometry + ' ' + (index + 1),
             isChecked: index === 0,
@@ -1103,6 +1150,7 @@ export class ExamScreen extends Component {
             divider: index === lensometry.length - 1,
             singleSelection: true,
           });
+        }
       });
     }
     if (keratometry !== undefined) {
@@ -1151,6 +1199,16 @@ export class ExamScreen extends Component {
     }
   };
 
+  deleteCopiedData = (): void => {
+    this.setState({copiedData: null}); //refresh copied data
+  };
+
+  copyData = (glassesRx: GlassesRx): void => {
+    let clonedGlassesRx = deepClone(glassesRx);
+    this.setState({copiedData: clonedGlassesRx});
+    this.showSnackBarMessage(strings.copyMessage);
+  };
+
   renderExam() {
     if (!this.state.exam) {
       return null;
@@ -1187,6 +1245,9 @@ export class ExamScreen extends Component {
             }
             enableScroll={this.enableScroll}
             disableScroll={this.disableScroll}
+            copiedData={this.state.copiedData}
+            copyData={this.copyData}
+            deleteCopiedData={this.deleteCopiedData}
           />
         );
       case 'paperForm':
@@ -1290,8 +1351,9 @@ export class ExamScreen extends Component {
       this.state.exam.definition.export === null ||
       this.state.exam.definition.export.length === 0 ||
       getConfiguration().machine.phoropter === undefined
-    )
+    ) {
       return null;
+    }
     return (
       <View style={styles.flow}>
         <TouchableOpacity
@@ -1323,13 +1385,14 @@ export class ExamScreen extends Component {
   }
 
   renderSnackBar() {
-    if (this.state.showSnackBar)
+    if (this.state.showSnackBar) {
       return (
         <NativeBar
           message={this.state.snackBarMessage}
           onDismissAction={() => this.hideSnackBar()}
         />
       );
+    }
     return null;
   }
 
@@ -1367,22 +1430,24 @@ export class ExamScreen extends Component {
       this.state.exam.definition.type === 'groupedForm'
     ) {
       return (
-        <KeyboardAwareScrollView
-          style={styles.page}
-          minimumZoomScale={1.0}
-          maximumZoomScale={2.0}
-          bounces={false}
-          bouncesZoom={false}
-          scrollEnabled={
-            this.props.disableScroll === undefined && this.state.scrollable
-          }
-          pinchGestureEnabled={this.state.scrollable}>
-          <ErrorCard errors={this.state.exam.errors} />
-          {this.renderExamIcons(styles.examIconsFlex)}
+        <View style={styles.scrollviewContainer}>
           {this.renderSnackBar()}
-          {this.renderRelatedExams()}
-          {this.renderExam()}
-        </KeyboardAwareScrollView>
+          <KeyboardAwareScrollView
+            contentContainerStyle={styles.scrollviewFixed}
+            minimumZoomScale={1.0}
+            maximumZoomScale={2.0}
+            bounces={false}
+            bouncesZoom={false}
+            scrollEnabled={
+              this.props.disableScroll === undefined && this.state.scrollable
+            }
+            pinchGestureEnabled={this.state.scrollable}>
+            <ErrorCard errors={this.state.exam.errors} />
+            {this.renderExamIcons(styles.examIconsFlex)}
+            {this.renderRelatedExams()}
+            {this.renderExam()}
+          </KeyboardAwareScrollView>
+        </View>
       );
     }
     if (this.props.disableScroll) {
