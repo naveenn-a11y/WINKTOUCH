@@ -205,6 +205,8 @@ export function formatFieldValue(
     //Checkbox with booleans
     if (value === true) {
       value = label;
+    } else if (value === false) {
+      value = '';
     }
   }
   if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
