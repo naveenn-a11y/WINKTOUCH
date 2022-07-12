@@ -207,6 +207,8 @@ export function formatFieldValue(
       value = label;
     } else if (value === false) {
       value = '';
+    } else if (value === fieldDefinition.defaultValue) {
+      value = '';
     }
   }
   if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
