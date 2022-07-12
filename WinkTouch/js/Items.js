@@ -463,6 +463,13 @@ export class ItemSummary extends Component<ItemSummaryProps> {
                 this.props.fieldDefinitions.find(
                   (fieldDefinition) => fieldDefinition.name === fieldName,
                 );
+              if (fieldDefinition === undefined || fieldDefinition === null) {
+                if (fieldDefinition.label) {
+                  fieldDefinition = this.props.fieldDefinitions.find(
+                    (fieldDefinition) => fieldDefinition.label === fieldName,
+                  );
+                }
+              }
               if (fieldDefinition) {
                 formattedValue +=
                   formatFieldValue(fieldValue, fieldDefinition) + ' ';
@@ -479,8 +486,14 @@ export class ItemSummary extends Component<ItemSummaryProps> {
       let isFirstField = true;
       for (let i: number = 0; i < this.props.fieldDefinitions.length; i++) {
         const fieldDefinition: FieldDefinition = this.props.fieldDefinitions[i];
-        const propertyName: string = fieldDefinition.name;
-        const value: ?string | ?number = this.props.item[propertyName];
+        let propertyName: string = fieldDefinition.name;
+        let value: ?string | ?number = this.props.item[propertyName];
+        if (value === undefined || value === null) {
+          if (fieldDefinition.label) {
+            propertyName = fieldDefinition.label;
+            value = this.props.item[propertyName];
+          }
+        }
         if (value !== undefined && value !== null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
@@ -1197,6 +1210,7 @@ export class ItemsEditor extends Component {
           let selection = this.state.selectedItem
             ? this.state.selectedItem[propertyName]
             : undefined;
+
           let options: CodeDefinition[] | string = fieldDefinition.options;
           if (options instanceof Array === false) {
             //We got ourselves some codes
