@@ -292,8 +292,10 @@ export async function manageAvailability(
   doctorId: ?string,
   action: ?number,
   duration: ?number,
-  startDateTime: string,
-  endDateTime: string,
+  startDateTime: number,
+  endDateTime: number,
+  startTime: string,
+  endTime: string,
   appointmentTypeId: ?(string[]),
 ): Promise<Appointment> {
   const searchCriteria = {
@@ -303,6 +305,8 @@ export async function manageAvailability(
     frequency: 0,
     startDateTime,
     endDateTime,
+    startTime,
+    endTime,
     appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
   };
   let url = getRestUrl() + 'Appointment/manageSlots?emrOnly=true';

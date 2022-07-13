@@ -350,7 +350,6 @@ export class AgendaScreen extends Component {
       alert(strings.closedStoreTimeSlotErrorMessage);
       return;
     }
-
     const event = {
       storeId: store,
       start: new Date(moment(time).set({second: 0, millisecond: 0})),
@@ -677,8 +676,13 @@ export class AgendaScreen extends Component {
 
   updateAvailability = async (event: Appointment) => {
     this.setState({isLoading: true});
+
     const start = moment(event.start).toISOString(true);
-    const end = moment(event.end).toISOString(true);
+
+    const startMill = moment(event.start).toDate().getTime();
+    const endMill = moment(event.end).toDate().getTime();
+    const startTime = moment(event?.start).format('h:mm a');
+    const endTime = moment(event?.end).format('h:mm a');
     const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
     if (!isStoreOpen(new Date(event.start), true)) {
       this.setState({isLoading: false});
@@ -689,8 +693,10 @@ export class AgendaScreen extends Component {
       event?.userId,
       event.slotType == 1 ? 0 : 3,
       duration,
-      start,
-      end,
+      startMill,
+      endMill,
+      startTime,
+      endTime,
       event.appointmentTypes,
     );
     if (errors) {
@@ -1277,7 +1283,7 @@ export class AgendaScreen extends Component {
           mode={this.state.mode}
           appointments={this.state.appointments}
           _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
-          _onCellPress={(event: Appointment) => this._onCellPress(event)}
+          _onCellPress={(event: Date) => this._onCellPress(event)}
         />
         {isLoading && this.renderLoading()}
       </View>
@@ -1430,7 +1436,7 @@ class NativeCalendar extends Component {
     calendarWidth: any,
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
-    _onCellPress: (event: Appointment) => void,
+    _onCellPress: (event: Date) => void,
   };
   numOfDays: Number = 7;
 
@@ -1438,7 +1444,6 @@ class NativeCalendar extends Component {
     return (
       nextProps.mode !== this.props.mode ||
       nextProps.date !== this.props.date ||
-      nextProps.selectedDoctors !== this.props.selectedDoctors ||
       nextProps.appointments !== this.props.appointments ||
       nextProps.calendarWidth !== this.props.calendarWidth
     );
