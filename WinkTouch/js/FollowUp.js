@@ -64,6 +64,23 @@ const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
   READONLY: 'READONLY',
 };
+
+function hasReferralFollowUpReadAccess(followUp: FollowUp): boolean {
+  if (!followUp) {
+    return false;
+  }
+  return (
+    followUp.referralPrivilege === PRIVILEGE.READONLY ||
+    followUp.referralPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+function hasReferralFollowUpFullAccess(followUp: FollowUp): boolean {
+  if (!followUp) {
+    return false;
+  }
+  return followUp.referralPrivilege === PRIVILEGE.FULLACCESS;
+}
 type FollowUpScreenProps = {
   navigation: any,
   patientInfo: PatientInfo,
@@ -825,11 +842,12 @@ export class FollowUpScreen extends Component<
   }
 
   renderButtons() {
-    const userReferralNoAccess: boolean =
-      getPrivileges().referralPrivilege === 'NOACCESS';
-
-    const userReferralFullAccess: boolean =
-      getPrivileges().referralPrivilege === 'FULLACCESS';
+    const hasReferralReadAccess: boolean = hasReferralFollowUpReadAccess(
+      this.state.selectedItem,
+    );
+    const hasReferralFullAccess: boolean = hasReferralFollowUpFullAccess(
+      this.state.selectedItem,
+    );
     const visit: Visit =
       this.state.selectedItem !== undefined
         ? getCachedItem(this.state.selectedItem.visitId)
@@ -844,7 +862,7 @@ export class FollowUpScreen extends Component<
       : undefined;
     return (
       <View style={styles.flow}>
-        {this.state.selectedItem && !userReferralNoAccess && (
+        {this.state.selectedItem && hasReferralReadAccess && (
           <Button
             title={strings.view}
             onPress={() => this.openAttachment()}
@@ -852,7 +870,7 @@ export class FollowUpScreen extends Component<
           />
         )}
         {this.state.selectedItem &&
-          userReferralFullAccess &&
+          hasReferralFullAccess &&
           !isDraft &&
           this.shouldActivateReply() && (
             <Button
@@ -862,7 +880,7 @@ export class FollowUpScreen extends Component<
             />
           )}
         {this.state.selectedItem &&
-          userReferralFullAccess &&
+          hasReferralFullAccess &&
           !isDraft &&
           visit &&
           this.shouldActivateFollowUp() && (
@@ -881,7 +899,7 @@ export class FollowUpScreen extends Component<
             />
           )}
         {this.state.selectedItem &&
-          userReferralFullAccess &&
+          hasReferralFullAccess &&
           visit &&
           this.shouldActivateEdit() && (
             <Button
@@ -899,7 +917,7 @@ export class FollowUpScreen extends Component<
             />
           )}
         {this.state.selectedItem &&
-          userReferralFullAccess &&
+          hasReferralFullAccess &&
           !isDraft &&
           this.shouldActivateResend() && (
             <Button
@@ -909,7 +927,7 @@ export class FollowUpScreen extends Component<
             />
           )}
         {this.state.selectedItem &&
-          userReferralFullAccess &&
+          hasReferralFullAccess &&
           !isDraft &&
           this.shouldActivateForward() && (
             <Button
@@ -919,7 +937,7 @@ export class FollowUpScreen extends Component<
             />
           )}
         {this.state.selectedItem &&
-          userReferralFullAccess &&
+          hasReferralFullAccess &&
           this.shouldActivateDelete() && (
             <Button
               title={strings.deleteTitle}

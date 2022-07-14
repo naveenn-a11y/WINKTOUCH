@@ -448,6 +448,7 @@ export type FollowUp = {
   comment?: string,
   isOutgoing?: boolean,
   isParent?: boolean,
+  referralPrivilege?: Privilege,
 };
 
 export type ReferralStatusCode = {
@@ -573,10 +574,10 @@ export type ExamRoom = {
 export type VisitSummary = {
   visitId: string,
   refraction: ?GlassesRx,
-  summary: ?Exam[],
-  billing: ?Exam[],
-  medications: ?Prescription[],
-  fieldDefinitions: ?FieldDefinition[],
+  summary: ?(Exam[]),
+  billing: ?(Exam[]),
+  medications: ?(Prescription[]),
+  fieldDefinitions: ?(FieldDefinition[]),
   noaccess: ?boolean,
   visit: ?Visit,
 };
