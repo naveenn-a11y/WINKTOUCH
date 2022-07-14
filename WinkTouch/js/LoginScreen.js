@@ -284,7 +284,9 @@ export class MfaScreen extends Component {
               <View style={styles.fieldContainer}>
                 {this.props.qrImageUrl ? (
                   <Image
-                    source={`data:image/png;base64,${this.props.qrImageUrl}`}
+                    source={{
+                      uri: `data:image/png;base64,${this.props.qrImageUrl}`,
+                    }}
                     style={{
                       width: 360 * fontScale,
                       height: 360 * fontScale,

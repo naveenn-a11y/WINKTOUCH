@@ -16,6 +16,7 @@ import ReactNative, {
   TextInput,
   Keyboard,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {
   styles,
@@ -46,11 +47,12 @@ import RNBeep from 'react-native-a-beep';
 import {getDoctor} from './DoctorApp';
 import {strings} from './Strings';
 import {getMimeType} from './Upload';
-import {printHtml} from '../src/components/HtmlToPdf';
+import {printHtml, print} from '../src/components/HtmlToPdf';
 import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {fetchPatientInfo, getPatientFullName} from './Patient';
 import {getPDFAttachmentFromHtml} from './PatientFormHtml';
+import {printBase64Pdf} from './Print';
 const COMMAND = {
   RESEND: 0,
   REPLY: 1,
@@ -102,6 +104,10 @@ export class FollowUpScreen extends Component<
       command: undefined,
       isDirty: false,
       showDialog: false,
+      loading: false,
+      pageNumber: 1,
+      pageSize: 20,
+      loadMoreData: true,
     };
   }
 
@@ -315,7 +321,6 @@ export class FollowUpScreen extends Component<
   }
 
   componentDidMount() {
-    this.loadFollowUp();
     InteractionManager.runAfterInteractions(() => {
       this.refreshList();
     });
@@ -339,13 +344,78 @@ export class FollowUpScreen extends Component<
       : selectedItem !== undefined
       ? getCachedItem(selectedItem.patientInfo.id)
       : undefined;
-    if (patientInfo) {
-      await fetchReferralFollowUpHistory(patientInfo.id);
-    } else {
-      await fetchReferralFollowUpHistory();
+
+    this.setState({
+      loading: true,
+    });
+    const response = patientInfo
+      ? await fetchReferralFollowUpHistory(patientInfo.id)
+      : await fetchReferralFollowUpHistory();
+
+    if (response) {
+      if (response.followUp) {
+        const allFollowUp = this.filterFollowUp(response.followUp);
+
+        this.setState({
+          allFollowUp: allFollowUp,
+          pageNumber: response.currentPage
+            ? response.currentPage
+            : this.state.pageNumber,
+          pageSize: response.pageSize ? response.pageSize : this.state.pageSize,
+          loadMoreData: !response.lastPage,
+          loading: false,
+        });
+      }
     }
-    this.loadFollowUp();
   }
+
+  handleLoadMoreFollowUp = async () => {
+    if (!(this.state.loading || !this.state.loadMoreData)) {
+      this.setState({
+        loading: true,
+      });
+
+      const patientInfo: PatientInfo = this.props.patientInfo
+        ? this.props.patientInfo
+        : this.props.navigation.state.params.patientInfo;
+
+      const patientId: string = isEmpty(patientInfo)
+        ? undefined
+        : patientInfo.id;
+      const response = await fetchReferralFollowUpHistory(
+        patientId,
+        this.state.pageNumber + 1,
+        this.state.pageSize,
+      );
+
+      if (response) {
+        if (response.followUp) {
+          const allFollowUp = this.filterFollowUp(response.followUp);
+          const combinedFollowUps = this.state.allFollowUp;
+
+          allFollowUp.map((value) => {
+            if (combinedFollowUps.find((item) => item.id === value.id)) {
+              //found duplicates
+            } else {
+              combinedFollowUps.push(value);
+            }
+          });
+
+          this.setState({
+            allFollowUp: combinedFollowUps,
+            pageNumber: response.currentPage
+              ? response.currentPage
+              : this.state.pageNumber,
+            pageSize: response.pageSize
+              ? response.pageSize
+              : this.state.pageSize,
+            loadMoreData: !response.lastPage,
+            loading: false,
+          });
+        }
+      }
+    }
+  };
 
   async loadReferralStatusCode() {
     let parameters: {} = {};
@@ -367,16 +437,11 @@ export class FollowUpScreen extends Component<
     }
   }
 
-  loadFollowUp(id?: string | number) {
-    const patientInfo: PatientInfo = this.props.patientInfo
-      ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo;
+  filterFollowUp(data: FollowUp[]) {
+    let allFollowUp = data;
     const visit: Visit = this.props.navigation.state.params.visit;
     const isDraft: Boolean = this.props.isDraft;
-    const patientId: string = isEmpty(patientInfo) ? '*' : patientInfo.id;
-    let allFollowUp: ?(FollowUp[]) = getCachedItem(
-      'referralFollowUpHistory-' + patientId,
-    );
+
     if (isDraft && visit) {
       allFollowUp = allFollowUp.filter(
         (followUp: FollowUp) =>
@@ -385,8 +450,9 @@ export class FollowUpScreen extends Component<
           followUp.visitId === visit.id,
       );
     }
-    this.setState({allFollowUp});
+    return allFollowUp;
   }
+
   async updateItem(item: any): Promise<void> {
     let allFollowUp: FollowUp[] = this.state.allFollowUp;
     const index = allFollowUp.indexOf(item);
@@ -436,14 +502,21 @@ export class FollowUpScreen extends Component<
       }
       const upload: Upload = response;
       let html: string = '';
-      if (getMimeType(upload).toLowerCase() === 'html') {
+      const mimeType: string = getMimeType(upload).toLowerCase();
+      if (mimeType === 'html') {
         html += upload.data;
+        let PDFAttachment = getPDFAttachmentFromHtml(html);
+        await printHtml(html, PDFAttachment);
       } else {
         const data = {uri: `data:${getMimeType(upload)};base64,${upload.data}`};
         html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
+        if (isWeb) {
+          print(html);
+        } else {
+          let PDFAttachment = getPDFAttachmentFromHtml(html);
+          await printHtml(html, PDFAttachment);
+        }
       }
-      let PDFAttachment = getPDFAttachmentFromHtml(html);
-      await printHtml(html, PDFAttachment);
     }
   }
 
@@ -567,6 +640,15 @@ export class FollowUpScreen extends Component<
   shouldActivateEdit(): boolean {
     const selectedItem: FollowUp = this.state.selectedItem;
     if (!selectedItem) {
+      return false;
+    }
+    if (!selectedItem.referralTemplate) {
+      return false;
+    }
+    if (
+      selectedItem.referralTemplate &&
+      !selectedItem.referralTemplate.template
+    ) {
       return false;
     }
 
@@ -726,6 +808,8 @@ export class FollowUpScreen extends Component<
           isDraft={this.props.isDraft}
           onRefreshList={() => this.refreshList()}
           navigation={this.props.navigation}
+          loading={this.state.loading}
+          handleLoadMore={this.handleLoadMoreFollowUp}
         />
         {this.renderButtons()}
         <Modal
@@ -935,7 +1019,10 @@ export class FollowUpScreen extends Component<
 
   render() {
     const listFollowUp: FollowUp[] = this.state.allFollowUp;
-    if (Array.isArray(listFollowUp) && listFollowUp.length > 0) {
+    if (
+      (Array.isArray(listFollowUp) && listFollowUp.length > 0) ||
+      this.state.loading
+    ) {
       return <View style={styles.page}>{this.renderFollowUp()}</View>;
     } else if (!this.props.isDraft) {
       return <Text>{strings.noDataFound}</Text>;
@@ -1121,6 +1208,8 @@ export class TableList extends React.PureComponent {
     fieldId: string,
     onRefreshList: () => void,
     navigation: any,
+    loading: boolean,
+    handleLoadMore: () => void,
   };
 
   state: {
@@ -1788,6 +1877,18 @@ export class TableList extends React.PureComponent {
     );
   }
 
+  renderFooter = () => {
+    return (
+      <View>
+        {this.props.loading ? (
+          <ActivityIndicator size="large" color={selectionColor} />
+        ) : (
+          <></>
+        )}
+      </View>
+    );
+  };
+
   renderItemSeparator() {
     return <View style={styles.listSeparator} />;
   }
@@ -1806,7 +1907,7 @@ export class TableList extends React.PureComponent {
       <View style={styles.flexColumnLayout}>
         <View style={styles.formRow}>{this.renderFilterField()}</View>
         <FlatList
-          initialNumToRender={5}
+          initialNumToRender={10}
           data={data}
           extraData={{filter: this.state.filter, selection: this.state.item}}
           renderItem={(item, index) => (
@@ -1831,6 +1932,9 @@ export class TableList extends React.PureComponent {
           stickyHeaderIndices={[0]}
           refreshing={this.state.refreshing}
           onRefresh={() => this.handleRefresh()}
+          ListFooterComponent={this.renderFooter}
+          onEndReached={this.props.handleLoadMore}
+          onEndReachedThreshold={0.1}
         />
       </View>
     );

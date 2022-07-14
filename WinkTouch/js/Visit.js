@@ -89,8 +89,6 @@ import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
 import {printRx, printClRx, printMedicalRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
-import {PatientMedicationCard} from './Medication';
-import {PatientRefractionCard} from './Refraction';
 import {getDoctor, getStore} from './DoctorApp';
 import {
   getVisitHtml,
@@ -103,10 +101,10 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
-import {formatCode, formatOptions} from './Codes';
+import {formatCode} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
-import {BillingCard} from './Visit/Partials';
 import {getExamRoomCode, updateExamRoom} from './Room';
+import {VisitSummaryTable} from './VisitSummary';
 
 export const examSections: string[] = [
   'Amendments',
@@ -261,8 +259,13 @@ export function allExamIds(visit: Visit): string[] {
 
 export async function fetchReferralFollowUpHistory(
   patientId?: string,
+  pageNumber: number = 1,
+  pageSize: number = 20,
 ): FollowUp[] {
-  let parameters: {} = {};
+  let parameters: {} = {
+    pageNumber,
+    pageSize,
+  };
   let body: {} = {
     patientId: !isEmpty(patientId) ? stripDataType(patientId) : undefined,
   };
@@ -280,9 +283,15 @@ export async function fetchReferralFollowUpHistory(
     }
     allFollowUp = response.followUp;
   }
-  const id: string = isEmpty(patientId) ? '*' : patientId;
-  cacheItem('referralFollowUpHistory-' + id, allFollowUp);
+
+  //only cache here if it is a patient's referral
+  if (!isEmpty(patientId)) {
+    const id: string = isEmpty(patientId) ? '*' : patientId;
+    cacheItem('referralFollowUpHistory-' + id, allFollowUp);
+  }
+  return response;
 }
+
 export async function fetchVisitForAppointment(appointmentId: string): Visit {
   const searchCriteria = {appointmentId: appointmentId};
   let restResponse = await searchItems(
@@ -1578,7 +1587,7 @@ class VisitWorkFlow extends Component {
     ) {
       medicationExam.Prescription.forEach((prescription, i) => {
         label = prescription.Label;
-        if (!labelAlreadyExist.has(label)) {
+        if (label && !labelAlreadyExist.has(label)) {
           printMedicationRxOptions.push({label: label, isChecked: false});
           labelAlreadyExist.add(label);
         }
@@ -1862,7 +1871,7 @@ export class VisitHistoryCard extends Component {
     if (this.state.summaries) {
       return;
     }
-    const summaries: ?(Exam[]) = getRecentVisitSummaries(
+    let summaries: ?(Exam[]) = getRecentVisitSummaries(
       this.props.patientInfo.id,
     );
     if (summaries === undefined) {
@@ -2295,14 +2304,8 @@ export class VisitHistory extends Component {
   renderSummary() {
     return (
       <View>
-        <View style={styles.flow}>
-          <PatientRefractionCard patientInfo={this.props.patientInfo} />
-          <PatientMedicationCard
-            patientInfo={this.props.patientInfo}
-            editable={false}
-          />
-          <BillingCard patientInfo={this.props.patientInfo} />
-          <VisitHistoryCard patientInfo={this.props.patientInfo} />
+        <View>
+          <VisitSummaryTable patientInfo={this.props.patientInfo} />
         </View>
         {this.shouldRenderActionButons() && this.renderActionButtons()}
       </View>

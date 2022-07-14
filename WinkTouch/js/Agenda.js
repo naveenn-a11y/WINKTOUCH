@@ -18,7 +18,8 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {FormInput} from './Form';
+import {NavigationActions} from 'react-navigation';
+import {FormRow, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
 import {
@@ -29,8 +30,12 @@ import {
   isAppointmentLocked,
   AppointmentDetails,
   bookAppointment,
+  WaitingList,
+  manageAvailability,
   cancelAppointment,
   hasAppointmentBookAccess,
+  updateAppointment,
+  doubleBook,
 } from './Appointment';
 import {Appointment, AppointmentType} from './Types';
 import {
@@ -38,21 +43,92 @@ import {
   now,
   jsonDateFormat,
   farDateFormat2,
-  yearDateFormat,
   isEmpty,
+  yearDateFormat,
+  deepClone,
 } from './Util';
-import {getCachedItem, getCachedItems} from './DataCache';
+import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
 import {getStore} from './DoctorApp';
 import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
-import type {Patient, PatientInfo, Visit} from './Types';
+import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
 import DropDown from '../src/components/Picker';
 import moment from 'moment';
+import {Button} from './Widgets';
+import {AvailabilityModal} from './agendas';
+import {getAllCodes} from './Codes';
 
-const calendarWidth = Dimensions.get('window').width - 180 * fontScale - 50;
+const WEEKDAYS = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+function isStoreOpen(
+  date: Date,
+  minInclusive?: boolean,
+  hourRowIndex?: number,
+): boolean {
+  const storeHours: CodeDefinition[] = getAllCodes('storeHours');
+  if (
+    storeHours === null ||
+    storeHours === undefined ||
+    storeHours.length === 0
+  ) {
+    return true;
+  }
+  const workDay: CodeDefinition = storeHours.find(
+    (element: CodeDefinition) => element.code === date.getDay(),
+  );
+
+  if (!workDay.isOpen) {
+    return false;
+  }
+  const strHourOpen: string = workDay.open.substr(0, workDay.open.indexOf(':'));
+  const strHourClose: string = workDay.close.substr(
+    0,
+    workDay.close.indexOf(':'),
+  );
+
+  const openHour: number = parseInt(strHourOpen);
+  const openMin: number = parseInt(workDay.open.substr(strHourOpen.length + 1));
+  const closeHour: number = parseInt(strHourClose);
+  const closeMin: number = parseInt(
+    workDay.close.substr(strHourClose.length + 1),
+  );
+
+  const dateTimeOpen: Date = new Date(date);
+  const dateTimeClose: Date = new Date(date);
+
+  const storeOpenTime: number = dateTimeOpen.setHours(
+    openHour,
+    minInclusive ? openMin : 0,
+    0,
+  );
+  const storeCloseTime: number = dateTimeClose.setHours(
+    closeHour,
+    minInclusive ? closeMin : 0,
+    0,
+  );
+  if (hourRowIndex >= 0) {
+    if (hourRowIndex < openHour || hourRowIndex >= closeHour) {
+      return false;
+    }
+    return true;
+  }
+  if (date.getTime() < storeOpenTime || date.getTime() >= storeCloseTime) {
+    return false;
+  }
+
+  return true;
+}
 
 export class AgendaScreen extends Component {
   props: {
@@ -62,6 +138,7 @@ export class AgendaScreen extends Component {
     date: Date,
     mode: any,
     appointments: Appointment[],
+    waitingListAppointments: Appointment[],
     events: Appointment[],
     event: Appointment,
     showDialog: boolean,
@@ -79,6 +156,12 @@ export class AgendaScreen extends Component {
     copiedAppointment: Appointment,
     rescheduleAppointment: boolean,
     newAppointment: Appointment,
+    waitingListModal: boolean,
+    rescheduledAppointment: boolean,
+    refresh: boolean,
+    doubleBookingModal: boolean,
+    selectedTime: any,
+    manageAvailabilities: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -89,6 +172,7 @@ export class AgendaScreen extends Component {
       mode: 'custom',
       date: this.today,
       appointments: [],
+      waitingListAppointments: [],
       events: [],
       event: undefined,
       showDialog: false,
@@ -105,30 +189,64 @@ export class AgendaScreen extends Component {
       deleting: false,
       copiedAppointment: undefined,
       rescheduleAppointment: false,
+      waitingListModal: false,
+      rescheduledAppointment: false,
+      refresh: false,
+      doubleBookingModal: false,
+      selectedTime: undefined,
+      manageAvailabilities: false,
+      calendarWidth: Dimensions.get('window').width - 180 * fontScale - 50,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
   }
 
   async componentDidMount() {
-    InteractionManager.runAfterInteractions(() => {
-      this.getDoctors();
-      this.getSelectedDoctorsFromStorage();
-    });
+    this.getDoctors();
+    this.getSelectedDoctorsFromStorage();
+    Dimensions.addEventListener('change', this._onDimensionsChange);
   }
 
+  componentWillUnmount() {
+    Dimensions.removeEventListener('change', this._onDimensionsChange);
+    if (this.state.refresh) {
+      this.asyncComponentWillUnmount();
+    }
+  }
+
+  async asyncComponentWillUnmount() {
+    if (this.props.navigation.state.params?.refreshStateKey) {
+      const setParamsAction = NavigationActions.setParams({
+        params: {refresh: true},
+        key: this.props.navigation.state.params.refreshStateKey,
+      });
+      this.props.navigation.dispatch(setParamsAction);
+    }
+  }
+  _onDimensionsChange = () => {
+    const width = Dimensions.get('window').width - 180 * fontScale - 50;
+    this.setState({calendarWidth: width});
+  };
+
   async getDoctors() {
-    let users: User[] = await searchUsers('', false);
-    const doctors = users.map((u) => ({
-      label: `${u.firstName} ${u.lastName}`,
-      value: u.id,
-    }));
+    let users: User[] = await searchUsers('', false, getStore().id);
+    cacheItemsById(users);
+    const doctors = users.map((u) => this.convertUserToJson(u));
     this.setState({doctors});
+    this.fetchUsersFromAppointments();
+  }
+
+  convertUserToJson(user: User): any {
+    const userJson: any = {
+      label: `${user.firstName} ${user.lastName}`,
+      value: user.id,
+    };
+    return userJson;
   }
   getSelectedDoctorsFromStorage = async () => {
     const doctors = await AsyncStorage.getItem('selectedDoctors');
     if (doctors) {
-      const selectedDoctors = JSON.parse(doctors);
+      let selectedDoctors = JSON.parse(doctors);
       this.setState(
         {
           selectedDoctors,
@@ -154,7 +272,6 @@ export class AgendaScreen extends Component {
     maxDays: number = this.daysInWeek,
   ) {
     if (!refresh && now().getTime() - this.lastRefresh < 5 * 1000) {
-      this.setState(this.state.appointments);
       return;
     }
     this.lastRefresh = now().getTime();
@@ -180,16 +297,70 @@ export class AgendaScreen extends Component {
         const events = await fetchEvents('store-' + getStore().storeId);
         this.setState({events});
       }
-      // appointments = [...appointments, ...this.state.events];
-      this.setState({appointments, isLoading: false});
+      this.setState({
+        appointments: [...appointments],
+        isLoading: false,
+      });
     } catch (e) {
       this.setState({isLoading: false});
     }
   }
+
+  async fetchUsersFromAppointments() {
+    const fromDate =
+      this.state.mode === 'custom'
+        ? dayjs(this.state.date).startOf('week')
+        : dayjs(this.state.date);
+    let doctors: any = deepClone(this.state.doctors);
+    let appointments = await fetchAppointments(
+      'store-' + getStore().storeId,
+      undefined,
+      this.daysInWeek,
+      undefined,
+      fromDate.format(jsonDateFormat),
+      false,
+      true,
+    );
+    appointments.map((app: Appointment) => {
+      const doc: any = doctors.find((doc) => doc.value === app.userId);
+      if (doc === undefined || doc === null) {
+        const userJson: any = this.convertUserToJson(getCachedItem(app.userId));
+        doctors.push(userJson);
+      }
+    });
+    const selectedDoctors = this.state.selectedDoctors.filter(
+      (value: string) => {
+        const doc: any = doctors.find((doc) => doc.value === value);
+        return doc !== undefined;
+      },
+    );
+    AsyncStorage.setItem('selectedDoctors', JSON.stringify(selectedDoctors));
+    this.setState({doctors, selectedDoctors});
+  }
+
   isNewEvent(event: Appointment): boolean {
     return isEmpty(event.patientId) && !event.isBusy;
   }
 
+  _onCellPress = (date: Date) => {
+    const oneHour = 60 * 60 * 1000;
+    const time = new Date(date).getTime();
+    const store = getStore().id;
+    if (!isStoreOpen(date, false)) {
+      alert(strings.closedStoreTimeSlotErrorMessage);
+      return;
+    }
+    const event = {
+      storeId: store,
+      start: new Date(moment(time).set({second: 0, millisecond: 0})),
+      end: new Date(moment(time + oneHour).set({second: 0, millisecond: 0})),
+      emptySlot: true,
+    };
+    // Check if its within store open Hours
+
+    this.setState({event: event});
+    this.openManageAvailabilities();
+  };
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event});
     if (this.isNewEvent(event)) {
@@ -231,6 +402,7 @@ export class AgendaScreen extends Component {
             false,
             this.state.mode === 'day' ? 1 : this.daysInWeek,
           );
+          this.fetchUsersFromAppointments();
         },
       );
     }
@@ -248,6 +420,7 @@ export class AgendaScreen extends Component {
           false,
           this.state.mode === 'day' ? 1 : this.daysInWeek,
         );
+        this.fetchUsersFromAppointments();
       },
     );
   };
@@ -263,7 +436,10 @@ export class AgendaScreen extends Component {
   };
 
   cancelDialog = () => {
-    this.setState({event: undefined, showDialog: false});
+    this.setState({event: undefined, showDialog: false, isLoading: false});
+    if (this.state.selectedTime) {
+      this.setState({doubleBookingModal: false, selectedTime: undefined});
+    }
   };
   endReschedule = () => {
     this.setState({
@@ -279,15 +455,32 @@ export class AgendaScreen extends Component {
   cancelDoctorsOptions = () => {
     this.setState({doctorsModal: false});
   };
-
+  openManageAvailabilities = () => {
+    this.setState({manageAvailabilities: true});
+  };
+  cancelManageAvailabilities = () => {
+    this.setState({manageAvailabilities: false});
+  };
   openPatientDialog = () => {
     this.setState({isPatientDialogVisible: true});
   };
   cancelPatientDialog = () => {
-    this.setState({isPatientDialogVisible: false});
+    this.setState({
+      isPatientDialogVisible: false,
+      doubleBookingModal: false,
+      selectedTime: undefined,
+      selectedPatient: undefined,
+    });
   };
   openCancelDialog = () => {
     this.setState({cancelModal: true});
+  };
+  openDoubleBookDialog = () => {
+    this.setState({
+      doubleBookingModal: true,
+      rescheduleAppointment: false,
+      copiedAppointment: undefined,
+    });
   };
   cancelCancelDialog = () => {
     this.setState({
@@ -295,6 +488,15 @@ export class AgendaScreen extends Component {
       cancelNotes: '',
       cancelReason: 2,
     });
+  };
+  cancelDoubleBookDialog = () => {
+    this.setState({doubleBookingModal: false});
+  };
+  openWaitingListDialog = () => {
+    this.setState({waitingListModal: true, isPatientDialogVisible: false});
+  };
+  cancelWaitingListDialog = () => {
+    this.setState({waitingListModal: false});
   };
 
   getAppoitmentsForSelectedDoctors = () => {
@@ -314,7 +516,12 @@ export class AgendaScreen extends Component {
     this.cancelDoctorsOptions();
   };
   cancelAppointment = async () => {
-    this.setState({deleting: true});
+    this.setState({
+      deleting: true,
+      isLoading: true,
+      cancelModal: false,
+      showDialog: false,
+    });
     const event: Appointment = this.state.event;
     const res = await cancelAppointment({
       id: event.id,
@@ -323,22 +530,19 @@ export class AgendaScreen extends Component {
       cancelledReason: this.state.cancelReason,
     });
     if (res) {
-      this.setState({
-        cancelModal: false,
-        event: undefined,
-        showDialog: false,
-        deleting: false,
-        cancelNotes: '',
-        cancelReason: 2,
-      });
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
-    } else {
-      this.setState({deleting: false});
     }
+    this.setState({
+      isLoading: false,
+      event: undefined,
+      deleting: false,
+      cancelNotes: '',
+      cancelReason: 2,
+    });
   };
 
   openPatientFile = (event: Appointment) => {
@@ -350,11 +554,20 @@ export class AgendaScreen extends Component {
 
   rescheduleEvent = async (appointment: Appointment) => {
     //Call Backend
+    const newId = this.state.newAppointment
+      ? this.state.newAppointment.id
+      : appointment.newId;
+
+    this.setState({
+      isLoading: true,
+      showDialog: false,
+      rescheduleAppointment: false,
+    });
     const bookedAppointment: Appointment = await bookAppointment(
       appointment.patientId,
       appointment.appointmentTypes,
       appointment.numberOfSlots,
-      this.state.newAppointment.id,
+      newId,
       appointment.supplierName,
       appointment.earlyRequest,
       appointment.earlyRequestComment,
@@ -362,63 +575,180 @@ export class AgendaScreen extends Component {
       appointment.comment,
       appointment.id,
     );
+    this.setState({
+      waitingListModal: false,
+      rescheduledAppointment: true,
+    });
 
     if (bookedAppointment) {
-      this.cancelDialog();
-      this.endReschedule();
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
     }
+    setTimeout(() => this.setState({rescheduledAppointment: false}), 5000);
+    this.cancelDialog();
+    this.endReschedule();
   };
-  updateEvent = async (appointment: Appointment) => {
-    //Call Backend
-    const bookedAppointment: Appointment = await bookAppointment(
+
+  updateEvent = async (appointment: Appointment, isNewEvent?: boolean) => {
+    let updatedAppointment: Appointment;
+    if (isNewEvent) {
+      updatedAppointment = await bookAppointment(
+        appointment.patientId,
+        appointment.appointmentTypes,
+        appointment.numberOfSlots,
+        appointment.id,
+        appointment.supplierName,
+        appointment.earlyRequest,
+        appointment.earlyRequestComment,
+        false,
+        appointment.comment,
+      );
+    } else {
+      updatedAppointment = await updateAppointment(appointment);
+    }
+    if (
+      (isNewEvent && updatedAppointment) ||
+      (updatedAppointment && appointment.status === 2)
+    ) {
+      this.cancelDialog();
+    }
+
+    let appointments: Appointment[];
+    if (appointment.status === 2) {
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    } else {
+      const index = this.state.appointments.findIndex(
+        (e: Appointment) => e.id === updatedAppointment.id,
+      );
+      if (index >= 0) {
+        appointments = [...this.state.appointments];
+        appointments[index] = updatedAppointment;
+      }
+    }
+
+    if (!isNewEvent && appointment.status !== 2) {
+      this.setState({
+        event: updatedAppointment,
+        appointments: appointments,
+        refresh: true,
+      });
+    } else if (isNewEvent && appointment.status !== 2) {
+      this.setState({
+        appointments: appointments,
+        refresh: true,
+      });
+    }
+  };
+
+  onDoubleBooking = async (appointment: Appointment) => {
+    this.setState({isLoading: true, showDialog: false});
+    const selectedTime = this.state.selectedTime;
+
+    const res = await doubleBook(
       appointment.patientId,
       appointment.appointmentTypes,
-      appointment.numberOfSlots,
       appointment.id,
-      appointment.supplierName,
-      appointment.earlyRequest,
-      appointment.earlyRequestComment,
-      false,
+      selectedTime.time,
+      selectedTime.atEnd,
       appointment.comment,
     );
-    if (bookedAppointment) {
-      this.cancelDialog();
+    if (res) {
       this.refreshAppointments(
         true,
         false,
         this.state.mode === 'day' ? 1 : this.daysInWeek,
       );
     }
+    this.setState({
+      isLoading: false,
+      doubleBookingModal: false,
+      selectedTime: undefined,
+      event: null,
+    });
   };
-  selectPatient(patient: Patient | PatientInfo) {
-    this.cancelPatientDialog();
 
-    this.setState({selectedPatient: patient, showDialog: true});
+  updateAvailability = async (event: Appointment) => {
+    this.setState({isLoading: true});
+
+    const start = moment(event.start).toISOString(true);
+
+    const startMill = moment(event.start).toDate().getTime();
+    const endMill = moment(event.end).toDate().getTime();
+    const startTime = moment(event?.start).format('h:mm a');
+    const endTime = moment(event?.end).format('h:mm a');
+    const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
+    if (!isStoreOpen(new Date(event.start), true)) {
+      this.setState({isLoading: false});
+      alert(strings.closedStoreTimeSlotErrorMessage);
+      return;
+    }
+    const {errors, appointment}: Appointment = await manageAvailability(
+      event?.userId,
+      event.slotType == 1 ? 0 : 3,
+      duration,
+      startMill,
+      endMill,
+      startTime,
+      endTime,
+      event.appointmentTypes,
+    );
+    if (errors) {
+      alert(errors[0]);
+    } else {
+      this.cancelManageAvailabilities();
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
+    }
+    this.setState({isLoading: false});
+  };
+
+  selectPatient(patient: Patient | PatientInfo) {
+    this.setState({
+      selectedPatient: patient,
+      showDialog: true,
+      isPatientDialogVisible: false,
+    });
   }
 
   renderEventDetails() {
-    let event: Appointment = this.state.event;
+    let event: Appointment = {...this.state.event};
     if (event === undefined || event === null) {
       return null;
     }
     const isNewEvent: boolean = this.isNewEvent(event);
+    let isDoublebooking: boolean = false;
+
     if (isNewEvent) {
       event = Object.assign({patientId: this.state.selectedPatient.id}, event);
       event.title = strings.newAppointment;
     }
-    return this.renderAppointmentDetail(event, isNewEvent);
+    if (this.state.selectedTime) {
+      isDoublebooking = true;
+      event.patientId = this.state.selectedPatient?.id;
+      event.title = strings.doubleBook;
+      event.comment = '';
+      event.earlyRequest = false;
+      event.earlyRequestComment = '';
+    }
+    return this.renderAppointmentDetail(event, isNewEvent, isDoublebooking);
   }
 
   renderPatientScreen() {
+    const isDoubleBooking: boolean = this.state.selectedTime;
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={[styles.screeen, {width: calendarWidth}]}
+          style={[styles.screeen, {width: this.state.calendarWidth}]}
           visible={this.state.isPatientDialogVisible}
           onDismiss={this.cancelPatientDialog}
           dismissable={true}>
@@ -428,15 +758,48 @@ export class AgendaScreen extends Component {
             }
             navigation={this.props.navigation}
             isBookingAppointment={true}
+            openWaitingListDialog={
+              !isDoubleBooking && this.openWaitingListDialog
+            }
           />
         </Dialog>
       </Portal>
     );
   }
 
+  doubleBookingTimeField = () => {
+    const Label = this.state.selectedTime.atEnd ? strings.last : strings.first;
+    return (
+      <View style={styles.doubleBookingTimeField}>
+        <Text>
+          {this.state.selectedTime.time === 0
+            ? strings.sameSlot
+            : `${
+                Label + ' ' + this.state.selectedTime.time + ' ' + strings.mins
+              }`}
+        </Text>
+      </View>
+    );
+  };
+  onUpdateAppointment = (
+    appointment: Appointment,
+    isDoublebooking: boolean,
+    rescheduleAppointment: boolean,
+    isNewEvent: ?boolean,
+  ) => {
+    if (isDoublebooking) {
+      this.onDoubleBooking(appointment);
+    } else if (rescheduleAppointment) {
+      this.rescheduleEvent(appointment);
+    } else {
+      this.updateEvent(appointment, isNewEvent);
+    }
+  };
+
   renderAppointmentDetail(
     event: Appointment,
     isNewEvent: boolean,
+    isDoublebooking: boolean,
     rescheduleAppointment: boolean,
   ) {
     return (
@@ -451,38 +814,39 @@ export class AgendaScreen extends Component {
             rescheduleAppointment ? this.endReschedule : this.cancelDialog
           }
           dismissable={true}
-          style={{
-            width: '50%',
-            minHeight: '40%',
-            maxHeight: '90%',
-            alignSelf: 'center',
-            backgroundColor: '#fff',
-          }}>
+          style={styles.AppointmentDialog}>
           <Dialog.Title>
-            {!isNewEvent && <AppointmentTypes appointment={event} />}
-            <Text style={{color: 'black'}}> {event.title}</Text>
+            <FormRow>
+              {!isNewEvent && <AppointmentTypes appointment={event} />}
+              <Text style={{color: 'black'}}> {event.title}</Text>
+              {isDoublebooking && this.doubleBookingTimeField()}
+            </FormRow>
           </Dialog.Title>
+
           <Dialog.Content>
             <AppointmentDetails
               appointment={event}
-              rescheduleAppointment={rescheduleAppointment}
               isNewAppointment={isNewEvent}
-              onUpdateAppointment={(appointment: Appointment) => {
-                rescheduleAppointment
-                  ? this.rescheduleEvent(appointment)
-                  : this.updateEvent(appointment);
-              }}
               onOpenAppointment={(appointment: Appointment) =>
                 this.openPatientFile(appointment)
               }
               onCancelAppointment={() => this.openCancelDialog()}
+              isDoublebooking={isDoublebooking}
+              rescheduleAppointment={rescheduleAppointment}
+              onCopyAppointment={this.setCopiedAppointment}
+              openDoubleBookingModal={this.openDoubleBookDialog}
               onCloseAppointment={() => {
                 rescheduleAppointment
                   ? this.endReschedule()
                   : this.cancelDialog();
               }}
-              onCopyAppointment={(appointment: Appointment) => {
-                this.setCopiedAppointment(appointment);
+              onUpdateAppointment={(appointment: Appointment) => {
+                this.onUpdateAppointment(
+                  appointment,
+                  isDoublebooking,
+                  rescheduleAppointment,
+                  isNewEvent,
+                );
               }}
             />
           </Dialog.Content>
@@ -541,13 +905,7 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={{
-            width: '50%',
-            minHeight: '40%',
-            maxHeight: '90%',
-            alignSelf: 'center',
-            backgroundColor: '#fff',
-          }}
+          style={styles.AppointmentDialog}
           visible={this.state.cancelModal}
           onDismiss={this.cancelCancelDialog}
           dismissable={true}>
@@ -637,6 +995,137 @@ export class AgendaScreen extends Component {
       </Portal>
     );
   }
+  renderDoubleBookDialog() {
+    const times = [5, 10, 15, 20, 25, 30, 45, 60];
+    const onSelectTime = (atEnd: Boolean, time: number) => {
+      this.setState({
+        selectedTime: {atEnd, time},
+        isPatientDialogVisible: true,
+        showDialog: false,
+        doubleBookingModal: false,
+      });
+    };
+
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={[styles.AppointmentDialog, {minHeight: '45%'}]}
+          visible={this.state.doubleBookingModal}
+          onDismiss={this.cancelDoubleBookDialog}
+          dismissable={true}>
+          <Dialog.Title>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: '100%',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={{color: 'black'}}>{strings.doubleBook}</Text>
+              <Button
+                buttonStyle={{paddingHorizontal: 14, paddingVertical: 7}}
+                title={strings.sameSlot}
+                onPress={() => onSelectTime(false, 0)}
+              />
+            </View>
+          </Dialog.Title>
+          <Dialog.Content>
+            <View style={{display: 'flex', flexDirection: 'column'}}>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                }}>
+                <View style={{width: fontScale * 90}}>
+                  <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
+                    {strings.first}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    maxWidth: '85%',
+                  }}>
+                  {times.map((time, index) => {
+                    return (
+                      <Button
+                        buttonStyle={{
+                          paddingHorizontal: 18,
+                          paddingVertical: 7,
+                          width: 92,
+                          textAlign: 'center',
+                        }}
+                        key={'time' + index}
+                        title={
+                          time === 60
+                            ? '1 ' + strings.hour
+                            : time + ' ' + strings.mins
+                        }
+                        onPress={() => onSelectTime(false, time)}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View
+                style={{
+                  marginTop: 10,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                }}>
+                <View style={{width: fontScale * 90}}>
+                  <Text style={{fontSize: fontScale * 25, fontWeight: '500'}}>
+                    {strings.last}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    maxWidth: '85%',
+                  }}>
+                  {times.map((time, index) => {
+                    return (
+                      <Button
+                        key={'time' + index}
+                        buttonStyle={{
+                          paddingHorizontal: 18,
+                          paddingVertical: 7,
+                          width: 92,
+                          textAlign: 'center',
+                        }}
+                        title={
+                          time === 60
+                            ? '1 ' + strings.hour
+                            : time + ' ' + strings.mins
+                        }
+                        onPress={() => onSelectTime(true, time)}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.cancelDoubleBookDialog}>
+              {strings.close}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
 
   renderCopyDialog() {
     const patient: PatientInfo | Patient = getCachedItem(
@@ -652,6 +1141,13 @@ export class AgendaScreen extends Component {
       </View>
     );
   }
+  renderRescheduleFromWaitingListDialog() {
+    return (
+      <View style={styles.copyDialog}>
+        <Text style={styles.copyText}>{strings.successfullyRescheduled}</Text>
+      </View>
+    );
+  }
   renderRescheduleDialog() {
     let event: Appointment = this.state.copiedAppointment;
     if (event === undefined || event === null) {
@@ -659,7 +1155,7 @@ export class AgendaScreen extends Component {
     }
     event = Object.assign({patientId: event.patientId}, event);
     event.title = strings.rescheduleAppointment;
-    return this.renderAppointmentDetail(event, true, true);
+    return this.renderAppointmentDetail(event, true, false, true);
   }
 
   openDropDown = () => {
@@ -678,6 +1174,20 @@ export class AgendaScreen extends Component {
       this.setState({copiedAppointment: null});
     }
   };
+
+  renderWaitingList() {
+    return (
+      <WaitingList
+        event={this.state.event}
+        waitingListModal={this.state.waitingListModal}
+        onCloseWaitingList={this.cancelWaitingListDialog}
+        onUpdateAppointment={(appointment: Appointment) =>
+          this.rescheduleEvent(appointment)
+        }
+      />
+    );
+  }
+
   render() {
     const {
       isLoading,
@@ -689,6 +1199,10 @@ export class AgendaScreen extends Component {
       cancelModal,
       copiedAppointment,
       rescheduleAppointment,
+      waitingListModal,
+      rescheduledAppointment,
+      doubleBookingModal,
+      manageAvailabilities,
     } = this.state;
 
     const options =
@@ -700,14 +1214,24 @@ export class AgendaScreen extends Component {
           ];
     return (
       <View style={styles.page}>
-        {isLoading && this.renderLoading()}
         {isPatientDialogVisible && this.renderPatientScreen()}
         {showDialog && !rescheduleAppointment && this.renderEventDetails()}
         {doctorsModal && this.renderDoctorsOptions()}
         {cancelModal && this.renderCancellationDialog()}
         {copiedAppointment && this.renderCopyDialog()}
         {rescheduleAppointment && this.renderRescheduleDialog()}
-
+        {doubleBookingModal && this.renderDoubleBookDialog()}
+        {rescheduledAppointment && this.renderRescheduleFromWaitingListDialog()}
+        {waitingListModal && this.renderWaitingList()}
+        {manageAvailabilities && (
+          <AvailabilityModal
+            show={this.state.manageAvailabilities}
+            selectedDoctors={this.state.selectedDoctors}
+            event={this.state.event}
+            updateAvailability={this.updateAvailability}
+            cancelManageAvailabilities={this.cancelManageAvailabilities}
+          />
+        )}
         <View style={styles.topFlow}>
           <TouchableOpacity onPress={this._onToday}>
             <Text
@@ -752,34 +1276,26 @@ export class AgendaScreen extends Component {
           </View>
         </View>
         <NativeCalendar
+          calendarWidth={this.state.calendarWidth}
           selectedDoctors={this.state.selectedDoctors}
           doctors={this.state.doctors}
           date={this.state.date}
           mode={this.state.mode}
           appointments={this.state.appointments}
           _onSetEvent={(event: Appointment) => this._onSetEvent(event)}
+          _onCellPress={(event: Date) => this._onCellPress(event)}
         />
+        {isLoading && this.renderLoading()}
       </View>
     );
   }
 
   renderLoading() {
-    if (this.state.isLoading) {
-      return (
-        <Modal
-          visible={this.state.isLoading}
-          transparent={true}
-          animationType={'none'}
-          onRequestClose={this.cancelEdit}>
-          <View style={styles.container}>
-            {this.state.isLoading && (
-              <ActivityIndicator size="large" color={selectionColor} />
-            )}
-          </View>
-        </Modal>
-      );
-    }
-    return null;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={selectionColor} />
+      </View>
+    );
   }
 }
 
@@ -803,15 +1319,17 @@ class Event extends Component {
 
   getLockedState = async () => {
     const appointment: Appointment = this.props.event;
-    let visitHistory: Visit[] = getCachedItems(
-      getCachedItem('visitHistory-' + appointment.patientId),
-    );
-    if (visitHistory) {
-      const locked: boolean = isAppointmentLocked(appointment);
-      this.setState({locked: locked});
-    } else {
-      const visit: Visit = await fetchVisitForAppointment(appointment.id);
-      this.setState({locked: visit ? visit.locked : false});
+    if (!appointment.emptySlot) {
+      let visitHistory: Visit[] = getCachedItems(
+        getCachedItem('visitHistory-' + appointment.patientId),
+      );
+      if (visitHistory) {
+        const locked: boolean = isAppointmentLocked(appointment);
+        this.setState({locked: locked});
+      } else if (appointment.patientId && appointment.status !== 2) {
+        const visit: Visit = await fetchVisitForAppointment(appointment.id);
+        this.setState({locked: visit ? visit.locked : false});
+      }
     }
   };
 
@@ -830,11 +1348,25 @@ class Event extends Component {
       event && event.appointmentTypes
         ? getCachedItem(event.appointmentTypes[0])
         : undefined;
+    let start = 0;
+    for (let item of this.props?.touchableOpacityProps?.style) {
+      const appointmentStart = index * 20 + 3;
+      if (typeof item === 'object') {
+        start =
+          appointmentStart < item.start
+            ? (item.start * appointmentStart) / 1.5
+            : item.start;
+      }
+    }
+    if (start === undefined || start === null) {
+      start = 0;
+    }
 
+    let startRatio = start / 1.05;
     const eventStyleProps = {
       minWidth: '1%',
-      width: eventWidth / 1.05,
-      start: eventWidth * index,
+      width: eventWidth / 1.05 - startRatio,
+      start: eventWidth * index + start,
       justifyContent: 'center',
       paddingTop: 1,
       paddingBottom: 0,
@@ -843,8 +1375,8 @@ class Event extends Component {
       borderColor: 'lightgray',
       borderStyle: 'solid',
       backgroundColor: '#fff',
+      zIndex: 10,
     };
-
     return event.isBusy && !patient ? (
       <View
         style={[
@@ -860,9 +1392,12 @@ class Event extends Component {
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
+          event.emptySlot ? {backgroundColor: '#EFEFEF', zIndex: 0} : {},
         ]}
-        disabled={!hasAppointmentBookAccess(event)}>
-        <Text style={styles.grayedText}>{strings.available}</Text>
+        disabled={!hasAppointmentBookAccess(event) && !event.emptySlot}>
+        {!event.emptySlot && (
+          <Text style={styles.grayedText}>{strings.available}</Text>
+        )}
       </TouchableOpacity>
     ) : (
       <TouchableOpacity
@@ -898,8 +1433,10 @@ class NativeCalendar extends Component {
     mode: any,
     selectedDoctors: [],
     doctors: [],
+    calendarWidth: any,
     appointments: Appointment[],
     _onSetEvent: (event: Appointment) => void,
+    _onCellPress: (event: Date) => void,
   };
   numOfDays: Number = 7;
 
@@ -907,12 +1444,14 @@ class NativeCalendar extends Component {
     return (
       nextProps.mode !== this.props.mode ||
       nextProps.date !== this.props.date ||
-      nextProps.appointments !== this.props.appointments
+      nextProps.appointments !== this.props.appointments ||
+      nextProps.calendarWidth !== this.props.calendarWidth
     );
   }
 
   render() {
-    const {selectedDoctors, doctors, date, appointments, mode} = this.props;
+    const {selectedDoctors, doctors, date, appointments, mode, calendarWidth} =
+      this.props;
 
     const weekCellWidth = calendarWidth / this.numOfDays;
     const weekEventWidth = weekCellWidth / selectedDoctors.length;
@@ -927,6 +1466,7 @@ class NativeCalendar extends Component {
       <>
         <Calendar
           ampm
+          overlapOffset={20}
           mode={mode}
           date={date}
           swipeEnabled={false}
@@ -935,8 +1475,29 @@ class NativeCalendar extends Component {
           weekStartsOn={1}
           weekEndsOn={this.numOfDays}
           hourRowHeight={90}
+          scrollOffsetMinutes={480}
           showAllDayEventCell={false}
+          onPressCell={(event) => this.props._onCellPress(event)}
           onPressEvent={(event) => this.props._onSetEvent(event)}
+          calendarCellStyle={(date, hourRowIndex) => {
+            let cellStyles = {
+              backgroundColor: 'white',
+              color: 'white',
+            };
+
+            if (!isStoreOpen(date, true, hourRowIndex)) {
+              cellStyles = {
+                ...cellStyles,
+                backgroundColor: '#f5f5f5',
+              };
+            } else {
+              cellStyles = {
+                ...cellStyles,
+              };
+            }
+
+            return cellStyles;
+          }}
           renderEvent={(
             event: ICalendarEvent<T>,
             touchableOpacityProps: CalendarTouchableOpacityProps,
@@ -946,13 +1507,14 @@ class NativeCalendar extends Component {
               eventWidth={eventWidth}
               touchableOpacityProps={touchableOpacityProps}
               selectedDoctors={this.props.selectedDoctors}
+              key={event?.id}
             />
           )}
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
               <View style={agendaStyles.header(calendarWidth)}>
-                {header.dateRange.map((d) => (
-                  <View style={agendaStyles.cell(cellWidth)}>
+                {header.dateRange.map((d, index) => (
+                  <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
                       {moment(new Date(d)).format('ddd').toUpperCase()}
                     </Text>
@@ -963,7 +1525,9 @@ class NativeCalendar extends Component {
                       {selectedDoctors.map((d) => {
                         const doc = doctors.find((doc) => doc.value == d);
                         return (
-                          <View style={agendaStyles.label(eventWidth)}>
+                          <View
+                            key={doc?.label + index}
+                            style={agendaStyles.label(eventWidth)}>
                             <Text numberOfLines={2}>{doc?.label}</Text>
                           </View>
                         );
@@ -980,7 +1544,7 @@ class NativeCalendar extends Component {
   }
 }
 
-const agendaStyles = {
+export const agendaStyles = {
   header: (w) => ({width: w, flexDirection: 'row', alignSelf: 'flex-end'}),
   cell: (w) => ({width: w, alignItems: 'center', justifyContent: 'center'}),
   day: {fontSize: 12, fontWeight: 'bold', color: 'gray', marginTop: 10},
@@ -999,4 +1563,17 @@ const agendaStyles = {
     borderRightWidth: 0.8,
     borderColor: 'lightgray',
   }),
+  input: {
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'lightgray',
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    flex: 100,
+  },
+  field: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '80%',
+  },
 };

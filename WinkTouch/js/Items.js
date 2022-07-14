@@ -193,12 +193,7 @@ export function formatFieldValue(
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }
-  if (
-    value === undefined ||
-    value === null ||
-    value === '' ||
-    value === fieldDefinition.normalValue
-  ) {
+  if (value === undefined || value === null || value === '') {
     return '';
   }
   const label: ?string = formatLabel(fieldDefinition);
@@ -210,6 +205,10 @@ export function formatFieldValue(
     //Checkbox with booleans
     if (value === true) {
       value = label;
+    } else if (value === false) {
+      value = '';
+    } else if (value === fieldDefinition.defaultValue) {
+      value = '';
     }
   }
   if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
@@ -300,10 +299,12 @@ export function formatFieldLabel(
   defaultLabel: ?string,
 ): string {
   const customDefinition: ?GroupDefinition | FieldDefinition =
-    groupDefinition.fields.find(
-      (definition: GroupDefinition | FieldDefinition) =>
-        definition.isLabel === true,
-    );
+    groupDefinition.fields
+      ? groupDefinition.fields.find(
+          (definition: GroupDefinition | FieldDefinition) =>
+            definition.isLabel === true,
+        )
+      : undefined;
 
   let label: string = isEmpty(defaultLabel)
     ? formatLabel(groupDefinition)
@@ -445,7 +446,7 @@ type ItemSummaryProps = {
   showLabels?: boolean,
   titleFields?: string[],
 };
-class ItemSummary extends Component<ItemSummaryProps> {
+export class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;
@@ -462,6 +463,13 @@ class ItemSummary extends Component<ItemSummaryProps> {
                 this.props.fieldDefinitions.find(
                   (fieldDefinition) => fieldDefinition.name === fieldName,
                 );
+              if (fieldDefinition === undefined || fieldDefinition === null) {
+                if (fieldDefinition.label) {
+                  fieldDefinition = this.props.fieldDefinitions.find(
+                    (fieldDefinition) => fieldDefinition.label === fieldName,
+                  );
+                }
+              }
               if (fieldDefinition) {
                 formattedValue +=
                   formatFieldValue(fieldValue, fieldDefinition) + ' ';
@@ -478,8 +486,14 @@ class ItemSummary extends Component<ItemSummaryProps> {
       let isFirstField = true;
       for (let i: number = 0; i < this.props.fieldDefinitions.length; i++) {
         const fieldDefinition: FieldDefinition = this.props.fieldDefinitions[i];
-        const propertyName: string = fieldDefinition.name;
-        const value: ?string | ?number = this.props.item[propertyName];
+        let propertyName: string = fieldDefinition.name;
+        let value: ?string | ?number = this.props.item[propertyName];
+        if (value === undefined || value === null) {
+          if (fieldDefinition.label) {
+            propertyName = fieldDefinition.label;
+            value = this.props.item[propertyName];
+          }
+        }
         if (value !== undefined && value !== null) {
           let formattedValue: string = formatFieldValue(value, fieldDefinition);
           if (formattedValue && formattedValue !== '') {
@@ -661,9 +675,7 @@ export class ItemsCard extends Component {
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
-      if (fieldDefinition.normalValue == String(value)) {
-        return false;
-      }
+
       if (String(value).startsWith('(-)')) {
         return false;
       } //TODO is this a general rule
@@ -1198,6 +1210,7 @@ export class ItemsEditor extends Component {
           let selection = this.state.selectedItem
             ? this.state.selectedItem[propertyName]
             : undefined;
+
           let options: CodeDefinition[] | string = fieldDefinition.options;
           if (options instanceof Array === false) {
             //We got ourselves some codes

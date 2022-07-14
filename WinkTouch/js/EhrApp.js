@@ -12,6 +12,8 @@ import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
 import {isWeb} from './Styles';
+import InactivityTracker from './utilities/InactivityTracker';
+import NavigationService from './utilities/NavigationService';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -227,6 +229,7 @@ export class EhrApp extends Component {
       isMfaProvided: false,
     });
     lastUpdateCheck = undefined;
+    this.tracker && this.tracker.stop();
     this.checkForUpdate();
   };
 
@@ -250,13 +253,39 @@ export class EhrApp extends Component {
     this.setRegistration(registration);
   }
 
-  startLockingDog() {
-    //TODO
+  startLockingDog(ttlInMins?: number) {
+    this.tracker = new InactivityTracker({
+      ttlInMins: ttlInMins ? ttlInMins : 5, //to be safe, 5min is default value
+      onSessionTimeout: () => {
+        this.lockScreen();
+      },
+      onResume: () => {
+        this.unlockScreen();
+      },
+    });
+
+    this.tracker.start(); //start inactivity tracker
   }
+
+  lockScreen() {
+    //navigate to lock screen
+    this.setState({
+      isLocked: true,
+    });
+  }
+
+  unlockScreen() {
+    this.setState({
+      isLocked: false,
+    });
+  }
+
+  onUserLogin = () => {
+    this.tracker && this.tracker.start();
+  };
 
   componentDidMount() {
     this.loadRegistration();
-    this.startLockingDog();
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
     AppState.addEventListener('change', this.onAppStateChange.bind(this));
@@ -269,10 +298,28 @@ export class EhrApp extends Component {
     AppState.removeEventListener('change', this.onAppStateChange.bind(this));
   }
 
+  componentDidUpdate(prevProp, prevState) {
+    if (prevState.isLocked != this.state.isLocked) {
+      if (!this.state.isLocked) {
+        NavigationService.dismissLockScreen();
+      }
+      if (this.state.isLoggedOn && this.state.isLocked) {
+        NavigationService.navigate('lock', {
+          onUserLogin: this.onUserLogin,
+          onUserLogout: this.logout,
+        });
+      }
+    }
+  }
+
   onAppStateChange(nextState: any) {
     __DEV__ && console.log('next app state =' + nextState);
     if (nextState === 'active') {
       this.checkForUpdate();
+      this.tracker && this.tracker.appIsActive();
+    }
+    if (nextState === 'background') {
+      this.tracker && this.tracker.appIsInBackground();
     }
   }
   setLoading = (loading) => {
@@ -315,7 +362,6 @@ export class EhrApp extends Component {
         />
       );
     }
-
     return (
       <DoctorApp
         registration={this.state.registration}
@@ -324,6 +370,9 @@ export class EhrApp extends Component {
         token={this.state.token}
         store={this.state.store}
         onLogout={this.logout}
+        onStartLockingDog={(ttlInMins: number) =>
+          this.startLockingDog(ttlInMins)
+        }
       />
     );
   }
