@@ -199,6 +199,7 @@ export type Appointment = {
   earlyRequestComment?: string,
   numberOfSlots?: number,
   appointmentPrivilege?: Privilege,
+  inactive?: boolean,
 };
 
 export type Prism = {
