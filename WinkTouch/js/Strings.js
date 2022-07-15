@@ -340,6 +340,7 @@ export const strings = new LocalizedStrings({
     markAsUnavailable: 'Mark as unavailable',
     emailRx: 'Email Rx',
     emailClRx: 'Email CLRx',
+    emailRxSuccess: 'Rx sent successfully',
   },
   fr: {
     enterRegisteredEmail:
@@ -679,6 +680,7 @@ export const strings = new LocalizedStrings({
     markAsUnavailable: 'Marquer comme indisponible',
     emailRx: 'E-mail Rx',
     emailClRx: 'Email CLRx',
+    emailRxSuccess: 'Rx envoyé avec succès',
   },
 });
 

@@ -1518,13 +1518,22 @@ class VisitWorkFlow extends Component {
 
     this.hidePrintRxPopup();
     if (shouldSendEmail) {
-      await emailRx(
+      let response = await emailRx(
         this.props.visitId,
         printFinalRx,
         printPDs,
         printNotesOnRx,
         drRecommendationArray,
       );
+      
+      if (response) {
+        if (response.errors) {
+          alert(response.errors);
+          return;
+        }
+        this.setSnackBarMessage(strings.emailRxSuccess);
+        this.showSnackBar();
+      }
     } else {
       await printRx(
         this.props.visitId,
@@ -1652,7 +1661,15 @@ class VisitWorkFlow extends Component {
   confirmEmailClRxDialog = async() : void => {
     this.setState({isPrintingCLRx: true});
     this.hidePrintCLRxPopup();
-    await emailClRx(this.props.visitId);
+    let response = await emailClRx(this.props.visitId);
+    if (response) {
+      if (response.errors) {
+        alert(response.errors);
+        return;
+      }
+      this.setSnackBarMessage(strings.emailRxSuccess);
+      this.showSnackBar();
+    }
     this.setState({isPrintingCLRx: false});
   }
 

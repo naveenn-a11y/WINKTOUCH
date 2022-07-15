@@ -8,7 +8,7 @@ import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import type {User, PatientInfo, Visit} from './Types';
 import RNFS from 'react-native-fs';
 import {strings} from './Strings';
-import {createPdf} from './WinkRest';
+import {createPdf, fetchWinkRest} from './WinkRest';
 import {
   formatDate,
   now,
@@ -109,22 +109,21 @@ export async function emailRx(
   drRecommendationArray: string[],
 ) {
   try {
-    const filename: string = 'Rx.pdf';
-    const response = await createPdf(
+    let parameters: {} = {type: 'eye-exam'};
+    let body: {} = {
+      visitId: visitId,
+      rxRecommendations: drRecommendationArray,
+      printFinalRx: printFinalRx,
+      printPDs: printPDs,
+      printNotesOnRx: printNotesOnRx,
+    };
+    let response = await fetchWinkRest(
       'webresources/reports/email',
-      filename,
-      {type: 'eye-exam'},
-      'post',
-      {
-        visitId: visitId,
-        rxRecommendations: drRecommendationArray,
-        printFinalRx: printFinalRx,
-        printPDs: printPDs,
-        printNotesOnRx: printNotesOnRx,
-      },
+      parameters,
+      'POST',
+      body,
     );
-    
-    console.log("Response: ", response)
+    return response;
   } catch (error) {
     alert(strings.serverError); //TODO rxError
   }
@@ -132,18 +131,18 @@ export async function emailRx(
 
 export async function emailClRx(visitId: string) {
   try {
-    const filename: string = 'Rx.pdf';
-    const path = await createPdf(
+    let parameters: {} = {type: 'clRx'};
+    let body: {} = {
+      visitId: visitId,
+      showTrialDetails: false,
+    };
+    let response = await fetchWinkRest(
       'webresources/reports/email',
-      filename,
-      {type: 'clRx'},
-      'post',
-      {
-        visitId: visitId,
-        showTrialDetails: false,
-      },
+      parameters,
+      'POST',
+      body,
     );
-    
+    return response;
   } catch (error) {
     alert(strings.serverError); //TODO clrxError
   }
