@@ -2333,15 +2333,12 @@ export class VisitHistory extends Component {
     if (!this.state.history) {
       return null;
     }
-    const userReferralFullAccess: boolean =
-      getPrivileges().referralPrivilege === 'FULLACCESS';
-    const userReferralReadOnlyAccess: boolean =
-      getPrivileges().referralPrivilege === 'READONLY';
 
     const patientInfo: PatientInfo = this.props.patientInfo;
-    const listFollowUp: ?(FollowUp[]) = getCachedItem(
+    let listFollowUp: ?(FollowUp[]) = getCachedItem(
       'referralFollowUpHistory-' + patientInfo.id,
     );
+
     const visit: Visit =
       this.state.selectedId && this.state.selectedId.startsWith('visit')
         ? getCachedItem(this.state.selectedId)
@@ -2353,8 +2350,7 @@ export class VisitHistory extends Component {
             isSelected={this.state.selectedId === undefined}
             onPress={() => this.showVisit(undefined)}
           />
-          {(userReferralFullAccess || userReferralReadOnlyAccess) &&
-            listFollowUp &&
+          {listFollowUp &&
             Array.isArray(listFollowUp) &&
             listFollowUp.length > 0 && (
               <FollowUpButton

@@ -64,8 +64,6 @@ class MainActivities extends Component {
   };
 
   render() {
-    const userReferralNoAccess: boolean =
-      getPrivileges().referralPrivilege === 'NOACCESS';
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
@@ -81,7 +79,7 @@ class MainActivities extends Component {
               onPress={this.switchTranslate}
             />
           )}
-          {!userReferralNoAccess && isReferralsEnabled() && (
+          {isReferralsEnabled() && (
             <Button
               title={strings.referral}
               onPress={() => this.openReferral()}
