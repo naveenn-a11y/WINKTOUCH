@@ -61,6 +61,7 @@
       ],
       "maxLength": 8,
       "name": "Contact Lens Trial",
+      "label": "Contact Lens Fitting",
       "entity": "clFitting",
       "columns": [
         ["Manufacturer", "Brand", "Design", "Qty/Box", ">>"],
@@ -753,6 +754,7 @@
       "fields": [
         {
           "name": "Contact Lens Trial",
+          "label": "Contact Lens Fitting",
           "fields": [
             {
               "name": "DVA",
@@ -811,11 +813,11 @@
       ]
     },
     "fr-CA": {
-      "label": "Essai LC",
+      "label": "Ajustement LC",
       "fields": [
         {
           "name": "Contact Lens Trial",
-          "label": "Essai LC",
+          "label": "Ajustement LC",
           "fields": [
             {
               "name": "Doctor",
@@ -929,6 +931,7 @@
       "fields": [
         {
           "name": "Contact Lens Trial",
+          "label": "Contact Lens Fitting",
           "fields": [
             {
               "name": "NVA",

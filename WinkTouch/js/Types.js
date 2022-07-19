@@ -71,6 +71,7 @@ export type User = {
   city?: string,
   isExternal: boolean,
   providerType?: string,
+  username?: string,
 };
 
 export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
@@ -130,6 +131,8 @@ export type PatientInfo = {
   unit: string,
   patientTags: string[],
   patientDrugs: string[], //TODO wais rename patientDrugIds
+  familyDoctorId: ?number,
+  familyDoctor: ?User,
 };
 
 export type PatientDrug = {
@@ -367,6 +370,7 @@ export type FieldDefinition = {
   isLabel?: boolean,
   limitedValues?: {},
   forceSync?: boolean,
+  listField?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -397,6 +401,7 @@ export type GroupDefinition = {
   import?: string | string[],
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
+  copyToFinalRx?: boolean,
 };
 
 export type HtmlDefinition = {
@@ -561,4 +566,15 @@ export type ExamRoom = {
   patientId: string,
   examRoomId: string,
   name: string,
+};
+
+export type VisitSummary = {
+  visitId: string,
+  refraction: ?GlassesRx,
+  summary: ?Exam[],
+  billing: ?Exam[],
+  medications: ?Prescription[],
+  fieldDefinitions: ?FieldDefinition[],
+  noaccess: ?boolean,
+  visit: ?Visit,
 };

@@ -24,7 +24,8 @@
             "size": "XL",
             "cardFields": [["Patient Consent Form.Patient Consent Form.Form.Consent1"],
               ["Patient Consent Form.Patient Consent Form.Form.Consent2"],
-              ["Patient Consent Form.Patient Consent Form.Form.Consent3"]],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent3"],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent4"]],
             "fields": [
               {
                 "layout": {
@@ -115,7 +116,7 @@
                       "width": 280,
                       "left": 160,
                       "fontSize": 20,
-                      "top": 1230
+                      "top": 1260
                     },
                     "readonly": true
                   },
@@ -126,7 +127,7 @@
                     "dateFormat": "DD/MM/yyyy",
                     "layout": {
                       "position": "absolute",
-                      "top": 1230,
+                      "top": 1260,
                       "left": 700,
                       "width": 200,
                       "borderWidth": 0,
@@ -201,6 +202,24 @@
                   {
                     "name": "Consent3",
                     "label": "Term 3: accepted",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 683
+                    },
+                    "normalValue": false,
+                    "defaultValue": false,
+                    "options": [
+                      false,
+                      true
+                    ]
+                  },
+                  {
+                    "name": "Consent4",
+                    "label": "Term 4: accepted",
                     "mappedField": "patient.patientPrivacyConsentAcceptAds",
                     "layout": {
                       "position": "absolute",
@@ -208,7 +227,7 @@
                       "width": 50,
                       "left": 170,
                       "fontSize": 18,
-                      "top": 925
+                      "top": 955
                     },
                     "normalValue": false,
                     "defaultValue": false,
