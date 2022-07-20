@@ -344,6 +344,8 @@ export const strings = new LocalizedStrings({
       'The time slot you selected is outside store opening hours. You cannot create an availability !',
     providerTitle: 'Provider',
     loadMoreSummariesTitle: 'Load more summaries...',
+    createInvoice: 'Create Invoice',
+    invoiceAgain: 'Invoice Again',
   },
   fr: {
     enterRegisteredEmail:
@@ -687,6 +689,8 @@ export const strings = new LocalizedStrings({
       'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
     providerTitle: 'Pourvoyeur',
     loadMoreSummariesTitle: 'Charger plus de résumés...',
+    createInvoice: 'Créer une facture',
+    invoiceAgain: 'Facturer à nouveau',
   },
 });
 

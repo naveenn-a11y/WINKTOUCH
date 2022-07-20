@@ -1094,6 +1094,19 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  canInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const appointment: Appointment = this.state.appointment;
+    const canInvoice: boolean =
+      visit &&
+      visit.appointmentId &&
+      !this.props.readonly &&
+      appointment &&
+      appointment.status === 5;
+
+    return canInvoice;
+  }
+
   async createExam(examDefinitionId: string) {
     if (this.props.readonly) {
       return;
@@ -1195,6 +1208,7 @@ class VisitWorkFlow extends Component {
     }
   }
 
+  async invoice() {}
   async endVisit() {
     const appointment: Appointment = this.state.appointment;
     if (appointment === undefined || appointment === null) {
@@ -1712,6 +1726,12 @@ class VisitWorkFlow extends Component {
                 onPress={() => this.endVisit()}
               />
             )}
+          {
+            <Button
+              title={strings.createInvoice}
+              onPress={() => this.invoice()}
+            />
+          }
         </View>
       </View>
     );
@@ -2338,6 +2358,7 @@ export class VisitHistory extends Component {
     let listFollowUp: ?(FollowUp[]) = getCachedItem(
       'referralFollowUpHistory-' + patientInfo.id,
     );
+    console.log('List Follow Up: ' + JSON.stringify(listFollowUp));
 
     const visit: Visit =
       this.state.selectedId && this.state.selectedId.startsWith('visit')
