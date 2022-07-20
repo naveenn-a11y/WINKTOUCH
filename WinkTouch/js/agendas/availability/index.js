@@ -5,7 +5,7 @@
 'use strict';
 
 import React, {useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 import {styles, fontScale} from '../../Styles';
 import {FormInput, FormOptions, FormRow} from '../../Form';
 import {strings} from '../../Strings';
@@ -22,12 +22,19 @@ export function AvailabilityModal({
   event,
   updateAvailability,
   cancelManageAvailabilities,
+  showNewAvailabilityOptions,
+  setUnavailableAppointment,
+  resetAppointment,
+  bookAppointment,
 }) {
   const labelWidth = 225 * fontScale;
-  const [doctor, setDoctor] = useState(selectedDoctors[0]);
+  const selectedAppointmentTypes = event.appointmentTypes ? event.appointmentTypes.map((appointmentType) => {
+    return appointmentType.replace('appointmentType-', '');
+  })  : [];
+  const [doctor, setDoctor] = useState(showNewAvailabilityOptions ? selectedDoctors[0] : event.userId);
   const [start, setStart] = useState(event?.start);
   const [currSlot, setSlot] = useState(1);
-  const [appointmentTypes, setAppointmentTypes] = useState([]);
+  const [appointmentTypes, setAppointmentTypes] = useState(selectedAppointmentTypes);
 
   const doctors: User[] = selectedDoctors.map((element) => {
     const doctor = getCachedItem(element);
@@ -65,6 +72,7 @@ export function AvailabilityModal({
         <FormOptions
           options={getAppointmentTypes()}
           showLabel={false}
+          readonly={!showNewAvailabilityOptions}
           label={strings.AppointmentType}
           value={appointments ? appointments[0] : ''}
           onChangeValue={(code: ?string | ?number) => updateValue(code, 0)}
@@ -79,6 +87,7 @@ export function AvailabilityModal({
               <FormOptions
                 options={getAppointmentTypes()}
                 showLabel={false}
+                readonly={!showNewAvailabilityOptions}
                 label={strings.AppointmentType}
                 value={appointments[i]}
                 onChangeValue={(code: ?string | ?number) =>
@@ -102,7 +111,7 @@ export function AvailabilityModal({
         onDismiss={cancelManageAvailabilities}
         dismissable={true}>
         <Dialog.Content>
-          <FormInput
+          {showNewAvailabilityOptions && <FormInput
             multiOptions
             singleSelect
             value={currSlot}
@@ -118,7 +127,7 @@ export function AvailabilityModal({
             onChangeValue={(slot) => setSlot(slot)}
             errorMessage={'error'}
             isTyping={false}
-          />
+          />}
           <View style={{marginTop: 25}}>
             <View style={agendaStyles.field}>
               <Text
@@ -138,6 +147,7 @@ export function AvailabilityModal({
                 labelWidth={labelWidth}
                 options={doctors}
                 showLabel={true}
+                readonly={!showNewAvailabilityOptions}
                 label={strings.doctor}
                 value={doctor}
                 hideClear={true}
@@ -154,6 +164,7 @@ export function AvailabilityModal({
                 options={startOptions}
                 showLabel={true}
                 label={strings.from}
+                readonly={!showNewAvailabilityOptions}
                 value={moment(start).format('h:mm a')}
                 hideClear={true}
                 onChangeValue={(date) => {
@@ -187,12 +198,37 @@ export function AvailabilityModal({
               <View style={{flex: 100}}>{renderAppointmentsTypes()}</View>
             </View>
           </View>
+          {!showNewAvailabilityOptions && (
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 10,
+              }}>
+              {!event.isBusy && <TouchableOpacity
+                onPress={bookAppointment}
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}>{strings.book}</Text>
+              </TouchableOpacity>}
+              {!event.isBusy && <TouchableOpacity
+                onPress={setUnavailableAppointment}
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}> {strings.markAsUnavailable}</Text>
+              </TouchableOpacity>}
+              <TouchableOpacity
+                onPress={resetAppointment}
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}> {strings.reset}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </Dialog.Content>
         <Dialog.Actions>
           <NativeBaseButton onPress={cancelManageAvailabilities}>
             {strings.close}
           </NativeBaseButton>
-          <NativeBaseButton
+          {showNewAvailabilityOptions && <NativeBaseButton
             onPress={() =>
               updateAvailability({
                 ...event,
@@ -204,7 +240,7 @@ export function AvailabilityModal({
               })
             }>
             {strings.apply}
-          </NativeBaseButton>
+          </NativeBaseButton>}
         </Dialog.Actions>
       </Dialog>
     </Portal>

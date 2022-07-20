@@ -1420,6 +1420,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 2,
+    textAlign: 'center',
   },
   doubleBookingTimeField: {
     color: 'black',
