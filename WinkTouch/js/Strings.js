@@ -679,7 +679,7 @@ export const strings = new LocalizedStrings({
     createAvailability: 'Créer une disponibilité',
     markAsUnavailable: 'Marquer comme indisponible',
     emailRx: 'E-mail Rx',
-    emailClRx: 'Email CLRx',
+    emailClRx: 'Envoyer RxVC',
     emailRxSuccess: 'Rx envoyé avec succès',
   },
 });

@@ -1528,6 +1528,7 @@ class VisitWorkFlow extends Component {
       
       if (response) {
         if (response.errors) {
+          this.setState({isPrintingRx: false});
           alert(response.errors);
           return;
         }
@@ -1664,6 +1665,7 @@ class VisitWorkFlow extends Component {
     let response = await emailClRx(this.props.visitId);
     if (response) {
       if (response.errors) {
+        this.setState({isPrintingCLRx: false});
         alert(response.errors);
         return;
       }

@@ -3665,7 +3665,7 @@ export class Alert extends Component<AlertProps, AlertState> {
           dismissable={this.props.dismissable}
           style={this.props.style}>
           <Dialog.Title>{this.props.title}</Dialog.Title>
-          <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          {!this.props.isActionVertical && <Dialog.Content>{this.renderContent()}</Dialog.Content>}
           <Dialog.Actions style={this.props.isActionVertical && { flexDirection: 'column-reverse' }}>
             <NativeBaseButton onPress={this.cancelDialog}>
               {this.props.cancelActionLabel}
