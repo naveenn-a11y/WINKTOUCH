@@ -5,7 +5,7 @@
       "fields": [
         {
           "name": "Color vision",
-          "label": "Vision does couleurs",
+          "label": "Vision des couleurs",
           "fields": [
             {
               "name": "Aquired",

@@ -368,14 +368,25 @@ function addMedicalRxLines(
   let x: number = border;
   let y: number = pageHeight - border - 280;
   prescriptions.forEach((prescription, i) => {
-    let formattedRxLine: string = prescription.Label;
+    let formattedRxLine: string = !isEmpty(prescription.Label)
+      ? prescription.Label
+      : '';
     if (
       labelsArray.indexOf(strings.all) !== -1 ||
       labelsArray.indexOf(formattedRxLine) !== -1
     ) {
-      formattedRxLine += prefix(prescription.Strength, ', ');
-      formattedRxLine += prefix(prescription.Eye, ', ');
-      formattedRxLine += prefix(prescription.Dosage, ', ');
+      formattedRxLine += prefix(
+        prescription.Strength,
+        !isEmpty(formattedRxLine) ? ', ' : '',
+      );
+      formattedRxLine += prefix(
+        prescription.Eye,
+        !isEmpty(formattedRxLine) ? ', ' : '',
+      );
+      formattedRxLine += prefix(
+        prescription.Dosage,
+        !isEmpty(formattedRxLine) ? ', ' : '',
+      );
       if (formattedRxLine) {
         page.drawText(formattedRxLine, {x, y, size: fontSize});
         y -= fontSize * 1.15;
