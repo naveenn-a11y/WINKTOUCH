@@ -678,7 +678,7 @@ export const strings = new LocalizedStrings({
     time: 'Temps',
     createAvailability: 'Créer une disponibilité',
     markAsUnavailable: 'Marquer comme indisponible',
-    emailRx: 'E-mail Rx',
+    emailRx: 'Envoyer Rx',
     emailClRx: 'Envoyer RxVC',
     emailRxSuccess: 'Rx envoyé avec succès',
   },
