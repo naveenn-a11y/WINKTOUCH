@@ -460,6 +460,7 @@ export class AgendaScreen extends Component {
 
   setUnavailableAppointment = async (): void => {
     this.setState({isLoading: true});
+    this.cancelManageAvailabilities();
     const event: Appointment = this.state.event;
     event.isBusy = true;
     await this.updateEvent(event, false);
@@ -469,11 +470,11 @@ export class AgendaScreen extends Component {
       this.state.mode === 'day' ? 1 : this.daysInWeek,
     );
     this.setState({isLoading: false});
-    this.cancelManageAvailabilities();
   }
 
   resetAppointment = async (): void => {
     this.setState({isLoading: true});
+    this.cancelManageAvailabilities();
     const event: Appointment = this.state.event;
     event.inactive = true;
     await this.updateEvent(event, false);
@@ -484,7 +485,6 @@ export class AgendaScreen extends Component {
     );
 
     this.setState({isLoading: false});
-    this.cancelManageAvailabilities();
   }
 
   openManageAvailabilities = (showNewOptions: boolean): void => {
