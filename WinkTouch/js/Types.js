@@ -41,6 +41,7 @@ export type Store = {
   winkToWinkEmail?: string,
   eFaxUsed?: boolean,
   fax?: string,
+  defaultMedicationRxNote?: string,
 };
 
 export type Account = {
