@@ -346,6 +346,8 @@ export const strings = new LocalizedStrings({
     loadMoreSummariesTitle: 'Load more summaries...',
     createInvoice: 'Create Invoice',
     invoiceAgain: 'Invoice Again',
+    invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
+    NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
   },
   fr: {
     enterRegisteredEmail:
@@ -691,6 +693,8 @@ export const strings = new LocalizedStrings({
     loadMoreSummariesTitle: 'Charger plus de résumés...',
     createInvoice: 'Créer une facture',
     invoiceAgain: 'Facturer à nouveau',
+    invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
+    NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
   },
 });
 

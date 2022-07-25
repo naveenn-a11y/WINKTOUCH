@@ -30,6 +30,7 @@ import type {
   Prescription,
   CodeDefinition,
   ExamRoom,
+  PatientInvoice,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -85,7 +86,11 @@ import {
   stripDataType,
   getPrivileges,
 } from './Rest';
-import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
+import {
+  fetchAppointment,
+  hasAppointmentBookAccess,
+  invoiceForAppointment,
+} from './Appointment';
 import {printRx, printClRx, printMedicalRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
@@ -884,6 +889,7 @@ class VisitWorkFlow extends Component {
     printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
     printing: boolean,
+    postInvoiceLoading: boolean,
   };
 
   constructor(props: any) {
@@ -903,6 +909,7 @@ class VisitWorkFlow extends Component {
       showRxPopup: false,
       showMedicationRxPopup: false,
       printing: false,
+      postInvoiceLoading: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1208,7 +1215,29 @@ class VisitWorkFlow extends Component {
     }
   }
 
-  async invoice() {}
+  async invoice() {
+    this.setState({postInvoiceLoading: true});
+    const appointment: Appointment = this.state.appointment;
+    if (appointment === undefined || appointment === null) {
+      return;
+    }
+    try {
+      const invoiceIds: string[] = await invoiceForAppointment(appointment.id);
+      if (invoiceIds && invoiceIds.length > 0) {
+        const ids: string = invoiceIds.join();
+        this.setSnackBarMessage(
+          strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
+        );
+      } else {
+        this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
+      }
+      this.showSnackBar();
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+    this.setState({postInvoiceLoading: false});
+  }
   async endVisit() {
     const appointment: Appointment = this.state.appointment;
     if (appointment === undefined || appointment === null) {
@@ -1728,7 +1757,12 @@ class VisitWorkFlow extends Component {
             )}
           {
             <Button
-              title={strings.createInvoice}
+              loading={this.state.postInvoiceLoading}
+              title={
+                appointment && appointment.invoices.length > 0
+                  ? strings.invoiceAgain
+                  : strings.createInvoice
+              }
               onPress={() => this.invoice()}
             />
           }
@@ -2358,7 +2392,6 @@ export class VisitHistory extends Component {
     let listFollowUp: ?(FollowUp[]) = getCachedItem(
       'referralFollowUpHistory-' + patientInfo.id,
     );
-    console.log('List Follow Up: ' + JSON.stringify(listFollowUp));
 
     const visit: Visit =
       this.state.selectedId && this.state.selectedId.startsWith('visit')

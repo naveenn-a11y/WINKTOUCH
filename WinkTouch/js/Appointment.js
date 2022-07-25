@@ -27,6 +27,7 @@ import type {
   User,
   AppointmentType,
   CodeDefinition,
+  PatientInvoice,
 } from './Types';
 import {getAccount} from './DoctorApp';
 import {styles, fontScale, isWeb, selectionFontColor} from './Styles';
@@ -350,6 +351,39 @@ export async function updateAppointment(appointment: Appointment) {
   return appointment;
 }
 
+export async function invoiceForAppointment(appointmentId: ?string): string[] {
+  let url = getRestUrl() + 'Invoice/appointment/id=' + appointmentId;
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: {},
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let restResponse: any = await httpResponse.json();
+    console.log('Resppnse: ' + JSON.stringify(restResponse));
+
+    if (restResponse.errors) {
+      console.log('Resppnse: ' + JSON.stringify(restResponse.errors));
+      alert(restResponse.errors);
+    }
+    const patientInvoices: PatientInvoice[] = restResponse.patientInvoiceList
+      ? restResponse.patientInvoiceList
+      : [];
+    cacheItemsById(patientInvoices);
+    const piIds: string[] = patientInvoices.map((inv) => inv.id);
+    return piIds;
+  } catch (error) {
+    console.log(error);
+  }
+}
 export class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,
