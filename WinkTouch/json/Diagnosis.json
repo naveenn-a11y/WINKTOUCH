@@ -63,7 +63,9 @@
           "name": "procedureCode",
           "label": "Procedure",
           "simpleSelect": true,
-          "options": "procedureCodes"
+          "options": "procedureCodes",
+          "listField": true,
+          "freestyle": true
         },
         {
           "name": "Self paid",
