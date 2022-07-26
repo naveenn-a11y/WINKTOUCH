@@ -351,7 +351,9 @@ export async function updateAppointment(appointment: Appointment) {
   return appointment;
 }
 
-export async function invoiceForAppointment(appointmentId: ?string): string[] {
+export async function invoiceForAppointment(
+  appointmentId: ?string,
+): PatientInvoice[] {
   let url = getRestUrl() + 'Invoice/appointment/id=' + appointmentId;
   try {
     let httpResponse = await fetch(url, {
@@ -368,18 +370,15 @@ export async function invoiceForAppointment(appointmentId: ?string): string[] {
       handleHttpError(httpResponse);
     }
     let restResponse: any = await httpResponse.json();
-    console.log('Resppnse: ' + JSON.stringify(restResponse));
 
     if (restResponse.errors) {
-      console.log('Resppnse: ' + JSON.stringify(restResponse.errors));
       alert(restResponse.errors);
     }
     const patientInvoices: PatientInvoice[] = restResponse.patientInvoiceList
       ? restResponse.patientInvoiceList
       : [];
     cacheItemsById(patientInvoices);
-    const piIds: string[] = patientInvoices.map((inv) => inv.id);
-    return piIds;
+    return patientInvoices;
   } catch (error) {
     console.log(error);
   }

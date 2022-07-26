@@ -206,7 +206,6 @@ export type Appointment = {
   numberOfSlots?: number,
   appointmentPrivilege?: Privilege,
   inactive?: boolean,
-  invoices?: PatientInvoice[],
 };
 
 export type Prism = {
@@ -291,6 +290,7 @@ export type Visit = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
   consultationDetail?: ConsultationDetail,
+  invoices?: PatientInvoice[],
 };
 
 export type ConsultationDetail = {

@@ -1113,6 +1113,14 @@ class VisitWorkFlow extends Component {
 
     return canInvoice;
   }
+  hasInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const piIds: string[] = getCachedItem('visitInvoices-' + visit.id);
+    return (
+      (visit.invoices && visit.invoices.length > 0) ||
+      (piIds && piIds.length > 0)
+    );
+  }
 
   async createExam(examDefinitionId: string) {
     if (this.props.readonly) {
@@ -1218,16 +1226,23 @@ class VisitWorkFlow extends Component {
   async invoice() {
     this.setState({postInvoiceLoading: true});
     const appointment: Appointment = this.state.appointment;
+    const visit: Visit = this.state.visit;
     if (appointment === undefined || appointment === null) {
       return;
     }
     try {
-      const invoiceIds: string[] = await invoiceForAppointment(appointment.id);
-      if (invoiceIds && invoiceIds.length > 0) {
-        const ids: string = invoiceIds.join();
+      const patientInvoices: PatientInvoice[] = await invoiceForAppointment(
+        appointment.id,
+      );
+      if (patientInvoices && patientInvoices.length > 0) {
+        const piIds: string[] = patientInvoices.map((inv) => inv.id);
+        cacheItem('visitInvoices-' + visit.id, piIds);
+
+        const ids: string = piIds.join();
         this.setSnackBarMessage(
           strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
         );
+        visit.invoices = patientInvoices;
       } else {
         this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
       }
@@ -1236,8 +1251,9 @@ class VisitWorkFlow extends Component {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
-    this.setState({postInvoiceLoading: false});
+    this.setState({visit, postInvoiceLoading: false});
   }
+
   async endVisit() {
     const appointment: Appointment = this.state.appointment;
     if (appointment === undefined || appointment === null) {
@@ -1759,9 +1775,7 @@ class VisitWorkFlow extends Component {
             <Button
               loading={this.state.postInvoiceLoading}
               title={
-                appointment && appointment.invoices.length > 0
-                  ? strings.invoiceAgain
-                  : strings.createInvoice
+                this.hasInvoice() ? strings.invoiceAgain : strings.createInvoice
               }
               onPress={() => this.invoice()}
             />
