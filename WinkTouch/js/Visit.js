@@ -1771,7 +1771,7 @@ class VisitWorkFlow extends Component {
                 onPress={() => this.endVisit()}
               />
             )}
-          {
+          {this.canInvoice() && (
             <Button
               loading={this.state.postInvoiceLoading}
               title={
@@ -1779,7 +1779,7 @@ class VisitWorkFlow extends Component {
               }
               onPress={() => this.invoice()}
             />
-          }
+          )}
         </View>
       </View>
     );
