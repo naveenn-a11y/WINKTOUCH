@@ -19,7 +19,7 @@ import {
 } from './Util';
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
-import {getDoctor, getStore} from './DoctorApp';
+import {getDoctor, getStore, getAccount} from './DoctorApp';
 import {fetchItemById, searchItems} from './Rest';
 import {
   fetchUpload,
@@ -167,15 +167,15 @@ async function addLogo(
   }
 }
 async function addStoreLogoWeb(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
-  const url: string = getWinkRestUrl() + `webresources/attachement/845/${getStore().storeId}/storelogo.png`;
+  const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
   __DEV__ && console.log(`Fetching Store logo: ${url}`);
 
     const storeLogo = await loadBase64ImageForWeb(url);
-    const imageDim = await getImageDimensions(storeLogo);
     
     if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
       return;
     }
+    const imageDim = await getImageDimensions(storeLogo);
     const image = await pdfDoc.embedPng(storeLogo);
     page.drawImage(image, {
       x,
@@ -186,19 +186,20 @@ async function addStoreLogoWeb(page: PDFPage, pdfDoc?: PDFDocument, x: number, y
 }
 
 async function addStoreLogoIos(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
-  const url: string = getWinkRestUrl() + `webresources/attachement/845/${getStore().storeId}/storelogo.png`;
-  __DEV__ && console.log(`Fetching Store logo: ${url}`);
+  const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
+  const fileName = `Store-logo${getAccount().id}${getStore().storeId}.png`;
+  __DEV__ && console.log(`Fetching Store logo: ${url}`, fileName);
 
   await RNFS.downloadFile({
     fromUrl: url,
-    toFile: RNFS.DocumentDirectoryPath + '/Store-logo.png',
+    toFile: RNFS.DocumentDirectoryPath + '/' + fileName,
   });
 
-  if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/Store-logo.png'))) {
+  if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/' + fileName))) {
     return;
   }
 
-  const fPath = `${RNFS.DocumentDirectoryPath}/Store-logo.png`;
+  const fPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
   const imageDim = await getImageDimensions(fPath);
   
   page.drawImage(fPath, 'png', {
@@ -216,6 +217,8 @@ function getImageDimensions(storeLogo: string): Promise<any> {
       const imageWidth = 120;
       const imageHeight = imageWidth * ratio; 
       resolve({width: imageWidth, height: imageHeight});
+    }, (error) => {
+      resolve({});
     });
   });
 }
