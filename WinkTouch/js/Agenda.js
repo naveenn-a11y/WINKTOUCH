@@ -1613,6 +1613,6 @@ export const agendaStyles = {
   field: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
+    width: '90%',
   },
 };

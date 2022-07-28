@@ -68,7 +68,7 @@ export function AvailabilityModal({
     let appointments: string[] = [...appointmentTypes];
     let dropdowns = [];
     dropdowns.push(
-      <FormRow>
+      <View style={{flexDirection: 'row'}}>
         <FormOptions
           options={getAppointmentTypes()}
           showLabel={false}
@@ -77,13 +77,13 @@ export function AvailabilityModal({
           value={appointments ? appointments[0] : ''}
           onChangeValue={(code: ?string | ?number) => updateValue(code, 0)}
         />
-      </FormRow>,
+      </View>,
     );
     if (appointments && appointments.length >= 1) {
       for (let i: number = 1; i <= appointments.length; i++) {
         if (i < 5) {
           dropdowns.push(
-            <FormRow>
+            <View style={{flexDirection: 'row'}}>
               <FormOptions
                 options={getAppointmentTypes()}
                 showLabel={false}
@@ -94,7 +94,7 @@ export function AvailabilityModal({
                   updateValue(code, i)
                 }
               />
-            </FormRow>,
+            </View>,
           );
         }
       }
@@ -132,13 +132,12 @@ export function AvailabilityModal({
             <View style={agendaStyles.field}>
               <Text
                 style={[
-                  styles.textfield,
-                  styles.availabilitiesField,
+                  styles.formLabel,
                   {width: labelWidth},
                 ]}>
                 {strings.store} :
               </Text>
-              <View style={agendaStyles.input}>
+              <View style={styles.formField}>
                 <Text style={{opacity: 0.7}}>{getStore().name}</Text>
               </View>
             </View>
@@ -189,8 +188,7 @@ export function AvailabilityModal({
             <View style={agendaStyles.field}>
               <Text
                 style={[
-                  styles.textfield,
-                  styles.availabilitiesField,
+                  styles.formLabel,
                   {width: labelWidth},
                 ]}>
                 {strings.AppointmentType} :
