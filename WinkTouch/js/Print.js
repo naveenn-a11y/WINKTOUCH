@@ -166,6 +166,15 @@ async function addLogo(
     });
   }
 }
+
+async function addStoreLogo(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
+  if(isWeb) {
+    await addStoreLogoWeb(page, pdfDoc, x, y);
+  } else {
+    await addStoreLogoIos(page, pdfDoc, x, y);
+  }
+}
+
 async function addStoreLogoWeb(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
   const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
   __DEV__ && console.log(`Fetching Store logo: ${url}`);
@@ -248,7 +257,7 @@ async function addDrHeader(
   let y: number = top;
   let fontSize: number = 10;
 
-  isWeb ? await addStoreLogoWeb(page, pdfDoc, x, y) : await addStoreLogoIos(page, pdfDoc, x, y);
+  await addStoreLogo(page, pdfDoc, x, y);
 
   y -= fontSize * 2 + 50;
 
