@@ -1496,7 +1496,7 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
 
-  confirmPrintRxDialog = async (data: any, shouldSendEmail?: boolean = false) => {
+  confirmPrintRxDialog = async (data: any, shouldSendEmail: boolean = false) => {
     this.setState({isPrintingRx: true});
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
