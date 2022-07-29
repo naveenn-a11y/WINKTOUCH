@@ -370,7 +370,7 @@ export class PatientContact extends Component {
             />
             <FormField
               value={this.props.patientInfo}
-              fieldName="unit"
+              fieldName="streetName"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -378,7 +378,7 @@ export class PatientContact extends Component {
           <FormRow>
             <FormField
               value={this.props.patientInfo}
-              fieldName="streetName"
+              fieldName="unit"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
