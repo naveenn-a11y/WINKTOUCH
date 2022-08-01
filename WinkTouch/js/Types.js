@@ -23,6 +23,12 @@ export type VisitType = {
   examDefinitionIds: string[],
 };
 
+export type PatientInvoice = {
+  id: string,
+  invoiceNumber: string,
+  invoiceDate?: string,
+};
+
 export type Store = {
   id: string,
   storeId: number, //TODO Chris
@@ -284,6 +290,7 @@ export type Visit = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
   consultationDetail?: ConsultationDetail,
+  invoices?: PatientInvoice[],
 };
 
 export type ConsultationDetail = {

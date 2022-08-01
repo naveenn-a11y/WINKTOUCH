@@ -348,6 +348,10 @@ export const strings = new LocalizedStrings({
     emailRx: 'Email Rx',
     emailClRx: 'Email CLRx',
     emailRxSuccess: 'Rx sent successfully',
+    createInvoice: 'Create Invoice',
+    invoiceAgain: 'Invoice Again',
+    invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
+    NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
   },
   fr: {
     enterRegisteredEmail:
@@ -695,6 +699,10 @@ export const strings = new LocalizedStrings({
     emailRx: 'Envoyer Rx',
     emailClRx: 'Envoyer RxVC',
     emailRxSuccess: 'Rx envoyé avec succès',
+    createInvoice: 'Créer une facture',
+    invoiceAgain: 'Facturer à nouveau',
+    invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
+    NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
   },
 });
 

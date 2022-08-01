@@ -30,6 +30,7 @@ import type {
   Prescription,
   CodeDefinition,
   ExamRoom,
+  PatientInvoice,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -85,7 +86,11 @@ import {
   stripDataType,
   getPrivileges,
 } from './Rest';
-import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
+import {
+  fetchAppointment,
+  hasAppointmentBookAccess,
+  invoiceForAppointment,
+} from './Appointment';
 import {printRx, printClRx, printMedicalRx, emailRx, emailClRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
@@ -886,7 +891,8 @@ class VisitWorkFlow extends Component {
     printing: boolean,
     showClRxPopup: boolean,
     isPrintingRx: boolean,
-    isPrintingCLRx: boolean
+    isPrintingCLRx: boolean,
+    postInvoiceLoading: boolean,
   };
 
   constructor(props: any) {
@@ -909,6 +915,7 @@ class VisitWorkFlow extends Component {
       showClRxPopup: false,
       isPrintingRx: false,
       isPrintingCLRx: false,
+      postInvoiceLoading: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1100,6 +1107,27 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  canInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const appointment: Appointment = this.state.appointment;
+    const canInvoice: boolean =
+      visit &&
+      visit.appointmentId &&
+      !this.props.readonly &&
+      appointment &&
+      appointment.status === 5;
+
+    return canInvoice;
+  }
+  hasInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const piIds: string[] = getCachedItem('visitInvoices-' + visit.id);
+    return (
+      (visit.invoices && visit.invoices.length > 0) ||
+      (piIds && piIds.length > 0)
+    );
+  }
+
   async createExam(examDefinitionId: string) {
     if (this.props.readonly) {
       return;
@@ -1199,6 +1227,37 @@ class VisitWorkFlow extends Component {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
+  }
+
+  async invoice() {
+    this.setState({postInvoiceLoading: true});
+    const appointment: Appointment = this.state.appointment;
+    const visit: Visit = this.state.visit;
+    if (appointment === undefined || appointment === null) {
+      return;
+    }
+    try {
+      const patientInvoices: PatientInvoice[] = await invoiceForAppointment(
+        appointment.id,
+      );
+      if (patientInvoices && patientInvoices.length > 0) {
+        const piIds: string[] = patientInvoices.map((inv) => inv.id);
+        cacheItem('visitInvoices-' + visit.id, piIds);
+
+        const ids: string = piIds.join();
+        this.setSnackBarMessage(
+          strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
+        );
+        visit.invoices = patientInvoices;
+      } else {
+        this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
+      }
+      this.showSnackBar();
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+    this.setState({visit, postInvoiceLoading: false});
   }
 
   async endVisit() {
@@ -1523,7 +1582,7 @@ class VisitWorkFlow extends Component {
         printNotesOnRx,
         drRecommendationArray,
       );
-      
+
       if (response) {
         if (response.errors) {
           this.setState({isPrintingRx: false});
@@ -1800,6 +1859,15 @@ class VisitWorkFlow extends Component {
                 onPress={() => this.endVisit()}
               />
             )}
+          {this.canInvoice() && (
+            <Button
+              loading={this.state.postInvoiceLoading}
+              title={
+                this.hasInvoice() ? strings.invoiceAgain : strings.createInvoice
+              }
+              onPress={() => this.invoice()}
+            />
+          )}
         </View>
       </View>
     );
