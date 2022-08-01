@@ -3,7 +3,7 @@
  */
 
 'use strict';
-import {NativeModules} from 'react-native';
+import {NativeModules, Image} from 'react-native';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import type {User, PatientInfo, Visit} from './Types';
 import RNFS from 'react-native-fs';
@@ -19,7 +19,7 @@ import {
 } from './Util';
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
-import {getDoctor, getStore} from './DoctorApp';
+import {getDoctor, getStore, getAccount} from './DoctorApp';
 import {fetchItemById, searchItems} from './Rest';
 import {
   fetchUpload,
@@ -213,36 +213,70 @@ async function addLogo(
     });
   }
 }
-async function addStoreLogo(
-  page: PDFPage,
-  pdfDoc?: PDFDocument,
-  x: number,
-  y: number,
-) {
-  const res = await searchItems(`Store/logo/${getStore().id}`);
-  const storeLogo = res.logo;
 
-  if (isWeb) {
+async function addStoreLogo(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
+  if(isWeb) {
+    await addStoreLogoWeb(page, pdfDoc, x, y);
+  } else {
+    await addStoreLogoIos(page, pdfDoc, x, y);
+  }
+}
+
+async function addStoreLogoWeb(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
+  const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
+  __DEV__ && console.log(`Fetching Store logo: ${url}`);
+
+    const storeLogo = await loadBase64ImageForWeb(url);
+    
     if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
       return;
     }
+    const imageDim = await getImageDimensions(storeLogo);
     const image = await pdfDoc.embedPng(storeLogo);
     page.drawImage(image, {
       x,
       y: y - 50,
-      width: 110,
-      height: 54,
+      width: imageDim.width ? imageDim.width : 110,
+      height: imageDim.height? imageDim.height : 54,
     });
-  } else {
-    const fPath = `${RNFS.DocumentDirectoryPath}/Store-logo.png`;
-    await RNFS.writeFile(fPath, storeLogo, 'base64');
-    page.drawImage(fPath, 'png', {
-      x,
-      y: y - 50,
-      width: 110,
-      height: 54,
-    });
+}
+
+async function addStoreLogoIos(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
+  const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
+  const fileName = `Store-logo${getAccount().id}${getStore().storeId}.png`;
+  __DEV__ && console.log(`Fetching Store logo: ${url}`, fileName);
+
+  await RNFS.downloadFile({
+    fromUrl: url,
+    toFile: RNFS.DocumentDirectoryPath + '/' + fileName,
+  });
+
+  if (!(await RNFS.exists(RNFS.DocumentDirectoryPath + '/' + fileName))) {
+    return;
   }
+
+  const fPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+  const imageDim = await getImageDimensions(fPath);
+  
+  page.drawImage(fPath, 'png', {
+    x,
+    y: y - 50,
+    width: imageDim.width ? imageDim.width : 110,
+    height: imageDim.height? imageDim.height : 54,
+  });
+}
+
+function getImageDimensions(storeLogo: string): Promise<any> {
+  return new Promise(resolve => {
+    Image.getSize(storeLogo, (width, height) => {
+      const ratio = height/width;
+      const imageWidth = 120;
+      const imageHeight = imageWidth * ratio; 
+      resolve({width: imageWidth, height: imageHeight});
+    }, (error) => {
+      resolve({});
+    });
+  });
 }
 
 async function addDrHeader(
