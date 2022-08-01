@@ -345,6 +345,9 @@ export const strings = new LocalizedStrings({
     providerTitle: 'Provider',
     loadMoreSummariesTitle: 'Load more summaries...',
     reset: 'Reset',
+    emailRx: 'Email Rx',
+    emailClRx: 'Email CLRx',
+    emailRxSuccess: 'Rx sent successfully',
   },
   fr: {
     enterRegisteredEmail:
@@ -689,6 +692,9 @@ export const strings = new LocalizedStrings({
     providerTitle: 'Pourvoyeur',
     loadMoreSummariesTitle: 'Charger plus de résumés...',
     reset: 'Réinitialiser',
+    emailRx: 'Envoyer Rx',
+    emailClRx: 'Envoyer RxVC',
+    emailRxSuccess: 'Rx envoyé avec succès',
   },
 });
 

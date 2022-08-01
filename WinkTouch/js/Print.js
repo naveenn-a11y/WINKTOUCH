@@ -8,7 +8,7 @@ import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import type {User, PatientInfo, Visit} from './Types';
 import RNFS from 'react-native-fs';
 import {strings} from './Strings';
-import {createPdf} from './WinkRest';
+import {createPdf, fetchWinkRest} from './WinkRest';
 import {
   formatDate,
   now,
@@ -96,6 +96,53 @@ export async function printClRx(visitId: string) {
         filePath: RNFS.DocumentDirectoryPath + '/' + filename,
       });
     }
+  } catch (error) {
+    alert(strings.serverError); //TODO clrxError
+  }
+}
+
+export async function emailRx(
+  visitId: string,
+  printFinalRx: boolean,
+  printPDs: boolean,
+  printNotesOnRx: boolean,
+  drRecommendationArray: string[],
+) {
+  try {
+    let parameters: {} = {type: 'eye-exam'};
+    let body: {} = {
+      visitId: visitId,
+      rxRecommendations: drRecommendationArray,
+      printFinalRx: printFinalRx,
+      printPDs: printPDs,
+      printNotesOnRx: printNotesOnRx,
+    };
+    let response = await fetchWinkRest(
+      'webresources/reports/email',
+      parameters,
+      'POST',
+      body,
+    );
+    return response;
+  } catch (error) {
+    alert(strings.serverError); //TODO rxError
+  }
+}
+
+export async function emailClRx(visitId: string) {
+  try {
+    let parameters: {} = {type: 'clRx'};
+    let body: {} = {
+      visitId: visitId,
+      showTrialDetails: false,
+    };
+    let response = await fetchWinkRest(
+      'webresources/reports/email',
+      parameters,
+      'POST',
+      body,
+    );
+    return response;
   } catch (error) {
     alert(strings.serverError); //TODO clrxError
   }
