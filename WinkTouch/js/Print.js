@@ -646,6 +646,22 @@ async function addSignature(
   });
 }
 
+function addRxFootNote(visitId: string, page: PDFPage, pageHeight: number, border: number) {
+  const fontSize: number = 8;
+  const visit: Visit = getCachedItem(visitId);
+  if (!visit || !visit.userId) {
+    return;
+  }
+  const vStore: Store = getCachedItem(visit.storeId);
+  const store: Store = !isEmpty(vStore) ? vStore : getStore();
+  const footNote = store.defaultMedicationRxNote ? store.defaultMedicationRxNote : '';
+  page.drawText(footNote, {
+    x: border,
+    y: border,
+    size: fontSize,
+  });
+}
+
 export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   const pageWidth: number = 612; //US Letter portrait 8.5 inch * 72 dpi
   const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
@@ -667,6 +683,7 @@ export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
   await addSignature(visitId, rxPage, pageWidth, border, pdfDoc);
+  addRxFootNote(visitId, rxPage, pageHeight, border);
   if (isWeb) {
     const pdfData = await pdfDoc.saveAsBase64();
     const format: string = 'data:application/pdf;base64,';
