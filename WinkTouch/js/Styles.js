@@ -1412,7 +1412,7 @@ export const styles = StyleSheet.create({
   },
   appointmentActionButton: {
     maxWidth: 180,
-    minWidth: 100,
+    minWidth: 70 * fontScale,
     marginTop: 20,
     borderRadius: 10,
     padding: 5,
@@ -1420,6 +1420,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 2,
+    textAlign: 'center',
   },
   doubleBookingTimeField: {
     color: 'black',

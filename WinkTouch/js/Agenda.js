@@ -162,6 +162,7 @@ export class AgendaScreen extends Component {
     doubleBookingModal: boolean,
     selectedTime: any,
     manageAvailabilities: boolean,
+    showNewAvailabilityOptions: boolean,
   };
   today = new Date();
   lastRefresh: number;
@@ -196,6 +197,7 @@ export class AgendaScreen extends Component {
       selectedTime: undefined,
       manageAvailabilities: false,
       calendarWidth: Dimensions.get('window').width - 180 * fontScale - 50,
+      showNewAvailabilityOptions: true,
     };
     this.lastRefresh = 0;
     this.daysInWeek = 7;
@@ -359,7 +361,7 @@ export class AgendaScreen extends Component {
     // Check if its within store open Hours
 
     this.setState({event: event});
-    this.openManageAvailabilities();
+    this.openManageAvailabilities(true);
   };
   _onSetEvent = (event: Appointment) => {
     this.setState({event: event});
@@ -367,10 +369,10 @@ export class AgendaScreen extends Component {
       if (this.state.copiedAppointment) {
         this.setState({rescheduleAppointment: true, newAppointment: event});
       } else {
-        this.openPatientDialog();
+        this.openManageAvailabilities(false);
       }
     } else {
-      this.setState({showDialog: true});
+      event.isBusy? this.openManageAvailabilities(false) : this.setState({showDialog: true});
     }
   };
   _onToday = () => {
@@ -455,13 +457,45 @@ export class AgendaScreen extends Component {
   cancelDoctorsOptions = () => {
     this.setState({doctorsModal: false});
   };
-  openManageAvailabilities = () => {
+
+  setUnavailableAppointment = async (): void => {
+    this.setState({isLoading: true});
+    this.cancelManageAvailabilities();
+    const event: Appointment = this.state.event;
+    event.isBusy = true;
+    await this.updateEvent(event, false);
+    this.refreshAppointments(
+      true,
+      false,
+      this.state.mode === 'day' ? 1 : this.daysInWeek,
+    );
+    this.setState({isLoading: false});
+  }
+
+  resetAppointment = async (): void => {
+    this.setState({isLoading: true});
+    this.cancelManageAvailabilities();
+    const event: Appointment = this.state.event;
+    event.inactive = true;
+    await this.updateEvent(event, false);
+    this.refreshAppointments(
+      true,
+      false,
+      this.state.mode === 'day' ? 1 : this.daysInWeek,
+    );
+
+    this.setState({isLoading: false});
+  }
+
+  openManageAvailabilities = (showNewOptions: boolean): void => {
+    this.setState({showNewAvailabilityOptions: showNewOptions});
     this.setState({manageAvailabilities: true});
   };
   cancelManageAvailabilities = () => {
     this.setState({manageAvailabilities: false});
   };
   openPatientDialog = () => {
+    this.cancelManageAvailabilities();
     this.setState({isPatientDialogVisible: true});
   };
   cancelPatientDialog = () => {
@@ -1230,6 +1264,10 @@ export class AgendaScreen extends Component {
             event={this.state.event}
             updateAvailability={this.updateAvailability}
             cancelManageAvailabilities={this.cancelManageAvailabilities}
+            showNewAvailabilityOptions={this.state.showNewAvailabilityOptions}
+            setUnavailableAppointment={this.setUnavailableAppointment}
+            resetAppointment={this.resetAppointment}
+            bookAppointment={this.openPatientDialog}
           />
         )}
         <View style={styles.topFlow}>
@@ -1378,14 +1416,15 @@ class Event extends Component {
       zIndex: 10,
     };
     return event.isBusy && !patient ? (
-      <View
+      <TouchableOpacity
+        {...touchableOpacityProps}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
           {backgroundColor: '#EFEFEF'},
         ]}>
         <Text style={styles.grayedText}>{strings.unAvailable}</Text>
-      </View>
+      </TouchableOpacity>
     ) : !event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
@@ -1574,6 +1613,6 @@ export const agendaStyles = {
   field: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
+    width: '90%',
   },
 };
