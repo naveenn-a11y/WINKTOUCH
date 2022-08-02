@@ -51,7 +51,7 @@ import {fetchUserDefinedCodes, getAllCodes} from './Codes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ErrorBoundary from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
-import {Provider} from 'react-native-paper';
+import {Provider, DefaultTheme} from 'react-native-paper';
 import {clearDataCache} from './DataCache';
 import {cacheDefinitions} from './Items';
 import {getUserLanguage} from './Strings';
@@ -186,6 +186,11 @@ export function getPhoropters(): CodeDefinition[] {
   return phoropters;
 }
 
+const theme = {
+  ...DefaultTheme,
+  dark: false,
+};
+
 export class DoctorApp extends Component {
   props: {
     account: Account,
@@ -316,7 +321,7 @@ export class DoctorApp extends Component {
     return (
       <ErrorBoundary>
         <ModeContextProvider>
-          <Provider>
+          <Provider theme={theme}>
             <View 
               style={styles.screeen} 
             >
