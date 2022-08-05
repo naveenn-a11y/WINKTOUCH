@@ -1319,12 +1319,7 @@ export class GroupedForm extends Component {
         fieldDefinition,
       );
     }
-    if (column === 'Axis') {
-      console.log('Fitting.Contact Lens Trial[1].ODAxis');
-    }
-    if (column === 'Cyl') {
-      console.log('Fitting.Contact Lens Trial[1].ODCyl');
-    }
+
     let value = this.props.form
       ? column
         ? this.props.form[column]
