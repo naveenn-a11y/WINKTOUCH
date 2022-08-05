@@ -131,7 +131,7 @@ export class PatientTags extends Component {
       {
         patientTags: getCachedItems(this.props.patient.patientTags),
       },
-      this.refreshPatientTags,
+      //this.refreshPatientTags,
     );
   }
 
@@ -184,8 +184,13 @@ export class PatientTags extends Component {
       <View style={styles.rowLayout}>
         <Text style={this.props.locked ? styles.grayedText : styles.text}>
           {' '}
-          ({genderShort}
+          ({genderShort})
         </Text>
+        {this.state.patientTags 
+          && this.state.patientTags.length > 0 && 
+          <Text style={this.props.locked ? styles.grayedText : styles.text}>
+            (
+          </Text>}
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
@@ -196,9 +201,11 @@ export class PatientTags extends Component {
               </Text>
             ),
           )}
-        <Text style={this.props.locked ? styles.grayedText : styles.text}>
-          )
-        </Text>
+        {this.state.patientTags 
+          && this.state.patientTags.length > 0 && 
+          <Text style={this.props.locked ? styles.grayedText : styles.text}>
+            )
+          </Text>}
       </View>
     );
   }

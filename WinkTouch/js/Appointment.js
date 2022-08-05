@@ -28,6 +28,7 @@ import type {
   AppointmentType,
   CodeDefinition,
   PatientInvoice,
+  PatientTag,
 } from './Types';
 import {getAccount} from './DoctorApp';
 import {styles, fontScale, isWeb, selectionFontColor} from './Styles';
@@ -201,11 +202,13 @@ export async function fetchAppointments(
   let patients: PatientInfo[] = restResponse.patientList;
   let appointmentTypes: AppointmentType[] = restResponse.appointmentTypeList;
   let appointments: Appointment[] = restResponse.appointmentList;
+  let patientTagList: PatientTag[] = restResponse.patientTagList;
 
   cacheItemsById(users);
   cacheItemsById(appointmentTypes);
   cacheItemsById(appointments);
   cacheItemsById(patients);
+  cacheItemsById(patientTagList);
   patients.map((patient: PatientInfo) => {
     let patientAppts: Appointment[] = appointments.filter(
       (appointment: Appointment) => appointment.patientId === patient.id,
@@ -710,7 +713,7 @@ export class AppointmentSummary extends Component {
   };
 
   render() {
-    const patient: Patient = getCachedItem(this.props.appointment.patientId);
+    const patient: PatientInfo = getCachedItem(this.props.appointment.patientId);
     let cardStyle =
       styles['card' + capitalize(this.props.appointment.status.toString())];
     const date: string = this.props.appointment.start;
@@ -748,7 +751,7 @@ export class AppointmentSummary extends Component {
                 </View>
                 <View>
                   <PatientTags
-                    patient={{}}
+                    patient={patient}
                     locked={this.state.locked === true}
                   />
                 </View>
