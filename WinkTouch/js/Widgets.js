@@ -583,6 +583,7 @@ export class NumberField extends Component {
       nextField: string,
       onTransferFocus: (field: string) => void,
     },
+    listField?: number,
     testID: string,
   };
   state: {
@@ -1306,6 +1307,23 @@ export class NumberField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           onChangeValue={(newValue) => this.commitTyping(newValue)}
           onOpenModal={this.openModal}
+        />
+      );
+    } else if (this.props.listField) {
+      return (
+        <ListField
+          label={this.props.label}
+          style={this.props.style}
+          readonly={this.props.readonly}
+          freestyle={this.props.freestyle}
+          options={this.props.options}
+          value={formattedValue}
+          onChangeValue={this.commitTyping}
+          prefix={this.props.prefix}
+          suffix={this.props.suffix}
+          simpleSelect={true}
+          popupStyle={styles.alignPopup}
+          testID={this.props.testID}
         />
       );
     }
