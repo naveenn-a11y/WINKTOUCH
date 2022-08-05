@@ -759,7 +759,8 @@ export function passesRangeFilter(value: Object, filter: {}): boolean {
         const filterValueNumber: number = parseFloat(filterValue);
         if (
           filterValueNumber < subValue.minValue ||
-          filterValueNumber > subValue.maxValue
+          filterValueNumber > subValue.maxValue ||
+          (filterValue - subValue.minValue) % subValue.stepSize !== 0
         ) {
           return false;
         }
