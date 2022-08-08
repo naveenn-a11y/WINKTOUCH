@@ -14,11 +14,9 @@ export async function printHtml(
   const url = URL.createObjectURL(blob);
 
   cb();
-  x = window.open('');
+  var x = window.open();
   x.document.open();
-  x.document.write(
-    '<html><title>Patient File</title><body style="margin:0px;">',
-  );
+  x.document.write('<html><title>Pdf file</title><body style="margin:0px;">');
   x.document.write(
     "<iframe width='100%' height='100%' src='" + url + "'></iframe>",
   );
@@ -26,6 +24,16 @@ export async function printHtml(
   x.document.close();
   return pdf;
 }
+
+export function print(html: string) {
+  var x = window.open();
+  x.document.open();
+  x.document.write('<html><title>Pdf file</title><body style="margin:0px;">');
+  x.document.write(html);
+  x.document.write('</body></html>');
+  x.document.close();
+}
+
 export async function addPDFAttachment(pdf, PDFAttachment: Array<any> = []) {
   const pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
