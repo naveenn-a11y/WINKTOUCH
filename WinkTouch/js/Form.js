@@ -2196,10 +2196,6 @@ export class FormCodeNumberInput extends Component {
     });
     if (numRanges.length > 0) {
       numRanges.map((n: number) => {
-        if (this.props.mappedField === 'clFitting.bc.od') {
-          console.log('Element: ' + n);
-          console.log('Element: ' + uniqueRanges.has(n));
-        }
         if (!uniqueRanges.has(n)) {
           uniqueRanges.add(n);
         }

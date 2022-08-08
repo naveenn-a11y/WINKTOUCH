@@ -757,10 +757,16 @@ export function passesRangeFilter(value: Object, filter: {}): boolean {
       const subValue = value[filterKey];
       if (subValue instanceof Object) {
         const filterValueNumber: number = parseFloat(filterValue);
+        let modulo: number = Math.abs(
+          (filterValueNumber - subValue.minValue) % subValue.stepSize,
+        );
+        modulo = Math.round((modulo + Number.EPSILON) * 100) / 100;
+
         if (
           filterValueNumber < subValue.minValue ||
           filterValueNumber > subValue.maxValue ||
-          (filterValue - subValue.minValue) % subValue.stepSize !== 0
+          modulo > 0.1 ||
+          (modulo < 0.1 && subValue.stepSize <= 0.1)
         ) {
           return false;
         }
