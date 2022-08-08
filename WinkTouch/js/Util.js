@@ -766,7 +766,7 @@ export function passesRangeFilter(value: Object, filter: {}): boolean {
           filterValueNumber < subValue.minValue ||
           filterValueNumber > subValue.maxValue ||
           modulo > 0.1 ||
-          (modulo < 0.1 && subValue.stepSize <= 0.1)
+          (modulo !== 0 && modulo < 0.1 && subValue.stepSize <= 0.1)
         ) {
           return false;
         }
