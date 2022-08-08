@@ -1583,7 +1583,7 @@ export class TilesField extends Component {
                         </TouchableOpacity>
                       );
                     })}
-                    {allOptions.length === 1 && (
+                    {allOptions.length === 1 && !this.props.hideClear && (
                       <ClearTile commitEdit={this.clear} />
                     )}
                     {allOptions.length === 1 &&
@@ -1592,7 +1592,7 @@ export class TilesField extends Component {
                       )}
                   </View>
                 ))}
-                {allOptions.length > 1 && (
+                {allOptions.length > 1 && !this.props.hideClear && (
                   <View style={styles.modalColumn}>
                     <UpdateTile commitEdit={this.commitEdit} />
                     <ClearTile commitEdit={this.clear} />
@@ -1705,7 +1705,7 @@ export class ListField extends Component {
 
   updateValue = (newValue?: string): void => {
     let editedValue: ?string = this.state.editedValue;
-    if (!this.props.isValueRequired && newValue == editedValue) {
+    if (!this.props.isValueRequired && newValue === editedValue) {
       newValue = undefined;
     }
     if (this.props.isValueRequired && !newValue) {
@@ -2895,7 +2895,10 @@ export class Button extends Component {
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
-          style={this.props.disabled ? styles.buttonDisabled : styles.button}>
+          style={[
+            this.props.disabled ? styles.buttonDisabled : styles.button,
+            this.props.buttonStyle,
+          ]}>
           {this.props.loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
@@ -3505,7 +3508,7 @@ export class NativeBar extends Component {
   };
   render() {
     return (
-      <View style={styles.bottomBar}>
+      <View style={styles.snackbarFixed}>
         <Snackbar
           visible={this.state.visible}
           onDismiss={this.onDismiss}
