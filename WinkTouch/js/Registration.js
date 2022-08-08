@@ -357,6 +357,11 @@ export class RegisterScreen extends Component {
                       onPress={() => this.submitEmail(false)}
                       testID={'tryItButton'}
                     />
+                    <Button
+                      title={strings.support}
+                      onPress={() => this.submitEmail(false)}
+                      testID={'supportButton'}
+                    />
                   </View>
                 </View>
               )}
