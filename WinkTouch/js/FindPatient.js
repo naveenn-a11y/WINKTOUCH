@@ -13,6 +13,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {Patient, PatientInfo} from './Types';
@@ -24,7 +25,7 @@ import {searchItems} from './Rest';
 import {cacheItemsById, getCachedItem} from './DataCache';
 import {fetchVisitHistory, VisitHistory} from './Visit';
 import {ErrorCard} from './Form';
-import {Close} from './Favorites';
+import {Close, BackInTimeIcon} from './Favorites';
 
 const maxPatientListSize: number = 100;
 
@@ -136,6 +137,8 @@ type PatientState = {
   offset: number,
   loading: boolean,
   loadMoreData: boolean,
+  showRecentlyViewed: boolean,
+  loadRecentlyViewed: Boolean,
 };
 export class FindPatient extends PureComponent<PatientProps, PatientState> {
   constructor(props: PatientProps) {
@@ -147,6 +150,8 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       offset: 0,
       loading: false,
       loadMoreData: true,
+      showRecentlyViewed: false,
+      loadRecentlyViewed: false,
     };
   }
   async searchPatients() {
@@ -156,7 +161,8 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       patients: [],
       loadMoreData: true,
       offset: 0,
-      loading:true
+      loading:true,
+      showRecentlyViewed: false,
     });
     if (
       !this.state.searchCriterium ||
@@ -229,8 +235,46 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
     }
   };
 
+  fetchRecentlyViewed = async () => {
+    this.props.onSelectPatient(undefined);
+    this.setState({
+      showPatientList: false,
+      patients: [],
+      loadMoreData: false,
+      offset: 0,
+      loadRecentlyViewed:true,
+      searchCriterium: '',
+      showRecentlyViewed: false,
+    });
+
+     
+    let restResponse = await searchItems('Visit/recent', {});
+    const recentlyViewedpatients: Patient[] = restResponse.patientList;
+
+    if (!recentlyViewedpatients || recentlyViewedpatients.length === 0) {
+      this.setState({
+        showPatientList: false,
+        loadRecentlyViewed:false,
+        showRecentlyViewed: false,
+      });
+      alert(strings.noPatientsFound);
+      return;
+    }
+    cacheItemsById(recentlyViewedpatients);
+    
+    !isWeb && LayoutAnimation.spring();
+    this.setState({
+      showPatientList: recentlyViewedpatients != undefined && recentlyViewedpatients.length > 0,
+      patients: recentlyViewedpatients,
+      loadRecentlyViewed:false,
+      showRecentlyViewed: true,
+    });
+  }
+
   render() {
     return (
+      <View>
+        {this.state.showRecentlyViewed && <Text style={styles.screenTitle}>{strings.recentlyViewedPatients}</Text>}
       <View style={styles.rightSearchColumn}>
         <TextInput
           placeholder={strings.findPatient}
@@ -256,15 +300,28 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
           loadMoreData={this.state.loadMoreData}
         />
 
+        <View style={styles.centeredRowLayout}>
         {this.props.onNewPatient ? (
-          <View style={styles.centeredRowLayout}>
+          <View>
             <Button
               title={strings.newPatient}
               onPress={() => this.newPatient()}
               testID="newPatientButton"
             />
+            
           </View>
         ) : null}
+          {!this.state.showRecentlyViewed && 
+            <TouchableOpacity
+              onPress={this.fetchRecentlyViewed}
+              disabled={this.state.loading}
+            >
+              <View style={styles.button}> 
+                {!this.state.loadRecentlyViewed && <BackInTimeIcon  size={20} color="#fff" />}
+                {this.state.loadRecentlyViewed && <ActivityIndicator color={selectionColor} />}
+              </View>
+            </TouchableOpacity>}
+        </View>
         {this.props.openWaitingListDialog ? (
           <View style={styles.centeredRowLayout}>
             <Button
@@ -274,6 +331,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
             />
           </View>
         ) : null}
+      </View>
       </View>
     );
   }

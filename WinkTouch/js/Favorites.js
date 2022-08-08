@@ -629,3 +629,21 @@ export class Favorites extends PureComponent {
     );
   }
 }
+
+export class BackInTimeIcon extends PureComponent {
+  props: {
+    style: ViewStyleProp,
+    color: string,
+    size: number,
+  };
+  render() {
+    return (
+      <MaterialIcon
+        name="clock-time-five-outline"
+        style={this.props.style}
+        color={this.props.color}
+        size={this.props.size}
+      />
+    );
+  }
+}
