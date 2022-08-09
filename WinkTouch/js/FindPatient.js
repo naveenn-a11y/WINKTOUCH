@@ -126,6 +126,7 @@ export type PatientProps = {
   onSelectPatient?: (patient: Patient) => void,
   onNewPatient?: () => void,
   openWaitingListDialog: () => void,
+  toggleRecentlyViewedLabel: (shouldShow: boolean) => void,
 };
 type PatientState = {
   searchCriterium: string,
@@ -156,6 +157,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
   }
   async searchPatients() {
     this.props.onSelectPatient(undefined);
+    this.props.toggleRecentlyViewedLabel(false);
     this.setState({
       showPatientList: false,
       patients: [],
@@ -242,6 +244,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       patients: [],
       loadMoreData: false,
       offset: 0,
+      loading:false,
       loadRecentlyViewed:true,
       searchCriterium: '',
       showRecentlyViewed: false,
@@ -263,6 +266,8 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
     cacheItemsById(recentlyViewedpatients);
     
     !isWeb && LayoutAnimation.spring();
+
+    this.props.toggleRecentlyViewedLabel(true);
     this.setState({
       showPatientList: recentlyViewedpatients != undefined && recentlyViewedpatients.length > 0,
       patients: recentlyViewedpatients,
@@ -273,8 +278,6 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
 
   render() {
     return (
-      <View>
-        {this.state.showRecentlyViewed && <Text style={styles.screenTitle}>{strings.recentlyViewedPatients}</Text>}
       <View style={styles.rightSearchColumn}>
         <TextInput
           placeholder={strings.findPatient}
@@ -314,10 +317,10 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
           {!this.state.showRecentlyViewed && 
             <TouchableOpacity
               onPress={this.fetchRecentlyViewed}
-              disabled={this.state.loading}
+              disabled={this.state.loadRecentlyViewed}
             >
               <View style={styles.button}> 
-                {!this.state.loadRecentlyViewed && <BackInTimeIcon  size={20} color="#fff" />}
+                {!this.state.loadRecentlyViewed && <BackInTimeIcon  size={18} color="#fff" />}
                 {this.state.loadRecentlyViewed && <ActivityIndicator color={selectionColor} />}
               </View>
             </TouchableOpacity>}
@@ -331,7 +334,6 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
             />
           </View>
         ) : null}
-      </View>
       </View>
     );
   }
@@ -347,11 +349,13 @@ export class PatientSearch extends Component {
   };
   state: {
     selectedPatient: Patient,
+    showRecentlyViewedLabel: boolean,
   };
   constructor(props: any) {
     super(props);
     this.state = {
       selectedPatient: undefined,
+      showRecentlyViewedLabel: false,
     };
   }
 
@@ -368,6 +372,10 @@ export class PatientSearch extends Component {
     return (
       this.state.selectedPatient && this.state.selectedPatient.id === 'patient'
     );
+  }
+
+  toggleRecentlyViewedLabel = (shouldShow: boolean) => {
+    this.setState({ showRecentlyViewedLabel: shouldShow});
   }
 
   renderIcons() {
@@ -387,6 +395,9 @@ export class PatientSearch extends Component {
   render() {
     return (
       <View style={styles.searchPage}>
+        {this.state.showRecentlyViewedLabel && <View>
+          <Text style={styles.screenTitle}>{strings.recentlyViewedPatients}</Text>
+        </View>}
         <View style={styles.centeredScreenLayout}>
           {!this.isNewPatient() && (
             <FindPatient
@@ -398,6 +409,7 @@ export class PatientSearch extends Component {
                   : undefined
               }
               onNewPatient={() => this.onNewPatient()}
+              toggleRecentlyViewedLabel={this.toggleRecentlyViewedLabel}
             />
           )}
           <PatientDetails
@@ -420,6 +432,7 @@ export class FindPatientScreen extends Component {
     patientInfo: ?PatientInfo,
     visitHistory: ?(string[]),
     patientDocumentHistory: ?(string[]),
+    showRecentlyViewedLabel: boolean,
   };
 
   constructor(props: any) {
@@ -428,6 +441,7 @@ export class FindPatientScreen extends Component {
       patientInfo: undefined,
       visitHistory: undefined,
       patientDocumentHistory: undefined,
+      showRecentlyViewedLabel: false,
     };
   }
 
@@ -485,17 +499,27 @@ export class FindPatientScreen extends Component {
     );
   }
 
+  toggleRecentlyViewedLabel = (shouldShow: boolean) => {
+    this.setState({ showRecentlyViewedLabel: shouldShow});
+  }
+
   render() {
     return (
       <KeyboardAwareScrollView
         scrollEnable={true}
         keyboardShouldPersistTaps="handled">
+
+        {this.state.showRecentlyViewedLabel && <View >
+          <Text style={styles.screenTitle}>{strings.recentlyViewedPatients}</Text>
+        </View>}
+
         <FindPatient
           onSelectPatient={(patient: Patient) => this.selectPatient(patient)}
           exceedLimit={true}
           selectedPatientId={
             this.state?.patientInfo ? this.state?.patientInfo.id : undefined
           }
+          toggleRecentlyViewedLabel={this.toggleRecentlyViewedLabel}
         />
         {this.state.patientInfo && (
           <View style={styles.separator}>
