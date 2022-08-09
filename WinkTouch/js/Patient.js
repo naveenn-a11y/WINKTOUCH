@@ -186,26 +186,16 @@ export class PatientTags extends Component {
           {' '}
           ({genderShort})
         </Text>
-        {this.state.patientTags 
-          && this.state.patientTags.length > 0 && 
-          <Text style={this.props.locked ? styles.grayedText : styles.text}>
-            {' '}(
-          </Text>}
         {this.state.patientTags &&
           this.state.patientTags.map(
             (patientTag: PatientTag, index: number) => (
               <Text
                 key={index}
                 style={this.props.locked ? styles.grayedText : styles.text}>
-                {patientTag && patientTag.letter}
+                {' '}({patientTag && patientTag.letter})
               </Text>
             ),
           )}
-        {this.state.patientTags 
-          && this.state.patientTags.length > 0 && 
-          <Text style={this.props.locked ? styles.grayedText : styles.text}>
-            )
-          </Text>}
       </View>
     );
   }
