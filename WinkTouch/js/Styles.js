@@ -232,6 +232,9 @@ export const styles = StyleSheet.create({
   modalTileLabel: modalTileLabel(false),
   modalTileLabelSelected: modalTileLabel(true),
   modalTileIcon: modalTileLabel(false, true),
+  boldText: {
+    fontWeight: "bold",
+  },
   text: {
     fontSize: 17 * fontScale,
   },

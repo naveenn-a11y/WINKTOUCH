@@ -182,14 +182,14 @@ export class PatientTags extends Component {
       </View>
     ) : (
       <View style={styles.rowLayout}>
-        <Text style={this.props.locked ? styles.grayedText : styles.text}>
+        <Text style={this.props.locked ? [styles.grayedText, styles.boldText] : [styles.text, styles.boldText]}>
           {' '}
           ({genderShort})
         </Text>
         {this.state.patientTags 
           && this.state.patientTags.length > 0 && 
           <Text style={this.props.locked ? styles.grayedText : styles.text}>
-            (
+            {' '}(
           </Text>}
         {this.state.patientTags &&
           this.state.patientTags.map(
