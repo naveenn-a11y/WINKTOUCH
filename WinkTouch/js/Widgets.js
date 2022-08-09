@@ -3533,8 +3533,11 @@ type AlertProps = {
   dismissable?: boolean,
   confirmActionLabel: string,
   cancelActionLabel: string,
+  emailActionLabel?: string,
   onConfirmAction: (selectedData: ?any) => void,
   onCancelAction: () => void,
+  onEmailAction?: (selectedData: ?any) => void,
+  isActionVertical?: boolean,
   multiValue?: boolean,
 };
 type AlertState = {
@@ -3574,6 +3577,12 @@ export class Alert extends Component<AlertProps, AlertState> {
       selectedData === undefined ? this.state.data : selectedData,
     );
   };
+  emailDialog = (selectedData: ?any) => {
+    this.setState({visible: false});
+    this.props.onEmailAction(
+      selectedData === undefined ? this.state.data : selectedData,
+    );
+  }
 
   toggleCheckbox(index: number) {
     let data: any = this.state.data;
@@ -3656,11 +3665,14 @@ export class Alert extends Component<AlertProps, AlertState> {
           dismissable={this.props.dismissable}
           style={this.props.style}>
           <Dialog.Title>{this.props.title}</Dialog.Title>
-          <Dialog.Content>{this.renderContent()}</Dialog.Content>
-          <Dialog.Actions>
+          {!this.props.isActionVertical && <Dialog.Content>{this.renderContent()}</Dialog.Content>}
+          <Dialog.Actions style={this.props.isActionVertical && { flexDirection: 'column-reverse' }}>
             <NativeBaseButton onPress={this.cancelDialog}>
               {this.props.cancelActionLabel}
             </NativeBaseButton>
+            {this.props.onEmailAction && <NativeBaseButton onPress={this.emailDialog}>
+              {this.props.emailActionLabel}
+            </NativeBaseButton>}
             <NativeBaseButton onPress={this.confirmDialog} disabled={disabled}>
               {this.props.confirmActionLabel}
             </NativeBaseButton>

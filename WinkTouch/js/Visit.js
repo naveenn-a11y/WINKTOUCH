@@ -30,6 +30,7 @@ import type {
   Prescription,
   CodeDefinition,
   ExamRoom,
+  PatientInvoice,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -85,8 +86,12 @@ import {
   stripDataType,
   getPrivileges,
 } from './Rest';
-import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
-import {printRx, printClRx, printMedicalRx} from './Print';
+import {
+  fetchAppointment,
+  hasAppointmentBookAccess,
+  invoiceForAppointment,
+} from './Appointment';
+import {printRx, printClRx, printMedicalRx, emailRx, emailClRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
 import {getDoctor, getStore} from './DoctorApp';
@@ -884,6 +889,10 @@ class VisitWorkFlow extends Component {
     printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
     printing: boolean,
+    showClRxPopup: boolean,
+    isPrintingRx: boolean,
+    isPrintingCLRx: boolean,
+    postInvoiceLoading: boolean,
   };
 
   constructor(props: any) {
@@ -903,6 +912,10 @@ class VisitWorkFlow extends Component {
       showRxPopup: false,
       showMedicationRxPopup: false,
       printing: false,
+      showClRxPopup: false,
+      isPrintingRx: false,
+      isPrintingCLRx: false,
+      postInvoiceLoading: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1094,6 +1107,27 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  canInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const appointment: Appointment = this.state.appointment;
+    const canInvoice: boolean =
+      visit &&
+      visit.appointmentId &&
+      !this.props.readonly &&
+      appointment &&
+      appointment.status === 5;
+
+    return canInvoice;
+  }
+  hasInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const piIds: string[] = getCachedItem('visitInvoices-' + visit.id);
+    return (
+      (visit.invoices && visit.invoices.length > 0) ||
+      (piIds && piIds.length > 0)
+    );
+  }
+
   async createExam(examDefinitionId: string) {
     if (this.props.readonly) {
       return;
@@ -1193,6 +1227,37 @@ class VisitWorkFlow extends Component {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
+  }
+
+  async invoice() {
+    this.setState({postInvoiceLoading: true});
+    const appointment: Appointment = this.state.appointment;
+    const visit: Visit = this.state.visit;
+    if (appointment === undefined || appointment === null) {
+      return;
+    }
+    try {
+      const patientInvoices: PatientInvoice[] = await invoiceForAppointment(
+        appointment.id,
+      );
+      if (patientInvoices && patientInvoices.length > 0) {
+        const piIds: string[] = patientInvoices.map((inv) => inv.id);
+        cacheItem('visitInvoices-' + visit.id, piIds);
+
+        const ids: string = piIds.join();
+        this.setSnackBarMessage(
+          strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
+        );
+        visit.invoices = patientInvoices;
+      } else {
+        this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
+      }
+      this.showSnackBar();
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+    this.setState({visit, postInvoiceLoading: false});
   }
 
   async endVisit() {
@@ -1488,7 +1553,8 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
 
-  confirmPrintRxDialog = (data: any) => {
+  confirmPrintRxDialog = async (data: any, shouldSendEmail: boolean = false) => {
+    this.setState({isPrintingRx: true});
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
     let printNotesOnRx: boolean = false;
@@ -1506,14 +1572,36 @@ class VisitWorkFlow extends Component {
         drRecommendationArray.push(importData.entityId);
       }
     });
-    printRx(
-      this.props.visitId,
-      printFinalRx,
-      printPDs,
-      printNotesOnRx,
-      drRecommendationArray,
-    );
+
     this.hidePrintRxPopup();
+    if (shouldSendEmail) {
+      let response = await emailRx(
+        this.props.visitId,
+        printFinalRx,
+        printPDs,
+        printNotesOnRx,
+        drRecommendationArray,
+      );
+
+      if (response) {
+        if (response.errors) {
+          this.setState({isPrintingRx: false});
+          alert(response.errors);
+          return;
+        }
+        this.setSnackBarMessage(strings.emailRxSuccess);
+        this.showSnackBar();
+      }
+    } else {
+      await printRx(
+        this.props.visitId,
+        printFinalRx,
+        printPDs,
+        printNotesOnRx,
+        drRecommendationArray,
+      );
+    }
+    this.setState({isPrintingRx: false});
   };
 
   renderPrintRxPopup() {
@@ -1549,6 +1637,8 @@ class VisitWorkFlow extends Component {
         confirmActionLabel={strings.printRx}
         cancelActionLabel={strings.cancel}
         multiValue={true}
+        emailActionLabel={strings.emailRx}
+        onEmailAction={() => this.confirmPrintRxDialog(printRxOptions, true)}
       />
     );
   }
@@ -1611,6 +1701,58 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  showCLRxPopup(): void {
+    this.setState({showClRxPopup: true});
+  }
+
+  hidePrintCLRxPopup = (): void => {
+    this.setState({showClRxPopup: false});
+  };
+
+  confirmPrintClRxDialog = async() : void => {
+    this.setState({isPrintingCLRx: true});
+    this.hidePrintCLRxPopup();
+    await printClRx(this.props.visitId);
+    this.setState({isPrintingCLRx: false});
+  }
+
+  confirmEmailClRxDialog = async() : void => {
+    this.setState({isPrintingCLRx: true});
+    this.hidePrintCLRxPopup();
+    let response = await emailClRx(this.props.visitId);
+    if (response) {
+      if (response.errors) {
+        this.setState({isPrintingCLRx: false});
+        alert(response.errors);
+        return;
+      }
+      this.setSnackBarMessage(strings.emailRxSuccess);
+      this.showSnackBar();
+    }
+    this.setState({isPrintingCLRx: false});
+  }
+
+  renderPrintCLRxPopup() {
+    const printCLRxOptions: any = [];
+
+    return (
+      <Alert
+        title={strings.printClRx}
+        data={printCLRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintClRxDialog()}
+        onCancelAction={() => this.hidePrintCLRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printClRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={false}
+        emailActionLabel={strings.emailClRx}
+        onEmailAction={() => this.confirmEmailClRxDialog()}
+        isActionVertical={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
@@ -1625,6 +1767,7 @@ class VisitWorkFlow extends Component {
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
         {this.state.showRxPopup && this.renderPrintRxPopup()}
+        {this.state.showClRxPopup && this.renderPrintCLRxPopup()}
         {this.state.showMedicationRxPopup &&
           this.renderPrintMedicationRxPopup()}
         <View style={styles.flow}>
@@ -1641,6 +1784,8 @@ class VisitWorkFlow extends Component {
               onPress={() => {
                 this.showRxPopup();
               }}
+              loading={this.state.isPrintingRx}
+              disabled={this.state.isPrintingRx}
             />
           )}
           {hasMedicalDataReadAccess && this.hasMedicalRx() && (
@@ -1655,8 +1800,10 @@ class VisitWorkFlow extends Component {
             <Button
               title={strings.printClRx}
               onPress={() => {
-                printClRx(this.props.visitId);
+                this.showCLRxPopup();
               }}
+              loading={this.state.isPrintingCLRx}
+              disabled={this.state.isPrintingCLRx}
             />
           )}
           {this.canTransfer() && (
@@ -1712,6 +1859,15 @@ class VisitWorkFlow extends Component {
                 onPress={() => this.endVisit()}
               />
             )}
+          {this.canInvoice() && (
+            <Button
+              loading={this.state.postInvoiceLoading}
+              title={
+                this.hasInvoice() ? strings.invoiceAgain : strings.createInvoice
+              }
+              onPress={() => this.invoice()}
+            />
+          )}
         </View>
       </View>
     );

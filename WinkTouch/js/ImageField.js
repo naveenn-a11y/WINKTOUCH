@@ -162,30 +162,35 @@ export async function loadBase64ImageForWeb(
       image.startsWith('https:') ||
       image.startsWith('blob:'))
   ) {
-    const imageToBase64 = require('image-to-base64/browser');
-    const response = await imageToBase64(image);
-    let format: string = 'data:image/jpg;base64,';
-    if (filePath !== undefined) {
-      if (filePath.endsWith('.pdf')) {
-        format = 'data:application/pdf;base64,';
-      } else if (filePath.endsWith('.png')) {
-        format = 'data:image/png;base64,';
+    try {
+      const imageToBase64 = require('./utilities/ImageToBase64');
+      const response = await imageToBase64(image);
+      let format: string = 'data:image/jpg;base64,';
+      if (filePath !== undefined) {
+        if (filePath.endsWith('.pdf')) {
+          format = 'data:application/pdf;base64,';
+        } else if (filePath.endsWith('.png')) {
+          format = 'data:image/png;base64,';
+        } else {
+          format = 'data:image/jpg;base64,';
+        }
       } else {
-        format = 'data:image/jpg;base64,';
+        if (image.endsWith('pdf')) {
+          format = 'data:application/pdf;base64,';
+        } else if (image.endsWith('jpg')) {
+          format = 'data:image/jpg;base64,';
+        } else {
+          format = 'data:image/png;base64,';
+        }
       }
-    } else {
-      if (image.endsWith('pdf')) {
-        format = 'data:application/pdf;base64,';
-      } else if (image.endsWith('jpg')) {
-        format = 'data:image/jpg;base64,';
-      } else {
-        format = 'data:image/png;base64,';
-      }
+
+      const path: string = format.concat(response);
+
+      return path;
+    } catch(error) {
+      __DEV__ && console.log(error);
+      return undefined;
     }
-
-    const path: string = format.concat(response);
-
-    return path;
   }
   return undefined;
 }

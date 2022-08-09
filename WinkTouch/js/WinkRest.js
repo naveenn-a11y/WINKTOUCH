@@ -33,8 +33,8 @@ export function setWinkRestUrl(winkEmrHost: string) {
 }
 
 export function getWinkRestUrl(): string {
-  if (!__DEV__) {
-    return 'http://192.168.2.53:8080/WinkRESTv5.00.40/';
+  if (__DEV__) {
+    return 'http://localhost:8080/WinkRESTv6.00.02/';
   }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
     return setWinkRestUrl(defaultHost);

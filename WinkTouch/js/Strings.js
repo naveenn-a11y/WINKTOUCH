@@ -344,6 +344,14 @@ export const strings = new LocalizedStrings({
       'The time slot you selected is outside store opening hours. You cannot create an availability !',
     providerTitle: 'Provider',
     loadMoreSummariesTitle: 'Load more summaries...',
+    reset: 'Reset',
+    emailRx: 'Email Rx',
+    emailClRx: 'Email CLRx',
+    emailRxSuccess: 'Rx sent successfully',
+    createInvoice: 'Create Invoice',
+    invoiceAgain: 'Invoice Again',
+    invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
+    NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
   },
   fr: {
     enterRegisteredEmail:
@@ -687,6 +695,14 @@ export const strings = new LocalizedStrings({
       'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
     providerTitle: 'Pourvoyeur',
     loadMoreSummariesTitle: 'Charger plus de résumés...',
+    reset: 'Réinitialiser',
+    emailRx: 'Envoyer Rx',
+    emailClRx: 'Envoyer RxVC',
+    emailRxSuccess: 'Rx envoyé avec succès',
+    createInvoice: 'Créer une facture',
+    invoiceAgain: 'Facturer à nouveau',
+    invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
+    NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
   },
 });
 
