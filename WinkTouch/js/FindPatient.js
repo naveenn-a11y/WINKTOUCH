@@ -190,6 +190,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
     });
   }
   newPatient() {
+    this.props.toggleRecentlyViewedLabel(false);
     this.setState({
       showPatientList: false,
       patients: [],
