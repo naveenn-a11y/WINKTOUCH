@@ -161,8 +161,8 @@ export class PatientTags extends Component {
       }
       return (
         <View style={styles.rowLayout}>
-          <Text style={this.props.locked ? styles.grayedText : styles.text}>
-            ({genderShort})
+          <Text style={this.props.locked ? [styles.grayedText, styles.boldText] : [styles.text, styles.boldText]}>
+            {' '}({genderShort})
           </Text>
         </View>
       );
