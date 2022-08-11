@@ -353,6 +353,11 @@ export const strings = new LocalizedStrings({
     invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
     NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
     support: 'Support',
+    agentAssumptionTitle: 'Agent Assumption Form',
+    zendesk: 'Zendesk #',
+    reason: 'Reason',
+    agentLoginWarning:
+      'This is a production account that uses private data. Do not enter any real patient data!',
   },
   fr: {
     enterRegisteredEmail:
@@ -705,6 +710,11 @@ export const strings = new LocalizedStrings({
     invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
     NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
     support: 'Support',
+    agentAssumptionTitle: "Formulaire d'agent",
+    zendesk: 'Zendesk #',
+    reason: 'Raison',
+    agentLoginWarning:
+      "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
   },
 });
 

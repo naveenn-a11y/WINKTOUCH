@@ -191,6 +191,11 @@ export class EhrApp extends Component {
       } else {
         AsyncStorage.removeItem('path');
       }
+      if (registration.isOmsUser) {
+        AsyncStorage.setItem('isOmsUser', registration.isOmsUser);
+      } else {
+        AsyncStorage.removeItem('isOmsUser');
+      }
     }
     this.setRegistration(registration);
   }
@@ -241,7 +246,8 @@ export class EhrApp extends Component {
     const email: string = await AsyncStorage.getItem('email');
     const bundle: string = await AsyncStorage.getItem('bundle');
     const path: string = await AsyncStorage.getItem('path');
-    const registration: Registration = {email, bundle, path};
+    const isOmsUser: string = await AsyncStorage.getItem('isOmsUser');
+    const registration: Registration = {email, bundle, path, isOmsUser};
     console.log(
       'WINKemr app is registered to : ' +
         email +
