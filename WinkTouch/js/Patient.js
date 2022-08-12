@@ -70,6 +70,10 @@ export async function storePatientInfo(patientInfo: PatientInfo): PatientInfo {
   return patientInfo;
 }
 
+export async function pushHarmony() {
+
+}
+
 export async function searchPatientDocuments(
   patientId: string,
   category: string,
@@ -472,6 +476,13 @@ export class PatientContact extends Component {
               type="email-address"
             />
           </FormRow>
+        </View>
+        <View style={styles.centeredRowLayout}>
+          <Button
+              title={strings.sendToHarmony}
+              onPress={() => this.sendToHarmony()}
+              testID="sendToHarmonyButton"
+          />
         </View>
       </View>
     );

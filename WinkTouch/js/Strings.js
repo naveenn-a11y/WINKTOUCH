@@ -352,6 +352,7 @@ export const strings = new LocalizedStrings({
     invoiceAgain: 'Invoice Again',
     invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
     NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
+    sendToHarmony: 'Send to Harmony',
   },
   fr: {
     enterRegisteredEmail:
@@ -703,6 +704,7 @@ export const strings = new LocalizedStrings({
     invoiceAgain: 'Facturer à nouveau',
     invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
     NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
+    sendToHarmony: 'Envoyer vers Harmony',
   },
 });
 
