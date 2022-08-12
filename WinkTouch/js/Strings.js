@@ -353,6 +353,7 @@ export const strings = new LocalizedStrings({
     invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
     NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
     sendToHarmony: 'Send to Harmony',
+    sendToHarmonySuccessMessage: 'Data successfully sent to Topcon Harmony!',
   },
   fr: {
     enterRegisteredEmail:
@@ -705,6 +706,8 @@ export const strings = new LocalizedStrings({
     invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
     NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
     sendToHarmony: 'Envoyer vers Harmony',
+    sendToHarmonySuccessMessage:
+      'Données envoyées avec succès à Topcon Harmony!',
   },
 });
 

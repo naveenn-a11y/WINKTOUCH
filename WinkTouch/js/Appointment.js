@@ -383,6 +383,35 @@ export async function invoiceForAppointment(
     console.log(error);
   }
 }
+
+export async function pushToHarmony(patientId: ?string): boolean {
+  let url = getRestUrl() + 'Patient/harmony/id=' + patientId;
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: {},
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let restResponse: any = await httpResponse.json();
+
+    if (restResponse.errors) {
+      alert(restResponse.errors);
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+  return true;
+}
 export class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,

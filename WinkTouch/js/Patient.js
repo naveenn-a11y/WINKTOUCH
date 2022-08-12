@@ -44,17 +44,16 @@ import {PaperClip, Refresh} from './Favorites';
 import {Pdf} from './Document';
 import {fetchUpload, getMimeType} from './Upload';
 import {PatientSearch} from './FindPatient';
-import {Button} from './Widgets';
+import {Button, NativeBar} from './Widgets';
 import {
   fetchAppointments,
   AppointmentSummary,
   isAppointmentLocked,
+  pushToHarmony,
 } from './Appointment';
 import {loadDocuments} from './ImageField';
 import {printBase64Pdf} from './Print';
-import {
-  Binoculars,
-} from './Widgets';
+import {Binoculars} from './Widgets';
 import {ManageUsers} from './User';
 
 export async function fetchPatientInfo(
@@ -68,10 +67,6 @@ export async function fetchPatientInfo(
 export async function storePatientInfo(patientInfo: PatientInfo): PatientInfo {
   patientInfo = await storeItem(patientInfo);
   return patientInfo;
-}
-
-export async function pushHarmony() {
-
 }
 
 export async function searchPatientDocuments(
@@ -477,13 +472,6 @@ export class PatientContact extends Component {
             />
           </FormRow>
         </View>
-        <View style={styles.centeredRowLayout}>
-          <Button
-              title={strings.sendToHarmony}
-              onPress={() => this.sendToHarmony()}
-              testID="sendToHarmonyButton"
-          />
-        </View>
       </View>
     );
   }
@@ -658,7 +646,10 @@ export class PatientScreen extends Component {
   state: {
     patientInfo: PatientInfo,
     isDirty: boolean,
-    isPopupVisibile: Boolean,
+    isPopupVisibile: boolean,
+    pushToHarmonyLoading: boolean,
+    showSnackBar: boolean,
+    snackBarMessage: string,
   };
 
   constructor(props: any) {
@@ -670,7 +661,10 @@ export class PatientScreen extends Component {
         ? params.patientInfo
         : getCachedItem(params.patientInfo.id),
       isDirty,
-      isPopupVisibile: false
+      isPopupVisibile: false,
+      pushToHarmonyLoading: false,
+      showSnackBar: false,
+      snackBarMessage: undefined,
     };
     if (!isDirty) {
       this.refreshPatientInfo();
@@ -710,6 +704,38 @@ export class PatientScreen extends Component {
     this.setState({patientInfo: patientInfo, isDirty: true});
   };
 
+  showSnackBar() {
+    this.setState({showSnackBar: true});
+  }
+  hideSnackBar() {
+    this.setState({showSnackBar: false});
+  }
+
+  setSnackBarMessage(message: string) {
+    this.setState({snackBarMessage: message});
+  }
+
+  pushToHarmony = async () => {
+    this.setState({pushToHarmonyLoading: true});
+    let patientInfo: PatientInfo | RestResponse = this.state.patientInfo;
+    if (this.state.isDirty) {
+      patientInfo = await storePatientInfo(this.state.patientInfo);
+      if (!patientInfo.errors) {
+        this.setState({patientInfo: patientInfo, isDirty: false});
+      } else {
+        this.setState({patientInfo: patientInfo});
+      }
+    }
+    if (!patientInfo.errors) {
+      const success: boolean = await pushToHarmony(patientInfo.id);
+      if (success) {
+        this.setSnackBarMessage(strings.sendToHarmonySuccessMessage);
+        this.showSnackBar();
+      }
+    }
+    this.setState({pushToHarmonyLoading: false});
+  };
+
   renderRefreshIcon() {
     if (!this.state.isDirty) {
       return null;
@@ -739,6 +765,15 @@ export class PatientScreen extends Component {
 
   renderSearchDoctorModal = () => {
     this.setState({isPopupVisibile: true});
+  };
+
+  renderSnackBar() {
+    return (
+      <NativeBar
+        message={this.state.snackBarMessage}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
   }
 
   render() {
@@ -750,7 +785,16 @@ export class PatientScreen extends Component {
           patientInfo={this.state.patientInfo}
           onUpdatePatientInfo={this.updatePatientInfo}
           findDoctor={this.renderSearchDoctorModal}
+          onPushToHarmony={this.pushToHarmony}
         />
+        <View style={styles.centeredRowLayout}>
+          <Button
+            loading={this.state.pushToHarmonyLoading}
+            title={strings.sendToHarmony}
+            onPress={() => this.pushToHarmony()}
+            testID="sendToHarmonyButton"
+          />
+        </View>
         <PatientDocumentAttachments patientInfo={this.state.patientInfo} />
         {this.renderIcons()}
         {this.state.isPopupVisibile && (
@@ -762,6 +806,7 @@ export class PatientScreen extends Component {
             {this.renderManageUsersPopup()}
           </Modal>
         )}
+        {this.state.showSnackBar && this.renderSnackBar()}
       </KeyboardAwareScrollView>
     );
   }
@@ -925,7 +970,7 @@ export class CabinetScreen extends Component {
 
   renderSearchDoctorModal = () => {
     this.setState({isPopupVisibile: true});
-  }
+  };
 
   renderAppointments() {
     if (!this.state.appointments || this.state.appointments.length === 0) {
