@@ -361,15 +361,23 @@ export class PatientContact extends Component {
           <FormRow>
             <FormField
               value={this.props.patientInfo}
+              fieldName="streetNumber"
+              onChangeValue={this.props.onUpdatePatientInfo}
+              type="numeric"
+            />
+            <FormField
+              value={this.props.patientInfo}
               fieldName="streetName"
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
+          </FormRow>
+          <FormRow>
             <FormField
               value={this.props.patientInfo}
-              fieldName="streetNumber"
+              fieldName="unit"
               onChangeValue={this.props.onUpdatePatientInfo}
-              type="numeric"
+              autoCapitalize="words"
             />
           </FormRow>
           <FormRow>
