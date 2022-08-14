@@ -252,7 +252,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
     });
 
      
-    let restResponse = await searchItems('Visit/recent', {});
+    let restResponse = await searchItems('Patient/recent', {});
     const recentlyViewedpatients: Patient[] = restResponse.patientList;
 
     if (!recentlyViewedpatients || recentlyViewedpatients.length === 0) {
