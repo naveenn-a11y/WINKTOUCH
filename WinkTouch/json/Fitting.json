@@ -847,6 +847,14 @@
           ]
         },
         {
+          "mappedField": "clFitting.notations",
+          "name": "Notations",
+          "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/${accountId}/${setting.biomicroscopyImageUpload}/${setting.biomicroscopyImageUpload.uploadName}",
+          "label": "",
+          "resolution": "680x220",
+          "size": "M"
+        },
+        {
           "mappedField": "clFitting.notes",
           "maxLength": 500,
           "name": "Notes"
