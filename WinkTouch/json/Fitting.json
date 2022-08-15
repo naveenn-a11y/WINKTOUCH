@@ -1,5 +1,6 @@
 {
   "name": "Fitting",
+  "starable": true,
   "scrollable": true,
   "cardFields": [
     ["Contact Lens Trial.Date", "Contact Lens Trial.Trial type"],
@@ -38,11 +39,11 @@
       "name": "Contact Lens Expiration Date",
       "multiValue": false,
       "fields": [
-          {
-              "name": "Expiration Date",
-              "mappedField": "visit.expDateCl",
-              "type": "futureDate"
-          }
+        {
+          "name": "Expiration Date",
+          "mappedField": "visit.expDateCl",
+          "type": "futureDate"
+        }
       ]
     },
     {
@@ -57,6 +58,7 @@
         "BC",
         "Dia",
         "Add",
+        "AddAlpha",
         "D/N"
       ],
       "maxLength": 8,
@@ -66,7 +68,7 @@
       "columns": [
         ["Manufacturer", "Brand", "Design", "Qty/Box", ">>"],
         ["Type", "Material", "Wearing Period", "Replacement"],
-        ["Sph", "Cyl", "Axis", "BC", "Dia", "Add", "D/N", ">>"],
+        ["Sph", "Cyl", "Axis", "BC", "Dia", "Add", "AddAlpha", "D/N", ">>"],
         ["DVA", "NVA", "Solution"],
         ["Comfort", "Vision", "Rotation", "Movement", "Centration", ">>"],
         ["Tear", "Sclera", "Limbal", "Cornea", "Lid", ">>"]
@@ -328,18 +330,26 @@
               "mappedField": "clFitting.sph.od",
               "name": "OD",
               "prefix": "+",
-              "minValue": -30,
-              "stepSize": 0.25,
-              "maxValue": 30
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.sph"
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.sph.os",
               "name": "OS",
               "prefix": "+",
-              "minValue": -30,
-              "stepSize": 0.25,
-              "maxValue": 30
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.sph"
             }
           ]
         },
@@ -353,13 +363,20 @@
               "decimalsError": "Invalid",
               "stepSizeError": "Invalid",
               "name": "OD",
-              "minValue": -10.0,
               "prefix": "+",
-              "stepSize": 0.25,
               "maxValueError": "Cannot be more than 10",
               "required": false,
               "showPositive": true,
-              "maxValue": 0
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.cyl"
             },
             {
               "decimals": 2,
@@ -368,13 +385,20 @@
               "decimalsError": "Invalid",
               "stepSizeError": "Invalid",
               "name": "OS",
-              "minValue": -10.0,
               "prefix": "+",
-              "stepSize": 0.25,
               "maxValueError": "Cannot be more than 10",
               "required": false,
               "showPositive": true,
-              "maxValue": 0
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.cyl"
             }
           ]
         },
@@ -384,16 +408,34 @@
             {
               "mappedField": "clFitting.axis.od",
               "name": "OD",
-              "minValue": 0,
               "suffix": "°",
-              "maxValue": 180
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "cyl": "[Cyl.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.axis"
             },
             {
               "mappedField": "clFitting.axis.os",
               "name": "OS",
-              "minValue": 0,
               "suffix": "°",
-              "maxValue": 180
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "cyl": "[Cyl.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.axis"
             }
           ]
         },
@@ -404,17 +446,35 @@
               "decimals": 2,
               "mappedField": "clFitting.bc.od",
               "name": "OD",
-              "minValue": 5,
-              "stepSize": 0.1,
-              "maxValue": 15
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "cyl": "[Cyl.OD]",
+                "axis": "[Axis.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.bc"
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.bc.os",
               "name": "OS",
-              "minValue": 5,
-              "stepSize": 0.1,
-              "maxValue": 15
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "cyl": "[Cyl.OS]",
+                "axis": "[Axis.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.bc"
             }
           ]
         },
@@ -425,19 +485,37 @@
               "decimals": 2,
               "mappedField": "clFitting.dia.od",
               "name": "OD",
-              "minValue": 1,
-              "stepSize": 0.1,
-              "maxValue": 15,
-              "freestyle": true
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "bc": "[BC.OD]",
+                "cyl": "[Cyl.OD]",
+                "axis": "[Axis.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.dia"
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.dia.os",
               "name": "OS",
-              "minValue": 1,
-              "stepSize": 0.1,
-              "maxValue": 15,
-              "freestyle": true
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "bc": "[BC.OS]",
+                "cyl": "[Cyl.OS]",
+                "axis": "[Axis.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.dia"
             }
           ]
         },
@@ -446,23 +524,59 @@
           "fields": [
             {
               "decimals": 2,
-              "mappedField": "clFitting.add.od",
+              "mappedField": "clFitting.add1.od",
               "name": "OD",
-              "minValue": 0,
-              "stepSize": 0.25,
               "prefix": "+",
-              "suffix": [" L", " M", " H"],
-              "maxValue": 20
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "cyl": "[Cyl.OD]",
+                "axis": "[Axis.OD]",
+                "bc": "[BC.OD]",
+                "dia": "[Dia.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.add"
             },
             {
               "decimals": 2,
-              "mappedField": "clFitting.add.os",
+              "mappedField": "clFitting.add1.os",
               "name": "OS",
-              "minValue": 0,
-              "stepSize": 0.25,
               "prefix": "+",
-              "suffix": [" L", " M", " H"],
-              "maxValue": 20
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "cyl": "[Cyl.OS]",
+                "axis": "[Axis.OS]",
+                "bc": "[BC.OS]",
+                "dia": "[Dia.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.add"
+            }
+          ]
+        },
+        {
+          "name": "AddAlpha",
+          "label": "  ",
+          "fields": [
+            {
+              "mappedField": "clFitting.addAlpha.od",
+              "name": "OD",
+              "options": "addAlphaCode"
+            },
+            {
+              "mappedField": "clFitting.addAlpha.os",
+              "name": "OS",
+              "options": "addAlphaCode"
             }
           ]
         },

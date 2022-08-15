@@ -382,6 +382,8 @@ export type FieldDefinition = {
   limitedValues?: {},
   forceSync?: boolean,
   listField?: boolean,
+  rangeFilter?: {},
+  hasRange?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];

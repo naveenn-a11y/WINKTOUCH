@@ -347,6 +347,27 @@ export function formatStickySign(number: ?number, decimals: number): string {
   }
   return '+' + number.toFixed(decimals);
 }
+export function formatStickySign2(
+  number: number,
+  decimals: number,
+  prefix: ?string,
+  suffix: ?string,
+): string {
+  if (number === undefined || number === null) {
+    return '';
+  }
+  if (number < 0) {
+    return number.toFixed(decimals);
+  }
+  if (prefix === undefined || prefix === null) {
+    prefix = '';
+  }
+  if (suffix === undefined || suffix === null) {
+    suffix = '';
+  }
+
+  return prefix + number.toFixed(decimals) + suffix;
+}
 
 export function formatDecimals(number: ?number, decimals: number): string {
   if (number === undefined || number === null) {
@@ -639,6 +660,9 @@ export function prefix(text: ?string, prefix: string): string {
   if (isEmpty(text)) {
     return '';
   }
+  if (isEmpty(prefix)) {
+    return text;
+  }
   return prefix + text;
 }
 
@@ -650,9 +674,7 @@ export function postfix(text: ?string, postfix: string): string {
 }
 
 export function sort(array: []): [] {
-  return array.sort((a, b) =>
-    a.localeCompare(b, undefined, {sensitivity: 'base'}),
-  );
+  return array.sort((a, b) => a - b);
 }
 
 export function insertNewlines(text: string): string {
@@ -677,4 +699,105 @@ export function extractHostname(url) {
   hostname = hostname.split('?')[0];
 
   return hostname;
+}
+
+export function getRanges(
+  minValue: number,
+  maxValue: number,
+  interval: number,
+): number[] {
+  let tempArray: number[] = [];
+  for (let i = minValue; i <= maxValue; i += interval) {
+    tempArray.push(Math.round((i + Number.EPSILON) * 100) / 100);
+  }
+  if (!tempArray.includes(maxValue)) {
+    tempArray.push(maxValue);
+  }
+
+  return tempArray;
+}
+
+export function formatRanges(
+  ranges: number[],
+  decimals: number,
+  prefix?: string,
+  suffix?: string | string[],
+): string[] {
+  let finalRangeArray: string[] = [];
+
+  ranges.map((n: number) => {
+    if (suffix && suffix instanceof Array) {
+      finalRangeArray.push(formatStickySign2(n, decimals, prefix, ''));
+      suffix.map((subElement: string) => {
+        const value: string = formatStickySign2(
+          n,
+          decimals,
+          prefix,
+          subElement,
+        );
+        finalRangeArray.push(value);
+      });
+    } else {
+      const value: string = formatStickySign2(n, decimals, prefix, suffix);
+      finalRangeArray.push(value);
+    }
+  });
+  return finalRangeArray;
+}
+
+export function passesRangeFilter(value: Object, filter: {}): boolean {
+  if (filter === undefined) {
+    return true;
+  }
+  const filterEntries: [][] = Object.entries(filter);
+  for (let i: number = 0; i < filterEntries.length; i++) {
+    const filterKey: string = filterEntries[i][0];
+    const filterValue: string = filterEntries[i][1];
+    if (filterKey !== undefined && filterValue !== undefined) {
+      const subValue = value[filterKey];
+      if (subValue instanceof Object) {
+        const filterValueNumber: number = parseFloat(filterValue);
+        let modulo: number = Math.abs(
+          (filterValueNumber - subValue.minValue) % subValue.stepSize,
+        );
+        modulo = Math.round((modulo + Number.EPSILON) * 100) / 100;
+
+        if (
+          filterValueNumber < subValue.minValue ||
+          filterValueNumber > subValue.maxValue ||
+          modulo > 0.1 ||
+          (modulo !== 0 && modulo < 0.1 && subValue.stepSize <= 0.1)
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+export function deepEqual(object1: any, object2: any) {
+  if (object1 === undefined && object2 === undefined) {
+    return true;
+  }
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  for (const key of keys1) {
+    const val1 = object1[key];
+    const val2 = object2[key];
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !deepEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+function isObject(object: any) {
+  return object != null && typeof object === 'object';
 }

@@ -109,6 +109,7 @@ export async function storeExam(
   if (exam.errors) {
     return exam;
   }
+
   if (refreshStateKey && navigation) {
     //TODO check if exam has mapped visit fields
     const setParamsAction = NavigationActions.setParams({
@@ -986,7 +987,10 @@ export class ExamScreen extends Component {
       }
     } else {
       if (exam.errors) {
-        this.props.navigation.navigate('exam', {exam: exam});
+        this.props.navigation.navigate('exam', {
+          exam: exam,
+          appointmentStateKey: this.state.appointmentStateKey,
+        });
       }
     }
   }
