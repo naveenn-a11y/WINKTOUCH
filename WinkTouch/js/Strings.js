@@ -354,6 +354,7 @@ export const strings = new LocalizedStrings({
     NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
     sendToHarmony: 'Send to Harmony',
     sendToHarmonySuccessMessage: 'Data successfully sent to Topcon Harmony!',
+    recentlyViewedPatients: 'Recently Viewed Patients',
   },
   fr: {
     enterRegisteredEmail:
@@ -708,6 +709,7 @@ export const strings = new LocalizedStrings({
     sendToHarmony: 'Envoyer vers Harmony',
     sendToHarmonySuccessMessage:
       'Données envoyées avec succès à Topcon Harmony!',
+    recentlyViewedPatients: 'Patients Récemment Consultés',
   },
 });
 
