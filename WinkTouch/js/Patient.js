@@ -24,6 +24,7 @@ import type {
   PatientDocument,
   Upload,
   Appointment,
+  CodeDefinition,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings} from './Strings';
@@ -38,7 +39,7 @@ import {
   yearDateTimeFormat,
   isEmpty,
 } from './Util';
-import {formatCode} from './Codes';
+import {formatCode, getAllCodes} from './Codes';
 import {getStore} from './DoctorApp';
 import {PaperClip, Refresh} from './Favorites';
 import {Pdf} from './Document';
@@ -714,6 +715,14 @@ export class PatientScreen extends Component {
   setSnackBarMessage(message: string) {
     this.setState({snackBarMessage: message});
   }
+  isHarmonyAvailable(): boolean {
+    const harmonySetting: CodeDefinition[] = getAllCodes('harmonySettingCode');
+    if (harmonySetting && harmonySetting instanceof Array) {
+      const harmonySettingCode: CodeDefinition = harmonySetting[0];
+      return harmonySettingCode && harmonySettingCode.code;
+    }
+    return false;
+  }
 
   pushToHarmony = async () => {
     this.setState({pushToHarmonyLoading: true});
@@ -787,14 +796,16 @@ export class PatientScreen extends Component {
           findDoctor={this.renderSearchDoctorModal}
           onPushToHarmony={this.pushToHarmony}
         />
-        <View style={styles.centeredRowLayout}>
-          <Button
-            loading={this.state.pushToHarmonyLoading}
-            title={strings.sendToHarmony}
-            onPress={() => this.pushToHarmony()}
-            testID="sendToHarmonyButton"
-          />
-        </View>
+        {this.isHarmonyAvailable() && (
+          <View style={styles.centeredRowLayout}>
+            <Button
+              loading={this.state.pushToHarmonyLoading}
+              title={strings.sendToHarmony}
+              onPress={() => this.pushToHarmony()}
+              testID="sendToHarmonyButton"
+            />
+          </View>
+        )}
         <PatientDocumentAttachments patientInfo={this.state.patientInfo} />
         {this.renderIcons()}
         {this.state.isPopupVisibile && (
