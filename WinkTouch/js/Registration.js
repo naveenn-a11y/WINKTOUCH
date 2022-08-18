@@ -252,22 +252,11 @@ export class RegisterScreen extends Component {
     }
   }
 
-  async submitEmail(isRegistered: boolean, isOms: ?boolean) {
+  async submitEmail(isRegistered: boolean) {
     await fetchPublicIp();
     const email: ?string = this.state.email;
     if (email === undefined || email === null || email.trim().length < 3) {
       alert(strings.enterRegisteredEmail);
-      return;
-    }
-    if (isOms) {
-      const trialRegistration: Registration = {
-        email: email,
-        bundle:
-          'aJlnFTJv0FBp--NZ8a-epxcISJ69b99414bd-11b8-4bb3-bbb3-8b32aaf3da86',
-        path: '/webstart/4666_5NZ9O38VKO',
-        isOmsUser: true,
-      };
-      this.props.onRegistered(trialRegistration);
       return;
     }
     if (!isRegistered) {
@@ -368,11 +357,6 @@ export class RegisterScreen extends Component {
                       title={strings.tryForFree}
                       onPress={() => this.submitEmail(false)}
                       testID={'tryItButton'}
-                    />
-                    <Button
-                      title={strings.support}
-                      onPress={() => this.submitEmail(false, true)}
-                      testID={'supportButton'}
                     />
                   </View>
                 </View>

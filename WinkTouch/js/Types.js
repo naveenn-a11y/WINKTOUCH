@@ -15,7 +15,6 @@ export type Registration = {
   email: string,
   bundle: string,
   path: string,
-  isOmsUser?: boolean,
 };
 
 export type AgentAssumption = {

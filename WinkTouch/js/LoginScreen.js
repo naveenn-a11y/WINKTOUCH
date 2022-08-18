@@ -64,16 +64,12 @@ const accountsUrl =
   ecommVersion +
   '/WinkRegistrationAccounts';
 
-async function fetchAccounts(path: string, isOmsUser: ?boolean) {
+async function fetchAccounts(path: string) {
   if (!path) {
     return;
   }
-  let privileged: boolean = false;
-  let emrOnly: boolean = false;
-  if (isOmsUser) {
-    privileged = true;
-    emrOnly = true;
-  }
+  let privileged: boolean = true;
+  let emrOnly: boolean = true;
   const url =
     accountsUrl +
     '?dbVersion=' +
@@ -495,10 +491,7 @@ export class LoginScreen extends Component {
     if (!registration) {
       return;
     }
-    let accounts: Account[] = await fetchAccounts(
-      this.props.registration.path,
-      this.props.registration.isOmsUser,
-    );
+    let accounts: Account[] = await fetchAccounts(this.props.registration.path);
     if (!accounts) {
       accounts = [];
     }
@@ -516,7 +509,7 @@ export class LoginScreen extends Component {
       if (account === undefined && accounts.length > 0) {
         account = this.formatAccount(accounts[0]);
 
-        if (accounts[0].stores && accounts[0].stores > 0) {
+        if (accounts[0].stores && accounts[0].stores.length > 0) {
           let store = this.formatStore(accounts[0].stores[0]);
           this.setStore(store);
         } else {
@@ -647,8 +640,17 @@ export class LoginScreen extends Component {
     this.refs.focusField.focus();
   };
 
+  isOmsUser(): boolean {
+    const username: string = this.state.userName;
+    if (isEmpty(username)) {
+      return false;
+    }
+    const endPart: string = username.substring(username.indexOf('@'));
+    return endPart.toLowerCase().trim() === '@downloadwink.com';
+  }
+
   async processLogin() {
-    if (this.props.registration.isOmsUser) {
+    if (this.isOmsUser()) {
       this.setState({agentAssumptionRequired: true});
     } else {
       this.login();
@@ -676,15 +678,19 @@ export class LoginScreen extends Component {
     }
     let loginData = {
       accountsId: account.id.toString(),
-      storeId: store.id,
+      storeId: !isEmpty(store.id)
+        ? store.id.toString()
+        : store.storeId.toString(),
       expiration: 24 * 365,
       deviceId: DeviceInfo.getUniqueId(),
     };
-    if (this.props.registration.isOmsUser) {
+    if (this.isOmsUser()) {
       loginPath = 'login/oms';
       loginData = {
         accountsId: account.id.toString(),
-        storeId: store.id,
+        storeId: !isEmpty(store.id)
+          ? store.id.toString()
+          : store.storeId.toString(),
         expiration: 24 * 365,
         deviceId: DeviceInfo.getUniqueId(),
         zendesk: this.state.agent.zendeskRef,
@@ -805,10 +811,7 @@ export class LoginScreen extends Component {
     if (this.state.isMfaRequired) {
       return this.renderMfaScreen();
     }
-    if (
-      this.props.registration.isOmsUser &&
-      this.state.agentAssumptionRequired
-    ) {
+    if (this.isOmsUser() && this.state.agentAssumptionRequired) {
       return (
         <AgentAsumptionScreen
           onConfirmLogin={(agent: AgentAssumption) =>
