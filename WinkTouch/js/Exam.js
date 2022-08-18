@@ -1341,6 +1341,7 @@ export class ExamScreen extends Component {
     }
     return (
       <View style={style}>
+        {this.renderExamTitle()}
         {this.renderExportSection()}
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
@@ -1349,6 +1350,20 @@ export class ExamScreen extends Component {
       </View>
     );
   }
+  
+  renderExamTitle() {
+    return(
+      <View style={styles.examLabel}>
+          <Text style={styles.sectionTitle}>
+            {this.state.exam.definition.label ?  
+              this.state.exam.definition.label :
+              this.state.exam.definition.name ? 
+              this.state.exam.definition.name : '' }
+          </Text>
+      </View>
+    );
+  }
+
   renderExportSection() {
     if (
       this.state.exam.definition.export === undefined ||
@@ -1458,11 +1473,10 @@ export class ExamScreen extends Component {
       return (
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
-          {isWeb && this.renderExamIcons(styles.examIconsFlex)}
+          {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
-          {!isWeb && this.renderExamIcons(styles.examIcons)}
         </View>
       );
     }
@@ -1471,14 +1485,13 @@ export class ExamScreen extends Component {
         style={styles.page}
         contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
         scrollEnabled={isWeb}>
-        {isWeb && this.renderExamIcons(styles.examIconsFlex)}
         <View style={styles.centeredColumnLayout}>
           <ErrorCard errors={this.state.exam.errors} />
+          {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
-        {!isWeb && this.renderExamIcons(styles.examIcons)}
       </KeyboardAwareScrollView>
     );
   }
