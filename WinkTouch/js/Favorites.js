@@ -372,6 +372,20 @@ export class Copy extends PureComponent {
   }
 }
 
+export class Paste extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <MaterialIcon
+        name="content-paste"
+        style={this.props.style}
+      />
+    );
+  }
+}
+
 export class Refresh extends PureComponent {
   props: {
     style: any,

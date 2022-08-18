@@ -219,7 +219,6 @@ export class FormTextInput extends Component {
 
   updateText = (text: string) => {
     this.setState({text});
-    this.props.onChangeText(text);
   };
 
   render() {
@@ -745,6 +744,10 @@ export class FormOptions extends Component {
     onChangeValue: (newvalue: ?string | ?number) => void,
     isTyping?: boolean,
     testID: string,
+    hideClear?: boolean,
+    listField?: boolean,
+    simpleSelect?: boolean,
+    isValueRequired?: boolean,
   };
   state: {
     dismissedError: boolean,
@@ -755,9 +758,6 @@ export class FormOptions extends Component {
     showLabel: true,
     freestyle: false,
     multiline: false,
-  };
-  static defaultProps = {
-    showLabel: true,
   };
 
   constructor(props: any) {
@@ -846,7 +846,8 @@ export class FormOptions extends Component {
   };
 
   render() {
-    const manyOptions: boolean = this.props.options.length > 30;
+    const manyOptions: boolean =
+      this.props.options.length > 30 || this.props.listField;
     const style = this.props.style
       ? this.props.style
       : this.props.readonly
@@ -875,13 +876,17 @@ export class FormOptions extends Component {
               options={this.state.formattedOptions}
               value={this.formatValue(this.props.value)}
               onChangeValue={this.changeValue}
-              prefix={this.props.prefx}
+              prefix={this.props.prefix}
               suffix={this.props.suffix}
               multiline={this.props.multiline}
+              simpleSelect={this.props.simpleSelect}
+              isValueRequired={this.props.isValueRequired}
+              popupStyle={styles.alignPopup}
               testID={this.props.testID}
             />
           ) : (
             <TilesField
+              hideClear={this.props.hideClear}
               label={this.props.label}
               style={style}
               readonly={this.props.readonly}
@@ -987,6 +992,7 @@ export class FormMultiCheckBox extends Component {
     value: ?string | string[],
     options: string[],
     singleSelect: boolean,
+    optional: boolean,
     label?: string,
     labelWidth?: number,
     showLabel?: boolean,
@@ -1004,19 +1010,29 @@ export class FormMultiCheckBox extends Component {
       : this.props.value.includes(value);
   }
   select = (value) => {
-    if (this.props.readonly) return;
-    else
+    if (this.props.readonly) {
+      return;
+    } else {
       this.props.singleSelect
         ? this.props.onChangeValue(value)
         : this.props.onChangeValue([...this.props.value, value]);
+    }
   };
   selectAll = () => {
     this.props.onChangeValue(this.props.options.map(({value}) => value));
   };
   deSelect = (value) => {
-    if (this.props.readonly || this.props.singleSelect) return;
-    else {
-      let newValue = this.props.value.filter((opt) => opt != value);
+    if (this.props.readonly) {
+      return;
+    }
+    if (this.props.singleSelect) {
+      if (this.props.optional) {
+        this.props.onChangeValue(null);
+      } else {
+        return;
+      }
+    } else {
+      let newValue = this.props.value.filter((opt) => opt !== value);
       this.props.onChangeValue(newValue);
     }
   };
@@ -1026,7 +1042,7 @@ export class FormMultiCheckBox extends Component {
 
   render() {
     return (
-      <>
+      <View style={this.props.style}>
         {!this.props.singleSelect && (
           <View style={styles.checkButtonRow}>
             <CheckButton
@@ -1059,7 +1075,7 @@ export class FormMultiCheckBox extends Component {
             <Text>{option?.label || option}</Text>
           </View>
         ))}
-      </>
+      </View>
     );
   }
 }
@@ -1083,6 +1099,9 @@ export class FormCode extends Component {
     onChangeValue?: (newvalue: ?string | ?number) => void,
     testID: string,
     isTyping?: boolean,
+    hideClear?: boolean,
+    listField?: boolean,
+    simpleSelect?: boolean,
   };
 
   getCodeIdentifier() {
@@ -1125,6 +1144,7 @@ export class FormCode extends Component {
       <FormOptions
         labelWidth={this.props.labelWidth}
         label={this.props.label}
+        hideClear={this.props.hideClear}
         showLabel={this.props.showLabel}
         readonly={this.props.readonly}
         freestyle={this.props.freestyle}
@@ -1137,6 +1157,8 @@ export class FormCode extends Component {
         style={this.props.style}
         multiline={this.props.multiline}
         isTyping={this.props.isTyping}
+        listField={this.props.listField}
+        simpleSelect={this.props.simpleSelect}
         testID={this.props.testID}
       />
     );
@@ -1241,6 +1263,7 @@ export class FormInput extends Component {
     examId: string,
     filterValue: {},
     isTyping?: boolean,
+    hideClear?: Boolean,
     autoFocus?: boolean,
     enableScroll?: () => void,
     disableScroll?: () => void,
@@ -1482,6 +1505,7 @@ export class FormInput extends Component {
         <FormMultiCheckBox
           options={options}
           value={this.props.value}
+          optional={this.props.optional}
           singleSelect={this.props.singleSelect}
           label={label}
           showLabel={this.props.showLabel}
@@ -1490,6 +1514,7 @@ export class FormInput extends Component {
           style={style}
           errorMessage={this.props.errorMessage}
           testID={this.props.testID}
+          style={this.props.style}
         />
       );
     } else if (
@@ -1513,12 +1538,15 @@ export class FormInput extends Component {
             filter={this.getFilterValue()}
             freestyle={this.props.definition.freestyle}
             value={this.props.value}
+            hideClear={this.props.hideClear}
             label={label}
             showLabel={this.props.showLabel}
             readonly={readonly}
             errorMessage={this.props.errorMessage}
             prefix={this.props.definition.prefix}
             suffix={this.props.definition.suffix}
+            listField={this.props.definition.listField}
+            simpleSelect={this.props.definition.simpleSelect}
             autoSelect={this.props.definition.autoSelect}
             onChangeValue={this.props.onChangeValue}
             style={style}

@@ -157,6 +157,7 @@
     {
       "mappedField": "visit.purchase",
       "name": "Purchase Rx",
+      "copyFromFinalRx": true,
       "label": "Dr.'s Recommendation"
     }
   ],
