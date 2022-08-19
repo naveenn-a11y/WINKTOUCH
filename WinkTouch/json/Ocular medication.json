@@ -1,9 +1,10 @@
 {
   "addable": true,
   "name": "Ocular medication",
+  "label": "Ocular Medication",
   "locale": {
     "fr-CA": {
-      "label": "Médicaments Oculaires",
+      "label": "Médicaments oculaires",
       "fields": [
         {
           "name": "Label",

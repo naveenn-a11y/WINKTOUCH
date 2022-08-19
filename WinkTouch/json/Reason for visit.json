@@ -1,6 +1,7 @@
 {
   "order": "1",
   "name": "Reason for visit",
+  "label": "Reason For Visit",
   "locale": {
     "fr-CA": {
       "label": "Raison de la visite",

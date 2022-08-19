@@ -1,5 +1,6 @@
 {
   "name": "Fundus exam",
+  "label": "Fundus Exam",
   "locale": {
     "fr-CA": {
       "label": "Fond d'oeil",
