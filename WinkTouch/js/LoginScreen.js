@@ -20,7 +20,14 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 import DeviceInfo from 'react-native-device-info';
-import type {Account, Store, User, Registration} from './Types';
+import type {
+  Account,
+  Store,
+  User,
+  Registration,
+  Visit,
+  AgentAssumption,
+} from './Types';
 import base64 from 'base-64';
 import {styles, fontScale, isWeb} from './Styles';
 import {Button, ListField, TilesField} from './Widgets';
@@ -36,6 +43,7 @@ import {
   getNextRequestNumber,
   getWinkEmrHostFromAccount,
   switchEmrHost,
+  searchItems,
 } from './Rest';
 import {
   dbVersion,
@@ -47,6 +55,8 @@ import {
 import {fetchCodeDefinitions} from './Codes';
 import {REACT_APP_HOST} from '../env.json';
 import {isEmpty} from './Util';
+import {cacheItemsById} from './DataCache';
+import {AgentAsumptionScreen} from './Agent';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
@@ -58,13 +68,18 @@ async function fetchAccounts(path: string) {
   if (!path) {
     return;
   }
+  let privileged: boolean = true;
+  let emrOnly: boolean = true;
   const url =
     accountsUrl +
     '?dbVersion=' +
     encodeURIComponent(dbVersion) +
     '&path=' +
     encodeURIComponent(path) +
-    '&biggerThen=true&priviliged=false';
+    '&biggerThen=true&privileged=' +
+    privileged +
+    '&emrOnly=' +
+    emrOnly;
   __DEV__ && console.log('Fetching accounts: ' + url);
   try {
     let httpResponse = await fetch(url, {
@@ -83,6 +98,17 @@ async function fetchAccounts(path: string) {
     alert(strings.fetchAccountsError);
     throw error;
   }
+}
+
+async function fetchStores(account: Account): Store[] {
+  if (account === null || account === undefined) {
+    return;
+  }
+  const searchCriteria = {accountsId: account.id};
+  let restResponse = await searchItems('Store/list', searchCriteria);
+  const stores: Store[] = restResponse.stores ? restResponse.stores : [];
+  cacheItemsById(stores);
+  return stores;
 }
 export class MfaScreen extends Component {
   props: {
@@ -372,6 +398,8 @@ export class LoginScreen extends Component {
     isTrial: boolean,
     isMfaRequired: ?boolean,
     qrImageUrl: ?string,
+    agentAssumptionRequired: ?boolean,
+    agent: ?AgentAssumption,
   };
   constructor(props: any) {
     super(props);
@@ -384,6 +412,8 @@ export class LoginScreen extends Component {
       isTrial: false,
       isMfaRequired: false,
       qrImageUrl: undefined,
+      agentAssumptionRequired: false,
+      agent: {},
     };
   }
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -396,13 +426,48 @@ export class LoginScreen extends Component {
       );
       if (currAccount) {
         let store =
-          currAccount.stores?.length > 0 &&
-          this.formatStore(currAccount.stores[0]);
-        this.setStore(store);
+          currAccount.stores?.length > 0
+            ? this.formatStore(currAccount.stores[0])
+            : undefined;
+        if (store === undefined) {
+          this.fetchStores(currAccount);
+        } else {
+          this.setStore(store);
+        }
       } else if (!currAccount && !this.state.account) {
         this.setStore(undefined);
       }
     }
+  }
+
+  async fetchStores(account: Account) {
+    const storeStr: string = this.state.store;
+    const stores: Store[] = await fetchStores(account);
+    let accounts: Account[] = [...this.state.accounts];
+    let formattedStore: string;
+    if (!isEmpty(storeStr)) {
+      formattedStore =
+        stores?.length > 0
+          ? stores.find(
+              (s: Store) =>
+                this.formatStore(s).toLowerCase().trim() ===
+                storeStr.toLowerCase().trim(),
+            )
+          : undefined;
+    }
+    if (isEmpty(formattedStore)) {
+      formattedStore =
+        stores?.length > 0 ? this.formatStore(stores[0]) : undefined;
+    }
+    account.stores = stores;
+    const index = this.state.accounts.findIndex(
+      (a: Account) => a.id === account.id,
+    );
+    if (index >= 0) {
+      accounts[index] = account;
+    }
+    this.setState({accounts});
+    this.setStore(formattedStore);
   }
 
   async componentDidMount() {
@@ -443,13 +508,14 @@ export class LoginScreen extends Component {
       let account = this.state.account;
       if (account === undefined && accounts.length > 0) {
         account = this.formatAccount(accounts[0]);
-        let store =
-          accounts.length > 0 &&
-          accounts[0].stores &&
-          accounts[0].stores.length > 0
-            ? this.formatStore(accounts[0].stores[0])
-            : undefined;
-        this.setStore(store);
+
+        if (accounts[0].stores && accounts[0].stores.length > 0) {
+          let store = this.formatStore(accounts[0].stores[0]);
+          this.setStore(store);
+        } else {
+          this.fetchStores(accounts[0]);
+        }
+
         if (isTrial) {
           this.setState(
             {accounts, userName: 'Henry', password: 'Lomb', isTrial},
@@ -466,6 +532,11 @@ export class LoginScreen extends Component {
           );
         } else {
           this.setState({accounts, isTrial}, this.fetchCodes());
+        }
+
+        let currAccount = accounts.find((a: Account) => a.name === account);
+        if (currAccount.stores === null || currAccount.stores === undefined) {
+          this.fetchStores(currAccount);
         }
       }
     }
@@ -569,8 +640,25 @@ export class LoginScreen extends Component {
     this.refs.focusField.focus();
   };
 
+  isOmsUser(): boolean {
+    const username: string = this.state.userName;
+    if (isEmpty(username)) {
+      return false;
+    }
+    const endPart: string = username.substring(username.indexOf('@'));
+    return endPart.toLowerCase().trim() === '@downloadwink.com';
+  }
+
+  async processLogin() {
+    if (this.isOmsUser()) {
+      this.setState({agentAssumptionRequired: true});
+    } else {
+      this.login();
+    }
+  }
   async login() {
-    let doctorLoginUrl = getRestUrl() + 'login/doctors';
+    let loginPath: string = 'login/doctors';
+
     let userName = this.state.userName;
     if (
       userName === undefined ||
@@ -590,10 +678,26 @@ export class LoginScreen extends Component {
     }
     let loginData = {
       accountsId: account.id.toString(),
-      storeId: store.storeId.toString(),
+      storeId: !isEmpty(store.id)
+        ? store.id.toString()
+        : store.storeId.toString(),
       expiration: 24 * 365,
       deviceId: DeviceInfo.getUniqueId(),
     };
+    if (this.isOmsUser()) {
+      loginPath = 'login/oms';
+      loginData = {
+        accountsId: account.id.toString(),
+        storeId: !isEmpty(store.id)
+          ? store.id.toString()
+          : store.storeId.toString(),
+        expiration: 24 * 365,
+        deviceId: DeviceInfo.getUniqueId(),
+        zendesk: this.state.agent.zendeskRef,
+        reason: this.state.agent.reason,
+      };
+    }
+    let doctorLoginUrl = getRestUrl() + loginPath;
     const requestNr = getNextRequestNumber();
     __DEV__ &&
       console.log(
@@ -662,6 +766,7 @@ export class LoginScreen extends Component {
     } catch (error) {
       alert(strings.loginFailed + ': ' + error);
     }
+    this.setState({agentAssumptionRequired: false});
   }
 
   setQRImageUrl = (qrImageUrl: string) => {
@@ -674,6 +779,11 @@ export class LoginScreen extends Component {
       isMfaRequired: mfa,
     });
   };
+
+  setAgentAssumption(agent: AgentAssumption) {
+    this.setState({agent}, () => this.login());
+  }
+
   switchLanguage = () => {
     switchLanguage();
     this.forceUpdate();
@@ -700,6 +810,15 @@ export class LoginScreen extends Component {
   render() {
     if (this.state.isMfaRequired) {
       return this.renderMfaScreen();
+    }
+    if (this.isOmsUser() && this.state.agentAssumptionRequired) {
+      return (
+        <AgentAsumptionScreen
+          onConfirmLogin={(agent: AgentAssumption) =>
+            this.setAgentAssumption(agent)
+          }
+        />
+      );
     }
     const style = isWeb
       ? [styles.centeredColumnLayout, {alignItems: 'center'}]
@@ -818,7 +937,7 @@ export class LoginScreen extends Component {
                     selectTextOnFocus={true}
                     testID="login.passwordField"
                     onChangeText={this.setPassword}
-                    onSubmitEditing={() => this.login()}
+                    onSubmitEditing={() => this.processLogin()}
                   />
                 </View>
               )}
@@ -831,7 +950,7 @@ export class LoginScreen extends Component {
                 <Button
                   title={strings.submitLogin}
                   disabled={account === undefined}
-                  onPress={() => this.login()}
+                  onPress={() => this.processLogin()}
                 />
               </View>
             </View>

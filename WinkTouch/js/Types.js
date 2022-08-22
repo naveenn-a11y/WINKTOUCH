@@ -17,6 +17,11 @@ export type Registration = {
   path: string,
 };
 
+export type AgentAssumption = {
+  zendeskRef: string,
+  reason: string,
+};
+
 export type VisitType = {
   id: string,
   name: string,
