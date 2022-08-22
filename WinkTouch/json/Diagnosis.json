@@ -139,6 +139,18 @@
             }
         },
         {
+          "name": "paperCorrespondenceCode",
+          "mappedField": "procedure.paperCorrespondenceCode",
+          "label": "Paper Correspondence to follow",
+          "visible": "[Diagnosis.Insurer.supplierId]",
+          "normalValue": false,
+          "defaultValue": false,
+          "options": [
+            false,
+            true
+          ]
+        },
+        {
           "mappedField": "procedure.notes",
           "maxLength": 500,
           "name": "notes",
