@@ -487,6 +487,7 @@ export function deepAssign(value: Object, newValue: Object): Object {
     let subValue: any = value[key];
     
     if (subValue instanceof Array) {
+      subValue.length = 0;
       Array.isArray(subNewValue) ? subValue.push(...subNewValue) : subValue.push(subNewValue);
     } else if(subValue instanceof Object) {
         if (subNewValue instanceof Array){
