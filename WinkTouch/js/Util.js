@@ -487,12 +487,10 @@ export function deepAssign(value: Object, newValue: Object): Object {
     let subValue: any = value[key];
     
     if (subValue instanceof Array) {
-      subValue.length = 0;
       Array.isArray(subNewValue) ? subValue.push(...subNewValue) : subValue.push(subNewValue);
     } else if(subValue instanceof Object) {
         if (subNewValue instanceof Array){
           //ignore setting an array on non array
-          alert(strings.incompatibleFavoriteItem);
         } else if (subNewValue instanceof Object) {
           deepAssign(subValue, subNewValue);
         } else {
