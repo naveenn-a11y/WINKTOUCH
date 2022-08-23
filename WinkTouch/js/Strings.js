@@ -355,7 +355,6 @@ export const strings = new LocalizedStrings({
     sendToHarmony: 'Send to Harmony',
     sendToHarmonySuccessMessage: 'Data successfully sent to Topcon Harmony!',
     recentlyViewedPatients: 'Recently Viewed Patients',
-    incompatibleFavoriteItem: 'Incompatible favorite item',
   },
   fr: {
     enterRegisteredEmail:
@@ -711,7 +710,6 @@ export const strings = new LocalizedStrings({
     sendToHarmonySuccessMessage:
       'Données envoyées avec succès à Topcon Harmony!',
     recentlyViewedPatients: 'Patients Récemment Consultés',
-    incompatibleFavoriteItem: 'Article favori incompatible',
   },
 });
 
