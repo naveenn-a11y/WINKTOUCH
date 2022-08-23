@@ -96,6 +96,7 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
+import {storeDocument} from './CouchDb';
 
 const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
@@ -742,7 +743,9 @@ export class AppointmentSummary extends Component {
   };
 
   render() {
-    const patient: PatientInfo = getCachedItem(this.props.appointment.patientId);
+    const patient: PatientInfo = getCachedItem(
+      this.props.appointment.patientId,
+    );
     let cardStyle =
       styles['card' + capitalize(this.props.appointment.status.toString())];
     const date: string = this.props.appointment.start;
@@ -1497,6 +1500,8 @@ export class AppointmentScreen extends Component {
       const patientId: string = appointment
         ? appointment.patientId
         : params.patientInfo.id;
+      this.refreshVisitHistory();
+
       this.setState({
         patientInfo: getCachedItem(patientId),
         visitHistory: getCachedItem('visitHistory-' + patientId),
