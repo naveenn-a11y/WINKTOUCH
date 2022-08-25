@@ -10,7 +10,6 @@ import ReactNative, {
   View,
   Text,
   Image,
-  ImageBackground,
   ScrollView,
   Modal,
   TouchableOpacity,
