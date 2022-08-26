@@ -485,19 +485,20 @@ export function cleanUpArray(a: any[]): any[] {
 export function deepAssign(value: Object, newValue: Object): Object {
   for (let [key: string, subNewValue: any] of Object.entries(newValue)) {
     let subValue: any = value[key];
-    if (isEmpty(subValue)) {
-      value[key] = subNewValue;
-    } else if (subNewValue instanceof Array) {
-      if (subValue instanceof Array) {
-        subValue.push(...subNewValue);
-      } else {
-        //silently ignore setting an array on non array
-      }
-    } else if (subNewValue instanceof Object) {
-      deepAssign(subValue, subNewValue);
+    
+    if (subValue instanceof Array) {
+      Array.isArray(subNewValue) ? subValue.push(...subNewValue) : subValue.push(subNewValue);
+    } else if(subValue instanceof Object) {
+        if (subNewValue instanceof Array){
+          //ignore setting an array on non array
+        } else if (subNewValue instanceof Object) {
+          deepAssign(subValue, subNewValue);
+        } else {
+          value[key] = subNewValue;
+        }
     } else {
       value[key] = subNewValue;
-    }
+    } 
   }
 }
 
