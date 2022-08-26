@@ -1352,15 +1352,12 @@ class VisitWorkFlow extends Component {
     }
   };
 
-  renderSnackBar() {
-    return (
-      <NativeBar
-        message={this.state.snackBarMessage}
-        onDismissAction={() => this.hideSnackBar()}
-      />
-    );
-  }
-  renderExams(section: string, exams: ?(Exam[]), isPreExam: boolean) {
+  filterExamsBySection(
+    section: String,
+    exams: ?(Exam[]),
+    isPreExam: boolean,
+    includeAssessments: ?boolean,
+  ): Exam {
     if (exams) {
       if (!isPreExam) {
         exams = exams.filter(
@@ -1370,29 +1367,127 @@ class VisitWorkFlow extends Component {
             exam.definition.section.startsWith(section),
         );
       }
-      exams = exams.filter(
-        (exam: Exam) =>
-          exam &&
-          !exam.definition.isAssessment &&
-          exam.isHidden !== true &&
-          (exam.hasStarted ||
-            (this.state.locked !== true && this.props.readonly !== true) ||
-            (this.state.locked === true &&
-              exam.definition.addablePostLock === true)),
-      );
+      if (includeAssessments) {
+        exams = exams.filter(
+          (exam: Exam) =>
+            exam &&
+            exam.definition.isAssessment &&
+            exam.isHidden !== true &&
+            (exam.hasStarted ||
+              (this.state.locked !== true && this.props.readonly !== true) ||
+              (this.state.locked === true &&
+                exam.definition.addablePostLock === true)),
+        );
+      } else {
+        exams = exams.filter(
+          (exam: Exam) =>
+            exam &&
+            !exam.definition.isAssessment &&
+            exam.isHidden !== true &&
+            (exam.hasStarted ||
+              (this.state.locked !== true && this.props.readonly !== true) ||
+              (this.state.locked === true &&
+                exam.definition.addablePostLock === true)),
+        );
+      }
+
       exams.sort(compareExams);
     }
+    return exams;
+  }
+
+  renderSnackBar() {
+    return (
+      <NativeBar
+        message={this.state.snackBarMessage}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
+  }
+  renderExams(
+    section: string,
+    allExams: ?(Exam[]),
+    isPreExam: boolean,
+    sectionIndex: ?number,
+  ) {
+    let nextSection: string =
+      examSections.length > sectionIndex + 1
+        ? examSections[sectionIndex + 1]
+        : undefined;
+    let previousSection: string =
+      sectionIndex > 0 ? examSections[sectionIndex - 1] : undefined;
+
+    const exams = this.filterExamsBySection(section, allExams, isPreExam);
+    let nextExams: Exam[];
+    let previousExams: Exam[];
+    if (sectionIndex >= 0) {
+      let nextSectionIndex = sectionIndex;
+      while (nextExams === undefined || nextExams.length === 0) {
+        nextSectionIndex++;
+        nextSection =
+          examSections.length > nextSectionIndex
+            ? examSections[nextSectionIndex]
+            : undefined;
+        if (nextSection === undefined) {
+          break;
+        }
+        nextExams = this.filterExamsBySection(nextSection, allExams, isPreExam);
+      }
+
+      let previousSectionIndex = sectionIndex;
+      while (previousExams === undefined || previousExams.length === 0) {
+        previousSectionIndex--;
+        previousSection =
+          sectionIndex > 0 ? examSections[previousSectionIndex] : undefined;
+        if (previousSection === undefined) {
+          break;
+        }
+        previousExams = this.filterExamsBySection(
+          previousSection,
+          allExams,
+          isPreExam,
+        );
+      }
+    }
+
+    const assessments: Exam[] = this.filterExamsBySection(
+      undefined,
+      allExams,
+      true,
+      true,
+    );
+
     if (
       (!exams || exams.length === 0) &&
       this.state.visit &&
-      this.state.visit.isDigital != true
+      this.state.visit.isDigital !== true
     ) {
       return null;
     }
     const view = (
       <View style={styles.flow}>
         {exams &&
-          exams.map((exam: Exam, index: number) => {
+          exams.map((element: Exam, index: number) => {
+            let exam: Exam = element;
+            let nextExam: Exam =
+              exams.length > index + 1 ? exams[index + 1] : undefined;
+            let previousExam: Exam = index > 0 ? exams[index - 1] : undefined;
+            nextExam =
+              nextExam === undefined && nextExams !== undefined
+                ? nextExams[0]
+                : nextExam;
+            previousExam =
+              previousExam === undefined && previousExams !== undefined
+                ? previousExams[previousExams.length - 1]
+                : previousExam;
+            nextExam =
+              nextExam === undefined && assessments !== undefined
+                ? assessments[0]
+                : nextExam;
+            exam.next = nextExam !== undefined ? nextExam.id : undefined;
+            exam.previous =
+              previousExam !== undefined ? previousExam.id : undefined;
+
             return (
               <ExamCard
                 key={exam.definition.name}
@@ -1504,8 +1599,46 @@ class VisitWorkFlow extends Component {
       this.state.visit.customExamIds,
     ).filter((exam: Exam) => exam.definition.isAssessment);
     assessments.sort(compareExams);
+    let allExams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
+    if (!allExams) {
+      allExams = [];
+    }
+    allExams = allExams.concat(getCachedItems(this.state.visit.customExamIds));
+    let previousExam: Exam;
+    for (let i = examSections.length - 1; i >= 0; i--) {
+      const section: string = examSections[i];
+      const previousExams: Exam[] =
+        section !== undefined
+          ? this.filterExamsBySection(section, allExams, false)
+          : undefined;
+      if (previousExams !== undefined && previousExams.length > 0) {
+        previousExam = previousExams[previousExams.length - 1];
+        break;
+      }
+    }
 
-    return assessments.map((exam: Exam, index: number) => {
+    return assessments.map((element: Exam, index: number) => {
+      let exam: Exam = element;
+      let nextExamAssessment: Exam =
+        assessments.length > index + 1 ? assessments[index + 1] : undefined;
+      let previousExamAssessment: Exam =
+        index > 0 ? assessments[index - 1] : undefined;
+      nextExamAssessment =
+        nextExamAssessment !== undefined &&
+        nextExamAssessment.definition.name === 'Consultation summary'
+          ? undefined
+          : nextExamAssessment;
+      previousExamAssessment =
+        previousExamAssessment === undefined && previousExam !== undefined
+          ? previousExam
+          : previousExamAssessment;
+
+      exam.next =
+        nextExamAssessment !== undefined ? nextExamAssessment.id : undefined;
+      exam.previous =
+        previousExamAssessment !== undefined
+          ? previousExamAssessment.id
+          : undefined;
       if (exam.definition.name === 'RxToOrder') {
         return (
           <TouchableOpacity
@@ -1553,7 +1686,10 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
 
-  confirmPrintRxDialog = async (data: any, shouldSendEmail: boolean = false) => {
+  confirmPrintRxDialog = async (
+    data: any,
+    shouldSendEmail: boolean = false,
+  ) => {
     this.setState({isPrintingRx: true});
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
@@ -1709,14 +1845,14 @@ class VisitWorkFlow extends Component {
     this.setState({showClRxPopup: false});
   };
 
-  confirmPrintClRxDialog = async() : void => {
+  confirmPrintClRxDialog = async (): void => {
     this.setState({isPrintingCLRx: true});
     this.hidePrintCLRxPopup();
     await printClRx(this.props.visitId);
     this.setState({isPrintingCLRx: false});
-  }
+  };
 
-  confirmEmailClRxDialog = async() : void => {
+  confirmEmailClRxDialog = async (): void => {
     this.setState({isPrintingCLRx: true});
     this.hidePrintCLRxPopup();
     let response = await emailClRx(this.props.visitId);
@@ -1730,7 +1866,7 @@ class VisitWorkFlow extends Component {
       this.showSnackBar();
     }
     this.setState({isPrintingCLRx: false});
-  }
+  };
 
   renderPrintCLRxPopup() {
     const printCLRxOptions: any = [];
@@ -1931,7 +2067,6 @@ class VisitWorkFlow extends Component {
       </View>
     );
   }
-
   render() {
     if (this.props.visitId === undefined) {
       return null;
@@ -1988,8 +2123,8 @@ class VisitWorkFlow extends Component {
       <View>
         <View style={styles.flow}>
           {this.renderConsultationDetails()}
-          {examSections.map((section: string) => {
-            return this.renderExams(section, exams, false);
+          {examSections.map((section: string, index: number) => {
+            return this.renderExams(section, exams, false, index);
           })}
         </View>
         <View style={styles.flow}>{this.renderAssessments()}</View>

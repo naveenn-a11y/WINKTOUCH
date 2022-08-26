@@ -915,6 +915,10 @@ export class ExamScreen extends Component {
     //__DEV__ && console.log('ExamScreen did update after receiving new exam with id '+exam.id);
     if (this.state.isDirty) {
       this.storeExam(this.state.exam);
+    } else if (exam.isInvalid) {
+      exam.isInvalid = false;
+      exam.hasStarted = true;
+      this.storeExam(exam);
     }
     this.setState({
       exam,
