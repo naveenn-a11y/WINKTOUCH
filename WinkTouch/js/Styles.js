@@ -1149,6 +1149,7 @@ export const styles = StyleSheet.create({
   examIconsFlex: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    width: '100%',
   },
   drawingIcons: {
     position: 'absolute',
@@ -1472,6 +1473,13 @@ export const styles = StyleSheet.create({
     fontSize: 17 * fontScale,
     flexWrap: 'wrap',
     flexShrink: 1,
+  },
+  examLabel: { 
+    position: 'absolute', 
+    width: '100%', 
+    height: '100%', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
 });
 

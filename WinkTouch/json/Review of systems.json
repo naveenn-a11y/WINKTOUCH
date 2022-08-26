@@ -1,6 +1,7 @@
 {
   "addable": false,
   "name": "Review of systems",
+  "label": "Review Of Systems",
   "locale": {
     "fr-CA": {
       "label": "Revue des systèmes",

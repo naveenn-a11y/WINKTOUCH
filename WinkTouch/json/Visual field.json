@@ -1,7 +1,7 @@
 {
   "locale": {
     "fr-CA": {
-      "label": "Champ Visuel",
+      "label": "Champ visuel",
       "fields": [
         {
           "name": "Confrontation visual field",
@@ -53,6 +53,7 @@
     }
   },
   "name": "Visual field",
+  "label": "Visual Field",
   "scrollable": true,
   "starable": true,
   "type": "groupedForm",
