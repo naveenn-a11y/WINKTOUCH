@@ -64,7 +64,13 @@ export class ExamNavigationMenu extends PureComponent {
       exam && exam.previous ? getCachedItem(exam.previous) : undefined;
 
     return (
-      <View style={styles.rowLayout}>
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          padding: 10 * fontScale,
+          flexDirection: 'row',
+        }}>
         <TouchableOpacity
           disabled={previousExam === undefined}
           onPress={() =>
@@ -164,14 +170,12 @@ export class MenuBar extends PureComponent {
     return (
       <View style={styles.sideMenu}>
         <Image source={require('./image/menulogo.png')} />
-
         {!noAccessAppointment && (
           <Button
             title={strings.calendar}
             onPress={() => this.props.navigation.navigate('agenda')}
           />
         )}
-
         {(scene === 'appointment' || exam) && (
           <Button
             title={strings.patient}
@@ -247,15 +251,14 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-
-        {__DEV__ && <Notifications />}
-        {scene === 'exam' && exam !== undefined && (
-          <ExamNavigationMenu navigation={this.props.navigation} exam={exam} />
-        )}
+        {/*__DEV__ && <Notifications />*/}
         <KeyboardMode
           mode={this.context.keyboardMode}
           onPress={this.context.toggleMode}
         />
+        {scene === 'exam' && exam !== undefined && (
+          <ExamNavigationMenu navigation={this.props.navigation} exam={exam} />
+        )}
       </View>
     );
   }
