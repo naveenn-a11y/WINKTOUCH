@@ -1389,10 +1389,10 @@ class Event extends Component {
     let start = 0;
     for (let item of this.props?.touchableOpacityProps?.style) {
       const appointmentStart = index * 20 + 3;
-      if (typeof item === 'object') {
+      if (typeof item === 'object' && item.start !== undefined) {
         start =
           appointmentStart < item.start
-            ? (item.start * appointmentStart) / 1.5
+            ? (item.start * appointmentStart) / 2
             : item.start;
       }
     }
@@ -1401,6 +1401,7 @@ class Event extends Component {
     }
 
     let startRatio = start / 1.05;
+    const zIndex = (start <= 0) ? 1 : parseInt(start);
     const eventStyleProps = {
       minWidth: '1%',
       width: eventWidth / 1.05 - startRatio,
@@ -1413,7 +1414,7 @@ class Event extends Component {
       borderColor: 'lightgray',
       borderStyle: 'solid',
       backgroundColor: '#fff',
-      zIndex: 10,
+      zIndex: zIndex,
     };
     return event.isBusy && !patient ? (
       <TouchableOpacity
