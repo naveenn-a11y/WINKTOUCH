@@ -1355,10 +1355,7 @@ export class ExamScreen extends Component {
     return(
       <View style={styles.examLabel}>
           <Text style={styles.sectionTitle}>
-            {this.state.exam.definition.label ?  
-              this.state.exam.definition.label :
-              this.state.exam.definition.name ? 
-              this.state.exam.definition.name : '' }
+            {formatLabel(this.state.exam.definition)}
           </Text>
       </View>
     );
