@@ -539,6 +539,8 @@ export type Exam = {
   isHidden?: boolean,
   readonly?: boolean,
   noaccess?: boolean,
+  next?: string,
+  previous?: string,
 };
 
 export type Scene = {
