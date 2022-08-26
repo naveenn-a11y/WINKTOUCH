@@ -372,7 +372,9 @@ export class AgendaScreen extends Component {
         this.openManageAvailabilities(false);
       }
     } else {
-      event.isBusy? this.openManageAvailabilities(false) : this.setState({showDialog: true});
+      event.isBusy
+        ? this.openManageAvailabilities(false)
+        : this.setState({showDialog: true});
     }
   };
   _onToday = () => {
@@ -470,7 +472,7 @@ export class AgendaScreen extends Component {
       this.state.mode === 'day' ? 1 : this.daysInWeek,
     );
     this.setState({isLoading: false});
-  }
+  };
 
   resetAppointment = async (): void => {
     this.setState({isLoading: true});
@@ -485,7 +487,7 @@ export class AgendaScreen extends Component {
     );
 
     this.setState({isLoading: false});
-  }
+  };
 
   openManageAvailabilities = (showNewOptions: boolean): void => {
     this.setState({showNewAvailabilityOptions: showNewOptions});
@@ -583,6 +585,7 @@ export class AgendaScreen extends Component {
     this.cancelDialog();
     this.props.navigation.navigate('appointment', {
       appointment: event,
+      refresh: true,
     });
   };
 

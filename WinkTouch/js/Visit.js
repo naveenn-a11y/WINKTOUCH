@@ -1553,7 +1553,10 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
 
-  confirmPrintRxDialog = async (data: any, shouldSendEmail: boolean = false) => {
+  confirmPrintRxDialog = async (
+    data: any,
+    shouldSendEmail: boolean = false,
+  ) => {
     this.setState({isPrintingRx: true});
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
@@ -1709,14 +1712,14 @@ class VisitWorkFlow extends Component {
     this.setState({showClRxPopup: false});
   };
 
-  confirmPrintClRxDialog = async() : void => {
+  confirmPrintClRxDialog = async (): void => {
     this.setState({isPrintingCLRx: true});
     this.hidePrintCLRxPopup();
     await printClRx(this.props.visitId);
     this.setState({isPrintingCLRx: false});
-  }
+  };
 
-  confirmEmailClRxDialog = async() : void => {
+  confirmEmailClRxDialog = async (): void => {
     this.setState({isPrintingCLRx: true});
     this.hidePrintCLRxPopup();
     let response = await emailClRx(this.props.visitId);
@@ -1730,7 +1733,7 @@ class VisitWorkFlow extends Component {
       this.showSnackBar();
     }
     this.setState({isPrintingCLRx: false});
-  }
+  };
 
   renderPrintCLRxPopup() {
     const printCLRxOptions: any = [];
@@ -2152,11 +2155,16 @@ export class VisitHistory extends Component {
     ) {
       return;
     }
+    const selectedId: string =
+      this.props.patientInfo.id === prevProps.patientInfo.id
+        ? this.state.selectedId
+        : undefined;
     this.setState({
       history: this.combineHistory(
         this.props.patientDocumentHistory,
         this.props.visitHistory,
       ),
+      selectedId,
     });
   }
 
