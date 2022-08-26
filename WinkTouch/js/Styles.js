@@ -398,7 +398,7 @@ export const styles = StyleSheet.create({
   menuIcon2: {
     color: 'white',
     fontSize: 35 * fontScale,
-    padding: 5 * fontScale,
+    padding: 25 * fontScale,
   },
   addButton: {
     width: 60 * fontScale,
