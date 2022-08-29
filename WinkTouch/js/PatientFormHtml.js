@@ -93,7 +93,9 @@ export function printPatientHeader(visit: Visit) {
     `        <div>${store.email}</div>` +
     '      </div>' +
     '      <div id="client">' +
-    `        <div><span>${strings.doctor}</span>${doctor.firstName} ${doctor.lastName}</div>` +
+    `        <div><span>${strings.doctor}</span>${
+      doctor ? doctor.firstName + ' ' + doctor.lastName : ''
+    }</div>` +
     `        <div><span>${strings.patient}</span>${getPatientFullName(
       patient,
     )}</div>` +
@@ -121,6 +123,13 @@ export function printPatientHeader(visit: Visit) {
       patient.medicalCardExp,
       'EXP:',
     )}</div>` +
+    `        <div><span>${strings.familyDoctor}</span>${
+      patient.familyDoctor
+        ? patient.familyDoctor.firstName.trim() +
+          ' ' +
+          patient.familyDoctor.lastName.trim()
+        : ''
+    }</div>` +
     `        <div><span>${strings.examDate}</span>${formatDate(
       visit.date,
       officialDateFormat,
@@ -1428,7 +1437,7 @@ function renderRxTable(
     if (fieldDefinition.options && fieldDefinition.options.length > 0) {
       let options = fieldDefinition.options;
       const value: string = formatCode(options, glassesRx.lensType);
-      html += `<div>${formatLabel(fieldDefinition)}: ${value}</div>`;
+      html = `<div>${formatLabel(fieldDefinition)}: ${value}</div>` + html;
       groupHtmlDefinition.push({name: fieldDefinition.name, html: value});
     }
   }
@@ -1446,7 +1455,7 @@ export function patientHeader(referral: boolean) {
     '}' +
     '@media all {' +
     'table { page-break-after:auto;}' +
-    '.childTable { page-break-after:auto; page-break-inside:avoid;}' +
+    '.childTable { page-break-after:auto; page-break-inside:avoid; margin: 10px 10px 20px 10px !important;}' +
     'tr    { page-break-inside:avoid; page-break-after:auto }' +
     'td    { page-break-inside:avoid; page-break-after:auto }' +
     'thead { display:table-header-group }' +
@@ -1511,7 +1520,7 @@ export function patientHeader(referral: boolean) {
     '#client span {' +
     '  color: #5D6975;' +
     '  text-align: right;' +
-    '  width: 52px;' +
+    '  width: 78px;' +
     '  margin-right: 18px;' +
     '  display: inline-block;' +
     '  font-size: 0.8em;' +

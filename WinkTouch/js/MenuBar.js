@@ -111,6 +111,8 @@ export class MenuBar extends PureComponent {
 
     const scene: ?string =
       this.props.navigation.state && this.props.navigation.state.routeName;
+    const key: ?string =
+      this.props.navigation.state && this.props.navigation.state.key;
     const hasConfig: boolean = getPhoropters().length > 1;
     return (
       <View style={styles.sideMenu}>
@@ -122,6 +124,7 @@ export class MenuBar extends PureComponent {
             onPress={() => this.props.navigation.navigate('agenda')}
           />
         )}
+
         {(scene === 'appointment' || exam) && (
           <Button
             title={strings.patient}
@@ -153,7 +156,10 @@ export class MenuBar extends PureComponent {
           <Button
             title={strings.history}
             onPress={() =>
-              this.props.navigation.navigate('examHistory', {exam: exam})
+              this.props.navigation.navigate('examHistory', {
+                exam: exam,
+                stateKey: this.props.navigation.state.key,
+              })
             }
           />
         )}
