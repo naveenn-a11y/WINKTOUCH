@@ -162,6 +162,9 @@ export class DocumentScanner extends Component {
     pageHeight: number,
   ): PDFDocument {
     const newPdf = await PDFDocument.load(this.state.scaledFile);
+    const {width, height} = newPdf.getPage(0).getSize();
+    pageWidth = pageWidth > width ? pageWidth : width;
+    pageHeight = pageHeight > height ? pageHeight : height;
     for (const page: PDFPage of newPdf.getPages()) {
       const documentPage: PDFPage = pdfDoc.addPage();
       documentPage.setSize(pageWidth, pageHeight);
