@@ -941,6 +941,11 @@ export class ExamScreen extends Component {
     if (this.state.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
       this.storeExam(this.state.exam);
+    } else if (this.state.exam.isInvalid) {
+      let exam: Exam = this.state.exam;
+      exam.isInvalid = false;
+      exam.hasStarted = true;
+      this.storeExam(exam);
     }
   }
 
@@ -1354,13 +1359,13 @@ export class ExamScreen extends Component {
       </View>
     );
   }
-  
+
   renderExamTitle() {
-    return(
+    return (
       <View style={styles.examLabel}>
-          <Text style={styles.sectionTitle}>
-            {formatLabel(this.state.exam.definition)}
-          </Text>
+        <Text style={styles.sectionTitle}>
+          {formatLabel(this.state.exam.definition)}
+        </Text>
       </View>
     );
   }
