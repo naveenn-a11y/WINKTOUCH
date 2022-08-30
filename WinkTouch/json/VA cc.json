@@ -281,10 +281,10 @@
   "section": "Vision testing.1",
   "fields": [
     {
-      "multivalue": true,
       "name": "Aided acuities",
       "import": ["machine.phoropter.va.cc"],
       "columns": [["DVA", "PH", "NVA", ">>"]],
+      "multiValue": true,
       "fields": [
         {
           "name": "Aide",

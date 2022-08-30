@@ -233,7 +233,7 @@ export const styles = StyleSheet.create({
   modalTileLabelSelected: modalTileLabel(true),
   modalTileIcon: modalTileLabel(false, true),
   boldText: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   text: {
     fontSize: 17 * fontScale,
@@ -394,6 +394,11 @@ export const styles = StyleSheet.create({
   menuIcon: {
     color: 'white',
     fontSize: 50 * fontScale,
+  },
+  menuIcon2: {
+    color: 'white',
+    fontSize: 35 * fontScale,
+    padding: 25 * fontScale,
   },
   addButton: {
     width: 60 * fontScale,
@@ -1149,6 +1154,7 @@ export const styles = StyleSheet.create({
   examIconsFlex: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    width: '100%',
   },
   drawingIcons: {
     position: 'absolute',
@@ -1457,9 +1463,9 @@ export const styles = StyleSheet.create({
   paddingLeft40: {
     paddingLeft: 40 * fontScale,
   },
-  summaryGroupContainer: { 
+  summaryGroupContainer: {
     flexDirection: 'row',
-    marginBottom: 10 * fontScale, 
+    marginBottom: 10 * fontScale,
   },
   summarySubTitle: {
     fontSize: 17 * fontScale,
@@ -1472,6 +1478,13 @@ export const styles = StyleSheet.create({
     fontSize: 17 * fontScale,
     flexWrap: 'wrap',
     flexShrink: 1,
+  },
+  examLabel: { 
+    position: 'absolute', 
+    width: '100%', 
+    height: '100%', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
 });
 

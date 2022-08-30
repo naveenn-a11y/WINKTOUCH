@@ -1,5 +1,6 @@
 {
   "name": "Paper form",
+  "label": "Paper Form",
   "isPreExam": false,
   "image": "./image/ToulchExam.pdf",
   "card": false,

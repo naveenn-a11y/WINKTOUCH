@@ -355,6 +355,12 @@ export const strings = new LocalizedStrings({
     sendToHarmony: 'Send to Harmony',
     sendToHarmonySuccessMessage: 'Data successfully sent to Topcon Harmony!',
     recentlyViewedPatients: 'Recently Viewed Patients',
+    support: 'Support',
+    agentAssumptionTitle: 'Agent Assumption Form',
+    zendesk: 'Zendesk #',
+    reason: 'Reason',
+    agentLoginWarning:
+      'This is a production account that uses private data. Do not enter any real patient data!',
   },
   fr: {
     enterRegisteredEmail:
@@ -710,6 +716,12 @@ export const strings = new LocalizedStrings({
     sendToHarmonySuccessMessage:
       'Données envoyées avec succès à Topcon Harmony!',
     recentlyViewedPatients: 'Patients Récemment Consultés',
+    support: 'Support',
+    agentAssumptionTitle: "Formulaire d'agent",
+    zendesk: 'Zendesk #',
+    reason: 'Raison',
+    agentLoginWarning:
+      "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
   },
 });
 

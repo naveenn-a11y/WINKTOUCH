@@ -17,6 +17,11 @@ export type Registration = {
   path: string,
 };
 
+export type AgentAssumption = {
+  zendeskRef: string,
+  reason: string,
+};
+
 export type VisitType = {
   id: string,
   name: string,
@@ -534,6 +539,8 @@ export type Exam = {
   isHidden?: boolean,
   readonly?: boolean,
   noaccess?: boolean,
+  next?: string,
+  previous?: string,
 };
 
 export type Scene = {

@@ -20,6 +20,7 @@
     }
   },
   "name": "Color vision",
+  "label": "Color Vision",
   "starable": true,
   "type": "groupedForm",
   "section": "Entrance testing.4",

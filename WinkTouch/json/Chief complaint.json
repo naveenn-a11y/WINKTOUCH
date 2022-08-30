@@ -2,11 +2,11 @@
   "addable": true,
   "locale": {
     "fr-CA": {
-      "label": "Plainte Principale",
+      "label": "Plainte principale",
       "fields": [
         {
           "name": "Chief complaint",
-          "label": "Plainte Principale"
+          "label": "Plainte principale"
         },
         {
           "name": "Location",
@@ -44,6 +44,7 @@
     }
   },
   "name": "Chief complaint",
+  "label": "Chief Complaint",
   "cardFields": [],
   "starable": true,
   "essentialFields": ["Chief complaint"],

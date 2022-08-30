@@ -61,6 +61,7 @@ export let isAtWink: boolean;
 
 async function determineIfAtWink(): void {
   const localIp = await fetchIp();
+
   if (localIp && localIp.startsWith('192.168.88.')) {
     const publicIp: string = await fetchPublicIp();
     isAtWink = publicIp === '70.25.31.169';
