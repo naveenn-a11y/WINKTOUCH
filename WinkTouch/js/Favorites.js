@@ -22,7 +22,7 @@ import type {
   Visit,
   VisitType,
 } from './Types';
-import {styles, selectionFontColor, disabledFontColor} from './Styles';
+import {styles, selectionFontColor, disabledFontColor, isWeb} from './Styles';
 import {strings} from './Strings';
 import {storeItem, searchItems, deleteItem} from './Rest';
 import {cacheItem, getCachedItem} from './DataCache';
@@ -30,10 +30,11 @@ import {deepClone, compareDates} from './Util';
 import {getVisitTypes} from './Visit';
 import {FormRow, FormTextInput} from './Form';
 import {Button} from './Widgets';
+import {getDoctor} from './DoctorApp';
 
 const examPredefinedValuesCacheKey: string = 'examPredefinedValues';
 
-async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
+export async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
   const searchCriteria = {};
   let restResponse = await searchItems(
     'ExamPredefinedValue/list',
@@ -41,13 +42,16 @@ async function fetchExamPredefinedValues(): ExamPredefinedValue[] {
   );
   let examPredefinedValues: ExamPredefinedValue[] =
     restResponse.examPredefinedValueList;
-  cacheItem(examPredefinedValuesCacheKey, examPredefinedValues);
+  cacheItem(
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
+    examPredefinedValues,
+  );
   return examPredefinedValues;
 }
 
 export async function allExamPredefinedValues(): ExamPredefinedValue[] {
   let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey,
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
   );
   if (
     examPredefinedValues === undefined ||
@@ -62,8 +66,12 @@ export async function allExamPredefinedValues(): ExamPredefinedValue[] {
 function visitHasStartedExamOfType(visitId: string, examDefinitionId: string) {
   const visit = getCachedItem(visitId);
   let examIds: string[] = [];
-  if (visit.customExamIds) examIds = examIds.concat(visit.customExamIds);
-  if (visit.preCustomExamIds) examIds = examIds.concat(visit.preCustomExamIds);
+  if (visit.customExamIds) {
+    examIds = examIds.concat(visit.customExamIds);
+  }
+  if (visit.preCustomExamIds) {
+    examIds = examIds.concat(visit.preCustomExamIds);
+  }
   for (let examId: string of examIds) {
     let exam: Exam = getCachedItem(examId);
     if (exam.definition.id === examDefinitionId && exam.hasStarted) {
@@ -90,9 +98,12 @@ function getPreviousExamId(
   if (visitHistory.length > 0) {
     const visit: Visit = getCachedItem(visitHistory[visitHistory.length - 1]);
     let examIds: string[] = [];
-    if (visit.customExamIds) examIds = examIds.concat(visit.customExamIds);
-    if (visit.preCustomExamIds)
+    if (visit.customExamIds) {
+      examIds = examIds.concat(visit.customExamIds);
+    }
+    if (visit.preCustomExamIds) {
       examIds = examIds.concat(visit.preCustomExamIds);
+    }
     const examId: ?string = examIds.find(
       (examId: string) =>
         getCachedItem(examId).definition.id === examDefinitionId,
@@ -128,22 +139,16 @@ function getPreviousExamAsFavorite(
 
 export function getFavorites(exam: Exam): ExamPredefinedValue[] {
   let examPredefinedValues: ExamPredefinedValue[] = getCachedItem(
-    examPredefinedValuesCacheKey,
+    examPredefinedValuesCacheKey + '-' + getDoctor().id,
   );
   if (!examPredefinedValues) {
     //alert('no predefiend values loaded yet');
     return [];
   }
   let examDefinitionId: string = exam.definition.id;
-  let visitTypes: VisitType[] = getVisitTypes();
-  if (visitTypes === null || visitTypes === undefined) visitTypes = [];
-  const visitTypeNames: string[] = visitTypes.map(
-    (visitType: VisitType) => visitType.name,
-  );
   let favorites: ExamPredefinedValue[] = examPredefinedValues.filter(
     (examPredefinedValue: ExamPredefinedValue) =>
-      examPredefinedValue.customExamDefinitionId === examDefinitionId &&
-      visitTypeNames.includes(examPredefinedValue.name) === false,
+      examPredefinedValue.customExamDefinitionId === examDefinitionId,
   );
   favorites = favorites.map((examPredefinedValue: ExamPredefinedValue) =>
     examPredefinedValue.predefinedValue === undefined
@@ -166,6 +171,9 @@ export async function storeFavorite(
     name,
   };
   favorite = await storeItem(predefinedValue);
+  if (favorite.errors) {
+    alert(favorite.errors);
+  }
   await fetchExamPredefinedValues();
 }
 
@@ -206,7 +214,9 @@ export class Star extends PureComponent {
   };
 
   addFavorite = () => {
-    if (this.props.onAddFavorite === undefined) return;
+    if (this.props.onAddFavorite === undefined) {
+      return;
+    }
     let starName: ?string = this.state.starName;
     if (
       starName !== undefined &&
@@ -362,6 +372,20 @@ export class Copy extends PureComponent {
   }
 }
 
+export class Paste extends PureComponent {
+  props: {
+    style: any,
+  };
+  render() {
+    return (
+      <MaterialIcon
+        name="content-paste"
+        style={this.props.style}
+      />
+    );
+  }
+}
+
 export class Refresh extends PureComponent {
   props: {
     style: any,
@@ -423,9 +447,13 @@ export class Mail extends PureComponent {
     style: any,
   };
   render() {
-    return (
-      <Icon name="mail" style={this.props.style} color={selectionFontColor} />
-    );
+    if (isWeb) {
+      return null;
+    } else {
+      return (
+        <Icon name="mail" style={this.props.style} color={selectionFontColor} />
+      );
+    }
   }
 }
 
@@ -584,8 +612,9 @@ export class Favorites extends PureComponent {
                     this.props.onSelectFavorite(favorite);
                   }}
                   onLongPress={() => {
-                    if (favorite.userId !== undefined)
+                    if (favorite.userId !== undefined) {
                       this.props.onRemoveFavorite(favorite);
+                    }
                   }}
                   testID={'favorite' + (index + 1)}>
                   <Text key={index} style={styles.linkButton}>

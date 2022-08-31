@@ -6,7 +6,7 @@
       "label": "Historique oculaire",
       "fields": [
         {
-          "name": "Condition",
+          "name": "Procedure",
           "label": "Condition"
         },
         {
@@ -27,7 +27,8 @@
   "section": "History.12",
   "fields": [
     {
-      "name": "Condition",
+      "name": "Procedure",
+      "label": "Condition",
       "required": true,
       "freestyle": true,
       "options": "ocularSurgeryProcedureCodes"
@@ -38,6 +39,8 @@
     },
     {
       "name": "Eye",
+      "simpleSelect": true,
+      "freestyle": true,
       "options": ["OD", "OS", "OU"]
     },
     {

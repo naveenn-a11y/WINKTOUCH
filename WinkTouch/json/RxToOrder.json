@@ -24,6 +24,10 @@
           "mappedField": "visit.prescription.notes"
         },
         {
+          "name": "expiry",
+          "mappedField": "visit.expDate"
+        },
+        {
           "name": "od",
           "fields": [
             {
@@ -153,6 +157,7 @@
     {
       "mappedField": "visit.purchase",
       "name": "Purchase Rx",
+      "copyFromFinalRx": true,
       "label": "Dr.'s Recommendation"
     }
   ],
@@ -182,5 +187,6 @@
         }
       ]
     }
-  }
+  },
+  "relatedExams": ["Auto refractor", "Lensometry"]
 }

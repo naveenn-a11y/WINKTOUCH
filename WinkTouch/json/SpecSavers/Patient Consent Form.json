@@ -1,0 +1,246 @@
+{
+    "name": "Patient Consent Form",
+    "scrollable": true,
+    "card": true,
+    "type": "groupedForm",
+    "section": "Form.2",
+    "cardGroup": "Formulaire De Consentement",
+    "isPatientFileHidden": true,
+    "fields": [
+      {
+        "name": "Patient Consent Form",
+        "label": "",
+        "size": "XL",
+        "fields": [
+          {
+            "sync": true,
+            "popup": false,
+            "drawable":true,
+            "name": "Patient Consent Form",
+            "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1726/PatientConsentForm.jpg",
+            "label": "",
+            "resolution": "1700x2200",
+            "type": "Patient Consent Form",
+            "size": "XL",
+            "cardFields": [["Patient Consent Form.Patient Consent Form.Form.Consent1"],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent2"],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent3"],
+              ["Patient Consent Form.Patient Consent Form.Form.Consent4"]],
+            "fields": [
+              {
+                "layout": {
+                  "position": "absolute",
+                  "width": 1000,
+                  "justifyContent": "flex-start",
+                  "left": 0,
+                  "top": 0
+                },
+                "name": "Form",
+                "label": "",
+                "fields": [
+                  {
+                    "mappedField": "visit.storeName",
+                    "name": "Store name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 245,
+                      "left": 160,
+                      "fontSize": 21,
+                      "top": 10
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.storeAddress",
+                    "name": "Store address",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 400,
+                      "left": 160,
+                      "fontSize": 17,
+                      "top": 35
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.storeCity",
+                    "name": "Store city",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 400,
+                      "left": 160,
+                      "fontSize": 17,
+                      "top": 60
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.storeContact",
+                    "name": "Store contact",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 600,
+                      "left": 160,
+                      "fontSize": 17,
+                      "top": 85
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "name": "Image",
+                    "image": "[visit.store.logo]",
+                    "mappedField": "visit.store.logo",
+                    "readonly": true,
+                    "size": "XS",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 10,
+                      "left": 800,
+                      "width": 300,
+                      "height": 60,
+                      "borderWidth": 0,
+                      "fontSize": 21
+                    }
+                  },
+
+                  {
+                    "mappedField": "patient.name",
+                    "name": "Patient Name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 280,
+                      "left": 160,
+                      "fontSize": 20,
+                      "top": 1260
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "name": "Patient signed date",
+                    "mappedField": "visit.examDate",
+                    "readonly": true,
+                    "dateFormat": "DD/MM/yyyy",
+                    "layout": {
+                      "position": "absolute",
+                      "top": 1260,
+                      "left": 700,
+                      "width": 200,
+                      "borderWidth": 0,
+                      "fontSize": 20
+                    }
+                  },
+                  {
+                    "mappedField": "visit.store.companyname",
+                    "maxLength": 100,
+                    "name": "Company Name",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 245,
+                      "left": 255,
+                      "fontSize": 18,
+                      "top": 169
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.doctor",
+                    "name": "Doctor",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 220,
+                      "left": 668,
+                      "fontSize": 18,
+                      "top": 345
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "name": "Consent1",
+                    "label": "Term 1: accepted",
+                    "mappedField": "patient.patientPrivacyConsentFormSigned",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 590
+                    },
+                    "normalValue": false,
+                    "defaultValue": false,
+                    "options": [
+                      false,
+                      true
+                    ]
+                  },
+                  {
+                    "name": "Consent2",
+                    "label": "Term 2: accepted",
+                    "mappedField": "patient.patientPrivacyConsentAcceptODTransfer",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 647
+                    },
+                    "normalValue": false,
+                    "defaultValue": false,
+                    "options": [
+                      false,
+                      true
+                    ]
+                  },
+                  {
+                    "name": "Consent3",
+                    "label": "Term 3: accepted",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 683
+                    },
+                    "normalValue": false,
+                    "defaultValue": false,
+                    "options": [
+                      false,
+                      true
+                    ]
+                  },
+                  {
+                    "name": "Consent4",
+                    "label": "Term 4: accepted",
+                    "mappedField": "patient.patientPrivacyConsentAcceptAds",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 50,
+                      "left": 170,
+                      "fontSize": 18,
+                      "top": 955
+                    },
+                    "normalValue": false,
+                    "defaultValue": false,
+                    "options": [
+                      false,
+                      true
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
