@@ -821,6 +821,12 @@ export const styles = StyleSheet.create({
     borderWidth: 3 * fontScale,
     margin: 7 * fontScale,
   },
+  warningPanel: {
+    flexGrow: 0,
+    padding: 15 * fontScale,
+    minHeight: 40 * fontScale,
+    backgroundColor: 'red',
+  },
   buttonsCard: {
     padding: 10 * fontScale,
     paddingBottom: 40 * fontScale,
@@ -1479,12 +1485,12 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     flexShrink: 1,
   },
-  examLabel: { 
-    position: 'absolute', 
-    width: '100%', 
-    height: '100%', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
+  examLabel: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

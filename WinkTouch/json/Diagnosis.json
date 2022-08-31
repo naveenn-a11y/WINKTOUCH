@@ -142,7 +142,7 @@
           "name": "paperCorrespondenceCode",
           "mappedField": "procedure.paperCorrespondenceCode",
           "label": "Paper Correspondence to follow",
-          "visible": "[Diagnosis.Insurer.supplierId]",
+          "visible": "[Diagnosis.Insurer.povOnlineId==480]",
           "normalValue": false,
           "defaultValue": false,
           "options": [
