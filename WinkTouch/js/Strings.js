@@ -361,7 +361,7 @@ export const strings = new LocalizedStrings({
     reason: 'Reason',
     agentLoginWarning:
       'This is a production account that uses private data. Do not enter any real patient data!',
-    appUpdateTitle: 'App is out of date',
+    appUpdateTitle: 'New update is available',
     appUpdateSubtitle: 'Please update the WINKemr app in the apple appstore to get the latest features and best experience.',
     openAppstore: 'Kindly open appstore to update app',
     appVersion: 'App Version',
@@ -726,7 +726,7 @@ export const strings = new LocalizedStrings({
     reason: 'Raison',
     agentLoginWarning:
       "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
-    appUpdateTitle: 'L’application est obsolète',
+    appUpdateTitle: 'Une nouvelle mise à jour est disponible',
     appUpdateSubtitle: 'Veuillez mettre à jour l’application WINKemr dans l’Appstore Apple pour obtenir les dernières fonctionnalités et la meilleure expérience.',
     openAppstore: 'Veuillez ouvrir l’appstore pour mettre à jour l’application',
     appVersion: 'Version de l’application',
