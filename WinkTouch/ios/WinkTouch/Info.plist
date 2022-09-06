@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CodePushDeploymentKey</key>
 	<string>aJlnFTJv0FBp--NZ8a-epxcISJ69b99414bd-11b8-4bb3-bbb3-8b32aaf3da86</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>itms-apps</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>

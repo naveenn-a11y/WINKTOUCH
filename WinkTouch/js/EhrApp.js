@@ -3,7 +3,7 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {View, ActivityIndicator, AppState} from 'react-native';
+import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
@@ -11,9 +11,11 @@ import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
-import {isWeb} from './Styles';
+import {AppUpdateScreen} from './AppUpdate';
+import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
+import RemoteConfig from './utilities/RemoteConfig';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -114,6 +116,7 @@ export class EhrApp extends Component {
     store: ?Store,
     token: ?string,
     isMfaProvided: ?boolean,
+    isUpdateRequired: Boolean,
   };
 
   constructor() {
@@ -129,6 +132,7 @@ export class EhrApp extends Component {
       token: undefined,
       loading: true,
       isMfaProvided: false,
+      isUpdateRequired: false,
     };
   }
 
@@ -170,6 +174,7 @@ export class EhrApp extends Component {
       {isRegistered, registration, loading: false},
       () => isRegistered && this.checkForUpdate(),
     );
+    !isRegistered && this.checkAppstoreUpdateNeeded();
   }
 
   async safeRegistration(registration: Registration) {
@@ -234,6 +239,7 @@ export class EhrApp extends Component {
   };
 
   checkForUpdate() {
+    this.checkAppstoreUpdateNeeded();
     checkAndUpdateDeployment(this.state.registration);
   }
 
@@ -251,6 +257,11 @@ export class EhrApp extends Component {
         path,
     );
     this.setRegistration(registration);
+  }
+
+  async checkAppstoreUpdateNeeded() {
+    const forceUpdate = isIos ? await RemoteConfig.shouldUpdateApp() : false;
+    this.setState({isUpdateRequired: forceUpdate});
   }
 
   startLockingDog(ttlInMins?: number) {
@@ -285,10 +296,14 @@ export class EhrApp extends Component {
   };
 
   componentDidMount() {
-    this.loadRegistration();
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
     AppState.addEventListener('change', this.onAppStateChange.bind(this));
+  }
+
+  async componentDidMount() {
+    isIos && await RemoteConfig.activateRemoteConfig();
+    await this.loadRegistration();
   }
 
   componentWillUnmount() {
@@ -333,6 +348,9 @@ export class EhrApp extends Component {
           <ActivityIndicator size="large" />
         </View>
       );
+    }
+    if (this.state.isUpdateRequired) {
+      return(<AppUpdateScreen />);
     }
     if (!this.state.isRegistered) {
       return (

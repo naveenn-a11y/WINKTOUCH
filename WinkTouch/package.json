@@ -26,6 +26,8 @@
     "@react-native-community/datetimepicker": "^3.0.8",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/progress-view": "^1.2.3",
+    "@react-native-firebase/app": "^15.4.0",
+    "@react-native-firebase/remote-config": "^15.4.0",
     "@react-navigation/web": "^1.0.0-alpha.9",
     "@tinymce/tinymce-react": "^3.13.0",
     "base-64": "^1.0.0",
