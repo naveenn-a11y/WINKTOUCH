@@ -26,7 +26,7 @@ async function activateRemoteConfig() {
     await remoteConfig().setDefaults(configDefaults);
     const fetchedRemotelyawait = await remoteConfig().fetchAndActivate();
     
-    const minimumFetchIntervalMillis = appEnv === "prod" ? 2160000 : 360000; //6hrs - prod, 1hr - dev
+    const minimumFetchIntervalMillis = appEnv === "prod" ? 21600000 : 3600000; //6hrs - prod, 1hr - dev
     __DEV__ && console.log("Remote config cached for ", minimumFetchIntervalMillis);
 
     await remoteConfig().setConfigSettings({
