@@ -157,11 +157,7 @@ const PRIVILEGE = {
 };
 
 function getSectionWidth(section: string): string {
-  if(isWeb) {
-    return (examSectionsLayout[section] !== undefined) ? examSectionsLayout[section] : '95%';
-  } else {
-    return '95%'; //mobile
-  }
+  return (examSectionsLayout[section] !== undefined) ? examSectionsLayout[section] : '95%';
 }
 export function getSectionTitle(section: string): string {
   const language: string = getUserLanguage();
