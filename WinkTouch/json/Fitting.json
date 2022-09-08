@@ -181,7 +181,7 @@
                 "brand": "[Brand.OD]",
                 "design": "[Design.OD]"
               },
-              "options": "contactLenses.quantityPerBox"
+              "options": "contactLenses.ranges.quantityPerBox"
             },
             {
               "mappedField": "clFitting.boxSize.os",
@@ -191,7 +191,7 @@
                 "brand": "[Brand.OS]",
                 "design": "[Design.OS]"
               },
-              "options": "contactLenses.quantityPerBox"
+              "options": "contactLenses.ranges.quantityPerBox"
             }
           ]
         },
