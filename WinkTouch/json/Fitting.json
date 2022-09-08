@@ -174,7 +174,7 @@
           "name": "Qty/Box",
           "fields": [
             {
-              "mappedField": "clFitting.boxSize.od",
+              "mappedField": "clFitting.packaging.od",
               "name": "OD",
               "filter": {
                 "manufacturer": "[Manufacturer.OD]",
@@ -184,7 +184,7 @@
               "options": "contactLenses.ranges.quantityPerBox"
             },
             {
-              "mappedField": "clFitting.boxSize.os",
+              "mappedField": "clFitting.packaging.os",
               "name": "OS",
               "filter": {
                 "manufacturer": "[Manufacturer.OS]",
