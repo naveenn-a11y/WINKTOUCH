@@ -3,26 +3,24 @@
  */
 'use strict';
 import React, {Component} from 'react';
-import {
-  View,
-  TextInput,
-  StatusBar,
-  AsyncStorage,
-  AppState,
-  InteractionManager,
-} from 'react-native';
+import {View, ActivityIndicator, AppState} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
-import {fetchItemById} from './Rest';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
 import {setDeploymentVersion, checkBinaryVersion} from './Version';
+import {isWeb} from './Styles';
+import InactivityTracker from './utilities/InactivityTracker';
+import NavigationService from './utilities/NavigationService';
 
-codePush.getCurrentPackage().then(currentPackage => {
-  if (currentPackage !== null && currentPackage !== undefined)
-    setDeploymentVersion(currentPackage.label);
-});
+!isWeb &&
+  codePush.getCurrentPackage().then((currentPackage) => {
+    if (currentPackage !== null && currentPackage !== undefined) {
+      setDeploymentVersion(currentPackage.label);
+    }
+  });
 
 function logUpdateStatus(status: number) {
   switch (status) {
@@ -59,7 +57,7 @@ function logUpdateStatus(status: number) {
   }
 }
 
-let lastUpdateCheck: ?Date = undefined;
+let lastUpdateCheck: ?Date;
 
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
@@ -67,7 +65,9 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     checkBinaryVersion();
     return;
   }
-  if (!registration || !registration.path) return;
+  if (!registration || !registration.path) {
+    return;
+  }
   checkBinaryVersion();
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
@@ -89,16 +89,18 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   lastUpdateCheck = new Date();
   //let packageVersion = await codePush.checkForUpdate(registration.bundle);
   //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  codePush.disallowRestart();
-  await codePush.sync(
-    {
-      updateDialog: false,
-      deploymentKey: registration.bundle,
-      installMode: codePush.InstallMode.IMMEDIATE,
-    },
-    logUpdateStatus,
-  );
-  codePush.allowRestart();
+  if (!isWeb) {
+    codePush.disallowRestart();
+    await codePush.sync(
+      {
+        updateDialog: false,
+        deploymentKey: registration.bundle,
+        installMode: codePush.InstallMode.IMMEDIATE,
+      },
+      logUpdateStatus,
+    );
+    codePush.allowRestart();
+  }
 }
 
 export class EhrApp extends Component {
@@ -111,6 +113,7 @@ export class EhrApp extends Component {
     user: ?User,
     store: ?Store,
     token: ?string,
+    isMfaProvided: ?boolean,
   };
 
   constructor() {
@@ -124,6 +127,8 @@ export class EhrApp extends Component {
       user: undefined,
       store: undefined,
       token: undefined,
+      loading: true,
+      isMfaProvided: false,
     };
   }
 
@@ -142,6 +147,13 @@ export class EhrApp extends Component {
       account: null,
       user: null,
       store: null,
+      isMfaProvided: false,
+    });
+  };
+
+  mfaRequired = () => {
+    this.setState({
+      isMfaProvided: true,
     });
   };
 
@@ -155,7 +167,7 @@ export class EhrApp extends Component {
       registration.bundle !== null &&
       registration.bundle.length > 0;
     this.setState(
-      {isRegistered, registration},
+      {isRegistered, registration, loading: false},
       () => isRegistered && this.checkForUpdate(),
     );
   }
@@ -195,13 +207,16 @@ export class EhrApp extends Component {
       user !== undefined &&
       token !== undefined &&
       store !== undefined;
-    this.setState({
-      isLoggedOn,
-      account,
-      user,
-      store,
-      token,
-    });
+    this.setState(
+      {
+        isLoggedOn,
+        account,
+        user,
+        store,
+        token,
+      },
+      () => console.log('done set loading'),
+    );
   }
 
   logout = () => {
@@ -211,8 +226,10 @@ export class EhrApp extends Component {
       user: undefined,
       account: undefined,
       store: undefined,
+      isMfaProvided: false,
     });
     lastUpdateCheck = undefined;
+    this.tracker && this.tracker.stop();
     this.checkForUpdate();
   };
 
@@ -226,7 +243,7 @@ export class EhrApp extends Component {
     const path: string = await AsyncStorage.getItem('path');
     const registration: Registration = {email, bundle, path};
     console.log(
-      'WinkTouch app is registered to : ' +
+      'WINKemr app is registered to : ' +
         email +
         ' bundle: ' +
         bundle +
@@ -236,13 +253,39 @@ export class EhrApp extends Component {
     this.setRegistration(registration);
   }
 
-  startLockingDog() {
-    //TODO
+  startLockingDog(ttlInMins?: number) {
+    this.tracker = new InactivityTracker({
+      ttlInMins: ttlInMins ? ttlInMins : 5, //to be safe, 5min is default value
+      onSessionTimeout: () => {
+        this.lockScreen();
+      },
+      onResume: () => {
+        this.unlockScreen();
+      },
+    });
+
+    this.tracker.start(); //start inactivity tracker
   }
+
+  lockScreen() {
+    //navigate to lock screen
+    this.setState({
+      isLocked: true,
+    });
+  }
+
+  unlockScreen() {
+    this.setState({
+      isLocked: false,
+    });
+  }
+
+  onUserLogin = () => {
+    this.tracker && this.tracker.start();
+  };
 
   componentDidMount() {
     this.loadRegistration();
-    this.startLockingDog();
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
     AppState.addEventListener('change', this.onAppStateChange.bind(this));
@@ -255,14 +298,42 @@ export class EhrApp extends Component {
     AppState.removeEventListener('change', this.onAppStateChange.bind(this));
   }
 
+  componentDidUpdate(prevProp, prevState) {
+    if (prevState.isLocked != this.state.isLocked) {
+      if (!this.state.isLocked) {
+        NavigationService.dismissLockScreen();
+      }
+      if (this.state.isLoggedOn && this.state.isLocked) {
+        NavigationService.navigate('lock', {
+          onUserLogin: this.onUserLogin,
+          onUserLogout: this.logout,
+        });
+      }
+    }
+  }
+
   onAppStateChange(nextState: any) {
     __DEV__ && console.log('next app state =' + nextState);
     if (nextState === 'active') {
       this.checkForUpdate();
+      this.tracker && this.tracker.appIsActive();
+    }
+    if (nextState === 'background') {
+      this.tracker && this.tracker.appIsInBackground();
     }
   }
+  setLoading = (loading) => {
+    this.setState({loading});
+  };
 
   render() {
+    if (this.state.loading) {
+      return (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
     if (!this.state.isRegistered) {
       return (
         <RegisterScreen
@@ -286,6 +357,7 @@ export class EhrApp extends Component {
             store: Store,
             token: string,
           ) => this.userLoggedOn(account, user, store, token)}
+          onMfaRequired={this.mfaRequired}
           onReset={this.reset}
         />
       );
@@ -298,6 +370,9 @@ export class EhrApp extends Component {
         token={this.state.token}
         store={this.state.store}
         onLogout={this.logout}
+        onStartLockingDog={(ttlInMins: number) =>
+          this.startLockingDog(ttlInMins)
+        }
       />
     );
   }

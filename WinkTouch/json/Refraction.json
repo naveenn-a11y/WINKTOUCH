@@ -13,7 +13,13 @@
       "fields": [
         {
           "name": "Subjective refraction",
-          "label": "Subjectif"
+          "label": "Subjectif",
+          "fields": [
+            {
+              "name": "customField",
+              "label": "Données de"
+            }
+          ]
         },
         {
           "name": "Compensated refraction",
@@ -32,13 +38,62 @@
           "label": "Rétinoscopie"
         },
         {
-          "name": "Cyclopegia",
-          "label": "Cyclopégie"
+          "name": "Cycloplegia",
+          "label": "Cycloplégie"
         }
       ]
     }
   },
   "fields": [
+    {
+      "hasCustomField": true,
+      "hasVA": true,
+      "hasAdd": true,
+      "canBeCopied": true,
+      "copyToFinalRx": true,
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
+      "name": "Subjective refraction",
+      "multiValue": true,
+      "type": "SRx",
+      "canBePaste": true,
+      "fields": [
+        {
+          "freestyle": true,
+          "name": "customField",
+          "label": "Data from",
+          "readonly": true
+        }
+      ]
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Maximum VA refraction",
+      "type": "SRx",
+      "canBePaste": true
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Compensated refraction",
+      "type": "SRx",
+      "canBePaste": true
+    },
+    {
+      "hasVA": true,
+      "hasAdd": false,
+      "optional": true,
+      "name": "Duochrome",
+      "type": "SRx",
+      "copyToFinalRx": true,
+      "canBePaste": true
+    },
     {
       "hasVA": true,
       "hasAdd": true,
@@ -48,53 +103,36 @@
         "exam.Auto refractor.Auto refractor",
         "machine.phoropter.rx"
       ],
-      "export": "machine.phoropter",
-      "name": "Subjective refraction",
-      "multiValue": true,
-      "type": "SRx"
-    },
-    {
-      "hasVA": true,
-      "hasAdd": false,
-      "optional": true,
-      "name": "Maximum VA refraction",
-      "type": "SRx"
-    },
-    {
-      "hasVA": true,
-      "hasAdd": false,
-      "optional": true,
-      "name": "Compensated refraction",
-      "type": "SRx"
-    },
-    {
-      "hasVA": true,
-      "hasAdd": false,
-      "optional": true,
-      "name": "Duochrome",
-      "type": "SRx"
-    },
-    {
-      "hasVA": true,
-      "hasAdd": false,
       "optional": true,
       "name": "Retinoscopy",
       "multiValue": true,
-      "type": "SRx"
+      "type": "SRx",
+      "copyToFinalRx": true
     },
     {
       "hasVA": true,
       "hasAdd": false,
       "optional": true,
-      "name": "Cyclopegia",
-      "type": "SRx"
+      "name": "Cycloplegia",
+      "type": "SRx",
+      "copyToFinalRx": true,
+      "canBePaste": true
     },
     {
       "hasVA": true,
       "hasAdd": true,
       "name": "Final Rx",
       "type": "SRx",
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
       "fields": [
+        {
+          "name": "expiry",
+          "mappedField": "visit.expDate"
+        },
         {
           "name": "od",
           "fields": [
@@ -189,5 +227,12 @@
       ]
     }
   ],
-  "relatedExams": ["Auto refractor", "Lensometry", "Binocular"]
+  "relatedExams": [
+    "VA sc",
+    "VA cc",
+    "Auto refractor",
+    "Lensometry",
+    "Binocular"
+  ],
+  "export": "machine.phoropter"
 }

@@ -1,10 +1,12 @@
 {
   "isAssessment": true,
-  "order": 3,
+  "order": 4,
   "name": "Diagnosis",
+  "label": "Billing",
+  "scrollable": true,
   "locale": {
     "fr-CA": {
-      "label": "Diagnostic",
+      "label": "Facturation",
       "fields": [
         {
           "name": "Procedure",
@@ -13,6 +15,16 @@
             {
               "name": "procedureCode",
               "label": "Procédure"
+            },
+            {
+              "name": "Self paid",
+              "label": "Patient paie",
+              "normalValue": "Non",
+              "defaultValue": "Non",
+              "options": [
+                "Non",
+                "Patient paie"
+              ]
             }
           ]
         },
@@ -23,9 +35,23 @@
       ]
     }
   },
-  "starable": false,
+  "starable": true,
   "type": "groupedForm",
   "fields": [
+    {
+      "visible": "[visit.appointmentId]",
+      "size": "M",
+      "name": "Insurer",
+      "fields": [
+          {
+              "simpleSelect": true,
+              "name": "supplierId",
+              "options": "insuranceProviders",
+              "label": "Insurer",
+              "mappedField": "visit.supplierId"
+          }
+      ]
+    },
     {
       "name": "Procedure",
       "entity": "procedure",
@@ -37,42 +63,80 @@
           "name": "procedureCode",
           "label": "Procedure",
           "simpleSelect": true,
-          "options": "procedureCodes"
+          "options": "procedureCodes",
+          "listField": true,
+          "freestyle": true
+        },
+        {
+          "name": "Self paid",
+          "visible": "[Diagnosis.Insurer.supplierId]",
+          "mappedField": "procedure.isSelfPaid",
+          "normalValue": "No",
+          "defaultValue": "No",
+          "options": [
+            "No",
+            "Self paid"
+          ]
         },
         {
           "mappedField": "procedure.icd1Code",
           "name": "icd1Code",
           "label": "ICD 1",
           "simpleSelect": true,
-          "options": "icdCodes"
+          "options": "icdCodes",
+          "limitedValues": {
+            "code": "procedureCode",
+            "codes": "procedureCodes",
+            "options": "icdCodes"
+            }
         },
         {
           "mappedField": "procedure.icd2Code",
           "name": "icd2Code",
           "label": "ICD 2",
           "simpleSelect": true,
-          "options": "icdCodes"
+          "options": "icdCodes",
+          "limitedValues": {
+            "code": "procedureCode",
+            "codes": "procedureCodes",
+            "options": "icdCodes"
+            }
         },
         {
           "mappedField": "procedure.icd3Code",
           "name": "icd3Code",
           "label": "ICD 3",
           "simpleSelect": true,
-          "options": "icdCodes"
+          "options": "icdCodes",
+          "limitedValues": {
+            "code": "procedureCode",
+            "codes": "procedureCodes",
+            "options": "icdCodes"
+            }
         },
         {
           "mappedField": "procedure.icd4Code",
           "name": "icd4Code",
           "label": "ICD 4",
           "simpleSelect": true,
-          "options": "icdCodes"
+          "options": "icdCodes",
+          "limitedValues": {
+            "code": "procedureCode",
+            "codes": "procedureCodes",
+            "options": "icdCodes"
+            }
         },
         {
           "mappedField": "procedure.icd5Code",
           "name": "icd5Code",
           "label": "ICD 5",
           "simpleSelect": true,
-          "options": "icdCodes"
+          "options": "icdCodes",
+          "limitedValues": {
+            "code": "procedureCode",
+            "codes": "procedureCodes",
+            "options": "icdCodes"
+            }
         },
         {
           "mappedField": "procedure.notes",

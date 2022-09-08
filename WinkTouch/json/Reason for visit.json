@@ -58,8 +58,8 @@
           "freestyle": true
         },
         {
-          "normalValue": "Show",
           "name": "No show",
+          "normalValue": "Show",
           "defaultValue": "Show",
           "options": ["Show", "No show"]
         }

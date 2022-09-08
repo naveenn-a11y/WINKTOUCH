@@ -11,7 +11,7 @@ import type {
 } from './Types';
 import {strings, getUserLanguage} from './Strings';
 import {
-  restUrl,
+  getRestUrl,
   handleHttpError,
   searchItems,
   getNextRequestNumber,
@@ -26,7 +26,10 @@ export function formatCodeDefinition(
   option: ?CodeDefinition,
   descriptionIdentifier?: string,
 ): string {
-  if (option === undefined || option === null) return '';
+  if (option === undefined || option === null) {
+    return '';
+  }
+
   if (descriptionIdentifier !== undefined && descriptionIdentifier !== null) {
     option = option[descriptionIdentifier];
   } else if (option.description !== undefined && option.description !== null) {
@@ -36,7 +39,9 @@ export function formatCodeDefinition(
   } else if (option.code !== undefined && option.code !== null) {
     option = option.code;
   }
-  if (option === undefined || option === null) return '';
+  if (option === undefined || option === null) {
+    return '';
+  }
   option = option.toString();
   return option;
 }
@@ -45,9 +50,11 @@ export function getCodeDefinition(
   codeType: string,
   code?: string | number,
 ): ?CodeDefinition {
-  if (code === undefined || code === null) return undefined;
+  if (code === undefined || code === null) {
+    return undefined;
+  }
   let codeDefinition: ?CodeDefinition = getAllCodes(codeType).find(
-    x =>
+    (x) =>
       (x.code !== undefined && x.code === code) ||
       (x.code === undefined && x === code),
   );
@@ -59,7 +66,9 @@ export function formatCode(
   code?: string | number,
   descriptionIdentifier?: string,
 ): string {
-  if (code === undefined || code === null) return '';
+  if (code === undefined || code === null) {
+    return '';
+  }
   const codeDefinition: ?CodeDefinition = getCodeDefinition(codeType, code);
   if (codeDefinition === undefined) {
     return code.toString();
@@ -72,20 +81,25 @@ export function formatOption(
   field: string,
   code: ?string | ?number,
 ): string {
-  if (code === undefined || code === null) return '';
+  if (code === undefined || code === null) {
+    return '';
+  }
   const fieldDefinitions: ?FieldDefinitions = getFieldDefinitions(dataType);
-  if (fieldDefinitions === undefined || fieldDefinitions === null)
+  if (fieldDefinitions === undefined || fieldDefinitions === null) {
     return code.toString();
-  const fieldDefinition:
-    | ?FieldDefinition
-    | GroupDefinition = fieldDefinitions.find(
-    (fieldDefinition: FieldDefinition | GroupDefinition) =>
-      fieldDefinition.name === field,
-  );
-  if (fieldDefinition === undefined || fieldDefinition === null)
+  }
+  const fieldDefinition: ?FieldDefinition | GroupDefinition =
+    fieldDefinitions.find(
+      (fieldDefinition: FieldDefinition | GroupDefinition) =>
+        fieldDefinition.name === field,
+    );
+  if (fieldDefinition === undefined || fieldDefinition === null) {
     return code.toString();
+  }
   const options: ?(CodeDefinition[]) | string = fieldDefinition.options;
-  if (options === undefined || options === null) return code.toString();
+  if (options === undefined || options === null) {
+    return code.toString();
+  }
   if (options instanceof Array) {
     const formattedOption = formatCodeDefinition(
       options.find(
@@ -105,15 +119,17 @@ export function formatOptions(
   options: CodeDefinition[][] | CodeDefinition[],
   descriptionIdentifier?: string,
 ): (string[] | string)[] {
-  if (!options || options.length === 0) return [];
+  if (!options || options.length === 0) {
+    return [];
+  }
   let formattedOptions: (string[] | string)[] = [];
   if (options[0] instanceof Array) {
-    formattedOptions = options.map(subOptions =>
+    formattedOptions = options.map((subOptions) =>
       formatOptions(subOptions, descriptionIdentifier),
     );
   } else {
     const includedOptions = new Set();
-    options.forEach(option => {
+    options.forEach((option) => {
       const formattedOption: string = formatCodeDefinition(
         option,
         descriptionIdentifier,
@@ -147,7 +163,7 @@ export function getAllCodes(codeType: string, filter?: {}): CodeDefinition[] {
 }
 
 export function formatAllCodes(codeType: string, filter?: {}): string[] {
-  let codeIdentifier = undefined;
+  let codeIdentifier;
   if (codeType.includes('.')) {
     const identifiers: string = codeType.split('.');
     codeType = identifiers[0];
@@ -166,17 +182,26 @@ export function parseCode(
   input: string,
   codeIdentifier?: string,
 ): ?(string | number) {
-  if (input === undefined || input === null) return undefined;
+  if (input === undefined || input === null) {
+    return undefined;
+  }
   let trimmedInput = input.trim().toLowerCase();
   if (codeIdentifier === undefined || codeIdentifier === null) {
     codeIdentifier = 'code';
   }
   let codeDefinition: CodeDefinition = getAllCodes(codeType).find(
     (codeDefinition: CodeDefinition) =>
-      formatCodeDefinition(codeDefinition)
+      formatCodeDefinition(
+        codeDefinition,
+        codeDefinition.quantityPerBox !== undefined &&
+          codeDefinition.quantityPerBox !== null
+          ? codeIdentifier
+          : undefined,
+      )
         .trim()
         .toLowerCase() === trimmedInput,
   );
+
   let code = input;
   if (codeDefinition !== undefined && codeDefinition !== null) {
     if (codeDefinition instanceof Object) {
@@ -193,10 +218,12 @@ export async function fetchCodeDefinitions(
   accountId: number,
   codeName: ?string = undefined,
 ): {[codeName: string]: CodeDefinition} {
-  if (accountId === undefined) return undefined;
+  if (accountId === undefined) {
+    return undefined;
+  }
   const requestNr: number = getNextRequestNumber();
   const url =
-    restUrl +
+    getRestUrl() +
     'Code/' +
     (codeName ? codeName + '/' : '') +
     'list?accountId=' +
@@ -214,7 +241,9 @@ export async function fetchCodeDefinitions(
         'Accept-language': language,
       },
     });
-    if (!httpResponse.ok) handleHttpError(httpResponse);
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
     let translatedCodeDefinitions = await httpResponse.json();
     __DEV__ &&
       console.log(
@@ -1342,6 +1371,32 @@ let codeDefinitions = {
       description: 'Female',
       code: 1,
     },
+  ],
+  providerTypeCodes: [
+      {
+          code: "",
+          description: ""
+      },
+      {
+          code: "RO",
+          description: "Registered Optician (RO)"
+      },
+      {
+          code: "OD",
+          description: "Doctor of Optometry (OD)"
+      },
+      {
+          code: "MD",
+          description: "Ophthalmologist (MD)"
+      },
+      {
+          code: "DO",
+          description: "Doctor of Osteopathy (DO)"
+      },
+      {
+          code: "Optometrist",
+          description: "Doctor of Optometry (Optometrist)"
+      }
   ],
 };
 
