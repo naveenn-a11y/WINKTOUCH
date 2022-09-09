@@ -18,19 +18,21 @@ async function getAppEnvironment() : string {
 
 async function activateRemoteConfig() {
     const appEnv = await getAppEnvironment();
+    const appstoreUrl = appEnv === "prod" ? "itms-apps://apps.apple.com/ca/app/winkemr/id1259308891" : "https://testflight.apple.com/join/U4q33P6d";
     const configDefaults = {
         [`ios_force_update_required_${appEnv}`]: false,
         [`latest_ios_build_${appEnv}`]: 1,
-        [`latest_ios_version_${appEnv}`]: 1
+        [`latest_ios_version_${appEnv}`]: 1,
+        [`appstore_url_${appEnv}`]: appstoreUrl,
     };
     await remoteConfig().setDefaults(configDefaults);
     const fetchedRemotelyawait = await remoteConfig().fetchAndActivate();
     
-    const minimumFetchIntervalMillis = appEnv === "prod" ? 21600000 : 3600000; //6hrs - prod, 1hr - dev
+    const minimumFetchIntervalMillis = appEnv === "prod" ? 21600000 : 120000; //6hrs - prod, 2mins - dev
     __DEV__ && console.log("Remote config cached for ", minimumFetchIntervalMillis);
 
     await remoteConfig().setConfigSettings({
-      minimumFetchIntervalMillis: minimumFetchIntervalMillis, //cache for 6hours
+      minimumFetchIntervalMillis: minimumFetchIntervalMillis,
     });
 
     if (!fetchedRemotelyawait) {
@@ -50,6 +52,11 @@ async function getLatestVersion() : number {
 
 async function getForceUpdate() : boolean {
     const forceUpdate = await remoteConfig().getBoolean(`ios_force_update_required_${_appEnv}`)
+    return forceUpdate;
+}
+
+async function getAppstoreUrl() : string {
+    const forceUpdate = await remoteConfig().getString(`appstore_url_${_appEnv}`)
     return forceUpdate;
 }
 
@@ -79,4 +86,5 @@ export default {
     getLatestVersion,
     getForceUpdate,
     shouldUpdateApp,
+    getAppstoreUrl,
 }

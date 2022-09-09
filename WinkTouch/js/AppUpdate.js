@@ -16,21 +16,43 @@
  import {strings} from './Strings';
  import {Button} from './Widgets';
  import DeviceInfo from 'react-native-device-info';
+ import RemoteConfig from './utilities/RemoteConfig';
  
  export class AppUpdateScreen extends Component {
+
+    state: {
+        latestVersion: ?string,
+    };
    
    constructor(props: any) {
      super(props);
+     this.state = {
+        latestVersion: '',
+     }
+   }
+
+   async componentDidMount() {
+       await this.getLatestVersion();
    }
  
    async openAppstore() {
-       const url = "itms-apps://apps.apple.com/ca/app/winkemr/id1259308891";
+       const url = await RemoteConfig.getAppstoreUrl();
        const supported = await Linking.canOpenURL(url);
        if(supported) {
            await Linking.openURL(url);
        } else {
            Alert.alert(strings.openAppstore);
        }
+   }
+
+   async getLatestVersion() {
+    const remoteBuild = await RemoteConfig.getLatestBuildNumber();
+    const remoteVersion = await RemoteConfig.getLatestVersion();
+    const latestVersion = `${remoteVersion} (${remoteBuild})`;
+
+    this.setState({
+        latestVersion
+    });
    }
   
    render() {
@@ -76,7 +98,7 @@
                   <View>
                     <Button
                       onPress={() => this.openAppstore()}
-                      title={strings.update}
+                      title={`${strings.update} ${this.state.latestVersion}`}
                       buttonStyle={{width: '100%', justifyContent: 'center', alignItems: 'center', margin: 0}}
                     />
                   </View>
@@ -84,7 +106,7 @@
               </View>
           </View>
           <View style={{ position: 'absolute', bottom: 30 * fontScale}}>
-              <Text>{strings.appVersion}: {DeviceInfo.getVersion()}.{DeviceInfo.getBuildNumber()}</Text>
+              <Text>{strings.appVersion}: {`${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`}</Text>
           </View>
         </View>
     );
