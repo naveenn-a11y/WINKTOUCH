@@ -14,6 +14,7 @@ import type {
   ExamPredefinedValue,
   GlassesRx,
   Measurement,
+  CodeDefinition,
 } from './Types';
 import {strings} from './Strings';
 import {styles, scaleStyle, fontScale, isWeb} from './Styles';
@@ -30,7 +31,7 @@ import {
   jsonDateTimeFormat,
   yearDateFormat,
 } from './Util';
-import {formatAllCodes} from './Codes';
+import {formatAllCodes, getCodeDefinition} from './Codes';
 import {getCachedItem} from './DataCache';
 import {
   Favorites,
@@ -133,7 +134,37 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
-      const value: any = exam !== undefined ? getValue(exam, key) : undefined;
+      let value: any = exam !== undefined ? getValue(exam, key) : undefined;
+      const equalKey = '==';
+      if (key.includes(equalKey)) {
+        const subKeys: string[] = key.split(equalKey);
+        const subValue: any = subKeys[1];
+        const subKey: string = subKeys[0];
+        value = exam !== undefined ? getValue(exam, subKey) : undefined;
+        if (value === undefined) {
+          const fieldName: string = subKey.substring(
+            subKey.lastIndexOf('.') + 1,
+          );
+          if (fieldName.toLowerCase() === 'povonlineid') {
+            value =
+              exam !== undefined
+                ? getValue(exam, 'Diagnosis.Insurer.supplierId')
+                : undefined;
+            let supplierCode: CodeDefinition = value
+              ? getCodeDefinition('insuranceProviders', value)
+              : undefined;
+            if (
+              supplierCode != null &&
+              supplierCode.povOnlineId != null &&
+              supplierCode.povOnlineId.toString() === subValue
+            ) {
+              value = subValue;
+            } else {
+              value = null;
+            }
+          }
+        }
+      }
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     }
   }
