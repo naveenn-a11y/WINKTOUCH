@@ -361,6 +361,14 @@ export const strings = new LocalizedStrings({
     reason: 'Reason',
     agentLoginWarning:
       'This is a production account that uses private data. Do not enter any real patient data!',
+    billingUpdateWarning:
+      'Changes made in this screen AFTER you created the invoice WILL NOT reflect on that invoice. If you make changes after you’ve created the invoice make sure you record the changes by doing one of the following:\n' +
+      '\n' +
+      '- Open the invoice/claim in WINKpms and modify the existing invoice to reflect the changes you made in this section.\n' +
+      '\n' +
+      'OR\n' +
+      '\n' +
+      '- Create an invoice again. This will create a second invoice, so the previous one will have to be cancelled via WINKpms.',
   },
   fr: {
     enterRegisteredEmail:
@@ -722,6 +730,14 @@ export const strings = new LocalizedStrings({
     reason: 'Raison',
     agentLoginWarning:
       "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
+    billingUpdateWarning:
+      'Les changements que vous apporterez dans cette section APRÈS avoir créé la facture ne seront pas reflétés sur la facture. Si vous apportez des modifications après avoir créé la facture, veuillez vous assurer d’exécuter l’une des options suivantes:\n' +
+      '\n' +
+      '- Ouvrez la facture/réclamation dans WINKpms et ajoutez-y les mêmes modifications que vous avez apportées dans cette section. \n' +
+      '\n' +
+      'OU\n' +
+      '\n' +
+      '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms.',
   },
 });
 

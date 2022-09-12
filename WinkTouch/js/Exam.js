@@ -1343,7 +1343,19 @@ export class ExamScreen extends Component {
       </TouchableOpacity>
     );
   }
-
+  /*
+  Temporary Warning message for Billing, should be removed after invoicing module is implemented in EMR
+   */
+  renderExamWarnings() {
+    if (this.state.exam.definition.name.toLowerCase() === 'diagnosis') {
+      return (
+        <View style={styles.warningPanel}>
+          <Text style={styles.copyText}>{strings.billingUpdateWarning}</Text>
+        </View>
+      );
+    }
+    return null;
+  }
   renderExamIcons(style: any) {
     if (this.state.exam.definition.card === false) {
       return;
@@ -1468,6 +1480,7 @@ export class ExamScreen extends Component {
             }
             pinchGestureEnabled={this.state.scrollable}>
             <ErrorCard errors={this.state.exam.errors} />
+            {this.renderExamWarnings()}
             {this.renderExamIcons(styles.examIconsFlex)}
             {this.renderRelatedExams()}
             {this.renderExam()}
