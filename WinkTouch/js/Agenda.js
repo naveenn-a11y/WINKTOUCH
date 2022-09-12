@@ -1357,8 +1357,8 @@ class Event extends Component {
   componentDidMount() {
     this.getLockedState();
   }
-
-  getLockedState = async () => {
+  /*
+   getLockedState = async () => {
     const appointment: Appointment = this.props.event;
     if (!appointment.emptySlot) {
       let visitHistory: Visit[] = getCachedItems(
@@ -1373,13 +1373,21 @@ class Event extends Component {
       }
     }
   };
+  */
+  getLockedState = async () => {
+    const appointment: Appointment = this.props.event;
+    if (!appointment.emptySlot) {
+      const locked: boolean = isAppointmentLocked(appointment);
+      this.setState({locked: locked});
+    }
+  };
 
   render() {
     const {locked} = this.state;
     const {event, eventWidth, selectedDoctors, touchableOpacityProps} =
       this.props;
 
-    const index = selectedDoctors.findIndex((u) => u == event.userId);
+    const index = selectedDoctors.findIndex((u) => u === event.userId);
     if (index < 0) {
       return null;
     }
@@ -1404,7 +1412,7 @@ class Event extends Component {
     }
 
     let startRatio = start / 1.05;
-    const zIndex = (start <= 0) ? 1 : parseInt(start);
+    const zIndex = start <= 0 ? 1 : parseInt(start);
     const eventStyleProps = {
       minWidth: '1%',
       width: eventWidth / 1.05 - startRatio,

@@ -147,7 +147,9 @@ export function isAppointmentLocked(appointment: Appointment): boolean {
   if (appointment === undefined) {
     return false;
   }
-  let visitHistory: Visit[] = getCachedItems(
+  return appointment.status === 5;
+  /*
+    let visitHistory: Visit[] = getCachedItems(
     getCachedItem('visitHistory-' + appointment.patientId),
   );
   if (visitHistory) {
@@ -158,7 +160,7 @@ export function isAppointmentLocked(appointment: Appointment): boolean {
       return true;
     }
   }
-  return false;
+   */
 }
 export async function fetchAppointment(
   appointmentId: string,
