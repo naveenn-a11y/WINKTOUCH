@@ -17,9 +17,9 @@ export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:f
   return job;
 }
 export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
-  const pageWidth: number = 612;
+  let pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
-  const pageHeight: number = pageWidth / pageAspectRatio;
+  let pageHeight: number = pageWidth / pageAspectRatio;
   let resultPdf = await PDFDocument.load(pdf?.base64);
   for (let pdfInstance of PDFAttachment) {
     let index = 0;
@@ -27,6 +27,9 @@ export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
     for (const page: PDFPage of newPdf.getPages()) {
       index += 1;
       const documentPage: PDFPage = resultPdf.addPage();
+      const {width, height} = page.getSize();
+      pageWidth = pageWidth > width ? pageWidth : width;
+      pageHeight = pageHeight > height ? pageHeight : height;
       documentPage.setSize(pageWidth, pageHeight);
       const embedPage = await resultPdf.embedPage(page);
       const dims = embedPage.scale(0.9);
