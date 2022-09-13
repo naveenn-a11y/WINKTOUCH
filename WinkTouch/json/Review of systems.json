@@ -172,6 +172,7 @@
       "name": "Musculosketletal",
       "multiValue": true,
       "freestyle": true,
+      "label": "Musculoskeletal",
       "options": "rosMusculosketletalCodes"
     },
     {
