@@ -136,12 +136,29 @@ const examSectionsFr: string[] = [
   'Document',
 ];
 
+const examSectionsLayout: {} = {
+  'Consultation': '45%',
+  'Amendments': '45%',
+  'Chief complaint': '95%',
+  'History': '95%',
+  'Entrance testing': '95%',
+  'Vision testing': '95%',
+  'Anterior exam': '45%',
+  'Posterior exam': '45%',
+  'CL': '95%',
+  'Form': '95%',
+  'Document': '95%',
+};
+
 const PRIVILEGE = {
   FULLACCESS: 'FULLACCESS',
   NOACCESS: 'NOACCESS',
   READONLY: 'READONLY',
 };
 
+function getSectionWidth(section: string): string {
+  return (examSectionsLayout[section] !== undefined) ? examSectionsLayout[section] : '95%';
+}
 export function getSectionTitle(section: string): string {
   const language: string = getUserLanguage();
   if (language.startsWith('fr')) {
@@ -1512,8 +1529,9 @@ class VisitWorkFlow extends Component {
       return view;
     }
     const sectionTitle: string = getSectionTitle(section);
+    const sectionWidth: string = getSectionWidth(section);
     return (
-      <View style={styles.examsBoard} key={section}>
+      <View style={[styles.examsBoard, {width: sectionWidth}]} key={section}>
         <SectionTitle title={sectionTitle} />
         {view}
         {this.renderAddableExamButton(section)}
@@ -1524,8 +1542,9 @@ class VisitWorkFlow extends Component {
   renderConsultationDetails() {
     const store: Store = getCachedItem(this.state.visit.storeId);
     const doctor: User = getCachedItem(this.state.visit.userId);
+    const sectionWidth: string = getSectionWidth('Consultation');
     return (
-      <View style={styles.examsBoard}>
+      <View style={[styles.examsBoard, {width: sectionWidth}]}>
         <Text style={styles.cardTitle}>{strings.visit}</Text>
         {doctor && (
           <Text style={styles.text}>
