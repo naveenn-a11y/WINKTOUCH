@@ -174,24 +174,24 @@
           "name": "Qty/Box",
           "fields": [
             {
-              "mappedField": "clFitting.boxSize.od",
+              "mappedField": "clFitting.packaging.od",
               "name": "OD",
               "filter": {
                 "manufacturer": "[Manufacturer.OD]",
                 "brand": "[Brand.OD]",
                 "design": "[Design.OD]"
               },
-              "options": "contactLenses.quantityPerBox"
+              "options": "contactLenses.ranges.quantityPerBox"
             },
             {
-              "mappedField": "clFitting.boxSize.os",
+              "mappedField": "clFitting.packaging.os",
               "name": "OS",
               "filter": {
                 "manufacturer": "[Manufacturer.OS]",
                 "brand": "[Brand.OS]",
                 "design": "[Design.OS]"
               },
-              "options": "contactLenses.quantityPerBox"
+              "options": "contactLenses.ranges.quantityPerBox"
             }
           ]
         },
