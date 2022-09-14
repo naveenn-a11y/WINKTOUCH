@@ -31,6 +31,7 @@ import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
 import {REACT_APP_HOST} from '../env.json';
 import {getCachedItem} from './DataCache';
+import {getPrivileges} from './Rest';
 
 export class Notifications extends PureComponent {
   render() {
@@ -100,7 +101,8 @@ export class MenuBar extends PureComponent {
   static contextType = ModeContext;
 
   render() {
-    //if (this.props.scene.menuHidden) return null;
+    const noAccessAppointment: boolean =
+      getPrivileges().appointmentPrivilege === 'NOACCESS';
     const exam: ?Exam =
       this.props.navigation.state &&
       this.props.navigation.state.params &&
@@ -109,14 +111,20 @@ export class MenuBar extends PureComponent {
 
     const scene: ?string =
       this.props.navigation.state && this.props.navigation.state.routeName;
+    const key: ?string =
+      this.props.navigation.state && this.props.navigation.state.key;
     const hasConfig: boolean = getPhoropters().length > 1;
     return (
       <View style={styles.sideMenu}>
         <Image source={require('./image/menulogo.png')} />
-        <Button
-          title={strings.calendar}
-          onPress={() => this.props.navigation.navigate('agenda')}
-        />
+
+        {!noAccessAppointment && (
+          <Button
+            title={strings.calendar}
+            onPress={() => this.props.navigation.navigate('agenda')}
+          />
+        )}
+
         {(scene === 'appointment' || exam) && (
           <Button
             title={strings.patient}
@@ -148,7 +156,10 @@ export class MenuBar extends PureComponent {
           <Button
             title={strings.history}
             onPress={() =>
-              this.props.navigation.navigate('examHistory', {exam: exam})
+              this.props.navigation.navigate('examHistory', {
+                exam: exam,
+                stateKey: this.props.navigation.state.key,
+              })
             }
           />
         )}

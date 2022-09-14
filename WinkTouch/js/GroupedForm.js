@@ -45,7 +45,7 @@ import {
   Copy,
 } from './Favorites';
 import {getConfiguration} from './Configuration';
-import {importData} from './MappedField';
+import {importData} from './Machine';
 import {
   GlassesDetail,
   GlassesSummary,
@@ -669,18 +669,24 @@ export class GroupedCard extends Component {
         );
       }
       return (
-        <View
-          style={styles.rowLayout}
-          key={
-            groupDefinition.name +
-            '-' +
-            fieldName +
-            '-' +
-            groupIndex +
-            '-' +
-            column
-          }>
-          {icon}
+        <View style={styles.columnLayout}>
+          <View
+            style={styles.rowLayout}
+            key={
+              groupDefinition.name +
+              '-' +
+              fieldName +
+              '-' +
+              groupIndex +
+              '-' +
+              column
+            }>
+            {icon}
+          </View>
+          <View style={styles.columnLayout}>
+            {fieldDefinition.cardFields &&
+              this.renderCardRows(fieldDefinition.cardFields)}
+          </View>
         </View>
       );
     }
@@ -741,9 +747,6 @@ export class GroupedCard extends Component {
     const value =
       this.props.exam[this.props.exam.definition.name][fieldDefinition.name];
 
-    if (fieldDefinition.normalValue === value) {
-      return null;
-    }
     const formattedValue: string = formatFieldValue(value, fieldDefinition);
     if (formattedValue === '') {
       return null;
@@ -1098,10 +1101,11 @@ export class GroupedCard extends Component {
     return cardFields;
   }
 
-  renderCardRows() {
+  renderCardRows(cardFields?: any) {
     let i: number = 0;
     let rowValues: string[][] = [];
-    const cardFields = this.expandMultiValueCardFields();
+    cardFields =
+      cardFields === undefined ? this.expandMultiValueCardFields() : cardFields;
     cardFields.forEach((cardRowFields: string[]) => {
       let rowValue: ?(string[]) = cardRowFields.map((fullFieldName: string) => {
         if (fullFieldName.indexOf('.') === -1) {
@@ -1681,7 +1685,7 @@ export class GroupedForm extends Component {
     if (measurement instanceof Array) {
       this.showDialog(measurement);
     } else {
-      if (measurement.data) {
+      if (measurement && measurement.data) {
         if (this.props.onAdd && measurement.data instanceof Array) {
           if (measurement.data.length > 0) {
             this.props.onUpdateForm(
@@ -1805,6 +1809,9 @@ export type GroupedFormScreenProps = {
   onRemoveFavorite?: (favorite: ExamPredefinedValue) => void,
   enableScroll?: () => void,
   disableScroll?: () => void,
+  copiedData?: GlassesRx,
+  copyData?: (glassesRx: GlassesRx) => void,
+  deleteCopiedData?: () => void,
 };
 type GroupedFormScreenState = {
   addableGroups: string[],
@@ -2011,6 +2018,7 @@ export class GroupedFormScreen extends Component<
     }
     //this.props.exam[this.props.exam.definition.name][refractionType] = refraction;
     this.props.onUpdateExam(this.props.exam);
+    this.props.deleteCopiedData();
   }
 
   updateGroup = (groupName: string, form: any, index?: number) => {
@@ -2022,9 +2030,37 @@ export class GroupedFormScreen extends Component<
     this.props.onUpdateExam(this.props.exam);
   };
 
+  pasteData = async (fieldDefinition: FieldDefinition, index?: number): void => {
+    const existingGlassesRx: GlassesRx = (index !== undefined && index !== null) ?  deepClone( this.props.exam[this.props.exam.definition.name][fieldDefinition.name][index]) : deepClone( this.props.exam[this.props.exam.definition.name][fieldDefinition.name]);
+    if (existingGlassesRx) {
+      existingGlassesRx.od.sph = this.props.copiedData.od.sph;
+      existingGlassesRx.od.cyl = this.props.copiedData.od.cyl;
+      existingGlassesRx.od.axis = this.props.copiedData.od.axis;
+      existingGlassesRx.os.sph = this.props.copiedData.os.sph;
+      existingGlassesRx.os.cyl = this.props.copiedData.os.cyl;
+      existingGlassesRx.os.axis = this.props.copiedData.os.axis;
+    }
+
+    if (index !== undefined && index !== null) {
+      this.props.exam[this.props.exam.definition.name][fieldDefinition.name][index] = existingGlassesRx;
+    } else {
+      this.props.exam[this.props.exam.definition.name][fieldDefinition.name] = existingGlassesRx;
+    }
+    this.props.onUpdateExam(this.props.exam);
+    this.props.deleteCopiedData();
+  }
+
   copyToFinal = (glassesRx: GlassesRx): void => {
     glassesRx = deepClone(glassesRx);
-    this.props.exam[this.props.exam.definition.name]['Final Rx'] = glassesRx;
+    const finalRx: GlassesRx = deepClone(
+      this.props.exam[this.props.exam.definition.name]['Final Rx'],
+    );
+    if (finalRx) {
+      finalRx.od = glassesRx.od;
+      finalRx.os = glassesRx.os;
+      finalRx.ou = glassesRx.ou;
+    }
+    this.props.exam[this.props.exam.definition.name]['Final Rx'] = finalRx;
     this.props.onUpdateExam(this.props.exam);
   };
 
@@ -2209,14 +2245,20 @@ export class GroupedFormScreen extends Component<
             editable={this.props.editable}
             glassesRx={childValue}
             hasVA={groupDefinition.hasVA}
-            onCopy={
-              groupDefinition.canBeCopied === true
+            onCopyToFinalRx={
+              groupDefinition.copyToFinalRx === true
                 ? this.copyToFinal
                 : undefined
             }
+            onCopyFromFinal={
+              groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+            }
+            onCopy={
+              groupDefinition.canBeCopied === true ? this.props.copyData : undefined
+            }
             onPaste={
-              groupDefinition.canBePaste === true
-                ? this.copyFromFinal
+              (groupDefinition.canBePaste === true && this.props.copiedData)
+                ? (fieldDefinition: FieldDefinition) => this.pasteData(fieldDefinition, subIndex)
                 : undefined
             }
             onChangeGlassesRx={(glassesRx: GlassesRx) =>
@@ -2226,6 +2268,7 @@ export class GroupedFormScreen extends Component<
             hasLensType={groupDefinition.hasLensType}
             hasPD={groupDefinition.hasPD}
             hasMPD={groupDefinition.hasMPD}
+            hasCustomField={groupDefinition.hasCustomField}
             key={groupDefinition.name}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -2290,8 +2333,19 @@ export class GroupedFormScreen extends Component<
           editable={this.props.editable}
           glassesRx={value}
           hasVA={groupDefinition.hasVA}
+          onCopyToFinalRx={
+            groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
+          }
+          onCopyFromFinal={
+            groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+          }
           onCopy={
-            groupDefinition.canBeCopied === true ? this.copyToFinal : undefined
+            groupDefinition.canBeCopied === true ? this.props.copyData : undefined
+          }
+          onPaste={
+            (groupDefinition.canBePaste === true && this.props.copiedData)
+              ? this.pasteData
+              : undefined
           }
           examId={this.props.exam.id}
           editable={
@@ -2305,6 +2359,7 @@ export class GroupedFormScreen extends Component<
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
           hasMPD={groupDefinition.hasMPD}
+          hasCustomField={groupDefinition.hasCustomField}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}
@@ -2317,8 +2372,19 @@ export class GroupedFormScreen extends Component<
           editable={this.props.editable}
           glassesRx={value}
           hasVA={groupDefinition.hasVA}
+          onCopyToFinalRx={
+            groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
+          }
+          onCopyFromFinal={
+            groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+          }
           onCopy={
-            groupDefinition.canBeCopied === true ? this.copyToFinal : undefined
+            groupDefinition.canBeCopied === true ? this.props.copyData : undefined
+          }
+          onPaste={
+            (groupDefinition.canBePaste === true && this.props.copiedData)
+              ? this.pasteData
+              : undefined
           }
           examId={this.props.exam.id}
           editable={
@@ -2332,6 +2398,7 @@ export class GroupedFormScreen extends Component<
           hasLensType={groupDefinition.hasLensType}
           hasPD={groupDefinition.hasPD}
           hasMPD={groupDefinition.hasMPD}
+          hasCustomField={groupDefinition.hasCustomField}
           key={groupDefinition.name}
           definition={groupDefinition}
           fieldId={fieldId}

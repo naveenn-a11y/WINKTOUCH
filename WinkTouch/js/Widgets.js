@@ -1583,7 +1583,7 @@ export class TilesField extends Component {
                         </TouchableOpacity>
                       );
                     })}
-                    {allOptions.length === 1 && (
+                    {allOptions.length === 1 && !this.props.hideClear && (
                       <ClearTile commitEdit={this.clear} />
                     )}
                     {allOptions.length === 1 &&
@@ -1592,7 +1592,7 @@ export class TilesField extends Component {
                       )}
                   </View>
                 ))}
-                {allOptions.length > 1 && (
+                {allOptions.length > 1 && !this.props.hideClear && (
                   <View style={styles.modalColumn}>
                     <UpdateTile commitEdit={this.commitEdit} />
                     <ClearTile commitEdit={this.clear} />
@@ -1676,6 +1676,11 @@ export class ListField extends Component {
     freestyle?: boolean,
     style?: any,
     containerStyle?: any,
+    popupStyle?: any,
+    simpleSelect?: boolean,
+    renderOptionsOnly?: boolean,
+    multiValue?: boolean,
+    isValueRequired?: boolean,
     onChangeValue?: (newvalue: ?string) => void,
   };
   state: {
@@ -1700,8 +1705,11 @@ export class ListField extends Component {
 
   updateValue = (newValue?: string): void => {
     let editedValue: ?string = this.state.editedValue;
-    if (newValue == editedValue) {
+    if (!this.props.isValueRequired && newValue === editedValue) {
       newValue = undefined;
+    }
+    if (this.props.isValueRequired && !newValue) {
+      newValue = editedValue;
     }
     this.setState({editedValue: newValue}, this.commitEdit);
   };
@@ -1726,17 +1734,19 @@ export class ListField extends Component {
 
   renderPopup() {
     return (
-      <TouchableWithoutFeedback onPress={isWeb ? undefined : this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {this.props.label}: {this.state.editedValue}
           </Text>
-          <View style={styles.flexColumnLayout}>
+          <View style={[styles.flexColumnLayout, this.props.popupStyle]}>
             <View style={styles.modalColumn}>
               <SelectionList
                 items={this.props.options}
                 selection={this.state.editedValue}
-                multiValue={false}
+                simpleSelect={this.props.simpleSelect}
+                multiValue={this.props.multiValue}
+                renderOptionsOnly={this.props.renderOptionsOnly}
                 required={false}
                 freestyle={this.props.freestyle}
                 onUpdateSelection={this.updateValue}
@@ -2885,7 +2895,10 @@ export class Button extends Component {
           this.props.testID ? this.props.testID : this.props.title + 'Button'
         }>
         <View
-          style={this.props.disabled ? styles.buttonDisabled : styles.button}>
+          style={[
+            this.props.disabled ? styles.buttonDisabled : styles.button,
+            this.props.buttonStyle,
+          ]}>
           {this.props.loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
@@ -3256,6 +3269,7 @@ export class SelectionList extends React.PureComponent {
     multiValue?: boolean,
     freestyle?: boolean,
     simpleSelect?: boolean,
+    renderOptionsOnly?: boolean,
     onUpdateSelection: (selection: ?(string[] | string)) => void,
     fieldId: string,
   };
@@ -3364,15 +3378,17 @@ export class SelectionList extends React.PureComponent {
       return null;
     }
     return (
-      <TextInput
-        returnKeyType="search"
-        autoCorrect={false}
-        autoCapitalize="none"
-        style={styles.searchField}
-        value={this.state.filter}
-        onChangeText={(filter: string) => this.setState({filter})}
-        testID={this.props.fieldId + '.filter'}
-      />
+      <TouchableWithoutFeedback>
+        <TextInput
+          returnKeyType="search"
+          autoCorrect={false}
+          autoCapitalize="none"
+          style={styles.searchField}
+          value={this.state.filter}
+          onChangeText={(filter: string) => this.setState({filter})}
+          testID={this.props.fieldId + '.filter'}
+        />
+      </TouchableWithoutFeedback>
     );
   }
 
@@ -3419,7 +3435,8 @@ export class SelectionList extends React.PureComponent {
       data !== undefined &&
       data.length === 0 &&
       this.state.filter &&
-      this.state.filter.length > 0
+      this.state.filter.length > 0 &&
+      !this.props.renderOptionsOnly
     ) {
       data.push(this.state.filter);
     }
@@ -3491,7 +3508,7 @@ export class NativeBar extends Component {
   };
   render() {
     return (
-      <View style={styles.bottomBar}>
+      <View style={styles.snackbarFixed}>
         <Snackbar
           visible={this.state.visible}
           onDismiss={this.onDismiss}
@@ -3589,7 +3606,11 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.ScrollArea>
               <ScrollView>
                 {this.state.data.map((element: any, index: number) => {
-                  const item: any = element.label ? element.label : (element.description ? element.description : element);
+                  const item: any = element.label
+                    ? element.label
+                    : element.description
+                    ? element.description
+                    : element;
                   return this.props.multiValue ? (
                     <View>
                       <CheckButton

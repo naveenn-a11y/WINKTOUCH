@@ -66,6 +66,7 @@ import {
   Copy,
   ImportIcon,
   ExportIcon,
+  Paste,
 } from './Favorites';
 import {importData, exportData} from './Machine';
 import {getCachedItem} from './DataCache';
@@ -139,14 +140,20 @@ function isRxPDEmpty(glassesRx: ?GlassesRx): boolean {
   if (isRxEmpty(glassesRx)) {
     return true;
   }
-  return (
-    isEmpty(glassesRx.od.farPD) &&
-    isEmpty(glassesRx.od.closePD) &&
-    isEmpty(glassesRx.os.farPD) &&
-    isEmpty(glassesRx.os.closePD) &&
-    isEmpty(glassesRx.ou.farPD) &&
-    isEmpty(glassesRx.ou.closePD)
-  );
+  if (isEmpty(glassesRx.od) && isEmpty(glassesRx.os) && isEmpty(glassesRx.ou)) {
+    return true;
+  }
+  const isOdEmpty: boolean = !isEmpty(glassesRx.od)
+    ? isEmpty(glassesRx.od.farPD) && isEmpty(glassesRx.od.closePD)
+    : true;
+  const isOsEmpty: boolean = !isEmpty(glassesRx.os)
+    ? isEmpty(glassesRx.os.farPD) && isEmpty(glassesRx.os.closePD)
+    : true;
+  const isOuEmpty: boolean = !isEmpty(glassesRx.ou)
+    ? isEmpty(glassesRx.ou.farPD) && isEmpty(glassesRx.ou.closePD)
+    : true;
+
+  return isOdEmpty && isOsEmpty && isOuEmpty;
 }
 
 export function isRxEmpty(glassesRx: ?GlassesRx): boolean {
@@ -910,12 +917,15 @@ export class GlassesDetail extends Component {
     title: string,
     editable?: boolean,
     onCopy?: (glassesRx: GlassesRx) => void,
-    onPaste?: (glassesRx: GlassesRX) => void,
+    onCopyToFinalRx?: (glassesRx: GlassesRx) => void,
+    onCopyFromFinal?: (glassesRx: GlassesRx) => void,
+    onPaste?: (fieldDefinition: FieldDefinition) => void,
     hasVA?: boolean,
     hasAdd?: boolean,
     hasLensType?: boolean,
     hasPD?: boolean,
     hasMPD?: boolean,
+    hasCustomField?: boolean,
     hasNotes?: boolean,
     titleStyle?: string,
     style?: string,
@@ -932,6 +942,7 @@ export class GlassesDetail extends Component {
     importedData: any,
     showDialog: boolean,
     showSnackBar: boolean,
+    snackBarMessage?: string,
   };
   static defaultProps = {
     editable: true,
@@ -947,6 +958,7 @@ export class GlassesDetail extends Component {
       isTyping: false,
       showDialog: false,
       showSnackBar: false,
+      snackBarMessage: "",
     };
   }
 
@@ -1066,7 +1078,8 @@ export class GlassesDetail extends Component {
   showDialog(data: any) {
     this.setState({importedData: data, showDialog: true});
   }
-  showSnackBar() {
+  showSnackBar(message: ?string) {
+    this.setState({snackBarMessage: message})
     this.setState({showSnackBar: true});
   }
   hideSnackBar() {
@@ -1075,6 +1088,7 @@ export class GlassesDetail extends Component {
   importSelectedData(importData: Measurement) {
     let glassesRx: GlassesRx = this.props.glassesRx;
     glassesRx.lensType = importData.data.lensType;
+    glassesRx.customField = importData.data.customField;
     glassesRx.od = {...importData.data.od};
     glassesRx.os = {...importData.data.os};
     glassesRx.ou = {...importData.data.ou};
@@ -1090,13 +1104,14 @@ export class GlassesDetail extends Component {
       this.props.examId,
     );
     if (data === undefined || data === null) {
-      this.showSnackBar();
+      this.showSnackBar(strings.importDataNotFound);
     }
     if (data instanceof Array) {
       this.showDialog(data);
     } else {
       let glassesRx: GlassesRx = this.props.glassesRx;
       glassesRx.lensType = data.data.lensType;
+      glassesRx.customField = data.data.customField;
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
       glassesRx.ou = {...data.data.ou};
@@ -1188,7 +1203,7 @@ export class GlassesDetail extends Component {
   renderSnackBar() {
     return (
       <NativeBar
-        message={strings.importDataNotFound}
+        message={this.state.snackBarMessage}
         onDismissAction={() => this.hideSnackBar()}
       />
     );
@@ -1274,6 +1289,19 @@ export class GlassesDetail extends Component {
                 autoFocus={true}
                 errorMessage={this.props.glassesRx.pdError}
                 testID={this.props.fieldId + '.pd'}
+              />
+            </View>
+          )}
+          {this.props.hasCustomField && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.customField}
+                definition={filterFieldDefinition(
+                  this.props.definition.fields,
+                  'customField',
+                )}
+                readonly={!this.props.editable}
+                testID={this.props.fieldId + '.customField'}
               />
             </View>
           )}
@@ -1708,19 +1736,20 @@ export class GlassesDetail extends Component {
             </View>
           )}
 
-          {this.props.editable === true && this.props.hasAdd === true && (
+          {this.props.editable === true &&  (
             <View style={styles.buttonsRowLayout}>
+              {this.props.hasAdd === true && (
               <Button
                 title={formatLabel(
                   getFieldDefinition('visit.prescription.od.prism'),
                 )}
                 onPress={this.togglePrism}
                 testID={this.props.fieldId + '.prismButton'}
-              />
-              {this.props.onCopy !== undefined && (
+              />)}
+              {this.props.onCopyToFinalRx !== undefined && (
                 <Button
                   title={strings.copyToFinal}
-                  onPress={() => this.props.onCopy(this.props.glassesRx)}
+                  onPress={() => this.props.onCopyToFinalRx(this.props.glassesRx)}
                   testID={this.props.fieldId + '.copyOsOdButton'}
                   testID={this.props.fieldId + '.copyFinalRxButton'}
                 />
@@ -1763,8 +1792,22 @@ export class GlassesDetail extends Component {
           )}
           {this.props.editable && this.props.onPaste && (
             <TouchableOpacity
-              onPress={() => this.props.onPaste(this.props.glassesRx)}
+              onPress={() => this.props.onPaste(this.props.definition)}
               testID={this.props.fieldId + '.pateIcon'}>
+              <Paste style={styles.groupIcon} />
+            </TouchableOpacity>
+          )}
+          {this.props.onCopy && !this.props.onPaste && (
+            <TouchableOpacity
+              onPress={() => this.props.onCopy(this.props.glassesRx)}
+            >
+              <Copy style={styles.groupIcon} />
+            </TouchableOpacity>
+          )}
+          {this.props.editable && this.props.onCopyFromFinal && (
+            <TouchableOpacity
+              onPress={() => this.props.onCopyFromFinal(this.props.glassesRx)}
+            >
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>
           )}

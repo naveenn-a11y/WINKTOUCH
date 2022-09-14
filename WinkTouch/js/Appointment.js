@@ -1,21 +1,22 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import React, {Component} from 'react';
 import {
   Image,
   View,
-  TouchableHighlight,
   Text,
-  Button,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   LayoutAnimation,
   InteractionManager,
   RefreshControl,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
@@ -25,48 +26,119 @@ import type {
   Visit,
   User,
   AppointmentType,
+  CodeDefinition,
 } from './Types';
-import {styles, fontScale} from './Styles';
-import {strings} from './Strings';
+import {getAccount} from './DoctorApp';
+import {styles, fontScale, isWeb, selectionFontColor} from './Styles';
+import {strings, getUserLanguage} from './Strings';
 import {
   formatDate,
   timeFormat,
-  time24Format,
-  dateTimeFormat,
-  dayDateTime24Format,
-  dayYearDateTime24Format,
-  now,
   isToday,
-  formatMoment,
   capitalize,
   formatDuration,
-  jsonDateTimeFormat,
   jsonDateFormat,
   today,
+  yearDateTimeFormat,
   dayYearDateTimeFormat,
+  farDateFormat2,
+  isEmpty,
+  formatAge,
+  prefix,
+  deAccent,
+  yearDateFormat,
 } from './Util';
 import {
   FormRow,
   FormTextInput,
-  FormDateInput,
-  FormDateTimeInput,
-  FormDurationInput,
   FormCode,
+  FormCheckBox,
+  FormNumberInput,
+  FormOptions,
+  FormInput,
 } from './Form';
 import {
   VisitHistory,
   fetchVisitHistory,
   fetchVisitForAppointment,
 } from './Visit';
-import {PatientCard, fetchPatientInfo, PatientTags} from './Patient';
+import {
+  PatientCard,
+  fetchPatientInfo,
+  PatientTags,
+  getPatientFullName,
+} from './Patient';
 import {
   cacheItem,
   getCachedItem,
   getCachedItems,
   cacheItemsById,
 } from './DataCache';
-import {searchItems, fetchItemById, stripDataType} from './Rest';
-import {formatCode} from './Codes';
+import {
+  searchItems,
+  fetchItemById,
+  stripDataType,
+  performActionOnItem,
+  storeItem,
+  getRestUrl,
+  getToken,
+  handleHttpError,
+} from './Rest';
+import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
+import {getStore} from './DoctorApp';
+import {
+  Button as NativeBaseButton,
+  Dialog,
+  Portal,
+  Title,
+} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
+
+const PRIVILEGE = {
+  NOACCESS: 'NOACCESS',
+  READONLY: 'READONLY',
+  BOOKONLY: 'BOOKONLY',
+  FULLACCESS: 'FULLACCESS',
+};
+
+function hasAppointmentReadAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return (
+    appointment.appointmentPrivilege === PRIVILEGE.READONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.BOOKONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+export function hasAppointmentBookAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return (
+    appointment.appointmentPrivilege === PRIVILEGE.BOOKONLY ||
+    appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+function hasAppointmentFullAccess(appointment: Appointment): boolean {
+  if (!appointment) {
+    return false;
+  }
+  return appointment.appointmentPrivilege === PRIVILEGE.FULLACCESS;
+}
+
+export function getAppointmentTypes(): CodeDefinition[] {
+  let appointmentTypes: CodeDefinition[] = getAllCodes('procedureCodes');
+  if (appointmentTypes && appointmentTypes.length > 0) {
+    appointmentTypes = appointmentTypes.filter(
+      (type: CodeDefinition) => type.isAppointmentType,
+    );
+  }
+  return appointmentTypes;
+}
 
 export function isAppointmentLocked(appointment: Appointment): boolean {
   if (appointment === undefined) {
@@ -106,14 +178,19 @@ export async function fetchAppointments(
   patientId: ?string,
   startDate: ?Date = today(),
   includeDayEvents: ?boolean = false,
+  includeAvailableSlots: ?boolean = false,
+  earlyRequest: ?boolean = false,
+  showAllStores: ?boolean = false,
 ): Promise<Appointment[]> {
-  //__DEV__ && console.log('fetching appointments at '+formatDate(now(), dayDateTime24Format));
   const searchCriteria = {
     storeId: storeId,
     doctorId: doctorId,
     patientId: patientId,
     startDate: formatDate(startDate, jsonDateFormat),
     maxDays: maxDays ? maxDays.toString() : undefined,
+    includeAvailableSlots,
+    earlyRequestOnly: earlyRequest,
+    showAllStores,
   };
   let restResponse = await searchItems(
     'Appointment/list/booked',
@@ -137,6 +214,136 @@ export async function fetchAppointments(
   });
 
   return appointments;
+}
+
+export async function bookAppointment(
+  patientId: ?string,
+  appointmentTypeId: ?(string[]),
+  numberOfSlots: ?number,
+  slotId: ?string,
+  supplierId: ?string,
+  earlyRequest: ?boolean,
+  earlyRequestComment: ?string,
+  rescheduled: ?boolean,
+  comment: ?string,
+  oldappointmentId: ?string,
+): Promise<Appointment> {
+  const reschedulingParms = rescheduled
+    ? {
+        appointmentModification: true,
+        oldappointmentId: oldappointmentId,
+      }
+    : {};
+  const searchCriteria = {
+    patientId: patientId,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+    numberOfSlots: numberOfSlots,
+    slotId: slotId,
+    earlyRequest: earlyRequest ? true : false,
+    earlyRequestComment: !isEmpty(earlyRequestComment)
+      ? earlyRequestComment
+      : '',
+    rescheduled: rescheduled,
+    id: slotId,
+    storeId: getStore().id,
+    supplierId: !isEmpty(supplierId) ? supplierId : 0,
+    comment: comment,
+    ...reschedulingParms,
+  };
+  const params = {
+    emrOnly: true,
+  };
+  const appointment: Appointment = await performActionOnItem(
+    '',
+    searchCriteria,
+    'POST',
+    params,
+  );
+  return appointment;
+}
+export async function doubleBook(
+  patientId: ?string,
+  appointmentTypeId: ?(string[]),
+  id: ?string,
+  durationMinutes: ?number,
+  atEnd: ?boolean,
+  comment: ?string,
+): Promise<Appointment> {
+  const searchCriteria = {
+    patientId: patientId,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+    id: id,
+    durationMinutes: durationMinutes,
+    atEnd: atEnd,
+    comment: comment,
+  };
+  const params = {
+    emrOnly: true,
+  };
+  const appointment: Appointment = await performActionOnItem(
+    'doubleBook',
+    searchCriteria,
+    'POST',
+    params,
+  );
+  return appointment;
+}
+export async function manageAvailability(
+  doctorId: ?string,
+  action: ?number,
+  duration: ?number,
+  startDateTime: string,
+  endDateTime: string,
+  appointmentTypeId: ?(string[]),
+): Promise<Appointment> {
+  const searchCriteria = {
+    doctorId,
+    action,
+    duration,
+    frequency: 0,
+    startDateTime,
+    endDateTime,
+    appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
+  };
+  let url = getRestUrl() + 'Appointment/manageSlots?emrOnly=true';
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(searchCriteria),
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let appointments: Appointment[] = await httpResponse.json();
+    return appointments;
+  } catch (error) {
+    console.log(error);
+    alert(strings.fetchItemError);
+    throw error;
+  }
+}
+export async function cancelAppointment(body) {
+  const appointment: Appointment = await performActionOnItem(
+    'cancel',
+    body,
+    'POST',
+    {emrOnly: true},
+  );
+  return appointment;
+}
+
+export async function updateAppointment(appointment: Appointment) {
+  if (appointment === undefined || appointment === null) {
+    return;
+  }
+  appointment = await storeItem(appointment);
+  return appointment;
 }
 
 export class AppointmentTypes extends Component {
@@ -266,10 +473,34 @@ class AppointmentIcon extends Component {
           }}
         />
       );
+    } else if (this.props.name === 'pending') {
+      return (
+        <Image
+          source={require('./image/calendar/unconfirmedx2.png')}
+          style={{
+            width: boxSize,
+            height: boxSize,
+            margin: 1 * fontScale,
+            resizeMode: 'contain',
+          }}
+        />
+      );
     } else if (this.props.name === 'confirmed') {
       return (
         <Image
           source={require('./image/calendar/confirmedx2.png')}
+          style={{
+            width: boxSize,
+            height: boxSize,
+            margin: 1 * fontScale,
+            resizeMode: 'contain',
+          }}
+        />
+      );
+    } else if (this.props.name === 'cancelled') {
+      return (
+        <Image
+          source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
             height: boxSize,
@@ -468,16 +699,22 @@ export class AppointmentSummary extends Component {
                 {this.props.appointment.title}
               </Text>
               <View style={{flexDirection: 'row'}}>
-                <Text
-                  style={
-                    this.state.locked === true ? styles.grayedText : styles.text
-                  }>
-                  {patient && patient.firstName} {patient && patient.lastName}
-                </Text>
-                <PatientTags
-                  patient={patient}
-                  locked={this.state.locked === true}
-                />
+                <View style={{maxWidth: 330 * fontScale}}>
+                  <Text
+                    style={
+                      this.state.locked === true
+                        ? styles.grayedText
+                        : styles.text
+                    }>
+                    {getPatientFullName(patient)}
+                  </Text>
+                </View>
+                <View>
+                  <PatientTags
+                    patient={{}}
+                    locked={this.state.locked === true}
+                  />
+                </View>
               </View>
             </View>
           </View>
@@ -588,8 +825,17 @@ export class AppointmentDetails extends Component {
   props: {
     appointment: Appointment,
     onUpdateAppointment: (appointment: Appointment) => void,
+    onOpenAppointment: (appointment: Appointment) => void,
+    onCloseAppointment: () => void,
+    onCancelAppointment: () => void,
+    openDoubleBookingModal: (appointment: Appointment) => void,
+    onCopyAppointment: (appointment: Appointment) => void,
+    isNewAppointment: boolean,
+    rescheduleAppointment: boolean,
+    isDoublebooking: boolean,
   };
   state: {
+    status: Number,
     isEditable: boolean,
     editedAppointment: ?Appointment,
   };
@@ -598,142 +844,528 @@ export class AppointmentDetails extends Component {
     this.state = {
       isEditable: false,
       editedAppointment: undefined,
+      status: props.appointment.status,
     };
+  }
+  componentDidMount() {
+    if (this.props.isNewAppointment || this.props.isDoublebooking) {
+      this.startEdit();
+    }
   }
 
   startEdit() {
-    if (__DEV__ === false) {
-      return;
-    }
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
-    this.setState({isEditable: true, editedAppointment: appointmentClone});
+    if (
+      (this.props.rescheduleAppointment || this.props.isDoublebooking) &&
+      appointmentClone?.appointmentTypes?.length > 0
+    ) {
+      let splittedAppointmentsCode = [];
+      for (let type of appointmentClone.appointmentTypes) {
+        const appointmentTypeId = stripDataType(type).toString();
+        splittedAppointmentsCode.push(appointmentTypeId);
+      }
+      appointmentClone = {
+        ...appointmentClone,
+        appointmentTypes: [...splittedAppointmentsCode],
+      };
+      this.setState({editedAppointment: appointmentClone});
+    }
+    this.cloneAppointment();
+    this.setState({isEditable: true});
+  }
+
+  cloneAppointment(): Appointment {
+    let appointmentClone: Appointment = {...this.props.appointment};
+    this.setState({editedAppointment: appointmentClone});
+    return appointmentClone;
+  }
+
+  getWaitingListOptions(): CodeDefinition[] {
+    const noOption: CodeDefinition = {code: false, description: 0};
+    const yesOption: CodeDefinition = {code: true, description: 1};
+    const waitingListOptions: CodeDefinition[] = [noOption, yesOption];
+    return waitingListOptions;
   }
 
   cancelEdit() {
-    LayoutAnimation.easeInEaseOut();
+    !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({isEditable: false});
+    if (this.props.isNewAppointment || this.props.isDoublebooking) {
+      this.props.onCloseAppointment();
+    }
   }
 
   commitEdit() {
-    LayoutAnimation.easeInEaseOut();
-    let appointment = this.props.onUpdateAppointment(
-      this.state.editedAppointment,
-    );
-    this.props.onUpdateAppointment(appointment);
-    this.setState({isEditable: false, editedAppointment: undefined});
+    !isWeb && LayoutAnimation.easeInEaseOut();
+
+    this.props.onUpdateAppointment(this.state.editedAppointment);
+
+    if (!this.props.isNewAppointment && !this.props.isDoublebooking) {
+      this.setState({isEditable: false, editedAppointment: undefined});
+    }
   }
 
-  updateValue(propertyName: string, newValue: any) {
-    let editedAppointment: ?Appointment = this.state.editedAppointment;
+  openAppointment() {
+    !isWeb && LayoutAnimation.easeInEaseOut();
+    this.props.onOpenAppointment(this.props.appointment);
+  }
+
+  closeAppointment() {
+    !isWeb && LayoutAnimation.easeInEaseOut();
+    this.props.onCloseAppointment();
+  }
+
+  getInsuranceProviders(): CodeDefinition[] {
+    const selfPaid: CodeDefinition = {
+      code: 0,
+      description: strings.selfPaid,
+    };
+
+    const allInsuranceProviders: CodeDefinition[] =
+      getAllCodes('insuranceProviders');
+    const options: CodeDefinition[] = [selfPaid].concat(allInsuranceProviders);
+    return options;
+  }
+
+  validateNumberOfSlots(code: ?string, numberOfSlots: ?number): boolean {
+    const appointment: Appointment = this.state.editedAppointment;
+
+    if (!code) {
+      const appointmentTypes: any = appointment.appointmentTypes;
+      if (appointmentTypes === undefined || appointmentTypes === null) {
+        return true;
+      }
+
+      for (let i = 0; i < appointmentTypes.length; i++) {
+        const appointmentType: CodeDefinition = getCodeDefinition(
+          'procedureCodes',
+          appointmentTypes[i],
+        );
+        if (!appointmentType) {
+          continue;
+        }
+        if (!numberOfSlots || numberOfSlots < appointmentType.numberOfSlots) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      const appointmentType: CodeDefinition = getCodeDefinition(
+        'procedureCodes',
+        code,
+      );
+
+      if (
+        !appointment.numberOfSlots ||
+        appointmentType.numberOfSlots > appointment.numberOfSlots
+      ) {
+        appointment.numberOfSlots = appointmentType.numberOfSlots;
+        this.setState({editedAppointment: appointment});
+      }
+    }
+    return true;
+  }
+
+  updateValue(
+    propertyName: string,
+    newValue: any,
+    index?: number,
+  ): Appointment {
+    let editedAppointment: ?Appointment;
+
+    if (!this.state.editedAppointment) {
+      editedAppointment = this.cloneAppointment();
+    } else {
+      editedAppointment = this.state.editedAppointment;
+    }
     if (!editedAppointment) {
       return;
     }
-    editedAppointment[propertyName] = newValue;
+
+    if (index >= 0) {
+      if (
+        editedAppointment[propertyName] === undefined ||
+        editedAppointment[propertyName] === null
+      ) {
+        editedAppointment[propertyName] = [];
+      }
+      editedAppointment[propertyName][index] = newValue;
+
+      if (newValue === undefined || newValue === null) {
+        editedAppointment[propertyName] = editedAppointment[
+          propertyName
+        ].filter((element) => {
+          return !(element === null || element === undefined);
+        });
+      }
+    } else {
+      editedAppointment[propertyName] = newValue;
+    }
+
     this.setState(editedAppointment);
+    return editedAppointment;
   }
 
   getDateFormat(date: ?string): string {
     if (!date) {
       return yearDateFormat;
     }
-    let sameYear: boolean = date.startsWith(now().getFullYear().toString());
-    return sameYear ? dayDateTime24Format : dayYearDateTime24Format;
+
+    return farDateFormat2;
+  }
+
+  renderAppointmentsTypes() {
+    let appointmentsType: string[] =
+      this.state.editedAppointment.appointmentTypes;
+    const labelWidth: number = 200 * fontScale;
+    let dropdowns = [];
+    let appointmentDataTypeId: number = appointmentsType
+      ? stripDataType(appointmentsType[0])
+      : -1;
+    dropdowns.push(
+      <FormRow>
+        <FormOptions
+          labelWidth={labelWidth}
+          options={getAppointmentTypes()}
+          showLabel={true}
+          label={strings.AppointmentType}
+          value={
+            appointmentDataTypeId > 0 ? appointmentDataTypeId.toString() : ''
+          }
+          onChangeValue={(code: ?string | ?number) => {
+            this.updateValue('appointmentTypes', code, 0);
+            this.validateNumberOfSlots(code);
+          }}
+        />
+      </FormRow>,
+    );
+    if (appointmentsType && appointmentsType.length >= 1) {
+      for (let i: number = 1; i <= appointmentsType.length; i++) {
+        if (i < 5) {
+          appointmentDataTypeId = stripDataType(appointmentsType[i]);
+          dropdowns.push(
+            <FormRow>
+              <FormOptions
+                labelWidth={labelWidth}
+                options={getAppointmentTypes()}
+                showLabel={true}
+                label={strings.AppointmentType}
+                value={
+                  appointmentDataTypeId > 0
+                    ? appointmentDataTypeId.toString()
+                    : ''
+                }
+                onChangeValue={(code: ?string | ?number) => {
+                  this.updateValue('appointmentTypes', code, i);
+                  this.validateNumberOfSlots(code);
+                }}
+              />
+            </FormRow>,
+          );
+        }
+      }
+    }
+
+    return dropdowns;
   }
 
   render() {
-    const user: User = getCachedItem(this.props.appointment.userId);
+    const appointment: Appointment = this.props.appointment;
+    const user: User = getCachedItem(appointment.userId);
+    const patient: PatientInfo | Patient = getCachedItem(appointment.patientId);
+    const hasBookAccess: boolean = hasAppointmentBookAccess(appointment);
+
+    let genderShort: string = formatCode('genderCode', patient.gender);
+    const allDescriptions: string[] = [
+      'pending',
+      'confirmed',
+      'cancelled',
+      'noShow',
+      'waiting',
+      'completed',
+    ];
+    if (genderShort.length > 0) {
+      genderShort = genderShort.substring(0, 1);
+    }
     if (!this.state.isEditable || !this.state.editedAppointment) {
       return (
-        <TouchableOpacity onPress={() => this.startEdit()}>
-          <View style={styles.card}>
-            <View style={styles.centeredRowLayout}>
-              <Text style={styles.screenTitle}>
-                {this.props.appointment.title}
+        <View>
+          <TouchableOpacity
+            onPress={() => this.startEdit()}
+            styles={{flexDirection: 'column', flex: 100}}
+            disabled={!hasBookAccess}>
+            {user && (
+              <Text style={styles.text}>
+                {strings.doctor}: {user.firstName} {user.lastName}
               </Text>
-              <AppointmentTypes
-                appointment={this.props.appointment}
-                orientation="horizontal"
-              />
-              <AppointmentIcons
-                appointment={this.props.appointment}
-                orientation="horizontal"
-              />
+            )}
+
+            <AppointmentIcons
+              appointment={appointment}
+              orientation="horizontal"
+            />
+            <Title style={{color: '#000'}}>
+              {getPatientFullName(patient)}{' '}
+            </Title>
+            <View style={styles.rowLayout}>
+              <Text style={styles.text}>({genderShort}) </Text>
+              <PatientTags patient={patient} showDescription={true} />
+              <Text style={styles.text}>
+                {patient.dateOfBirth ? formatAge(patient.dateOfBirth) : ''}
+              </Text>
             </View>
-            <Text style={styles.text}>
-              {strings.scheduledAt}{' '}
-              {formatDate(
-                this.props.appointment.start,
-                this.getDateFormat(this.props.appointment.start),
-              )}{' '}
-              {strings.forDuration}{' '}
-              {formatDuration(
-                this.props.appointment.end,
-                this.props.appointment.start,
-              )}
-              .
-            </Text>
-            <Text style={styles.text}>
-              {strings.status}:{' '}
-              {formatCode(
-                'appointmentStatusCode',
-                this.props.appointment.status,
-              )}
-            </Text>
-            <Text style={styles.text}>
-              {strings.doctor}: {user.firstName} {user.lastName}
-            </Text>
+
+            <View style={styles.formRow}>
+              <Text style={styles.text}>
+                {isToday(appointment.start)
+                  ? formatDate(appointment.start, timeFormat)
+                  : formatDate(appointment.start, dayYearDateTimeFormat)}
+              </Text>
+              <Text style={styles.text}>{' - '}</Text>
+              <Text style={styles.text}>
+                {isToday(appointment.end)
+                  ? formatDate(appointment.end, timeFormat)
+                  : formatDate(appointment.end, dayYearDateTimeFormat)}
+              </Text>
+            </View>
+            {!isEmpty(appointment.supplierName) && (
+              <View style={styles.formRow}>
+                <Text style={styles.text}>{appointment.supplierName}</Text>
+              </View>
+            )}
+            {!isEmpty(patient.medicalCard) && (
+              <View style={styles.formRow}>
+                <Icon name="card-account-details" style={styles.text} />
+                <Text style={styles.text}>
+                  {prefix(patient.medicalCard, '  ')}
+                  {prefix(patient.medicalCardVersion, '-')}
+                  {prefix(patient.medicalCardExp, '-')}
+                </Text>
+              </View>
+            )}
+            {(!isEmpty(patient.cell) || !isEmpty(patient.phone)) && (
+              <View style={styles.formRow}>
+                <Icon name="cellphone" style={styles.text} />
+                <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                  {patient.cell ? patient.cell + ' ' : patient.phone}
+                </Text>
+              </View>
+            )}
+            {!isEmpty(patient.email) && (
+              <View style={styles.formRow}>
+                <Icon name="email" style={styles.text} />
+                <Text style={[styles.text, {marginLeft: 10 * fontScale}]}>
+                  {patient.email}
+                </Text>
+              </View>
+            )}
+            {!isEmpty(appointment.comment) && (
+              <View style={styles.formRow}>
+                <FormTextInput
+                  label=""
+                  multiline={true}
+                  readonly={true}
+                  value={appointment.comment}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+          <View style={{width: '30%'}}>
+            <FormRow>
+              <AppointmentIcon
+                key={this.state.status}
+                name={allDescriptions[this.state.status]}
+              />
+              <FormCode
+                hideClear
+                showLabel={false}
+                readonly={false}
+                code="appointmentStatusCode"
+                value={this.state.status}
+                onChangeValue={(code: ?string | ?number) => {
+                  this.props.onUpdateAppointment(
+                    this.updateValue('status', code),
+                  );
+                }}
+              />
+            </FormRow>
           </View>
-        </TouchableOpacity>
+          {hasBookAccess && (
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 10,
+              }}>
+              <TouchableOpacity
+                onPress={() => this.props.onCancelAppointment()}
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}>{strings.cancelAppointment}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={(appointment) =>
+                  this.props.openDoubleBookingModal(appointment)
+                }
+                style={styles.appointmentActionButton}>
+                <Text style={{color: '#fff'}}> {strings.doubleBook}</Text>
+              </TouchableOpacity>
+              {this.props.onCopyAppointment && (
+                <TouchableOpacity
+                  onPress={() =>
+                    this.props.onCopyAppointment(this.props.appointment)
+                  }
+                  style={styles.appointmentActionButton}>
+                  <Text style={{color: '#fff'}}> {strings.reschedule}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+          {!this.props.isNewAppointment && (
+            <Dialog.Actions>
+              <NativeBaseButton onPress={() => this.closeAppointment()}>
+                {strings.close}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={() => this.openAppointment()}>
+                {strings.open}
+              </NativeBaseButton>
+            </Dialog.Actions>
+          )}
+        </View>
       );
     }
     const labelWidth: number = 200 * fontScale;
     return (
-      <View style={styles.form}>
-        <Text style={styles.screenTitle}>
-          {this.state.editedAppointment.title} {strings.appointmentTitle}
-        </Text>
-        <FormRow>
-          <FormDateTimeInput
-            labelWidth={labelWidth}
-            readonly={true}
-            includeDay={true}
-            label="Scheduled start time"
-            value={this.state.editedAppointment.start}
-          />
-          <FormDurationInput
-            label="Duration"
-            value={this.state.editedAppointment.end}
-            startDate={this.state.editedAppointment.start}
-            onChangeValue={(newValue: ?string) =>
-              this.updateValue('end', newValue)
-            }
-          />
-        </FormRow>
-        <FormRow>
-          <FormCode
-            labelWidth={labelWidth}
-            label="Status"
-            readonly={false}
-            code="appointmentStatusCode"
-            value={this.state.editedAppointment.status}
-            onChangeValue={(code: ?string | ?number) =>
-              this.updateValue('status', code)
-            }
-          />
-        </FormRow>
+      <View>
         <FormRow>
           <FormTextInput
             labelWidth={labelWidth}
-            label="Doctor"
+            label={strings.patient}
             readonly={true}
-            value={user.firstName + ' ' + user.lastName}
+            value={getPatientFullName(patient)}
           />
         </FormRow>
-        <View style={styles.buttonsRowLayout}>
-          <Button title="Cancel" onPress={() => this.cancelEdit()} />
-          <Button title="Update" onPress={() => this.commitEdit()} />
-        </View>
+        {this.renderAppointmentsTypes()}
+        <FormRow>
+          <FormOptions
+            labelWidth={labelWidth}
+            options={this.getInsuranceProviders()}
+            showLabel={true}
+            label={strings.insurer}
+            value={
+              this.state.editedAppointment.supplierName
+                ? this.state.editedAppointment.supplierName
+                : 0
+            }
+            onChangeValue={(code: ?string | ?number) =>
+              this.updateValue('supplierName', code)
+            }
+          />
+        </FormRow>
+        <FormRow>
+          <FormCheckBox
+            labelWidth={labelWidth}
+            showLabel={true}
+            label={strings.waitingList}
+            options={this.getWaitingListOptions()}
+            value={this.state.editedAppointment.earlyRequest}
+            onChangeValue={(code: ?string | ?number) => {
+              this.updateValue('earlyRequest', code);
+              if (code === false || code === undefined || code === null) {
+                this.updateValue('earlyRequestComment', '');
+              }
+            }}
+          />
+        </FormRow>
+
+        {this.state.editedAppointment.earlyRequest && (
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.waitingListComment}
+              value={this.state.editedAppointment.earlyRequestComment}
+              onChangeText={(newValue: ?string) =>
+                this.updateValue('earlyRequestComment', newValue)
+              }
+            />
+          </FormRow>
+        )}
+        {!this.props.isDoublebooking && (
+          <FormRow>
+            <FormNumberInput
+              labelWidth={labelWidth}
+              label={strings.numberOfSlots}
+              required={true}
+              minValue={1}
+              maxValue={9}
+              value={
+                this.state.editedAppointment.numberOfSlots
+                  ? this.state.editedAppointment.numberOfSlots
+                  : 1
+              }
+              onChangeValue={(newValue: ?number) => {
+                if (this.validateNumberOfSlots(undefined, newValue)) {
+                  this.updateValue('numberOfSlots', newValue);
+                }
+              }}
+            />
+          </FormRow>
+        )}
+
+        {!this.props.isNewAppointment && !this.props.isDoublebooking && (
+          <FormRow>
+            <FormCode
+              labelWidth={labelWidth}
+              label={strings.status}
+              readonly={false}
+              code="appointmentStatusCode"
+              value={this.state.editedAppointment.status}
+              onChangeValue={(code: ?string | ?number) =>
+                this.updateValue('status', code)
+              }
+            />
+          </FormRow>
+        )}
+        {user && (
+          <FormRow>
+            <FormTextInput
+              labelWidth={labelWidth}
+              label={strings.doctor}
+              readonly={true}
+              value={user.firstName + ' ' + user.lastName}
+            />
+          </FormRow>
+        )}
+        <FormRow>
+          <FormTextInput
+            labelWidth={labelWidth}
+            label={strings.comment}
+            multiline={true}
+            value={this.state.editedAppointment.comment}
+            onChangeText={(newValue: ?string) =>
+              this.updateValue('comment', newValue)
+            }
+          />
+        </FormRow>
+        {hasBookAccess && (
+          <View style={[styles.bottomItems, {alignSelf: 'flex-end'}]}>
+            <NativeBaseButton onPress={() => this.cancelEdit()}>
+              {strings.cancel}
+            </NativeBaseButton>
+
+            <NativeBaseButton onPress={() => this.commitEdit()}>
+              {this.props.isNewAppointment && !this.props.rescheduleAppointment
+                ? strings.book
+                : this.props.isNewAppointment &&
+                  this.props.rescheduleAppointment
+                ? strings.reschedule
+                : this.props.isDoublebooking
+                ? strings.doubleBook
+                : strings.update}
+            </NativeBaseButton>
+          </View>
+        )}
       </View>
     );
   }
@@ -939,6 +1571,521 @@ export class AppointmentScreen extends Component {
           hasAppointment={this.hasAppointment()}
         />
       </KeyboardAwareScrollView>
+    );
+  }
+}
+export class WaitingList extends Component {
+  props: {
+    event: Appointment,
+    waitingListModal: boolean,
+    onCloseWaitingList: () => void,
+    onUpdateAppointment: (appointment: Appointment) => void,
+  };
+  state: {
+    fetchingWaitingList: boolean,
+    waitingListAppointments: Array,
+    allStores: boolean,
+    orderDesc: boolean,
+    docHeaderSelected: boolean,
+    storeHeaderSelected: boolean,
+    dateHeaderSelected: boolean,
+    filter: string,
+    selectedWaitingEvent?: Appointment,
+  };
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      fetchingWaitingList: false,
+      waitingListAppointments: [],
+      allStores: false,
+      orderDesc: false,
+      docHeaderSelected: false,
+      storeHeaderSelected: false,
+      dateHeaderSelected: false,
+      filter: '',
+      selectedWaitingEvent: undefined,
+    };
+  }
+  componentDidMount = () => {
+    this.waitingListAppointments();
+    this.orderByDate();
+  };
+
+  closeDialog = () => {
+    this.props.onCloseWaitingList();
+  };
+  async waitingListAppointments() {
+    try {
+      this.setState({fetchingWaitingList: true});
+      let appointments = await fetchAppointments(
+        this.state.allStores ? undefined : getStore().id,
+        undefined,
+        undefined,
+        undefined,
+        this.props.event.start,
+        false,
+        false,
+        true,
+        this.state.allStores,
+      );
+      this.setState({
+        fetchingWaitingList: false,
+        waitingListAppointments: appointments,
+      });
+    } catch (e) {
+      this.setState({fetchingWaitingList: false});
+    }
+  }
+  updateOrder = () => {
+    const order: boolean = this.state.orderDesc;
+    this.setState({orderDesc: !order});
+  };
+  compareDate(a, b): number {
+    if (b.start < a.start) {
+      return -1;
+    } else if (b.start > a.start) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByDate(): any {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareDate);
+    return data;
+  }
+  orderByDate = () => {
+    if (!this.state.dateHeaderSelected) {
+      this.setState({
+        groupBy: 'Date',
+        dateHeaderSelected: true,
+        docHeaderSelected: false,
+        storeHeaderSelected: false,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+  compareDoctor(a, b): number {
+    const doctor1: User = getCachedItem(a.userId);
+    const doctor2: User = getCachedItem(b.userId);
+    if (doctor1.firstName.toLowerCase() < doctor2.firstName.toLowerCase()) {
+      return -1;
+    } else if (
+      doctor1.firstName.toLowerCase() > doctor2.firstName.toLowerCase()
+    ) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByDoctor() {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareDoctor);
+    return data;
+  }
+  orderByDoctor = () => {
+    if (!this.state.docHeaderSelected) {
+      this.setState({
+        groupBy: 'Doctor',
+        dateHeaderSelected: false,
+        docHeaderSelected: true,
+        storeHeaderSelected: false,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+  compareStore(a, b): number {
+    const id1 = stripDataType(a.storeId);
+    const id2 = stripDataType(b.storeId);
+    const store1 = getAccount().stores.find((store) => store.storeId === id1);
+    const store2 = getAccount().stores.find((store) => store.storeId === id2);
+    if (store1.name.toLowerCase() < store2.name.toLowerCase()) {
+      return -1;
+    } else if (store1.name.toLowerCase() > store2.name.toLowerCase()) {
+      return 1;
+    }
+    return 0;
+  }
+  groupByStore() {
+    let data: any[] = [...this.state.waitingListAppointments];
+    data.sort(this.compareStore);
+    return data;
+  }
+  orderByStore = () => {
+    if (!this.state.storeHeaderSelected) {
+      this.setState({
+        groupBy: 'Store',
+        dateHeaderSelected: false,
+        docHeaderSelected: false,
+        storeHeaderSelected: true,
+        orderDesc: true,
+      });
+    } else {
+      this.updateOrder();
+    }
+  };
+
+  renderFilterField() {
+    const style = [styles.searchField, {minWidth: 350 * fontScale}];
+
+    return (
+      <TextInput
+        returnKeyType="search"
+        placeholder={strings.findRow}
+        autoCorrect={false}
+        autoCapitalize="none"
+        style={style}
+        value={this.state.filter}
+        onChangeText={(filter: string) => this.setState({filter})}
+        testID={'waitingListFilter'}
+      />
+    );
+  }
+
+  getItems(): any[] {
+    let data: any[] = [...this.state.waitingListAppointments];
+    let filterData: any[] = [];
+    if (this.state.groupBy === 'Date') {
+      data = this.groupByDate();
+    } else if (this.state.groupBy === 'Doctor') {
+      data = this.groupByDoctor();
+    } else if (this.state.groupBy === 'Store') {
+      data = this.groupByStore();
+    }
+    if (!this.state.orderDesc) {
+      data.reverse();
+    }
+    const filter: ?string =
+      this.state.filter !== undefined && this.state.filter !== ''
+        ? deAccent(this.state.filter.trim().toLowerCase())
+        : undefined;
+    data = data.map((item) => {
+      let type = '';
+      const patient: PatientInfo | Patient = getCachedItem(item.patientId);
+      const doctor: User = getCachedItem(item.userId);
+      const storeId = item.storeId?.split('-')[1];
+      const store = getAccount().stores.find(
+        (store) => store.storeId == storeId,
+      );
+      if (item.appointmentTypes) {
+        item.appointmentTypes.map((id, index) => {
+          const t = getCachedItem(id);
+          type +=
+            index == item.appointmentTypes.length - 1
+              ? `${t.name}.`
+              : `${t.name}, `;
+        });
+      }
+      filterData.push({
+        patient: `${patient?.firstName} ${patient?.lastName}`,
+        home: patient.phone,
+        cell: patient.cell,
+        work: patient.work,
+        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+        store: store?.name,
+        comment: item.earlyRequestComment || '',
+      });
+      return {
+        ...item,
+        type,
+        patient: `${patient?.firstName} ${patient?.lastName}`,
+        age: formatAge(patient.dateOfBirth),
+        home: patient.phone,
+        cell: patient.cell,
+        work: patient.work,
+        doctor: `${doctor?.firstName} ${doctor?.lastName}`,
+        store,
+      };
+    });
+    if (filter) {
+      data = data.filter(
+        (item: any, index) =>
+          item != null &&
+          item !== undefined &&
+          JSON.stringify(Object.values(filterData[index])).trim().length > 0 &&
+          deAccent(
+            JSON.stringify(Object.values(filterData[index])).toLowerCase(),
+          ).indexOf(filter) >= 0,
+      );
+    }
+    return data;
+  }
+
+  render() {
+    const event: Appointment = this.props.event;
+    const user: User = getCachedItem(event.userId);
+    const appointments = this.getItems();
+    const titleStyle = {
+      marginBottom: 5,
+      fontWeight: '500',
+      fontSize: fontScale * 23,
+    };
+    const headerStyle = {
+      fontWeight: '500',
+      textAlign: 'center',
+      fontSize: fontScale * 23,
+    };
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={{
+            width: '70%',
+            minHeight: '60%',
+            maxHeight: '90%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}
+          visible={this.props.waitingListModal}
+          onDismiss={this.closeDialog}
+          dismissable={true}>
+          <Dialog.Title>
+            <Text style={{color: '#1db3b3'}}>{strings.waitingList}</Text>
+          </Dialog.Title>
+          <Dialog.ScrollArea>
+            <ScrollView contentContainerStyle={{padding: 10, flexGrow: 1}}>
+              <View style={{marginVertical: 15}}>
+                <Text style={titleStyle}>
+                  {strings.date}:{'  '}
+                  {formatDate(event.start, yearDateTimeFormat)}
+                </Text>
+                <Text style={titleStyle}>
+                  {strings.store}: {'  '}
+                  {getStore().name}
+                </Text>
+                <Text style={titleStyle}>
+                  {strings.doctor}:{'  '}
+                  {user?.firstName} {user?.lastName}
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 20 * fontScale,
+                }}>
+                <View>{this.renderFilterField()}</View>
+                <View>
+                  <FormInput
+                    optional
+                    singleSelect
+                    multiOptions
+                    value={this.state.allStores}
+                    showLabel={false}
+                    readonly={false}
+                    definition={{
+                      options: [{label: strings.showAllStores, value: true}],
+                    }}
+                    onChangeValue={(v) => {
+                      this.setState({allStores: !!v}, () =>
+                        this.waitingListAppointments(),
+                      );
+                    }}
+                    errorMessage={'error'}
+                    isTyping={false}
+                  />
+                </View>
+              </View>
+              {this.state.fetchingWaitingList ? (
+                <ActivityIndicator
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                />
+              ) : (
+                <>
+                  <View>
+                    <View style={styles.listRow}>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.patient}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.age}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.home}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.cell}
+                      </Text>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.work}
+                      </Text>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByStore}>
+                        {this.state.storeHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.storeHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.store}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByDoctor}>
+                        {this.state.docHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.docHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.doctor}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={this.orderByDate}>
+                        {this.state.dateHeaderSelected && (
+                          <ArrowIcon
+                            name={
+                              this.state.orderDesc
+                                ? 'arrow-downward'
+                                : 'arrow-upward'
+                            }
+                            color={selectionFontColor}
+                          />
+                        )}
+                        <Text
+                          style={{
+                            ...headerStyle,
+                            color: this.state.dateHeaderSelected
+                              ? '#5ed4d4'
+                              : 'black',
+                          }}>
+                          {strings.appDateAndTime}
+                        </Text>
+                      </TouchableOpacity>
+                      <Text style={[headerStyle, styles.container]}>
+                        {strings.comment}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        height: 1,
+                        width: '100%',
+                        backgroundColor: 'gray',
+                        marginVertical: 5,
+                      }}
+                    />
+                  </View>
+                  <FlatList
+                    data={appointments}
+                    initialNumToRender={20}
+                    showsVerticalScrollIndicator={false}
+                    extraData={{filter: this.state.filter}}
+                    renderItem={({item, index}) => {
+                      const selected =
+                        this.state.selectedWaitingEvent?.id === item.id;
+                      const textStyle = {
+                        flex: 1,
+                        textAlign: 'center',
+                        color: selected ? '#1db3b3' : 'black',
+                      };
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({selectedWaitingEvent: item})
+                          }
+                          style={[
+                            styles.listRow,
+                            {
+                              backgroundColor:
+                                index % 2 === 0 ? '#F9F9F9' : '#FFFFFF',
+                            },
+                          ]}>
+                          <Text style={textStyle}>{item.patient}</Text>
+                          <Text style={textStyle}>{item?.age}</Text>
+                          <Text style={textStyle}>{item?.home}</Text>
+                          <Text style={textStyle}>{item?.cell}</Text>
+                          <Text style={textStyle}>{item?.work}</Text>
+                          <Text style={textStyle}>{item.store?.name}</Text>
+                          <Text style={textStyle}>{item.doctor}</Text>
+                          <View style={{flex: 1}}>
+                            <Text style={textStyle}>
+                              {formatDate(item.start, yearDateTimeFormat)}
+                            </Text>
+                            <Text style={{fontWeight: '500', ...textStyle}}>
+                              {item?.type}
+                            </Text>
+                          </View>
+                          <Text style={textStyle}>
+                            {item?.earlyRequestComment}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </ScrollView>
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.closeDialog}>
+              {strings.close}
+            </NativeBaseButton>
+            <NativeBaseButton
+              onPress={() => {
+                this.props.onUpdateAppointment({
+                  ...event,
+                  earlyRequest: false,
+                  newId: event.id,
+                  id: this.state.selectedWaitingEvent.id,
+                  patientId: this.state.selectedWaitingEvent.patientId,
+                  appointmentTypes:
+                    this.state.selectedWaitingEvent.appointmentTypes,
+                  title: this.state.selectedWaitingEvent.title,
+                });
+              }}
+              disabled={!this.state.selectedWaitingEvent}>
+              {strings.reschedule}
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
