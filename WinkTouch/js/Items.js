@@ -661,17 +661,38 @@ export class ItemsCard extends Component {
     let abnormalFields: string[] = fields.filter((field: string) => {
       let value: string | string[] = examItem[field];
       if (
+        (this.props.exam.definition.cardFields === undefined ||
+          this.props.exam.definition.cardFields.length === 0) &&
+        (value === undefined || value === null)
+      ) {
+        const fieldDef: FieldDefinition =
+          this.props.exam.definition.fields.find(
+            (fieldDefinition: FieldDefinition) =>
+              fieldDefinition.name === field,
+          );
+        if (fieldDef) {
+          field = fieldDef.label;
+          value = examItem[field];
+        }
+      }
+      if (
         value === undefined ||
         value === null ||
         (value instanceof Array && value.length === 0)
       ) {
         return false;
       }
-      const fieldDefinition: ?GroupDefinition | FieldDefinition =
+      let fieldDefinition: ?GroupDefinition | FieldDefinition =
         this.props.exam.definition.fields.find(
           (fieldDefinition: GroupDefinition | FieldDefinition) =>
             fieldDefinition.name === field,
         );
+      if (fieldDefinition === undefined || fieldDefinition === null) {
+        fieldDefinition = this.props.exam.definition.fields.find(
+          (fieldDefinition: GroupDefinition | FieldDefinition) =>
+            fieldDefinition.label === field,
+        );
+      }
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
@@ -702,11 +723,34 @@ export class ItemsCard extends Component {
           if (this.props.exam.definition.fields === undefined) {
             return null;
           }
-          const fieldDefinition: ?GroupDefinition | FieldDefinition =
+          if (
+            (this.props.exam.definition.cardFields === undefined ||
+              this.props.exam.definition.cardFields.length === 0) &&
+            (value === undefined || value === null)
+          ) {
+            const fieldDef: FieldDefinition =
+              this.props.exam.definition.fields.find(
+                (fieldDefinition: FieldDefinition) =>
+                  fieldDefinition.name === field,
+              );
+            if (fieldDef) {
+              field = fieldDef.label;
+              value = examItem[field];
+            }
+          }
+
+          let fieldDefinition: ?GroupDefinition | FieldDefinition =
             this.props.exam.definition.fields.find(
               (fieldDefinition: GroupDefinition | FieldDefinition) =>
                 fieldDefinition.name === field,
             );
+          if (fieldDefinition === null || fieldDefinition === undefined) {
+            fieldDefinition = this.props.exam.definition.fields.find(
+              (fieldDefinition: GroupDefinition | FieldDefinition) =>
+                fieldDefinition.label === field,
+            );
+          }
+
           if (fieldDefinition === null || fieldDefinition === undefined) {
             return null;
           }
@@ -1206,10 +1250,16 @@ export class ItemsEditor extends Component {
     return this.props.fieldDefinitions.map(
       (fieldDefinition: FieldDefinition, index: number) => {
         if (fieldDefinition.options && fieldDefinition.options.length > 2) {
-          const propertyName: string = fieldDefinition.name;
+          let propertyName: string = fieldDefinition.name;
           let selection = this.state.selectedItem
             ? this.state.selectedItem[propertyName]
             : undefined;
+          if (selection === undefined || selection === null) {
+            propertyName = fieldDefinition.label;
+            selection = this.state.selectedItem
+              ? this.state.selectedItem[propertyName]
+              : undefined;
+          }
 
           let options: CodeDefinition[] | string = fieldDefinition.options;
           if (options instanceof Array === false) {
