@@ -1254,7 +1254,11 @@ export class ItemsEditor extends Component {
           let selection = this.state.selectedItem
             ? this.state.selectedItem[propertyName]
             : undefined;
-          if (selection === undefined || selection === null) {
+          if (
+            this.state.selectedItem &&
+            fieldDefinition.label &&
+            (selection === undefined || selection === null)
+          ) {
             propertyName = fieldDefinition.label;
             selection = this.state.selectedItem
               ? this.state.selectedItem[propertyName]
