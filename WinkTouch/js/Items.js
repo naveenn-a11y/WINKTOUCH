@@ -1250,20 +1250,10 @@ export class ItemsEditor extends Component {
     return this.props.fieldDefinitions.map(
       (fieldDefinition: FieldDefinition, index: number) => {
         if (fieldDefinition.options && fieldDefinition.options.length > 2) {
-          let propertyName: string = fieldDefinition.name;
+          const propertyName: string = fieldDefinition.name;
           let selection = this.state.selectedItem
             ? this.state.selectedItem[propertyName]
             : undefined;
-          if (
-            this.state.selectedItem &&
-            fieldDefinition.label &&
-            (selection === undefined || selection === null)
-          ) {
-            propertyName = fieldDefinition.label;
-            selection = this.state.selectedItem
-              ? this.state.selectedItem[propertyName]
-              : undefined;
-          }
 
           let options: CodeDefinition[] | string = fieldDefinition.options;
           if (options instanceof Array === false) {
