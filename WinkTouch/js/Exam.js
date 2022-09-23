@@ -3,17 +3,8 @@
  */
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
-import {
-  View,
-  TouchableHighlight,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Button,
-  Animated,
-  Easing,
-} from 'react-native';
+import React, {Component} from 'react';
+import {View, Text, TouchableOpacity, Animated, Easing} from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
@@ -44,7 +35,7 @@ import {
   addGroupItem,
 } from './GroupedForm';
 import {PaperFormScreen} from './PaperForm';
-import {fetchItemById, storeItem, searchItems} from './Rest';
+import {fetchItemById, storeItem} from './Rest';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {
   deepClone,
@@ -78,7 +69,6 @@ import {Alert, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
-import {formatCode, getCodeDefinition} from './Codes';
 import {Machine, exportData} from './Machine';
 
 export async function fetchExam(
@@ -881,7 +871,7 @@ export class ExamScreen extends Component {
 
   componentDidMount() {
     if (
-      this.state.exam.id != undefined &&
+      this.state.exam.id !== undefined &&
       this.state.exam.errors === undefined
     ) {
       this.fetchExam();
@@ -1462,6 +1452,9 @@ export class ExamScreen extends Component {
   }
 
   render() {
+    if (!this.state.exam) {
+      return null;
+    }
     if (
       this.state.exam.definition.scrollable === true ||
       this.state.exam.definition.type === 'groupedForm'
