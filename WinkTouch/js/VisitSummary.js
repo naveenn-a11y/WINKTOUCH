@@ -186,6 +186,8 @@ function getAVisitSummary(visit: Visit): ?(Exam[]) {
         const exam: Exam = getCachedItem(examId);
         if (exam.resume) {
           visitSummaries = [...visitSummaries, exam];
+        } else if ('Consultation summary' in exam) {
+          visitSummaries = [...visitSummaries, exam];
         }
       });
       if (visitSummaries.length > 5) {
@@ -279,6 +281,29 @@ export class VisitSummaryTable extends Component {
       );
     }
 
+    let summary : string = "";
+    let plan : string = "";
+
+    if (visitSummary.summary) {
+      visitSummary.summary.map((eachSummary: Exam, _index: number) => {
+        const formattedDate = formatDate(
+          getCachedItem(eachSummary.visitId).date,
+          isToyear(getCachedItem(eachSummary.visitId).date)
+            ? dateFormat
+            : farDateFormat,
+        )
+        if ('Consultation summary' in eachSummary) {
+          summary = eachSummary['Consultation summary']['Summary']['Resume'] ? summary.concat(`${eachSummary['Consultation summary']['Summary']['Resume']} \n`) : '';
+          eachSummary['Consultation summary']['Treatment plan'].map((eachPlan) => {
+            plan = eachPlan.Treatment ? plan.concat(`${strings.treatment}: ${eachPlan.Treatment} \n\n`) : '';
+          });
+        } else if ('resume' in eachSummary) {
+          summary = eachSummary.resume ? summary.concat(`${formattedDate} : ${eachSummary.resume} \n`) : '';
+        }
+      });
+    }
+    
+
     return (
       <View style={[styles.startVisitCard, styles.paddingLeft40]}>
         <Text style={styles.cardTitle}>
@@ -352,26 +377,16 @@ export class VisitSummaryTable extends Component {
         <View style={styles.summaryGroupContainer}>
           <Text style={styles.summarySubTitle}>{strings.summaryTitle}:</Text>
           <View style={styles.textWrap}>
-            {visitSummary.summary &&
-              visitSummary.summary.map((eachSummary: Exam, _index: number) => (
-                <View
-                  style={
-                    isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
-                  }>
-                  <Text style={styles.text}>
-                    {formatDate(
-                      getCachedItem(eachSummary.visitId).date,
-                      isToyear(getCachedItem(eachSummary.visitId).date)
-                        ? dateFormat
-                        : farDateFormat,
-                    )}
-                    : {eachSummary.resume}
-                    {'\n'}
-                  </Text>
-                </View>
-              ))}
+            <Text style={styles.text}>{visitSummary.summary && summary}</Text>
           </View>
         </View>
+        
+        {visitSummary.summary && !isEmpty(plan) && <View style={styles.summaryGroupContainer}>
+            <Text style={styles.summarySubTitle}>{strings.plan}:</Text>
+            <View style={styles.textWrap}>
+              <Text style={styles.text}>{visitSummary.summary && plan}</Text>
+            </View>
+          </View>}
       </View>
     );
   };

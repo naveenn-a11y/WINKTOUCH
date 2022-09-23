@@ -56,9 +56,6 @@
       "Treatment plan.Recommendation"
     ],
     [
-      "Treatment plan.Treatment"
-    ],
-    [
       "Recall.PatientTag1",
       "Recall.PatientTag2",
       "Recall.PatientTag3",
@@ -101,11 +98,6 @@
           "name": "Recommendation",
           "freestyle": true,
           "options": "treatmentRecommendationCodes"
-        },
-        {
-          "maxLength": 250,
-          "name": "Treatment",
-          "freestyle": false
         }
       ]
     },

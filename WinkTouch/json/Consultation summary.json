@@ -1,14 +1,46 @@
 {
   "name": "Consultation summary",
-  "label": "Consultation Summary",
+  "label": "Summary and Plan",
   "isAssessment": true,
+  "isSummaryAndPlan": true,
   "order": 5,
   "type": "groupedForm",
+  "starable": true,
+  "cardFields": [
+    [
+      "Summary.Resume"
+    ],
+    [
+      "Treatment plan.Treatment"
+    ]
+  ],
   "fields": [
-    {
-      "maxLength": 500,
-      "name": "Resume",
-      "label": ""
-    }
-  ]
+      {
+          "name": "Summary",
+          "label": "Summary",
+          "size": "M",
+          "fields": [
+              {
+                  "name": "Resume",
+                  "label": "",
+                  "maxLength": 500
+              }
+          ]
+      },
+      {
+          "name": "Treatment plan",
+          "label": "Plan",
+          "multiValue": true,
+          "size": "M",
+          "fields": [
+              {
+                  "maxLength": 250,
+                  "name": "Treatment",
+                  "label": "",
+                  "freestyle": false
+              }
+          ]
+      }
+  ],
+  "relatedExams": ["Biomicroscopy", "Fundus exam", "Cover test", "RxToOrder"]
 }

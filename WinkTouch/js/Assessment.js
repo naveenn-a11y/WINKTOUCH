@@ -24,7 +24,7 @@ import {storeExam} from './Exam';
 import {Microphone} from './Voice';
 import {getDataType} from './Rest';
 import {Label} from './Widgets';
-import {isEmpty} from './Util';
+import {isEmpty, setValue} from './Util';
 import {formatCode} from './Codes';
 
 export class AssessmentCard extends Component {
@@ -134,6 +134,10 @@ export class PrescriptionCard extends Component {
       );
     const glassesRx: GlassesRx = this.props.exam.RxToOrder['Final Rx'];
     const pd: any = this.props.exam.RxToOrder.PD;
+
+
+    console.log("pd: ", pd);
+    console.log("groupDefinition1: ", groupDefinition);
 
     return (
       <View style={styles.assessmentCard}>
@@ -275,6 +279,122 @@ export class VisitSummaryCard extends Component {
           </View>
         </View>
       </View>
+    );
+  }
+}
+
+
+export class VisitSummaryPlanCard extends Component {
+  props: {
+    exam: Exam,
+    navigation: any,
+    editable?: boolean,
+    appointmentStateKey: string,
+  };
+  static defaultProps = {
+    editable: true,
+  };
+
+  state: {
+    exam: Exam,
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      exam: this.props.exam,
+    };
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.exam === prevProps.exam) {
+      return;
+    }
+    this.setState({
+      exam: this.props.exam,
+    });
+  }
+
+  async storeExam(exam: Exam) {
+    this.setState({exam});
+    exam = await storeExam(exam, undefined, undefined);
+    if (exam.errors) {
+      alert(
+        strings.formatString(
+          strings.storeItemError,
+          getDataType(this.props.exam.id).toLowerCase(),
+        ),
+      );
+    } else {
+      this.setState({exam});
+    }
+  }
+
+  async updateSummary(resume: string) {
+    let exam: Exam = this.state.exam;
+    setValue(
+      exam,
+      exam.definition.name + '.Summary.Resume',
+      resume,
+    );
+    this.storeExam(exam);
+  }
+
+  render() {
+    if (!this.state.exam) {
+      return null;
+    }
+    const groupDefinition: GroupDefinition =
+      this.props.exam.definition.fields.find(
+        (fieldDefinition: GroupDefinition | FieldDefinition) =>
+          fieldDefinition.name === 'Treatment plan',
+      );
+    const plans: any = this.state.exam['Consultation summary']['Treatment plan'];
+
+    return (
+        <View style={styles.assessmentCard}>
+          <View style={styles.centeredRowLayout}>
+            <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
+          </View>
+          <View style={styles.columnLayout}>
+            <View style={styles.formRowL}>
+              <FormTextInput
+                label=""
+                multiline={true}
+                readonly={!this.props.editable}
+                value={this.state.exam['Consultation summary']['Summary']['Resume']}
+                onChangeText={(text: ?string) => this.updateSummary(text)}
+              />
+            </View>
+          </View>
+
+          <TouchableOpacity
+            disabled={this.props.disabled}
+            onPress={() =>
+              this.props.navigation.navigate('exam', {
+                exam: this.state.exam,
+                appointmentStateKey: this.props.appointmentStateKey,
+              })
+          }>  
+            <View >
+              <View style={styles.centeredRowLayout}>
+                <Text style={styles.sectionTitle}>{formatLabel(groupDefinition)}</Text>
+              </View>
+
+              <View style={styles.columnLayout}>
+                  {plans.map((plan, index) => {
+                    return(
+                      <View style={styles.textWrap}>
+                        <Text style={styles.textLeft} key={index}>{plan.Treatment && `${strings.treatment}: ${plan.Treatment}`}</Text>
+                      </View>
+                    );
+                  })}
+              </View>
+
+            </View>
+        </TouchableOpacity>
+
+        </View>
     );
   }
 }

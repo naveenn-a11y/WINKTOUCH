@@ -273,17 +273,31 @@ export async function renderParentGroupHtml(
     });
   } else {
     if (exam.definition.name === 'Consultation summary') {
-      if (!isEmpty(exam.resume)) {
+      let summary : string = exam.resume;
+      if (!isEmpty(summary)) {
+        summary = exam.resume;
+      } else if ('Consultation summary' in exam) {
+        summary = !isEmpty(exam['Consultation summary']['Summary']['Resume']) ? `<span><u>${strings.summaryTitle}:</u><span> <br /> ${exam['Consultation summary']['Summary']['Resume']}` : '';
+
+        let plans = '';
+        exam['Consultation summary']['Treatment plan'].map((eachPlan, index: number) => {
+          plans += !isEmpty(eachPlan.Treatment) ? `<li>${eachPlan.Treatment}</li>`: '';
+        });
+
+        summary += !isEmpty(plans) ? `<br /><br /><span><u>${strings.plan}:</u><span> <ul>${plans}</ul>` : '';
+      }
+
+      if (!isEmpty(summary)) {
         html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
           exam.definition,
         )}</div></div>`;
         html += '<div class="desc">';
-        html += `<div style="white-space: pre-line">${exam.resume}</div>`;
+        html += `<div style="white-space: pre-line">${summary}</div>`;
         html += '</div>';
         html += '</div>';
         parentHtmlDefinition.push({
           name: exam.definition.name,
-          html: `<div style="white-space: pre-line">${exam.resume}</div>`,
+          html: `<div style="white-space: pre-line">${summary}</div>`,
         });
       }
     } else {
