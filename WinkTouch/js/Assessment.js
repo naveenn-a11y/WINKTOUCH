@@ -24,7 +24,7 @@ import {storeExam} from './Exam';
 import {Microphone} from './Voice';
 import {getDataType} from './Rest';
 import {Label} from './Widgets';
-import {isEmpty, setValue} from './Util';
+import {getValue, isEmpty, setValue} from './Util';
 import {formatCode} from './Codes';
 
 export class AssessmentCard extends Component {
@@ -345,7 +345,8 @@ export class VisitSummaryPlanCard extends Component {
         (fieldDefinition: GroupDefinition | FieldDefinition) =>
           fieldDefinition.name === 'Treatment plan',
       );
-    const plans: any = this.state.exam['Consultation summary']['Treatment plan'];
+    const plans: any = getValue(this.state.exam, 'Consultation summary.Treatment plan');
+    const summary = getValue(this.state.exam, 'Consultation summary.Summary.Resume');
 
     return (
         <View style={styles.assessmentCard}>
@@ -358,7 +359,7 @@ export class VisitSummaryPlanCard extends Component {
                 label=""
                 multiline={true}
                 readonly={!this.props.editable}
-                value={this.state.exam['Consultation summary']['Summary']['Resume']}
+                value={!isEmpty(summary) ? summary : ''}
                 onChangeText={(text: ?string) => this.updateSummary(text)}
               />
             </View>
@@ -378,7 +379,7 @@ export class VisitSummaryPlanCard extends Component {
               </View>
 
               <View style={styles.columnLayout}>
-                  {plans.map((plan, index) => {
+                  {!isEmpty(plans) && plans.map((plan, index) => {
                     return(
                       <View style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
                         <Text style={styles.textLeft} key={index}>{plan.Treatment && `${strings.treatment}: ${plan.Treatment}`}</Text>

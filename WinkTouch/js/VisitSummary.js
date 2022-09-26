@@ -26,6 +26,7 @@ import {
   dateFormat,
   farDateFormat,
   yearDateFormat,
+  getValue,
 } from './Util';
 import {getCachedItem} from './DataCache';
 import {GlassesSummary} from './Refraction';
@@ -293,9 +294,11 @@ export class VisitSummaryTable extends Component {
             : farDateFormat,
         )
         if ('Consultation summary' in eachSummary) {
-          summary = eachSummary['Consultation summary']['Summary']['Resume'] ? summary.concat(`${eachSummary['Consultation summary']['Summary']['Resume']} \n`) : '';
-          const plans = eachSummary['Consultation summary']['Treatment plan'] ? eachSummary['Consultation summary']['Treatment plan'] : [];
-          plans.map((eachPlan) => {
+          const consultationSummary = getValue(eachSummary, 'Consultation summary.Summary.Resume');
+          summary = !isEmpty(consultationSummary) ? summary.concat(`${consultationSummary} \n`) : '';
+
+          const plans: any = getValue(eachSummary, 'Consultation summary.Treatment plan');
+          !isEmpty(plans) && plans.map((eachPlan) => {
             plan = eachPlan.Treatment ? plan.concat(`${strings.treatment}: ${eachPlan.Treatment} \n\n`) : '';
           });
         } else if ('resume' in eachSummary) {
