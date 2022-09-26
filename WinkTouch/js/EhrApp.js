@@ -14,6 +14,7 @@ import {setDeploymentVersion, checkBinaryVersion} from './Version';
 import {isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
+import {getHostFromBundleKey} from '../scripts/Util';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -71,6 +72,7 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   checkBinaryVersion();
   try {
     let codePushBundleKey = await fetchTouchVersion(registration.path);
+    console.log('codePushBundleKey: ' + codePushBundleKey);
     //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
     if (registration.bundle !== codePushBundleKey) {
       registration.bundle = codePushBundleKey;
@@ -100,6 +102,11 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
       logUpdateStatus,
     );
     codePush.allowRestart();
+  } else {
+    const host: string = getHostFromBundleKey(registration.bundle);
+    if (host !== undefined) {
+      window.location.href = host;
+    }
   }
 }
 
