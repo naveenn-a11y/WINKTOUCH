@@ -277,10 +277,12 @@ export async function renderParentGroupHtml(
       if (!isEmpty(summary)) {
         summary = exam.resume;
       } else if ('Consultation summary' in exam) {
-        summary = !isEmpty(exam['Consultation summary']['Summary']['Resume']) ? `<span><u>${strings.summaryTitle}:</u><span> <br /> ${exam['Consultation summary']['Summary']['Resume']}` : '';
+        const consulationSummary = getValue(exam, 'Consultation summary.Summary.Resume');
+        summary =  !isEmpty(consulationSummary) ? `<span><u>${strings.summaryTitle}:</u><span> <br /> ${consulationSummary}` : '';
 
         let plans = '';
-        exam['Consultation summary']['Treatment plan'].map((eachPlan, index: number) => {
+        const treatmentPlans = getValue(exam, 'Consultation summary.Treatment plan');
+        !isEmpty(treatmentPlans) && treatmentPlans.map((eachPlan) => {
           plans += !isEmpty(eachPlan.Treatment) ? `<li>${eachPlan.Treatment}</li>`: '';
         });
 

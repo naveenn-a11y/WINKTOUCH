@@ -294,7 +294,8 @@ export class VisitSummaryTable extends Component {
         )
         if ('Consultation summary' in eachSummary) {
           summary = eachSummary['Consultation summary']['Summary']['Resume'] ? summary.concat(`${eachSummary['Consultation summary']['Summary']['Resume']} \n`) : '';
-          eachSummary['Consultation summary']['Treatment plan'].map((eachPlan) => {
+          const plans = eachSummary['Consultation summary']['Treatment plan'] ? eachSummary['Consultation summary']['Treatment plan'] : [];
+          plans.map((eachPlan) => {
             plan = eachPlan.Treatment ? plan.concat(`${strings.treatment}: ${eachPlan.Treatment} \n\n`) : '';
           });
         } else if ('resume' in eachSummary) {
