@@ -377,14 +377,18 @@ export class VisitSummaryTable extends Component {
         <View style={styles.summaryGroupContainer}>
           <Text style={styles.summarySubTitle}>{strings.summaryTitle}:</Text>
           <View style={styles.textWrap}>
-            <Text style={styles.text}>{visitSummary.summary && summary}</Text>
+            <View style={isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn}>
+              <Text style={styles.text}>{visitSummary.summary && summary}</Text>
+            </View>
           </View>
         </View>
-        
+
         {visitSummary.summary && !isEmpty(plan) && <View style={styles.summaryGroupContainer}>
             <Text style={styles.summarySubTitle}>{strings.plan}:</Text>
             <View style={styles.textWrap}>
-              <Text style={styles.text}>{visitSummary.summary && plan}</Text>
+              <View style={isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn}>
+                <Text style={styles.text}>{visitSummary.summary && plan}</Text>
+              </View>
             </View>
           </View>}
       </View>

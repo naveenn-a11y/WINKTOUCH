@@ -135,10 +135,6 @@ export class PrescriptionCard extends Component {
     const glassesRx: GlassesRx = this.props.exam.RxToOrder['Final Rx'];
     const pd: any = this.props.exam.RxToOrder.PD;
 
-
-    console.log("pd: ", pd);
-    console.log("groupDefinition1: ", groupDefinition);
-
     return (
       <View style={styles.assessmentCard}>
         <View style={styles.formRow500}>
@@ -384,7 +380,7 @@ export class VisitSummaryPlanCard extends Component {
               <View style={styles.columnLayout}>
                   {plans.map((plan, index) => {
                     return(
-                      <View style={styles.textWrap}>
+                      <View style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
                         <Text style={styles.textLeft} key={index}>{plan.Treatment && `${strings.treatment}: ${plan.Treatment}`}</Text>
                       </View>
                     );
