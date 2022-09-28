@@ -2177,11 +2177,12 @@ export class FormCodeNumberInput extends Component {
       });
     } else {
       options.map((code: CodeDefinition) => {
-        code.ranges.map((element: any) => {
-          if (element[key]) {
-            arrRanges.push(element[key]);
-          }
-        });
+        code.ranges &&
+          code.ranges.map((element: any) => {
+            if (element[key]) {
+              arrRanges.push(element[key]);
+            }
+          });
       });
     }
 
