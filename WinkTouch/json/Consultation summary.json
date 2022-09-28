@@ -1,6 +1,33 @@
 {
   "name": "Consultation summary",
   "label": "Summary and Plan",
+  "locale": {
+    "fr-CA": {
+      "label": "Résumé et Plan",
+      "fields": [
+        {
+          "name": "Summary",
+          "label": "Sommaire",
+          "fields": [
+            {
+              "name": "Resume",
+              "label": "Résumé"
+            }
+          ]
+        },
+        {
+          "name": "Treatment plan",
+          "label": "Plan de traitement",
+          "fields": [
+            {
+              "name": "Treatment",
+              "label": "Traitement"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "isAssessment": true,
   "isSummaryAndPlan": true,
   "order": 5,
