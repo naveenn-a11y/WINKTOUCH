@@ -684,13 +684,13 @@
               "mappedField": "clFitting.comfort.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clComfortCodes"
+              "options": "clrComfortCodes"
             },
             {
               "mappedField": "clFitting.comfort.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clComfortCodes"
+              "options": "cllComfortCodes"
             }
           ]
         },
@@ -701,13 +701,13 @@
               "mappedField": "clFitting.vision.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clVisionCodes"
+              "options": "clrVisionCodes"
             },
             {
               "mappedField": "clFitting.vision.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clVisionCodes"
+              "options": "cllVisionCodes"
             }
           ]
         },
@@ -718,13 +718,13 @@
               "mappedField": "clFitting.rotation.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clRotationCodes"
+              "options": "clrRotationCodes"
             },
             {
               "mappedField": "clFitting.rotation.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clRotationCodes"
+              "options": "cllRotationCodes"
             }
           ]
         },
@@ -735,13 +735,13 @@
               "mappedField": "clFitting.movement.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clMovementCodes"
+              "options": "clrMovementCodes"
             },
             {
               "mappedField": "clFitting.movement.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clMovementCodes"
+              "options": "cllMovementCodes"
             }
           ]
         },
@@ -752,13 +752,13 @@
               "mappedField": "clFitting.centration.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clCentrationCodes"
+              "options": "clrCentrationCodes"
             },
             {
               "mappedField": "clFitting.centration.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clCentrationCodes"
+              "options": "cllCentrationCodes"
             }
           ]
         },
@@ -769,13 +769,13 @@
               "mappedField": "clFitting.tear.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clTearCodes"
+              "options": "clrTearCodes"
             },
             {
               "mappedField": "clFitting.tear.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clTearCodes"
+              "options": "cllTearCodes"
             }
           ]
         },
@@ -786,13 +786,13 @@
               "mappedField": "clFitting.sclera.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clScleraCodes"
+              "options": "clrScleraCodes"
             },
             {
               "mappedField": "clFitting.sclera.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clScleraCodes"
+              "options": "cllScleraCodes"
             }
           ]
         },
@@ -803,13 +803,13 @@
               "mappedField": "clFitting.limbal.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clLimbalCodes"
+              "options": "clrLimbalCodes"
             },
             {
               "mappedField": "clFitting.limbal.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clLimbalCodes"
+              "options": "cllLimbalCodes"
             }
           ]
         },
@@ -820,13 +820,13 @@
               "mappedField": "clFitting.cornea.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clCorneaCodes"
+              "options": "clrCorneaCodes"
             },
             {
               "mappedField": "clFitting.cornea.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clCorneaCodes"
+              "options": "cllCorneaCodes"
             }
           ]
         },
@@ -837,13 +837,13 @@
               "mappedField": "clFitting.lid.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clLidCodes"
+              "options": "clrLidCodes"
             },
             {
               "mappedField": "clFitting.lid.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clLidCodes"
+              "options": "cllLidCodes"
             }
           ]
         },
