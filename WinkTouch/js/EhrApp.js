@@ -295,14 +295,11 @@ export class EhrApp extends Component {
     this.tracker && this.tracker.start();
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
-    AppState.addEventListener('change', this.onAppStateChange.bind(this));
-  }
-
-  async componentDidMount() {
     isIos && await RemoteConfig.activateRemoteConfig();
+    AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
 
@@ -342,6 +339,7 @@ export class EhrApp extends Component {
   };
 
   render() {
+    console.log("Render of EHR APP")
     if (this.state.loading) {
       return (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
