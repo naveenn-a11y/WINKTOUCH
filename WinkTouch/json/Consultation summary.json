@@ -17,7 +17,7 @@
         },
         {
           "name": "Treatment plan",
-          "label": "Plan de traitement",
+          "label": "Plan",
           "fields": [
             {
               "name": "Treatment",
