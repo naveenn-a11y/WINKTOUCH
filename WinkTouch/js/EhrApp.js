@@ -185,7 +185,6 @@ export class EhrApp extends Component {
       {isRegistered, registration, loading: false},
       () => isRegistered && this.checkForUpdate(),
     );
-    !isRegistered && this.checkAppstoreUpdateNeeded();
   }
 
   async safeRegistration(registration: Registration) {
@@ -250,8 +249,8 @@ export class EhrApp extends Component {
   };
 
   checkForUpdate() {
-    this.checkAppstoreUpdateNeeded();
     checkAndUpdateDeployment(this.state.registration);
+    this.checkAppstoreUpdateNeeded();
   }
 
   async loadRegistration() {
@@ -271,7 +270,10 @@ export class EhrApp extends Component {
   }
 
   async checkAppstoreUpdateNeeded() {
-    const forceUpdate = isIos ? await RemoteConfig.shouldUpdateApp() : false;
+    const bundle: string = await AsyncStorage.getItem('bundle');
+    const forceUpdate = isIos
+      ? await RemoteConfig.shouldUpdateApp(bundle)
+      : false;
     this.setState({isUpdateRequired: forceUpdate});
   }
 
