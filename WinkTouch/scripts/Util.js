@@ -1,9 +1,12 @@
+import {REACT_APP_HOST, REACT_APP_PATH} from '../env.json';
+
 const environments: string[] = [
   'alpha',
   'dev',
   'prod',
   'qa',
   'staging',
+  'v411',
   'v412',
 ];
 
@@ -28,11 +31,10 @@ function getEnvFile(name: string) {
   }
 }
 export function getHostFromBundleKey(bundleKey: string): string {
-  console.log('Bundle Keyy: ' + bundleKey);
   for (let i = 0; environments.length; i++) {
     const name: string = environments[i];
     const envFileContent: any = getEnvFile(name);
-    const key: string = getKey(envFileContent, bundleKey);
+    const key: string = getHostUrl(envFileContent, bundleKey);
     if (key !== undefined) {
       return key;
     }
@@ -40,11 +42,19 @@ export function getHostFromBundleKey(bundleKey: string): string {
   return undefined;
 }
 
-function getKey(envFileContent: any, bundleKey: string): string {
+function getHostUrl(envFileContent: any, bundleKey: string): string {
   if (envFileContent !== undefined) {
     if (envFileContent.REACT_APP_BUNDLEKEY === bundleKey) {
-      return envFileContent.REACT_APP_HOST;
+      const subPath: string = envFileContent.REACT_APP_PATH
+        ? envFileContent.REACT_APP_PATH
+        : '';
+      return 'https://' + envFileContent.REACT_APP_HOST + '/' + subPath;
     }
   }
   return undefined;
+}
+
+export function getCurrentHost(): string {
+  const subPath: string = REACT_APP_PATH ? REACT_APP_PATH : '';
+  return 'https://' + REACT_APP_HOST + '/' + subPath;
 }

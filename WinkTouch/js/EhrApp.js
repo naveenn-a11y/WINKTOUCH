@@ -105,7 +105,11 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
   } else {
     const host: string = getHostFromBundleKey(registration.bundle);
     if (host !== undefined) {
-      window.location.href = host;
+      const domain: any = new URL(host);
+      const currentHostName: string = window.location.hostname;
+      if (domain.hostname !== currentHostName) {
+        window.location.href = host;
+      }
     }
   }
 }
@@ -306,7 +310,7 @@ export class EhrApp extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
-    if (prevState.isLocked != this.state.isLocked) {
+    if (prevState.isLocked !== this.state.isLocked) {
       if (!this.state.isLocked) {
         NavigationService.dismissLockScreen();
       }
