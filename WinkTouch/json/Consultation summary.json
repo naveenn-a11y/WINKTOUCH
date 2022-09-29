@@ -7,11 +7,11 @@
       "fields": [
         {
           "name": "Summary",
-          "label": "Sommaire",
+          "label": "Résumé",
           "fields": [
             {
               "name": "Resume",
-              "label": "Résumé"
+              "label": ""
             }
           ]
         },
@@ -21,7 +21,7 @@
           "fields": [
             {
               "name": "Treatment",
-              "label": "Traitement"
+              "label": ""
             }
           ]
         }

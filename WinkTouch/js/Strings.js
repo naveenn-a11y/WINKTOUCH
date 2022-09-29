@@ -741,7 +741,7 @@ export const strings = new LocalizedStrings({
       '\n' +
       '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms.',
     treatment: 'Traitement',
-    plan: 'Planifier',
+    plan: 'Plan de traitement',
   },
 });
 

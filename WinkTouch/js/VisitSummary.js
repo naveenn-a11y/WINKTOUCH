@@ -299,7 +299,7 @@ export class VisitSummaryTable extends Component {
 
           const plans: any = getValue(eachSummary, 'Consultation summary.Treatment plan');
           !isEmpty(plans) && plans.map((eachPlan) => {
-            plan = eachPlan.Treatment ? plan.concat(`${strings.treatment}: ${eachPlan.Treatment} \n\n`) : '';
+            plan = eachPlan.Treatment ? plan.concat(`${eachPlan.Treatment} \n\n`) : '';
           });
         } else if ('resume' in eachSummary) {
           summary = eachSummary.resume ? summary.concat(`${formattedDate} : ${eachSummary.resume} \n`) : '';

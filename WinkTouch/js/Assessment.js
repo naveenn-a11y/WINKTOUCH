@@ -382,7 +382,7 @@ export class VisitSummaryPlanCard extends Component {
                   {!isEmpty(plans) && plans.map((plan, index) => {
                     return(
                       <View style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
-                        <Text style={styles.textLeft} key={index}>{plan.Treatment && `${strings.treatment}: ${plan.Treatment}`}</Text>
+                        <Text style={styles.textLeft} key={index}>{plan.Treatment && `${plan.Treatment}`}</Text>
                       </View>
                     );
                   })}
