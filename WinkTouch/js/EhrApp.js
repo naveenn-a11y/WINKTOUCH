@@ -1,22 +1,35 @@
 /**
  * @flow
  */
+
 'use strict';
 import React, {Component} from 'react';
 import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, {SyncStatus} from 'react-native-code-push';
-import type {Registration, Store, User} from './Types';
+import type {Appointment, EmrHost, Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
-import {setDeploymentVersion, checkBinaryVersion} from './Version';
+import {
+  setDeploymentVersion,
+  checkBinaryVersion,
+  deploymentVersion,
+} from './Version';
 import {AppUpdateScreen} from './AppUpdate';
 import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
-import {getHostFromBundleKey} from '../scripts/Util';
 import RemoteConfig from './utilities/RemoteConfig';
+import {isEmpty} from './Util';
+import {
+  defaultHost,
+  getEmrNodeUrl,
+  getRestUrl,
+  handleHttpError,
+  performActionOnItem,
+} from './Rest';
+import {getUserLanguage, strings} from './Strings';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -62,6 +75,40 @@ function logUpdateStatus(status: number) {
 
 let lastUpdateCheck: ?Date;
 
+async function getHostFromBundleKey(bundle: string): Promise<EmrHost> {
+  const searchCriteria = {
+    bundle,
+  };
+  let url = getEmrNodeUrl() + 'getEmrHost';
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(searchCriteria),
+    });
+    if (!httpResponse.ok) {
+      __DEV__ &&
+        console.log(
+          'HTTP response error ' +
+            httpResponse.status +
+            ': ' +
+            httpResponse.url,
+        );
+      return;
+    }
+    let restResponse = await httpResponse.json();
+    const emrHost: EmrHost = restResponse.emr
+      ? restResponse.emr
+      : {host: defaultHost, version: deploymentVersion, path: '/'};
+    return emrHost;
+  } catch (error) {
+    console.log(error);
+  }
+}
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
     console.log('Checking and updating bundle (not on dev).');
@@ -105,12 +152,12 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
     );
     codePush.allowRestart();
   } else {
-    const host: string = getHostFromBundleKey(registration.bundle);
-    if (host !== undefined) {
-      const domain: any = new URL(host);
-      const currentHostName: string = window.location.hostname;
-      if (domain.hostname !== currentHostName) {
-        window.location.href = host;
+    const emrHost: EmrHost = await getHostFromBundleKey(registration.bundle);
+    if (emrHost !== undefined) {
+      if (emrHost.version !== deploymentVersion) {
+        const path: string = isEmpty(emrHost.path) ? '/' : emrHost.path;
+        const host: string = isEmpty(emrHost.host) ? defaultHost : emrHost.host;
+        window.location.href = 'https://' + host + path;
       }
     }
   }

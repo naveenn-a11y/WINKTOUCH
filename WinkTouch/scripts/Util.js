@@ -1,4 +1,5 @@
 import {REACT_APP_HOST, REACT_APP_PATH} from '../env.json';
+import {defaultHost} from '../js/Rest';
 
 const environments: string[] = [
   'alpha',
@@ -26,35 +27,41 @@ function getEnvFile(name: string) {
   if (name === 'staging') {
     return require('../envs/staging.json');
   }
-  if (name === 'v412') {
-    return require('../envs/v412.json');
-  }
-}
-export function getHostFromBundleKey(bundleKey: string): string {
-  for (let i = 0; environments.length; i++) {
-    const name: string = environments[i];
-    const envFileContent: any = getEnvFile(name);
-    const key: string = getHostUrl(envFileContent, bundleKey);
-    if (key !== undefined) {
-      return key;
-    }
-  }
   return undefined;
 }
+export function getHostFromBundleKey(bundleKey: string): any {
+  let url: any = {};
+  for (let i = 0; i < environments.length; i++) {
+    const name: string = environments[i];
+    const envFileContent: any = getEnvFile(name);
+    if (envFileContent) {
+      const key: string = getHostUrl(envFileContent, bundleKey);
+      if (key !== undefined) {
+        return key;
+      }
+    }
+  }
+  url.host = defaultHost;
+  url.path = '/';
+  return url;
+}
 
-function getHostUrl(envFileContent: any, bundleKey: string): string {
+function getHostUrl(envFileContent: any, bundleKey: string): any {
+  let url: any = {};
   if (envFileContent !== undefined) {
     if (envFileContent.REACT_APP_BUNDLEKEY === bundleKey) {
       const subPath: string = envFileContent.REACT_APP_PATH
         ? envFileContent.REACT_APP_PATH
         : '';
-      return 'https://' + envFileContent.REACT_APP_HOST + '/' + subPath;
+      url.host = envFileContent.REACT_APP_HOST;
+      url.path = subPath;
+      return url;
     }
   }
   return undefined;
 }
 
 export function getCurrentHost(): string {
-  const subPath: string = REACT_APP_PATH ? REACT_APP_PATH : '';
-  return 'https://' + REACT_APP_HOST + '/' + subPath;
+  const subPath: string = REACT_APP_PATH ? REACT_APP_PATH : '/';
+  return 'https://' + REACT_APP_HOST + subPath;
 }

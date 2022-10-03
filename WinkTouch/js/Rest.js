@@ -714,6 +714,10 @@ export function getRestUrl(): string {
   return __DEV__ ? 'http://localhost:8080/Web/' : restUrl;
 }
 
+export function getEmrNodeUrl(): string {
+  return __DEV__ ? 'http://localhost:7001/' : 'azureUrl';
+}
+
 async function setRestUrl(winkEmrHost: string) {
   console.log('Switching emr host to ' + winkEmrHost);
   restUrl = 'https://' + winkEmrHost + '/' + restVersion + '/';
