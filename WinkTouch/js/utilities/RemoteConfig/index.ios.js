@@ -26,7 +26,6 @@ async function activateRemoteConfig() {
         [`appstore_url_${appEnv}`]: appstoreUrl,
     };
     await remoteConfig().setDefaults(configDefaults);
-    const fetchedRemotelyawait = await remoteConfig().fetchAndActivate();
     
     const minimumFetchIntervalMillis = appEnv === "prod" ? 21600000 : 120000; //6hrs - prod, 2mins - dev
     __DEV__ && console.log("Remote config cached for ", minimumFetchIntervalMillis);
@@ -34,6 +33,8 @@ async function activateRemoteConfig() {
     await remoteConfig().setConfigSettings({
       minimumFetchIntervalMillis: minimumFetchIntervalMillis,
     });
+
+    const fetchedRemotelyawait = await remoteConfig().fetchAndActivate();
 
     if (!fetchedRemotelyawait) {
         __DEV__ && console.log("Can't fetch remote config");
@@ -46,7 +47,7 @@ async function getLatestBuildNumber() : number {
 }
 
 async function getLatestVersion() : number {
-    const latestVersion = remoteConfig().getNumber(`latest_ios_version_${_appEnv}`);
+    const latestVersion = await remoteConfig().getNumber(`latest_ios_version_${_appEnv}`);
     return latestVersion;
 }
 
@@ -60,7 +61,9 @@ async function getAppstoreUrl() : string {
     return forceUpdate;
 }
 
-async function shouldUpdateApp() : boolean {
+async function shouldUpdateApp() : {isUpdateRequired: boolean, latestBuild: number, latestVersion: number} {
+    await remoteConfig().fetchAndActivate();
+
     const latestBuild = await this.getLatestBuildNumber();
     const latestVersion = await this.getLatestVersion();
     const forceUpdate = await this.getForceUpdate();
@@ -69,15 +72,15 @@ async function shouldUpdateApp() : boolean {
     const currentBuild = Number(DeviceInfo.getBuildNumber());
 
     if (forceUpdate) {
-      if(currentBuild < latestBuild){
-          return true;
-      }
       if(currentVersion < latestVersion) {
-        return true;
+        return {isUpdateRequired: true, latestBuild, latestVersion};
+      }
+      if(currentVersion == latestVersion && currentBuild < latestBuild){
+          return {isUpdateRequired: true, latestBuild, latestVersion};
       }
     }
 
-    return false;
+    return {isUpdateRequired: false, latestBuild, latestVersion};
 }
 
 export default {

@@ -117,6 +117,8 @@ export class EhrApp extends Component {
     token: ?string,
     isMfaProvided: ?boolean,
     isUpdateRequired: Boolean,
+    latestBuild: number,
+    latestVersion: number,
   };
 
   constructor() {
@@ -133,6 +135,8 @@ export class EhrApp extends Component {
       loading: true,
       isMfaProvided: false,
       isUpdateRequired: false,
+      latestBuild: 1,
+      latestVersion: 1,
     };
   }
 
@@ -260,8 +264,10 @@ export class EhrApp extends Component {
   }
 
   async checkAppstoreUpdateNeeded() {
-    const forceUpdate = isIos ? await RemoteConfig.shouldUpdateApp() : false;
-    this.setState({isUpdateRequired: forceUpdate});
+    if (isIos) {
+      const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();
+      this.setState({isUpdateRequired, latestBuild, latestVersion});
+    } 
   }
 
   startLockingDog(ttlInMins?: number) {
@@ -348,7 +354,12 @@ export class EhrApp extends Component {
       );
     }
     if (this.state.isUpdateRequired) {
-      return(<AppUpdateScreen />);
+      return(
+        <AppUpdateScreen 
+          latestBuild={this.state.latestBuild} 
+          latestVersion={this.state.latestVersion} 
+        />
+      );
     }
     if (!this.state.isRegistered) {
       return (

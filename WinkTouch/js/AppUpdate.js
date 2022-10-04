@@ -11,30 +11,27 @@
    View,
    Linking,
    Alert,
+   TouchableOpacity,
  } from 'react-native';
  import {styles, fontScale, isWeb} from './Styles';
  import {strings} from './Strings';
  import {Button} from './Widgets';
  import DeviceInfo from 'react-native-device-info';
  import RemoteConfig from './utilities/RemoteConfig';
+ import codePush from 'react-native-code-push';
+ import {REACT_APP_HOST} from '../env.json';
  
  export class AppUpdateScreen extends Component {
-
-    state: {
-        latestVersion: ?string,
+    props: {
+      navigation: any,
+      latestBuild: number,
+      latestVersion: number,
     };
    
    constructor(props: any) {
      super(props);
-     this.state = {
-        latestVersion: '',
-     }
    }
 
-   async componentDidMount() {
-       await this.getLatestVersion();
-   }
- 
    async openAppstore() {
        const url = await RemoteConfig.getAppstoreUrl();
        const supported = await Linking.canOpenURL(url);
@@ -43,16 +40,6 @@
        } else {
            Alert.alert(strings.openAppstore);
        }
-   }
-
-   async getLatestVersion() {
-    const remoteBuild = await RemoteConfig.getLatestBuildNumber();
-    const remoteVersion = await RemoteConfig.getLatestVersion();
-    const latestVersion = `${remoteVersion} (${remoteBuild})`;
-
-    this.setState({
-        latestVersion
-    });
    }
   
    render() {
@@ -98,7 +85,7 @@
                   <View>
                     <Button
                       onPress={() => this.openAppstore()}
-                      title={`${strings.update} ${this.state.latestVersion}`}
+                      title={`${strings.update} ${this.props.latestVersion} (${this.props.latestBuild})`}
                       buttonStyle={{width: '100%', justifyContent: 'center', alignItems: 'center', margin: 0}}
                     />
                   </View>
@@ -106,7 +93,14 @@
               </View>
           </View>
           <View style={{ position: 'absolute', bottom: 30 * fontScale}}>
+            <TouchableOpacity
+              onLongPress={() =>
+                !isWeb
+                  ? codePush.restartApp()
+                  : window.location.replace(REACT_APP_HOST)
+            }>
               <Text>{strings.appVersion}: {`${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`}</Text>
+            </TouchableOpacity>
           </View>
         </View>
     );
