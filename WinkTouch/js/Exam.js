@@ -1461,6 +1461,7 @@ export class ExamScreen extends Component {
             patientInfo={this.state.patientInfo}
             navigation={this.props.navigation}
             refreshStateKey={this.props.navigation.state.key}
+            style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: 10 * fontScale}}
           />
     );
   }
@@ -1513,7 +1514,7 @@ export class ExamScreen extends Component {
         style={styles.page}
         contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
         scrollEnabled={isWeb}>
-        <View style={styles.centeredColumnLayout}>
+        <View style={[styles.centeredColumnLayout, {alignItems: 'stretch'}]}>
           {this.renderPatientDetails()}
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
