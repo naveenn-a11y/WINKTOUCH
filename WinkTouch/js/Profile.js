@@ -9,9 +9,10 @@ import {
     TouchableOpacity,
     Text,
 } from 'react-native';
-import { Avatar, Menu, Button as PaperButton } from 'react-native-paper';
+import { Avatar, Menu } from 'react-native-paper';
 import {fontScale, styles} from './Styles';
 import {getStore, getDoctor} from './DoctorApp';
+import { strings } from './Strings';
 
 
 String.prototype.capitalizedFirstLetter = function(){
@@ -26,7 +27,7 @@ export class ProfileHeader extends Component {
         return (
             <View style={{ padding: 20 * fontScale}}>
                 <Text style={{color: '#1db3b3', fontWeight: 'bold', marginBottom: 5 * fontScale}}>
-                    {`Welcome, ${doctor.firstName} ${doctor.lastName}`}
+                    {`${strings.welcome}, ${doctor.firstName} ${doctor.lastName}`}
                 </Text>
                 <Text style={{color: 'gray'}}>{`${store.name} ${store.city}`}</Text>
             </View>
@@ -89,7 +90,7 @@ export const ProfileAvatar = () => {
             visible={this.state.isMenuVisible}
             onDismiss={() => this.setVisibility(false)}
             anchor={this.renderMenuIcon()}
-            contentStyle={{top: 100 * fontScale, right: 50 * fontScale}}
+            style={{paddingTop: 100 * fontScale, paddingRight: 50 * fontScale}}
         >
             <TouchableWithoutFeedback onPress={() => this.setVisibility(false)}>
             <View style={{ width: 300 * fontScale, justifyContent: 'center', alignItems: 'center' }}>

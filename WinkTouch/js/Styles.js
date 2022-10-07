@@ -256,14 +256,13 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
   },
   chooseButton: {
-    width: 200,
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: 'gray',
     borderWidth: 1,
-    marginRight: 10,
     borderRadius: 2,
     padding: 10 * fontScale,
+    marginLeft: 10 * fontScale,
   },
 
   checkButtonLayout: {
@@ -898,6 +897,12 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
+  topFlow2: {
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingLeft: 10 * fontScale, 
+    paddingRight: 10 * fontScale
+  },
   verticalFlow: {
     flexDirection: 'column',
     flexWrap: 'wrap',
@@ -1011,9 +1016,6 @@ export const styles = StyleSheet.create({
     right: 8 * fontScale,
   },
   topRight: {
-    position: 'absolute',
-    right: 8 * fontScale,
-    top: 10 * fontScale,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1491,6 +1493,10 @@ export const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  paddingLeftRight10: {
+    paddingLeft: 10 * fontScale, 
+    paddingRight: 10 * fontScale
   },
 });
 

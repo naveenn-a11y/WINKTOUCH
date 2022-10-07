@@ -369,6 +369,7 @@ export const strings = new LocalizedStrings({
       'OR\n' +
       '\n' +
       '- Create an invoice again. This will create a second invoice, so the previous one will have to be cancelled via WINKpms.',
+    welcome: 'Welcome',
   },
   fr: {
     enterRegisteredEmail:
@@ -738,6 +739,7 @@ export const strings = new LocalizedStrings({
       'OU\n' +
       '\n' +
       '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms.',
+      welcome: 'Bienvenue',
   },
 });
 
