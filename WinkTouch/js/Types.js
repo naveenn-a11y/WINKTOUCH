@@ -515,6 +515,7 @@ export type ExamDefinition = {
   addablePostLock?: boolean,
   export?: string | string[],
   isPatientFileHidden?: boolean,
+  isInactive: boolean,
 };
 
 export type ExamPredefinedValue = {

@@ -699,6 +699,7 @@ export class FormSwitch extends Component {
     showLabel?: boolean,
     onChangeValue: (newvalue: boolean) => void,
     testID: string,
+    readonly?: boolean,
   };
   static defaultProps = {
     value: false,
@@ -712,6 +713,7 @@ export class FormSwitch extends Component {
           <Label width={this.props.labelWidth} value={this.props.label} />
         )}
         <Switch
+          disabled={this.props.readonly}
           value={this.props.value}
           onValueChange={this.props.onChangeValue}
           testID={this.props.testID + 'Field'}

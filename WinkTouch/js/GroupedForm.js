@@ -406,6 +406,7 @@ export class CheckList extends PureComponent {
   }
 
   select = (option: string) => {
+    console.log('Optionss: ' + option);
     let value: string | string[] = this.props.value;
     if (value instanceof Array) {
       if (this.props.definition.prefix instanceof Array) {
@@ -1980,7 +1981,7 @@ export class GroupedFormScreen extends Component<
   }
 
   getPatientId(): string {
-    return getCachedItem(this.props.exam.visitId).patientId;
+    return getCachedItem(this.props.exam?.visitId)?.patientId;
   }
 
   addGroupItem = (
