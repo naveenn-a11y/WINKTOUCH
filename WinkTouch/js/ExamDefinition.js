@@ -839,160 +839,169 @@ class ExamDefinitionHeader extends Component {
 
   render() {
     return (
-      <View>
-        <View style={styles.form}>
+      <View style={styles.columnCard}>
+        <FormRow>
+          <FormTextInput
+            label="Exam"
+            readonly={true}
+            value={this.props.examDefinition.name}
+            onChangeText={(newName: string) =>
+              this.props.onUpdate('name', newName)
+            }
+          />
+          <FormTextInput
+            label="Section"
+            readonly={true}
+            value={this.props.examDefinition.section}
+            onChangeText={(newSection: string) =>
+              this.props.onUpdate('section', newSection)
+            }
+          />
+          <View style={styles.flow1}>
+            <FormOptions
+              label="Type"
+              readonly={true}
+              options={formatAllCodes('examDefinitionType')}
+              value={formatCode(
+                'examDefinitionType',
+                this.props.examDefinition.type,
+              )}
+              onChangeValue={(newValue?: string) =>
+                this.props.onUpdate(
+                  'type',
+                  parseCode('examDefinitionType', newValue),
+                )
+              }
+            />
+          </View>
+        </FormRow>
+        <FormRow>
+          <FormSwitch
+            label={strings.preExams}
+            readonly={this.props.examDefinition.isAssessment}
+            value={this.props.examDefinition.isPreExam}
+            onChangeValue={(newValue?: boolean) =>
+              this.props.onUpdate('isPreExam', newValue)
+            }
+          />
+          <FormSwitch
+            label="Active"
+            readonly={true}
+            value={!this.props.examDefinition.isInactive}
+            onChangeValue={(newValue: boolean) =>
+              this.props.onUpdate('isInactive', !newValue)
+            }
+          />
+        </FormRow>
+
+        {/*
+                 <FormRow>
+          {this.props.examDefinition.type === 'groupedForm' && (
+            <FormTextInput
+              label="Card group"
+              value={this.props.examDefinition.cardGroup}
+              onChangeText={(newValue: string) =>
+                this.props.onUpdate('cardGroup', newValue)
+              }
+            />
+          )}
+          <FormTextArrayInput
+            label="Card Fields"
+            value={this.props.examDefinition.cardFields}
+            onChangeValue={(newValue: string[]) =>
+              this.props.onUpdate('cardFields', newValue)
+            }
+          />
+          <FormSwitch
+            label="Starable"
+            value={this.props.examDefinition.starable}
+            onChangeValue={(newValue: boolean) =>
+              this.props.onUpdate('starable', newValue)
+            }
+          />
+        </FormRow>
+        {this.props.examDefinition.type === 'selectionLists' && (
           <FormRow>
-            <FormTextInput
-              label="Exam"
-              value={this.props.examDefinition.name}
-              onChangeText={(newName: string) =>
-                this.props.onUpdate('name', newName)
+            <FormSwitch
+              label="Addable"
+              value={this.props.examDefinition.addable}
+              onChangeValue={(newValue: boolean) =>
+                this.props.onUpdate('addable', newValue)
               }
             />
-            <FormTextInput
-              label="Section"
-              value={this.props.examDefinition.section}
-              onChangeText={(newSection: string) =>
-                this.props.onUpdate('section', newSection)
+            <FormSwitch
+              label="Editable"
+              value={this.props.examDefinition.editable}
+              onChangeValue={(newValue: boolean) =>
+                this.props.onUpdate('editable', newValue)
               }
             />
-            <View style={styles.flow1}>
-              <FormOptions
-                label="Type"
-                options={formatAllCodes('examDefinitionType')}
-                value={formatCode(
-                  'examDefinitionType',
-                  this.props.examDefinition.type,
-                )}
-                onChangeValue={(newValue?: string) =>
-                  this.props.onUpdate(
-                    'type',
-                    parseCode('examDefinitionType', newValue),
-                  )
-                }
-              />
+            <View style={styles.flow2}>
               <FormSwitch
-                label="Pre exam"
-                value={this.props.examDefinition.isPreExam}
-                onChangeValue={(newValue?: boolean) =>
-                  this.props.onUpdate('isPreExam', newValue)
+                label="Starable"
+                value={this.props.examDefinition.starable}
+                onChangeValue={(newValue: boolean) =>
+                  this.props.onUpdate('starable', newValue)
                 }
               />
             </View>
           </FormRow>
+        )}
+        {this.props.examDefinition.type === 'selectionLists' && (
           <FormRow>
-            {this.props.examDefinition.type === 'groupedForm' && (
-              <FormTextInput
-                label="Card group"
-                value={this.props.examDefinition.cardGroup}
-                onChangeText={(newValue: string) =>
-                  this.props.onUpdate('cardGroup', newValue)
-                }
-              />
-            )}
-            <FormTextArrayInput
-              label="Card Fields"
-              value={this.props.examDefinition.cardFields}
-              onChangeValue={(newValue: string[]) =>
-                this.props.onUpdate('cardFields', newValue)
-              }
-            />
-            <FormSwitch
-              label="Starable"
-              value={this.props.examDefinition.starable}
-              onChangeValue={(newValue: boolean) =>
-                this.props.onUpdate('starable', newValue)
+            <FieldsDefinitionEditor
+              value={this.props.examDefinition.fields}
+              onUpdate={(newValue: FieldDefinition[]) =>
+                this.props.onUpdate('fields', newValue)
               }
             />
           </FormRow>
-          {this.props.examDefinition.type === 'selectionLists' && (
-            <FormRow>
-              <FormSwitch
-                label="Addable"
-                value={this.props.examDefinition.addable}
-                onChangeValue={(newValue: boolean) =>
-                  this.props.onUpdate('addable', newValue)
-                }
-              />
-              <FormSwitch
-                label="Editable"
-                value={this.props.examDefinition.editable}
-                onChangeValue={(newValue: boolean) =>
-                  this.props.onUpdate('editable', newValue)
-                }
-              />
-              <View style={styles.flow2}>
-                <FormSwitch
-                  label="Starable"
-                  value={this.props.examDefinition.starable}
-                  onChangeValue={(newValue: boolean) =>
-                    this.props.onUpdate('starable', newValue)
-                  }
-                />
-              </View>
-            </FormRow>
+        )}
+        {this.props.examDefinition.type === 'groupedForm' && (
+          <FormRow>
+            <FormSelectionArray
+              label="Groups"
+              value={
+                this.props.examDefinition.fields
+                  ? this.props.examDefinition.fields.map(
+                      (groupDefinition: GroupDefinition) =>
+                        groupDefinition.name,
+                    )
+                  : []
+              }
+              onAdd={this.addGroup}
+              onRemove={this.state.selectedGroup ? this.removeGroup : undefined}
+              onSelect={this.selectGroup}
+            />
+          </FormRow>
+        )}
+        {this.props.examDefinition.type === 'groupedForm' &&
+          this.state.selectedGroup && (
+            <GroupDefinitionEditor
+              value={this.state.selectedGroup}
+              onUpdate={(value: GroupDefinition) =>
+                this.props.onUpdate('fields', this.props.examDefinition.fields)
+              }
+            />
           )}
-          {this.props.examDefinition.type === 'selectionLists' && (
-            <FormRow>
-              <FieldsDefinitionEditor
-                value={this.props.examDefinition.fields}
-                onUpdate={(newValue: FieldDefinition[]) =>
-                  this.props.onUpdate('fields', newValue)
-                }
-              />
-            </FormRow>
-          )}
-          {this.props.examDefinition.type === 'groupedForm' && (
-            <FormRow>
-              <FormSelectionArray
-                label="Groups"
-                value={
-                  this.props.examDefinition.fields
-                    ? this.props.examDefinition.fields.map(
-                        (groupDefinition: GroupDefinition) =>
-                          groupDefinition.name,
-                      )
-                    : []
-                }
-                onAdd={this.addGroup}
-                onRemove={
-                  this.state.selectedGroup ? this.removeGroup : undefined
-                }
-                onSelect={this.selectGroup}
-              />
-            </FormRow>
-          )}
-          {this.props.examDefinition.type === 'groupedForm' &&
-            this.state.selectedGroup && (
-              <GroupDefinitionEditor
-                value={this.state.selectedGroup}
-                onUpdate={(value: GroupDefinition) =>
-                  this.props.onUpdate(
-                    'fields',
-                    this.props.examDefinition.fields,
-                  )
-                }
-              />
-            )}
-          {this.props.examDefinition.type === 'paperForm' && (
-            <FormRow>
-              <FormTextInput
-                label="Image"
-                value={this.props.examDefinition.image}
-                onChangeText={(newValue: string) =>
-                  this.props.onUpdate('image', newValue)
-                }
-              />
-            </FormRow>
-          )}
+        {this.props.examDefinition.type === 'paperForm' && (
+          <FormRow>
+            <FormTextInput
+              label="Image"
+              value={this.props.examDefinition.image}
+              onChangeText={(newValue: string) =>
+                this.props.onUpdate('image', newValue)
+              }
+            />
+          </FormRow>
+        )}
           <View style={styles.buttonsRowLayout}>
-            <Text />
-            <Button
+          <Button
               title="Remove Template"
               onPress={() => alert('TODO confirm delete')}
-            />
-          </View>
+          />
         </View>
+        */}
       </View>
     );
   }
@@ -1001,6 +1010,7 @@ class ExamDefinitionHeader extends Component {
 export class ExamDefinitionScreen extends Component {
   props: {
     navigation: any,
+    examDefinition: ExamDefinition,
   };
   params: {
     examDefinition: ExamDefinition,
@@ -1013,8 +1023,7 @@ export class ExamDefinitionScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let examDefinition = (ExamDefinition =
-      this.props.navigation.state.params.examDefinition);
+    let examDefinition = this.props.navigation.state.params.examDefinition;
     const exam: Exam = this.initExam(examDefinition);
     this.state = {
       exam,
@@ -1165,20 +1174,29 @@ export class ExamDefinitionScreen extends Component {
       return null;
     }
     return (
-      <View>
-        <ExamDefinitionHeader
-          examDefinition={this.state.exam.definition}
-          onUpdate={this.update}
-        />
-        <View style={styles.examPreview}>
-          {this.renderExamCard()}
-          <View style={styles.centeredScreenLayout}>
-            <View style={styles.centeredColumnLayout}>
-              <View style={{transform: [{scale: 0.85}]}}>
-                {this.renderExam()}
+      <View style={styles.screeen}>
+        <View style={styles.scrollviewContainer}>
+          <Text style={styles.screenTitle}>
+            {this.state.exam.definition.name}
+          </Text>
+          <View style={styles.centeredRowLayout}>
+            <ExamDefinitionHeader
+              examDefinition={this.state.exam.definition}
+              onUpdate={this.update}
+            />
+          </View>
+          {/*
+             <View style={styles.examPreview}>
+            {this.renderExamCard()}
+            <View style={styles.centeredScreenLayout}>
+              <View style={styles.centeredColumnLayout}>
+                <View style={{transform: [{scale: 0.85}]}}>
+                  {this.renderExam()}
+                </View>
               </View>
             </View>
           </View>
+          */}
         </View>
       </View>
     );
@@ -1208,7 +1226,7 @@ export class TemplatesScreen extends Component {
       examDefinitions = [];
     }
     let assessmentDefintions = getCachedItems(
-      getCachedItem('assessmentDefintions'),
+      getCachedItem('assessmentDefinitions'),
     );
     if (!assessmentDefintions) {
       assessmentDefintions = [];
@@ -1258,6 +1276,36 @@ export class TemplatesScreen extends Component {
   };
 
   render() {
+    let allExamDefinitions: ExamDefinition[] = [];
+    let preExamDefinitions = getCachedItems(
+      getCachedItem('preExamDefinitions'),
+    );
+    if (!preExamDefinitions) {
+      preExamDefinitions = [];
+    }
+    allExamDefinitions = allExamDefinitions.concat(preExamDefinitions);
+    let examDefinitions = getCachedItems(getCachedItem('examDefinitions'));
+    if (!examDefinitions) {
+      examDefinitions = [];
+    }
+    allExamDefinitions = allExamDefinitions.concat(examDefinitions);
+
+    let assessmentDefintions = getCachedItems(
+      getCachedItem('assessmentDefinitions'),
+    );
+    if (!assessmentDefintions) {
+      assessmentDefintions = [];
+    }
+    allExamDefinitions = allExamDefinitions.concat(assessmentDefintions);
+    preExamDefinitions = allExamDefinitions.filter(
+      (exam: ExamDefinition) => exam.isPreExam,
+    );
+    assessmentDefintions = allExamDefinitions.filter(
+      (exam: ExamDefinition) => exam.isAssessment,
+    );
+    examDefinitions = allExamDefinitions.filter(
+      (exam: ExamDefinition) => !exam.isAssessment && !exam.isPreExam,
+    );
     return (
       <View style={styles.centeredScreenLayout}>
         <View style={styles.flexColumnLayout}>
@@ -1265,7 +1313,7 @@ export class TemplatesScreen extends Component {
           <View style={styles.flexRow}>
             <ItemsList
               title="Pre Tests"
-              items={this.state.preExamDefinitions.filter(this.isEditable)}
+              items={preExamDefinitions.filter(this.isEditable)}
               fieldDefinitions={examDefinitionDefinition}
               onAddItem={() => this.createExamDefinition(true, false)}
               selectedItem={this.state.selectedExamDefinition}
@@ -1273,7 +1321,7 @@ export class TemplatesScreen extends Component {
             />
             <ItemsList
               title="Exams"
-              items={this.state.examDefinitions.filter(this.isEditable)}
+              items={examDefinitions.filter(this.isEditable)}
               fieldDefinitions={examDefinitionDefinition}
               onAddItem={() => this.createExamDefinition(false, false)}
               selectedItem={this.state.selectedExamDefinition}
@@ -1281,7 +1329,7 @@ export class TemplatesScreen extends Component {
             />
             <ItemsList
               title="Assessments"
-              items={this.state.assessmentDefintions.filter(this.isEditable)}
+              items={assessmentDefintions.filter(this.isEditable)}
               fieldDefinitions={examDefinitionDefinition}
               onAddItem={() => this.createExamDefinition(false, true)}
               selectedItem={this.state.selectedExamDefinition}

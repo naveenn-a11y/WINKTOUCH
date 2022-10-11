@@ -379,6 +379,8 @@ export const strings = new LocalizedStrings({
     welcome: 'Welcome',
     somethingWentWrongVisitTitle: 'Something went wrong loading the visit!',
     reloadVisitTitle: 'Reload Visit',
+    customiseDefaultExams: 'Define Default Exams',
+    customiseExamDefinition: 'Customise Exam Definition',
   },
   fr: {
     enterRegisteredEmail:
@@ -759,6 +761,8 @@ export const strings = new LocalizedStrings({
     somethingWentWrongVisitTitle:
       "Une erreur s'est produite lors du chargement de la visite !",
     reloadVisitTitle: 'Recharger la visite',
+    customiseDefaultExams: 'Définir les examens par défaut',
+    customiseExamDefinition: 'Personnaliser la définition des examens',
   },
 });
 

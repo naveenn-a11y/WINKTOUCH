@@ -45,7 +45,10 @@ import {ConfigurationScreen, getConfiguration} from './Configuration';
 import {deleteLocalFiles} from './Print';
 import {ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
-import {CustomisationScreen} from './Customisation';
+import {
+  DefaultExamCustomisationScreen,
+  CustomisationScreen,
+} from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -128,6 +131,11 @@ const DoctorNavigator = createStackNavigator(
     referral: {screen: ReferralScreen, path: '/'},
     followup: {screen: FollowUpScreen, path: '/'},
     customisation: {screen: CustomisationScreen, path: '/'},
+    defaultTileCustomisation: {
+      screen: DefaultExamCustomisationScreen,
+      path: '/',
+    },
+
     room: {screen: RoomScreen, path: '/'},
     lock: {screen: LockScreen, path: '/'},
   },
@@ -139,12 +147,7 @@ const DoctorNavigator = createStackNavigator(
 const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
-const replaceRoutes: string[] = [
-  'findPatient',
-  'templates',
-  'examHistory',
-  'examGraph',
-];
+const replaceRoutes: string[] = ['findPatient', 'examHistory', 'examGraph'];
 
 DoctorNavigator.router.getStateForAction = (action, state) => {
   if (state && action.type === NavigationActions.NAVIGATE) {
