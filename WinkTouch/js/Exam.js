@@ -70,7 +70,7 @@ import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
 import {Machine, exportData} from './Machine';
-import { PatientCard } from './Patient';
+import {PatientCard} from './Patient';
 
 export async function fetchExam(
   examId: string,
@@ -902,7 +902,7 @@ export class ExamScreen extends Component {
       this.props.navigation.state.params
         ? this.props.navigation.state.params.exam
         : this.props.exam;
-    if (this.state.exam.id === exam.id) {
+    if (this.state.exam && this.state.exam.id === exam.id) {
       //__DEV__ && console.log('ExamScreen did update with same exam id '+exam.id);
       return;
     }
@@ -1457,12 +1457,16 @@ export class ExamScreen extends Component {
 
   renderPatientDetails() {
     return (
-        <PatientCard
-            patientInfo={this.state.patientInfo}
-            navigation={this.props.navigation}
-            refreshStateKey={this.props.navigation.state.key}
-            style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: 10 * fontScale}}
-          />
+      <PatientCard
+        patientInfo={this.state.patientInfo}
+        navigation={this.props.navigation}
+        refreshStateKey={this.props.navigation.state.key}
+        style={{
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          marginHorizontal: 10 * fontScale,
+        }}
+      />
     );
   }
 

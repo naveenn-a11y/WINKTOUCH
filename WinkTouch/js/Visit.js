@@ -70,7 +70,12 @@ import {
   UserAction,
 } from './Exam';
 import {allExamDefinitions} from './ExamDefinition';
-import {PrescriptionCard, AssessmentCard, VisitSummaryCard, VisitSummaryPlanCard } from './Assessment';
+import {
+  PrescriptionCard,
+  AssessmentCard,
+  VisitSummaryCard,
+  VisitSummaryPlanCard,
+} from './Assessment';
 import {
   cacheItem,
   getCachedItem,
@@ -110,6 +115,7 @@ import {formatCode} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import {getExamRoomCode, updateExamRoom} from './Room';
 import {VisitSummaryTable} from './VisitSummary';
+import {VisitErrorBoundary} from './ErrorBoundary';
 
 export const examSections: string[] = [
   'Amendments',
@@ -137,17 +143,17 @@ const examSectionsFr: string[] = [
 ];
 
 const examSectionsLayout: {} = {
-  'Consultation': '45%',
-  'Amendments': '45%',
+  Consultation: '45%',
+  Amendments: '45%',
   'Chief complaint': '95%',
-  'History': '95%',
+  History: '95%',
   'Entrance testing': '95%',
   'Vision testing': '95%',
   'Anterior exam': '45%',
   'Posterior exam': '45%',
-  'CL': '95%',
-  'Form': '95%',
-  'Document': '95%',
+  CL: '95%',
+  Form: '95%',
+  Document: '95%',
 };
 
 const PRIVILEGE = {
@@ -157,7 +163,9 @@ const PRIVILEGE = {
 };
 
 function getSectionWidth(section: string): string {
-  return (examSectionsLayout[section] !== undefined) ? examSectionsLayout[section] : '95%';
+  return examSectionsLayout[section] !== undefined
+    ? examSectionsLayout[section]
+    : '95%';
 }
 export function getSectionTitle(section: string): string {
   const language: string = getUserLanguage();
@@ -1678,7 +1686,7 @@ class VisitWorkFlow extends Component {
           </TouchableOpacity>
         );
       } else if (exam.definition.name === 'Consultation summary') {
-        if (exam.definition.isSummaryAndPlan)  {
+        if (exam.definition.isSummaryAndPlan) {
           return (
             <VisitSummaryPlanCard
               exam={exam}
@@ -2710,23 +2718,25 @@ export class VisitHistory extends Component {
         {this.state.selectedId === 'followup' && this.renderFollowUp()}
 
         {this.state.selectedId && this.state.selectedId.startsWith('visit') && (
-          <VisitWorkFlow
-            patientInfo={this.props.patientInfo}
-            visitId={this.state.selectedId}
-            navigation={this.props.navigation}
-            appointmentStateKey={this.props.appointmentStateKey}
-            onStartVisit={(
-              visitType: string,
-              isPreVisit: boolean,
-              cVisitId?: string,
-            ) => {
-              this.startVisit(this.state.selectedId, visitType, cVisitId);
-            }}
-            readonly={this.props.readonly}
-            enableScroll={this.props.enableScroll}
-            disableScroll={this.props.disableScroll}
-            isLoading={this.state.isLoading}
-          />
+          <VisitErrorBoundary navigation={this.props.navigation}>
+            <VisitWorkFlow
+              patientInfo={this.props.patientInfo}
+              visitId={this.state.selectedId}
+              navigation={this.props.navigation}
+              appointmentStateKey={this.props.appointmentStateKey}
+              onStartVisit={(
+                visitType: string,
+                isPreVisit: boolean,
+                cVisitId?: string,
+              ) => {
+                this.startVisit(this.state.selectedId, visitType, cVisitId);
+              }}
+              readonly={this.props.readonly}
+              enableScroll={this.props.enableScroll}
+              disableScroll={this.props.disableScroll}
+              isLoading={this.state.isLoading}
+            />
+          </VisitErrorBoundary>
         )}
         {this.state.selectedId &&
           this.state.selectedId.startsWith('patientDocument') && (

@@ -377,6 +377,8 @@ export const strings = new LocalizedStrings({
     openAppstore: 'Kindly open appstore to update app',
     appVersion: 'App Version',
     welcome: 'Welcome',
+    somethingWentWrongVisitTitle: 'Something went wrong loading the visit!',
+    reloadVisitTitle: 'Reload Visit',
   },
   fr: {
     enterRegisteredEmail:
@@ -754,6 +756,9 @@ export const strings = new LocalizedStrings({
     openAppstore: 'Veuillez ouvrir l’appstore pour mettre à jour l’application',
     appVersion: 'Version de l’application',
     welcome: 'Bienvenue',
+    somethingWentWrongVisitTitle:
+      "Une erreur s'est produite lors du chargement de la visite !",
+    reloadVisitTitle: 'Recharger la visite',
   },
 });
 
