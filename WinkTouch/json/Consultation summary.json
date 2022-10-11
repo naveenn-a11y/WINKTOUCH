@@ -1,14 +1,73 @@
 {
   "name": "Consultation summary",
-  "label": "Consultation Summary",
+  "label": "Summary and Plan",
+  "locale": {
+    "fr-CA": {
+      "label": "Résumé et Plan",
+      "fields": [
+        {
+          "name": "Summary",
+          "label": "Résumé",
+          "fields": [
+            {
+              "name": "Resume",
+              "label": ""
+            }
+          ]
+        },
+        {
+          "name": "Treatment plan",
+          "label": "Plan",
+          "fields": [
+            {
+              "name": "Treatment",
+              "label": ""
+            }
+          ]
+        }
+      ]
+    }
+  },
   "isAssessment": true,
+  "isSummaryAndPlan": true,
   "order": 5,
   "type": "groupedForm",
+  "starable": true,
+  "cardFields": [
+    [
+      "Summary.Resume"
+    ],
+    [
+      "Treatment plan.Treatment"
+    ]
+  ],
   "fields": [
-    {
-      "maxLength": 500,
-      "name": "Resume",
-      "label": ""
-    }
-  ]
+      {
+          "name": "Summary",
+          "label": "Summary",
+          "size": "M",
+          "fields": [
+              {
+                  "name": "Resume",
+                  "label": "",
+                  "maxLength": 500
+              }
+          ]
+      },
+      {
+          "name": "Treatment plan",
+          "label": "Plan",
+          "multiValue": true,
+          "size": "M",
+          "fields": [
+              {
+                  "maxLength": 250,
+                  "name": "Treatment",
+                  "label": "",
+                  "freestyle": false
+              }
+          ]
+      }
+  ],
+  "relatedExams": ["Biomicroscopy", "Fundus exam", "Cover test", "RxToOrder"]
 }

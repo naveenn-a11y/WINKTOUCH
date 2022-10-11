@@ -70,7 +70,7 @@ import {
   UserAction,
 } from './Exam';
 import {allExamDefinitions} from './ExamDefinition';
-import {PrescriptionCard, AssessmentCard, VisitSummaryCard} from './Assessment';
+import {PrescriptionCard, AssessmentCard, VisitSummaryCard, VisitSummaryPlanCard } from './Assessment';
 import {
   cacheItem,
   getCachedItem,
@@ -1678,15 +1678,30 @@ class VisitWorkFlow extends Component {
           </TouchableOpacity>
         );
       } else if (exam.definition.name === 'Consultation summary') {
-        return (
-          <VisitSummaryCard
-            exam={exam}
-            editable={
-              !this.state.locked && !this.props.readonly && !exam.readonly
-            }
-            key={strings.summaryTitle}
-          />
-        );
+        if (exam.definition.isSummaryAndPlan)  {
+          return (
+            <VisitSummaryPlanCard
+              exam={exam}
+              editable={
+                !this.state.locked && !this.props.readonly && !exam.readonly
+              }
+              key={strings.summaryTitle}
+              disabled={this.props.readonly}
+              navigation={this.props.navigation}
+              appointmentStateKey={this.props.appointmentStateKey}
+            />
+          );
+        } else {
+          return (
+            <VisitSummaryCard
+              exam={exam}
+              editable={
+                !this.state.locked && !this.props.readonly && !exam.readonly
+              }
+              key={strings.summaryTitle}
+            />
+          );
+        }
       } else {
         return (
           <AssessmentCard

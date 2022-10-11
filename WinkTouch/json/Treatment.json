@@ -7,13 +7,7 @@
       "fields": [
         {
           "name": "Treatment plan",
-          "label": "Plan de traitement",
-          "fields": [
-            {
-              "name": "Treatment",
-              "label": "Traitement"
-            }
-          ]
+          "label": "Plan de traitement"
         },
         {
           "name": "Recall",
@@ -54,9 +48,6 @@
   "cardFields": [
     [
       "Treatment plan.Recommendation"
-    ],
-    [
-      "Treatment plan.Treatment"
     ],
     [
       "Recall.PatientTag1",
@@ -101,11 +92,6 @@
           "name": "Recommendation",
           "freestyle": true,
           "options": "treatmentRecommendationCodes"
-        },
-        {
-          "maxLength": 250,
-          "name": "Treatment",
-          "freestyle": false
         }
       ]
     },

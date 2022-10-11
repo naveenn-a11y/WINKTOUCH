@@ -272,7 +272,7 @@ export async function renderParentGroupHtml(
       child: htmlDefinition,
     });
   } else {
-    if (exam.definition.name === 'Consultation summary') {
+    if (exam.definition.name === 'Consultation summary' && !exam.definition.isSummaryAndPlan) {
       if (!isEmpty(exam.resume)) {
         html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
           exam.definition,
