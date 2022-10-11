@@ -178,7 +178,6 @@ export class EhrApp extends Component {
       {isRegistered, registration, loading: false},
       () => isRegistered && this.checkForUpdate(),
     );
-    !isRegistered && this.checkAppstoreUpdateNeeded();
   }
 
   async safeRegistration(registration: Registration) {
@@ -243,8 +242,8 @@ export class EhrApp extends Component {
   };
 
   checkForUpdate() {
-    this.checkAppstoreUpdateNeeded();
     checkAndUpdateDeployment(this.state.registration);
+    this.checkAppstoreUpdateNeeded();
   }
 
   async loadRegistration() {
@@ -265,9 +264,10 @@ export class EhrApp extends Component {
 
   async checkAppstoreUpdateNeeded() {
     if (isIos) {
-      const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();
+      const {isUpdateRequired, latestBuild, latestVersion} =
+        await RemoteConfig.shouldUpdateApp();
       this.setState({isUpdateRequired, latestBuild, latestVersion});
-    } 
+    }
   }
 
   startLockingDog(ttlInMins?: number) {
@@ -304,7 +304,7 @@ export class EhrApp extends Component {
   async componentDidMount() {
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
-    isIos && await RemoteConfig.activateRemoteConfig();
+    isIos && (await RemoteConfig.activateRemoteConfig());
     AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
@@ -345,7 +345,6 @@ export class EhrApp extends Component {
   };
 
   render() {
-    console.log("Render of EHR APP")
     if (this.state.loading) {
       return (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -354,10 +353,10 @@ export class EhrApp extends Component {
       );
     }
     if (this.state.isUpdateRequired) {
-      return(
-        <AppUpdateScreen 
-          latestBuild={this.state.latestBuild} 
-          latestVersion={this.state.latestVersion} 
+      return (
+        <AppUpdateScreen
+          latestBuild={this.state.latestBuild}
+          latestVersion={this.state.latestVersion}
         />
       );
     }
