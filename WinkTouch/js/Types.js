@@ -599,3 +599,9 @@ export type VisitSummary = {
   noaccess: ?boolean,
   visit: ?Visit,
 };
+
+export type EmrHost = {
+  host: string,
+  path: string,
+  version: string,
+};

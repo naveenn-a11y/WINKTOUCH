@@ -26,11 +26,10 @@ import type {
 } from './Types';
 import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
-import {getAllCodes} from './Codes';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
-import {REACT_APP_HOST} from '../env.json';
+import {getCurrentHost} from '../scripts/Util';
 import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -247,7 +246,7 @@ export class MenuBar extends PureComponent {
             onPress={() =>
               !isWeb
                 ? codePush.restartApp()
-                : window.location.replace(REACT_APP_HOST)
+                : window.location.replace(getCurrentHost())
             }
           />
         )}

@@ -1,5 +1,4 @@
 {
     "REACT_APP_BUNDLEKEY": "IKSahgQZjz3SxmOwztyW7dRNmJfV4JEI-EgxM",
-    "REACT_APP_HOST": "http://server4.downloadwink.com/emrdev" 
-
+    "REACT_APP_HOST": "uat-emr.downloadwink.com"
 }

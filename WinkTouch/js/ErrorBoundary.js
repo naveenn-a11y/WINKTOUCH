@@ -6,7 +6,8 @@ import {NavigationActions} from 'react-navigation';
 import {isWeb} from './Styles';
 import codePush from 'react-native-code-push';
 import {strings} from './Strings';
-import {REACT_APP_HOST} from '../env.json';
+import {getCurrentHost} from '../scripts/Util';
+
 export default class ErrorBoundary extends Component {
   props: {
     navigator: any,
@@ -37,7 +38,7 @@ export default class ErrorBoundary extends Component {
 
   restart() {
     if (isWeb) {
-      window.location.href = REACT_APP_HOST;
+      window.location.href = getCurrentHost();
     } else {
       codePush.restartApp();
     }
