@@ -70,6 +70,7 @@ import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
 import {Machine, exportData} from './Machine';
+import { PatientCard } from './Patient';
 
 export async function fetchExam(
   examId: string,
@@ -840,6 +841,7 @@ export class ExamScreen extends Component {
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
     copiedData?: GlassesRx,
+    patientInfo: PatientInfo,
   };
 
   constructor(props: any) {
@@ -850,6 +852,7 @@ export class ExamScreen extends Component {
       this.props.navigation.state.params
         ? this.props.navigation.state.params.exam
         : this.props.exam;
+    let visit = getVisit(exam);
     this.state = {
       exam,
       appointmentStateKey:
@@ -866,6 +869,7 @@ export class ExamScreen extends Component {
       showSnackBar: false,
       snackBarMessage: '',
       copiedData: null,
+      patientInfo: getCachedItem(visit.patientId),
     };
   }
 
@@ -1451,6 +1455,17 @@ export class ExamScreen extends Component {
     );
   }
 
+  renderPatientDetails() {
+    return (
+        <PatientCard
+            patientInfo={this.state.patientInfo}
+            navigation={this.props.navigation}
+            refreshStateKey={this.props.navigation.state.key}
+            style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: 10 * fontScale}}
+          />
+    );
+  }
+
   render() {
     if (!this.state.exam) {
       return null;
@@ -1472,6 +1487,7 @@ export class ExamScreen extends Component {
               this.props.disableScroll === undefined && this.state.scrollable
             }
             pinchGestureEnabled={this.state.scrollable}>
+            {this.renderPatientDetails()}
             <ErrorCard errors={this.state.exam.errors} />
             {this.renderExamWarnings()}
             {this.renderExamIcons(styles.examIconsFlex)}
@@ -1484,6 +1500,7 @@ export class ExamScreen extends Component {
     if (this.props.disableScroll) {
       return (
         <View style={styles.centeredColumnLayout}>
+          {this.renderPatientDetails()}
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
@@ -1497,7 +1514,8 @@ export class ExamScreen extends Component {
         style={styles.page}
         contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
         scrollEnabled={isWeb}>
-        <View style={styles.centeredColumnLayout}>
+        <View style={[styles.centeredColumnLayout, {alignItems: 'stretch'}]}>
+          {this.renderPatientDetails()}
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
