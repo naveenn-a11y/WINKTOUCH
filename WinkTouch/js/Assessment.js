@@ -87,7 +87,9 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxRows() {
     let rows: any[] = [];
     const purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
-    if (purchaseRx === undefined) return null;
+    if (purchaseRx === undefined) {
+      return null;
+    }
     rows.push(this.renderPurchaseRxTitle());
     purchaseRx.map((recomm: any, index: number) => {
       rows.push(this.renderPurchaseRxSimpleRow(recomm, index));
@@ -279,13 +281,13 @@ export class VisitSummaryCard extends Component {
   }
 }
 
-
 export class VisitSummaryPlanCard extends Component {
   props: {
     exam: Exam,
     navigation: any,
     editable?: boolean,
     appointmentStateKey: string,
+    disabled?: boolean,
   };
   static defaultProps = {
     editable: true,
@@ -328,11 +330,7 @@ export class VisitSummaryPlanCard extends Component {
 
   async updateSummary(resume: string) {
     let exam: Exam = this.state.exam;
-    setValue(
-      exam,
-      exam.definition.name + '.Summary.Resume',
-      resume,
-    );
+    setValue(exam, exam.definition.name + '.Summary.Resume', resume);
     this.storeExam(exam);
   }
 
@@ -345,53 +343,63 @@ export class VisitSummaryPlanCard extends Component {
         (fieldDefinition: GroupDefinition | FieldDefinition) =>
           fieldDefinition.name === 'Treatment plan',
       );
-    const plans: any = getValue(this.state.exam, 'Consultation summary.Treatment plan');
-    const summary = getValue(this.state.exam, 'Consultation summary.Summary.Resume');
+    const plans: any = getValue(
+      this.state.exam,
+      'Consultation summary.Treatment plan',
+    );
+    const summary = getValue(
+      this.state.exam,
+      'Consultation summary.Summary.Resume',
+    );
 
     return (
-        <View style={styles.assessmentCard}>
-          <View style={styles.centeredRowLayout}>
-            <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
-          </View>
-          <View style={styles.columnLayout}>
-            <View style={styles.formRowL}>
-              <FormTextInput
-                label=""
-                multiline={true}
-                readonly={!this.props.editable}
-                value={!isEmpty(summary) ? summary : ''}
-                onChangeText={(text: ?string) => this.updateSummary(text)}
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity
-            disabled={this.props.disabled}
-            onPress={() =>
-              this.props.navigation.navigate('exam', {
-                exam: this.state.exam,
-                appointmentStateKey: this.props.appointmentStateKey,
-              })
-          }>  
-            <View >
-              <View style={styles.centeredRowLayout}>
-                <Text style={styles.sectionTitle}>{formatLabel(groupDefinition)}</Text>
-              </View>
-
-              <View style={styles.columnLayout}>
-                  {!isEmpty(plans) && plans.map((plan, index) => {
-                    return(
-                      <View style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
-                        <Text style={styles.textLeft} key={index}>{plan.Treatment && `${plan.Treatment}`}</Text>
-                      </View>
-                    );
-                  })}
-              </View>
-
-            </View>
-        </TouchableOpacity>
-
+      <View style={styles.assessmentCard}>
+        <View style={styles.centeredRowLayout}>
+          <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
         </View>
+        <View style={styles.columnLayout}>
+          <View style={styles.formRowL}>
+            <FormTextInput
+              label=""
+              multiline={true}
+              readonly={!this.props.editable}
+              value={!isEmpty(summary) ? summary : ''}
+              onChangeText={(text: ?string) => this.updateSummary(text)}
+            />
+          </View>
+        </View>
+
+        <TouchableOpacity
+          disabled={this.props.disabled}
+          onPress={() =>
+            this.props.navigation.navigate('exam', {
+              exam: this.state.exam,
+              appointmentStateKey: this.props.appointmentStateKey,
+            })
+          }>
+          <View>
+            <View style={styles.centeredRowLayout}>
+              <Text style={styles.sectionTitle}>
+                {formatLabel(groupDefinition)}
+              </Text>
+            </View>
+
+            <View style={styles.columnLayout}>
+              {!isEmpty(plans) &&
+                plans.map((plan, index) => {
+                  return (
+                    <View
+                      style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
+                      <Text style={styles.textLeft} key={index}>
+                        {plan.Treatment && `${plan.Treatment}`}
+                      </Text>
+                    </View>
+                  );
+                })}
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   }
 }
