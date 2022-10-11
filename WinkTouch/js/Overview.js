@@ -26,6 +26,7 @@ import {toggleTranslateMode, isInTranslateMode} from './ExamDefinition';
 import {getCachedItem} from './DataCache';
 import {isReferralsEnabled} from './Referral';
 import {getPrivileges} from './Rest';
+import {ProfileHeader} from './Profile';
 
 class MainActivities extends Component {
   props: {
@@ -163,6 +164,7 @@ export class OverviewScreen extends PureComponent {
   render() {
     return (
       <View style={styles.page}>
+        <ProfileHeader />
         <AppointmentsSummary
           appointments={this.state.appointments}
           navigation={this.props.navigation}

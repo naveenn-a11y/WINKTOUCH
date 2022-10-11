@@ -376,6 +376,7 @@ export const strings = new LocalizedStrings({
       'Please update the WINKemr app in the apple appstore to get the latest features and best experience.',
     openAppstore: 'Kindly open appstore to update app',
     appVersion: 'App Version',
+    welcome: 'Welcome',
   },
   fr: {
     enterRegisteredEmail:
@@ -752,6 +753,7 @@ export const strings = new LocalizedStrings({
       'Veuillez mettre à jour l’application WINKemr dans l’Appstore Apple pour obtenir les dernières fonctionnalités et la meilleure expérience.',
     openAppstore: 'Veuillez ouvrir l’appstore pour mettre à jour l’application',
     appVersion: 'Version de l’application',
+    welcome: 'Bienvenue',
   },
 });
 

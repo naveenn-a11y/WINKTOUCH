@@ -33,6 +33,7 @@ import {getCurrentHost} from '../scripts/Util';
 import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {ProfileMenu} from './Profile';
 
 export class Notifications extends PureComponent {
   render() {
@@ -168,7 +169,7 @@ export class MenuBar extends PureComponent {
     const hasConfig: boolean = getPhoropters().length > 1;
     return (
       <View style={styles.sideMenu}>
-        <Image source={require('./image/menulogo.png')} />
+        <ProfileMenu />
         {!noAccessAppointment && (
           <Button
             title={strings.calendar}

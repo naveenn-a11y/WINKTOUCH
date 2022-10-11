@@ -55,11 +55,12 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {fetchVisitForAppointment} from './Visit';
 import {searchUsers} from './User';
 import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
-import DropDown from '../src/components/Picker';
 import moment from 'moment';
 import {Button} from './Widgets';
 import {AvailabilityModal} from './agendas';
 import {getAllCodes} from './Codes';
+import { ProfileHeader } from './Profile';
+import { Menu } from 'react-native-paper';
 
 const WEEKDAYS = {
   SUNDAY: 0,
@@ -430,7 +431,7 @@ export class AgendaScreen extends Component {
   };
 
   _onSetMode = (mode: string) => {
-    this.setState({mode: mode}, () => {
+    this.setState({mode: mode, dropDown: false}, () => {
       this.refreshAppointments(
         true,
         false,
@@ -1225,6 +1226,26 @@ export class AgendaScreen extends Component {
     );
   }
 
+  renderDropDownButton(options: [{label: string, value: string}], mode: string) {
+    return (
+      <TouchableOpacity onPress={this.openDropDown}>
+        <View style={[styles.chooseButton, {flexDirection: 'row'}]}>
+          <Text style={{marginLeft: 10 * fontScale, marginRight: 10 * fontScale}}>
+            {this.getModeLabel(options, mode)}
+          </Text>
+          <Icon name="chevron-down" color="gray"  />
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  getModeLabel(options: [{label: string, value: string}], mode: string) : string {
+    let result = options.find((option) => {
+      return option.value === mode;
+    });
+    return (result !== undefined) ? result.label : '';
+  }
+
   render() {
     const {
       isLoading,
@@ -1273,46 +1294,57 @@ export class AgendaScreen extends Component {
             bookAppointment={this.openPatientDialog}
           />
         )}
-        <View style={styles.topFlow}>
-          <TouchableOpacity onPress={this._onToday}>
-            <Text
-              style={
-                isWeb
-                  ? [styles.textfield, {margin: 10 * fontScale}]
-                  : styles.textfield
-              }>
-              {strings.today}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this._onPrevDate}>
-            <Icon name="chevron-left" style={styles.screenIcon} />
-          </TouchableOpacity>
 
-          <TouchableOpacity onPress={this._onNextDate}>
-            <Icon name="chevron-right" style={styles.screenIcon} />
-          </TouchableOpacity>
+        {(this.state.calendarWidth < 900) && <ProfileHeader />}
+        <View style={[styles.topFlow, styles.topFlow2]}>
+          {(this.state.calendarWidth >= 900) && <ProfileHeader />}
 
-          <Text style={[styles.h2, {padding: 10 * fontScale}]}>
-            {formatDate(
-              this.state.date,
-              this.state.mode === 'day' ? yearDateFormat : farDateFormat2,
-            )}
-          </Text>
-          <View style={styles.topRight}>
+          <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity 
+              style={styles.chooseButton}
+              onPress={this._onToday} >
+              <Text>
+                {strings.today}
+              </Text>
+            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', marginLeft: 30 * fontScale, marginRight: 20 * fontScale}}>
+              <TouchableOpacity onPress={this._onPrevDate}>
+                <Icon name="chevron-left" style={[styles.screenIcon, styles.paddingLeftRight10]} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={this._onNextDate}>
+                <Icon name="chevron-right" style={[styles.screenIcon, styles.paddingLeftRight10]} />
+              </TouchableOpacity>
+            </View>
+            <View>
+              <Text style={styles.h3}>
+                {formatDate(
+                  this.state.date,
+                  this.state.mode === 'day' ? yearDateFormat : farDateFormat2,
+                )}
+              </Text>
+            </View>
+          </View>
+
+          <View style={{flexDirection: 'row'}}>
             <TouchableOpacity
               style={styles.chooseButton}
               onPress={this.openDoctorsOptions}>
               <Text>{strings.chooseDoctor}</Text>
             </TouchableOpacity>
             <View>
-              <DropDown
-                mode={mode}
+              <Menu
                 visible={dropDown}
-                onClose={this.closeDropDown}
-                onShow={this.openDropDown}
-                onChange={(mode) => this._onSetMode(mode)}
-                options={options}
-              />
+                onDismiss={this.closeDropDown}
+                style={{paddingTop: 50 * fontScale, paddingLeft: 10 * fontScale}}
+                anchor={this.renderDropDownButton(options, mode)}
+              >
+                {options.map((option) => {
+                  return(
+                    <Menu.Item onPress={() => this._onSetMode(option.value)} title={option.label} />
+                  );
+                })}
+            </Menu>
             </View>
           </View>
         </View>
