@@ -878,6 +878,7 @@ class ExamDefinitionHeader extends Component {
         <FormRow>
           <FormSwitch
             label={strings.preExams}
+            readonly={this.props.examDefinition.isAssessment}
             value={this.props.examDefinition.isPreExam}
             onChangeValue={(newValue?: boolean) =>
               this.props.onUpdate('isPreExam', newValue)
