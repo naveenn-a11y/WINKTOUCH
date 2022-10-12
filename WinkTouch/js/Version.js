@@ -17,7 +17,7 @@ const minimalTouchVersion = 3.0;
 
 export function setDeploymentVersion(version: string): void {
   __DEV__ && console.log('Current code push deployment version: ' + version);
-  if (deploymentVersion != version) {
+  if (deploymentVersion !== version) {
     __DEV__ && console.log('App is not up to date: ' + version);
   }
 }
