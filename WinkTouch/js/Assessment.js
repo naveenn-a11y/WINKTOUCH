@@ -36,7 +36,9 @@ export class AssessmentCard extends Component {
   };
 
   render() {
-    if (!this.props.exam) return null;
+    if (!this.props.exam) {
+      return null;
+    }
     return (
       <TouchableOpacity
         disabled={this.props.disabled}
@@ -85,6 +87,7 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxRows() {
     let rows: any[] = [];
     const purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
+    if (purchaseRx === undefined) return null;
     rows.push(this.renderPurchaseRxTitle());
     purchaseRx.map((recomm: any, index: number) => {
       rows.push(this.renderPurchaseRxSimpleRow(recomm, index));
@@ -121,14 +124,16 @@ export class PrescriptionCard extends Component {
   }
 
   render() {
-    if (this.props.exam === undefined) return null;
+    if (this.props.exam === undefined) {
+      return null;
+    }
     const groupDefinition: GroupDefinition =
       this.props.exam.definition.fields.find(
         (fieldDefinition: GroupDefinition | FieldDefinition) =>
           fieldDefinition.name === 'PD',
       );
     const glassesRx: GlassesRx = this.props.exam.RxToOrder['Final Rx'];
-    const pd: any = this.props.exam.RxToOrder['PD'];
+    const pd: any = this.props.exam.RxToOrder.PD;
 
     return (
       <View style={styles.assessmentCard}>
@@ -218,7 +223,9 @@ export class VisitSummaryCard extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.exam === prevProps.exam) return;
+    if (this.props.exam === prevProps.exam) {
+      return;
+    }
     this.setState({
       exam: this.props.exam,
     });
@@ -246,7 +253,9 @@ export class VisitSummaryCard extends Component {
   }
 
   render() {
-    if (!this.state.exam) return null;
+    if (!this.state.exam) {
+      return null;
+    }
     return (
       <View>
         <View style={styles.assessmentCard}>

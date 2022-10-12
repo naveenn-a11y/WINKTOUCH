@@ -71,20 +71,23 @@ export type User = {
   city?: string,
   isExternal: boolean,
   providerType?: string,
+  username?: string,
 };
 
-export type Privilege = 'NOACCESS' | 'READONLY' | 'FULLACCESS';
+export type Privilege = 'NOACCESS' | 'READONLY' | 'BOOKONLY' | 'FULLACCESS';
 
 export type Privileges = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
+  appointmentPrivilege?: Privilege,
 };
 
-export type TokenPrivilege = 'N' | 'R' | 'F';
+export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
 
 export type TokenPrivileges = {
   pre: ?TokenPrivilege,
   med: ?TokenPrivilege,
+  app: ?TokenPrivilege,
 };
 
 export type TokenPayload = {
@@ -97,6 +100,7 @@ export type Patient = {
   id: string,
   firstName: string,
   lastName: string,
+  alias: string,
   phone: ?string,
   cell: ?string,
   patientTags: string[],
@@ -108,6 +112,7 @@ export type PatientInfo = {
   errors?: string[],
   firstName: string,
   lastName: string,
+  alias: string,
   dateOfBirth: string,
   gender: number,
   phone: ?string,
@@ -126,6 +131,8 @@ export type PatientInfo = {
   unit: string,
   patientTags: string[],
   patientDrugs: string[], //TODO wais rename patientDrugIds
+  familyDoctorId: ?number,
+  familyDoctor: ?User,
 };
 
 export type PatientDrug = {
@@ -185,6 +192,11 @@ export type Appointment = {
   indicators?: string[],
   comment?: string,
   supplierName?: string,
+  isBusy?: boolean,
+  earlyRequest?: boolean,
+  earlyRequestComment?: string,
+  numberOfSlots?: number,
+  appointmentPrivilege?: Privilege,
 };
 
 export type Prism = {
@@ -203,6 +215,8 @@ export type GlassRx = {
   va?: string,
   addVA?: string,
   isEye?: boolean,
+  closePD?: number,
+  farPD?: number,
 };
 
 export type GlassesRx = {
@@ -215,6 +229,7 @@ export type GlassesRx = {
   vaFar?: string,
   vaNear?: string,
   lensType?: string,
+  customField?: string,
   notes?: string,
   doctor?: string,
   readonly?: boolean,
@@ -355,6 +370,7 @@ export type FieldDefinition = {
   isLabel?: boolean,
   limitedValues?: {},
   forceSync?: boolean,
+  listField?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -379,10 +395,13 @@ export type GroupDefinition = {
   hasAdd?: boolean,
   hasLensType?: boolean,
   hasPD?: boolean,
+  hasMPD?: boolean,
   hasNotes?: boolean,
+  hasCustomField?: boolean,
   import?: string | string[],
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
+  copyToFinalRx?: boolean,
 };
 
 export type HtmlDefinition = {
@@ -398,8 +417,7 @@ export type ImageBase64Definition = {
 
 export type ReferralDocument = {
   content: string,
-  subject?: string,
-  body?: string,
+  builtInTemplates?: any,
 };
 
 export type ReferralDefinition = {
@@ -445,6 +463,7 @@ export type EmailDefinition = {
   cc?: string,
   subject?: string,
   body?: string,
+  builtInTemplate?: any,
 };
 
 export type ExamDefinition = {
@@ -473,6 +492,10 @@ export type ExamDefinition = {
   layout?: any,
   signable?: boolean,
   showSubtitles?: boolean,
+  multiValue?: boolean, //Can Add more than 1 exam,
+  addablePostLock?: boolean,
+  export?: string | string[],
+  isPatientFileHidden?: boolean,
 };
 
 export type ExamPredefinedValue = {
@@ -536,4 +559,22 @@ export type TranslationDefinition = {
   language: string,
   label: ?string,
   normalValue: ?string,
+};
+
+export type ExamRoom = {
+  id: string,
+  patientId: string,
+  examRoomId: string,
+  name: string,
+};
+
+export type VisitSummary = {
+  visitId: string,
+  refraction: ?GlassesRx,
+  summary: ?Exam[],
+  billing: ?Exam[],
+  medications: ?Prescription[],
+  fieldDefinitions: ?FieldDefinition[],
+  noaccess: ?boolean,
+  visit: ?Visit,
 };

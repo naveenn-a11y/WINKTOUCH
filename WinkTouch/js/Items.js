@@ -187,16 +187,13 @@ export function formatFieldValue(
   value: ?string | ?number | ?(string[]) | ?(number[]),
   fieldDefinition: FieldDefinition,
 ): string {
-  if (fieldDefinition === undefined) return '';
+  if (fieldDefinition === undefined) {
+    return '';
+  }
   if (value === undefined) {
     value = fieldDefinition.defaultValue;
   }
-  if (
-    value === undefined ||
-    value === null ||
-    value === '' ||
-    value === fieldDefinition.normalValue
-  ) {
+  if (value === undefined || value === null || value === '') {
     return '';
   }
   const label: ?string = formatLabel(fieldDefinition);
@@ -295,14 +292,19 @@ export function isNumericField(fieldDefinition: FieldDefinition): boolean {
 export function formatFieldLabel(
   groupDefinition: GroupDefinition,
   groupValue: any,
+  defaultLabel: ?string,
 ): string {
   const customDefinition: ?GroupDefinition | FieldDefinition =
-    groupDefinition.fields.find(
-      (definition: GroupDefinition | FieldDefinition) =>
-        definition.isLabel === true,
-    );
+    groupDefinition.fields
+      ? groupDefinition.fields.find(
+          (definition: GroupDefinition | FieldDefinition) =>
+            definition.isLabel === true,
+        )
+      : undefined;
 
-  let label: string = formatLabel(groupDefinition);
+  let label: string = isEmpty(defaultLabel)
+    ? formatLabel(groupDefinition)
+    : defaultLabel;
   if (customDefinition) {
     if (groupValue[customDefinition.name] instanceof Object) {
       label = !isEmpty(groupValue[customDefinition.name].label)
@@ -440,7 +442,7 @@ type ItemSummaryProps = {
   showLabels?: boolean,
   titleFields?: string[],
 };
-class ItemSummary extends Component<ItemSummaryProps> {
+export class ItemSummary extends Component<ItemSummaryProps> {
   render() {
     if (!this.props.item || !this.props.fieldDefinitions) {
       return null;
@@ -656,9 +658,7 @@ export class ItemsCard extends Component {
       if (fieldDefinition === undefined || fieldDefinition === null) {
         return true;
       }
-      if (fieldDefinition.normalValue == String(value)) {
-        return false;
-      }
+
       if (String(value).startsWith('(-)')) {
         return false;
       } //TODO is this a general rule

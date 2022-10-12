@@ -84,8 +84,9 @@ export class Microphone extends PureComponent {
   }
 
   render() {
-    if (isWeb) return null;
-    else
+    if (isWeb) {
+      return null;
+    } else {
       return (
         <TouchableWithoutFeedback
           onPressIn={() => this.startListening()}
@@ -99,5 +100,6 @@ export class Microphone extends PureComponent {
           />
         </TouchableWithoutFeedback>
       );
+    }
   }
 }

@@ -24,11 +24,16 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail: 'This email adress was not registered before with Wink',
     userName: 'User name',
     password: 'password',
+    enterCode: 'Enter Code',
     submitLogin: 'Login',
+    verifyCode: 'Verify',
     touchNotConfigured:
       'Your account is not set up to use the mobile app yet. Please contact customer support.',
     registrationScreenTitle: 'WINKemr registration',
     loginscreenTitle: 'WINKemr login',
+    mfaCodeVerificationTitle: 'WINKemr code verification',
+    mfaCodeScanTitle: 'WINKemr QR Code scan',
+    mfaCodeScanned: 'I have scanned the code',
     account: 'Account',
     store: 'Store',
     securityQuestionsError:
@@ -53,6 +58,7 @@ export const strings = new LocalizedStrings({
     logout: 'Logout',
     newPatient: 'New patient',
     newDoctor: 'Add a doctor',
+    newAppointment: 'Reserve Appointment',
     preExams: 'Pre test',
     exams: 'Exams',
     odSphere: 'OD Sphere',
@@ -84,8 +90,10 @@ export const strings = new LocalizedStrings({
     pending: 'Pending',
     confirmed: 'Confirmed',
     cancelled: 'Cancelled',
-    noShow: 'No show',
+    noShow: 'No Patient',
     waiting: 'Waiting',
+    waitingList: 'Waiting List',
+    waitingListComment: 'Waiting List Comment',
     completed: 'Completed',
     start: 'Start',
     scheduledAt: 'Scheduled at',
@@ -94,7 +102,6 @@ export const strings = new LocalizedStrings({
     duration: 'Duration',
     minutes: 'minutes',
     minute: 'minute',
-    hour: 'hour',
     hours: 'hours',
     day: 'day',
     days: 'days',
@@ -132,6 +139,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Far',
+    near: 'Near',
     maxLengthError: 'Too much text',
     minLengthError: 'Not enough text',
     requiredError: 'Mandatory',
@@ -222,14 +231,18 @@ export const strings = new LocalizedStrings({
     customisation: 'Customise',
     from: 'From',
     to: 'To',
-    date: 'Date',
+    date: 'Date/Time',
     comment: 'Comment',
     itemNotSelected: 'No item was selected',
     importDataNotFound: 'No data found to import !',
     consultationDate: 'Consultation date',
     close: 'Close',
+    apply: 'Apply',
     open: 'Open',
+    select: 'Select',
+    chooseDoctor: 'Choose Doctor',
     transferRxSuccess: 'Rx transferred successfully !',
+    exportDataSuccess: 'Data exported successfully !',
     NoCameraAccess: 'No access to camera',
     flip: 'Flip',
     snapshot: 'Snapshot',
@@ -237,19 +250,22 @@ export const strings = new LocalizedStrings({
     somethingWentWrongMessage:
       'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
-    dragNDrop: 'Drag and drop some files here !',
+    dragNDrop: 'Click to upload or drag and drop your file here',
     takePicture: 'Take a picture',
     uploadFile: 'Upload a file',
     signedOn: 'Signed on',
     location: 'Location',
     noAccess: 'You do not have access to this information',
     printRxLabel: 'Please select what to print:',
+    printExportLabel: 'Please select what to export:',
     pd: 'PD',
     binocularPd: 'Binocular PD',
     notesOnRx: 'Notes on Rx',
     drRecommendation: 'Dr Recommendation ',
     all: 'All',
     startBlank: 'Start blank',
+    noRoom: 'No room',
+    room: 'Room',
     startFromVisit: 'Start from previous consultation',
     lockedOn: 'Locked on',
     lastUpdateOn: 'Last update on',
@@ -269,6 +285,65 @@ export const strings = new LocalizedStrings({
     next: 'Next',
     weekly: 'Weekly',
     daily: 'Daily',
+    available: 'Available',
+    unAvailable: 'Not Available',
+    lensometry: 'Lensometry',
+    keratometry: 'Keratometry',
+    autoRefractor: 'Auto Refractor',
+    exportAction: 'Export',
+    billing: 'Billing',
+    multipleBuiltInTemplate:
+      'More than 1 template was found, please select which one to use !',
+    machinePullSuccess: 'Machine Interface has pulled successfully the data !',
+    clientConnected: 'Client connected !',
+    clientDisconnected: 'Client disconnected !',
+    patientAttachments: 'Patient Attachments',
+    appointmentFor: 'Appointment for',
+    successfullyCopied:
+      'was successfully copied! Please move it to an available cell.',
+    selfPaid: 'Self Paid',
+    bookingAppointmentError:
+      'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
+    insurer: 'Insurer',
+    numberOfSlots: 'Number of Slots',
+    book: 'Book',
+    AppointmentType: 'Appointment Type',
+    cancelAppointment: 'Cancel Appointment ',
+    cancelledBy: 'Cancelled By',
+    rescheduleAppointment: 'Reschedule Appointment',
+    reschedule: 'Reschedule',
+    viewWaitingList: 'View waiting list',
+    showAllStores: 'Show Waiting List For All Stores',
+    age: 'Age',
+    home: 'Home',
+    cell: 'Cell',
+    work: 'Work',
+    appDateAndTime: 'Appointment Date & Type',
+    successfullyRescheduled: 'Appointment has been successfully rescheduled',
+    lockScreenTitle: 'Your Session has Expired',
+    enterPassword: 'Enter your password to pick up from where you left',
+    notLabel: 'Not',
+    resumeSession: 'Resume Session',
+    iForgot: 'I forgot',
+    doubleBook: 'Double Book ',
+    sameSlot: 'Same Slot',
+    first: 'First',
+    last: 'Last',
+    mins: 'mins',
+    hour: 'hour',
+    copyMessage:
+      'Data was copied successfully, please paste it in the appropriate box',
+    finalRxCopyMessage:
+      "Final Rx copied successfully! Please paste in the current visit's appropriate box",
+    time: 'Time',
+    createAvailability: 'Create Availability',
+    markAsUnavailable: 'Mark as unavailable',
+    familyDoctor: 'Family Doctor',
+    createUser: 'Create User',
+    closedStoreTimeSlotErrorMessage:
+      'The time slot you selected is outside store opening hours. You cannot create an availability !',
+    providerTitle: 'Provider',
+    loadMoreSummariesTitle: 'Load more summaries...',
   },
   fr: {
     enterRegisteredEmail:
@@ -286,11 +361,16 @@ export const strings = new LocalizedStrings({
       "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
     userName: "Nom d'utilisateur",
     password: 'Mot de passe',
+    enterCode: 'Entrez le code',
     submitLogin: 'Ouvrir la session',
+    verifyCode: 'Vérifier',
     touchNotConfigured:
       "Votre compte n'est pas configuré pour utiliser l'application mobile à cet instant. Veuillez contacter le service à la clientèle",
     registrationScreenTitle: 'Registration WINKemr',
     loginscreenTitle: 'Se connecter à WINKemr',
+    mfaCodeVerificationTitle: 'Vérification du code WINKemr',
+    mfaCodeScanTitle: 'Numérisation du code QR WINKemr',
+    mfaCodeScanned: "J'ai scanné le code",
     account: 'Compte',
     store: 'Magasin',
     securityQuestionsError:
@@ -315,6 +395,7 @@ export const strings = new LocalizedStrings({
     logout: 'Déconnexion',
     newPatient: 'Nouveau patient',
     newDoctor: 'Ajouter docteur',
+    newAppointment: 'Réservation rendez-vous',
     preExams: 'Prétests',
     exams: 'Examens',
     odSphere: 'OD Sphere',
@@ -348,6 +429,9 @@ export const strings = new LocalizedStrings({
     cancelled: 'Annulé',
     noShow: "Ne s'est pas présenté",
     waiting: 'En attente',
+    viewWaitingList: "Afficher liste d'attente",
+    waitingList: "Liste d'attente",
+    waitingListComment: "Commentaire Liste d'attente",
     completed: 'Completé',
     start: 'Début',
     scheduledAt: 'Planifié pour',
@@ -394,6 +478,8 @@ export const strings = new LocalizedStrings({
     od: 'OD',
     os: 'OS',
     ou: 'OU',
+    far: 'Loin',
+    near: 'Près',
     maxLengthError: 'Trop de texte',
     minLengthError: 'Pas assez de texte',
     requiredError: 'Obligatoire',
@@ -490,14 +576,16 @@ export const strings = new LocalizedStrings({
     customisation: 'Personnalisation',
     from: 'De',
     to: 'Á',
-    date: 'Date',
+    date: 'Date/Temps',
     comment: 'Commentaire',
     itemNotSelected: 'Aucun élément sélectionné',
     importDataNotFound: 'Aucun élément trouvée !',
     consultationDate: 'Date de la consultation',
     close: 'Fermer',
     open: 'Ouvrir',
+    select: 'Sélectionner ',
     transferRxSuccess: 'Rx transféré avec succès !',
+    exportDataSuccess: 'Données transférées avec succès !',
     NoCameraAccess: 'Webcam non trouvé !',
     flip: 'Retourner',
     snapshot: 'Snapshot',
@@ -505,19 +593,22 @@ export const strings = new LocalizedStrings({
     somethingWentWrongMessage:
       "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
     restartApp: "Cliquez ici pour redémarrer l'application !",
-    dragNDrop: 'Faites glisser et déposez votre fichier ici !',
+    dragNDrop: 'Cliquez pour téléverser ou déposez votre document ici',
     takePicture: 'Prendre une Photo',
     uploadFile: 'Téléverser un Fichier',
     signedOn: 'Signé le',
     location: 'Lieu',
     noAccess: 'Vous n’avez pas accès à cette information',
-    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer', //need to change accordingly
+    printRxLabel: 'Veuillez sélectionner ce que vous souhaitez imprimer:', //need to change accordingly,
+    printExportLabel: 'Veuillez sélectionner ce que vous souhaitez exporter:',
     pd: 'PD',
     binocularPd: 'PD Binoculaire',
     notesOnRx: 'Notes sur Rx',
     drRecommendation: 'Dr Recommandation',
     all: 'Tout',
     startBlank: 'Commencer avec un dossier vierge',
+    noRoom: 'Pas de salle',
+    room: 'Salle',
     startFromVisit: "Commencer sur la base d'une consultation précédente",
     lockedOn: 'Verrouillé le',
     lastUpdateOn: 'Modifié le',
@@ -536,6 +627,66 @@ export const strings = new LocalizedStrings({
     next: 'Suivant',
     weekly: 'Semaines',
     daily: 'Journalier',
+    available: 'disponible',
+    unAvailable: 'indisponible',
+    lensometry: 'Lensométrie',
+    keratometry: 'Kératométrie',
+    autoRefractor: 'Auto Réfraction',
+    exportAction: 'Exporter',
+    billing: 'Facturation',
+    multipleBuiltInTemplate:
+      "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
+    machinePullSuccess:
+      "L'interface machine a extrait avec succès les données !",
+    clientConnected: 'Client connecté !',
+    clientDisconnected: 'Client déconnecté !',
+    patientAttachments: 'Pièces jointes pour patients',
+    apply: 'Appliquer',
+    chooseDoctor: 'Choisir Docteur',
+    appointmentFor: 'Le rendez vous de',
+    successfullyCopied:
+      'a été copié ! Veuillez le reporter à une autre plage horaire.',
+    selfPaid: 'Paiement personnel',
+    bookingAppointmentError:
+      "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
+    insurer: 'Assureur',
+    numberOfSlots: 'Nombre de créneaux',
+    book: 'Réserver',
+    AppointmentType: 'Type rendez-vous',
+    cancelAppointment: 'Annuler le rendez-vous ',
+    cancelledBy: 'Annulé par',
+    rescheduleAppointment: 'Re-planifier un rendez-vous',
+    reschedule: 'Re-planifier',
+    showAllStores: "Afficher la liste d'attente pour tous les magasins",
+    age: 'Âge',
+    home: 'Domicile',
+    cell: 'Cellule',
+    work: 'Travail',
+    appDateAndTime: 'Date et type de rendez-vous',
+    successfullyRescheduled: 'Le rendez-vous a été reporté avec succès',
+    lockScreenTitle: 'Votre session a expiré',
+    enterPassword: 'Entrez votre mot de passe pour récupérer votre session',
+    notLabel: 'Pas',
+    resumeSession: 'Reprendre la session',
+    iForgot: "J'ai oublié",
+    doubleBook: 'Double réservation',
+    sameSlot: 'Même créneau',
+    first: 'Premier',
+    last: 'Dernier',
+    mins: 'mins',
+    copyMessage:
+      'Les données ont été copiées avec succès, veuillez les coller dans la case appropriée',
+    finalRxCopyMessage:
+      'Rx Finale copié avec succès! Veuillez coller dans la case appropriée de la visite en cours',
+    time: 'Temps',
+    createAvailability: 'Créer une disponibilité',
+    markAsUnavailable: 'Marquer comme indisponible',
+    familyDoctor: 'Médecin de famille',
+    createUser: 'Créer un utilisateur',
+    closedStoreTimeSlotErrorMessage:
+      'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
+    providerTitle: 'Pourvoyeur',
+    loadMoreSummariesTitle: 'Charger plus de résumés...',
   },
 });
 
@@ -560,12 +711,16 @@ export function getUserLanguage(): string {
 
 export function getUserLanguageIcon(): string {
   let languageIndex: number = supportedLanguages.indexOf(getUserLanguage());
-  if (languageIndex < 0) languageIndex = 0;
+  if (languageIndex < 0) {
+    languageIndex = 0;
+  }
   return supportedLanguages[languageIndex + 1];
 }
 
 export function getUserLanguageShort(): string {
-  if (userLanguage === undefined) return undefined;
+  if (userLanguage === undefined) {
+    return undefined;
+  }
   return userLanguage.substring(0, 2);
 }
 
@@ -589,8 +744,9 @@ export function switchLanguage() {
 }
 
 AsyncStorage.getItem('userLanguage').then((userLanguage) => {
-  if (userLanguage === null || userLanguage === undefined)
+  if (userLanguage === null || userLanguage === undefined) {
     userLanguage = strings.getInterfaceLanguage();
+  }
   if (supportedLanguages.indexOf(userLanguage) < 0) {
     userLanguage = supportedLanguages[0];
   }

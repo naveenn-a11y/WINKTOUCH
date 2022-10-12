@@ -13,6 +13,7 @@ import {
   InteractionManager,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import type {User} from './Types';
 import {styles, isWeb} from './Styles';
@@ -24,6 +25,7 @@ import {getCachedItem, cacheItemById} from './DataCache';
 import {Close} from './Favorites';
 import {fetchCodeDefinitions} from './Codes';
 import {getAccount} from './DoctorApp';
+import {deepClone} from './Util';
 
 const maxUserListSize: number = 200;
 
@@ -35,6 +37,7 @@ export async function fetchUser(userId: string): Promise<User> {
 export async function searchUsers(
   searchText: string,
   external: boolean,
+  store?: string,
 ): Promise<User[]> {
   if (!searchText || searchText.trim().length === 0) {
     searchText = undefined;
@@ -42,20 +45,30 @@ export async function searchUsers(
   const searchCriteria = {
     searchData: searchText,
     external: external,
+    store: store,
   };
   let restResponse = await searchItems('User/list', searchCriteria);
   let users: User[] = restResponse.doctors;
-  if (users && users.length > maxUserListSize)
+  if (users && users.length > maxUserListSize) {
     users = users.slice(0, maxUserListSize);
+  }
   return users;
 }
 
 function formatDoctorName(user: User): string {
   let name = '';
-  if (!user) return name;
-  if (user.firstName) name += user.firstName.trim() + ' ';
-  if (user.lastName) name += user.lastName.trim() + ' ';
-  if (user.instituteName) name += user.instituteName.trim();
+  if (!user) {
+    return name;
+  }
+  if (user.firstName) {
+    name += user.firstName.trim() + ' ';
+  }
+  if (user.lastName) {
+    name += user.lastName.trim() + ' ';
+  }
+  if (user.instituteName) {
+    name += user.instituteName.trim();
+  }
   name = name.trim();
   return name;
 }
@@ -63,6 +76,9 @@ function formatDoctorName(user: User): string {
 export type UserDetailsProps = {
   user: ?User,
   onUpdateUser: (user: User) => void,
+  onButtonPress: () => void,
+  buttonTitle: string,
+  showButton: bool,
 };
 export class UserDetails extends PureComponent<UserDetailsProps> {
   constructor(props: UserDetailsProps) {
@@ -70,11 +86,21 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
   }
 
   render() {
-    if (!this.props.user) return <View style={styles.tabCard} />;
+    if (!this.props.user) {
+      return <View style={styles.tabCard} />;
+    }
     return (
       <View style={styles.tabCard}>
         <ErrorCard errors={this.props.user.errors} />
         <View style={styles.form}>
+          <FormRow>
+            <FormField
+              value={this.props.user}
+              fieldName="providerType"
+              onChangeValue={this.props.onUpdateUser}
+              autoCapitalize="characters"
+            />
+          </FormRow>
           <FormRow>
             <FormField
               value={this.props.user}
@@ -158,6 +184,15 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
             />
           </FormRow>
         </View>
+        {this.props.showButton && 
+        <View style={styles.centeredRowLayout}>
+          <Button
+            title={this.props.buttonTitle ? this.props.buttonTitle : '' }
+            onPress={this.props.onButtonPress}
+            loading={this.props.buttonLoading}
+            disabled={this.props.buttonLoading}
+          />
+        </View>}
       </View>
     );
   }
@@ -169,9 +204,11 @@ export type UserListProps = {
   selectedUserId: ?string,
   onSelectUser?: (user: ?User) => void,
 };
-class UserList extends PureComponent<UserListProps> {
+export class UserList extends PureComponent<UserListProps> {
   render() {
-    if (!this.props.visible) return null;
+    if (!this.props.visible) {
+      return null;
+    }
     return (
       <FlatList
         style={styles.columnCard}
@@ -204,7 +241,7 @@ type FindUserState = {
   searchCriterium: string,
   users: User[],
   showUserList: boolean,
-  showNewUserButton: boolean,
+  searchLoading: boolean,
 };
 export class FindUser extends PureComponent<FindUserProps, FindUserState> {
   constructor(props: FindUserProps) {
@@ -213,14 +250,16 @@ export class FindUser extends PureComponent<FindUserProps, FindUserState> {
       searchCriterium: '',
       users: [],
       showUserList: false,
-      showNewUserButton: false,
+      searchLoading: false,
     };
   }
 
   async searchDoctors() {
     this.props.onSelectUser && this.props.onSelectUser(undefined);
-    this.setState({showUserList: false, showNewUserButton: false, users: []});
+    this.setState({showUserList: false, users: [], searchLoading: true});
     let users: User[] = await searchUsers(this.state.searchCriterium, true);
+    this.setState({searchLoading: false});
+
     if (!users || users.length === 0) {
       if (!this.props.onNewUser) {
         alert(strings.noDoctorsFound);
@@ -230,13 +269,12 @@ export class FindUser extends PureComponent<FindUserProps, FindUserState> {
     !isWeb && LayoutAnimation.spring();
     this.setState({
       showUserList: users != undefined && users.length > 0,
-      showNewUserButton: users === undefined || users.length < maxUserListSize,
       users,
     });
   }
 
   newUser(): void {
-    this.setState({showUserList: false, showNewUserButton: false, users: []});
+    this.setState({showUserList: false, users: []});
     this.props.onNewUser();
     InteractionManager.runAfterInteractions(() =>
       LayoutAnimation.easeInEaseOut(),
@@ -265,16 +303,18 @@ export class FindUser extends PureComponent<FindUserProps, FindUserState> {
           selectedUserId={this.props.selectedUserId}
           onSelectUser={this.props.onSelectUser}
         />
-        {this.props.onNewUser && this.state.showNewUserButton ? (
+        {this.props.onNewUser ? (
           <View style={styles.centeredRowLayout}>
             <Button
               title={strings.newDoctor}
-              visible={this.state.showNewUserButton}
               onPress={() => this.newUser()}
               testID="newDoctorButton"
             />
           </View>
         ) : null}
+        {this.state.searchLoading && <View>
+          <ActivityIndicator color="#1db3b3" />
+        </View>}
       </View>
     );
   }
@@ -292,6 +332,7 @@ type ManageUsersState = {
   isActive: boolean,
   isTyping: boolean,
   user: ?User,
+  isLoading: Boolean,
 };
 export class ManageUsers extends PureComponent<
   ManageUsersProps,
@@ -303,17 +344,22 @@ export class ManageUsers extends PureComponent<
       isActive: false,
       isTyping: false,
       user: undefined,
+      isLoading: false,
     };
   }
 
   selectUser = (user: ?User) => {
     let cachedUser: ?User = user ? getCachedItem(user.id) : undefined;
-    if (cachedUser) user = cachedUser;
+    if (cachedUser) {
+      user = cachedUser;
+    }
     this.setState({user}, () => this.fetchUser(user));
   };
 
   async fetchUser(user: ?User) {
-    if (!user || user.id === 'user') return;
+    if (!user || user.id === 'user') {
+      return;
+    }
     user = await fetchUser(user.id);
     if (user.id === this.state.user.id) {
       this.setState({user});
@@ -324,9 +370,28 @@ export class ManageUsers extends PureComponent<
     this.setState({user: {id: 'user', isExternal: true}});
   };
 
-  async updateUser(user: User): Promise<void> {
+  isNewUser(): boolean {
+    return (
+      this.state.user && this.state.user.id === 'user'
+    );
+  }
+
+  updateUserInfo = (user: User): void => {
+    this.setState({user: deepClone(user)});
+    if (user && user.id !== 'user') {
+      this.updateUser(); //update existing user
+    }
+  };
+
+  updateUser = async (): Promise<void> => {
+    this.setState({ isLoading: true });
+    let user: User = this.state.user;
     const isNewUser: boolean = user && user.id === 'user';
     user = await storeItem(user);
+
+    !user.errors && fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
+    !user.errors && await fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'familyDoctors');
+
     if (
       (this.state.user && this.state.user.id === user.id) ||
       user.errors ||
@@ -334,7 +399,9 @@ export class ManageUsers extends PureComponent<
     ) {
       this.setState({user});
     }
-    fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
+    
+    this.setState({ isLoading: false });
+    (isNewUser & user.errors === undefined) ? this.props.onClose() : () => undefined; //close modal when you create a new user
   }
 
   renderIcons() {
@@ -358,14 +425,19 @@ export class ManageUsers extends PureComponent<
           {this.props.label ? this.props.label : strings.manageUsers}
         </Text>
         <View style={styles.centeredScreenLayout}>
+          {!this.isNewUser() && 
           <FindUser
             selectedUserId={this.state.user ? this.state.user.id : undefined}
             onSelectUser={this.selectUser}
             onNewUser={this.newUser}
-          />
+          />}
           <UserDetails
             user={this.state.user}
-            onUpdateUser={(user: ?User) => this.updateUser(user)}
+            onUpdateUser={this.updateUserInfo}
+            onButtonPress={this.updateUser}
+            buttonTitle={this.isNewUser() ? strings.createUser : strings.update }
+            buttonLoading={this.state.isLoading}
+            showButton={this.isNewUser()}
           />
         </View>
         {this.renderIcons()}
