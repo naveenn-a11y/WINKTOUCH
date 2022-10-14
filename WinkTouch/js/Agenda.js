@@ -59,8 +59,8 @@ import moment from 'moment';
 import {Button} from './Widgets';
 import {AvailabilityModal} from './agendas';
 import {getAllCodes} from './Codes';
-import { ProfileHeader } from './Profile';
-import { Menu } from 'react-native-paper';
+import {ProfileHeader} from './Profile';
+import {Menu} from 'react-native-paper';
 
 const WEEKDAYS = {
   SUNDAY: 0,
@@ -1226,24 +1226,31 @@ export class AgendaScreen extends Component {
     );
   }
 
-  renderDropDownButton(options: [{label: string, value: string}], mode: string) {
+  renderDropDownButton(
+    options: [{label: string, value: string}],
+    mode: string,
+  ) {
     return (
       <TouchableOpacity onPress={this.openDropDown}>
         <View style={[styles.chooseButton, {flexDirection: 'row'}]}>
-          <Text style={{marginLeft: 10 * fontScale, marginRight: 10 * fontScale}}>
+          <Text
+            style={{marginLeft: 10 * fontScale, marginRight: 10 * fontScale}}>
             {this.getModeLabel(options, mode)}
           </Text>
-          <Icon name="chevron-down" color="gray"  />
+          <Icon name="chevron-down" color="gray" />
         </View>
       </TouchableOpacity>
     );
   }
 
-  getModeLabel(options: [{label: string, value: string}], mode: string) : string {
+  getModeLabel(
+    options: [{label: string, value: string}],
+    mode: string,
+  ): string {
     let result = options.find((option) => {
       return option.value === mode;
     });
-    return (result !== undefined) ? result.label : '';
+    return result !== undefined ? result.label : '';
   }
 
   render() {
@@ -1295,25 +1302,39 @@ export class AgendaScreen extends Component {
           />
         )}
 
-        {(this.state.calendarWidth < 900) && <ProfileHeader />}
+        {this.state.calendarWidth < 900 && <ProfileHeader />}
         <View style={[styles.topFlow, styles.topFlow2]}>
-          {(this.state.calendarWidth >= 900) && <ProfileHeader />}
+          {this.state.calendarWidth >= 900 && <ProfileHeader />}
 
-          <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity 
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <TouchableOpacity
               style={styles.chooseButton}
-              onPress={this._onToday} >
-              <Text>
-                {strings.today}
-              </Text>
+              onPress={this._onToday}>
+              <Text>{strings.today}</Text>
             </TouchableOpacity>
-            <View style={{ flexDirection: 'row', marginLeft: 30 * fontScale, marginRight: 20 * fontScale}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                marginLeft: 30 * fontScale,
+                marginRight: 20 * fontScale,
+              }}>
               <TouchableOpacity onPress={this._onPrevDate}>
-                <Icon name="chevron-left" style={[styles.screenIcon, styles.paddingLeftRight10]} />
+                <Icon
+                  name="chevron-left"
+                  style={[styles.screenIcon, styles.paddingLeftRight10]}
+                />
               </TouchableOpacity>
 
               <TouchableOpacity onPress={this._onNextDate}>
-                <Icon name="chevron-right" style={[styles.screenIcon, styles.paddingLeftRight10]} />
+                <Icon
+                  name="chevron-right"
+                  style={[styles.screenIcon, styles.paddingLeftRight10]}
+                />
               </TouchableOpacity>
             </View>
             <View>
@@ -1336,15 +1357,20 @@ export class AgendaScreen extends Component {
               <Menu
                 visible={dropDown}
                 onDismiss={this.closeDropDown}
-                style={{paddingTop: 50 * fontScale, paddingLeft: 10 * fontScale}}
-                anchor={this.renderDropDownButton(options, mode)}
-              >
+                style={{
+                  paddingTop: 50 * fontScale,
+                  paddingLeft: 10 * fontScale,
+                }}
+                anchor={this.renderDropDownButton(options, mode)}>
                 {options.map((option) => {
-                  return(
-                    <Menu.Item onPress={() => this._onSetMode(option.value)} title={option.label} />
+                  return (
+                    <Menu.Item
+                      onPress={() => this._onSetMode(option.value)}
+                      title={option.label}
+                    />
                   );
                 })}
-            </Menu>
+              </Menu>
             </View>
           </View>
         </View>
@@ -1555,8 +1581,8 @@ class NativeCalendar extends Component {
           swipeEnabled={false}
           height={windowHeight}
           events={appointments}
-          weekStartsOn={1}
-          weekEndsOn={this.numOfDays}
+          weekStartsOn={0}
+          weekEndsOn={6}
           hourRowHeight={90}
           scrollOffsetMinutes={480}
           showAllDayEventCell={false}
