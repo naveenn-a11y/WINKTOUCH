@@ -3,7 +3,6 @@
   "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.6",
-  "cardGroup": "Subjective refraction",
   "graph": {
     "fields": ["Subjective refraction.od.sph", "Subjective refraction.os.sph"]
   },
@@ -59,6 +58,7 @@
       "name": "Subjective refraction",
       "multiValue": true,
       "type": "SRx",
+      "showLabelOnSummary": true,
       "canBePaste": true,
       "fields": [
         {
@@ -75,6 +75,7 @@
       "optional": true,
       "name": "Maximum VA refraction",
       "type": "SRx",
+      "showLabelOnSummary": true,
       "canBePaste": true
     },
     {
@@ -83,6 +84,7 @@
       "optional": true,
       "name": "Compensated refraction",
       "type": "SRx",
+      "showLabelOnSummary": true,
       "canBePaste": true
     },
     {
@@ -91,6 +93,7 @@
       "optional": true,
       "name": "Duochrome",
       "type": "SRx",
+      "showLabelOnSummary": true,
       "copyToFinalRx": true,
       "canBePaste": true
     },
@@ -107,6 +110,7 @@
       "name": "Retinoscopy",
       "multiValue": true,
       "type": "SRx",
+      "showLabelOnSummary": true,
       "copyToFinalRx": true
     },
     {
@@ -115,6 +119,7 @@
       "optional": true,
       "name": "Cycloplegia",
       "type": "SRx",
+      "showLabelOnSummary": true,
       "copyToFinalRx": true,
       "canBePaste": true
     },
@@ -123,6 +128,7 @@
       "hasAdd": true,
       "name": "Final Rx",
       "type": "SRx",
+      "showOnSummary": false,
       "import": [
         "exam.Lensometry.Lensometry",
         "exam.Auto refractor.Auto refractor",
@@ -217,6 +223,7 @@
     {
       "name": "Notes",
       "size": "L",
+      "showLabelOnSummary": true,
       "fields": [
         {
           "maxLength": 500,

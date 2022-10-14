@@ -922,6 +922,9 @@ export class GroupedCard extends Component {
     ) {
       return null;
     }
+    if (!isEmpty(groupDefinition.showOnSummary) && !groupDefinition.showOnSummary) {
+      return null;
+    }
     if (
       groupDefinition.multiValue &&
       this.props.exam[this.props.exam.definition.name][
@@ -935,6 +938,7 @@ export class GroupedCard extends Component {
           showHeaders={false}
           glassesRx={rx}
           key={groupDefinition.name + '.' + index}
+          title={groupDefinition.showLabelOnSummary ? formatLabel(groupDefinition) : null}
         />
       ));
     }
@@ -945,6 +949,7 @@ export class GroupedCard extends Component {
           this.props.exam[this.props.exam.definition.name][groupDefinition.name]
         }
         key={groupDefinition.name}
+        title={groupDefinition.showLabelOnSummary ? formatLabel(groupDefinition) : null}
       />
     );
   }
@@ -993,7 +998,7 @@ export class GroupedCard extends Component {
       //A CheckList
       return this.renderCheckListItem(groupDefinition);
     } else {
-      let showSubtitles: boolean = this.props.exam.definition.showSubtitles; //TODO: can we remove this flag
+      let showSubtitles: boolean = groupDefinition.showLabelOnSummary; //this.props.exam.definition.showSubtitles; //TODO: can we remove this flag
       if (
         this.props.exam.definition.fields.length === 1 &&
         this.props.exam.definition.fields[0].multiValue !== true
