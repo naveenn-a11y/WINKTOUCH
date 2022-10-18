@@ -60,7 +60,9 @@ import {AgentAsumptionScreen} from './Agent';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  'https://emr.downloadwink.com/wink-ecommV5' + '/WinkRegistrationAccounts';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationAccounts';
 
 async function fetchAccounts(path: string) {
   if (!path) {
