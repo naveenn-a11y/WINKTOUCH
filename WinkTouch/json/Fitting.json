@@ -51,7 +51,6 @@
         "Manufacturer",
         "Brand",
         "Design",
-        "Qty/Box",
         "Sph",
         "Cyl",
         "Axis",
@@ -66,7 +65,7 @@
       "label": "Contact Lens Fitting",
       "entity": "clFitting",
       "columns": [
-        ["Manufacturer", "Brand", "Design", "Qty/Box", ">>"],
+        ["Manufacturer", "Brand", "Design", ">>"],
         ["Type", "Material", "Wearing Period", "Replacement"],
         ["Sph", "Cyl", "Axis", "BC", "Dia", "Add", "AddAlpha", "D/N", ">>"],
         ["DVA", "NVA", "Solution"],
@@ -167,31 +166,6 @@
                 "brand": "[Brand.OS]"
               },
               "options": "contactLenses.design"
-            }
-          ]
-        },
-        {
-          "name": "Qty/Box",
-          "fields": [
-            {
-              "mappedField": "clFitting.packaging.od",
-              "name": "OD",
-              "filter": {
-                "manufacturer": "[Manufacturer.OD]",
-                "brand": "[Brand.OD]",
-                "design": "[Design.OD]"
-              },
-              "options": "contactLenses.ranges.quantityPerBox"
-            },
-            {
-              "mappedField": "clFitting.packaging.os",
-              "name": "OS",
-              "filter": {
-                "manufacturer": "[Manufacturer.OS]",
-                "brand": "[Brand.OS]",
-                "design": "[Design.OS]"
-              },
-              "options": "contactLenses.ranges.quantityPerBox"
             }
           ]
         },
@@ -948,10 +922,6 @@
             {
               "name": "Brand",
               "label": "Marque"
-            },
-            {
-              "name": "Qty/Box",
-              "label": "Qté/Bts"
             },
             {
               "name": "Material",
