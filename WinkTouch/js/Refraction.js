@@ -775,7 +775,7 @@ export class GlassesSummary extends Component {
               {this.props.showHeaders === true && <Text style={styles.text} />}
               {<Text style={styles.text}>{'\t' + strings.od}:</Text>}
               {<Text style={styles.text}>{'\t' + strings.os}:</Text>}
-              {<Text style={styles.text}>{'\t' + strings.ou}:</Text>}
+              {!isEmpty(this.props.glassesRx.ou) && <Text style={styles.text}>{'\t' + strings.ou}:</Text>}
             </View>
             <View style={styles.cardColumn} key="sph">
               {this.props.showHeaders === true && (
