@@ -1650,11 +1650,6 @@ class VisitWorkFlow extends Component {
         assessments.length > index + 1 ? assessments[index + 1] : undefined;
       let previousExamAssessment: Exam =
         index > 0 ? assessments[index - 1] : undefined;
-      nextExamAssessment =
-        nextExamAssessment !== undefined &&
-        nextExamAssessment.definition.name === 'Consultation summary'
-          ? undefined
-          : nextExamAssessment;
       previousExamAssessment =
         previousExamAssessment === undefined && previousExam !== undefined
           ? previousExam
