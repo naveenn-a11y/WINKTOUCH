@@ -775,6 +775,7 @@ export class GlassesSummary extends Component {
               {this.props.showHeaders === true && <Text style={styles.text} />}
               {<Text style={styles.text}>{'\t' + strings.od}:</Text>}
               {<Text style={styles.text}>{'\t' + strings.os}:</Text>}
+              {<Text style={styles.text}>{'\t' + strings.ou}:</Text>}
             </View>
             <View style={styles.cardColumn} key="sph">
               {this.props.showHeaders === true && (
@@ -839,6 +840,41 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
+            <View style={styles.cardColumn} key="va">
+              {this.props.showHeaders === true && (
+                <Text style={styles.text}>VA </Text>
+              )}
+              {this.props.glassesRx.od && (
+                <Text style={styles.text} key="od.va">
+                  {!isEmpty(this.props.glassesRx.od.va)
+                    ? ' ' +
+                      strings.dva +
+                      ': ' +
+                      formatDiopter(this.props.glassesRx.od.va)
+                    : ' '}
+                </Text>
+              )}
+              {this.props.glassesRx.os && (
+                <Text style={styles.text} key="os.va">
+                  {!isEmpty(this.props.glassesRx.os.va)
+                    ? ' ' +
+                      strings.dva +
+                      ': ' +
+                      formatDiopter(this.props.glassesRx.os.va)
+                    : ' '}
+                </Text>
+              )}
+              {this.props.glassesRx.ou && (
+                <Text style={styles.text} key="ou.va">
+                  {!isEmpty(this.props.glassesRx.ou.va)
+                    ? ' ' +
+                      strings.dva +
+                      ': ' +
+                      formatDiopter(this.props.glassesRx.ou.va)
+                    : ' '}
+                </Text>
+              )}
+            </View>
             <View style={styles.cardColumn} key="add">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>Add </Text>
@@ -850,7 +886,7 @@ export class GlassesSummary extends Component {
                       strings.add +
                       ': ' +
                       formatDiopter(this.props.glassesRx.od.add)
-                    : ''}
+                    : ' '}
                 </Text>
               )}
               {this.props.glassesRx.os && (
@@ -860,7 +896,42 @@ export class GlassesSummary extends Component {
                       strings.add +
                       ': ' +
                       formatDiopter(this.props.glassesRx.os.add)
-                    : ''}
+                    : ' '}
+                </Text>
+              )}
+            </View>
+            <View style={styles.cardColumn} key="nva">
+              {this.props.showHeaders === true && (
+                <Text style={styles.text}>NVA </Text>
+              )}
+              {this.props.glassesRx.od && (
+                <Text style={styles.text} key="od.addVa">
+                  {!isEmpty(this.props.glassesRx.od.addVa)
+                    ? ' ' +
+                      strings.nva +
+                      ': ' +
+                      formatDiopter(this.props.glassesRx.od.addVa)
+                    : ' '}
+                </Text>
+              )}
+              {this.props.glassesRx.os && (
+                <Text style={styles.text} key="os.addVa">
+                  {!isEmpty(this.props.glassesRx.os.addVa)
+                    ? ' ' +
+                      strings.nva +
+                      ': ' +
+                      formatDiopter(this.props.glassesRx.os.addVa)
+                    : ' '}
+                </Text>
+              )}
+              {this.props.glassesRx.ou && (
+                <Text style={styles.text} key="ou.addVa">
+                  {!isEmpty(this.props.glassesRx.ou.addVa)
+                    ? ' ' +
+                      strings.nva +
+                      ': ' +
+                      formatDiopter(this.props.glassesRx.ou.addVa)
+                    : ' '}
                 </Text>
               )}
             </View>
