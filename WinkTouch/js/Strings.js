@@ -11,17 +11,17 @@ import {cacheDefinitions} from './Items';
 export const strings = new LocalizedStrings({
   en: {
     enterRegisteredEmail:
-      'Please enter your email adress to connect to your WINK database\nor try with a demo database',
+      'Please enter your email address to connect to your WINK database\nor try with a demo database',
     trialWarning:
       'This is a demo version that uses a public shared database. Do not enter any real patient data.',
     winkLink: 'Visit www.winksoftware.com to learn more',
-    emailAdres: 'Email adress',
+    emailAdres: 'Email address',
     connectToPms: 'Connect',
     tryForFree: 'Try it out',
     answerSecurityQuestion:
       'Please answer the security question before submitting',
     submitSecurityAnswer: 'Send',
-    unRegisteredEmail: 'This email adress was not registered before with Wink',
+    unRegisteredEmail: 'This email address was not registered before with Wink',
     userName: 'User name',
     password: 'password',
     enterCode: 'Enter Code',
@@ -37,7 +37,7 @@ export const strings = new LocalizedStrings({
     account: 'Account',
     store: 'Store',
     securityQuestionsError:
-      'Something went wrong trying to get the secuirty question from the server. Please try again.',
+      'Something went wrong trying to get the security question from the server. Please try again.',
     registrationError:
       'Something went wrong trying to get the app version from the server. Please try again.',
     fetchAccountsError:
