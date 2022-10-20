@@ -51,7 +51,7 @@ import {
   postfix,
 } from './Util';
 import {FormInput} from './Form';
-import {getFieldDefinition, filterFieldDefinition, formatLabel} from './Items';
+import {getFieldDefinition, filterFieldDefinition, formatLabel, formatFieldValue} from './Items';
 import {
   getCodeDefinition,
   formatCode,
@@ -850,7 +850,7 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.dva +
                       ': ' +
-                      formatDiopter(this.props.glassesRx.od.va)
+                      formatFieldValue(this.props.glassesRx.od.va, getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD'))
                     : ' '}
                 </Text>
               )}
@@ -860,7 +860,7 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.dva +
                       ': ' +
-                      formatDiopter(this.props.glassesRx.os.va)
+                      formatFieldValue(this.props.glassesRx.os.va, getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS'))
                     : ' '}
                 </Text>
               )}
@@ -870,7 +870,7 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.dva +
                       ': ' +
-                      formatDiopter(this.props.glassesRx.ou.va)
+                      formatFieldValue(this.props.glassesRx.ou.va, getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU'))
                     : ' '}
                 </Text>
               )}
@@ -910,7 +910,7 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.nva +
                       ': ' +
-                      formatDiopter(this.props.glassesRx.od.addVa)
+                      formatFieldValue(this.props.glassesRx.od.addVa, getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD'))
                     : ' '}
                 </Text>
               )}
@@ -920,7 +920,7 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.nva +
                       ': ' +
-                      formatDiopter(this.props.glassesRx.os.addVa)
+                      formatFieldValue(this.props.glassesRx.os.addVa, getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS'))
                     : ' '}
                 </Text>
               )}
@@ -930,7 +930,7 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.nva +
                       ': ' +
-                      formatDiopter(this.props.glassesRx.ou.addVa)
+                      formatFieldValue(this.props.glassesRx.ou.addVa, getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU'))
                     : ' '}
                 </Text>
               )}
