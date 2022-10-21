@@ -510,7 +510,7 @@ export const strings = new LocalizedStrings({
     printMedicalRx: 'Imprimer Rx médicale',
     printPatientFile: 'Imprimer Dossier Patient',
     patientFile: 'Dossier Patient',
-    add: 'Ajouter',
+    add: 'Add',
     remove: 'Suprimer',
     od: 'OD',
     os: 'OS',
@@ -566,7 +566,7 @@ export const strings = new LocalizedStrings({
     send: 'Envoyer',
     deleteVisitTitle: 'Supprimer une consultation',
     deleteVisitQuestion:
-      'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
+      'Êtes-vous sûr de vouloir supprimer {0} du {1} de façon permanente ?',
     deletedVisitMessage: "Impossible d'ouvrir les visites supprimées !",
     findPatient: 'Entrer le nom du patient ou le #Z',
     findDoctor: 'Entrer le nom du docteur',
@@ -607,7 +607,7 @@ export const strings = new LocalizedStrings({
     noDataFound: 'Aucune donnée trouvée !',
     deleteTitle: 'Supprimer',
     deleteReferralQuestion:
-      'Est-ce que vous êtes sur de vouloir supprimer la référence {0} du {1}  ?',
+      'Êtes-vous sûr de vouloir supprimer la référence {0} du {1}  ?',
     manageUsers: 'Docteurs',
     deleteReferralTitle: 'Supprimer une référence',
     customisation: 'Personnalisation',
