@@ -715,7 +715,9 @@ export function getRestUrl(): string {
 }
 
 export function getEmrNodeUrl(): string {
-  return __DEV__ ? 'http://localhost:7001/' : 'azureUrl';
+  return __DEV__
+    ? 'http://localhost:7001/'
+    : 'https://emr-node.azurewebsites.net/';
 }
 
 async function setRestUrl(winkEmrHost: string) {
