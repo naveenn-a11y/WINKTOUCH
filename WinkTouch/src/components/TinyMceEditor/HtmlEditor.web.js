@@ -75,7 +75,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
           setup: (editor) => {
             this.setState({activeEditor: editor}),
               editor.on('init', function (e) {
-                editor.setContent(this.props.value, {format: 'raw'});
+                // editor.setContent(this.props.value, {format: 'raw'});
               });
           },
           images_dataimg_filter: function (img) {
