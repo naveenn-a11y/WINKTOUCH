@@ -334,6 +334,13 @@ export class VisitSummaryPlanCard extends Component {
     this.storeExam(exam);
   }
 
+  navigateToExam = () => {
+    this.props.navigation.navigate('exam', {
+      exam: this.state.exam,
+      appointmentStateKey: this.props.appointmentStateKey,
+    })
+  }
+
   render() {
     if (!this.state.exam) {
       return null;
@@ -354,29 +361,35 @@ export class VisitSummaryPlanCard extends Component {
 
     return (
       <View style={styles.assessmentCard}>
-        <View style={styles.centeredRowLayout}>
+        <TouchableOpacity style={styles.centeredRowLayout} 
+          onPress={this.navigateToExam}
+        >
           <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
-        </View>
-        <View style={styles.columnLayout}>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.columnLayout}
+          onPress={!this.props.editable ? this.navigateToExam : undefined}
+        >
           <View style={styles.formRowL}>
-            <FormTextInput
+            {this.props.editable && <FormTextInput
               label=""
               multiline={true}
               readonly={!this.props.editable}
               value={!isEmpty(summary) ? summary : ''}
               onChangeText={(text: ?string) => this.updateSummary(text)}
-            />
+            />}
+            
+            {!this.props.editable && <View style={styles.fieldFlexContainer}>
+              <Text style={[styles.formFieldLines, {minHeight: 36 * 4.7 * fontScale, height: 'auto'}]}>
+                {!isEmpty(summary) ? summary : ''}
+              </Text>
+            </View>}
           </View>
-        </View>
+        </TouchableOpacity>
 
         <TouchableOpacity
           disabled={this.props.disabled}
-          onPress={() =>
-            this.props.navigation.navigate('exam', {
-              exam: this.state.exam,
-              appointmentStateKey: this.props.appointmentStateKey,
-            })
-          }>
+          onPress={this.navigateToExam}>
           <View>
             <View style={styles.centeredRowLayout}>
               <Text style={styles.sectionTitle}>
