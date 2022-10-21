@@ -353,6 +353,7 @@ export async function updateAppointment(appointment: Appointment) {
   if (appointment === undefined || appointment === null) {
     return;
   }
+  appointment.supplierId = appointment.supplierName; //quick fix
   appointment = await storeItem(appointment);
   return appointment;
 }

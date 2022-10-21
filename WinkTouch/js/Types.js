@@ -206,6 +206,7 @@ export type Appointment = {
   indicators?: string[],
   comment?: string,
   supplierName?: string,
+  supplierId?: string,
   isBusy?: boolean,
   earlyRequest?: boolean,
   earlyRequestComment?: string,
