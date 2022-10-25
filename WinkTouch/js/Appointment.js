@@ -49,6 +49,7 @@ import {
   prefix,
   deAccent,
   yearDateFormat,
+  getValue,
 } from './Util';
 import {
   FormRow,
@@ -353,7 +354,7 @@ export async function updateAppointment(appointment: Appointment) {
   if (appointment === undefined || appointment === null) {
     return;
   }
-  appointment.supplierId = !isEmpty(appointment.supplierName) ? appointment.supplierName : 0; //quick fix
+  appointment.supplierId = !isEmpty(getValue(appointment, 'supplier.id')) ? appointment.supplier.id : 0;
   appointment = await storeItem(appointment);
   return appointment;
 }
@@ -928,6 +929,17 @@ export class AppointmentDetails extends Component {
     }
   }
 
+  getSupplier(supplierId: String) : Supplier {
+    const options = this.getInsuranceProviders();
+    const selectedOption : CodeDefinition = options.find(
+      (option : CodeDefinition) => option.code === supplierId
+    );
+    if (isEmpty(selectedOption)) {
+      return { id: 0, name: strings.selfPaid }; //default
+    }
+    return {id: selectedOption.code, name: selectedOption.description};
+  }
+
   startEdit() {
     !isWeb && LayoutAnimation.easeInEaseOut();
     let appointmentClone: Appointment = {...this.props.appointment};
@@ -1204,9 +1216,9 @@ export class AppointmentDetails extends Component {
                   : formatDate(appointment.end, dayYearDateTimeFormat)}
               </Text>
             </View>
-            {!isEmpty(appointment.supplierName) && (
+            {!isEmpty(getValue(appointment, 'supplier.name')) && (
               <View style={styles.formRow}>
-                <Text style={styles.text}>{appointment.supplierName}</Text>
+                <Text style={styles.text}>{appointment.supplier.name}</Text>
               </View>
             )}
             {!isEmpty(patient.medicalCard) && (
@@ -1329,12 +1341,12 @@ export class AppointmentDetails extends Component {
             showLabel={true}
             label={strings.insurer}
             value={
-              this.state.editedAppointment.supplierName
-                ? this.state.editedAppointment.supplierName
+              !isEmpty(getValue(this.state.editedAppointment, 'supplier.name'))
+                ? this.state.editedAppointment.supplier.name
                 : 0
             }
             onChangeValue={(code: ?string | ?number) =>
-              this.updateValue('supplierName', code)
+              this.updateValue('supplier', this.getSupplier(code))
             }
           />
         </FormRow>

@@ -46,6 +46,7 @@ import {
   isEmpty,
   yearDateFormat,
   deepClone,
+  getValue,
 } from './Util';
 import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
@@ -606,7 +607,7 @@ export class AgendaScreen extends Component {
       appointment.appointmentTypes,
       appointment.numberOfSlots,
       newId,
-      appointment.supplierName,
+      !isEmpty(getValue(appointment, 'supplier.id')) ? appointment.supplier.id : 0,
       appointment.earlyRequest,
       appointment.earlyRequestComment,
       true,
@@ -638,7 +639,7 @@ export class AgendaScreen extends Component {
         appointment.appointmentTypes,
         appointment.numberOfSlots,
         appointment.id,
-        appointment.supplierName,
+        !isEmpty(getValue(appointment, 'supplier.id')) ? appointment.supplier.id : 0,
         appointment.earlyRequest,
         appointment.earlyRequestComment,
         false,
