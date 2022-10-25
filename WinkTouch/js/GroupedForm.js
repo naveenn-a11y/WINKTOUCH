@@ -936,6 +936,11 @@ export class GroupedCard extends Component {
           showHeaders={false}
           glassesRx={rx}
           key={groupDefinition.name + '.' + index}
+          title={
+            this.props.exam.definition.showSubtitles
+              ? formatLabel(groupDefinition)
+              : null
+          }
         />
       ));
     }
@@ -946,6 +951,11 @@ export class GroupedCard extends Component {
           this.props.exam[this.props.exam.definition.name][groupDefinition.name]
         }
         key={groupDefinition.name}
+        title={
+          this.props.exam.definition.showSubtitles
+            ? formatLabel(groupDefinition)
+            : null
+        }
       />
     );
   }

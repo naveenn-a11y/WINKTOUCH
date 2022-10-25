@@ -421,6 +421,7 @@ export type GroupDefinition = {
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
   copyToFinalRx?: boolean,
+  showSubtitles?: boolean,
 };
 
 export type HtmlDefinition = {
