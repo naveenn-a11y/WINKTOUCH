@@ -354,7 +354,9 @@ export async function updateAppointment(appointment: Appointment) {
   if (appointment === undefined || appointment === null) {
     return;
   }
-  appointment.supplierId = !isEmpty(getValue(appointment, 'supplier.id')) ? appointment.supplier.id : 0;
+  appointment.supplierId = !isEmpty(getValue(appointment, 'supplier.id'))
+    ? appointment.supplier.id
+    : 0;
   appointment = await storeItem(appointment);
   return appointment;
 }
@@ -929,13 +931,13 @@ export class AppointmentDetails extends Component {
     }
   }
 
-  getSupplier(supplierId: String) : Supplier {
+  getSupplier(supplierId: String): Supplier {
     const options = this.getInsuranceProviders();
-    const selectedOption : CodeDefinition = options.find(
-      (option : CodeDefinition) => option.code === supplierId
+    const selectedOption: CodeDefinition = options.find(
+      (option: CodeDefinition) => option.code === supplierId,
     );
     if (isEmpty(selectedOption)) {
-      return { id: 0, name: strings.selfPaid }; //default
+      return {id: 0, name: strings.selfPaid}; //default
     }
     return {id: selectedOption.code, name: selectedOption.description};
   }
@@ -1267,7 +1269,7 @@ export class AppointmentDetails extends Component {
               <FormCode
                 hideClear
                 showLabel={false}
-                readonly={false}
+                readonly={!hasBookAccess}
                 code="appointmentStatusCode"
                 value={this.state.status}
                 onChangeValue={(code: ?string | ?number) => {
