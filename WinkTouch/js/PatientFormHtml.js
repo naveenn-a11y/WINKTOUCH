@@ -1383,6 +1383,9 @@ function renderRxTable(
     html += '<tr>';
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
     html += '<td class="desc"></td><td class="desc"></td><td class="desc"></td>';
+    if (hasPrism(glassesRx)) {
+      html += '<td class="desc"></td>';
+    } 
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
