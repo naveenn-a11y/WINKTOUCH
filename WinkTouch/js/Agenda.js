@@ -62,6 +62,7 @@ import {AvailabilityModal} from './agendas';
 import {getAllCodes} from './Codes';
 import {ProfileHeader} from './Profile';
 import {Menu} from 'react-native-paper';
+import {getPrivileges} from './Rest';
 
 const WEEKDAYS = {
   SUNDAY: 0,
@@ -350,6 +351,11 @@ export class AgendaScreen extends Component {
     const oneHour = 60 * 60 * 1000;
     const time = new Date(date).getTime();
     const store = getStore().id;
+    const fullAccessAppointment: boolean =
+      getPrivileges().appointmentPrivilege === 'FULLACCESS';
+    if (!fullAccessAppointment) {
+      return;
+    }
     if (!isStoreOpen(date, false)) {
       alert(strings.closedStoreTimeSlotErrorMessage);
       return;
@@ -607,7 +613,9 @@ export class AgendaScreen extends Component {
       appointment.appointmentTypes,
       appointment.numberOfSlots,
       newId,
-      !isEmpty(getValue(appointment, 'supplier.id')) ? appointment.supplier.id : 0,
+      !isEmpty(getValue(appointment, 'supplier.id'))
+        ? appointment.supplier.id
+        : 0,
       appointment.earlyRequest,
       appointment.earlyRequestComment,
       true,
@@ -639,7 +647,9 @@ export class AgendaScreen extends Component {
         appointment.appointmentTypes,
         appointment.numberOfSlots,
         appointment.id,
-        !isEmpty(getValue(appointment, 'supplier.id')) ? appointment.supplier.id : 0,
+        !isEmpty(getValue(appointment, 'supplier.id'))
+          ? appointment.supplier.id
+          : 0,
         appointment.earlyRequest,
         appointment.earlyRequestComment,
         false,
