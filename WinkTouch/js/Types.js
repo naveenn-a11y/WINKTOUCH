@@ -205,7 +205,6 @@ export type Appointment = {
   appointmentTypes?: string[],
   indicators?: string[],
   comment?: string,
-  supplierName?: string,
   supplierId?: string,
   isBusy?: boolean,
   earlyRequest?: boolean,
@@ -213,7 +212,13 @@ export type Appointment = {
   numberOfSlots?: number,
   appointmentPrivilege?: Privilege,
   inactive?: boolean,
+  supplier?: Supplier,
 };
+
+export type Supplier = {
+  id: string,
+  name: string
+}
 
 export type Prism = {
   prismH?: number,
