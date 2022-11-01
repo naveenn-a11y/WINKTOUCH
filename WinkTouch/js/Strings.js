@@ -363,6 +363,8 @@ export const strings = new LocalizedStrings({
     reason: 'Reason',
     agentLoginWarning:
       'This is a production account that uses private data. Do not enter any real patient data!',
+    billingUpdateShortWarning:
+      'If you already created an invoice for this visit and want to make modifications to this section... ',
     billingUpdateWarning:
       'Changes made in this screen AFTER you created the invoice WILL NOT reflect on that invoice. If you make changes after you’ve created the invoice make sure you record the changes by doing one of the following:\n' +
       '\n' +
@@ -383,6 +385,8 @@ export const strings = new LocalizedStrings({
     reloadVisitTitle: 'Reload Visit',
     customiseDefaultExams: 'Define Default Exams',
     customiseExamDefinition: 'Customise Exam Definition',
+    readMore: 'Read more',
+    readLess: 'Read less',
   },
   fr: {
     enterRegisteredEmail:
@@ -746,6 +750,8 @@ export const strings = new LocalizedStrings({
     reason: 'Raison',
     agentLoginWarning:
       "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
+    billingUpdateShortWarning:
+      'Si vous avez déjà créée une facture pour cette visite et désirez faire des modifications à la facturation... ',
     billingUpdateWarning:
       'Les changements que vous apporterez dans cette section APRÈS avoir créé la facture ne seront pas reflétés sur la facture. Si vous apportez des modifications après avoir créé la facture, veuillez vous assurer d’exécuter l’une des options suivantes:\n' +
       '\n' +
@@ -767,6 +773,8 @@ export const strings = new LocalizedStrings({
     reloadVisitTitle: 'Recharger la visite',
     customiseDefaultExams: 'Définir les examens par défaut',
     customiseExamDefinition: 'Personnaliser la définition des examens',
+    readMore: 'Lire plus',
+    readLess: 'Lire moins',
   },
 });
 

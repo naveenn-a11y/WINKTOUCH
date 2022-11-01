@@ -65,7 +65,14 @@ import {
   ExportIcon,
 } from './Favorites';
 import {getExamDefinition} from './ExamDefinition';
-import {Alert, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
+import {
+  Alert,
+  CollapsibleMessage,
+  Lock,
+  NativeBar,
+  NoAccess,
+  Pencil,
+} from './Widgets';
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
@@ -1343,9 +1350,10 @@ export class ExamScreen extends Component {
   renderExamWarnings() {
     if (this.state.exam.definition.name.toLowerCase() === 'diagnosis') {
       return (
-        <View style={styles.warningPanel}>
-          <Text style={styles.copyText}>{strings.billingUpdateWarning}</Text>
-        </View>
+        <CollapsibleMessage
+          shortMessage={strings.billingUpdateShortWarning}
+          longMessage={strings.billingUpdateWarning}
+        />
       );
     }
     return null;

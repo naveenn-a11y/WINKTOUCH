@@ -898,10 +898,10 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   topFlow2: {
-    alignItems: 'center', 
-    justifyContent: 'space-between', 
-    paddingLeft: 10 * fontScale, 
-    paddingRight: 10 * fontScale
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale,
   },
   verticalFlow: {
     flexDirection: 'column',
@@ -1495,8 +1495,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   paddingLeftRight10: {
-    paddingLeft: 10 * fontScale, 
-    paddingRight: 10 * fontScale
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale,
+  },
+  readMoreLabel: {
+    color: '#1fb3b4',
+    fontWeight: 'bold',
   },
 });
 
