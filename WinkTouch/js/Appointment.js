@@ -731,7 +731,7 @@ export class AppointmentSummary extends Component {
     };
   }
   componentDidMount() {
-    this.getLockedState();
+    // this.getLockedState();
   }
 
   componentDidUpdate(prevProps: any) {
