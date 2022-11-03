@@ -372,7 +372,7 @@ export const strings = new LocalizedStrings({
       '\n' +
       'OR\n' +
       '\n' +
-      '- Create an invoice again. This will create a second invoice, so the previous one will have to be cancelled via WINKpms.',
+      '- Create an invoice again. This will create a second invoice, so the previous one will have to be cancelled via WINKpms. ',
     treatment: 'Treatment',
     plan: 'Plan',
     appUpdateTitle: 'New update is available',
@@ -754,7 +754,7 @@ export const strings = new LocalizedStrings({
     agentLoginWarning:
       "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
     billingUpdateShortWarning:
-      'Si vous avez déjà créée une facture pour cette visite et désirez faire des modifications à la facturation... ',
+      'Si vous avez déjà créé une facture pour cette visite et désirez faire des modifications à la facturation... ',
     billingUpdateWarning:
       'Les changements que vous apporterez dans cette section APRÈS avoir créé la facture ne seront pas reflétés sur la facture. Si vous apportez des modifications après avoir créé la facture, veuillez vous assurer d’exécuter l’une des options suivantes:\n' +
       '\n' +
@@ -762,7 +762,7 @@ export const strings = new LocalizedStrings({
       '\n' +
       'OU\n' +
       '\n' +
-      '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms.',
+      '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms. ',
     treatment: 'Traitement',
     plan: 'Plan',
     appUpdateTitle: 'Une nouvelle mise à jour est disponible',
