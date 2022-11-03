@@ -387,6 +387,9 @@ export const strings = new LocalizedStrings({
     customiseExamDefinition: 'Customise Exam Definition',
     readMore: 'Read more',
     readLess: 'Read less',
+    InvoiceAgainAlertTitle: 'Existing Invoice',
+    InvoiceAgainAlertMessage:
+      'You are creating an additional invoice for this visit.\nPlease make sure you cancel the original invoice in WINKpms to avoid duplicates.',
   },
   fr: {
     enterRegisteredEmail:
@@ -775,6 +778,9 @@ export const strings = new LocalizedStrings({
     customiseExamDefinition: 'Personnaliser la définition des examens',
     readMore: 'Lire plus',
     readLess: 'Lire moins',
+    InvoiceAgainAlertTitle: 'Facture existante',
+    InvoiceAgainAlertMessage:
+      'Vous avez créé une nouvelle facture pour cette visite.\nVeuillez vous assurer d’annuler la facture original pour éviter des doublons. ',
   },
 });
 

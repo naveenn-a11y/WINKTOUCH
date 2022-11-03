@@ -918,6 +918,7 @@ class VisitWorkFlow extends Component {
     isPrintingRx: boolean,
     isPrintingCLRx: boolean,
     postInvoiceLoading: boolean,
+    showInvoiceAlert: ?boolean,
   };
 
   constructor(props: any) {
@@ -941,6 +942,7 @@ class VisitWorkFlow extends Component {
       isPrintingRx: false,
       isPrintingCLRx: false,
       postInvoiceLoading: false,
+      showInvoiceAlert: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1146,11 +1148,7 @@ class VisitWorkFlow extends Component {
   }
   hasInvoice(): boolean {
     const visit: Visit = this.state.visit;
-    const piIds: string[] = getCachedItem('visitInvoices-' + visit.id);
-    return (
-      (visit.invoices && visit.invoices.length > 0) ||
-      (piIds && piIds.length > 0)
-    );
+    return visit.invoices && visit.invoices.length > 0;
   }
 
   async createExam(examDefinitionId: string) {
@@ -1254,7 +1252,30 @@ class VisitWorkFlow extends Component {
     }
   }
 
+  showInvoiceAlert() {
+    this.setState({showInvoiceAlert: true});
+  }
+  hideInvoiceAlert() {
+    this.setState({showInvoiceAlert: false});
+  }
+
+  renderInvoiceAlert() {
+    return (
+      <Alert
+        title={strings.InvoiceAgainAlertTitle}
+        message={strings.InvoiceAgainAlertMessage}
+        dismissable={true}
+        onConfirmAction={() => this.invoice()}
+        onCancelAction={() => this.hideInvoiceAlert()}
+        confirmActionLabel={strings.invoiceAgain}
+        cancelActionLabel={strings.cancel}
+        style={styles.alert}
+      />
+    );
+  }
+
   async invoice() {
+    this.hideInvoiceAlert();
     this.setState({postInvoiceLoading: true});
     const appointment: Appointment = this.state.appointment;
     const visit: Visit = this.state.visit;
@@ -1277,12 +1298,12 @@ class VisitWorkFlow extends Component {
       } else {
         this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
       }
-      this.showSnackBar();
     } catch (error) {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
     this.setState({visit, postInvoiceLoading: false});
+    this.showSnackBar();
   }
 
   async endVisit() {
@@ -1943,6 +1964,7 @@ class VisitWorkFlow extends Component {
         {this.state.showClRxPopup && this.renderPrintCLRxPopup()}
         {this.state.showMedicationRxPopup &&
           this.renderPrintMedicationRxPopup()}
+        {this.state.showInvoiceAlert && this.renderInvoiceAlert()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -2038,7 +2060,9 @@ class VisitWorkFlow extends Component {
               title={
                 this.hasInvoice() ? strings.invoiceAgain : strings.createInvoice
               }
-              onPress={() => this.invoice()}
+              onPress={() =>
+                this.hasInvoice() ? this.showInvoiceAlert() : this.invoice()
+              }
             />
           )}
         </View>
