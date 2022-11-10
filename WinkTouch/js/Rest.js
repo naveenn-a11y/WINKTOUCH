@@ -703,7 +703,13 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return __DEV__ ? 'http://localhost:8080/Web/' : restUrl;
+  return !__DEV__ ? 'http://localhost:8080/Web/' : restUrl;
+}
+
+export function getEmrNodeUrl(): string {
+  return __DEV__
+    ? 'http://localhost:7001/'
+    : 'https://emr-node.azurewebsites.net/';
 }
 
 async function setRestUrl(winkEmrHost: string) {

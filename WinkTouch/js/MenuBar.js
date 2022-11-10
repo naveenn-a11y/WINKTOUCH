@@ -32,6 +32,7 @@ import {ModeContext} from '../src/components/Context/ModeContextProvider';
 import {REACT_APP_HOST} from '../env.json';
 import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
+import {getCurrentHost} from '../scripts/Util';
 
 export class Notifications extends PureComponent {
   render() {
@@ -196,7 +197,7 @@ export class MenuBar extends PureComponent {
             onPress={() =>
               !isWeb
                 ? codePush.restartApp()
-                : window.location.replace(REACT_APP_HOST)
+                : window.location.replace(getCurrentHost())
             }
           />
         )}

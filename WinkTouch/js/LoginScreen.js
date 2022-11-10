@@ -47,6 +47,7 @@ import {
 import {fetchCodeDefinitions} from './Codes';
 import {REACT_APP_HOST} from '../env.json';
 import {isEmpty} from './Util';
+import {getCurrentHost} from '../scripts/Util';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
@@ -340,7 +341,7 @@ export class MfaScreen extends Component {
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
-              : window.location.replace(REACT_APP_HOST)
+              : window.location.replace(getCurrentHost())
           }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
@@ -845,7 +846,7 @@ export class LoginScreen extends Component {
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
-              : window.location.replace(REACT_APP_HOST)
+              : window.location.replace(getCurrentHost())
           }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.

@@ -1,19 +1,35 @@
 /**
  * @flow
  */
+
 'use strict';
 import React, {Component} from 'react';
-import {View, ActivityIndicator, AppState} from 'react-native';
+import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, {SyncStatus} from 'react-native-code-push';
-import type {Registration, Store, User} from './Types';
+import type {Appointment, EmrHost, Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
-import {setDeploymentVersion, checkBinaryVersion} from './Version';
-import {isWeb} from './Styles';
+import {
+  setDeploymentVersion,
+  checkBinaryVersion,
+  deploymentVersion,
+} from './Version';
+import {AppUpdateScreen} from './AppUpdate';
+import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
+import RemoteConfig from './utilities/RemoteConfig';
+import {isEmpty} from './Util';
+import {
+  defaultHost,
+  getEmrNodeUrl,
+  getRestUrl,
+  handleHttpError,
+  performActionOnItem,
+} from './Rest';
+import {getUserLanguage, strings} from './Strings';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -59,6 +75,40 @@ function logUpdateStatus(status: number) {
 
 let lastUpdateCheck: ?Date;
 
+async function getHostFromBundleKey(bundle: string): Promise<EmrHost> {
+  const searchCriteria = {
+    bundle,
+  };
+  let url = getEmrNodeUrl() + 'getEmrHost';
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: JSON.stringify(searchCriteria),
+    });
+    if (!httpResponse.ok) {
+      __DEV__ &&
+        console.log(
+          'HTTP response error ' +
+            httpResponse.status +
+            ': ' +
+            httpResponse.url,
+        );
+      return;
+    }
+    let restResponse = await httpResponse.json();
+    const emrHost: EmrHost = restResponse.emr
+      ? restResponse.emr
+      : {host: defaultHost, version: deploymentVersion, path: '/'};
+    return emrHost;
+  } catch (error) {
+    console.log(error);
+  }
+}
 export async function checkAndUpdateDeployment(registration: ?Registration) {
   if (__DEV__) {
     console.log('Checking and updating bundle (not on dev).');
@@ -100,6 +150,15 @@ export async function checkAndUpdateDeployment(registration: ?Registration) {
       logUpdateStatus,
     );
     codePush.allowRestart();
+  } else {
+    const emrHost: EmrHost = await getHostFromBundleKey(registration.bundle);
+    if (emrHost !== undefined) {
+      if (emrHost.version !== deploymentVersion) {
+        const path: string = isEmpty(emrHost.path) ? '/' : emrHost.path;
+        const host: string = isEmpty(emrHost.host) ? defaultHost : emrHost.host;
+        window.location.href = 'https://' + host + path;
+      }
+    }
   }
 }
 
@@ -114,6 +173,9 @@ export class EhrApp extends Component {
     store: ?Store,
     token: ?string,
     isMfaProvided: ?boolean,
+    isUpdateRequired: Boolean,
+    latestBuild: number,
+    latestVersion: number,
   };
 
   constructor() {
@@ -129,6 +191,9 @@ export class EhrApp extends Component {
       token: undefined,
       loading: true,
       isMfaProvided: false,
+      isUpdateRequired: false,
+      latestBuild: 1,
+      latestVersion: 1,
     };
   }
 
@@ -235,6 +300,7 @@ export class EhrApp extends Component {
 
   checkForUpdate() {
     checkAndUpdateDeployment(this.state.registration);
+    this.checkAppstoreUpdateNeeded();
   }
 
   async loadRegistration() {
@@ -251,6 +317,14 @@ export class EhrApp extends Component {
         path,
     );
     this.setRegistration(registration);
+  }
+
+  async checkAppstoreUpdateNeeded() {
+    if (isIos) {
+      const {isUpdateRequired, latestBuild, latestVersion} =
+        await RemoteConfig.shouldUpdateApp();
+      this.setState({isUpdateRequired, latestBuild, latestVersion});
+    }
   }
 
   startLockingDog(ttlInMins?: number) {
@@ -284,11 +358,12 @@ export class EhrApp extends Component {
     this.tracker && this.tracker.start();
   };
 
-  componentDidMount() {
-    this.loadRegistration();
+  async componentDidMount() {
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
+    isIos && (await RemoteConfig.activateRemoteConfig());
     AppState.addEventListener('change', this.onAppStateChange.bind(this));
+    await this.loadRegistration();
   }
 
   componentWillUnmount() {
@@ -299,7 +374,7 @@ export class EhrApp extends Component {
   }
 
   componentDidUpdate(prevProp, prevState) {
-    if (prevState.isLocked != this.state.isLocked) {
+    if (prevState.isLocked !== this.state.isLocked) {
       if (!this.state.isLocked) {
         NavigationService.dismissLockScreen();
       }
@@ -332,6 +407,14 @@ export class EhrApp extends Component {
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ActivityIndicator size="large" />
         </View>
+      );
+    }
+    if (this.state.isUpdateRequired) {
+      return (
+        <AppUpdateScreen
+          latestBuild={this.state.latestBuild}
+          latestVersion={this.state.latestVersion}
+        />
       );
     }
     if (!this.state.isRegistered) {

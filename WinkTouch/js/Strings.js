@@ -344,6 +344,11 @@ export const strings = new LocalizedStrings({
       'The time slot you selected is outside store opening hours. You cannot create an availability !',
     providerTitle: 'Provider',
     loadMoreSummariesTitle: 'Load more summaries...',
+    appUpdateTitle: 'New update is available',
+    appUpdateSubtitle:
+      'Please update the WINKemr app in the apple appstore to get the latest features and best experience.',
+    openAppstore: 'Kindly open appstore to update app',
+    appVersion: 'App Version',
   },
   fr: {
     enterRegisteredEmail:
@@ -687,6 +692,11 @@ export const strings = new LocalizedStrings({
       'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
     providerTitle: 'Pourvoyeur',
     loadMoreSummariesTitle: 'Charger plus de résumés...',
+    appUpdateTitle: 'Une nouvelle mise à jour est disponible',
+    appUpdateSubtitle:
+      'Veuillez mettre à jour l’application WINKemr dans l’Appstore Apple pour obtenir les dernières fonctionnalités et la meilleure expérience.',
+    openAppstore: 'Veuillez ouvrir l’appstore pour mettre à jour l’application',
+    appVersion: 'Version de l’application',
   },
 });
 
