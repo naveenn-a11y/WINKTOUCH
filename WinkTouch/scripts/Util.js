@@ -30,6 +30,9 @@ function getEnvFile(name: string) {
   if (name === 'v411') {
     return require('../envs/v411.json');
   }
+  if (name === 'v412') {
+    return require('../envs/v412.json');
+  }
   return undefined;
 }
 export function getHostFromBundleKey(bundleKey: string): any {
