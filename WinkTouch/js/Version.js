@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 import {strings} from './Strings';
 import {isWeb} from './Styles';
 
-export let deploymentVersion: string = 'v411';
+export let deploymentVersion: string = 'v412';
 export let restVersion: string = 'EHR-411';
 export let ecommVersion: string = 'V4';
 export const dbVersion: string = '1685'; //TODO move to plist
