@@ -24,6 +24,7 @@ target 'WinkTouch' do
   pod 'FirebaseRemoteConfig', :modular_headers => true
   pod 'GoogleDataTransport', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
+
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
