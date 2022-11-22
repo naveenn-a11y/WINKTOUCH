@@ -6,9 +6,8 @@ import {isWeb} from './Styles';
 import codePush from 'react-native-code-push';
 import {getUserLanguage, strings} from './Strings';
 import {getCurrentHost} from '../scripts/Util';
-import {getRestUrl, getToken, handleHttpError} from './Rest';
+import {getRestUrl, getToken} from './Rest';
 import {bundleVersion, deploymentVersion, touchVersion} from './Version';
-
 async function postLogService(error: any, errorInfo: any): void {
   let url = getRestUrl() + 'Logger/';
   try {
@@ -96,6 +95,7 @@ export class VisitErrorBoundary extends Component {
     return this.props.children;
   }
 }
+
 export class ErrorBoundary extends Component {
   props: {
     navigator: any,

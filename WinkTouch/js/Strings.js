@@ -765,6 +765,7 @@ export const strings = new LocalizedStrings({
       '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms. ',
     treatment: 'Traitement',
     plan: 'Plan',
+
     appUpdateTitle: 'Une nouvelle mise à jour est disponible',
     appUpdateSubtitle:
       'Veuillez mettre à jour l’application WINKemr dans l’Appstore Apple pour obtenir les dernières fonctionnalités et la meilleure expérience.',
