@@ -3,11 +3,14 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNFS from 'react-native-fs';
 import {PDFDocument, PDFPage} from 'pdf-lib';
 
-export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:function=()=>{}) {
-
+export async function printHtml(
+  html: string,
+  PDFAttachment: Array<any> = [],
+  cb: function = () => {},
+) {
   let pdf = await generatePDF(html, false);
-  const resultPdf = await addPDFAttachment(pdf,PDFAttachment);
- 
+  const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
+
   const resultBase64: string = await resultPdf.saveAsBase64();
   const fPath = `${RNFS.DocumentDirectoryPath}/pdfFileName.pdf`;
   await RNFS.writeFile(fPath, resultBase64, 'base64');
@@ -16,7 +19,7 @@ export async function printHtml(html: string, PDFAttachment:Array<any> =[], cb:f
   await RNFS.unlink(fPath);
   return job;
 }
-export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
+export async function addPDFAttachment(pdf, PDFAttachment: Array<any> = []) {
   let pageWidth: number = 612;
   const pageAspectRatio: number = 8.5 / 11;
   let pageHeight: number = pageWidth / pageAspectRatio;
@@ -45,7 +48,7 @@ export async function addPDFAttachment(pdf,PDFAttachment:Array<any> =[]){
       }
     }
   }
-  return resultPdf
+  return resultPdf;
 }
 export async function generatePDF(html: string, isBase64: boolean) {
   const pageWidth: number = 612;

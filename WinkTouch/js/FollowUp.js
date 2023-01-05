@@ -525,13 +525,21 @@ export class FollowUpScreen extends Component<
         let PDFAttachment = getPDFAttachmentFromHtml(html);
         await printHtml(html, PDFAttachment);
       } else {
-        const data = {uri: `data:${getMimeType(upload)};base64,${upload.data}`};
-        html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
-        if (isWeb) {
-          print(html);
+        const mimeType: string = getMimeType(upload);
+        if (
+          mimeType === 'application/pdf;base64' ||
+          mimeType === 'application/pdf'
+        ) {
+          await printBase64Pdf(upload.data);
         } else {
-          let PDFAttachment = getPDFAttachmentFromHtml(html);
-          await printHtml(html, PDFAttachment);
+          const data = {uri: `data:${mimeType};base64,${upload.data}`};
+          html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
+          if (isWeb) {
+            print(html);
+          } else {
+            let PDFAttachment = getPDFAttachmentFromHtml(html);
+            await printHtml(html, PDFAttachment);
+          }
         }
       }
     }
