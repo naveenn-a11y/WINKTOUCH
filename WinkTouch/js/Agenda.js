@@ -73,6 +73,30 @@ const WEEKDAYS = {
   FRIDAY: 5,
   SATURDAY: 6,
 };
+const OVERLAP_OFFSET: number = 40;
+const OVERLAP_PADDING: number = 3;
+
+function getOrderOfEvent(event, eventList) {
+  let events = eventList
+    .filter(function (e) {
+      return (
+        (dayjs(event.start).isBetween(e.start, e.end, 'minute', '[)') ||
+          dayjs(e.start).isBetween(event.start, event.end, 'minute', '[)')) &&
+        e.userId === event.userId
+      );
+    })
+    .sort(function (a, b) {
+      if (dayjs(a.start).isSame(b.start)) {
+        return dayjs(a.start).diff(a.end) < dayjs(b.start).diff(b.end) ? -1 : 1;
+      } else {
+        return dayjs(a.start).isBefore(b.start) ? -1 : 1;
+      }
+    });
+
+  var index = events.indexOf(event);
+  const orderOfEvent = index === -1 ? 0 : index;
+  return orderOfEvent;
+}
 
 function isStoreOpen(
   date: Date,
@@ -1414,6 +1438,7 @@ class Event extends Component {
     selectedDoctors: [],
     eventWidth: Number,
     event: ICalendarEvent<T>,
+    eventOrder: number,
     touchableOpacityProps: CalendarTouchableOpacityProps,
   };
   state: {
@@ -1460,23 +1485,20 @@ class Event extends Component {
     if (index < 0) {
       return null;
     }
-    const patient: Patient = getCachedItem(event.patientId);
 
+    const patient: Patient = getCachedItem(event.patientId);
     const appointmentType: AppointmentType =
       event && event.appointmentTypes
         ? getCachedItem(event.appointmentTypes[0])
         : undefined;
-    let start = 0;
-    for (let item of this.props?.touchableOpacityProps?.style) {
-      const appointmentStart = index * 20 + 3;
-      if (typeof item === 'object' && item.start !== undefined) {
-        start =
-          appointmentStart < item.start
-            ? (item.start * appointmentStart) / 2
-            : item.start;
-      }
+    let start: number = 0;
+    if (this.props.eventOrder === undefined || this.props.eventOrder === null) {
+      start = 0;
+    } else {
+      start = this.props.eventOrder * OVERLAP_OFFSET;
     }
-    if (start === undefined || start === null) {
+    start += OVERLAP_PADDING;
+    if (start > eventWidth) {
       start = 0;
     }
 
@@ -1586,7 +1608,7 @@ class NativeCalendar extends Component {
       <>
         <Calendar
           ampm
-          overlapOffset={20}
+          overlapOffset={OVERLAP_OFFSET}
           mode={mode}
           date={date}
           swipeEnabled={false}
@@ -1624,6 +1646,7 @@ class NativeCalendar extends Component {
           ) => (
             <Event
               event={event}
+              eventOrder={getOrderOfEvent(event, appointments)}
               eventWidth={eventWidth}
               touchableOpacityProps={touchableOpacityProps}
               selectedDoctors={this.props.selectedDoctors}
