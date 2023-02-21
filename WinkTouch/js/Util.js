@@ -485,7 +485,7 @@ export function cleanUpArray(a: any[]): any[] {
 export function deepAssign(value: Object, newValue: Object): Object {
   for (let [key: string, subNewValue: any] of Object.entries(newValue)) {
     let subValue: any = value[key];
-    
+
     if (subValue instanceof Array) {
       Array.isArray(subNewValue) ? subValue.push(...subNewValue) : subValue.push(subNewValue);
     } else if(subValue instanceof Object) {
@@ -498,7 +498,7 @@ export function deepAssign(value: Object, newValue: Object): Object {
         }
     } else {
       value[key] = subNewValue;
-    } 
+    }
   }
 }
 
@@ -801,4 +801,14 @@ export function deepEqual(object1: any, object2: any) {
 }
 function isObject(object: any) {
   return object != null && typeof object === 'object';
+}
+
+export function getDoctorFullName(doctor: User): string {
+  if (doctor) {
+    return `${doctor.firstName && doctor.firstName.trim()} ${
+        doctor.lastName && doctor.lastName.trim()
+    }`;
+  } else {
+    return '';
+  }
 }

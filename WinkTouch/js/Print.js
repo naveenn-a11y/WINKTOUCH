@@ -15,7 +15,7 @@ import {
   officialDateFormat,
   prefix,
   postfix,
-  isEmpty,
+  isEmpty, getDoctorFullName,
 } from './Util';
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
@@ -227,7 +227,7 @@ async function addStoreLogoWeb(page: PDFPage, pdfDoc?: PDFDocument, x: number, y
   __DEV__ && console.log(`Fetching Store logo: ${url}`);
 
     const storeLogo = await loadBase64ImageForWeb(url);
-    
+
     if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
       return;
     }
@@ -257,7 +257,7 @@ async function addStoreLogoIos(page: PDFPage, pdfDoc?: PDFDocument, x: number, y
 
   const fPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
   const imageDim = await getImageDimensions(fPath);
-  
+
   page.drawImage(fPath, 'png', {
     x,
     y: y - 50,
@@ -271,7 +271,7 @@ function getImageDimensions(storeLogo: string): Promise<any> {
     Image.getSize(storeLogo, (width, height) => {
       const ratio = height/width;
       const imageWidth = 120;
-      const imageHeight = imageWidth * ratio; 
+      const imageHeight = imageWidth * ratio;
       resolve({width: imageWidth, height: imageHeight});
     }, (error) => {
       resolve({});
@@ -308,12 +308,12 @@ async function addDrHeader(
 
   y -= fontSize * 2 + 50;
 
-  //page.drawText('Dr FirstName Latname - License Number', {x,y,fontSize});
-  page.drawText(
-    doctor.firstName +
-      prefix(doctor.lastName, ' ') +
+  const doctorName: string =
+      getDoctorFullName(doctor) +
       prefix(doctor.providerType, ' - ') +
-      prefix(doctor.license, ' - '),
+      prefix(doctor.license, ' - ');
+  page.drawText(
+      doctorName,
     {x, y, size: fontSize},
   );
   y -= fontSize * 2;
