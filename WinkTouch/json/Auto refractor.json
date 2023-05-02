@@ -5,7 +5,7 @@
   "order": "4",
   "locale": {
     "fr-CA": {
-      "label": "Auto-Réfraction",
+      "label": "Auto-réfraction",
       "fields": [
         {
           "name": "Auto refractor",
@@ -21,6 +21,7 @@
     }
   },
   "name": "Auto refractor",
+  "label": "Auto Refractor",
   "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.3",

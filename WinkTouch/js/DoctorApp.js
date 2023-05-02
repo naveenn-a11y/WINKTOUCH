@@ -45,13 +45,16 @@ import {ConfigurationScreen, getConfiguration} from './Configuration';
 import {deleteLocalFiles} from './Print';
 import {ReferralScreen} from './Referral';
 import {FollowUpScreen} from './FollowUp';
-import {CustomisationScreen} from './Customisation';
+import {
+  DefaultExamCustomisationScreen,
+  CustomisationScreen,
+} from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ErrorBoundary from './ErrorBoundary';
+import {ErrorBoundary} from './ErrorBoundary';
 import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
-import {Provider} from 'react-native-paper';
+import {Provider, DefaultTheme} from 'react-native-paper';
 import {clearDataCache} from './DataCache';
 import {cacheDefinitions} from './Items';
 import {getUserLanguage} from './Strings';
@@ -128,6 +131,11 @@ const DoctorNavigator = createStackNavigator(
     referral: {screen: ReferralScreen, path: '/'},
     followup: {screen: FollowUpScreen, path: '/'},
     customisation: {screen: CustomisationScreen, path: '/'},
+    defaultTileCustomisation: {
+      screen: DefaultExamCustomisationScreen,
+      path: '/',
+    },
+
     room: {screen: RoomScreen, path: '/'},
     lock: {screen: LockScreen, path: '/'},
   },
@@ -139,12 +147,7 @@ const DoctorNavigator = createStackNavigator(
 const DocatorAppContainer = createAppContainer(DoctorNavigator);
 
 const defaultGetStateForAction = DoctorNavigator.router.getStateForAction;
-const replaceRoutes: string[] = [
-  'findPatient',
-  'templates',
-  'examHistory',
-  'examGraph',
-];
+const replaceRoutes: string[] = ['findPatient', 'examHistory', 'examGraph'];
 
 DoctorNavigator.router.getStateForAction = (action, state) => {
   if (state && action.type === NavigationActions.NAVIGATE) {
@@ -185,6 +188,11 @@ export function getPhoropters(): CodeDefinition[] {
   );
   return phoropters;
 }
+
+const theme = {
+  ...DefaultTheme,
+  dark: false,
+};
 
 export class DoctorApp extends Component {
   props: {
@@ -314,13 +322,15 @@ export class DoctorApp extends Component {
 
   render() {
     return (
-      <ErrorBoundary>
-        <ModeContextProvider>
-          <Provider>
-            <View 
-              style={styles.screeen} 
-            >
-              <StatusBar hidden={true} />
+      <ModeContextProvider>
+        <Provider theme={theme}>
+          <View style={styles.screeen}>
+            <StatusBar hidden={true} />
+            <ErrorBoundary
+              navigator={{
+                state: this.state.currentRoute,
+                navigate: this.navigate,
+              }}>
               <DocatorAppContainer
                 ref={(navigator) => this.setNavigator(navigator)}
                 screenProps={{
@@ -330,20 +340,20 @@ export class DoctorApp extends Component {
                 }}
                 onNavigationStateChange={this.navigationStateChanged}
               />
-              <MenuBar
-                scene={{}}
-                navigation={{
-                  state: this.state.currentRoute,
-                  navigate: this.navigate,
-                }}
-                screenProps={{
-                  onLogout: this.logout,
-                }}
-              />
-            </View>
-          </Provider>
-        </ModeContextProvider>
-      </ErrorBoundary>
+            </ErrorBoundary>
+            <MenuBar
+              scene={{}}
+              navigation={{
+                state: this.state.currentRoute,
+                navigate: this.navigate,
+              }}
+              screenProps={{
+                onLogout: this.logout,
+              }}
+            />
+          </View>
+        </Provider>
+      </ModeContextProvider>
     );
   }
 }

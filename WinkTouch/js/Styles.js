@@ -232,6 +232,9 @@ export const styles = StyleSheet.create({
   modalTileLabel: modalTileLabel(false),
   modalTileLabelSelected: modalTileLabel(true),
   modalTileIcon: modalTileLabel(false, true),
+  boldText: {
+    fontWeight: 'bold',
+  },
   text: {
     fontSize: 17 * fontScale,
   },
@@ -253,14 +256,13 @@ export const styles = StyleSheet.create({
     padding: 10 * fontScale,
   },
   chooseButton: {
-    width: 200,
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: 'gray',
     borderWidth: 1,
-    marginRight: 10,
     borderRadius: 2,
     padding: 10 * fontScale,
+    marginLeft: 10 * fontScale,
   },
 
   checkButtonLayout: {
@@ -391,6 +393,11 @@ export const styles = StyleSheet.create({
   menuIcon: {
     color: 'white',
     fontSize: 50 * fontScale,
+  },
+  menuIcon2: {
+    color: 'white',
+    fontSize: 35 * fontScale,
+    padding: 25 * fontScale,
   },
   addButton: {
     width: 60 * fontScale,
@@ -813,6 +820,12 @@ export const styles = StyleSheet.create({
     borderWidth: 3 * fontScale,
     margin: 7 * fontScale,
   },
+  warningPanel: {
+    flexGrow: 0,
+    padding: 15 * fontScale,
+    minHeight: 40 * fontScale,
+    backgroundColor: 'red',
+  },
   buttonsCard: {
     padding: 10 * fontScale,
     paddingBottom: 40 * fontScale,
@@ -883,6 +896,12 @@ export const styles = StyleSheet.create({
     ...flow,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
+  },
+  topFlow2: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale,
   },
   verticalFlow: {
     flexDirection: 'column',
@@ -997,9 +1016,6 @@ export const styles = StyleSheet.create({
     right: 8 * fontScale,
   },
   topRight: {
-    position: 'absolute',
-    right: 8 * fontScale,
-    top: 10 * fontScale,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1146,6 +1162,7 @@ export const styles = StyleSheet.create({
   examIconsFlex: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    width: '100%',
   },
   drawingIcons: {
     position: 'absolute',
@@ -1412,7 +1429,7 @@ export const styles = StyleSheet.create({
   },
   appointmentActionButton: {
     maxWidth: 180,
-    minWidth: 100,
+    minWidth: 70 * fontScale,
     marginTop: 20,
     borderRadius: 10,
     padding: 5,
@@ -1420,6 +1437,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 2,
+    textAlign: 'center',
   },
   doubleBookingTimeField: {
     color: 'black',
@@ -1453,9 +1471,9 @@ export const styles = StyleSheet.create({
   paddingLeft40: {
     paddingLeft: 40 * fontScale,
   },
-  summaryGroupContainer: { 
+  summaryGroupContainer: {
     flexDirection: 'row',
-    marginBottom: 10 * fontScale, 
+    marginBottom: 10 * fontScale,
   },
   summarySubTitle: {
     fontSize: 17 * fontScale,
@@ -1468,6 +1486,21 @@ export const styles = StyleSheet.create({
     fontSize: 17 * fontScale,
     flexWrap: 'wrap',
     flexShrink: 1,
+  },
+  examLabel: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paddingLeftRight10: {
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale,
+  },
+  readMoreLabel: {
+    color: '#1fb3b4',
+    fontWeight: 'bold',
   },
 });
 

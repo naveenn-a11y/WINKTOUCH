@@ -1,5 +1,6 @@
 {
   "name": "Eye exam",
+  "label": "Eye Exam",
   "isPreExam": false,
   "scrollable": true,
   "card": true,

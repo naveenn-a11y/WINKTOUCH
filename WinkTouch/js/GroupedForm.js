@@ -14,6 +14,7 @@ import type {
   ExamPredefinedValue,
   GlassesRx,
   Measurement,
+  CodeDefinition,
 } from './Types';
 import {strings} from './Strings';
 import {styles, scaleStyle, fontScale, isWeb} from './Styles';
@@ -30,7 +31,7 @@ import {
   jsonDateTimeFormat,
   yearDateFormat,
 } from './Util';
-import {formatAllCodes} from './Codes';
+import {formatAllCodes, getCodeDefinition} from './Codes';
 import {getCachedItem} from './DataCache';
 import {
   Favorites,
@@ -133,7 +134,37 @@ function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} {
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
-      const value: any = exam !== undefined ? getValue(exam, key) : undefined;
+      let value: any = exam !== undefined ? getValue(exam, key) : undefined;
+      const equalKey = '==';
+      if (key.includes(equalKey)) {
+        const subKeys: string[] = key.split(equalKey);
+        const subValue: any = subKeys[1];
+        const subKey: string = subKeys[0];
+        value = exam !== undefined ? getValue(exam, subKey) : undefined;
+        if (value === undefined) {
+          const fieldName: string = subKey.substring(
+            subKey.lastIndexOf('.') + 1,
+          );
+          if (fieldName.toLowerCase() === 'povonlineid') {
+            value =
+              exam !== undefined
+                ? getValue(exam, 'Diagnosis.Insurer.supplierId')
+                : undefined;
+            let supplierCode: CodeDefinition = value
+              ? getCodeDefinition('insuranceProviders', value)
+              : undefined;
+            if (
+              supplierCode != null &&
+              supplierCode.povOnlineId != null &&
+              supplierCode.povOnlineId.toString() === subValue
+            ) {
+              value = subValue;
+            } else {
+              value = null;
+            }
+          }
+        }
+      }
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     }
   }
@@ -375,6 +406,7 @@ export class CheckList extends PureComponent {
   }
 
   select = (option: string) => {
+    console.log('Optionss: ' + option);
     let value: string | string[] = this.props.value;
     if (value instanceof Array) {
       if (this.props.definition.prefix instanceof Array) {
@@ -904,6 +936,11 @@ export class GroupedCard extends Component {
           showHeaders={false}
           glassesRx={rx}
           key={groupDefinition.name + '.' + index}
+          title={
+            this.props.exam.definition.showSubtitles
+              ? formatLabel(groupDefinition)
+              : null
+          }
         />
       ));
     }
@@ -914,6 +951,11 @@ export class GroupedCard extends Component {
           this.props.exam[this.props.exam.definition.name][groupDefinition.name]
         }
         key={groupDefinition.name}
+        title={
+          this.props.exam.definition.showSubtitles
+            ? formatLabel(groupDefinition)
+            : null
+        }
       />
     );
   }
@@ -1319,6 +1361,7 @@ export class GroupedForm extends Component {
         fieldDefinition,
       );
     }
+
     let value = this.props.form
       ? column
         ? this.props.form[column]
@@ -1948,7 +1991,7 @@ export class GroupedFormScreen extends Component<
   }
 
   getPatientId(): string {
-    return getCachedItem(this.props.exam.visitId).patientId;
+    return getCachedItem(this.props.exam?.visitId)?.patientId;
   }
 
   addGroupItem = (
@@ -2030,8 +2073,22 @@ export class GroupedFormScreen extends Component<
     this.props.onUpdateExam(this.props.exam);
   };
 
-  pasteData = async (fieldDefinition: FieldDefinition, index?: number): void => {
-    const existingGlassesRx: GlassesRx = (index !== undefined && index !== null) ?  deepClone( this.props.exam[this.props.exam.definition.name][fieldDefinition.name][index]) : deepClone( this.props.exam[this.props.exam.definition.name][fieldDefinition.name]);
+  pasteData = async (
+    fieldDefinition: FieldDefinition,
+    index?: number,
+  ): void => {
+    const existingGlassesRx: GlassesRx =
+      index !== undefined && index !== null
+        ? deepClone(
+            this.props.exam[this.props.exam.definition.name][
+              fieldDefinition.name
+            ][index],
+          )
+        : deepClone(
+            this.props.exam[this.props.exam.definition.name][
+              fieldDefinition.name
+            ],
+          );
     if (existingGlassesRx) {
       existingGlassesRx.od.sph = this.props.copiedData.od.sph;
       existingGlassesRx.od.cyl = this.props.copiedData.od.cyl;
@@ -2042,13 +2099,16 @@ export class GroupedFormScreen extends Component<
     }
 
     if (index !== undefined && index !== null) {
-      this.props.exam[this.props.exam.definition.name][fieldDefinition.name][index] = existingGlassesRx;
+      this.props.exam[this.props.exam.definition.name][fieldDefinition.name][
+        index
+      ] = existingGlassesRx;
     } else {
-      this.props.exam[this.props.exam.definition.name][fieldDefinition.name] = existingGlassesRx;
+      this.props.exam[this.props.exam.definition.name][fieldDefinition.name] =
+        existingGlassesRx;
     }
     this.props.onUpdateExam(this.props.exam);
     this.props.deleteCopiedData();
-  }
+  };
 
   copyToFinal = (glassesRx: GlassesRx): void => {
     glassesRx = deepClone(glassesRx);
@@ -2251,14 +2311,19 @@ export class GroupedFormScreen extends Component<
                 : undefined
             }
             onCopyFromFinal={
-              groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+              groupDefinition.copyFromFinalRx === true
+                ? this.copyFromFinal
+                : undefined
             }
             onCopy={
-              groupDefinition.canBeCopied === true ? this.props.copyData : undefined
+              groupDefinition.canBeCopied === true
+                ? this.props.copyData
+                : undefined
             }
             onPaste={
-              (groupDefinition.canBePaste === true && this.props.copiedData)
-                ? (fieldDefinition: FieldDefinition) => this.pasteData(fieldDefinition, subIndex)
+              groupDefinition.canBePaste === true && this.props.copiedData
+                ? (fieldDefinition: FieldDefinition) =>
+                    this.pasteData(fieldDefinition, subIndex)
                 : undefined
             }
             onChangeGlassesRx={(glassesRx: GlassesRx) =>
@@ -2334,16 +2399,22 @@ export class GroupedFormScreen extends Component<
           glassesRx={value}
           hasVA={groupDefinition.hasVA}
           onCopyToFinalRx={
-            groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
+            groupDefinition.copyToFinalRx === true
+              ? this.copyToFinal
+              : undefined
           }
           onCopyFromFinal={
-            groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+            groupDefinition.copyFromFinalRx === true
+              ? this.copyFromFinal
+              : undefined
           }
           onCopy={
-            groupDefinition.canBeCopied === true ? this.props.copyData : undefined
+            groupDefinition.canBeCopied === true
+              ? this.props.copyData
+              : undefined
           }
           onPaste={
-            (groupDefinition.canBePaste === true && this.props.copiedData)
+            groupDefinition.canBePaste === true && this.props.copiedData
               ? this.pasteData
               : undefined
           }
@@ -2373,16 +2444,22 @@ export class GroupedFormScreen extends Component<
           glassesRx={value}
           hasVA={groupDefinition.hasVA}
           onCopyToFinalRx={
-            groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined
+            groupDefinition.copyToFinalRx === true
+              ? this.copyToFinal
+              : undefined
           }
           onCopyFromFinal={
-            groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined
+            groupDefinition.copyFromFinalRx === true
+              ? this.copyFromFinal
+              : undefined
           }
           onCopy={
-            groupDefinition.canBeCopied === true ? this.props.copyData : undefined
+            groupDefinition.canBeCopied === true
+              ? this.props.copyData
+              : undefined
           }
           onPaste={
-            (groupDefinition.canBePaste === true && this.props.copiedData)
+            groupDefinition.canBePaste === true && this.props.copiedData
               ? this.pasteData
               : undefined
           }

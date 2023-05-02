@@ -4,7 +4,7 @@
 'use strict';
 
 import React, {PureComponent} from 'react';
-import {View, Text, ScrollView} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
 
 import type {FieldDefinition, ExamDefinition, VisitType} from './Types';
 import {getCachedItem, getCachedItems} from './DataCache';
@@ -16,18 +16,17 @@ import {SelectionList} from './Widgets';
 import {strings} from './Strings';
 import {CheckList} from './GroupedForm';
 import {examSections, getSectionTitle, saveVisitTypes} from './Visit';
-import {capitalize} from './Util';
 
-export type CustomisationScreenProps = {};
-type CustomisationScreenState = {
+export type DefaultExamCustomisationScreenProps = {};
+type DefaultExamCustomisationScreenState = {
   visitTypes: VisitType[],
   visitType: ?string,
   sectionDefinitions: FieldDefinition[],
   isDirty: boolean,
 };
-export class CustomisationScreen extends PureComponent<
-  CustomisationScreenProps,
-  CustomisationScreenState,
+export class DefaultExamCustomisationScreen extends PureComponent<
+  DefaultExamCustomisationScreenProps,
+  DefaultExamCustomisationScreenState,
 > {
   constructor(props: any) {
     super(props);
@@ -151,7 +150,8 @@ export class CustomisationScreen extends PureComponent<
           visitType.examDefinitionIds.indexOf(examDefinitionId) >= 0,
       );
     const selectedExamNames: string[] = selectedExamIds.map(
-      (examDefinitionId: string) => getCachedItem(examDefinitionId).name,
+      (examDefinitionId: string) =>
+        formatLabel(getCachedItem(examDefinitionId)),
     );
     return selectedExamNames;
   }
@@ -165,7 +165,7 @@ export class CustomisationScreen extends PureComponent<
       return;
     }
     sectionDefinition.examDefinitionIds.forEach((examDefinitionId: string) => {
-      const examName: string = getCachedItem(examDefinitionId).name;
+      const examName: string = formatLabel(getCachedItem(examDefinitionId));
       const isSelected: boolean = selectedExamNames.indexOf(examName) >= 0;
       if (isSelected) {
         //Add the exam to the visit type
@@ -192,7 +192,7 @@ export class CustomisationScreen extends PureComponent<
   render() {
     return (
       <View style={styles.flexColumnLayout}>
-        <Text style={styles.screenTitle}>{strings.customisation}</Text>
+        <Text style={styles.screenTitle}>{strings.customiseDefaultExams}</Text>
         <ScrollView horizontal={true}>
           <View style={styles.flexRow}>
             <SelectionList
@@ -221,6 +221,50 @@ export class CustomisationScreen extends PureComponent<
             )}
           </View>
         </ScrollView>
+      </View>
+    );
+  }
+}
+
+export type CustomisationScreenProps = {navigation: any};
+type CustomisationScreenState = {};
+export class CustomisationScreen extends PureComponent<
+  CustomisationScreenProps,
+  CustomisationScreenState,
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = {};
+  }
+
+  render() {
+    return (
+      <View style={styles.screeen}>
+        <View>
+          <Text style={styles.screenTitle}>{strings.customisation}</Text>
+          <View style={styles.rowLayout}>
+            <TouchableOpacity
+              onPress={() =>
+                this.props.navigation.navigate('defaultTileCustomisation')
+              }
+              testID="customizeCard1">
+              <View style={styles.tabCardS}>
+                <Text style={styles.cardTitle}>
+                  {strings.customiseDefaultExams}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('templates')}
+              testID="customizeCard2">
+              <View style={styles.tabCardS}>
+                <Text style={styles.cardTitle}>
+                  {strings.customiseExamDefinition}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }
