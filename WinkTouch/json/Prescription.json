@@ -7,7 +7,7 @@
   "singable": true,
   "locale": {
     "fr-CA": {
-      "label": "Rx Médicaments",
+      "label": "Rx médicaments",
       "fields": [
         {
           "name": "Label",

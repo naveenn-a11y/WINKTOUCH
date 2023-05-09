@@ -4,7 +4,6 @@
     "section": "Form.1",
     "card": true,
     "scrollable": true,
-    "isPreExam": true,
     "fields": [
         {
             "name": "Documents",

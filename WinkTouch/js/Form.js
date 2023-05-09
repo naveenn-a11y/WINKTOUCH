@@ -1,17 +1,16 @@
 /**
  * @flow
  */
+
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import React, {Component} from 'react';
 import {
   View,
   Text,
   TextInput,
-  Button,
   TouchableWithoutFeedback,
   Switch,
-  Modal,
 } from 'react-native';
 import {PhoneNumberUtil} from 'google-libphonenumber';
 import type {
@@ -19,16 +18,9 @@ import type {
   FieldDefinitions,
   CodeDefinition,
   GroupDefinition,
-  Exam,
 } from './Types';
-import {
-  styles,
-  scaleStyle,
-  selectionBorderColor,
-  fontScale,
-  isWeb,
-} from './Styles';
-import {strings, getUserLanguage} from './Strings';
+import {styles, scaleStyle, fontScale} from './Styles';
+import {strings} from './Strings';
 import {
   DateField,
   DurationField,
@@ -62,14 +54,15 @@ import {
   deepClone,
   getValue,
   setValue,
-  formatAge,
-  isEmpty,
+  getRanges,
+  formatRanges,
+  sort,
+  passesRangeFilter,
+  deepEqual,
 } from './Util';
 import {isNumericField, formatLabel} from './Items';
 import {Microphone} from './Voice';
 import {GeneralPrismInput} from './Refraction';
-import {getFieldValue} from './Exam';
-import {getCachedItem} from './DataCache';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -706,6 +699,7 @@ export class FormSwitch extends Component {
     showLabel?: boolean,
     onChangeValue: (newvalue: boolean) => void,
     testID: string,
+    readonly?: boolean,
   };
   static defaultProps = {
     value: false,
@@ -719,6 +713,7 @@ export class FormSwitch extends Component {
           <Label width={this.props.labelWidth} value={this.props.label} />
         )}
         <Switch
+          disabled={this.props.readonly}
           value={this.props.value}
           onValueChange={this.props.onChangeValue}
           testID={this.props.testID + 'Field'}
@@ -1102,6 +1097,7 @@ export class FormCode extends Component {
     hideClear?: boolean,
     listField?: boolean,
     simpleSelect?: boolean,
+    rangeFilter?: {},
   };
 
   getCodeIdentifier() {
@@ -1444,6 +1440,42 @@ export class FormInput extends Component {
     this.props.onChangeValue(image);
   }
 
+  getRangeFilterValue(): ?{} {
+    if (
+      this.props.definition.rangeFilter instanceof Object &&
+      this.props.filterValue instanceof Object
+    ) {
+      let filledFilter;
+      const filterEntries: [][] = Object.entries(
+        this.props.definition.rangeFilter,
+      );
+
+      for (let i: number = 0; i < filterEntries.length; i++) {
+        const filterKey: string = filterEntries[i][0];
+        const filterValue: string = filterEntries[i][1];
+        if (
+          filterValue !== undefined &&
+          filterValue !== null &&
+          filterValue.startsWith('[') &&
+          filterValue.endsWith(']')
+        ) {
+          if (filledFilter === undefined) {
+            filledFilter = deepClone(this.props.definition.rangeFilter);
+          }
+          const filledValue = getValue(
+            this.props.filterValue,
+            filterValue.substring(1, filterValue.length - 1),
+          );
+          filledFilter[filterKey] = filledValue;
+        }
+      }
+      return filledFilter != undefined
+        ? filledFilter
+        : this.props.definition.rangeFilter;
+    }
+    return this.props.definition.rangeFilter;
+  }
+
   renderFormInput() {
     const label: string = this.props.label
       ? this.props.label
@@ -1486,6 +1518,46 @@ export class FormInput extends Component {
         <FormNumberInput
           value={this.props.value}
           {...this.props.definition}
+          errorMessage={this.props.errorMessage}
+          readonly={readonly}
+          onChangeValue={this.props.onChangeValue}
+          label={label}
+          showLabel={this.props.showLabel}
+          prefix={this.props.definition.prefix}
+          suffix={this.props.definition.suffix}
+          isTyping={this.props.isTyping}
+          autoFocus={this.props.autoFocus}
+          style={style}
+          testID={this.props.testID}
+        />
+      );
+    } else if (this.props.definition.hasRange) {
+      if (this.props.isTyping) {
+        return (
+          <FormNumberInput
+            value={this.props.value}
+            {...this.props.definition}
+            errorMessage={this.props.errorMessage}
+            readonly={readonly}
+            onChangeValue={this.props.onChangeValue}
+            label={label}
+            showLabel={this.props.showLabel}
+            prefix={this.props.definition.prefix}
+            suffix={this.props.definition.suffix}
+            isTyping={this.props.isTyping}
+            autoFocus={this.props.autoFocus}
+            style={style}
+            testID={this.props.testID}
+          />
+        );
+      }
+      return (
+        <FormCodeNumberInput
+          value={this.props.value}
+          {...this.props.definition}
+          rangeFilter={this.getRangeFilterValue()}
+          filter={this.getFilterValue()}
+          code={this.props.definition.options}
           errorMessage={this.props.errorMessage}
           readonly={readonly}
           onChangeValue={this.props.onChangeValue}
@@ -1555,6 +1627,7 @@ export class FormInput extends Component {
               this.props.definition.maxLength > 150
             }
             isTyping={this.props.isTyping}
+            rangeFilter={this.getRangeFilterValue()}
             testID={this.props.testID}
           />
         );
@@ -1890,6 +1963,286 @@ export class FormField extends Component {
         disableScroll={this.props.disableScroll}
         testID={this.state.fieldDefinition.name}
       />
+    );
+  }
+}
+
+export class FormCodeNumberInput extends Component {
+  props: {
+    value?: number,
+    errorMessage?: string,
+    label: string,
+    showLabel?: boolean,
+    labelWidth?: number,
+    prefix?: string,
+    suffix?: string,
+    onChangeValue?: (value: ?number) => void,
+    readonly?: boolean,
+    freestyle?: boolean,
+    minValue?: number,
+    maxValue?: number,
+    stepSize?: number,
+    groupSize?: number,
+    decimals?: number,
+    style?: any,
+    options: CodeDefinition[] | string,
+    isTyping?: boolean,
+    autoFocus?: boolean,
+    testID: string,
+    rangeFilter?: {},
+    code: string,
+    filter?: {},
+  };
+  static defaultProps = {
+    readonly: false,
+    showLabel: true,
+  };
+
+  state: {
+    errorMessage?: string,
+    value?: number,
+    ranges?: number[] | string[],
+    readonly?: boolean,
+    minValue?: number,
+    maxValue?: number,
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      errorMessage: this.props.errorMessage,
+      value: this.props.value,
+      ranges: this.filterRanges(),
+      readonly: this.props.readonly,
+      minValue: this.props.minValue,
+      maxValue: this.props.maxValue,
+    };
+  }
+
+  componentDidUpdate(prevProps: any, prevState: any) {
+    //__DEV__  && this.props.name==='OD' && console.log('NUMBERINPUT: props.value:'+prevProps.value+'->'+this.props.value+' state.text:'+prevState.text+'->'+this.state.text+' props.error:'+prevProps.errorMessage+'->'+this.props.errorMessage+' state.error:'+prevState.errorMessage+'->'+this.state.errorMessage);
+
+    if (
+      !deepEqual(this.props.rangeFilter, prevProps.rangeFilter) ||
+      !deepEqual(this.props.filter, prevProps.filter)
+    ) {
+      const ranges: number[] = this.filterRanges();
+      this.setAutoFieldValue(ranges, prevProps.value);
+    }
+
+    if (this.props.readonly !== prevProps.readonly) {
+      this.setState({readonly: this.props.readonly});
+    }
+    if (this.props.value === prevProps.value) {
+      return;
+    } else {
+      this.setState({value: this.props.value});
+    }
+    if (this.props.errorMessage !== prevProps.errorMessage) {
+      this.setState({errorMessage: this.props.errorMessage});
+    }
+  }
+  setAutoFieldValue(ranges: number[], prevValue?: any) {
+    if (ranges && ranges.length === 1) {
+      const value: number = parseFloat(ranges[0]);
+      if (!(this.props.value === prevValue && this.props.value === value)) {
+        this.commit(value);
+      } else {
+        this.setState({value});
+      }
+    }
+    this.setState({ranges});
+  }
+
+  getMinValue(): number {
+    const ranges: number[] = this.state.ranges;
+    if (ranges && ranges.length > 0) {
+      const minValue: number = Math.min(...ranges);
+      return minValue;
+    }
+    return this.props.minValue;
+  }
+
+  getMaxValue(): number {
+    const ranges: number[] = this.state.ranges;
+    if (ranges && ranges.length > 0) {
+      const maxValue: number = Math.max(...ranges);
+      return maxValue;
+    }
+    return this.props.maxValue;
+  }
+
+  validate(value: string) {
+    //TODO
+    if (
+      this.props.freestyle ||
+      (this.props.options && this.props.options.includes(value)) ||
+      value === undefined ||
+      value === null ||
+      (value.trim && value.trim().length === 0)
+    ) {
+      if (this.state.errorMessage) {
+        this.setState({errorMessage: undefined});
+      }
+      return;
+    }
+    if (
+      this.props.suffix &&
+      this.props.suffix instanceof String &&
+      this.props.suffix.endsWith('Codes')
+    ) {
+      //TODO: strip suffix and continue with number validation
+      if (this.state.errorMessage) {
+        this.setState({errorMessage: undefined});
+      }
+      return;
+    }
+    if (isNaN(value)) {
+      this.setState({errorMessage: 'Not a number'}); //TODO
+      return;
+    }
+    const numberValue: ?number | string = this.parse(value);
+    const minValue: number = this.getMinValue();
+    const maxValue: number = this.getMaxValue();
+    if (minValue !== undefined && minValue > numberValue) {
+      this.setState({errorMessage: 'Too litle'}); //TODO
+      return;
+    }
+    if (maxValue !== undefined && maxValue < numberValue) {
+      this.setState({errorMessage: 'Too big'}); //TODO
+      return;
+    }
+    if (
+      this.props.stepSize !== undefined &&
+      Number.isInteger(this.props.stepSize * 1000) &&
+      (numberValue * 1000) % (this.props.stepSize * 1000) !== 0
+    ) {
+      this.setState({errorMessage: 'Not right rounded'}); //TODO
+      return;
+    }
+
+    if (!this.props.validation) {
+      this.setState({errorMessage: undefined});
+      return;
+    }
+    const errorMessages = strings;
+    let validationError: ?string;
+    eval(this.props.validation);
+    this.setState({errorMessage: validationError});
+  }
+
+  commit(text: string | number) {
+    this.setState({text});
+    this.validate(text);
+    if (this.props.onChangeValue) {
+      const value: ?number | string = this.parse(text);
+      this.setState({value});
+      this.props.onChangeValue(value);
+    }
+  }
+
+  parse(text: string | number): ?number {
+    if (typeof text === 'number') {
+      return text;
+    }
+    if (text === undefined || text === null || text.trim() === '') {
+      return undefined;
+    }
+    if (this.props.suffix && !(this.props.suffix instanceof Array)) {
+      text = text.substring(0, text.length - this.props.suffix.length);
+    }
+    if (isFinite(text)) {
+      let value: ?number = parseFloat(text); //TODO parseInt if stepsize === 1
+      return value;
+    }
+
+    return text;
+  }
+
+  filterRanges(): number[] {
+    const options = getAllCodes(this.props.code, this.props.filter);
+    const key: string = this.props.code.split('.').pop();
+    let uniqueRangesArr: number[] = [];
+    const filteredRanges: [] = [];
+    let arrRanges: [] = [];
+
+    if (this.props.rangeFilter) {
+      options.map((codeDefinition: CodeDefinition) => {
+        codeDefinition.ranges.map((element: any) => {
+          if (passesRangeFilter(element, this.props.rangeFilter)) {
+            filteredRanges.push(element);
+          }
+        });
+      });
+      filteredRanges.map((element: any) => {
+        arrRanges.push(element[key]);
+      });
+    } else {
+      options.map((code: CodeDefinition) => {
+        code.ranges &&
+          code.ranges.map((element: any) => {
+            if (element[key]) {
+              arrRanges.push(element[key]);
+            }
+          });
+      });
+    }
+
+    let numRanges: number[] = [];
+    const uniqueRanges = new Set();
+    arrRanges.map((element: any) => {
+      if (element && !element.isValueZero) {
+        numRanges = numRanges.concat(
+          getRanges(element.minValue, element.maxValue, element.stepSize),
+        );
+      }
+    });
+    if (numRanges.length > 0) {
+      numRanges.map((n: number) => {
+        if (!uniqueRanges.has(n)) {
+          uniqueRanges.add(n);
+        }
+      });
+      uniqueRangesArr = sort(Array.from(uniqueRanges));
+    }
+
+    return uniqueRangesArr;
+  }
+
+  formatRanges(ranges: number[] | string[]): string[] {
+    return formatRanges(
+      ranges,
+      this.props.decimals,
+      this.props.prefix,
+      this.props.suffix,
+    );
+  }
+
+  render() {
+    const style = this.props.style
+      ? this.props.style
+      : this.props.readonly
+      ? styles.formFieldReadOnly
+      : this.state.errorMessage
+      ? styles.formFieldError
+      : styles.formField;
+    return (
+      <View style={styles.formElement}>
+        {this.props.showLabel && (
+          <Label width={this.props.labelWidth} value={this.props.label} />
+        )}
+        <NumberField
+          {...this.props}
+          value={this.state.value}
+          readonly={this.state.readonly}
+          options={this.formatRanges(this.state.ranges)}
+          listField={!this.props.isTyping}
+          style={style}
+          onChangeValue={(newValue: any) => this.commit(newValue)}
+          errorMessage={this.state.errorMessage}
+          testID={this.props.testID + 'Field'}
+        />
+      </View>
     );
   }
 }

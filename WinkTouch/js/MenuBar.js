@@ -12,6 +12,7 @@ import {
   LayoutAnimation,
   InteractionManager,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from 'react-native';
 import codePush from 'react-native-code-push';
 import {strings, getUserLanguage} from './Strings';
@@ -25,13 +26,14 @@ import type {
 } from './Types';
 import {Button, BackButton, Clock, KeyboardMode} from './Widgets';
 import {UpcomingAppointments} from './Appointment';
-import {getAllCodes} from './Codes';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
-import {REACT_APP_HOST} from '../env.json';
+import {getCurrentHost} from '../scripts/Util';
 import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {ProfileMenu} from './Profile';
 
 export class Notifications extends PureComponent {
   render() {
@@ -44,6 +46,57 @@ export class Notifications extends PureComponent {
         }}>
         <UpcomingAppointments />
         <Clock />
+      </View>
+    );
+  }
+}
+
+export class ExamNavigationMenu extends PureComponent {
+  props: {
+    exam: Exam,
+    navigation: any,
+  };
+  render() {
+    const exam = this.props.exam;
+    const nextExam: ?Exam =
+      exam && exam.next ? getCachedItem(exam.next) : undefined;
+    const previousExam: ?Exam =
+      exam && exam.previous ? getCachedItem(exam.previous) : undefined;
+
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          padding: 10 * fontScale,
+          flexDirection: 'row',
+        }}>
+        <TouchableOpacity
+          disabled={previousExam === undefined}
+          onPress={() =>
+            this.props.navigation.navigate('exam', {
+              exam: previousExam,
+              stateKey: this.props.navigation.state.key,
+            })
+          }
+          testID="previousExam">
+          <View>
+            <Icon name="arrow-left" style={styles.menuIcon2} />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={nextExam === undefined}
+          onPress={() =>
+            this.props.navigation.navigate('exam', {
+              exam: nextExam,
+              stateKey: this.props.navigation.state.key,
+            })
+          }
+          testID="nextExam">
+          <View>
+            <Icon name="arrow-right" style={styles.menuIcon2} />
+          </View>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -116,15 +169,13 @@ export class MenuBar extends PureComponent {
     const hasConfig: boolean = getPhoropters().length > 1;
     return (
       <View style={styles.sideMenu}>
-        <Image source={require('./image/menulogo.png')} />
-
+        <ProfileMenu />
         {!noAccessAppointment && (
           <Button
             title={strings.calendar}
             onPress={() => this.props.navigation.navigate('agenda')}
           />
         )}
-
         {(scene === 'appointment' || exam) && (
           <Button
             title={strings.patient}
@@ -196,16 +247,18 @@ export class MenuBar extends PureComponent {
             onPress={() =>
               !isWeb
                 ? codePush.restartApp()
-                : window.location.replace(REACT_APP_HOST)
+                : window.location.replace(getCurrentHost())
             }
           />
         )}
-        {__DEV__ && <Notifications />}
-
+        {/*__DEV__ && <Notifications />*/}
         <KeyboardMode
           mode={this.context.keyboardMode}
           onPress={this.context.toggleMode}
         />
+        {scene === 'exam' && exam !== undefined && (
+          <ExamNavigationMenu navigation={this.props.navigation} exam={exam} />
+        )}
       </View>
     );
   }

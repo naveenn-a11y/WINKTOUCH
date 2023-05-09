@@ -3,6 +3,8 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
+$RNFirebaseAsStaticFramework = true
+
 target 'WinkTouch' do
   config = use_native_modules!
 
@@ -12,6 +14,16 @@ target 'WinkTouch' do
     inherit! :complete
     # Pods for testing
   end
+
+  pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseABTesting', :modular_headers => true
+  pod 'FirebaseCoreDiagnostics', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true
+  pod 'FirebaseRemoteConfig', :modular_headers => true
+  pod 'GoogleDataTransport', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
 
   # Enables Flipper.
   #
