@@ -164,6 +164,9 @@ export class DocumentScanner extends Component {
     const newPdf = await PDFDocument.load(this.state.scaledFile);
     for (const page: PDFPage of newPdf.getPages()) {
       const documentPage: PDFPage = pdfDoc.addPage();
+      const {width, height} = page.getSize();
+      pageWidth = pageWidth > width ? pageWidth : width;
+      pageHeight = pageHeight > height ? pageHeight : height;
       documentPage.setSize(pageWidth, pageHeight);
       const embedPage = await pdfDoc.embedPage(page);
       const dims = embedPage.scale(1);

@@ -1,5 +1,6 @@
 {
   "name": "Fitting",
+  "starable": true,
   "scrollable": true,
   "cardFields": [
     ["Contact Lens Trial.Date", "Contact Lens Trial.Trial type"],
@@ -38,11 +39,11 @@
       "name": "Contact Lens Expiration Date",
       "multiValue": false,
       "fields": [
-          {
-              "name": "Expiration Date",
-              "mappedField": "visit.expDateCl",
-              "type": "futureDate"
-          }
+        {
+          "name": "Expiration Date",
+          "mappedField": "visit.expDateCl",
+          "type": "futureDate"
+        }
       ]
     },
     {
@@ -50,13 +51,13 @@
         "Manufacturer",
         "Brand",
         "Design",
-        "Qty/Box",
         "Sph",
         "Cyl",
         "Axis",
         "BC",
         "Dia",
         "Add",
+        "AddAlpha",
         "D/N"
       ],
       "maxLength": 8,
@@ -64,9 +65,9 @@
       "label": "Contact Lens Fitting",
       "entity": "clFitting",
       "columns": [
-        ["Manufacturer", "Brand", "Design", "Qty/Box", ">>"],
+        ["Manufacturer", "Brand", "Design", ">>"],
         ["Type", "Material", "Wearing Period", "Replacement"],
-        ["Sph", "Cyl", "Axis", "BC", "Dia", "Add", "D/N", ">>"],
+        ["Sph", "Cyl", "Axis", "BC", "Dia", "Add", "AddAlpha", "D/N", ">>"],
         ["DVA", "NVA", "Solution"],
         ["Comfort", "Vision", "Rotation", "Movement", "Centration", ">>"],
         ["Tear", "Sclera", "Limbal", "Cornea", "Lid", ">>"]
@@ -165,31 +166,6 @@
                 "brand": "[Brand.OS]"
               },
               "options": "contactLenses.design"
-            }
-          ]
-        },
-        {
-          "name": "Qty/Box",
-          "fields": [
-            {
-              "mappedField": "clFitting.boxSize.od",
-              "name": "OD",
-              "filter": {
-                "manufacturer": "[Manufacturer.OD]",
-                "brand": "[Brand.OD]",
-                "design": "[Design.OD]"
-              },
-              "options": "contactLenses.quantityPerBox"
-            },
-            {
-              "mappedField": "clFitting.boxSize.os",
-              "name": "OS",
-              "filter": {
-                "manufacturer": "[Manufacturer.OS]",
-                "brand": "[Brand.OS]",
-                "design": "[Design.OS]"
-              },
-              "options": "contactLenses.quantityPerBox"
             }
           ]
         },
@@ -328,18 +304,26 @@
               "mappedField": "clFitting.sph.od",
               "name": "OD",
               "prefix": "+",
-              "minValue": -30,
-              "stepSize": 0.25,
-              "maxValue": 30
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.sph"
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.sph.os",
               "name": "OS",
               "prefix": "+",
-              "minValue": -30,
-              "stepSize": 0.25,
-              "maxValue": 30
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.sph"
             }
           ]
         },
@@ -353,13 +337,20 @@
               "decimalsError": "Invalid",
               "stepSizeError": "Invalid",
               "name": "OD",
-              "minValue": -10.0,
               "prefix": "+",
-              "stepSize": 0.25,
               "maxValueError": "Cannot be more than 10",
               "required": false,
               "showPositive": true,
-              "maxValue": 0
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.cyl"
             },
             {
               "decimals": 2,
@@ -368,13 +359,20 @@
               "decimalsError": "Invalid",
               "stepSizeError": "Invalid",
               "name": "OS",
-              "minValue": -10.0,
               "prefix": "+",
-              "stepSize": 0.25,
               "maxValueError": "Cannot be more than 10",
               "required": false,
               "showPositive": true,
-              "maxValue": 0
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.cyl"
             }
           ]
         },
@@ -384,16 +382,34 @@
             {
               "mappedField": "clFitting.axis.od",
               "name": "OD",
-              "minValue": 0,
               "suffix": "°",
-              "maxValue": 180
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "cyl": "[Cyl.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.axis"
             },
             {
               "mappedField": "clFitting.axis.os",
               "name": "OS",
-              "minValue": 0,
               "suffix": "°",
-              "maxValue": 180
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "cyl": "[Cyl.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.axis"
             }
           ]
         },
@@ -404,17 +420,35 @@
               "decimals": 2,
               "mappedField": "clFitting.bc.od",
               "name": "OD",
-              "minValue": 5,
-              "stepSize": 0.1,
-              "maxValue": 15
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "cyl": "[Cyl.OD]",
+                "axis": "[Axis.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.bc"
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.bc.os",
               "name": "OS",
-              "minValue": 5,
-              "stepSize": 0.1,
-              "maxValue": 15
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "cyl": "[Cyl.OS]",
+                "axis": "[Axis.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.bc"
             }
           ]
         },
@@ -425,19 +459,37 @@
               "decimals": 2,
               "mappedField": "clFitting.dia.od",
               "name": "OD",
-              "minValue": 1,
-              "stepSize": 0.1,
-              "maxValue": 15,
-              "freestyle": true
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "bc": "[BC.OD]",
+                "cyl": "[Cyl.OD]",
+                "axis": "[Axis.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.dia"
             },
             {
               "decimals": 2,
               "mappedField": "clFitting.dia.os",
               "name": "OS",
-              "minValue": 1,
-              "stepSize": 0.1,
-              "maxValue": 15,
-              "freestyle": true
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "bc": "[BC.OS]",
+                "cyl": "[Cyl.OS]",
+                "axis": "[Axis.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.dia"
             }
           ]
         },
@@ -446,23 +498,59 @@
           "fields": [
             {
               "decimals": 2,
-              "mappedField": "clFitting.add.od",
+              "mappedField": "clFitting.add1.od",
               "name": "OD",
-              "minValue": 0,
-              "stepSize": 0.25,
               "prefix": "+",
-              "suffix": [" L", " M", " H"],
-              "maxValue": 20
+              "filter": {
+                "manufacturer": "[Manufacturer.OD]",
+                "brand": "[Brand.OD]",
+                "design": "[Design.OD]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OD]",
+                "cyl": "[Cyl.OD]",
+                "axis": "[Axis.OD]",
+                "bc": "[BC.OD]",
+                "dia": "[Dia.OD]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.add"
             },
             {
               "decimals": 2,
-              "mappedField": "clFitting.add.os",
+              "mappedField": "clFitting.add1.os",
               "name": "OS",
-              "minValue": 0,
-              "stepSize": 0.25,
               "prefix": "+",
-              "suffix": [" L", " M", " H"],
-              "maxValue": 20
+              "filter": {
+                "manufacturer": "[Manufacturer.OS]",
+                "brand": "[Brand.OS]",
+                "design": "[Design.OS]"
+              },
+              "rangeFilter": {
+                "sph": "[Sph.OS]",
+                "cyl": "[Cyl.OS]",
+                "axis": "[Axis.OS]",
+                "bc": "[BC.OS]",
+                "dia": "[Dia.OS]"
+              },
+              "hasRange": true,
+              "options": "contactLenses.ranges.add"
+            }
+          ]
+        },
+        {
+          "name": "AddAlpha",
+          "label": "  ",
+          "fields": [
+            {
+              "mappedField": "clFitting.addAlpha.od",
+              "name": "OD",
+              "options": "addAlphaCode"
+            },
+            {
+              "mappedField": "clFitting.addAlpha.os",
+              "name": "OS",
+              "options": "addAlphaCode"
             }
           ]
         },
@@ -570,13 +658,13 @@
               "mappedField": "clFitting.comfort.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clComfortCodes"
+              "options": "clrComfortCodes"
             },
             {
               "mappedField": "clFitting.comfort.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clComfortCodes"
+              "options": "cllComfortCodes"
             }
           ]
         },
@@ -587,13 +675,13 @@
               "mappedField": "clFitting.vision.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clVisionCodes"
+              "options": "clrVisionCodes"
             },
             {
               "mappedField": "clFitting.vision.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clVisionCodes"
+              "options": "cllVisionCodes"
             }
           ]
         },
@@ -604,13 +692,13 @@
               "mappedField": "clFitting.rotation.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clRotationCodes"
+              "options": "clrRotationCodes"
             },
             {
               "mappedField": "clFitting.rotation.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clRotationCodes"
+              "options": "cllRotationCodes"
             }
           ]
         },
@@ -621,13 +709,13 @@
               "mappedField": "clFitting.movement.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clMovementCodes"
+              "options": "clrMovementCodes"
             },
             {
               "mappedField": "clFitting.movement.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clMovementCodes"
+              "options": "cllMovementCodes"
             }
           ]
         },
@@ -638,13 +726,13 @@
               "mappedField": "clFitting.centration.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clCentrationCodes"
+              "options": "clrCentrationCodes"
             },
             {
               "mappedField": "clFitting.centration.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clCentrationCodes"
+              "options": "cllCentrationCodes"
             }
           ]
         },
@@ -655,13 +743,13 @@
               "mappedField": "clFitting.tear.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clTearCodes"
+              "options": "clrTearCodes"
             },
             {
               "mappedField": "clFitting.tear.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clTearCodes"
+              "options": "cllTearCodes"
             }
           ]
         },
@@ -672,13 +760,13 @@
               "mappedField": "clFitting.sclera.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clScleraCodes"
+              "options": "clrScleraCodes"
             },
             {
               "mappedField": "clFitting.sclera.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clScleraCodes"
+              "options": "cllScleraCodes"
             }
           ]
         },
@@ -689,13 +777,13 @@
               "mappedField": "clFitting.limbal.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clLimbalCodes"
+              "options": "clrLimbalCodes"
             },
             {
               "mappedField": "clFitting.limbal.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clLimbalCodes"
+              "options": "cllLimbalCodes"
             }
           ]
         },
@@ -706,13 +794,13 @@
               "mappedField": "clFitting.cornea.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clCorneaCodes"
+              "options": "clrCorneaCodes"
             },
             {
               "mappedField": "clFitting.cornea.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clCorneaCodes"
+              "options": "cllCorneaCodes"
             }
           ]
         },
@@ -723,13 +811,13 @@
               "mappedField": "clFitting.lid.od",
               "name": "OD",
               "freestyle": true,
-              "options": "clLidCodes"
+              "options": "clrLidCodes"
             },
             {
               "mappedField": "clFitting.lid.os",
               "name": "OS",
               "freestyle": true,
-              "options": "clLidCodes"
+              "options": "cllLidCodes"
             }
           ]
         },
@@ -834,10 +922,6 @@
             {
               "name": "Brand",
               "label": "Marque"
-            },
-            {
-              "name": "Qty/Box",
-              "label": "Qté/Bts"
             },
             {
               "name": "Material",

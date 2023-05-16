@@ -1,6 +1,7 @@
 {
   "addable": true,
   "name": "Ocular history",
+  "label": "Ocular History",
   "locale": {
     "fr-CA": {
       "label": "Historique oculaire",

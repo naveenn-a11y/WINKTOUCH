@@ -1,7 +1,7 @@
 {
   "locale": {
     "fr-CA": {
-      "label": "Test Écran",
+      "label": "Test écran",
       "fields": [
         {
           "name": "Hirschberg test",
@@ -101,6 +101,7 @@
     }
   },
   "name": "Cover test",
+  "label": "Cover Test",
   "scrollable": true,
   "starable": true,
   "showSubtitles": true,
