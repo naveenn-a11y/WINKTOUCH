@@ -1,9 +1,9 @@
 {
   "name": "Refraction",
+  "showSubtitles": true,
   "scrollable": true,
   "type": "groupedForm",
   "section": "Vision testing.6",
-  "cardGroup": "Subjective refraction",
   "graph": {
     "fields": ["Subjective refraction.od.sph", "Subjective refraction.os.sph"]
   },

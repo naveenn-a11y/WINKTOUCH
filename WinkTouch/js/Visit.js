@@ -30,6 +30,7 @@ import type {
   Prescription,
   CodeDefinition,
   ExamRoom,
+  PatientInvoice,
 } from './Types';
 import {styles, fontScale, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
@@ -69,7 +70,12 @@ import {
   UserAction,
 } from './Exam';
 import {allExamDefinitions} from './ExamDefinition';
-import {PrescriptionCard, AssessmentCard, VisitSummaryCard} from './Assessment';
+import {
+  PrescriptionCard,
+  AssessmentCard,
+  VisitSummaryCard,
+  VisitSummaryPlanCard,
+} from './Assessment';
 import {
   cacheItem,
   getCachedItem,
@@ -85,12 +91,14 @@ import {
   stripDataType,
   getPrivileges,
 } from './Rest';
-import {fetchAppointment, hasAppointmentBookAccess} from './Appointment';
-import {printRx, printClRx, printMedicalRx} from './Print';
+import {
+  fetchAppointment,
+  hasAppointmentBookAccess,
+  invoiceForAppointment,
+} from './Appointment';
+import {printRx, printClRx, printMedicalRx, emailRx, emailClRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
 import {PatientDocumentPage} from './Patient';
-import {PatientMedicationCard} from './Medication';
-import {PatientRefractionCard} from './Refraction';
 import {getDoctor, getStore} from './DoctorApp';
 import {
   getVisitHtml,
@@ -103,11 +111,11 @@ import {
 import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
-import {formatCode, formatOptions} from './Codes';
+import {formatCode} from './Codes';
 import {Card, Title, Paragraph} from 'react-native-paper';
-import {BillingCard} from './Visit/Partials';
-import {getExamRoom, getExamRoomCode, updateExamRoom} from './Room';
+import {getExamRoomCode, updateExamRoom} from './Room';
 import {VisitSummaryTable} from './VisitSummary';
+import {VisitErrorBoundary} from './ErrorBoundary';
 
 export const examSections: string[] = [
   'Amendments',
@@ -134,12 +142,31 @@ const examSectionsFr: string[] = [
   'Document',
 ];
 
+const examSectionsLayout: {} = {
+  Consultation: '45%',
+  Amendments: '45%',
+  'Chief complaint': '95%',
+  History: '95%',
+  'Entrance testing': '95%',
+  'Vision testing': '95%',
+  'Anterior exam': '45%',
+  'Posterior exam': '45%',
+  CL: '95%',
+  Form: '95%',
+  Document: '95%',
+};
+
 const PRIVILEGE = {
   FULLACCESS: 'FULLACCESS',
   NOACCESS: 'NOACCESS',
   READONLY: 'READONLY',
 };
 
+function getSectionWidth(section: string): string {
+  return examSectionsLayout[section] !== undefined
+    ? examSectionsLayout[section]
+    : '95%';
+}
 export function getSectionTitle(section: string): string {
   const language: string = getUserLanguage();
   if (language.startsWith('fr')) {
@@ -887,6 +914,11 @@ class VisitWorkFlow extends Component {
     printRxCheckBoxes: string[],
     showMedicationRxPopup: boolean,
     printing: boolean,
+    showClRxPopup: boolean,
+    isPrintingRx: boolean,
+    isPrintingCLRx: boolean,
+    postInvoiceLoading: boolean,
+    showInvoiceAlert: ?boolean,
   };
 
   constructor(props: any) {
@@ -906,6 +938,11 @@ class VisitWorkFlow extends Component {
       showRxPopup: false,
       showMedicationRxPopup: false,
       printing: false,
+      showClRxPopup: false,
+      isPrintingRx: false,
+      isPrintingCLRx: false,
+      postInvoiceLoading: false,
+      showInvoiceAlert: false,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -1097,6 +1134,23 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  canInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    const appointment: Appointment = this.state.appointment;
+    const canInvoice: boolean =
+      visit &&
+      visit.appointmentId &&
+      !this.props.readonly &&
+      appointment &&
+      appointment.status === 5;
+
+    return canInvoice;
+  }
+  hasInvoice(): boolean {
+    const visit: Visit = this.state.visit;
+    return visit.invoices && visit.invoices.length > 0;
+  }
+
   async createExam(examDefinitionId: string) {
     if (this.props.readonly) {
       return;
@@ -1198,6 +1252,60 @@ class VisitWorkFlow extends Component {
     }
   }
 
+  showInvoiceAlert() {
+    this.setState({showInvoiceAlert: true});
+  }
+  hideInvoiceAlert() {
+    this.setState({showInvoiceAlert: false});
+  }
+
+  renderInvoiceAlert() {
+    return (
+      <Alert
+        title={strings.InvoiceAgainAlertTitle}
+        message={strings.InvoiceAgainAlertMessage}
+        dismissable={true}
+        onConfirmAction={() => this.invoice()}
+        onCancelAction={() => this.hideInvoiceAlert()}
+        confirmActionLabel={strings.invoiceAgain}
+        cancelActionLabel={strings.cancel}
+        style={styles.alert}
+      />
+    );
+  }
+
+  async invoice() {
+    this.hideInvoiceAlert();
+    this.setState({postInvoiceLoading: true});
+    const appointment: Appointment = this.state.appointment;
+    const visit: Visit = this.state.visit;
+    if (appointment === undefined || appointment === null) {
+      return;
+    }
+    try {
+      const patientInvoices: PatientInvoice[] = await invoiceForAppointment(
+        appointment.id,
+      );
+      if (patientInvoices && patientInvoices.length > 0) {
+        const piIds: string[] = patientInvoices.map((inv) => inv.id);
+        cacheItem('visitInvoices-' + visit.id, piIds);
+
+        const ids: string = piIds.join();
+        this.setSnackBarMessage(
+          strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
+        );
+        visit.invoices = patientInvoices;
+      } else {
+        this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
+      }
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+    this.setState({visit, postInvoiceLoading: false});
+    this.showSnackBar();
+  }
+
   async endVisit() {
     const appointment: Appointment = this.state.appointment;
     if (appointment === undefined || appointment === null) {
@@ -1290,15 +1398,12 @@ class VisitWorkFlow extends Component {
     }
   };
 
-  renderSnackBar() {
-    return (
-      <NativeBar
-        message={this.state.snackBarMessage}
-        onDismissAction={() => this.hideSnackBar()}
-      />
-    );
-  }
-  renderExams(section: string, exams: ?(Exam[]), isPreExam: boolean) {
+  filterExamsBySection(
+    section: String,
+    exams: ?(Exam[]),
+    isPreExam: boolean,
+    includeAssessments: ?boolean,
+  ): Exam {
     if (exams) {
       if (!isPreExam) {
         exams = exams.filter(
@@ -1308,29 +1413,127 @@ class VisitWorkFlow extends Component {
             exam.definition.section.startsWith(section),
         );
       }
-      exams = exams.filter(
-        (exam: Exam) =>
-          exam &&
-          !exam.definition.isAssessment &&
-          exam.isHidden !== true &&
-          (exam.hasStarted ||
-            (this.state.locked !== true && this.props.readonly !== true) ||
-            (this.state.locked === true &&
-              exam.definition.addablePostLock === true)),
-      );
+      if (includeAssessments) {
+        exams = exams.filter(
+          (exam: Exam) =>
+            exam &&
+            exam.definition.isAssessment &&
+            exam.isHidden !== true &&
+            (exam.hasStarted ||
+              (this.state.locked !== true && this.props.readonly !== true) ||
+              (this.state.locked === true &&
+                exam.definition.addablePostLock === true)),
+        );
+      } else {
+        exams = exams.filter(
+          (exam: Exam) =>
+            exam &&
+            !exam.definition.isAssessment &&
+            exam.isHidden !== true &&
+            (exam.hasStarted ||
+              (this.state.locked !== true && this.props.readonly !== true) ||
+              (this.state.locked === true &&
+                exam.definition.addablePostLock === true)),
+        );
+      }
+
       exams.sort(compareExams);
     }
+    return exams;
+  }
+
+  renderSnackBar() {
+    return (
+      <NativeBar
+        message={this.state.snackBarMessage}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
+  }
+  renderExams(
+    section: string,
+    allExams: ?(Exam[]),
+    isPreExam: boolean,
+    sectionIndex: ?number,
+  ) {
+    let nextSection: string =
+      examSections.length > sectionIndex + 1
+        ? examSections[sectionIndex + 1]
+        : undefined;
+    let previousSection: string =
+      sectionIndex > 0 ? examSections[sectionIndex - 1] : undefined;
+
+    const exams = this.filterExamsBySection(section, allExams, isPreExam);
+    let nextExams: Exam[];
+    let previousExams: Exam[];
+    if (sectionIndex >= 0) {
+      let nextSectionIndex = sectionIndex;
+      while (nextExams === undefined || nextExams.length === 0) {
+        nextSectionIndex++;
+        nextSection =
+          examSections.length > nextSectionIndex
+            ? examSections[nextSectionIndex]
+            : undefined;
+        if (nextSection === undefined) {
+          break;
+        }
+        nextExams = this.filterExamsBySection(nextSection, allExams, isPreExam);
+      }
+
+      let previousSectionIndex = sectionIndex;
+      while (previousExams === undefined || previousExams.length === 0) {
+        previousSectionIndex--;
+        previousSection =
+          sectionIndex > 0 ? examSections[previousSectionIndex] : undefined;
+        if (previousSection === undefined) {
+          break;
+        }
+        previousExams = this.filterExamsBySection(
+          previousSection,
+          allExams,
+          isPreExam,
+        );
+      }
+    }
+
+    const assessments: Exam[] = this.filterExamsBySection(
+      undefined,
+      allExams,
+      true,
+      true,
+    );
+
     if (
       (!exams || exams.length === 0) &&
       this.state.visit &&
-      this.state.visit.isDigital != true
+      this.state.visit.isDigital !== true
     ) {
       return null;
     }
     const view = (
       <View style={styles.flow}>
         {exams &&
-          exams.map((exam: Exam, index: number) => {
+          exams.map((element: Exam, index: number) => {
+            let exam: Exam = element;
+            let nextExam: Exam =
+              exams.length > index + 1 ? exams[index + 1] : undefined;
+            let previousExam: Exam = index > 0 ? exams[index - 1] : undefined;
+            nextExam =
+              nextExam === undefined && nextExams !== undefined
+                ? nextExams[0]
+                : nextExam;
+            previousExam =
+              previousExam === undefined && previousExams !== undefined
+                ? previousExams[previousExams.length - 1]
+                : previousExam;
+            nextExam =
+              nextExam === undefined && assessments !== undefined
+                ? assessments[0]
+                : nextExam;
+            exam.next = nextExam !== undefined ? nextExam.id : undefined;
+            exam.previous =
+              previousExam !== undefined ? previousExam.id : undefined;
+
             return (
               <ExamCard
                 key={exam.definition.name}
@@ -1355,8 +1558,9 @@ class VisitWorkFlow extends Component {
       return view;
     }
     const sectionTitle: string = getSectionTitle(section);
+    const sectionWidth: string = getSectionWidth(section);
     return (
-      <View style={styles.examsBoard} key={section}>
+      <View style={[styles.examsBoard, {width: sectionWidth}]} key={section}>
         <SectionTitle title={sectionTitle} />
         {view}
         {this.renderAddableExamButton(section)}
@@ -1367,8 +1571,9 @@ class VisitWorkFlow extends Component {
   renderConsultationDetails() {
     const store: Store = getCachedItem(this.state.visit.storeId);
     const doctor: User = getCachedItem(this.state.visit.userId);
+    const sectionWidth: string = getSectionWidth('Consultation');
     return (
-      <View style={styles.examsBoard}>
+      <View style={[styles.examsBoard, {width: sectionWidth}]}>
         <Text style={styles.cardTitle}>{strings.visit}</Text>
         {doctor && (
           <Text style={styles.text}>
@@ -1442,8 +1647,41 @@ class VisitWorkFlow extends Component {
       this.state.visit.customExamIds,
     ).filter((exam: Exam) => exam.definition.isAssessment);
     assessments.sort(compareExams);
+    let allExams: Exam[] = getCachedItems(this.state.visit.preCustomExamIds);
+    if (!allExams) {
+      allExams = [];
+    }
+    allExams = allExams.concat(getCachedItems(this.state.visit.customExamIds));
+    let previousExam: Exam;
+    for (let i = examSections.length - 1; i >= 0; i--) {
+      const section: string = examSections[i];
+      const previousExams: Exam[] =
+        section !== undefined
+          ? this.filterExamsBySection(section, allExams, false)
+          : undefined;
+      if (previousExams !== undefined && previousExams.length > 0) {
+        previousExam = previousExams[previousExams.length - 1];
+        break;
+      }
+    }
 
-    return assessments.map((exam: Exam, index: number) => {
+    return assessments.map((element: Exam, index: number) => {
+      let exam: Exam = element;
+      let nextExamAssessment: Exam =
+        assessments.length > index + 1 ? assessments[index + 1] : undefined;
+      let previousExamAssessment: Exam =
+        index > 0 ? assessments[index - 1] : undefined;
+      previousExamAssessment =
+        previousExamAssessment === undefined && previousExam !== undefined
+          ? previousExam
+          : previousExamAssessment;
+
+      exam.next =
+        nextExamAssessment !== undefined ? nextExamAssessment.id : undefined;
+      exam.previous =
+        previousExamAssessment !== undefined
+          ? previousExamAssessment.id
+          : undefined;
       if (exam.definition.name === 'RxToOrder') {
         return (
           <TouchableOpacity
@@ -1464,15 +1702,30 @@ class VisitWorkFlow extends Component {
           </TouchableOpacity>
         );
       } else if (exam.definition.name === 'Consultation summary') {
-        return (
-          <VisitSummaryCard
-            exam={exam}
-            editable={
-              !this.state.locked && !this.props.readonly && !exam.readonly
-            }
-            key={strings.summaryTitle}
-          />
-        );
+        if (exam.definition.isSummaryAndPlan) {
+          return (
+            <VisitSummaryPlanCard
+              exam={exam}
+              editable={
+                !this.state.locked && !this.props.readonly && !exam.readonly
+              }
+              key={strings.summaryTitle}
+              disabled={this.props.readonly}
+              navigation={this.props.navigation}
+              appointmentStateKey={this.props.appointmentStateKey}
+            />
+          );
+        } else {
+          return (
+            <VisitSummaryCard
+              exam={exam}
+              editable={
+                !this.state.locked && !this.props.readonly && !exam.readonly
+              }
+              key={strings.summaryTitle}
+            />
+          );
+        }
       } else {
         return (
           <AssessmentCard
@@ -1491,7 +1744,11 @@ class VisitWorkFlow extends Component {
     this.setState({showRxPopup: false});
   };
 
-  confirmPrintRxDialog = (data: any) => {
+  confirmPrintRxDialog = async (
+    data: any,
+    shouldSendEmail: boolean = false,
+  ) => {
+    this.setState({isPrintingRx: true});
     let printFinalRx: boolean = false;
     let printPDs: boolean = false;
     let printNotesOnRx: boolean = false;
@@ -1509,14 +1766,36 @@ class VisitWorkFlow extends Component {
         drRecommendationArray.push(importData.entityId);
       }
     });
-    printRx(
-      this.props.visitId,
-      printFinalRx,
-      printPDs,
-      printNotesOnRx,
-      drRecommendationArray,
-    );
+
     this.hidePrintRxPopup();
+    if (shouldSendEmail) {
+      let response = await emailRx(
+        this.props.visitId,
+        printFinalRx,
+        printPDs,
+        printNotesOnRx,
+        drRecommendationArray,
+      );
+
+      if (response) {
+        if (response.errors) {
+          this.setState({isPrintingRx: false});
+          alert(response.errors);
+          return;
+        }
+        this.setSnackBarMessage(strings.emailRxSuccess);
+        this.showSnackBar();
+      }
+    } else {
+      await printRx(
+        this.props.visitId,
+        printFinalRx,
+        printPDs,
+        printNotesOnRx,
+        drRecommendationArray,
+      );
+    }
+    this.setState({isPrintingRx: false});
   };
 
   renderPrintRxPopup() {
@@ -1552,6 +1831,8 @@ class VisitWorkFlow extends Component {
         confirmActionLabel={strings.printRx}
         cancelActionLabel={strings.cancel}
         multiValue={true}
+        emailActionLabel={strings.emailRx}
+        onEmailAction={() => this.confirmPrintRxDialog(printRxOptions, true)}
       />
     );
   }
@@ -1614,6 +1895,58 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  showCLRxPopup(): void {
+    this.setState({showClRxPopup: true});
+  }
+
+  hidePrintCLRxPopup = (): void => {
+    this.setState({showClRxPopup: false});
+  };
+
+  confirmPrintClRxDialog = async (): void => {
+    this.setState({isPrintingCLRx: true});
+    this.hidePrintCLRxPopup();
+    await printClRx(this.props.visitId);
+    this.setState({isPrintingCLRx: false});
+  };
+
+  confirmEmailClRxDialog = async (): void => {
+    this.setState({isPrintingCLRx: true});
+    this.hidePrintCLRxPopup();
+    let response = await emailClRx(this.props.visitId);
+    if (response) {
+      if (response.errors) {
+        this.setState({isPrintingCLRx: false});
+        alert(response.errors);
+        return;
+      }
+      this.setSnackBarMessage(strings.emailRxSuccess);
+      this.showSnackBar();
+    }
+    this.setState({isPrintingCLRx: false});
+  };
+
+  renderPrintCLRxPopup() {
+    const printCLRxOptions: any = [];
+
+    return (
+      <Alert
+        title={strings.printClRx}
+        data={printCLRxOptions}
+        dismissable={true}
+        onConfirmAction={() => this.confirmPrintClRxDialog()}
+        onCancelAction={() => this.hidePrintCLRxPopup()}
+        style={styles.alert}
+        confirmActionLabel={strings.printClRx}
+        cancelActionLabel={strings.cancel}
+        multiValue={false}
+        emailActionLabel={strings.emailClRx}
+        onEmailAction={() => this.confirmEmailClRxDialog()}
+        isActionVertical={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
@@ -1621,15 +1954,17 @@ class VisitWorkFlow extends Component {
     const hasMedicalDataReadAccess: boolean =
       hasVisitMedicalDataReadAccess(visit);
     const hasPreTestReadAccess: boolean = hasVisitPretestReadAccess(visit);
-    const hasMedicalDataWriteAccess: boolean =
-      hasVisitMedicalDataWriteAccess(visit);
+    const userReferralFullAccess: boolean =
+      getPrivileges().referralPrivilege === 'FULLACCESS';
 
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
         {this.state.showRxPopup && this.renderPrintRxPopup()}
+        {this.state.showClRxPopup && this.renderPrintCLRxPopup()}
         {this.state.showMedicationRxPopup &&
           this.renderPrintMedicationRxPopup()}
+        {this.state.showInvoiceAlert && this.renderInvoiceAlert()}
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -1644,6 +1979,8 @@ class VisitWorkFlow extends Component {
               onPress={() => {
                 this.showRxPopup();
               }}
+              loading={this.state.isPrintingRx}
+              disabled={this.state.isPrintingRx}
             />
           )}
           {hasMedicalDataReadAccess && this.hasMedicalRx() && (
@@ -1658,8 +1995,10 @@ class VisitWorkFlow extends Component {
             <Button
               title={strings.printClRx}
               onPress={() => {
-                printClRx(this.props.visitId);
+                this.showCLRxPopup();
               }}
+              loading={this.state.isPrintingCLRx}
+              disabled={this.state.isPrintingCLRx}
             />
           )}
           {this.canTransfer() && (
@@ -1682,7 +2021,7 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {isReferralsEnabled() && (
+          {userReferralFullAccess && isReferralsEnabled() && (
             <Button
               title={strings.referral}
               onPress={() => {
@@ -1715,6 +2054,17 @@ class VisitWorkFlow extends Component {
                 onPress={() => this.endVisit()}
               />
             )}
+          {this.canInvoice() && (
+            <Button
+              loading={this.state.postInvoiceLoading}
+              title={
+                this.hasInvoice() ? strings.invoiceAgain : strings.createInvoice
+              }
+              onPress={() =>
+                this.hasInvoice() ? this.showInvoiceAlert() : this.invoice()
+              }
+            />
+          )}
         </View>
       </View>
     );
@@ -1778,7 +2128,6 @@ class VisitWorkFlow extends Component {
       </View>
     );
   }
-
   render() {
     if (this.props.visitId === undefined) {
       return null;
@@ -1835,8 +2184,8 @@ class VisitWorkFlow extends Component {
       <View>
         <View style={styles.flow}>
           {this.renderConsultationDetails()}
-          {examSections.map((section: string) => {
-            return this.renderExams(section, exams, false);
+          {examSections.map((section: string, index: number) => {
+            return this.renderExams(section, exams, false, index);
           })}
         </View>
         <View style={styles.flow}>{this.renderAssessments()}</View>
@@ -1999,11 +2348,16 @@ export class VisitHistory extends Component {
     ) {
       return;
     }
+    const selectedId: string =
+      this.props.patientInfo.id === prevProps.patientInfo.id
+        ? this.state.selectedId
+        : undefined;
     this.setState({
       history: this.combineHistory(
         this.props.patientDocumentHistory,
         this.props.visitHistory,
       ),
+      selectedId,
     });
   }
 
@@ -2307,7 +2661,7 @@ export class VisitHistory extends Component {
   renderSummary() {
     return (
       <View>
-        <View >
+        <View>
           <VisitSummaryTable patientInfo={this.props.patientInfo} />
         </View>
         {this.shouldRenderActionButons() && this.renderActionButtons()}
@@ -2336,10 +2690,12 @@ export class VisitHistory extends Component {
     if (!this.state.history) {
       return null;
     }
+
     const patientInfo: PatientInfo = this.props.patientInfo;
-    const listFollowUp: ?(FollowUp[]) = getCachedItem(
+    let listFollowUp: ?(FollowUp[]) = getCachedItem(
       'referralFollowUpHistory-' + patientInfo.id,
     );
+
     const visit: Visit =
       this.state.selectedId && this.state.selectedId.startsWith('visit')
         ? getCachedItem(this.state.selectedId)
@@ -2381,23 +2737,25 @@ export class VisitHistory extends Component {
         {this.state.selectedId === 'followup' && this.renderFollowUp()}
 
         {this.state.selectedId && this.state.selectedId.startsWith('visit') && (
-          <VisitWorkFlow
-            patientInfo={this.props.patientInfo}
-            visitId={this.state.selectedId}
-            navigation={this.props.navigation}
-            appointmentStateKey={this.props.appointmentStateKey}
-            onStartVisit={(
-              visitType: string,
-              isPreVisit: boolean,
-              cVisitId?: string,
-            ) => {
-              this.startVisit(this.state.selectedId, visitType, cVisitId);
-            }}
-            readonly={this.props.readonly}
-            enableScroll={this.props.enableScroll}
-            disableScroll={this.props.disableScroll}
-            isLoading={this.state.isLoading}
-          />
+          <VisitErrorBoundary navigation={this.props.navigation}>
+            <VisitWorkFlow
+              patientInfo={this.props.patientInfo}
+              visitId={this.state.selectedId}
+              navigation={this.props.navigation}
+              appointmentStateKey={this.props.appointmentStateKey}
+              onStartVisit={(
+                visitType: string,
+                isPreVisit: boolean,
+                cVisitId?: string,
+              ) => {
+                this.startVisit(this.state.selectedId, visitType, cVisitId);
+              }}
+              readonly={this.props.readonly}
+              enableScroll={this.props.enableScroll}
+              disableScroll={this.props.disableScroll}
+              isLoading={this.state.isLoading}
+            />
+          </VisitErrorBoundary>
         )}
         {this.state.selectedId &&
           this.state.selectedId.startsWith('patientDocument') && (

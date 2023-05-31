@@ -27,6 +27,8 @@ import type {
   User,
   AppointmentType,
   CodeDefinition,
+  PatientInvoice,
+  PatientTag,
 } from './Types';
 import {getAccount} from './DoctorApp';
 import {styles, fontScale, isWeb, selectionFontColor} from './Styles';
@@ -47,6 +49,7 @@ import {
   prefix,
   deAccent,
   yearDateFormat,
+  getValue,
 } from './Util';
 import {
   FormRow,
@@ -94,6 +97,7 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
+import {storeDocument} from './CouchDb';
 
 const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
@@ -144,7 +148,9 @@ export function isAppointmentLocked(appointment: Appointment): boolean {
   if (appointment === undefined) {
     return false;
   }
-  let visitHistory: Visit[] = getCachedItems(
+  return appointment.status === 5;
+  /*
+    let visitHistory: Visit[] = getCachedItems(
     getCachedItem('visitHistory-' + appointment.patientId),
   );
   if (visitHistory) {
@@ -155,7 +161,7 @@ export function isAppointmentLocked(appointment: Appointment): boolean {
       return true;
     }
   }
-  return false;
+   */
 }
 export async function fetchAppointment(
   appointmentId: string,
@@ -200,11 +206,13 @@ export async function fetchAppointments(
   let patients: PatientInfo[] = restResponse.patientList;
   let appointmentTypes: AppointmentType[] = restResponse.appointmentTypeList;
   let appointments: Appointment[] = restResponse.appointmentList;
+  let patientTagList: PatientTag[] = restResponse.patientTagList;
 
   cacheItemsById(users);
   cacheItemsById(appointmentTypes);
   cacheItemsById(appointments);
   cacheItemsById(patients);
+  cacheItemsById(patientTagList);
   patients.map((patient: PatientInfo) => {
     let patientAppts: Appointment[] = appointments.filter(
       (appointment: Appointment) => appointment.patientId === patient.id,
@@ -292,8 +300,10 @@ export async function manageAvailability(
   doctorId: ?string,
   action: ?number,
   duration: ?number,
-  startDateTime: string,
-  endDateTime: string,
+  startDateTime: number,
+  endDateTime: number,
+  startTime: string,
+  endTime: string,
   appointmentTypeId: ?(string[]),
 ): Promise<Appointment> {
   const searchCriteria = {
@@ -303,6 +313,8 @@ export async function manageAvailability(
     frequency: 0,
     startDateTime,
     endDateTime,
+    startTime,
+    endTime,
     appointmentTypeId: appointmentTypeId ? appointmentTypeId : 0,
   };
   let url = getRestUrl() + 'Appointment/manageSlots?emrOnly=true';
@@ -342,10 +354,74 @@ export async function updateAppointment(appointment: Appointment) {
   if (appointment === undefined || appointment === null) {
     return;
   }
+  appointment.supplierId = !isEmpty(getValue(appointment, 'supplier.id'))
+    ? appointment.supplier.id
+    : 0;
   appointment = await storeItem(appointment);
   return appointment;
 }
 
+export async function invoiceForAppointment(
+  appointmentId: ?string,
+): PatientInvoice[] {
+  let url = getRestUrl() + 'Invoice/appointment/id=' + appointmentId;
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: {},
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let restResponse: any = await httpResponse.json();
+
+    if (restResponse.errors) {
+      alert(restResponse.errors);
+    }
+    const patientInvoices: PatientInvoice[] = restResponse.patientInvoiceList
+      ? restResponse.patientInvoiceList
+      : [];
+    cacheItemsById(patientInvoices);
+    return patientInvoices;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function pushToHarmony(patientId: ?string): boolean {
+  let url = getRestUrl() + 'Patient/harmony/id=' + patientId;
+  try {
+    let httpResponse = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+      body: {},
+    });
+    if (!httpResponse.ok) {
+      handleHttpError(httpResponse);
+    }
+    let restResponse: any = await httpResponse.json();
+
+    if (restResponse.errors) {
+      alert(restResponse.errors);
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+  return true;
+}
 export class AppointmentTypes extends Component {
   props: {
     appointment: Appointment,
@@ -655,7 +731,7 @@ export class AppointmentSummary extends Component {
     };
   }
   componentDidMount() {
-    this.getLockedState();
+    // this.getLockedState();
   }
 
   componentDidUpdate(prevProps: any) {
@@ -673,7 +749,9 @@ export class AppointmentSummary extends Component {
   };
 
   render() {
-    const patient: Patient = getCachedItem(this.props.appointment.patientId);
+    const patient: PatientInfo = getCachedItem(
+      this.props.appointment.patientId,
+    );
     let cardStyle =
       styles['card' + capitalize(this.props.appointment.status.toString())];
     const date: string = this.props.appointment.start;
@@ -711,7 +789,7 @@ export class AppointmentSummary extends Component {
                 </View>
                 <View>
                   <PatientTags
-                    patient={{}}
+                    patient={patient}
                     locked={this.state.locked === true}
                   />
                 </View>
@@ -851,6 +929,17 @@ export class AppointmentDetails extends Component {
     if (this.props.isNewAppointment || this.props.isDoublebooking) {
       this.startEdit();
     }
+  }
+
+  getSupplier(supplierId: String): Supplier {
+    const options = this.getInsuranceProviders();
+    const selectedOption: CodeDefinition = options.find(
+      (option: CodeDefinition) => option.code === supplierId,
+    );
+    if (isEmpty(selectedOption)) {
+      return {id: 0, name: strings.selfPaid}; //default
+    }
+    return {id: selectedOption.code, name: selectedOption.description};
   }
 
   startEdit() {
@@ -1129,9 +1218,9 @@ export class AppointmentDetails extends Component {
                   : formatDate(appointment.end, dayYearDateTimeFormat)}
               </Text>
             </View>
-            {!isEmpty(appointment.supplierName) && (
+            {!isEmpty(getValue(appointment, 'supplier.name')) && (
               <View style={styles.formRow}>
-                <Text style={styles.text}>{appointment.supplierName}</Text>
+                <Text style={styles.text}>{appointment.supplier.name}</Text>
               </View>
             )}
             {!isEmpty(patient.medicalCard) && (
@@ -1180,7 +1269,7 @@ export class AppointmentDetails extends Component {
               <FormCode
                 hideClear
                 showLabel={false}
-                readonly={false}
+                readonly={!hasBookAccess}
                 code="appointmentStatusCode"
                 value={this.state.status}
                 onChangeValue={(code: ?string | ?number) => {
@@ -1254,12 +1343,12 @@ export class AppointmentDetails extends Component {
             showLabel={true}
             label={strings.insurer}
             value={
-              this.state.editedAppointment.supplierName
-                ? this.state.editedAppointment.supplierName
+              !isEmpty(getValue(this.state.editedAppointment, 'supplier.name'))
+                ? this.state.editedAppointment.supplier.name
                 : 0
             }
             onChangeValue={(code: ?string | ?number) =>
-              this.updateValue('supplierName', code)
+              this.updateValue('supplier', this.getSupplier(code))
             }
           />
         </FormRow>
@@ -1428,6 +1517,8 @@ export class AppointmentScreen extends Component {
       const patientId: string = appointment
         ? appointment.patientId
         : params.patientInfo.id;
+      this.refreshVisitHistory();
+
       this.setState({
         patientInfo: getCachedItem(patientId),
         visitHistory: getCachedItem('visitHistory-' + patientId),

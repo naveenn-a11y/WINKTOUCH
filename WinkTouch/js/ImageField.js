@@ -51,6 +51,7 @@ import {ClearTile, UpdateTile, RefreshTile} from './Widgets';
 import {storeUpload} from './Upload';
 import {getVisit} from './Exam';
 import {PdfViewer} from '../src/components/PdfViewer';
+import * as htmlToImage from 'html-to-image';
 
 export async function loadDocuments(
   type: string,
@@ -162,30 +163,35 @@ export async function loadBase64ImageForWeb(
       image.startsWith('https:') ||
       image.startsWith('blob:'))
   ) {
-    const imageToBase64 = require('image-to-base64/browser');
-    const response = await imageToBase64(image);
-    let format: string = 'data:image/jpg;base64,';
-    if (filePath !== undefined) {
-      if (filePath.endsWith('.pdf')) {
-        format = 'data:application/pdf;base64,';
-      } else if (filePath.endsWith('.png')) {
-        format = 'data:image/png;base64,';
+    try {
+      const imageToBase64 = require('./utilities/ImageToBase64');
+      const response = await imageToBase64(image);
+      let format: string = 'data:image/jpg;base64,';
+      if (filePath !== undefined) {
+        if (filePath.endsWith('.pdf')) {
+          format = 'data:application/pdf;base64,';
+        } else if (filePath.endsWith('.png')) {
+          format = 'data:image/png;base64,';
+        } else {
+          format = 'data:image/jpg;base64,';
+        }
       } else {
-        format = 'data:image/jpg;base64,';
+        if (image.endsWith('pdf')) {
+          format = 'data:application/pdf;base64,';
+        } else if (image.endsWith('jpg')) {
+          format = 'data:image/jpg;base64,';
+        } else {
+          format = 'data:image/png;base64,';
+        }
       }
-    } else {
-      if (image.endsWith('pdf')) {
-        format = 'data:application/pdf;base64,';
-      } else if (image.endsWith('jpg')) {
-        format = 'data:image/jpg;base64,';
-      } else {
-        format = 'data:image/png;base64,';
-      }
+
+      const path: string = format.concat(response);
+
+      return path;
+    } catch(error) {
+      __DEV__ && console.log(error);
+      return undefined;
     }
-
-    const path: string = format.concat(response);
-
-    return path;
   }
   return undefined;
 }
@@ -929,10 +935,18 @@ export class ImageField extends Component {
     const pageWidth: number = 612; //US Letter portrait 8.5 inch * 72 dpi
     const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
     const pageHeight: number = pageWidth / pageAspectRatio;
-    let fileUri =
+
+    let fileUri = undefined;
+    if (isWeb) {
+      fileUri = this.refs && this.refs.viewShotWeb
+        ? await htmlToImage.toPng(this.refs.viewShotWeb)
+        : undefined;
+    } else {
+      fileUri =
       this.refs && this.refs.viewShot
         ? await this.refs.viewShot.capture()
         : undefined;
+    }
 
     if (fileUri === undefined) {
       const mimeType: string = getMimeType(this.state.upload);
@@ -1452,6 +1466,56 @@ export class ImageField extends Component {
     }
   }
 
+  renderViewShotChildren(image: any, isPdf: boolean, scale: number,  style: {width: number, height: number} ) {
+    return (
+      <View
+        style={styles.solidWhite}
+        onStartShouldSetResponder={(event) => this.state.isActive}
+        onResponderGrant={(event) => {
+          this.penDown(event, scale);
+        }}
+        onResponderReject={(event) => this.setState({isActive: false})} //TODO: toggleEdit in stead?
+        onMoveShouldSetResponder={(event) => false}
+        onResponderTerminationRequest={(event) => false}
+        onResponderMove={(event) => this.updatePosition(event, scale)}
+        onResponderRelease={(event) => this.liftPen()}
+        onResponderTerminate={(event) => this.liftPen()}>
+        {image !== undefined && (
+          <TouchableWithoutFeedback
+            onLongPress={this.startErasing}
+            onPressOut={() => {
+              if (this.tap() === 2 && !this.props.readonly === true) {
+                this.toggleEdit();
+              }
+            }}
+            disabled={this.state.isActive}>
+            <View>
+              {image && isPdf && (
+                <PdfViewer
+                  style={style}
+                  source={image.uri}
+                  isPreview={false}
+                />
+              )}
+              {image && !isPdf && (
+                <Image source={image} style={style} />
+              )}
+              {this.renderGraph(
+                this.state.isActive
+                  ? this.state.lines
+                  : this.props.value && this.props.value.lines
+                  ? this.props.value.lines
+                  : undefined,
+                style,
+                scale,
+              )}
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+      </View>
+    );
+  }
+
   render() {
     const size: number =
       this.props.value && this.props.value.size
@@ -1584,55 +1648,17 @@ export class ImageField extends Component {
     } else if (this.props.popup === false || this.props.image === 'upload') {
       return (
         <View style={[styles.centeredColumnLayout, {alignItems: 'center'}]}>
-          {image !== undefined && (
+          {image !== undefined && !isWeb && (
             <ViewShot ref="viewShot" options={{format: 'jpg', quality: 0.9}}>
-              <View
-                style={styles.solidWhite}
-                onStartShouldSetResponder={(event) => this.state.isActive}
-                onResponderGrant={(event) => {
-                  this.penDown(event, scale);
-                }}
-                onResponderReject={(event) => this.setState({isActive: false})} //TODO: toggleEdit in stead?
-                onMoveShouldSetResponder={(event) => false}
-                onResponderTerminationRequest={(event) => false}
-                onResponderMove={(event) => this.updatePosition(event, scale)}
-                onResponderRelease={(event) => this.liftPen()}
-                onResponderTerminate={(event) => this.liftPen()}>
-                {image !== undefined && (
-                  <TouchableWithoutFeedback
-                    onLongPress={this.startErasing}
-                    onPressOut={() => {
-                      if (this.tap() === 2 && !this.props.readonly === true) {
-                        this.toggleEdit();
-                      }
-                    }}
-                    disabled={this.state.isActive}>
-                    <View>
-                      {image && isPdf && (
-                        <PdfViewer
-                          style={style}
-                          source={image.uri}
-                          isPreview={false}
-                        />
-                      )}
-                      {image && !isPdf && (
-                        <Image source={image} style={style} />
-                      )}
-                      {this.renderGraph(
-                        this.state.isActive
-                          ? this.state.lines
-                          : this.props.value && this.props.value.lines
-                          ? this.props.value.lines
-                          : undefined,
-                        style,
-                        scale,
-                      )}
-                    </View>
-                  </TouchableWithoutFeedback>
-                )}
-              </View>
+              {this.renderViewShotChildren(image, isPdf, scale, style)}
               {this.props.children}
             </ViewShot>
+          )}
+          {image !== undefined && isWeb && (
+            <View ref="viewShotWeb">
+              {this.renderViewShotChildren(image, isPdf, scale, style)}
+              {this.props.children}
+            </View>
           )}
           {this.renderIcons()}
           {this.state.cameraOn && (
