@@ -11,17 +11,17 @@ import {cacheDefinitions} from './Items';
 export const strings = new LocalizedStrings({
   en: {
     enterRegisteredEmail:
-      'Please enter your email adress to connect to your WINK database\nor try with a demo database',
+      'Please enter your email address to connect to your WINK database\nor try with a demo database',
     trialWarning:
       'This is a demo version that uses a public shared database. Do not enter any real patient data.',
     winkLink: 'Visit www.winksoftware.com to learn more',
-    emailAdres: 'Email adress',
+    emailAdres: 'Email address',
     connectToPms: 'Connect',
     tryForFree: 'Try it out',
     answerSecurityQuestion:
       'Please answer the security question before submitting',
     submitSecurityAnswer: 'Send',
-    unRegisteredEmail: 'This email adress was not registered before with Wink',
+    unRegisteredEmail: 'This email address was not registered before with Wink',
     userName: 'User name',
     password: 'password',
     enterCode: 'Enter Code',
@@ -37,7 +37,7 @@ export const strings = new LocalizedStrings({
     account: 'Account',
     store: 'Store',
     securityQuestionsError:
-      'Something went wrong trying to get the secuirty question from the server. Please try again.',
+      'Something went wrong trying to get the security question from the server. Please try again.',
     registrationError:
       'Something went wrong trying to get the app version from the server. Please try again.',
     fetchAccountsError:
@@ -141,6 +141,8 @@ export const strings = new LocalizedStrings({
     ou: 'OU',
     far: 'Far',
     near: 'Near',
+    dva: 'DVA',
+    nva: 'NVA',
     maxLengthError: 'Too much text',
     minLengthError: 'Not enough text',
     requiredError: 'Mandatory',
@@ -344,6 +346,50 @@ export const strings = new LocalizedStrings({
       'The time slot you selected is outside store opening hours. You cannot create an availability !',
     providerTitle: 'Provider',
     loadMoreSummariesTitle: 'Load more summaries...',
+    reset: 'Reset',
+    emailRx: 'Email Rx',
+    emailClRx: 'Email CLRx',
+    emailRxSuccess: 'Rx sent successfully',
+    createInvoice: 'Create Invoice',
+    invoiceAgain: 'Invoice Again',
+    invoiceCreatedSuccessMessage: 'Invoice(s) {0} successfully created!',
+    NoinvoiceCreatedMessage: 'No invoice created for this appointment!',
+    sendToHarmony: 'Send to Harmony',
+    sendToHarmonySuccessMessage: 'Data successfully sent to Topcon Harmony!',
+    recentlyViewedPatients: 'Recently Viewed Patients',
+    support: 'Support',
+    agentAssumptionTitle: 'Agent Assumption Form',
+    zendesk: 'Zendesk #',
+    reason: 'Reason',
+    agentLoginWarning:
+      'This is a production account that uses private data. Do not enter any real patient data!',
+    billingUpdateShortWarning:
+      'If you already created an invoice for this visit and want to make modifications to this section... ',
+    billingUpdateWarning:
+      'Changes made in this screen AFTER you created the invoice WILL NOT reflect on that invoice. If you make changes after you’ve created the invoice make sure you record the changes by doing one of the following:\n' +
+      '\n' +
+      '- Open the invoice/claim in WINKpms and modify the existing invoice to reflect the changes you made in this section.\n' +
+      '\n' +
+      'OR\n' +
+      '\n' +
+      '- Create an invoice again. This will create a second invoice, so the previous one will have to be cancelled via WINKpms. ',
+    treatment: 'Treatment',
+    plan: 'Plan',
+    appUpdateTitle: 'New update is available',
+    appUpdateSubtitle:
+      'Please update the WINKemr app in the apple appstore to get the latest features and best experience.',
+    openAppstore: 'Kindly open appstore to update app',
+    appVersion: 'App Version',
+    welcome: 'Welcome',
+    somethingWentWrongVisitTitle: 'Something went wrong loading the visit!',
+    reloadVisitTitle: 'Reload Visit',
+    customiseDefaultExams: 'Define Default Exams',
+    customiseExamDefinition: 'Customise Exam Definition',
+    readMore: 'Read more',
+    readLess: 'Read less',
+    InvoiceAgainAlertTitle: 'Existing Invoice',
+    InvoiceAgainAlertMessage:
+      'You are creating an additional invoice for this visit.\nPlease make sure you cancel the original invoice in WINKpms to avoid duplicates.',
   },
   fr: {
     enterRegisteredEmail:
@@ -473,13 +519,15 @@ export const strings = new LocalizedStrings({
     printMedicalRx: 'Imprimer Rx médicale',
     printPatientFile: 'Imprimer Dossier Patient',
     patientFile: 'Dossier Patient',
-    add: 'Ajouter',
+    add: 'Add',
     remove: 'Suprimer',
     od: 'OD',
     os: 'OS',
     ou: 'OU',
     far: 'Loin',
     near: 'Près',
+    dva: 'AVL',
+    nva: 'AVP',
     maxLengthError: 'Trop de texte',
     minLengthError: 'Pas assez de texte',
     requiredError: 'Obligatoire',
@@ -529,7 +577,7 @@ export const strings = new LocalizedStrings({
     send: 'Envoyer',
     deleteVisitTitle: 'Supprimer une consultation',
     deleteVisitQuestion:
-      'Est-ce que vous êtes sur de vouloir supprimer {0} du {1} de façon permanente ?',
+      'Êtes-vous sûr de vouloir supprimer {0} du {1} de façon permanente ?',
     deletedVisitMessage: "Impossible d'ouvrir les visites supprimées !",
     findPatient: 'Entrer le nom du patient ou le #Z',
     findDoctor: 'Entrer le nom du docteur',
@@ -570,7 +618,7 @@ export const strings = new LocalizedStrings({
     noDataFound: 'Aucune donnée trouvée !',
     deleteTitle: 'Supprimer',
     deleteReferralQuestion:
-      'Est-ce que vous êtes sur de vouloir supprimer la référence {0} du {1}  ?',
+      'Êtes-vous sûr de vouloir supprimer la référence {0} du {1}  ?',
     manageUsers: 'Docteurs',
     deleteReferralTitle: 'Supprimer une référence',
     customisation: 'Personnalisation',
@@ -687,6 +735,53 @@ export const strings = new LocalizedStrings({
       'La case horaire sélectionnée est hors des heures d’ouverture du magasin. Vous ne pouvez pas créer de disponibilité !',
     providerTitle: 'Pourvoyeur',
     loadMoreSummariesTitle: 'Charger plus de résumés...',
+    reset: 'Réinitialiser',
+    emailRx: 'Envoyer Rx',
+    emailClRx: 'Envoyer RxVC',
+    emailRxSuccess: 'Rx envoyé avec succès',
+    createInvoice: 'Créer une facture',
+    invoiceAgain: 'Facturer à nouveau',
+    invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
+    NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
+    sendToHarmony: 'Envoyer vers Harmony',
+    sendToHarmonySuccessMessage:
+      'Données envoyées avec succès à Topcon Harmony!',
+    recentlyViewedPatients: 'Patients Récemment Consultés',
+    support: 'Support',
+    agentAssumptionTitle: "Formulaire d'agent",
+    zendesk: 'Zendesk #',
+    reason: 'Raison',
+    agentLoginWarning:
+      "Il s'agit d'un compte de production qui utilise des données privées. N'entrez aucune donnée patient réelle !",
+    billingUpdateShortWarning:
+      'Si vous avez déjà créé une facture pour cette visite et désirez faire des modifications à la facturation... ',
+    billingUpdateWarning:
+      'Les changements que vous apporterez dans cette section APRÈS avoir créé la facture ne seront pas reflétés sur la facture. Si vous apportez des modifications après avoir créé la facture, veuillez vous assurer d’exécuter l’une des options suivantes:\n' +
+      '\n' +
+      '- Ouvrez la facture/réclamation dans WINKpms et ajoutez-y les mêmes modifications que vous avez apportées dans cette section. \n' +
+      '\n' +
+      'OU\n' +
+      '\n' +
+      '- Créer une facture à nouveau. Ceci créera une seconde facture alors vous devrez annuler la précédente à partir de WINKpms. ',
+    treatment: 'Traitement',
+    plan: 'Plan',
+
+    appUpdateTitle: 'Une nouvelle mise à jour est disponible',
+    appUpdateSubtitle:
+      'Veuillez mettre à jour l’application WINKemr dans l’Appstore Apple pour obtenir les dernières fonctionnalités et la meilleure expérience.',
+    openAppstore: 'Veuillez ouvrir l’appstore pour mettre à jour l’application',
+    appVersion: 'Version de l’application',
+    welcome: 'Bienvenue',
+    somethingWentWrongVisitTitle:
+      "Une erreur s'est produite lors du chargement de la visite !",
+    reloadVisitTitle: 'Recharger la visite',
+    customiseDefaultExams: 'Définir les examens par défaut',
+    customiseExamDefinition: 'Personnaliser la définition des examens',
+    readMore: 'Lire plus',
+    readLess: 'Lire moins',
+    InvoiceAgainAlertTitle: 'Facture existante',
+    InvoiceAgainAlertMessage:
+      'Vous avez créé une nouvelle facture pour cette visite.\nVeuillez vous assurer d’annuler la facture original pour éviter des doublons. ',
   },
 });
 

@@ -17,10 +17,21 @@ export type Registration = {
   path: string,
 };
 
+export type AgentAssumption = {
+  zendeskRef: string,
+  reason: string,
+};
+
 export type VisitType = {
   id: string,
   name: string,
   examDefinitionIds: string[],
+};
+
+export type PatientInvoice = {
+  id: string,
+  invoiceNumber: string,
+  invoiceDate?: string,
 };
 
 export type Store = {
@@ -41,6 +52,7 @@ export type Store = {
   winkToWinkEmail?: string,
   eFaxUsed?: boolean,
   fax?: string,
+  defaultMedicationRxNote?: string,
 };
 
 export type Account = {
@@ -80,6 +92,7 @@ export type Privileges = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
   appointmentPrivilege?: Privilege,
+  referralPrivilege?: Privilege,
 };
 
 export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
@@ -88,6 +101,7 @@ export type TokenPrivileges = {
   pre: ?TokenPrivilege,
   med: ?TokenPrivilege,
   app: ?TokenPrivilege,
+  ref: ?TokenPrivilege,
 };
 
 export type TokenPayload = {
@@ -191,13 +205,20 @@ export type Appointment = {
   appointmentTypes?: string[],
   indicators?: string[],
   comment?: string,
-  supplierName?: string,
+  supplierId?: string,
   isBusy?: boolean,
   earlyRequest?: boolean,
   earlyRequestComment?: string,
   numberOfSlots?: number,
   appointmentPrivilege?: Privilege,
+  inactive?: boolean,
+  supplier?: Supplier,
 };
+
+export type Supplier = {
+  id: string,
+  name: string
+}
 
 export type Prism = {
   prismH?: number,
@@ -281,6 +302,7 @@ export type Visit = {
   pretestPrivilege?: Privilege,
   medicalDataPrivilege?: Privilege,
   consultationDetail?: ConsultationDetail,
+  invoices?: PatientInvoice[],
 };
 
 export type ConsultationDetail = {
@@ -371,6 +393,8 @@ export type FieldDefinition = {
   limitedValues?: {},
   forceSync?: boolean,
   listField?: boolean,
+  rangeFilter?: {},
+  hasRange?: boolean,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -402,6 +426,7 @@ export type GroupDefinition = {
   export?: string | string[],
   fields: (FieldDefinition | GroupDefinition)[],
   copyToFinalRx?: boolean,
+  showSubtitles?: boolean,
 };
 
 export type HtmlDefinition = {
@@ -446,6 +471,7 @@ export type FollowUp = {
   comment?: string,
   isOutgoing?: boolean,
   isParent?: boolean,
+  referralPrivilege?: Privilege,
 };
 
 export type ReferralStatusCode = {
@@ -496,6 +522,7 @@ export type ExamDefinition = {
   addablePostLock?: boolean,
   export?: string | string[],
   isPatientFileHidden?: boolean,
+  isInactive: boolean,
 };
 
 export type ExamPredefinedValue = {
@@ -520,6 +547,8 @@ export type Exam = {
   isHidden?: boolean,
   readonly?: boolean,
   noaccess?: boolean,
+  next?: string,
+  previous?: string,
 };
 
 export type Scene = {
@@ -571,10 +600,16 @@ export type ExamRoom = {
 export type VisitSummary = {
   visitId: string,
   refraction: ?GlassesRx,
-  summary: ?Exam[],
-  billing: ?Exam[],
-  medications: ?Prescription[],
-  fieldDefinitions: ?FieldDefinition[],
+  summary: ?(Exam[]),
+  billing: ?(Exam[]),
+  medications: ?(Prescription[]),
+  fieldDefinitions: ?(FieldDefinition[]),
   noaccess: ?boolean,
   visit: ?Visit,
+};
+
+export type EmrHost = {
+  host: string,
+  path: string,
+  version: string,
 };

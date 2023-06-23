@@ -272,7 +272,7 @@ export async function renderParentGroupHtml(
       child: htmlDefinition,
     });
   } else {
-    if (exam.definition.name === 'Consultation summary') {
+    if (exam.definition.name === 'Consultation summary' && !exam.definition.isSummaryAndPlan) {
       if (!isEmpty(exam.resume)) {
         html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
           exam.definition,
@@ -1382,6 +1382,10 @@ function renderRxTable(
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += '<tr>';
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
+    html += '<td class="desc"></td><td class="desc"></td><td class="desc"></td>';
+    if (hasPrism(glassesRx)) {
+      html += '<td class="desc"></td>';
+    } 
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(

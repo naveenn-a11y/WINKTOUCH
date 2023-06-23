@@ -6,16 +6,6 @@
       "label": "Rappel",
       "fields": [
         {
-          "name": "Treatment plan",
-          "label": "Plan de traitement",
-          "fields": [
-            {
-              "name": "Treatment",
-              "label": "Traitement"
-            }
-          ]
-        },
-        {
           "name": "Recall",
           "label": "Rappel",
           "fields": [
@@ -53,12 +43,6 @@
   "scrollable": false,
   "cardFields": [
     [
-      "Treatment plan.Recommendation"
-    ],
-    [
-      "Treatment plan.Treatment"
-    ],
-    [
       "Recall.PatientTag1",
       "Recall.PatientTag2",
       "Recall.PatientTag3",
@@ -91,24 +75,6 @@
   "starable": true,
   "type": "groupedForm",
   "fields": [
-    {
-      "name": "Treatment plan",
-      "multiValue": true,
-      "size": "M",
-      "fields": [
-        {
-          "maxLength": 250,
-          "name": "Recommendation",
-          "freestyle": true,
-          "options": "treatmentRecommendationCodes"
-        },
-        {
-          "maxLength": 250,
-          "name": "Treatment",
-          "freestyle": false
-        }
-      ]
-    },
     {
       "name": "Recall",
       "size": "XL",

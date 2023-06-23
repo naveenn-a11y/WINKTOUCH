@@ -34,6 +34,7 @@ let privileges: Privileges = {
   pretestPrivilege: 'NOACCESS',
   medicalDataPrivilege: 'NOACCESS',
   appointmentPrivilege: 'NOACCESS',
+  referralPrivilege: 'NOACCESS',
 };
 
 let requestNumber: number = 0;
@@ -57,6 +58,7 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.pretestPrivilege = 'NOACCESS';
   privileges.medicalDataPrivilege = 'NOACCESS';
   privileges.appointmentPrivilege = 'NOACCESS';
+  privileges.referralPrivilege = 'NOACCESS';
   if (tokenPrivileges === undefined || tokenPrivileges === null) {
     return;
   }
@@ -79,6 +81,12 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
     privileges.appointmentPrivilege = 'BOOKONLY';
   } else if (tokenPrivileges.app === 'R') {
     privileges.appointmentPrivilege = 'READONLY';
+  }
+  //Referral permission
+  if (tokenPrivileges.ref === 'F') {
+    privileges.referralPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.ref === 'R') {
+    privileges.referralPrivilege = 'READONLY';
   }
 }
 
@@ -704,6 +712,12 @@ export async function devDelete(path: string) {
 let restUrl: string;
 export function getRestUrl(): string {
   return __DEV__ ? 'http://localhost:8080/Web/' : restUrl;
+}
+
+export function getEmrNodeUrl(): string {
+  return __DEV__
+    ? 'http://localhost:7001/'
+    : 'https://emr-node.azurewebsites.net/';
 }
 
 async function setRestUrl(winkEmrHost: string) {

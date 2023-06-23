@@ -1,9 +1,10 @@
 {
   "addable": true,
   "name": "Family history",
+  "label": "Family History",
   "locale": {
     "fr-CA": {
-      "label": "Historique Familial",
+      "label": "Historique familial",
       "fields": [
         {
           "name": "Disease / Condition",

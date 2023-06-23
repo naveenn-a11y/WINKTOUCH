@@ -42,7 +42,7 @@ import type {
 import {fetchReferralFollowUpHistory, fetchVisit} from './Visit';
 import {getCachedItem, cacheItem} from './DataCache';
 
-import {stripDataType} from './Rest';
+import {getPrivileges, stripDataType} from './Rest';
 import RNBeep from 'react-native-a-beep';
 import {getDoctor} from './DoctorApp';
 import {strings} from './Strings';
@@ -59,6 +59,28 @@ const COMMAND = {
   FORWARD: 2,
 };
 
+const PRIVILEGE = {
+  FULLACCESS: 'FULLACCESS',
+  NOACCESS: 'NOACCESS',
+  READONLY: 'READONLY',
+};
+
+function hasReferralFollowUpReadAccess(followUp: FollowUp): boolean {
+  if (!followUp) {
+    return false;
+  }
+  return (
+    followUp.referralPrivilege === PRIVILEGE.READONLY ||
+    followUp.referralPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+
+function hasReferralFollowUpFullAccess(followUp: FollowUp): boolean {
+  if (!followUp) {
+    return false;
+  }
+  return followUp.referralPrivilege === PRIVILEGE.FULLACCESS;
+}
 type FollowUpScreenProps = {
   navigation: any,
   patientInfo: PatientInfo,
@@ -503,13 +525,21 @@ export class FollowUpScreen extends Component<
         let PDFAttachment = getPDFAttachmentFromHtml(html);
         await printHtml(html, PDFAttachment);
       } else {
-        const data = {uri: `data:${getMimeType(upload)};base64,${upload.data}`};
-        html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
-        if (isWeb) {
-          print(html);
+        const mimeType: string = getMimeType(upload);
+        if (
+          mimeType === 'application/pdf;base64' ||
+          mimeType === 'application/pdf'
+        ) {
+          await printBase64Pdf(upload.data);
         } else {
-          let PDFAttachment = getPDFAttachmentFromHtml(html);
-          await printHtml(html, PDFAttachment);
+          const data = {uri: `data:${mimeType};base64,${upload.data}`};
+          html = `<iframe src=${data.uri} height="100%" width="100%" frameBorder="0"></iframe>`;
+          if (isWeb) {
+            print(html);
+          } else {
+            let PDFAttachment = getPDFAttachmentFromHtml(html);
+            await printHtml(html, PDFAttachment);
+          }
         }
       }
     }
@@ -820,10 +850,12 @@ export class FollowUpScreen extends Component<
   }
 
   renderButtons() {
-    let statusCode: CodeDefinition =
-      this.state.selectedItem !== undefined
-        ? getCodeDefinition('referralStatus', this.state.selectedItem.status)
-        : undefined;
+    const hasReferralReadAccess: boolean = hasReferralFollowUpReadAccess(
+      this.state.selectedItem,
+    );
+    const hasReferralFullAccess: boolean = hasReferralFollowUpFullAccess(
+      this.state.selectedItem,
+    );
     const visit: Visit =
       this.state.selectedItem !== undefined
         ? getCachedItem(this.state.selectedItem.visitId)
@@ -838,21 +870,25 @@ export class FollowUpScreen extends Component<
       : undefined;
     return (
       <View style={styles.flow}>
-        {this.state.selectedItem && (
+        {this.state.selectedItem && hasReferralReadAccess && (
           <Button
             title={strings.view}
             onPress={() => this.openAttachment()}
             disabled={!this.state.isActive}
           />
         )}
-        {this.state.selectedItem && !isDraft && this.shouldActivateReply() && (
-          <Button
-            title={strings.quickReply}
-            onPress={() => this.reply()}
-            disabled={!this.state.isActive}
-          />
-        )}
         {this.state.selectedItem &&
+          hasReferralFullAccess &&
+          !isDraft &&
+          this.shouldActivateReply() && (
+            <Button
+              title={strings.quickReply}
+              onPress={() => this.reply()}
+              disabled={!this.state.isActive}
+            />
+          )}
+        {this.state.selectedItem &&
+          hasReferralFullAccess &&
           !isDraft &&
           visit &&
           this.shouldActivateFollowUp() && (
@@ -870,29 +906,36 @@ export class FollowUpScreen extends Component<
               }}
             />
           )}
-        {this.state.selectedItem && visit && this.shouldActivateEdit() && (
-          <Button
-            title={strings.edit}
-            disabled={!this.state.isActive}
-            onPress={() => {
-              this.props.navigation.navigate('referral', {
-                visit: visit,
-                referral: this.state.selectedItem,
-                followUp: false,
-                followUpStateKey: this.props.navigation.state.key,
-                patientInfo: patientInfo,
-              });
-            }}
-          />
-        )}
-        {this.state.selectedItem && !isDraft && this.shouldActivateResend() && (
-          <Button
-            title={strings.resend}
-            onPress={() => this.resend()}
-            disabled={!this.state.isActive}
-          />
-        )}
         {this.state.selectedItem &&
+          hasReferralFullAccess &&
+          visit &&
+          this.shouldActivateEdit() && (
+            <Button
+              title={strings.edit}
+              disabled={!this.state.isActive}
+              onPress={() => {
+                this.props.navigation.navigate('referral', {
+                  visit: visit,
+                  referral: this.state.selectedItem,
+                  followUp: false,
+                  followUpStateKey: this.props.navigation.state.key,
+                  patientInfo: patientInfo,
+                });
+              }}
+            />
+          )}
+        {this.state.selectedItem &&
+          hasReferralFullAccess &&
+          !isDraft &&
+          this.shouldActivateResend() && (
+            <Button
+              title={strings.resend}
+              onPress={() => this.resend()}
+              disabled={!this.state.isActive}
+            />
+          )}
+        {this.state.selectedItem &&
+          hasReferralFullAccess &&
           !isDraft &&
           this.shouldActivateForward() && (
             <Button
@@ -901,13 +944,15 @@ export class FollowUpScreen extends Component<
               disabled={!this.state.isActive}
             />
           )}
-        {this.state.selectedItem && this.shouldActivateDelete() && (
-          <Button
-            title={strings.deleteTitle}
-            onPress={() => this.showDialog(this.state.selectedItem)}
-            disabled={!this.state.isActive}
-          />
-        )}
+        {this.state.selectedItem &&
+          hasReferralFullAccess &&
+          this.shouldActivateDelete() && (
+            <Button
+              title={strings.deleteTitle}
+              onPress={() => this.showDialog(this.state.selectedItem)}
+              disabled={!this.state.isActive}
+            />
+          )}
         {this.state.selectedItem && !isDraft && (
           <Button
             title={strings.openFile}
@@ -1905,7 +1950,7 @@ export class TableList extends React.PureComponent {
               }
               onLongPress={() => this.onDelete(item.item)}
               testID={this.props.label + '.option' + (item.index + 1)}
-              readonly={this.props.isDraft ? true : false}
+              readonly={this.props.isDraft}
               isVisible={isVisible}
             />
           )}

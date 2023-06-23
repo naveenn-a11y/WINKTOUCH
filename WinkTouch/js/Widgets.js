@@ -583,6 +583,7 @@ export class NumberField extends Component {
       nextField: string,
       onTransferFocus: (field: string) => void,
     },
+    listField?: number,
     testID: string,
   };
   state: {
@@ -1306,6 +1307,23 @@ export class NumberField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           onChangeValue={(newValue) => this.commitTyping(newValue)}
           onOpenModal={this.openModal}
+        />
+      );
+    } else if (this.props.listField) {
+      return (
+        <ListField
+          label={this.props.label}
+          style={this.props.style}
+          readonly={this.props.readonly}
+          freestyle={this.props.freestyle}
+          options={this.props.options}
+          value={formattedValue}
+          onChangeValue={this.commitTyping}
+          prefix={this.props.prefix}
+          suffix={this.props.suffix}
+          simpleSelect={true}
+          popupStyle={styles.alignPopup}
+          testID={this.props.testID}
         />
       );
     }
@@ -3533,8 +3551,11 @@ type AlertProps = {
   dismissable?: boolean,
   confirmActionLabel: string,
   cancelActionLabel: string,
+  emailActionLabel?: string,
   onConfirmAction: (selectedData: ?any) => void,
   onCancelAction: () => void,
+  onEmailAction?: (selectedData: ?any) => void,
+  isActionVertical?: boolean,
   multiValue?: boolean,
 };
 type AlertState = {
@@ -3571,6 +3592,12 @@ export class Alert extends Component<AlertProps, AlertState> {
   confirmDialog = (selectedData: ?any) => {
     this.setState({visible: false});
     this.props.onConfirmAction(
+      selectedData === undefined ? this.state.data : selectedData,
+    );
+  };
+  emailDialog = (selectedData: ?any) => {
+    this.setState({visible: false});
+    this.props.onEmailAction(
       selectedData === undefined ? this.state.data : selectedData,
     );
   };
@@ -3656,11 +3683,21 @@ export class Alert extends Component<AlertProps, AlertState> {
           dismissable={this.props.dismissable}
           style={this.props.style}>
           <Dialog.Title>{this.props.title}</Dialog.Title>
-          <Dialog.Content>{this.renderContent()}</Dialog.Content>
-          <Dialog.Actions>
+          {!this.props.isActionVertical && (
+            <Dialog.Content>{this.renderContent()}</Dialog.Content>
+          )}
+          <Dialog.Actions
+            style={
+              this.props.isActionVertical && {flexDirection: 'column-reverse'}
+            }>
             <NativeBaseButton onPress={this.cancelDialog}>
               {this.props.cancelActionLabel}
             </NativeBaseButton>
+            {this.props.onEmailAction && (
+              <NativeBaseButton onPress={this.emailDialog}>
+                {this.props.emailActionLabel}
+              </NativeBaseButton>
+            )}
             <NativeBaseButton onPress={this.confirmDialog} disabled={disabled}>
               {this.props.confirmActionLabel}
             </NativeBaseButton>
@@ -3821,6 +3858,62 @@ export class SizeTile extends Component {
           <Icon name={this.props.name} style={styles.modalTileIcon} />
         </View>
       </TouchableOpacity>
+    );
+  }
+}
+export class CollapsibleMessage extends PureComponent {
+  props: {
+    shortMessage: string,
+    longMessage: string,
+    containerStyle: style,
+  };
+
+  state: {
+    showFullBillingInfo: boolean,
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      showFullBillingInfo: false,
+    };
+  }
+
+  toggleShowFullBillingInfo = () => {
+    this.setState({
+      showFullBillingInfo: !this.state.showFullBillingInfo,
+    });
+  };
+
+  render() {
+    return (
+      <View
+        style={
+          this.props.containerStyle
+            ? this.props.containerStyle
+            : styles.errorCard
+        }>
+        {!this.state.showFullBillingInfo && (
+          <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity onPress={this.toggleShowFullBillingInfo}>
+              <Text>
+                {this.props.shortMessage}
+                <Text style={styles.readMoreLabel}>{strings.readMore}</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {this.state.showFullBillingInfo && (
+          <View>
+            <TouchableOpacity onPress={this.toggleShowFullBillingInfo}>
+              <Text>
+                {this.props.longMessage}
+                <Text style={styles.readMoreLabel}>{strings.readLess}</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
     );
   }
 }

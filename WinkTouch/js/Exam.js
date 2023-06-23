@@ -3,17 +3,8 @@
  */
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
-import {
-  View,
-  TouchableHighlight,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Button,
-  Animated,
-  Easing,
-} from 'react-native';
+import React, {Component} from 'react';
+import {View, Text, TouchableOpacity, Animated, Easing} from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
@@ -44,7 +35,7 @@ import {
   addGroupItem,
 } from './GroupedForm';
 import {PaperFormScreen} from './PaperForm';
-import {fetchItemById, storeItem, searchItems} from './Rest';
+import {fetchItemById, storeItem} from './Rest';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {
   deepClone,
@@ -74,12 +65,19 @@ import {
   ExportIcon,
 } from './Favorites';
 import {getExamDefinition} from './ExamDefinition';
-import {Alert, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
+import {
+  Alert,
+  CollapsibleMessage,
+  Lock,
+  NativeBar,
+  NoAccess,
+  Pencil,
+} from './Widgets';
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
-import {formatCode, getCodeDefinition} from './Codes';
 import {Machine, exportData} from './Machine';
+import {PatientCard} from './Patient';
 
 export async function fetchExam(
   examId: string,
@@ -109,6 +107,7 @@ export async function storeExam(
   if (exam.errors) {
     return exam;
   }
+
   if (refreshStateKey && navigation) {
     //TODO check if exam has mapped visit fields
     const setParamsAction = NavigationActions.setParams({
@@ -849,6 +848,7 @@ export class ExamScreen extends Component {
     showSnackBar: ?boolean,
     snackBarMessage: ?string,
     copiedData?: GlassesRx,
+    patientInfo: PatientInfo,
   };
 
   constructor(props: any) {
@@ -859,6 +859,7 @@ export class ExamScreen extends Component {
       this.props.navigation.state.params
         ? this.props.navigation.state.params.exam
         : this.props.exam;
+    let visit = getVisit(exam);
     this.state = {
       exam,
       appointmentStateKey:
@@ -875,12 +876,13 @@ export class ExamScreen extends Component {
       showSnackBar: false,
       snackBarMessage: '',
       copiedData: null,
+      patientInfo: getCachedItem(visit.patientId),
     };
   }
 
   componentDidMount() {
     if (
-      this.state.exam.id != undefined &&
+      this.state.exam.id !== undefined &&
       this.state.exam.errors === undefined
     ) {
       this.fetchExam();
@@ -907,13 +909,17 @@ export class ExamScreen extends Component {
       this.props.navigation.state.params
         ? this.props.navigation.state.params.exam
         : this.props.exam;
-    if (this.state.exam.id === exam.id) {
+    if (this.state.exam && this.state.exam.id === exam.id) {
       //__DEV__ && console.log('ExamScreen did update with same exam id '+exam.id);
       return;
     }
     //__DEV__ && console.log('ExamScreen did update after receiving new exam with id '+exam.id);
     if (this.state.isDirty) {
       this.storeExam(this.state.exam);
+    } else if (exam.isInvalid) {
+      exam.isInvalid = false;
+      exam.hasStarted = true;
+      this.storeExam(exam);
     }
     this.setState({
       exam,
@@ -936,6 +942,11 @@ export class ExamScreen extends Component {
     if (this.state.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
       this.storeExam(this.state.exam);
+    } else if (this.state.exam.isInvalid) {
+      let exam: Exam = this.state.exam;
+      exam.isInvalid = false;
+      exam.hasStarted = true;
+      this.storeExam(exam);
     }
   }
 
@@ -986,7 +997,10 @@ export class ExamScreen extends Component {
       }
     } else {
       if (exam.errors) {
-        this.props.navigation.navigate('exam', {exam: exam});
+        this.props.navigation.navigate('exam', {
+          exam: exam,
+          appointmentStateKey: this.state.appointmentStateKey,
+        });
       }
     }
   }
@@ -1330,13 +1344,27 @@ export class ExamScreen extends Component {
       </TouchableOpacity>
     );
   }
-
+  /*
+  Temporary Warning message for Billing, should be removed after invoicing module is implemented in EMR
+   */
+  renderExamWarnings() {
+    if (this.state.exam.definition.name.toLowerCase() === 'diagnosis') {
+      return (
+        <CollapsibleMessage
+          shortMessage={strings.billingUpdateShortWarning}
+          longMessage={strings.billingUpdateWarning}
+        />
+      );
+    }
+    return null;
+  }
   renderExamIcons(style: any) {
     if (this.state.exam.definition.card === false) {
       return;
     }
     return (
       <View style={style}>
+        {this.renderExamTitle()}
         {this.renderExportSection()}
         {this.renderRefreshIcon()}
         {this.renderFavoriteIcon()}
@@ -1345,6 +1373,17 @@ export class ExamScreen extends Component {
       </View>
     );
   }
+
+  renderExamTitle() {
+    return (
+      <View style={styles.examLabel}>
+        <Text style={styles.sectionTitle}>
+          {formatLabel(this.state.exam.definition)}
+        </Text>
+      </View>
+    );
+  }
+
   renderExportSection() {
     if (
       this.state.exam.definition.export === undefined ||
@@ -1424,7 +1463,25 @@ export class ExamScreen extends Component {
     );
   }
 
+  renderPatientDetails() {
+    return (
+      <PatientCard
+        patientInfo={this.state.patientInfo}
+        navigation={this.props.navigation}
+        refreshStateKey={this.props.navigation.state.key}
+        style={{
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          marginHorizontal: 10 * fontScale,
+        }}
+      />
+    );
+  }
+
   render() {
+    if (!this.state.exam) {
+      return null;
+    }
     if (
       this.state.exam.definition.scrollable === true ||
       this.state.exam.definition.type === 'groupedForm'
@@ -1442,7 +1499,9 @@ export class ExamScreen extends Component {
               this.props.disableScroll === undefined && this.state.scrollable
             }
             pinchGestureEnabled={this.state.scrollable}>
+            {this.renderPatientDetails()}
             <ErrorCard errors={this.state.exam.errors} />
+            {this.renderExamWarnings()}
             {this.renderExamIcons(styles.examIconsFlex)}
             {this.renderRelatedExams()}
             {this.renderExam()}
@@ -1453,12 +1512,12 @@ export class ExamScreen extends Component {
     if (this.props.disableScroll) {
       return (
         <View style={styles.centeredColumnLayout}>
+          {this.renderPatientDetails()}
           <ErrorCard errors={this.state.exam.errors} />
-          {isWeb && this.renderExamIcons(styles.examIconsFlex)}
+          {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
-          {!isWeb && this.renderExamIcons(styles.examIcons)}
         </View>
       );
     }
@@ -1467,14 +1526,14 @@ export class ExamScreen extends Component {
         style={styles.page}
         contentContainerStyle={isWeb ? {} : styles.centeredScreenLayout}
         scrollEnabled={isWeb}>
-        {isWeb && this.renderExamIcons(styles.examIconsFlex)}
-        <View style={styles.centeredColumnLayout}>
+        <View style={[styles.centeredColumnLayout, {alignItems: 'stretch'}]}>
+          {this.renderPatientDetails()}
           <ErrorCard errors={this.state.exam.errors} />
+          {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
           {this.renderRelatedExams()}
           {this.renderExam()}
         </View>
-        {!isWeb && this.renderExamIcons(styles.examIcons)}
       </KeyboardAwareScrollView>
     );
   }

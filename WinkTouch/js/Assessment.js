@@ -24,7 +24,7 @@ import {storeExam} from './Exam';
 import {Microphone} from './Voice';
 import {getDataType} from './Rest';
 import {Label} from './Widgets';
-import {isEmpty} from './Util';
+import {getValue, isEmpty, setValue} from './Util';
 import {formatCode} from './Codes';
 
 export class AssessmentCard extends Component {
@@ -87,7 +87,9 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxRows() {
     let rows: any[] = [];
     const purchaseRx: any = this.props.exam.RxToOrder['Purchase Rx'];
-    if (purchaseRx === undefined) return null;
+    if (purchaseRx === undefined) {
+      return null;
+    }
     rows.push(this.renderPurchaseRxTitle());
     purchaseRx.map((recomm: any, index: number) => {
       rows.push(this.renderPurchaseRxSimpleRow(recomm, index));
@@ -274,6 +276,142 @@ export class VisitSummaryCard extends Component {
             </View>
           </View>
         </View>
+      </View>
+    );
+  }
+}
+
+export class VisitSummaryPlanCard extends Component {
+  props: {
+    exam: Exam,
+    navigation: any,
+    editable?: boolean,
+    appointmentStateKey: string,
+    disabled?: boolean,
+  };
+  static defaultProps = {
+    editable: true,
+  };
+
+  state: {
+    exam: Exam,
+  };
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      exam: this.props.exam,
+    };
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.exam === prevProps.exam) {
+      return;
+    }
+    this.setState({
+      exam: this.props.exam,
+    });
+  }
+
+  async storeExam(exam: Exam) {
+    this.setState({exam});
+    exam = await storeExam(exam, undefined, undefined);
+    if (exam.errors) {
+      alert(
+        strings.formatString(
+          strings.storeItemError,
+          getDataType(this.props.exam.id).toLowerCase(),
+        ),
+      );
+    } else {
+      this.setState({exam});
+    }
+  }
+
+  async updateSummary(resume: string) {
+    let exam: Exam = this.state.exam;
+    setValue(exam, exam.definition.name + '.Summary.Resume', resume);
+    this.storeExam(exam);
+  }
+
+  navigateToExam = () => {
+    this.props.navigation.navigate('exam', {
+      exam: this.state.exam,
+      appointmentStateKey: this.props.appointmentStateKey,
+    })
+  }
+
+  render() {
+    if (!this.state.exam) {
+      return null;
+    }
+    const groupDefinition: GroupDefinition =
+      this.props.exam.definition.fields.find(
+        (fieldDefinition: GroupDefinition | FieldDefinition) =>
+          fieldDefinition.name === 'Treatment plan',
+      );
+    const plans: any = getValue(
+      this.state.exam,
+      'Consultation summary.Treatment plan',
+    );
+    const summary = getValue(
+      this.state.exam,
+      'Consultation summary.Summary.Resume',
+    );
+
+    return (
+      <View style={styles.assessmentCard}>
+        <TouchableOpacity style={styles.centeredRowLayout} 
+          onPress={this.navigateToExam}
+        >
+          <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.columnLayout}
+          onPress={!this.props.editable ? this.navigateToExam : undefined}
+        >
+          <View style={styles.formRowL}>
+            {this.props.editable && <FormTextInput
+              label=""
+              multiline={true}
+              readonly={!this.props.editable}
+              value={!isEmpty(summary) ? summary : ''}
+              onChangeText={(text: ?string) => this.updateSummary(text)}
+            />}
+            
+            {!this.props.editable && <View style={styles.fieldFlexContainer}>
+              <Text style={[styles.formFieldLines, {minHeight: 36 * 4.7 * fontScale, height: 'auto'}]}>
+                {!isEmpty(summary) ? summary : ''}
+              </Text>
+            </View>}
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          disabled={this.props.disabled}
+          onPress={this.navigateToExam}>
+          <View>
+            <View style={styles.centeredRowLayout}>
+              <Text style={styles.sectionTitle}>
+                {formatLabel(groupDefinition)}
+              </Text>
+            </View>
+
+            <View style={styles.columnLayout}>
+              {!isEmpty(plans) &&
+                plans.map((plan, index) => {
+                  return (
+                    <View
+                      style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
+                      <Text style={styles.textLeft} key={index}>
+                        {plan.Treatment && `${plan.Treatment}`}
+                      </Text>
+                    </View>
+                  );
+                })}
+            </View>
+          </View>
+        </TouchableOpacity>
       </View>
     );
   }

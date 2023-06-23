@@ -1,6 +1,7 @@
 /**
  * @flow
  */
+
 'use strict';
 
 import type {
@@ -43,6 +44,7 @@ export function formatCodeDefinition(
     return '';
   }
   option = option.toString();
+
   return option;
 }
 
@@ -165,10 +167,11 @@ export function getAllCodes(codeType: string, filter?: {}): CodeDefinition[] {
 export function formatAllCodes(codeType: string, filter?: {}): string[] {
   let codeIdentifier;
   if (codeType.includes('.')) {
-    const identifiers: string = codeType.split('.');
+    const identifiers: string[] = codeType.split('.');
     codeType = identifiers[0];
     codeIdentifier = identifiers[1];
   }
+
   const options = getAllCodes(codeType, filter);
   const formattedCodes: (string[] | string)[] = formatOptions(
     options,
@@ -185,6 +188,7 @@ export function parseCode(
   if (input === undefined || input === null) {
     return undefined;
   }
+
   let trimmedInput = input.trim().toLowerCase();
   if (codeIdentifier === undefined || codeIdentifier === null) {
     codeIdentifier = 'code';
@@ -1373,30 +1377,30 @@ let codeDefinitions = {
     },
   ],
   providerTypeCodes: [
-      {
-          code: "",
-          description: ""
-      },
-      {
-          code: "RO",
-          description: "Registered Optician (RO)"
-      },
-      {
-          code: "OD",
-          description: "Doctor of Optometry (OD)"
-      },
-      {
-          code: "MD",
-          description: "Ophthalmologist (MD)"
-      },
-      {
-          code: "DO",
-          description: "Doctor of Osteopathy (DO)"
-      },
-      {
-          code: "Optometrist",
-          description: "Doctor of Optometry (Optometrist)"
-      }
+    {
+      code: '',
+      description: '',
+    },
+    {
+      code: 'RO',
+      description: 'Registered Optician (RO)',
+    },
+    {
+      code: 'OD',
+      description: 'Doctor of Optometry (OD)',
+    },
+    {
+      code: 'MD',
+      description: 'Ophthalmologist (MD)',
+    },
+    {
+      code: 'DO',
+      description: 'Doctor of Osteopathy (DO)',
+    },
+    {
+      code: 'Optometrist',
+      description: 'Doctor of Optometry (Optometrist)',
+    },
   ],
 };
 

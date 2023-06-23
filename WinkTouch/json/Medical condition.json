@@ -1,5 +1,6 @@
 {
   "name": "Medical condition",
+  "label": "Medical Condition",
   "type": "groupedForm",
   "section": "History.10",
   "starable": true,
