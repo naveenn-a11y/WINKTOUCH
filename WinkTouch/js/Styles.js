@@ -919,6 +919,7 @@ export const styles = StyleSheet.create({
   boardM: boardStyle('#dddddd', 'M'),
   boardL: boardStyle('#dddddd', 'L'),
   boardXL: boardStyle('#dddddd', 'XL'),
+  boardMAX: boardStyle('#dddddd', 'MAX'),
   boardTodo: boardStyle('#ffaabb'),
   boardTodoS: boardStyle('#ffaabb', 'S'),
   boardTodoM: boardStyle('#ffaabb', 'M'),
@@ -1549,7 +1550,7 @@ function boardStyle(
   minHeight: ?number = 0,
 ) {
   const minWidth: number =
-    size === 'XL'
+    size === 'XL' || size === 'MAX'
       ? 1040
       : size === 'L'
       ? 680
@@ -1566,7 +1567,11 @@ function boardStyle(
     minWidth: minWidth * fontScale,
     minHeight: minHeight * fontScale,
     maxHeight:
-      isWeb && (size === 'M' || size === 'S') ? 800 * fontScale : undefined,
+      isWeb && (size === 'M' || size === 'S') 
+      ? 800 * fontScale 
+      : size === 'MAX'
+      ? '100%'
+      : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,

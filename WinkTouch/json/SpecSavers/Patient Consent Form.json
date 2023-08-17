@@ -10,14 +10,14 @@
       {
         "name": "Patient Consent Form",
         "label": "",
-        "size": "XL",
+        "size": "MAX",
         "fields": [
           {
             "sync": true,
             "popup": false,
             "drawable":true,
             "name": "Patient Consent Form",
-            "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1726/PatientConsentForm.jpg",
+            "image": "https://attachment.downloadwink.com/WinkRESTvWinkWeb/webresources/attachement/845/1741/PatientConsentForm-SpecSavers.jpg",
             "label": "",
             "resolution": "1700x2200",
             "type": "Patient Consent Form",
@@ -39,14 +39,14 @@
                 "label": "",
                 "fields": [
                   {
-                    "mappedField": "visit.storeName",
+                    "mappedField": "visit.store.specSaversTollFree",
                     "name": "Store name",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
-                      "width": 245,
-                      "left": 160,
-                      "fontSize": 21,
+                      "width": 400,
+                      "left": 123,
+                      "fontSize": 17,
                       "top": 10
                     },
                     "readonly": true
@@ -58,7 +58,7 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 400,
-                      "left": 160,
+                      "left": 123,
                       "fontSize": 17,
                       "top": 35
                     },
@@ -71,22 +71,35 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 400,
-                      "left": 160,
+                      "left": 123,
                       "fontSize": 17,
                       "top": 60
                     },
                     "readonly": true
                   },
                   {
-                    "mappedField": "visit.storeContact",
+                    "mappedField": "visit.store.contactOnly",
                     "name": "Store contact",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 600,
-                      "left": 160,
+                      "left": 123,
                       "fontSize": 17,
                       "top": 85
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.store.email",
+                    "name": "Store Email",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 600,
+                      "left": 123,
+                      "fontSize": 17,
+                      "top": 110
                     },
                     "readonly": true
                   },
@@ -114,9 +127,9 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 280,
-                      "left": 160,
+                      "left": 123,
                       "fontSize": 20,
-                      "top": 1260
+                      "top": 1235
                     },
                     "readonly": true
                   },
@@ -127,37 +140,50 @@
                     "dateFormat": "DD/MM/yyyy",
                     "layout": {
                       "position": "absolute",
-                      "top": 1260,
-                      "left": 700,
+                      "top": 1235,
+                      "left": 772,
                       "width": 200,
                       "borderWidth": 0,
                       "fontSize": 20
                     }
                   },
                   {
-                    "mappedField": "visit.store.companyname",
+                    "mappedField": "visit.store.tollfree",
                     "maxLength": 100,
-                    "name": "Company Name",
+                    "name": "TollFree",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
-                      "width": 245,
-                      "left": 255,
+                      "width": 300,
+                      "left": 312,
                       "fontSize": 18,
-                      "top": 169
+                      "top": 205
                     },
                     "readonly": true
                   },
                   {
-                    "mappedField": "visit.doctor",
-                    "name": "Doctor",
+                    "mappedField": "visit.store.companyname",
+                    "name": "Company Name",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
-                      "width": 220,
-                      "left": 668,
+                      "width": 400,
+                      "left": 332,
                       "fontSize": 18,
-                      "top": 345
+                      "top": 365
+                    },
+                    "readonly": true
+                  },
+                  {
+                    "mappedField": "visit.store.tel1",
+                    "name": "StoreTel1",
+                    "layout": {
+                      "position": "absolute",
+                      "borderWidth": 0,
+                      "width": 400,
+                      "left": 187,
+                      "fontSize": 20,
+                      "top": 1122
                     },
                     "readonly": true
                   },
@@ -169,7 +195,7 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 50,
-                      "left": 170,
+                      "left": 138,
                       "fontSize": 18,
                       "top": 590
                     },
@@ -188,9 +214,9 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 50,
-                      "left": 170,
+                      "left": 138,
                       "fontSize": 18,
-                      "top": 647
+                      "top": 677
                     },
                     "normalValue": false,
                     "defaultValue": false,
@@ -206,9 +232,9 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 50,
-                      "left": 170,
+                      "left": 138,
                       "fontSize": 18,
-                      "top": 683
+                      "top": 745
                     },
                     "normalValue": false,
                     "defaultValue": false,
@@ -225,9 +251,9 @@
                       "position": "absolute",
                       "borderWidth": 0,
                       "width": 50,
-                      "left": 170,
+                      "left": 138,
                       "fontSize": 18,
-                      "top": 955
+                      "top": 925
                     },
                     "normalValue": false,
                     "defaultValue": false,
