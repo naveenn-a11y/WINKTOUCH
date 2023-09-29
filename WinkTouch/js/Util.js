@@ -802,3 +802,9 @@ export function deepEqual(object1: any, object2: any) {
 function isObject(object: any) {
   return object != null && typeof object === 'object';
 }
+
+export function sleep(milliseconds: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}

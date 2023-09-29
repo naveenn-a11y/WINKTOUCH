@@ -30,6 +30,7 @@ export const winkWebSocketUrl: string = __DEV__
 let winkRestUrl: string;
 export function setWinkRestUrl(winkEmrHost: string) {
   winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + restVersion + '/';
+  __DEV__ && console.log('Setting WINKRest backend server to '+winkRestUrl);
 }
 
 export function getWinkRestUrl(): string {
@@ -37,10 +38,9 @@ export function getWinkRestUrl(): string {
     return 'http://localhost:8080/WinkRESTv6.00.02/';
   }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
-    return setWinkRestUrl(defaultHost);
-  } else {
-    return winkRestUrl;
+    setWinkRestUrl(defaultHost);
   }
+  return winkRestUrl;
 }
 
 export async function postWinkWebSocketUrl(
