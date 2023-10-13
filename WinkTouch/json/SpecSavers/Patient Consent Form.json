@@ -39,9 +39,9 @@
                 "label": "",
                 "fields": [
                   {
-                    "mappedField": "visit.store.tollfree",
+                    "mappedField": "visit.storeTollfree",
                     "name": "Store name",
-                    "prefix": " Specsavers",
+                    "prefix": "Specsavers",
                     "layout": {
                       "position": "absolute",
                       "borderWidth": 0,
@@ -79,7 +79,7 @@
                     "readonly": true
                   },
                   {
-                    "mappedField": "visit.store.phoneFax",
+                    "mappedField": "visit.storePhoneFax",
                     "name": "Store contact",
                     "layout": {
                       "position": "absolute",
@@ -92,7 +92,7 @@
                     "readonly": true
                   },
                   {
-                    "mappedField": "visit.store.email",
+                    "mappedField": "visit.storeEmail",
                     "name": "Store Email",
                     "layout": {
                       "position": "absolute",
@@ -106,8 +106,8 @@
                   },
                   {
                     "name": "Logo",
-                    "image": "[visit.store.logo]",
-                    "mappedField": "visit.store.logo",
+                    "image": "[visit.storeLogo]",
+                    "mappedField": "visit.storeLogo",
                     "readonly": true,
                     "size": "XS",
                     "layout": {
@@ -149,7 +149,7 @@
                     }
                   },
                   {
-                    "mappedField": "visit.store.tollfree",
+                    "mappedField": "visit.storeTollfree",
                     "maxLength": 100,
                     "name": "TollFree",
                     "layout": {
@@ -163,7 +163,7 @@
                     "readonly": true
                   },
                   {
-                    "mappedField": "visit.store.companyname",
+                    "mappedField": "visit.storeCompanyname",
                     "name": "Company Name",
                     "layout": {
                       "position": "absolute",
@@ -176,7 +176,7 @@
                     "readonly": true
                   },
                   {
-                    "mappedField": "visit.store.tel1",
+                    "mappedField": "visit.storeTel1",
                     "name": "StoreTel1",
                     "layout": {
                       "position": "absolute",
