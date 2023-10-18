@@ -50,6 +50,15 @@
                       "fontSize": 17,
                       "top": 10
                     },
+                    "prefixStyle": {
+                      "color": "#444444ff", 
+                      "fontSize": 17, 
+                      "height": 36, 
+                      "paddingTop": 6, 
+                      "paddingLeft": 6,
+                      "paddingRight": 3, 
+                      "margin": 3
+                    },
                     "readonly": true
                   },
                   {
