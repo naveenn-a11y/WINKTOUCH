@@ -53,8 +53,8 @@
                     "prefixStyle": {
                       "color": "#444444ff", 
                       "fontSize": 17, 
-                      "height": 36, 
-                      "paddingTop": 6, 
+                      "paddingTop": 6,
+                      "paddingBottom": 3,  
                       "paddingLeft": 6,
                       "paddingRight": 3, 
                       "margin": 3
