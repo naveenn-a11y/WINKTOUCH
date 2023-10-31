@@ -282,12 +282,11 @@ export class DoctorApp extends Component {
 
   logout = (): void => {
     __DEV__ && console.log('Logging out');
-
     setDoctor(undefined);
     setToken(undefined);
     setStore(undefined);
     clearDataCache();
-    cacheDefinitions(getUserLanguage());
+    !isWeb && cacheDefinitions(getUserLanguage());
     this.props.onLogout();
   };
 
