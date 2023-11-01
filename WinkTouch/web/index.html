@@ -1,100 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
-    <title>WINKemr</title>
-    <style>
-        body,
-        html {
-            height: 100%
-        }
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="theme-color" content="#000000">
+        <title>WINKemr</title>
+        <style>
+            html, body { height: 100%; }
+            body { overflow: hidden; }
+            #root { display:flex; height:100%; }
+          </style>
+    </head>
 
-        body {
-            overflow: hidden
-        }
-
-        #root {
-            display: flex;
-            height: 100%
-        }
-    </style>
-</head>
-
-<body><noscript>You need to enable JavaScript in the browser to run the WINK EMR application</noscript>
-    <div id="root"></div>
-    <script>
-        //console.log('Loading root html.');
-        const environments = {
-            staging: { //namita
-                key: 'IKSahgQZjz3SxmOwztyW7dRNmJfV4JEI-EgxM',
-                deployment: {
-                    version: 'v412-3',
-                    jsbundle: 'v412-3/app-40ad88c13d2ae9e0a30f.bundle.js',
-                }
-            },
-            qa: {//EMR QA
-                key: 'fkne1zQ09K6MDAY6ccDzXzSkb4-fmp0WAMuBG',
-                deployment: {
-                    version: 'v412-3',
-                    jsbundle: 'v412-3/app-40ad88c13d2ae9e0a30f.bundle.js'
-                }
-            },
-            alpha: {//Specsavers Sandbox OD
-                key: 'o8Ad5vPqlx-x9bOrvsejrXL5T-C5b99414bd-11b8-4bb3-bbb3-8b32aaf3da86',
-                deployment: {
-                    version: 'v412',
-                    //jsbundle: 'v412/app-6005ae5d1163f9b32a59.bundle.js'
-                    jsbundle: 'uat/app-828825e6cd9c46b2799b.bundle.js'
-                }
-            },
-            production: {//Brenda optical
-                key: 'aJlnFTJv0FBp--NZ8a-epxcISJ69b99414bd-11b8-4bb3-bbb3-8b32aaf3da86',
-                deployment: {
-                    version: 'v411',
-                    jsbundle: 'app-0524add0ef2f945fa4ec.bundle.js',
-                }
-            },
-            v412: {//Test EHR, Specsavers 
-                key: 'Wi41JGyc7Qwz2Mz9d2icKzmnd1IY4kttJKxoF',
-                deployment: {
-                    version: 'v412',
-                    jsbundle: 'v412/app-6005ae5d1163f9b32a59.bundle.js',
-                }
-            }
-        }
-
-        function findEnvironment(bundleKey) {
-            for (const [key, value] of Object.entries(environments)) {
-                if (value.key && value.key===bundleKey) {
-                    console.log('Found environment '+value.deployment.version+' with js bundle '+value.deployment.jsbundle);
-                    return value;
-                }
-            }
-            console.log('Environment '+bundleKey+' could not be found in the environment configuration. Reverting to production');
-            return environments.production;
-        }
-
-        var bundleKey = localStorage.getItem('bundle');
-        
-        if (bundleKey) {
-            console.log('Bundle key in store = ' + bundleKey)
-        } else {
-            //bundleKey = environments.production.key;
-            //console.log('No bundle key stored, defaulting to production = '+environments.production.key);
-            bundleKey = environments.qa.key;
-            console.log('No bundle key stored, defaulting to qa = '+environments.production.key);
-        }
-
-        const environment = findEnvironment(bundleKey);
- 
-        var script = document.createElement('script');
-        var scriptSrc = environment.deployment.jsbundle;
-        script.src = scriptSrc;
-        document.head.appendChild(script);
-    </script>
-</body>
+    <body> 
+        <noscript>
+            You need to enable JavaScript to run this app.
+        </noscript>
+        <div id="root"></div>
+    </body>
 
 </html>
