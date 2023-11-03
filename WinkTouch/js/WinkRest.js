@@ -35,7 +35,7 @@ export function setWinkRestUrl(winkEmrHost: string) {
 
 export function getWinkRestUrl(): string {
   if (__DEV__) {
-    return 'http://localhost:8080/WinkRESTv6.00.02/';
+    return 'https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/WinkRESTv6.00.12.03/';
   }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
     setWinkRestUrl(defaultHost);

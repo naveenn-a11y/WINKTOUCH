@@ -30,20 +30,21 @@ import {
   ecommVersion,
 } from './Version';
 
+const urlvar = 'https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/wink-ecomm';
 const securityQuestionsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+    urlvar +
   ecommVersion +
   '/WinkRegistrationQuestions';
 const securityQuestionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+    urlvar +
   ecommVersion +
   '/WinkRegistrationEmail?mac=EMRFree&source=touch';
 const registrationUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+    urlvar +
   ecommVersion +
   '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const touchVersionUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+    urlvar +
   ecommVersion +
   '/WinkTouchVersion';
 

@@ -60,7 +60,7 @@ import {AgentAsumptionScreen} from './Agent';
 
 //const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  'https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/wink-ecomm' +
   ecommVersion +
   '/WinkRegistrationAccounts';
 
