@@ -25,9 +25,9 @@ import {
 import {restVersion} from './Version';
 import {setWinkRestUrl} from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {REACT_APP_DEFAULT_HOST, REACT_APP_WEB_URI} from '../env.json';
 
-//export const restUrl : string = 'http://127.0.0.1:8080/Web/';
-export const defaultHost: string = 'afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net';
+export const defaultHost: string = REACT_APP_DEFAULT_HOST;
 
 let token: string;
 let privileges: Privileges = {
@@ -711,7 +711,8 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return __DEV__ ? 'https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/EHR-412/' : restUrl;
+  return REACT_APP_WEB_URI;
+  //return __DEV__ ? REACT_APP_WEB_URI : restUrl;
 }
 
 async function setRestUrl(winkEmrHost: string) {

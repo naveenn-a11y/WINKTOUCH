@@ -16,12 +16,10 @@ import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {restVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
+import {REACT_APP_RESTFUL_URI} from '../env.json';
 
 //import base64 from 'base-64';
 //import {NativeModules} from 'react-native';
-
-//export let winkRestUrl = 'https://ws-touch.downloadwink.com/WinkRESTvEHR/';
-//export let winkRestUrl = __DEV__? 'http://192.168.2.53:8080/WinkRESTv5.00.04/': 'https://ws-touch.downloadwink.com/WinkRESTv5.00.04/';
 
 export const winkWebSocketUrl: string = __DEV__
   ? 'http://192.168.2.53:8080/WinkWebSocket/'
@@ -30,12 +28,12 @@ export const winkWebSocketUrl: string = __DEV__
 let winkRestUrl: string;
 export function setWinkRestUrl(winkEmrHost: string) {
   winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + restVersion + '/';
-  __DEV__ && console.log('Setting WINKRest backend server to '+winkRestUrl);
+  __DEV__ && console.log('Setting WINKRest backend server to ' + winkRestUrl);
 }
 
 export function getWinkRestUrl(): string {
   if (__DEV__) {
-    return 'https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/WinkRESTv6.00.12.03/';
+    return REACT_APP_RESTFUL_URI;
   }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
     setWinkRestUrl(defaultHost);

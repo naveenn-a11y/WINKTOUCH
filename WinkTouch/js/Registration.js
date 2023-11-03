@@ -29,24 +29,20 @@ import {
   deploymentVersion,
   ecommVersion,
 } from './Version';
+import {REACT_APP_ECOMM_URI} from '../env.json';
 
-const urlvar = 'https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/wink-ecomm';
 const securityQuestionsUrl =
-    urlvar +
-  ecommVersion +
-  '/WinkRegistrationQuestions';
+  REACT_APP_ECOMM_URI + ecommVersion + '/WinkRegistrationQuestions';
 const securityQuestionUrl =
-    urlvar +
+  REACT_APP_ECOMM_URI +
   ecommVersion +
   '/WinkRegistrationEmail?mac=EMRFree&source=touch';
 const registrationUrl =
-    urlvar +
+  REACT_APP_ECOMM_URI +
   ecommVersion +
   '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const touchVersionUrl =
-    urlvar +
-  ecommVersion +
-  '/WinkTouchVersion';
+  REACT_APP_ECOMM_URI + ecommVersion + '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();
