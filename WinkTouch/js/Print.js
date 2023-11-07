@@ -149,12 +149,14 @@ export async function emailClRx(visitId: string) {
 }
 
 async function listLocalFiles(): string[] {
+  if (isWeb) return;
   const fileNames: string[] = await RNFS.readdir(RNFS.DocumentDirectoryPath);
   __DEV__ && fileNames.forEach((fileName) => console.log(fileName));
   return fileNames;
 }
 
 export async function deleteLocalFiles() {
+  if (isWeb) return;
   console.log('Deleting local files');
   let fileNames = await listLocalFiles();
   for (let i = 0; i < fileNames.length; i++) {

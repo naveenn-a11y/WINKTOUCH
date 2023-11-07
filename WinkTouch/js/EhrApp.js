@@ -7,7 +7,7 @@ import React, {Component} from 'react';
 import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, {SyncStatus} from 'react-native-code-push';
-import type {Appointment, EmrHost, Registration, Store, User} from './Types';
+import type {Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
 import {RegisterScreen, fetchTouchVersion} from './Registration';
@@ -21,15 +21,7 @@ import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
 import RemoteConfig from './utilities/RemoteConfig';
-import {isEmpty} from './Util';
-import {
-  defaultHost,
-  getEmrNodeUrl,
-  getRestUrl,
-  handleHttpError,
-  performActionOnItem,
-} from './Rest';
-import {getUserLanguage, strings} from './Strings';
+import {deepClone, sleep} from './Util';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -75,92 +67,45 @@ function logUpdateStatus(status: number) {
 
 let lastUpdateCheck: ?Date;
 
-async function getHostFromBundleKey(bundle: string): Promise<EmrHost> {
-  const searchCriteria = {
-    bundle,
-  };
-  let url = getEmrNodeUrl() + 'getEmrHost';
-  try {
-    let httpResponse = await fetch(url, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'Accept-language': getUserLanguage(),
-      },
-      body: JSON.stringify(searchCriteria),
-    });
-    if (!httpResponse.ok) {
-      __DEV__ &&
-        console.log(
-          'HTTP response error ' +
-            httpResponse.status +
-            ': ' +
-            httpResponse.url,
-        );
-      return;
-    }
-    let restResponse = await httpResponse.json();
-    const emrHost: EmrHost = restResponse.emr
-      ? restResponse.emr
-      : {host: defaultHost, version: deploymentVersion, path: '/'};
-    return emrHost;
-  } catch (error) {
-    console.log(error);
-  }
-}
-export async function checkAndUpdateDeployment(registration: ?Registration) {
+export async function syncWithCodepush(codepushEnvironmentKey?: String) {
+  if (isWeb) return;
   if (__DEV__) {
-    console.log('Checking and updating bundle (not on dev).');
-    checkBinaryVersion();
+    console.log(
+      'Checking and updating codepush bundle if needed (not on dev).',
+    );
     return;
   }
-  if (!registration || !registration.path) {
+  if (!codepushEnvironmentKey) {
     return;
   }
   checkBinaryVersion();
-  try {
-    let codePushBundleKey = await fetchTouchVersion(registration.path);
-    console.log('codePushBundleKey: ' + codePushBundleKey);
-    //if (lastUpdateCheck && ((new Date()).getTime()-lastUpdateCheck.getTime())<1*60000) return; //Prevent hammering code-push servers
-    if (registration.bundle !== codePushBundleKey) {
-      registration.bundle = codePushBundleKey;
-      if (registration.bundle) {
-        AsyncStorage.setItem('bundle', registration.bundle);
-      } else {
-        AsyncStorage.removeItem('bundle');
-      }
-    }
-  } catch (error) {
-    __DEV__ && console.log('Fetching touch version failed: ' + error);
-  }
 
   __DEV__ &&
-    console.log('checking code-push deployment key:' + registration.bundle);
-  lastUpdateCheck = new Date();
-  //let packageVersion = await codePush.checkForUpdate(registration.bundle);
-  //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  if (!isWeb) {
-    codePush.disallowRestart();
-    await codePush.sync(
-      {
-        updateDialog: false,
-        deploymentKey: registration.bundle,
-        installMode: codePush.InstallMode.IMMEDIATE,
-      },
-      logUpdateStatus,
+    console.log(
+      'syncing code-push deployment with key:' + codepushEnvironmentKey,
     );
-    codePush.allowRestart();
-  } else {
-    const emrHost: EmrHost = await getHostFromBundleKey(registration.bundle);
-    if (emrHost !== undefined) {
-      if (emrHost.version !== deploymentVersion) {
-        const path: string = isEmpty(emrHost.path) ? '/' : emrHost.path;
-        const host: string = isEmpty(emrHost.host) ? defaultHost : emrHost.host;
-        window.location.href = 'https://' + host + path;
-      }
-    }
+  lastUpdateCheck = new Date();
+  codePush.disallowRestart();
+  await codePush.sync(
+    {
+      updateDialog: false,
+      deploymentKey: codepushEnvironmentKey,
+      installMode: codePush.InstallMode.IMMEDIATE,
+    },
+    logUpdateStatus,
+  );
+  codePush.allowRestart();
+}
+
+async function refreshWebDeployment(codePushEnvironmentKey: String, delaySeconds: number = 0) {
+  if (!isWeb) return;
+  if (delaySeconds>0) {
+    console.log('Waiting '+delaySeconds+' seconds to refresh browser');
+    await sleep(delaySeconds*1000);
   }
+  console.log('Refreshing webapp with web bundle for environment '+codePushEnvironmentKey);
+  await AsyncStorage.setItem('bundle', codePushEnvironmentKey);
+  location.reload();
 }
 
 export class EhrApp extends Component {
@@ -198,14 +143,12 @@ export class EhrApp extends Component {
     };
   }
 
-  reset = () => {
+  resetApp = () => {
     AsyncStorage.removeItem('path');
-    AsyncStorage.removeItem('bundle');
+    if (!isWeb) AsyncStorage.removeItem('bundle');
     AsyncStorage.removeItem('userName');
-    let registration: ?Registration = this.state.registration;
-    if (registration) {
-      (registration.path = undefined), (registration.bundle = undefined);
-    }
+    let registration = deepClone(this.state.registration);
+    registration.path = null;
     this.setState({
       isRegistered: false,
       isLoggedOn: false,
@@ -223,7 +166,17 @@ export class EhrApp extends Component {
     });
   };
 
-  setRegistration(registration?: Registration) {
+  async loadRegistration() {
+    const email: string = await AsyncStorage.getItem('email');
+    const bundle: string = await AsyncStorage.getItem('bundle');
+    const path: string = await AsyncStorage.getItem('path');
+    const registration: Registration = {email, bundle, path};
+    console.log('Loading registration from storage: ' + JSON.stringify(registration));
+    this.setRegistration(registration);
+  }
+
+  async setRegistration(registration?: Registration) {
+    const currentBundle = await AsyncStorage.getItem('bundle');
     const isRegistered: boolean =
       registration != undefined &&
       registration != null &&
@@ -234,14 +187,16 @@ export class EhrApp extends Component {
       registration.bundle.length > 0;
     this.setState(
       {isRegistered, registration, loading: false},
-      () => isRegistered && this.checkForUpdate(),
+      () => isRegistered && this.checkForCodepushUpdate(),  
     );
   }
 
   async safeRegistration(registration: Registration) {
+    const currentBundle = await AsyncStorage.getItem('bundle');
     if (registration === undefined || registration === null) {
-      AsyncStorage.removeItem('bundle');
+      if (!isWeb) AsyncStorage.removeItem('bundle');
     } else {
+      registration = deepClone(registration);
       if (registration.email) {
         AsyncStorage.setItem('email', registration.email);
       } else {
@@ -250,15 +205,25 @@ export class EhrApp extends Component {
       if (registration.bundle) {
         AsyncStorage.setItem('bundle', registration.bundle);
       } else {
-        AsyncStorage.removeItem('bundle');
+        if (!isWeb) AsyncStorage.removeItem('bundle');
       }
       if (registration.path) {
         AsyncStorage.setItem('path', registration.path);
       } else {
         AsyncStorage.removeItem('path');
       }
+      if (registration.bundle && registration.bundle!==currentBundle) {
+        console.log('Registration changed bundle from '+this.state.registration.bundle+' to '+registration.bundle);
+        if (isWeb) {
+          refreshWebDeployment(registration.bundle);
+          return;
+        }
+        else syncWithCodepush(registration.bundle);
+      } else {
+        console.log('Web registration bundle did not change and still is '+registration.bundle);
+      }
     }
-    this.setRegistration(registration);
+    await this.setRegistration(registration);
   }
 
   async userLoggedOn(
@@ -267,7 +232,7 @@ export class EhrApp extends Component {
     store: Store,
     token: string,
   ) {
-    this.checkForUpdate();
+    if (!isWeb) this.checkForCodepushUpdate();
     const isLoggedOn: boolean =
       account !== undefined &&
       user !== undefined &&
@@ -280,12 +245,15 @@ export class EhrApp extends Component {
         user,
         store,
         token,
-      },
-      () => console.log('done set loading'),
+      }
     );
   }
 
   logout = () => {
+    if (isWeb) {
+      refreshWebDeployment(this.state.registration?.bundle, .2);
+      return;
+    }
     this.setState({
       isLoggedOn: false,
       token: undefined,
@@ -296,28 +264,12 @@ export class EhrApp extends Component {
     });
     lastUpdateCheck = undefined;
     this.tracker && this.tracker.stop();
-    this.checkForUpdate();
+    if (!isWeb) this.checkForCodepushUpdate();
   };
 
-  checkForUpdate() {
-    checkAndUpdateDeployment(this.state.registration);
+  checkForCodepushUpdate() {
+    syncWithCodepush(this.state.registration?.bundle);
     this.checkAppstoreUpdateNeeded();
-  }
-
-  async loadRegistration() {
-    const email: string = await AsyncStorage.getItem('email');
-    const bundle: string = await AsyncStorage.getItem('bundle');
-    const path: string = await AsyncStorage.getItem('path');
-    const registration: Registration = {email, bundle, path};
-    console.log(
-      'WINKemr app is registered to : ' +
-        email +
-        ' bundle: ' +
-        bundle +
-        ' path: ' +
-        path,
-    );
-    this.setRegistration(registration);
   }
 
   async checkAppstoreUpdateNeeded() {
@@ -389,15 +341,14 @@ export class EhrApp extends Component {
   }
 
   onAppStateChange(nextState: any) {
-    __DEV__ && console.log('next app state =' + nextState);
     if (nextState === 'active') {
-      this.checkForUpdate();
       this.tracker && this.tracker.appIsActive();
     }
     if (nextState === 'background') {
       this.tracker && this.tracker.appIsInBackground();
     }
   }
+
   setLoading = (loading) => {
     this.setState({loading});
   };
@@ -424,7 +375,7 @@ export class EhrApp extends Component {
           email={
             this.state.registration ? this.state.registration.email : undefined
           }
-          onReset={this.reset}
+          onReset={this.resetApp}
           onRegistered={(registration: Registration) =>
             this.safeRegistration(registration)
           }
@@ -442,7 +393,7 @@ export class EhrApp extends Component {
             token: string,
           ) => this.userLoggedOn(account, user, store, token)}
           onMfaRequired={this.mfaRequired}
-          onReset={this.reset}
+          onReset={this.resetApp}
         />
       );
     }

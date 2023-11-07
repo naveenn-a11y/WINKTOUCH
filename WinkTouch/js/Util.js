@@ -803,6 +803,12 @@ function isObject(object: any) {
   return object != null && typeof object === 'object';
 }
 
+export function sleep(milliseconds: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
 export function getDoctorFullName(doctor: User): string {
   if (doctor) {
     return `${doctor.firstName && doctor.firstName.trim()} ${
