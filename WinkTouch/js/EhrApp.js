@@ -70,24 +70,20 @@ let lastUpdateCheck: ?Date;
 export async function syncWithCodepush(codepushEnvironmentKey?: String) {
   if (isWeb) return;
   if (__DEV__) {
-    console.log('Checking and updating codepush bundle if needed (not on dev).');
+    console.log(
+      'Checking and updating codepush bundle if needed (not on dev).',
+    );
     return;
   }
   if (!codepushEnvironmentKey) {
     return;
   }
   checkBinaryVersion();
-  
-  //try {
-  //  let codePushBundleKey = await fetchTouchVersion(registration.path);
-  //} catch (error) {
-  //  __DEV__ && console.log('Fetching touch version failed: ' + error);
-  //}
 
-  //let packageVersion = await codePush.checkForUpdate(registration.bundle);
-  //alert(packageVersion==null?'no update available for '+registration.bundle:'Update available for '+registration.bundle+' '+packageVersion.label);
-  
-  __DEV__ && console.log('syncing code-push deployment with key:' + codepushEnvironmentKey);
+  __DEV__ &&
+    console.log(
+      'syncing code-push deployment with key:' + codepushEnvironmentKey,
+    );
   lastUpdateCheck = new Date();
   codePush.disallowRestart();
   await codePush.sync(
@@ -345,9 +341,7 @@ export class EhrApp extends Component {
   }
 
   onAppStateChange(nextState: any) {
-    //__DEV__ && console.log('next app state =' + nextState);
     if (nextState === 'active') {
-      //!isWeb && this.checkForCodepushUpdate();
       this.tracker && this.tracker.appIsActive();
     }
     if (nextState === 'background') {

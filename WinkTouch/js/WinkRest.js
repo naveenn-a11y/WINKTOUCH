@@ -18,9 +18,6 @@ import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
 import {REACT_APP_RESTFUL_URI} from '../env.json';
 
-//import base64 from 'base-64';
-//import {NativeModules} from 'react-native';
-
 export const winkWebSocketUrl: string = __DEV__
   ? 'http://192.168.2.53:8080/WinkWebSocket/'
   : 'https://' + defaultHost + '/WinkWebSocket/';
