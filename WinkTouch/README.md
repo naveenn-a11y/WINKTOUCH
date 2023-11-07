@@ -21,15 +21,14 @@ All connection URLs should be in the WinkTouch/envs folder. When running locally
 it should be picking up what you have in dev.json . It then writes those configs into
 the main env.json file when it runs. Do not update env.json, it'll just overwrite your changes
 when it runs anyway. Your dev.json should look like this:
-{
-"REACT_APP_BUNDLEKEY": "fkne1zQ09K6MDAY6ccDzXzSkb4-fmp0WAMuBG",
-"REACT_APP_HOST": "localhost:8081",
 
     "REACT_APP_DEFAULT_HOST": "afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net",
     "REACT_APP_ECOMM_URI": "https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/wink-ecomm",
     "REACT_APP_WEB_URI": "https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/EHR-412/",
-    "REACT_APP_RESTFUL_URI": "https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/WinkRESTv6.00.12.03/"
-}
+    "REACT_APP_RESTFUL_URI": "https://afd-c16c30814de315c6-dka6axhkhjfrdbg4.z01.azurefd.net/WinkRESTv6.00.12.03/",
+    "REACT_APP_BUNDLEKEY": "fkne1zQ09K6MDAY6ccDzXzSkb4-fmp0WAMuBG",
+    "REACT_APP_HOST": "localhost:8081"
+
 
 In the terminal to startup the local web, type: npm run web
 
