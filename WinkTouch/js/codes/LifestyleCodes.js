@@ -31,5 +31,5 @@ export const computerUseCodes = [
     {"code":"2-5 hours"},
     {"code":"5-8 hours"},
     {"code":"over 8 hours"},
-    {"code":"Seperate computer glasses used"}
+    {"code":"Separate computer glasses used"}
 ]

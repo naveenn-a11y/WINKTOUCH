@@ -608,7 +608,7 @@ export const medicationCodes = [
   {"code":"Rivasa"},
   {"code":"Rivotril"},
   {"code":"Robaxacet"},
-  {"code":"Rovuvastatin"},
+  {"code":"Rosuvastatin"},
   {"code":"Reactine"},
   {"code":"Salbutamol"},
   {"code":"Salivex"},
