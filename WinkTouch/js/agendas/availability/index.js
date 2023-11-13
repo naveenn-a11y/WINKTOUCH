@@ -27,6 +27,18 @@ export function AvailabilityModal({
   resetAppointment,
   bookAppointment,
 }) {
+
+  const duration = () => {
+    let arr = [];
+    for(let i = 5; i < 60; i += 5) {
+      arr.push({
+          code: i,
+          description: `${i} mins`
+      });
+    }
+    return arr;
+  }
+
   const labelWidth = 225 * fontScale;
   const selectedAppointmentTypes = event.appointmentTypes ? event.appointmentTypes.map((appointmentType) => {
     return appointmentType.replace('appointmentType-', '');
@@ -35,6 +47,7 @@ export function AvailabilityModal({
   const [start, setStart] = useState(event?.start);
   const [currSlot, setSlot] = useState(1);
   const [appointmentTypes, setAppointmentTypes] = useState(selectedAppointmentTypes);
+  const [timeFrame, setTimeFrame] = useState(30);
 
   const doctors: User[] = selectedDoctors.map((element) => {
     const doctor = getCachedItem(element);
@@ -44,16 +57,22 @@ export function AvailabilityModal({
     };
   });
 
-  const startOptions = [
-    {
-      code: moment(event?.start),
-      description: moment(event?.start).format('h:mm a'),
-    },
-    {
-      code: moment(event?.start).add(30, 'minutes'),
-      description: moment(event?.start).add(30, 'minutes').format('h:mm a'),
-    },
-  ];
+  const startOptions = () => {
+    let intervals = [
+      {
+        code: moment(event?.start),
+        description: moment(event?.start).format('h:mm a'),
+      }
+    ];
+
+    for( let timeCount = timeFrame; timeCount < 60; timeCount += timeFrame) {
+      intervals.push({
+          code: moment(event?.start).add(timeCount, 'minutes'),
+          description: moment(event?.start).add(timeCount, 'minutes').format('h:mm a'),
+      });
+    }
+    return intervals;
+  }
 
   const renderAppointmentsTypes = () => {
     const updateValue = (val, index) => {
@@ -157,10 +176,27 @@ export function AvailabilityModal({
                 }}
               />
             </View>
+            {showNewAvailabilityOptions && <View style={agendaStyles.field}>
+              <FormOptions
+                  labelWidth={labelWidth}
+                  options={duration()}
+                  showLabel={true}
+                  readonly={!showNewAvailabilityOptions}
+                  label={strings.duration}
+                  value={timeFrame}
+                  hideClear={true}
+                  onChangeValue={(code) => {
+                    if (code) {
+                      setTimeFrame(code);
+                      setStart(moment(event?.start));
+                    }
+                  }}
+                />
+            </View>}
             <View style={agendaStyles.field}>
               <FormOptions
                 labelWidth={labelWidth}
-                options={startOptions}
+                options={startOptions()}
                 showLabel={true}
                 label={strings.from}
                 readonly={!showNewAvailabilityOptions}
@@ -181,7 +217,9 @@ export function AvailabilityModal({
                 showLabel={true}
                 readonly={true}
                 label={strings.to}
-                value={moment(start).add(30, 'minutes').format('h:mm a')}
+                value={ showNewAvailabilityOptions 
+                  ?  moment(start).add(timeFrame, 'minutes').format('h:mm a') 
+                  : moment(event?.end).format('h:mm a')}
               />
             </View>
 
@@ -231,7 +269,7 @@ export function AvailabilityModal({
               updateAvailability({
                 ...event,
                 start,
-                end: moment(start).add(30, 'minutes'),
+                end: moment(start).add(timeFrame, 'minutes'),
                 userId: doctor,
                 slotType: currSlot,
                 appointmentTypes,

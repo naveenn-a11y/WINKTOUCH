@@ -757,7 +757,7 @@ export class AgendaScreen extends Component {
     const startTime = moment(event?.start).format('h:mm a');
     const endTime = moment(event?.end).format('h:mm a');
     const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
-    if (!isStoreOpen(new Date(event.start), true)) {
+    if (!isStoreOpen(new Date(event.start), true) || !isStoreOpen(new Date(event.end), true)) {
       this.setState({isLoading: false});
       alert(strings.closedStoreTimeSlotErrorMessage);
       return;
