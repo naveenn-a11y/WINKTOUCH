@@ -295,7 +295,7 @@
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": ["NLP", "Prothesis"]
+              "options": ["NLP", "Prosthesis"]
             },
             {
               "name": "OS",
@@ -306,7 +306,7 @@
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
               "freestyle": true,
               "maxValue": 60,
-              "options": ["NLP", "Prothesis"]
+              "options": ["NLP", "Prosthesis"]
             },
             {
               "name": "OU",

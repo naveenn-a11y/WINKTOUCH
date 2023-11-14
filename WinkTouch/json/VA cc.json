@@ -308,7 +308,7 @@
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "options": ["NLP", "Prothesis"],
+              "options": ["NLP", "Prosthesis"],
               "maxValue": 60
             },
             {
@@ -319,7 +319,7 @@
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "options": ["NLP", "Prothesis"],
+              "options": ["NLP", "Prosthesis"],
               "maxValue": 60
             },
             {
