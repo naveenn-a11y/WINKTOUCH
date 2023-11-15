@@ -395,6 +395,7 @@ export type FieldDefinition = {
   listField?: boolean,
   rangeFilter?: {},
   hasRange?: boolean,
+  prefixStyle?: PrefixStyle,
 };
 
 export type FieldDefinitions = (FieldDefinition | GroupDefinition)[];
@@ -612,4 +613,15 @@ export type EmrHost = {
   host: string,
   path: string,
   version: string,
+};
+
+export type PrefixStyle = {
+  color?: string, 
+  fontSize?: number, 
+  height?: number, 
+  paddingTop?: number, 
+  paddingBottom?: number, 
+  paddingLeft?: number,
+  paddingRight?: number, 
+  margin?: number
 };

@@ -6,8 +6,11 @@
     ["Contact Lens Trial.Date", "Contact Lens Trial.Trial type"],
     [
       "OD: ",
+      "Sph",
       "Contact Lens Trial.Sph.OD",
+      "Cyl",
       "Contact Lens Trial.Cyl.OD",
+      "Axis",
       "Contact Lens Trial.Axis.OD",
       "Contact Lens Trial.Manufacturer.OD",
       "Contact Lens Trial.Brand.OD",
@@ -16,8 +19,11 @@
     ],
     [
       "OS: ",
+      "Sph",
       "Contact Lens Trial.Sph.OS",
+      "Cyl",
       "Contact Lens Trial.Cyl.OS",
+      "Axis",
       "Contact Lens Trial.Axis.OS",
       "Contact Lens Trial.Manufacturer.OS",
       "Contact Lens Trial.Brand.OS",
