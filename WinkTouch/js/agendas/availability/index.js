@@ -30,7 +30,7 @@ export function AvailabilityModal({
 
   const duration = () => {
     let arr = [];
-    for(let i = 5; i < 60; i += 5) {
+    for(let i = 5; i <= 60; i += 5) {
       arr.push({
           code: i,
           description: `${i} mins`
