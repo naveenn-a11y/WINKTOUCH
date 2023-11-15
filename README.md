@@ -1,12 +1,5 @@
 
 -----------------------------------------------
-Known issues against Azure DEV (web)
------------------------------------------------
-- Occasional 503 issue due to dev database. Please post in group chat if you see it and what API call timed out. Chetan is working on the fix.
-- Any existing bugs in 412 will likely exist here as well. Please document any new bugs in backlog!
-
-
------------------------------------------------
 Running local WinkTouch against Azure DEV (web)
 -----------------------------------------------
 
