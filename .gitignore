@@ -29,6 +29,10 @@ build/
 local.properties
 *.iml
 
+# VS
+#
+.vscode
+
 # node.js
 #
 node_modules/
