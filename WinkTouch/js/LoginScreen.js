@@ -57,12 +57,10 @@ import {getCurrentHost} from '../scripts/Util';
 import {isEmpty} from './Util';
 import {cacheItemsById} from './DataCache';
 import {AgentAsumptionScreen} from './Agent';
+import {REACT_APP_ECOMM_URI} from '../env.json';
 
-//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
-  ecommVersion +
-  '/WinkRegistrationAccounts';
+  REACT_APP_ECOMM_URI + ecommVersion + '/WinkRegistrationAccounts';
 
 async function fetchAccounts(path: string) {
   if (!path) {
