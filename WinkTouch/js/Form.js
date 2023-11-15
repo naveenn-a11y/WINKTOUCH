@@ -94,6 +94,7 @@ export class FormTextInput extends Component {
     style?: any,
     containerStyle?: any,
     testID?: string,
+    prefixStyle?: any,
   };
   static defaultProps = {
     readonly: false,
@@ -235,7 +236,11 @@ export class FormTextInput extends Component {
             <Label width={this.props.labelWidth} value={this.props.label} />
           )}
           {this.props.prefix && (
-            <Text style={styles.formPrefix}>{this.props.prefix}</Text>
+            <Text 
+              style={this.props.prefixStyle ? this.props.prefixStyle : styles.formPrefix}
+            >
+              {this.props.prefix}
+            </Text>
           )}
           <View style={styles.fieldFlexContainer}>
             <TextInput
@@ -1476,6 +1481,67 @@ export class FormInput extends Component {
     return this.props.definition.rangeFilter;
   }
 
+  getPrefixStyle() {
+
+    if (this.props.definition.prefixStyle !== undefined) {
+      let prefixStyle = {};
+      if (this.props.definition.prefixStyle.color !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {color: this.props.definition.prefixStyle.color},
+        ];
+      }
+  
+      if (this.props.definition.prefixStyle.fontSize !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {fontSize: this.props.definition.prefixStyle.fontSize * fontScale},
+        ];
+      }
+
+      if (this.props.definition.prefixStyle.height !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {height: this.props.definition.prefixStyle.height * fontScale},
+        ];
+      }
+
+      if (this.props.definition.prefixStyle.paddingTop !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {paddingTop: this.props.definition.prefixStyle.paddingTop * fontScale},
+        ];
+      }
+      if (this.props.definition.prefixStyle.paddingBottom !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {paddingBottom: this.props.definition.prefixStyle.paddingBottom * fontScale},
+        ];
+      }
+      if (this.props.definition.prefixStyle.paddingLeft !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {paddingLeft: this.props.definition.prefixStyle.paddingLeft * fontScale},
+        ];
+      }
+      if (this.props.definition.prefixStyle.paddingRight !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {paddingRight: this.props.definition.prefixStyle.paddingRight * fontScale},
+        ];
+      }
+      if (this.props.definition.prefixStyle.margin !== undefined) {
+        prefixStyle = [
+          prefixStyle,
+          {margin: this.props.definition.prefixStyle.margin * fontScale},
+        ];
+      }
+      return prefixStyle;
+    }
+
+    return null;
+  }
+
   renderFormInput() {
     const label: string = this.props.label
       ? this.props.label
@@ -1508,6 +1574,7 @@ export class FormInput extends Component {
         ];
       }
     }
+    const prefixStyle = this.getPrefixStyle();
     const readonly: boolean = this.getIsReadOnly();
 
     if (!this.props.definition || !this.props.visible) {
@@ -1807,6 +1874,7 @@ export class FormInput extends Component {
         freestyle={this.props.definition.freestyle}
         style={style}
         testID={this.props.testID}
+        prefixStyle={prefixStyle}
       />
     ); //TODO keyboardType from definition type
   }

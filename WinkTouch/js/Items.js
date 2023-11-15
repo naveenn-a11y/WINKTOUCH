@@ -269,6 +269,11 @@ export function formatFieldValue(
     }
     let prefix: string = selectionPrefix(value); //TODO: append fieldDefinition.prefix
     const suffix: string = formatSuffix(fieldDefinition);
+
+    value = fieldDefinition.decimals && fieldDefinition.decimals > 0 
+    ? Number(value).toFixed(fieldDefinition.decimals)
+    : value; 
+
     return prefix + formatCode(codeType, stripSelectionPrefix(value)) + suffix;
   }
   if (
