@@ -1,0 +1,41 @@
+name: Build & Deploy DEV
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '10.x'
+  ENVIRONMENT: 'dev'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: 'dev'
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: npm install, build, test
+        run: |
+          npm install
+          npm run build:${{env.ENVIRONMENT}} --if-present
+          npm test
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Upload to the storage account
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az storage blob upload-batch --source ./dist --destination '$web' --account-name ${{ vars.STORAGE_ACCOUNT }}
+      - name: logout
+        run: |
+          az logout

@@ -42,7 +42,6 @@ Make sure to have the most up-to-date env.properties file in your PointOfView fo
 
 -----------------------------------------------
 
-
 *Note* - If this is your first time running against Azure instead of AWS, dump your local storage.
 There are some keys stored there that need to be cleared out in order to continue.
 To view: type localStorage in browser dev tool console
@@ -51,5 +50,16 @@ To remove items: localStorage.removeItem("[key goes here]")
 To login to portal:
 - long click on the email address shown under "WINKemr login" if not already at first login screen.
 - use one of our dev test logins such as: sam@downloadwink.com
-	
 
+-----------------------------------------------
+CICD for WinkTouch
+-----------------------------------------------
+In GitHub Actions, there is a workflow setup via the dev.yml file in project. 
+The workflow uses the "Environments" feature of GitHub to set up the relevant
+storage account and azure connection.
+
+This workflow will run the build and tests in project via 
+npm run build:dev and npm test .
+
+It will be triggered any time a PR is brought into the 'main' branch for now.
+Team is still working through release/branching processes.
