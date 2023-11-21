@@ -12,7 +12,7 @@ env:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     environment: 'dev'
 
     steps:
@@ -21,11 +21,19 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: npm install, build, test
         run: |
           npm install
           npm run build:${{env.ENVIRONMENT}} --if-present
           npm test
+
+      - name: Push artifact to Nexus
+        run: |
+          for f in ./dist/*; do    
+            echo $f
+            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f  http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${{ GITHUB.RUN_NUMBER }}/"${f##*/}"
+          done
 
       - uses: azure/login@v1
         with:
