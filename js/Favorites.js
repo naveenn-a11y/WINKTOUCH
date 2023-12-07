@@ -9,7 +9,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
   TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -31,6 +30,7 @@ import {getVisitTypes} from './Visit';
 import {FormRow, FormTextInput} from './Form';
 import {Button} from './Widgets';
 import {getDoctor} from './DoctorApp';
+import {CustomModal as Modal} from './utilities/Modal';
 
 const examPredefinedValuesCacheKey: string = 'examPredefinedValues';
 

@@ -169,6 +169,14 @@ export function parseDate(jsonDate: ?string): ?Date {
   return date;
 }
 
+export function parseTime24Format(time: string): string {
+  if (time === undefined || time === null || time.trim().length === 0) {
+    return undefined;
+  }
+  const formattedTime = moment(time, timeFormat).format(time24Format);
+  return formattedTime;
+}
+
 export function formatDate(date: ?Date | ?string, format: string): string {
   if (
     date === null ||
@@ -482,21 +490,28 @@ export function cleanUpArray(a: any[]): any[] {
     : a;
 }
 
-export function deepAssign(value: Object, newValue: Object): Object {
+export function deepAssign(
+  value: Object,
+  newValue: Object,
+  appendValue: ?boolean,
+): Object {
   for (let [key: string, subNewValue: any] of Object.entries(newValue)) {
     let subValue: any = value[key];
 
     if (subValue instanceof Array) {
-      Array.isArray(subNewValue) ? subValue.push(...subNewValue) : subValue.push(subNewValue);
-    } else if(subValue instanceof Object) {
-        if (subNewValue instanceof Array){
-          //ignore setting an array on non array
-        } else if (subNewValue instanceof Object) {
-          deepAssign(subValue, subNewValue);
-        } else {
-          value[key] = subNewValue;
-        }
+      Array.isArray(subNewValue)
+        ? subValue.push(...subNewValue)
+        : subValue.push(subNewValue);
+    } else if (subValue instanceof Object) {
+      if (subNewValue instanceof Array) {
+        //ignore setting an array on non array
+      } else if (subNewValue instanceof Object) {
+        deepAssign(subValue, subNewValue, appendValue);
+      } else {
+        value[key] = subNewValue;
+      }
     } else {
+      subNewValue = appendValue && !isEmpty(subValue) ? subValue.concat(subNewValue) : subNewValue;
       value[key] = subNewValue;
     }
   }
@@ -604,6 +619,13 @@ function subValue(value, identifier: string) {
   const index: ?number = getIndex(identifier);
   if (index !== undefined) {
     subValue = subValue[index];
+  } else if (value instanceof Array) {
+    for (const subElement: any of value) {
+      subValue = subElement[stripIndex(identifier)];
+      if (!isEmpty(subValue)) {
+        break;
+      }
+    }
   }
   return subValue;
 }
@@ -812,7 +834,7 @@ export function sleep(milliseconds: number) {
 export function getDoctorFullName(doctor: User): string {
   if (doctor) {
     return `${doctor.firstName && doctor.firstName.trim()} ${
-        doctor.lastName && doctor.lastName.trim()
+      doctor.lastName && doctor.lastName.trim()
     }`;
   } else {
     return '';

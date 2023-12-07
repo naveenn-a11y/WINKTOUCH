@@ -242,6 +242,10 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     color: 'gray',
   },
+  linkText: {
+    color: selectionFontColor,
+    fontSize: 17 * fontScale,
+  },
   noAccessText: {
     fontSize: 18 * fontScale,
     fontStyle: 'italic',
@@ -250,6 +254,11 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     maxWidth: 400 * fontScale,
     textAlign: 'left',
+  },
+  textRight: {
+    fontSize: 17 * fontScale,
+    alignSelf: 'flex-end',
+    color: '#808080',
   },
   label: {
     fontSize: 28 * fontScale,
@@ -327,6 +336,7 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
   },
+
   dropdownButtonIos: {
     fontSize: defaultFontSize,
     padding: 10 * fontScale,
@@ -696,7 +706,7 @@ export const styles = StyleSheet.create({
   },
   cardSubTitle: {
     fontSize: 17 * fontScale,
-    fontWeight: '500',
+    fontWeight: 'bold',
     alignItems: 'center',
     marginTop: 1 * fontScale,
   },
@@ -914,6 +924,7 @@ export const styles = StyleSheet.create({
   finishedExamCard: examCardStyle('green'),
   unverifiedExamCard: examCardStyle('red'),
   board: boardStyle('#dddddd'),
+  boardFixedWidth: boardFixedWidthStyle(),
   boardSelected: boardStyle(selectionBorderColor),
   boardS: boardStyle('#dddddd', 'S'),
   boardM: boardStyle('#dddddd', 'M'),
@@ -1067,6 +1078,12 @@ export const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     textAlign: 'left',
     color: selectionFontColor,
+  },
+  listTextGrey: {
+    fontSize: 18 * fontScale,
+    flexWrap: 'nowrap',
+    textAlign: 'left',
+    color: '#808080',
   },
 
   tableListText: {
@@ -1428,6 +1445,12 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: '#fff',
   },
+  VisitTypeDialog: {
+    minWidth: '30%',
+    minHeight: '20%',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+  },
   appointmentActionButton: {
     maxWidth: 180,
     minWidth: 70 * fontScale,
@@ -1503,6 +1526,25 @@ export const styles = StyleSheet.create({
     color: '#1fb3b4',
     fontWeight: 'bold',
   },
+
+  labelTitle: {
+    fontWeight: '500',
+  },
+  attachement: {
+    minHeight: 10 * fontScale,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    padding: 10 * fontScale,
+    borderRadius: 1 * fontScale,
+    margin: 10 * fontScale,
+    backgroundColor: '#fff',
+  },
+  attachementContainer: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    alignItems: 'flex-start', 
+    marginBottom: 20 * fontScale
+  }
 });
 
 function cardStyle(color: Color) {
@@ -1566,11 +1608,14 @@ function boardStyle(
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
     minHeight: minHeight * fontScale,
-    maxHeight:
-      isWeb && (size === 'M' || size === 'S') 
-      ? 800 * fontScale 
-      : size === 'MAX'
-      ? '100%'
+    maxHeight: isWeb
+      ? size === 'M' || size === 'S'
+        ? 800 * fontScale
+        : size === 'L' || size === 'XL'
+        ? 1200 * fontScale
+        : size === 'MAX'
+        ? '100%'
+        : undefined
       : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
@@ -1586,6 +1631,13 @@ function boardStyle(
     flexGrow: 1,
     flexShrink: 1,
   };
+}
+
+function boardFixedWidthStyle() {
+  let style = boardStyle('#dddddd');
+  style.flexGrow = 0;
+  style.flexShrink = 0;
+  return style;
 }
 
 export function imageWidth(size: string): number {
@@ -1677,6 +1729,9 @@ export function scaleStyle(style: Object): Object {
     return style;
   }
   const scaledStyle: Object = JSON.parse(JSON.stringify(style));
+  if (style.fixedWidth) {
+    return styles.boardFixedWidth;
+  }
   if (style.top) {
     scaledStyle.top = style.top * fontScale;
   }

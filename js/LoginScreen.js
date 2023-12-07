@@ -57,6 +57,7 @@ import {getCurrentHost} from '../scripts/Util';
 import {isEmpty} from './Util';
 import {cacheItemsById} from './DataCache';
 import {AgentAsumptionScreen} from './Agent';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {REACT_APP_ECOMM_URI} from '../env.json';
 
 const accountsUrl =
@@ -398,6 +399,7 @@ export class LoginScreen extends Component {
     qrImageUrl: ?string,
     agentAssumptionRequired: ?boolean,
     agent: ?AgentAssumption,
+    isSecureTextEntry: boolean,
   };
   constructor(props: any) {
     super(props);
@@ -412,6 +414,7 @@ export class LoginScreen extends Component {
       qrImageUrl: undefined,
       agentAssumptionRequired: false,
       agent: {},
+      isSecureTextEntry: true,
     };
   }
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -782,6 +785,11 @@ export class LoginScreen extends Component {
     this.setState({agent}, () => this.login());
   }
 
+  toggleSecuredTextState(isSecureTextEntry: boolean) {
+    this.setState({isSecureTextEntry: !isSecureTextEntry});
+    this.focusPasswordField();
+  }
+
   switchLanguage = () => {
     switchLanguage();
     this.forceUpdate();
@@ -928,7 +936,7 @@ export class LoginScreen extends Component {
                     autoCapitalize="none"
                     autoCorrect={false}
                     returnKeyType="go"
-                    secureTextEntry={true}
+                    secureTextEntry={this.state.isSecureTextEntry}
                     ref="focusField"
                     style={styles.field400}
                     value={this.state.password}
@@ -937,6 +945,18 @@ export class LoginScreen extends Component {
                     onChangeText={this.setPassword}
                     onSubmitEditing={() => this.processLogin()}
                   />
+                  <TouchableOpacity 
+                    style={{position: 'absolute', right: 0, alignSelf: 'center'}}
+                    onPress={() => this.toggleSecuredTextState(this.state.isSecureTextEntry)}
+                  >
+                    <View>
+                      {this.state.isSecureTextEntry 
+                      ? 
+                      <Icon name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" /> 
+                      : 
+                      <Icon name="eye-off" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />}
+                    </View>
+                  </TouchableOpacity>
                 </View>
               )}
               <View

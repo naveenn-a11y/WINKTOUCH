@@ -91,13 +91,13 @@ import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {
   Button as NativeBaseButton,
-  Dialog,
   Portal,
   Title,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
 import {storeDocument} from './CouchDb';
+import Dialog from './utilities/Dialog';
 
 const PRIVILEGE = {
   NOACCESS: 'NOACCESS',

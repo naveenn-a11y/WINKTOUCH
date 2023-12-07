@@ -10,11 +10,12 @@ import {styles, fontScale} from '../../Styles';
 import {FormInput, FormOptions, FormRow} from '../../Form';
 import {strings} from '../../Strings';
 import {getStore} from '../../DoctorApp';
-import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
+import {Button as NativeBaseButton, Portal} from 'react-native-paper';
 import {getCachedItem} from '../../DataCache';
 import {agendaStyles} from '../../Agenda';
 import {getAppointmentTypes} from '../../Appointment';
 import moment from 'moment';
+import Dialog from '../../utilities/Dialog';
 
 export function AvailabilityModal({
   show,
@@ -38,7 +39,7 @@ export function AvailabilityModal({
     }
     return arr;
   }
-
+  
   const labelWidth = 225 * fontScale;
   const selectedAppointmentTypes = event.appointmentTypes ? event.appointmentTypes.map((appointmentType) => {
     return appointmentType.replace('appointmentType-', '');
@@ -64,7 +65,7 @@ export function AvailabilityModal({
         description: moment(event?.start).format('h:mm a'),
       }
     ];
-
+    
     for( let timeCount = timeFrame; timeCount < 60; timeCount += timeFrame) {
       intervals.push({
           code: moment(event?.start).add(timeCount, 'minutes'),

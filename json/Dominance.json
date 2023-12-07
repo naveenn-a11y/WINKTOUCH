@@ -18,6 +18,30 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Dominancia",
+      "fields": [
+        {
+          "name": "Dominance",
+          "label": "Dominancia",
+          "fields": [
+            {
+              "name": "Method",
+              "label": "Método",
+              "options": ["Alineación", "Empañamiento de la lente"]
+            },
+            {
+              "name": "Dominant eye",
+              "label": "Ojo dominante"
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "starable": true,

@@ -7,13 +7,14 @@ import {GroupedForm} from './GroupedForm';
 import React, {Component} from 'react';
 import {View} from 'react-native';
 import {getCodeDefinition} from './Codes';
+import {strings} from './Strings';
 
 const roomScreenDefinition = {
   name: 'Exam Room',
   fields: [
     {
       name: 'examroom',
-      label: 'Exam room',
+      label: 'Exam Room',
       size: 'M',
       fields: [
         {
@@ -85,7 +86,7 @@ export class RoomScreen extends Component {
   componentWillUnmount() {
     let examRoom: CodeDefinition = this.state.room;
     let inactive: boolean = false;
-    
+
     if (examRoom === undefined || examRoom === null) {
       examRoom = getExamRoomCode(this.props.navigation.state.params.patient.id);
       inactive = true;

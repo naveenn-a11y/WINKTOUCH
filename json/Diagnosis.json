@@ -33,6 +33,53 @@
           "label": "Diagnostic"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Facturación",
+      "fields": [
+        {
+          "name": "Insurer",
+          "label": "Asegurador",
+          "fields": [
+            {
+            "name": "supplierId",
+            "label": "Asegurador"
+          }
+          ]
+        },
+        {
+          "name": "Procedure",
+          "label": "Procedimiento",
+          "fields": [
+            {
+              "name": "procedureCode",
+              "label": "Procedimiento"
+            },
+            {
+              "name": "Self paid",
+              "label": "Self paid",
+              "normalValue": "No",
+              "defaultValue": "No",
+              "options": [
+                "No",
+                "Self paid"
+              ]
+            },
+            {
+              "name": "notes",
+              "label": "Notas"
+            }
+          ]
+        },
+        {
+          "name": "Diagnosis",
+          "label": "Diagnóstico",
+          "fields": [{
+              "name": "Notes",
+              "label": "Notas"
+          }]
+        }
+      ]
     }
   },
   "starable": true,

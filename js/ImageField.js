@@ -11,7 +11,6 @@ import ReactNative, {
   Text,
   Image,
   ScrollView,
-  Modal,
   TouchableOpacity,
   TouchableWithoutFeedback,
   NativeModules,
@@ -42,7 +41,7 @@ import {
   replaceFileExtension,
   isEmpty,
 } from './Util';
-import {Camera, PaperClip, Undo, Pencil, Printer, Mail} from './Favorites';
+import {Camera, PaperClip, Undo, Pencil, Printer, Mail, Garbage} from './Favorites';
 import {DocumentScanner} from './DocumentScanner';
 import {fetchUpload, getMimeType, getAspectRatio} from './Upload';
 import {getCachedItem} from './DataCache';
@@ -52,17 +51,20 @@ import {storeUpload} from './Upload';
 import {getVisit} from './Exam';
 import {PdfViewer} from '../src/components/PdfViewer';
 import * as htmlToImage from 'html-to-image';
+import {CustomModal as Modal} from './utilities/Modal';
 
 export async function loadDocuments(
   type: string,
   patientId: string,
+  showAllDocuments: boolean = false,
 ): PatientDocument[] {
   if (!type) {
-    return;
+    return [];
   }
   let restResponse: RestResponse = await searchPatientDocuments(
     patientId,
     type,
+    showAllDocuments,
   );
   const patientDocuments: PatientDocument[] = restResponse.patientDocumentList;
   return patientDocuments;
@@ -107,11 +109,41 @@ export async function getBase64Image(image: string) {
   if (image === './image/anteriorSegOS.png') {
     return require('./image/base64/anteriorSegOS');
   }
+  if (image === './image/anteriorOD_faded.png') {
+    return require('./image/base64/anteriorOD_faded');
+  }
+  if (image === './image/anteriorOS_faded.png') {
+    return require('./image/base64/anteriorOS_faded');
+  }
+  if (image === './image/anteriorSegOD_faded.png') {
+    return require('./image/base64/anteriorSegOD_faded');
+  }
+  if (image === './image/anteriorSegOS_faded.png') {
+    return require('./image/base64/anteriorSegOS_faded');
+  }
+  if (image === './image/anteriorSegOD_resized.png') {
+    return require('./image/base64/anteriorSegOD_resized');
+  }
+  if (image === './image/anteriorSegOS_resized.png') {
+    return require('./image/base64/anteriorSegOS_resized');
+  }
   if (image == './image/posteriorOD.png') {
     return require('./image/base64/posteriorOD');
   }
   if (image === './image/posteriorOS.png') {
     return require('./image/base64/posteriorOS');
+  }
+  if (image == './image/fundusOD.png') {
+    return require('./image/base64/fundusOD');
+  }
+  if (image === './image/fundusOS.png') {
+    return require('./image/base64/fundusOS');
+  }
+  if (image === './image/retinaOD.png') {
+    return require('./image/base64/retinaOD');
+  }
+  if (image === './image/retinaOS.png') {
+    return require('./image/base64/retinaOS');
   }
   if (image === './image/gonioscopyOD.png') {
     return require('./image/base64/gonioscopyOD');
@@ -188,7 +220,7 @@ export async function loadBase64ImageForWeb(
       const path: string = format.concat(response);
 
       return path;
-    } catch(error) {
+    } catch (error) {
       __DEV__ && console.log(error);
       return undefined;
     }
@@ -936,16 +968,17 @@ export class ImageField extends Component {
     const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
     const pageHeight: number = pageWidth / pageAspectRatio;
 
-    let fileUri = undefined;
+    let fileUri;
     if (isWeb) {
-      fileUri = this.refs && this.refs.viewShotWeb
-        ? await htmlToImage.toPng(this.refs.viewShotWeb)
-        : undefined;
+      fileUri =
+        this.refs && this.refs.viewShotWeb
+          ? await htmlToImage.toPng(this.refs.viewShotWeb)
+          : undefined;
     } else {
       fileUri =
-      this.refs && this.refs.viewShot
-        ? await this.refs.viewShot.capture()
-        : undefined;
+        this.refs && this.refs.viewShot
+          ? await this.refs.viewShot.capture()
+          : undefined;
     }
 
     if (fileUri === undefined) {
@@ -1128,11 +1161,41 @@ export class ImageField extends Component {
     if (image === './image/anteriorSegOS.png') {
       return require('./image/anteriorSegOS.png');
     }
+    if (image === './image/anteriorOD_faded.png') {
+      return require('./image/anteriorOD_faded.png');
+    }
+    if (image === './image/anteriorOS_faded.png') {
+      return require('./image/anteriorOS_faded.png');
+    }
+    if (image === './image/anteriorSegOD_faded.png') {
+      return require('./image/anteriorSegOD_faded.png');
+    }
+    if (image === './image/anteriorSegOS_faded.png') {
+      return require('./image/anteriorSegOS_faded.png');
+    }
+    if (image === './image/anteriorSegOD_resized.png') {
+      return require('./image/anteriorSegOD_resized.png');
+    }
+    if (image === './image/anteriorSegOS_resized.png') {
+      return require('./image/anteriorSegOS_resized.png');
+    }
     if (image == './image/posteriorOD.png') {
       return require('./image/posteriorOD.png');
     }
     if (image === './image/posteriorOS.png') {
       return require('./image/posteriorOS.png');
+    }
+    if (image == './image/fundusOD.png') {
+      return require('./image/fundusOD.png');
+    }
+    if (image === './image/fundusOS.png') {
+      return require('./image/fundusOS.png');
+    }
+    if (image === './image/retinaOD.png') {
+      return require('./image/retinaOD.png');
+    }
+    if (image === './image/retinaOS.png') {
+      return require('./image/retinaOS.png');
     }
     if (image === './image/gonioscopyOD.png') {
       return require('./image/gonioscopyOD.png');
@@ -1402,7 +1465,13 @@ export class ImageField extends Component {
         onResponderTerminationRequest={(event) => false}
         onResponderMove={(event) => this.updatePosition(event, scale)}
         onResponderRelease={(event) => this.liftPen()}
-        onResponderTerminate={(event) => (isWeb ? {} : this.cancelEdit())}>
+        onResponderTerminate={(event) => {
+          if (isWeb) {
+            throw new Error('onResponderTerminate'); //this makes it trigger the proper responder i.e. onResponderRelease or onResponderMove
+          } else {
+            this.cancelEdit();
+          }
+        }}>
         <Image source={this.requireImage()} style={style} />
         {this.renderGraph(this.state.lines, style, scale)}
       </View>
@@ -1438,6 +1507,10 @@ export class ImageField extends Component {
           <TouchableOpacity onPress={() => this.print()}>
             <Printer style={styles.drawIcon} disabled={this.state.isActive} />
           </TouchableOpacity>
+          <TouchableOpacity
+              onPress={() => this.clearImage()}>
+              <Garbage style={styles.groupIcon} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.email()}>
             <Mail style={styles.drawIcon} disabled={this.state.isActive} />
           </TouchableOpacity>
@@ -1466,7 +1539,12 @@ export class ImageField extends Component {
     }
   }
 
-  renderViewShotChildren(image: any, isPdf: boolean, scale: number,  style: {width: number, height: number} ) {
+  renderViewShotChildren(
+    image: any,
+    isPdf: boolean,
+    scale: number,
+    style: {width: number, height: number},
+  ) {
     return (
       <View
         style={styles.solidWhite}
@@ -1491,15 +1569,9 @@ export class ImageField extends Component {
             disabled={this.state.isActive}>
             <View>
               {image && isPdf && (
-                <PdfViewer
-                  style={style}
-                  source={image.uri}
-                  isPreview={false}
-                />
+                <PdfViewer style={style} source={image.uri} isPreview={false} />
               )}
-              {image && !isPdf && (
-                <Image source={image} style={style} />
-              )}
+              {image && !isPdf && <Image source={image} style={style} />}
               {this.renderGraph(
                 this.state.isActive
                   ? this.state.lines

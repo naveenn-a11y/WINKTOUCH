@@ -26,9 +26,42 @@
           "label": "Date Rx"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Medicación",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Etiqueta"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentración"
+        },
+        {
+          "name": "Dosage",
+          "label": "Dosis"
+        },
+        {
+          "name": "Frequency",
+          "label": "Frecuencia"
+        },
+        {
+          "name": "Duration",
+          "label": "Duración"
+        },
+        {
+          "name": "Rx Date",
+          "label": "Fecha de prescripción"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
-  "cardFields": ["Label", "Strength", "Dosage", "Frequency"],
+  "cardFields": ["Label", "Strength", "Dosage", "Frequency", "Notes"],
   "starable": true,
   "essentialFields": ["Label"],
   "type": "selectionLists",

@@ -13,7 +13,8 @@
       "Keratometry.OS.Power H",
       "Keratometry.OS.Power V",
       "Keratometry.OS.Meridian"
-    ]
+    ],
+    ["Keratometry.Notes"]
   ],
   "starable": true,
   "type": "groupedForm",
@@ -108,6 +109,55 @@
                   "label": "Méridien"
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Queratometría",
+      "fields": [
+        {
+          "name": "Keratometry",
+          "label": "Queratometría",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Power H",
+                  "label": "Potencia H"
+                },
+                {
+                  "name": "Power V",
+                  "label": "Potencia V"
+                },
+                {
+                  "name": "Meridian",
+                  "label": "Meridiano"
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Power H",
+                  "label": "Potencia H"
+                },
+                {
+                  "name": "Power V",
+                  "label": "Potencia V"
+                },
+                {
+                  "name": "Meridian",
+                  "label": "Meridiano"
+                }
+              ]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
             }
           ]
         }

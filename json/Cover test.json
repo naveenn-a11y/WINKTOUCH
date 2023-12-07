@@ -98,6 +98,113 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Prueba de oclusión",
+      "fields": [
+        {
+          "name": "Hirschberg test",
+          "label": "Prueba de Hirschberg"
+        },
+        {
+          "name": "Bruckner test",
+          "label": "Prueba de Bruckner",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Reflejo rojo intenso"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Reflejo rojo intenso"
+            }
+          ]
+        },
+        {
+          "name": "Unilateral Cover Test",
+          "label": "Prueba de oclusión unilateral",
+          "fields": [
+            {
+              "name": "Distant vision",
+              "label": "Visión lejana ",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "Lateral"
+                },
+                {
+                  "name": "U Noncomitant",
+                  "label": "U No concomitante"
+                }
+              ]
+            },
+            {
+              "name": "Near vision",
+              "label": "Visión cercana",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "Lateral"
+                },
+                {
+                  "name": "U Noncomitant",
+                  "label": "U No concomitante"
+                }
+              ]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        },
+        {
+          "name": "Alternating Cover Test",
+          "label": "Prueba de oclusión alterna",
+          "fields": [
+            {
+              "name": "Distant vision",
+              "label": "Visión lejana",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "A Lateral"
+                },
+                {
+                  "name": "Vertical",
+                  "label": "A Vertical"
+                },
+                {
+                  "name": "A Noncomitant",
+                  "label": "A No concomitante"
+                }
+              ]
+            },
+            {
+              "name": "Near vision",
+              "label": "Visión cercana",
+              "fields": [
+                {
+                  "name": "Lateral",
+                  "label": "A Lateral"
+                },
+                {
+                  "name": "Vertical",
+                  "label": "A Vertical"
+                },
+                {
+                  "name": "A Noncomitant",
+                  "label": "A No concomitante"
+                }
+              ]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "name": "Cover test",

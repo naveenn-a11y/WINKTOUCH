@@ -48,6 +48,7 @@ import {FollowUpScreen} from './FollowUp';
 import {
   DefaultExamCustomisationScreen,
   CustomisationScreen,
+  VisitTypeCustomisationScreen,
 } from './Customisation';
 import {fetchVisitTypes} from './Visit';
 import {fetchUserDefinedCodes, getAllCodes} from './Codes';
@@ -62,6 +63,8 @@ import {RoomScreen} from './Room';
 import {LockScreen} from './LockScreen';
 import NavigationService from './utilities/NavigationService';
 import InactivityTracker from './utilities/InactivityTracker';
+import {VisitTypeTemplateScreen} from './VisitType';
+import { fetchUserSettings } from './User';
 
 let account: Account;
 let doctor: User;
@@ -135,7 +138,11 @@ const DoctorNavigator = createStackNavigator(
       screen: DefaultExamCustomisationScreen,
       path: '/',
     },
-
+    visitTypeCustomisation: {
+      screen: VisitTypeCustomisationScreen,
+      path: '/',
+    },
+    visitTypeTemplate: {screen: VisitTypeTemplateScreen, path: '/'},
     room: {screen: RoomScreen, path: '/'},
     lock: {screen: LockScreen, path: '/'},
   },
@@ -246,6 +253,7 @@ export class DoctorApp extends Component {
   async initialseAppForDoctor() {
     await fetchVisitTypes();
     await fetchUserDefinedCodes();
+    await fetchUserSettings();
     this.initConfiguration();
     this.startLockingDog();
     this.forceUpdate();

@@ -64,7 +64,7 @@ import {
   storeFavorite,
   ExportIcon,
 } from './Favorites';
-import {getExamDefinition} from './ExamDefinition';
+import {allExamDefinitions, getExamDefinition} from './ExamDefinition';
 import {
   Alert,
   CollapsibleMessage,
@@ -73,6 +73,7 @@ import {
   NoAccess,
   Pencil,
 } from './Widgets';
+
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
@@ -674,6 +675,7 @@ export class ExamHistoryScreen extends Component {
                 definition={groupDefinition}
                 hasVA={groupDefinition.hasVA}
                 hasAdd={groupDefinition.hasAdd}
+                hasBVD={groupDefinition.hasBVD}
                 examId={exam.id}
                 onCopy={
                   groupDefinition.name == 'Final Rx'
@@ -717,6 +719,7 @@ export class ExamHistoryScreen extends Component {
           definition={groupDefinition}
           hasVA={groupDefinition.hasVA}
           hasAdd={groupDefinition.hasAdd}
+          hasBVD={groupDefinition.hasBVD}
           examId={exam.id}
           onCopy={
             groupDefinition.name === 'Final Rx' ? this.copyFinalRx : undefined
@@ -849,6 +852,7 @@ export class ExamScreen extends Component {
     snackBarMessage: ?string,
     copiedData?: GlassesRx,
     patientInfo: PatientInfo,
+    relatedExams: JSX.Element,
   };
 
   constructor(props: any) {
@@ -871,12 +875,13 @@ export class ExamScreen extends Component {
       isDirty: exam.errors !== undefined,
       locked: this.props.unlocked !== true && examIsLocked(exam),
       scrollable: true,
-      favorites: exam.definition.starable ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id,
+      favorites: this.isStarable(exam) ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id,
       showExportDataPopup: false,
       showSnackBar: false,
       snackBarMessage: '',
       copiedData: null,
       patientInfo: getCachedItem(visit.patientId),
+      relatedExams: null
     };
   }
 
@@ -886,6 +891,12 @@ export class ExamScreen extends Component {
       this.state.exam.errors === undefined
     ) {
       this.fetchExam();
+      this.focusSubscription = this.props.navigation.addListener(
+        'willFocus',
+        () => {
+          this.renderRelatedExams();
+        }
+      );
     }
   }
 
@@ -909,10 +920,12 @@ export class ExamScreen extends Component {
       this.props.navigation.state.params
         ? this.props.navigation.state.params.exam
         : this.props.exam;
+
     if (this.state.exam && this.state.exam.id === exam.id) {
       //__DEV__ && console.log('ExamScreen did update with same exam id '+exam.id);
       return;
     }
+
     //__DEV__ && console.log('ExamScreen did update after receiving new exam with id '+exam.id);
     if (this.state.isDirty) {
       this.storeExam(this.state.exam);
@@ -932,14 +945,19 @@ export class ExamScreen extends Component {
       isDirty: exam.errors !== undefined,
       locked: !this.props.unlocked && examIsLocked(exam),
       scrollable: true,
-      favorites: exam.definition.starable ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id
+      favorites: this.isStarable(exam) ? getFavorites(exam) : undefined, //TODO don't get favourirtes for locked exam. exam.definition.id
     });
   }
 
   componentWillUnmount() {
     this.deleteCopiedData();
+
+    if (this.focusSubscription !== undefined) {
+      this.focusSubscription.remove();
+    }
+    
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
-    if (this.state.isDirty) {
+    if (this.state.isDirty || this.state.exam.isDirty) {
       //__DEV__ && console.log('Saving previous exam that was still dirty.'+this.props.navigation);
       this.storeExam(this.state.exam);
     } else if (this.state.exam.isInvalid) {
@@ -948,6 +966,23 @@ export class ExamScreen extends Component {
       exam.hasStarted = true;
       this.storeExam(exam);
     }
+  }
+
+  isStarable(exam: Exam): boolean {
+    if (exam === undefined) {
+      return false;
+    }
+    if (exam.definition.starable) {
+      return true;
+    }
+    if (exam.definition.fields) {
+      const fieldDefinition: ?FieldDefinition | GroupDefinition =
+        exam.definition.fields.find(
+          (field: FieldDefinition | GroupDefinition) => field.starable === true,
+        );
+      return !isEmpty(fieldDefinition);
+    }
+    return false;
   }
 
   async fetchExam() {
@@ -1180,7 +1215,85 @@ export class ExamScreen extends Component {
     return exportRxOptions;
   }
 
-  getRelatedExam(examName: string): Exam {
+  async addExam(examLabel: string) : Exam {
+    
+    if (examLabel === undefined) {
+      return undefined;
+    } 
+    
+    let examDefinition: ?ExamDefinition = (
+      await allExamDefinitions(false)
+    ).find(
+      (examDefinition: ExamDefinition) =>
+        (examDefinition.label ? examDefinition.label : examDefinition.name) ===
+        examLabel,
+    );
+    if (!examDefinition) {
+      examDefinition = (await allExamDefinitions(true)).find(
+        (examDefinition: ExamDefinition) =>
+          (examDefinition.label
+            ? examDefinition.label
+            : examDefinition.name) === examLabel,
+      );
+    }
+    if (!examDefinition) {
+      return undefined;
+    }
+    let visit = this.getVisit();
+
+    let existingExam: ?Exam = visit.preCustomExamIds
+      ? getCachedItem(
+          visit.preCustomExamIds[
+            visit.preCustomExamIds.findIndex(
+              (examId: string) =>
+                getCachedItem(examId).definition.name === examDefinition.name,
+            )
+          ],
+        )
+      : undefined;
+
+    if (!existingExam && visit.customExamIds) {
+      existingExam = getCachedItem(
+        visit.customExamIds[
+          visit.customExamIds.findIndex(
+            (examId: string) =>
+              getCachedItem(examId).definition.name === examDefinition.name,
+          )
+        ],
+      );
+    } 
+
+    //create exam
+    let exam: Exam = {
+      id: 'customExam',
+      visitId: visit.id,
+      customExamDefinitionId: examDefinition.id,
+      isHidden: true,
+    };
+    exam = await createExam(exam);
+    if (exam.errors) {
+      return undefined;
+    }
+
+    exam.isHidden = true;
+    storeExam(exam);
+
+    if (!visit.preCustomExamIds) {
+      visit.preCustomExamIds = [];
+    }
+    if (!visit.customExamIds) {
+      visit.customExamIds = [];
+    }
+    if (exam.definition.isPreExam) {
+      visit.preCustomExamIds.push(exam.id);
+    } else {
+      visit.customExamIds.push(exam.id);
+    }
+    cacheItemById(visit);
+    return exam
+  }
+
+  async getRelatedExam(examName: string): Exam {
     const visit: Visit = this.getVisit();
     let examId = visit.customExamIds.find(
       (examId: string) =>
@@ -1193,7 +1306,19 @@ export class ExamScreen extends Component {
         (examId: string) => getCachedItem(examId).definition.name === examName,
       );
     }
-    const exam: Exam = getCachedItem(examId);
+    let exam: Exam = getCachedItem(examId);
+
+    if(!exam) {
+      //check if exam is in list of permanentRelatedExams
+      let permanentRelatedExam = this.state.exam && 
+      this.state.exam.definition && 
+      this.state.exam.definition.permanentRelatedExams &&
+      this.state.exam.definition.permanentRelatedExams.find((examLabel) => examLabel === examName);
+
+      if (permanentRelatedExam) {
+        exam = await this.addExam(examName);
+      }
+    }
     return exam;
   }
 
@@ -1237,7 +1362,7 @@ export class ExamScreen extends Component {
             editable={canEdit}
             favorites={this.state.favorites}
             onAddFavorite={
-              this.state.exam.definition.starable ? this.addFavorite : undefined
+              this.isStarable(this.state.exam) ? this.addFavorite : undefined
             }
             onRemoveFavorite={(favorite: ExamPredefinedValue) =>
               this.removeFavorite(favorite)
@@ -1252,7 +1377,7 @@ export class ExamScreen extends Component {
             editable={canEdit}
             favorites={this.state.favorites}
             onAddFavorite={
-              this.state.exam.definition.starable ? this.addFavorite : undefined
+              this.isStarable(this.state.exam) ? this.addFavorite : undefined
             }
             onRemoveFavorite={(favorite: ExamPredefinedValue) =>
               this.removeFavorite(favorite)
@@ -1344,6 +1469,7 @@ export class ExamScreen extends Component {
       </TouchableOpacity>
     );
   }
+
   /*
   Temporary Warning message for Billing, should be removed after invoicing module is implemented in EMR
    */
@@ -1413,7 +1539,7 @@ export class ExamScreen extends Component {
         title={strings.printExportLabel}
         data={exportRxOptions}
         dismissable={true}
-        onConfirmAction={() => this.confirmExportData(exportRxOptions)}
+        onConfirmAction={(options: any) => this.confirmExportData(options)}
         onCancelAction={() => this.hideExportDataPopup()}
         style={styles.alert}
         confirmActionLabel={strings.exportAction}
@@ -1435,7 +1561,25 @@ export class ExamScreen extends Component {
     return null;
   }
 
-  renderRelatedExams() {
+  selectExam = (exam: Exam) => {
+    if (exam.isInvalid) {
+      exam.isInvalid = false;
+      exam.hasStarted = true;
+      this.storeExam(exam);
+    } else {
+      if(exam.isHidden) {
+        exam.isHidden = false;
+        this.storeExam(exam);
+      }
+
+      this.props.navigation.push('exam', {
+        exam,
+        appointmentStateKey: this.state.appointmentStateKey,
+      });
+    }
+  };
+
+  async renderRelatedExams() {
     if (
       this.state.exam.definition.relatedExams === undefined ||
       this.state.exam.definition.relatedExams === null ||
@@ -1443,24 +1587,29 @@ export class ExamScreen extends Component {
     ) {
       return null;
     }
-    return (
+
+    let relatedExams =  await Promise.all(this.state.exam.definition.relatedExams.map(
+      async (relatedExamName: string, index: number) => {
+        const relatedExam: Exam = await this.getRelatedExam(relatedExamName);
+        return (
+          relatedExam && (
+            <ExamCard
+              exam={relatedExam}
+              style={styles.examCard}
+              onSelect={() => this.selectExam(relatedExam)}
+              key={`${index}_${relatedExam.id}`}
+            />
+          )
+        );
+      },
+    ));
+
+    const relatedExamsView =  (
       <View style={styles.flow}>
-        {this.state.exam.definition.relatedExams.map(
-          (relatedExamName: string, index: number) => {
-            const relatedExam: Exam = this.getRelatedExam(relatedExamName);
-            return (
-              relatedExam && (
-                <ExamCard
-                  exam={relatedExam}
-                  style={styles.examCard}
-                  key={index}
-                />
-              )
-            );
-          },
-        )}
+        {relatedExams}
       </View>
     );
+    this.setState({relatedExams: relatedExamsView});
   }
 
   renderPatientDetails() {
@@ -1503,7 +1652,7 @@ export class ExamScreen extends Component {
             <ErrorCard errors={this.state.exam.errors} />
             {this.renderExamWarnings()}
             {this.renderExamIcons(styles.examIconsFlex)}
-            {this.renderRelatedExams()}
+            {this.state.relatedExams}
             {this.renderExam()}
           </KeyboardAwareScrollView>
         </View>
@@ -1516,7 +1665,7 @@ export class ExamScreen extends Component {
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
-          {this.renderRelatedExams()}
+          {this.state.relatedExams}
           {this.renderExam()}
         </View>
       );
@@ -1531,7 +1680,7 @@ export class ExamScreen extends Component {
           <ErrorCard errors={this.state.exam.errors} />
           {this.renderExamIcons(styles.examIconsFlex)}
           {this.renderSnackBar()}
-          {this.renderRelatedExams()}
+          {this.state.relatedExams}
           {this.renderExam()}
         </View>
       </KeyboardAwareScrollView>

@@ -15,7 +15,7 @@ import {
 import type {GlassesRx, Visit, Exam} from './Types';
 import {strings} from './Strings';
 import {styles, fontScale} from './Styles';
-import {GlassesDetail, isPDEmpty} from './Refraction';
+import {GlassesDetail, hasBvd, hasPrism, isPDEmpty} from './Refraction';
 import {FormRow, FormField, FormTextInput} from './Form';
 import {getCachedItem} from './DataCache';
 import {ItemsCard, formatLabel} from './Items';
@@ -139,7 +139,12 @@ export class PrescriptionCard extends Component {
 
     return (
       <View style={styles.assessmentCard}>
-        <View style={styles.formRow500}>
+        <View
+          style={
+            hasPrism(glassesRx) && hasBvd(glassesRx)
+              ? styles.formRowL
+              : styles.formRow500
+          }>
           <GlassesDetail
             titleStyle={styles.sectionTitle}
             title={strings.finalRx}
@@ -148,6 +153,7 @@ export class PrescriptionCard extends Component {
             style={styles.flexColumnLayout}
             editable={false}
             hasAdd={true}
+            hasBVD={hasBvd(glassesRx)}
             isPrescriptionCard={true}
           />
         </View>
@@ -338,8 +344,8 @@ export class VisitSummaryPlanCard extends Component {
     this.props.navigation.navigate('exam', {
       exam: this.state.exam,
       appointmentStateKey: this.props.appointmentStateKey,
-    })
-  }
+    });
+  };
 
   render() {
     if (!this.state.exam) {
@@ -361,29 +367,37 @@ export class VisitSummaryPlanCard extends Component {
 
     return (
       <View style={styles.assessmentCard}>
-        <TouchableOpacity style={styles.centeredRowLayout} 
-          onPress={this.navigateToExam}
-        >
+        <TouchableOpacity
+          style={styles.centeredRowLayout}
+          onPress={this.navigateToExam}>
           <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.columnLayout}
-          onPress={!this.props.editable ? this.navigateToExam : undefined}
-        >
+        <TouchableOpacity
+          style={styles.columnLayout}
+          onPress={!this.props.editable ? this.navigateToExam : undefined}>
           <View style={styles.formRowL}>
-            {this.props.editable && <FormTextInput
-              label=""
-              multiline={true}
-              readonly={!this.props.editable}
-              value={!isEmpty(summary) ? summary : ''}
-              onChangeText={(text: ?string) => this.updateSummary(text)}
-            />}
-            
-            {!this.props.editable && <View style={styles.fieldFlexContainer}>
-              <Text style={[styles.formFieldLines, {minHeight: 36 * 4.7 * fontScale, height: 'auto'}]}>
-                {!isEmpty(summary) ? summary : ''}
-              </Text>
-            </View>}
+            {this.props.editable && (
+              <FormTextInput
+                label=""
+                multiline={true}
+                readonly={!this.props.editable}
+                value={!isEmpty(summary) ? summary : ''}
+                onChangeText={(text: ?string) => this.updateSummary(text)}
+              />
+            )}
+
+            {!this.props.editable && (
+              <View style={styles.fieldFlexContainer}>
+                <Text
+                  style={[
+                    styles.formFieldLines,
+                    {minHeight: 36 * 4.7 * fontScale, height: 'auto'},
+                  ]}>
+                  {!isEmpty(summary) ? summary : ''}
+                </Text>
+              </View>
+            )}
           </View>
         </TouchableOpacity>
 

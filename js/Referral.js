@@ -10,7 +10,6 @@ import {
   View,
   Text,
   ScrollView,
-  Modal,
   TouchableWithoutFeedback,
   ActivityIndicator,
   Keyboard,
@@ -74,6 +73,7 @@ import {ManageUsers} from './User';
 import {FormOptions} from './Form';
 import {Microphone} from './Voice';
 import {HtmlEditor} from '../src/components/TinyMceEditor/HtmlEditor';
+import {CustomModal as Modal} from './utilities/Modal';
 
 export function isReferralsEnabled(): boolean {
   const referralTemplates: string[] = getAllCodes('referralTemplates');
@@ -847,7 +847,7 @@ export class ReferralScreen extends Component<
         {this.renderFieldSelectionTree()}
         <FormRow>
           <Button
-            title="Insert"
+            title={strings.insert}
             disabled={!this.state.htmlDefinition}
             onPress={() => this.insertField()}
           />
@@ -921,24 +921,24 @@ export class ReferralScreen extends Component<
           onPress={() => this.sign()}
         />
         <Button
-          title="Print"
+          title={strings.print}
           onPress={() => this.print()}
           disabled={!this.state.isActive}
         />
         <Button
-          title="Email"
+          title={strings.email}
           onPress={() => this.email()}
           disabled={!this.state.isActive}
         />
         {getStore() !== undefined && getStore().eFaxUsed && (
           <Button
-            title="Fax"
+            title={strings.fax}
             onPress={() => this.fax()}
             disabled={!this.state.isActive}
           />
         )}
         <Button
-          title="Save"
+          title={strings.save}
           onPress={() => this.saveAction()}
           disabled={!this.state.isActive}
         />

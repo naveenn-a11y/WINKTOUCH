@@ -7,7 +7,6 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
-  Modal,
   TouchableWithoutFeedback,
   ScrollView,
   Animated,
@@ -56,6 +55,7 @@ import {Button} from './Widgets';
 import {deepClone} from './Util';
 import {PaperFormScreen} from './PaperForm';
 import {mappedFields} from './MappedField';
+import {CustomModal as Modal} from './utilities/Modal';
 
 let translateMode = false;
 

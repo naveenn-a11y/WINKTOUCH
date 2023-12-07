@@ -8,12 +8,23 @@
           "label": "Phories",
           "fields": [
             {
+              "name": "Method",
+              "label": "",
+              "fields": [
+                {
+                  "name": "Method",
+                  "label": "Méthode",
+                  "options": ["Test écran alterné", "Cylindre de Maddox", "Aile de Maddox", "Thorington modifié", "Von Graefe", "Test de disparité de fixation de Mallet", "Test de Saladin", "Test de Howell"]
+                }
+              ]  
+            },
+            {
               "name": "Distant vision",
-              "label": "VL"
+              "label": "Loin"
             },
             {
               "name": "Near vision",
-              "label": "VP"
+              "label": "Près"
             }
           ]
         },
@@ -189,6 +200,24 @@
           "size": "M"
         },
         {
+          "name": "Accomodation",
+          "label": "Accomodation",
+          "fields": [
+            {
+              "name": "AC/A ratio",
+              "label": "Rapport AC/A"
+            },
+            {
+              "name": "NRA",
+              "label": "ARN"
+            },
+            {
+              "name": "PRA",
+              "label": "ARP"
+            }
+          ]
+        },
+        {
           "name": "Pursuits",
           "label": "Poursuites",
           "fields": [
@@ -218,6 +247,320 @@
               "options": ["Smooth and precise"]
             }
           ]
+        },
+        {
+          "name": "Worth 4-Dot",
+          "label": "Worth à 4 lumières",
+          "fields": [
+            {
+              "name": "Distance",
+              "label": "Loin",
+              "options": ["Fusion", "Suppression OD", "Suppression OS", "Diplopie non croisée / déviation ESO", "Diplopie croisée / déviation EXO"]
+            },
+            {
+              "name": "Near",
+              "label": "Près",
+              "options": ["Fusion", "Suppression OD", "Suppression OS", "Diplopie non croisée / déviation ESO", "Diplopie croisée / déviation EXO"]
+            },
+            {
+              "name": "Notes",
+              "label": "Notes"
+            }
+          ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Binocular",
+      "fields": [
+        {
+          "name": "Phorias",
+          "label": "Forias",
+          "fields": [
+            {
+              "name": "Method",
+              "label": "",
+              "fields": [
+                {
+                  "name": "Method",
+                  "label": "Método",
+                  "options": ["Prueba de oclusión alterna", "Varilla de Maddox", "Ala de Maddox", "Thorington modificada", "Von Graefe", "Disparidad de fijación de Mallet", "Saladin", "Howell"]
+                }
+              ]
+            },
+            {
+              "name": "Distant vision",
+              "label": "Lejana"
+            },
+            {
+              "name": "Near vision",
+              "label": "Cercana"
+            }
+          ]
+        },
+        {
+          "name": "Vergence BI",
+          "label": "Vergencia Base Nasal",
+          "fields": [
+            {
+              "name": "Distant",
+              "label": "Lejana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "label": "Cercana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación."
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Vergence BO",
+          "label": "Vergencia Base Temporal",
+          "fields": [
+            {
+              "name": "Distant",
+              "label": "Lejana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "label": "Cercana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Vergence BU",
+          "label": "Vergencia Base Superior",
+          "fields": [
+            {
+              "name": "Distant",
+              "label": "Lejana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "label": "Cercana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Vergence BD",
+          "label": "Vergencia Base Inferior",
+          "fields": [
+            {
+              "name": "Distant",
+              "label": "Lejana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            },
+            {
+              "name": "Near",
+              "label": "Cercana",
+              "fields": [
+                {
+                  "name": "Blur",
+                  "label": "Borroso"
+                },
+                {
+                  "name": "Break",
+                  "label": "Diplopía"
+                },
+                {
+                  "name": "Recov.",
+                  "label": "Recuperación"
+                }
+              ]
+            }
+          ],
+          "size": "M"
+        },
+        {
+          "name": "Accomodation",
+          "label": "Acomodación",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Amp.",
+                  "label": "Amp."
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Amp.",
+                  "label": "Amp."
+                }
+              ]
+            },
+            {
+              "name": "AC/A ratio",
+              "label": "Relación ACA"
+            },
+            {
+              "name": "NRA",
+              "label": "CRN"
+            },
+            {
+              "name": "PRA",
+              "label": "CRP"
+            }
+          ]
+        },
+        {
+          "name": "Pursuits",
+          "label": "Movimientos de persecución",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Suave y precisa",
+              "options": ["Suave y precisa"]
+            },
+            {
+              "name": "OS",
+              "normalValue": "Suave y precisa",
+              "options": ["Suave y precisa"]
+            }
+          ]
+        },
+        {
+          "name": "Saccades",
+          "label": "Movimientos sacádicos",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Suave y precisa",
+              "options": ["Suave y precisa"]
+            },
+            {
+              "name": "OS",
+              "normalValue": "Suave y precisa",
+              "options": ["Suave y precisa"]
+            }
+          ]
+        },
+        {
+          "name": "Worth 4-Dot",
+          "label": "Worth de 4 luces",
+          "fields": [
+            {
+              "name": "Distance",
+              "label": "Lejana",
+              "options": ["Fusión", "Supresión OD", "Supresión OS", "Diplopía no cruzada/desviación ESO", "Diplopía cruzada/desviación EXO"]
+            },
+            {
+              "name": "Near",
+              "label": "Cercana",
+              "options": ["Fusión", "Supresión OD", "Supresión OS", "Diplopía no cruzada/desviación ESO", "Diplopía cruzada/desviación EXO"]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
         }
       ]
     }
@@ -225,54 +568,77 @@
   "name": "Binocular",
   "scrollable": true,
   "starable": true,
+  "showSubtitles": true,
   "type": "groupedForm",
   "section": "Vision testing.5",
   "relatedExams": ["Cover test"],
   "fields": [
     {
       "name": "Phorias",
-      "columns": [["Distant vision", "Near vision"]],
+      "multiValue": true,
+      "columns": [["Method"],["Distant vision", "Near vision"]],
       "fields": [
         {
+          "name": "Method",
+          "label": "",
+          "fields": [
+            {
+              "name": "Method",
+              "label": "Method",
+              "options": ["Alternating Cover Test", "Maddox Rod", "Maddox Wing", "Modified Thorington Test", "Von Graefe", "Mallett Fixation Disparity Unit", "Saladin", "Howell"]
+            }
+          ]
+        },
+        {
           "name": "Distant vision",
+          "label": "Distant",
           "fields": [
             {
               "name": "H",
               "minValue": 0,
-              "suffix": " \u0394",
+              "suffix": "phoriasHCodes",
+              "unit": " \u0394",
               "maxValue": 50,
               "options": ["Ortho"]
             },
             {
               "name": "V",
               "minValue": 0,
-              "suffix": " \u0394",
-              "maxValue": 20,
+              "suffix": "phoriasVCodes",
+              "unit": " \u0394",
+              "decimals": 2,
+              "stepSize": 0.25,
+              "maxValue": 10,
               "options": ["Ortho"]
             }
           ]
         },
         {
           "name": "Near vision",
+          "label": "Near",
           "fields": [
             {
               "name": "H",
               "minValue": 0,
-              "suffix": " \u0394",
+              "suffix": "phoriasHCodes",
+              "unit": " \u0394",
               "maxValue": 50,
               "options": ["Ortho"]
             },
             {
               "name": "V",
               "minValue": 0,
-              "suffix": " \u0394",
-              "maxValue": 20,
+              "suffix": "phoriasVCodes",
+              "unit": " \u0394",
+              "decimals": 2,
+              "stepSize": 0.25,
+              "maxValue": 10,
               "options": ["Ortho"]
             }
           ]
         }
       ],
-      "size": "S"
+      "size": "L"
     },
     {
       "name": "Vergence BI",
@@ -613,6 +979,28 @@
           "options": ["Smooth and precise"]
         }
       ]
+    },
+    {
+      "optional": true,
+      "name": "Worth 4-Dot",
+      "fields": [
+        {
+          "name": "Distance",
+          "label": "Distance",
+          "options": ["Fusion", "Suppression OD", "Suppression OS", "Uncrossed diplopia/ ESO deviation", "Crossed diplopia/ EXO deviation"]
+        },
+        {
+          "name": "Near",
+          "label": "Near",
+          "options": ["Fusion", "Suppression OD", "Suppression OS", "Uncrossed diplopia/ ESO deviation", "Crossed diplopia/ EXO deviation"]
+        },
+        {
+          "maxLength": 500,
+          "name": "Notes",
+          "freestyle": true
+        }
+      ],
+      "size": "M"
     },
     {
       "optional": true,

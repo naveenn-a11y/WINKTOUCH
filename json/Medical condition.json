@@ -11,6 +11,7 @@
       "name": "Condition",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "medicalConditionCodes"
     },
     {
@@ -28,6 +29,25 @@
   "locale": {
     "fr-CA": {
       "label": "Conditions médicales"
+    },
+    "es-ES": {
+      "label": "Condición médica",
+      "fields": [
+        {
+          "name": "Condition",
+          "label": "Enfermedad"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas",
+          "fields": [
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   }
 }

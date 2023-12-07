@@ -27,6 +27,7 @@ import {
   farDateFormat,
   yearDateFormat,
   getValue,
+  getDoctorFullName,
 } from './Util';
 import {getCachedItem} from './DataCache';
 import {GlassesSummary} from './Refraction';
@@ -71,9 +72,7 @@ function getAVisitRefraction(visit: Visit): ?GlassesRx {
   if (visit.prescription) {
     refraction = visit.prescription;
     const doctor: User = getCachedItem(visit.userId);
-    refraction.doctor = isEmpty(doctor)
-      ? ''
-      : doctor.firstName + ' ' + doctor.lastName;
+    refraction.doctor = getDoctorFullName(doctor);
     if (!refraction.prescriptionDate) {
       refraction.prescriptionDate = visit.date;
     }
@@ -212,7 +211,9 @@ function getPatientVisitSummary(patientId: string): ?(VisitSummary[]) {
   visitHistory.forEach((visit: Visit) => {
     if (
       visit.medicalDataPrivilege !== 'READONLY' &&
-      visit.medicalDataPrivilege !== 'FULLACCESS'
+      visit.medicalDataPrivilege !== 'FULLACCESS' &&
+      visit.finalRxPrivilege !== 'READONLY' &&
+      visit.finalRxPrivilege !== 'FULLACCESS'
     ) {
       const noAccessVisitSummary: VisitSummary = {
         noaccess: true,
@@ -282,31 +283,47 @@ export class VisitSummaryTable extends Component {
       );
     }
 
-    let summary : string = "";
-    let plan : string = "";
+    let summary: string = '';
+    let plan: string = '';
 
     if (visitSummary.summary) {
-      visitSummary.summary.map((eachSummary: Exam, _index: number) => {
-        const formattedDate = formatDate(
-          getCachedItem(eachSummary.visitId).date,
-          isToyear(getCachedItem(eachSummary.visitId).date)
-            ? dateFormat
-            : farDateFormat,
-        )
-        if ('Consultation summary' in eachSummary) {
-          const consultationSummary = getValue(eachSummary, 'Consultation summary.Summary.Resume');
-          summary = !isEmpty(consultationSummary) ? summary.concat(`${consultationSummary} \n`) : '';
+      visitSummary.summary.map((eachSummary: any, _index: number) => {
+        if (eachSummary.noaccess) {
+          summary = strings.noAccess;
+        } else {
+          const formattedDate = formatDate(
+            getCachedItem(eachSummary.visitId).date,
+            isToyear(getCachedItem(eachSummary.visitId).date)
+              ? dateFormat
+              : farDateFormat,
+          );
+          if ('Consultation summary' in eachSummary) {
+            const consultationSummary = getValue(
+              eachSummary,
+              'Consultation summary.Summary.Resume',
+            );
+            summary = !isEmpty(consultationSummary)
+              ? summary.concat(`${consultationSummary} \n`)
+              : '';
 
-          const plans: any = getValue(eachSummary, 'Consultation summary.Treatment plan');
-          !isEmpty(plans) && plans.map((eachPlan) => {
-            plan = eachPlan.Treatment ? plan.concat(`${eachPlan.Treatment} \n\n`) : '';
-          });
-        } else if ('resume' in eachSummary) {
-          summary = eachSummary.resume ? summary.concat(`${formattedDate} : ${eachSummary.resume} \n`) : '';
+            const plans: any = getValue(
+              eachSummary,
+              'Consultation summary.Treatment plan',
+            );
+            !isEmpty(plans) &&
+              plans.map((eachPlan) => {
+                plan = eachPlan.Treatment
+                  ? plan.concat(`${eachPlan.Treatment} \n\n`)
+                  : '';
+              });
+          } else if ('resume' in eachSummary) {
+            summary = eachSummary.resume
+              ? summary.concat(`${formattedDate} : ${eachSummary.resume} \n`)
+              : '';
+          }
         }
       });
     }
-    
 
     return (
       <View style={[styles.startVisitCard, styles.paddingLeft40]}>
@@ -341,20 +358,25 @@ export class VisitSummaryTable extends Component {
           </Text>
           <View style={styles.textWrap}>
             {visitSummary.medications &&
-              visitSummary.fieldDefinitions &&
-              visitSummary.medications.map(
-                (medicationItem: ?Prescription, index) => (
-                  <ItemSummary
-                    item={medicationItem}
-                    orientation="vertical"
-                    fieldDefinitions={visitSummary.fieldDefinitions}
-                    editable={false}
-                    showLabels={true}
-                    titleFields={['Rx Date']}
-                    key={index.toString()}
-                  />
-                ),
-              )}
+              visitSummary.medications.map((medicationItem: ?any, index) => (
+                <View>
+                  {medicationItem.noaccess ? (
+                    <NoAccess />
+                  ) : (
+                    visitSummary.fieldDefinitions && (
+                      <ItemSummary
+                        item={medicationItem}
+                        orientation="vertical"
+                        fieldDefinitions={visitSummary.fieldDefinitions}
+                        editable={false}
+                        showLabels={true}
+                        titleFields={['Rx Date']}
+                        key={index.toString()}
+                      />
+                    )
+                  )}
+                </View>
+              ))}
           </View>
         </View>
 
@@ -362,17 +384,21 @@ export class VisitSummaryTable extends Component {
           <Text style={styles.summarySubTitle}>{strings.billing}:</Text>
           <View style={styles.textWrap}>
             {visitSummary.billing &&
-              visitSummary.billing.map((eachBill: Exam, _index: number) => (
+              visitSummary.billing.map((eachBill: any, _index: number) => (
                 <View>
-                  <Text style={styles.text}>
-                    {formatDate(
-                      getCachedItem(eachBill.visitId).date,
-                      isToyear(getCachedItem(eachBill.visitId).date)
-                        ? dateFormat
-                        : farDateFormat,
-                    )}
-                    : {eachBill.description} {eachBill.icdDescription}
-                  </Text>
+                  {eachBill.noaccess ? (
+                    <NoAccess />
+                  ) : (
+                    <Text style={styles.text}>
+                      {formatDate(
+                        getCachedItem(eachBill.visitId).date,
+                        isToyear(getCachedItem(eachBill.visitId).date)
+                          ? dateFormat
+                          : farDateFormat,
+                      )}
+                      : {eachBill.description} {eachBill.icdDescription}
+                    </Text>
+                  )}
                 </View>
               ))}
           </View>
@@ -380,21 +406,42 @@ export class VisitSummaryTable extends Component {
 
         <View style={styles.summaryGroupContainer}>
           <Text style={styles.summarySubTitle}>{strings.summaryTitle}:</Text>
+
           <View style={styles.textWrap}>
-            <View style={isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn}>
-              <Text style={styles.text}>{visitSummary.summary && summary}</Text>
+            <View
+              style={
+                isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
+              }>
+              {summary === strings.noAccess ? (
+                <NoAccess />
+              ) : (
+                <Text style={styles.text}>
+                  {visitSummary.summary && summary}
+                </Text>
+              )}
             </View>
           </View>
         </View>
 
-        {visitSummary.summary && !isEmpty(plan) && <View style={styles.summaryGroupContainer}>
+        {visitSummary.summary && !isEmpty(plan) && (
+          <View style={styles.summaryGroupContainer}>
             <Text style={styles.summarySubTitle}>{strings.plan}:</Text>
             <View style={styles.textWrap}>
-              <View style={isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn}>
-                <Text style={styles.text}>{visitSummary.summary && plan}</Text>
+              <View
+                style={
+                  isWeb ? [styles.cardColumn, {flex: 1}] : styles.cardColumn
+                }>
+                {summary === strings.noAccess ? (
+                  <NoAccess />
+                ) : (
+                  <Text style={styles.text}>
+                    {visitSummary.summary && plan}
+                  </Text>
+                )}
               </View>
             </View>
-          </View>}
+          </View>
+        )}
       </View>
     );
   };

@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   LayoutAnimation,
   ScrollView,
-  Modal,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {NavigationActions} from 'react-navigation';
@@ -56,6 +55,7 @@ import {loadDocuments} from './ImageField';
 import {printBase64Pdf} from './Print';
 import {Binoculars} from './Widgets';
 import {ManageUsers} from './User';
+import {CustomModal as Modal} from './utilities/Modal';
 
 export async function fetchPatientInfo(
   patientId: string,
@@ -73,8 +73,9 @@ export async function storePatientInfo(patientInfo: PatientInfo): PatientInfo {
 export async function searchPatientDocuments(
   patientId: string,
   category: string,
+  showAllDocuments: boolean = false,
 ) {
-  const searchCriteria = {patientId, category};
+  const searchCriteria = {patientId, category, showAllDocuments};
   let restResponse = await searchItems('PatientDocument/list', searchCriteria);
   return restResponse;
 }
@@ -240,18 +241,21 @@ export class PatientCard extends Component {
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {formatCode('genderCode', this.props.patientInfo.gender)}{' '}
+                {formatCode('genderCode', this.props.patientInfo.gender)}
                 {this.props.patientInfo.dateOfBirth
                   ? this.props.patientInfo.gender === 0
-                    ? strings.ageM
-                    : strings.ageF
-                  : ''}{' '}
+                    ? ` ${strings.ageM}`
+                    : ` ${strings.ageF}`
+                  : ''}
                 {this.props.patientInfo.dateOfBirth
-                  ? formatAge(this.props.patientInfo.dateOfBirth) +
+                  ? ' ' + formatAge(this.props.patientInfo.dateOfBirth) +
                     '  (' +
                     this.props.patientInfo.dateOfBirth +
                     ')'
                   : ''}
+                {this.props.patientInfo.occupation && 
+                !isEmpty(this.props.patientInfo.occupation) &&
+                `, ${this.props.patientInfo.occupation}`}
               </Text>
               <Text style={styles.text}>
                 z{stripDataType(this.props.patientInfo.id)}
@@ -472,6 +476,14 @@ export class PatientContact extends Component {
           <FormRow>
             <FormField
               value={this.props.patientInfo}
+              fieldName="occupation"
+              onChangeValue={this.props.onUpdatePatientInfo}
+              autoCapitalize="words"
+            />
+          </FormRow>
+          <FormRow>
+            <FormField
+              value={this.props.patientInfo}
               fieldName="email"
               onChangeValue={this.props.onUpdatePatientInfo}
               type="email-address"
@@ -489,12 +501,18 @@ export class PatientDocumentAttachments extends Component {
   };
   state: {
     patientDocuments: PatientDocument[],
+    intakeDocuments: PatientDocument[],
+    otherDocuments: PatientDocument[],
+    allpatientDocuments: PatientDocument[],
   };
 
   constructor(props: any) {
     super(props);
     this.state = {
-      patientDocuments: [],
+      consentDocuments: [],
+      intakeDocuments: [],
+      otherDocuments: [],
+      allpatientDocuments: [],
     };
   }
   componentDidMount() {
@@ -502,15 +520,30 @@ export class PatientDocumentAttachments extends Component {
   }
   async loadPatientDocument() {
     const filterId: string = 'Patient Consent Form';
-    let patientDocuments = await loadDocuments(
-      filterId,
+    let allpatientDocuments = await loadDocuments(
+      ' ',
       this.props.patientInfo.id,
-    );
-    patientDocuments = patientDocuments.filter(
-      (patientDocument: PatientDocument) => patientDocument.name === filterId,
+      true,
     );
 
-    this.setState({patientDocuments});
+    let consentDocuments = [];
+    let otherDocuments = [];
+
+    allpatientDocuments?.forEach(
+      (patientDocument: PatientDocument) => {
+        if (patientDocument.name === filterId) {
+          consentDocuments.push(patientDocument);
+        } else {
+          otherDocuments.push(patientDocument);
+        }
+      } 
+    );
+
+    this.setState({
+      consentDocuments,
+      otherDocuments,
+      allpatientDocuments,
+    });
   }
 
   async getUpload(patientDocument: PatientDocument) {
@@ -523,47 +556,59 @@ export class PatientDocumentAttachments extends Component {
     }
   }
 
+  renderDocumentList = (groupLabel: String, documentList : PatientDocument[]) => {
+    return (
+      <View style={styles.tabCard}>
+          <Text style={styles.cardTitle}>{groupLabel}</Text>
+          <View >
+            {documentList.map(
+              (patientDocument: PatientDocument) => {
+                return (
+                  <View style={styles.attachement} key={patientDocument.id}>
+                  <FormRow>
+                    {patientDocument.uploadId && (
+                      <TouchableOpacity
+                        onPress={() => this.getUpload(patientDocument)}
+                        testID={this.props.fieldId + '.paperclipIcon'}>
+                        <Text style={styles.textLeft}>
+                          {patientDocument.name}{' '}
+                        </Text>
+                        <Text style={styles.textLeft}>
+                          {strings.lastUpdateOn}:
+                          {formatDate(
+                            patientDocument.postedOn,
+                            yearDateTimeFormat,
+                          )}
+                        </Text>
+                        <PaperClip
+                          style={styles.textIcon}
+                          color="black"
+                          key="paperclip"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </FormRow>
+                  </View>
+                );
+              },
+            )}
+          </View>
+        </View>
+    );
+  }
+
   render() {
     if (
-      this.state.patientDocuments === undefined ||
-      this.state.patientDocuments.length < 1
+      this.state.allpatientDocuments === undefined ||
+      this.state.allpatientDocuments.length < 1
     ) {
       return null;
     }
     return (
-      <View style={styles.tabCard}>
-        <Text style={styles.cardTitle}>{strings.patientAttachments}</Text>
-        <View style={styles.form}>
-          {this.state.patientDocuments.map(
-            (patientDocument: PatientDocument) => {
-              return (
-                <FormRow>
-                  {patientDocument.uploadId && (
-                    <TouchableOpacity
-                      onPress={() => this.getUpload(patientDocument)}
-                      testID={this.props.fieldId + '.paperclipIcon'}>
-                      <Text style={styles.textLeft}>
-                        {patientDocument.name}{' '}
-                      </Text>
-                      <Text style={styles.textLeft}>
-                        {strings.lastUpdateOn}:
-                        {formatDate(
-                          patientDocument.postedOn,
-                          yearDateTimeFormat,
-                        )}
-                      </Text>
-                      <PaperClip
-                        style={styles.textIcon}
-                        color="black"
-                        key="paperclip"
-                      />
-                    </TouchableOpacity>
-                  )}
-                </FormRow>
-              );
-            },
-          )}
-        </View>
+      <View style={styles.attachementContainer}>
+        {this.renderDocumentList(strings.consentForms, this.state.consentDocuments)}
+        {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments)}
+        {this.renderDocumentList(strings.otherForms, this.state.otherDocuments)}
       </View>
     );
   }

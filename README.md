@@ -20,6 +20,13 @@ when it runs anyway. Your dev.json should look like this:
     "REACT_APP_BUNDLEKEY": "fkne1zQ09K6MDAY6ccDzXzSkb4-fmp0WAMuBG",
     "REACT_APP_HOST": "localhost:8081"
 
+If running for iPad, in package.json/package-lock.json files, remove following line: <br/>
+"react-native-view-shot-with-web-support": "^3.1.2"
+
+DO NOT COMMIT THIS. Package must be there for web, and cannot be there for iPad.
+
+<b>TODO: When designing CICD for iPad, need way to remove package before CocoaPod install command.</b>
+
 In the terminal to start up the local web, type: npm run web
 
 That's it! Your web solution is running.
@@ -32,13 +39,33 @@ Swap the WEB_URI config above for this one: "REACT_APP_WEB_URI": "http://localho
 
 In your backend project, edit your Tomcat configuration like below:
 
-In the 'Server' tab, URL: http://localhost:8080/EHR-412/
+In the 'Server' tab,
+- URL: http://localhost:8080/EHR-412/
+- HTTP PORT: 8080
+- jmx PORT: 1099
 
-In the 'Deployment tab', make sure to include WinkRESTful:war exploded with an application context of '/WinkRESTv6.00.12.03'
-and then WinkPMS:war exploded with an application context of '/EHR-412'
+In the 'Deployment tab', make sure to include WinkPMS:war exploded with an application context of '/EHR-412'
 
+Make sure to have the most up-to-date env.properties file in your PointOfView folder
+and configure WinkPMS to the localhost url.
 
-Make sure to have the most up-to-date env.properties file in your PointOfView folder.
+-----------------------------------------------
+Running local WinkTouch against local WinkPMS AND WinkRESTfull
+-----------------------------------------------
+
+Swap the RESTFUL_URI config above for this one: "REACT_APP_RESTFUL_URI": "http://localhost:8082/WinkRESTv6.00.12.03/"
+
+In your backend project, edit your Tomcat configuration like below:
+
+In the 'Server' tab, 
+- URL: http://localhost:8082/WinkRESTv6.00.12.03/
+- HTTP PORT: 8082
+- jmx PORT: 1098
+
+In the 'Deployment' tab, make sure to include WinkRESTful:war exploded with an application context of '/WinkRESTv6.00.12.03'
+
+Make sure to have the most up-to-date env.properties file in your PointOfView folder
+and configure WinkRESTfull to the localhost url.
 
 -----------------------------------------------
 

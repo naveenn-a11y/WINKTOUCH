@@ -28,5 +28,17 @@ RCTEventTrackerModule *rctEventTrackerModule = nil;
   }
 }
 
+- (NSArray<UIKeyCommand *> *)keyCommands {
+  if (rctEventTrackerModule == nil) {
+    rctEventTrackerModule = [[RCTEventTrackerModule alloc] init];
+  }
+  return [rctEventTrackerModule getKeyCommands];
+}
+
+
+- (void)keyInput:(UIKeyCommand *)sender {
+  [rctEventTrackerModule sendKeyCommandEvent:sender];
+}
+
 
 @end

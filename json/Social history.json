@@ -25,6 +25,31 @@
           "normalValue": "Aucune"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Antecedentes sociales",
+      "fields": [
+        {
+          "name": "Smoking",
+          "label": "Tabaco",
+          "normalValue": "Nunca fumó"
+        },
+        {
+          "name": "Alcohol",
+          "label": "Alcohol",
+          "normalValue": "Lo niega"
+        },
+        {
+          "name": "Drugs",
+          "label": "Drogas",
+          "normalValue": "Lo niega"
+        },
+        {
+          "name": "Other",
+          "label": "Otro",
+          "normalValue": "Ninguno"
+        }
+      ]
     }
   },
   "name": "Social history",
@@ -39,6 +64,7 @@
       "required": true,
       "freestyle": true,
       "options": "tobaccoUseCodes",
+      "highlightedLabel": true,
       "normalValue": "Never smoker"
     },
     {
@@ -46,6 +72,7 @@
       "name": "Alcohol",
       "required": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "alcoholUseCodes"
     },
     {
@@ -54,6 +81,7 @@
       "multiValue": true,
       "required": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "drugUseCodes"
     },
     {

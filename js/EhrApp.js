@@ -6,6 +6,7 @@
 import React, {Component} from 'react';
 import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from "@react-native-community/netinfo";
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
@@ -21,7 +22,9 @@ import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
 import RemoteConfig from './utilities/RemoteConfig';
-import {deepClone, sleep} from './Util';
+import {deepClone, isEmpty, sleep} from './Util';
+import { Provider, DefaultTheme } from 'react-native-paper';
+import { NetworkInfo } from './Widgets';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -108,6 +111,11 @@ async function refreshWebDeployment(codePushEnvironmentKey: String, delaySeconds
   location.reload();
 }
 
+const theme = {
+  ...DefaultTheme,
+  dark: false,
+};
+
 export class EhrApp extends Component {
   state: {
     isRegistered: boolean,
@@ -122,6 +130,7 @@ export class EhrApp extends Component {
     isUpdateRequired: Boolean,
     latestBuild: number,
     latestVersion: number,
+    showNetworkInfo: boolean,
   };
 
   constructor() {
@@ -140,6 +149,7 @@ export class EhrApp extends Component {
       isUpdateRequired: false,
       latestBuild: 1,
       latestVersion: 1,
+      showNetworkInfo: false,
     };
   }
 
@@ -311,9 +321,25 @@ export class EhrApp extends Component {
     this.tracker && this.tracker.start();
   };
 
+  handleConnectivityChange = state => {
+    __DEV__ && console.log("Internet Info: ", state)
+    this.setState({
+      showNetworkInfo: !(state.isConnected && state.isInternetReachable)
+    })
+  }
+
   async componentDidMount() {
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
+    NetInfo.configure({
+      reachabilityLongTimeout: 60 * 1000, // 60s
+      reachabilityShortTimeout: 3 * 1000, // 5s
+      reachabilityRequestTimeout: 15 * 1000, // 15s
+      reachabilityShouldRun: () => true,
+      shouldFetchWiFiSSID: false, // met iOS requirements to get SSID. Will leak memory if set to true without meeting requirements.
+      useNativeReachability: true
+    });
+    NetInfo.addEventListener(this.handleConnectivityChange);
     isIos && (await RemoteConfig.activateRemoteConfig());
     AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
@@ -323,6 +349,7 @@ export class EhrApp extends Component {
     //if (this.state.updateTimer) {
     //  clearInterval(this.state.updateTimer);
     //}
+    NetInfo.removeEventListener(this.handleConnectivityChange);
     AppState.removeEventListener('change', this.onAppStateChange.bind(this));
   }
 
@@ -363,52 +390,64 @@ export class EhrApp extends Component {
     }
     if (this.state.isUpdateRequired) {
       return (
-        <AppUpdateScreen
-          latestBuild={this.state.latestBuild}
-          latestVersion={this.state.latestVersion}
-        />
+        <Provider theme={theme}>
+          <AppUpdateScreen
+            latestBuild={this.state.latestBuild}
+            latestVersion={this.state.latestVersion}
+          />
+          {this.state.showNetworkInfo && <NetworkInfo />}
+        </Provider>
       );
     }
     if (!this.state.isRegistered) {
       return (
-        <RegisterScreen
-          email={
-            this.state.registration ? this.state.registration.email : undefined
-          }
-          onReset={this.resetApp}
-          onRegistered={(registration: Registration) =>
-            this.safeRegistration(registration)
-          }
-        />
+        <Provider theme={theme}>
+          <RegisterScreen
+            email={
+              this.state.registration ? this.state.registration.email : undefined
+            }
+            onReset={this.resetApp}
+            onRegistered={(registration: Registration) =>
+              this.safeRegistration(registration)
+            }
+          />
+          {this.state.showNetworkInfo && <NetworkInfo />}
+        </Provider>
       );
     }
     if (!this.state.isLoggedOn) {
       return (
-        <LoginScreen
-          registration={this.state.registration}
-          onLogin={(
-            account: Account,
-            user: User,
-            store: Store,
-            token: string,
-          ) => this.userLoggedOn(account, user, store, token)}
-          onMfaRequired={this.mfaRequired}
-          onReset={this.resetApp}
-        />
+        <Provider theme={theme}>
+          <LoginScreen
+            registration={this.state.registration}
+            onLogin={(
+              account: Account,
+              user: User,
+              store: Store,
+              token: string,
+            ) => this.userLoggedOn(account, user, store, token)}
+            onMfaRequired={this.mfaRequired}
+            onReset={this.resetApp}
+          />
+          {this.state.showNetworkInfo && <NetworkInfo />}
+        </Provider>
       );
     }
     return (
-      <DoctorApp
-        registration={this.state.registration}
-        account={this.state.account}
-        user={this.state.user}
-        token={this.state.token}
-        store={this.state.store}
-        onLogout={this.logout}
-        onStartLockingDog={(ttlInMins: number) =>
-          this.startLockingDog(ttlInMins)
-        }
-      />
+      <Provider theme={theme}>
+        <DoctorApp
+          registration={this.state.registration}
+          account={this.state.account}
+          user={this.state.user}
+          token={this.state.token}
+          store={this.state.store}
+          onLogout={this.logout}
+          onStartLockingDog={(ttlInMins: number) =>
+            this.startLockingDog(ttlInMins)
+          }
+        />
+        {this.state.showNetworkInfo && <NetworkInfo />}
+      </Provider>
     );
   }
 }

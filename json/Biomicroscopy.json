@@ -106,6 +106,129 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Biomicroscopía",
+      "fields": [
+        {
+          "name": "Anterior",
+          "label": "Anterior",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Lid/Lashes",
+                  "label": "Párpado/Pestañas",
+                  "normalValue": "En las normas"
+                },
+                {
+                  "name": "Conjunctiva",
+                  "label": "Conjuntiva",
+                  "normalValue": "En las normas"
+                },
+                {
+                  "name": "Cornea",
+                  "label": "Córnea",
+                  "normalValue": "Transparente"
+                },
+                {
+                  "name": "AC",
+                  "label": "Cámara ant.",
+                  "normalValue": "D&Q"
+                },
+                {
+                  "name": "Vitreous",
+                  "label": "Humor vítreo",
+                  "normalValue": "Transparente"
+                },
+                {
+                  "name": "Iris",
+                  "normalValue": "Plano/Claro"
+                },
+                {
+                  "name": "Eye color",
+                  "label": "Color del ojo"
+                },
+                {
+                  "name": "Lens",
+                  "label": "Cristalino",
+                  "normalValue": "Transparente"
+                },
+                {
+                  "name": "Angle",
+                  "label": "Ángulo"
+                },
+                {
+                  "name": "TBUT",
+                  "normalValue": "En las normas",
+                  "options": ["En las normas"]
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Lid/Lashes",
+                  "label": "Párpado/Pestañas",
+                  "normalValue": "En las normas"
+                },
+                {
+                  "name": "Conjunctiva",
+                  "label": "Conjuntiva",
+                  "normalValue": "En las normas"
+                },
+                {
+                  "name": "Cornea",
+                  "label": "Córnea",
+                  "normalValue": "Transparente"
+                },
+                {
+                  "name": "AC",
+                  "label": "Cámara ant.",
+                  "normalValue": "D&Q"
+                },
+                {
+                  "name": "Vitreous",
+                  "label": "Humor vítreo",
+                  "normalValue": "Transparente"
+                },
+                {
+                  "name": "Iris",
+                  "normalValue": "Plano/Claro"
+                },
+                {
+                  "name": "Eye color",
+                  "label": "Color del ojo"
+                },
+                {
+                  "name": "Lens",
+                  "label": "Cristalino",
+                  "normalValue": "Transparente"
+                },
+                {
+                  "name": "Angle",
+                  "label": "Ángulo"
+                },
+                {
+                  "name": "TBUT",
+                  "normalValue": "En las normas",
+                  "options": ["En las normas"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Notations",
+          "label": "Notaciones"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
   "name": "Biomicroscopy",
@@ -119,7 +242,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorOD.png",
+          "image": "./image/anteriorOD_faded.png",
           "label": ""
         }
       ]
@@ -129,7 +252,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorOS.png",
+          "image": "./image/anteriorOS_faded.png",
           "label": ""
         }
       ]
@@ -140,7 +263,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorSegOD.png",
+          "image": "./image/anteriorSegOD_resized.png",
           "label": ""
         }
       ]
@@ -151,7 +274,7 @@
       "fields": [
         {
           "name": "Image",
-          "image": "./image/anteriorSegOS.png",
+          "image": "./image/anteriorSegOS_resized.png",
           "label": ""
         }
       ]
@@ -177,24 +300,32 @@
           "fields": [
             {
               "name": "Lid/Lashes",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "lidLashesCodes",
               "normalValue": "WNL"
             },
             {
               "name": "Conjunctiva",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "conjunctivaCodes",
               "normalValue": "WNL"
             },
             {
               "name": "Cornea",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "corneaCodes",
               "normalValue": "Clear"
             },
             {
               "name": "AC",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "minValue": 1,
               "maxValue": 4,
               "suffix": "aCSuffixCodes",
@@ -203,29 +334,39 @@
             },
             {
               "name": "Vitreous",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "vitreousCodes",
               "normalValue": "Clear"
             },
             {
               "name": "Iris",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "irisCodes",
               "normalValue": "Flat/Clear"
             },
             {
               "name": "Eye color",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "eyeColorCodes"
             },
             {
               "name": "Lens",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "lensCodes",
               "normalValue": "Clear"
             },
             {
               "name": "Angle",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": ["1", "2", "3", "4", "> 4"],
               "normalValue": "> 4"
@@ -234,6 +375,8 @@
               "normalValue": "WNL",
               "minValue": 0,
               "name": "TBUT",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "suffix": " s",
               "options": ["WNL"],
@@ -241,6 +384,8 @@
             },
             {
               "name": "TVOL",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "stepSize": 5,
               "freestyle": true,
               "suffix": " mm / 5 min",
@@ -255,22 +400,30 @@
               "name": "Lid/Lashes",
               "freestyle": true,
               "options": "lidLashesCodes",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "normalValue": "WNL"
             },
             {
               "name": "Conjunctiva",
               "freestyle": true,
               "options": "conjunctivaCodes",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "normalValue": "WNL"
             },
             {
               "name": "Cornea",
               "freestyle": true,
               "options": "corneaCodes",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "normalValue": "Clear"
             },
             {
               "name": "AC",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "minValue": 1,
               "maxValue": 4,
               "suffix": "aCSuffixCodes",
@@ -279,35 +432,47 @@
             },
             {
               "name": "Vitreous",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "vitreousCodes",
               "normalValue": "Clear"
             },
             {
               "name": "Iris",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "irisCodes",
               "normalValue": "Flat/Clear"
             },
             {
               "name": "Eye color",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "eyeColorCodes"
             },
             {
               "name": "Lens",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "lensCodes",
               "normalValue": "Clear"
             },
             {
               "name": "Angle",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": ["1", "2", "3", "4", "> 4"],
               "normalValue": "> 4"
             },
             {
               "normalValue": "WNL",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "minValue": 0,
               "name": "TBUT",
               "freestyle": true,
@@ -317,6 +482,8 @@
             },
             {
               "name": "TVOL",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "stepSize": 5,
               "freestyle": true,
               "suffix": " mm / 5 min",

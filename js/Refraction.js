@@ -24,8 +24,9 @@ import type {
   Visit,
   Measurement,
   User,
+  FieldDefinition,
 } from './Types';
-import {styles} from './Styles';
+import {fontScale, styles} from './Styles';
 import {strings} from './Strings';
 import {
   NumberField,
@@ -49,9 +50,16 @@ import {
   jsonDateTimeFormat,
   prefix,
   postfix,
+  getValue,
+  getDoctorFullName,
 } from './Util';
 import {FormInput} from './Form';
-import {getFieldDefinition, filterFieldDefinition, formatLabel, formatFieldValue} from './Items';
+import {
+  getFieldDefinition,
+  filterFieldDefinition,
+  formatLabel,
+  formatFieldValue,
+} from './Items';
 import {
   getCodeDefinition,
   formatCode,
@@ -67,6 +75,7 @@ import {
   ImportIcon,
   ExportIcon,
   Paste,
+  Star,
 } from './Favorites';
 import {importData, exportData} from './Machine';
 import {getCachedItem} from './DataCache';
@@ -84,9 +93,7 @@ function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
     if (visit.prescription) {
       const refraction: GlassesRx = visit.prescription;
       const doctor: User = getCachedItem(visit.userId);
-      refraction.doctor = isEmpty(doctor)
-        ? ''
-        : doctor.firstName + ' ' + doctor.lastName;
+      refraction.doctor = getDoctorFullName(doctor);
       if (!refraction.prescriptionDate) {
         refraction.prescriptionDate = visit.date;
       }
@@ -120,6 +127,8 @@ export function clearRefraction(glassesRx: GlassesRx) {
   glassesRx.lensType = undefined;
   glassesRx.notes = undefined;
   glassesRx.doctor = undefined;
+  glassesRx.currentWear = undefined;
+  glassesRx.since = undefined;
 }
 
 export function initRefraction(glassesRx: GlassesRx) {
@@ -358,6 +367,13 @@ export function hasPrism(glassesRx: GlassesRx): boolean {
   return false;
 }
 
+export function hasBvd(glassesRx: GlassesRx): boolean {
+  return (
+    (!isEmpty(glassesRx.od) && !isEmpty(glassesRx.od.bvd)) ||
+    (!isEmpty(glassesRx.os) && !isEmpty(glassesRx.os.bvd))
+  );
+}
+
 export function getLensometries(visitId: string): GlassesRx[] {
   if (!visitId) {
     return undefined;
@@ -421,6 +437,15 @@ export function getAutoRefractor(visitId: string): GlassesRx[] {
     return undefined;
   }
   return autoRefractor;
+}
+
+function clearPd(glassesRx: GlassesRx) {
+  glassesRx.od.closePD = undefined;
+  glassesRx.od.farPD = undefined;
+  glassesRx.os.closePD = undefined;
+  glassesRx.os.farPD = undefined;
+  glassesRx.ou.closePD = undefined;
+  glassesRx.ou.farPD = undefined;
 }
 export class VA extends Component {
   state: {
@@ -550,6 +575,7 @@ export function formatPrism(prism: string): string {
     parsedPrism.prismH !== 0
   ) {
     formattedPrism += parsedPrism.prismH;
+    formattedPrism += '\u0394';
     formattedPrism += formatCode('prism1b', parsedPrism.prismHDirection);
   }
   if (
@@ -561,13 +587,13 @@ export function formatPrism(prism: string): string {
       formattedPrism += ' ';
     }
     formattedPrism += parsedPrism.prismV;
+    formattedPrism += '\u0394';
     formattedPrism += formatCode('prism2b', parsedPrism.prismVDirection);
-  }
-  if (formattedPrism != '') {
-    formattedPrism = '\u25b3' + formattedPrism;
   }
   return formattedPrism;
 }
+
+function formatBvd(): string {}
 
 export class GeneralPrismInput extends Component {
   props: {
@@ -587,14 +613,17 @@ export class GeneralPrismInput extends Component {
   static defaultProps = {
     visible: true,
   };
+  static largeNumbers: string[] = ['10', '20'];
   static bigNumbers: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
   static smallNumbers: string[] = ['.00', '.25', '.50', '.75'];
   inOut: string[] = formatAllCodes('prism1b');
   upDown: string[] = formatAllCodes('prism2b');
   options: string[][] = [
+    GeneralPrismInput.largeNumbers,
     GeneralPrismInput.bigNumbers,
     GeneralPrismInput.smallNumbers,
     this.inOut,
+    GeneralPrismInput.largeNumbers,
     GeneralPrismInput.bigNumbers,
     GeneralPrismInput.smallNumbers,
     this.upDown,
@@ -620,6 +649,8 @@ export class GeneralPrismInput extends Component {
       undefined,
       undefined,
       undefined,
+      undefined,
+      undefined,
     ];
     if (value === undefined || value === null) {
       return splittedValue;
@@ -628,80 +659,99 @@ export class GeneralPrismInput extends Component {
     if (prism === undefined || prism === null) {
       return splittedValue;
     }
-    splittedValue[0] =
+
+    let prismHLastDigit =
       isNaN(prism.prismH) || prism.prismH == 0
-        ? undefined
-        : parseInt(prism.prismH).toString();
+        ? 0
+        : parseInt(prism.prismH) % 10;
+    let prismHTenthValue =
+      isNaN(prism.prismH) || prism.prismH == 0
+        ? 0
+        : parseInt(prism.prismH) - prismHLastDigit;
+    let prismVLastDigit =
+      isNaN(prism.prismV) || prism.prismV == 0
+        ? 0
+        : parseInt(prism.prismV) % 10;
+    let prismVTenthValue =
+      isNaN(prism.prismV) || prism.prismV == 0
+        ? 0
+        : parseInt(prism.prismV) - prismVLastDigit;
+
+    splittedValue[0] =
+      prismHTenthValue == 0 ? undefined : prismHTenthValue.toString();
     splittedValue[1] =
+      prismHLastDigit == 0 ? undefined : prismHLastDigit.toString();
+    splittedValue[2] =
       isNaN(prism.prismH) || prism.prismH == 0
         ? undefined
         : Number(prism.prismH).toFixed(2);
-    splittedValue[1] =
+    splittedValue[2] =
       isNaN(prism.prismH) || prism.prismH == 0
         ? undefined
-        : splittedValue[1].substr(splittedValue[1].indexOf('.'));
-    splittedValue[2] =
+        : splittedValue[2].substr(splittedValue[2].indexOf('.'));
+    splittedValue[3] =
       prism.prismHDirection === undefined
         ? undefined
         : formatCode('prism1b', prism.prismHDirection);
-    splittedValue[3] =
-      isNaN(prism.prismV) || prism.prismV == 0
-        ? undefined
-        : parseInt(prism.prismV).toString();
     splittedValue[4] =
+      prismVTenthValue == 0 ? undefined : prismVTenthValue.toString();
+    splittedValue[5] =
+      prismVLastDigit == 0 ? undefined : prismVLastDigit.toString();
+    splittedValue[6] =
       isNaN(prism.prismV) || prism.prismV == 0
         ? undefined
         : Number(prism.prismV).toFixed(2);
-    splittedValue[4] =
+    splittedValue[6] =
       isNaN(prism.prismV) || prism.prismV == 0
         ? undefined
-        : splittedValue[4].substr(splittedValue[4].indexOf('.'));
-    splittedValue[5] =
+        : splittedValue[6].substr(splittedValue[6].indexOf('.'));
+    splittedValue[7] =
       prism.prismVDirection === undefined
         ? undefined
         : formatCode('prism2b', prism.prismVDirection);
+
     return splittedValue;
   }
 
-  changeValue = (editedValue: string[]) => {
-    let prismH: string = '';
-    if (editedValue[0] !== undefined) {
-      prismH = editedValue[0];
-    }
-    if (editedValue[1] !== undefined && editedValue[1] !== '.00') {
-      if (prismH === '') {
-        prismH = '0';
-      }
-      prismH += editedValue[1];
-    }
-    let prismHDirection: ?string =
-      prismH === undefined
-        ? ''
-        : editedValue[2] === undefined
-        ? ''
-        : parseCode('prism1b', editedValue[2]);
+  sumArray(arr: any[]): number {
+    return arr.reduce((a, b) => {
+      let rightIndex = a === undefined ? 0 : Number(a);
+      let leftIndex = b === undefined ? 0 : Number(b);
+      return rightIndex + leftIndex;
+    });
+  }
 
-    let prismV: ?number = '';
-    if (editedValue[3] !== undefined) {
-      prismV = editedValue[3];
-    }
-    if (editedValue[4] !== undefined && editedValue[4] !== '.00') {
-      if (prismV === '') {
-        prismV = '0';
-      }
-      prismV += editedValue[4];
-    }
+  changeValue = (editedValue: string[]) => {
+    let prismH: number = this.sumArray([
+      editedValue[0],
+      editedValue[1],
+      editedValue[2],
+    ]);
+
+    let prismHDirection: ?string =
+      prismH === undefined || prismH === 0
+        ? ''
+        : editedValue[3] === undefined
+        ? ''
+        : parseCode('prism1b', editedValue[3]);
+
+    let prismV: number = this.sumArray([
+      editedValue[4],
+      editedValue[5],
+      editedValue[6],
+    ]);
+
     let prismVDirection: ?string =
-      prismV === undefined
+      prismV === undefined || prismV === 0
         ? ''
-        : editedValue[5] === undefined
+        : editedValue[7] === undefined
         ? ''
-        : parseCode('prism2b', editedValue[5]);
+        : parseCode('prism2b', editedValue[7]);
 
     let prism: ?string =
-      postfix(prismH, ' ') +
+      postfix(prismH === 0 ? '' : prismH, ' ') +
       postfix(prismHDirection, ' ') +
-      postfix(prismV, ' ') +
+      postfix(prismV === 0 ? '' : prismV, ' ') +
       prismVDirection;
     prism = prism.trim();
     this.props.onChangeValue(prism);
@@ -727,8 +777,27 @@ export class GeneralPrismInput extends Component {
         onChangeValue={this.changeValue}
         containerStyle={this.props.containerStyle}
         readonly={this.props.readonly}
-        prefix={[undefined, undefined, ' ', undefined, undefined, ' ']}
-        suffix={[undefined, undefined, ' ', undefined, undefined, undefined]}
+        isPrism={true}
+        prefix={[
+          undefined,
+          undefined,
+          undefined,
+          ' ',
+          undefined,
+          undefined,
+          undefined,
+          ' ',
+        ]}
+        suffix={[
+          undefined,
+          undefined,
+          undefined,
+          ' ',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+        ]}
         testID={this.props.testID}
       />
     );
@@ -757,14 +826,50 @@ export class GlassesSummary extends Component {
     }
 
     return (
-      <View style={styles.columnLayout} key={this.props.title}>
+      <View style={[styles.columnLayout, {marginBottom: 12 * fontScale}]} key={this.props.title}>
         {this.props.title !== null && this.props.title !== undefined && (
           <Text style={this.props.titleStyle}>{this.props.title}</Text>
         )}
+        {this.props.glassesRx.currentWear != undefined &&
+          this.props.glassesRx.currentWear != null &&
+          this.props.glassesRx.currentWear != '' && (
+            <View style={styles.rowLayout}>
+              <Text style={styles.textLeft}>
+                <Text style={styles.labelTitle}>
+                  {formatLabel(
+                    getFieldDefinition(
+                      'exam.Lensometry.Lensometry.Current wear',
+                    ),
+                  )}
+                  :{' '}
+                </Text>
+                <Text style={styles.text}>
+                  {this.props.glassesRx.currentWear}
+                </Text>
+              </Text>
+            </View>
+          )}
+        {this.props.glassesRx.since != undefined &&
+          this.props.glassesRx.since != null &&
+          this.props.glassesRx.since != '' && (
+            <View style={styles.rowLayout}>
+              <Text style={styles.textLeft}>
+                <Text style={styles.labelTitle}>
+                  {formatLabel(
+                    getFieldDefinition('exam.Lensometry.Lensometry.Since'),
+                  )}
+                  :{' '}
+                </Text>
+                <Text style={styles.text}>{this.props.glassesRx.since}</Text>
+              </Text>
+            </View>
+          )}
         {this.props.glassesRx.lensType != undefined &&
           this.props.glassesRx.lensType != null &&
           this.props.glassesRx.lensType != '' && (
-            <Text style={styles.text}>{this.props.glassesRx.lensType}:</Text>
+            <Text style={styles.labelTitle}>
+              {this.props.glassesRx.lensType}:
+            </Text>
           )}
 
         {this.props.glassesRx.noaccess ? (
@@ -775,7 +880,10 @@ export class GlassesSummary extends Component {
               {this.props.showHeaders === true && <Text style={styles.text} />}
               {<Text style={styles.text}>{'\t' + strings.od}:</Text>}
               {<Text style={styles.text}>{'\t' + strings.os}:</Text>}
-              {!isEmpty(this.props.glassesRx.ou) && <Text style={styles.text}>{'\t' + strings.ou}:</Text>}
+              {!isEmpty(getValue(this.props.glassesRx, 'ou.va')) &&
+                !isEmpty(getValue(this.props.glassesRx, 'ou.addVa')) && (
+                  <Text style={styles.text}>{'\t' + strings.ou}:</Text>
+                )}
             </View>
             <View style={styles.cardColumn} key="sph">
               {this.props.showHeaders === true && (
@@ -840,7 +948,7 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
-            <View style={styles.cardColumn} key="va">
+            {(!isEmpty(this.props.glassesRx.od.va) || !isEmpty(this.props.glassesRx.os.va)) && <View style={styles.cardColumn} key="va">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>VA </Text>
               )}
@@ -850,7 +958,10 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.dva +
                       ': ' +
-                      formatFieldValue(this.props.glassesRx.od.va, getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD'))
+                      formatFieldValue(
+                        this.props.glassesRx.od.va,
+                        getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD'),
+                      )
                     : ' '}
                 </Text>
               )}
@@ -860,7 +971,10 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.dva +
                       ': ' +
-                      formatFieldValue(this.props.glassesRx.os.va, getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS'))
+                      formatFieldValue(
+                        this.props.glassesRx.os.va,
+                        getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS'),
+                      )
                     : ' '}
                 </Text>
               )}
@@ -870,11 +984,14 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.dva +
                       ': ' +
-                      formatFieldValue(this.props.glassesRx.ou.va, getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU'))
+                      formatFieldValue(
+                        this.props.glassesRx.ou.va,
+                        getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU'),
+                      )
                     : ' '}
                 </Text>
               )}
-            </View>
+            </View>}
             <View style={styles.cardColumn} key="add">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>Add </Text>
@@ -900,7 +1017,7 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
-            <View style={styles.cardColumn} key="nva">
+            {(!isEmpty(this.props.glassesRx.od.addVa) || !isEmpty(this.props.glassesRx.os.addVa)) && <View style={styles.cardColumn} key="nva">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>NVA </Text>
               )}
@@ -910,7 +1027,10 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.nva +
                       ': ' +
-                      formatFieldValue(this.props.glassesRx.od.addVa, getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD'))
+                      formatFieldValue(
+                        this.props.glassesRx.od.addVa,
+                        getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD'),
+                      )
                     : ' '}
                 </Text>
               )}
@@ -920,7 +1040,10 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.nva +
                       ': ' +
-                      formatFieldValue(this.props.glassesRx.os.addVa, getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS'))
+                      formatFieldValue(
+                        this.props.glassesRx.os.addVa,
+                        getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS'),
+                      )
                     : ' '}
                 </Text>
               )}
@@ -930,11 +1053,14 @@ export class GlassesSummary extends Component {
                     ? ' ' +
                       strings.nva +
                       ': ' +
-                      formatFieldValue(this.props.glassesRx.ou.addVa, getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU'))
+                      formatFieldValue(
+                        this.props.glassesRx.ou.addVa,
+                        getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU'),
+                      )
                     : ' '}
                 </Text>
               )}
-            </View>
+            </View>}
             <View style={styles.cardColumn} key="prism">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>Prism </Text>
@@ -952,29 +1078,79 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
+            {(!isEmpty(this.props.glassesRx.od.bvd) || !isEmpty(this.props.glassesRx.os.bvd)) && <View style={styles.cardColumn} key="bvd">
+              {this.props.showHeaders === true && (
+                <Text style={styles.text}>{strings.bvd} </Text>
+              )}
+              {this.props.glassesRx.od && (
+                <Text style={styles.text} key="od.bvd">
+                  {!isEmpty(this.props.glassesRx.od.bvd)
+                    ? ' ' +
+                      strings.bvd +
+                      ': ' +
+                      formatFieldValue(
+                        this.props.glassesRx.od.bvd,
+                        getFieldDefinition('exam.RxToOrder.Final Rx.od.bvd'),
+                      )
+                    : ' '}
+                </Text>
+              )}
+              {this.props.glassesRx.os && (
+                <Text style={styles.text} key="os.bvd">
+                  {!isEmpty(this.props.glassesRx.os.bvd)
+                    ? ' ' +
+                      strings.bvd +
+                      ': ' +
+                      formatFieldValue(
+                        this.props.glassesRx.os.bvd,
+                        getFieldDefinition('exam.RxToOrder.Final Rx.os.bvd'),
+                      )
+                    : ' '}
+                </Text>
+              )}
+            </View>}
           </View>
+        )}
+        {!isEmpty(this.props.glassesRx.testingCondition) && (
+          <Text style={styles.text}>
+          {strings.testingCondition}: {this.props.glassesRx.testingCondition}
+          </Text>
         )}
         {!isEmpty(this.props.glassesRx.pd) && (
           <Text style={styles.text}>
             {strings.binocularPd}: {this.props.glassesRx.pd}
           </Text>
         )}
-        {this.props.showPD && !isRxPDEmpty(this.props.glassesRx) && (
-          <Text style={styles.text}>
-            {strings.pd} {strings.far}:{' '}
-            {prefix(this.props.glassesRx.od.farPD, strings.od + ' ')}
-            {!isEmpty(this.props.glassesRx.od.farPD) && ' '}
-            {prefix(this.props.glassesRx.os.farPD, strings.os + ' ')}
-            {!isEmpty(this.props.glassesRx.os.farPD) && ' '}
-            {prefix(this.props.glassesRx.ou.farPD, strings.ou + ' ')}
-            {!isEmpty(this.props.glassesRx.ou.farPD) && ' '}
-            {strings.near}:{' '}
-            {prefix(this.props.glassesRx.od.closePD, strings.od + ' ')}
-            {!isEmpty(this.props.glassesRx.od.closePD) && ' '}
-            {prefix(this.props.glassesRx.os.closePD, strings.os + ' ')}
-            {!isEmpty(this.props.glassesRx.od.closePD) && ' '}
-            {prefix(this.props.glassesRx.ou.closePD, strings.ou + ' ')}
+        {!isEmpty(this.props.glassesRx.notes) && (
+          <Text
+            style={[
+              styles.text,
+              {marginBottom: 6 * fontScale, maxWidth: 600 * fontScale},
+            ]}>
+            {strings.notes}: {this.props.glassesRx.notes}
           </Text>
+        )}
+
+        {this.props.showPD && !isRxPDEmpty(this.props.glassesRx) && (
+          <View>
+            <Text style={styles.text}>
+              {strings.pd} {strings.far}:{' '}
+              {prefix(this.props.glassesRx.od.farPD, strings.od + ' ')}
+              {!isEmpty(this.props.glassesRx.od.farPD) && ' '}
+              {prefix(this.props.glassesRx.os.farPD, strings.os + ' ')}
+              {!isEmpty(this.props.glassesRx.os.farPD) && ' '}
+              {prefix(this.props.glassesRx.ou.farPD, strings.ou + ' ')}
+              {!isEmpty(this.props.glassesRx.ou.farPD) && ' '}
+            </Text>
+            <Text style={styles.text}>
+              {strings.pd} {strings.near}:{' '}
+              {prefix(this.props.glassesRx.od.closePD, strings.od + ' ')}
+              {!isEmpty(this.props.glassesRx.od.closePD) && ' '}
+              {prefix(this.props.glassesRx.os.closePD, strings.os + ' ')}
+              {!isEmpty(this.props.glassesRx.os.closePD) && ' '}
+              {prefix(this.props.glassesRx.ou.closePD, strings.ou + ' ')}
+            </Text>
+          </View>
         )}
       </View>
     );
@@ -1006,6 +1182,9 @@ export class GlassesDetail extends Component {
     examId: string,
     fieldId?: string,
     isPrescriptionCard?: boolean,
+    hasBVD?: boolean,
+    hasCurrentWear?: boolean,
+    onAddFavorite?: (favorite: any, name: string) => void,
   };
   state: {
     prism: boolean,
@@ -1029,7 +1208,7 @@ export class GlassesDetail extends Component {
       isTyping: false,
       showDialog: false,
       showSnackBar: false,
-      snackBarMessage: "",
+      snackBarMessage: '',
     };
   }
 
@@ -1120,8 +1299,29 @@ export class GlassesDetail extends Component {
   };
 
   copyOdOs = (): void => {
-    let glassesRx: GlassesRx = this.props.glassesRx;
-    glassesRx.os = {...glassesRx.od};
+    let {closePD, farPD, ...glassesRx} = this.props.glassesRx.od;
+    let newGlassesRx: GlassesRx = this.props.glassesRx;
+    newGlassesRx.os = {
+      closePD: newGlassesRx.os.closePD,
+      farPD: newGlassesRx.os.farPD,
+      ...glassesRx,
+    };
+    if (this.props.onChangeGlassesRx) {
+      this.props.onChangeGlassesRx(newGlassesRx);
+    }
+  };
+
+  copyPDOdOs = (): void => {
+    let {closePD, farPD, ...glassesRx} = this.props.glassesRx.od;
+    let newGlassesRx: GlassesRx = this.props.glassesRx;
+    console.log('newGlasses 1: ' + JSON.stringify(newGlassesRx));
+
+    newGlassesRx.os = {
+      ...newGlassesRx.os,
+      closePD,
+      farPD,
+    };
+    console.log('newGlasses 2: ' + JSON.stringify(newGlassesRx));
     if (this.props.onChangeGlassesRx) {
       this.props.onChangeGlassesRx(glassesRx);
     }
@@ -1150,7 +1350,7 @@ export class GlassesDetail extends Component {
     this.setState({importedData: data, showDialog: true});
   }
   showSnackBar(message: ?string) {
-    this.setState({snackBarMessage: message})
+    this.setState({snackBarMessage: message});
     this.setState({showSnackBar: true});
   }
   hideSnackBar() {
@@ -1181,11 +1381,14 @@ export class GlassesDetail extends Component {
       this.showDialog(data);
     } else {
       let glassesRx: GlassesRx = this.props.glassesRx;
-      glassesRx.lensType = data.data.lensType;
+      glassesRx.lensType = this.props.definition.hasLensType
+        ? data.data.lensType
+        : undefined;
       glassesRx.customField = data.data.customField;
       glassesRx.od = {...data.data.od};
       glassesRx.os = {...data.data.os};
       glassesRx.ou = {...data.data.ou};
+      !this.props.definition.hasMPD && clearPd(glassesRx);
       if (this.props.onChangeGlassesRx) {
         this.setState({prism: hasPrism(glassesRx)});
         this.props.onChangeGlassesRx(glassesRx);
@@ -1193,6 +1396,9 @@ export class GlassesDetail extends Component {
     }
   }
 
+  hasBvd(): boolean {
+    return this.props.hasBVD || hasBvd(this.props.glassesRx);
+  }
   hasVA(): boolean {
     return (
       this.props.hasVA ||
@@ -1251,6 +1457,29 @@ export class GlassesDetail extends Component {
       }
     }
   }
+  addGroupFavorite = (favoriteName: string) => {
+    let group: {} = {
+      [this.props.definition.name]: {notes: this.props.glassesRx.notes},
+    };
+    this.props.onAddFavorite(group, favoriteName);
+  };
+
+  getRxNotesDefinition(): FieldDefinition {
+    let definition: FieldDefinition = deepClone(
+      getFieldDefinition('visit.prescription.notes'),
+    );
+    if (this.props.definition.maxLength) {
+      definition.maxLength = this.props.definition.maxLength;
+    }
+    if (this.props.definition.maxRows) {
+      definition.maxRows = this.props.definition.maxRows;
+    }
+    if (this.props.definition.showTextInfoTip === false) {
+      definition.showTextInfoTip = false;
+    }
+
+    return definition;
+  }
 
   renderAlert() {
     const importedData: any = this.state.importedData;
@@ -1295,6 +1524,8 @@ export class GlassesDetail extends Component {
         style={
           this.props.style
             ? this.props.style
+            : this.props.hasCurrentWear
+            ? styles.boardL
             : this.state.prism && this.hasVA()
             ? styles.boardXL
             : this.state.prism || this.hasVA()
@@ -1327,6 +1558,40 @@ export class GlassesDetail extends Component {
             </View>
           )}
         <View style={styles.centeredColumnLayout}>
+          {this.props.hasCurrentWear && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.currentWear}
+                definition={filterFieldDefinition(
+                  this.props.definition.fields,
+                  'Current wear',
+                )}
+                readonly={!this.props.editable}
+                onChangeValue={(value: ?string) =>
+                  this.updateGlassesRx(undefined, 'currentWear', value)
+                }
+                errorMessage={this.props.glassesRx.currentWearError}
+                testID={this.props.fieldId + '.currentWear'}
+              />
+            </View>
+          )}
+          {this.props.hasCurrentWear && (
+            <View style={styles.formRow}>
+              <FormInput
+                value={this.props.glassesRx.since}
+                definition={filterFieldDefinition(
+                  this.props.definition.fields,
+                  'Since',
+                )}
+                readonly={!this.props.editable}
+                onChangeValue={(value: ?string) =>
+                  this.updateGlassesRx(undefined, 'since', value)
+                }
+                errorMessage={this.props.glassesRx.sinceError}
+                testID={this.props.fieldId + '.since'}
+              />
+            </View>
+          )}
           {this.props.hasLensType && (
             <View style={styles.formRow}>
               <FormInput
@@ -1345,6 +1610,24 @@ export class GlassesDetail extends Component {
             </View>
           )}
           {this.props.hasPD && (
+            <View style={styles.centeredColumnLayout}>
+              <View style={styles.formRow}>
+                <FormInput
+                  value={this.props.glassesRx.testingCondition}
+                  definition={filterFieldDefinition(
+                    this.props.definition.fields,
+                    'Testing Condition',
+                  )}
+                  readonly={!this.props.editable}
+                  onChangeValue={(value: ?string) =>
+                    this.updateGlassesRx(undefined, 'testingCondition', value)
+                  }
+                  isTyping={isTyping}
+                  autoFocus={true}
+                  errorMessage={this.props.glassesRx.testingConditionError}
+                  testID={this.props.fieldId + '.testingCondition'}
+                />
+              </View>
             <View style={styles.formRow}>
               <FormInput
                 value={this.props.glassesRx.pd}
@@ -1361,6 +1644,7 @@ export class GlassesDetail extends Component {
                 errorMessage={this.props.glassesRx.pdError}
                 testID={this.props.fieldId + '.pd'}
               />
+            </View>
             </View>
           )}
           {this.props.hasCustomField && (
@@ -1411,6 +1695,11 @@ export class GlassesDetail extends Component {
                 {formatLabel(
                   getFieldDefinition('exam.VA cc.Aided acuities.NVA'),
                 )}
+              </Text>
+            )}
+            {this.hasBvd() && (
+              <Text style={styles.formTableColumnHeader}>
+                {formatLabel(getFieldDefinition('visit.prescription.od.bvd'))}
               </Text>
             )}
             {this.props.editable && (
@@ -1522,6 +1811,21 @@ export class GlassesDetail extends Component {
                 testID={this.props.fieldId + '.od.nva'}
               />
             )}
+            {this.hasBvd() && (
+              <FormInput
+                value={this.props.glassesRx.od.bvd}
+                definition={getFieldDefinition('visit.prescription.od.bvd')}
+                showLabel={false}
+                readonly={!this.props.editable}
+                onChangeValue={(value: ?number) =>
+                  this.updateGlassesRx('od', 'bvd', value)
+                }
+                errorMessage={this.props.glassesRx.od.bvdError}
+                isTyping={isTyping}
+                autoFocus={true}
+                testID={this.props.fieldId + '.od.bvd'}
+              />
+            )}
             {this.props.editable && (
               <View style={styles.formTableColumnHeaderSmall} />
             )}
@@ -1625,6 +1929,21 @@ export class GlassesDetail extends Component {
                 testID={this.props.fieldId + '.os.nva'}
               />
             )}
+            {this.hasBvd() && (
+              <FormInput
+                value={this.props.glassesRx.os.bvd}
+                definition={getFieldDefinition('visit.prescription.os.bvd')}
+                showLabel={false}
+                readonly={!this.props.editable}
+                onChangeValue={(value: ?number) =>
+                  this.updateGlassesRx('os', 'bvd', value)
+                }
+                errorMessage={this.props.glassesRx.os.bvdError}
+                isTyping={isTyping}
+                autoFocus={true}
+                testID={this.props.fieldId + '.os.bvd'}
+              />
+            )}
             {this.props.editable && (
               <View style={styles.formTableColumnHeaderSmall} />
             )}
@@ -1646,6 +1965,7 @@ export class GlassesDetail extends Component {
                   <Text style={styles.text} />
                 </View>
               )}
+
               <FormInput
                 value={this.props.glassesRx.ou.va}
                 definition={getFieldDefinition(
@@ -1681,8 +2001,37 @@ export class GlassesDetail extends Component {
                   testID={this.props.fieldId + '.ou.nva'}
                 />
               )}
+              {this.props.hasBVD === true && (
+                <View style={styles.fieldFlexContainer}>
+                  <Text style={styles.text} />
+                </View>
+              )}
               {this.props.editable && (
                 <View style={styles.formTableColumnHeaderSmall} />
+              )}
+            </View>
+          )}
+
+          {this.props.editable === true && (
+            <View style={styles.buttonsRowLayout}>
+              {this.props.hasAdd === true && (
+                <Button
+                  title={formatLabel(
+                    getFieldDefinition('visit.prescription.od.prism'),
+                  )}
+                  onPress={this.togglePrism}
+                  testID={this.props.fieldId + '.prismButton'}
+                />
+              )}
+
+              {this.props.onCopyToFinalRx !== undefined && (
+                <Button
+                  title={strings.copyToFinal}
+                  onPress={() =>
+                    this.props.onCopyToFinalRx(this.props.glassesRx)
+                  }
+                  testID={this.props.fieldId + '.copyFinalRxButton'}
+                />
               )}
             </View>
           )}
@@ -1692,10 +2041,15 @@ export class GlassesDetail extends Component {
             <View style={styles.formRow}>
               <FormInput
                 value={this.props.glassesRx.notes}
-                definition={getFieldDefinition('visit.prescription.notes')}
+                definition={this.getRxNotesDefinition()}
                 readonly={!this.props.editable}
                 onChangeValue={(value: ?string) =>
                   this.updateGlassesRx(undefined, 'notes', value)
+                }
+                multiline={
+                  this.getRxNotesDefinition()
+                    ? this.getRxNotesDefinition().multiline
+                    : false
                 }
                 errorMessage={this.props.glassesRx.notesError}
                 testID={this.props.fieldId + '.notes'}
@@ -1745,7 +2099,12 @@ export class GlassesDetail extends Component {
                   autoFocus={true}
                   testID={this.props.fieldId + '.od.closePD'}
                 />
+                {this.props.editable && (
+                  <View style={styles.formTableColumnHeaderSmall} />
+                )}
+                {this.props.editable && <CopyRow onPress={this.copyPDOdOs} />}
               </View>
+
               <View style={styles.formRow}>
                 <Text style={styles.formTableRowHeader}>{strings.os}:</Text>
                 <FormInput
@@ -1774,6 +2133,9 @@ export class GlassesDetail extends Component {
                   isTyping={isTyping}
                   testID={this.props.fieldId + '.os.closePD'}
                 />
+                {this.props.editable && (
+                  <View style={styles.formTableColumnHeaderSmall} />
+                )}
               </View>
               <View style={styles.formRow}>
                 <Text style={styles.formTableRowHeader}>{strings.ou}:</Text>
@@ -1803,28 +2165,10 @@ export class GlassesDetail extends Component {
                   isTyping={isTyping}
                   testID={this.props.fieldId + '.ou.closePD'}
                 />
-              </View>
-            </View>
-          )}
-
-          {this.props.editable === true &&  (
-            <View style={styles.buttonsRowLayout}>
-              {this.props.hasAdd === true && (
-              <Button
-                title={formatLabel(
-                  getFieldDefinition('visit.prescription.od.prism'),
+                {this.props.editable && (
+                  <View style={styles.formTableColumnHeaderSmall} />
                 )}
-                onPress={this.togglePrism}
-                testID={this.props.fieldId + '.prismButton'}
-              />)}
-              {this.props.onCopyToFinalRx !== undefined && (
-                <Button
-                  title={strings.copyToFinal}
-                  onPress={() => this.props.onCopyToFinalRx(this.props.glassesRx)}
-                  testID={this.props.fieldId + '.copyOsOdButton'}
-                  testID={this.props.fieldId + '.copyFinalRxButton'}
-                />
-              )}
+              </View>
             </View>
           )}
         </View>
@@ -1854,6 +2198,13 @@ export class GlassesDetail extends Component {
               <Garbage style={styles.groupIcon} />
             </TouchableOpacity>
           )}
+          {this.props.editable && this.props.definition.starable && (
+            <Star
+              onAddFavorite={this.addGroupFavorite}
+              style={styles.groupIcon}
+              testID={this.props.fieldId + '.starIcon'}
+            />
+          )}
           {this.props.editable && this.props.onAdd && (
             <TouchableOpacity
               onPress={this.props.onAdd}
@@ -1870,15 +2221,13 @@ export class GlassesDetail extends Component {
           )}
           {this.props.onCopy && !this.props.onPaste && (
             <TouchableOpacity
-              onPress={() => this.props.onCopy(this.props.glassesRx)}
-            >
+              onPress={() => this.props.onCopy(this.props.glassesRx)}>
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>
           )}
           {this.props.editable && this.props.onCopyFromFinal && (
             <TouchableOpacity
-              onPress={() => this.props.onCopyFromFinal(this.props.glassesRx)}
-            >
+              onPress={() => this.props.onCopyFromFinal(this.props.glassesRx)}>
               <Copy style={styles.groupIcon} />
             </TouchableOpacity>
           )}

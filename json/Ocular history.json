@@ -19,6 +19,27 @@
           "label": "Date de la procédure"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Antecedentes oculares",
+      "fields": [
+        {
+          "name": "Procedure",
+          "label": "Procedimiento"
+        },
+        {
+          "name": "Eye",
+          "label": "Ojo"
+        },
+        {
+          "name": "Date of procedure",
+          "label": "Fecha del procedimiento"
+        },
+        {
+         "name": "Notes",
+         "label": "Notas"
+        }
+      ]
     }
   },
   "starable": true,

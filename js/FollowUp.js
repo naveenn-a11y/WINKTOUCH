@@ -9,7 +9,6 @@ import React, {Component} from 'react';
 import ReactNative, {
   View,
   Text,
-  Modal,
   TouchableOpacity,
   TouchableWithoutFeedback,
   InteractionManager,
@@ -53,6 +52,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {fetchPatientInfo, getPatientFullName} from './Patient';
 import {getPDFAttachmentFromHtml} from './PatientFormHtml';
 import {printBase64Pdf} from './Print';
+import {CustomModal as Modal} from './utilities/Modal';
+
 const COMMAND = {
   RESEND: 0,
   REPLY: 1,

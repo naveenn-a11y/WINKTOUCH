@@ -7,25 +7,11 @@
   "starable": true,
   "fields": [
     {
-      "name": "Current wear",
-      "label": "",
-      "fields": [
-        {
-          "name": "Current wear",
-          "defaultValue": "Glasses",
-          "options": "currentWearCodes",
-          "normalValue": "Glasses"
-        },
-        {
-          "name": "Since",
-          "maxLength": 100
-        }
-      ]
-    },
-    {
+      "hasCurrentWear": true,
       "hasLensType": true,
       "hasAdd": true,
       "hasNotes": true,
+      "showTextInfoTip": false,
       "hasMPD": true,
       "name": "Lensometry",
       "multiValue": true,
@@ -33,7 +19,20 @@
       "type": "SRx",
       "fields": [
         {
+          "name": "Current wear",
+          "highlightedLabel": true,
+          "defaultValue": "Glasses",
+          "options": "currentWearCodes",
+          "normalValue": "Glasses"
+        },
+        {
+          "name": "Since",
+          "highlightedLabel": true,
+          "maxLength": 100
+        },
+        {
           "name": "lensType",
+          "highlightedLabel": true,
           "label": "Lens type",
           "freestyle": true,
           "options": "lensTypeCodes"
@@ -62,8 +61,8 @@
       "label": "Lentimètre",
       "fields": [
         {
-          "name": "Current wear",
-          "label": "Lunettes",
+          "name": "Lensometry",
+          "label": "Lentimètre",
           "fields": [
             {
               "name": "Current wear",
@@ -74,18 +73,41 @@
             {
               "name": "Since",
               "label": "Depuis"
-            }
-          ]
-        },
-        {
-          "name": "Lensometry",
-          "label": "Lentimètre",
-          "fields": [
+            },
             {
               "name": "lensType",
               "label": "Type"
             }
           ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Lensometría",
+      "fields": [
+        {
+          "name": "Lensometry",
+          "label": "Lensometría",
+          "fields": [
+            {
+              "name": "Current wear",
+              "label": "Uso actual",
+              "defaultValue": "Lentes",
+              "normalValue": "Lentes"
+            },
+            {
+              "name": "Since",
+              "label": "Desde"
+            },
+            {
+              "name": "lensType",
+              "label": "Tipo"
+            }
+          ]
+        },
+        {
+          "name": "Scan",
+          "label": "Escanear"
         }
       ]
     }

@@ -1,4 +1,5 @@
 import {NavigationActions} from 'react-navigation';
+import {cacheItem, getCachedItem} from '../DataCache';
 
 this._navigator = null;
 
@@ -33,8 +34,32 @@ function dismissLockScreen() {
   }
 }
 
+function getTopLevelNavigator() : NavigationContainerComponent {
+  return this._navigator;
+}
+
+function setModalVisibility(isModalVisible: boolean, componentKey: string){
+  const visibleModalList = getCachedItem("_visibleModalList") ?? new Map();
+
+  if (isModalVisible === true) {
+    visibleModalList.set(componentKey, true);
+  } else if (isModalVisible === false && visibleModalList.has(componentKey)) {
+    visibleModalList.delete(componentKey);
+  }
+
+  cacheItem("_visibleModalList", visibleModalList);
+}
+
+function isModalVisible() : boolean {
+  const visibleModalList = getCachedItem("_visibleModalList") ?? new Map();
+  return visibleModalList.size > 0;
+}
+
 export default {
   navigate,
   setTopLevelNavigator,
   dismissLockScreen,
+  getTopLevelNavigator,
+  setModalVisibility,
+  isModalVisible,
 };

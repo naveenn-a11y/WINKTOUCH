@@ -51,10 +51,10 @@ import {
 import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
 import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
 import {getStore} from './DoctorApp';
-import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
+import {Button as NativeBaseButton, Portal} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {fetchVisitForAppointment} from './Visit';
-import {searchUsers} from './User';
+import {convertUserToJson, searchUsers} from './User';
 import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
 import moment from 'moment';
 import {Button} from './Widgets';
@@ -63,6 +63,7 @@ import {getAllCodes} from './Codes';
 import {ProfileHeader} from './Profile';
 import {Menu} from 'react-native-paper';
 import {getPrivileges} from './Rest';
+import Dialog from './utilities/Dialog';
 
 const WEEKDAYS = {
   SUNDAY: 0,
@@ -260,18 +261,11 @@ export class AgendaScreen extends Component {
   async getDoctors() {
     let users: User[] = await searchUsers('', false, getStore().id);
     cacheItemsById(users);
-    const doctors = users.map((u) => this.convertUserToJson(u));
+    const doctors = users.map((u) => convertUserToJson(u));
     this.setState({doctors});
     this.fetchUsersFromAppointments();
   }
 
-  convertUserToJson(user: User): any {
-    const userJson: any = {
-      label: `${user.firstName} ${user.lastName}`,
-      value: user.id,
-    };
-    return userJson;
-  }
   getSelectedDoctorsFromStorage = async () => {
     const doctors = await AsyncStorage.getItem('selectedDoctors');
     if (doctors) {
@@ -353,7 +347,7 @@ export class AgendaScreen extends Component {
     appointments.map((app: Appointment) => {
       const doc: any = doctors.find((doc) => doc.value === app.userId);
       if (doc === undefined || doc === null) {
-        const userJson: any = this.convertUserToJson(getCachedItem(app.userId));
+        const userJson: any = convertUserToJson(getCachedItem(app.userId));
         doctors.push(userJson);
       }
     });
@@ -758,6 +752,11 @@ export class AgendaScreen extends Component {
     const endTime = moment(event?.end).format('h:mm a');
     const duration = moment.duration(moment(event.end).diff(start)).asMinutes();
     if (!isStoreOpen(new Date(event.start), true) || !isStoreOpen(new Date(event.end), true)) {
+      this.setState({isLoading: false});
+      alert(strings.closedStoreTimeSlotErrorMessage);
+      return;
+    }
+    if (!isStoreOpen(new Date(event.end), true)) {
       this.setState({isLoading: false});
       alert(strings.closedStoreTimeSlotErrorMessage);
       return;

@@ -127,6 +127,8 @@ import {
   autoPerimetryInstrumentCodes,
 } from './VisualFieldCodes';
 import {currentWearCodes} from './AutoRefCodes';
+import {phoriasHCodes} from './PhoriasHCodes';
+import {phoriasVCodes} from './PhoriasVCodes';
 
 export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]): void {
   codeDefinitions.icdCodes = icdCodes;
@@ -253,4 +255,6 @@ export function initialiseWinkCodes(codeDefinitions: [CodeDefinition]): void {
   codeDefinitions.machines = [];
   codeDefinitions.currentWearCodes = currentWearCodes;
   codeDefinitions.referralTemplates = [];
+  codeDefinitions.phoriasHCodes = phoriasHCodes;
+  codeDefinitions.phoriasVCodes = phoriasVCodes;
 }

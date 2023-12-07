@@ -23,9 +23,46 @@
           "label": "Durée"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Medicamentos Oculares",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Etiqueta"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentración"
+        },
+        {
+          "name": "Dosage",
+          "label": "Dosis"
+        },
+        {
+          "name": "Frequency",
+          "label": "Frecuencia"
+        },
+        {
+          "name": "Duration",
+          "label": "Duración"
+        },
+        {
+          "name": "Route",
+          "label": "Vía"
+        },
+        {
+          "name": "Rx Date",
+          "label": "Fecha de prescripción"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
-  "cardFields": ["Route", "Label", "Strength", "Dosage", "Frequency"],
+  "cardFields": ["Route", "Label", "Strength", "Dosage", "Frequency", "Notes"],
   "starable": true,
   "essentialFields": ["Label"],
   "type": "selectionLists",

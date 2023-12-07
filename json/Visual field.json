@@ -50,12 +50,73 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Campo visual",
+      "fields": [
+        {
+          "name": "Confrontation visual field",
+          "label": "Confrontación",
+          "fields": [
+            {
+              "name": "OD",
+              "normalValue": "Completo"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Completo"
+            }
+          ]
+        },
+        {
+          "name": "Tangent screen",
+          "label": "Pantalla tangente",
+          "fields": [
+            {
+              "name": "Scale",
+              "label": "Escala"
+            }
+          ]
+        },
+        {
+          "name": "Amsler grid OD",
+          "label": "Rejilla de Amsler (OD)"
+        },
+        {
+          "name": "Amsler grid OS",
+          "label": "Rejilla de Amsler (OS)"
+        },
+        {
+          "name": "Auto-perimetry",
+          "label": "Perimetría automática",
+          "fields": [
+            {
+              "name": "Instrument",
+              "label": "Instrumento"
+            },
+            {
+              "name": "OD",
+              "normalValue": "Completo"
+            },
+            {
+              "name": "OS",
+              "normalValue": "Completo"
+            }
+          ]
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+
+      ]
     }
   },
   "name": "Visual field",
   "label": "Visual Field",
   "scrollable": true,
   "starable": true,
+  "showSubtitles": true,
   "type": "groupedForm",
   "section": "Entrance testing.3",
   "fields": [
@@ -120,7 +181,8 @@
     },
     {
       "name": "Auto-perimetry",
-      "size": "M",
+      "size": "L",
+      "rows": [["VF scan OD", "VF scan OS"]],
       "fields": [
         {
           "name": "Instrument",
@@ -140,14 +202,18 @@
           "normalValue": "Full"
         },
         {
-          "popup": false,
+          "popup": true,
+          "drawable": false,
+          "size": "S",
           "name": "VF scan OD",
           "image": "upload",
           "label": "OD",
           "type": "EMR"
         },
         {
-          "popup": false,
+          "popup": true,
+          "drawable": false,
+          "size": "S",
           "name": "VF scan OS",
           "image": "upload",
           "label": "OS",

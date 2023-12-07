@@ -1,0 +1,12 @@
+{
+    "version": 0,
+    "setting": {
+        "printingPreferences": {
+            "FinalRx": {
+                "defaultValues": [
+                    "finalRx", "va", "notesOnRx"
+                ]
+            }
+        }
+    }
+}

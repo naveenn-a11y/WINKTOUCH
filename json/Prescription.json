@@ -47,6 +47,52 @@
           "label": "Renouvellement"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Rx médica",
+      "fields": [
+        {
+          "name": "Label",
+          "label": "Etiqueta"
+        },
+        {
+          "name": "Strength",
+          "label": "Concentración"
+        },
+        {
+          "name": "Eye",
+          "label": "Ojo"
+        },
+        {
+          "name": "Dosage",
+          "label": "Dosis"
+        },
+        {
+          "name": "Frequency",
+          "label": "Frecuencia"
+        },
+        {
+          "name": "Duration",
+          "label": "Duración"
+        },
+        {
+          "name": "Instructions",
+          "label": "Instrucciones"
+        },
+        {
+          "name": "Refill",
+          "label": "Renovar"
+        },
+        {
+          "name": "Do not substitute",
+          "label": "No sustituir",
+          "options": ["", "No sustituir"]
+        },
+        {
+          "name": "Comment",
+          "label": "Comentario"
+        }
+      ]
     }
   },
   "cardFields": ["Eye", "Label", "Strength"],

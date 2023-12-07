@@ -34,6 +34,7 @@ import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileMenu} from './Profile';
+import KeyboardAccessibility from './utilities/KeyboardAccessibility';
 
 export class Notifications extends PureComponent {
   render() {
@@ -112,24 +113,16 @@ export class MenuBar extends PureComponent {
 
   componentDidMount() {
     if (isWeb) {
-      document.addEventListener('keydown', this.handleKeyDown);
       window.onpopstate = () => {
         this.props.screenProps.onLogout();
       };
     }
+    KeyboardAccessibility.startTracking();
   }
 
   componentWillUnmount() {
-    if (isWeb) {
-      document.removeEventListener('keydown', this.handleKeyDown);
-    }
+    KeyboardAccessibility.stopTracking();
   }
-
-  handleKeyDown = (event) => {
-    if (event && event.keyCode === 37) {
-      this.props.navigation && this.props.navigation.navigate('back');
-    }
-  };
 
   extractExamDefinition(exam: Exam): ExamDefinition {
     let examDefinition = exam.definition;
@@ -241,14 +234,10 @@ export class MenuBar extends PureComponent {
         {scene !== 'overview' && (
           <BackButton navigation={this.props.navigation} />
         )}
-        {__DEV__ && (
+        {__DEV__ && !isWeb && (
           <Button
             title={strings.restart}
-            onPress={() =>
-              !isWeb
-                ? codePush.restartApp()
-                : window.location.replace(getCurrentHost())
-            }
+            onPress={() => codePush.restartApp()}
           />
         )}
         {/*__DEV__ && <Notifications />*/}

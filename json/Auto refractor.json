@@ -12,10 +12,39 @@
           "label": "Auto-réfraction",
           "fields": [
             {
+              "name": "Testing Condition",
+              "label": "Conditions de test",
+              "options": ["Régulier", "Dans la lumière", "Lumière tamisée", "LC portées", "Dilaté"]
+            },
+            {
               "name": "pd",
               "label": "PD Binoculaire"
             }
           ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Autorrefractor",
+      "fields": [
+        {
+          "name": "Auto refractor",
+          "label": "Autorrefractor",
+          "fields": [
+            {
+              "name": "Testing Condition",
+              "label": "Condición de prueba",
+              "options": ["Regular", "En la luz", "Luz atenuada", "Encima de CL", "Dilatado"]
+            },
+            {
+              "name": "pd",
+              "label": "Binocular DP"
+            }
+          ]
+        },
+        {
+          "name": "Scan",
+          "label": "Escanear"
         }
       ]
     }
@@ -35,6 +64,14 @@
       "type": "SRx",
       "import": ["machine.autorefractor.rx", "machine.tonoref.rx"],
       "fields": [
+        {
+          "name": "Testing Condition",
+          "label": "Testing Condition",
+          "autoSelect": true,
+          "selectedIndex": 1,
+          "freestyle": true,
+          "options": ["Regular", "In light", "In dark", "Over CL", "Dilated"]
+        },
         {
           "freestyle": true,
           "name": "pd",

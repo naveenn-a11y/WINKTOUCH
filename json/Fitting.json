@@ -29,7 +29,8 @@
       "Contact Lens Trial.Brand.OS",
       "Contact Lens Trial.Design.OS",
       "Contact Lens Trial.Replacement.OS"
-    ]
+    ],
+    ["Contact Lens Trial.Notes"]
   ],
   "type": "groupedForm",
   "section": "CL.2",
@@ -85,17 +86,26 @@
         {
           "mappedField": "clFitting.trialDate",
           "name": "Date",
+          "highlightedValue": true,
+          "dateFormat": "yyyy-MM-DD",
+          "defaultValue": "[currentDate]",
           "type": "recentDate"
         },
         {
           "mappedField": "clFitting.trialType",
           "name": "Trial type",
-          "label": "",
+          "highlightedValue": true,
+          "label": "Type",
+          "autoSelect": true,
+          "selectedIndex": 3,
           "options": "clFittingTypeCodes"
         },
         {
           "mappedField": "clFitting.doctor",
           "name": "Doctor",
+          "label": "Clinician",
+          "defaultValue": "[user.name]",
+          "maxLength": 100,
           "readonly": true,
           "options": "doctors"
         },
@@ -546,7 +556,7 @@
         },
         {
           "name": "AddAlpha",
-          "label": "  ",
+          "label": "L/M/H",
           "fields": [
             {
               "mappedField": "clFitting.addAlpha.od",
@@ -837,7 +847,9 @@
         },
         {
           "mappedField": "clFitting.notes",
-          "maxLength": 500,
+          "maxLength": 195,
+          "maxRows": 4,
+          "showTextInfoTip": true,
           "name": "Notes"
         }
       ]
@@ -910,12 +922,26 @@
       "label": "Ajustement LC",
       "fields": [
         {
+          "name": "Contact Lens Expiration Date",
+          "label": "Date d'expiration de la prescription de lentilles cornéennes",
+          "fields": [
+            {
+              "name": "Expiration Date",
+              "label": "Date d'expiration"
+            }
+          ]
+        },
+        {
           "name": "Contact Lens Trial",
           "label": "Ajustement LC",
           "fields": [
             {
+              "name": "Trial type",
+              "label": "Type"
+            },
+            {
               "name": "Doctor",
-              "label": "Docteur"
+              "label": "Clinicien(ne)"
             },
             {
               "name": "Follow-up",
@@ -1093,6 +1119,171 @@
                   "suffix": null
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Prueba de LC",
+      "fields": [
+        {
+          "name": "Contact Lens Expiration Date",
+          "label": "Fecha de vencimiento de lentes de contacto",
+          "fields": [
+            {
+              "name": "Expiration Date",
+              "label": "Fecha de vencimiento"
+            }
+          ]
+        },
+        {
+          "name": "Contact Lens Trial",
+          "label": "Adaptación de lentes de contacto",
+          "fields": [
+            {
+              "name": "Date",
+              "label": "Fecha"
+            },
+            {
+              "name": "Trial type",
+              "label": "Tipo"
+            },
+            {
+              "name": "Doctor",
+              "label": "Clínico(a)"
+            },
+            {
+              "name": "Follow-up",
+              "label": "Seguimiento"
+            },
+            {
+              "name": "Manufacturer",
+              "label": "Fabricante"
+            },
+            {
+              "name": "Brand",
+              "label": "Marca"
+            },
+            {
+              "name": "Design",
+              "label": "Diseño"
+            },
+            {
+              "name": "Material",
+              "label": "Material"
+            },
+            {
+              "name": "Wearing Period",
+              "label": "Período de uso"
+            },
+            {
+              "name": "Replacement",
+              "label": "Sustitución"
+            },
+            {
+              "name": "Solution",
+              "label": "Solución"
+            },
+            {
+              "name": "Sph",
+              "label": "Esf"
+            },
+            {
+              "name": "Cyl",
+              "label": "Cil"
+            },
+            {
+              "name": "Axis",
+              "label": "Eje"
+            },
+            {
+              "name": "BC",
+              "label": "CB"
+            },
+            {
+              "name": "Add",
+              "label": "Adición"
+            },
+            {
+              "name": "DVA",
+              "label": "AVL",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL"]
+                },
+                {
+                  "name": "OU",
+                  "options": ["APL"]
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "label": "AVC",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL"]
+                },
+                {
+                  "name": "OU",
+                  "options": ["APL"]
+                }
+              ]
+            },
+            {
+              "name": "Comfort",
+              "label": "Comodidad"
+            },
+            {
+              "name": "Vision",
+              "label": "Visión"
+            },
+            {
+              "name": "Rotation",
+              "label": "Rotación"
+            },
+            {
+              "name": "Movement",
+              "label": "Movimiento"
+            },
+            {
+              "name": "Centration",
+              "label": "Centrado"
+            },
+            {
+              "name": "Tear",
+              "label": "Lágrima"
+            },
+            {
+              "name": "Sclera",
+              "label": "Esclerótica"
+            },
+            {
+              "name": "Limbal",
+              "label": "Limbal"
+            },
+            {
+              "name": "Cornea",
+              "label": "Córnea"
+            },
+            {
+              "name": "Lid",
+              "label": "Párpado"
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
             }
           ]
         }

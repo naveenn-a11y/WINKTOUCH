@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
 import RNBeep from 'react-native-a-beep';
-import {getAllCodes, getCodeDefinition} from './Codes';
+import {getAllCodes, getCodeDefinition, getDefaultUserSetting, getUserSetting} from './Codes';
 import type {
   Exam,
   Visit,
@@ -42,6 +42,7 @@ import {
   Alert,
   NoAccess,
   SelectionDialog,
+  ListField,
 } from './Widgets';
 import {
   formatMoment,
@@ -59,7 +60,8 @@ import {
   yearDateTime24Format,
   isSameDay,
   parseDate,
-  postfix,
+  getDoctorFullName,
+  getValue,
 } from './Util';
 import {
   ExamCard,
@@ -68,6 +70,7 @@ import {
   getExam,
   renderExamHtml,
   UserAction,
+  getFieldValue,
 } from './Exam';
 import {allExamDefinitions} from './ExamDefinition';
 import {
@@ -90,6 +93,8 @@ import {
   fetchItemById,
   stripDataType,
   getPrivileges,
+  getToken,
+  getRestUrl,
 } from './Rest';
 import {
   fetchAppointment,
@@ -98,7 +103,7 @@ import {
 } from './Appointment';
 import {printRx, printClRx, printMedicalRx, emailRx, emailClRx} from './Print';
 import {printHtml} from '../src/components/HtmlToPdf';
-import {PatientDocumentPage} from './Patient';
+import {getPatientFullName, PatientDocumentPage, PatientTags} from './Patient';
 import {getDoctor, getStore} from './DoctorApp';
 import {
   getVisitHtml,
@@ -112,10 +117,18 @@ import {fetchWinkRest} from './WinkRest';
 import {FollowUpScreen} from './FollowUp';
 import {isReferralsEnabled} from './Referral';
 import {formatCode} from './Codes';
-import {Card, Title, Paragraph} from 'react-native-paper';
+import {
+  Card,
+  Title,
+  Paragraph,
+  Button as NativeBaseButton,
+  Portal,
+} from 'react-native-paper';
 import {getExamRoomCode, updateExamRoom} from './Room';
 import {VisitSummaryTable} from './VisitSummary';
 import {VisitErrorBoundary} from './ErrorBoundary';
+import {formatLabel} from './Items';
+import Dialog from './utilities/Dialog';
 
 export const examSections: string[] = [
   'Amendments',
@@ -142,6 +155,19 @@ const examSectionsFr: string[] = [
   'Document',
 ];
 
+export const examSectionsEs: string[] = [
+  'Enmiendas',
+  'Queja principal',
+  'Historia',
+  'Pruebas de ingreso',
+  'Pruebas de visión',
+  'Examen anterior',
+  'Examen posterior',
+  'LC',
+  'Formulario',
+  'Documentos',
+];
+
 const examSectionsLayout: {} = {
   Consultation: '45%',
   Amendments: '45%',
@@ -155,6 +181,23 @@ const examSectionsLayout: {} = {
   Form: '95%',
   Document: '95%',
 };
+
+function hasExamSectionsAccess(section: string, visit: Visit): boolean {
+  if (isEmpty(section)) {
+    return false;
+  }
+  if (section === 'CL') {
+    return (
+      hasVisitFittingReadAccess(visit) ||
+      hasVisitPretestReadAccess(visit) ||
+      hasVisitMedicalDataReadAccess(visit)
+    );
+  } else {
+    return (
+      hasVisitPretestReadAccess(visit) || hasVisitMedicalDataReadAccess(visit)
+    );
+  }
+}
 
 const PRIVILEGE = {
   FULLACCESS: 'FULLACCESS',
@@ -177,6 +220,11 @@ export function getSectionTitle(section: string): string {
     if (i >= 0 && i < examSectionsFr.length - 1) {
       return examSectionsFr[i];
     }
+  } else if (language.startsWith('es')) {
+    const i: number = examSections.indexOf(section, 0);
+    if (i >= 0 && i < examSectionsEs.length - 1) {
+      return examSectionsEs[i];
+    }
   }
   return section;
 }
@@ -186,8 +234,10 @@ export async function fetchVisit(visitId: string): Visit {
   return visit;
 }
 
-export async function fetchVisitTypes(): VisitType[] {
-  const searchCriteria = {};
+export async function fetchVisitTypes(
+  showAllVisitTypes: ?boolean,
+): VisitType[] {
+  const searchCriteria = {showAllVisitTypes: showAllVisitTypes};
   let restResponse = await searchItems('VisitType/list', searchCriteria);
   let visitTypes: VisitType[] = restResponse.visitTypeList;
   if (!visitTypes || visitTypes.length == 0) {
@@ -200,18 +250,20 @@ export async function fetchVisitTypes(): VisitType[] {
     visitTypes = [];
   }
   cacheItem('visitTypes', visitTypes);
+
   return visitTypes;
 }
 
 export function getVisitTypes(): VisitType[] {
   let visitTypes: VisitType[] = getCachedItem('visitTypes');
+  if (visitTypes) {
+    visitTypes = visitTypes.filter((vt: VisitType) => !vt.inactive);
+  }
   return visitTypes;
 }
-
-export async function saveVisitTypes(visitTypes: VisitType[]) {
-  visitTypes = (await performActionOnItem('linkExams', visitTypes))
-    .visitTypeList;
-  cacheItem('visitTypes', visitTypes);
+export function getAllVisitTypes(): VisitType[] {
+  let visitTypes: VisitType[] = getCachedItem('visitTypes');
+  return visitTypes;
 }
 
 function hasVisitMedicalDataReadAccess(visit: Visit): boolean {
@@ -232,6 +284,24 @@ function hasVisitPretestReadAccess(visit: Visit): boolean {
     visit.pretestPrivilege === PRIVILEGE.FULLACCESS
   );
 }
+function hasVisitFinalRxReadAccess(visit: Visit): boolean {
+  if (!visit) {
+    return false;
+  }
+  return (
+    visit.finalRxPrivilege === PRIVILEGE.READONLY ||
+    visit.finalRxPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
+function hasVisitFittingReadAccess(visit: Visit): boolean {
+  if (!visit) {
+    return false;
+  }
+  return (
+    visit.fittingPrivilege === PRIVILEGE.READONLY ||
+    visit.fittingPrivilege === PRIVILEGE.FULLACCESS
+  );
+}
 
 function hasVisitMedicalDataWriteAccess(visit: Visit): boolean {
   if (!visit) {
@@ -244,6 +314,18 @@ function hasVisitPretestWriteAccess(visit: Visit): boolean {
     return false;
   }
   return visit.pretestPrivilege === PRIVILEGE.FULLACCESS;
+}
+function hasVisitFinalRxWriteAccess(visit: Visit): boolean {
+  if (!visit) {
+    return false;
+  }
+  return visit.finalRxPrivilege === PRIVILEGE.FULLACCESS;
+}
+function hasVisitFittingWriteAccess(visit: Visit): boolean {
+  if (!visit) {
+    return false;
+  }
+  return visit.fittingPrivilege === PRIVILEGE.FULLACCESS;
 }
 
 export function visitHasStarted(visit: string | Visit): boolean {
@@ -346,6 +428,9 @@ export async function fetchVisitHistory(patientId: string): string[] {
   const patientDocumentIds: string[] = patientDocuments.map(
     (patientDocument) => patientDocument.id,
   );
+  const patientInvoiceList: PatientInvoice[] = restResponse.patientInvoiceList
+    ? restResponse.patientInvoiceList
+    : [];
   const users: User[] = restResponse.userList;
   const referralsFollowUp: FollowUp[] = await fetchReferralFollowUpHistory(
     patientId,
@@ -359,7 +444,6 @@ export async function fetchVisitHistory(patientId: string): string[] {
   cacheItemsById(stores);
   cacheItem('visitHistory-' + patientId, visitIds);
   cacheItem('patientDocumentHistory-' + patientId, patientDocumentIds);
-
   return visitIds;
 }
 
@@ -900,6 +984,7 @@ class VisitWorkFlow extends Component {
     enableScroll: () => void,
     disableScroll: () => void,
     isLoading: ?boolean,
+    onRefresh: () => void,
   };
   state: {
     visit: Visit,
@@ -918,7 +1003,13 @@ class VisitWorkFlow extends Component {
     isPrintingRx: boolean,
     isPrintingCLRx: boolean,
     postInvoiceLoading: boolean,
+    showLockDialog: boolean,
+    lockDialogTitle: string,
+    lockDialogMessage: string,
+    lockAlertAction: string,
     showInvoiceAlert: ?boolean,
+    showVisitTypeAlert: ?boolean,
+    visitType: ?string,
   };
 
   constructor(props: any) {
@@ -942,7 +1033,13 @@ class VisitWorkFlow extends Component {
       isPrintingRx: false,
       isPrintingCLRx: false,
       postInvoiceLoading: false,
+      showLockDialog: false,
+      lockDialogTitle: '',
+      lockDialogMessage: '',
+      lockAlertAction: 'lock',
       showInvoiceAlert: false,
+      showVisitTypeAlert: false,
+      visitType: visit.typeName,
     };
     visit && this.loadUnstartedExamTypes(visit);
     this.loadAppointment(visit);
@@ -966,11 +1063,13 @@ class VisitWorkFlow extends Component {
       return;
     }
     const locked: boolean = visitHasEnded(visit);
+    const visitType: string = visit.typeName;
     this.setState(
       {
         visit,
         locked,
         rxToOrder,
+        visitType,
       },
       () => {
         visit && this.loadUnstartedExamTypes(visit);
@@ -1014,6 +1113,7 @@ class VisitWorkFlow extends Component {
 
   async loadAppointment(visit: Visit) {
     if (!visit || !visit.appointmentId) {
+      this.setState({appointment: undefined});
       return;
     }
     let appointment: Appointment = getCachedItem(visit.appointmentId);
@@ -1069,6 +1169,9 @@ class VisitWorkFlow extends Component {
           examDefinition.addablePostLock === true,
       );
     }
+    if (isEmpty(visit.visitTypeId)) {
+      unstartedExamTypes = [];
+    }
 
     this.setState({addableExamTypes: unstartedExamTypes, addableSections});
   }
@@ -1090,7 +1193,7 @@ class VisitWorkFlow extends Component {
       'Fitting',
       getCachedItem(this.props.visitId),
     );
-    if (!fittingExam || !fittingExam.hasStarted || fittingExam.isHidden) {
+    if (!fittingExam || fittingExam.isHidden) {
       return false;
     }
     let value = fittingExam.Fitting;
@@ -1151,13 +1254,13 @@ class VisitWorkFlow extends Component {
     return visit.invoices && visit.invoices.length > 0;
   }
 
-  async createExam(examDefinitionId: string) {
+  async createExam(examDefinitionId: string): Exam {
     if (this.props.readonly) {
-      return;
+      return undefined;
     }
     const visit: ?Visit = this.state.visit;
     if (!visit || !visit.id) {
-      return;
+      return undefined;
     }
     let exam: Exam = {
       id: 'customExam',
@@ -1167,7 +1270,7 @@ class VisitWorkFlow extends Component {
     exam = await createExam(exam);
     if (exam.errors) {
       alert(exam.errors);
-      return;
+      return undefined;
     }
     if (!visit.preCustomExamIds) {
       visit.preCustomExamIds = [];
@@ -1181,8 +1284,9 @@ class VisitWorkFlow extends Component {
       visit.customExamIds.push(exam.id);
     }
     cacheItemById(visit);
-    this.loadUnstartedExamTypes(visit);
+    await this.loadUnstartedExamTypes(visit);
     this.setState({visit});
+    return exam;
   }
 
   async addExam(examLabel: string) {
@@ -1229,20 +1333,86 @@ class VisitWorkFlow extends Component {
           )
         ],
       );
-    }
+    } 
     if (existingExam && examDefinition.multiValue !== true) {
       this.unhideExam(existingExam);
     } else {
-      this.createExam(examDefinition.id);
+      let exam = await this.createExam(examDefinition.id);
+      exam != undefined && !exam.isInvalid ? this.selectExam(exam) : () => {};
     }
+  }
+
+  validateVisit(): {visitIsValid: boolean, listOfInvalidTiles: string} {
+    let visitIsValid: boolean = true;
+    let listOfInvalidTiles: string = '';
+
+    const visit: Visit = this.state.visit;
+    let exams: Exam[] = getCachedItems(visit.preCustomExamIds);
+    if (!exams) {
+      exams = [];
+    }
+    exams = exams.concat(getCachedItems(visit.customExamIds));
+
+    exams.map((exam) => {
+      if (exam.isInvalid) {
+        visitIsValid = false;
+        listOfInvalidTiles += `\t\u{2022} ${formatLabel(exam.definition)} \n`;
+      }
+    });
+
+    return {visitIsValid, listOfInvalidTiles};
   }
 
   async lockVisit() {
     if (this.props.readonly) {
       return;
     }
+    const {visitIsValid, listOfInvalidTiles} = this.validateVisit();
+    if (visitIsValid) {
+      await this.confirmLockVisit();
+    } else {
+      let alertTitle = strings.lockAlertTitle;
+      let alertMessage: string = strings.lockAlertMessage;
+      alertMessage += listOfInvalidTiles;
+      this.showLockDialog(alertTitle, alertMessage, 'lock');
+    }
+  }
+
+  openReferral = () => {
+    const {visitIsValid, listOfInvalidTiles} = this.validateVisit();
+    if (visitIsValid) {
+      this.confirmOpenReferral();
+    } else {
+      let alertTitle: string = strings.referralAlertTitle;
+      let alertMessage: string = strings.referralAlertMessage;
+      alertMessage += listOfInvalidTiles;
+      this.showLockDialog(alertTitle, alertMessage, 'referral');
+    }
+  };
+
+  confirmOpenReferral() {
+    this.hideLockDialog();
+    this.props.navigation.navigate('referral', {
+      visit: getCachedItem(this.props.visitId),
+      patientInfo: this.props.patientInfo,
+      followUpStateKey: this.props.navigation.state.key,
+    });
+  }
+
+  alertAction = () => {
+    if (this.state.lockAlertAction === 'lock') {
+      this.confirmLockVisit();
+    } else if (this.state.lockAlertAction === 'complete') {
+      this.confirmEndVisit();
+    } else if (this.state.lockAlertAction === 'referral') {
+      this.confirmOpenReferral();
+    }
+  };
+
+  confirmLockVisit = async (): void => {
     const visit: Visit = this.state.visit;
     try {
+      this.hideLockDialog();
       this.props.navigation.goBack();
       visit.locked = true;
       await updateVisit(visit);
@@ -1250,6 +1420,23 @@ class VisitWorkFlow extends Component {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
+  };
+
+  hideLockDialog() {
+    this.setState({
+      lockDialogTitle: '',
+      lockDialogMessage: '',
+      showLockDialog: false,
+    });
+  }
+
+  showLockDialog(title: string, message: string, action: string) {
+    this.setState({
+      lockDialogTitle: title,
+      lockDialogMessage: message,
+      lockAlertAction: action,
+      showLockDialog: true,
+    });
   }
 
   showInvoiceAlert() {
@@ -1258,7 +1445,19 @@ class VisitWorkFlow extends Component {
   hideInvoiceAlert() {
     this.setState({showInvoiceAlert: false});
   }
-
+  renderLockAlert() {
+    return (
+      <Alert
+        title={this.state.lockDialogTitle}
+        message={this.state.lockDialogMessage}
+        dismissable={false}
+        onConfirmAction={this.alertAction}
+        onCancelAction={() => this.hideLockDialog()}
+        confirmActionLabel={strings.yes}
+        cancelActionLabel={strings.no}
+      />
+    );
+  }
   renderInvoiceAlert() {
     return (
       <Alert
@@ -1288,8 +1487,6 @@ class VisitWorkFlow extends Component {
       );
       if (patientInvoices && patientInvoices.length > 0) {
         const piIds: string[] = patientInvoices.map((inv) => inv.id);
-        cacheItem('visitInvoices-' + visit.id, piIds);
-
         const ids: string = piIds.join();
         this.setSnackBarMessage(
           strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
@@ -1311,7 +1508,27 @@ class VisitWorkFlow extends Component {
     if (appointment === undefined || appointment === null) {
       return;
     }
+    const {visitIsValid, listOfInvalidTiles} = this.validateVisit();
+    if (visitIsValid) {
+      await this.confirmEndVisit();
+      this.hideLockDialog();
+    } else {
+      let alertTitle: string = strings.completeAlertTitle;
+      let alertMessage: string = strings.completeAlertMessage;
+      alertMessage += listOfInvalidTiles;
+      this.showLockDialog(alertTitle, alertMessage, 'complete');
+    }
+  }
+
+  confirmEndVisit = async (): void => {
+    const appointment: Appointment = this.state.appointment;
+    if (appointment === undefined || appointment === null) {
+      this.hideLockDialog();
+      return;
+    }
+
     try {
+      this.hideLockDialog();
       const response: Appointment = await performActionOnItem(
         'close',
         appointment,
@@ -1322,7 +1539,7 @@ class VisitWorkFlow extends Component {
       console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
-  }
+  };
 
   async signVisit() {
     if (this.props.readonly) {
@@ -1364,6 +1581,7 @@ class VisitWorkFlow extends Component {
     exam.isHidden = false;
     storeExam(exam, this.props.appointmentStateKey, this.props.navigation);
     this.loadUnstartedExamTypes(this.state.visit);
+    this.selectExam(exam);
   };
 
   showSnackBar() {
@@ -1456,6 +1674,13 @@ class VisitWorkFlow extends Component {
     isPreExam: boolean,
     sectionIndex: ?number,
   ) {
+    const hasReadAccess: boolean = hasExamSectionsAccess(
+      section,
+      this.state.visit,
+    );
+    if (!hasReadAccess) {
+      return null;
+    }
     let nextSection: string =
       examSections.length > sectionIndex + 1
         ? examSections[sectionIndex + 1]
@@ -1568,16 +1793,121 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  setVisitType = (typeName: ?string) => {
+    if (
+      typeName === undefined ||
+      typeName === null ||
+      typeName.trim().length === 0
+    ) {
+      return;
+    } else {
+      this.setState({visitType: typeName});
+    }
+  };
+
+  onConfirmVisitType = async () => {
+    if (isEmpty(this.state.visitType)) {
+      return;
+    }
+    try {
+      this.hideVisitTypeAlert();
+      let visit: Visit = this.state.visit;
+      visit.typeName = this.state.visitType;
+      visit.forceUpdate = true;
+      await updateVisit(visit);
+      this.props.onRefresh();
+    } catch (error) {
+      console.log(error);
+      alert(strings.formatString(strings.serverError, error));
+    }
+  };
+  canChangeVisitType(): boolean {
+    const visit: Visit = this.state.visit;
+    const locked: boolean = visitHasEnded(visit);
+    const hasMedicalDataWriteAccess: boolean =
+      hasVisitMedicalDataWriteAccess(visit);
+    return (
+      !locked &&
+      hasMedicalDataWriteAccess &&
+      this.state.visit.userId === getDoctor().id
+    );
+  }
+
+  showVisitTypeAlert = () => {
+    this.setState({showVisitTypeAlert: true});
+  };
+  hideVisitTypeAlert = () => {
+    this.setState({
+      visitType: this.state.visit.typeName,
+      showVisitTypeAlert: false,
+    });
+  };
+
+  renderVisitTypeAlert() {
+    const visitTypes: VisitType[] = getVisitTypes();
+    const visitTypesName: string[] = visitTypes.map((vt: VisitType) => vt.name);
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          visible={this.state.showVisitTypeAlert}
+          onDismiss={this.hideVisitTypeAlert}
+          dismissable={true}
+          style={styles.VisitTypeDialog}>
+          <Dialog.Title>
+            <Text style={{color: 'black'}}> {strings.updateVisitType}</Text>
+          </Dialog.Title>
+
+          <Dialog.Content>
+            <ListField
+              label={strings.visitType}
+              freestyle={true}
+              value={this.state.visitType}
+              style={styles.field400}
+              containerStyle={styles.fieldContainer}
+              options={visitTypesName}
+              onChangeValue={this.setVisitType}
+              popupStyle={styles.alignPopup}
+              simpleSelect={true}
+              renderOptionsOnly={true}
+              isValueRequired={true}
+              testID="visit.typeName"
+            />
+
+            <Dialog.Actions>
+              <NativeBaseButton onPress={this.hideVisitTypeAlert}>
+                {strings.cancel}
+              </NativeBaseButton>
+              <NativeBaseButton onPress={this.onConfirmVisitType}>
+                {strings.confirm}
+              </NativeBaseButton>
+            </Dialog.Actions>
+          </Dialog.Content>
+        </Dialog>
+      </Portal>
+    );
+  }
   renderConsultationDetails() {
     const store: Store = getCachedItem(this.state.visit.storeId);
     const doctor: User = getCachedItem(this.state.visit.userId);
     const sectionWidth: string = getSectionWidth('Consultation');
+
     return (
       <View style={[styles.examsBoard, {width: sectionWidth}]}>
+        {this.state.showVisitTypeAlert && this.renderVisitTypeAlert()}
         <Text style={styles.cardTitle}>{strings.visit}</Text>
+
+        {!isEmpty(this.state.visit.typeName) && (
+          <TouchableOpacity
+            onPress={this.showVisitTypeAlert}
+            disabled={!this.canChangeVisitType()}
+            testID="updateVisitType">
+            <Text style={styles.linkText}>{this.state.visit.typeName}</Text>
+          </TouchableOpacity>
+        )}
+
         {doctor && (
           <Text style={styles.text}>
-            {strings.doctor}: {postfix(doctor.firstName, ' ') + doctor.lastName}
+            {strings.doctor}: {getDoctorFullName(doctor)}
           </Text>
         )}
         {store && store.name && (
@@ -1616,6 +1946,12 @@ class VisitWorkFlow extends Component {
           <Text style={styles.text}>
             {strings.lastUpdateBy}:{' '}
             {this.state.visit.consultationDetail.lastUpdateBy}
+          </Text>
+        )}
+        {!isEmpty(this.state.visit.appointmentId) && !isEmpty(getValue(this.state, 'appointment.comment')) && (
+          <Text style={styles.text}>
+            {strings.calendarComments}:{' '}
+            {this.state.appointment.comment}
           </Text>
         )}
       </View>
@@ -1749,8 +2085,12 @@ class VisitWorkFlow extends Component {
     shouldSendEmail: boolean = false,
   ) => {
     this.setState({isPrintingRx: true});
+    let newPrintingPreference = [];
     let printFinalRx: boolean = false;
-    let printPDs: boolean = false;
+    let printVA: boolean = false;
+    let printMPDs: boolean = false;
+    let printBPDs: boolean = false;
+    let binocularPD: string = '';
     let printNotesOnRx: boolean = false;
     let drRecommendationArray: string[] = new Array();
     data.map((importData: any) => {
@@ -1758,23 +2098,49 @@ class VisitWorkFlow extends Component {
       let flagRx = importData.isChecked;
       if (labelRx.toString() === strings.finalRx) {
         printFinalRx = flagRx;
-      } else if (labelRx.toString() === strings.pd) {
-        printPDs = flagRx;
+        flagRx && newPrintingPreference.push("finalRx");
+      } else if (labelRx.toString() === strings.va) {
+        printVA = flagRx;
+        flagRx && newPrintingPreference.push("va");
+      } else if (labelRx.toString() === strings.monocularPd) {
+        printMPDs = flagRx;
+        flagRx && newPrintingPreference.push("monocularPd");
+      } else if (labelRx.toString() === strings.binocularPd) {
+        printBPDs = flagRx;
+        flagRx && newPrintingPreference.push("binocularPd");
+        if (printBPDs) {
+          binocularPD = getFieldValue(
+            'exam.RxToOrder.PD.binocular',
+            this.state.rxToOrder,
+          );
+          if (isEmpty(binocularPD)) {
+            binocularPD = getFieldValue(
+              'exam.Auto refractor.Auto refractor.pd',
+              this.state.rxToOrder,
+            );
+          }
+        }
       } else if (labelRx.toString() === strings.notesOnRx) {
         printNotesOnRx = flagRx;
+        flagRx && newPrintingPreference.push("notesOnRx");
       } else if ('entityId' in importData && importData.isChecked) {
         drRecommendationArray.push(importData.entityId);
       }
     });
+
+    this.updatePrintingPreference(newPrintingPreference);
 
     this.hidePrintRxPopup();
     if (shouldSendEmail) {
       let response = await emailRx(
         this.props.visitId,
         printFinalRx,
-        printPDs,
+        printVA,
+        printMPDs,
+        printBPDs,
         printNotesOnRx,
         drRecommendationArray,
+        binocularPD,
       );
 
       if (response) {
@@ -1790,19 +2156,58 @@ class VisitWorkFlow extends Component {
       await printRx(
         this.props.visitId,
         printFinalRx,
-        printPDs,
+        printVA,
+        printMPDs,
+        printBPDs,
         printNotesOnRx,
         drRecommendationArray,
+        binocularPD,
       );
     }
     this.setState({isPrintingRx: false});
   };
 
+  async updatePrintingPreference(newPreference : []) {
+    const setting = getUserSetting();
+    let updatedSetting = !isEmpty(getValue(setting, 'setting.printingPreferences.FinalRx.defaultValues')) ? setting : getDefaultUserSetting();
+    updatedSetting["setting"]["printingPreferences"]["FinalRx"]["defaultValues"] = newPreference;
+
+    try {
+      let httpResponse = await fetch(getRestUrl()+'User/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          token: getToken(),
+        },
+        body: JSON.stringify(updatedSetting),
+      });
+    } catch (error) {
+      __DEV__ && console.log(error);
+    }
+  }
+
+  getPrintingPreference() : [] {
+    const setting = getUserSetting();
+    let printingPreference = [];
+    if (!isEmpty(getValue(setting, 'setting.printingPreferences.FinalRx.defaultValues'))) {
+      printingPreference = getValue(setting, 'setting.printingPreferences.FinalRx.defaultValues');
+    } else {
+      const defaultSetting = getDefaultUserSetting();
+      printingPreference = getValue(defaultSetting, 'setting.printingPreferences.FinalRx.defaultValues')
+    }
+    return printingPreference;
+  }
+
   renderPrintRxPopup() {
+    let printingPreference = this.getPrintingPreference();
+    
     const printRxOptions: any = [
-      {label: strings.finalRx, isChecked: true},
-      {label: strings.pd, isChecked: false},
-      {label: strings.notesOnRx, isChecked: true},
+      {label: strings.finalRx, isChecked: printingPreference.includes("finalRx")},
+      {label: strings.va, isChecked: printingPreference.includes("va")},
+      {label: strings.monocularPd, isChecked: printingPreference.includes("monocularPd")},
+      {label: strings.binocularPd, isChecked: printingPreference.includes("binocularPd")},
+      {label: strings.notesOnRx, isChecked: printingPreference.includes("notesOnRx")},
     ];
     if (this.state.visit.purchase) {
       this.state.visit.purchase.map((recomm: any, index: number) => {
@@ -1825,14 +2230,16 @@ class VisitWorkFlow extends Component {
         title={strings.printRxLabel}
         data={printRxOptions}
         dismissable={true}
-        onConfirmAction={() => this.confirmPrintRxDialog(printRxOptions)}
+        onConfirmAction={(options: any) => this.confirmPrintRxDialog(options)}
         onCancelAction={() => this.hidePrintRxPopup()}
         style={styles.alert}
         confirmActionLabel={strings.printRx}
         cancelActionLabel={strings.cancel}
         multiValue={true}
         emailActionLabel={strings.emailRx}
-        onEmailAction={() => this.confirmPrintRxDialog(printRxOptions, true)}
+        onEmailAction={(options: any) =>
+          this.confirmPrintRxDialog(options, true)
+        }
       />
     );
   }
@@ -1883,9 +2290,9 @@ class VisitWorkFlow extends Component {
         title={strings.printRxLabel}
         data={printMedicationRxOptions}
         dismissable={true}
-        onConfirmAction={() =>
-          this.confirmPrintMedicationRxDialog(printMedicationRxOptions)
-        }
+        onConfirmAction={(options: any) => {
+          this.confirmPrintMedicationRxDialog(options);
+        }}
         onCancelAction={() => this.hidePrintMedicationRxPopup()}
         style={styles.alert}
         confirmActionLabel={strings.printMedicalRx}
@@ -1948,23 +2355,31 @@ class VisitWorkFlow extends Component {
   }
 
   renderActionButtons() {
-    const patientInfo: PatientInfo = this.props.patientInfo;
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
     const hasMedicalDataReadAccess: boolean =
       hasVisitMedicalDataReadAccess(visit);
     const hasPreTestReadAccess: boolean = hasVisitPretestReadAccess(visit);
+    const hasFinalRxReadAccess: boolean = hasVisitFinalRxReadAccess(visit);
+    const hasFittingReadAccess: boolean = hasVisitFittingReadAccess(visit);
     const userReferralFullAccess: boolean =
       getPrivileges().referralPrivilege === 'FULLACCESS';
+    const doctor: User = getCachedItem(visit.userId);
+    const isExternal: boolean = doctor ? doctor.isExternal : false;
+    if (isExternal) {
+      return null;
+    }
 
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
+        {this.state.showLockDialog && this.renderLockAlert()}
         {this.state.showRxPopup && this.renderPrintRxPopup()}
         {this.state.showClRxPopup && this.renderPrintCLRxPopup()}
         {this.state.showMedicationRxPopup &&
           this.renderPrintMedicationRxPopup()}
         {this.state.showInvoiceAlert && this.renderInvoiceAlert()}
+
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
             <Button title={strings.signed} disabled={true} />
@@ -1973,7 +2388,7 @@ class VisitWorkFlow extends Component {
             <Button title={strings.sign} onPress={() => this.signVisit()} />
           )}
 
-          {hasPreTestReadAccess && (
+          {(hasPreTestReadAccess || hasFinalRxReadAccess) && (
             <Button
               title={strings.printRx}
               onPress={() => {
@@ -1991,16 +2406,17 @@ class VisitWorkFlow extends Component {
               }}
             />
           )}
-          {hasPreTestReadAccess && this.hasFinalClFitting() && (
-            <Button
-              title={strings.printClRx}
-              onPress={() => {
-                this.showCLRxPopup();
-              }}
-              loading={this.state.isPrintingCLRx}
-              disabled={this.state.isPrintingCLRx}
-            />
-          )}
+          {(hasPreTestReadAccess || hasFittingReadAccess) &&
+            this.hasFinalClFitting() && (
+              <Button
+                title={strings.printClRx}
+                onPress={() => {
+                  this.showCLRxPopup();
+                }}
+                loading={this.state.isPrintingCLRx}
+                disabled={this.state.isPrintingCLRx}
+              />
+            )}
           {this.canTransfer() && (
             <Button
               title={strings.transferRx}
@@ -2022,16 +2438,7 @@ class VisitWorkFlow extends Component {
             />
           )}
           {userReferralFullAccess && isReferralsEnabled() && (
-            <Button
-              title={strings.referral}
-              onPress={() => {
-                this.props.navigation.navigate('referral', {
-                  visit: getCachedItem(this.props.visitId),
-                  patientInfo: patientInfo,
-                  followUpStateKey: this.props.navigation.state.key,
-                });
-              }}
-            />
+            <Button title={strings.referral} onPress={this.openReferral} />
           )}
           {this.canLock() && (
             <Button
@@ -2077,6 +2484,9 @@ class VisitWorkFlow extends Component {
     const hasMedicalDataWriteAccess: boolean = hasVisitMedicalDataWriteAccess(
       this.state.visit,
     );
+    const hasCLFittingWriteAccess: boolean = hasVisitFittingWriteAccess(
+      this.state.visit,
+    );
     if (this.props.readonly || section === 'Document') {
       return;
     }
@@ -2094,7 +2504,8 @@ class VisitWorkFlow extends Component {
     addableExamDefinitions = addableExamDefinitions.filter(
       (examType: ExamDefinition) =>
         (examType.isPreExam && hasPreTestWriteAccess) ||
-        (!examType.isPreExam && hasMedicalDataWriteAccess),
+        (!examType.isPreExam && hasMedicalDataWriteAccess) ||
+        (examType.name.toLowerCase() === 'fitting' && hasCLFittingWriteAccess),
     );
 
     const addableExamLabels: string[] = addableExamDefinitions.map(
@@ -2132,7 +2543,12 @@ class VisitWorkFlow extends Component {
     if (this.props.visitId === undefined) {
       return null;
     }
-    if (!hasVisitPretestReadAccess(this.state.visit)) {
+
+    if (
+      !hasVisitPretestReadAccess(this.state.visit) &&
+      !hasVisitFinalRxReadAccess(this.state.visit) &&
+      !hasVisitFittingReadAccess(this.state.visit)
+    ) {
       return (
         <View>
           <View style={styles.flow}>
@@ -2634,8 +3050,6 @@ export class VisitHistory extends Component {
             !this.props.hasAppointment && (
               <Button title={strings.addVisit} onPress={this.showDatePicker} />
             )}
-          {__DEV__ && <Button title={strings.printRx} />}
-          {__DEV__ && <Button title="Book appointment" />}
         </View>
       </View>
     );
@@ -2717,7 +3131,7 @@ export class VisitHistory extends Component {
             )}
           <FlatList
             horizontal={true}
-            extraData={this.state.selectedId}
+            extraData={visit}
             data={this.state.history}
             keyExtractor={(visitId: string, index: number) => index.toString()}
             renderItem={(data: ?any) => (
@@ -2754,6 +3168,7 @@ export class VisitHistory extends Component {
               enableScroll={this.props.enableScroll}
               disableScroll={this.props.disableScroll}
               isLoading={this.state.isLoading}
+              onRefresh={this.props.onRefresh}
             />
           </VisitErrorBoundary>
         )}

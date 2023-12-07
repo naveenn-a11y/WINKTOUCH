@@ -32,9 +32,10 @@ import {
   formatDegree,
   getValue,
   formatAge,
+  getDoctorFullName,
 } from './Util';
 
-import {formatPrism, hasPrism} from './Refraction';
+import {formatPrism, hasBvd, hasPrism} from './Refraction';
 import {
   getFieldDefinition as getExamFieldDefinition,
   getCurrentAction,
@@ -55,6 +56,7 @@ import {getStore} from './DoctorApp';
 import {formatCode} from './Codes';
 import {getBase64Image} from './ImageField';
 import {getPatientFullName} from './Patient';
+import { getImageDimensions } from './Print';
 let smallMedia: Array<any> = [];
 let largeMedia: Array<any> = [];
 let PDFAttachment: Array<any> = [];
@@ -85,25 +87,27 @@ export function printPatientHeader(visit: Visit) {
     '    <header class="clearfix">' +
     `      <h1>${strings.patientFile}</h1>` +
     '      <div id="company" class="clearfix">' +
+    `        <div><span class="label">${
+      strings.examiningOptometrist
+    }: </span>${getDoctorFullName(doctor)}</div>` +
     `        <div>${store.companyName}</div>` +
-    `        <div>${store.streetName + prefix(store.unit, ', ')}<br />${
+    `        <div>${store.streetNumber} ${store.streetName + prefix(store.unit, ', ')}<br />${
       store.postalCode
     } ${store.city}</div>` +
     `        <div>${store.telephone}</div>` +
     `        <div>${store.email}</div>` +
+    `        <div>${store.website}</div>` +
     '      </div>' +
     '      <div id="client">' +
-    `        <div><span>${strings.doctor}</span>${
-      doctor ? doctor.firstName + ' ' + doctor.lastName : ''
-    }</div>` +
     `        <div><span>${strings.patient}</span>${getPatientFullName(
       patient,
     )}</div>` +
-    `      <div><span></span>${formatCode(
+    `      <div><span>${strings.gender}</span>${formatCode(
       'genderCode',
       patient.gender,
     )}</div>` +
-    `        <div><span></span>${
+    `      <div><span>${strings.occupation}</span>${patient.occupation}</div>` +
+    `        <div><span></span><div><span>${strings.address}</span>${
       postfix(patient.unit, '-') +
       postfix(patient.streetNumber, ', ') +
       patient.streetName +
@@ -112,24 +116,35 @@ export function printPatientHeader(visit: Visit) {
       prefix(patient.postalCode, ', ') +
       prefix(patient.country, ', ')
     }</div>` +
-    `        <div><span></span>${patient.email}</div>` +
-    `        <div><span></span>${
-      patient.cell ? patient.cell + ' ' : patient.phone
-    }</div>` +
-    `        <div><span></span>${patient.dateOfBirth}</div>` +
+    `        <div><span>${strings.email}</span>${patient.email}</div>` +
+    `${
+      patient.phone
+        ? '<div><span>' +
+          strings.homeTelephone +
+          '</span>' +
+          patient.phone +
+          '</div> '
+        : ''
+    }` +
+    `${
+      patient.cell
+        ? '<div><span>' +
+          strings.cellularTelephone +
+          '</span>' +
+          patient.cell +
+          '</div> '
+        : ''
+    }` +
+    `        <div><span>${strings.dateOfBirth}</span>${patient.dateOfBirth}</div>` +
     `        <div><span>${strings.healthCard}</span>${
       patient.medicalCard
     } ${prefix(patient.medicalCardVersion, 'V:')} ${prefix(
       patient.medicalCardExp,
       'EXP:',
     )}</div>` +
-    `        <div><span>${strings.familyDoctor}</span>${
-      patient.familyDoctor
-        ? patient.familyDoctor.firstName.trim() +
-          ' ' +
-          patient.familyDoctor.lastName.trim()
-        : ''
-    }</div>` +
+    `        <div><span>${strings.familyDoctor}</span>${getDoctorFullName(
+      patient.familyDoctor,
+    )}</div>` +
     `        <div><span>${strings.examDate}</span>${formatDate(
       visit.date,
       officialDateFormat,
@@ -222,12 +237,14 @@ function renderItemHtml(
 
         if (isEmpty(label)) {
           if (!isFirstField) {
-            html += '<span>,</span>';
+            html += '<span>, </span>';
           }
           htmlSubItems += `<span>${formattedValue}</span>`;
           isFirstField = false;
         } else {
-          htmlSubItems += `<div><span class="label">${formattedValue}:</span><span class="value">${formattedValue}</span></div>`;
+          htmlSubItems += `<div><span class="label">${formatLabel(
+            fieldDefinition,
+          )}: </span><span class="value">${formattedValue}</span></div>`;
         }
       }
       html += htmlSubItems;
@@ -272,7 +289,10 @@ export async function renderParentGroupHtml(
       child: htmlDefinition,
     });
   } else {
-    if (exam.definition.name === 'Consultation summary' && !exam.definition.isSummaryAndPlan) {
+    if (
+      exam.definition.name === 'Consultation summary' &&
+      !exam.definition.isSummaryAndPlan
+    ) {
       if (!isEmpty(exam.resume)) {
         html += `<div class="groupHeader"><div style="margin: auto;">${formatLabel(
           exam.definition,
@@ -566,7 +586,7 @@ async function renderRowsHtml(
         if (label !== undefined && label !== null && label.trim() !== '') {
           htmlSubItems += '<div>';
           if (!fieldDefinition.image) {
-            htmlSubItems += `<div><span class="label">${label}:</span>`;
+            htmlSubItems += `<div><span class="label">${label}: </span>`;
           }
           htmlSubItems += `<span class="value">${value}</span></div>`;
           htmlSubItems += '</div>';
@@ -774,7 +794,7 @@ function renderCheckListItemHtml(exam: Exam, fieldDefinition: FieldDefinition) {
     return formattedValue;
   }
   const label: ?string = formatLabel(fieldDefinition);
-  html += `<div><span>${label}: </span><span>${formattedValue}</span></div>`;
+  html += `<div><span class="label" >${label}: </span><span>${formattedValue}</span></div>`;
   return html;
 }
 
@@ -846,7 +866,9 @@ async function renderField(
         }
         index += 1;
         html += imageValue;
-        html += `<span class="imageTitle">${exam.definition.name} (${ImageIndex})</span>`;
+        html += `<span class="imageTitle">${
+          exam.definition.name
+        } - ${formatLabel(groupDefinition)} (${ImageIndex})</span>`;
         html += '</span>';
         html += isWeb ? '</div>' : '';
         if (
@@ -854,18 +876,24 @@ async function renderField(
           fieldDefinition.size !== 'M'
         ) {
           largeMedia.push({
-            name: exam?.definition?.name,
+            name: formatLabel(groupDefinition),
             html,
             index: ImageIndex,
           });
-          html = `<code index="${ImageIndex}" cuthere="">*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+
+          html = `<code index="${ImageIndex}" cuthere="">*Please see annexed image ${formatLabel(
+            groupDefinition,
+          )} (${ImageIndex}) at the end of the document.</code>`;
         } else {
           smallMedia.push({
-            name: exam?.definition?.name,
+            name: formatLabel(groupDefinition),
             html,
             index: ImageIndex,
           });
-          html = `<code index="${ImageIndex}" cuthere="">*Please see annexed image ${exam.definition.name} (${ImageIndex}) at the end of the document.</code>`;
+
+          html = `<code index="${ImageIndex}" cuthere="">*Please see annexed image ${formatLabel(
+            groupDefinition,
+          )} (${ImageIndex}) at the end of the document.</code>`;
         }
       }
       return html;
@@ -901,6 +929,26 @@ function extractImageName(image: string) {
     image.lastIndexOf('.'),
   );
   return value;
+}
+
+async function getWebImageStyle(image: String, pageWidth: number, pageHeight: number, fieldAspectRatio : number) : {width: number, height: number, resizeMode: string} {
+  const imageDim = await getImageDimensions(image);
+  const style = {
+    width: imageDim.width,
+    height: imageDim.height,
+    resizeMode: 'contain',
+  };
+  
+  if (style.height > pageHeight) {
+    style.height = Math.floor(pageHeight);
+    style.width = Math.floor(pageHeight * fieldAspectRatio);
+  }
+  if (style.width > pageWidth) {
+    style.width = Math.floor(pageWidth);
+    style.height = Math.floor(style.width / fieldAspectRatio);
+  }
+  
+  return style;
 }
 
 async function renderMedia(
@@ -967,6 +1015,7 @@ async function renderMedia(
       }
     } else if (isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
+      style = await getWebImageStyle(base64Image.data, pageWidth, pageHeight, fieldAspectRatio)
       imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     } else if (isPdf) {
       let PdfIdentifier: string = `${fieldDefinition.name}(pdf-${
@@ -1162,6 +1211,63 @@ function renderGlassesSummary(
   }
 }
 
+function renderMPDTable(glassesRx: GlassesRx): string {
+  let html: string = '';
+  let htmlChildSubItems: string = '';
+  if (
+    !(
+      !isEmpty(getValue(glassesRx, 'od.farPD')) ||
+      !isEmpty(getValue(glassesRx, 'os.farPD')) ||
+      !isEmpty(getValue(glassesRx, 'ou.farPD')) ||
+      !isEmpty(getValue(glassesRx, 'od.closePD')) ||
+      !isEmpty(getValue(glassesRx, 'os.closePD')) ||
+      !isEmpty(getValue(glassesRx, 'ou.closePD'))
+    )
+  ) {
+    return html;
+  }
+
+  html += '<table class="childTable" style="width: 50%;">';
+  html += '<thead><tr>';
+  html += `<th class="service" style="font-size:10px; width: 40px; max-width: 40px; min-width:20px;">${strings.pd}</th>`;
+  html += `<th class="service">${strings.far}</th>`;
+  html += `<th class="service">${strings.near}</th>`;
+  html += '</thead></tr><tbody>';
+  //od
+  html += `<tr><td class="desc" style="width: 40px; max-width: 40px; min-width:20px;">${strings.od}</td>`;
+  htmlChildSubItems = `${
+    !isEmpty(getValue(glassesRx, 'od.farPD')) ? glassesRx.od.farPD : ''
+  }`;
+  html += `<td class="desc">${htmlChildSubItems}</td>`;
+  htmlChildSubItems = `${
+    !isEmpty(getValue(glassesRx, 'od.closePD')) ? glassesRx.od.closePD : ''
+  }`;
+  html += `<td class="desc">${htmlChildSubItems}</td></tr>`;
+  //os
+  html += `<tr><td class="desc" style="width: 40px; max-width: 40px; min-width:20px;">${strings.os}</td>`;
+  htmlChildSubItems = `${
+    !isEmpty(getValue(glassesRx, 'os.farPD')) ? glassesRx.os.farPD : ''
+  }`;
+  html += `<td class="desc">${htmlChildSubItems}</td>`;
+  htmlChildSubItems = `${
+    !isEmpty(getValue(glassesRx, 'os.closePD')) ? glassesRx.os.closePD : ''
+  }`;
+  html += `<td class="desc">${htmlChildSubItems}</td></tr>`;
+  //ou
+  html += `<tr><td class="desc" style="width: 40px; max-width: 40px; min-width:20px;">${strings.ou}</td>`;
+  htmlChildSubItems = `${
+    !isEmpty(getValue(glassesRx, 'ou.farPD')) ? glassesRx.ou.farPD : ''
+  }`;
+  html += `<td class="desc">${htmlChildSubItems}</td>`;
+  htmlChildSubItems = `${
+    !isEmpty(getValue(glassesRx, 'ou.closePD')) ? glassesRx.ou.closePD : ''
+  }`;
+  html += `<td class="desc">${htmlChildSubItems}</td></tr>`;
+
+  html += '</tbody></table>';
+  return html;
+}
+
 function renderRxTable(
   glassesRx: GlassesRx,
   groupDefinition: GroupDefinition,
@@ -1173,6 +1279,23 @@ function renderRxTable(
   let childHtmlDefinition: HtmlDefinition[] = [];
   let groupHtmlDefinition: HtmlDefinition[] = [];
 
+  if (!isEmpty(glassesRx.testingCondition)) {
+    htmlChildSubItems =  `<div><span class='label'>${strings.testingCondition}:</span> ${glassesRx.testingCondition}</div>`;
+    html += htmlChildSubItems;
+    childHtmlDefinition.push({
+      name: 'Testing Condition',
+      html: `${htmlChildSubItems}`,
+    });
+  }
+  if (!isEmpty(glassesRx.pd)) {
+    htmlChildSubItems = `<div><span class='label'>${strings.binocularPd}:</span> ${glassesRx.pd}</div>`;
+    html += htmlChildSubItems;
+    childHtmlDefinition.push({
+      name: 'pd',
+      html: `${htmlChildSubItems}`,
+    });
+  }
+
   if (isEmpty(glassesRx.od.sph) && isEmpty(glassesRx.os.sph)) {
     return html;
   }
@@ -1181,20 +1304,37 @@ function renderRxTable(
   html += `<th class="service" style="font-size:10px; width: 80px; max-width: 80px; min-width:20px;">${formatLabel(
     groupDefinition,
   )}</th>`;
-  html += '<th class="service">Sph</th>';
-  html += '<th class="service">Cyl</th>';
-  html += '<th class="service">Axis</th>';
+  html += `<th class="service">${formatLabel(
+    getFieldDefinition('visit.prescription.od.sph'),
+  )}</th>`;
+  html += `<th class="service">${formatLabel(
+    getFieldDefinition('visit.prescription.od.cyl'),
+  )}</th>`;
+  html += `<th class="service">${formatLabel(
+    getFieldDefinition('visit.prescription.od.axis'),
+  )}</th>`;
   if (hasPrism(glassesRx)) {
-    html += '<th class="service">Prism</th>';
+    html += `<th class="service">${formatLabel(
+      getFieldDefinition('visit.prescription.od.prism1'),
+    )}</th>`;
   }
   if (groupDefinition.hasVA) {
-    html += '<th class="service">DVA</th>';
+    html += `<th class="service">${formatLabel(
+      getFieldDefinition('exam.VA cc.Aided acuities.DVA'),
+    )}</th>`;
   }
   if (groupDefinition.hasAdd) {
-    html += '<th class="service">Add</th>';
+    html += `<th class="service">${formatLabel(
+      getFieldDefinition('visit.prescription.od.add'),
+    )}</th>`;
   }
   if (groupDefinition.hasAdd && groupDefinition.hasVA) {
-    html += '<th class="service">NVA</th>';
+    html += `<th class="service">${formatLabel(
+      getFieldDefinition('exam.VA cc.Aided acuities.NVA'),
+    )}</th>`;
+  }
+  if (groupDefinition.hasBVD && hasBvd(glassesRx)) {
+    html += `<th class="service">${strings.bvd}</th>`;
   }
   html += '</thead></tr><tbody><tr>';
 
@@ -1277,6 +1417,21 @@ function renderRxTable(
     htmlSubItems += `<span>${htmlChildSubItems}</span>`;
     childHtmlDefinition.push({
       name: 'addVa',
+      html: `<span>${htmlChildSubItems} </span>`,
+    });
+  }
+  if (groupDefinition.hasBVD && hasBvd(glassesRx)) {
+    const fieldDefinition: FieldDefinition = getFieldDefinition(
+      'exam.RxToOrder.Final Rx.od.bvd',
+    );
+    const formattedValue: string = glassesRx.od
+      ? formatFieldValue(glassesRx.od.bvd, fieldDefinition)
+      : '';
+    htmlChildSubItems = `${isEmpty(formattedValue) ? '' : formattedValue}`;
+    html += `<td class="desc">${htmlChildSubItems}</td>`;
+    htmlSubItems += `<span>${htmlChildSubItems}</span>`;
+    childHtmlDefinition.push({
+      name: 'bvd',
       html: `<span>${htmlChildSubItems} </span>`,
     });
   }
@@ -1369,6 +1524,21 @@ function renderRxTable(
       html: `<span>${htmlChildSubItems} </span>`,
     });
   }
+  if (groupDefinition.hasBVD && hasBvd(glassesRx)) {
+    const fieldDefinition: FieldDefinition = getFieldDefinition(
+      'exam.RxToOrder.Final Rx.os.bvd',
+    );
+    const formattedValue: string = glassesRx.os
+      ? formatFieldValue(glassesRx.os.bvd, fieldDefinition)
+      : '';
+    htmlChildSubItems = `${isEmpty(formattedValue) ? '' : formattedValue}`;
+    html += `<td class="desc">${htmlChildSubItems}</td>`;
+    htmlSubItems += `<span>${htmlChildSubItems}</span>`;
+    childHtmlDefinition.push({
+      name: 'bvd',
+      html: `<span>${htmlChildSubItems} </span>`,
+    });
+  }
 
   groupHtmlDefinition.push({
     name: 'os',
@@ -1382,10 +1552,11 @@ function renderRxTable(
   if (groupDefinition.hasVA === true && !isEmpty(glassesRx.ou)) {
     html += '<tr>';
     html += `<td class="desc" style="width: 80px; max-width: 80px; min-width:20px;">${strings.ou}</td>`;
-    html += '<td class="desc"></td><td class="desc"></td><td class="desc"></td>';
+    html +=
+      '<td class="desc"></td><td class="desc"></td><td class="desc"></td>';
     if (hasPrism(glassesRx)) {
       html += '<td class="desc"></td>';
-    } 
+    }
 
     if (groupDefinition.hasVA) {
       const fieldDefinition: FieldDefinition = getFieldDefinition(
@@ -1418,6 +1589,9 @@ function renderRxTable(
         html: `<span>${htmlChildSubItems} </span>`,
       });
     }
+    if (groupDefinition.hasBVD && hasBvd(glassesRx)) {
+      html += '<td class="desc"></td>';
+    }
     html += '</tr>';
     groupHtmlDefinition.push({
       name: 'ou',
@@ -1429,10 +1603,14 @@ function renderRxTable(
   htmlSubItems = '';
   childHtmlDefinition = [];
   if (groupDefinition.hasNotes && !isEmpty(glassesRx.notes)) {
-    htmlSubItems = `<div>Notes: ${glassesRx.notes}</div>`;
+    htmlSubItems = `<div style='margin-bottom: 10px' >${strings.notes}: ${glassesRx.notes}</div>`;
     html += htmlSubItems;
     groupHtmlDefinition.push({name: 'notes', html: htmlSubItems});
   }
+  if (groupDefinition.hasMPD) {
+    html += renderMPDTable(glassesRx);
+  }
+
   if (groupDefinition.hasLensType) {
     const fieldDefinition: FieldDefinition = filterFieldDefinition(
       groupDefinition.fields,
@@ -1443,6 +1621,27 @@ function renderRxTable(
       const value: string = formatCode(options, glassesRx.lensType);
       html = `<div>${formatLabel(fieldDefinition)}: ${value}</div>` + html;
       groupHtmlDefinition.push({name: fieldDefinition.name, html: value});
+    }
+  }
+  if (groupDefinition.hasCurrentWear) {
+    const fieldDefinitionCurrentWear: FieldDefinition = filterFieldDefinition(
+        groupDefinition.fields,
+        'Current wear',
+    );
+    const fieldDefinitionSince: FieldDefinition = filterFieldDefinition(
+        groupDefinition.fields,
+        'Since',
+    );
+    if (fieldDefinitionSince && !isEmpty(glassesRx.since)) {
+      const value: string =  glassesRx.since;
+      html = `<div>${formatLabel(fieldDefinitionSince)}: ${value}</div>` + html;
+      groupHtmlDefinition.push({name: fieldDefinitionSince.name, html: value});
+    }
+    if (fieldDefinitionCurrentWear.options && fieldDefinitionCurrentWear.options.length > 0 && !isEmpty(glassesRx.currentWear)) {
+      let options = fieldDefinitionCurrentWear.options;
+      const value: string = formatCode(options, glassesRx.currentWear);
+      html = `<div>${formatLabel(fieldDefinitionCurrentWear)}: ${value}</div>` + html;
+      groupHtmlDefinition.push({name: fieldDefinitionCurrentWear.name, html: value});
     }
   }
 
@@ -1527,6 +1726,10 @@ export function patientHeader(referral: boolean) {
     '  width: 78px;' +
     '  margin-right: 18px;' +
     '  display: inline-block;' +
+    '  font-size: 0.8em;' +
+    '}' +
+    '.label {' +
+    '  color: #5D6975;' +
     '  font-size: 0.8em;' +
     '}' +
     '#company {' +
@@ -1670,6 +1873,7 @@ export function renderAttachment(html: string) {
   let addImages: string = '';
   let hasImage: boolean = false;
   SelectedPDFAttachment = [];
+  let selectedPDFIndexes: any[] = [];
 
   for (let str of html.split('<code index="')) {
     if (str.indexOf('cuthere') !== -1) {
@@ -1707,12 +1911,24 @@ export function renderAttachment(html: string) {
 
   for (let pdf of PDFAttachment) {
     for (let AttachmentIndex of selectedAttachments) {
+      if (
+        selectedPDFIndexes.find(
+          (eachPdf) =>
+            eachPdf.index === AttachmentIndex ||
+            eachPdf.indexInArray === AttachmentIndex,
+        ) !== undefined
+      ) {
+        continue;
+      }
+
       if (AttachmentIndex === pdf.index) {
+        selectedPDFIndexes.push(pdf);
         SelectedPDFAttachment.push({
           base64: pdf.base64,
           index: pdf.index,
         });
       } else if (AttachmentIndex === pdf.indexInArray) {
+        selectedPDFIndexes.push(pdf);
         SelectedPDFAttachment.push({
           base64: pdf.base64,
           index: pdf.indexInArray,

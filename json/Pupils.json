@@ -13,7 +13,7 @@
               "fields": [
                 {
                   "name": "Size in light",
-                  "label": "Taille Ã  la lumière"
+                  "label": "Taille à la lumière"
                 },
                 {
                   "name": "Size in dark",
@@ -69,6 +69,79 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Pupilas",
+      "fields": [
+        {
+          "name": "Pupils",
+          "label": "Pupilas",
+          "fields": [
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Size in light",
+                  "label": "Tamaño en la luz"
+                },
+                {
+                  "name": "Size in dark",
+                  "label": "Tamaño en la oscuridad"
+                },
+                {
+                  "name": "Shape",
+                  "label": "Forma"
+                },
+                {
+                  "name": "Reaction",
+                  "label": "Reacción"
+                },
+                {
+                  "name": "Diagnose",
+                  "label": "Diagnóstico"
+                },
+                {
+                  "name": "Accom",
+                  "label": "Acomodación"
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Size in light",
+                  "label": "Tamaño en la luz"
+                },
+                {
+                  "name": "Size in dark",
+                  "label": "Tamaño en la oscuridad"
+                },
+                {
+                  "name": "Shape",
+                  "label": "Forma"
+                },
+                {
+                  "name": "Reaction",
+                  "label": "Reacción"
+                },
+                {
+                  "name": "Diagnose",
+                  "label": "Diagnóstico"
+                },
+                {
+                  "name": "Accom",
+                  "label": "Acomodación"
+                }
+              ]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "starable": true,
@@ -90,6 +163,8 @@
               "stepSize": 0.5,
               "suffix": " mm",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "maxValue": 7
             },
             {
@@ -99,31 +174,43 @@
               "stepSize": 0.5,
               "suffix": " mm",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "maxValue": 7
             },
             {
               "name": "Shape",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "options": "pupilFormCodes"
             },
             {
               "name": "Reaction",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "options": "pupilReactionCodes"
             },
             {
               "name": "M.Gunn",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "options": "pupilMGunnCodes"
             },
             {
               "name": "Accom",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "options": "pupilAccomodationCodes"
             },
             {
               "name": "Diagnose",
               "freestyle": true,
+              "highlightedLabel": true,
+              "delimiter": "|",
               "options": "pupilDiagnoseCodes"
             }
           ]
@@ -134,6 +221,8 @@
             {
               "decimals": 1,
               "name": "Size in light",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "minValue": 2,
               "stepSize": 0.5,
               "suffix": " mm",
@@ -143,6 +232,8 @@
             {
               "decimals": 1,
               "name": "Size in dark",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "minValue": 2,
               "stepSize": 0.5,
               "suffix": " mm",
@@ -151,26 +242,36 @@
             },
             {
               "name": "Shape",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "pupilFormCodes"
             },
             {
               "name": "Reaction",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "pupilReactionCodes"
             },
             {
               "name": "M.Gunn",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "pupilMGunnCodes"
             },
             {
               "name": "Accom",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "pupilAccomodationCodes"
             },
             {
               "name": "Diagnose",
+              "highlightedLabel": true,
+              "delimiter": "|",
               "freestyle": true,
               "options": "pupilDiagnoseCodes"
             }
