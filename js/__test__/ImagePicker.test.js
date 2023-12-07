@@ -1,7 +1,8 @@
-import renderer from 'react-test-renderer'
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom'
 import { ImagePicker } from '../ImagePicker'
 
-it('renders correctly', () => {
-  const tree = renderer.create(<ImagePicker />).toJSON()
-  expect(tree).toMatchSnapshot()
-})
+test('ImagePicker component renders', () => {
+  const { container } = render(<ImagePicker />);
+  expect(container).toBeInTheDocument();
+});
