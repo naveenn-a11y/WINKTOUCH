@@ -179,9 +179,11 @@ export function formatAllCodes(codeType: string, filter?: {}): string[] {
     options,
     codeIdentifier,
   );
-  if (formattedCodes !== undefined && formattedCodes instanceof Array) {
+
+  if (filter && formattedCodes !== undefined && formattedCodes instanceof Array) {
     formattedCodes.sort(compareFormattedCodes);
   }
+
   return formattedCodes;
 }
 function compareFormattedCodes(a: string, b: string): number {
