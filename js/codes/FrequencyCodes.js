@@ -5,6 +5,7 @@
 
 export const frequencyCodes = [
 {"code":"PRN"},
+{"code":"ID"},
 {"code":"once per day"},
 {"code":"HS"},
 {"code":"BID"},
