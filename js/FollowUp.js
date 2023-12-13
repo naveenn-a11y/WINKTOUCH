@@ -1158,15 +1158,26 @@ export class TableListRow extends React.PureComponent {
     const style = this.props.selected
       ? styles.tableListTextSelected
       : styles.tableListText;
-    const textStyle = this.props.rowValue.isParent
+    const textStyle = (this.props.rowValue.isParent || this.props.rowValue.status === 3)
       ? [style, {fontWeight: 'bold'}]
       : style;
+
+    let formCodeStyle = this.props.readonly ? styles.formFieldReadOnly : styles.formField;
+    //make bold if status is received i.e 3
+    formCodeStyle = (this.props.rowValue.status === 3)
+        ? [formCodeStyle, {fontWeight: 'bold'}]
+        : formCodeStyle;
+
     const prefix: string = this.props.selected
       ? this.props.selected === true
         ? undefined
         : '(' + this.props.selected + ') '
       : undefined;
-    const commentStyle = [styles.formField, {minWidth: 150 * fontScale}];
+
+    const commentStyle = (this.props.rowValue.status === 3)
+        ? [styles.formField, {minWidth: 150 * fontScale, fontWeight: 'bold'}]
+        : [styles.formField, {minWidth: 150 * fontScale}];
+
     return (
       <TouchableOpacity
         underlayColor={selectionColor}
@@ -1202,6 +1213,7 @@ export class TableListRow extends React.PureComponent {
             label={'Status'}
             onChangeValue={(code: ?string | ?number) => this.updateValue(code)}
             readonly={this.props.readonly}
+            style={formCodeStyle}
           />
 
           <TextField
