@@ -224,7 +224,7 @@
               ]
             },
             {
-              "name": "Ophtalmoscopy",
+              "name": "Ophthalmoscopy",
               "label": "Ophtalmoscopie"
             },
             {
@@ -473,7 +473,7 @@
               ]
             },
             {
-              "name": "Ophtalmoscopy",
+              "name": "Ophthalmoscopy",
               "label": "Oftalmoscopia",
               "options": ["Directo", "Indirecto"]
 
@@ -560,7 +560,7 @@
       "name": "Posterior",
       "columns": [["OD", ">>", "OS"]],
       "multiValue": false,
-      "rows": [["Lens", "Ophtalmoscopy", "Dilated"]],
+      "rows": [["Lens", "Ophthalmoscopy", "Dilated"]],
       "size": "L",
       "fields": [
         {
@@ -575,7 +575,7 @@
           "options": ["No", "Dilated"]
         },
         {
-          "name": "Ophtalmoscopy",
+          "name": "Ophthalmoscopy",
           "highlightedLabel": true,
           "options": ["Direct", "Indirect"]
         },
