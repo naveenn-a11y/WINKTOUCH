@@ -576,6 +576,7 @@
         },
         {
           "name": "Ophtalmoscopy",
+          "label": "Ophthalmoscopy",
           "highlightedLabel": true,
           "options": ["Direct", "Indirect"]
         },
