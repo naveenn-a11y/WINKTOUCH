@@ -55,11 +55,13 @@
         {
           "name": "Method",
           "freestyle": false,
+          "highlightedLabel": true,
           "options": ["Alignment", "Lens fogging"]
         },
         {
           "name": "Dominant eye",
           "freestyle": false,
+          "highlightedLabel": true,
           "options": "dominantEyeCodes"
         },
         {
