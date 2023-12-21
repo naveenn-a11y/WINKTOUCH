@@ -768,7 +768,9 @@ export class ItemsCard extends Component {
           abnormalFieldOutput += valueOutput;
           return (
             <Text style={styles.textLeft} key={subIndex}>
-              {label}
+              <Text style={fieldDefinition.highlightedLabel ? styles.labelTitle : ''}>
+                {label}
+              </Text>
               {valueOutput}
             </Text>
           );
