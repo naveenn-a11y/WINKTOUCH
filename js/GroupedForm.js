@@ -1637,7 +1637,7 @@ export class GroupedForm extends Component {
       <View
         style={styles.formRow}
         key={'columnHeader-' + columnDefinition.name}>
-        <Text style={styles.formTableRowHeader}> </Text>
+        {columnDefinition?.fields?.[0]?.name && <Label value={Array.from({length:columnDefinition?.fields?.[0]?.name.length}, (v,u)=>" ").join(" ")} suffix="  "/>}
         {columns.map((column: string, index: number) => {
           const columnDefinition: FieldDefinition =
             this.props.definition.fields.find(
