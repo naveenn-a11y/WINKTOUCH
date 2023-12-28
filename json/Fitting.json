@@ -97,7 +97,7 @@
           "highlightedValue": true,
           "label": "Type",
           "autoSelect": true,
-          "selectedIndex": 3,
+          "selectedIndex": 1,
           "options": "clFittingTypeCodes"
         },
         {
