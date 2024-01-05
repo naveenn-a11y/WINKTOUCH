@@ -345,6 +345,13 @@ export function formatLabel(
   return fieldDefinition.name;
 }
 
+export function getTextWidth(text:string, font:string|undefined):number{
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  context.font = font || getComputedStyle(document.body).font;
+  return context.measureText(text).width;
+}
+
 export function formatSuffix(
   fieldDefinition: FieldDefinition | GroupDefinition,
 ): string {

@@ -68,6 +68,7 @@ import {
   getFieldDefinition,
   formatFieldLabel,
   SelectionListsScreen,
+  getTextWidth,
 } from './Items';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
@@ -1623,7 +1624,10 @@ export class GroupedForm extends Component {
     return hasColumns(this.props.definition);
   }
 
-  renderColumnsHeader(columnDefinition: GroupDefinition) {
+  renderColumnsHeader(
+    columnDefinition: GroupDefinition,
+    columnedLabelWidth: number | undefined,
+  ) {
     if (this.hasColumns() === false) {
       return null;
     }
@@ -1633,11 +1637,15 @@ export class GroupedForm extends Component {
     if (columns === undefined || columns.length === 0) {
       return null;
     }
+    const labelWidth =
+      columnedLabelWidth ?? this.getColumnedLabelWidth(columnDefinition);
     return (
       <View
         style={styles.formRow}
         key={'columnHeader-' + columnDefinition.name}>
-        {columnDefinition?.fields?.[0] && formatLabel(columnDefinition.fields[0]) && <Label value={Array.from({length:formatLabel(columnDefinition.fields[0]).length}, (v,u)=>" ").join(" ")} suffix="  "/>} 
+        {labelWidth && (
+          <Label value=" " suffix="" style={{width: labelWidth}} />
+        )}
         {columns.map((column: string, index: number) => {
           const columnDefinition: FieldDefinition =
             this.props.definition.fields.find(
@@ -1647,7 +1655,6 @@ export class GroupedForm extends Component {
           if (columnDefinition) {
             const columnLabel: string = formatLabel(columnDefinition);
             return (
-
               <Label
                 value={columnLabel}
                 style={styles.formTableColumnHeader}
@@ -1689,6 +1696,7 @@ export class GroupedForm extends Component {
   renderColumnedRow(
     labelId: string,
     fieldLabel: string,
+    fieldLabelWidth: number,
     columns: string[],
     rowIndex: number,
     copyRow: () => void,
@@ -1697,6 +1705,7 @@ export class GroupedForm extends Component {
       <View style={styles.formRow} key={'columnedRow-' + rowIndex}>
         <Label
           value={fieldLabel}
+          style={{width: fieldLabelWidth}}
           fieldId={labelId}
         />
         {columns.map((column: string, columnIndex: number) => {
@@ -1765,12 +1774,24 @@ export class GroupedForm extends Component {
     });
   }
 
+  getColumnedLabelWidth(columnDefinition: GroupDefinition): number {
+    const columnedFields: FieldDefinition[] = columnDefinition.fields;
+    return columnedFields
+      .map((cf) =>
+        getTextWidth(formatLabel(cf)?.length > 0 && formatLabel(cf) + ':'),
+      )
+      .reduce((maxWidth, currWidth) =>
+        maxWidth < currWidth ? currWidth : maxWidth,
+      );
+  }
+
   renderColumnedRows(columnDefinition: GroupDefinition) {
     if (this.getIsVisible(columnDefinition) === false) {
       return null;
     }
     let rows: any[] = [];
-    rows.push(this.renderColumnsHeader(columnDefinition));
+    const columnedLabelWidth = this.getColumnedLabelWidth(columnDefinition);
+    rows.push(this.renderColumnsHeader(columnDefinition, columnedLabelWidth));
     const columnedFields: FieldDefinition[] = columnDefinition.fields;
     const columns: string[] = this.props.definition.columns.find(
       (columns: string[]) =>
@@ -1785,6 +1806,7 @@ export class GroupedForm extends Component {
             '.' +
             columnedFields[i].name,
           formatLabel(columnedFields[i]),
+          columnedLabelWidth,
           columns,
           i,
           () => this.copyRow(columnedFields, i, i + 1, columns),
