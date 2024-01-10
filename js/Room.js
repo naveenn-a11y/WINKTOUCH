@@ -79,7 +79,7 @@ export class RoomScreen extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      room: getExamRoomCode(this.props.navigation.state.params.patient.id),
+      room: getExamRoomCode(this.props.route.params.patient.id),
     };
   }
 
@@ -88,14 +88,14 @@ export class RoomScreen extends Component {
     let inactive: boolean = false;
 
     if (examRoom === undefined || examRoom === null) {
-      examRoom = getExamRoomCode(this.props.navigation.state.params.patient.id);
+      examRoom = getExamRoomCode(this.props.route.params.patient.id);
       inactive = true;
     }
 
     if (examRoom && examRoom.code) {
       const examRoomPatient: ExamRoom = {
         id: 'room-' + examRoom.code,
-        patientId: this.props.navigation.state.params.patient.id,
+        patientId: this.props.route.params.patient.id,
         examRoomId: 'room-' + examRoom.code,
         inactive: inactive,
       };
@@ -107,7 +107,7 @@ export class RoomScreen extends Component {
   }
 
   async getExamRoom() {
-    const patient: PatientInfo = this.props.navigation.state.params.patient;
+    const patient: PatientInfo = this.props.route.params.patient;
     const roomPatientId: string = 'room-' + stripDataType(patient.id);
     await fetchExamRoom(roomPatientId);
     const examRoom: CodeDefinition = getExamRoomCode(patient.id);

@@ -1,35 +1,38 @@
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import {cacheItem, getCachedItem} from '../DataCache';
+import { getCurrentRoute } from '../Util';
 
 this._navigator = null;
+this._navigationState = {};
 
 function setTopLevelNavigator(navigationRef) {
   this._navigator = navigationRef;
 }
 
+function setNavigationState(navigationState) {
+  this._navigationState = navigationState;
+}
+
+function getNavigationState() {
+  return this._navigationState;
+}
+
 function navigate(routeName, params) {
   if (this._navigator) {
-    this._navigator.dispatch({
-      type: NavigationActions.NAVIGATE,
-      routeName,
-      params,
-    });
+    this._navigator.dispatch(
+      CommonActions.navigate({
+        name: routeName,
+        params: params
+      })
+    );
   }
 }
 
 function dismissLockScreen() {
   if (this._navigator) {
-    if (
-      this._navigator.state.nav.routes &&
-      Array.isArray(this._navigator.state.nav.routes)
-    ) {
-      if (
-        this._navigator.state.nav.routes[
-          this._navigator.state.nav.routes.length - 1
-        ].routeName === 'lock'
-      ) {
-        this._navigator.dispatch({type: NavigationActions.BACK});
-      }
+    const currentRoute = getCurrentRoute(this._navigationState);
+    if ((currentRoute.name && currentRoute.name === "lock")) {
+      this._navigator.dispatch(CommonActions.goBack());
     }
   }
 }
@@ -55,6 +58,10 @@ function isModalVisible() : boolean {
   return visibleModalList.size > 0;
 }
 
+function setParams(params) {
+  return CommonActions.setParams(params);
+}
+
 export default {
   navigate,
   setTopLevelNavigator,
@@ -62,4 +69,7 @@ export default {
   getTopLevelNavigator,
   setModalVisibility,
   isModalVisible,
+  setParams,
+  setNavigationState,
+  getNavigationState,
 };

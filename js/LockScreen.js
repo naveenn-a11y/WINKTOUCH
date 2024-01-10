@@ -118,7 +118,7 @@ export class LockScreen extends Component {
       }
       let responseJson = await httpResponse.json();
       if (responseJson.success === true || responseJson.user) {
-        this.props.navigation.state.params.onUserLogin(); //restart tracker
+        this.props.route.params.onUserLogin(); //restart tracker
         this.props.navigation.goBack();
       }
     } catch (error) {
@@ -241,7 +241,7 @@ export class LockScreen extends Component {
                     <TouchableOpacity
                       style={{marginLeft: 10}}
                       onPress={() =>
-                        this.props.navigation.state.params.onUserLogout()
+                        this.props.route.params.onUserLogout()
                       }>
                       <Text>{strings.logout}</Text>
                     </TouchableOpacity>

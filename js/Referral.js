@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {styles, selectionColor, isWeb} from './Styles';
 import {
@@ -132,35 +132,32 @@ export class ReferralScreen extends Component<
     super(props);
     this.state = {
       template:
-        this.props.navigation &&
-        this.props.navigation.state &&
-        this.props.navigation.state.params &&
-        this.props.navigation.state.params.referral &&
-        this.props.navigation.state.params.referral.referralTemplate &&
-        !this.props.navigation.state.params.followUp
-          ? this.props.navigation.state.params.referral.referralTemplate
+        this.props.route &&
+        this.props.route.params &&
+        this.props.route.params.referral &&
+        this.props.route.params.referral.referralTemplate &&
+        !this.props.route.params.followUp
+          ? this.props.route.params.referral.referralTemplate
               .template
           : undefined,
       selectedField: [undefined, undefined, undefined, undefined, undefined],
       htmlDefinition: [],
       doctorReferral: {
         id:
-          this.props.navigation &&
-          this.props.navigation.state &&
-          this.props.navigation.state.params &&
-          this.props.navigation.state.params.referral &&
-          !this.props.navigation.state.params.followUp
-            ? stripDataType(this.props.navigation.state.params.referral.id)
+          this.props.route &&
+          this.props.route.params &&
+          this.props.route.params.referral &&
+          !this.props.route.params.followUp
+            ? stripDataType(this.props.route.params.referral.id)
             : undefined,
       },
       linkedDoctorReferral: {
         id:
-          this.props.navigation &&
-          this.props.navigation.state &&
-          this.props.navigation.state.params &&
-          this.props.navigation.state.params.referral &&
-          this.props.navigation.state.params.followUp
-            ? stripDataType(this.props.navigation.state.params.referral.id)
+          this.props.route &&
+          this.props.route.params &&
+          this.props.route.params.referral &&
+          this.props.route.params.followUp
+            ? stripDataType(this.props.route.params.referral.id)
             : undefined,
       },
       isActive: true,
@@ -169,22 +166,20 @@ export class ReferralScreen extends Component<
       isPopupVisibile: false,
       hasSignatureField: false,
       doctorId:
-        this.props.navigation &&
-        this.props.navigation.state &&
-        this.props.navigation.state.params &&
-        this.props.navigation.state.params.referral
-          ? stripDataType(this.props.navigation.state.params.referral.doctorId)
+        this.props.route &&
+        this.props.route.params &&
+        this.props.route.params.referral
+          ? stripDataType(this.props.route.params.referral.doctorId)
           : undefined,
       isDirty: false,
       followUpStateKey:
-        this.props.navigation &&
-        this.props.navigation.state &&
-        this.props.navigation.state.params
-          ? this.props.navigation.state.params.followUpStateKey
+        this.props.route &&
+        this.props.route.params
+          ? this.props.route.params.followUpStateKey
           : undefined,
       isLoading: false,
       referralHtml: '',
-      selectedVisitId: this.props.navigation.state.params.visit.id,
+      selectedVisitId: this.props.route.params.visit.id,
       referralStarted: false,
       builtInTemplates: {},
       showBuiltInDialog: false,
@@ -199,7 +194,7 @@ export class ReferralScreen extends Component<
 
   getPreviousVisits(): ?(CodeDefinition[]) {
     const patientInfo: PatientInfo =
-      this.props.navigation.state.params.patientInfo;
+      this.props.route.params.patientInfo;
     if (patientInfo === undefined) {
       return undefined;
     }
@@ -266,7 +261,7 @@ export class ReferralScreen extends Component<
 
   async startReferral(template?: string) {
     this.setState({isLoading: true});
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     const allExams: string[] = allExamIds(visit);
     let exams: Exam[] = getCachedItems(allExams);
     if (exams) {
@@ -304,13 +299,12 @@ export class ReferralScreen extends Component<
           let htmlHeader: string = patientHeader(true);
           let htmlEnd: string = patientFooter();
           template =
-            this.props.navigation &&
-            this.props.navigation.state &&
-            this.props.navigation.state.params &&
-            this.props.navigation.state.params.referral &&
-            this.props.navigation.state.params.referral.referralTemplate &&
-            !this.props.navigation.state.params.followUp
-              ? this.props.navigation.state.params.referral.referralTemplate
+            this.props.route &&
+            this.props.route.params &&
+            this.props.route.params.referral &&
+            this.props.route.params.referral.referralTemplate &&
+            !this.props.route.params.followUp
+              ? this.props.route.params.referral.referralTemplate
                   .template
               : template;
           let html = htmlHeader + htmlContent.content + htmlEnd;
@@ -427,7 +421,7 @@ export class ReferralScreen extends Component<
     }
     this.setState({isLoading: true});
     let parameters: {} = {};
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     let htmlDefinition: HtmlDefinition[] = this.state.htmlDefinition;
     let body: {} = {
       htmlDefinition: htmlDefinition,
@@ -472,7 +466,7 @@ export class ReferralScreen extends Component<
     this.setState({isLoading: true});
     let html = await this.editor.getContent();
     let parameters: {} = {};
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     let htmlDefinition: HtmlDefinition[] = this.state.htmlDefinition;
     let body: {} = {
       htmlReferral: html,
@@ -529,7 +523,7 @@ export class ReferralScreen extends Component<
     html = HtmlEmbeddedAttachment + htmlEnd;
 
     let parameters: {} = {};
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
 
     let pdf = await generatePDF(HtmlWithAttachment, true);
     const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
@@ -575,11 +569,11 @@ export class ReferralScreen extends Component<
 
       let referralDefinition: ReferralDefinition = response;
       if (this.state.followUpStateKey) {
-        const setParamsAction = NavigationActions.setParams({
+        const setParamsAction = CommonActions.setParams({
           params: {refreshFollowUp: true},
           key: this.state.followUpStateKey,
         });
-        this.props.navigation.dispatch(setParamsAction);
+      this.props.navigation.dispatch({...setParamsAction, source: this.state.followUpStateKey});
       }
       if (this.unmounted) {
         return referralDefinition;
@@ -652,7 +646,7 @@ export class ReferralScreen extends Component<
     let HtmlWithAttachment: string = renderAttachment(html);
     let PDFAttachment: Array<any> = getSelectedPDFAttachment();
     let parameters: {} = {};
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     let pdf = await generatePDF(HtmlWithAttachment, true);
     const resultPdf = await addPDFAttachment(pdf, PDFAttachment);
     const resultBase64: string = await resultPdf.saveAsBase64();
@@ -1144,13 +1138,14 @@ export class ReferralScreen extends Component<
   }
 
   renderSavedFollowUp() {
-    const followUp: Boolean = this.props.navigation.state.params.followUp;
+    const followUp: Boolean = this.props.route.params.followUp;
     return (
       !followUp && (
         <FollowUpScreen
-          patientInfo={this.props.navigation.state.params.patientInfo}
+          patientInfo={this.props.route.params.patientInfo}
           navigation={this.props.navigation}
           isDraft={true}
+          route={this.props.route}
         />
       )
     );
@@ -1161,13 +1156,12 @@ export class ReferralScreen extends Component<
     let linkedDoctorReferral: ReferralDefinition =
       this.state.linkedDoctorReferral;
 
-    const followUp: Boolean = this.props.navigation.state.params.followUp;
+    const followUp: Boolean = this.props.route.params.followUp;
 
     const params =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params
-        ? this.props.navigation.state.params
+      this.props.route &&
+      this.props.route.params
+        ? this.props.route.params
         : undefined;
     if (params) {
       if (
@@ -1198,7 +1192,7 @@ export class ReferralScreen extends Component<
       }
       if (params.referral && isEmpty(this.state.doctorId)) {
         const doctorId = stripDataType(
-          this.props.navigation.state.params.referral.doctorId,
+          this.props.route.params.referral.doctorId,
         );
         if (this.state.doctorId !== doctorId) {
           this.setState({doctorId: doctorId});

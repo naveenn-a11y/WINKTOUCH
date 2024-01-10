@@ -840,3 +840,15 @@ export function getDoctorFullName(doctor: User): string {
     return '';
   }
 }
+
+export function getCurrentRoute(navigationState) {
+  if (!navigationState) {
+    return null;
+  }
+  const route = navigationState.routes[navigationState.index];
+  // dive into nested navigators
+  if (route.routes) {
+    return getCurrentRoute(route);
+  }
+  return route;
+}

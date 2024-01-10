@@ -1046,7 +1046,7 @@ class VisitWorkFlow extends Component {
   }
 
   async componentDidUpdate(prevProps: any) {
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
 
     if (params && params.refreshFollowUp) {
       const patientInfo: PatientInfo = this.props.patientInfo;
@@ -1395,7 +1395,7 @@ class VisitWorkFlow extends Component {
     this.props.navigation.navigate('referral', {
       visit: getCachedItem(this.props.visitId),
       patientInfo: this.props.patientInfo,
-      followUpStateKey: this.props.navigation.state.key,
+      followUpStateKey: this.props.route.key,
     });
   }
 
@@ -2726,6 +2726,7 @@ export class VisitHistory extends Component {
     enableScroll: () => void,
     disableScroll: () => void,
     hasAppointment: ?boolean,
+    route: any,
   };
   state: {
     selectedId: ?string,
@@ -2739,10 +2740,9 @@ export class VisitHistory extends Component {
     super(props);
     this.state = {
       selectedId:
-        this.props.navigation &&
-        this.props.navigation.state &&
-        this.props.navigation.state.params
-          ? this.props.navigation.state.params.selectedVisitId
+        this.props.route &&
+        this.props.route.params
+          ? this.props.route.params.selectedVisitId
           : undefined,
       history: this.combineHistory(
         props.patientDocumentHistory,
@@ -3093,6 +3093,7 @@ export class VisitHistory extends Component {
             onUpdateVisitSelection={(selectedVisit) =>
               this.showVisit(selectedVisit)
             }
+            route={this.props.route}
           />
         </View>
       </View>
@@ -3156,6 +3157,7 @@ export class VisitHistory extends Component {
               patientInfo={this.props.patientInfo}
               visitId={this.state.selectedId}
               navigation={this.props.navigation}
+              route={this.props.route}
               appointmentStateKey={this.props.appointmentStateKey}
               onStartVisit={(
                 visitType: string,
