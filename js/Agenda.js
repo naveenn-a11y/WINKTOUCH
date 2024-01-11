@@ -195,6 +195,7 @@ export class AgendaScreen extends Component {
   today = new Date();
   lastRefresh: number;
   daysInWeek: number;
+  dimensionListener = null;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -234,11 +235,11 @@ export class AgendaScreen extends Component {
   async componentDidMount() {
     this.getDoctors();
     this.getSelectedDoctorsFromStorage();
-    Dimensions.addEventListener('change', this._onDimensionsChange);
+    this.dimensionListener = Dimensions.addEventListener('change', this._onDimensionsChange);
   }
 
   componentWillUnmount() {
-    Dimensions.removeEventListener('change', this._onDimensionsChange);
+    this.dimensionListener?.remove();
     if (this.state.refresh) {
       this.asyncComponentWillUnmount();
     }
