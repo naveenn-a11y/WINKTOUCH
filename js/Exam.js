@@ -947,7 +947,7 @@ export class ExamScreen extends Component {
     this.deleteCopiedData();
 
     if (this.focusSubscription !== undefined) {
-      this.focusSubscription.remove();
+      this.focusSubscription();
     }
     
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
