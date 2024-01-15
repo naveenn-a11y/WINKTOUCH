@@ -336,20 +336,13 @@ export function formatLabel(
     | GroupDefinition
     | {name: string, label: ?string},
 ): string {
-  if (fieldDefinition === undefined) {
+  if (fieldDefinition === undefined) { 
     return '';
   }
   if (fieldDefinition.label !== undefined && fieldDefinition.label !== null) {
     return fieldDefinition.label;
   }
   return fieldDefinition.name;
-}
-
-export function getTextWidth(text:string, font:string|undefined):number{
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  context.font = font || getComputedStyle(document.body).font;
-  return context.measureText(text).width;
 }
 
 export function formatSuffix(

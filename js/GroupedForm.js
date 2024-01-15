@@ -68,8 +68,7 @@ import {
   getFieldDefinition,
   formatFieldLabel,
   SelectionListsScreen,
-  getTextWidth,
-} from './Items';
+} from './Items';  
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -1624,75 +1623,6 @@ export class GroupedForm extends Component {
     return hasColumns(this.props.definition);
   }
 
-  renderColumnsHeader(
-    columnDefinition: GroupDefinition,
-    columnedLabelWidth: number | undefined,
-  ) {
-    if (this.hasColumns() === false) {
-      return null;
-    }
-    const columns = this.props.definition.columns.find(
-      (columns: string[]) => columns[0] === columnDefinition.name,
-    );
-    if (columns === undefined || columns.length === 0) {
-      return null;
-    }
-    const labelWidth =
-      columnedLabelWidth ?? this.getColumnedLabelWidth(columnDefinition);
-    return (
-      <View
-        style={styles.formRow}
-        key={'columnHeader-' + columnDefinition.name}>
-        {labelWidth && (
-          <Label value=" " suffix="" style={{width: labelWidth}} />
-        )}
-        {columns.map((column: string, index: number) => {
-          const columnDefinition: FieldDefinition =
-            this.props.definition.fields.find(
-              (fieldDefinition: FieldDefinition) =>
-                fieldDefinition.name === column,
-            );
-          if (columnDefinition) {
-            const columnLabel: string = formatLabel(columnDefinition);
-            return (
-              <Label
-                value={columnLabel}
-                style={styles.formTableColumnHeader}
-                key={index}
-                suffix={''}
-                fieldId={this.props.fieldId + '.' + columnDefinition.name}
-              />
-            );
-          } else {
-            if (column === '>>') {
-              if (index === columns.length - 1) {
-                return (
-                  <View
-                    style={styles.formTableColumnHeaderSmall}
-                    key={'header-' + index}
-                  />
-                );
-              } else {
-                return (
-                  <View
-                    style={styles.formTableColumnHeaderFlat}
-                    key={'header-' + index}>
-                    <CopyColumn
-                      onPress={() =>
-                        this.copyColumn(columns[index - 1], columns[index + 1])
-                      }
-                    />
-                  </View>
-                );
-              }
-            }
-            return null;
-          }
-        })}
-      </View>
-    );
-  }
-
   renderColumnedRow(
     labelId: string,
     fieldLabel: string,
@@ -1774,46 +1704,156 @@ export class GroupedForm extends Component {
     });
   }
 
-  getColumnedLabelWidth(columnDefinition: GroupDefinition): number {
-    const columnedFields: FieldDefinition[] = columnDefinition.fields;
-    return columnedFields
-      .map((cf) =>
-        getTextWidth(formatLabel(cf)?.length > 0 && formatLabel(cf) + ':'),
-      )
-      .reduce((maxWidth, currWidth) =>
-        maxWidth < currWidth ? currWidth : maxWidth,
-      );
+  renderColumn(
+    columnDefinition: GroupDefinition,
+    refColumnDefinition: GroupDefinition,
+  ) {
+    return (
+      <View style={styles.formColumnFlex}>
+        {columnDefinition && (
+          <View style={styles.formColumnItem}>
+            <Label
+              value={formatLabel(columnDefinition)}
+              style={styles.formTableColumnHeaderFull}
+              key={columnDefinition.name}
+              suffix={''}
+              fieldId={this.props.fieldId + '.' + columnDefinition.name}
+            />
+          </View>
+        )}
+        {refColumnDefinition &&
+          refColumnDefinition.fields &&
+          refColumnDefinition.fields.map((reffd: FieldDefinition, ind) => {
+            const fd = columnDefinition?.fields.find(
+              (f) => f.name === reffd.name,
+            );
+            return fd ? (
+              <View
+                key={columnDefinition.name + ind}
+                style={styles.formColumnItem}>
+                {this.renderField(fd, columnDefinition.name)}
+              </View>
+            ) : (
+              <View key={ind} style={styles.formColumnItem} />
+            );
+          })}
+      </View>
+    );
   }
 
-  renderColumnedRows(columnDefinition: GroupDefinition) {
-    if (this.getIsVisible(columnDefinition) === false) {
+  renderColumnLabels(refColumnDefinition: GroupDefinition) {
+    return (
+      <View style={styles.formColumn}>
+        {refColumnDefinition && refColumnDefinition.fields && (
+          <>
+            <View style={styles.formColumnItem}>
+              <Label value=" " suffix="" />
+            </View>
+            {refColumnDefinition.fields.map((fd: FieldDefinition) => (
+              <View style={styles.formColumnItem} key={fd.name}>
+                <Label
+                  value={formatLabel(fd)}
+                  fieldId={this.props.fieldId + '.' + fd.name}
+                />
+              </View>
+            ))}
+          </>
+        )}
+      </View>
+    );
+  }
+
+  renderColumnCopy(
+    columnDefinition: GroupDefinition,
+    colInd: number,
+    columns: string[],
+  ) {
+    return (
+      <View style={styles.formColumn}>
+        <View style={styles.formTableColumnHeaderFlat}>
+          <CopyColumn
+            onPress={() =>
+              this.copyColumn(columns[colInd - 1], columns[colInd + 1])
+            }
+          />
+        </View>
+        {columnDefinition &&
+          columnDefinition.fields &&
+          columnDefinition.fields.map((fd: FieldDefinition, ind) => (
+            <View key={ind} style={styles.formTableColumnHeaderSmall} />
+          ))}
+      </View>
+    );
+  }
+
+  renderRowCopy(refColumnDefinition: GroupDefinition, columns: string[]) {
+    return (
+      <View style={styles.formColumn}>
+        {refColumnDefinition && refColumnDefinition.fields && (
+          <>
+            <View style={styles.formColumnItem}>
+              <Label value=" " suffix="" />
+            </View>
+            {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
+              ind < refColumnDefinition.fields.length - 1 ? (
+                <View key={ind}>
+                  <View style={styles.formTableColumnHeaderSmall} />
+                  <CopyRow
+                    onPress={() =>
+                      this.copyRow(
+                        refColumnDefinition.fields,
+                        ind,
+                        ind + 1,
+                        columns,
+                      )
+                    }
+                  />
+                </View>
+              ) : (
+                <View key={ind} style={styles.formTableColumnHeaderSmall} />
+              ),
+            )}
+          </>
+        )}
+      </View>
+    );
+  }
+
+  renderColumnedRows(refColumnDefinition: GroupDefinition) {
+    if (this.getIsVisible(refColumnDefinition) === false) {
       return null;
     }
-    let rows: any[] = [];
-    const columnedLabelWidth = this.getColumnedLabelWidth(columnDefinition);
-    rows.push(this.renderColumnsHeader(columnDefinition, columnedLabelWidth));
-    const columnedFields: FieldDefinition[] = columnDefinition.fields;
+
     const columns: string[] = this.props.definition.columns.find(
       (columns: string[]) =>
-        columns.length > 0 && columns[0] === columnDefinition.name,
+        columns.length > 0 && columns[0] === refColumnDefinition.name,
     );
-    for (let i: number = 0; i < columnedFields.length; i++) {
-      rows.push(
-        this.renderColumnedRow(
-          this.props.fieldId +
-            '.' +
-            columnDefinition.name +
-            '.' +
-            columnedFields[i].name,
-          formatLabel(columnedFields[i]),
-          columnedLabelWidth,
-          columns,
-          i,
-          () => this.copyRow(columnedFields, i, i + 1, columns),
-        ),
-      );
-    }
-    return rows;
+    return (
+      <View style={styles.formRow}>
+        {this.renderColumnLabels(refColumnDefinition)}
+        {columns.map((column, index) => {
+          const columnDefinition: GroupDefinition =
+            this.props.definition.fields.find(
+              (fieldDefinition) => fieldDefinition.name === column,
+            );
+          if (columnDefinition) {
+            return this.renderColumn(columnDefinition, refColumnDefinition);
+          } else {
+            if (column === '>>') {
+              if (index < columns.length - 1 && index > 0) {
+                return this.renderColumnCopy(
+                  refColumnDefinition,
+                  index,
+                  columns,
+                );
+              } else {
+                return this.renderRowCopy(refColumnDefinition, columns);
+              }
+            }
+          }
+        })}
+      </View>
+    );
   }
 
   renderRows() {

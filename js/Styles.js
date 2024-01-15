@@ -494,6 +494,25 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 3 * fontScale,
   },
+  formColumn: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    padding: 3 * fontScale,
+  },
+  get formColumnFlex() {
+    return {
+      ...this.formColumn,
+      flex: 1,
+    };
+  },
+  formColumnItem: {
+    width: '100%',
+    height: 40 * fontScale,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   formRow500: {
     width: 520 * fontScale,
     flexDirection: 'row',
@@ -653,6 +672,12 @@ export const styles = StyleSheet.create({
     margin: 4 * fontScale,
     marginTop: 20 * fontScale,
     marginBottom: 0 * fontScale,
+  },
+  get formTableColumnHeaderFull() {
+    return {
+      ...this.formTableColumnHeader,
+      width: '100%',
+    };
   },
   formTableColumnHeaderWide: {
     flex: 240,
@@ -1539,12 +1564,12 @@ export const styles = StyleSheet.create({
     margin: 10 * fontScale,
     backgroundColor: '#fff',
   },
-  attachementContainer: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
-    alignItems: 'flex-start', 
-    marginBottom: 20 * fontScale
-  }
+  attachementContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    marginBottom: 20 * fontScale,
+  },
 });
 
 function cardStyle(color: Color) {
