@@ -1544,7 +1544,10 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap', 
     alignItems: 'flex-start', 
     marginBottom: 20 * fontScale
-  }
+  },
+  flatListScroll: {
+    height: '300px',
+  },
 });
 
 function cardStyle(color: Color) {

@@ -3536,6 +3536,7 @@ export class SelectionList extends React.PureComponent {
           data={data}
           keyExtractor={(item) => item}
           renderItem={this.renderItem}
+          style={styles.flatListScroll} // smp - add height and scroll
         />
       </View>
     );
