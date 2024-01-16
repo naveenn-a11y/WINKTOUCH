@@ -1288,14 +1288,10 @@ export const styles = StyleSheet.create({
     transform: [{rotate: '90deg'}],
   },
   copyColumn: {
-    position: 'absolute',
-    left: -25 * fontScale,
-    top: -12 * fontScale,
     fontSize: 28 * fontScale,
     fontWeight: 'normal',
     borderWidth: 0,
     padding: 8 * fontScale,
-    paddingHorizontal: 15 * fontScale,
   },
   patientDocument: {
     flex: 1,

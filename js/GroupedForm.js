@@ -68,7 +68,7 @@ import {
   getFieldDefinition,
   formatFieldLabel,
   SelectionListsScreen,
-} from './Items';  
+} from './Items';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -1623,56 +1623,6 @@ export class GroupedForm extends Component {
     return hasColumns(this.props.definition);
   }
 
-  renderColumnedRow(
-    labelId: string,
-    fieldLabel: string,
-    fieldLabelWidth: number,
-    columns: string[],
-    rowIndex: number,
-    copyRow: () => void,
-  ) {
-    return (
-      <View style={styles.formRow} key={'columnedRow-' + rowIndex}>
-        <Label
-          value={fieldLabel}
-          style={{width: fieldLabelWidth}}
-          fieldId={labelId}
-        />
-        {columns.map((column: string, columnIndex: number) => {
-          const columnDefinition: GroupDefinition =
-            this.props.definition.fields.find(
-              (columnDefinition: FieldDefinition) =>
-                columnDefinition.name === column,
-            );
-          if (columnDefinition) {
-            const fieldDefinition: FieldDefinition =
-              columnDefinition.fields[rowIndex];
-            return this.renderField(fieldDefinition, column);
-          } else {
-            if (columnIndex === columns.length - 1) {
-              if (rowIndex == 0) {
-                return [
-                  <View
-                    style={styles.formTableColumnHeaderSmall}
-                    key={'copyRowSpace-' + rowIndex}
-                  />,
-                  <CopyRow onPress={copyRow} key={'copyRow-' + rowIndex} />,
-                ];
-              } else {
-                return (
-                  <View
-                    style={styles.formTableColumnHeaderSmall}
-                    key={'cpoyRowSpace-' + rowIndex}
-                  />
-                );
-              }
-            }
-          }
-        })}
-      </View>
-    );
-  }
-
   copyRow(
     rowFields: FieldDefinition[],
     rowIndexFrom: number,
@@ -1764,23 +1714,23 @@ export class GroupedForm extends Component {
   }
 
   renderColumnCopy(
-    columnDefinition: GroupDefinition,
+    refColumnDefinition: GroupDefinition,
     colInd: number,
     columns: string[],
   ) {
     return (
       <View style={styles.formColumn}>
-        <View style={styles.formTableColumnHeaderFlat}>
+        <View style={styles.formColumnItem}>
           <CopyColumn
             onPress={() =>
               this.copyColumn(columns[colInd - 1], columns[colInd + 1])
             }
           />
         </View>
-        {columnDefinition &&
-          columnDefinition.fields &&
-          columnDefinition.fields.map((fd: FieldDefinition, ind) => (
-            <View key={ind} style={styles.formTableColumnHeaderSmall} />
+        {refColumnDefinition &&
+          refColumnDefinition.fields &&
+          refColumnDefinition.fields.map((fd: FieldDefinition, ind) => (
+            <View key={ind} style={styles.formColumnItem} />
           ))}
       </View>
     );
@@ -1846,7 +1796,7 @@ export class GroupedForm extends Component {
                   index,
                   columns,
                 );
-              } else {
+              } else if (index === columns.length - 1) {
                 return this.renderRowCopy(refColumnDefinition, columns);
               }
             }
