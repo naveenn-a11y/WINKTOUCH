@@ -1399,6 +1399,7 @@ export class AgendaScreen extends Component {
                 {options.map((option) => {
                   return (
                     <Menu.Item
+                      key={option.value}
                       onPress={() => this._onSetMode(option.value)}
                       title={option.label}
                     />

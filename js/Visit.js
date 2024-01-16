@@ -1736,7 +1736,7 @@ class VisitWorkFlow extends Component {
       return null;
     }
     const view = (
-      <View style={styles.flow}>
+      <View style={styles.flow} key={sectionIndex}>
         {exams &&
           exams.map((element: Exam, index: number) => {
             let exam: Exam = element;
