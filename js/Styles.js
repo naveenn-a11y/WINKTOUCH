@@ -1546,7 +1546,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20 * fontScale
   },
   flatListScroll: {
-    height: '300px',
+    height: 500 * fontScale,
   },
 });
 
