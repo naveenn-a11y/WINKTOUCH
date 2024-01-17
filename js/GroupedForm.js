@@ -1221,33 +1221,14 @@ export class GroupedCard extends Component {
   }
 
   renderCardRows(cardFields?: any) {
-    let i: number = 0;
     let rowValues: string[][] = [];
     cardFields =
       cardFields === undefined ? this.expandMultiValueCardFields() : cardFields;
     cardFields.forEach((cardRowFields: string[]) => {
       let rowValue: ?(string[]) = cardRowFields.map((fullFieldName: string) => {
         if (fullFieldName.indexOf('.') === -1) {
-          //Hard coded strings
-          let formatttedFullFieldName = fullFieldName.trim();
-          formatttedFullFieldName = formatttedFullFieldName.endsWith(':')
-            ? formatttedFullFieldName.substring(
-                0,
-                formatttedFullFieldName.length - 1,
-              )
-            : formatttedFullFieldName;
-
-          const fieldDefinition: fieldDefinition = getExamFieldDefinition(
-            formatttedFullFieldName,
-            this.props.exam,
-          );
-          const prefix: string = fieldDefinition
-            ? fieldDefinition.highlightedLabel
-              ? '<b>'
-              : ''
-            : '';
-
-          return prefix + fullFieldName + ' ';
+          //Hard coded strings - do nothing
+          return fullFieldName + ' ';
         }
         const fieldDefinition: fieldDefinition = getExamFieldDefinition(
           fullFieldName,
