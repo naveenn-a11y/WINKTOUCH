@@ -1700,13 +1700,15 @@ export class GroupedForm extends Component {
     columns: string[],
   ) {
     return (
-      <View style={styles.formColumn}>
+      <View style={styles.FormColumnTop}>
         <View style={styles.formColumnItem}>
-          <CopyColumn
-            onPress={() =>
-              this.copyColumn(columns[colInd - 1], columns[colInd + 1])
-            }
-          />
+          <View style={styles.copyColumnContainer}>
+            <CopyColumn
+              onPress={() =>
+                this.copyColumn(columns[colInd - 1], columns[colInd + 1])
+              }
+            />
+          </View>
         </View>
         {refColumnDefinition &&
           refColumnDefinition.fields &&

@@ -506,6 +506,12 @@ export const styles = StyleSheet.create({
       flex: 1,
     };
   },
+  get FormColumnTop() {
+    return {
+      ...this.formColumn,
+      zIndex: 9999,
+    };
+  },
   formColumnItem: {
     width: '100%',
     height: 40 * fontScale,
@@ -1272,6 +1278,12 @@ export const styles = StyleSheet.create({
       width: 2 * fontScale,
     },
     backgroundColor: 'orange',
+  },
+  copyColumnContainer: {
+    position: 'absolute',
+    width: 56 * fontScale,
+    left: -28 * fontScale,
+    textAlign: 'center',
   },
   bottomEndOfRow: {
     position: 'absolute',
