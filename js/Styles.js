@@ -506,12 +506,14 @@ export const styles = StyleSheet.create({
       flex: 1,
     };
   },
+  set formColumnFlex(object) {},
   get FormColumnTop() {
     return {
       ...this.formColumn,
       zIndex: 9999,
     };
   },
+  set FormColumnTop(object) {},
   formColumnItem: {
     width: '100%',
     height: 40 * fontScale,
@@ -685,6 +687,7 @@ export const styles = StyleSheet.create({
       width: '100%',
     };
   },
+  set formTableColumnHeaderFull(object) {},
   formTableColumnHeaderWide: {
     flex: 240,
     flexDirection: 'row',
@@ -1304,6 +1307,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'normal',
     borderWidth: 0,
     padding: 8 * fontScale,
+    textAlign: 'center',
   },
   patientDocument: {
     flex: 1,
@@ -1572,10 +1576,10 @@ export const styles = StyleSheet.create({
     margin: 10 * fontScale,
     backgroundColor: '#fff',
   },
-  attachementContainer: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
-    alignItems: 'flex-start', 
+  attachementContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
     marginBottom: 20 * fontScale,
   },
   flatListScroll: {
