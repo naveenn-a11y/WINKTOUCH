@@ -535,6 +535,7 @@ export class FindPatientScreen extends Component {
               patientDocumentHistory={this.state.patientDocumentHistory}
               readonly={true}
               navigation={this.props.navigation}
+              route={this.props.route}
             />
           </View>
         )}

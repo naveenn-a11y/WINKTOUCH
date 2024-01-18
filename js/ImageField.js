@@ -1427,7 +1427,7 @@ export class ImageField extends Component {
       );
 
       return (
-        <TouchableWithoutFeedback onPress={isWeb ? {} : this.commitEdit}>
+        <TouchableWithoutFeedback onPress={isWeb ? () => {} : this.commitEdit}>
           <View style={styles.popupBackground}>
             <Text style={styles.modalTitle}>{this.props.label}</Text>
             <View>

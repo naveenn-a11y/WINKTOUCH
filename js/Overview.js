@@ -108,6 +108,7 @@ function compareByStart(
 export class OverviewScreen extends PureComponent {
   props: {
     navigation: any,
+    onLogout: () => void,
     screenProps: {
       onLogout: () => void,
     },
@@ -131,8 +132,8 @@ export class OverviewScreen extends PureComponent {
 
   componentDidUpdate(prevProps: any) {
     if (
-      this.props.navigation.state.params &&
-      this.props.navigation.state.params.refreshAppointments === true
+      this.props.route.params &&
+      this.props.route.params.refreshAppointments === true
     ) {
       this.refreshAppointments();
     }
@@ -173,7 +174,7 @@ export class OverviewScreen extends PureComponent {
         <View>
           <MainActivities
             navigation={this.props.navigation}
-            onLogout={this.props.screenProps.onLogout}
+            onLogout={this.props.onLogout}
           />
         </View>
       </View>

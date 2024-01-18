@@ -106,15 +106,13 @@ export class ExamNavigationMenu extends PureComponent {
 export class MenuBar extends PureComponent {
   props: {
     navigation: any,
-    screenProps: {
-      onLogout: () => void,
-    },
+    onLogout: () => void,
   };
 
   componentDidMount() {
     if (isWeb) {
       window.onpopstate = () => {
-        this.props.screenProps.onLogout();
+        this.props.onLogout();
       };
     }
     KeyboardAccessibility.startTracking();
@@ -156,7 +154,7 @@ export class MenuBar extends PureComponent {
     const patient: PatientInfo | Patient = this.getPatient();
 
     const scene: ?string =
-      this.props.navigation.state && this.props.navigation.state.routeName;
+      this.props.navigation.state && this.props.navigation.state.name;
     const key: ?string =
       this.props.navigation.state && this.props.navigation.state.key;
     const hasConfig: boolean = getPhoropters().length > 1;
