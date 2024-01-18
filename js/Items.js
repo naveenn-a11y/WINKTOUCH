@@ -336,7 +336,7 @@ export function formatLabel(
     | GroupDefinition
     | {name: string, label: ?string},
 ): string {
-  if (fieldDefinition === undefined) {
+  if (fieldDefinition === undefined) { 
     return '';
   }
   if (fieldDefinition.label !== undefined && fieldDefinition.label !== null) {

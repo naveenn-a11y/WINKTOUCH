@@ -18,7 +18,7 @@ import {
 import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import {FormRow, FormInput} from './Form';
 import {strings} from './Strings';
 import dayjs from 'dayjs';
@@ -195,6 +195,7 @@ export class AgendaScreen extends Component {
   today = new Date();
   lastRefresh: number;
   daysInWeek: number;
+  dimensionListener = null;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -234,23 +235,23 @@ export class AgendaScreen extends Component {
   async componentDidMount() {
     this.getDoctors();
     this.getSelectedDoctorsFromStorage();
-    Dimensions.addEventListener('change', this._onDimensionsChange);
+    this.dimensionListener = Dimensions.addEventListener('change', this._onDimensionsChange);
   }
 
   componentWillUnmount() {
-    Dimensions.removeEventListener('change', this._onDimensionsChange);
+    this.dimensionListener?.remove();
     if (this.state.refresh) {
       this.asyncComponentWillUnmount();
     }
   }
 
   async asyncComponentWillUnmount() {
-    if (this.props.navigation.state.params?.refreshStateKey) {
-      const setParamsAction = NavigationActions.setParams({
+    if (this.props.route.params?.refreshStateKey) {
+      const setParamsAction = CommonActions.setParams({
         params: {refresh: true},
-        key: this.props.navigation.state.params.refreshStateKey,
+        key: this.props.route.params.refreshStateKey,
       });
-      this.props.navigation.dispatch(setParamsAction);
+      this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
     }
   }
   _onDimensionsChange = () => {
@@ -829,6 +830,7 @@ export class AgendaScreen extends Component {
               this.selectPatient(patient)
             }
             navigation={this.props.navigation}
+            route={this.props.route}
             isBookingAppointment={true}
             openWaitingListDialog={
               !isDoubleBooking && this.openWaitingListDialog
@@ -1604,6 +1606,12 @@ class NativeCalendar extends Component {
     const cellWidth = mode == 'day' ? dayCellWidth : weekCellWidth;
     const eventWidth = mode == 'day' ? dayEventWidth : weekEventWidth;
 
+    const parsedAppointments = appointments.map(({start, end, ...event}) => ({
+      ...event,
+      start: moment(start).toDate(),
+      end: moment(end).toDate()
+    }));
+
     return (
       <>
         <Calendar
@@ -1613,7 +1621,7 @@ class NativeCalendar extends Component {
           date={date}
           swipeEnabled={false}
           height={windowHeight}
-          events={appointments}
+          events={parsedAppointments}
           weekStartsOn={0}
           weekEndsOn={6}
           hourRowHeight={90}

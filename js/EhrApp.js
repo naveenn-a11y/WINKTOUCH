@@ -116,6 +116,9 @@ const theme = {
   dark: false,
 };
 
+let netInfoListener = null;
+let appStateListener = null;
+
 export class EhrApp extends Component {
   state: {
     isRegistered: boolean,
@@ -339,9 +342,9 @@ export class EhrApp extends Component {
       shouldFetchWiFiSSID: false, // met iOS requirements to get SSID. Will leak memory if set to true without meeting requirements.
       useNativeReachability: true
     });
-    NetInfo.addEventListener(this.handleConnectivityChange);
+    netInfoListener = NetInfo.addEventListener(this.handleConnectivityChange);
     isIos && (await RemoteConfig.activateRemoteConfig());
-    AppState.addEventListener('change', this.onAppStateChange.bind(this));
+    appStateListener = AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
 
@@ -349,8 +352,8 @@ export class EhrApp extends Component {
     //if (this.state.updateTimer) {
     //  clearInterval(this.state.updateTimer);
     //}
-    NetInfo.removeEventListener(this.handleConnectivityChange);
-    AppState.removeEventListener('change', this.onAppStateChange.bind(this));
+    netInfoListener();
+    appStateListener.remove();
   }
 
   componentDidUpdate(prevProp, prevState) {

@@ -21,7 +21,7 @@ import {getUserLanguageShort, strings} from './Strings';
 import {cacheItem} from './DataCache';
 import {Button, SelectionListRow} from './Widgets';
 import {convertUserToJson, getUsers, searchUsers, UserListProps} from './User';
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import {storePatientInfo} from './Patient';
 import {Button as NativeBaseButton, Portal} from 'react-native-paper';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -233,7 +233,7 @@ export class VisitTypeTemplateScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let visitType: VisitType = this.props.navigation.state.params.visitType;
+    let visitType: VisitType = this.props.route.params.visitType;
     this.state = {
       visitType,
       isDirty: false,
@@ -254,7 +254,7 @@ export class VisitTypeTemplateScreen extends Component {
     if (visitType.errors) {
       this.props.navigation.navigate('visitTypeTemplate', {
         visitType: visitType,
-        refreshStateKey: this.props.navigation.state.params.refreshStateKey,
+        refreshStateKey: this.props.route.params.refreshStateKey,
       });
     } else {
       let visitTypes: VisitType[] = getAllVisitTypes();
@@ -266,12 +266,12 @@ export class VisitTypeTemplateScreen extends Component {
         cacheItem('visitTypes', visitTypes);
       }
 
-      if (this.props.navigation.state.params.refreshStateKey) {
-        const setParamsAction = NavigationActions.setParams({
+      if (this.props.route.params.refreshStateKey) {
+        const setParamsAction = CommonActions.setParams({
           params: {refresh: true},
-          key: this.props.navigation.state.params.refreshStateKey,
+          key: this.props.route.params.refreshStateKey,
         });
-        this.props.navigation.dispatch(setParamsAction);
+        this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
       }
     }
   }
@@ -289,7 +289,7 @@ export class VisitTypeTemplateScreen extends Component {
       if (this.unmounted) {
         this.props.navigation.navigate(
           'visitTypeTemplate',
-          this.props.navigation.state.params.visitType,
+          this.props.route.params.visitType,
         );
       } else {
         this.setState({isLoading: false});
@@ -317,7 +317,7 @@ export class VisitTypeTemplateScreen extends Component {
     const visitType: VisitType = await this.storeVisitType();
     if (
       !visitType.errors &&
-      this.props.navigation.state.params.refreshStateKey
+      this.props.route.params.refreshStateKey
     ) {
       let visitTypes: VisitType[] = getAllVisitTypes();
       if (visitTypes) {

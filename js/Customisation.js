@@ -257,7 +257,7 @@ export class VisitTypeCustomisationScreen extends PureComponent<
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     if (params && params.refresh === true) {
       this.setState({visitType: undefined});
       this.props.navigation.setParams({refresh: false});
@@ -269,7 +269,7 @@ export class VisitTypeCustomisationScreen extends PureComponent<
       this.setState({visitType});
       this.props.navigation.navigate('visitTypeTemplate', {
         visitType,
-        refreshStateKey: this.props.navigation.state.key,
+        refreshStateKey: this.props.route.key,
       });
     }
   };
@@ -283,7 +283,7 @@ export class VisitTypeCustomisationScreen extends PureComponent<
     };
     this.props.navigation.navigate('visitTypeTemplate', {
       visitType,
-      refreshStateKey: this.props.navigation.state.key,
+      refreshStateKey: this.props.route.key,
     });
   };
 

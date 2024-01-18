@@ -5,7 +5,7 @@
 
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, Animated, Easing} from 'react-native';
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
   Exam,
@@ -111,11 +111,11 @@ export async function storeExam(
 
   if (refreshStateKey && navigation) {
     //TODO check if exam has mapped visit fields
-    const setParamsAction = NavigationActions.setParams({
+    const setParamsAction = CommonActions.setParams({
       params: {refresh: true},
       key: refreshStateKey,
     });
-    navigation.dispatch(setParamsAction);
+    navigation.dispatch({...setParamsAction, source: refreshStateKey});
   }
   return exam;
 }
@@ -573,7 +573,7 @@ export class ExamHistoryScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     let examHistory: Exam[] = getExamHistory(params.exam);
     let patient: Patient = getPatient(params.exam);
     this.state = {
@@ -593,7 +593,7 @@ export class ExamHistoryScreen extends Component {
 
   addItem(item: any) {
     //TODO: check if visit is editable and show a confirmation ?
-    let exam: Exam = this.props.navigation.state.params.exam;
+    let exam: Exam = this.props.route.params.exam;
     if (exam.definition.addable) {
       let items: any[] = exam[exam.definition.name];
       if (!items.includes(item)) {
@@ -618,7 +618,7 @@ export class ExamHistoryScreen extends Component {
     groupValue: ?{},
     childValue: ?{},
   ) => {
-    let exam: Exam = this.props.navigation.state.params.exam;
+    let exam: Exam = this.props.route.params.exam;
     addGroupItem(exam, groupDefinition, groupValue, false, childValue);
     exam.isDirty = true;
     this.props.navigation.goBack();
@@ -626,16 +626,15 @@ export class ExamHistoryScreen extends Component {
 
   copyFinalRx = (glassesRx: GlassesRx): void => {
     const examStateKey =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params
-        ? this.props.navigation.state.params.stateKey
+      this.props.route &&
+      this.props.route.params
+        ? this.props.route.params.stateKey
         : undefined;
-    const setParamsAction = NavigationActions.setParams({
+    const setParamsAction = CommonActions.setParams({
       params: {copiedData: glassesRx},
       key: examStateKey,
     });
-    this.props.navigation.dispatch(setParamsAction);
+    this.props.navigation.dispatch({...setParamsAction, source: examStateKey});
     this.props.navigation.goBack();
   };
 
@@ -664,7 +663,7 @@ export class ExamHistoryScreen extends Component {
         groupDefinition = deepClone(groupDefinition);
         groupDefinition.multiValue = false;
         return value.map((childValue: any, index: number) => {
-          const exam: Exam = this.props.navigation.state.params.exam;
+          const exam: Exam = this.props.route.params.exam;
           if (groupDefinition.type === 'SRx') {
             return (
               <GlassesDetail
@@ -709,7 +708,7 @@ export class ExamHistoryScreen extends Component {
         });
       }
     } else if (groupDefinition.type === 'SRx') {
-      let exam: Exam = this.props.navigation.state.params.exam;
+      let exam: Exam = this.props.route.params.exam;
       return (
         <GlassesDetail
           title={formatLabel(groupDefinition)}
@@ -734,7 +733,7 @@ export class ExamHistoryScreen extends Component {
         form={value}
         key={index}
         patientId={this.state.patient ? this.state.patient.id : undefined}
-        examId={this.props.navigation.state.params.exam.id}
+        examId={this.props.route.params.exam.id}
       />
     );
   }
@@ -773,7 +772,7 @@ export class ExamHistoryScreen extends Component {
             itemView={exam.definition.editable ? 'EditableItem' : 'ItemSummary'}
             key={exam.id}
             style={
-              exam.id === this.props.navigation.state.params.exam.id
+              exam.id === this.props.route.params.exam.id
                 ? styles.historyBoardSelected
                 : styles.historyBoard
             }
@@ -784,7 +783,7 @@ export class ExamHistoryScreen extends Component {
         return (
           <View
             style={
-              exam.id === this.props.navigation.state.params.exam.id
+              exam.id === this.props.route.params.exam.id
                 ? styles.historyBoardSelected
                 : styles.historyBoard
             }
@@ -858,19 +857,17 @@ export class ExamScreen extends Component {
   constructor(props: any) {
     super(props);
     let exam: Exam =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params
-        ? this.props.navigation.state.params.exam
+      this.props.route &&
+      this.props.route.params
+        ? this.props.route.params.exam
         : this.props.exam;
     let visit = getVisit(exam);
     this.state = {
       exam,
       appointmentStateKey:
-        this.props.navigation &&
-        this.props.navigation.state &&
-        this.props.navigation.state.params
-          ? this.props.navigation.state.params.appointmentStateKey
+        this.props.route &&
+        this.props.route.params
+          ? this.props.route.params.appointmentStateKey
           : undefined,
       isDirty: exam.errors !== undefined,
       locked: this.props.unlocked !== true && examIsLocked(exam),
@@ -892,7 +889,7 @@ export class ExamScreen extends Component {
     ) {
       this.fetchExam();
       this.focusSubscription = this.props.navigation.addListener(
-        'willFocus',
+        'focus',
         () => {
           this.renderRelatedExams();
         }
@@ -902,11 +899,10 @@ export class ExamScreen extends Component {
 
   componentDidUpdate(prevProps: any) {
     let copiedData =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params &&
-      this.props.navigation.state.params.copiedData
-        ? this.props.navigation.state.params.copiedData
+      this.props.route &&
+      this.props.route.params &&
+      this.props.route.params.copiedData
+        ? this.props.route.params.copiedData
         : undefined;
 
     if (copiedData && this.state.copiedData !== copiedData) {
@@ -915,10 +911,9 @@ export class ExamScreen extends Component {
     }
 
     let exam: Exam =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params
-        ? this.props.navigation.state.params.exam
+      this.props.route &&
+      this.props.route.params
+        ? this.props.route.params.exam
         : this.props.exam;
 
     if (this.state.exam && this.state.exam.id === exam.id) {
@@ -937,10 +932,9 @@ export class ExamScreen extends Component {
     this.setState({
       exam,
       appointmentStateKey:
-        this.props.navigation &&
-        this.props.navigation.state &&
-        this.props.navigation.state.params
-          ? this.props.navigation.state.params.appointmentStateKey
+        this.props.route &&
+        this.props.route.params
+          ? this.props.route.params.appointmentStateKey
           : undefined,
       isDirty: exam.errors !== undefined,
       locked: !this.props.unlocked && examIsLocked(exam),
@@ -953,7 +947,7 @@ export class ExamScreen extends Component {
     this.deleteCopiedData();
 
     if (this.focusSubscription !== undefined) {
-      this.focusSubscription.remove();
+      this.focusSubscription();
     }
     
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
@@ -1617,7 +1611,7 @@ export class ExamScreen extends Component {
       <PatientCard
         patientInfo={this.state.patientInfo}
         navigation={this.props.navigation}
-        refreshStateKey={this.props.navigation.state.key}
+        refreshStateKey={this.props.route.key}
         style={{
           flexDirection: 'column',
           justifyContent: 'flex-start',

@@ -87,6 +87,7 @@ type FollowUpScreenProps = {
   patientInfo: PatientInfo,
   isDraft: boolean,
   onUpdateVisitSelection: (selectedVisitId: string) => void,
+  route: any,
 };
 
 type FollowUpScreenState = {
@@ -267,8 +268,8 @@ export class FollowUpScreen extends Component<
     const selectedItem: FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo
+      ? this.props.route.params.patientInfo
       : selectedItem.patientInfo;
     emailDefinition.to = patientInfo ? patientInfo.email : undefined;
     this.setState({
@@ -302,11 +303,11 @@ export class FollowUpScreen extends Component<
         return;
       }
     }
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     const isDraft: Boolean = this.props.isDraft;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo;
+      : this.props.route.params.patientInfo;
     const patientId: string = isEmpty(patientInfo) ? '*' : patientInfo.id;
     if (isDraft && visit) {
       allFollowUp = getCachedItem('referralFollowUpHistory-' + patientId);
@@ -346,7 +347,7 @@ export class FollowUpScreen extends Component<
   onRefresh(refresh: boolean) {}
 
   async componentDidUpdate(prevProps: any) {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     if (params && params.refreshFollowUp) {
       this.props.navigation.setParams({refreshFollowUp: false});
       await this.refreshList();
@@ -357,8 +358,8 @@ export class FollowUpScreen extends Component<
     const selectedItem: FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo !== undefined
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo !== undefined
+      ? this.props.route.params.patientInfo
       : selectedItem !== undefined
       ? getCachedItem(selectedItem.patientInfo.id)
       : undefined;
@@ -395,7 +396,7 @@ export class FollowUpScreen extends Component<
 
       const patientInfo: PatientInfo = this.props.patientInfo
         ? this.props.patientInfo
-        : this.props.navigation.state.params.patientInfo;
+        : this.props.route.params.patientInfo;
 
       const patientId: string = isEmpty(patientInfo)
         ? undefined
@@ -457,7 +458,7 @@ export class FollowUpScreen extends Component<
 
   filterFollowUp(data: FollowUp[]) {
     let allFollowUp = data;
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     const isDraft: Boolean = this.props.isDraft;
 
     if (isDraft && visit) {
@@ -586,14 +587,14 @@ export class FollowUpScreen extends Component<
     }
     let patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo !== undefined
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo !== undefined
+      ? this.props.route.params.patientInfo
       : getCachedItem(selectedItem.patientInfo.id);
     patientInfo =
       patientInfo === undefined
         ? await fetchPatientInfo(selectedItem.patientInfo.id)
         : patientInfo;
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     let visit: Visit = getCachedItem(selectedItem.visitId);
     if (visit === undefined) {
       visit = await fetchVisit(selectedItem.visitId);
@@ -603,7 +604,7 @@ export class FollowUpScreen extends Component<
         this.props.navigation.navigate('appointment', {
           patientInfo: patientInfo,
           selectedVisitId: selectedItem.visitId,
-          refreshStateKey: this.props.navigation.state.key,
+          refreshStateKey: this.props.route.key,
         });
       } else {
         this.props.onUpdateVisitSelection(selectedItem.visitId);
@@ -697,7 +698,7 @@ export class FollowUpScreen extends Component<
     if (!selectedItem) {
       return false;
     }
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     if (params && params.overview) {
       return false;
     }
@@ -742,7 +743,7 @@ export class FollowUpScreen extends Component<
     if (!selectedItem) {
       return false;
     }
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     if (params && params.overview) {
       return false;
     }
@@ -808,7 +809,7 @@ export class FollowUpScreen extends Component<
 
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo;
+      : this.props.route.params.patientInfo;
     const style =
       !isEmpty(patientInfo) && !this.props.isDraft
         ? [
@@ -864,8 +865,8 @@ export class FollowUpScreen extends Component<
     const isDraft: boolean = this.props.isDraft;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo
+      ? this.props.route.params.patientInfo
       : this.state.selectedItem !== undefined
       ? this.state.selectedItem.patientInfo
       : undefined;
@@ -901,7 +902,7 @@ export class FollowUpScreen extends Component<
                   visit: visit,
                   referral: this.state.selectedItem,
                   followUp: true,
-                  followUpStateKey: this.props.navigation.state.key,
+                  followUpStateKey: this.props.route.key,
                   patientInfo: patientInfo,
                 });
               }}
@@ -919,7 +920,7 @@ export class FollowUpScreen extends Component<
                   visit: visit,
                   referral: this.state.selectedItem,
                   followUp: false,
-                  followUpStateKey: this.props.navigation.state.key,
+                  followUpStateKey: this.props.route.key,
                   patientInfo: patientInfo,
                 });
               }}
@@ -1775,10 +1776,9 @@ export class TableList extends React.PureComponent {
     ];
     const commentStyle = [style, {minWidth: 150 * fontScale}];
     const isPatientVisible: boolean =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params &&
-      this.props.navigation.state.params.overview
+      this.props.route &&
+      this.props.route.params &&
+      this.props.route.params.overview
         ? true
         : false;
     return (
@@ -1935,10 +1935,9 @@ export class TableList extends React.PureComponent {
     let data: any[] = this.getItems();
 
     const isVisible: boolean =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params &&
-      this.props.navigation.state.params.overview
+      this.props.route &&
+      this.props.route.params &&
+      this.props.route.params.overview
         ? true
         : false;
 

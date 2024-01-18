@@ -1023,7 +1023,7 @@ export class ExamDefinitionScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let examDefinition = this.props.navigation.state.params.examDefinition;
+    let examDefinition = this.props.route.params.examDefinition;
     const exam: Exam = this.initExam(examDefinition);
     this.state = {
       exam,
@@ -1058,12 +1058,12 @@ export class ExamDefinitionScreen extends Component {
 
   async refreshExamDefinition() {
     if (
-      this.props.navigation.state.params.examDefinition.id.startsWith(
+      this.props.route.params.examDefinition.id.startsWith(
         'customExamDefinition-',
       )
     ) {
       const examDefinition: ExamDefinition = await fetchExamDefinition(
-        this.props.navigation.state.params.examDefinition.id,
+        this.props.route.params.examDefinition.id,
       );
       if (examDefinition !== this.state.exam.definition) {
         let exam: Exam = this.initExam(examDefinition);
@@ -1105,7 +1105,7 @@ export class ExamDefinitionScreen extends Component {
       if (this.unmounted) {
         this.props.navigation.navigate(
           'examTemplate',
-          this.props.navigation.state.params.examDefinition,
+          this.props.route.params.examDefinition,
         );
       } else {
         await this.refreshExamDefinition();

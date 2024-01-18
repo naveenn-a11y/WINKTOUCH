@@ -98,7 +98,7 @@ export class ExamChartScreen extends Component {
   }
 
   componentDidMount() {
-    this.generateGraphSeries(this.props.navigation.state.params.exam);
+    this.generateGraphSeries(this.props.route.params.exam);
   }
 
   generateChartData(field: string, examHistory: Exam[]): ChartData {
@@ -108,7 +108,7 @@ export class ExamChartScreen extends Component {
     let series: number[] = [];
     examHistory.map((exam: Exam) => {
       let data = exam
-        ? exam[this.props.navigation.state.params.exam.definition.name]
+        ? exam[this.props.route.params.exam.definition.name]
         : undefined;
       fieldTree.forEach((fieldName) => {
         if (data !== undefined) {
@@ -159,7 +159,7 @@ export class ExamChartScreen extends Component {
         <View style={styles.centeredColumnLayout}>
           <LineChart
             series={this.state.series}
-            title={this.props.navigation.state.params.exam.definition.name}
+            title={this.props.route.params.exam.definition.name}
             xLabels={this.state.labels}
           />
         </View>

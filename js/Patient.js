@@ -14,7 +14,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import type {
   Patient,
   PatientInfo,
@@ -705,7 +705,7 @@ export class PatientScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     const isDirty: boolean = params.patientInfo.errors;
     this.state = {
       patientInfo: isDirty
@@ -734,18 +734,18 @@ export class PatientScreen extends Component {
     );
     if (patientInfo.errors) {
       this.props.navigation.navigate('patient', {patientInfo: patientInfo});
-    } else if (this.props.navigation.state.params.refreshStateKey) {
-      const setParamsAction = NavigationActions.setParams({
+    } else if (this.props.route.params.refreshStateKey) {
+      const setParamsAction = CommonActions.setParams({
         params: {refresh: true},
-        key: this.props.navigation.state.params.refreshStateKey,
+        key: this.props.route.params.refreshStateKey,
       });
-      this.props.navigation.dispatch(setParamsAction);
+      this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
     }
   }
 
   async refreshPatientInfo() {
     const patientInfo: PatientInfo = await fetchPatientInfo(
-      this.props.navigation.state.params.patientInfo.id,
+      this.props.route.params.patientInfo.id,
       this.state.isDirty,
     );
     this.setState({patientInfo, isDirty: false});
@@ -876,6 +876,7 @@ export class PatientScreen extends Component {
 export class CabinetScreen extends Component {
   props: {
     navigation: any,
+    route: any,
     onSelectPatient: (patient: Patient | PatientInfo) => void,
     openWaitingListDialog: () => void,
     isBookingAppointment?: boolean,
@@ -899,7 +900,7 @@ export class CabinetScreen extends Component {
   };
 
   componentDidUpdate(prevProps: any) {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     if (params && params.refresh === true) {
       if (this.state.patientInfo) {
         this.updateAppointments();

@@ -1,14 +1,14 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '10.0'
+platform :ios, min_ios_version_supported
 
 $RNFirebaseAsStaticFramework = true
 
 target 'WinkTouch' do
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(:path => config[:reactNativePath])
 
   target 'WinkTouchTests' do
     inherit! :complete
@@ -31,7 +31,14 @@ target 'WinkTouch' do
   # you should disable these next few lines.
   use_flipper!
   post_install do |installer|
-    flipper_post_install(installer)
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+    installer.pods_project.build_configurations.each do |config| config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] =  "arm64"
+    end
   end
 end
 
