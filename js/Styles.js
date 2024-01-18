@@ -1307,6 +1307,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'normal',
     borderWidth: 0,
     padding: 8 * fontScale,
+    textAlign: 'center',
   },
   patientDocument: {
     flex: 1,
