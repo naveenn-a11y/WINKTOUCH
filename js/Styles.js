@@ -1572,11 +1572,14 @@ export const styles = StyleSheet.create({
     margin: 10 * fontScale,
     backgroundColor: '#fff',
   },
-  attachementContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
+  attachementContainer: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    alignItems: 'flex-start', 
     marginBottom: 20 * fontScale,
+  },
+  flatListScroll: {
+    height: 500 * fontScale,
   },
 });
 
