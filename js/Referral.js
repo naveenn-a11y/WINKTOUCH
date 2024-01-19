@@ -732,6 +732,7 @@ export class ReferralScreen extends Component<
   renderFieldSelectionTree() {
     let dropdowns = [];
     let options: ?(CodeDefinition[]) = getAllCodes('dynamicFields');
+
     for (
       let level: number = 0;
       level < this.state.selectedField.length;
@@ -755,7 +756,17 @@ export class ReferralScreen extends Component<
         (option: CodeDefinition) =>
           (option.code ? option.code : option) === selectedValue,
       );
-      options = option ? option.fields : undefined;
+
+      // filter out Patiennt.HealthCardExp field from Patient
+      let filteredFields = [];
+      if (option && option?.fields) {
+        if (option.code === 'Patient') {
+          filteredFields = option?.fields?.filter(
+            (field: CodeDefinition) => field.code !== 'Patient.HealthCardExp',
+          );
+        }
+      }
+      options = option ? filteredFields : undefined;
       if (level === 0 && selectedValue === 'Exam' && options) {
         options = this.filterEmptyExams(options);
         let previousVisits: CodeDefinition[] = this.getPreviousVisits();
