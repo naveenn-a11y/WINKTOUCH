@@ -30,7 +30,7 @@
       "Contact Lens Trial.Design.OS",
       "Contact Lens Trial.Replacement.OS"
     ],
-    ["Contact Lens Trial.Notes"]
+    ["Notes:", "Contact Lens Trial.Notes"]
   ],
   "type": "groupedForm",
   "section": "CL.2",

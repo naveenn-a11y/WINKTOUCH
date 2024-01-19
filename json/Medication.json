@@ -61,7 +61,7 @@
       ]
     }
   },
-  "cardFields": ["Label", "Strength", "Dosage", "Frequency", "Notes"],
+  "cardFields": [["Label", "Strength", "Dosage", "Frequency"],["Notes:", "Notes"]],
   "starable": true,
   "essentialFields": ["Label"],
   "type": "selectionLists",

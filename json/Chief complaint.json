@@ -90,7 +90,7 @@
   },
   "name": "Chief complaint",
   "label": "Chief Complaint",
-  "cardFields": [],
+  "cardFields": ["Notes:", "Notes"],
   "starable": true,
   "essentialFields": ["Chief complaint"],
   "type": "selectionLists",

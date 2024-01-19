@@ -62,7 +62,7 @@
       ]
     }
   },
-  "cardFields": ["Route", "Label", "Strength", "Dosage", "Frequency", "Notes"],
+  "cardFields": [["Route", "Label", "Strength", "Dosage", "Frequency"], ["Notes:", "Notes"]],
   "starable": true,
   "essentialFields": ["Label"],
   "type": "selectionLists",
