@@ -14,14 +14,13 @@ import {formatLabel, getFieldDefinition} from './Items';
 import {getConfiguration} from './Configuration';
 import {strings} from './Strings';
 import {isEmpty} from './Util';
+import {REACT_APP_WEBSOCKET_URI} from '../env.json';
 
 const MachineRequestType = {
   PUSH: 'PUSH',
   PULL: 'PULL',
 };
-const wsRestUrl: string = __DEV__
-  ? 'http://localhost:8080/WinkWebSocket/'
-  : 'https://' + defaultHost + '/' + 'WinkWebSocket' + '/';
+const wsRestUrl:string =  REACT_APP_WEBSOCKET_URI;
 const wssIoStream: string = 'wss://chat-us-east-1.stream-io-api.com/';
 
 async function fetchMachineMeasurements(

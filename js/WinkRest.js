@@ -16,11 +16,9 @@ import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {restVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
-import {REACT_APP_RESTFUL_URI} from '../env.json';
+import {REACT_APP_RESTFUL_URI, REACT_APP_WEBSOCKET_URI} from '../env.json';
 
-export const winkWebSocketUrl: string = __DEV__
-  ? 'http://192.168.2.53:8080/WinkWebSocket/'
-  : 'https://' + defaultHost + '/WinkWebSocket/';
+export const winkWebSocketUrl: string = REACT_APP_WEBSOCKET_URI;
 
 let winkRestUrl: string;
 export function setWinkRestUrl(winkEmrHost: string) {
@@ -29,7 +27,7 @@ export function setWinkRestUrl(winkEmrHost: string) {
 }
 
 export function getWinkRestUrl(): string {
-  if (__DEV__) {
+  if (__DEV__) {  
     return REACT_APP_RESTFUL_URI;
   }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
@@ -38,7 +36,7 @@ export function getWinkRestUrl(): string {
   return winkRestUrl;
 }
 
-export async function postWinkWebSocketUrl(
+export async function postWinkWebSocketUrl( 
   uri: string,
   parameters: Object,
   httpMethod: string = 'POST',
