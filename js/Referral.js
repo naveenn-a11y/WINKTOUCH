@@ -757,18 +757,11 @@ export class ReferralScreen extends Component<
           (option.code ? option.code : option) === selectedValue,
       );
 
-      // filter out Patiennt.HealthCardExp field from Patient
-      // but leave fields from other codes
-      let filteredFields = [];
-      if (option && option?.fields) {
-        if (option.code === 'Patient') {
-          filteredFields = option?.fields?.filter(
-            (field: CodeDefinition) => field.code !== 'Patient.HealthCardExp',
-          );
-        } else {
-          filteredFields = option?.fields;
-        }
-      }
+      // filter out Patiennt.HealthCardExp field from the list
+      const filteredFields = option?.fields?.filter(
+        (field: CodeDefinition) => field.code !== 'Patient.HealthCardExp',
+      );
+
       options = option ? filteredFields : undefined;
       if (level === 0 && selectedValue === 'Exam' && options) {
         options = this.filterEmptyExams(options);
