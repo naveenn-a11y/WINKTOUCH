@@ -764,6 +764,8 @@ export class ReferralScreen extends Component<
           filteredFields = option?.fields?.filter(
             (field: CodeDefinition) => field.code !== 'Patient.HealthCardExp',
           );
+        } else {
+          filteredFields = option?.fields;
         }
       }
       options = option ? filteredFields : undefined;
