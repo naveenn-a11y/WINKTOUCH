@@ -265,6 +265,7 @@ export class AgendaScreen extends Component {
     const doctors = users.map((u) => convertUserToJson(u));
     this.setState({doctors}, () => {
       this.fetchUsersFromAppointments();
+    });
   }
 
   getSelectedDoctorsFromStorage = async () => {
