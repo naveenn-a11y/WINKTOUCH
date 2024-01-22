@@ -758,6 +758,7 @@ export class ReferralScreen extends Component<
       );
 
       // filter out Patiennt.HealthCardExp field from Patient
+      // but leave fields from other codes
       let filteredFields = [];
       if (option && option?.fields) {
         if (option.code === 'Patient') {
