@@ -69,3 +69,4 @@ buck-out/
 
 # Android
 android/
+.xcode.env.local
