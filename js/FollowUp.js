@@ -42,7 +42,7 @@ import {fetchReferralFollowUpHistory, fetchVisit} from './Visit';
 import {getCachedItem, cacheItem} from './DataCache';
 
 import {getPrivileges, stripDataType} from './Rest';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import {getDoctor} from './DoctorApp';
 import {strings} from './Strings';
 import {getMimeType} from './Upload';
@@ -165,7 +165,7 @@ export class FollowUpScreen extends Component<
       if (response.errors) {
         alert(response.errors);
       } else {
-        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+        RNBeep.play(RNBeep.iOSSoundIDs.MailSent);
         this.setState({isPopupVisibile: false, emailDefinition: {}});
       }
     }
