@@ -82,12 +82,14 @@
         {
           "maxLength": 500,
           "name": "Secondary Reason",
-          "freestyle": true
+          "freestyle": true,
+          "highlightedLabel": true
         },
         {
           "name": "Last Eye Exam",
           "maxLength": 100,
-          "freestyle": true
+          "freestyle": true,
+          "highlightedLabel": true
         },
         {
           "name": "No show",

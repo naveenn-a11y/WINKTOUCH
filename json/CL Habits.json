@@ -90,7 +90,8 @@
     {
       "maxLength": 500,
       "name": "Notes",
-      "freestyle": true
+      "freestyle": true,
+      "highlightedLabel": true
     }
   ]
 }

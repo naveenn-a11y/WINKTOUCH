@@ -228,7 +228,7 @@
         {
           "maxLength": 500,
           "name": "Notes",
-          "label": ""
+          "label": "Notes"
         }
       ]
     }

@@ -308,7 +308,8 @@
     {
       "name": "Notes",
       "maxLength": 500,
-      "freestyle": false
+      "freestyle": false,
+      "highlightedLabel": true
     }
   ]
 }
