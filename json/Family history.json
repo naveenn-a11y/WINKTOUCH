@@ -34,7 +34,7 @@
       ]
     }
   },
-  "cardFields": [["Disease / Condition", "Relation"], ["Notes:", "Notes"]],
+  "cardFields": ["Disease / Condition", "Relation", "Notes"],
   "starable": true,
   "essentialFields": ["Disease / Condition"],
   "type": "selectionLists",
