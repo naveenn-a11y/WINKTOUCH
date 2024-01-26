@@ -28,7 +28,7 @@ import {
   Paragraph,
   Divider,
 } from 'react-native-paper';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import {

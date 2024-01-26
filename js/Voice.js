@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Voice from 'react-native-voice';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import {selectionFontColor, recordingFontColor, isWeb} from './Styles';
 import {getUserLanguage} from './Strings';
 
@@ -41,7 +41,7 @@ export class Microphone extends PureComponent {
     this.setState({text: '', isListening: true});
     try {
       await Voice.start(getUserLanguage());
-      RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.BeginRecording);
+      RNBeep.play(RNBeep.iOSSoundIDs.BeginRecording);
     } catch (e) {
       console.error(e);
       alert('Failed to start listening to your voice.');
@@ -51,7 +51,7 @@ export class Microphone extends PureComponent {
   async stopListening() {
     try {
       await Voice.stop();
-      RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.EndRecording);
+      RNBeep.play(RNBeep.iOSSoundIDs.EndRecording);
       __DEV__ && console.log('Stopped listening: ' + this.state.text);
       let timer = setTimeout(this.endSpeech.bind(this), 1000);
       this.setState({timer, isListening: false});
