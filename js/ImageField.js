@@ -17,7 +17,7 @@ import ReactNative, {
 } from 'react-native';
 import mailer from 'react-native-mail';
 import {Svg, Path, Polyline, Circle} from 'react-native-svg';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import {line, curveBasis} from 'd3-shape';
 import simplify from 'simplify-js';
 import ViewShot from 'react-native-view-shot';
@@ -521,7 +521,7 @@ export class ImageField extends Component {
     }
     if (this.state.isActive) {
       this.cancelScrollTimer();
-      RNBeep.beep(false);
+      RNBeep.beep(RNBeep.Beeps.Negative);
       this.setState({isActive: false, eraseMode: false});
       this.props.enableScroll();
       this.commitEdit();
@@ -894,7 +894,7 @@ export class ImageField extends Component {
     this.cancelScrollTimer();
     if (this.state.isActive) {
       this.setState({isActive: false});
-      RNBeep.beep(false);
+      RNBeep.beep(RNBeep.Beeps.Negative);
     }
     if (this.props.enableScroll) {
       this.props.enableScroll();

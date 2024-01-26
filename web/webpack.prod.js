@@ -49,9 +49,9 @@ module.exports = {
       'react-native-view-shot': 'react-native-view-shot-with-web-support',
       'react-native-pdf-lib': 'pdf-lib',
       'react-native-webview': 'react-native-web-webview',
-      'react-native-a-beep': path.join(
+      '@dashdoc/react-native-system-sounds': path.join(
         rootDir,
-        './src/components/ReactNativeBeep/index.web.js',
+        './src/components/@dashdoc/react-native-system-sounds/index.web.js',
       ),
       'react-native-code-push': path.join(
         rootDir,
