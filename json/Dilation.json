@@ -76,7 +76,7 @@
   "cardFields": [
     ["Dilation.Time", "Dilation.Eye", "Dilation.Drug", "Dilation.Quantity"],
     ["Dilation.Informed PT of side effects"],
-    ["Notes:", "Dilation.Notes"]
+    ["Dilation.Notes"]
   ],
   "starable": true,
   "type": "groupedForm",

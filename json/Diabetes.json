@@ -2,7 +2,37 @@
   "addable": false,
   "locale": {
     "fr-CA": {
-      "label": "Diabète"
+      "label": "Diabète",
+      "fields": [
+        {
+          "name": "Diabetes type",
+          "label": "Type de diabète"
+        },
+        {
+          "name": "Control",
+          "label": "Contrôle"
+        },
+        {
+          "name": "Severity",
+          "label": "Sévérité"
+        },
+        {
+         "name": "Initial presentation",
+         "label": "Présentation initiale"
+        },
+        {
+        "name": "Duration",
+        "label": "Durée"
+        },
+        {
+          "name": "Timing",
+          "label": "Association"
+        },
+        {
+          "name": "Modifying factors",
+          "label": "Facteurs modificateurs"
+        }
+      ]
     },
     "es-ES": {
       "label": "Diabetes",

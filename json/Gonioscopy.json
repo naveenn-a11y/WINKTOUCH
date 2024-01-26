@@ -93,7 +93,7 @@
     ],
     ["Iris: ", "OS.Iris"],
     ["Lens: ", "OS.Lens"],
-    ["Notes:", "OS.Notes"]
+    ["OS.Notes"]
   ],
   "starable": true,
   "type": "groupedForm",

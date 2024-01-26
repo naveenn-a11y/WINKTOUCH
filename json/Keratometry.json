@@ -14,7 +14,7 @@
       "Keratometry.OS.Power V",
       "Keratometry.OS.Meridian"
     ],
-    ["Notes:", "Keratometry.Notes"]
+    ["Keratometry.Notes"]
   ],
   "starable": true,
   "type": "groupedForm",
