@@ -19,7 +19,7 @@ import {AppointmentsSummary, fetchAppointments} from './Appointment';
 import {Button} from './Widgets';
 import {StartVisitButtons, fetchReferralFollowUpHistory} from './Visit';
 import {getStore, getDoctor} from './DoctorApp';
-import {now, isToday} from './Util';
+import {now, isToday, getCurrentRoute} from './Util';
 import {strings} from './Strings';
 import {isAtWink} from './Registration';
 import {toggleTranslateMode, isInTranslateMode} from './ExamDefinition';
@@ -27,6 +27,7 @@ import {getCachedItem} from './DataCache';
 import {isReferralsEnabled} from './Referral';
 import {getPrivileges} from './Rest';
 import {ProfileHeader} from './Profile';
+import NavigationService from './utilities/NavigationService';
 
 class MainActivities extends Component {
   props: {
@@ -131,10 +132,8 @@ export class OverviewScreen extends PureComponent {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (
-      this.props.route.params &&
-      this.props.route.params.refreshAppointments === true
-    ) {
+    const currentRoute = getCurrentRoute(NavigationService.getNavigationState()) ?? this.props.route;
+    if (currentRoute.name && currentRoute.name === "overview" && currentRoute.params && currentRoute.params.refreshAppointments === true) {
       this.refreshAppointments();
     }
   }
