@@ -55,7 +55,7 @@ import {
   generatePDF,
   addPDFAttachment,
 } from '../src/components/HtmlToPdf';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import {getStore} from './DoctorApp';
 import {
   isEmpty,
@@ -681,7 +681,7 @@ export class ReferralScreen extends Component<
         alert(response.errors);
       } else {
         this.save();
-        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+        RNBeep.play(RNBeep.iOSSoundIDs.MailSent);
         this.setState({isPopupVisibile: false});
       }
     }

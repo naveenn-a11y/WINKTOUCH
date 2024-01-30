@@ -14,7 +14,7 @@ import {
   ScrollView,
 } from 'react-native';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import {getAllCodes, getCodeDefinition, getDefaultUserSetting, getUserSetting} from './Codes';
 import type {
   Exam,
@@ -639,7 +639,7 @@ export async function transferRx(visitId: string): boolean {
     parameters,
   );
   if (response) {
-    RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+    RNBeep.play(RNBeep.iOSSoundIDs.MailSent);
     return true;
   }
   return false;

@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {View} from 'react-native';
 import {Document, Page, pdfjs} from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
 type PdfViewerProps = {
   source: string,
