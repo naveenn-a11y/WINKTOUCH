@@ -116,7 +116,8 @@
         },
         {
           "maxLength": 500,
-          "name": "Notes"
+          "name": "Notes",
+          "highlightedValue": true
         }
       ]
     }

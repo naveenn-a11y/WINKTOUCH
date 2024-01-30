@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import NativePdf from 'react-native-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
 type PdfViewerProps = {
   source: any,

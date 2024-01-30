@@ -88,7 +88,8 @@
       "maxLength": 500,
       "normalValue": "None",
       "name": "Other",
-      "freestyle": true
+      "freestyle": true,
+      "highlightedLabel": true
     }
   ]
 }

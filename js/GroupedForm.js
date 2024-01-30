@@ -934,7 +934,8 @@ export class GroupedCard extends Component {
   renderSubtitle(groupDefinition: GroupDefinition) {
     return (
       <Text
-        style={groupDefinition.name === 'Notes' ? '' : styles.cardSubTitle}
+        testID="groupDefinitionSubtitle"
+        style={styles.cardSubTitle}
         key={'subTitle'}>
         {formatLabel(groupDefinition)}
       </Text>
