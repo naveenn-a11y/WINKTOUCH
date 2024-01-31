@@ -278,6 +278,9 @@ export function setMappedFieldValue(
       }
     }
     cacheItemById(patient);
+  } else if (fieldSrc[0] === 'visit') {
+    //TODO: we can ignore visit for now
+    return;
   } else {
     __DEV__ &&
       console.error(
