@@ -8,7 +8,9 @@ import {strings} from './Strings';
 import {isWeb} from './Styles';
 
 export let deploymentVersion: string = 'v412-3';
-export let restVersion: string = 'EHR-412-3';
+
+export let ehrApiVersion = 'EHR-412-3';
+export let winkRESTVersion: string = "6.00.12.03";
 export let ecommVersion: string = 'V5';
 export const dbVersion: string = '2058';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';

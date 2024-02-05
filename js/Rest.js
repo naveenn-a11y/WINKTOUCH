@@ -22,12 +22,9 @@ import {
   getCachedItem,
   clearCachedItemById,
 } from './DataCache';
-import {restVersion} from './Version';
+import {ehrApiVersion} from './Version';
 import {setWinkRestUrl} from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {REACT_APP_DEFAULT_HOST, REACT_APP_WEB_URI} from '../env.json';
-
-export const defaultHost: string = REACT_APP_DEFAULT_HOST;
 
 let token: string;
 let privileges: Privileges = {
@@ -48,7 +45,7 @@ export function getWinkEmrHostFromAccount(account: Account) {
     if (!isEmpty(winkEmrHost) && !isEmpty(winkEmrHost.value)) {
       return winkEmrHost.value;
     }
-    return defaultHost;
+    return winkEmrHost;
   }
 }
 export function getNextRequestNumber(): number {
@@ -725,14 +722,13 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return REACT_APP_WEB_URI;
-  //return __DEV__ ? REACT_APP_WEB_URI : restUrl;
+  return __DEV__ ? 'http://localhost:8080/Web/' : restUrl;
 }
 
 async function setRestUrl(winkEmrHost: string) {
-  if ('https://' + winkEmrHost + '/' + restVersion + '/' === restUrl) return;
-  restUrl = 'https://' + winkEmrHost + '/' + restVersion + '/';
-  __DEV__ && console.log('Switching emr REST backend server to ' + restUrl);
+  if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) return;
+  restUrl = 'https://' + winkEmrHost + '/' + ehrApiVersion + '/';
+  __DEV__ && console.log('Setting emr REST backend server to ' + restUrl);
 }
 
 export function switchEmrHost(winkEmrHost: string) {
@@ -744,7 +740,7 @@ export function switchEmrHost(winkEmrHost: string) {
 
 AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
   if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '') {
-    winkEmrHost = defaultHost;
+    winkEmrHost = winkEmrHost;
   }
   setRestUrl(winkEmrHost);
 });

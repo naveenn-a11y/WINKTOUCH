@@ -18,7 +18,6 @@ import {strings} from './Strings';
 import {Button} from './Widgets';
 import DeviceInfo from 'react-native-device-info';
 import codePush from 'react-native-code-push';
-import {REACT_APP_HOST} from '../env.json';
 
 export class AppUpdateScreen extends Component {
   props: {
@@ -109,7 +108,7 @@ export class AppUpdateScreen extends Component {
             onLongPress={() =>
               !isWeb
                 ? codePush.restartApp()
-                : window.location.replace(REACT_APP_HOST)
+                : window.location.reload()
             }>
             <Text>
               {strings.appVersion}:{' '}

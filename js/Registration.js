@@ -7,7 +7,6 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  ScrollView,
   KeyboardAvoidingView,
   StatusBar,
 } from 'react-native';
@@ -29,20 +28,13 @@ import {
   deploymentVersion,
   ecommVersion,
 } from './Version';
-import {REACT_APP_ECOMM_URI} from '../env.json';
 
-const securityQuestionsUrl =
-  REACT_APP_ECOMM_URI + ecommVersion + '/WinkRegistrationQuestions';
-const securityQuestionUrl =
-  REACT_APP_ECOMM_URI +
-  ecommVersion +
-  '/WinkRegistrationEmail?mac=EMRFree&source=touch';
-const registrationUrl =
-  REACT_APP_ECOMM_URI +
-  ecommVersion +
-  '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
-const touchVersionUrl =
-  REACT_APP_ECOMM_URI + ecommVersion + '/WinkTouchVersion';
+const ecommUri: string = winkEmrHost + '/wink-ecomm' + ecommVersion;
+
+const securityQuestionsUrl = ecommUri + '/WinkRegistrationQuestions';
+const securityQuestionUrl = ecommUri + '/WinkRegistrationEmail?mac=EMRFree&source=touch';
+const registrationUrl = ecommUri + '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+const touchVersionUrl = ecommUri + '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();

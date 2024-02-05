@@ -53,15 +53,16 @@ import {
   ecommVersion,
 } from './Version';
 import {fetchCodeDefinitions} from './Codes';
-import {getCurrentHost} from '../scripts/Util';
 import {isEmpty} from './Util';
 import {cacheItemsById} from './DataCache';
 import {AgentAsumptionScreen} from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {REACT_APP_ECOMM_URI} from '../env.json';
 
+//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
 const accountsUrl =
-  REACT_APP_ECOMM_URI + ecommVersion + '/WinkRegistrationAccounts';
+  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
+  ecommVersion +
+  '/WinkRegistrationAccounts';
 
 async function fetchAccounts(path: string) {
   if (!path) {
@@ -365,7 +366,7 @@ export class MfaScreen extends Component {
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
-              : window.location.replace(getCurrentHost())
+              : window.location.reload()
           }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
@@ -945,15 +946,15 @@ export class LoginScreen extends Component {
                     onChangeText={this.setPassword}
                     onSubmitEditing={() => this.processLogin()}
                   />
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={{position: 'absolute', right: 0, alignSelf: 'center'}}
                     onPress={() => this.toggleSecuredTextState(this.state.isSecureTextEntry)}
                   >
                     <View>
-                      {this.state.isSecureTextEntry 
-                      ? 
-                      <Icon name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" /> 
-                      : 
+                      {this.state.isSecureTextEntry
+                      ?
+                      <Icon name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />
+                      :
                       <Icon name="eye-off" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />}
                     </View>
                   </TouchableOpacity>
@@ -982,7 +983,7 @@ export class LoginScreen extends Component {
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
-              : window.location.replace(getCurrentHost())
+              : window.location.reload()
           }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
