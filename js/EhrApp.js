@@ -21,7 +21,6 @@ import {AppUpdateScreen} from './AppUpdate';
 import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
-import RemoteConfig from './utilities/RemoteConfig';
 import {deepClone, isEmpty, sleep} from './Util';
 import { Provider, DefaultTheme } from 'react-native-paper';
 import { NetworkInfo } from './Widgets';
@@ -200,7 +199,7 @@ export class EhrApp extends Component {
       registration.bundle.length > 0;
     this.setState(
       {isRegistered, registration, loading: false},
-      () => isRegistered && this.checkForCodepushUpdate(),  
+      () => isRegistered && this.checkForCodepushUpdate(),
     );
   }
 
@@ -285,10 +284,9 @@ export class EhrApp extends Component {
     this.checkAppstoreUpdateNeeded();
   }
 
-  async checkAppstoreUpdateNeeded() {
-    if (isIos) {
-      const {isUpdateRequired, latestBuild, latestVersion} =
-        await RemoteConfig.shouldUpdateApp();
+  checkAppstoreUpdateNeeded() {
+    if (isIos) {//TODO: remove dummy implementation
+      const {isUpdateRequired, latestBuild, latestVersion} = () => {false, this.state.latestBuild, this.state.latestVersion};
       this.setState({isUpdateRequired, latestBuild, latestVersion});
     }
   }
@@ -343,7 +341,7 @@ export class EhrApp extends Component {
       useNativeReachability: true
     });
     netInfoListener = NetInfo.addEventListener(this.handleConnectivityChange);
-    isIos && (await RemoteConfig.activateRemoteConfig());
+    //TODO isIos && (await RemoteConfig.activateRemoteConfig());
     appStateListener = AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
