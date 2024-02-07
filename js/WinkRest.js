@@ -10,12 +10,12 @@ import {
   getNextRequestNumber,
   logRestResponse,
   handleHttpError,
-  defaultHost,
 } from './Rest';
 import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import {winkRESTVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
+import {getEmrHost} from "./Hosts";
 
 export const winkWebSocketUrl: string = "https://afd.dev.downloadwink.com/WinkWebSocket/";
 
@@ -26,11 +26,11 @@ export function setWinkRestUrl(winkEmrHost: string) {
 }
 
 export function getWinkRestUrl(): string {
-  if (__DEV__) {
-    return 'http://localhost:8080/WinkRESTv6.00.02/';
-  }
+  //if (__DEV__) {
+  //  return 'http://localhost:8080/WinkRESTv6.00.02/';
+  //}
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
-    setWinkRestUrl(defaultHost);
+    setWinkRestUrl(getEmrHost());
   }
   return winkRestUrl;
 }

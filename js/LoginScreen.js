@@ -57,12 +57,9 @@ import {isEmpty} from './Util';
 import {cacheItemsById} from './DataCache';
 import {AgentAsumptionScreen} from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {getEmrHost} from './Hosts';
 
-//const accountsUrl = 'https://test1.downloadwink.com:8443/wink-ecomm'+ecommVersion+'/WinkRegistrationAccounts';
-const accountsUrl =
-  'https://ecomm-touch.downloadwink.com/wink-ecomm' +
-  ecommVersion +
-  '/WinkRegistrationAccounts';
+const getAccountsUrl = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
 
 async function fetchAccounts(path: string) {
   if (!path) {
@@ -71,7 +68,7 @@ async function fetchAccounts(path: string) {
   let privileged: boolean = false;
   let emrOnly: boolean = true;
   const url =
-    accountsUrl +
+    getAccountsUrl() +
     '?dbVersion=' +
     encodeURIComponent(dbVersion) +
     '&path=' +

@@ -6,11 +6,11 @@
 import DeviceInfo from 'react-native-device-info';
 import {strings} from './Strings';
 import {isWeb} from './Styles';
+import {now} from './Util';
 
-export let deploymentVersion: string = 'v412-3';
-
-export let ehrApiVersion = 'EHR-412-3';
-export let winkRESTVersion: string = "6.00.12.03";
+export let deploymentVersion: string = 'v413';
+export let ehrApiVersion = 'EHR-412';
+export let winkRESTVersion: string = '6.00.12.03';
 export let ecommVersion: string = 'V5';
 export const dbVersion: string = '2058';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
@@ -29,4 +29,18 @@ export function checkBinaryVersion(): void {
   if (Number.parseFloat(binaryVersion) < minimalTouchVersion) {
     alert(strings.updateAppStore);
   }
+}
+
+async function fetchTestflight() {
+  const installer = await DeviceInfo.getInstallerPackageName();
+  __DEV__ && console.log('Installer package name = ' + installer);
+  return installer === 'TestFlight';
+}
+
+export let isTestFlight = false;
+
+if (!isWeb) {
+  fetchTestflight().then((result) => {
+    isTestFlight = result;
+  });
 }

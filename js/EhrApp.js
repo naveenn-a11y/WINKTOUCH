@@ -6,7 +6,7 @@
 import React, {Component} from 'react';
 import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from "@react-native-community/netinfo";
+import NetInfo from '@react-native-community/netinfo';
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
@@ -58,9 +58,6 @@ function logUpdateStatus(status: number) {
       break;
     case SyncStatus.UNKNOWN_ERROR:
       console.log('CodePush Unknown error');
-      break;
-    case SyncStatus.INSTALLING_UPDATE:
-      console.log('CodePush Installing update');
       break;
     default:
       console.log('CodePush Status: ' + status);
@@ -341,7 +338,6 @@ export class EhrApp extends Component {
       useNativeReachability: true
     });
     netInfoListener = NetInfo.addEventListener(this.handleConnectivityChange);
-    //TODO isIos && (await RemoteConfig.activateRemoteConfig());
     appStateListener = AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }

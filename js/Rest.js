@@ -1,7 +1,6 @@
 /**
  * @flow
  */
-
 'use strict';
 
 import type {
@@ -25,6 +24,7 @@ import {
 import {ehrApiVersion} from './Version';
 import {setWinkRestUrl} from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getEmrHost} from "./Hosts";
 
 let token: string;
 let privileges: Privileges = {
@@ -39,13 +39,13 @@ let requestNumber: number = 0;
 
 export function getWinkEmrHostFromAccount(account: Account) {
   if (account.extraFields instanceof Array) {
-    const winkEmrHost: Object = account.extraFields.find(
+    const winkEmrHostField: Object = account.extraFields.find(
       (extraField: Object) => extraField.key === 'WinkEMRHost',
     );
-    if (!isEmpty(winkEmrHost) && !isEmpty(winkEmrHost.value)) {
-      return winkEmrHost.value;
+    if (!isEmpty(winkEmrHostField) && !isEmpty(winkEmrHostField.value)) {
+      return winkEmrHostField.value;
     }
-    return winkEmrHost;
+    return getEmrHost();
   }
 }
 export function getNextRequestNumber(): number {
@@ -722,14 +722,17 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return __DEV__ ? 'http://localhost:8080/Web/' : restUrl;
+  return restUrl;
 }
 
-async function setRestUrl(winkEmrHost: string) {
+function setRestUrl(winkEmrHost: string) {
   if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) return;
   restUrl = 'https://' + winkEmrHost + '/' + ehrApiVersion + '/';
-  __DEV__ && console.log('Setting emr REST backend server to ' + restUrl);
+  __DEV__ && console.log('Setting EMR backend server to ' + restUrl);
 }
+
+setRestUrl(getEmrHost());
+setWinkRestUrl(getEmrHost());
 
 export function switchEmrHost(winkEmrHost: string) {
   const formattedWinkEmrHost: string = extractHostname(winkEmrHost);
@@ -740,7 +743,8 @@ export function switchEmrHost(winkEmrHost: string) {
 
 AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
   if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '') {
-    winkEmrHost = winkEmrHost;
+    winkEmrHost = getEmrHost();
   }
   setRestUrl(winkEmrHost);
+  setWinkRestUrl(winkEmrHost);
 });

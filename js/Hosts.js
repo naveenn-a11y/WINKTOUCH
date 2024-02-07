@@ -1,12 +1,16 @@
+import {isTestFlight} from './Version';
 
-export const winkEmrHost: string = 'emr.downloadwink.com';
-//azure dev = afd.dev.downloadwink.com
-//azure prod =
-//aws = emr.downloadwink.com
+const productionHost = 'emr.downloadwink.com';
+const qaHost = 'afd.dev.downloadwink.com';
 
+let emrHost = productionHost;
+export function getEmrHost() {
+  if (isTestFlight || __DEV__) {
+    return qaHost;
+  }
+  return emrHost;
+}
 
-
-
-
-
-
+export async function setEmrHost(newEmrHost: string) {
+  emrHost = newEmrHost;
+}
