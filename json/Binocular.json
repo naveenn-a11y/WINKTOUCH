@@ -249,9 +249,14 @@
           ]
         },
         {
-          "name": "Worth 4-Dot",
-          "label": "Worth à 4 lumières",
+          "name": "Non-Stereoscopic Fusion",
+          "label": "Fusion non stéréoscopique",
           "fields": [
+            {
+              "name": "Method",
+              "label": "Method",
+              "options": ["Pts de Worth", "Filtre rouge", "Lunettes R/V"]
+            },
             {
               "name": "Distance",
               "label": "Loin",
@@ -539,9 +544,14 @@
           ]
         },
         {
-          "name": "Worth 4-Dot",
-          "label": "Worth de 4 luces",
+          "name": "Non-Stereoscopic Fusion",
+          "label": "Fusión no estereoscópica",
           "fields": [
+            {
+              "name": "Method",
+              "label": "Method",
+              "options": ["Worth de 4 luces", "Filtro rojo", "Gafas R/V"]
+            },
             {
               "name": "Distance",
               "label": "Lejana",
@@ -982,8 +992,13 @@
     },
     {
       "optional": true,
-      "name": "Worth 4-Dot",
+      "name": "Non-Stereoscopic Fusion",
       "fields": [
+        {
+          "name": "Method",
+          "label": "Method",
+          "options": ["Worth 4-Dot", "Red Filter", "R/G Glasses"]
+        },
         {
           "name": "Distance",
           "label": "Distance",
