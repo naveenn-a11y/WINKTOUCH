@@ -9,7 +9,7 @@ import {isWeb} from './Styles';
 import {now} from './Util';
 
 export let deploymentVersion: string = 'v413';
-export let ehrApiVersion = 'EHR-412';
+export let ehrApiVersion = 'EHR-413';
 export let winkRESTVersion: string = '6.00.12.03';
 export let ecommVersion: string = 'V5';
 export const dbVersion: string = '2058';
@@ -33,7 +33,6 @@ export function checkBinaryVersion(): void {
 
 async function fetchTestflight() {
   const installer = await DeviceInfo.getInstallerPackageName();
-  __DEV__ && console.log('Installer package name = ' + installer);
   return installer === 'TestFlight';
 }
 

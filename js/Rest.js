@@ -24,7 +24,7 @@ import {
 import {ehrApiVersion} from './Version';
 import {setWinkRestUrl} from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getEmrHost} from "./Hosts";
+import {getEmrHost, setEmrHost} from './Hosts';
 
 let token: string;
 let privileges: Privileges = {
@@ -725,26 +725,28 @@ export function getRestUrl(): string {
   return restUrl;
 }
 
-function setRestUrl(winkEmrHost: string) {
+function setRestUrl() {
+  const winkEmrHost = getEmrHost();
   if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) return;
   restUrl = 'https://' + winkEmrHost + '/' + ehrApiVersion + '/';
   __DEV__ && console.log('Setting EMR backend server to ' + restUrl);
 }
 
-setRestUrl(getEmrHost());
-setWinkRestUrl(getEmrHost());
+setRestUrl();
+setWinkRestUrl();
 
 export function switchEmrHost(winkEmrHost: string) {
   const formattedWinkEmrHost: string = extractHostname(winkEmrHost);
   AsyncStorage.setItem('winkEmrHost', formattedWinkEmrHost);
-  setRestUrl(formattedWinkEmrHost);
-  setWinkRestUrl(formattedWinkEmrHost);
+  setEmrHost(formattedWinkEmrHost);
+  setRestUrl();
+  setWinkRestUrl();
 }
 
 AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
-  if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '') {
-    winkEmrHost = getEmrHost();
+  if (!isEmpty(winkEmrHost)) {
+    setEmrHost(winkEmrHost);
   }
-  setRestUrl(winkEmrHost);
-  setWinkRestUrl(winkEmrHost);
+  setRestUrl();
+  setWinkRestUrl();
 });
