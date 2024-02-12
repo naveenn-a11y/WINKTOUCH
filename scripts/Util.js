@@ -9,6 +9,7 @@ const environments: string[] = [
   'staging',
   'v411',
   'v412',
+  'v413'
 ];
 
 function getEnvFile(name: string) {
@@ -32,6 +33,9 @@ function getEnvFile(name: string) {
   }
   if (name === 'v412') {
     return require('../envs/v412.json');
+  }
+  if (name === 'v413') {
+    return require('../envs/v413.json');
   }
   return undefined;
 }
