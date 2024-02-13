@@ -8,6 +8,8 @@ import {strings} from './Strings';
 import {isWeb} from './Styles';
 import {now} from './Util';
 
+export const VERSION_NUMBER = '4.13.12';
+
 export let deploymentVersion: string = 'v413';
 export let ehrApiVersion = 'EHR-413';
 export let winkRESTVersion: string = '6.00.12.03';
