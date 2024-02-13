@@ -1,0 +1,90 @@
+{
+  "name": "Imaging",
+  "type": "groupedForm",
+  "section": "Form.1",
+  "card": true,
+  "starable": true,
+  "scrollable": true,
+  "fields": [
+    {
+      "name": "Imaging Field",
+      "label": "Imaging",
+      "size": "L",
+      "rows": [["VF scan OD", "VF scan OS"]],
+      "multiValue": true,
+      "fields": [
+        {
+          "name": "Image Type",
+          "freestyle": true,
+          "options": "autoPerimetryInstrumentCodes"
+        },
+        {
+          "popup": true,
+          "drawable": false,
+          "size": "S",
+          "name": "VF scan OD",
+          "image": "upload",
+          "label": "OD Scan",
+          "type": "EMR"
+        },
+        {
+          "popup": true,
+          "drawable": false,
+          "size": "S",
+          "name": "VF scan OS",
+          "image": "upload",
+          "label": "OS Scan",
+          "type": "EMR"
+        }
+      ]
+    }
+  ],
+  "locale": {
+    "fr-CA": {
+      "label": "Imagerie",
+      "fields": [
+        {
+          "name": "Imaging Field",
+          "label": "Imagerie",
+          "fields": [
+            {
+              "name": "Image Type",
+              "label": "Type Imagerie"
+            },
+            {
+              "name": "VF scan OD",
+              "label": "Imagerie OD"
+            },
+            {
+              "name": "VF scan OS",
+              "label": "Imagerie OS"
+            }
+          ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Imágenes",
+      "fields": [
+        {
+          "name": "Imaging Field",
+          "label": "Imágenes",
+          "fields": [
+            {
+              "name": "Image Type",
+              "label": "Tipo de imagen"
+            },
+            {
+              "name": "VF scan OD",
+              "label": "Imágenes OD"
+            },
+            {
+              "name": "VF scan OS",
+              "label": "Imágenes OS"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
