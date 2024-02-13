@@ -3150,6 +3150,7 @@ export class FloatingButton extends Component {
         open={this.state.active}
         onStateChange={this.toggleActive}
         position="bottomRight"
+        size="small"
         style={styles.floatingButton}
         icon={this.state.active ? 'minus' : 'plus'}
         onPress={() => {
