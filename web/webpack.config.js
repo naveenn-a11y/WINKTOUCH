@@ -5,8 +5,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const Dotenv = require('dotenv-webpack');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const RULES = require('./webpack.rules');
 const rootDir = path.join(__dirname, '..');
@@ -16,6 +14,10 @@ module.exports = (env, mode) => {
   const isDev = env.MODE === 'development';
   const envName = isDev ? '.env.dev' : '.env.prod';
 
+  // create dist folder if not exists
+  if (!fs.existsSync(path.resolve(rootDir, 'dist'))) {
+    fs.mkdirSync(path.resolve(rootDir, 'dist'));
+  }
   // Read version number from version.js
   const versionFilePath = path.resolve(__dirname, '../js/version.js');
   const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
@@ -35,6 +37,7 @@ module.exports = (env, mode) => {
       path: path.resolve(rootDir, 'dist'),
       filename: 'app-[fullhash].bundle.js',
       publicPath: '/',
+      clean: true,
     },
     module: {
       rules: RULES,
@@ -48,10 +51,6 @@ module.exports = (env, mode) => {
         filename: 'index.html',
         hash: true,
       }),
-      new CleanWebpackPlugin(), // Add the plugin to your list of plugins
-      // new Dotenv({
-      //   path: path.resolve(__dirname, `../envs/${envName}`),
-      // }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || `${env.MODE}`),
         __DEV__: isDev,
