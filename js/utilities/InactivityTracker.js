@@ -173,14 +173,7 @@ class InactivityTracker {
 
   observeIosEvents(): void {
     try {
-      __DEV__ && console.log('observeIosEvents:pre addListener')
-      if (this._iosEventTrackerEmitter === null){
-        __DEV__ && console.log('observeIosEvents:pre addListener:NativeModules.EventTrackerModule', NativeModules.EventTrackerModule)
-        this._iosEventTrackerEmitter = NativeModules.EventTrackerModule ? new NativeEventEmitter(NativeModules.EventTrackerModule) : null
-      } 
-      __DEV__ && console.log('observeIosEvents:pre addListener', this._iosEventTrackerEmitter)
       this._iosEventSubscription = this._iosEventTrackerEmitter.addListener('eventDetected', this.resetLogoutTime);
-      __DEV__ && console.log('observeIosEvents:post addListener')
     } catch (e) {
       __DEV__ && console.log('observeIosEvents:error', e)
     }

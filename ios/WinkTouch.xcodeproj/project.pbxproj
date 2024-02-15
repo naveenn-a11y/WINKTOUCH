@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* WinkTouchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* WinkTouchTests.m */; };
+		0E3196D7291EAD2E0016193E /* RCTEventTrackerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E3196D3291EAD2D0016193E /* RCTEventTrackerModule.m */; };
+		0E3196D8291EAD2E0016193E /* EventTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E3196D4291EAD2D0016193E /* EventTracker.m */; };
 		0C80B921A6F3F58F76C31292 /* libPods-WinkTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-WinkTouch.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -41,6 +43,10 @@
 		5709B34CF0A7D63546082F79 /* Pods-WinkTouch.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WinkTouch.release.xcconfig"; path = "Target Support Files/Pods-WinkTouch/Pods-WinkTouch.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-WinkTouch-WinkTouchTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WinkTouch-WinkTouchTests.debug.xcconfig"; path = "Target Support Files/Pods-WinkTouch-WinkTouchTests/Pods-WinkTouch-WinkTouchTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-WinkTouch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WinkTouch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0E3196D2291EAD2D0016193E /* RCTEventTrackerModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTEventTrackerModule.h; sourceTree = "<group>"; };
+		0E3196D3291EAD2D0016193E /* RCTEventTrackerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTEventTrackerModule.m; sourceTree = "<group>"; };
+		0E3196D4291EAD2D0016193E /* EventTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventTracker.m; sourceTree = "<group>"; };
+		0E3196D6291EAD2D0016193E /* EventTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTracker.h; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = WinkTouch/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-WinkTouch-WinkTouchTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WinkTouch-WinkTouchTests.release.xcconfig"; path = "Target Support Files/Pods-WinkTouch-WinkTouchTests/Pods-WinkTouch-WinkTouchTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -86,6 +92,10 @@
 		13B07FAE1A68108700A75B9A /* WinkTouch */ = {
 			isa = PBXGroup;
 			children = (
+				0E3196D6291EAD2D0016193E /* EventTracker.h */,
+				0E3196D4291EAD2D0016193E /* EventTracker.m */,
+				0E3196D2291EAD2D0016193E /* RCTEventTrackerModule.h */,
+				0E3196D3291EAD2D0016193E /* RCTEventTrackerModule.m */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -394,6 +404,8 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				0E3196D7291EAD2E0016193E /* RCTEventTrackerModule.m in Sources */,
+				0E3196D8291EAD2E0016193E /* EventTracker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
