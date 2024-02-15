@@ -2030,7 +2030,7 @@ export class FormField extends Component {
         (fieldDefinition: FieldDefinition | GroupDefinition) =>
           fieldDefinition.name === fieldNames[i],
       );
-      if (fieldDefinition.fields) {
+      if (fieldDefinition?.fields) {
         fieldDefinitions = fieldDefinition.fields;
       }
     }
