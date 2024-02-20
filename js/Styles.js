@@ -314,6 +314,7 @@ export const styles = StyleSheet.create({
   searchField: {
     fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
+    minWidth: 375 * fontScale,
     padding: 6 * fontScale,
     paddingLeft: 18 * fontScale,
     textAlign: 'left',
@@ -325,6 +326,7 @@ export const styles = StyleSheet.create({
   field400: {
     fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
+    minWidth: 375 * fontScale,
     padding: 6 * fontScale,
     paddingLeft: 18 * fontScale,
     textAlign: 'left',
