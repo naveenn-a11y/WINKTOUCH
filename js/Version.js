@@ -8,6 +8,10 @@ import {strings} from './Strings';
 import {isWeb} from './Styles';
 import {now} from './Util';
 
+// This is a test constant. The goal is to read the version number
+// during build and create an XML file that can be included in the
+// dist folder. We now can add version number to the folder name
+// in Nexus and can be used in other places as needed for CI/CD.
 export const VERSION_NUMBER = '4.13.12';
 
 export let deploymentVersion: string = 'v413';
