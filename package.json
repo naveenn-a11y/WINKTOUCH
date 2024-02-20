@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios --simulator 'iPad Pro (12.9-inch) (6th generation)'",
+    "ios": "react-native run-ios",
     "web": "npm run env:dev && cd web && webpack-dev-server --env goal=dev --open",
     "lint": "eslint .",
     "start": "react-native start",
