@@ -1268,9 +1268,10 @@ export const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 0 * fontScale,
-    right: 0 * fontScale,
+    bottom: 2 * fontScale,
+    right: 2 * fontScale,
     backgroundColor: 'orange',
+    borderRadius: 30 * fontScale,
   },
   floatingSubButton: {
     flex: 1,
