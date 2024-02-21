@@ -23,7 +23,7 @@ function isEditableField(event: any) {
 }
 
 function handleKeyboardEvent (event) {
-    __DEV__ && console.log("Keyboard event: ", event);
+    // __DEV__ && console.log("Keyboard event: ", event);
     
     switch (event.keyCode) {
         case 27:
