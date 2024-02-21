@@ -30,7 +30,7 @@ function stopTracking(): void {
 
 
 function handleKeyboardEvent (event: KeyCommand) {
-    __DEV__ && console.log("Keyboard event: ", event);
+    // __DEV__ && console.log("Keyboard event: ", event);
 
     if (event.input === _keyboardTracker.keyInputEscape) {
         KeyboardAccessibilityActions.configureEscapeKey();
