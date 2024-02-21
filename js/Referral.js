@@ -960,7 +960,7 @@ export class ReferralScreen extends Component<
       emailDefinition.to = doctorCode !== undefined ? doctorCode.fax : '';
     }
     return (
-      <TouchableWithoutFeedback onPress={isWeb ? {} : this.cancelEdit}>
+      <TouchableWithoutFeedback onPress={isWeb ? () => {} : this.cancelEdit}>
         <View style={styles.popupBackground}>
           <View style={styles.flexColumnLayout}>
             <View style={styles.form}>
