@@ -826,7 +826,9 @@ export class GlassesSummary extends Component {
     }
 
     return (
-      <View style={[styles.columnLayout, {marginBottom: 12 * fontScale}]} key={this.props.title}>
+      <View
+        style={[styles.columnLayout, {marginBottom: 12 * fontScale}]}
+        key={this.props.title}>
         {this.props.title !== null && this.props.title !== undefined && (
           <Text style={this.props.titleStyle}>{this.props.title}</Text>
         )}
@@ -948,7 +950,9 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
-            {(!isEmpty(this.props.glassesRx.od.va) || !isEmpty(this.props.glassesRx.os.va)) && <View style={styles.cardColumn} key="va">
+            {(!isEmpty(this.props.glassesRx.od.va) ||
+              !isEmpty(this.props.glassesRx.os.va)) && (
+              <View style={styles.cardColumn} key="va">
                 {this.props.showHeaders === true && (
                   <Text style={styles.text}>VA </Text>
                 )}
@@ -998,7 +1002,7 @@ export class GlassesSummary extends Component {
                   </Text>
                 )}
               </View>
-            }
+            )}
             <View style={styles.cardColumn} key="add">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>Add </Text>
@@ -1024,7 +1028,9 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
-            {(!isEmpty(this.props.glassesRx.od.addVa) || !isEmpty(this.props.glassesRx.os.addVa)) && <View style={styles.cardColumn} key="nva">
+            {(!isEmpty(this.props.glassesRx.od.addVa) ||
+              !isEmpty(this.props.glassesRx.os.addVa)) && (
+              <View style={styles.cardColumn} key="nva">
                 {this.props.showHeaders === true && (
                   <Text style={styles.text}>NVA </Text>
                 )}
@@ -1073,7 +1079,8 @@ export class GlassesSummary extends Component {
                       : ' '}
                   </Text>
                 )}
-              </View>}
+              </View>
+            )}
             <View style={styles.cardColumn} key="prism">
               {this.props.showHeaders === true && (
                 <Text style={styles.text}>Prism </Text>
@@ -1091,7 +1098,9 @@ export class GlassesSummary extends Component {
                 </Text>
               )}
             </View>
-            {(!isEmpty(this.props.glassesRx.od.bvd) || !isEmpty(this.props.glassesRx.os.bvd)) && <View style={styles.cardColumn} key="bvd">
+            {(!isEmpty(this.props.glassesRx.od.bvd) ||
+              !isEmpty(this.props.glassesRx.os.bvd)) && (
+              <View style={styles.cardColumn} key="bvd">
                 {this.props.showHeaders === true && (
                   <Text style={styles.text}>{strings.bvd} </Text>
                 )}
@@ -1122,7 +1131,7 @@ export class GlassesSummary extends Component {
                   </Text>
                 )}
               </View>
-            }
+            )}
           </View>
         )}
         {!isEmpty(this.props.glassesRx.testingCondition) && (
