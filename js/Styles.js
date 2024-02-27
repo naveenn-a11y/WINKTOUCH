@@ -1216,10 +1216,12 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     width: '100%',
   },
+  imageContainer: {
+    flexDirection: 'row',
+  },
   drawingIcons: {
-    position: 'absolute',
+    position: 'relative',
     top: 40 * fontScale,
-    right: -5 * fontScale,
     flexDirection: 'column',
     backgroundColor: '#ffffffbb',
   },
