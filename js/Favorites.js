@@ -555,12 +555,11 @@ export class CopyRow extends PureComponent {
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
-        style={styles.bottomEndOfRow}
         testID={this.props.testID}>
         <Icon
           name="doubleright"
-          style={styles.copyRow}
           color={this.props.color}
+          style={styles.copyRow}
         />
       </TouchableOpacity>
     );

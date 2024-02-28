@@ -491,7 +491,7 @@ export const styles = StyleSheet.create({
   formRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: 'flex-start', 
     padding: 3 * fontScale,
   },
   formColumn: {
@@ -521,6 +521,10 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  get formColumnItemHalfHeight(){
+    return {...this.formColumnItem, height:20*fontScale}
+  },
+  set formColumnItemHalfHeight(object){}, 
   formRow500: {
     width: 520 * fontScale,
     flexDirection: 'row',
@@ -1297,13 +1301,11 @@ export const styles = StyleSheet.create({
     right: 0 * fontScale,
   },
   copyRow: {
-    position: 'absolute',
-    bottom: -20 * fontScale,
-    right: -5 * fontScale,
     fontSize: 28 * fontScale,
     fontWeight: 'normal',
-    padding: 5 * fontScale,
-    transform: [{rotate: '90deg'}],
+    borderWidth: 0,
+    textAlign: 'center',
+    transform: [{rotate: '90deg'}], 
   },
   copyColumn: {
     fontSize: 28 * fontScale,
