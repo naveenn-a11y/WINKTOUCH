@@ -272,8 +272,8 @@ export function addGroupItem(
     let newValue = groupValue
       ? groupValue
       : groupDefinition.type === 'SRx'
-      ? newRefraction()
-      : {};
+        ? newRefraction()
+        : {};
     groupDefinition.fields instanceof Array &&
       groupDefinition.fields.forEach(
         (fieldDefinition: FieldDefinition | GroupDefinition) => {
@@ -519,8 +519,8 @@ export class CheckList extends PureComponent {
     const style = this.props.style
       ? this.props.style
       : this.props.definition.size
-      ? styles['board' + this.props.definition.size]
-      : styles.board;
+        ? styles['board' + this.props.definition.size]
+        : styles.board;
     return (
       <View style={style}>
         <Label
@@ -534,8 +534,8 @@ export class CheckList extends PureComponent {
             this.props.style
               ? undefined
               : isWeb
-              ? {maxHeight: 500 * fontScale}
-              : styles.wrapBoard
+                ? {maxHeight: 500 * fontScale}
+                : styles.wrapBoard
           }>
           <ScrollView scrollEnabled={true}>
             {this.state.formattedOptions.map(
@@ -675,8 +675,8 @@ export class GroupedCard extends Component {
       column === undefined
         ? groupValue[fieldName]
         : groupValue[column]
-        ? groupValue[column][fieldName]
-        : undefined;
+          ? groupValue[column][fieldName]
+          : undefined;
     if (fieldDefinition.image) {
       if (isEmpty(value)) {
         return null;
@@ -1310,8 +1310,8 @@ export class GroupedCard extends Component {
         {isEmpty(this.props.exam[this.props.exam.definition.name])
           ? null
           : this.props.exam.definition.cardFields
-          ? this.renderCardRows()
-          : this.renderGroups()}
+            ? this.renderCardRows()
+            : this.renderGroups()}
       </View>
     );
   }
@@ -1722,16 +1722,18 @@ export class GroupedForm extends Component {
 
   renderRowCopy(refColumnDefinition: GroupDefinition, columns: string[]) {
     return (
-      <View style={styles.formColumn}>
+      <View style={styles.FormColumnTop}>
         {refColumnDefinition && refColumnDefinition.fields && (
           <>
             <View style={styles.formColumnItem}>
               <Label value=" " suffix="" />
             </View>
+            <View style={styles.formColumnItemHalfHeight}>
+              <Label value=" " suffix="" />
+            </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
               ind < refColumnDefinition.fields.length - 1 ? (
-                <View key={ind}>
-                  <View style={styles.formTableColumnHeaderSmall} />
+                <View key={ind} style={styles.formColumnItem}>
                   <CopyRow
                     onPress={() =>
                       this.copyRow(
@@ -1744,7 +1746,7 @@ export class GroupedForm extends Component {
                   />
                 </View>
               ) : (
-                <View key={ind} style={styles.formTableColumnHeaderSmall} />
+                <View key={ind} style={styles.formColumnItem} />
               ),
             )}
           </>
@@ -1942,10 +1944,10 @@ export class GroupedForm extends Component {
     const style = this.props.style
       ? this.props.style
       : this.props.definition.layout
-      ? scaleStyle(this.props.definition.layout)
-      : this.props.definition.size
-      ? styles['board' + this.props.definition.size]
-      : styles.board;
+        ? scaleStyle(this.props.definition.layout)
+        : this.props.definition.size
+          ? styles['board' + this.props.definition.size]
+          : styles.board;
     return (
       <View style={style} key={this.props.definition.name}>
         <Label
