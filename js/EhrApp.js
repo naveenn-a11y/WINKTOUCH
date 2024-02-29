@@ -15,13 +15,12 @@ import {RegisterScreen} from './Registration';
 import {
   setDeploymentVersion,
   checkBinaryVersion,
-  deploymentVersion,
 } from './Version';
 import {AppUpdateScreen} from './AppUpdate';
 import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
-import {deepClone, isEmpty, sleep} from './Util';
+import {deepClone, sleep} from './Util';
 import { Provider, DefaultTheme } from 'react-native-paper';
 import { NetworkInfo } from './Widgets';
 
@@ -185,12 +184,11 @@ export class EhrApp extends Component {
   }
 
   async setRegistration(registration?: Registration) {
-    const currentBundle = await AsyncStorage.getItem('bundle');
     const isRegistered: boolean =
-      registration != undefined &&
+      registration !== undefined &&
       registration != null &&
-      registration.email != undefined &&
-      registration.path != undefined &&
+      registration.email !== undefined &&
+      registration.path !== undefined &&
       registration.bundle !== undefined &&
       registration.bundle !== null &&
       registration.bundle.length > 0;
@@ -282,9 +280,8 @@ export class EhrApp extends Component {
   }
 
   checkAppstoreUpdateNeeded() {
-    if (isIos) {//TODO: remove dummy implementation
-      const {isUpdateRequired, latestBuild, latestVersion} = () => {false, this.state.latestBuild, this.state.latestVersion};
-      this.setState({isUpdateRequired, latestBuild, latestVersion});
+    if (isIos) {//TODO: implement with new lib
+      //this.setState({isUpdateRequired, latestBuild, latestVersion});
     }
   }
 
