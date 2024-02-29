@@ -5,12 +5,11 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "web": "npm run env:dev && cd web && webpack-dev-server --env goal=dev --open",
+    "web": "webpack serve --mode=development --config ./web/webpack.config.js --env MODE=development",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
     "prettier": "prettier --write '{js,json}/**/*.{js,json}'",
-    "web:dev": "webpack serve --mode=development --config ./web/webpack.config.js --env MODE=development",
     "build:web:dev": "webpack --mode=development --config ./web/webpack.config.js --env MODE=development",
     "build:web:prod": "webpack --mode=production --config ./web/webpack.config.js --env MODE=production"
   },
