@@ -156,7 +156,7 @@ export function getExamDefinition(examName: string): ExamDefinition {
   let examDefinitions: ExamDefinition[] = getCachedItems(
     getCachedItem('examDefinitions'),
   );
-  let examDefinition: ?ExamDefinition = examDefinitions.find(
+  let examDefinition: ?ExamDefinition = examDefinitions?.find(
     (examDefinition: ExamDefinition) => examDefinition.name === examName,
   );
   if (examDefinition === undefined) {

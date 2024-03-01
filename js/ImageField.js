@@ -1610,7 +1610,7 @@ export class ImageField extends Component {
       style = imageStyle('S', this.aspectRatio());
       return (
         <View style={styles.fieldContainer}>
-          <View>
+          <View style={styles.imageContainer}>
             <TouchableOpacity
               style={styles.fieldContainer}
               onPress={this.startEditing}
