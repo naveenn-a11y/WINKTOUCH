@@ -21,7 +21,7 @@ export let ecommVersion: string = 'V5';
 export const dbVersion: string = '2058';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
-const minimalTouchVersion = 3.0;
+const minimalTouchVersion = 4.8;
 
 export function setDeploymentVersion(version: string): void {
   __DEV__ && console.log('Current code push deployment version: ' + version);
