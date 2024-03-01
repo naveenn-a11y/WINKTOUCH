@@ -19,7 +19,7 @@ module.exports = (env, mode) => {
     fs.mkdirSync(path.resolve(rootDir, 'dist'));
   }
   // Read version number from version.js
-  const versionFilePath = path.resolve(__dirname, '../js/version.js');
+  const versionFilePath = path.resolve(__dirname, '../js/Version.js');
   const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
   const versionMatch = versionFileContent.match(/VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/);
   const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
