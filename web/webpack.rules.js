@@ -14,10 +14,7 @@ module.exports = [
       path.resolve(rootDir, './node_modules/react-native-fs'),
       path.resolve(rootDir, './node_modules/react-localization'),
       path.resolve(rootDir, './node_modules/react-native-vector-icons'),
-      path.resolve(
-        rootDir,
-        './node_modules/react-native-keyboard-aware-scroll-view',
-      ),
+      path.resolve(rootDir, './node_modules/react-native-keyboard-aware-scroll-view'),
       path.resolve(rootDir, './node_modules/react-native-view-shot'),
       path.resolve(rootDir, './node_modules/react-navigation-stack'),
       path.resolve(rootDir, './node_modules/react-native-gesture-handler'),

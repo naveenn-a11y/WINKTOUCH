@@ -1,5 +1,4 @@
 import {
-  defaultHost,
   getNextRequestNumber,
   getToken,
   handleHttpError,
@@ -14,13 +13,12 @@ import {formatLabel, getFieldDefinition} from './Items';
 import {getConfiguration} from './Configuration';
 import {strings} from './Strings';
 import {isEmpty} from './Util';
-import {REACT_APP_WEBSOCKET_URI} from '../env.json';
 
 const MachineRequestType = {
   PUSH: 'PUSH',
   PULL: 'PULL',
 };
-const wsRestUrl:string =  REACT_APP_WEBSOCKET_URI;
+const wsRestUrl: string = 'https://afd.dev.downloadwink.com/WinkWebSocket/';
 const wssIoStream: string = 'wss://chat-us-east-1.stream-io-api.com/';
 
 async function fetchMachineMeasurements(

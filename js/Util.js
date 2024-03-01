@@ -5,6 +5,7 @@
 import moment from 'moment';
 require('moment/locale/fr.js');
 require('moment/locale/fr-ca.js');
+require('moment/locale/es.js');
 import {strings} from './Strings';
 
 export const shortTimeFormat: string = 'H:mm';

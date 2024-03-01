@@ -4,25 +4,23 @@
 
 'use strict';
 import React, {Component} from 'react';
-import {View, ActivityIndicator, AppState, Platform} from 'react-native';
+import {View, ActivityIndicator, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from "@react-native-community/netinfo";
+import NetInfo from '@react-native-community/netinfo';
 import codePush, {SyncStatus} from 'react-native-code-push';
 import type {Registration, Store, User} from './Types';
 import {LoginScreen} from './LoginScreen';
 import {DoctorApp} from './DoctorApp';
-import {RegisterScreen, fetchTouchVersion} from './Registration';
+import {RegisterScreen} from './Registration';
 import {
   setDeploymentVersion,
   checkBinaryVersion,
-  deploymentVersion,
 } from './Version';
 import {AppUpdateScreen} from './AppUpdate';
 import {isIos, isWeb} from './Styles';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
-import RemoteConfig from './utilities/RemoteConfig';
-import {deepClone, isEmpty, sleep} from './Util';
+import {deepClone, sleep} from './Util';
 import { Provider, DefaultTheme } from 'react-native-paper';
 import { NetworkInfo } from './Widgets';
 
@@ -59,9 +57,6 @@ function logUpdateStatus(status: number) {
       break;
     case SyncStatus.UNKNOWN_ERROR:
       console.log('CodePush Unknown error');
-      break;
-    case SyncStatus.INSTALLING_UPDATE:
-      console.log('CodePush Installing update');
       break;
     default:
       console.log('CodePush Status: ' + status);
@@ -108,7 +103,7 @@ async function refreshWebDeployment(codePushEnvironmentKey: String, delaySeconds
   }
   console.log('Refreshing webapp with web bundle for environment '+codePushEnvironmentKey);
   await AsyncStorage.setItem('bundle', codePushEnvironmentKey);
-  location.reload();
+  window.location.reload();
 }
 
 const theme = {
@@ -189,18 +184,17 @@ export class EhrApp extends Component {
   }
 
   async setRegistration(registration?: Registration) {
-    const currentBundle = await AsyncStorage.getItem('bundle');
     const isRegistered: boolean =
-      registration != undefined &&
+      registration !== undefined &&
       registration != null &&
-      registration.email != undefined &&
-      registration.path != undefined &&
+      registration.email !== undefined &&
+      registration.path !== undefined &&
       registration.bundle !== undefined &&
       registration.bundle !== null &&
       registration.bundle.length > 0;
     this.setState(
       {isRegistered, registration, loading: false},
-      () => isRegistered && this.checkForCodepushUpdate(),  
+      () => isRegistered && this.checkForCodepushUpdate(),
     );
   }
 
@@ -285,11 +279,9 @@ export class EhrApp extends Component {
     this.checkAppstoreUpdateNeeded();
   }
 
-  async checkAppstoreUpdateNeeded() {
-    if (isIos) {
-      const {isUpdateRequired, latestBuild, latestVersion} =
-        await RemoteConfig.shouldUpdateApp();
-      this.setState({isUpdateRequired, latestBuild, latestVersion});
+  checkAppstoreUpdateNeeded() {
+    if (isIos) {//TODO: implement with new lib
+      //this.setState({isUpdateRequired, latestBuild, latestVersion});
     }
   }
 
@@ -343,7 +335,6 @@ export class EhrApp extends Component {
       useNativeReachability: true
     });
     netInfoListener = NetInfo.addEventListener(this.handleConnectivityChange);
-    isIos && (await RemoteConfig.activateRemoteConfig());
     appStateListener = AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
