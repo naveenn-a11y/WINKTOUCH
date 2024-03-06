@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   StatusBar,
+  Platform
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
@@ -37,8 +38,14 @@ const getRegistrationUrl = () => getEcommUri() + '/WinkRegistrationSecurity?mac=
 const getTouchVersionUrl = () => getEcommUri() + '/WinkTouchVersion';
 
 async function fetchIp(): string {
-  const ip = await DeviceInfo.getIpAddress();
-  return ip;
+  if (Platform.OS === 'ios') {
+    const ip = await DeviceInfo.getIpAddress();
+    return ip;
+  }
+
+  const response = await fetch("https://ipapi.co/json/")
+  const data = await response.json()
+  return data.ip
 }
 
 async function fetchPublicIp(): string {
