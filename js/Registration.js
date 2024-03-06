@@ -8,10 +8,8 @@ import {
   View,
   TouchableOpacity,
   KeyboardAvoidingView,
-  StatusBar,
-  Platform
+  StatusBar
 } from 'react-native';
-import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
 import {styles, fontScale, isWeb} from './Styles';
 import {
@@ -37,17 +35,6 @@ const getSecurityQuestionUrl = () => getEcommUri() + '/WinkRegistrationEmail?mac
 const getRegistrationUrl = () => getEcommUri() + '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
 const getTouchVersionUrl = () => getEcommUri() + '/WinkTouchVersion';
 
-async function fetchIp(): string {
-  if (Platform.OS === 'ios') {
-    const ip = await DeviceInfo.getIpAddress();
-    return ip;
-  }
-
-  const response = await fetch("https://ipapi.co/json/")
-  const data = await response.json()
-  return data.ip
-}
-
 async function fetchPublicIp(): string {
   const ip: string = await publicIp();
   return ip;
@@ -56,17 +43,6 @@ async function fetchPublicIp(): string {
 export let isAtWink: boolean;
 
 async function determineIfAtWink(): void {
-  if (Platform.OS === 'ios') {
-    const localIp = await fetchIp();
-
-    if (localIp && localIp.startsWith('192.168.88.')) {
-      const publicIp: string = await fetchPublicIp();
-      isAtWink = publicIp === '13.88.254.237';
-    } else {
-      isAtWink = false;
-    }
-  }
-
   if (Platform.OS === 'web') {
     const publicIp: string = await fetchPublicIp();
     isAtWink = publicIp === '13.88.254.237';
