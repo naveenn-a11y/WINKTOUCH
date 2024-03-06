@@ -8,7 +8,8 @@ import {
   View,
   TouchableOpacity,
   KeyboardAvoidingView,
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native';
 import publicIp from 'react-native-public-ip';
 import {styles, fontScale, isWeb} from './Styles';
