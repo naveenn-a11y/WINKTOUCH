@@ -8,12 +8,12 @@ on:
 
 env:
   NODE_VERSION: '20.x'
-  ENVIRONMENT: 'dev'
+  ENVIRONMENT: 'prod'
 
 jobs:
   build-and-deploy:
     runs-on: [self-hosted]
-    environment: 'dev'
+    environment: 'prod'
 
     steps:
       - uses: actions/checkout@v2
