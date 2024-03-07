@@ -1071,7 +1071,7 @@ async function renderMedia(
                   html += isWeb
                     ? '<g transform="scale(0.9 0.92)" >'
                     : ' <g transform="scale(0.96 0.98)" >';
-                  html += `<text x="${x}" y="${y}" style="font-size:${(childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize*fontScale : defaultFontSize)}">${pfValue}</text>`;
+                  html += `<text x="${x}" y="${y}" style="font-size:${(childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize*fontScale : defaultFontSize)}">${pfValue}</text>`; 
                   html += ' </g>';
                   html += '</svg>';
                 }
