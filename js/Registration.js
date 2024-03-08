@@ -51,7 +51,6 @@ export let isAtWink: boolean;
 
 async function determineIfAtWink(): void {
   if (Platform.OS === 'web') {
-    debugger
       const publicIp: string = await fetchPublicIp();
       isAtWink = publicIp === '13.88.254.237';
   }
