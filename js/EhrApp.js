@@ -3,26 +3,27 @@
  */
 
 'use strict';
-import React, {Component} from 'react';
-import {View, ActivityIndicator, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
-import codePush, {SyncStatus} from 'react-native-code-push';
-import type {Registration, Store, User} from './Types';
-import {LoginScreen} from './LoginScreen';
-import {DoctorApp} from './DoctorApp';
-import {RegisterScreen} from './Registration';
+import { Component } from 'react';
+import { ActivityIndicator, AppState, View } from 'react-native';
+import codePush, { SyncStatus } from 'react-native-code-push';
+import { DefaultTheme, Provider } from 'react-native-paper';
+import { AppUpdateScreen } from './AppUpdate';
+import { DoctorApp } from './DoctorApp';
+import { LoginScreen } from './LoginScreen';
+import { RegisterScreen } from './Registration';
+import { isIos, isWeb } from './Styles';
+import type { Registration, Store, User } from './Types';
+import { deepClone, sleep } from './Util';
 import {
-  setDeploymentVersion,
   checkBinaryVersion,
+  setDeploymentVersion,
 } from './Version';
-import {AppUpdateScreen} from './AppUpdate';
-import {isIos, isWeb} from './Styles';
+import { NetworkInfo } from './Widgets';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
-import {deepClone, sleep} from './Util';
-import { Provider, DefaultTheme } from 'react-native-paper';
-import { NetworkInfo } from './Widgets';
+import RemoteConfig from './utilities/RemoteConfig';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -279,9 +280,10 @@ export class EhrApp extends Component {
     this.checkAppstoreUpdateNeeded();
   }
 
-  checkAppstoreUpdateNeeded() {
-    if (isIos) {//TODO: implement with new lib
-      //this.setState({isUpdateRequired, latestBuild, latestVersion});
+  async checkAppstoreUpdateNeeded() {
+    if (isIos) {
+      const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();
+      this.setState({isUpdateRequired, latestBuild, latestVersion});
     }
   }
 
@@ -335,6 +337,7 @@ export class EhrApp extends Component {
       useNativeReachability: true
     });
     netInfoListener = NetInfo.addEventListener(this.handleConnectivityChange);
+    isIos && (await RemoteConfig.activateRemoteConfig());
     appStateListener = AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
