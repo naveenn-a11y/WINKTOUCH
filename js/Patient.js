@@ -678,7 +678,7 @@ export class PatientDocumentAttachments extends Component {
     return (
       <View style={styles.attachementContainer}>
         {this.renderDocumentList(strings.consentForms, this.state.consentDocuments, this.state.loadedConsentDocuments)}
-        {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments, this.state.loadedIntakeDocuments)}
+        {/* {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments, this.state.loadedIntakeDocuments)} */}
         {this.renderDocumentList(strings.otherForms, this.state.otherDocuments, this.state.loadedOtherDocuments)}
       </View>
     );
