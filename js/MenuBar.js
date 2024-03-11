@@ -214,7 +214,7 @@ export class MenuBar extends PureComponent {
             }
           />
         )}
-        {(isAtWink) &&
+        {(isAtWink || __DEV__) &&
           scene === 'overview' &&
           getUserLanguage() === 'en-CA' && (
             <Button
