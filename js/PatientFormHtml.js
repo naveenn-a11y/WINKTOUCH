@@ -1059,19 +1059,19 @@ async function renderMedia(
                   let x = round(
                     (fieldScaledStyle ? fieldScaledStyle.left : 0) +
                       (parentScaledStyle ? parentScaledStyle.left : 0) +
-                      defaultFontSize,
+                      (childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize : defaultFontSize),
                   );
                   let y = round(
                     (fieldScaledStyle ? fieldScaledStyle.top : 0) +
                       (parentScaledStyle ? parentScaledStyle.top : 0) +
-                      defaultFontSize,
+                      (childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize : defaultFontSize),
                   );
 
                   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" style="width:${style.width}pt; height:${style.height}pt">`;
                   html += isWeb
                     ? '<g transform="scale(0.9 0.92)" >'
                     : ' <g transform="scale(0.96 0.98)" >';
-                  html += `<text x="${x}" y="${y}">${pfValue}</text>`;
+                  html += `<text x="${x}" y="${y}" style="font-size:${(childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize*fontScale : defaultFontSize)}">${pfValue}</text>`; 
                   html += ' </g>';
                   html += '</svg>';
                 }

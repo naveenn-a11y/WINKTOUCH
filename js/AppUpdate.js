@@ -4,20 +4,21 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import { Component } from 'react';
 import {
-  Image,
-  Text,
-  View,
-  Linking,
   Alert,
+  Image,
+  Linking,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import {styles, fontScale, isWeb} from './Styles';
-import {strings} from './Strings';
-import {Button} from './Widgets';
-import DeviceInfo from 'react-native-device-info';
 import codePush from 'react-native-code-push';
+import DeviceInfo from 'react-native-device-info';
+import { strings } from './Strings';
+import { fontScale, isWeb, styles } from './Styles';
+import { Button } from './Widgets';
+import RemoteConfig from './utilities/RemoteConfig';
 
 export class AppUpdateScreen extends Component {
   props: {
@@ -31,8 +32,7 @@ export class AppUpdateScreen extends Component {
   }
 
   async openAppstore() {
-    //const appstoreUrl = await RemoteConfig.getAppstoreUrl(); //TODO
-    const appstoreUrl = '';
+    const appstoreUrl = await RemoteConfig.getAppstoreUrl();
     const supported = await Linking.canOpenURL(appstoreUrl);
     if (supported) {
       await Linking.openURL(appstoreUrl);
