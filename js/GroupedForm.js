@@ -69,6 +69,7 @@ import {
   formatFieldLabel,
   SelectionListsScreen,
 } from './Items';
+import uuid from 'react-native-uuid';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -1949,10 +1950,9 @@ export class GroupedForm extends Component {
           ? styles['board' + this.props.definition.size]
           : styles.board;
     return (
-      <View style={style} key={this.props.definition.name}>
+      <View style={style} key={uuid.v4()}>
         <Label
           style={styles.sectionTitle}
-          key="title"
           suffix=""
           value={formatFieldLabel(this.props.definition, this.props.form)}
           fieldId={this.props.fieldId}
