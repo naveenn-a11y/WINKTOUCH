@@ -5,7 +5,6 @@ import { CommonActions } from '@react-navigation/native';
 import {isWeb} from './Styles';
 import codePush from 'react-native-code-push';
 import {getUserLanguage, strings} from './Strings';
-import {getCurrentHost} from '../scripts/Util';
 import {getRestUrl, getToken} from './Rest';
 import {bundleVersion, deploymentVersion, touchVersion} from './Version';
 async function postLogService(error: any, errorInfo: any): void {
@@ -129,7 +128,7 @@ export class ErrorBoundary extends Component {
 
   restart() {
     if (isWeb) {
-      window.location.href = getCurrentHost();
+      window.location.reload();
     } else {
       codePush.restartApp();
     }

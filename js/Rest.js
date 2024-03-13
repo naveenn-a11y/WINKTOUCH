@@ -1,7 +1,6 @@
 /**
  * @flow
  */
-
 'use strict';
 
 import type {
@@ -22,12 +21,10 @@ import {
   getCachedItem,
   clearCachedItemById,
 } from './DataCache';
-import {restVersion} from './Version';
+import {ehrApiVersion} from './Version';
 import {setWinkRestUrl} from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {REACT_APP_DEFAULT_HOST, REACT_APP_WEB_URI} from '../env.json';
-
-export const defaultHost: string = REACT_APP_DEFAULT_HOST;
+import {getEmrHost, setEmrHost} from './Hosts';
 
 let token: string;
 let privileges: Privileges = {
@@ -42,13 +39,13 @@ let requestNumber: number = 0;
 
 export function getWinkEmrHostFromAccount(account: Account) {
   if (account.extraFields instanceof Array) {
-    const winkEmrHost: Object = account.extraFields.find(
+    const winkEmrHostField: Object = account.extraFields.find(
       (extraField: Object) => extraField.key === 'WinkEMRHost',
     );
-    if (!isEmpty(winkEmrHost) && !isEmpty(winkEmrHost.value)) {
-      return winkEmrHost.value;
+    if (!isEmpty(winkEmrHostField) && !isEmpty(winkEmrHostField.value)) {
+      return winkEmrHostField.value;
     }
-    return defaultHost;
+    return getEmrHost();
   }
 }
 export function getNextRequestNumber(): number {
@@ -725,26 +722,31 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return REACT_APP_WEB_URI;
-  //return __DEV__ ? REACT_APP_WEB_URI : restUrl;
+  return restUrl;
 }
 
-async function setRestUrl(winkEmrHost: string) {
-  if ('https://' + winkEmrHost + '/' + restVersion + '/' === restUrl) return;
-  restUrl = 'https://' + winkEmrHost + '/' + restVersion + '/';
-  __DEV__ && console.log('Switching emr REST backend server to ' + restUrl);
+function setRestUrl() {
+  const winkEmrHost = getEmrHost();
+  if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) return;
+  restUrl = 'https://' + winkEmrHost + '/' + ehrApiVersion + '/';
+  __DEV__ && console.log('Setting EMR backend server to ' + restUrl);
 }
+
+setRestUrl();
+setWinkRestUrl();
 
 export function switchEmrHost(winkEmrHost: string) {
   const formattedWinkEmrHost: string = extractHostname(winkEmrHost);
   AsyncStorage.setItem('winkEmrHost', formattedWinkEmrHost);
-  setRestUrl(formattedWinkEmrHost);
-  setWinkRestUrl(formattedWinkEmrHost);
+  setEmrHost(formattedWinkEmrHost);
+  setRestUrl();
+  setWinkRestUrl();
 }
 
 AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
-  if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '') {
-    winkEmrHost = defaultHost;
+  if (!isEmpty(winkEmrHost)) {
+    setEmrHost(winkEmrHost);
   }
-  setRestUrl(winkEmrHost);
+  setRestUrl();
+  setWinkRestUrl();
 });

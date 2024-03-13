@@ -172,7 +172,11 @@ class InactivityTracker {
   }
 
   observeIosEvents(): void {
-    this._iosEventSubscription = this._iosEventTrackerEmitter.addListener('eventDetected', this.resetLogoutTime);
+    try {
+      this._iosEventSubscription = this._iosEventTrackerEmitter.addListener('eventDetected', this.resetLogoutTime);
+    } catch (e) {
+      __DEV__ && console.log('observeIosEvents:error', e)
+    }
   }
 
   stopObserveEvents(): void {

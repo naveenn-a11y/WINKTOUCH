@@ -7,9 +7,9 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  ScrollView,
   KeyboardAvoidingView,
   StatusBar,
+  Platform
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
@@ -29,20 +29,13 @@ import {
   deploymentVersion,
   ecommVersion,
 } from './Version';
-import {REACT_APP_ECOMM_URI} from '../env.json';
+import {getEmrHost} from './Hosts';
 
-const securityQuestionsUrl =
-  REACT_APP_ECOMM_URI + ecommVersion + '/WinkRegistrationQuestions';
-const securityQuestionUrl =
-  REACT_APP_ECOMM_URI +
-  ecommVersion +
-  '/WinkRegistrationEmail?mac=EMRFree&source=touch';
-const registrationUrl =
-  REACT_APP_ECOMM_URI +
-  ecommVersion +
-  '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
-const touchVersionUrl =
-  REACT_APP_ECOMM_URI + ecommVersion + '/WinkTouchVersion';
+const getEcommUri = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion;
+const getSecurityQuestionsUrl = () => getEcommUri() + '/WinkRegistrationQuestions';
+const getSecurityQuestionUrl = () => getEcommUri() + '/WinkRegistrationEmail?mac=EMRFree&source=touch';
+const getRegistrationUrl = () => getEcommUri() + '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+const getTouchVersionUrl = () => getEcommUri() + '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();
@@ -57,20 +50,26 @@ async function fetchPublicIp(): string {
 export let isAtWink: boolean;
 
 async function determineIfAtWink(): void {
-  const localIp = await fetchIp();
+  if (Platform.OS === 'web') {
+      const publicIp: string = await fetchPublicIp();
+      isAtWink = publicIp === '13.88.254.237';
+  }
 
-  if (localIp && localIp.startsWith('192.168.88.')) {
-    const publicIp: string = await fetchPublicIp();
-    isAtWink = publicIp === '70.25.31.169';
-  } else {
-    isAtWink = false;
+  if (Platform.OS === 'ios') {
+    const localIp = await fetchIp();
+    if (localIp && localIp.startsWith('192.168.88.')) {
+      const publicIp: string = await fetchPublicIp();
+      isAtWink = publicIp === '13.88.254.237';
+    } else {
+      isAtWink = false;
+    }
   }
 }
 
 determineIfAtWink();
 
 async function fetchSecurityQuestions() {
-  const url = securityQuestionsUrl;
+  const url = getSecurityQuestionsUrl();
   try {
     let httpResponse = await fetch(url, {
       method: 'get',
@@ -103,7 +102,7 @@ async function fetchSecurityQuestionIndex(email: string) {
   }
   const ip: string = await fetchIp();
   const url =
-    securityQuestionUrl + '&email=' + encodeURIComponent(email) + '&ip=' + ip;
+    getSecurityQuestionUrl() + '&email=' + encodeURIComponent(email) + '&ip=' + ip;
   try {
     let httpResponse = await fetch(url);
     if (!httpResponse.ok) {
@@ -129,7 +128,7 @@ async function fetchRegistration(
   }
   const ip: string = await fetchIp();
   const url =
-    registrationUrl +
+    getRegistrationUrl() +
     '&email=' +
     encodeURIComponent(email) +
     '&securityQuestion=' +
@@ -170,7 +169,7 @@ export async function fetchTouchVersion(path: string): string {
   if (!path) {
     return undefined;
   }
-  const url = touchVersionUrl + '?path=' + encodeURIComponent(path);
+  const url = getTouchVersionUrl() + '?path=' + encodeURIComponent(path);
   __DEV__ && console.log('REQ touch version:' + url);
   try {
     let httpResponse = await fetch(url, {

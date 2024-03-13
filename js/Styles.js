@@ -325,7 +325,7 @@ export const styles = StyleSheet.create({
   field400: {
     fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
-    minWidth: 400 * fontScale,
+    minWidth: 375 * fontScale,
     padding: 6 * fontScale,
     paddingLeft: 18 * fontScale,
     textAlign: 'left',
@@ -1219,10 +1219,12 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     width: '100%',
   },
+  imageContainer: {
+    flexDirection: 'row',
+  },
   drawingIcons: {
-    position: 'absolute',
+    position: 'relative',
     top: 40 * fontScale,
-    right: -5 * fontScale,
     flexDirection: 'column',
     backgroundColor: '#ffffffbb',
   },

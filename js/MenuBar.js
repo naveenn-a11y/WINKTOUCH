@@ -29,7 +29,6 @@ import {UpcomingAppointments} from './Appointment';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
-import {getCurrentHost} from '../scripts/Util';
 import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -235,7 +234,11 @@ export class MenuBar extends PureComponent {
         {__DEV__ && !isWeb && (
           <Button
             title={strings.restart}
-            onPress={() => codePush.restartApp()}
+            onPress={() =>
+              !isWeb
+                ? codePush.restartApp()
+                : window.location.reload()
+            }
           />
         )}
         {/*__DEV__ && <Notifications />*/}

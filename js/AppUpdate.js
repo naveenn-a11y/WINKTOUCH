@@ -4,22 +4,21 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import { Component } from 'react';
 import {
-  Image,
-  Text,
-  View,
-  Linking,
   Alert,
+  Image,
+  Linking,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import {styles, fontScale, isWeb} from './Styles';
-import {strings} from './Strings';
-import {Button} from './Widgets';
-import DeviceInfo from 'react-native-device-info';
-import RemoteConfig from './utilities/RemoteConfig';
 import codePush from 'react-native-code-push';
-import {REACT_APP_HOST} from '../env.json';
+import DeviceInfo from 'react-native-device-info';
+import { strings } from './Strings';
+import { fontScale, isWeb, styles } from './Styles';
+import { Button } from './Widgets';
+import RemoteConfig from './utilities/RemoteConfig';
 
 export class AppUpdateScreen extends Component {
   props: {
@@ -33,10 +32,10 @@ export class AppUpdateScreen extends Component {
   }
 
   async openAppstore() {
-    const url = await RemoteConfig.getAppstoreUrl();
-    const supported = await Linking.canOpenURL(url);
+    const appstoreUrl = await RemoteConfig.getAppstoreUrl();
+    const supported = await Linking.canOpenURL(appstoreUrl);
     if (supported) {
-      await Linking.openURL(url);
+      await Linking.openURL(appstoreUrl);
     } else {
       Alert.alert(strings.openAppstore);
     }
@@ -109,7 +108,7 @@ export class AppUpdateScreen extends Component {
             onLongPress={() =>
               !isWeb
                 ? codePush.restartApp()
-                : window.location.replace(REACT_APP_HOST)
+                : window.location.reload()
             }>
             <Text>
               {strings.appVersion}:{' '}

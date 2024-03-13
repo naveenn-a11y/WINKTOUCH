@@ -58,6 +58,7 @@ export async function printRx(
         printVA: printVA,
         printMPDs: printMPDs,
         printBPDs: printBPDs,
+        printPDs:printBPDs || printMPDs,
         printNotesOnRx: printNotesOnRx,
         binocularPD: binocularPD,
       },
