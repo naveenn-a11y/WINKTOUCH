@@ -57,7 +57,7 @@
     "react-native-paper": "^5.12.3",
     "react-native-paper-dropdown": "^1.0.7",
     "react-native-pdf": "^6.7.4",
-    "react-native-pdf-lib": "^1.0.0",
+    "react-native-pdf-lib": "github:zilicon/react-native-pdf-lib#fix-fonts",
     "react-native-public-ip": "^1.0.2",
     "react-native-reanimated": "^3.6.2",
     "react-native-rectangle-scanner": "^1.0.10",
