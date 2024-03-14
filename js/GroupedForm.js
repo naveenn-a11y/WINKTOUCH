@@ -1450,7 +1450,7 @@ export class GroupedForm extends Component {
   renderField(fieldDefinition: FieldDefinition, column?: string) {
     if (fieldDefinition === undefined) {
       return (
-        <View style={styles.fieldFlexContainer} key={column}>
+        <View style={styles.fieldFlexContainer} key={uuid.v4()}>
           <Text style={styles.text} />
         </View>
       );
@@ -1517,7 +1517,7 @@ export class GroupedForm extends Component {
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
         disableScroll={this.props.disableScroll}
-        key={fieldDefinition.name + (column === undefined ? '' : column)}
+        key={uuid.v4()}
         fieldId={
           this.props.fieldId +
           '.' +
@@ -1581,14 +1581,14 @@ export class GroupedForm extends Component {
       fields.push(
         <Label
           value={label}
-          key={fieldDefinition.name + 'Label'}
+          key={uuid.v4()}
           fieldId={this.props.fieldId + '.' + fieldDefinition.name}
         />,
       );
       fields.push(this.renderField(fieldDefinition));
     });
     return (
-      <View style={styles.formRow} key={fieldDefinition.name}>
+      <View style={styles.formRow} key={uuid.v4()}>
         {fields}
       </View>
     );
@@ -1702,7 +1702,7 @@ export class GroupedForm extends Component {
     columns: string[],
   ) {
     return (
-      <View style={styles.FormColumnTop}>
+      <View style={styles.FormColumnTop} key={uuid.v4()}>
         <View style={styles.formColumnItem}>
           <View style={styles.copyColumnContainer}>
             <CopyColumn
@@ -1891,7 +1891,7 @@ export class GroupedForm extends Component {
   renderIcons() {
     if (this.props.cloneable && this.props.definition.clone) {
       return (
-        <View style={styles.groupIcons} key="icons">
+        <View style={styles.groupIcons} key={uuid.v4()}>
           {this.renderCopyIcon()}
         </View>
       );
@@ -1905,7 +1905,7 @@ export class GroupedForm extends Component {
       return null;
     }
     return [
-      <View style={styles.groupIcons} key="icons">
+      <View style={styles.groupIcons} key={uuid.v4()}>
         {this.props.onClear && (
           <TouchableOpacity
             onPress={this.props.onClear}
@@ -1929,7 +1929,7 @@ export class GroupedForm extends Component {
           />
         )}
       </View>,
-      <View style={styles.groupExtraIcons}>
+      <View style={styles.groupExtraIcons} key={uuid.v4()}>
         {this.props.editable && this.props.definition.import && (
           <TouchableOpacity
             onPress={() => this.importData()}
