@@ -26,6 +26,7 @@ import {getDataType} from './Rest';
 import {Label} from './Widgets';
 import {getValue, isEmpty, setValue} from './Util';
 import {formatCode} from './Codes';
+import uuid from 'react-native-uuid';
 
 export class AssessmentCard extends Component {
   props: {
@@ -107,6 +108,7 @@ export class PrescriptionCard extends Component {
           suffix=""
           style={styles.sectionTitle}
           value={strings.drRecommendation}
+          key={uuid.v4()}
         />
       );
     }
@@ -114,7 +116,7 @@ export class PrescriptionCard extends Component {
   }
   renderPurchaseRxSimpleRow(recomm: any, index: number) {
     return (
-      <View style={styles.formRow}>
+      <View style={styles.formRow} key={uuid.v4()}>
         <Text style={styles.textLeft}>
           {formatCode('purchaseReasonCode', recomm.lensType).trim() !== ''
             ? formatCode('purchaseReasonCode', recomm.lensType)
