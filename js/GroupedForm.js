@@ -1287,11 +1287,11 @@ export class GroupedCard extends Component {
 
     return rowValues.map((rowValue: string[], index: number) => {
       return (
-        <Text style={styles.textLeft} key={index}>
+        <Text style={styles.textLeft} key={uuid.v4()}>
           {rowValue.map((eachvalue: string) => {
             if (eachvalue.startsWith('<b>')) {
               return (
-                <Text style={styles.labelTitle}>
+                <Text style={styles.labelTitle} key={uuid.v4()}>
                   {eachvalue.substring(3, eachvalue.length - 1)}
                 </Text>
               );
@@ -1642,13 +1642,13 @@ export class GroupedForm extends Component {
     refColumnDefinition: GroupDefinition,
   ) {
     return (
-      <View style={styles.formColumnFlex}>
+      <View style={styles.formColumnFlex} key={uuid.v4()}>
         {columnDefinition && (
           <View style={styles.formColumnItem}>
             <Label
               value={formatLabel(columnDefinition)}
               style={styles.formTableColumnHeaderFull}
-              key={columnDefinition.name}
+              key={uuid.v4()}
               suffix={''}
               fieldId={this.props.fieldId + '.' + columnDefinition.name}
             />
@@ -1662,12 +1662,12 @@ export class GroupedForm extends Component {
             );
             return fd ? (
               <View
-                key={columnDefinition.name + ind}
+                key={uuid.v4()}
                 style={styles.formColumnItem}>
                 {this.renderField(fd, columnDefinition.name)}
               </View>
             ) : (
-              <View key={ind} style={styles.formColumnItem} />
+              <View key={uuid.v4()} style={styles.formColumnItem} />
             );
           })}
       </View>
@@ -1683,7 +1683,7 @@ export class GroupedForm extends Component {
               <Label value=" " suffix="" />
             </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition) => (
-              <View style={styles.formColumnItem} key={fd.name}>
+              <View style={styles.formColumnItem} key={uuid.v4()}>
                 <Label
                   value={formatLabel(fd)}
                   fieldId={this.props.fieldId + '.' + fd.name}
@@ -1715,7 +1715,7 @@ export class GroupedForm extends Component {
         {refColumnDefinition &&
           refColumnDefinition.fields &&
           refColumnDefinition.fields.map((fd: FieldDefinition, ind) => (
-            <View key={ind} style={styles.formColumnItem} />
+            <View key={uuid.v4()} style={styles.formColumnItem} />
           ))}
       </View>
     );
@@ -1734,7 +1734,7 @@ export class GroupedForm extends Component {
             </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
               ind < refColumnDefinition.fields.length - 1 ? (
-                <View key={ind} style={styles.formColumnItem}>
+                <View key={uuid.v4()} style={styles.formColumnItem}>
                   <CopyRow
                     onPress={() =>
                       this.copyRow(
@@ -1747,7 +1747,7 @@ export class GroupedForm extends Component {
                   />
                 </View>
               ) : (
-                <View key={ind} style={styles.formColumnItem} />
+                <View key={uuid.v4()} style={styles.formColumnItem} />
               ),
             )}
           </>
@@ -1766,7 +1766,7 @@ export class GroupedForm extends Component {
         columns.length > 0 && columns[0] === refColumnDefinition.name,
     );
     return (
-      <View style={styles.formRow}>
+      <View style={styles.formRow} key={uuid.v4()}>
         {this.renderColumnLabels(refColumnDefinition)}
         {columns.map((column, index) => {
           const columnDefinition: GroupDefinition =
