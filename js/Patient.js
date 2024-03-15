@@ -57,6 +57,7 @@ import {printBase64Pdf} from './Print';
 import {Binoculars} from './Widgets';
 import {ManageUsers} from './User';
 import {CustomModal as Modal} from './utilities/Modal';
+import { is } from "date-fns/esm/locale";
 
 export async function fetchPatientInfo(
   patientId: string,
@@ -536,7 +537,7 @@ export class PatientDocumentAttachments extends Component {
   }
 
   isOtherForm(document: PatientDocument) {
-    return document.category !== 'Patient Content Form' && document.category !== 'Intake Form'
+    return !this.isConsentForm(document) && !this.isIntakeForm(document)
   }
 
   async loadPatientDocument() {
@@ -558,6 +559,7 @@ export class PatientDocumentAttachments extends Component {
     allPatientDocuments?.forEach(
       (patientDocument: PatientDocument) => {
         if (this.isConsentForm(patientDocument)) {
+          console.log('Consent Document', patientDocument)
           consentDocuments.push(patientDocument);
         }
 
@@ -566,6 +568,7 @@ export class PatientDocumentAttachments extends Component {
         }
         
         if (this.isOtherForm(patientDocument)) {
+          console.log('Other Document', patientDocument)
           otherDocuments.push(patientDocument);
         }
       } 
@@ -657,13 +660,13 @@ export class PatientDocumentAttachments extends Component {
     const remainingDocuments = documentList.slice(loadedDocumentList.length, loadedDocumentList.length + 5);
     const newLoadedDocumentList = [...loadedDocumentList, ...remainingDocuments];
 
-   if (groupLabel = strings.consentForms) {
+   if (groupLabel === strings.consentForms) {
       this.setState({ loadedConsentDocuments: newLoadedDocumentList });
    }
-   if (groupLabel = strings.intakeForms) {
+   if (groupLabel === strings.intakeForms) {
       this.setState({ loadedIntakeDocuments: newLoadedDocumentList });
    }
-   if (groupLabel = strings.otherForms) {
+   if (groupLabel === strings.otherForms) {
       this.setState({ loadedOtherDocuments: newLoadedDocumentList });
    }
   }
@@ -678,7 +681,7 @@ export class PatientDocumentAttachments extends Component {
     return (
       <View style={styles.attachementContainer}>
         {this.renderDocumentList(strings.consentForms, this.state.consentDocuments, this.state.loadedConsentDocuments)}
-        {/* {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments, this.state.loadedIntakeDocuments)} */}
+        {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments, this.state.loadedIntakeDocuments)}
         {this.renderDocumentList(strings.otherForms, this.state.otherDocuments, this.state.loadedOtherDocuments)}
       </View>
     );
