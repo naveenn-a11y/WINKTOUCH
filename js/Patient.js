@@ -11,7 +11,6 @@ import {
   Text,
   TouchableOpacity,
   LayoutAnimation,
-  Pressable,
   ScrollView,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -502,88 +501,48 @@ export class PatientDocumentAttachments extends Component {
   };
   state: {
     patientDocuments: PatientDocument[],
-    consentDocuments: PatientDocument[],
-    loadedConsentDocuments: PatientDocument[],
     intakeDocuments: PatientDocument[],
-    loadedIntakeDocuments: PatientDocument[],
     otherDocuments: PatientDocument[],
-    loadedOtherDocuments: PatientDocument[],
-    allPatientDocuments: PatientDocument[],
+    allpatientDocuments: PatientDocument[],
   };
 
   constructor(props: any) {
     super(props);
     this.state = {
       consentDocuments: [],
-      loadedConsentDocuments: [],
       intakeDocuments: [],
-      loadedIntakeDocuments: [],
       otherDocuments: [],
-      loadedOtherDocuments: [],
-      allPatientDocuments: [],
+      allpatientDocuments: [],
     };
   }
   componentDidMount() {
     this.loadPatientDocument();
   }
-
-  isConsentForm(document: PatientDocument) {
-    return document.category === 'Patient Consent Form'
-  }
-
-  isIntakeForm(document: PatientDocument) {
-    return document.category === 'Intake Form'
-  }
-
-  isOtherForm(document: PatientDocument) {
-    return !this.isConsentForm(document) && !this.isIntakeForm(document)
-  }
-
   async loadPatientDocument() {
     const filterId: string = 'Patient Consent Form';
-    let allDocuments = await loadDocuments(
+    let allpatientDocuments = await loadDocuments(
       ' ',
       this.props.patientInfo.id,
       true,
-    )
-
-    let allPatientDocuments = allDocuments.sort((a, b) => new Date(b.postedOn).getTime() - new Date(a.postedOn).getTime());
-
-    __DEV__ && console.log('All Patient Documents', allPatientDocuments)
+    );
 
     let consentDocuments = [];
-    let intakeDocuments = []
     let otherDocuments = [];
 
-    allPatientDocuments?.forEach(
+    allpatientDocuments?.forEach(
       (patientDocument: PatientDocument) => {
-        if (this.isConsentForm(patientDocument)) {
+        if (patientDocument.name === filterId) {
           consentDocuments.push(patientDocument);
-        }
-
-        if (this.isIntakeForm(patientDocument)) {
-          intakeDocuments.push(patientDocument)
-        }
-        
-        if (this.isOtherForm(patientDocument)) {
+        } else {
           otherDocuments.push(patientDocument);
         }
       } 
     );
 
-    // initialize only the first 5 documents to loadedContentDocuments and loadedOtherDocuments
-    const loadedConsentDocuments = consentDocuments.slice(0, 5);
-    const loadedIntakeDocuments = intakeDocuments.slice(0, 5);
-    const loadedOtherDocuments = otherDocuments.slice(0, 5);
-
     this.setState({
       consentDocuments,
-      loadedConsentDocuments,
-      intakeDocuments,
-      loadedIntakeDocuments,
       otherDocuments,
-      loadedOtherDocuments,
-      allPatientDocuments,
+      allpatientDocuments,
     });
   }
 
@@ -597,89 +556,59 @@ export class PatientDocumentAttachments extends Component {
     }
   }
 
-  renderDocumentList = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
+  renderDocumentList = (groupLabel: String, documentList : PatientDocument[]) => {
     return (
       <View style={styles.tabCard}>
-        <Text style={styles.cardTitle}>{groupLabel}</Text>
-        <View >
-          {loadedDocumentList.map(
-            (patientDocument: PatientDocument) => {
-              return (
-                <View style={styles.attachement} key={patientDocument.id}>
-                <FormRow>
-                  {patientDocument.uploadId && (
-                    <TouchableOpacity
-                      onPress={() => this.getUpload(patientDocument)}
-                      testID={this.props.fieldId + '.paperclipIcon'}>
-                      <Text style={styles.textLeft}>
-                        {patientDocument.name}{' '}
-                      </Text>
-                      <Text style={styles.textLeft}>
-                        {strings.lastUpdateOn}:
-                        {formatDate(
-                          patientDocument.postedOn,
-                          yearDateTimeFormat,
-                        )}
-                      </Text>
-                      <PaperClip
-                        style={styles.textIcon}
-                        color="black"
-                        key="paperclip"
-                      />
-                    </TouchableOpacity>
-                  )}
-                </FormRow>
-                </View>
-              );
-            },
-          )}
+          <Text style={styles.cardTitle}>{groupLabel}</Text>
+          <View >
+            {documentList.map(
+              (patientDocument: PatientDocument) => {
+                return (
+                  <View style={styles.attachement} key={patientDocument.id}>
+                  <FormRow>
+                    {patientDocument.uploadId && (
+                      <TouchableOpacity
+                        onPress={() => this.getUpload(patientDocument)}
+                        testID={this.props.fieldId + '.paperclipIcon'}>
+                        <Text style={styles.textLeft}>
+                          {patientDocument.name}{' '}
+                        </Text>
+                        <Text style={styles.textLeft}>
+                          {strings.lastUpdateOn}:
+                          {formatDate(
+                            patientDocument.postedOn,
+                            yearDateTimeFormat,
+                          )}
+                        </Text>
+                        <PaperClip
+                          style={styles.textIcon}
+                          color="black"
+                          key="paperclip"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </FormRow>
+                  </View>
+                );
+              },
+            )}
+          </View>
         </View>
-        {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
-      </View>
     );
-  }
-
-  renderLoadMoreLink = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
-    if (documentList.length <= 5) return null
-
-    if (documentList.length === loadedDocumentList.length) return null
-
-    return (
-      <View>
-        <Pressable style={styles.loadMoreContainer} onPress={() => this.loadMoreDocuments(groupLabel, documentList, loadedDocumentList)}>
-          <Text style={styles.loadMoreText}>{strings.loadMore}</Text>
-        </Pressable>
-      </View>
-    )
-  }
-
-  loadMoreDocuments = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
-    const remainingDocuments = documentList.slice(loadedDocumentList.length, loadedDocumentList.length + 5);
-    const newLoadedDocumentList = [...loadedDocumentList, ...remainingDocuments];
-
-   if (groupLabel === strings.consentForms) {
-      this.setState({ loadedConsentDocuments: newLoadedDocumentList });
-   }
-   if (groupLabel === strings.intakeForms) {
-      this.setState({ loadedIntakeDocuments: newLoadedDocumentList });
-   }
-   if (groupLabel === strings.otherForms) {
-      this.setState({ loadedOtherDocuments: newLoadedDocumentList });
-   }
   }
 
   render() {
     if (
-      this.state.allPatientDocuments === undefined ||
-      this.state.allPatientDocuments.length < 1
+      this.state.allpatientDocuments === undefined ||
+      this.state.allpatientDocuments.length < 1
     ) {
       return null;
     }
     return (
       <View style={styles.attachementContainer}>
-        {this.renderDocumentList(strings.consentForms, this.state.consentDocuments, this.state.loadedConsentDocuments)}
-        {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments, this.state.loadedIntakeDocuments)}
-        {this.renderDocumentList(strings.otherForms, this.state.otherDocuments, this.state.loadedOtherDocuments)}
+        {this.renderDocumentList(strings.consentForms, this.state.consentDocuments)}
+        {this.renderDocumentList(strings.intakeForms, this.state.intakeDocuments)}
+        {this.renderDocumentList(strings.otherForms, this.state.otherDocuments)}
       </View>
     );
   }
