@@ -559,7 +559,6 @@ export class PatientDocumentAttachments extends Component {
     allPatientDocuments?.forEach(
       (patientDocument: PatientDocument) => {
         if (this.isConsentForm(patientDocument)) {
-          console.log('Consent Document', patientDocument)
           consentDocuments.push(patientDocument);
         }
 
@@ -568,7 +567,6 @@ export class PatientDocumentAttachments extends Component {
         }
         
         if (this.isOtherForm(patientDocument)) {
-          console.log('Other Document', patientDocument)
           otherDocuments.push(patientDocument);
         }
       } 
