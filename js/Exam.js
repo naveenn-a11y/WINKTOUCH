@@ -634,9 +634,10 @@ export class ExamHistoryScreen extends Component {
         ? this.props.route.params.stateKey
         : undefined;
     const setParamsAction = CommonActions.setParams({
-      params: {copiedData: glassesRx},
+      copiedData: glassesRx,
       key: examStateKey,
     });
+
     this.props.navigation.dispatch({...setParamsAction, source: examStateKey});
     this.props.navigation.goBack();
   };
@@ -901,12 +902,7 @@ export class ExamScreen extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    let copiedData =
-      this.props.route &&
-      this.props.route.params &&
-      this.props.route.params.copiedData
-        ? this.props.route.params.copiedData
-        : undefined;
+    const copiedData = this?.props?.route?.params?.copiedData ?? undefined;
 
     if (copiedData && this.state.copiedData !== copiedData) {
       this.copyData(copiedData);
