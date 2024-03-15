@@ -1057,6 +1057,8 @@ PODS:
     - React-Core
   - react-native-pdf (6.7.4):
     - React-Core
+  - react-native-print (0.11.0):
+    - React-Core
   - react-native-safe-area-context (4.8.2):
     - React-Core
   - react-native-system-sounds (1.1.0):
@@ -1340,6 +1342,7 @@ DEPENDENCIES:
   - react-native-mail (from `../node_modules/react-native-mail`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pdf (from `../node_modules/react-native-pdf`)
+  - react-native-print (from `../node_modules/react-native-print`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-system-sounds (from `../node_modules/@dashdoc/react-native-system-sounds`)"
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
@@ -1478,6 +1481,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pdf:
     :path: "../node_modules/react-native-pdf"
+  react-native-print:
+    :path: "../node_modules/react-native-print"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-system-sounds:
@@ -1618,6 +1623,7 @@ SPEC CHECKSUMS:
   react-native-mail: 8fdcd3aef007c33a6877a18eb4cf7447a1d4ce4a
   react-native-netinfo: 8a7fd3f7130ef4ad2fb4276d5c9f8d3f28d2df3d
   react-native-pdf: 79aa75e39a80c1d45ffe58aa500f3cf08f267a2e
+  react-native-print: f704aef52d931bfce6d1d84351dbb5232d7ecb89
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-system-sounds: 73999dadb18e6b8b7c18fd2ff5f29cddec639edc
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
