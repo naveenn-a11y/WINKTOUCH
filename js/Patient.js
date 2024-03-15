@@ -57,7 +57,6 @@ import {printBase64Pdf} from './Print';
 import {Binoculars} from './Widgets';
 import {ManageUsers} from './User';
 import {CustomModal as Modal} from './utilities/Modal';
-import { is } from "date-fns/esm/locale";
 
 export async function fetchPatientInfo(
   patientId: string,
