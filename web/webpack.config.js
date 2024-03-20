@@ -1,11 +1,6 @@
-// module.exports = (env) => {
-//   return require(`./webpack.${env.goal}.js`);
-// };
-
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const RULES = require('./webpack.rules');
 const fs = require('fs');
 const dotenv = require('dotenv');
@@ -21,8 +16,18 @@ module.exports = (env, mode) => {
   const envName = isDev ? '.env.dev' : '.env.prod';
   const versionNumber = process.env.WINK_VERSION || 'unknown'; // Use WINK_VERSION from .env or default to 'unknown'
 
+  // create dist folder if not exists
+  if (!fs.existsSync(path.resolve(rootDir, 'dist'))) {
+    fs.mkdirSync(path.resolve(rootDir, 'dist'));
+    console.log('The dist folder was created.')
+  }
+
+  if (fs.existsSync(path.resolve(rootDir, 'dist'))) {
+    console.log('The dist folder exists and version.xml will be created')
+    fs.writeFileSync(path.resolve(rootDir, 'dist/version.xml'), `<version>${versionNumber}</version>`);
+  }
+
   console.log('envPath', envPath);
-  console.log('env.MODE', env.MODE);
   console.log('mode', mode);
   console.log('versionNumber', versionNumber);
   console.log('envVars', envVars);
@@ -52,18 +57,6 @@ module.exports = (env, mode) => {
       new webpack.DefinePlugin({
         'process.env': JSON.stringify(process.env),
         __DEV__: JSON.stringify(isDev),
-      }),
-      new WebpackShellPluginNext({
-        onBuildStart: {
-          scripts: ['echo Starting...'],
-          blocking: true,
-          parallel: false,
-        },
-        onBuildEnd: {
-          scripts: [`echo '<version>${versionNumber}</version>' > ./dist/version.xml`],
-          blocking: false,
-          parallel: true,
-        },
       }),
     ],
     resolve: {
