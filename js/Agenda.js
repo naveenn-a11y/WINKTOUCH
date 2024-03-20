@@ -4,65 +4,62 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
+import dayjs from 'dayjs';
+import moment from 'moment';
+import { Component } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Dimensions,
+  InteractionManager,
   ScrollView,
   Text,
   TouchableOpacity,
-  InteractionManager,
-  Modal,
-  ActivityIndicator,
-  Dimensions,
+  View
 } from 'react-native';
-import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import { CommonActions } from '@react-navigation/native';
-import {FormRow, FormInput} from './Form';
-import {strings} from './Strings';
-import dayjs from 'dayjs';
+import { Calendar, ICalendarEvent, modeToNum } from 'react-native-big-calendar';
+import { Menu, Button as NativeBaseButton, Portal } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
-  AppointmentTypes,
+  AppointmentDetails,
   AppointmentIcons,
+  AppointmentTypes,
+  WaitingList,
+  bookAppointment,
+  cancelAppointment,
+  doubleBook,
   fetchAppointments,
   fetchEvents,
-  isAppointmentLocked,
-  AppointmentDetails,
-  bookAppointment,
-  WaitingList,
-  manageAvailability,
-  cancelAppointment,
   hasAppointmentBookAccess,
+  isAppointmentLocked,
+  manageAvailability,
   updateAppointment,
-  doubleBook,
 } from './Appointment';
-import {Appointment, AppointmentType} from './Types';
+import { getAllCodes } from './Codes';
+import { cacheItemsById, getCachedItem } from './DataCache';
+import { getStore } from './DoctorApp';
+import { FormInput, FormRow } from './Form';
+import { CabinetScreen, PatientTags, getPatientFullName } from './Patient';
+import { ProfileHeader } from './Profile';
+import { getPrivileges } from './Rest';
+import { strings } from './Strings';
+import { fontScale, isWeb, selectionColor, styles, windowHeight } from './Styles';
+import type { CodeDefinition, Patient, PatientInfo } from './Types';
+import { Appointment, AppointmentType } from './Types';
+import { convertUserToJson, searchUsers } from './User';
 import {
-  formatDate,
-  now,
-  jsonDateFormat,
-  farDateFormat2,
-  isEmpty,
-  yearDateFormat,
   deepClone,
+  farDateFormat2,
+  formatDate,
   getValue,
+  isEmpty,
+  jsonDateFormat,
+  now,
+  yearDateFormat,
 } from './Util';
-import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
-import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
-import {getStore} from './DoctorApp';
-import {Button as NativeBaseButton, Portal} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {fetchVisitForAppointment} from './Visit';
-import {convertUserToJson, searchUsers} from './User';
-import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
-import moment from 'moment';
-import {Button} from './Widgets';
-import {AvailabilityModal} from './agendas';
-import {getAllCodes} from './Codes';
-import {ProfileHeader} from './Profile';
-import {Menu} from 'react-native-paper';
-import {getPrivileges} from './Rest';
+import { Button } from './Widgets';
+import { AvailabilityModal } from './agendas';
 import Dialog from './utilities/Dialog';
 
 const WEEKDAYS = {
@@ -94,7 +91,7 @@ function getOrderOfEvent(event, eventList) {
       }
     });
 
-  var index = events.indexOf(event);
+  var index = events.findIndex(e => e.id === event.id);
   const orderOfEvent = index === -1 ? 0 : index;
   return orderOfEvent;
 }
@@ -1655,7 +1652,7 @@ class NativeCalendar extends Component {
           ) => (
             <Event
               event={event}
-              eventOrder={getOrderOfEvent(event, appointments)}
+              eventOrder={getOrderOfEvent(event, parsedAppointments)}
               eventWidth={eventWidth}
               touchableOpacityProps={touchableOpacityProps}
               selectedDoctors={this.props.selectedDoctors}
