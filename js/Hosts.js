@@ -2,8 +2,8 @@ import {isTestFlight} from './Version';
 import {isWeb} from './Styles';
 import {isEmpty} from './Util';
 
-const productionHost = 'emr.downloadwink.com';
-const qaHost = 'afd.dev.downloadwink.com';
+const productionHost = process.env.WINK_PRODUCTION_HOST || 'unknown';
+const qaHost = process.env.WINK_DEV_HOST || 'unknown';
 
 let emrHost = productionHost;
 export function getEmrHost() {

@@ -7,27 +7,25 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const RULES = require('./webpack.rules');
-const rootDir = path.join(__dirname, '..');
 const fs = require('fs');
+const dotenv = require('dotenv');
+
+const rootDir = path.join(__dirname, '..');
 
 module.exports = (env, mode) => {
-  const isDev = env.MODE === 'development';
+  const envFile = env.ENV ? `.env.${env.ENV}` : '.env';
+  const envPath = path.resolve(__dirname, `../envs/${envFile}`);
+  const envVars = dotenv.config({ path: envPath }).parsed;
+
+  const isDev = env.ENV !== 'prod';
   const envName = isDev ? '.env.dev' : '.env.prod';
+  const versionNumber = process.env.WINK_VERSION || 'unknown'; // Use WINK_VERSION from .env or default to 'unknown'
 
-  // create dist folder if not exists
-  if (!fs.existsSync(path.resolve(rootDir, 'dist'))) {
-    fs.mkdirSync(path.resolve(rootDir, 'dist'));
-  }
-  // Read version number from version.js
-  const versionFilePath = path.resolve(__dirname, '../js/Version.js');
-  const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
-  const versionMatch = versionFileContent.match(/VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/);
-  const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
-
-  console.log('envName', envName);
+  console.log('envPath', envPath);
   console.log('env.MODE', env.MODE);
   console.log('mode', mode);
   console.log('versionNumber', versionNumber);
+  console.log('envVars', envVars);
 
   return {
     mode: env.MODE,
@@ -52,8 +50,8 @@ module.exports = (env, mode) => {
         hash: true,
       }),
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || `${env.MODE}`),
-        __DEV__: isDev,
+        'process.env': JSON.stringify(process.env),
+        __DEV__: JSON.stringify(isDev),
       }),
       new WebpackShellPluginNext({
         onBuildStart: {

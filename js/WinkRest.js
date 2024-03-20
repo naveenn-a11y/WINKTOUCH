@@ -17,12 +17,12 @@ import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
 import {getEmrHost} from "./Hosts";
 
-export const winkWebSocketUrl: string = "https://afd.dev.downloadwink.com/WinkWebSocket/";
+export const winkWebSocketUrl: string = process.env.WINK_WEB_SOCKET_URL || 'unknown';
 
 let winkRestUrl: string;
 export function setWinkRestUrl() {
   const winkEmrHost = getEmrHost();
-  winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + winkRESTVersion + '/';
+  winkRestUrl = process.env.WINK_REST_URL || 'unknown';
   __DEV__ && console.log('Setting WINKRest backend server to ' + winkRestUrl);
 }
 
