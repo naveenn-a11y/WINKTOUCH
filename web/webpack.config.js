@@ -15,15 +15,22 @@ module.exports = (env, mode) => {
   const isDev = env.ENV !== 'prod';
   const envName = isDev ? '.env.dev' : '.env.prod';
   const versionNumber = process.env.WINK_VERSION || 'unknown'; // Use WINK_VERSION from .env or default to 'unknown'
+  const outputPath = path.resolve(rootDir, 'dist');
 
-  // create dist folder if not exists
-  if (!fs.existsSync(path.resolve(rootDir, 'dist'))) {
-    fs.mkdirSync(path.resolve(rootDir, 'dist'));
-    console.log('The dist folder was created.')
+  try {
+    // Check if the directory exists, if not, create it
+    if (!fs.existsSync(outputPath)) {
+      fs.mkdirSync(outputPath, { recursive: true });
+      console.log('Output directory has been created.');
+    }
+  } catch (error) {
+    // If an error occurs, log the message and exit
+    console.error(`Unable to create the output directory. Please create it manually at: ${outputPath}`);
+    process.exit(1); // Exit the process with an error code
   }
 
-  if (fs.existsSync(path.resolve(rootDir, 'dist'))) {
-    console.log('The dist folder exists and version.xml will be created')
+  if (fs.existsSync(outputPath)) {
+    console.log('The output directory exists and version.xml will be updated.')
     fs.writeFileSync(path.resolve(rootDir, 'dist/version.xml'), `<version>${versionNumber}</version>`);
   }
 
