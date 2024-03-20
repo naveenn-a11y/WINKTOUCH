@@ -260,6 +260,8 @@ export class PatientCard extends Component {
               </Text>
               <Text style={styles.text}>
                 z{stripDataType(this.props.patientInfo.id)}
+              </Text>
+              <Text style={styles.text}>
                 {prefix(this.props.patientInfo.medicalCard, '  ')}
                 {prefix(this.props.patientInfo.medicalCardVersion, '-')}
                 {prefix(this.props.patientInfo.medicalCardExp, '-')}
