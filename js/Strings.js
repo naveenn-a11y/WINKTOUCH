@@ -1343,7 +1343,7 @@ export function getUserLanguageShort(): string {
 }
 
 async function setUserLanguage(locale: string) {
-  console.log('Switching language to ' + locale);
+  __DEV__ && console.log('Switching language to ' + locale);
   userLanguage = locale;
   strings.setLanguage(userLanguage.substring(0, 2));
   Moment.locale(userLanguage.substring(0, 2));
@@ -1353,7 +1353,7 @@ async function setUserLanguage(locale: string) {
 
 export function switchLanguage() {
   let language = getUserLanguage();
-  console.log('current language = ' + language);
+  __DEV__ && console.log('current language = ' + language);
   let languageIndex = supportedLanguages.indexOf(language);
   languageIndex = (languageIndex + 2) % supportedLanguages.length;
   language = supportedLanguages[languageIndex];

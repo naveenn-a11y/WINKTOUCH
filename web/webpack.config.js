@@ -12,8 +12,7 @@ module.exports = (env, mode) => {
   const envPath = path.resolve(__dirname, `../envs/${envFile}`);
   const envVars = dotenv.config({ path: envPath }).parsed;
 
-  const isDev = env.ENV !== 'prod';
-  const envName = isDev ? '.env.dev' : '.env.prod';
+  const isDev = env.ENV !== 'production';
   const versionNumber = process.env.WINK_VERSION || 'unknown'; // Use WINK_VERSION from .env or default to 'unknown'
   const outputPath = path.resolve(rootDir, 'dist');
 
@@ -34,11 +33,11 @@ module.exports = (env, mode) => {
     fs.writeFileSync(path.resolve(rootDir, 'dist/version.xml'), `<version>${versionNumber}</version>`);
   }
 
-  console.log('envPath', envPath);
-  console.log('mode', mode);
   console.log('versionNumber', versionNumber);
+  console.log('mode', mode);
+  console.log('envPath', envPath);
   console.log('envVars', envVars);
-
+ 
   return {
     mode: env.MODE,
     entry: path.resolve(__dirname, '../index.web.js'),

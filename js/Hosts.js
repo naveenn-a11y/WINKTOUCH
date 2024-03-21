@@ -3,12 +3,12 @@ import {isWeb} from './Styles';
 import {isEmpty} from './Util';
 
 const productionHost = process.env.WINK_PRODUCTION_HOST || 'unknown';
-const qaHost = process.env.WINK_DEV_HOST || 'unknown';
+const developmentHost = process.env.WINK_DEV_HOST || 'unknown';
 
 let emrHost = productionHost;
 export function getEmrHost() {
   if (isTestFlight || __DEV__) {
-    return qaHost;
+    return developmentHost;
   }
   if (isWeb) {
     return window.location.hostname;
