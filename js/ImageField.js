@@ -29,7 +29,7 @@ import {
   imageStyle,
   printWidth,
   isWeb,
-  widthPercentageToDP,
+  widthPercentageToDP, 
 } from './Styles';
 import {strings} from './Strings';
 import {getDoctor} from './DoctorApp';
@@ -37,7 +37,7 @@ import {
   formatDate,
   now,
   yearDateFormat,
-  jsonDateFormat,
+  jsonDateTimeFormat,
   replaceFileExtension,
   isEmpty,
 } from './Util';
@@ -554,7 +554,7 @@ export class ImageField extends Component {
       let patientDocument: PatientDocument = {
         id: 'patientDocument',
         patientId: this.props.patientId,
-        postedOn: formatDate(now(), jsonDateFormat),
+        postedOn: formatDate(now(), jsonDateTimeFormat),
         name: label,
         category: isEmpty(type) ? this.props.type : type,
         uploadId,
