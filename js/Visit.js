@@ -1042,7 +1042,7 @@ class VisitWorkFlow extends Component {
       visitType: visit.typeName,
     };
     visit && this.loadUnstartedExamTypes(visit);
-    this.loadAppointment(visit, false);
+    this.loadAppointment(visit);
   }
 
   async componentDidUpdate(prevProps: any) {
@@ -1073,7 +1073,7 @@ class VisitWorkFlow extends Component {
       },
       () => {
         visit && this.loadUnstartedExamTypes(visit);
-        this.loadAppointment(visit, true);
+        this.loadAppointment(visit);
       },
     );
   }
@@ -1090,7 +1090,7 @@ class VisitWorkFlow extends Component {
       rxToOrder: this.findRxToOrder(visit),
     });
     visit && this.loadUnstartedExamTypes(visit);
-    this.loadAppointment(visit, true);
+    this.loadAppointment(visit);
   }
 
   findRxToOrder(visit: Visit): ?Exam {
@@ -1111,7 +1111,7 @@ class VisitWorkFlow extends Component {
     return undefined;
   }
 
-  async loadAppointment(visit: Visit, updateState: boolean = false) {
+  async loadAppointment(visit: Visit) {
     if (!visit || !visit.appointmentId) {
       this.setState({appointment: undefined});
       return;
@@ -1121,9 +1121,9 @@ class VisitWorkFlow extends Component {
       appointment = await fetchAppointment(visit.appointmentId);
     }
 
-    if (updateState) {
+    // if (updateState) {
       this.setState({appointment: appointment});
-    }
+    // }
   }
 
   async loadUnstartedExamTypes(visit: Visit) {
