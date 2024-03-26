@@ -1122,9 +1122,7 @@ class VisitWorkFlow extends Component {
       appointment = await fetchAppointment(visit.appointmentId);
     }
 
-    // if (updateState) {
-      this.setState({appointment: appointment});
-    // }
+    this.setState({appointment: appointment});
   }
 
   async loadUnstartedExamTypes(visit: Visit) {
