@@ -798,6 +798,8 @@ export class StartVisitButtons extends Component<
 
   componentDidMount() {
     this.loadVisitTypes();
+    const visit: Visit = getCachedItem(this.props.visitId);
+    this.loadAppointment(visit);
   }
 
   async loadVisitTypes() {
@@ -1042,7 +1044,6 @@ class VisitWorkFlow extends Component {
       visitType: visit.typeName,
     };
     visit && this.loadUnstartedExamTypes(visit);
-    this.loadAppointment(visit);
   }
 
   async componentDidUpdate(prevProps: any) {
