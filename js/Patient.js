@@ -530,7 +530,7 @@ export class PatientDocumentAttachments extends Component {
   }
 
   isConsentForm(document: PatientDocument) {
-    return document.category === 'Patient Consent Form'
+    return document.name === 'Patient Consent Form'
   }
 
   isIntakeForm(document: PatientDocument) {
