@@ -554,7 +554,7 @@ export class ImageField extends Component {
       let patientDocument: PatientDocument = {
         id: 'patientDocument',
         patientId: this.props.patientId,
-        postedOn: formatDate(now(), jsonDateTimeFormat),
+        postedOn: now(),
         name: label,
         category: isEmpty(type) ? this.props.type : type,
         uploadId,
