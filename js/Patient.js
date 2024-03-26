@@ -551,8 +551,6 @@ export class PatientDocumentAttachments extends Component {
 
     let allPatientDocuments = allDocuments.sort((a, b) => new Date(b.postedOn).getTime() - new Date(a.postedOn).getTime());
 
-    __DEV__ && console.log('All Patient Documents', allPatientDocuments)
-
     let consentDocuments = [];
     let intakeDocuments = []
     let otherDocuments = [];
