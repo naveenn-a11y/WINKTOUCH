@@ -13,6 +13,7 @@ import {
   LayoutAnimation,
   Pressable,
   ScrollView,
+  FlatList,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import { CommonActions } from '@react-navigation/native';
@@ -57,6 +58,10 @@ import {printBase64Pdf} from './Print';
 import {Binoculars} from './Widgets';
 import {ManageUsers} from './User';
 import {CustomModal as Modal} from './utilities/Modal';
+
+type Props = {
+  fieldId: string; // Assuming this prop exists for accessibility labels
+}
 
 export async function fetchPatientInfo(
   patientId: string,
@@ -597,47 +602,114 @@ export class PatientDocumentAttachments extends Component {
     }
   }
 
-  renderDocumentList = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
-    return (
-      <View style={styles.tabCard}>
-          <Text style={styles.cardTitle}>{groupLabel}</Text>
-          <View >
-            {loadedDocumentList.map(
-              (patientDocument: PatientDocument) => {
-                return (
-                  <View style={styles.attachement} key={patientDocument.id}>
-                  <FormRow>
-                    {patientDocument.uploadId && (
-                      <TouchableOpacity
-                        onPress={() => this.getUpload(patientDocument)}
-                        testID={this.props.fieldId + '.paperclipIcon'}>
-                        <Text style={styles.textLeft}>
-                          {patientDocument.name}{' '}
-                        </Text>
-                        <Text style={styles.textLeft}>
-                          {strings.lastUpdateOn}:
-                          {formatDate(
-                            patientDocument.postedOn,
-                            yearDateTimeFormat,
-                          )}
-                        </Text>
-                        <PaperClip
-                          style={styles.textIcon}
-                          color="black"
-                          key="paperclip"
-                        />
-                      </TouchableOpacity>
-                    )}
-                  </FormRow>
-                  </View>
-                );
-              },
-            )}
-          </View>
-          {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
-        </View>
-    );
-  }
+  renderDocumentItem = ({ item }: { item: PatientDocument }) => (
+    <View style={styles.attachment} key={item.id}>
+      <FormRow>
+        {item.uploadId && (
+          <TouchableOpacity
+            onPress={() => this.getUpload(item)}
+            testID={this.props.fieldId + '.paperclipIcon'}>
+            <Text style={styles.textLeft}>
+              {patientDocument.name}{' '}
+            </Text>
+            <Text style={styles.textLeft}>
+              {strings.lastUpdateOn}:
+              {formatDate(
+                item.postedOn,
+                yearDateTimeFormat,
+              )}
+            </Text>
+            <PaperClip
+              style={styles.textIcon}
+              color="black"
+              key="paperclip"
+            />
+          </TouchableOpacity>
+        )}
+      </FormRow>
+    </View>
+  );
+
+  keyExtractor = (item: PatientDocument) => item.id;
+
+  renderDocumentList = (groupLabel: String, documentList: PatientDocument[], loadedDocumentList: PatientDocument[]) => (
+    <View style={styles.tabCard}>
+      <Text style={styles.cardTitle}>{groupLabel}</Text>
+      <FlatList
+        data={loadedDocumentList}
+        renderItem={this.renderDocumentItem}
+        keyExtractor={this.keyExtractor}
+      />
+      {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
+    </View>
+  );
+
+
+
+  // renderDocumentList = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
+  //   return (
+  //     <View style={styles.tabCard}>
+  //         <Text style={styles.cardTitle}>{groupLabel}</Text>
+  //         <View >
+  //           {loadedDocumentList.map(
+  //             (patientDocument: PatientDocument) => {
+  //               return (
+  //                 <View style={styles.attachement} key={patientDocument.id}>
+  //                 <FormRow>
+  //                   {patientDocument.uploadId && (
+  //                     <TouchableOpacity
+  //                       onPress={() => this.getUpload(patientDocument)}
+  //                       testID={this.props.fieldId + '.paperclipIcon'}>
+  //                       <Text style={styles.textLeft}>
+  //                         {patientDocument.name}{' '}
+  //                       </Text>
+  //                       <Text style={styles.textLeft}>
+  //                         {strings.lastUpdateOn}:
+  //                         {formatDate(
+  //                           patientDocument.postedOn,
+  //                           yearDateTimeFormat,
+  //                         )}
+  //                       </Text>
+  //                       <PaperClip
+  //                         style={styles.textIcon}
+  //                         color="black"
+  //                         key="paperclip"
+  //                       />
+  //                     </TouchableOpacity>
+  //                   )}
+  //                 </FormRow>
+  //                 </View>
+  //               );
+  //             },
+  //           )}
+  //         </View>
+  //         {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
+  //       </View>
+  //   );
+  // }
+
+
+
+  renderDocumentItem = ({ item }: { item: PatientDocument }) => (
+    <View style={styles.attachment} key={item.id}>
+      <FormRow>
+        {item.uploadId && (
+          <TouchableOpacity
+            onPress={() => this.getUpload(item)}
+            accessibilityLabel={this.props.fieldId + '.paperclipIcon'}>
+            <Text style={styles.textLeft}>
+              {item.name}{' '}
+            </Text>
+            <Text style={styles.textLeft}>
+              Last update on:
+              {formatDate(item.postedOn, 'YYYY-MM-DD HH:mm')} {/* Assuming you have a specific format */}
+            </Text>
+            <PaperClip style={styles.textIcon} color="black" />
+          </TouchableOpacity>
+        )}
+      </FormRow>
+    </View>
+  );
 
   renderLoadMoreLink = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
     if (documentList.length <= 5) return null
