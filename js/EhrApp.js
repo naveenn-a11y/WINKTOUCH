@@ -12,7 +12,8 @@ import { DefaultTheme, Provider } from 'react-native-paper';
 import { AppUpdateScreen } from './AppUpdate';
 import { DoctorApp } from './DoctorApp';
 import { LoginScreen } from './LoginScreen';
-import { RegisterScreen } from './Registration';
+import { RegisterScreen, fetchTouchVersion } from './Registration';
+import { strings } from './Strings';
 import { isIos, isWeb } from './Styles';
 import type { Registration, Store, User } from './Types';
 import { deepClone, sleep } from './Util';
@@ -20,7 +21,7 @@ import {
   checkBinaryVersion,
   setDeploymentVersion,
 } from './Version';
-import { NetworkInfo } from './Widgets';
+import { NetworkInfo, Prompt } from './Widgets';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
 import RemoteConfig from './utilities/RemoteConfig';
@@ -130,6 +131,8 @@ export class EhrApp extends Component {
     latestBuild: number,
     latestVersion: number,
     showNetworkInfo: boolean,
+    showPrompt: boolean,
+    newAppVersion: string,
   };
 
   constructor() {
@@ -149,6 +152,8 @@ export class EhrApp extends Component {
       latestBuild: 1,
       latestVersion: 1,
       showNetworkInfo: false,
+      showPrompt: false,
+      newAppVersion: "",
     };
   }
 
@@ -275,6 +280,66 @@ export class EhrApp extends Component {
     if (!isWeb) this.checkForCodepushUpdate();
   };
 
+  async checkWinkTouchVersionChanges(registration: ?Registration) {
+    try {
+      let codePushBundleKey = await fetchTouchVersion(registration.path);
+  
+      if (registration.bundle !== codePushBundleKey) {
+        registration.bundle = codePushBundleKey;
+        
+        if (registration.bundle) {
+          AsyncStorage.setItem('bundle', registration.bundle);
+        } else {
+          AsyncStorage.removeItem('bundle');
+        }
+      }
+    } catch (error) {
+      __DEV__ && console.log('Fetching touch version failed: ' + error);
+    }
+  }
+
+  async isCodePushUpdateAvailable(registration: ?Registration) {
+    let packageVersion = await codePush.checkForUpdate(registration.bundle);
+    const isCodePushUpdateAvailable = (packageVersion != null)
+    return {isCodePushUpdateAvailable, packageVersion}
+  }
+
+  async checkForAppUpdates() {
+    if (isWeb || !this.state.isLoggedOn || this.state.isLocked) { return; }
+    
+    await this.checkWinkTouchVersionChanges(this.state.registration);
+    const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();
+    const {isCodePushUpdateAvailable, packageVersion} = await this.isCodePushUpdateAvailable(this.state.registration);
+    
+    if (isCodePushUpdateAvailable || isUpdateRequired) {
+      const newAppVersion = `${latestVersion}.${latestBuild}.${packageVersion.label}`
+      this.setState({showPrompt: true, newAppVersion})
+    }
+  }
+
+  confirmUpdate = () => {
+    this.checkForCodepushUpdate();
+    this.setState({showPrompt: false})
+  }
+
+
+  renderPrompt() {
+    return (
+      <Prompt 
+        visible={this.state.showPrompt} 
+        dismissable={false}
+        style={{width: '55%', alignSelf: 'center', backgroundColor: '#fff'}}
+        title={`${strings.appUpdateTitle} (${this.state.newAppVersion})`}
+        content={strings.appUpdateContent}
+        confirmText={strings.update}
+        dismissText={strings.doItLater}
+        onDismiss={() => this.setState({showPrompt: false})}
+        cancelDialog={() => this.setState({showPrompt: false})}
+        confirmDialog={this.confirmUpdate}
+      />
+    )
+  }
+
   checkForCodepushUpdate() {
     syncWithCodepush(this.state.registration?.bundle);
     this.checkAppstoreUpdateNeeded();
@@ -316,6 +381,7 @@ export class EhrApp extends Component {
 
   onUserLogin = () => {
     this.tracker && this.tracker.start();
+    this.checkForAppUpdates();
   };
 
   handleConnectivityChange = state => {
@@ -367,6 +433,7 @@ export class EhrApp extends Component {
   onAppStateChange(nextState: any) {
     if (nextState === 'active') {
       this.tracker && this.tracker.appIsActive();
+      this.checkForAppUpdates();
     }
     if (nextState === 'background') {
       this.tracker && this.tracker.appIsInBackground();
@@ -444,6 +511,7 @@ export class EhrApp extends Component {
           }
         />
         {this.state.showNetworkInfo && <NetworkInfo />}
+        {this.state.showPrompt && this.renderPrompt()}
       </Provider>
     );
   }

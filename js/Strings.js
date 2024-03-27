@@ -4,9 +4,9 @@
 'use strict';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LocalizedStrings from 'react-native-localization';
 import Moment from 'moment';
-import {cacheDefinitions} from './Items';
+import LocalizedStrings from 'react-native-localization';
+import { cacheDefinitions } from './Items';
 
 export const strings = new LocalizedStrings({
   en: {
@@ -433,6 +433,9 @@ export const strings = new LocalizedStrings({
     intakeForms: 'Intake Forms',
     otherForms: 'Other Forms',
     consentForms: 'Consent',
+    appUpdateTitle: 'A new app update is available',
+    appUpdateContent: 'Any unsaved data will be lost if you proceed with the update',
+    doItLater: 'Do it later',
   },
   fr: {
     enterRegisteredEmail:
@@ -869,6 +872,9 @@ export const strings = new LocalizedStrings({
     intakeForms: 'Formulaires d’admission',
     otherForms: 'Autres formes',
     consentForms: 'Consentement',
+    appUpdateTitle: 'Une nouvelle mise à jour de l`application est disponible',
+    appUpdateContent: 'Toutes les données non enregistrées seront perdues si vous procédez à la mise à jour',
+    doItLater: 'Fais-le plus tard',
   },
   es: {
     enterRegisteredEmail:
@@ -1303,6 +1309,9 @@ export const strings = new LocalizedStrings({
     intakeForms: 'Formularios de admisión',
     otherForms: 'Otras formas',
     consentForms: 'Consentir',
+    appUpdateTitle: 'Hay una nueva actualización de la aplicación disponible',
+    appUpdateContent: 'Cualquier dato no guardado se perderá si continúa con la actualización.',
+    doItLater: 'Hazlo después',
   },
 });
 
