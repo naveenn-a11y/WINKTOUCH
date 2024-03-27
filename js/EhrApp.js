@@ -180,7 +180,7 @@ export class EhrApp extends Component {
     const bundle: string = await AsyncStorage.getItem('bundle');
     const path: string = await AsyncStorage.getItem('path');
     const registration: Registration = {email, bundle, path};
-    console.log('Loading registration from storage: ' + JSON.stringify(registration));
+    __DEV__ && console.log('Loading registration from storage: ' + JSON.stringify(registration));
     this.setRegistration(registration);
   }
 
