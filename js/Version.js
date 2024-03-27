@@ -8,7 +8,7 @@ import {strings} from './Strings';
 import {isWeb} from './Styles';
 import {now} from './Util';
 
-console.log('process.env', process.env);
+__DEV__ && console.log('process.env', process.env);
 
 export let deploymentVersion: string = process.env.WINK_DEPLOYMENT_VERSION || 'unknown';
 export let ehrApiVersion: string = process.env.WINK_EHR_API_VERSION || 'unknown';
