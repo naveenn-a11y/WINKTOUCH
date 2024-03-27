@@ -399,6 +399,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#2dc3c3',
   },
+  loadMoreContainer: {
+     marginTop: 16 * fontScale,
+     padding: 10 * fontScale,
+     alignItems: 'center',
+     justifyContent: 'center',
+  },
+  loadMoreText: {
+    color: '#1db3b3',
+    fontSize: 22 * fontScale,
+
+ },
   menuIcon: {
     color: 'white',
     fontSize: 50 * fontScale,

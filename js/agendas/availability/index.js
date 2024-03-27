@@ -16,6 +16,7 @@ import {agendaStyles} from '../../Agenda';
 import {getAppointmentTypes} from '../../Appointment';
 import moment from 'moment';
 import Dialog from '../../utilities/Dialog';
+import uuid from 'react-native-uuid';
 
 export function AvailabilityModal({
   show,
@@ -88,7 +89,7 @@ export function AvailabilityModal({
     let appointments: string[] = [...appointmentTypes];
     let dropdowns = [];
     dropdowns.push(
-      <View style={{flexDirection: 'row'}}>
+      <View style={{flexDirection: 'row'}} key={uuid.v4()}>
         <FormOptions
           options={getAppointmentTypes()}
           showLabel={false}
@@ -103,7 +104,7 @@ export function AvailabilityModal({
       for (let i: number = 1; i <= appointments.length; i++) {
         if (i < 5) {
           dropdowns.push(
-            <View style={{flexDirection: 'row'}}>
+            <View style={{flexDirection: 'row'}} key={uuid.v4()}>
               <FormOptions
                 options={getAppointmentTypes()}
                 showLabel={false}

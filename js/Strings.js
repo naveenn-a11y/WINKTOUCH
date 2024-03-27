@@ -433,6 +433,7 @@ export const strings = new LocalizedStrings({
     intakeForms: 'Intake Forms',
     otherForms: 'Other Forms',
     consentForms: 'Consent',
+    loadMore: 'Load more...',
   },
   fr: {
     enterRegisteredEmail:
@@ -869,6 +870,7 @@ export const strings = new LocalizedStrings({
     intakeForms: 'Formulaires d’admission',
     otherForms: 'Autres formes',
     consentForms: 'Consentement',
+    loadMore: 'Charger plus...',
   },
   es: {
     enterRegisteredEmail:
@@ -1303,6 +1305,7 @@ export const strings = new LocalizedStrings({
     intakeForms: 'Formularios de admisión',
     otherForms: 'Otras formas',
     consentForms: 'Consentir',
+    loadMore: 'Carga más',
   },
 });
 
