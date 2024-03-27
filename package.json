@@ -13,7 +13,8 @@
     "web": "webpack serve --mode=development --config ./web/webpack.config.js --env ENV=local",
     "build:web:dev": "webpack --mode=development --config ./web/webpack.config.js --env ENV=development",
     "build:web:qa": "webpack --mode=qa --config ./web/webpack.config.js --env ENV=qa",
-    "build:web:prod": "webpack --mode=production --config ./web/webpack.config.js --env ENV=production"
+    "build:web:prod": "webpack --mode=production --config ./web/webpack.config.js --env ENV=production",
+    "start:serve": "serve -l 8081 -s dist"
   },
   "dependencies": {
     "@dashdoc/react-native-system-sounds": "^1.1.0",
