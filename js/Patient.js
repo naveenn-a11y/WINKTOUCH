@@ -644,51 +644,17 @@ export class PatientDocumentAttachments extends Component {
     </View>
   );
 
-
-
-  // renderDocumentList = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
-  //   return (
-  //     <View style={styles.tabCard}>
-  //         <Text style={styles.cardTitle}>{groupLabel}</Text>
-  //         <View >
-  //           {loadedDocumentList.map(
-  //             (patientDocument: PatientDocument) => {
-  //               return (
-  //                 <View style={styles.attachement} key={patientDocument.id}>
-  //                 <FormRow>
-  //                   {patientDocument.uploadId && (
-  //                     <TouchableOpacity
-  //                       onPress={() => this.getUpload(patientDocument)}
-  //                       testID={this.props.fieldId + '.paperclipIcon'}>
-  //                       <Text style={styles.textLeft}>
-  //                         {patientDocument.name}{' '}
-  //                       </Text>
-  //                       <Text style={styles.textLeft}>
-  //                         {strings.lastUpdateOn}:
-  //                         {formatDate(
-  //                           patientDocument.postedOn,
-  //                           yearDateTimeFormat,
-  //                         )}
-  //                       </Text>
-  //                       <PaperClip
-  //                         style={styles.textIcon}
-  //                         color="black"
-  //                         key="paperclip"
-  //                       />
-  //                     </TouchableOpacity>
-  //                   )}
-  //                 </FormRow>
-  //                 </View>
-  //               );
-  //             },
-  //           )}
-  //         </View>
-  //         {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
-  //       </View>
-  //   );
-  // }
-
-
+  renderDocumentList = (groupLabel: String, documentList: PatientDocument[], loadedDocumentList: PatientDocument[]) => (
+    <View style={styles.tabCard}>
+      <Text style={styles.cardTitle}>{groupLabel}</Text>
+      <FlatList
+        data={loadedDocumentList}
+        renderItem={this.renderDocumentItem}
+        keyExtractor={this.keyExtractor}
+      />
+      {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
+    </View>
+  );
 
   renderDocumentItem = ({ item }: { item: PatientDocument }) => (
     <View style={styles.attachment} key={item.id}>
