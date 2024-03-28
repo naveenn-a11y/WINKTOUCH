@@ -312,7 +312,7 @@ export class EhrApp extends Component {
     const {isCodePushUpdateAvailable, packageVersion} = await this.isCodePushUpdateAvailable(this.state.registration);
     
     if (isCodePushUpdateAvailable || isUpdateRequired) {
-      const newAppVersion = `${latestVersion}.${latestBuild}.${packageVersion.label ?? '0'}`
+      const newAppVersion = `${latestVersion}.${latestBuild}.${packageVersion?.label ?? '0'}`
       this.setState({showPrompt: true, newAppVersion})
     }
   }
