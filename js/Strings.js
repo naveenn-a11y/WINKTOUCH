@@ -436,6 +436,7 @@ export const strings = new LocalizedStrings({
     appUpdateTitle: 'A new app update is available',
     appUpdateContent: 'Any unsaved data will be lost if you proceed with the update',
     doItLater: 'Do it later',
+    loadMore: 'Load more...',
   },
   fr: {
     enterRegisteredEmail:
@@ -875,6 +876,7 @@ export const strings = new LocalizedStrings({
     appUpdateTitle: 'Une nouvelle mise à jour de l`application est disponible',
     appUpdateContent: 'Toutes les données non enregistrées seront perdues si vous procédez à la mise à jour',
     doItLater: 'Fais-le plus tard',
+    loadMore: 'Charger plus...',
   },
   es: {
     enterRegisteredEmail:
@@ -1312,6 +1314,7 @@ export const strings = new LocalizedStrings({
     appUpdateTitle: 'Hay una nueva actualización de la aplicación disponible',
     appUpdateContent: 'Cualquier dato no guardado se perderá si continúa con la actualización.',
     doItLater: 'Hazlo después',
+    loadMore: 'Carga más',
   },
 });
 

@@ -69,6 +69,7 @@ import {
   formatFieldLabel,
   SelectionListsScreen,
 } from './Items';
+import uuid from 'react-native-uuid';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -1286,11 +1287,11 @@ export class GroupedCard extends Component {
 
     return rowValues.map((rowValue: string[], index: number) => {
       return (
-        <Text style={styles.textLeft} key={index}>
+        <Text style={styles.textLeft} key={uuid.v4()}>
           {rowValue.map((eachvalue: string) => {
             if (eachvalue.startsWith('<b>')) {
               return (
-                <Text style={styles.labelTitle}>
+                <Text style={styles.labelTitle} key={uuid.v4()}>
                   {eachvalue.substring(3, eachvalue.length - 1)}
                 </Text>
               );
@@ -1449,7 +1450,7 @@ export class GroupedForm extends Component {
   renderField(fieldDefinition: FieldDefinition, column?: string) {
     if (fieldDefinition === undefined) {
       return (
-        <View style={styles.fieldFlexContainer} key={column}>
+        <View style={styles.fieldFlexContainer} key={uuid.v4()}>
           <Text style={styles.text} />
         </View>
       );
@@ -1516,7 +1517,7 @@ export class GroupedForm extends Component {
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
         disableScroll={this.props.disableScroll}
-        key={fieldDefinition.name + (column === undefined ? '' : column)}
+        key={uuid.v4()}
         fieldId={
           this.props.fieldId +
           '.' +
@@ -1580,14 +1581,14 @@ export class GroupedForm extends Component {
       fields.push(
         <Label
           value={label}
-          key={fieldDefinition.name + 'Label'}
+          key={uuid.v4()}
           fieldId={this.props.fieldId + '.' + fieldDefinition.name}
         />,
       );
       fields.push(this.renderField(fieldDefinition));
     });
     return (
-      <View style={styles.formRow} key={fieldDefinition.name}>
+      <View style={styles.formRow} key={uuid.v4()}>
         {fields}
       </View>
     );
@@ -1641,13 +1642,13 @@ export class GroupedForm extends Component {
     refColumnDefinition: GroupDefinition,
   ) {
     return (
-      <View style={styles.formColumnFlex}>
+      <View style={styles.formColumnFlex} key={uuid.v4()}>
         {columnDefinition && (
           <View style={styles.formColumnItem}>
             <Label
               value={formatLabel(columnDefinition)}
               style={styles.formTableColumnHeaderFull}
-              key={columnDefinition.name}
+              key={uuid.v4()}
               suffix={''}
               fieldId={this.props.fieldId + '.' + columnDefinition.name}
             />
@@ -1661,12 +1662,12 @@ export class GroupedForm extends Component {
             );
             return fd ? (
               <View
-                key={columnDefinition.name + ind}
+                key={uuid.v4()}
                 style={styles.formColumnItem}>
                 {this.renderField(fd, columnDefinition.name)}
               </View>
             ) : (
-              <View key={ind} style={styles.formColumnItem} />
+              <View key={uuid.v4()} style={styles.formColumnItem} />
             );
           })}
       </View>
@@ -1682,7 +1683,7 @@ export class GroupedForm extends Component {
               <Label value=" " suffix="" />
             </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition) => (
-              <View style={styles.formColumnItem} key={fd.name}>
+              <View style={styles.formColumnItem} key={uuid.v4()}>
                 <Label
                   value={formatLabel(fd)}
                   fieldId={this.props.fieldId + '.' + fd.name}
@@ -1701,7 +1702,7 @@ export class GroupedForm extends Component {
     columns: string[],
   ) {
     return (
-      <View style={styles.FormColumnTop}>
+      <View style={styles.FormColumnTop} key={uuid.v4()}>
         <View style={styles.formColumnItem}>
           <View style={styles.copyColumnContainer}>
             <CopyColumn
@@ -1714,7 +1715,7 @@ export class GroupedForm extends Component {
         {refColumnDefinition &&
           refColumnDefinition.fields &&
           refColumnDefinition.fields.map((fd: FieldDefinition, ind) => (
-            <View key={ind} style={styles.formColumnItem} />
+            <View key={uuid.v4()} style={styles.formColumnItem} />
           ))}
       </View>
     );
@@ -1733,7 +1734,7 @@ export class GroupedForm extends Component {
             </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
               ind < refColumnDefinition.fields.length - 1 ? (
-                <View key={ind} style={styles.formColumnItem}>
+                <View key={uuid.v4()} style={styles.formColumnItem}>
                   <CopyRow
                     onPress={() =>
                       this.copyRow(
@@ -1746,7 +1747,7 @@ export class GroupedForm extends Component {
                   />
                 </View>
               ) : (
-                <View key={ind} style={styles.formColumnItem} />
+                <View key={uuid.v4()} style={styles.formColumnItem} />
               ),
             )}
           </>
@@ -1765,7 +1766,7 @@ export class GroupedForm extends Component {
         columns.length > 0 && columns[0] === refColumnDefinition.name,
     );
     return (
-      <View style={styles.formRow}>
+      <View style={styles.formRow} key={uuid.v4()}>
         {this.renderColumnLabels(refColumnDefinition)}
         {columns.map((column, index) => {
           const columnDefinition: GroupDefinition =
@@ -1890,7 +1891,7 @@ export class GroupedForm extends Component {
   renderIcons() {
     if (this.props.cloneable && this.props.definition.clone) {
       return (
-        <View style={styles.groupIcons} key="icons">
+        <View style={styles.groupIcons} key={uuid.v4()}>
           {this.renderCopyIcon()}
         </View>
       );
@@ -1904,7 +1905,7 @@ export class GroupedForm extends Component {
       return null;
     }
     return [
-      <View style={styles.groupIcons} key="icons">
+      <View style={styles.groupIcons} key={uuid.v4()}>
         {this.props.onClear && (
           <TouchableOpacity
             onPress={this.props.onClear}
@@ -1928,7 +1929,7 @@ export class GroupedForm extends Component {
           />
         )}
       </View>,
-      <View style={styles.groupExtraIcons}>
+      <View style={styles.groupExtraIcons} key={uuid.v4()}>
         {this.props.editable && this.props.definition.import && (
           <TouchableOpacity
             onPress={() => this.importData()}
@@ -1949,10 +1950,9 @@ export class GroupedForm extends Component {
           ? styles['board' + this.props.definition.size]
           : styles.board;
     return (
-      <View style={style} key={this.props.definition.name}>
+      <View style={style} key={uuid.v4()}>
         <Label
           style={styles.sectionTitle}
-          key="title"
           suffix=""
           value={formatFieldLabel(this.props.definition, this.props.form)}
           fieldId={this.props.fieldId}

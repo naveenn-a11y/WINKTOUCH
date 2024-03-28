@@ -64,6 +64,7 @@ import {
 import {isNumericField, formatLabel} from './Items';
 import {Microphone} from './Voice';
 import {GeneralPrismInput} from './Refraction';
+import uuid from 'react-native-uuid';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -1100,7 +1101,7 @@ export class FormMultiCheckBox extends Component {
           </View>
         )}
         {this.props.options.map((option) => (
-          <View style={styles.checkButtonRow}>
+          <View style={styles.checkButtonRow} key={uuid.v4()}>
             <CheckButton
               isChecked={this.isChecked(option.value || option)}
               onSelect={() => this.select(option.value || option)}
