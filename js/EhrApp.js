@@ -294,7 +294,7 @@ export class EhrApp extends Component {
         }
       }
     } catch (error) {
-      __DEV__ && console.log('Fetching touch version failed: ' + error);
+      alert('Fetching touch version failed: ' + error);
     }
   }
 
@@ -312,7 +312,7 @@ export class EhrApp extends Component {
     const {isCodePushUpdateAvailable, packageVersion} = await this.isCodePushUpdateAvailable(this.state.registration);
     
     if (isCodePushUpdateAvailable || isUpdateRequired) {
-      const newAppVersion = `${latestVersion}.${latestBuild}.${packageVersion.label}`
+      const newAppVersion = `${latestVersion}.${latestBuild}.${packageVersion.label ?? '0'}`
       this.setState({showPrompt: true, newAppVersion})
     }
   }
