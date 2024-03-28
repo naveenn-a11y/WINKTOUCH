@@ -4,75 +4,72 @@
 
 'use strict';
 
-import type {FieldDefinition, CodeDefinition} from './Types';
-import React, {Component, PureComponent} from 'react';
-import ReactNative, {
-  View,
-  Text,
+import React, { Component, PureComponent } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
   Image,
+  Keyboard,
   ScrollView,
+  Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  TextInput,
-  Keyboard,
-  FlatList,
-  ActivityIndicator,
+  View,
 } from 'react-native';
+import type { CodeDefinition, FieldDefinition } from './Types';
 
 import {
+  Divider,
+  FAB,
   Button as NativeBaseButton,
   Button as NativeBaseIcon,
-  FAB,
+  Paragraph,
   Portal,
   Snackbar,
-  Paragraph,
-  Divider,
 } from 'react-native-paper';
-import RNBeep from '@dashdoc/react-native-system-sounds';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
+import { formatAllCodes, formatCodeDefinition } from './Codes';
+import { isInTranslateMode, updateLabel } from './ExamDefinition';
+import { strings } from './Strings';
 import {
-  styles,
   fontScale,
+  isWeb,
   selectionColor,
   selectionFontColor,
-  isWeb,
+  styles,
 } from './Styles';
-import {strings} from './Strings';
-import {formatCodeDefinition, formatAllCodes} from './Codes';
 import {
-  formatDuration,
-  formatDate,
+  addDays,
+  capitalize,
   dateFormat,
   dateTime24Format,
-  now,
-  yearDateFormat,
-  yearDateTime24Format,
-  officialDateFormat,
-  capitalize,
-  dayDateTime24Format,
   dayDateFormat,
-  dayYearDateTime24Format,
+  dayDateTime24Format,
+  dayDifference,
   dayYearDateFormat,
-  isToyear,
+  dayYearDateTime24Format,
   deAccent,
+  formatAge,
+  formatDate,
   formatDecimals,
-  split,
-  formatTime,
+  formatDuration,
   formatHour,
+  formatTime,
+  isEmpty,
+  isToyear,
+  now,
+  officialDateFormat,
+  parseTime24Format,
+  postfix,
+  split,
   time24Format,
   today,
-  dayDifference,
-  addDays,
-  formatAge,
-  isEmpty,
-  postfix,
-  parseTime24Format,
+  yearDateFormat,
+  yearDateTime24Format,
 } from './Util';
-import {Camera} from './Favorites';
-import {isInTranslateMode, updateLabel} from './ExamDefinition';
-import {CustomModal as Modal} from './utilities/Modal';
 import Dialog from './utilities/Dialog';
+import { CustomModal as Modal } from './utilities/Modal';
 
 const margin: number = 40;
 
@@ -4050,6 +4047,49 @@ export class NetworkInfo extends Component {
             <Text>{strings.connectionMessage}</Text>
           </Snackbar>
         </View>
+    );
+  }
+}
+
+export class Prompt extends Component {
+
+  props: {
+    style?: any,
+    visible: boolean,
+    dismissable: boolean,
+    title: String,
+    content: string,
+    dismissText: string,
+    confirmText: string,
+    cancelDialog: () => void,
+    confirmDialog: () => void,
+    onDismiss: () => void,
+  };
+
+  render() {
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}} >
+        <Dialog
+          visible={this.props.visible}
+          onDismiss={this.props.onDismiss}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>
+            <View>
+              <Text>{this.props.content}</Text>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.props.cancelDialog}>
+              <Text>{this.props.dismissText}</Text>
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.props.confirmDialog}>
+              <Text>{this.props.confirmText}</Text>
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }
