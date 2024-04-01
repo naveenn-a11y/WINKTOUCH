@@ -929,6 +929,7 @@ export class StartVisitButtons extends Component<
         <View style={styles.flow}>
           {this.state.visitTypes.map((visitType: VisitType, index: number) => (
             <TouchableOpacity
+              testID={`visitType.${visitType.name}`}
               onPress={() => this.startVisit(visitType.name)}
               key={index}>
               <View style={styles.button}>
