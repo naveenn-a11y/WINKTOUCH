@@ -1,5 +1,5 @@
 {
-  "name": "wink-touch",
+  "name": "WinkTouch",
   "version": "4.0.0",
   "private": true,
   "scripts": {
@@ -91,7 +91,6 @@
     "babel-plugin-react-native-web": "^0.19.10",
     "css-loader": "^6.9.1",
     "dotenv": "^16.4.5",
-    "dotenv-expand": "^11.0.6",
     "eslint": "^8.56.0",
     "flow-bin": "^0.227.0",
     "html-loader": "^5.0.0",
