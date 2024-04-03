@@ -2165,7 +2165,7 @@ export class GlassesDetail extends Component {
                 <View style={styles.formColumnFlex}>
                   <View style={styles.formColumnItem}>
                     <Label
-                      value={formatLabel(getFieldDefinition(strings.far))}
+                      value={strings.far}
                       style={styles.formTableColumnHeaderFull}
                       suffix={''}
                     />
@@ -2223,7 +2223,7 @@ export class GlassesDetail extends Component {
                 <View style={styles.formColumnFlex}>
                   <View style={styles.formColumnItem}>
                     <Label
-                      value={formatLabel(getFieldDefinition(strings.near))}
+                      value={strings.near}
                       style={styles.formTableColumnHeaderFull}
                       suffix={''}
                     />
