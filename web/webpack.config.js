@@ -13,7 +13,7 @@ module.exports = (env, mode) => {
   const envVars = dotenv.config({ path: envPath }).parsed;
 
   const isDev = env.ENV !== 'production';
-  const versionNumber = process.env.WINK_VERSION || 'unknown'; // Use WINK_VERSION from .env or default to 'unknown'
+  const versionNumber = process.env.WINK_VERSION || 'unknown';
   const outputPath = path.resolve(rootDir, 'dist');
 
   try {
@@ -37,7 +37,7 @@ module.exports = (env, mode) => {
   console.log('mode', mode);
   console.log('envPath', envPath);
   console.log('envVars', envVars);
- 
+
   return {
     mode: env.MODE,
     entry: path.resolve(__dirname, '../index.web.js'),
