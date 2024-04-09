@@ -2,66 +2,57 @@
  * @flow
  */
 'use strict';
-import React, {Component} from 'react';
-import {StatusBar, ScrollView, View} from 'react-native';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
-import type {
-  Appointment,
-  PatientInfo,
-  Exam,
-  Visit,
-  Account,
-  User,
-  Store,
-  ExamDefinition,
-  Scene,
-  CodeDefinition,
-  Configuration,
-} from './Types';
-import {styles, isWeb} from './Styles';
-import {OverviewScreen} from './Overview';
-import {AppointmentScreen, AppointmentsSummary} from './Appointment';
-import {Reminders} from './Reminders';
-import {AgendaScreen} from './Agenda';
-import {PatientScreen, CabinetScreen} from './Patient';
-import {ExamScreen, ExamHistoryScreen} from './Exam';
-import {MenuBar, Notifications} from './MenuBar';
-import {FindPatient} from './FindPatient';
-import {FindPatientScreen} from './FindPatient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions, NavigationContainer } from '@react-navigation/native';
+import { Component } from 'react';
+import { StatusBar, View } from 'react-native';
+import { DefaultTheme, Provider } from 'react-native-paper';
+import { ModeContextProvider } from '../src/components/Context/ModeContextProvider';
+import { AgendaScreen } from './Agenda';
+import { AppointmentScreen } from './Appointment';
+import { ExamChartScreen } from './Chart';
+import { fetchUserDefinedCodes, getAllCodes } from './Codes';
+import { ConfigurationScreen, getConfiguration } from './Configuration';
+import {
+  CustomisationScreen,
+  DefaultExamCustomisationScreen,
+  VisitTypeCustomisationScreen,
+} from './Customisation';
+import { clearDataCache } from './DataCache';
+import { ErrorBoundary } from './ErrorBoundary';
+import { ExamHistoryScreen, ExamScreen } from './Exam';
 import {
   ExamDefinitionScreen,
   TemplatesScreen,
   allExamDefinitions,
 } from './ExamDefinition';
-import {ExamChartScreen} from './Chart';
-import {setToken} from './Rest';
-import {allExamPredefinedValues, fetchExamPredefinedValues} from './Favorites';
-import {ConfigurationScreen, getConfiguration} from './Configuration';
-import {deleteLocalFiles} from './Print';
-import {ReferralScreen} from './Referral';
-import {FollowUpScreen} from './FollowUp';
-import {
-  DefaultExamCustomisationScreen,
-  CustomisationScreen,
-  VisitTypeCustomisationScreen,
-} from './Customisation';
-import {fetchVisitTypes} from './Visit';
-import {fetchUserDefinedCodes, getAllCodes} from './Codes';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ErrorBoundary} from './ErrorBoundary';
-import {ModeContextProvider} from '../src/components/Context/ModeContextProvider';
-import {Provider, DefaultTheme} from 'react-native-paper';
-import {clearDataCache} from './DataCache';
-import {cacheDefinitions} from './Items';
-import {getUserLanguage} from './Strings';
-import {RoomScreen} from './Room';
-import {LockScreen} from './LockScreen';
-import NavigationService from './utilities/NavigationService';
-import InactivityTracker from './utilities/InactivityTracker';
-import {VisitTypeTemplateScreen} from './VisitType';
+import { fetchExamPredefinedValues } from './Favorites';
+import { FindPatientScreen } from './FindPatient';
+import { FollowUpScreen } from './FollowUp';
+import { cacheDefinitions } from './Items';
+import { LockScreen } from './LockScreen';
+import { MenuBar } from './MenuBar';
+import { OverviewScreen } from './Overview';
+import { CabinetScreen, PatientScreen } from './Patient';
+import { deleteLocalFiles } from './Print';
+import { ReferralScreen } from './Referral';
+import { setToken } from './Rest';
+import { RoomScreen } from './Room';
+import { getUserLanguage } from './Strings';
+import { isWeb, styles } from './Styles';
+import type {
+  Account,
+  CodeDefinition,
+  Configuration,
+  Store,
+  User
+} from './Types';
 import { fetchUserSettings } from './User';
 import { getCurrentRoute } from './Util';
-import createDoctorAppNavigator from './utilities/CustomStack'
+import { fetchVisitTypes } from './Visit';
+import { VisitTypeTemplateScreen } from './VisitType';
+import createDoctorAppNavigator from './utilities/CustomStack';
+import NavigationService from './utilities/NavigationService';
 
 let account: Account;
 let doctor: User;
@@ -126,6 +117,43 @@ const theme = {
   ...DefaultTheme,
   dark: false,
 };
+
+const NavContainer = ({ logout, setNavigator, navigationStateChanged }) => {
+  const StackNavigator = createDoctorAppNavigator();
+  const refreshKey = Math.round(Math.random() * 1236878991214)
+  
+  return (
+    <NavigationContainer 
+      ref={(navigator) => setNavigator(navigator)}
+      onStateChange={navigationStateChanged}
+    >
+      <StackNavigator.Navigator initialRouteName="overview" screenOptions={{ headerShown: false }} >
+          <StackNavigator.Screen name="overview">
+            {(props) => <OverviewScreen {...props} onLogout={logout} refreshKey={refreshKey} />}
+          </StackNavigator.Screen>
+          <StackNavigator.Screen name="agenda" component={AgendaScreen} />
+          <StackNavigator.Screen name="findPatient" component={FindPatientScreen} />
+          <StackNavigator.Screen name="appointment" component={AppointmentScreen} />
+          <StackNavigator.Screen name="exam" component={ExamScreen} />
+          <StackNavigator.Screen name="patient" component={PatientScreen} />
+          <StackNavigator.Screen name="cabinet" component={CabinetScreen} />
+          <StackNavigator.Screen name="examGraph" component={ExamChartScreen} />
+          <StackNavigator.Screen name="examHistory" component={ExamHistoryScreen} />
+          <StackNavigator.Screen name="examTemplate" component={ExamDefinitionScreen} />
+          <StackNavigator.Screen name="templates" component={TemplatesScreen} />
+          <StackNavigator.Screen name="configuration" component={ConfigurationScreen} />
+          <StackNavigator.Screen name="referral" component={ReferralScreen} />
+          <StackNavigator.Screen name="followup" component={FollowUpScreen} />
+          <StackNavigator.Screen name="customisation" component={CustomisationScreen} />
+          <StackNavigator.Screen name="defaultTileCustomisation" component={DefaultExamCustomisationScreen} />
+          <StackNavigator.Screen name="visitTypeCustomisation" component={VisitTypeCustomisationScreen} />
+          <StackNavigator.Screen name="visitTypeTemplate" component={VisitTypeTemplateScreen} />
+          <StackNavigator.Screen name="room" component={RoomScreen} />
+          <StackNavigator.Screen name="lock" component={LockScreen} />
+      </StackNavigator.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export class DoctorApp extends Component {
   props: {
@@ -255,42 +283,6 @@ export class DoctorApp extends Component {
     this.setState({currentRoute});
   };
 
-  renderNavigationContainer = () => {
-    const StackNavigator = createDoctorAppNavigator();
-    const refreshKey = Math.round(Math.random() * 1236878991214)
-    return (
-      <NavigationContainer 
-        ref={(navigator) => this.setNavigator(navigator)}
-        onStateChange={this.navigationStateChanged}
-      >
-        <StackNavigator.Navigator initialRouteName="overview" screenOptions={{ headerShown: false }} >
-            <StackNavigator.Screen name="overview">
-              {(props) => <OverviewScreen {...props} onLogout={this.logout} refreshKey={refreshKey} />}
-            </StackNavigator.Screen>
-            <StackNavigator.Screen name="agenda" component={AgendaScreen} />
-            <StackNavigator.Screen name="findPatient" component={FindPatientScreen} />
-            <StackNavigator.Screen name="appointment" component={AppointmentScreen} />
-            <StackNavigator.Screen name="exam" component={ExamScreen} />
-            <StackNavigator.Screen name="patient" component={PatientScreen} />
-            <StackNavigator.Screen name="cabinet" component={CabinetScreen} />
-            <StackNavigator.Screen name="examGraph" component={ExamChartScreen} />
-            <StackNavigator.Screen name="examHistory" component={ExamHistoryScreen} />
-            <StackNavigator.Screen name="examTemplate" component={ExamDefinitionScreen} />
-            <StackNavigator.Screen name="templates" component={TemplatesScreen} />
-            <StackNavigator.Screen name="configuration" component={ConfigurationScreen} />
-            <StackNavigator.Screen name="referral" component={ReferralScreen} />
-            <StackNavigator.Screen name="followup" component={FollowUpScreen} />
-            <StackNavigator.Screen name="customisation" component={CustomisationScreen} />
-            <StackNavigator.Screen name="defaultTileCustomisation" component={DefaultExamCustomisationScreen} />
-            <StackNavigator.Screen name="visitTypeCustomisation" component={VisitTypeCustomisationScreen} />
-            <StackNavigator.Screen name="visitTypeTemplate" component={VisitTypeTemplateScreen} />
-            <StackNavigator.Screen name="room" component={RoomScreen} />
-            <StackNavigator.Screen name="lock" component={LockScreen} />
-        </StackNavigator.Navigator>
-      </NavigationContainer>
-    );
-  }
-
   render() {
     return (
       <ModeContextProvider>
@@ -302,7 +294,11 @@ export class DoctorApp extends Component {
                 state: this.state.currentRoute,
                 navigate: this.navigate,
               }}>
-                {this.renderNavigationContainer()}
+                <NavContainer 
+                  logout={this.logout} 
+                  setNavigator={(navigatorRef) => this.setNavigator(navigatorRef)} 
+                  navigationStateChanged={this.navigationStateChanged}
+                />
             </ErrorBoundary>
             <MenuBar
               scene={{}}
