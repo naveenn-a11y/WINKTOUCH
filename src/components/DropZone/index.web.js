@@ -1,9 +1,9 @@
+import { Component } from 'react';
 import Dropzone from 'react-dropzone';
-import React, {Component} from 'react';
-import {View} from 'react-native';
-import {loadBase64ImageForWeb} from '../../../js/ImageField';
-import {strings} from '../../../js/Strings';
-import {fontScale} from '../../../js/Styles';
+import { View } from 'react-native';
+import { loadBase64ImageForWeb } from '../../../js/ImageField';
+import { strings } from '../../../js/Strings';
+import { fontScale } from '../../../js/Styles';
 
 export class UploadZone extends Component {
   props: {
@@ -31,7 +31,10 @@ export class UploadZone extends Component {
   render() {
     return (
       <View>
-        <Dropzone accept="image/*,.pdf" onDrop={this.onDrop.bind(this)}>
+        <Dropzone accept={{
+          'image/*': [".png", ".jpeg", ".jpg"],
+          'application/pdf': [".pdf"]
+        }} onDrop={this.onDrop.bind(this)}>
           {({getRootProps, getInputProps}) => (
             <View>
               <div

@@ -54,6 +54,22 @@
       ]
     },
     {
+      "name": "Scan",
+      "multiValue": true,
+      "fields": [
+        {
+          "popup": false,
+          "name": "Fitting scan",
+          "drawable": true,
+          "image": "upload",
+          "label": "",
+          "type": "EMR",
+          "size": "S"
+        }
+      ],
+      "size": "S"
+    },
+    {
       "clone": [
         "Manufacturer",
         "Brand",
@@ -1136,6 +1152,10 @@
               "label": "Fecha de vencimiento"
             }
           ]
+        },
+        {
+          "name": "Scan",
+          "label": "Escanear"
         },
         {
           "name": "Contact Lens Trial",
