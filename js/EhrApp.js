@@ -322,24 +322,6 @@ export class EhrApp extends Component {
     this.setState({showPrompt: false})
   }
 
-
-  renderPrompt() {
-    return (
-      <Prompt 
-        visible={this.state.showPrompt} 
-        dismissable={false}
-        style={{width: '55%', alignSelf: 'center', backgroundColor: '#fff'}}
-        title={`${strings.appUpdateTitle} (${this.state.newAppVersion})`}
-        content={strings.appUpdateContent}
-        confirmText={strings.update}
-        dismissText={strings.doItLater}
-        onDismiss={() => this.setState({showPrompt: false})}
-        cancelDialog={() => this.setState({showPrompt: false})}
-        confirmDialog={this.confirmUpdate}
-      />
-    )
-  }
-
   checkForCodepushUpdate() {
     syncWithCodepush(this.state.registration?.bundle);
     this.checkAppstoreUpdateNeeded();
@@ -359,7 +341,7 @@ export class EhrApp extends Component {
         this.lockScreen();
       },
       onResume: () => {
-        this.unlockScreen();
+        this.state.isLocked && this.unlockScreen();
       },
     });
 
@@ -511,7 +493,19 @@ export class EhrApp extends Component {
           }
         />
         {this.state.showNetworkInfo && <NetworkInfo />}
-        {this.state.showPrompt && this.renderPrompt()}
+        {this.state.showPrompt &&
+        <Prompt 
+          visible={this.state.showPrompt} 
+          dismissable={false}
+          style={{width: '55%', alignSelf: 'center', backgroundColor: '#fff'}}
+          title={`${strings.appUpdateTitle} (${this.state.newAppVersion})`}
+          content={strings.appUpdateContent}
+          confirmText={strings.update}
+          dismissText={strings.doItLater}
+          onDismiss={() => this.setState({showPrompt: false})}
+          cancelDialog={() => this.setState({showPrompt: false})}
+          confirmDialog={this.confirmUpdate}
+        />}
       </Provider>
     );
   }
