@@ -27,9 +27,6 @@ export function setWinkRestUrl() {
 }
 
 export function getWinkRestUrl(): string {
-  //if (__DEV__) {
-  //  return 'http://localhost:8080/WinkRESTv6.00.02/';
-  //}
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
     setWinkRestUrl();
   }

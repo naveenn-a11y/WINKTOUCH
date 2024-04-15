@@ -2,13 +2,10 @@ import {isTestFlight} from './Version';
 import {isWeb} from './Styles';
 import {isEmpty} from './Util';
 
-const productionHost = process.env.WINK_PRODUCTION_HOST || 'unknown';
-const developmentHost = process.env.WINK_DEV_HOST || 'unknown';
-
-let emrHost = productionHost;
+let emrHost = process.env.WINK_HOST || 'unknown';
 export function getEmrHost() {
-  if (isTestFlight || __DEV__) {
-    return developmentHost;
+  if (isTestFlight) {
+    return process.env.WINK_TESTFLIGHT_HOST;
   }
   if (isWeb) {
     return window.location.hostname;
