@@ -13,8 +13,12 @@ module.exports = (env, mode) => {
   const envVars = dotenv.config({ path: envPath }).parsed;
 
   const isDev = env.ENV !== 'production';
-  const versionNumber = process.env.WINK_VERSION || 'unknown';
   const outputPath = path.resolve(rootDir, 'dist');
+
+  const versionFilePath = path.resolve(__dirname, '../js/version.js');
+  const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
+  const versionMatch = versionFileContent.match(/EHR_VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/);
+  const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
 
   try {
     // Check if the directory exists, if not, create it

@@ -7,7 +7,7 @@ export function getEmrHost() {
   if (isTestFlight) {
     return process.env.WINK_TESTFLIGHT_HOST;
   }
-  if (isWeb) {
+  if (isWeb && !__DEV__) {
     return window.location.hostname;
   }
   return emrHost;
