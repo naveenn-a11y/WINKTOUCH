@@ -17,7 +17,7 @@ export let ecommVersion: string = process.env.WINK_ECOMM_VERSION || 'unknown';
 export const dbVersion: string = process.env.WINK_DB_VERSION || 'unknown';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
-const minimalTouchVersion = 4.8;
+const MINIMAL_TOUCH_VERSION = 4.8;
 const EHR_VERSION_NUMBER = '4.13.12';
 
 export function setDeploymentVersion(version: string): void {
@@ -29,7 +29,7 @@ export function setDeploymentVersion(version: string): void {
 
 export function checkBinaryVersion(): void {
   const binaryVersion = DeviceInfo.getVersion();
-  if (Number.parseFloat(binaryVersion) < minimalTouchVersion) {
+  if (Number.parseFloat(binaryVersion) < MINIMAL_TOUCH_VERSION) {
     alert(strings.updateAppStore);
   }
 }

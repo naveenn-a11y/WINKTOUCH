@@ -406,7 +406,7 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__ ? '1234' : undefined,
+      password: __DEV__ ? process.env.WINK_DEMO_PASSWORD : undefined,
       isTrial: false,
       isMfaRequired: false,
       qrImageUrl: undefined,
