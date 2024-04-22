@@ -5,7 +5,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const RULES = require('./webpack.rules');
 const rootDir = path.join(__dirname, '..');
 const fs = require('fs');
@@ -14,20 +13,9 @@ module.exports = (env, mode) => {
   const isDev = env.MODE === 'development';
   const envName = isDev ? '.env.dev' : '.env.prod';
 
-  // create dist folder if not exists
-  if (!fs.existsSync(path.resolve(rootDir, 'dist'))) {
-    fs.mkdirSync(path.resolve(rootDir, 'dist'));
-  }
-  // Read version number from version.js
-  const versionFilePath = path.resolve(__dirname, '../js/Version.js');
-  const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
-  const versionMatch = versionFileContent.match(/VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/);
-  const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
-
   console.log('envName', envName);
   console.log('env.MODE', env.MODE);
   console.log('mode', mode);
-  console.log('versionNumber', versionNumber);
 
   return {
     mode: env.MODE,
@@ -54,18 +42,6 @@ module.exports = (env, mode) => {
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || `${env.MODE}`),
         __DEV__: isDev,
-      }),
-      new WebpackShellPluginNext({
-        onBuildStart: {
-          scripts: ['echo Starting...'],
-          blocking: true,
-          parallel: false,
-        },
-        onBuildEnd: {
-          scripts: [`echo '<version>${versionNumber}</version>' > ./dist/version.xml`],
-          blocking: false,
-          parallel: true,
-        },
       }),
     ],
     resolve: {
