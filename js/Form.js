@@ -66,6 +66,7 @@ import {isNumericField, formatLabel} from './Items';
 import {Microphone} from './Voice';
 import {GeneralPrismInput} from './Refraction';
 import uuid from 'react-native-uuid';
+import { generateValidationCode } from './Helper/FormHelper';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -1334,16 +1335,16 @@ export class FormInput extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      validation: this.generateValidationCode(
+      validation: generateValidationCode(
         this.props.value,
         this.props.definition,
       ),
     };
   }
 
-  componentDidUpdate(prevProps: any) {
-    if (!this.state.validation) {
-      let validation = this.generateValidationCode(
+  componentDidUpdate(prevProps: any, prevState: any) {
+    if (!this.state.validation && this.state.validation !== prevState.validation) {
+      let validation = generateValidationCode(
         this.props.value,
         this.props.definition,
       );
@@ -1442,57 +1443,7 @@ export class FormInput extends Component {
     return this.props.definition.filter;
   }
 
-  generateValidationCode(value: string, definition: FieldDefinition): ?string {
-    console.log('Generate Validation Code', value, definition);
-    if (definition === undefined) {
-      return undefined;
-    }
-    let validation: string = '';
-    let validationError: string = '';
-    if (definition.validation !== undefined && definition.validation !== null) {
-      validation = validation + definition.validation + ';\n';
-    }
-    if (definition.maxLength && definition.maxLength > 0) {
-      if (value.length > definition.maxLength) {
-        validationError = (definition.maxLengthError ? definition.maxLengthError : strings.maxLengthError);
-      }
-      // validation =
-      //   validation +
-      //   'if (value.length>' +
-      //   definition.maxLength +
-      //   ") validationError = '" +
-      //   (definition.maxLengthError
-      //     ? definition.maxLengthError
-      //     : strings.maxLengthError) +
-      //   "';\n";
-    }
-    if (definition.minLength && definition.minLength > 0) {
-      if (value.length < definition.minLength) {
-        validationError = (definition.minLengthError ? definition.minLengthError : strings.minLengthError);
-      }
-      // validation =
-      //   validation +
-      //   'if (value.length<' +
-      //   definition.minLength +
-      //   ") validationError = '" +
-      //   (definition.minLengthError
-      //     ? definition.minLengthError
-      //     : strings.minLengthError) +
-      //   "';\n";
-    }
-    if (definition.required === true) {
-      if (value === undefined || value == null || value.trim().length === 0) {
-        validationError = (definition.requiredError ? definition.requiredError : strings.requiredError);
-      }
-      // validation =
-      //   "if (value===undefined || value===null || value.trim().length===0) validationError = '" +
-      //   (definition.requiredError
-      //     ? definition.requiredError
-      //     : strings.requiredError) +
-      //   "';\n";
-    }
-    return validationError;
-  }
+
 
   updateSubValue(
     subGroupDefinition: GroupDefinition,
@@ -1941,7 +1892,7 @@ export class FormInput extends Component {
         label={label}
         showLabel={this.props.showLabel}
         readonly={readonly}
-        validateStringHandler={(value) => this.generateValidationCode(value, this.props.definition)}
+        validateStringHandler={(value) => generateValidationCode(value, this.props.definition)}
         validation={this.state.validation}
         type={this.props.type}
         prefix={this.props.definition.prefix}
