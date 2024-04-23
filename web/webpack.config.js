@@ -55,18 +55,18 @@ module.exports = (env, mode) => {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || `${env.MODE}`),
         __DEV__: isDev,
       }),
-      new WebpackShellPluginNext({
-        onBuildStart: {
-          scripts: ['echo Starting...'],
-          blocking: true,
-          parallel: false,
-        },
-        onBuildEnd: {
-          scripts: [`echo '<version>${versionNumber}</version>' > ./dist/version.xml`],
-          blocking: false,
-          parallel: true,
-        },
-      }),
+      // new WebpackShellPluginNext({
+      //   onBuildStart: {
+      //     scripts: ['echo Starting...'],
+      //     blocking: true,
+      //     parallel: false,
+      //   },
+      //   onBuildEnd: {
+      //     scripts: [`echo '<version>${versionNumber}</version>' > ./dist/version.xml`],
+      //     blocking: false,
+      //     parallel: true,
+      //   },
+      // }),
     ],
     resolve: {
       extensions: ['.web.jsx', '.web.js', '.jsx', '.js'],

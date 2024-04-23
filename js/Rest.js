@@ -3,13 +3,7 @@
  */
 'use strict';
 
-import type {
-  FieldDefinitions,
-  RestResponse,
-  Privileges,
-  TokenPayload,
-  Account,
-} from './Types';
+import type {FieldDefinitions, RestResponse, Privileges, TokenPayload, Account} from './Types';
 import base64 from 'base-64';
 import {capitalize, deepClone, isEmpty, extractHostname} from './Util';
 import {strings, getUserLanguage} from './Strings';
@@ -39,9 +33,7 @@ let requestNumber: number = 0;
 
 export function getWinkEmrHostFromAccount(account: Account) {
   if (account.extraFields instanceof Array) {
-    const winkEmrHostField: Object = account.extraFields.find(
-      (extraField: Object) => extraField.key === 'WinkEMRHost',
-    );
+    const winkEmrHostField: Object = account.extraFields.find((extraField: Object) => extraField.key === 'WinkEMRHost');
     if (!isEmpty(winkEmrHostField) && !isEmpty(winkEmrHostField.value)) {
       return winkEmrHostField.value;
     }
@@ -114,8 +106,7 @@ export function setToken(newToken: ?string) {
     __DEV__ && console.log('Set token:' + newToken);
     let payLoad: TokenPayload = decodeTokenPayload(newToken);
     parsePrivileges(payLoad ? payLoad.prv : undefined);
-    __DEV__ &&
-      console.log('Logged on user privileges = ' + JSON.stringify(privileges));
+    __DEV__ && console.log('Logged on user privileges = ' + JSON.stringify(privileges));
   }
 }
 
@@ -132,9 +123,7 @@ export function getDataType(id: string): string {
     return id;
   }
   const dashIndex = id.indexOf('-');
-  const dataType: string = capitalize(
-    dashIndex >= 0 ? id.substring(0, dashIndex) : id,
-  );
+  const dataType: string = capitalize(dashIndex >= 0 ? id.substring(0, dashIndex) : id);
   return dataType;
 }
 
@@ -180,9 +169,7 @@ function clearErrors(item: Object) {
 }
 
 export function handleHttpError(httpResponse: any, httpBody?: Object) {
-  console.log(
-    'HTTP response error ' + httpResponse.status + ': ' + httpResponse.url,
-  );
+  console.log('HTTP response error ' + httpResponse.status + ': ' + httpResponse.url);
   console.log(httpResponse);
   // To be refactored to map proper error message with status Code
   if (httpResponse.status === 406) {
@@ -194,18 +181,12 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
   throw 'HTTP error ' + httpResponse.status;
 }
 
-export function getDefinitionCacheKey(
-  id: string,
-  language: string = getUserLanguage(),
-): string {
+export function getDefinitionCacheKey(id: string, language: string = getUserLanguage()): string {
   const cacheKey: string = getDataType(id) + 'Definition-' + language;
   return cacheKey;
 }
 
-export async function fetchItemDefinition(
-  id: string,
-  language: string,
-): FieldDefinitions {
+export async function fetchItemDefinition(id: string, language: string): FieldDefinitions {
   if (!id) {
     return undefined;
   }
@@ -216,10 +197,7 @@ export async function fetchItemDefinition(
   }
   const url = constructTypeUrl(id) + 'FieldDefinition';
   const requestNr = ++requestNumber;
-  __DEV__ &&
-    console.log(
-      'REQ ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url,
-    );
+  __DEV__ && console.log('REQ ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url);
   try {
     let httpResponse = await fetch(url, {
       method: 'get',
@@ -231,23 +209,14 @@ export async function fetchItemDefinition(
     if (!httpResponse.ok) {
       handleHttpError(httpResponse);
     }
-    __DEV__ &&
-      console.log(
-        'RES ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url,
-      );
+    __DEV__ && console.log('RES ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url);
     let restResponse = await httpResponse.json();
     definition = restResponse.fields;
     cacheItem(cacheKey, definition);
     return definition;
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(
-        strings.fetchItemError,
-        getDataType(id).toLowerCase(),
-        error,
-      ),
-    );
+    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase(), error));
     throw error;
   }
 }
@@ -286,10 +255,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
     return undefined;
   }
   const cachedVersion: number = ignoreCache ? -1 : getCachedVersionNumber(id);
-  const url =
-    constructTypeUrl(id) +
-    encodeURIComponent(id) +
-    (cachedVersion >= 0 ? '?version=' + cachedVersion : '');
+  const url = constructTypeUrl(id) + encodeURIComponent(id) + (cachedVersion >= 0 ? '?version=' + cachedVersion : '');
   const requestNr = ++requestNumber;
   __DEV__ && console.log('REQ ' + requestNr + ' GET ' + url);
   try {
@@ -306,52 +272,29 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
     }
     const restResponse = await httpResponse.json();
     if (restResponse.upToDate) {
-      __DEV__ &&
-        console.log('RES ' + requestNr + ' GET ' + url + ': is up to date.');
+      __DEV__ && console.log('RES ' + requestNr + ' GET ' + url + ': is up to date.');
       return getCachedItem(id);
     }
     if (restResponse.errors) {
       alert(restResponse.errors);
-      console.log(
-        'restResponse contains a system error: ' + JSON.stringify(restResponse),
-      );
+      console.log('restResponse contains a system error: ' + JSON.stringify(restResponse));
       return; //TODO: we should also return an object containing the system eroor?
     }
     __DEV__ && logRestResponse(restResponse, id, requestNr, 'GET', url);
-    const item: any =
-      restResponse.id === id
-        ? restResponse
-        : restResponse[getItemFieldName(id)];
+    const item: any = restResponse.id === id ? restResponse : restResponse[getItemFieldName(id)];
     if (!item) {
-      throw new Error(
-        'The server did not return a ' +
-          getItemFieldName(id) +
-          ' for id ' +
-          id +
-          '.',
-      );
+      throw new Error('The server did not return a ' + getItemFieldName(id) + ' for id ' + id + '.');
     }
     cacheResponseItems(restResponse);
     return item;
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(
-        strings.fetchItemError,
-        getDataType(id).toLowerCase(),
-      ),
-    );
+    alert(strings.formatString(strings.fetchItemError, getDataType(id).toLowerCase()));
     throw error;
   }
 }
 
-export function logRestResponse(
-  restResponse,
-  id,
-  requestNr: number,
-  method: string,
-  url: string,
-) {
+export function logRestResponse(restResponse, id, requestNr: number, method: string, url: string) {
   let cleanedResponse = deepClone(restResponse);
   if (!cleanedResponse.hasValidationError && !cleanedResponse.errors) {
     if (cleanedResponse[getItemFieldName(id)]) {
@@ -364,16 +307,7 @@ export function logRestResponse(
   if (cleanedResponse.data) {
     cleanedResponse.data = '...';
   }
-  console.log(
-    'RES ' +
-      requestNr +
-      ' ' +
-      method +
-      ' ' +
-      url +
-      ' json body: ' +
-      JSON.stringify(cleanedResponse),
-  );
+  console.log('RES ' + requestNr + ' ' + method + ' ' + url + ' json body: ' + JSON.stringify(cleanedResponse));
 }
 
 export async function storeItems(itemLsist: any[]) {}
@@ -395,19 +329,9 @@ export async function storeItem(item: any): any {
   const httpMethod: string = item.id.indexOf('-') > 0 ? 'PUT' : 'POST';
   const url = constructTypeUrl(item.id);
   const requestNr = ++requestNumber;
-  __DEV__ &&
-    console.log(
-      'REQ ' +
-        requestNr +
-        ' ' +
-        httpMethod +
-        ' ' +
-        url +
-        ' json body: ' +
-        JSON.stringify(item),
-    );
+  __DEV__ && console.log('REQ ' + requestNr + ' ' + httpMethod + ' ' + url + ' json body: ' + JSON.stringify(item));
   try {
-    let httpResponse = await fetch(url, {
+    let httpResponse = await fetch(url + '/404', {
       method: httpMethod,
       headers: {
         'Content-Type': 'application/json',
@@ -421,15 +345,10 @@ export async function storeItem(item: any): any {
       handleHttpError(httpResponse);
     }
     const restResponse: RestResponse = await httpResponse.json();
-    __DEV__ &&
-      logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
+    __DEV__ && logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
     if (restResponse.hasValidationError || restResponse.errors) {
       if (restResponse.errors) {
-        __DEV__ &&
-          console.log(
-            'restResponse contains business errors: ' +
-              JSON.stringify(restResponse),
-          );
+        __DEV__ && console.log('restResponse contains business errors: ' + JSON.stringify(restResponse));
       } else if (restResponse.hasValidationError) {
         restResponse.errors = [strings.validationErrorMessage];
       }
@@ -442,12 +361,7 @@ export async function storeItem(item: any): any {
     }
     const updatedItem = restResponse[getItemFieldName(item.id)];
     if (!updatedItem) {
-      console.log(
-        'Missing ' +
-          getItemFieldName(item.id) +
-          ' key in restresponse :' +
-          JSON.stringify(restResponse),
-      );
+      console.log('Missing ' + getItemFieldName(item.id) + ' key in restresponse :' + JSON.stringify(restResponse));
       throw new Error(
         'The server did not return a ' +
           getItemFieldName(item.id) +
@@ -460,20 +374,8 @@ export async function storeItem(item: any): any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(
-        strings.storeItemError,
-        getDataType(item.id).toLowerCase(),
-        error,
-      ),
-    );
-    item.errors = [
-      strings.formatString(
-        strings.storeItemError,
-        getDataType(item.id).toLowerCase(),
-        error,
-      ),
-    ];
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error));
+    item.errors = [strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error)];
     item.definition = definition;
     return item;
   }
@@ -503,21 +405,13 @@ export async function deleteItem(item: any): any {
     //alert(JSON.stringify(restResponse));
     if (restResponse.errors) {
       alert(restResponse.errors);
-      console.log(
-        'restResponse contains a system error: ' + JSON.stringify(restResponse),
-      );
+      console.log('restResponse contains a system error: ' + JSON.stringify(restResponse));
     } else {
       clearCachedItemById(item);
     }
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(
-        strings.storeItemError,
-        getDataType(item.id).toLowerCase(),
-        error,
-      ),
-    );
+    alert(strings.formatString(strings.storeItemError, getDataType(item.id).toLowerCase(), error));
     throw error;
   }
 }
@@ -565,30 +459,17 @@ export async function searchItems(list: string, searchCritera: Object): any {
     const restResponse = await httpResponse.json();
     __DEV__ &&
       console.log(
-        'RES ' +
-          requestNr +
-          ' GET ' +
-          url +
-          ': ' +
-          JSON.stringify(Object.keys(restResponse)),
+        'RES ' + requestNr + ' GET ' + url + ': ' + JSON.stringify(Object.keys(restResponse)),
         //JSON.stringify(restResponse)
       );
     if (restResponse.errors) {
       alert(restResponse.errors);
-      console.log(
-        'restResponse contains a system error: ' + JSON.stringify(restResponse),
-      );
+      console.log('restResponse contains a system error: ' + JSON.stringify(restResponse));
     }
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(
-        strings.fetchItemError,
-        list.substring(0, list.indexOf('/')).toLowerCase(),
-        error,
-      ),
-    );
+    alert(strings.formatString(strings.fetchItemError, list.substring(0, list.indexOf('/')).toLowerCase(), error));
     throw error;
   }
 }
@@ -599,30 +480,14 @@ export async function performActionOnItem(
   httpMethod: ?any = 'PUT',
   parameters: ?any = '',
 ): any {
-  if (
-    (item === null) | (item === undefined) ||
-    (item instanceof Array && item.length === 0)
-  ) {
+  if ((item === null) | (item === undefined) || (item instanceof Array && item.length === 0)) {
     __DEV__ && console.error('item is mandatory');
   }
   let url: string =
-    getRestUrl() +
-    getDataType(item instanceof Array ? item[0].id : item.id) +
-    '/' +
-    encodeURIComponent(action);
+    getRestUrl() + getDataType(item instanceof Array ? item[0].id : item.id) + '/' + encodeURIComponent(action);
   url = appendParameters(url, parameters);
   const requestNr = ++requestNumber;
-  __DEV__ &&
-    console.log(
-      'REQ ' +
-        requestNr +
-        ' ' +
-        httpMethod +
-        ' ' +
-        url +
-        ' json body: ' +
-        JSON.stringify(item),
-    );
+  __DEV__ && console.log('REQ ' + requestNr + ' ' + httpMethod + ' ' + url + ' json body: ' + JSON.stringify(item));
   try {
     let httpResponse = await fetch(url, {
       method: httpMethod,
@@ -638,15 +503,10 @@ export async function performActionOnItem(
       handleHttpError(httpResponse, await httpResponse.text());
     }
     const restResponse = await httpResponse.json();
-    __DEV__ &&
-      logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
+    __DEV__ && logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
     if (restResponse.hasValidationError || restResponse.errors) {
       if (restResponse.errors) {
-        __DEV__ &&
-          console.log(
-            'restResponse contains business errors: ' +
-              JSON.stringify(restResponse),
-          );
+        __DEV__ && console.log('restResponse contains business errors: ' + JSON.stringify(restResponse));
       } else if (restResponse.hasValidationError) {
         restResponse.errors = [strings.validationErrorMessage];
       }
@@ -661,12 +521,7 @@ export async function performActionOnItem(
     }
     const updatedItem = restResponse[getItemFieldName(item.id)];
     if (!updatedItem) {
-      console.log(
-        'Missing ' +
-          getItemFieldName(item.id) +
-          ' key in restresponse :' +
-          JSON.stringify(restResponse),
-      );
+      console.log('Missing ' + getItemFieldName(item.id) + ' key in restresponse :' + JSON.stringify(restResponse));
       throw new Error(
         'The server did not return a ' +
           getItemFieldName(item.id) +
@@ -713,9 +568,7 @@ export async function devDelete(path: string) {
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert(
-      'Something went wrong trying to delete ' + path + '. Please try again.',
-    );
+    alert('Something went wrong trying to delete ' + path + '. Please try again.');
     throw error;
   }
 }
@@ -727,7 +580,9 @@ export function getRestUrl(): string {
 
 function setRestUrl() {
   const winkEmrHost = getEmrHost();
-  if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) return;
+  if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) {
+    return;
+  }
   restUrl = 'https://' + winkEmrHost + '/' + ehrApiVersion + '/';
   __DEV__ && console.log('Setting EMR backend server to ' + restUrl);
 }

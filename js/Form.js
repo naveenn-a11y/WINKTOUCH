@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /**
  * @flow
  */
@@ -83,6 +84,7 @@ export class FormTextInput extends Component {
     showLabel?: boolean,
     labelWidth?: number,
     onChangeText?: (text: ?string) => void,
+    validateStringHandler?: (text: ?string) => void,
     autoCapitalize?: string,
     autoFocus?: boolean,
     freestyle?: boolean,
@@ -136,12 +138,9 @@ export class FormTextInput extends Component {
   }
 
   validate(value: string) {
-    if (this.props.validation === undefined) {
-      if (
-        value === undefined ||
-        value === null ||
-        (value.trim && value.trim().length === 0)
-      ) {
+    if (!this.props.validation) {
+      // Checking Validation (calling generateValidationCode) will return error messages
+      if (!value || (value.trim && value.trim().length === 0)) { // Check if value is empty
         if (this.props.required) {
           this.setState({errorMessage: strings.requiredError});
         } else {
@@ -150,12 +149,12 @@ export class FormTextInput extends Component {
           }
         }
       }
-      this.setState({errorMessage: undefined});
+      const validationErrorMessage = this.props.validateStringHandler(value);
+      this.setState({errorMessage: validationErrorMessage});
       return;
     }
     const errorMessages = strings;
-    let validationError: ?string;
-    eval(this.props.validation);
+    let validationError = this.props.validation ?? '';
     this.setState({errorMessage: validationError});
   }
 
@@ -187,11 +186,7 @@ export class FormTextInput extends Component {
       return;
     }
     let value: string = this.state.text;
-    if (
-      text.toLowerCase() === 'undo' ||
-      text.toLowerCase() === 'remove' ||
-      text.toLowerCase() === 'delete'
-    ) {
+    if (text.toLowerCase() === 'undo' || text.toLowerCase() === 'remove' || text.toLowerCase() === 'delete') {
       //TODO: french
       if (!value) {
         return;
@@ -290,7 +285,7 @@ export class FormTextInput extends Component {
                 onBlur={(event) => this.commit(event.nativeEvent.text)}
                 editable={this.props.readonly !== true}
                 multiline={this.props.multiline === true}
-                maxLength={this.props.maxLength}
+                //maxLength={this.props.maxLength}
                 numberOfLines={this.props.maxRows}
                 onTextLayout={this.handleTextLayout}
                 testID={this.props.testID + 'Field'}
@@ -447,7 +442,7 @@ export class FormNumberInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    // eval(this.props.validation); // This prop is not being passed from the parent component, So it will always be undefined
     this.setState({errorMessage: validationError});
   }
 
@@ -1347,12 +1342,12 @@ export class FormInput extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.state.validation === undefined) {
+    if (!this.state.validation) {
       let validation = this.generateValidationCode(
         this.props.value,
         this.props.definition,
       );
-      if (validation != undefined) {
+      if (validation) {
         this.setState({validation});
       }
     }
@@ -1448,44 +1443,55 @@ export class FormInput extends Component {
   }
 
   generateValidationCode(value: string, definition: FieldDefinition): ?string {
+    console.log('Generate Validation Code', value, definition);
     if (definition === undefined) {
       return undefined;
     }
     let validation: string = '';
+    let validationError: string = '';
     if (definition.validation !== undefined && definition.validation !== null) {
       validation = validation + definition.validation + ';\n';
     }
     if (definition.maxLength && definition.maxLength > 0) {
-      validation =
-        validation +
-        'if (value.length>' +
-        definition.maxLength +
-        ") validationError = '" +
-        (definition.maxLengthError
-          ? definition.maxLengthError
-          : strings.maxLengthError) +
-        "';\n";
+      if (value.length > definition.maxLength) {
+        validationError = (definition.maxLengthError ? definition.maxLengthError : strings.maxLengthError);
+      }
+      // validation =
+      //   validation +
+      //   'if (value.length>' +
+      //   definition.maxLength +
+      //   ") validationError = '" +
+      //   (definition.maxLengthError
+      //     ? definition.maxLengthError
+      //     : strings.maxLengthError) +
+      //   "';\n";
     }
     if (definition.minLength && definition.minLength > 0) {
-      validation =
-        validation +
-        'if (value.length<' +
-        definition.minLength +
-        ") validationError = '" +
-        (definition.minLengthError
-          ? definition.minLengthError
-          : strings.minLengthError) +
-        "';\n";
+      if (value.length < definition.minLength) {
+        validationError = (definition.minLengthError ? definition.minLengthError : strings.minLengthError);
+      }
+      // validation =
+      //   validation +
+      //   'if (value.length<' +
+      //   definition.minLength +
+      //   ") validationError = '" +
+      //   (definition.minLengthError
+      //     ? definition.minLengthError
+      //     : strings.minLengthError) +
+      //   "';\n";
     }
     if (definition.required === true) {
-      validation =
-        "if (value===undefined || value===null || value.trim().length===0) validationError = '" +
-        (definition.requiredError
-          ? definition.requiredError
-          : strings.requiredError) +
-        "';\n";
+      if (value === undefined || value == null || value.trim().length === 0) {
+        validationError = (definition.requiredError ? definition.requiredError : strings.requiredError);
+      }
+      // validation =
+      //   "if (value===undefined || value===null || value.trim().length===0) validationError = '" +
+      //   (definition.requiredError
+      //     ? definition.requiredError
+      //     : strings.requiredError) +
+      //   "';\n";
     }
-    return validation;
+    return validationError;
   }
 
   updateSubValue(
@@ -1548,7 +1554,7 @@ export class FormInput extends Component {
           {color: this.props.definition.prefixStyle.color},
         ];
       }
-  
+
       if (this.props.definition.prefixStyle.fontSize !== undefined) {
         prefixStyle = [
           prefixStyle,
@@ -1784,10 +1790,10 @@ export class FormInput extends Component {
       }
 
       //auto select implementation
-      let value = this.props.value
+      let value = this.props.value;
       if (this.props.definition.autoSelect && options.length > 0 && isEmpty(value)) {
-        value = options[0]
-        this.props.onChangeValue(value)
+        value = options[0];
+        this.props.onChangeValue(value);
       }
 
       return (
@@ -1935,6 +1941,7 @@ export class FormInput extends Component {
         label={label}
         showLabel={this.props.showLabel}
         readonly={readonly}
+        validateStringHandler={(value) => this.generateValidationCode(value, this.props.definition)}
         validation={this.state.validation}
         type={this.props.type}
         prefix={this.props.definition.prefix}
@@ -2270,10 +2277,10 @@ export class FormCodeNumberInput extends Component {
       this.setState({errorMessage: undefined});
       return;
     }
-    const errorMessages = strings;
-    let validationError: ?string;
-    eval(this.props.validation);
-    this.setState({errorMessage: validationError});
+    // const errorMessages = strings;
+    let validationError: ?string = this.props.validation;
+    // eval(this.props.validation); // This prop is not being passed from the parent component, So it will always be undefined
+    this.setState({errorMessage: validationError ?? ''});
   }
 
   commit(text: string | number) {

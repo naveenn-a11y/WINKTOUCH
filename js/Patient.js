@@ -5,18 +5,9 @@
 'use strict';
 
 import React, {Component} from 'react';
-import {
-  Image,
-  View,
-  Text,
-  TouchableOpacity,
-  LayoutAnimation,
-  Pressable,
-  ScrollView,
-  FlatList,
-} from 'react-native';
+import {Image, View, Text, TouchableOpacity, LayoutAnimation, Pressable, ScrollView, FlatList} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import { CommonActions } from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 import type {
   Patient,
   PatientInfo,
@@ -32,14 +23,7 @@ import {strings} from './Strings';
 import {FormRow, FormField, ErrorCard} from './Form';
 import {getCachedItem, getCachedItems} from './DataCache';
 import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
-import {
-  formatAge,
-  prefix,
-  isToday,
-  formatDate,
-  yearDateTimeFormat,
-  isEmpty,
-} from './Util';
+import {formatAge, prefix, isToday, formatDate, yearDateTimeFormat, isEmpty} from './Util';
 import {formatCode, getAllCodes} from './Codes';
 import {getStore} from './DoctorApp';
 import {PaperClip, Refresh} from './Favorites';
@@ -47,12 +31,7 @@ import {Pdf} from './Document';
 import {fetchUpload, getMimeType} from './Upload';
 import {PatientSearch} from './FindPatient';
 import {Button, NativeBar} from './Widgets';
-import {
-  fetchAppointments,
-  AppointmentSummary,
-  isAppointmentLocked,
-  pushToHarmony,
-} from './Appointment';
+import {fetchAppointments, AppointmentSummary, isAppointmentLocked, pushToHarmony} from './Appointment';
 import {loadDocuments} from './ImageField';
 import {printBase64Pdf} from './Print';
 import {Binoculars} from './Widgets';
@@ -60,13 +39,10 @@ import {ManageUsers} from './User';
 import {CustomModal as Modal} from './utilities/Modal';
 
 type Props = {
-  fieldId: string; // Assuming this prop exists for accessibility labels
-}
+  fieldId: string, // Assuming this prop exists for accessibility labels
+};
 
-export async function fetchPatientInfo(
-  patientId: string,
-  ignoreCache: ?boolean = false,
-): PatientInfo {
+export async function fetchPatientInfo(patientId: string, ignoreCache: ?boolean = false): PatientInfo {
   let patientInfo: PatientInfo = await fetchItemById(patientId, ignoreCache);
   return patientInfo;
 }
@@ -76,11 +52,7 @@ export async function storePatientInfo(patientInfo: PatientInfo): PatientInfo {
   return patientInfo;
 }
 
-export async function searchPatientDocuments(
-  patientId: string,
-  category: string,
-  showAllDocuments: boolean = false,
-) {
+export async function searchPatientDocuments(patientId: string, category: string, showAllDocuments: boolean = false) {
   const searchCriteria = {patientId, category, showAllDocuments};
   let restResponse = await searchItems('PatientDocument/list', searchCriteria);
   return restResponse;
@@ -95,9 +67,7 @@ export function getPatientFullName(patient: Patient | PatientInfo): string {
   if (patient === undefined || patient === null) {
     return;
   }
-  const alias: string = isEmpty(patient.alias)
-    ? ' '
-    : ' (' + patient.alias.trim() + ') ';
+  const alias: string = isEmpty(patient.alias) ? ' ' : ' (' + patient.alias.trim() + ') ';
   return patient.firstName.trim() + alias + patient.lastName.trim();
 }
 
@@ -143,10 +113,7 @@ export class PatientTags extends Component {
   }
 
   async refreshPatientTags() {
-    let patient: PatientInfo = await fetchPatientInfo(
-      this.props.patient.id,
-      true,
-    );
+    let patient: PatientInfo = await fetchPatientInfo(this.props.patient.id, true);
     this.setState({
       patientTags: getCachedItems(patient.patientTags),
     });
@@ -155,10 +122,7 @@ export class PatientTags extends Component {
     if (!this.props.patient) {
       return null;
     }
-    let genderShort: string = formatCode(
-      'genderCode',
-      this.props.patient.gender,
-    );
+    let genderShort: string = formatCode('genderCode', this.props.patient.gender);
     if (genderShort.length > 0) {
       genderShort = genderShort.substring(0, 1);
     }
@@ -169,7 +133,8 @@ export class PatientTags extends Component {
       return (
         <View style={styles.rowLayout}>
           <Text style={this.props.locked ? [styles.grayedText, styles.boldText] : [styles.text, styles.boldText]}>
-            {' '}({genderShort})
+            {' '}
+            ({genderShort})
           </Text>
         </View>
       );
@@ -177,15 +142,11 @@ export class PatientTags extends Component {
     return this.props.showDescription ? (
       <View style={styles.rowLayout}>
         {this.state.patientTags &&
-          this.state.patientTags.map(
-            (patientTag: PatientTag, index: number) => (
-              <Text
-                key={index}
-                style={this.props.locked ? styles.grayedText : styles.text}>
-                {patientTag && patientTag.name}{' '}
-              </Text>
-            ),
-          )}
+          this.state.patientTags.map((patientTag: PatientTag, index: number) => (
+            <Text key={index} style={this.props.locked ? styles.grayedText : styles.text}>
+              {patientTag && patientTag.name}{' '}
+            </Text>
+          ))}
       </View>
     ) : (
       <View style={styles.rowLayout}>
@@ -194,15 +155,12 @@ export class PatientTags extends Component {
           ({genderShort})
         </Text>
         {this.state.patientTags &&
-          this.state.patientTags.map(
-            (patientTag: PatientTag, index: number) => (
-              <Text
-                key={index}
-                style={this.props.locked ? styles.grayedText : styles.text}>
-                {' '}({patientTag && patientTag.letter})
-              </Text>
-            ),
-          )}
+          this.state.patientTags.map((patientTag: PatientTag, index: number) => (
+            <Text key={index} style={this.props.locked ? styles.grayedText : styles.text}>
+              {' '}
+              ({patientTag && patientTag.letter})
+            </Text>
+          ))}
       </View>
     );
   }
@@ -241,9 +199,7 @@ export class PatientCard extends Component {
         }
         testID="patientContact">
         <View style={this.props.style ? this.props.style : styles.paragraph}>
-          <Text style={styles.cardTitleLeft}>
-            {getPatientFullName(this.props.patientInfo)}
-          </Text>
+          <Text style={styles.cardTitleLeft}>{getPatientFullName(this.props.patientInfo)}</Text>
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
@@ -254,42 +210,32 @@ export class PatientCard extends Component {
                     : ` ${strings.ageF}`
                   : ''}
                 {this.props.patientInfo.dateOfBirth
-                  ? ' ' + formatAge(this.props.patientInfo.dateOfBirth) +
+                  ? ' ' +
+                    formatAge(this.props.patientInfo.dateOfBirth) +
                     '  (' +
                     this.props.patientInfo.dateOfBirth +
                     ')'
                   : ''}
-                {this.props.patientInfo.occupation && 
-                !isEmpty(this.props.patientInfo.occupation) &&
-                `, ${this.props.patientInfo.occupation}`}
+                {this.props.patientInfo.occupation &&
+                  !isEmpty(this.props.patientInfo.occupation) &&
+                  `, ${this.props.patientInfo.occupation}`}
               </Text>
-              <Text style={styles.text}>
-                z{stripDataType(this.props.patientInfo.id)}
-              </Text>
+              <Text style={styles.text}>z{stripDataType(this.props.patientInfo.id)}</Text>
               <Text style={styles.text}>
                 {prefix(this.props.patientInfo.medicalCard, '  ')}
                 {prefix(this.props.patientInfo.medicalCardVersion, '-')}
                 {prefix(this.props.patientInfo.medicalCardExp, '-')}
               </Text>
-              <PatientTags
-                patient={this.props.patientInfo}
-                showDescription={true}
-              />
+              <PatientTags patient={this.props.patientInfo} showDescription={true} />
             </View>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {this.props.patientInfo.cell
-                  ? this.props.patientInfo.cell + ' '
-                  : this.props.patientInfo.phone}
+                {this.props.patientInfo.cell ? this.props.patientInfo.cell + ' ' : this.props.patientInfo.phone}
               </Text>
               <Text style={styles.text}>
                 {this.props.patientInfo.streetNumber}{' '}
-                {this.props.patientInfo.streetName
-                  ? this.props.patientInfo.streetName + ','
-                  : ''}{' '}
-                {this.props.patientInfo.province}{' '}
-                {this.props.patientInfo.postalCode}{' '}
-                {this.props.patientInfo.city}
+                {this.props.patientInfo.streetName ? this.props.patientInfo.streetName + ',' : ''}{' '}
+                {this.props.patientInfo.province} {this.props.patientInfo.postalCode} {this.props.patientInfo.city}
               </Text>
               <Text style={styles.text}>{this.props.patientInfo.email}</Text>
             </View>
@@ -308,11 +254,7 @@ export class PatientTitle extends Component {
     if (!this.props.patientInfo) {
       return null;
     }
-    return (
-      <Text style={styles.screenTitle}>
-        {getPatientFullName(this.props.patientInfo)}
-      </Text>
-    );
+    return <Text style={styles.screenTitle}>{getPatientFullName(this.props.patientInfo)}</Text>;
   }
 }
 
@@ -476,10 +418,7 @@ export class PatientContact extends Component {
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
-            <Binoculars
-              style={styles.groupIcon}
-              onClick={this.props.findDoctor}
-            />
+            <Binoculars style={styles.groupIcon} onClick={this.props.findDoctor} />
           </FormRow>
           <FormRow>
             <FormField
@@ -535,46 +474,42 @@ export class PatientDocumentAttachments extends Component {
   }
 
   isConsentForm(document: PatientDocument) {
-    return document.name === 'Patient Consent Form'
+    return document.name === 'Patient Consent Form';
   }
 
   isIntakeForm(document: PatientDocument) {
-    return document.category === 'Intake Form'
+    return document.category === 'Intake Form';
   }
 
   isOtherForm(document: PatientDocument) {
-    return !this.isConsentForm(document) && !this.isIntakeForm(document)
+    return !this.isConsentForm(document) && !this.isIntakeForm(document);
   }
-  
+
   async loadPatientDocument() {
     const filterId: string = 'Patient Consent Form';
-    let allDocuments = await loadDocuments(
-      ' ',
-      this.props.patientInfo.id,
-      true,
-    )
+    let allDocuments = await loadDocuments(' ', this.props.patientInfo.id, true);
 
-    let allPatientDocuments = allDocuments.sort((a, b) => new Date(b.postedOn).getTime() - new Date(a.postedOn).getTime());
+    let allPatientDocuments = allDocuments.sort(
+      (a, b) => new Date(b.postedOn).getTime() - new Date(a.postedOn).getTime(),
+    );
 
     let consentDocuments = [];
-    let intakeDocuments = []
+    let intakeDocuments = [];
     let otherDocuments = [];
 
-    allPatientDocuments?.forEach(
-      (patientDocument: PatientDocument) => {
-        if (this.isConsentForm(patientDocument)) {
-          consentDocuments.push(patientDocument);
-        }
+    allPatientDocuments?.forEach((patientDocument: PatientDocument) => {
+      if (this.isConsentForm(patientDocument)) {
+        consentDocuments.push(patientDocument);
+      }
 
-        if (this.isIntakeForm(patientDocument)) {
-          intakeDocuments.push(patientDocument)
-        }
-        
-        if (this.isOtherForm(patientDocument)) {
-          otherDocuments.push(patientDocument);
-        }
-      } 
-    );
+      if (this.isIntakeForm(patientDocument)) {
+        intakeDocuments.push(patientDocument);
+      }
+
+      if (this.isOtherForm(patientDocument)) {
+        otherDocuments.push(patientDocument);
+      }
+    });
 
     // initialize only the first 5 documents to loadedContentDocuments and loadedOtherDocuments
     const loadedConsentDocuments = consentDocuments.slice(0, 5);
@@ -602,28 +537,16 @@ export class PatientDocumentAttachments extends Component {
     }
   }
 
-  renderDocumentItem = ({ item }: { item: PatientDocument }) => (
+  renderDocumentItem = ({item}: {item: PatientDocument}) => (
     <View style={styles.attachment} key={item.id}>
       <FormRow>
         {item.uploadId && (
-          <TouchableOpacity
-            onPress={() => this.getUpload(item)}
-            testID={this.props.fieldId + '.paperclipIcon'}>
+          <TouchableOpacity onPress={() => this.getUpload(item)} testID={this.props.fieldId + '.paperclipIcon'}>
+            <Text style={styles.textLeft}>{patientDocument.name} </Text>
             <Text style={styles.textLeft}>
-              {patientDocument.name}{' '}
+              {strings.lastUpdateOn}:{formatDate(item.postedOn, yearDateTimeFormat)}
             </Text>
-            <Text style={styles.textLeft}>
-              {strings.lastUpdateOn}:
-              {formatDate(
-                item.postedOn,
-                yearDateTimeFormat,
-              )}
-            </Text>
-            <PaperClip
-              style={styles.textIcon}
-              color="black"
-              key="paperclip"
-            />
+            <PaperClip style={styles.textIcon} color="black" key="paperclip" />
           </TouchableOpacity>
         )}
       </FormRow>
@@ -635,11 +558,7 @@ export class PatientDocumentAttachments extends Component {
   renderDocumentList = (groupLabel: String, documentList: PatientDocument[], loadedDocumentList: PatientDocument[]) => (
     <View style={styles.tabCard}>
       <Text style={styles.cardTitle}>{groupLabel}</Text>
-      <FlatList
-        data={loadedDocumentList}
-        renderItem={this.renderDocumentItem}
-        keyExtractor={this.keyExtractor}
-      />
+      <FlatList data={loadedDocumentList} renderItem={this.renderDocumentItem} keyExtractor={this.keyExtractor} />
       {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
     </View>
   );
@@ -647,25 +566,19 @@ export class PatientDocumentAttachments extends Component {
   renderDocumentList = (groupLabel: String, documentList: PatientDocument[], loadedDocumentList: PatientDocument[]) => (
     <View style={styles.tabCard}>
       <Text style={styles.cardTitle}>{groupLabel}</Text>
-      <FlatList
-        data={loadedDocumentList}
-        renderItem={this.renderDocumentItem}
-        keyExtractor={this.keyExtractor}
-      />
+      <FlatList data={loadedDocumentList} renderItem={this.renderDocumentItem} keyExtractor={this.keyExtractor} />
       {this.renderLoadMoreLink(groupLabel, documentList, loadedDocumentList)}
     </View>
   );
 
-  renderDocumentItem = ({ item }: { item: PatientDocument }) => (
+  renderDocumentItem = ({item}: {item: PatientDocument}) => (
     <View style={styles.attachment} key={item.id}>
       <FormRow>
         {item.uploadId && (
           <TouchableOpacity
             onPress={() => this.getUpload(item)}
             accessibilityLabel={this.props.fieldId + '.paperclipIcon'}>
-            <Text style={styles.textLeft}>
-              {item.name}{' '}
-            </Text>
+            <Text style={styles.textLeft}>{item.name} </Text>
             <Text style={styles.textLeft}>
               Last update on:
               {formatDate(item.postedOn, 'YYYY-MM-DD HH:mm')} {/* Assuming you have a specific format */}
@@ -677,40 +590,43 @@ export class PatientDocumentAttachments extends Component {
     </View>
   );
 
-  renderLoadMoreLink = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
-    if (documentList.length <= 5) return null
+  renderLoadMoreLink = (groupLabel: String, documentList: PatientDocument[], loadedDocumentList: PatientDocument[]) => {
+    if (documentList.length <= 5) {
+      return null;
+    }
 
-    if (documentList.length === loadedDocumentList.length) return null
+    if (documentList.length === loadedDocumentList.length) {
+      return null;
+    }
 
     return (
       <View>
-        <Pressable style={styles.loadMoreContainer} onPress={() => this.loadMoreDocuments(groupLabel, documentList, loadedDocumentList)}>
+        <Pressable
+          style={styles.loadMoreContainer}
+          onPress={() => this.loadMoreDocuments(groupLabel, documentList, loadedDocumentList)}>
           <Text style={styles.loadMoreText}>{strings.loadMore}</Text>
         </Pressable>
       </View>
-    )
-  }
+    );
+  };
 
-  loadMoreDocuments = (groupLabel: String, documentList : PatientDocument[], loadedDocumentList: PatientDocument[]) => {
+  loadMoreDocuments = (groupLabel: String, documentList: PatientDocument[], loadedDocumentList: PatientDocument[]) => {
     const remainingDocuments = documentList.slice(loadedDocumentList.length, loadedDocumentList.length + 5);
     const newLoadedDocumentList = [...loadedDocumentList, ...remainingDocuments];
 
-   if (groupLabel === strings.consentForms) {
-      this.setState({ loadedConsentDocuments: newLoadedDocumentList });
-   }
-   if (groupLabel === strings.intakeForms) {
-      this.setState({ loadedIntakeDocuments: newLoadedDocumentList });
-   }
-   if (groupLabel === strings.otherForms) {
-      this.setState({ loadedOtherDocuments: newLoadedDocumentList });
-   }
-  }
+    if (groupLabel === strings.consentForms) {
+      this.setState({loadedConsentDocuments: newLoadedDocumentList});
+    }
+    if (groupLabel === strings.intakeForms) {
+      this.setState({loadedIntakeDocuments: newLoadedDocumentList});
+    }
+    if (groupLabel === strings.otherForms) {
+      this.setState({loadedOtherDocuments: newLoadedDocumentList});
+    }
+  };
 
   render() {
-    if (
-      this.state.allPatientDocuments === undefined ||
-      this.state.allPatientDocuments.length < 1
-    ) {
+    if (this.state.allPatientDocuments === undefined || this.state.allPatientDocuments.length < 1) {
       return null;
     }
     return (
@@ -771,24 +687,15 @@ export class PatientDocumentPage extends Component {
     }
     if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64') {
       return (
-        <ScrollView
-          style={styles.patientDocument}
-          maximumZoomScale={2}
-          minimumZoomScale={0.5}>
-          <Image
-            source={{uri: `data:${mimeType},${this.state.upload.data}`}}
-            style={styles.patientDocument}
-          />
+        <ScrollView style={styles.patientDocument} maximumZoomScale={2} minimumZoomScale={0.5}>
+          <Image source={{uri: `data:${mimeType},${this.state.upload.data}`}} style={styles.patientDocument} />
         </ScrollView>
       );
     }
     return (
       <View style={styles.errorCard}>
         <Text style={styles.cardTitle}>
-          {strings.formatString(
-            strings.unsupportedDocumentError,
-            this.state.upload.name,
-          )}
+          {strings.formatString(strings.unsupportedDocumentError, this.state.upload.name)}
         </Text>
       </View>
     );
@@ -817,9 +724,7 @@ export class PatientScreen extends Component {
     let params = this.props.route.params;
     const isDirty: boolean = params.patientInfo.errors;
     this.state = {
-      patientInfo: isDirty
-        ? params.patientInfo
-        : getCachedItem(params.patientInfo.id),
+      patientInfo: isDirty ? params.patientInfo : getCachedItem(params.patientInfo.id),
       isDirty,
       isPopupVisibile: false,
       pushToHarmonyLoading: false,
@@ -838,9 +743,7 @@ export class PatientScreen extends Component {
   }
 
   async asyncComponentWillUnmount() {
-    let patientInfo: RestResponse = await storePatientInfo(
-      this.state.patientInfo,
-    );
+    let patientInfo: RestResponse = await storePatientInfo(this.state.patientInfo);
     if (patientInfo.errors) {
       this.props.navigation.navigate('patient', {patientInfo: patientInfo});
     } else if (this.props.route.params.refreshStateKey) {
@@ -853,10 +756,7 @@ export class PatientScreen extends Component {
   }
 
   async refreshPatientInfo() {
-    const patientInfo: PatientInfo = await fetchPatientInfo(
-      this.props.route.params.patientInfo.id,
-      this.state.isDirty,
-    );
+    const patientInfo: PatientInfo = await fetchPatientInfo(this.props.route.params.patientInfo.id, this.state.isDirty);
     this.setState({patientInfo, isDirty: false});
   }
 
@@ -936,12 +836,7 @@ export class PatientScreen extends Component {
   };
 
   renderSnackBar() {
-    return (
-      <NativeBar
-        message={this.state.snackBarMessage}
-        onDismissAction={() => this.hideSnackBar()}
-      />
-    );
+    return <NativeBar message={this.state.snackBarMessage} onDismissAction={() => this.hideSnackBar()} />;
   }
 
   render() {
@@ -1018,9 +913,7 @@ export class CabinetScreen extends Component {
     }
   }
   updateAppointments() {
-    const appointments: Appointment[] = getCachedItems(
-      this.state.appointments.map((app) => app.id),
-    );
+    const appointments: Appointment[] = getCachedItems(this.state.appointments.map((app) => app.id));
     this.setState({appointments});
   }
 
@@ -1032,10 +925,7 @@ export class CabinetScreen extends Component {
       !isWeb && LayoutAnimation.easeInEaseOut();
       this.setState({patientInfo: undefined, appointments: undefined});
       return;
-    } else if (
-      this.state.patientInfo &&
-      this.state.patientInfo.id === patient.id
-    ) {
+    } else if (this.state.patientInfo && this.state.patientInfo.id === patient.id) {
       if (this.props.isBookingAppointment) {
         this.props.onSelectPatient(patient);
       } else {
@@ -1050,23 +940,12 @@ export class CabinetScreen extends Component {
     !isWeb && LayoutAnimation.easeInEaseOut();
     this.setState({patientInfo, appointments: undefined});
     patientInfo = await fetchPatientInfo(patient.id);
-    if (
-      this.state.patientInfo === undefined ||
-      patient.id !== this.state.patientInfo.id
-    ) {
+    if (this.state.patientInfo === undefined || patient.id !== this.state.patientInfo.id) {
       return;
     }
     this.setState({patientInfo});
-    let appointments: ?(Appointment[]) = await fetchAppointments(
-      undefined,
-      undefined,
-      1,
-      patientInfo.id,
-    );
-    if (
-      this.state.patientInfo === undefined ||
-      patient.id !== this.state.patientInfo.id
-    ) {
+    let appointments: ?(Appointment[]) = await fetchAppointments(undefined, undefined, 1, patientInfo.id);
+    if (this.state.patientInfo === undefined || patient.id !== this.state.patientInfo.id) {
       return;
     }
     !isWeb && LayoutAnimation.easeInEaseOut();
@@ -1076,17 +955,13 @@ export class CabinetScreen extends Component {
   hasAppointment(): boolean {
     let todaysAppointments: Appointment[] = [];
     if (!this.state.appointments && this.state.patientInfo) {
-      const appointments: Appointment[] = getCachedItem(
-        'appointmentsHistory-' + this.state.patientInfo.id,
-      );
+      const appointments: Appointment[] = getCachedItem('appointmentsHistory-' + this.state.patientInfo.id);
       todaysAppointments = appointments;
     } else if (this.state.appointments && this.state.appointments.length > 0) {
       todaysAppointments = this.state.appointments;
     }
     if (todaysAppointments) {
-      todaysAppointments = todaysAppointments.filter(
-        (appointment: Appointment) => isToday(appointment.start),
-      );
+      todaysAppointments = todaysAppointments.filter((appointment: Appointment) => isToday(appointment.start));
       return todaysAppointments && todaysAppointments.length > 0;
     }
 
@@ -1149,18 +1024,14 @@ export class CabinetScreen extends Component {
     }
     return (
       <ScrollView style={styles.appointments}>
-        {this.state.appointments.map(
-          (appointment: Appointment, index: number) => (
-            <AppointmentSummary
-              key={index}
-              appointment={appointment}
-              locked={isAppointmentLocked(appointment)}
-              onPress={() =>
-                this.props.navigation.navigate('appointment', {appointment})
-              }
-            />
-          ),
-        )}
+        {this.state.appointments.map((appointment: Appointment, index: number) => (
+          <AppointmentSummary
+            key={index}
+            appointment={appointment}
+            locked={isAppointmentLocked(appointment)}
+            onPress={() => this.props.navigation.navigate('appointment', {appointment})}
+          />
+        ))}
       </ScrollView>
     );
   }
@@ -1174,11 +1045,7 @@ export class CabinetScreen extends Component {
           findDoctor={this.renderSearchDoctorModal}
         />
         <View style={styles.centeredRowLayout}>
-          <Button
-            title={strings.createPatient}
-            onPress={() => this.createPatient()}
-            testID="createPatientButton"
-          />
+          <Button title={strings.createPatient} onPress={() => this.createPatient()} testID="createPatientButton" />
         </View>
         {this.state.isPopupVisibile && (
           <Modal
@@ -1206,15 +1073,11 @@ export class CabinetScreen extends Component {
           style={styles.tabCardS}
           hasAppointment={this.hasAppointment()}
           isBookingAppointment={this.props.isBookingAppointment}
-          onSelectPatient={(patient: Patient | PatientInfo) =>
-            this.props.onSelectPatient(patient)
-          }
+          onSelectPatient={(patient: Patient | PatientInfo) => this.props.onSelectPatient(patient)}
         />
         <View style={styles.checkButtonLayout}>
           <Button
-            title={
-              this.props.isBookingAppointment ? strings.select : strings.open
-            }
+            title={this.props.isBookingAppointment ? strings.select : strings.open}
             onPress={() => {
               this.props.isBookingAppointment
                 ? this.props.onSelectPatient(this.state.patientInfo)
