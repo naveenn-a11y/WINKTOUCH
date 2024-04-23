@@ -1794,11 +1794,7 @@ export class ListField extends Component {
   }
 
   render() {
-    let style = this.props.style
-      ? this.props.style
-      : this.state.isActive
-      ? styles.inputFieldActive
-      : styles.inputField;
+    let style = this.props.style || (this.state.isActive ? styles.inputFieldActive : styles.inputField);
     if (this.props.width) {
       style = [{width: this.props.width}, style];
     }
@@ -1811,6 +1807,7 @@ export class ListField extends Component {
             : styles.fieldFlexContainer
         }>
         <TouchableOpacity
+          testID={this.props.testID}
           style={
             this.props.containerStyle
               ? this.props.containerStyle
