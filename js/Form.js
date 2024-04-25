@@ -141,7 +141,7 @@ export class FormTextInput extends Component {
   validate(value: string) {
     if (!this.props.validation) {
       // Checking Validation (calling generateValidationCode) will return error messages
-      if (!value || (value.trim && value.trim().length === 0)) { // Check if value is empty
+      if (!value || (value?.trim()?.length === 0)) { // Check if value is empty
         if (this.props.required) {
           this.setState({errorMessage: strings.requiredError});
         } else {
@@ -286,7 +286,7 @@ export class FormTextInput extends Component {
                 onBlur={(event) => this.commit(event.nativeEvent.text)}
                 editable={this.props.readonly !== true}
                 multiline={this.props.multiline === true}
-                //maxLength={this.props.maxLength}
+                maxLength={this.props.maxLength}
                 numberOfLines={this.props.maxRows}
                 onTextLayout={this.handleTextLayout}
                 testID={this.props.testID + 'Field'}
@@ -443,7 +443,7 @@ export class FormNumberInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    // eval(this.props.validation); // This prop is not being passed from the parent component, So it will always be undefined
+
     this.setState({errorMessage: validationError});
   }
 
@@ -2228,9 +2228,9 @@ export class FormCodeNumberInput extends Component {
       this.setState({errorMessage: undefined});
       return;
     }
-    // const errorMessages = strings;
+
     let validationError: ?string = this.props.validation;
-    // eval(this.props.validation); // This prop is not being passed from the parent component, So it will always be undefined
+    
     this.setState({errorMessage: validationError ?? ''});
   }
 
