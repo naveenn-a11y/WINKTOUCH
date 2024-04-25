@@ -71,7 +71,7 @@ async function setAccount(selectedAccount: Account) {
     const accountId: number = await AsyncStorage.getItem('accountId');
     accountChanged = accountId != selectedAccountId;
     if (accountChanged) {
-      await AsyncStorage.setItem('accountId', selectedAccountId.toString());
+      await AsyncStorage.setItem('accountId', selectedAccountId?.toString());
     }
   }
   if (accountChanged) {
