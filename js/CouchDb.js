@@ -6,14 +6,13 @@
 import base64 from 'base-64';
 import {createDemoData} from './DemoData';
 import {cacheItem} from './DataCache';
+import { generateRandomGUID } from './Helper/GenerateRandomId';
 
 export const restUrl: string = 'http://192.168.2.44:5984/ehr/';
 
-let idCounter: number = Math.round(Math.random() * 1236878991214);
-
 function newId(): string {
   //https://wiki.apache.org/couchdb/HttpGetUuids
-  const newId: string = String(++idCounter);
+  const newId: string = generateRandomGUID();
   return newId;
 }
 
@@ -42,7 +41,6 @@ function cacheDocument(doc: any) {
   if (!doc || !doc._id) {
     return;
   }
-  cacheItem(doc._id, doc);
 }
 
 export async function fetchDocument(documentId: string) {
@@ -116,9 +114,8 @@ export async function fetchViewDocuments(
     let responseJson = await response.json();
     let documents: [] = [];
     let rows: [] = responseJson.rows;
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const doc = row.doc;
+    for (const element of rows) {
+      const doc = element.doc;
       if (row.id == doc._id) {
         documents.push(doc);
       }
@@ -173,7 +170,7 @@ async function deleteEhrDatabase() {
       },
     });
     let json = await response.json();
-    //todo check if suckseeded
+    // todo check if suckseeded
   } catch (error) {
     console.log(error);
     alert('Something went wrong deleting the ehr database: ' + error);
@@ -260,7 +257,6 @@ async function createViews() {
 }
 
 export async function recreateDatabase() {
-  idCounter = 0;
   await deleteEhrDatabase();
   await createEhrDatabase();
   await createViews();
