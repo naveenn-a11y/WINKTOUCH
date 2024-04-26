@@ -38,8 +38,8 @@ function encodeKey(key: string | string[]): string {
 }
 
 function cacheDocument(doc: any) {
-  if (doc && doc._id !== undefined) {
-    cacheItem(doc._id, doc);
+  if (!doc || !doc._id) {
+    return;
   }
 }
 
