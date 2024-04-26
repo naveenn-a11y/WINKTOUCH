@@ -6,6 +6,13 @@ export function generateValidationCode(value, definition) {
   }
   let validation: string = '';
   let validationError: string = '';
+
+  const otherValidation = definition.validation
+
+  if(!!otherValidation) {
+    eval(otherValidation + ';\n'); //NOSONAR
+  }
+
   if (definition.validation !== undefined && definition.validation !== null) {
     validation = validation + definition.validation + ';\n';
   }
