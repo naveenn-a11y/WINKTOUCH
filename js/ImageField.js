@@ -3,55 +3,53 @@
  */
 'use strict';
 
-import type {PatientDocument, ImageDrawing, PatientInfo} from './Types';
+import type { ImageDrawing, PatientDocument, PatientInfo } from './Types';
 
-import React, {Component} from 'react';
-import ReactNative, {
-  View,
-  Text,
+import RNBeep from '@dashdoc/react-native-system-sounds';
+import { curveBasis, line } from 'd3-shape';
+import * as htmlToImage from 'html-to-image';
+import { Component } from 'react';
+import {
   Image,
+  NativeModules,
   ScrollView,
+  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  NativeModules,
+  View,
 } from 'react-native';
-import mailer from 'react-native-mail';
-import {Svg, Path, Polyline, Circle} from 'react-native-svg';
-import RNBeep from '@dashdoc/react-native-system-sounds';
-import {line, curveBasis} from 'd3-shape';
-import simplify from 'simplify-js';
-import ViewShot from 'react-native-view-shot';
-import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import RNFS from 'react-native-fs';
+import mailer from 'react-native-mail';
+import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
+import { Circle, Path, Polyline, Svg } from 'react-native-svg';
+import ViewShot from 'react-native-view-shot';
+import simplify from 'simplify-js';
+import { PdfViewer } from '../src/components/PdfViewer';
+import { getCachedItem } from './DataCache';
+import { getDoctor } from './DoctorApp';
+import { DocumentScanner } from './DocumentScanner';
+import { getVisit } from './Exam';
+import { Camera, Garbage, Mail, PaperClip, Pencil, Printer, Undo } from './Favorites';
+import { searchPatientDocuments, storePatientDocument } from './Patient';
+import { strings } from './Strings';
 import {
-  styles,
   fontScale,
   imageStyle,
-  printWidth,
   isWeb,
-  widthPercentageToDP, 
+  printWidth,
+  styles,
+  widthPercentageToDP,
 } from './Styles';
-import {strings} from './Strings';
-import {getDoctor} from './DoctorApp';
+import { fetchUpload, getAspectRatio, getMimeType, storeUpload } from './Upload';
 import {
   formatDate,
-  now,
-  yearDateFormat,
-  jsonDateTimeFormat,
-  replaceFileExtension,
   isEmpty,
+  now,
+  replaceFileExtension,
+  yearDateFormat
 } from './Util';
-import {Camera, PaperClip, Undo, Pencil, Printer, Mail, Garbage} from './Favorites';
-import {DocumentScanner} from './DocumentScanner';
-import {fetchUpload, getMimeType, getAspectRatio} from './Upload';
-import {getCachedItem} from './DataCache';
-import {searchPatientDocuments, storePatientDocument} from './Patient';
-import {ClearTile, UpdateTile, RefreshTile} from './Widgets';
-import {storeUpload} from './Upload';
-import {getVisit} from './Exam';
-import {PdfViewer} from '../src/components/PdfViewer';
-import * as htmlToImage from 'html-to-image';
-import {CustomModal as Modal} from './utilities/Modal';
+import { CustomModal as Modal } from './utilities/Modal';
+import { ClearTile, RefreshTile, UpdateTile } from './Widgets';
 
 export async function loadDocuments(
   type: string,

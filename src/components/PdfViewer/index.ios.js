@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import { Component } from 'react';
 import NativePdf from 'react-native-pdf';
 
 type PdfViewerProps = {
