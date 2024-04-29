@@ -9,12 +9,11 @@ import {
   ModalProps,
 } from 'react-native';
 import NavigationService from "../utilities/NavigationService.js";
-import { generateRandomGUID } from '../Helper/GenerateRandomId.js';
 
 export class CustomModal extends Component<ModalProps> {
 
     state = {
-        id: generateRandomGUID()
+        id: Math.floor(Math.random() * Math.floor(Math.random() * Date.now()))
     }
 
     componentDidMount() {
