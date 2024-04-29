@@ -3,14 +3,13 @@
  */
  'use strict';
 
-import React, { useEffect, useMemo } from 'react';
+import React, {Component, useEffect, useState} from 'react';
 
 import {Dialog} from 'react-native-paper';
 import NavigationService from "../utilities/NavigationService.js";
-import { generateRandomGUID } from '../Helper/GenerateRandomId.js';
 
 const CustomDialog = ({ children, style, ...props }: React.PropsWithChildren<T>) => {
-    const id = useMemo(() => generateRandomGUID(), [])
+    const [id, setId] = useState(Math.floor(Math.random() * Math.floor(Math.random() * Date.now())));
 
     useEffect(() => {
         props.visible && NavigationService.setModalVisibility(props.visible, id);
