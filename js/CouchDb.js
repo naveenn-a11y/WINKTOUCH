@@ -8,7 +8,7 @@ import {createDemoData} from './DemoData';
 import {cacheItem} from './DataCache';
 import { generateRandomGUID } from './Helper/GenerateRandomId';
 
-export const restUrl: string = 'http://192.168.2.44:5984/ehr/';
+export const restUrl: string = 'https://192.168.2.44:5984/ehr/';
 
 function newId(): string {
   //https://wiki.apache.org/couchdb/HttpGetUuids
