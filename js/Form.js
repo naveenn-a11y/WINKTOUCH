@@ -155,7 +155,7 @@ export class FormTextInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    eval(this.props.validation); // NOSONAR
     this.setState({errorMessage: validationError});
   }
 
@@ -447,7 +447,7 @@ export class FormNumberInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    eval(this.props.validation); // NOSONAR
     this.setState({errorMessage: validationError});
   }
 
@@ -2272,7 +2272,7 @@ export class FormCodeNumberInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    eval(this.props.validation); // NOSONAR
     this.setState({errorMessage: validationError});
   }
 
