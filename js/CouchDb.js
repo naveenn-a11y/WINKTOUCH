@@ -6,14 +6,13 @@
 import base64 from 'base-64';
 import {createDemoData} from './DemoData';
 import {cacheItem} from './DataCache';
+import { generateRandomGUID } from './Helper/GenerateRandomId'
 
 export const restUrl: string = 'http://192.168.2.44:5984/ehr/';
 
-let idCounter: number = Math.round(Math.random() * 1236878991214);
-
 function newId(): string {
   //https://wiki.apache.org/couchdb/HttpGetUuids
-  const newId: string = String(++idCounter);
+  const newId: string = generateRandomGUID()
   return newId;
 }
 

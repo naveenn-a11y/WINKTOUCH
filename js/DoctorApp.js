@@ -53,6 +53,7 @@ import { fetchVisitTypes } from './Visit';
 import { VisitTypeTemplateScreen } from './VisitType';
 import createDoctorAppNavigator from './utilities/CustomStack';
 import NavigationService from './utilities/NavigationService';
+import { generateRandomGUID } from './Helper/GenerateRandomId';
 
 let account: Account;
 let doctor: User;
@@ -120,7 +121,7 @@ const theme = {
 
 const NavContainer = ({ logout, setNavigator, navigationStateChanged }) => {
   const StackNavigator = createDoctorAppNavigator();
-  const refreshKey = Math.round(Math.random() * 1236878991214)
+  const refreshKey = generateRandomGUID()
   
   return (
     <NavigationContainer 
