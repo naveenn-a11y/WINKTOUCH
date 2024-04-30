@@ -305,7 +305,7 @@ export class EhrApp extends Component {
   }
 
   async checkForAppUpdates() {
-    if (isWeb || !this.state.isLoggedOn || this.state.isLocked) { return; }
+    if (__DEV__ || isWeb || !this.state.isLoggedOn || this.state.isLocked) { return; }
     
     await this.checkWinkTouchVersionChanges(this.state.registration);
     const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();

@@ -3,12 +3,12 @@
  */
 
 'use strict';
-import React, {Component} from 'react';
-import {PdfViewer} from '../src/components/PdfViewer';
-import type {Upload} from './Types';
-import {styles} from './Styles';
-import {getCachedItem} from './DataCache';
-import {fetchUpload} from './Upload';
+import { Component } from 'react';
+import { PdfViewer } from '../src/components/PdfViewer';
+import { getCachedItem } from './DataCache';
+import { styles } from './Styles';
+import type { Upload } from './Types';
+import { fetchUpload } from './Upload';
 
 export class Pdf extends Component {
   props: {
