@@ -106,11 +106,11 @@ export class ExamChartScreen extends Component {
     //let definition = examHistory[0].definition;
     //fieldTree.forEach(fieldName => {if (definition!==undefined) definition = definition[fieldName]}); TODO
     let series: number[] = [];
-    examHistory.map((exam: Exam) => {
+    examHistory?.forEach((exam: Exam) => {
       let data = exam
-        ? exam[this.props.route.params.exam.definition.name]
+        ? exam?.[this.props.route.params?.exam?.definition?.name]
         : undefined;
-      fieldTree.forEach((fieldName) => {
+      fieldTree?.forEach((fieldName) => {
         if (data !== undefined) {
           if (data instanceof Array) {
             if (data.length > 0) {

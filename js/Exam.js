@@ -1161,7 +1161,7 @@ export class ExamScreen extends Component {
     const autoRefractor = getAutoRefractor(this.state.exam.visitId);
 
     if (autoRefractor !== undefined && autoRefractor.length > 0) {
-      autoRefractor.map((prescription: GlassesRx, index: number) => {
+      autoRefractor.forEach((prescription: GlassesRx, index: number) => {
         exportRxOptions.push({
           label: strings.autoRefractor + ' ' + (index + 1),
           isChecked: index === 0,
@@ -1173,7 +1173,7 @@ export class ExamScreen extends Component {
       });
     }
     if (lensometry !== undefined && lensometry.length > 0) {
-      lensometry.map((prescription: GlassesRx, index: number) => {
+      lensometry.forEach((prescription: GlassesRx, index: number) => {
         if (!isEmpty(prescription.lensType)) {
           exportRxOptions.push({
             label: strings.lensometry + ': ' + prescription.lensType,

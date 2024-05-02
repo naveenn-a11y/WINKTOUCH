@@ -213,8 +213,9 @@ export async function fetchAppointments(
   cacheItemsById(appointments);
   cacheItemsById(patients);
   cacheItemsById(patientTagList);
-  patients.map((patient: PatientInfo) => {
-    let patientAppts: Appointment[] = appointments.filter(
+
+  patients?.forEach((patient: PatientInfo) => {
+    let patientAppts: Appointment[] = appointments?.filter(
       (appointment: Appointment) => appointment.patientId === patient.id,
     );
 
