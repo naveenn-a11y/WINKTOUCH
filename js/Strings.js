@@ -23,7 +23,7 @@ export const strings = new LocalizedStrings({
     submitSecurityAnswer: 'Send',
     unRegisteredEmail: 'This email address was not registered before with Wink',
     userName: 'User name',
-    password: 'password',
+    password: 'password', // NOSONAR
     enterCode: 'Enter Code',
     submitLogin: 'Login',
     verifyCode: 'Verify',
@@ -453,7 +453,7 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail:
       "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
     userName: "Nom d'utilisateur",
-    password: 'Mot de passe',
+    password: 'Mot de passe', // NOSONAR
     enterCode: 'Entrez le code',
     submitLogin: 'Ouvrir la session',
     verifyCode: 'Vérifier',
@@ -893,7 +893,7 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail:
       'Esta dirección de correo electrónico no se registró antes con Wink',
     userName: 'Nombre de usuario',
-    password: 'contraseña',
+    password: 'contraseña', // NOSONAR
     enterCode: 'Ingresar código',
     submitLogin: 'Iniciar sesión',
     verifyCode: 'Verificar',
