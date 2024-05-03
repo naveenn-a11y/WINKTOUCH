@@ -1896,7 +1896,7 @@ export class FormInput extends Component {
           forceSync={this.props.definition.forceSync}
           testID={this.props.testID}>
           {this.props.definition.fields &&
-            this.props.definition.fields.map(
+            this.props.definition?.fields.map(
               (groupDefinition: GroupDefinition, index: number) => (
                 <GroupedForm
                   key={groupDefinition.name}
@@ -2311,21 +2311,21 @@ export class FormCodeNumberInput extends Component {
     const filteredRanges: [] = [];
     let arrRanges: [] = [];
 
-    if (this.props.rangeFilter) {
-      options.map((codeDefinition: CodeDefinition) => {
-        codeDefinition.ranges.map((element: any) => {
+    if (this.props?.rangeFilter) {
+      options?.forEach((codeDefinition: CodeDefinition) => {
+        codeDefinition?.ranges?.forEach((element: any) => {
           if (passesRangeFilter(element, this.props.rangeFilter)) {
             filteredRanges.push(element);
           }
         });
       });
-      filteredRanges.map((element: any) => {
+      filteredRanges?.forEach((element: any) => {
         arrRanges.push(element[key]);
       });
     } else {
-      options.map((code: CodeDefinition) => {
+      options?.forEach((code: CodeDefinition) => {
         code.ranges &&
-          code.ranges.map((element: any) => {
+          code.ranges?.forEach((element: any) => {
             if (element[key]) {
               arrRanges.push(element[key]);
             }
@@ -2335,15 +2335,15 @@ export class FormCodeNumberInput extends Component {
 
     let numRanges: number[] = [];
     const uniqueRanges = new Set();
-    arrRanges.map((element: any) => {
+    arrRanges?.forEach((element: any) => {
       if (element && !element.isValueZero) {
         numRanges = numRanges.concat(
           getRanges(element.minValue, element.maxValue, element.stepSize),
         );
       }
     });
-    if (numRanges.length > 0) {
-      numRanges.map((n: number) => {
+    if (numRanges?.length > 0) {
+      numRanges?.forEach((n: number) => {
         if (!uniqueRanges.has(n)) {
           uniqueRanges.add(n);
         }
@@ -2408,7 +2408,7 @@ export class ErrorCard extends Component {
             ? strings.errorsTitle
             : strings.errorTitle}
         </Text>
-        {this.props.errors.map((error: string, index: number) => (
+        {this.props.errors?.map((error: string, index: number) => (
           <Text style={styles.text} key={index}>
             {error}
           </Text>
