@@ -853,7 +853,7 @@ export class ItemsList extends Component {
   };
 
   allNormal(): void {
-    this.props.fieldDefinitions.map(
+    this.props.fieldDefinitions?.forEach(
       (fieldDefinition: FieldDefinition, index: number) => {
         if (fieldDefinition.normalValue) {
           if (fieldDefinition.multiValue) {
@@ -872,7 +872,7 @@ export class ItemsList extends Component {
   }
 
   othersNormal(): void {
-    this.props.fieldDefinitions.map(
+    this.props.fieldDefinitions?.forEach(
       (fieldDefinition: FieldDefinition, index: number) => {
         const propertyName: string = fieldDefinition.name;
         if (
