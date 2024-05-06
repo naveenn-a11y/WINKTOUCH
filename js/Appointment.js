@@ -96,7 +96,6 @@ import {
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
-import {storeDocument} from './CouchDb';
 import Dialog from './utilities/Dialog';
 
 const PRIVILEGE = {
@@ -1546,25 +1545,6 @@ export class AppointmentScreen extends Component {
       this.state.appointment ||
       this.props.route.params.hasAppointment
     );
-  }
-
-  async storeAppointment(appointment: ?Appointment) {
-    if (!appointment) {
-      return;
-    }
-    try {
-      appointment = await storeDocument(appointment);
-      if (!this.unmounted) {
-        this.setState({appointment});
-      }
-    } catch (error) {
-      if (this.unmounted) {
-        let params = this.props.route.params;
-        this.props.navigation.navigate('appointment', params.appointment);
-      } else {
-        this.refreshAppointment();
-      }
-    }
   }
 
   async refreshVisitHistory() {

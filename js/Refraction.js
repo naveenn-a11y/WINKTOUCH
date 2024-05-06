@@ -1476,7 +1476,7 @@ export class GlassesDetail extends Component {
               machineDefinition.ip +
               ' in the http 80 butt',
           );
-        await fetch('https://' + machineDefinition.ip + ':80/m');
+        await fetch('http://' + machineDefinition.ip + ':80/m'); // NOSONAR
       }
     }
   }
