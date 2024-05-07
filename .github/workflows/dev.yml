@@ -47,3 +47,14 @@ jobs:
       - name: logout
         run: |
           az logout
+
+  run-sanity-tests:
+    needs: [build-and-deploy]
+    runs-on: [self-hosted]
+    steps:
+      - name: Sanity Tests
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          repository: cmokbel/E2E-Wink-Automation
+          event-type: winktouch-sanity-check

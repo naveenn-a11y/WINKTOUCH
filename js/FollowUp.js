@@ -412,8 +412,8 @@ export class FollowUpScreen extends Component<
           const allFollowUp = this.filterFollowUp(response.followUp);
           const combinedFollowUps = this.state.allFollowUp;
 
-          allFollowUp.map((value) => {
-            if (combinedFollowUps.find((item) => item.id === value.id)) {
+          allFollowUp?.forEach((value) => {
+            if (combinedFollowUps?.find((item) => item.id === value.id)) {
               //found duplicates
             } else {
               combinedFollowUps.push(value);
@@ -1415,7 +1415,7 @@ export class TableList extends React.PureComponent {
       return;
     }
     let data: any[] = [...this.props.items];
-    data.map((followUp: FollowUp, index: number) => {
+    data?.forEach((followUp: FollowUp, index: number) => {
       followUp.ref = followUp.ref.trim();
       followUp.isParent = false;
     });

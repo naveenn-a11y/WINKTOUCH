@@ -53,7 +53,7 @@ import { fetchVisitTypes } from './Visit';
 import { VisitTypeTemplateScreen } from './VisitType';
 import createDoctorAppNavigator from './utilities/CustomStack';
 import NavigationService from './utilities/NavigationService';
-import PropTypes from 'prop-types'
+import { generateRandomGUID } from './Helper/GenerateRandomId';
 
 let account: Account;
 let doctor: User;
@@ -66,12 +66,12 @@ export function getAccount(): Account {
 async function setAccount(selectedAccount: Account) {
   account = selectedAccount;
   let accountChanged: boolean = true;
-  if (selectedAccount?.id) {
+  if (selectedAccount && selectedAccount.id) {
     const selectedAccountId: number = selectedAccount.id;
     const accountId: number = await AsyncStorage.getItem('accountId');
     accountChanged = accountId != selectedAccountId;
     if (accountChanged) {
-      await AsyncStorage.setItem('accountId', selectedAccountId?.toString());
+      await AsyncStorage.setItem('accountId', selectedAccountId.toString());
     }
   }
   if (accountChanged) {
@@ -121,6 +121,7 @@ const theme = {
 
 const NavContainer = ({ logout, setNavigator, navigationStateChanged }) => {
   const StackNavigator = createDoctorAppNavigator();
+  const refreshKey = generateRandomGUID()
   
   return (
     <NavigationContainer 
@@ -129,7 +130,7 @@ const NavContainer = ({ logout, setNavigator, navigationStateChanged }) => {
     >
       <StackNavigator.Navigator initialRouteName="overview" screenOptions={{ headerShown: false }} >
           <StackNavigator.Screen name="overview">
-            {(props) => <OverviewScreen {...props} onLogout={logout} />}
+            {(props) => <OverviewScreen {...props} onLogout={logout} refreshKey={refreshKey} />}
           </StackNavigator.Screen>
           <StackNavigator.Screen name="agenda" component={AgendaScreen} />
           <StackNavigator.Screen name="findPatient" component={FindPatientScreen} />
@@ -153,12 +154,6 @@ const NavContainer = ({ logout, setNavigator, navigationStateChanged }) => {
       </StackNavigator.Navigator>
     </NavigationContainer>
   );
-}
-
-NavContainer.propTypes = {
-  logout: PropTypes.func, 
-  setNavigator: PropTypes.func,  
-  navigationStateChanged: PropTypes.func
 }
 
 export class DoctorApp extends Component {
@@ -232,7 +227,7 @@ export class DoctorApp extends Component {
     const inactivitiesTimer: CodeDefinition[] = getAllCodes('inactivityTimer');
     if (inactivitiesTimer && inactivitiesTimer instanceof Array) {
       const inactivityTimer: CodeDefinition = inactivitiesTimer[0];
-      if (inactivityTimer?.code) {
+      if (inactivityTimer && inactivityTimer.code) {
         this.props.onStartLockingDog(inactivityTimer.code);
       }
     }
