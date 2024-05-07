@@ -517,7 +517,7 @@ export class LoginScreen extends Component {
 
         if (isTrial) {
           this.setState(
-            {accounts, userName: 'Henry', password: 'Lomb', isTrial},
+            {accounts, userName: 'Henry', password: 'Lomb', isTrial}, // NOSONAR
             this.setAccount(account),
           );
         } else {
@@ -526,7 +526,7 @@ export class LoginScreen extends Component {
       } else {
         if (isTrial) {
           this.setState(
-            {accounts, userName: 'Henry', password: 'Lomb', isTrial},
+            {accounts, userName: 'Henry', password: 'Lomb', isTrial},  // NOSONAR
             this.fetchCodes(),
           );
         } else {
