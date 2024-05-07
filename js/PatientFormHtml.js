@@ -679,12 +679,12 @@ async function renderColumnedRows(
       let customColumns: string[] = columns.filter(
         (header: string) => header !== '>>',
       );
-      customColumns.map((header: string, i: number) => {
+      customColumns?.forEach((header: string, i: number) => {
         let subHtml: string = '';
         subHtml += '<table class="childTable" style="margin:10px;">';
-        rows.forEach((column: string[]) => {
+        rows?.forEach((column: string[]) => {
           subHtml += '<tr>';
-          column.map((value: string, j: number) => {
+          column?.forEach((value: string, j: number) => {
             if (j == 0 || j == i + 1) {
               subHtml += `<td class="desc">${value}</td>`;
             }
@@ -768,7 +768,7 @@ function renderColumnsHeader(
   }
   html += '<thead><tr>';
   html += `<th class="desc">${formatLabel(definition)}</th>`;
-  columns.map((column: string, index: number) => {
+  columns?.forEach((column: string, index: number) => {
     const columnDefinition: FieldDefinition = definition.fields.find(
       (fieldDefinition: FieldDefinition) => fieldDefinition.name === column,
     );
@@ -1115,7 +1115,7 @@ function renderGraph(
   const strokeWidth: number = round(fontScale / scale);
   const resolution: number[] = resolutions(value, definition);
   html += `<svg xmlns="http://www.w3.org/2000/svg" name="something" viewBox="0 0 ${resolution[0]} ${resolution[1]}" width="${resolution[0]}pt" height="${resolution[1]}pt" style="width:${style.width}pt; height:${style.height}pt">`;
-  value.lines.map((lijn: string, index: number) => {
+  value.lines.forEach((lijn: string, index: number) => {
     if (lijn.indexOf('x') > 0) {
       return '';
     }
