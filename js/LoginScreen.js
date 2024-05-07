@@ -856,7 +856,7 @@ export class LoginScreen extends Component {
                   <RnButton
                     title={strings.winkLink}
                     onPress={() => {
-                      Linking.openURL('http://www.downloadwink.com');
+                      Linking.openURL('https://www.downloadwink.com');
                     }}
                   />
                 </View>
