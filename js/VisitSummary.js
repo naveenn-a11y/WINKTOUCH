@@ -286,8 +286,8 @@ export class VisitSummaryTable extends Component {
     let summary: string = '';
     let plan: string = '';
 
-    if (visitSummary.summary) {
-      visitSummary.summary.map((eachSummary: any, _index: number) => {
+    if (visitSummary?.summary) {
+      visitSummary?.summary?.forEach((eachSummary: any, _index: number) => {
         if (eachSummary.noaccess) {
           summary = strings.noAccess;
         } else {
