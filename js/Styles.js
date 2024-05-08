@@ -1,9 +1,9 @@
 import {
-  StyleSheet,
   Dimensions,
-  Platform,
-  UIManager,
   PixelRatio,
+  Platform,
+  StyleSheet,
+  UIManager,
 } from 'react-native';
 
 export const windowWidth: number =
@@ -1234,8 +1234,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   drawingIcons: {
-    position: 'relative',
-    top: 40 * fontScale,
+    position: 'absolute',
+    right: -5 * fontScale,
+    justifyContent: 'center',
     flexDirection: 'column',
     backgroundColor: '#ffffffbb',
   },
