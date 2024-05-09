@@ -18,7 +18,7 @@ export const dbVersion: string = process.env.WINK_DB_VERSION || 'unknown';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
 const MINIMAL_TOUCH_VERSION = 4.8;
-const EHR_VERSION_NUMBER = '4.13.12';
+const EHR_VERSION_NUMBER = '4.13.1';
 
 export function setDeploymentVersion(version: string): void {
   __DEV__ && console.log('Current code push deployment version: ' + version);
