@@ -1215,15 +1215,13 @@ class VisitWorkFlow extends Component {
   canTransfer(): boolean {
     const store: Store = getStore();
     return (
-      store != undefined &&
-      store != null &&
-      store.winkToWinkId != undefined &&
-      store.winkToWinkId != null &&
-      store.winkToWinkId > 0 &&
-      store.winkToWinkEmail !== undefined &&
-      store.winkToWinkEmail != null &&
-      store.winkToWinkEmail.trim() != '' &&
-      this.state.visit.userId === getDoctor().id
+      !!store &&
+      !!store?.winkToWinkId &&
+      store?.winkToWinkId > 0 &&
+      store?.winkToWinkEmail !== undefined &&
+      store?.winkToWinkEmail != null &&
+      store?.winkToWinkEmail.trim() != '' &&
+      this.state.visit.userId === getDoctor()?.id
     );
   }
 
@@ -1247,11 +1245,10 @@ class VisitWorkFlow extends Component {
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
     const canInvoice: boolean =
-      visit &&
-      visit.appointmentId &&
+      visit?.appointmentId &&
       !this.props.readonly &&
       appointment &&
-      appointment.status === 5;
+      appointment?.status === 5;
 
     return canInvoice;
   }
@@ -1265,8 +1262,8 @@ class VisitWorkFlow extends Component {
       return undefined;
     }
     const visit: ?Visit = this.state.visit;
-    if (!visit || !visit.id) {
-      return undefined;
+    if (!visit?.id) {
+      return;
     }
     let exam: Exam = {
       id: 'customExam',
@@ -1359,7 +1356,7 @@ class VisitWorkFlow extends Component {
     }
     exams = exams.concat(getCachedItems(visit.customExamIds));
 
-    exams.map((exam) => {
+    exams?.forEach((exam) => {
       if (exam.isInvalid) {
         visitIsValid = false;
         listOfInvalidTiles += `\t\u{2022} ${formatLabel(exam.definition)} \n`;
@@ -1562,7 +1559,7 @@ class VisitWorkFlow extends Component {
   }
 
   switchLock = () => {
-    this.setState({locked: this.state.locked === true ? false : true}, () => {
+    this.setState(prevState => ({locked: !prevState.locked}), () => {
       this.loadUnstartedExamTypes(this.state.visit);
     });
   };
@@ -1916,7 +1913,7 @@ class VisitWorkFlow extends Component {
             {strings.doctor}: {getDoctorFullName(doctor)}
           </Text>
         )}
-        {store && store.name && (
+        {!isEmpty(store?.name) && (
           <Text style={styles.text}>
             {strings.location}: {store.name}
           </Text>
@@ -2216,7 +2213,7 @@ class VisitWorkFlow extends Component {
       {label: strings.notesOnRx, isChecked: printingPreference.includes("notesOnRx")},
     ];
     if (this.state.visit.purchase) {
-      this.state.visit.purchase.map((recomm: any, index: number) => {
+      this.state.visit?.purchase?.forEach((recomm: any, index: number) => {
         formatCode('purchaseReasonCode', recomm.lensType).trim() !== ''
           ? printRxOptions.push({
               label: formatCode('purchaseReasonCode', recomm.lensType),
@@ -2684,6 +2681,7 @@ export class VisitHistoryCard extends Component {
             this.state.summaries.map((visitSummary: Exam, index: number) =>
               visitSummary.noaccess ? (
                 <NoAccess
+                  key={index + 1}
                   prefix={
                     formatDate(
                       getCachedItem(visitSummary.visitId).date,
