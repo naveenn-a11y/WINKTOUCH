@@ -22,28 +22,38 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: npm install, build, test
-        run: |
-          npm install --legacy-peer-deps
-          npm run build:web:${{env.ENVIRONMENT}} --if-present
-          npm test
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
 
-      - name: Push artifact to Nexus
+      - name: Build for Web (Development)
+        run: npm run build:web:${{env.ENVIRONMENT}} --if-present
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Read Version Number
+        id: version
         run: |
-          for f in ./dist/*; do    
-            echo $f
-            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f  http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${{ GITHUB.RUN_NUMBER }}/"${f##*/}"
+          VERSION=$(grep '<version>' ./dist/version.xml | sed 's/<version>\(.*\)<\/version>/\1/')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Upload Artifacts to Nexus
+        run: |
+          for f in ./dist/*; do
+            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${{ env.VERSION }}-${{ github.run_number }}/"${f##*/}"
           done
 
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Upload to the storage account
         uses: azure/CLI@v1
         with:
           azcliversion: 2.30.0
           inlineScript: |
             az storage blob upload-batch --source ./dist --destination '$web' --account-name ${{ vars.STORAGE_ACCOUNT }}
+
       - name: logout
         run: |
           az logout
