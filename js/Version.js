@@ -4,17 +4,23 @@
 'use strict';
 
 import DeviceInfo from 'react-native-device-info';
-import {strings} from './Strings';
-import {isWeb} from './Styles';
-import {now} from './Util';
+import Config from 'react-native-config';
+import { strings } from './Strings';
+import { isWeb } from './Styles';
 
-__DEV__ && console.log('process.env', process.env);
+if (isWeb) {
+  __DEV__ && console.log('process.env', process.env);
+}
 
-export let deploymentVersion: string = process.env.WINK_DEPLOYMENT_VERSION || 'unknown';
-export let ehrApiVersion: string = process.env.WINK_EHR_API_VERSION || 'unknown';
-export let winkRESTVersion: string = process.env.WINK_REST_VERSION || 'unknown';
-export let ecommVersion: string = process.env.WINK_ECOMM_VERSION || 'unknown';
-export const dbVersion: string = process.env.WINK_DB_VERSION || 'unknown';
+if (!isWeb) {
+  __DEV__ && console.log('Config', Config);
+}
+
+export const deploymentVersion: string = isWeb ? process.env.WINK_DEPLOYMENT_VERSION : Config.WINK_DEPLOYMENT_VERSION;
+export const ehrApiVersion: string = isWeb ? process.env.WINK_EHR_API_VERSION : Config.WINK_EHR_API_VERSION;
+export const winkRESTVersion: string = isWeb ? process.env.WINK_REST_VERSION : Config.WINK_REST_VERSION;
+export const ecommVersion: string = isWeb ? process.env.WINK_ECOMM_VERSION : Config.WINK_ECOMM_VERSION;
+export const dbVersion: string = isWeb ? process.env.WINK_DB_VERSION : Config.WINK_DB_VERSION;
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
 const MINIMAL_TOUCH_VERSION = 4.8;
@@ -39,7 +45,7 @@ async function fetchTestflight() {
   return installer === 'TestFlight';
 }
 
-export let isTestFlight: boolean = false;
+export let isTestFlight: boolean = false; // NOSONAR
 
 if (!isWeb) {
   fetchTestflight().then((result) => {

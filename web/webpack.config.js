@@ -8,8 +8,8 @@ const dotenv = require('dotenv');
 const rootDir = path.join(__dirname, '..');
 
 module.exports = (env, mode) => {
-  const envFile = env.ENV ? `.env.${env.ENV}` : '.env';
-  const envPath = path.resolve(__dirname, `../envs/${envFile}`);
+  const envFile = env.ENV ? `.env.${env.ENV}` : '.env.local'; // Default to local if no ENV specified
+  const envPath = path.resolve(__dirname, `../${envFile}`);
   const envVars = dotenv.config({ path: envPath }).parsed;
 
   const isDev = env.ENV !== 'production';
@@ -17,7 +17,7 @@ module.exports = (env, mode) => {
 
   const versionFilePath = path.resolve(__dirname, '../js/version.js');
   const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
-  const versionMatch = versionFileContent.match(/EHR_VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/);
+  const versionMatch = /EHR_VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/.exec(versionFileContent);
   const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
 
   try {
@@ -71,7 +71,7 @@ module.exports = (env, mode) => {
     ],
     resolve: {
       extensions: ['.web.jsx', '.web.js', '.jsx', '.js'],
-      alias: Object.assign({
+      alias: {
         'react-native$': 'react-native-web',
         'react-native-localization': 'react-localization',
         'react-native-fs': path.join(rootDir, './src/components/ReactFileSystem/ReactNativeFS.web.js'),
@@ -82,8 +82,7 @@ module.exports = (env, mode) => {
           rootDir,
           './src/components/@dashdoc/react-native-system-sounds/index.web.js',
         ),
-        'react-native-code-push': path.join(rootDir, './src/components/CodePush/index.web.js'),
-      }),
+        'react-native-code-push': path.join(rootDir, './src/components/CodePush/index.web.js'),},
     },
   };
 };

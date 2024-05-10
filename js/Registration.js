@@ -30,6 +30,7 @@ import {
   ecommVersion,
 } from './Version';
 import {getEmrHost} from './Hosts';
+import Config from 'react-native-config';
 
 const getEcommUri = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion;
 const getSecurityQuestionsUrl = () => getEcommUri() + '/WinkRegistrationQuestions';
@@ -52,14 +53,14 @@ export let isAtWink: boolean;
 async function determineIfAtWink(): void {
   if (Platform.OS === 'web') {
       const publicIp: string = await fetchPublicIp();
-      isAtWink = publicIp === process.env.WINK_PUBLIC_IP;
+      isAtWink = publicIp === isWeb ? process.env.WINK_PUBLIC_IP : Config.WINK_PUBLIC_IP;
   }
 
   if (Platform.OS === 'ios') {
     const localIp = await fetchIp();
     if (localIp && localIp.startsWith('192.168.88.')) {
       const publicIp: string = await fetchPublicIp();
-      isAtWink = publicIp === process.env.WINK_PUBLIC_IP;
+      isAtWink = publicIp === isWeb ? process.env.WINK_PUBLIC_IP : Config.WINK_PUBLIC_IP;
     } else {
       isAtWink = false;
     }

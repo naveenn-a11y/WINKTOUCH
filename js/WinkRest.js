@@ -3,7 +3,6 @@
  */
 'use strict';
 
-import type {Exam} from './Types';
 import {
   appendParameters,
   getToken,
@@ -12,17 +11,18 @@ import {
   handleHttpError,
 } from './Rest';
 import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
-import {winkRESTVersion} from './Version';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
 import {getEmrHost} from "./Hosts";
+import Config from 'react-native-config';
 
-export const winkWebSocketUrl: string = process.env.WINK_WEB_SOCKET_URL || 'unknown';
+
+export const winkWebSocketUrl: string = isWeb ? process.env.WINK_WEB_SOCKET_URL : Config.WINK_WEB_SOCKET_URL;
 
 let winkRestUrl: string;
 export function setWinkRestUrl() {
-  const winkEmrHost = getEmrHost();
-  winkRestUrl = process.env.WINK_REST_URL || 'unknown';
+  getEmrHost();
+  winkRestUrl = isWeb ? process.env.WINK_REST_URL : Config.WINK_REST_URL;
   __DEV__ && console.log('Setting WINKRest backend server to ' + winkRestUrl);
 }
 
