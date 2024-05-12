@@ -3,30 +3,24 @@
  */
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import { Component } from 'react';
 import {
-  View,
-  TouchableHighlight,
   Text,
-  ScrollView,
   TouchableOpacity,
-  LayoutAnimation,
+  View
 } from 'react-native';
-import type {GlassesRx, Visit, Exam} from './Types';
-import {strings} from './Strings';
-import {styles, fontScale} from './Styles';
-import {GlassesDetail, hasBvd, hasPrism, isPDEmpty} from './Refraction';
-import {FormRow, FormField, FormTextInput} from './Form';
-import {getCachedItem} from './DataCache';
-import {ItemsCard, formatLabel} from './Items';
-import {GroupedCard, GroupedForm} from './GroupedForm';
-import {storeExam} from './Exam';
-import {Microphone} from './Voice';
-import {getDataType} from './Rest';
-import {Label} from './Widgets';
-import {getValue, isEmpty, setValue} from './Util';
-import {formatCode} from './Codes';
-import uuid from 'react-native-uuid';
+import { formatCode } from './Codes';
+import { storeExam } from './Exam';
+import { FormTextInput } from './Form';
+import { GroupedCard, GroupedForm } from './GroupedForm';
+import { ItemsCard, formatLabel } from './Items';
+import { GlassesDetail, hasBvd, hasPrism, isPDEmpty } from './Refraction';
+import { getDataType } from './Rest';
+import { strings } from './Strings';
+import { fontScale, styles } from './Styles';
+import type { Exam, GlassesRx } from './Types';
+import { getValue, isEmpty, setValue } from './Util';
+import { Label } from './Widgets';
 
 export class AssessmentCard extends Component {
   props: {
@@ -108,7 +102,6 @@ export class PrescriptionCard extends Component {
           suffix=""
           style={styles.sectionTitle}
           value={strings.drRecommendation}
-          key={uuid.v4()}
         />
       );
     }
@@ -116,7 +109,7 @@ export class PrescriptionCard extends Component {
   }
   renderPurchaseRxSimpleRow(recomm: any, index: number) {
     return (
-      <View style={styles.formRow} key={uuid.v4()}>
+      <View style={styles.formRow}>
         <Text style={styles.textLeft}>
           {formatCode('purchaseReasonCode', recomm.lensType).trim() !== ''
             ? formatCode('purchaseReasonCode', recomm.lensType)
