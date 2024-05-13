@@ -58,7 +58,7 @@ import {cacheItemsById} from './DataCache';
 import {AgentAsumptionScreen} from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {getEmrHost} from './Hosts';
-import Config from 'react-native-config';
+import { WINK_APP_DEMO_USER } from '@env';
 
 const getAccountsUrl = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
 
@@ -416,11 +416,7 @@ export class LoginScreen extends Component {
     };
 
     if (__DEV__) {
-      if (isWeb) {
-        this.state.password = process.env.WINK_DEMO_PASSWORD;
-      } else {
-        this.state.password = Config.WINK_DEMO_PASSWORD;
-      }
+      this.state.password = isWeb ? process.env.WINK_APP_DEMO_USER : WINK_APP_DEMO_USER;
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {

@@ -14,15 +14,14 @@ import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
 import RNFS from 'react-native-fs';
 import {isWeb} from './Styles';
 import {getEmrHost} from "./Hosts";
-import Config from 'react-native-config';
+import { WINK_APP_REST_URL, WINK_APP_WEB_SOCKET_URL } from '@env';
 
-
-export const winkWebSocketUrl: string = isWeb ? process.env.WINK_WEB_SOCKET_URL : Config.WINK_WEB_SOCKET_URL;
+export const winkWebSocketUrl: string = isWeb ? process.env.WINK_APP_WEB_SOCKET_URL : WINK_APP_WEB_SOCKET_URL;
 
 let winkRestUrl: string;
 export function setWinkRestUrl() {
   getEmrHost();
-  winkRestUrl = isWeb ? process.env.WINK_REST_URL : Config.WINK_REST_URL;
+  winkRestUrl = isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL;
   __DEV__ && console.log('Setting WINKRest backend server to ' + winkRestUrl);
 }
 
