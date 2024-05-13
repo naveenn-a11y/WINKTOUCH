@@ -78,7 +78,6 @@
     "react-native-web": "^0.19.10",
     "react-native-webview": "^13.6.4",
     "react-pdf": "^7.7.0",
-    "react-web-config": "^1.0.0",
     "simplify-js": "^1.2.4"
   },
   "devDependencies": {
