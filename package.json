@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "start:development": "WINK_ENV=development npx react-native start",
+    "start:staging": "WINK_ENV=staging npx react-native start",
+    "start:production": "WINK_ENV=production npx react-native start",
     "test": "jest",
     "prettier": "prettier --write '{js,json}/**/*.{js,json}'",
     "web": "webpack serve --mode=development --config ./web/webpack.config.js --env ENV=local",
