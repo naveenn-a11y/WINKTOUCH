@@ -4,19 +4,18 @@
 
 'use strict';
 
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import {styles, fontScale} from '../../Styles';
-import {FormInput, FormOptions, FormRow} from '../../Form';
-import {strings} from '../../Strings';
-import {getStore} from '../../DoctorApp';
-import {Button as NativeBaseButton, Portal} from 'react-native-paper';
-import {getCachedItem} from '../../DataCache';
-import {agendaStyles} from '../../Agenda';
-import {getAppointmentTypes} from '../../Appointment';
 import moment from 'moment';
+import { useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { Button as NativeBaseButton, Portal } from 'react-native-paper';
+import { agendaStyles } from '../../Agenda';
+import { getAppointmentTypes } from '../../Appointment';
+import { getCachedItem } from '../../DataCache';
+import { getStore } from '../../DoctorApp';
+import { FormInput, FormOptions } from '../../Form';
+import { strings } from '../../Strings';
+import { fontScale, styles } from '../../Styles';
 import Dialog from '../../utilities/Dialog';
-import uuid from 'react-native-uuid';
 
 export function AvailabilityModal({
   show,
@@ -89,7 +88,7 @@ export function AvailabilityModal({
     let appointments: string[] = [...appointmentTypes];
     let dropdowns = [];
     dropdowns.push(
-      <View style={{flexDirection: 'row'}} key={uuid.v4()}>
+      <View style={{flexDirection: 'row'}}>
         <FormOptions
           options={getAppointmentTypes()}
           showLabel={false}
@@ -104,7 +103,7 @@ export function AvailabilityModal({
       for (let i: number = 1; i <= appointments.length; i++) {
         if (i < 5) {
           dropdowns.push(
-            <View style={{flexDirection: 'row'}} key={uuid.v4()}>
+            <View style={{flexDirection: 'row'}}>
               <FormOptions
                 options={getAppointmentTypes()}
                 showLabel={false}

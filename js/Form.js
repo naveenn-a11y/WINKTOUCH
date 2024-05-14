@@ -4,67 +4,65 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { Component } from 'react';
 import {
-  View,
+  Switch,
   Text,
   TextInput,
   TouchableWithoutFeedback,
-  Switch,
+  View,
 } from 'react-native';
-import {PhoneNumberUtil} from 'google-libphonenumber';
-import type {
-  FieldDefinition,
-  FieldDefinitions,
-  CodeDefinition,
-  GroupDefinition,
-} from './Types';
-import {styles, scaleStyle, fontScale} from './Styles';
-import {strings} from './Strings';
-import {
-  DateField,
-  DurationField,
-  TimeField,
-  TilesField,
-  TextArrayField,
-  ButtonArray,
-  NumberField,
-  ListField,
-  CheckButton,
-  Label,
-} from './Widgets';
-import {ImageField} from './ImageField';
-import {getFieldDefinitions} from './Items';
-import {GroupedForm} from './GroupedForm';
 import {
   formatAllCodes,
   formatCode,
   formatCodeDefinition,
-  parseCode,
   formatOptions,
   getAllCodes,
   getCodeDefinition,
+  parseCode,
 } from './Codes';
+import { GroupedForm } from './GroupedForm';
+import { ImageField } from './ImageField';
+import { formatLabel, getFieldDefinitions, isNumericField } from './Items';
+import { GeneralPrismInput } from './Refraction';
+import { strings } from './Strings';
+import { fontScale, scaleStyle, styles } from './Styles';
+import type {
+  CodeDefinition,
+  FieldDefinition,
+  FieldDefinitions,
+  GroupDefinition,
+} from './Types';
 import {
   capitalize,
-  parseDate,
+  deepClone,
+  deepEqual,
   formatDate,
+  formatRanges,
+  getRanges,
+  getValue,
+  isEmpty,
   jsonDateFormat,
   jsonDateTimeFormat,
-  deepClone,
-  getValue,
-  setValue,
-  getRanges,
-  formatRanges,
-  sort,
+  parseDate,
   passesRangeFilter,
-  deepEqual,
-  isEmpty,
+  setValue,
+  sort,
 } from './Util';
-import {isNumericField, formatLabel} from './Items';
-import {Microphone} from './Voice';
-import {GeneralPrismInput} from './Refraction';
-import uuid from 'react-native-uuid';
+import { Microphone } from './Voice';
+import {
+  ButtonArray,
+  CheckButton,
+  DateField,
+  DurationField,
+  Label,
+  ListField,
+  NumberField,
+  TextArrayField,
+  TilesField,
+  TimeField,
+} from './Widgets';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -1101,7 +1099,7 @@ export class FormMultiCheckBox extends Component {
           </View>
         )}
         {this.props.options.map((option) => (
-          <View style={styles.checkButtonRow} key={uuid.v4()}>
+          <View style={styles.checkButtonRow}>
             <CheckButton
               isChecked={this.isChecked(option.value || option)}
               onSelect={() => this.select(option.value || option)}
