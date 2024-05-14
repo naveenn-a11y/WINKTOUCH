@@ -525,6 +525,7 @@ export class ImageField extends Component {
       this.commitEdit();
     } else {
       RNBeep.beep();
+      this.props.disableScroll();
       this.startEditing();
       this.startScrollTimer();
     }
