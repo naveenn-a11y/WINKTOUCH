@@ -4,60 +4,60 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import { CommonActions } from '@react-navigation/native';
+import { Component } from 'react';
 import {
+  FlatList,
   Image,
-  View,
-  Text,
-  TouchableOpacity,
+  Keyboard,
   LayoutAnimation,
   Pressable,
   ScrollView,
-  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import { CommonActions } from '@react-navigation/native';
-import type {
-  Patient,
-  PatientInfo,
-  PatientTag,
-  RestResponse,
-  PatientDocument,
-  Upload,
-  Appointment,
-  CodeDefinition,
-} from './Types';
-import {styles, fontScale, isWeb} from './Styles';
-import {strings} from './Strings';
-import {FormRow, FormField, ErrorCard} from './Form';
-import {getCachedItem, getCachedItems} from './DataCache';
-import {fetchItemById, storeItem, searchItems, stripDataType} from './Rest';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
-  formatAge,
-  prefix,
-  isToday,
-  formatDate,
-  yearDateTimeFormat,
-  isEmpty,
-} from './Util';
-import {formatCode, getAllCodes} from './Codes';
-import {getStore} from './DoctorApp';
-import {PaperClip, Refresh} from './Favorites';
-import {Pdf} from './Document';
-import {fetchUpload, getMimeType} from './Upload';
-import {PatientSearch} from './FindPatient';
-import {Button, NativeBar} from './Widgets';
-import {
-  fetchAppointments,
   AppointmentSummary,
+  fetchAppointments,
   isAppointmentLocked,
   pushToHarmony,
 } from './Appointment';
-import {loadDocuments} from './ImageField';
-import {printBase64Pdf} from './Print';
-import {Binoculars} from './Widgets';
-import {ManageUsers} from './User';
-import {CustomModal as Modal} from './utilities/Modal';
+import { formatCode, getAllCodes } from './Codes';
+import { getCachedItem, getCachedItems } from './DataCache';
+import { getStore } from './DoctorApp';
+import { Pdf } from './Document';
+import { PaperClip, Refresh } from './Favorites';
+import { PatientSearch } from './FindPatient';
+import { ErrorCard, FormField, FormRow } from './Form';
+import { loadDocuments } from './ImageField';
+import { printBase64Pdf } from './Print';
+import { fetchItemById, searchItems, storeItem, stripDataType } from './Rest';
+import { strings } from './Strings';
+import { isWeb, styles } from './Styles';
+import type {
+  Appointment,
+  CodeDefinition,
+  Patient,
+  PatientDocument,
+  PatientInfo,
+  PatientTag,
+  RestResponse,
+  Upload,
+} from './Types';
+import { fetchUpload, getMimeType } from './Upload';
+import { ManageUsers } from './User';
+import {
+  formatAge,
+  formatDate,
+  isEmpty,
+  isToday,
+  prefix,
+  yearDateTimeFormat,
+} from './Util';
+import { CustomModal as Modal } from './utilities/Modal';
+import { Binoculars, Button, NativeBar } from './Widgets';
 
 type Props = {
   fieldId: string; // Assuming this prop exists for accessibility labels
@@ -994,6 +994,7 @@ export class CabinetScreen extends Component {
     patientInfo: ?PatientInfo,
     appointments: ?(Appointment[]),
     isPopupVisibile: Boolean,
+    createPatientloading: Boolean,
   };
 
   constructor(props: any) {
@@ -1002,6 +1003,7 @@ export class CabinetScreen extends Component {
       patientInfo: undefined,
       appointments: undefined,
       isPopupVisibile: false,
+      createPatientloading: false,
     };
   }
   static defaultProps = {
@@ -1115,8 +1117,9 @@ export class CabinetScreen extends Component {
   async createPatient() {
     let patientInfo: PatientInfo = this.state.patientInfo;
     patientInfo = await storePatientInfo(this.state.patientInfo);
+    this.setState({createPatientloading: false});
     if (patientInfo.errors) {
-      this.setState({patientInfo});
+      this.setState({patientInfo,});
       return;
     }
     const appointment: Appointment = {id: undefined, patientId: patientInfo.id};
@@ -1165,6 +1168,12 @@ export class CabinetScreen extends Component {
     );
   }
 
+  onCreatePatient = async () => {
+    Keyboard.dismiss();
+    this.setState({createPatientloading: true});
+    setTimeout(() => this.createPatient(), 3000);
+  }
+
   renderNewPatient() {
     return (
       <View style={styles.separator}>
@@ -1176,7 +1185,8 @@ export class CabinetScreen extends Component {
         <View style={styles.centeredRowLayout}>
           <Button
             title={strings.createPatient}
-            onPress={() => this.createPatient()}
+            onPress={this.onCreatePatient}
+            loading={this.state.createPatientloading}
             testID="createPatientButton"
           />
         </View>
