@@ -1119,7 +1119,7 @@ export class CabinetScreen extends Component {
     patientInfo = await storePatientInfo(this.state.patientInfo);
     this.setState({createPatientloading: false});
     if (patientInfo.errors) {
-      this.setState({patientInfo,});
+      this.setState({patientInfo});
       return;
     }
     const appointment: Appointment = {id: undefined, patientId: patientInfo.id};
