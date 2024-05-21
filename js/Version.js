@@ -6,11 +6,9 @@
 import DeviceInfo from 'react-native-device-info';
 import { strings } from './Strings';
 import { isWeb } from './Styles';
-import { WINK_APP_ECOMM_VERSION } from '@env';
 
 export const deploymentVersion: string = 'v413';
 export const ehrApiVersion: string = 'EHR-413';
-export const ecommVersion: string = isWeb ? process.env.WINK_APP_ECOMM_VERSION : WINK_APP_ECOMM_VERSION;
 export const dbVersion: string = '2058';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';

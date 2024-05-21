@@ -50,7 +50,6 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
-  ecommVersion,
 } from './Version';
 import { fetchCodeDefinitions } from './Codes';
 import { isEmpty } from './Util';

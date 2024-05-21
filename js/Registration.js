@@ -27,7 +27,6 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
-  ecommVersion,
 } from './Version';
 import { WINK_APP_ECOMM_URL, WINK_APP_PUBLIC_IP } from '@env';
 
