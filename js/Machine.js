@@ -13,13 +13,16 @@ import {formatLabel, getFieldDefinition} from './Items';
 import {getConfiguration} from './Configuration';
 import {strings} from './Strings';
 import {isEmpty} from './Util';
+import {isWeb} from './Styles';
+import { WINK_APP_WEB_SOCKET_URL, WINK_APP_WSS_CHAT_URL } from '@env';
 
 const MachineRequestType = {
   PUSH: 'PUSH',
   PULL: 'PULL',
 };
-const wsRestUrl: string = 'https://afd.dev.downloadwink.com/WinkWebSocket/';
-const wssIoStream: string = 'wss://chat-us-east-1.stream-io-api.com/';
+
+const wsRestUrl: string = isWeb ? process.env.WINK_APP_WEB_SOCKET_URL : WINK_APP_WEB_SOCKET_URL;
+const wssIoStream: string = isWeb ? process.env.WINK_APP_WSS_CHAT_URL : WINK_APP_WSS_CHAT_URL;
 
 async function fetchMachineMeasurements(
   machineType,
