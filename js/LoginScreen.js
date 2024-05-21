@@ -58,7 +58,6 @@ import {cacheItemsById} from './DataCache';
 import {AgentAsumptionScreen} from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {getEmrHost} from './Hosts';
-import { WINK_APP_DEMO_USER } from '@env';
 
 const getAccountsUrl = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
 
@@ -407,6 +406,7 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
+      password: __DEV__ ? '1234' : undefined, // NOSONAR
       isTrial: false,
       isMfaRequired: false,
       qrImageUrl: undefined,
@@ -414,10 +414,6 @@ export class LoginScreen extends Component {
       agent: {},
       isSecureTextEntry: true,
     };
-
-    if (__DEV__) {
-      this.state.password = isWeb ? process.env.WINK_APP_DEMO_USER : WINK_APP_DEMO_USER;
-    }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     if (prevProps.registration !== this.props.registration) {

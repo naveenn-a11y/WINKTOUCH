@@ -7,20 +7,13 @@ import DeviceInfo from 'react-native-device-info';
 import {strings} from './Strings';
 import {isWeb} from './Styles';
 import {
-  WINK_APP_DEPLOYMENT_VERSION,
-  WINK_APP_EHR_API_VERSION,
-  WINK_APP_REST_VERSION,
   WINK_APP_ECOMM_VERSION,
-  WINK_APP_DB_VERSION,
 } from '@env';
 
-export const deploymentVersion: string = isWeb
-  ? process.env.WINK_APP_DEPLOYMENT_VERSION
-  : WINK_APP_DEPLOYMENT_VERSION;
-export const ehrApiVersion: string = isWeb ? process.env.WINK_APP_EHR_API_VERSION : WINK_APP_EHR_API_VERSION;
-export const winkRESTVersion: string = isWeb ? process.env.WINK_APP_REST_VERSION : WINK_APP_REST_VERSION;
+export const deploymentVersion: string = 'v413';
+export const ehrApiVersion: string = 'EHR-413';
 export const ecommVersion: string = isWeb ? process.env.WINK_APP_ECOMM_VERSION : WINK_APP_ECOMM_VERSION;
-export const dbVersion: string = isWeb ? process.env.WINK_APP_DB_VERSION : WINK_APP_DB_VERSION;
+export const dbVersion: string = '2058';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
 const MINIMAL_TOUCH_VERSION = 4.8;
