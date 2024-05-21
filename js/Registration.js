@@ -1,6 +1,6 @@
 'use strict';
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Image,
   Text,
@@ -13,15 +13,15 @@ import {
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import publicIp from 'react-native-public-ip';
-import {styles, fontScale, isWeb} from './Styles';
+import { styles, fontScale, isWeb } from './Styles';
 import {
   strings,
   getUserLanguage,
   switchLanguage,
   getUserLanguageIcon,
 } from './Strings';
-import {Button} from './Widgets';
-import {handleHttpError} from './Rest';
+import { Button } from './Widgets';
+import { handleHttpError } from './Rest';
 import {
   dbVersion,
   touchVersion,
@@ -29,14 +29,13 @@ import {
   deploymentVersion,
   ecommVersion,
 } from './Version';
-import {getEmrHost} from './Hosts';
-import { WINK_APP_PUBLIC_IP } from '@env';
+import { WINK_APP_ECOMM_URL, WINK_APP_PUBLIC_IP } from '@env';
 
-const getEcommUri = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion;
-const getSecurityQuestionsUrl = () => getEcommUri() + '/WinkRegistrationQuestions';
-const getSecurityQuestionUrl = () => getEcommUri() + '/WinkRegistrationEmail?mac=EMRFree&source=touch';
-const getRegistrationUrl = () => getEcommUri() + '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
-const getTouchVersionUrl = () => getEcommUri() + '/WinkTouchVersion';
+const eCommUrl = isWeb ? process.env.WINK_APP_ECOMM_URL : WINK_APP_ECOMM_URL;
+const getSecurityQuestionsUrl = () => eCommUrl + '/WinkRegistrationQuestions';
+const getSecurityQuestionUrl = () => eCommUrl + '/WinkRegistrationEmail?mac=EMRFree&source=touch';
+const getRegistrationUrl = () => eCommUrl + '/WinkRegistrationSecurity?mac=EMRPaid&source=touch&touchVersion=true';
+const getTouchVersionUrl = () => eCommUrl + '/WinkTouchVersion';
 
 async function fetchIp(): string {
   const ip = await DeviceInfo.getIpAddress();

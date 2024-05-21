@@ -4,7 +4,7 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Button as RnButton,
   Image,
@@ -29,8 +29,8 @@ import type {
   AgentAssumption,
 } from './Types';
 import base64 from 'base-64';
-import {styles, fontScale, isWeb} from './Styles';
-import {Button, ListField, TilesField} from './Widgets';
+import { styles, fontScale, isWeb } from './Styles';
+import { Button, ListField, TilesField } from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -52,14 +52,14 @@ import {
   deploymentVersion,
   ecommVersion,
 } from './Version';
-import {fetchCodeDefinitions} from './Codes';
-import {isEmpty} from './Util';
-import {cacheItemsById} from './DataCache';
-import {AgentAsumptionScreen} from './Agent';
+import { fetchCodeDefinitions } from './Codes';
+import { isEmpty } from './Util';
+import { cacheItemsById } from './DataCache';
+import { AgentAsumptionScreen } from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {getEmrHost} from './Hosts';
+import { WINK_APP_ACCOUNTS_URL } from '@env';
 
-const getAccountsUrl = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
+const getAccountsUrl = () => isWeb ? process.env.WINK_APP_ACCOUNTS_URL : WINK_APP_ACCOUNTS_URL;
 
 async function fetchAccounts(path: string) {
   if (!path) {

@@ -1,10 +1,7 @@
-import {isTestFlight} from './Version';
-import {isWeb} from './Styles';
-import {isEmpty} from './Util';
-import {
-  WINK_APP_HOST,
-  WINK_APP_TESTFLIGHT_HOST
- } from '@env';
+import { isTestFlight } from './Version';
+import { isWeb } from './Styles';
+import { isEmpty } from './Util';
+import { WINK_APP_HOST, WINK_APP_TESTFLIGHT_HOST } from '@env';
 
 let emrHost = isWeb ? process.env.WINK_APP_HOST : WINK_APP_HOST;
 

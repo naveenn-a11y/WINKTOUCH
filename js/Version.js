@@ -4,11 +4,9 @@
 'use strict';
 
 import DeviceInfo from 'react-native-device-info';
-import {strings} from './Strings';
-import {isWeb} from './Styles';
-import {
-  WINK_APP_ECOMM_VERSION,
-} from '@env';
+import { strings } from './Strings';
+import { isWeb } from './Styles';
+import { WINK_APP_ECOMM_VERSION } from '@env';
 
 export const deploymentVersion: string = 'v413';
 export const ehrApiVersion: string = 'EHR-413';
