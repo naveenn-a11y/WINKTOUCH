@@ -8,11 +8,10 @@ const dotenv = require('dotenv');
 const rootDir = path.join(__dirname, '..');
 
 module.exports = (env, mode) => {
-  const envFile = env.ENV ? `.env.${env.ENV}` : '.env.local'; // Default to local if no ENV specified
+  const envFile = '.env.active'; // always use .env.active
   const envPath = path.resolve(__dirname, `../${envFile}`);
   const envVars = dotenv.config({ path: envPath }).parsed;
 
-  const isDev = env.ENV !== 'production';
   const outputPath = path.resolve(rootDir, 'dist');
 
   const versionFilePath = path.resolve(__dirname, '../js/version.js');
@@ -41,6 +40,10 @@ module.exports = (env, mode) => {
   console.log('mode', mode);
   console.log('envPath', envPath);
   console.log('envVars', envVars);
+
+  // read WINK_APP_ENV from .env file to determine if we are in dev mode
+  // set isDev to true if WINK_APP_ENV is not production
+  const isDev = envVars.WINK_APP_ENV !== 'production';
 
   return {
     mode: env.MODE,
