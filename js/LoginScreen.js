@@ -42,7 +42,6 @@ import {
   handleHttpError,
   getNextRequestNumber,
   getWinkEmrHostFromAccount,
-  switchEmrHost,
   searchItems,
 } from './Rest';
 import {
@@ -480,11 +479,6 @@ export class LoginScreen extends Component {
     this.props.onReset();
   };
 
-  switchEmrHost = (account: Account) => {
-    switchEmrHost(getWinkEmrHostFromAccount(account));
-    this.forceUpdate();
-  };
-
   async fetchAccountsStores(registration: Registration) {
     if (!registration) {
       return;
@@ -546,7 +540,6 @@ export class LoginScreen extends Component {
       if (!account || account.id === undefined) {
         return;
       }
-      this.switchEmrHost(account);
       fetchCodeDefinitions(getUserLanguage(), account.id);
     });
   }
