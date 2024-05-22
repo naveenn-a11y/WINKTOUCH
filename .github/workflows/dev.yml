@@ -27,8 +27,8 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build for Web (Development)
-        run: npm run build:web:${{env.ENVIRONMENT}} --if-present
+      - name: Build for Web
+        run: npm run build:web --if-present
 
       - name: Run Tests
         run: npm test
