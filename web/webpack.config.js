@@ -8,9 +8,32 @@ const dotenv = require('dotenv');
 const rootDir = path.join(__dirname, '..');
 
 module.exports = (env, mode) => {
-  const envFile = '.env.active'; // always use .env.active
-  const envPath = path.resolve(__dirname, `../${envFile}`);
-  const envVars = dotenv.config({ path: envPath }).parsed;
+  const isCICD = process.env.CI === 'true';
+
+  let envVars = {};
+
+  if (isCICD) {
+    envVars = {
+      'process.env.WINK_APP_ENV': JSON.stringify(process.env.WINK_APP_ENV),
+      'process.env.WINK_APP_HOST': JSON.stringify(process.env.WINK_APP_HOST),
+      'process.env.WINK_APP_WEB_SOCKET_URL': JSON.stringify(process.env.WINK_APP_WEB_SOCKET_URL),
+      'process.env.WINK_APP_REST_URL': JSON.stringify(process.env.WINK_APP_REST_URL),
+      'process.env.WINK_APP_PUBLIC_IP': JSON.stringify(process.env.WINK_APP_PUBLIC_IP),
+      'process.env.WINK_APP_WSS_CHAT_URL': JSON.stringify(process.env.WINK_APP_WSS_CHAT_URL),
+      'process.env.WINK_APP_EMR_HOST_REST_URL': JSON.stringify(process.env.WINK_APP_EMR_HOST_REST_URL),
+      'process.env.WINK_APP_ECOMM_URL': JSON.stringify(process.env.WINK_APP_ECOMM_URL),
+      'process.env.WINK_APP_ACCOUNTS_URL': JSON.stringify(process.env.WINK_APP_ACCOUNTS_URL),
+    };
+  } else {
+    const envFile = '.env.active';
+    const envPath = path.resolve(__dirname, `../${envFile}`);
+    if (fs.existsSync(envPath)) {
+      const envConfig = dotenv.parse(fs.readFileSync(envPath));
+      for (const k in envConfig) {
+        envVars[`process.env.${k}`] = JSON.stringify(envConfig[k]);
+      }
+    }
+  }
 
   const outputPath = path.resolve(rootDir, 'dist');
 
@@ -20,35 +43,30 @@ module.exports = (env, mode) => {
   const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
 
   try {
-    // Check if the directory exists, if not, create it
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath, { recursive: true });
       console.log('Output directory has been created.');
     }
   } catch (error) {
-    // If an error occurs, log the message and exit
     console.error(`Unable to create the output directory. Please create it manually at: ${outputPath}`);
-    process.exit(1); // Exit the process with an error code
+    process.exit(1);
   }
 
   if (fs.existsSync(outputPath)) {
-    console.log('The output directory exists and version.xml will be updated.')
+    console.log('The output directory exists and version.xml will be updated.');
     fs.writeFileSync(path.resolve(rootDir, 'dist/version.xml'), `<version>${versionNumber}</version>`);
   }
 
   console.log('versionNumber', versionNumber);
   console.log('mode', mode);
-  console.log('envPath', envPath);
   console.log('envVars', envVars);
 
-  // read WINK_APP_ENV from .env file to determine if we are in dev mode
-  // set isDev to true if WINK_APP_ENV is not production
-  const isDev = envVars.WINK_APP_ENV !== 'production';
+  const isDev = envVars['process.env.WINK_APP_ENV'] !== 'production';
 
   return {
-    mode: env.MODE,
+    mode: mode || 'development',
     entry: path.resolve(__dirname, '../index.web.js'),
-    ...(isDev ? {devtool: 'source-map'} : {}),
+    ...(isDev ? { devtool: 'source-map' } : {}),
     output: {
       path: path.resolve(rootDir, 'dist'),
       filename: 'app-[fullhash].bundle.js',
@@ -68,7 +86,7 @@ module.exports = (env, mode) => {
         hash: true,
       }),
       new webpack.DefinePlugin({
-        'process.env': JSON.stringify(process.env),
+        ...envVars,
         __DEV__: JSON.stringify(isDev),
       }),
     ],
@@ -83,9 +101,10 @@ module.exports = (env, mode) => {
         'react-native-webview': 'react-native-web-webview',
         '@dashdoc/react-native-system-sounds': path.join(
           rootDir,
-          './src/components/@dashdoc/react-native-system-sounds/index.web.js',
+          './src/components/@dashdoc/react-native-system-sounds/index.web.js'
         ),
-        'react-native-code-push': path.join(rootDir, './src/components/CodePush/index.web.js'),},
+        'react-native-code-push': path.join(rootDir, './src/components/CodePush/index.web.js'),
+      },
     },
   };
 };

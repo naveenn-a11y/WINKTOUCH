@@ -9,6 +9,7 @@ on:
 env:
   NODE_VERSION: '20.x'
   ENVIRONMENT: 'dev'
+  CI: 'true'
 
 jobs:
   build-and-deploy:
@@ -23,6 +24,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set Environment Variables
+        run: |
+          echo "WINK_APP_ENV=${{ vars.WINK_APP_ENV }}" >> $GITHUB_ENV
+          echo "WINK_APP_HOST=${{ vars.WINK_APP_HOST }}" >> $GITHUB_ENV
+          echo "WINK_APP_WEB_SOCKET_URL=${{ vars.WINK_APP_WEB_SOCKET_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_REST_URL=${{ vars.WINK_APP_REST_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_PUBLIC_IP=${{ vars.WINK_APP_PUBLIC_IP }}" >> $GITHUB_ENV
+          echo "WINK_APP_WSS_CHAT_URL=${{ vars.WINK_APP_WSS_CHAT_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_EMR_HOST_REST_URL=${{ vars.WINK_APP_EMR_HOST_REST_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_ECOMM_URL=${{ vars.WINK_APP_ECOMM_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_ACCOUNTS_URL=${{ vars.WINK_APP_ACCOUNTS_URL }}" >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
@@ -42,7 +55,7 @@ jobs:
       - name: Upload Artifacts to Nexus
         run: |
           for f in ./dist/*; do
-            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${{ env.VERSION }}-${{ github.run_number }}/"${f##*/}"
+            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${VERSION}-${{ github.run_number }}/"${f##*/}"
           done
 
       - uses: azure/login@v1
@@ -56,7 +69,7 @@ jobs:
           inlineScript: |
             az storage blob upload-batch --source ./dist --destination '$web' --account-name ${{ vars.STORAGE_ACCOUNT }}
 
-      - name: logout
+      - name: Logout from Azure
         run: |
           az logout
 
