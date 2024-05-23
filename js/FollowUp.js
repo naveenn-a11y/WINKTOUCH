@@ -1156,16 +1156,17 @@ export class TableListRow extends React.PureComponent {
   }
 
   render() {
+    const REFERRAL_STATUS = 3
     const style = this.props.selected
       ? styles.tableListTextSelected
       : styles.tableListText;
-    const textStyle = (this.props.rowValue.isParent || this.props.rowValue?.status === 1)
+    const textStyle = (this.props.rowValue.isParent || this.props.rowValue?.status === REFERRAL_STATUS)
       ? [style, {fontWeight: 'bold'}]
       : style;
 
     let formCodeStyle = this.props.readonly ? styles.formFieldReadOnly : styles.formField;
-    //make bold if status is received i.e 1
-    formCodeStyle = (this.props.rowValue?.status === 1)
+    //make bold if status is received i.e REFERRAL_STATUS
+    formCodeStyle = (this.props.rowValue?.status === REFERRAL_STATUS)
         ? [formCodeStyle, {fontWeight: 'bold'}]
         : formCodeStyle;
 
@@ -1175,7 +1176,7 @@ export class TableListRow extends React.PureComponent {
         : '(' + this.props.selected + ') '
       : undefined;
 
-    const commentStyle = (this.props.rowValue?.status === 1)
+    const commentStyle = (this.props.rowValue?.status === REFERRAL_STATUS)
         ? [styles.formField, {minWidth: 150 * fontScale, fontWeight: 'bold'}]
         : [styles.formField, {minWidth: 150 * fontScale}];
 
@@ -1933,7 +1934,6 @@ export class TableList extends React.PureComponent {
   }
   render() {
     let data: any[] = this.getItems();
-    console.log("getItems: ", data)
 
     const isVisible: boolean =
       this.props.route &&
