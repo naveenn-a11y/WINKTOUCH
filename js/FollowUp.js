@@ -3,56 +3,56 @@
  */
 'use strict';
 
-import type {Visit} from './Types';
+import type { Visit } from './Types';
 
-import React, {Component} from 'react';
-import ReactNative, {
-  View,
+import React, { Component } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  InteractionManager,
+  Keyboard,
   Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  InteractionManager,
-  TextInput,
-  Keyboard,
-  FlatList,
-  ActivityIndicator,
+  View,
 } from 'react-native';
+import { formatCode, getAllCodes, getCodeDefinition } from './Codes';
+import { cacheItem, getCachedItem } from './DataCache';
+import { FormCode, FormRow, FormTextInput } from './Form';
 import {
-  styles,
   fontScale,
+  isWeb,
   selectionColor,
   selectionFontColor,
-  isWeb,
+  styles,
   windowHeight,
 } from './Styles';
-import {Button, TilesField, Alert, TextField} from './Widgets';
-import {FormRow, FormTextInput, FormCode} from './Form';
-import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
-import {fetchWinkRest} from './WinkRest';
 import type {
-  PatientInfo,
-  ReferralDefinition,
   CodeDefinition,
   EmailDefinition,
   FollowUp,
+  PatientInfo,
+  ReferralDefinition,
   ReferralStatusCode,
   Upload,
 } from './Types';
-import {fetchReferralFollowUpHistory, fetchVisit} from './Visit';
-import {getCachedItem, cacheItem} from './DataCache';
+import { fetchReferralFollowUpHistory, fetchVisit } from './Visit';
+import { Alert, Button, TextField, TilesField } from './Widgets';
+import { fetchWinkRest } from './WinkRest';
 
-import {getPrivileges, stripDataType} from './Rest';
 import RNBeep from '@dashdoc/react-native-system-sounds';
-import {getDoctor} from './DoctorApp';
-import {strings} from './Strings';
-import {getMimeType} from './Upload';
-import {printHtml, print} from '../src/components/HtmlToPdf';
-import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {fetchPatientInfo, getPatientFullName} from './Patient';
-import {getPDFAttachmentFromHtml} from './PatientFormHtml';
-import {printBase64Pdf} from './Print';
-import {CustomModal as Modal} from './utilities/Modal';
+import { print, printHtml } from '../src/components/HtmlToPdf';
+import { getDoctor } from './DoctorApp';
+import { fetchPatientInfo, getPatientFullName } from './Patient';
+import { getPDFAttachmentFromHtml } from './PatientFormHtml';
+import { printBase64Pdf } from './Print';
+import { stripDataType } from './Rest';
+import { strings } from './Strings';
+import { getMimeType } from './Upload';
+import { deAccent, formatDate, isEmpty, jsonDateFormat } from './Util';
+import { CustomModal as Modal } from './utilities/Modal';
 
 const COMMAND = {
   RESEND: 0,
@@ -1156,16 +1156,17 @@ export class TableListRow extends React.PureComponent {
   }
 
   render() {
+    const REFERRAL_STATUS = 3
     const style = this.props.selected
       ? styles.tableListTextSelected
       : styles.tableListText;
-    const textStyle = (this.props.rowValue.isParent || this.props.rowValue.status === 3)
+    const textStyle = (this.props.rowValue.isParent || this.props.rowValue?.status === REFERRAL_STATUS)
       ? [style, {fontWeight: 'bold'}]
       : style;
 
     let formCodeStyle = this.props.readonly ? styles.formFieldReadOnly : styles.formField;
-    //make bold if status is received i.e 3
-    formCodeStyle = (this.props.rowValue.status === 3)
+    //make bold if status is received i.e REFERRAL_STATUS
+    formCodeStyle = (this.props.rowValue?.status === REFERRAL_STATUS)
         ? [formCodeStyle, {fontWeight: 'bold'}]
         : formCodeStyle;
 
@@ -1175,7 +1176,7 @@ export class TableListRow extends React.PureComponent {
         : '(' + this.props.selected + ') '
       : undefined;
 
-    const commentStyle = (this.props.rowValue.status === 3)
+    const commentStyle = (this.props.rowValue?.status === REFERRAL_STATUS)
         ? [styles.formField, {minWidth: 150 * fontScale, fontWeight: 'bold'}]
         : [styles.formField, {minWidth: 150 * fontScale}];
 
