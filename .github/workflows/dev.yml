@@ -37,14 +37,12 @@ jobs:
           echo "WINK_APP_ECOMM_URL=${{ vars.WINK_APP_ECOMM_URL }}" >> $GITHUB_ENV
           echo "WINK_APP_ACCOUNTS_URL=${{ vars.WINK_APP_ACCOUNTS_URL }}" >> $GITHUB_ENV
 
-      - name: Install Dependencies
+      - name: Install Dependencies, Build Web, Run Tests
         run: npm install --legacy-peer-deps
-
-      - name: Build for Web
-        run: npm run build:web --if-present
-
-      - name: Run Tests
-        run: npm test
+        run: |
+          npm install --legacy-peer-deps
+          npm run build:web:dev --if-present
+          npm test
 
       - name: Read Version Number
         id: version
