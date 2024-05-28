@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -71,12 +71,12 @@ jobs:
             curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${VERSION}-${{ github.run_number }}/"${f##*/}"
           done
 
-      - uses: azure/login@v1
+      - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Upload to the storage account
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           azcliversion: 2.30.0
           inlineScript: |
