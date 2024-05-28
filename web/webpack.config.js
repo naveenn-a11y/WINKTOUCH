@@ -37,7 +37,7 @@ module.exports = (env, mode) => {
 
   const outputPath = path.resolve(rootDir, 'dist');
 
-  const versionFilePath = path.resolve(__dirname, '../js/version.js');
+  const versionFilePath = path.resolve(__dirname, '../js/Version.js');
   const versionFileContent = fs.readFileSync(versionFilePath, 'utf8');
   const versionMatch = /EHR_VERSION_NUMBER\s*=\s*['"]([^'"]+)['"]/.exec(versionFileContent);
   const versionNumber = versionMatch ? versionMatch[1] : 'unknown';
