@@ -37,11 +37,27 @@ jobs:
           echo "WINK_APP_ECOMM_URL=${{ vars.WINK_APP_ECOMM_URL }}" >> $GITHUB_ENV
           echo "WINK_APP_ACCOUNTS_URL=${{ vars.WINK_APP_ACCOUNTS_URL }}" >> $GITHUB_ENV
 
-      - name: Install Dependencies, Build Web, Run Tests
+      - name: Install Dependencies
         run: |
           npm install --legacy-peer-deps
+          echo "Dependencies installed successfully."
+
+      - name: Build for Web (Development)
+        run: |
           npm run build:web:dev --if-present
+          echo "Build for Web (Development) ran successfully."
+
+      - name: Check dist Folder
+        run: |
+          if [ ! -d "./dist" ]; then
+            echo "Error: dist folder not found after build."
+            exit 1
+          fi
+
+      - name: Run Tests
+        run: |
           npm test
+          echo "Tests ran successfully."
 
       - name: Read Version Number
         id: version
