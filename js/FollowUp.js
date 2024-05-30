@@ -118,7 +118,7 @@ export class FollowUpScreen extends Component<
       isPopupVisibile: false,
       allFollowUp: [],
       selectedItem: undefined,
-      allRefStatusCode: [],
+      allRefStatusCode: getAllCodes('referralStatus'),
       emailDefinition: {},
       command: undefined,
       isDirty: false,
@@ -837,6 +837,7 @@ export class FollowUpScreen extends Component<
           navigation={this.props.navigation}
           loading={this.state.loading}
           handleLoadMore={this.handleLoadMoreFollowUp}
+          allRefStatusCode={this.state.allRefStatusCode}
         />
         {this.renderButtons()}
         <Modal
@@ -1073,6 +1074,7 @@ export class TableListRow extends React.PureComponent {
     readonly: boolean,
     onLongPress?: () => void,
     isVisible: boolean,
+    allRefStatusCode: ReferralStatusCode[],
   };
   state: {
     commentValue: string,
@@ -1156,17 +1158,18 @@ export class TableListRow extends React.PureComponent {
   }
 
   render() {
-    const REFERRAL_STATUS = 3
+    let referralStatusCode : ReferralStatusCode = this.props?.allRefStatusCode.find(code => code.code == this.props.rowValue?.status)
+    const RECEIVED_STATUS = 3
     const style = this.props.selected
       ? styles.tableListTextSelected
       : styles.tableListText;
-    const textStyle = (this.props.rowValue.isParent || this.props.rowValue?.status === REFERRAL_STATUS)
+    const textStyle = (this.props.rowValue.isParent || referralStatusCode?.status === RECEIVED_STATUS)
       ? [style, {fontWeight: 'bold'}]
       : style;
 
     let formCodeStyle = this.props.readonly ? styles.formFieldReadOnly : styles.formField;
-    //make bold if status is received i.e REFERRAL_STATUS
-    formCodeStyle = (this.props.rowValue?.status === REFERRAL_STATUS)
+    //make bold if status is received i.e RECEIVED_STATUS
+    formCodeStyle = (referralStatusCode?.status === RECEIVED_STATUS)
         ? [formCodeStyle, {fontWeight: 'bold'}]
         : formCodeStyle;
 
@@ -1176,7 +1179,7 @@ export class TableListRow extends React.PureComponent {
         : '(' + this.props.selected + ') '
       : undefined;
 
-    const commentStyle = (this.props.rowValue?.status === REFERRAL_STATUS)
+    const commentStyle = (referralStatusCode?.status === RECEIVED_STATUS)
         ? [styles.formField, {minWidth: 150 * fontScale, fontWeight: 'bold'}]
         : [styles.formField, {minWidth: 150 * fontScale}];
 
@@ -1251,6 +1254,7 @@ export class TableList extends React.PureComponent {
     navigation: any,
     loading: boolean,
     handleLoadMore: () => void,
+    allRefStatusCode : ReferralStatusCode[],
   };
 
   state: {
@@ -1965,6 +1969,7 @@ export class TableList extends React.PureComponent {
               testID={this.props.label + '.option' + (item.index + 1)}
               readonly={this.props.isDraft}
               isVisible={isVisible}
+              allRefStatusCode={this.props.allRefStatusCode}
             />
           )}
           ListHeaderComponent={this.renderHeader()}
