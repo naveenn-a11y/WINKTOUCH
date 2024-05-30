@@ -1521,7 +1521,6 @@ class Event extends Component {
     return event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
-        testID={'calendar-event-unavailable'}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1532,7 +1531,6 @@ class Event extends Component {
     ) : !event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
-        testID={'calendar-event-available'}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1546,7 +1544,6 @@ class Event extends Component {
     ) : (
       <TouchableOpacity
         {...touchableOpacityProps}
-        testID={'calendar-event-booked'}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1676,7 +1673,7 @@ class NativeCalendar extends Component {
           )}
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
-              <View testID={'calendar-header'} style={agendaStyles.header(calendarWidth)}>
+              <View style={agendaStyles.header(calendarWidth)}>
                 {header.dateRange.map((d, index) => (
                   <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
