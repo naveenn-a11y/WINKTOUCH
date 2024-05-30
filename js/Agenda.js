@@ -1521,6 +1521,7 @@ class Event extends Component {
     return event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID={'calendar-event-unavailable'}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1531,6 +1532,7 @@ class Event extends Component {
     ) : !event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID={'calendar-event-available'}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1544,6 +1546,7 @@ class Event extends Component {
     ) : (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID={'calendar-event-booked'}
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1589,6 +1592,18 @@ class NativeCalendar extends Component {
       nextProps.appointments !== this.props.appointments ||
       nextProps.calendarWidth !== this.props.calendarWidth
     );
+  }
+
+  // Handler to add testId to calendar blocks
+  addTestIdHandler = () => {
+    const calendarBlocksArr = document.getElementsByClassName('css-view-175oi2r r-borderLeftWidth-1ljd8xs r-borderBottomWidth-qklmqi');
+    for (const element of calendarBlocksArr) {
+      element.setAttribute('data-testid', 'calendar-block');
+    }
+  }
+
+  componentDidMount(){
+    this.addTestIdHandler()
   }
 
   render() {
@@ -1661,7 +1676,7 @@ class NativeCalendar extends Component {
           )}
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
-              <View style={agendaStyles.header(calendarWidth)}>
+              <View testID={'calendar-header'} style={agendaStyles.header(calendarWidth)}>
                 {header.dateRange.map((d, index) => (
                   <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
