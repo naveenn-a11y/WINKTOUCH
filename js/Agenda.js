@@ -1521,6 +1521,7 @@ class Event extends Component {
     return event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID='calendar-event-unavailable'
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1531,6 +1532,7 @@ class Event extends Component {
     ) : !event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID='calendar-event-available'
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1544,6 +1546,7 @@ class Event extends Component {
     ) : (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID='calendar-event-booked'
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1556,7 +1559,7 @@ class Event extends Component {
           },
         ]}>
         <View style={[styles.rowLayout, {height: '100%'}]}>
-          <Text style={locked ? styles.grayedText : styles.text}>
+          <Text testID='calendar-event-patient-name' style={locked ? styles.grayedText : styles.text}>
             {patient ? getPatientFullName(patient) : 'Available'}
           </Text>
           {patient && <PatientTags patient={patient} locked={locked} />}
