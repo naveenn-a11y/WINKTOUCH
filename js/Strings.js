@@ -23,7 +23,7 @@ export const strings = new LocalizedStrings({
     submitSecurityAnswer: 'Send',
     unRegisteredEmail: 'This email address was not registered before with Wink',
     userName: 'User name',
-    password: 'password',
+    password: 'password', // NOSONAR
     enterCode: 'Enter Code',
     submitLogin: 'Login',
     verifyCode: 'Verify',
@@ -453,7 +453,7 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail:
       "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
     userName: "Nom d'utilisateur",
-    password: 'Mot de passe',
+    password: 'Mot de passe', // NOSONAR
     enterCode: 'Entrez le code',
     submitLogin: 'Ouvrir la session',
     verifyCode: 'Vérifier',
@@ -893,7 +893,7 @@ export const strings = new LocalizedStrings({
     unRegisteredEmail:
       'Esta dirección de correo electrónico no se registró antes con Wink',
     userName: 'Nombre de usuario',
-    password: 'contraseña',
+    password: 'contraseña', // NOSONAR
     enterCode: 'Ingresar código',
     submitLogin: 'Iniciar sesión',
     verifyCode: 'Verificar',
@@ -1355,7 +1355,7 @@ export function getUserLanguageShort(): string {
 }
 
 async function setUserLanguage(locale: string) {
-  console.log('Switching language to ' + locale);
+  __DEV__ && console.log('Switching language to ' + locale);
   userLanguage = locale;
   strings.setLanguage(userLanguage.substring(0, 2));
   Moment.locale(userLanguage.substring(0, 2));
@@ -1365,7 +1365,7 @@ async function setUserLanguage(locale: string) {
 
 export function switchLanguage() {
   let language = getUserLanguage();
-  console.log('current language = ' + language);
+  __DEV__ && console.log('current language = ' + language);
   let languageIndex = supportedLanguages.indexOf(language);
   languageIndex = (languageIndex + 2) % supportedLanguages.length;
   language = supportedLanguages[languageIndex];

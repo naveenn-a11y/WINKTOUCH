@@ -3,7 +3,6 @@
  */
 'use strict';
 
-import type {Exam} from './Types';
 import {
   appendParameters,
   getToken,
@@ -11,25 +10,20 @@ import {
   logRestResponse,
   handleHttpError,
 } from './Rest';
-import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
-import {winkRESTVersion} from './Version';
+import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';
-import {isWeb} from './Styles';
-import {getEmrHost} from "./Hosts";
+import { isWeb } from './Styles';
+import { WINK_APP_REST_URL, WINK_APP_WEB_SOCKET_URL } from '@env';
 
-export const winkWebSocketUrl: string = "https://afd.dev.downloadwink.com/WinkWebSocket/";
+export const winkWebSocketUrl: string = isWeb ? process.env.WINK_APP_WEB_SOCKET_URL : WINK_APP_WEB_SOCKET_URL;
 
 let winkRestUrl: string;
 export function setWinkRestUrl() {
-  const winkEmrHost = getEmrHost();
-  winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + winkRESTVersion + '/';
+  winkRestUrl = isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL;
   __DEV__ && console.log('Setting WINKRest backend server to ' + winkRestUrl);
 }
 
 export function getWinkRestUrl(): string {
-  //if (__DEV__) {
-  //  return 'http://localhost:8080/WinkRESTv6.00.02/';
-  //}
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
     setWinkRestUrl();
   }

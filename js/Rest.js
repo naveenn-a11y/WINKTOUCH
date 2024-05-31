@@ -11,8 +11,8 @@ import type {
   Account,
 } from './Types';
 import base64 from 'base-64';
-import {capitalize, deepClone, isEmpty, extractHostname} from './Util';
-import {strings, getUserLanguage} from './Strings';
+import { capitalize, deepClone, isEmpty, extractHostname } from './Util';
+import { strings, getUserLanguage } from './Strings';
 import {
   cacheItemById,
   cacheItemsById,
@@ -21,10 +21,10 @@ import {
   getCachedItem,
   clearCachedItemById,
 } from './DataCache';
-import {ehrApiVersion} from './Version';
-import {setWinkRestUrl} from './WinkRest';
+import { setWinkRestUrl } from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getEmrHost, setEmrHost} from './Hosts';
+import { isWeb } from './Styles';
+import { WINK_APP_HOST, WINK_APP_EMR_HOST_REST_URL } from '@env';
 
 let token: string;
 let privileges: Privileges = {
@@ -45,7 +45,7 @@ export function getWinkEmrHostFromAccount(account: Account) {
     if (!isEmpty(winkEmrHostField) && !isEmpty(winkEmrHostField.value)) {
       return winkEmrHostField.value;
     }
-    return getEmrHost();
+    return isWeb ? process.env.WINK_APP_HOST : WINK_APP_HOST;
   }
 }
 export function getNextRequestNumber(): number {
@@ -726,27 +726,11 @@ export function getRestUrl(): string {
 }
 
 function setRestUrl() {
-  const winkEmrHost = getEmrHost();
-  if ('https://' + winkEmrHost + '/' + ehrApiVersion + '/' === restUrl) return;
-  restUrl = 'https://' + winkEmrHost + '/' + ehrApiVersion + '/';
+  const emrHostUrl = isWeb ? process.env.WINK_APP_EMR_HOST_REST_URL : WINK_APP_EMR_HOST_REST_URL;
+  if (emrHostUrl === restUrl) return;
+  restUrl = emrHostUrl;
   __DEV__ && console.log('Setting EMR backend server to ' + restUrl);
 }
 
 setRestUrl();
 setWinkRestUrl();
-
-export function switchEmrHost(winkEmrHost: string) {
-  const formattedWinkEmrHost: string = extractHostname(winkEmrHost);
-  AsyncStorage.setItem('winkEmrHost', formattedWinkEmrHost);
-  setEmrHost(formattedWinkEmrHost);
-  setRestUrl();
-  setWinkRestUrl();
-}
-
-AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
-  if (!isEmpty(winkEmrHost)) {
-    setEmrHost(winkEmrHost);
-  }
-  setRestUrl();
-  setWinkRestUrl();
-});

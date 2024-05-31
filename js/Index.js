@@ -8,7 +8,9 @@ import codePush from 'react-native-code-push';
 import {EhrApp} from './EhrApp';
 import {isWeb} from './Styles';
 
-if ((process.env.NODE_ENV || '').toLowerCase() === 'production') {
+const isProduction = (process.env.NODE_ENV || '').toLowerCase() === 'production';
+
+if (isProduction) {
   console.log = function () {};
   console.info = function () {};
   console.warn = function () {};

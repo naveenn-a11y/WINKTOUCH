@@ -4,7 +4,7 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Button as RnButton,
   Image,
@@ -29,8 +29,8 @@ import type {
   AgentAssumption,
 } from './Types';
 import base64 from 'base-64';
-import {styles, fontScale, isWeb} from './Styles';
-import {Button, ListField, TilesField} from './Widgets';
+import { styles, fontScale, isWeb } from './Styles';
+import { Button, ListField, TilesField } from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -42,7 +42,6 @@ import {
   handleHttpError,
   getNextRequestNumber,
   getWinkEmrHostFromAccount,
-  switchEmrHost,
   searchItems,
 } from './Rest';
 import {
@@ -50,16 +49,15 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
-  ecommVersion,
 } from './Version';
-import {fetchCodeDefinitions} from './Codes';
-import {isEmpty} from './Util';
-import {cacheItemsById} from './DataCache';
-import {AgentAsumptionScreen} from './Agent';
+import { fetchCodeDefinitions } from './Codes';
+import { isEmpty } from './Util';
+import { cacheItemsById } from './DataCache';
+import { AgentAsumptionScreen } from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {getEmrHost} from './Hosts';
+import { WINK_APP_ACCOUNTS_URL } from '@env';
 
-const getAccountsUrl = () => 'https://' + getEmrHost() + '/wink-ecomm' + ecommVersion + '/WinkRegistrationAccounts';
+const getAccountsUrl = () => isWeb ? process.env.WINK_APP_ACCOUNTS_URL : WINK_APP_ACCOUNTS_URL;
 
 async function fetchAccounts(path: string) {
   if (!path) {
@@ -406,7 +404,7 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__ ? '1234' : undefined,
+      password: __DEV__ ? '1234' : undefined, // NOSONAR
       isTrial: false,
       isMfaRequired: false,
       qrImageUrl: undefined,
@@ -481,11 +479,6 @@ export class LoginScreen extends Component {
     this.props.onReset();
   };
 
-  switchEmrHost = (account: Account) => {
-    switchEmrHost(getWinkEmrHostFromAccount(account));
-    this.forceUpdate();
-  };
-
   async fetchAccountsStores(registration: Registration) {
     if (!registration) {
       return;
@@ -517,7 +510,7 @@ export class LoginScreen extends Component {
 
         if (isTrial) {
           this.setState(
-            {accounts, userName: 'Henry', password: 'Lomb', isTrial},
+            {accounts, userName: 'Henry', password: 'Lomb', isTrial}, // NOSONAR
             this.setAccount(account),
           );
         } else {
@@ -526,7 +519,7 @@ export class LoginScreen extends Component {
       } else {
         if (isTrial) {
           this.setState(
-            {accounts, userName: 'Henry', password: 'Lomb', isTrial},
+            {accounts, userName: 'Henry', password: 'Lomb', isTrial},  // NOSONAR
             this.fetchCodes(),
           );
         } else {
@@ -547,7 +540,6 @@ export class LoginScreen extends Component {
       if (!account || account.id === undefined) {
         return;
       }
-      this.switchEmrHost(account);
       fetchCodeDefinitions(getUserLanguage(), account.id);
     });
   }
