@@ -511,8 +511,8 @@ export type FollowUp = {
 };
 
 export type ReferralStatusCode = {
-  id: string,
-  name: string,
+  code: string,
+  description: string,
   status: string,
 };
 export type ReferralTemplate = {
