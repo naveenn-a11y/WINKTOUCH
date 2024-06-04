@@ -1591,18 +1591,6 @@ class NativeCalendar extends Component {
     );
   }
 
-  // Handler to add testId to calendar blocks
-  addTestIdHandler = () => {
-    const calendarBlocksArr = document.getElementsByClassName('css-view-175oi2r r-borderLeftWidth-1ljd8xs r-borderBottomWidth-qklmqi');
-    for (const element of calendarBlocksArr) {
-      element.setAttribute('data-testid', 'calendar-block');
-    }
-  }
-
-  componentDidMount(){
-    this.addTestIdHandler()
-  }
-
   render() {
     const {selectedDoctors, doctors, date, appointments, mode, calendarWidth} =
       this.props;
@@ -1623,7 +1611,7 @@ class NativeCalendar extends Component {
     }));
 
     return (
-      <>
+      <View style={{ flex: 1}} testID={'calendar-block'}>
         <Calendar
           ampm
           overlapOffset={OVERLAP_OFFSET}
@@ -1673,7 +1661,7 @@ class NativeCalendar extends Component {
           )}
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
-              <View style={agendaStyles.header(calendarWidth)}>
+              <View testID={'calendar-header'} style={agendaStyles.header(calendarWidth)}>
                 {header.dateRange.map((d, index) => (
                   <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
@@ -1700,7 +1688,7 @@ class NativeCalendar extends Component {
             );
           }}
         />
-      </>
+      </View>
     );
   }
 }
