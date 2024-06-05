@@ -27,10 +27,10 @@ export class ProfileHeader extends Component {
         
         return (
             <View style={{ padding: 20 * fontScale}}>
-                <Text style={{color: '#1db3b3', fontWeight: 'bold', marginBottom: 5 * fontScale}}>
+                <Text testID={'doctor-name'} style={{color: '#1db3b3', fontWeight: 'bold', marginBottom: 5 * fontScale}}>
                     {`${strings.welcome}, ${getDoctorFullName(doctor)}`}
                 </Text>
-                <Text style={{color: 'gray'}}>{`${store.name} ${store.city}`}</Text>
+                <Text testID={'store-details'} style={{color: 'gray'}}>{`${store.name} ${store.city}`}</Text>
             </View>
         );
     };
@@ -41,7 +41,7 @@ export const ProfileAvatar = () => {
     const doctorInitials = `${doctor.firstName.capitalizedFirstLetter()}${doctor.lastName.capitalizedFirstLetter()}`;
 
     return (
-        <View>
+        <View testID={'profile-avatar'}>
             <Avatar.Text 
                 style={{backgroundColor: '#fff'}}
                 size={100 * fontScale} 
@@ -100,10 +100,10 @@ export const ProfileAvatar = () => {
                 </View>
 
                 <View style={{justifyContent: 'center', alignItems: 'center', padding: 20 * fontScale}}>
-                    <Text style={{color: '#1db3b3', fontWeight: 'bold', marginBottom: 10 * fontScale}}>
+                    <Text testID={'profile-menu-doctorName'} style={{color: '#1db3b3', fontWeight: 'bold', marginBottom: 10 * fontScale}}>
                         {getDoctorFullName(this.state.doctor)}
                     </Text>
-                    <Text style={{color: 'gray'}}>{`${this.state.store.name} ${this.state.store.city}`}</Text>
+                    <Text testID={'profile-menu-storeDetails'} style={{color: 'gray'}}>{`${this.state.store.name} ${this.state.store.city}`}</Text>
                 </View>
             </View>
             </TouchableWithoutFeedback>
