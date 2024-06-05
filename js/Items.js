@@ -966,12 +966,13 @@ export class ItemsList extends Component {
       }
       return (
         <TouchableHighlight
+          testID={`medication-item-${item?.Label}`}
           key={index}
           onPress={() => this.props.onSelectItem(item)}
           onLongPress={() =>
             item && this.props.onRemoveItem && this.props.onRemoveItem(item)
           }>
-          {this.renderRow(itemView, index)}
+            {this.renderRow(itemView, index)}
         </TouchableHighlight>
       );
     });
@@ -980,7 +981,7 @@ export class ItemsList extends Component {
   render() {
     //const listStyle = this.props.orientation === 'horizontal' ? styles.listRow : styles.centeredColumnLayout;
     return (
-      <View style={this.props.style ? this.props.style : styles.board}>
+      <View testID={`medication-list`} style={this.props.style ? this.props.style : styles.board}>
         {this.props.title && (
           <Text style={styles.cardTitle}>{this.props.title}</Text>
         )}
@@ -1349,7 +1350,7 @@ export class ItemsEditor extends Component {
   render() {
     return (
       <View style={styles.page}>
-        <View style={styles.flowLeft}>
+        <View style={styles.flowLeft} testID={'ItemsListLeft'}>
           <ItemsList
             items={this.props.items}
             fieldDefinitions={this.props.fieldDefinitions}
@@ -1369,7 +1370,7 @@ export class ItemsEditor extends Component {
                 ? styles.boardStretch
                 : styles.boardStretchL
             }
-            testID={this.props.fieldId}
+            testID={this.props.fieldId ?? ''}
           />
           {this.props.onAddFavorite && this.props.editable && (
             <Favorites
