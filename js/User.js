@@ -18,7 +18,7 @@ import {
 import type {User} from './Types';
 import {styles, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {searchItems, fetchItemById, storeItem} from './Rest';
+import {searchItems, fetchItemById, storeItem, getToken, getRestUrl} from './Rest';
 import {Button, SelectionListRow} from './Widgets';
 import {FormRow, FormField, ErrorCard} from './Form';
 import {getCachedItem, cacheItemById, cacheItem} from './DataCache';
@@ -58,13 +58,19 @@ export async function searchUsers(
 }
 
 export async function fetchUserSettings() {
-  const searchCriteria = {};
-  let restResponse = await searchItems(
-    'User/settings',
-    searchCriteria,
-  );
-  if (restResponse.setting) {
-    cacheItem('user-setting', restResponse);
+  const httpResponse = await fetch(getRestUrl() + 'User/settings', {
+    method: 'get',
+    headers: {
+      token: getToken(),
+      Accept: 'application/json',
+      'Accept-language': getUserLanguage(),
+    },
+  });
+  if (httpResponse.ok) {
+    const restResponse = await httpResponse.json();
+    if (restResponse.setting) {
+      cacheItem('user-setting', restResponse);
+    }
   }
 }
 
