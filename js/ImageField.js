@@ -1493,7 +1493,7 @@ export class ImageField extends Component {
           )}
           {this.props.type && (
             <TouchableOpacity onPress={() => this.showDocuments()}>
-              <PaperClip style={styles.screenIcon} />
+              <PaperClip testID={this.props.testID} style={styles.screenIcon} />
             </TouchableOpacity>
           )}
         </View>
@@ -1607,7 +1607,7 @@ export class ImageField extends Component {
     ) {
       style = imageStyle('S', this.aspectRatio());
       return (
-        <View style={styles.fieldContainer}>
+        <View style={styles.fieldContainer} testID={this.props.testID}>
           <View style={styles.imageContainer}>
             <TouchableOpacity
               style={styles.fieldContainer}

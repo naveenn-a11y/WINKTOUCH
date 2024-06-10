@@ -521,6 +521,7 @@ export class PaperClip extends PureComponent {
   render() {
     return (
       <Icon
+        testID={(this.props?.testID) ? ((this.props?.testID) + '.Attachment') : 'Attachment'}
         name="paperclip"
         style={this.props.style}
         color={this.props.color}
