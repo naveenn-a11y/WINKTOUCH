@@ -1292,7 +1292,7 @@ export class NumberField extends Component {
     const formattedValue: string = this.format(this.props.value);
     if (this.props.readonly) {
       return (
-        <View style={styles.fieldFlexContainer}>
+        <View style={styles.fieldFlexContainer} testID={this.props?.testID + '.ReadOnly'}>
           <Text style={style}>{formattedValue}</Text>
         </View>
       );
@@ -1303,7 +1303,7 @@ export class NumberField extends Component {
         <TextField
           value={formattedValue}
           ref="field"
-          testID={this.props.testID}
+          testID={this.props?.testID}
           autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
