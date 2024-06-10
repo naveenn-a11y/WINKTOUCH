@@ -1303,6 +1303,7 @@ export class NumberField extends Component {
         <TextField
           value={formattedValue}
           ref="field"
+          testID={this.props.testID}
           autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
@@ -2142,6 +2143,7 @@ export class TimeField extends Component {
     if (this.state.isTyping) {
       return (
         <TextField
+          testID={this.props?.testID}
           prefix={this.props.prefix}
           value={formattedValue}
           suffix={this.props.suffix}
