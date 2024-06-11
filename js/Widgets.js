@@ -131,7 +131,7 @@ export class Label extends PureComponent {
       ? [styles.formLabel, {width: this.props.width}]
       : styles.formLabel;
     return (
-      <Text style={style}>
+      <Text style={style} testID={`label-${this.props?.value}`}>
         {this.props.value}
         {this.props.suffix}
       </Text>

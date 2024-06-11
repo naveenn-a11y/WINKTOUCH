@@ -703,6 +703,7 @@ export class GroupedCard extends Component {
               column
             }>
             <Text
+              testID={`label-${label}`}
               style={styles.textLeft}
               key={
                 groupDefinition.name +
@@ -1572,6 +1573,7 @@ export class GroupedForm extends Component {
       let label: string = formatLabel(fieldDefinition);
       fields.push(
         <Label
+          testID={`label-${fieldDefinition?.name}`}
           value={label}
           fieldId={this.props.fieldId + '.' + fieldDefinition.name}
         />,
