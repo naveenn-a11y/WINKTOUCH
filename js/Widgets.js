@@ -2143,6 +2143,7 @@ export class TimeField extends Component {
     if (this.state.isTyping) {
       return (
         <TextField
+          testID={this.props?.testID}
           prefix={this.props.prefix}
           value={formattedValue}
           suffix={this.props.suffix}
