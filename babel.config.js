@@ -4,7 +4,8 @@ module.exports = {
   ],
   plugins: [
     ["module:react-native-dotenv", {
-      "envName": "WINK_ENV"
+      "envName": "WINK_ENV",
+      "path": '.env'
      }],
   ]
 };
