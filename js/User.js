@@ -67,9 +67,14 @@ export async function fetchUserSettings() {
     },
   });
   if (httpResponse.ok) {
-    const restResponse = await httpResponse.json();
-    if (restResponse.setting) {
-      cacheItem('user-setting', restResponse);
+    try {
+      const restResponse = await httpResponse.json();
+      if (restResponse.setting) {
+        cacheItem('user-setting', restResponse);
+      }
+    }
+    catch (error) {
+      console.log('Error fetching user settings: ' + error);
     }
   }
 }
