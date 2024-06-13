@@ -684,7 +684,8 @@ export const styles = StyleSheet.create({
     fontSize: 20 * fontScale,
     paddingHorizontal: 3 * fontScale,
     textAlign: 'right',
-    margin: 4 * fontScale,
+    margin: 5 * fontScale,
+    maxWidth: 'max-content'
   },
   formTableColumnHeader: {
     flex: 100,
@@ -712,7 +713,8 @@ export const styles = StyleSheet.create({
     marginBottom: 0 * fontScale,
   },
   formTableColumnHeaderSmall: {
-    width: 30 * fontScale,
+    maxWidth: 20,
+    minWidth: 20,
   },
   formTableColumnHeaderFlat: {
     width: 0 * fontScale,

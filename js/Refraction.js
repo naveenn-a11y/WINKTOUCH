@@ -1532,6 +1532,107 @@ export class GlassesDetail extends Component {
     );
   }
 
+  renderIcon(condition, onPress, IconComponent, testID) {
+    if (!condition) return null;
+    return (
+      <TouchableOpacity onPress={onPress} testID={testID}>
+        <IconComponent style={styles.groupIcon} />
+      </TouchableOpacity>
+    );
+  };
+
+  renderLabel(props) {
+    if (!props.title) return null;
+    return (
+      <Label
+        suffix=""
+        style={props.titleStyle}
+        value={props.title}
+        fieldId={props.fieldId}
+      />
+    );
+  };
+
+  renderFinalRxInput(props) {
+    if (
+      !props.editable ||
+      !props.definition ||
+      !props.definition.name ||
+      props.definition.name.toLowerCase() !== 'final rx'
+    ) return null;
+
+    return (
+      <View style={styles.formRow}>
+        <FormInput
+          value={props.glassesRx.expiry}
+          definition={getFieldDefinition('visit.expDate')}
+          readonly={!props.editable}
+          onChangeValue={(value: ?string) => {
+            props.updateGlassesRx(undefined, 'expiry', value);
+          }}
+          errorMessage={props.glassesRx.expiryError}
+          testID={`${props.fieldId}.expDate`}
+        />
+      </View>
+    );
+  };
+
+  determineStyle(props, state) {
+    if (props.style) return props.style;
+    if (props.hasCurrentWear) return styles.boardL;
+    if (state.prism && this.hasVA()) return styles.boardXL;
+    if (state.prism || this.hasVA()) return styles.boardL;
+    return styles.boardM;
+  };
+
+  renderFormInput(props, field, label, isTyping = false, autoFocus = false) {
+    return (
+      <View style={styles.formRow} key={field}>
+        <FormInput
+          value={props.glassesRx[field]}
+          definition={filterFieldDefinition(props.definition.fields, label)}
+          readonly={!props.editable}
+          onChangeValue={(value) => props.updateGlassesRx(undefined, field, value)}
+          errorMessage={props.glassesRx[`${field}Error`]}
+          isTyping={isTyping}
+          autoFocus={autoFocus}
+          testID={`${props.fieldId}.${field}`}
+        />
+      </View>
+    )
+  };
+
+  renderFormInputAlt(props, field, label = null, options = {}) {
+    const { isTyping = false, autoFocus = false, definition = null } = options;
+    const fieldDefinition = definition || filterFieldDefinition(props.definition.fields, label);
+
+    return (
+      <View style={styles.formRow} key={field}>
+        <FormInput
+          value={props.glassesRx[field]}
+          definition={fieldDefinition}
+          readonly={!props.editable}
+          onChangeValue={(value) => props.updateGlassesRx(undefined, field, value)}
+          errorMessage={props.glassesRx[`${field}Error`]}
+          isTyping={isTyping}
+          autoFocus={autoFocus}
+          testID={`${props.fieldId}.${field}`}
+        />
+      </View>
+    );
+  };
+
+  renderButton(condition, title, onPress, testID) {
+    if (!condition) return null;
+    return (
+      <Button
+        title={title}
+        onPress={onPress}
+        testID={testID}
+      />
+    );
+  };
+
   render() {
     if (!this.props.glassesRx) {
       return null;
@@ -1545,146 +1646,24 @@ export class GlassesDetail extends Component {
     const hasOU = this.hasVA() && this.props.glassesRx.ou !== undefined;
 
     return (
-      <View
-        style={
-          this.props.style
-            ? this.props.style
-            : this.props.hasCurrentWear
-              ? styles.boardL
-              : this.state.prism && this.hasVA()
-                ? styles.boardXL
-                : this.state.prism || this.hasVA()
-                  ? styles.boardL
-                  : styles.boardM
-        }>
-        {this.props.title && (
-          <Label
-            suffix=""
-            style={this.props.titleStyle}
-            value={this.props.title}
-            fieldId={this.props.fieldId}
-          />
-        )}
-        {this.props.editable &&
-          this.props.definition &&
-          this.props.definition.name &&
-          this.props.definition.name.toLowerCase() === 'final rx' && (
-            <View style={styles.formRow}>
-              <FormInput
-                value={this.props.glassesRx.expiry}
-                definition={getFieldDefinition('visit.expDate')}
-                readonly={!this.props.editable}
-                onChangeValue={(value: ?string) => {
-                  this.updateGlassesRx(undefined, 'expiry', value);
-                }}
-                errorMessage={this.props.glassesRx.expiryError}
-                testID={this.props.fieldId + '.expDate'}
-              />
-            </View>
-          )}
+      <View style={this.determineStyle(this.props, this.state)}>
+        {this.renderLabel(this.props)}
+        {this.renderFinalRxInput(this.props)}
+
         <View style={styles.centeredColumnLayout}>
           {this.props.hasCurrentWear && (
-            <View style={styles.formRow}>
-              <FormInput
-                value={this.props.glassesRx.currentWear}
-                definition={filterFieldDefinition(
-                  this.props.definition.fields,
-                  'Current wear',
-                )}
-                readonly={!this.props.editable}
-                onChangeValue={(value: ?string) =>
-                  this.updateGlassesRx(undefined, 'currentWear', value)
-                }
-                errorMessage={this.props.glassesRx.currentWearError}
-                testID={this.props.fieldId + '.currentWear'}
-              />
-            </View>
+            this.renderFormInputAlt(this.props, 'currentWear', 'Current wear')
           )}
-          {this.props.hasCurrentWear && (
-            <View style={styles.formRow}>
-              <FormInput
-                value={this.props.glassesRx.since}
-                definition={filterFieldDefinition(
-                  this.props.definition.fields,
-                  'Since',
-                )}
-                readonly={!this.props.editable}
-                onChangeValue={(value: ?string) =>
-                  this.updateGlassesRx(undefined, 'since', value)
-                }
-                errorMessage={this.props.glassesRx.sinceError}
-                testID={this.props.fieldId + '.since'}
-              />
-            </View>
-          )}
-          {this.props.hasLensType && (
-            <View style={styles.formRow}>
-              <FormInput
-                value={this.props.glassesRx.lensType}
-                definition={filterFieldDefinition(
-                  this.props.definition.fields,
-                  'lensType',
-                )}
-                readonly={!this.props.editable}
-                onChangeValue={(value: ?string) =>
-                  this.updateGlassesRx(undefined, 'lensType', value)
-                }
-                errorMessage={this.props.glassesRx.lensTypeError}
-                testID={this.props.fieldId + '.lensType'}
-              />
-            </View>
-          )}
+          {this.props.hasCurrentWear && this.renderFormInput(this.props, 'since', 'Since')}
+          {this.propshasLensType && this.renderFormInput(this.props, 'lensType', 'lensType')}
           {this.props.hasPD && (
             <View style={styles.centeredColumnLayout}>
-              <View style={styles.formRow}>
-                <FormInput
-                  value={this.props.glassesRx.testingCondition}
-                  definition={filterFieldDefinition(
-                    this.props.definition.fields,
-                    'Testing Condition',
-                  )}
-                  readonly={!this.props.editable}
-                  onChangeValue={(value: ?string) =>
-                    this.updateGlassesRx(undefined, 'testingCondition', value)
-                  }
-                  isTyping={isTyping}
-                  autoFocus={true}
-                  errorMessage={this.props.glassesRx.testingConditionError}
-                  testID={this.props.fieldId + '.testingCondition'}
-                />
-              </View>
-              <View style={styles.formRow}>
-                <FormInput
-                  value={this.props.glassesRx.pd}
-                  definition={filterFieldDefinition(
-                    this.props.definition.fields,
-                    'pd',
-                  )}
-                  readonly={!this.props.editable}
-                  onChangeValue={(value: ?string) =>
-                    this.updateGlassesRx(undefined, 'pd', value)
-                  }
-                  isTyping={isTyping}
-                  autoFocus={true}
-                  errorMessage={this.props.glassesRx.pdError}
-                  testID={this.props.fieldId + '.pd'}
-                />
-              </View>
+              {this.renderFormInput(this.props, 'testingCondition', 'Testing Condition', isTyping, true)}
+              {this.renderFormInput(this.props, 'pd', 'pd', isTyping, true)}
             </View>
           )}
-          {this.props.hasCustomField && (
-            <View style={styles.formRow}>
-              <FormInput
-                value={this.props.glassesRx.customField}
-                definition={filterFieldDefinition(
-                  this.props.definition.fields,
-                  'customField',
-                )}
-                readonly={!this.props.editable}
-                testID={this.props.fieldId + '.customField'}
-              />
-            </View>
-          )}
+          {this.props.hasCustomField && this.renderFormInput(this.props, 'customField', 'customField')}
+
           <View style={styles.formRow}>
             <View style={styles.formColumn}>
               <View style={styles.formColumnItem}>
@@ -2094,29 +2073,13 @@ export class GlassesDetail extends Component {
             )}
           </View>
 
-          {this.props.editable === true && (
+          {this.props.editable && (
             <View style={styles.buttonsRowLayout}>
-              {this.props.hasAdd === true && (
-                <Button
-                  title={formatLabel(
-                    getFieldDefinition('visit.prescription.od.prism'),
-                  )}
-                  onPress={this.togglePrism}
-                  testID={this.props.fieldId + '.prismButton'}
-                />
-              )}
-
-              {this.props.onCopyToFinalRx !== undefined && (
-                <Button
-                  title={strings.copyToFinal}
-                  onPress={() =>
-                    this.props.onCopyToFinalRx(this.props.glassesRx)
-                  }
-                  testID={this.props.fieldId + '.copyFinalRxButton'}
-                />
-              )}
+              {this.renderButton(this.props.hasAdd, formatLabel(getFieldDefinition('visit.prescription.od.prism')), this.togglePrism, `${this.props.fieldId}.prismButton`)}
+              {this.renderButton(this.props.onCopyToFinalRx, strings.copyToFinal, () => this.props.onCopyToFinalRx(this.props.glassesRx), `${this.props.fieldId}.copyFinalRxButton`)}
             </View>
           )}
+
           {(this.props.hasNotes === true ||
             (this.props.definition !== undefined &&
               this.props.definition.hasNotes)) && (
@@ -2296,66 +2259,37 @@ export class GlassesDetail extends Component {
             </View>
           )}
         </View>
+
         <View style={styles.groupExtraIcons}>
-          {this.props.editable && this.props.definition.import && (
-            <TouchableOpacity
-              onPress={() => this.importData()}
-              testID={this.props.fieldId + '.importButton'}>
-              <ImportIcon style={styles.groupIcon} />
-            </TouchableOpacity>
+          {this.renderIcon(
+            this.props.editable && this.props.definition.import,
+            () => this.importData(),
+            ImportIcon,
+            `${this.props.fieldId}.importButton`
           )}
-          {this.props.editable &&
-            this.props.definition.export &&
-            getConfiguration().machine.phoropter !== undefined && (
-              <TouchableOpacity
-                onPress={() => this.exportData()}
-                testID={this.props.fieldId + '.exportButton'}>
-                <ExportIcon style={styles.groupIcon} />
-              </TouchableOpacity>
-            )}
+          {this.renderIcon(
+            this.props.editable && this.props.definition.export && getConfiguration().machine.phoropter !== undefined,
+            () => this.exportData(),
+            ExportIcon,
+            `${this.props.fieldId}.exportButton`
+          )}
         </View>
+
         <View style={styles.groupIcons}>
-          {this.props.editable && (
-            <TouchableOpacity
-              onPress={this.props.onClear ? this.props.onClear : this.clear}
-              testID={this.props.fieldId + '.garbageIcon'}>
-              <Garbage style={styles.groupIcon} />
-            </TouchableOpacity>
-          )}
+          {this.renderIcon(this.props.editable, this.props.onClear ? this.props.onClear : this.clear, Garbage, `${this.props.fieldId}.garbageIcon`)}
           {this.props.editable && this.props.definition.starable && (
             <Star
               onAddFavorite={this.addGroupFavorite}
               style={styles.groupIcon}
-              testID={this.props.fieldId + '.starIcon'}
+              testID={`${this.props.fieldId}.starIcon`}
             />
           )}
-          {this.props.editable && this.props.onAdd && (
-            <TouchableOpacity
-              onPress={this.props.onAdd}
-              testID={this.props.fieldId + '.addIcon'}>
-              <Plus style={styles.groupIcon} />
-            </TouchableOpacity>
-          )}
-          {this.props.editable && this.props.onPaste && (
-            <TouchableOpacity
-              onPress={() => this.props.onPaste(this.props.definition)}
-              testID={this.props.fieldId + '.pateIcon'}>
-              <Paste style={styles.groupIcon} />
-            </TouchableOpacity>
-          )}
-          {this.props.onCopy && !this.props.onPaste && (
-            <TouchableOpacity
-              onPress={() => this.props.onCopy(this.props.glassesRx)}>
-              <Copy style={styles.groupIcon} />
-            </TouchableOpacity>
-          )}
-          {this.props.editable && this.props.onCopyFromFinal && (
-            <TouchableOpacity
-              onPress={() => this.props.onCopyFromFinal(this.props.glassesRx)}>
-              <Copy style={styles.groupIcon} />
-            </TouchableOpacity>
-          )}
+          {this.renderIcon(this.props.editable && this.props.onAdd, this.props.onAdd, Plus, `${this.props.fieldId}.addIcon`)}
+          {this.renderIcon(this.props.editable && this.props.onPaste, () => this.props.onPaste(this.props.definition), Paste, `${this.props.fieldId}.pasteIcon`)}
+          {this.renderIcon(this.props.onCopy && !this.props.onPaste, () => this.props.onCopy(this.props.glassesRx), Copy)}
+          {this.renderIcon(this.props.editable && this.props.onCopyFromFinal, () => this.props.onCopyFromFinal(this.props.glassesRx), Copy)}
         </View>
+
         {this.state.importedData && this.state.showDialog && this.renderAlert()}
         {this.state.showSnackBar && this.renderSnackBar()}
       </View>
