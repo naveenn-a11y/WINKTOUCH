@@ -1603,6 +1603,36 @@ export const styles = StyleSheet.create({
   flatListScroll: {
     height: 500 * fontScale,
   },
+  rowContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  row: {
+    flexDirection: 'row',
+    width: '100%', // Ensures each row takes the full available width
+  },
+  contentFitColumn: {
+    flexShrink: 1, // Ensures the column fits its content
+    justifyContent: 'center',
+    minWidth: 30,
+  },
+  flexColumn: {
+    flex: 1, // Ensures the column flexes to fill remaining space equally
+    justifyContent: 'center',
+    width: '100%',
+  },
+  centeredLabel: {
+    textAlign: 'center',
+  },
+  emptyButtonSpace: {
+    padding: 4, // Example padding for the button
+    minWidth:28,
+  },
+  copyRowContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 4,
+  },
 });
 
 function cardStyle(color: Color) {

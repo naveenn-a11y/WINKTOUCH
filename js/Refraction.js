@@ -12,6 +12,7 @@ import {
   ScrollView,
   LayoutAnimation,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
@@ -1568,7 +1569,7 @@ export class GlassesDetail extends Component {
           definition={getFieldDefinition('visit.expDate')}
           readonly={!props.editable}
           onChangeValue={(value: ?string) => {
-            props.updateGlassesRx(undefined, 'expiry', value);
+            this.updateGlassesRx(undefined, 'expiry', value);
           }}
           errorMessage={props.glassesRx.expiryError}
           testID={`${props.fieldId}.expDate`}
@@ -1592,7 +1593,7 @@ export class GlassesDetail extends Component {
           value={props.glassesRx[field]}
           definition={filterFieldDefinition(props.definition.fields, label)}
           readonly={!props.editable}
-          onChangeValue={(value) => props.updateGlassesRx(undefined, field, value)}
+          onChangeValue={(value) => this.updateGlassesRx(undefined, field, value)}
           errorMessage={props.glassesRx[`${field}Error`]}
           isTyping={isTyping}
           autoFocus={autoFocus}
@@ -1612,7 +1613,7 @@ export class GlassesDetail extends Component {
           value={props.glassesRx[field]}
           definition={fieldDefinition}
           readonly={!props.editable}
-          onChangeValue={(value) => props.updateGlassesRx(undefined, field, value)}
+          onChangeValue={(value) => this.updateGlassesRx(undefined, field, value)}
           errorMessage={props.glassesRx[`${field}Error`]}
           isTyping={isTyping}
           autoFocus={autoFocus}
@@ -1646,7 +1647,7 @@ export class GlassesDetail extends Component {
           value={props.glassesRx.notes}
           definition={rxNotesDefinition}
           readonly={!props.editable}
-          onChangeValue={(value) => props.updateGlassesRx(undefined, 'notes', value)}
+          onChangeValue={(value) => this.updateGlassesRx(undefined, 'notes', value)}
           multiline={rxNotesDefinition ? rxNotesDefinition.multiline : false}
           errorMessage={props.glassesRx.notesError}
           testID={`${props.fieldId}.notes`}
@@ -1667,7 +1668,7 @@ export class GlassesDetail extends Component {
           value={props.glassesRx[field]}
           definition={fieldDefinition}
           readonly={!props.editable}
-          onChangeValue={(value) => props.updateGlassesRx(undefined, field, value)}
+          onChangeValue={(value) => this.updateGlassesRx(undefined, field, value)}
           errorMessage={props.glassesRx[`${field}Error`]}
           isTyping={isTyping}
           autoFocus={autoFocus}
@@ -1740,6 +1741,292 @@ export class GlassesDetail extends Component {
     );
   };
 
+  renderODOSOUSection(props, state) {
+    const isTyping =
+    this.context.keyboardMode === 'desktop' || this.state.isTyping;
+
+    const hasOU = this.hasVA() && this.props.glassesRx.ou !== undefined;
+
+    const glassesColumns = [
+      { label: 'Sph', visible: true},
+      { label: 'Cyl', visible: true},
+      { label: 'Axis', visible: true},
+      { label: 'Prism', visible: state.prism},
+      { label: 'Add', visible: props.hasAdd},
+    ];
+
+    const glassesRows = [
+      {
+        label: 'OD',
+        visible: true,
+        allowCopy: true,
+        columns: [
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.od.sph')),
+            value: props.glassesRx.od.sph,
+            definition: getFieldDefinition('visit.prescription.od.sph'),
+            onChange: (value: ?number) => this.updateGlassesRx('od', 'sph', value),
+            errorMessage: props.glassesRx.od.sphError,
+            testID: props.fieldId + '.od.sph',
+            autoFocus: true,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.od.cyl')),
+            value: props.glassesRx.od.cyl,
+            definition: getFieldDefinition('visit.prescription.od.cyl'),
+            onChange: (value: ?number) => this.updateGlassesRx('od', 'cyl', value),
+            errorMessage: props.glassesRx.od.cylError,
+            testID: props.fieldId + '.od.cyl',
+            autoFocus: true,
+            visible: true,
+            isPrism: false,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.od.axis')),
+            value: props.glassesRx.od.axis,
+            definition: getFieldDefinition('visit.prescription.od.axis'),
+            onChange: (value: ?number) => this.updateGlassesRx('od', 'axis', value),
+            errorMessage: props.glassesRx.od.axisError,
+            testID: props.fieldId + '.od.axis',
+            autoFocus: true,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.od.prism1')),
+            value: props.glassesRx.od.prism,
+            definition: getFieldDefinition('visit.prescription.od.prism'),
+            onChange: (value: ?number) => this.updateGlassesRx('od', 'prism', value),
+            errorMessage: props.glassesRx.od.prismError,
+            testID: props.fieldId + '.od.prism',
+            autoFocus: true,
+            visible: state.prism,
+            isPrism: true,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.od.add')),
+            value: props.glassesRx.od.add,
+            definition: getFieldDefinition('visit.prescription.od.add'),
+            onChange: (value: ?number) => this.updateGlassesRx('od', 'add', value),
+            errorMessage: props.glassesRx.od.addError,
+            testID: props.fieldId + '.od.add',
+            autoFocus: true,
+            visible: props.hasAdd,
+            isPrism: false,
+            isTyping
+          },
+        ],
+      },
+      {
+        label: 'OS',
+        visible: true,
+        allowCopy: false,
+        columns: [
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.os.sph')),
+            value: props.glassesRx.os.sph,
+            definition: getFieldDefinition('visit.prescription.os.sph'),
+            onChange: (value: ?number) => this.updateGlassesRx('os', 'sph', value),
+            errorMessage: props.glassesRx.os.sphError,
+            testID: props.fieldId + '.os.sph',
+            autoFocus: false,
+            visible: true,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.os.cyl')),
+            value: props.glassesRx.os.cyl,
+            definition: getFieldDefinition('visit.prescription.os.cyl'),
+            onChange: (value: ?number) => this.updateGlassesRx('os', 'cyl', value),
+            errorMessage: props.glassesRx.os.cylError,
+            testID: props.fieldId + '.os.cyl',
+            autoFocus: false,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.os.axis')),
+            value: props.glassesRx.os.axis,
+            definition: getFieldDefinition('visit.prescription.os.axis'),
+            onChange: (value: ?number) => this.updateGlassesRx('os', 'axis', value),
+            errorMessage: props.glassesRx.os.axisError,
+            testID: props.fieldId + '.os.axis',
+            autoFocus: false,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.os.prism1')),
+            value: props.glassesRx.os.prism,
+            definition: getFieldDefinition('visit.prescription.os.prism'),
+            onChange: (value: ?number) => this.updateGlassesRx('os', 'prism', value),
+            errorMessage: props.glassesRx.os.prismError,
+            testID: props.fieldId + '.os.prism',
+            autoFocus: false,
+            visible: state.prism,
+            isPrism: true,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.os.add')),
+            value: props.glassesRx.os.add,
+            definition: getFieldDefinition('visit.prescription.os.add'),
+            onChange: (value: ?number) => this.updateGlassesRx('os', 'add', value),
+            errorMessage: props.glassesRx.os.addError,
+            testID: props.fieldId + '.os.add',
+            autoFocus: false,
+            visible: props.hasAdd,
+            isPrism: false,
+            isTyping
+          },
+        ],
+      },
+      {
+        label: 'OU',
+        visible: hasOU,
+        allowCopy: false,
+        columns: [
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.ou.sph')),
+            value: props.glassesRx.ou.sph,
+            definition: getFieldDefinition('visit.prescription.ou.sph'),
+            onChange: (value: ?number) => this.updateGlassesRx('ou', 'sph', value),
+            errorMessage: props.glassesRx.ou.sphError,
+            testID: props.fieldId + '.ou.sph',
+            autoFocus: false,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.ou.cyl')),
+            value:props.glassesRx.ou.cyl,
+            definition: getFieldDefinition('visit.prescription.ou.cyl'),
+            onChange: (value: ?number) => this.updateGlassesRx('ou', 'cyl', value),
+            errorMessage: props.glassesRx.ou.cylError,
+            testID: props.fieldId + '.ou.cyl',
+            autoFocus: false,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.ou.axis')),
+            value: props.glassesRx.ou.axis,
+            definition: getFieldDefinition('visit.prescription.ou.axis'),
+            onChange: (value: ?number) => this.updateGlassesRx('ou', 'axis', value),
+            errorMessage: props.glassesRx.ou.axisError,
+            testID: props.fieldId + '.ou.axis',
+            autoFocus: false,
+            visible: true,
+            isPrism: false,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.ou.prism1')),
+            value: props.glassesRx.ou.prism,
+            definition: getFieldDefinition('visit.prescription.ou.prism'),
+            onChange: (value: ?number) => this.updateGlassesRx('ou', 'prism', value),
+            errorMessage: props.glassesRx.ou.prismError,
+            testID: props.fieldId + '.ou.prism',
+            autoFocus: false,
+            visible: state.prism,
+            isPrism: true,
+            isTyping
+          },
+          {
+            label: formatLabel(getFieldDefinition('visit.prescription.ou.add')),
+            value: props.glassesRx.ou.add,
+            definition: getFieldDefinition('visit.prescription.ou.add'),
+            onChange: (value: ?number) => this.updateGlassesRx('ou', 'add', value),
+            errorMessage: props.glassesRx.ou.addError,
+            testID: props.fieldId + '.ou.add',
+            autoFocus: false,
+            visible: props.hasAdd,
+            isPrism: false,
+            isTyping
+          },
+        ],
+      },
+    ];
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.row}>
+          <View style={styles.contentFitColumn}>
+            <Label value=" " suffix="" />
+          </View>
+          {glassesColumns
+            .filter((column) => column.visible)
+            .map((column, index) => (
+              <View style={styles.flexColumn} key={index}>
+                <Label value={column.label} style={styles.formTableColumnHeaderFull} suffix={''} />
+              </View>
+            ))}
+          <View style={styles.emptyButtonSpace} />
+        </View>
+
+        {glassesRows.map(
+          (row, index) =>
+            row.visible && (
+              <View style={styles.row} key={index}>
+                <View style={styles.contentFitColumn}>
+                  <Label value={row.label} />
+                </View>
+                {row.columns.filter(column => column.visible).map((column, idx) => (
+                  <View style={styles.flexColumn} key={column.testId}>
+                    {!column.isPrism && (
+                      <FormInput
+                        value={column.value}
+                        definition={column.definition}
+                        showLabel={false}
+                        readonly={!this.props.editable}
+                        onChangeValue={column.onChangeValue}
+                        errorMessage={column.errorMessage}
+                        isTyping={column.isTyping}
+                        autoFocus={column.autoFocus}
+                        testID={column.testId}
+                      />
+                    )}
+                    {column.isPrism && (
+                      <GeneralPrismInput
+                        value={column.value}
+                        visible
+                        showLabel={false}
+                        readonly={!this.props.editable}
+                        onChangeValue={(value: ?String) =>
+                          this.updatePrism('os', value)
+                        }
+                        testID={column.testId}
+                      />
+                    )}
+                  </View>
+                ))}
+                <View style={styles.contentFitColumn}>
+                  <View style={styles.emptyButtonSpace}>
+                    {row.allowCopy ? (
+                      <View style={styles.copyRowContainer}>
+                        <CopyRow onPress={this.copyOdOs} />
+                      </View>
+                    ) : null}
+                  </View>
+                </View>
+              </View>
+            ),
+        )}
+      </View>
+    );
+  }
+
   render() {
     if (!this.props.glassesRx) {
       return null;
@@ -1770,6 +2057,8 @@ export class GlassesDetail extends Component {
             </View>
           )}
           {this.props.hasCustomField && this.renderFormInput(this.props, 'customField', 'customField')}
+
+          {this.renderODOSOUSection(this.props, this.state)}
 
           <View style={styles.formRow}>
             <View style={styles.formColumn}>
