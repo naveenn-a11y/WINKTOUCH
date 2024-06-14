@@ -131,7 +131,7 @@ export class Label extends PureComponent {
       ? [styles.formLabel, {width: this.props.width}]
       : styles.formLabel;
     return (
-      <Text style={style}>
+      <Text style={style} testID={`label-${this.props?.value}`}>
         {this.props.value}
         {this.props.suffix}
       </Text>
@@ -2143,6 +2143,7 @@ export class TimeField extends Component {
     if (this.state.isTyping) {
       return (
         <TextField
+          testID={this.props?.testID}
           prefix={this.props.prefix}
           value={formattedValue}
           suffix={this.props.suffix}
