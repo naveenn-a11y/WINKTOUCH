@@ -144,7 +144,7 @@ export class LockScreen extends Component {
         <View style={styles.centeredScreenLayout}>
           <View
             style={{
-              width: '80%',
+              width: '100%',
               justifyContent: 'center',
               alignItems: 'center',
             }}>
@@ -173,7 +173,7 @@ export class LockScreen extends Component {
                   />
                 </View>
                 <View style={{marginLeft: 20, marginRight: 20}} />
-                <View>
+                <View style={{ width: 'max-content'}}>
                   <View style={{marginBottom: 10}}>
                     <Text
                       style={{
