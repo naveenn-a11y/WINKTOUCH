@@ -246,7 +246,7 @@ export class FormTextInput extends Component {
             : this.props.testID + 'FieldDismissError'
         }
         accessible={false}>
-        <View style={[styles.flexColumnLayout, {minHeight: 45 * fontScale}]}>
+        <View style={[styles.flexColumnLayout, {minHeight: this.props.multiline ? 194.2 * fontScale : 45 * fontScale}]}>
           <View
             style={
               this.props.containerStyle

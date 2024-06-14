@@ -1493,8 +1493,6 @@ export const styles = StyleSheet.create({
   },
   AppointmentDialog: {
     width: '55%',
-    minHeight: '40%',
-    maxHeight: '90%',
     alignSelf: 'center',
     backgroundColor: '#fff',
   },
