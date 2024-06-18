@@ -567,6 +567,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 3 * fontScale,
   },
+  placeholderElement: {
+    flex: 200,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   formLabel: {
     fontSize: 18 * fontScale,
     padding: 3 * fontScale,
