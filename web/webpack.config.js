@@ -25,7 +25,7 @@ module.exports = (env, mode) => {
       'process.env.WINK_APP_ACCOUNTS_URL': JSON.stringify(process.env.WINK_APP_ACCOUNTS_URL),
     };
   } else {
-    const envFile = '.env.active';
+    const envFile = '.env';
     const envPath = path.resolve(__dirname, `../${envFile}`);
     if (fs.existsSync(envPath)) {
       const envConfig = dotenv.parse(fs.readFileSync(envPath));
