@@ -1081,7 +1081,7 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={[styles.AppointmentDialog, {minHeight: '45%'}]}
+          style={[styles.AppointmentDialog]}
           visible={this.state.doubleBookingModal}
           onDismiss={this.cancelDoubleBookDialog}
           dismissable={true}>
