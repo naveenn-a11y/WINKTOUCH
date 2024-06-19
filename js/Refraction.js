@@ -1800,7 +1800,7 @@ export class GlassesDetail extends Component {
     );
   }
 
-  renderPdSectionAlt(props, state) {
+  renderPdSection(props, state) {
     if (!props.hasPD) return null;
 
     const isTyping =
@@ -1919,170 +1919,6 @@ export class GlassesDetail extends Component {
     );
   }
 
-  renderPdSection(props) {
-    if (!props.hasPD || props.hasPD === undefined) return null;
-
-    const isTyping =
-    this.context.keyboardMode === 'desktop' || this.state.isTyping;
-
-    return (
-      <View style={styles.centeredColumnLayout}>
-        <Label
-          suffix=""
-          style={this.props.titleStyle}
-          value={strings.pd}
-          fieldId={this.props.fieldId}
-        />
-        <View style={styles.formRow}>
-          <View style={styles.formColumn}>
-            <View style={styles.formColumnItem}>
-              <Label value=" " suffix="" />
-            </View>
-            <View style={styles.formColumnItem}>
-              <Label value={strings.od} />
-            </View>
-            <View style={styles.formColumnItem}>
-              <Label value={strings.os} />
-            </View>
-            <View style={styles.formColumnItem}>
-              <Label value={strings.ou} />
-            </View>
-          </View>
-
-          <View style={styles.formColumnFlex}>
-            <View style={styles.formColumnItem}>
-              <Label
-                value={strings.far}
-                style={styles.formTableColumnHeaderFull}
-                suffix={''}
-              />
-            </View>
-            <View style={styles.formColumnItem}>
-              <FormInput
-                value={props.glassesRx.od.farPD}
-                definition={getFieldDefinition(
-                  'visit.prescription.od.farPD',
-                )}
-                showLabel={false}
-                readonly={!props.editable}
-                onChangeValue={(value: ?number) =>
-                  this.updateGlassesRx('od', 'farPD', value)
-                }
-                errorMessage={props.glassesRx.od.farPDError}
-                isTyping={this.isTyping}
-                testID={props.fieldId + '.od.farPD'}
-              />
-            </View>
-            <View style={styles.formColumnItem}>
-              <FormInput
-                value={props.glassesRx.os.farPD}
-                definition={getFieldDefinition(
-                  'visit.prescription.os.farPD',
-                )}
-                showLabel={false}
-                readonly={!props.editable}
-                onChangeValue={(value: ?number) =>
-                  this.updateGlassesRx('os', 'farPD', value)
-                }
-                errorMessage={props.glassesRx.os.farPDError}
-                isTyping={isTyping}
-                testID={props.fieldId + '.os.farPD'}
-              />
-            </View>
-            <View style={styles.formColumnItem}>
-              <FormInput
-                value={props.glassesRx.ou.farPD}
-                definition={getFieldDefinition(
-                  'visit.prescription.ou.farPD',
-                )}
-                showLabel={false}
-                readonly={!props.editable}
-                onChangeValue={(value: ?number) =>
-                  this.updateGlassesRx('ou', 'farPD', value)
-                }
-                errorMessage={props.glassesRx.ou.farPDError}
-                isTyping={isTyping}
-                testID={props.fieldId + '.ou.farPD'}
-              />
-            </View>
-          </View>
-          <View style={styles.formColumnFlex}>
-            <View style={styles.formColumnItem}>
-              <Label
-                value={strings.near}
-                style={styles.formTableColumnHeaderFull}
-                suffix={''}
-              />
-            </View>
-            <View style={styles.formColumnItem}>
-              <FormInput
-                value={props.glassesRx.od.closePD}
-                definition={getFieldDefinition(
-                  'visit.prescription.od.closePD',
-                )}
-                showLabel={false}
-                readonly={!props.editable}
-                onChangeValue={(value: ?number) =>
-                  this.updateGlassesRx('od', 'closePD', value)
-                }
-                errorMessage={props.glassesRx.od.closePDError}
-                isTyping={isTyping}
-                autoFocus={true}
-                testID={props.fieldId + '.od.closePD'}
-              />
-            </View>
-            <View style={styles.formColumnItem}>
-              <FormInput
-                value={props.glassesRx.os.closePD}
-                definition={getFieldDefinition(
-                  'visit.prescription.os.closePD',
-                )}
-                showLabel={false}
-                readonly={!props.editable}
-                onChangeValue={(value: ?number) =>
-                  this.updateGlassesRx('os', 'closePD', value)
-                }
-                errorMessage={props.glassesRx.os.closePDError}
-                isTyping={isTyping}
-                testID={props.fieldId + '.os.closePD'}
-              />
-            </View>
-            <View style={styles.formColumnItem}>
-              <FormInput
-                value={props.glassesRx.ou.closePD}
-                definition={getFieldDefinition(
-                  'visit.prescription.ou.closePD',
-                )}
-                showLabel={false}
-                readonly={!props.editable}
-                onChangeValue={(value: ?number) =>
-                  this.updateGlassesRx('ou', 'closePD', value)
-                }
-                errorMessage={props.glassesRx.ou.closePDError}
-                isTyping={isTyping}
-                testID={props.fieldId + '.ou.closePD'}
-              />
-            </View>
-          </View>
-
-          {props.editable && (
-            <View style={styles.formColumn}>
-              <View style={styles.formColumnItem}>
-                <Label value=" " suffix="" />
-              </View>
-              <View style={styles.formColumnItemHalfHeight}>
-                <Label value=" " suffix="" />
-              </View>
-              <View style={styles.formColumnItem}>
-                <CopyRow onPress={this.copyPDOdOs} />
-              </View>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  }
-
   render() {
     if (!this.props.glassesRx) {
       return null;
@@ -2125,7 +1961,7 @@ export class GlassesDetail extends Component {
 
           {this.renderNotesInput(this.props)}
 
-          {this.renderPdSectionAlt(this.props, this.state)}
+          {this.renderPdSection(this.props, this.state)}
         </View>
 
         <View style={styles.groupExtraIcons}>
