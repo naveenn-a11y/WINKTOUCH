@@ -1665,7 +1665,7 @@ export class GroupedForm extends Component {
     );
   }
 
-  renderColumnsHeader(columnDefinition: GroupDefinition) {
+  renderColumnsHeader(columnDefinition: GroupDefinition, labelWidth) {
     if (this.hasColumns() === false) {
       return null;
     }
@@ -1679,7 +1679,9 @@ export class GroupedForm extends Component {
       <View
         style={styles.formRow}
         key={'columnHeader-' + columnDefinition.name}>
-        <Text style={styles.formTableRowHeader}> </Text>
+        <View style={{minWidth: labelWidth}}>
+          <Text style={styles.formTableRowHeader}> </Text>
+        </View>
         {columns.map((column: string, index: number) => {
           const columnDefinition: FieldDefinition =
             this.props.definition.fields.find(
@@ -1733,14 +1735,17 @@ export class GroupedForm extends Component {
     columns: string[],
     rowIndex: number,
     copyRow: () => void,
+    maxLabelWidth: Number,
   ) {
     return (
       <View style={styles.formRow}>
-        <Label
-          value={fieldLabel}
-          style={styles.formTableRowHeader}
-          fieldId={labelId}
-        />
+        <View style={{minWidth: maxLabelWidth}}>
+          <Label
+            value={fieldLabel}
+            style={styles.formTableRowHeader}
+            fieldId={labelId}
+          />
+        </View>
         {columns.map((column, columnIndex) => {
           const columnDefinition: GroupDefinition =
             this.props.definition.fields.find(
@@ -1779,13 +1784,32 @@ export class GroupedForm extends Component {
     if (this.getIsVisible(columnDefinition) === false) {
       return null;
     }
-    let rows: any[] = [];
-    rows.push(this.renderColumnsHeader(columnDefinition));
+
     const columnedFields: FieldDefinition[] = columnDefinition.fields;
     const columns: string[] = this.props.definition.columns.find(
       (columns: string[]) =>
         columns.length > 0 && columns[0] === columnDefinition.name,
     );
+
+    // calculate the max label width which is used
+    // to set the width of the label column
+    // to be consistent with different length labels
+    let maxLabelWidth = 0;
+    columnedFields.forEach((field: FieldDefinition) => {
+      const label = formatLabel(field);
+      if (label.length > maxLabelWidth) {
+        maxLabelWidth = label.length;
+      }
+    });
+
+    let labelWidth = 0;
+    if (maxLabelWidth > 0) {
+      labelWidth = maxLabelWidth * 11;
+    }
+
+    let rows: any[] = [];
+    rows.push(this.renderColumnsHeader(columnDefinition, labelWidth));
+
     for (let i: number = 0; i < columnedFields.length; i++) {
       rows.push(
         this.renderColumnedRow(
@@ -1798,6 +1822,7 @@ export class GroupedForm extends Component {
           columns,
           i,
           () => this.copyRow(columnedFields, i, i + 1, columns),
+          labelWidth,
         ),
       );
     }

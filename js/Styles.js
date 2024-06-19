@@ -686,7 +686,7 @@ export const styles = StyleSheet.create({
   inputFieldActiveChanged: inputFieldStyle(true, true),
   formTableRowHeader: {
     flex: 65,
-    fontSize: 20 * fontScale,
+    fontSize: 18 * fontScale,
     paddingHorizontal: 3 * fontScale,
     textAlign: 'right',
     margin: 5 * fontScale,
@@ -695,7 +695,7 @@ export const styles = StyleSheet.create({
   formTableColumnHeader: {
     flex: 100,
     flexDirection: 'row',
-    fontSize: 20 * fontScale,
+    fontSize: 18 * fontScale,
     textAlign: 'center',
     margin: 4 * fontScale,
     marginTop: 20 * fontScale,
