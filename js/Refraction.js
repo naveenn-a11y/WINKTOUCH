@@ -1653,6 +1653,18 @@ export class GlassesDetail extends Component {
     );
   }
 
+  createColumn(props, eye, field, definition, isPrism, isVisible, hasError, isTyping) {
+    return {
+      value: props.glassesRx[eye][field],
+      definition: getFieldDefinition(definition),
+      onChange: (value: ?number) => this.updateGlassesRx(eye, field, value),
+      errorMessage: props.glassesRx[eye][`${field}Error`],
+      testID: `${props.fieldId}.${eye}.${field}`,
+      visible: isVisible,
+      isPrism,
+    }
+  };
+
   renderOdOsOuSection(props, state) {
     const isTyping =
     this.context.keyboardMode === 'desktop' || state.isTyping;
@@ -1676,87 +1688,14 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: true,
         columns: [
-          {
-            value: props.glassesRx.od.sph,
-            definition: getFieldDefinition('visit.prescription.od.sph'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'sph', value),
-            errorMessage: props.glassesRx.od.sphError,
-            testID: props.fieldId + '.od.sph',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.cyl,
-            definition: getFieldDefinition('visit.prescription.od.cyl'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'cyl', value),
-            errorMessage: props.glassesRx.od.cylError,
-            testID: props.fieldId + '.od.cyl',
-            visible: true,
-            isPrism: false,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.axis,
-            definition: getFieldDefinition('visit.prescription.od.axis'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'axis', value),
-            errorMessage: props.glassesRx.od.axisError,
-            testID: props.fieldId + '.od.axis',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.prism,
-            definition: getFieldDefinition('visit.prescription.od.prism'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'prism', value),
-            errorMessage: props.glassesRx.od.prismError,
-            testID: props.fieldId + '.od.prism',
-            visible: state.prism,
-            isPrism: true,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.va,
-            definition: getFieldDefinition('exam.VA cc.Aided acuities.DVA.OD'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'va', value),
-            errorMessage: props.glassesRx.od.vaError,
-            testID: props.fieldId + '.od.dva',
-            visible: this.hasVA(),
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.add,
-            definition: getFieldDefinition('visit.prescription.od.add'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'add', value),
-            errorMessage: props.glassesRx.od.addError,
-            testID: props.fieldId + '.od.add',
-            visible: props.hasAdd,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.addVa,
-            definition: getFieldDefinition('exam.VA cc.Aided acuities.NVA.OD'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'addVa', value),
-            errorMessage: props.glassesRx.od.addVaError,
-            testID: props.fieldId + '.od.nva',
-            visible: this.hasNVA(),
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.bvd,
-            definition: getFieldDefinition('visit.prescription.od.bvd'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'bvd', value),
-            errorMessage: props.glassesRx.od.bvdError,
-            testID: props.fieldId + '.od.bvd',
-            visible: this.hasBvd(),
-            isPrism: false,
-            isTyping
-          },
+          this.createColumn(props, 'od', 'sph', 'visit.prescription.od.sph', false, true, props.glassesRx.od.sphError),
+          this.createColumn(props, 'od', 'cyl', 'visit.prescription.od.cyl', false, true, props.glassesRx.od.cylError),
+          this.createColumn(props, 'od', 'axis', 'visit.prescription.od.axis', false, true, props.glassesRx.od.axisError),
+          this.createColumn(props, 'od', 'prism', 'visit.prescription.od.prism', true, state.prism, props.glassesRx.od.prismError),
+          this.createColumn(props, 'od', 'va', 'exam.VA cc.Aided acuities.DVA.OD', false, this.hasVA(), props.glassesRx.od.vaError),
+          this.createColumn(props, 'od', 'add', 'visit.prescription.od.add', false, props.hasAdd, props.glassesRx.od.addError),
+          this.createColumn(props, 'od', 'addVa', 'exam.VA cc.Aided acuities.NVA.OD', false, this.hasNVA(), props.glassesRx.od.addVaError),
+          this.createColumn(props, 'od', 'bvd', 'visit.prescription.od.bvd', false, this.hasBvd(), props.glassesRx.od.bvdError)
         ],
       },
       {
@@ -1764,85 +1703,14 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: false,
         columns: [
-          {
-            value: props.glassesRx.os.sph,
-            definition: getFieldDefinition('visit.prescription.os.sph'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'sph', value),
-            errorMessage: props.glassesRx.os.sphError,
-            testID: props.fieldId + '.os.sph',
-            visible: true,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.cyl,
-            definition: getFieldDefinition('visit.prescription.os.cyl'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'cyl', value),
-            errorMessage: props.glassesRx.os.cylError,
-            testID: props.fieldId + '.os.cyl',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.axis,
-            definition: getFieldDefinition('visit.prescription.os.axis'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'axis', value),
-            errorMessage: props.glassesRx.os.axisError,
-            testID: props.fieldId + '.os.axis',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.prism,
-            definition: getFieldDefinition('visit.prescription.os.prism'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'prism', value),
-            errorMessage: props.glassesRx.os.prismError,
-            testID: props.fieldId + '.os.prism',
-            visible: state.prism,
-            isPrism: true,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.va,
-            definition: getFieldDefinition('exam.VA cc.Aided acuities.DVA.OS'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'va', value),
-            errorMessage: props.glassesRx.os.vaError,
-            testID: props.fieldId + '.os.dva',
-            visible: this.hasVA(),
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.add,
-            definition: getFieldDefinition('visit.prescription.os.add'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'add', value),
-            errorMessage: props.glassesRx.os.addError,
-            testID: props.fieldId + '.os.add',
-            visible: props.hasAdd,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.addVa,
-            definition: getFieldDefinition('exam.VA cc.Aided acuities.NVA.OS'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'addVa', value),
-            errorMessage: props.glassesRx.os.addVaError,
-            testID: props.fieldId + '.os.nva',
-            visible: this.hasNVA(),
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.bvd,
-            definition: getFieldDefinition('visit.prescription.os.bvd'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'bvd', value),
-            errorMessage: props.glassesRx.os.bvdError,
-            testID: props.fieldId + '.os.bvd',
-            visible: this.hasBvd(),
-            isPrism: false,
-            isTyping
-          },
+          this.createColumn(props, 'os', 'sph', 'visit.prescription.os.sph', false, true, props.glassesRx.os.sphError),
+          this.createColumn(props, 'os', 'cyl', 'visit.prescription.os.cyl', false, true, props.glassesRx.os.cylError),
+          this.createColumn(props, 'os', 'axis', 'visit.prescription.os.axis', false, true, props.glassesRx.os.axisError),
+          this.createColumn(props, 'os', 'prism', 'visit.prescription.os.prism', true, state.prism, props.glassesRx.os.prismError),
+          this.createColumn(props, 'os', 'va', 'exam.VA cc.Aided acuities.DVA.OS', false, this.hasVA(), props.glassesRx.os.vaError),
+          this.createColumn(props, 'os', 'add', 'visit.prescription.os.add', false, props.hasAdd, props.glassesRx.os.addError),
+          this.createColumn(props, 'os', 'addVa', 'exam.VA cc.Aided acuities.NVA.OS', false, this.hasNVA(), props.glassesRx.os.addVaError),
+          this.createColumn(props, 'os', 'bvd', 'visit.prescription.os.bvd', false, this.hasBvd(), props.glassesRx.os.bvdError)
         ],
       },
       {
@@ -1850,50 +1718,14 @@ export class GlassesDetail extends Component {
         visible: hasOU,
         allowCopy: false,
         columns: [
-          {
-            visible: true,
-            placeholder: true,
-          },
-          {
-            visible: true,
-            placeholder: true,
-          },
-          {
-            visible: true,
-            placeholder: true,
-          },
-          {
-            visible: state.prism,
-            placeholder: true,
-          },
-          {
-            value: props.glassesRx.ou.va,
-            definition: getFieldDefinition('exam.VA cc.Aided acuities.DVA.OU'),
-            onChange: (value: ?number) => this.updateGlassesRx('ou', 'va', value),
-            errorMessage: props.glassesRx.ou.vaError,
-            testID: props.fieldId + '.ou.dva',
-            visible: this.hasVA(),
-            isPrism: false,
-            isTyping
-          },
-          {
-            visible: props.hasAdd,
-            placeholder: true,
-          },
-          {
-            value: props.glassesRx.ou.addVa,
-            definition: getFieldDefinition('exam.VA cc.Aided acuities.NVA.OU'),
-            onChange: (value: ?number) => this.updateGlassesRx('ou', 'addVa', value),
-            errorMessage: props.glassesRx.ou.addVaError,
-            testID: props.fieldId + '.ou.nva',
-            visible: this.hasNVA(),
-            isPrism: false,
-            isTyping
-          },
-          {
-            visible: this.hasBvd(),
-            placeholder: true,
-          },
+          { visible: true, placeholder: true },
+          { visible: true, placeholder: true },
+          { visible: true, placeholder: true },
+          { visible: state.prism, placeholder: true },
+          this.createColumn(props, 'ou', 'va', 'exam.VA cc.Aided acuities.DVA.OU', false, this.hasVA(), props.glassesRx.ou.vaError),
+          { visible: props.hasAdd, placeholder: true },
+          this.createColumn(props, 'ou', 'addVa', 'exam.VA cc.Aided acuities.NVA.OU', false, this.hasNVA(), props.glassesRx.ou.addVaError),
+          { visible: this.hasBvd(), placeholder: true }
         ],
       },
     ];
@@ -1933,7 +1765,7 @@ export class GlassesDetail extends Component {
                           readonly={!this.props.editable}
                           onChangeValue={column.onChange}
                           errorMessage={column.errorMessage}
-                          isTyping={column.isTyping}
+                          isTyping={isTyping}
                           autoFocus={false}
                           testID={column.testId}
                         />
@@ -1987,26 +1819,8 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: true,
         columns: [
-          {
-            value: props.glassesRx.od.farPD,
-            definition: getFieldDefinition('visit.prescription.od.farPD'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'farPD', value),
-            errorMessage: props.glassesRx.od.farPDError,
-            testID: props.fieldId + '.od.farPD',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.od.closePD,
-            definition: getFieldDefinition('visit.prescription.od.closePD'),
-            onChange: (value: ?number) => this.updateGlassesRx('od', 'closePD', value),
-            errorMessage: props.glassesRx.od.closePDError,
-            testID: props.fieldId + '.od.closePD',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
+          this.createColumn(props, 'od', 'farPD', 'visit.prescription.od.farPD', false, true, props.glassesRx.od.farPDError),
+          this.createColumn(props, 'od', 'closePD', 'visit.prescription.od.closePD', false, true, props.glassesRx.od.closePDError)
         ],
       },
       {
@@ -2014,26 +1828,8 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: false,
         columns: [
-          {
-            value: props.glassesRx.os.farPD,
-            definition: getFieldDefinition('visit.prescription.os.farPD'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'farPD', value),
-            errorMessage: props.glassesRx.os.farPDError,
-            testID: props.fieldId + '.os.farPD',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.os.closePD,
-            definition: getFieldDefinition('visit.prescription.os.closePD'),
-            onChange: (value: ?number) => this.updateGlassesRx('os', 'closePD', value),
-            errorMessage: props.glassesRx.os.closePDError,
-            testID: props.fieldId + '.os.closePD',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
+          this.createColumn(props, 'os', 'farPD', 'visit.prescription.os.farPD', false, true, props.glassesRx.os.farPDError),
+          this.createColumn(props, 'os', 'closePD', 'visit.prescription.os.closePD', false, true, props.glassesRx.os.closePDError)
         ],
       },
       {
@@ -2041,26 +1837,8 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: false,
         columns: [
-          {
-            value: props.glassesRx.ou.farPD,
-            definition: getFieldDefinition('visit.prescription.ou.farPD'),
-            onChange: (value: ?number) => this.updateGlassesRx('ou', 'farPD', value),
-            errorMessage: props.glassesRx.ou.farPDError,
-            testID: props.fieldId + '.ou.farPD',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
-          {
-            value: props.glassesRx.ou.closePD,
-            definition: getFieldDefinition('visit.prescription.ou.closePD'),
-            onChange: (value: ?number) => this.updateGlassesRx('ou', 'closePD', value),
-            errorMessage: props.glassesRx.ou.closePDError,
-            testID: props.fieldId + '.ou.closePD',
-            visible: true,
-            isPrism: false,
-            isTyping
-          },
+          this.createColumn(props, 'ou', 'farPD', 'visit.prescription.ou.farPD', false, true, props.glassesRx.ou.farPDError),
+          this.createColumn(props, 'ou', 'closePD', 'visit.prescription.ou.closePD', false, true, props.glassesRx.ou.closePDError)
         ],
       },
     ];
@@ -2106,7 +1884,7 @@ export class GlassesDetail extends Component {
                           readonly={!this.props.editable}
                           onChangeValue={column.onChange}
                           errorMessage={column.errorMessage}
-                          isTyping={column.isTyping}
+                          isTyping={isTyping}
                           autoFocus={false}
                           testID={column.testId}
                         />
