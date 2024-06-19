@@ -1636,6 +1636,11 @@ export const styles = StyleSheet.create({
     top: 10,
     right: 4,
   },
+  copyRowContainerAlt: {
+    position: 'absolute',
+    top: 18,
+    right: 0,
+  }
 });
 
 function cardStyle(color: Color) {
