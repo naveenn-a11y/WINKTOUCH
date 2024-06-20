@@ -330,11 +330,11 @@ export class GroupedForm extends Component {
       let exam: Exam = getCachedItem(this.props.examId);
       fieldDefinition = {
         ...getExamFieldDefinition(fieldDefinition.mappedField, exam),
-        ...fieldDefinition
+        ...fieldDefinition,
       };
     }
 
-    const { form } = this.props;
+    const {form} = this.props;
     let value;
 
     if (form) {
@@ -521,12 +521,12 @@ export class GroupedForm extends Component {
   ) {
     return (
       <View style={styles.formRow}>
-        <View style={{ minWidth: maxLabelWidth }}>
+        <View style={{minWidth: maxLabelWidth}}>
           <Label value={fieldLabel} style={styles.formTableRowHeader} fieldId={labelId} />
         </View>
         {columns.map((column, columnIndex) => {
           const columnDefinition = this.props.definition.fields.find(
-            fieldDefinition => fieldDefinition.name === column
+            (fieldDefinition) => fieldDefinition.name === column,
           );
 
           if (columnDefinition) {
@@ -535,9 +535,9 @@ export class GroupedForm extends Component {
           }
 
           if (columnIndex === columns.length - 1) {
-            if (rowIndex < columnedFields.length-1) {
+            if (rowIndex < columnedFields.length - 1) {
               return (
-                <View style={{ width: '24px' }} key={generateRandomGUID()}>
+                <View style={{width: '24px'}} key={generateRandomGUID()}>
                   <View style={styles.copyRowContainerAlt}>
                     <CopyRow
                       onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
@@ -554,7 +554,6 @@ export class GroupedForm extends Component {
           return null;
         })}
       </View>
-
     );
   }
 
@@ -595,11 +594,156 @@ export class GroupedForm extends Component {
           columns,
           rowIndex,
           columnedFields,
-          labelWidth
-        )
+          labelWidth,
+        ),
       );
     });
     return rows;
+  }
+
+
+  renderColumnLabelsAlt(refColumnDefinition: GroupDefinition) {
+    return (
+      <View style={styles.formColumn}>
+        {refColumnDefinition?.fields && (
+          <>
+            <View style={styles.formColumnItem}>
+              <Label value=" " suffix="" />
+            </View>
+            {refColumnDefinition.fields.map((fd: FieldDefinition) => (
+              <View style={styles.formColumnItem} key={generateRandomGUID()}>
+                <Label
+                  value={formatLabel(fd)}
+                  fieldId={this.props.fieldId + '.' + fd.name}
+                />
+              </View>
+            ))}
+          </>
+        )}
+      </View>
+    );
+  }
+
+  renderColumnCopyAlt(
+    refColumnDefinition: GroupDefinition,
+    colInd: number,
+    columns: string[],
+  ) {
+    return (
+      <View style={styles.FormColumnTop}>
+        <View style={styles.formColumnItem}>
+          <View style={styles.copyColumnContainer}>
+            <CopyColumn
+              onPress={() =>
+                this.copyColumn(columns[colInd - 1], columns[colInd + 1])
+              }
+            />
+          </View>
+        </View>
+        {refColumnDefinition?.fields?.map((fd: FieldDefinition, ind) => (
+          <View key={generateRandomGUID()} style={styles.formColumnItem} />
+        ))}
+      </View>
+    );
+  }
+
+  renderRowCopyAlt(refColumnDefinition: GroupDefinition, columns: string[]) {
+    return (
+      <View style={styles.FormColumnTop}>
+        {refColumnDefinition?.fields && (
+          <>
+            <View style={styles.formColumnItem}>
+              <Label value=" " suffix="" />
+            </View>
+            <View style={styles.formColumnItemHalfHeight}>
+              <Label value=" " suffix="" />
+            </View>
+            {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
+              ind < refColumnDefinition.fields.length - 1 ? (
+                <View style={styles.formColumnItem} key={generateRandomGUID()}>
+                  <CopyRow
+                    onPress={() =>
+                      this.copyRow(
+                        refColumnDefinition.fields,
+                        ind,
+                        ind + 1,
+                        columns,
+                      )
+                    }
+                  />
+                </View>
+              ) : (
+                <View style={styles.formColumnItem} key={generateRandomGUID()} />
+              ),
+            )}
+          </>
+        )}
+      </View>
+    );
+  }
+
+  renderColumnAlt(
+    columnDefinition: GroupDefinition,
+    refColumnDefinition: GroupDefinition,
+  ) {
+    return (
+      <View style={styles.formColumnFlex}>
+        {columnDefinition && (
+          <View style={styles.formColumnItem}>
+            <Label
+              value={formatLabel(columnDefinition)}
+              style={styles.formTableColumnHeaderFull}
+              suffix={''}
+              fieldId={this.props.fieldId + '.' + columnDefinition.name}
+            />
+          </View>
+        )}
+        {refColumnDefinition?.fields?.map((reffd: FieldDefinition, ind) => {
+          const fd = columnDefinition?.fields.find(f => f.name === reffd.name);
+          return (
+            <View key={generateRandomGUID()} style={styles.formColumnItem}>
+              {fd ? this.renderField(fd, columnDefinition.name) : null}
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
+
+  renderColumnedRowsAlt(refColumnDefinition: GroupDefinition) {
+    if (!this.getIsVisible(refColumnDefinition)) {
+      return null;
+    }
+
+    const columns = this.props.definition.columns.find(
+      (columns) => columns.length > 0 && columns[0] === refColumnDefinition.name,
+    );
+
+    return (
+      <View style={styles.formRow}>
+        {this.renderColumnLabelsAlt(refColumnDefinition)}
+        {columns.map((column, index) => {
+          const columnDefinition = this.props.definition.fields.find(
+            (fieldDefinition) => fieldDefinition.name === column,
+          );
+
+          if (columnDefinition) {
+            return this.renderColumnAlt(columnDefinition, refColumnDefinition);
+          }
+
+          if (column === '>>') {
+            if (index < columns.length - 1 && index > 0) {
+              return this.renderColumnCopyAlt(refColumnDefinition, index, columns);
+            }
+            if (index === columns.length - 1) {
+              return this.renderRowCopyAlt(refColumnDefinition, columns);
+            }
+          }
+
+          return null; // Added to ensure all code paths return a value
+        })}
+      </View>
+    );
   }
 
   renderRows() {
@@ -607,16 +751,19 @@ export class GroupedForm extends Component {
     const groupDefinition: GroupDefinition = this.props.definition;
 
     if (groupDefinition.fields) {
-      for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
-        const columnFieldIndex: number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
+      for (const fieldDefinition of groupDefinition.fields) {
+        const columnFieldIndex = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
         if (columnFieldIndex === 0) {
-          rows.push(this.renderColumnedRows(fieldDefinition));
-        } else if (columnFieldIndex < 0) {
-          if (isRowField(groupDefinition, fieldDefinition.name) !== false) {
-            rows.push(this.renderFieldsRow(fieldDefinition));
+          // set renderAsRows to true if fieldDefinition.name !== 'OD' or 'OS'
+          const renderAsRows: boolean = fieldDefinition.name !== 'OD' && fieldDefinition.name !== 'OS';
+          if (renderAsRows) {
+            rows.push(this.renderColumnedRows(fieldDefinition));
           } else {
-            rows.push(this.renderSimpleRow(fieldDefinition));
+            rows.push(this.renderColumnedRowsAlt(fieldDefinition));
           }
+        } else if (columnFieldIndex < 0) {
+          const rowField = isRowField(groupDefinition, fieldDefinition.name);
+          rows.push(rowField !== false ? this.renderFieldsRow(fieldDefinition) : this.renderSimpleRow(fieldDefinition));
         }
       }
     }
@@ -650,12 +797,12 @@ export class GroupedForm extends Component {
     if (Array.isArray(measurement)) {
       this.showDialog(measurement);
     } else if (measurement?.data) {
-      const { onAdd, onUpdateForm, definition } = this.props;
+      const {onAdd, onUpdateForm, definition} = this.props;
       if (onAdd && Array.isArray(measurement.data)) {
         if (measurement.data.length > 0) {
           onUpdateForm(definition.name, measurement.data.slice(-1)[0]);
           const groupValues = measurement.data.slice(0, -1).reverse();
-          groupValues.forEach(groupValue => onAdd(groupValue));
+          groupValues.forEach((groupValue) => onAdd(groupValue));
         }
       } else {
         onUpdateForm(definition.name, measurement.data);
@@ -716,7 +863,7 @@ export class GroupedForm extends Component {
   }
 
   getStyle() {
-    const { style, definition } = this.props;
+    const {style, definition} = this.props;
     let boardStyle = styles.board;
 
     if (style) {
