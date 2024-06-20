@@ -439,13 +439,13 @@ export class GroupedForm extends Component {
     }
     const fromRowName: string = rowFields[rowIndexFrom].name;
     const toRowName: string = rowFields[rowIndexTo].name;
-    for (let i: number = 0; i < columns.length; i++) {
-      if (columns[i] === '>>') {
-        continue;
+    columns.forEach((column) => {
+      if (column === '>>') {
+        return;
       }
-      const value = this.props.form[columns[i]][fromRowName];
-      this.props.onChangeField(toRowName, value, columns[i]);
-    }
+      const value = this.props.form[column][fromRowName];
+      this.props.onChangeField(toRowName, value, column);
+    });
   }
 
   copyColumn(fromColumn: string, toColumn: string): void {
@@ -515,36 +515,40 @@ export class GroupedForm extends Component {
   ) {
     return (
       <View style={styles.formRow}>
-        <View style={{minWidth: maxLabelWidth}}>
+        <View style={{ minWidth: maxLabelWidth }}>
           <Label value={fieldLabel} style={styles.formTableRowHeader} fieldId={labelId} />
         </View>
         {columns.map((column, columnIndex) => {
-          const columnDefinition: GroupDefinition = this.props.definition.fields.find(
-            (fieldDefinition) => fieldDefinition.name === column,
+          const columnDefinition = this.props.definition.fields.find(
+            fieldDefinition => fieldDefinition.name === column
           );
+
           if (columnDefinition) {
-            const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
+            const fieldDefinition = columnDefinition.fields[rowIndex];
             return this.renderField(fieldDefinition, column);
-          } else {
-            if (columnIndex === columns.length - 1) {
-              if (rowIndex == 0) {
-                return [
-                  <View style={{width: '24px'}} key={generateRandomGUID()}>
-                    <View style={styles.copyRowContainerAlt}>
-                      <CopyRow
-                        oonPress={() => this.copyRow(columnedFields, i, i + 1, columns)}
-                        key={'copyRow-' + rowIndex}
-                      />
-                    </View>
-                  </View>,
-                ];
-              } else {
-                return <View style={styles.formTableColumnHeaderSmall} key={'cpoyRowSpace-' + rowIndex} />;
-              }
+          }
+
+          if (columnIndex === columns.length - 1) {
+            if (rowIndex < columnedFields.length-1) {
+              return (
+                <View style={{ width: '24px' }} key={generateRandomGUID()}>
+                  <View style={styles.copyRowContainerAlt}>
+                    <CopyRow
+                      onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
+                      key={'copyRow-' + rowIndex}
+                    />
+                  </View>
+                </View>
+              );
+            } else {
+              return <View style={styles.formTableColumnHeaderSmall} key={'copyRowSpace-' + rowIndex} />;
             }
           }
+
+          return null;
         })}
       </View>
+
     );
   }
 
@@ -577,18 +581,18 @@ export class GroupedForm extends Component {
     let rows: any[] = [];
     rows.push(this.renderColumnsHeader(columnDefinition, labelWidth));
 
-    for (let i: number = 0; i < columnedFields.length; i++) {
+    columnedFields.forEach((field, rowIndex) => {
       rows.push(
         this.renderColumnedRow(
-          this.props.fieldId + '.' + columnDefinition.name + '.' + columnedFields[i].name,
-          formatLabel(columnedFields[i]),
+          `${this.props.fieldId}.${columnDefinition.name}.${field.name}`,
+          formatLabel(field),
           columns,
-          i,
+          rowIndex,
           columnedFields,
-          labelWidth,
-        ),
+          labelWidth
+        )
       );
-    }
+    });
     return rows;
   }
 
@@ -637,25 +641,20 @@ export class GroupedForm extends Component {
     if (measurement === undefined || measurement === null) {
       this.showSnackBar();
     }
-    if (measurement instanceof Array) {
+    if (Array.isArray(measurement)) {
       this.showDialog(measurement);
-    } else {
-      if (measurement && measurement.data) {
-        if (this.props.onAdd && measurement.data instanceof Array) {
-          if (measurement.data.length > 0) {
-            this.props.onUpdateForm(this.props.definition.name, measurement.data.slice(-1)[0]);
-            let groupValues: {}[] = measurement.data.slice(0, -1).reverse();
-            groupValues.forEach((groupValue: {}) => this.props.onAdd(groupValue));
-          }
-        } else {
-          this.props.onUpdateForm(this.props.definition.name, measurement.data);
+    } else if (measurement?.data) {
+      const { onAdd, onUpdateForm, definition } = this.props;
+      if (onAdd && Array.isArray(measurement.data)) {
+        if (measurement.data.length > 0) {
+          onUpdateForm(definition.name, measurement.data.slice(-1)[0]);
+          const groupValues = measurement.data.slice(0, -1).reverse();
+          groupValues.forEach(groupValue => onAdd(groupValue));
         }
+      } else {
+        onUpdateForm(definition.name, measurement.data);
       }
     }
-  }
-
-  async exportData() {
-    // TODO export data
   }
 
   renderCopyIcon() {
@@ -680,7 +679,7 @@ export class GroupedForm extends Component {
       return null;
     }
     return [
-      <View style={styles.groupIcons}>
+      <View style={styles.groupIcons} key={generateRandomGUID()}>
         {this.props.onClear && (
           <TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId + '.garbageIcon'}>
             <Garbage style={styles.groupIcon} />
@@ -700,7 +699,7 @@ export class GroupedForm extends Component {
           />
         )}
       </View>,
-      <View style={styles.groupExtraIcons}>
+      <View style={styles.groupExtraIcons} key={generateRandomGUID()}>
         {this.props.editable && this.props.definition.import && (
           <TouchableOpacity onPress={() => this.importData()} testID={this.props.fieldId + '.importIcon'}>
             <ImportIcon style={styles.groupIcon} />
@@ -710,14 +709,23 @@ export class GroupedForm extends Component {
     ];
   }
 
+  getStyle() {
+    const { style, definition } = this.props;
+    let boardStyle = styles.board;
+
+    if (style) {
+      boardStyle = style;
+    } else if (definition.layout) {
+      boardStyle = scaleStyle(definition.layout);
+    } else if (definition.size) {
+      boardStyle = styles['board' + definition.size];
+    }
+
+    return boardStyle;
+  }
+
   render() {
-    const style = this.props.style
-      ? this.props.style
-      : this.props.definition.layout
-        ? scaleStyle(this.props.definition.layout)
-        : this.props.definition.size
-          ? styles['board' + this.props.definition.size]
-          : styles.board;
+    const style = this.getStyle();
     return (
       <View style={style}>
         <Label
