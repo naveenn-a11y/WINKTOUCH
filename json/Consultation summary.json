@@ -26,6 +26,31 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Resumen y plan",
+      "fields": [
+        {
+          "name": "Summary",
+          "label": "Resumen",
+          "fields": [
+            {
+              "name": "Resume",
+              "label": ""
+            }
+          ]
+        },
+        {
+          "name": "Treatment plan",
+          "label": "Plan de tratamiento",
+          "fields": [
+            {
+              "name": "Treatment",
+              "label": ""
+            }
+          ]
+        }
+      ]
     }
   },
   "isAssessment": true,

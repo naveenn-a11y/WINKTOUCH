@@ -12,10 +12,23 @@
           "label": "Réaction"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Alergias",
+      "fields": [
+        {
+          "name": "Allergy",
+          "label": "Alergia"
+        },
+        {
+          "name": "Reaction",
+          "label": "Reacción"
+        }
+      ]
     }
   },
   "name": "Allergies",
-  "cardFields": ["Allergy"],
+  "cardFields": ["Allergy", "Reaction"],
   "starable": true,
   "essentialFields": ["Allergy"],
   "type": "selectionLists",

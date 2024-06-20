@@ -3,37 +3,29 @@
  */
 'use strict';
 
-import type {Exam} from './Types';
 import {
   appendParameters,
   getToken,
   getNextRequestNumber,
   logRestResponse,
   handleHttpError,
-  defaultHost,
 } from './Rest';
-import {strings, getUserLanguage, getUserLanguageShort} from './Strings';
-import {restVersion} from './Version';
+import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';
-import {isWeb} from './Styles';
-import {REACT_APP_RESTFUL_URI} from '../env.json';
+import { isWeb } from './Styles';
+import { WINK_APP_REST_URL, WINK_APP_WEB_SOCKET_URL } from '@env';
 
-export const winkWebSocketUrl: string = __DEV__
-  ? 'http://192.168.2.53:8080/WinkWebSocket/'
-  : 'https://' + defaultHost + '/WinkWebSocket/';
+export const winkWebSocketUrl: string = isWeb ? process.env.WINK_APP_WEB_SOCKET_URL : WINK_APP_WEB_SOCKET_URL;
 
 let winkRestUrl: string;
-export function setWinkRestUrl(winkEmrHost: string) {
-  winkRestUrl = 'https://' + winkEmrHost + '/WinkRESTv' + restVersion + '/';
+export function setWinkRestUrl() {
+  winkRestUrl = isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL;
   __DEV__ && console.log('Setting WINKRest backend server to ' + winkRestUrl);
 }
 
 export function getWinkRestUrl(): string {
-  if (__DEV__) {
-    return REACT_APP_RESTFUL_URI;
-  }
   if (winkRestUrl === null || winkRestUrl === undefined || winkRestUrl === '') {
-    setWinkRestUrl(defaultHost);
+    setWinkRestUrl();
   }
   return winkRestUrl;
 }

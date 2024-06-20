@@ -2,6 +2,7 @@
   "name": "RxToOrder",
   "scrollable": true,
   "addable": false,
+  "appendStarValues": true,
   "isAssessment": true,
   "order": 1,
   "cardGroup": "Final Rx",
@@ -13,15 +14,21 @@
   "section": "Assessment",
   "fields": [
     {
+      "starable": true,
       "hasVA": true,
       "hasAdd": true,
       "hasNotes": true,
+      "hasBVD": true,
       "name": "Final Rx",
       "type": "SRx",
       "fields": [
         {
           "name": "notes",
-          "mappedField": "visit.prescription.notes"
+          "mappedField": "visit.prescription.notes",
+          "maxLength": 420,
+          "maxRows": 4,
+          "multiline": true,
+          "showTextInfoTip": true
         },
         {
           "name": "expiry",
@@ -61,6 +68,11 @@
             {
               "mappedField": "visit.prescription.od.prism",
               "name": "prism"
+            },
+            {
+              "mappedField": "visit.prescription.od.bvd",
+              "name": "bvd",
+              "suffix": "mm"
             }
           ]
         },
@@ -98,6 +110,11 @@
             {
               "mappedField": "visit.prescription.os.prism",
               "name": "prism"
+            },
+            {
+              "mappedField": "visit.prescription.os.bvd",
+              "name": "bvd",
+              "suffix": "mm"
             }
           ]
         },
@@ -151,6 +168,13 @@
               "mappedField": "visit.prescription.os.closePD"
             }
           ]
+        },
+        {
+          "defaultValue": "[exam.Auto refractor.Auto refractor.pd]",
+          "name": "binocular",
+          "label": "Binocular",
+          "minValue": 0,
+          "maxValue": 100
         }
       ]
     },
@@ -158,7 +182,9 @@
       "mappedField": "visit.purchase",
       "name": "Purchase Rx",
       "copyFromFinalRx": true,
-      "label": "Dr.'s Recommendation"
+      "label": "Additional Recommendation",
+      "maxLength": 45,
+      "maxRows": 1
     }
   ],
   "locale": {
@@ -170,7 +196,7 @@
         },
         {
           "name": "Purchase Rx",
-          "label": "Recommandation Docteur"
+          "label": "Recommandation supplémentaire"
         },
         {
           "name": "PD",
@@ -182,6 +208,50 @@
             {
               "name": "Near",
               "label": "Près"
+            },
+            {
+              "name": "binocular",
+              "label": "Binoculaire"
+            }
+          ]
+        }
+      ]
+    },
+    "en-US": {
+      "fields": [
+        {
+          "name": "Purchase Rx",
+          "label": "Additional Recommendation"
+        }
+      ]
+    },
+    "es-ES": {
+      "name": "RxToOrder",
+      "label": "Rx final",
+      "fields": [
+        {
+          "name": "Final Rx",
+          "label": "Rx final"
+        },
+        {
+          "name": "Purchase Rx",
+          "label": "Recomendación adicional"
+        },
+        {
+          "name": "PD",
+          "label": "DP",
+          "fields": [
+            {
+              "name": "Far",
+              "label": "Lejos"
+            },
+            {
+              "name": "Near",
+              "label": "Cerca"
+            },
+            {
+              "name": "binocular",
+              "label": "Binocular"
             }
           ]
         }

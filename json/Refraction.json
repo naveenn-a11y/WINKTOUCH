@@ -40,6 +40,69 @@
         {
           "name": "Cycloplegia",
           "label": "Cycloplégie"
+        },
+        {
+          "name": "Binocular refraction",
+          "label": "Réfraction binoculaire",
+          "fields": [
+            {
+              "name": "customField",
+              "label": "Données de"
+            }
+          ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Refracción",
+      "fields": [
+        {
+          "name": "Subjective refraction",
+          "label": "Refracción subjetiva",
+          "fields": [
+            {
+              "name": "customField",
+              "label": "Datos de"
+            }
+          ]
+        },
+        {
+          "name": "Compensated refraction",
+          "label": "Refracción compensada"
+        },
+        {
+          "name": "Duochrome",
+          "label": "Duocromo"
+        },
+        {
+          "name": "Final Rx",
+          "label": "Rx final"
+        },
+        {
+          "name": "Maximum VA refraction",
+          "label": "Refracción máxima AV"
+        },
+        {
+          "name": "Retinoscopy",
+          "label": "Retinoscopia"
+        },
+        {
+          "name": "Cycloplegia",
+          "label": "Cicloplejía"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        },
+        {
+          "name": "Binocular refraction",
+          "label": "Refracción binocular",
+          "fields": [
+            {
+              "name": "customField",
+              "label": "Datos de"
+            }
+          ]
         }
       ]
     }
@@ -119,8 +182,34 @@
       "canBePaste": true
     },
     {
+      "hasCustomField": true,
       "hasVA": true,
       "hasAdd": true,
+      "canBeCopied": true,
+      "copyToFinalRx": true,
+      "optional": true,
+      "import": [
+        "exam.Lensometry.Lensometry",
+        "exam.Auto refractor.Auto refractor",
+        "machine.phoropter.rx"
+      ],
+      "name": "Binocular refraction",
+      "multiValue": true,
+      "type": "SRx",
+      "canBePaste": true,
+      "fields": [
+        {
+          "freestyle": true,
+          "name": "customField",
+          "label": "Data from",
+          "readonly": true
+        }
+      ]
+    },
+    {
+      "hasVA": true,
+      "hasAdd": true,
+      "hasBVD": true,
       "name": "Final Rx",
       "type": "SRx",
       "import": [
@@ -163,6 +252,11 @@
             {
               "mappedField": "exam.RxToOrder.Final Rx.od.addVa",
               "name": "addVa"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.od.bvd",
+              "name": "bvd",
+              "suffix": "mm"
             }
           ]
         },
@@ -196,6 +290,11 @@
             {
               "mappedField": "exam.RxToOrder.Final Rx.os.addVa",
               "name": "addVa"
+            },
+            {
+              "mappedField": "exam.RxToOrder.Final Rx.os.bvd",
+              "name": "bvd",
+              "suffix": "mm"
             }
           ]
         },

@@ -3,59 +3,52 @@
  */
 'use strict';
 
-import React, {Component} from 'react';
+import { Component } from 'react';
 import {
-  View,
-  Text,
-  Modal,
-  TouchableWithoutFeedback,
-  ScrollView,
-  Animated,
   LayoutAnimation,
+  Text,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
-import type {
-  Exam,
-  Patient,
-  GlassesRx,
-  Visit,
-  ExamPredefinedValue,
-  ExamDefinition,
-  GroupDefinition,
-  FieldDefinition,
-  TranslationDefinition,
-} from './Types';
-import {styles, fontScale} from './Styles';
-import {strings, getUserLanguage} from './Strings';
-import {
-  fetchItemById,
-  searchItems,
-  storeItem,
-  performActionOnItem,
-} from './Rest';
+import { formatAllCodes, formatCode, parseCode } from './Codes';
 import {
   cacheItem,
-  cacheItemById,
   cacheItemsById,
   getCachedItem,
-  getCachedItems,
+  getCachedItems
 } from './DataCache';
-import {ExamScreen, ExamCard} from './Exam';
-import {SelectionListsScreen, ItemsList, isNumericField} from './Items';
-import {GroupedFormScreen} from './GroupedForm';
+import { ExamCard } from './Exam';
 import {
-  FormRow,
-  FormTextInput,
   FormNumberInput,
-  FormSwitch,
   FormOptions,
-  FormTextArrayInput,
+  FormRow,
   FormSelectionArray,
+  FormSwitch,
+  FormTextArrayInput,
+  FormTextInput,
 } from './Form';
-import {formatCode, formatAllCodes, parseCode} from './Codes';
-import {Button} from './Widgets';
-import {deepClone} from './Util';
-import {PaperFormScreen} from './PaperForm';
-import {mappedFields} from './MappedField';
+import { GroupedFormScreen } from './GroupedForm';
+import { ItemsList, SelectionListsScreen, isNumericField } from './Items';
+import { mappedFields } from './MappedField';
+import { PaperFormScreen } from './PaperForm';
+import {
+  fetchItemById,
+  performActionOnItem,
+  searchItems,
+  storeItem,
+} from './Rest';
+import { getUserLanguage, strings } from './Strings';
+import { fontScale, styles } from './Styles';
+import type {
+  Exam,
+  ExamDefinition,
+  FieldDefinition,
+  GroupDefinition,
+  TranslationDefinition
+} from './Types';
+import { deepClone } from './Util';
+import { Button } from './Widgets';
+import { CustomModal as Modal } from './utilities/Modal';
 
 let translateMode = false;
 
@@ -156,18 +149,18 @@ export function getExamDefinition(examName: string): ExamDefinition {
   let examDefinitions: ExamDefinition[] = getCachedItems(
     getCachedItem('examDefinitions'),
   );
-  let examDefinition: ?ExamDefinition = examDefinitions.find(
+  let examDefinition: ?ExamDefinition = examDefinitions?.find(
     (examDefinition: ExamDefinition) => examDefinition.name === examName,
   );
   if (examDefinition === undefined) {
     examDefinitions = getCachedItems(getCachedItem('preExamDefinitions'));
-    examDefinition = examDefinitions.find(
+    examDefinition = examDefinitions?.find(
       (examDefinition: ExamDefinition) => examDefinition.name === examName,
     );
   }
   if (examDefinition === undefined) {
     examDefinitions = getCachedItems(getCachedItem('assessmentDefinitions'));
-    examDefinition = examDefinitions.find(
+    examDefinition = examDefinitions?.find(
       (examDefinition: ExamDefinition) => examDefinition.name === examName,
     );
   }
@@ -1023,7 +1016,7 @@ export class ExamDefinitionScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let examDefinition = this.props.navigation.state.params.examDefinition;
+    let examDefinition = this.props.route.params.examDefinition;
     const exam: Exam = this.initExam(examDefinition);
     this.state = {
       exam,
@@ -1058,12 +1051,12 @@ export class ExamDefinitionScreen extends Component {
 
   async refreshExamDefinition() {
     if (
-      this.props.navigation.state.params.examDefinition.id.startsWith(
+      this.props.route.params.examDefinition.id.startsWith(
         'customExamDefinition-',
       )
     ) {
       const examDefinition: ExamDefinition = await fetchExamDefinition(
-        this.props.navigation.state.params.examDefinition.id,
+        this.props.route.params.examDefinition.id,
       );
       if (examDefinition !== this.state.exam.definition) {
         let exam: Exam = this.initExam(examDefinition);
@@ -1105,7 +1098,7 @@ export class ExamDefinitionScreen extends Component {
       if (this.unmounted) {
         this.props.navigation.navigate(
           'examTemplate',
-          this.props.navigation.state.params.examDefinition,
+          this.props.route.params.examDefinition,
         );
       } else {
         await this.refreshExamDefinition();

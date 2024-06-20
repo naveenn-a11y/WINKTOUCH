@@ -7,8 +7,9 @@ on:
       - main
 
 env:
-  NODE_VERSION: '10.x'
+  NODE_VERSION: '20.x'
   ENVIRONMENT: 'dev'
+  CI: 'true'
 
 jobs:
   build-and-deploy:
@@ -16,34 +17,82 @@ jobs:
     environment: 'dev'
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Use Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: npm install, build, test
+      - name: Set Environment Variables
         run: |
-          npm install
-          npm run build:${{env.ENVIRONMENT}} --if-present
-          npm test
+          echo "WINK_APP_ENV=${{ vars.WINK_APP_ENV }}" >> $GITHUB_ENV
+          echo "WINK_APP_HOST=${{ vars.WINK_APP_HOST }}" >> $GITHUB_ENV
+          echo "WINK_APP_WEB_SOCKET_URL=${{ vars.WINK_APP_WEB_SOCKET_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_REST_URL=${{ vars.WINK_APP_REST_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_PUBLIC_IP=${{ vars.WINK_APP_PUBLIC_IP }}" >> $GITHUB_ENV
+          echo "WINK_APP_WSS_CHAT_URL=${{ vars.WINK_APP_WSS_CHAT_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_EMR_HOST_REST_URL=${{ vars.WINK_APP_EMR_HOST_REST_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_ECOMM_URL=${{ vars.WINK_APP_ECOMM_URL }}" >> $GITHUB_ENV
+          echo "WINK_APP_ACCOUNTS_URL=${{ vars.WINK_APP_ACCOUNTS_URL }}" >> $GITHUB_ENV
 
-      - name: Push artifact to Nexus
+      - name: Install Dependencies
         run: |
-          for f in ./dist/*; do    
-            echo $f
-            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f  http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${{ GITHUB.RUN_NUMBER }}/"${f##*/}"
+          npm install --legacy-peer-deps
+          echo "Dependencies installed successfully."
+
+      - name: Build for Web (Development)
+        run: |
+          npm run build:web:dev --if-present
+          echo "Build for Web (Development) ran successfully."
+
+      - name: Check dist Folder
+        run: |
+          if [ ! -d "./dist" ]; then
+            echo "Error: dist folder not found after build."
+            exit 1
+          fi
+
+      - name: Run Tests
+        run: |
+          npm test
+          echo "Tests ran successfully."
+
+      - name: Read Version Number
+        id: version
+        run: |
+          VERSION=$(grep '<version>' ./dist/version.xml | sed 's/<version>\(.*\)<\/version>/\1/')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Upload Artifacts to Nexus
+        run: |
+          for f in ./dist/*; do
+            curl -v --user builder:${{ secrets.BUILDER_CREDENTIALS }} --upload-file $f http://10.5.5.101/repository/internal/EMR/WinkTouch/bundle-${VERSION}-${{ github.run_number }}/"${f##*/}"
           done
 
-      - uses: azure/login@v1
+      - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Upload to the storage account
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           azcliversion: 2.30.0
           inlineScript: |
             az storage blob upload-batch --source ./dist --destination '$web' --account-name ${{ vars.STORAGE_ACCOUNT }}
-      - name: logout
+
+      - name: Logout from Azure
         run: |
           az logout
+
+  run-sanity-tests:
+    needs: [build-and-deploy]
+    runs-on: [self-hosted]
+    steps:
+      - name: Sanity Tests
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          repository: cmokbel/E2E-Wink-Automation
+          event-type: winktouch-sanity-check

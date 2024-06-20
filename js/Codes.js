@@ -22,6 +22,8 @@ import {getFieldDefinitions} from './Items';
 import {initialiseWinkCodes} from './codes/WinkDefinedCodes';
 import {initialiseUserCodes} from './codes/UserDefinedCodes';
 import {passesFilter} from './Util';
+import { cacheItem, getCachedItem } from './DataCache';
+import * as defaultSetting from './utilities/Settings.json'; 
 
 export function formatCodeDefinition(
   option: ?CodeDefinition,
@@ -177,7 +179,20 @@ export function formatAllCodes(codeType: string, filter?: {}): string[] {
     options,
     codeIdentifier,
   );
+
+  if (filter && formattedCodes !== undefined && formattedCodes instanceof Array) {
+    formattedCodes.sort(compareFormattedCodes);
+  }
+
   return formattedCodes;
+}
+function compareFormattedCodes(a: string, b: string): number {
+  if (b.toLowerCase() < a.toLowerCase()) {
+    return 1;
+  } else if (b.toLowerCase() > a.toLowerCase()) {
+    return -1;
+  }
+  return 0;
 }
 
 export function parseCode(
@@ -285,6 +300,27 @@ export async function fetchUserDefinedCodes(): void {
   });
 
   //let userDefinedCodes : string[] = restResponse.codes;
+}
+
+export function fetchProvincesCode(countryId: number): CodeDefinition[] {
+  if (countryId === undefined || countryId === null || isNaN(countryId)) {
+    return [];
+  }
+  const countrySubdivisions: CodeDefinition[] = getAllCodes('provinceCode');
+
+  let provinces: CodeDefinition[] = countrySubdivisions.filter(
+    (province: CodeDefinition) => province.countryCode === countryId,
+  );
+  return provinces;
+}
+
+export function getUserSetting() : any {
+  const setting = getCachedItem("user-setting");
+  return setting && setting.setting ? setting : {};
+}
+
+export function getDefaultUserSetting() : any {
+  return defaultSetting;
 }
 
 let codeDefinitions = {

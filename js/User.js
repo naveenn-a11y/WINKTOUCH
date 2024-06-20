@@ -18,14 +18,14 @@ import {
 import type {User} from './Types';
 import {styles, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {searchItems, fetchItemById, storeItem} from './Rest';
+import {searchItems, fetchItemById, storeItem, getToken, getRestUrl} from './Rest';
 import {Button, SelectionListRow} from './Widgets';
 import {FormRow, FormField, ErrorCard} from './Form';
-import {getCachedItem, cacheItemById} from './DataCache';
+import {getCachedItem, cacheItemById, cacheItem} from './DataCache';
 import {Close} from './Favorites';
-import {fetchCodeDefinitions} from './Codes';
-import {getAccount} from './DoctorApp';
-import {deepClone} from './Util';
+import {fetchCodeDefinitions, fetchProvincesCode} from './Codes';
+import {getAccount, getStore} from './DoctorApp';
+import {deepClone, isEmpty} from './Util';
 
 const maxUserListSize: number = 200;
 
@@ -38,6 +38,7 @@ export async function searchUsers(
   searchText: string,
   external: boolean,
   store?: string,
+  allType?: boolean,
 ): Promise<User[]> {
   if (!searchText || searchText.trim().length === 0) {
     searchText = undefined;
@@ -46,6 +47,7 @@ export async function searchUsers(
     searchData: searchText,
     external: external,
     store: store,
+    allType: allType,
   };
   let restResponse = await searchItems('User/list', searchCriteria);
   let users: User[] = restResponse.doctors;
@@ -53,6 +55,23 @@ export async function searchUsers(
     users = users.slice(0, maxUserListSize);
   }
   return users;
+}
+
+export async function fetchUserSettings() {
+  const httpResponse = await fetch(getRestUrl() + 'User/settings', {
+    method: 'get',
+    headers: {
+      token: getToken(),
+      Accept: 'application/json',
+      'Accept-language': getUserLanguage(),
+    },
+  });
+  if (httpResponse.ok) {
+    const restResponse = await httpResponse.json();
+    if (restResponse.setting) {
+      cacheItem('user-setting', restResponse);
+    }
+  }
 }
 
 function formatDoctorName(user: User): string {
@@ -73,12 +92,26 @@ function formatDoctorName(user: User): string {
   return name;
 }
 
+export function convertUserToJson(user: User): any {
+  const userJson: any = {
+    label: formatDoctorName(user),
+    value: user.id,
+  };
+  return userJson;
+}
+
+export function getUsers(): User {
+  const users: User[] = getCachedItem('users');
+  return users;
+}
+
 export type UserDetailsProps = {
   user: ?User,
   onUpdateUser: (user: User) => void,
   onButtonPress: () => void,
   buttonTitle: string,
-  showButton: bool,
+  showButton: boolean,
+  provinces: CodeDefinition[],
 };
 export class UserDetails extends PureComponent<UserDetailsProps> {
   constructor(props: UserDetailsProps) {
@@ -169,6 +202,16 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
           <FormRow>
             <FormField
               value={this.props.user}
+              fieldName="countryId"
+              onChangeValue={this.props.onUpdateUser}
+            />
+            <FormField
+              customOptions={
+                this.props.provinces && this.props.provinces.length > 0
+                  ? this.props.provinces
+                  : undefined
+              }
+              value={this.props.user}
               fieldName="province"
               onChangeValue={this.props.onUpdateUser}
             />
@@ -184,15 +227,16 @@ export class UserDetails extends PureComponent<UserDetailsProps> {
             />
           </FormRow>
         </View>
-        {this.props.showButton && 
-        <View style={styles.centeredRowLayout}>
-          <Button
-            title={this.props.buttonTitle ? this.props.buttonTitle : '' }
-            onPress={this.props.onButtonPress}
-            loading={this.props.buttonLoading}
-            disabled={this.props.buttonLoading}
-          />
-        </View>}
+        {this.props.showButton && (
+          <View style={styles.centeredRowLayout}>
+            <Button
+              title={this.props.buttonTitle ? this.props.buttonTitle : ''}
+              onPress={this.props.onButtonPress}
+              loading={this.props.buttonLoading}
+              disabled={this.props.buttonLoading}
+            />
+          </View>
+        )}
       </View>
     );
   }
@@ -312,9 +356,11 @@ export class FindUser extends PureComponent<FindUserProps, FindUserState> {
             />
           </View>
         ) : null}
-        {this.state.searchLoading && <View>
-          <ActivityIndicator color="#1db3b3" />
-        </View>}
+        {this.state.searchLoading && (
+          <View>
+            <ActivityIndicator color="#1db3b3" />
+          </View>
+        )}
       </View>
     );
   }
@@ -367,30 +413,67 @@ export class ManageUsers extends PureComponent<
   }
 
   newUser = () => {
-    this.setState({user: {id: 'user', isExternal: true}});
+    const store: Store = getStore();
+    let newUser = {id: 'user', isExternal: true, countryId: store.country};
+    this.updateUserProvince(newUser);
+    this.setState({user: newUser});
   };
 
   isNewUser(): boolean {
-    return (
-      this.state.user && this.state.user.id === 'user'
-    );
+    return this.state.user && this.state.user.id === 'user';
   }
 
   updateUserInfo = (user: User): void => {
+    this.updateUserProvince(user);
     this.setState({user: deepClone(user)});
     if (user && user.id !== 'user') {
       this.updateUser(); //update existing user
     }
   };
 
+  updateUserProvince(user: User) {
+    let selectedCountry: number = !isEmpty(user.countryId)
+      ? user.countryId
+      : undefined;
+    let selectedProvince: string = !isEmpty(user.province)
+      ? user.province
+      : undefined;
+
+    if (selectedCountry === undefined) {
+      return;
+    }
+
+    let countryProvinces: CodeDefinition[] =
+      fetchProvincesCode(selectedCountry);
+    let firstProvinceInCountry: string =
+      countryProvinces.length > 0 ? countryProvinces[0].code : '';
+
+    if (isEmpty(selectedProvince)) {
+      user.province = firstProvinceInCountry;
+    } else {
+      //check if the province exist
+      let province = countryProvinces.find(
+        (province: CodeDefinition) => province.code === user.province,
+      );
+      user.province =
+        province === undefined ? firstProvinceInCountry : province.code;
+    }
+  }
+
   updateUser = async (): Promise<void> => {
-    this.setState({ isLoading: true });
+    this.setState({isLoading: true});
     let user: User = this.state.user;
     const isNewUser: boolean = user && user.id === 'user';
     user = await storeItem(user);
 
-    !user.errors && fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
-    !user.errors && await fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'familyDoctors');
+    !user.errors &&
+      fetchCodeDefinitions(getUserLanguage(), getAccount().id, 'doctors');
+    !user.errors &&
+      (await fetchCodeDefinitions(
+        getUserLanguage(),
+        getAccount().id,
+        'familyDoctors',
+      ));
 
     if (
       (this.state.user && this.state.user.id === user.id) ||
@@ -399,10 +482,12 @@ export class ManageUsers extends PureComponent<
     ) {
       this.setState({user});
     }
-    
-    this.setState({ isLoading: false });
-    (isNewUser & user.errors === undefined) ? this.props.onClose() : () => undefined; //close modal when you create a new user
-  }
+
+    this.setState({isLoading: false});
+    isNewUser & (user.errors === undefined)
+      ? this.props.onClose()
+      : () => undefined; //close modal when you create a new user
+  };
 
   renderIcons() {
     return (
@@ -425,19 +510,25 @@ export class ManageUsers extends PureComponent<
           {this.props.label ? this.props.label : strings.manageUsers}
         </Text>
         <View style={styles.centeredScreenLayout}>
-          {!this.isNewUser() && 
-          <FindUser
-            selectedUserId={this.state.user ? this.state.user.id : undefined}
-            onSelectUser={this.selectUser}
-            onNewUser={this.newUser}
-          />}
+          {!this.isNewUser() && (
+            <FindUser
+              selectedUserId={this.state.user ? this.state.user.id : undefined}
+              onSelectUser={this.selectUser}
+              onNewUser={this.newUser}
+            />
+          )}
           <UserDetails
             user={this.state.user}
             onUpdateUser={this.updateUserInfo}
             onButtonPress={this.updateUser}
-            buttonTitle={this.isNewUser() ? strings.createUser : strings.update }
+            buttonTitle={this.isNewUser() ? strings.createUser : strings.update}
             buttonLoading={this.state.isLoading}
             showButton={this.isNewUser()}
+            provinces={fetchProvincesCode(
+              this.state.user && this.state.user.countryId
+                ? this.state.user.countryId
+                : undefined,
+            )}
           />
         </View>
         {this.renderIcons()}

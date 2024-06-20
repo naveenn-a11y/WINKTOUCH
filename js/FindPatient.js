@@ -319,6 +319,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
             <TouchableOpacity
               onPress={this.fetchRecentlyViewed}
               disabled={this.state.loadRecentlyViewed}
+              testID='recentlyViewedButton'
             >
               <View style={styles.button}> 
                 {!this.state.loadRecentlyViewed && <BackInTimeIcon  size={18} color="#fff" />}
@@ -535,6 +536,7 @@ export class FindPatientScreen extends Component {
               patientDocumentHistory={this.state.patientDocumentHistory}
               readonly={true}
               navigation={this.props.navigation}
+              route={this.props.route}
             />
           </View>
         )}

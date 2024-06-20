@@ -23,6 +23,32 @@
           "label": "Habitudes d'entretien"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Hábitos de los LC",
+      "fields": [
+        {
+          "name": "Replacement",
+          "label": "Sustitución"
+        },
+        {
+          "name": "Comfort",
+          "label": "Comodidad",
+          "normalValue": "Bueno"
+        },
+        {
+          "name": "Wearing habits",
+          "label": "Hábitos de uso"
+        },
+        {
+          "name": "Cleaning habits",
+          "label": "Hábitos de limpieza"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
   "starable": true,
@@ -34,12 +60,14 @@
       "name": "Replacement",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "clReplacementCodes"
     },
     {
       "name": "Comfort",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "clComfortCodes",
       "normalValue": "Good"
     },
@@ -47,6 +75,7 @@
       "name": "Wearing habits",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "clWearingHabitCodes",
       "normalValue": "Normal"
     },
@@ -54,13 +83,15 @@
       "name": "Cleaning habits",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "clCleaningHabitCodes",
       "normalValue": "Normal"
     },
     {
       "maxLength": 500,
       "name": "Notes",
-      "freestyle": true
+      "freestyle": true,
+      "highlightedLabel": true
     }
   ]
 }

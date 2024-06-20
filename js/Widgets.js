@@ -4,74 +4,72 @@
 
 'use strict';
 
-import type {FieldDefinition, CodeDefinition} from './Types';
-import React, {Component, PureComponent} from 'react';
-import ReactNative, {
-  View,
-  Text,
+import React, { Component, PureComponent } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
   Image,
+  Keyboard,
   ScrollView,
-  Modal,
+  Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  TextInput,
-  Keyboard,
-  FlatList,
-  ActivityIndicator,
+  View,
 } from 'react-native';
+import type { CodeDefinition, FieldDefinition } from './Types';
 
 import {
+  Divider,
+  FAB,
   Button as NativeBaseButton,
   Button as NativeBaseIcon,
-  FAB,
+  Paragraph,
   Portal,
   Snackbar,
-  Paragraph,
-  Dialog,
-  Divider,
 } from 'react-native-paper';
-import RNBeep from 'react-native-a-beep';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
+import { formatAllCodes, formatCodeDefinition } from './Codes';
+import { isInTranslateMode, updateLabel } from './ExamDefinition';
+import { strings } from './Strings';
 import {
-  styles,
   fontScale,
+  isWeb,
   selectionColor,
   selectionFontColor,
-  isWeb,
+  styles,
 } from './Styles';
-import {strings} from './Strings';
-import {formatCodeDefinition, formatAllCodes} from './Codes';
 import {
-  formatDuration,
-  formatDate,
+  addDays,
+  capitalize,
   dateFormat,
   dateTime24Format,
-  now,
-  yearDateFormat,
-  yearDateTime24Format,
-  officialDateFormat,
-  capitalize,
-  dayDateTime24Format,
   dayDateFormat,
-  dayYearDateTime24Format,
+  dayDateTime24Format,
+  dayDifference,
   dayYearDateFormat,
-  isToyear,
+  dayYearDateTime24Format,
   deAccent,
+  formatAge,
+  formatDate,
   formatDecimals,
-  split,
-  formatTime,
+  formatDuration,
   formatHour,
+  formatTime,
+  isEmpty,
+  isToyear,
+  now,
+  officialDateFormat,
+  parseTime24Format,
+  postfix,
+  split,
   time24Format,
   today,
-  dayDifference,
-  addDays,
-  formatAge,
-  isEmpty,
-  postfix,
+  yearDateFormat,
+  yearDateTime24Format,
 } from './Util';
-import {Camera} from './Favorites';
-import {isInTranslateMode, updateLabel} from './ExamDefinition';
+import Dialog from './utilities/Dialog';
+import { CustomModal as Modal } from './utilities/Modal';
 
 const margin: number = 40;
 
@@ -133,7 +131,7 @@ export class Label extends PureComponent {
       ? [styles.formLabel, {width: this.props.width}]
       : styles.formLabel;
     return (
-      <Text style={style}>
+      <Text style={style} testID={`label-${this.props?.value}`}>
         {this.props.value}
         {this.props.suffix}
       </Text>
@@ -585,6 +583,7 @@ export class NumberField extends Component {
     },
     listField?: number,
     testID: string,
+    unit?: string,
   };
   state: {
     isActive: boolean,
@@ -776,6 +775,7 @@ export class NumberField extends Component {
         }
       }
     }
+    const unit = (this.props.unit !== undefined) ? this.props.unit : '';
     if (suffix) {
       let formattedValue: string =
         combinedValue === undefined
@@ -783,9 +783,9 @@ export class NumberField extends Component {
           : this.props.decimals && this.props.decimals > 0
           ? Number(combinedValue).toFixed(this.props.decimals)
           : String(combinedValue);
-      return formattedValue + suffix;
+      return formattedValue + unit + suffix;
     }
-    return combinedValue;
+    return combinedValue + unit;
   }
 
   hasDecimalSteps(): boolean {
@@ -1148,14 +1148,7 @@ export class NumberField extends Component {
         );
       }
     }
-    //Suffix
-    if (props.suffix != undefined) {
-      if (props.suffix instanceof Array) {
-        fractions[4].push(...props.suffix);
-      } else if (props.suffix.includes('Code')) {
-        fractions[4].push(...formatAllCodes(props.suffix));
-      }
-    }
+    
     //Update Button
     //fractions[4].push('\u2714');
     //Clear Button
@@ -1174,6 +1167,14 @@ export class NumberField extends Component {
         }
       } else {
         fractions[4].push(...formatAllCodes(props.options));
+      }
+    }
+    //Suffix
+    if (props.suffix != undefined) {
+      if (props.suffix instanceof Array) {
+        fractions[4].push(...props.suffix);
+      } else if (props.suffix.includes('Code')) {
+        fractions[4].push(...formatAllCodes(props.suffix));
       }
     }
     return fractions;
@@ -1291,7 +1292,7 @@ export class NumberField extends Component {
     const formattedValue: string = this.format(this.props.value);
     if (this.props.readonly) {
       return (
-        <View style={styles.fieldFlexContainer}>
+        <View style={styles.fieldFlexContainer} testID={this.props?.testID + '.ReadOnly'}>
           <Text style={style}>{formattedValue}</Text>
         </View>
       );
@@ -1302,6 +1303,7 @@ export class NumberField extends Component {
         <TextField
           value={formattedValue}
           ref="field"
+          testID={this.props?.testID}
           autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
@@ -1373,6 +1375,7 @@ export class TilesField extends Component {
     },
     testID?: string,
     isTyping?: boolean,
+    isPrism?: Boolean,
   };
   state: {
     isActive: boolean,
@@ -1493,12 +1496,27 @@ export class TilesField extends Component {
     this.setState({editedValue: clearedValue}, () => this.commitEdit());
   };
 
+  sumArray(arr: any[]) : number {
+    return arr.reduce((a, b) => {
+      let rightIndex = (a === undefined) ? 0 : Number(a);
+      let leftIndex = (b === undefined) ? 0 : Number(b);
+      return rightIndex + leftIndex;
+    });
+  }
+
   format(value: ?string | ?(string[])): string {
     if (value === undefined || value === null || value === '') {
       return '';
     }
     let formattedValue: string = '';
-    if (value instanceof Array) {
+    if (this.props.isPrism && value instanceof Array && value.length === 8) {
+      let prismSumA : number= this.sumArray([value[0], value[1], value[2]]);
+      let suffixA : string= value[3] !== undefined ? `${value[3]} ` : '';
+      let prismSumB : number = this.sumArray([value[4], value[5], value[6]]);
+      let suffixB : string= value[7] !== undefined ? value[7] : '';
+
+      formattedValue = `${(prismSumA === 0) ? '' : prismSumA} ${suffixA}${(prismSumB === 0) ? '' : prismSumB} ${suffixB}`;
+    } else if (value instanceof Array) {
       value.forEach((columnValue: ?string, columnIndex: number) => {
         if (columnValue !== undefined) {
           if (
@@ -1777,11 +1795,7 @@ export class ListField extends Component {
   }
 
   render() {
-    let style = this.props.style
-      ? this.props.style
-      : this.state.isActive
-      ? styles.inputFieldActive
-      : styles.inputField;
+    let style = this.props.style || (this.state.isActive ? styles.inputFieldActive : styles.inputField);
     if (this.props.width) {
       style = [{width: this.props.width}, style];
     }
@@ -1794,6 +1808,7 @@ export class ListField extends Component {
             : styles.fieldFlexContainer
         }>
         <TouchableOpacity
+          testID={this.props.testID}
           style={
             this.props.containerStyle
               ? this.props.containerStyle
@@ -1882,7 +1897,12 @@ export class TimeField extends Component {
   }
 
   commitTyping = (newValue: string) => {
-    this.setState({editedValue: newValue}, this.commitEdit);
+    const formattedTime = parseTime24Format(newValue);
+    this.setState({
+      editedValue: (formattedTime === 'Invalid date') ? [] : this.splitValue(formattedTime) 
+    }, 
+      this.commitEdit
+    );
   };
 
   startTyping = () => {
@@ -1897,7 +1917,7 @@ export class TimeField extends Component {
       return;
     }
     this.setState({
-      editedValue: this.splitValue(),
+      editedValue: this.splitValue(this.props.value),
       isActive: true,
       isDirty: false,
     });
@@ -1908,7 +1928,7 @@ export class TimeField extends Component {
     if (this.props.onChangeValue) {
       this.props.onChangeValue(editedValue);
     }
-    this.setState({isActive: false, isTyping: false});
+    this.setState({isActive: false, isTyping: this.props.isTyping});
   };
 
   commitNow = (offset?: ?string) => {
@@ -1930,7 +1950,7 @@ export class TimeField extends Component {
   };
 
   cancelEdit = () => {
-    this.setState({isActive: false, isTyping: false});
+    this.setState({isActive: false, isTyping: this.props.isTyping});
   };
 
   clear = () => {
@@ -1967,11 +1987,11 @@ export class TimeField extends Component {
     ];
   }
 
-  splitValue(): (?string)[] {
-    if (!this.props.value || this.props.value.length < 5) {
+  splitValue(value: string): (?string)[] {
+    if (!value || value.length < 5) {
       return [];
     }
-    const time24: string = this.props.value;
+    const time24: string = value;
     const hour: string = time24.substring(0, 2) + ':00';
     let hour1, hour2, minute1, minute2: ?string;
     if (this.state.fractions[0].indexOf(hour) >= 0) {
@@ -1993,6 +2013,13 @@ export class TimeField extends Component {
   }
 
   combinedValue(): string {
+    const editedValue = this.state.editedValue;
+    //validate for freetyping
+    if (typeof editedValue === 'string') {
+      const formattedTime = parseTime24Format(editedValue);
+      return formattedTime === 'Invalid date' ? undefined : `${formattedTime.substring(0,2)}${formattedTime.substring(3,5)}`;
+    }
+
     let hour: ?string =
       this.state.editedValue[0] === undefined
         ? this.state.editedValue[1]
@@ -2116,6 +2143,7 @@ export class TimeField extends Component {
     if (this.state.isTyping) {
       return (
         <TextField
+          testID={this.props?.testID}
           prefix={this.props.prefix}
           value={formattedValue}
           suffix={this.props.suffix}
@@ -3118,6 +3146,7 @@ export class FloatingButton extends Component {
         open={this.state.active}
         onStateChange={this.toggleActive}
         position="bottomRight"
+        size="small"
         style={styles.floatingButton}
         icon={this.state.active ? 'minus' : 'plus'}
         onPress={() => {
@@ -3172,6 +3201,7 @@ export class SelectionListRow extends PureComponent {
     maxLength?: number,
     simpleSelect?: boolean,
     testID: string,
+    textStyle?: any,
   };
   static defaultProps = {
     maxLength: 60,
@@ -3218,9 +3248,12 @@ export class SelectionListRow extends PureComponent {
   }
 
   render() {
+    let textStyle1 = this.props.textStyle
+      ? this.props.textStyle
+      : styles.listText;
     const textStyle = this.props.selected
       ? styles.listTextSelected
-      : styles.listText;
+      : textStyle1;
     const prefix: string = this.props.selected
       ? this.props.selected === true
         ? undefined
@@ -3500,6 +3533,7 @@ export class SelectionList extends React.PureComponent {
           data={data}
           keyExtractor={(item) => item}
           renderItem={this.renderItem}
+          style={styles.flatListScroll}
         />
       </View>
     );
@@ -3620,7 +3654,13 @@ export class Alert extends Component<AlertProps, AlertState> {
 
   renderContent() {
     if (!isEmpty(this.props.message)) {
-      return <Paragraph>{this.props.message}</Paragraph>;
+      return (
+        <View style={{height: 'auto', maxHeight: 300 * fontScale}}>
+          <ScrollView>
+            <Paragraph>{this.props.message}</Paragraph>
+          </ScrollView>
+        </View>
+      );
     } else if (!isEmpty(this.props.data)) {
       if (this.props.data instanceof Array) {
         return (
@@ -3663,7 +3703,7 @@ export class Alert extends Component<AlertProps, AlertState> {
         );
       } else {
         return (
-          <NativeBaseButton onPress={this.confirmDialog}>
+          <NativeBaseButton onPress={() => this.confirmDialog(undefined)}>
             {this.props.data.label}
           </NativeBaseButton>
         );
@@ -3694,11 +3734,11 @@ export class Alert extends Component<AlertProps, AlertState> {
               {this.props.cancelActionLabel}
             </NativeBaseButton>
             {this.props.onEmailAction && (
-              <NativeBaseButton onPress={this.emailDialog}>
+              <NativeBaseButton onPress={() => this.emailDialog(undefined)}>
                 {this.props.emailActionLabel}
               </NativeBaseButton>
             )}
-            <NativeBaseButton onPress={this.confirmDialog} disabled={disabled}>
+            <NativeBaseButton onPress={() => this.confirmDialog(undefined)} disabled={disabled}>
               {this.props.confirmActionLabel}
             </NativeBaseButton>
           </Dialog.Actions>
@@ -3861,6 +3901,7 @@ export class SizeTile extends Component {
     );
   }
 }
+
 export class CollapsibleMessage extends PureComponent {
   props: {
     shortMessage: string,
@@ -3891,29 +3932,163 @@ export class CollapsibleMessage extends PureComponent {
         style={
           this.props.containerStyle
             ? this.props.containerStyle
-            : styles.errorCard
+            : [styles.errorCard, {paddingRight: 50 * fontScale}]
         }>
         {!this.state.showFullBillingInfo && (
-          <View style={{flexDirection: 'row'}}>
+          <View>
             <TouchableOpacity onPress={this.toggleShowFullBillingInfo}>
-              <Text>
+              <SpecialText
+                style={{textAlign: 'center'}}
+                childrenStyles={[
+                  {"style1" : styles.boldText},
+                  {"style2": styles.readMoreLabel}
+                ]}
+              >
                 {this.props.shortMessage}
-                <Text style={styles.readMoreLabel}>{strings.readMore}</Text>
-              </Text>
+              </SpecialText>
             </TouchableOpacity>
           </View>
         )}
         {this.state.showFullBillingInfo && (
           <View>
             <TouchableOpacity onPress={this.toggleShowFullBillingInfo}>
-              <Text>
+              <SpecialText
+                style={{textAlign: 'center'}}
+                childrenStyles={[
+                  {"style1" : styles.boldText},
+                  {"style2": styles.readMoreLabel}
+                ]}
+              >
                 {this.props.longMessage}
-                <Text style={styles.readMoreLabel}>{strings.readLess}</Text>
-              </Text>
+              </SpecialText>
             </TouchableOpacity>
           </View>
         )}
       </View>
+    );
+  }
+}
+
+export class SpecialText extends PureComponent {
+  props: {
+    style?: any,
+    childrenStyles?: any[]
+  };
+
+  constructor(props: any) {
+    super(props);
+  }
+
+  parseText() {
+    if (typeof this.props.children !== 'string') {
+      return this.props.children;
+    }
+
+    let words = this.props.children.split(" ");
+    let groupedWord: string = "";
+    let isGroupedWord = false;
+    let closeGroup = false;
+    let style = undefined;
+
+    return words.map((eachWord: string) => {
+      let word = eachWord;
+
+      Array.isArray(this.props.childrenStyles) && this.props.childrenStyles.forEach(eachStyle => {
+        const styleName = Object.keys(eachStyle)[0];
+        
+        if (word.endsWith(`</${styleName}>`)) {
+          style = eachStyle[styleName];
+          word = word.replace(`</${styleName}>`, '');
+          word = word.replace(`<${styleName}>`, '');
+          isGroupedWord = true;
+          closeGroup = true;
+        } else if (word.startsWith(`<${styleName}>`)) {
+          word = word.replace(`<${styleName}>`, '');
+          groupedWord = '';
+          isGroupedWord = true;
+          closeGroup = false;
+        }
+      });
+
+      if (isGroupedWord && closeGroup) {
+        isGroupedWord = false;
+        closeGroup = false
+        groupedWord += `${word} `;
+        return <Text style={style && style}>{`${groupedWord} `}</Text>;
+      } else if (isGroupedWord && !closeGroup) {
+        groupedWord += `${word} `;
+        return;
+      } else {
+        return `${word} `;
+      }
+    });
+  }
+
+  render() {
+    return(
+      <Text style={this.props.style && this.props.style}>
+        {this.parseText()}
+      </Text>
+    );
+  }
+
+}
+
+export class NetworkInfo extends Component {
+
+  render() {
+    return (
+        <View style={[styles.snackbarFixed, {backgroundColor: '#000'}]}>
+          <Snackbar
+            visible={true}
+            onDismiss={() => {}}
+            action={() => {}}>
+            <Text>{strings.connectionMessage}</Text>
+          </Snackbar>
+        </View>
+    );
+  }
+}
+
+export class Prompt extends Component {
+
+  props: {
+    style?: any,
+    visible: boolean,
+    dismissable: boolean,
+    title: String,
+    content: string,
+    dismissText: string,
+    confirmText: string,
+    cancelDialog: () => void,
+    confirmDialog: () => void,
+    onDismiss: () => void,
+  };
+
+  render() {
+    return (
+      <Portal theme={{colors: {backdrop: 'transparent'}}} >
+        <Dialog
+          visible={this.props.visible}
+          onDismiss={this.props.onDismiss}
+          dismissable={this.props.dismissable}
+          style={this.props.style}>
+          <Dialog.Title>{this.props.title}</Dialog.Title>
+          <Dialog.Content>
+            <View>
+              <Text>{this.props.content}</Text>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <NativeBaseButton onPress={this.props.cancelDialog}>
+              <Text>{this.props.dismissText}</Text>
+            </NativeBaseButton>
+            <NativeBaseButton onPress={this.props.confirmDialog}>
+              <Text>{this.props.confirmText}</Text>
+            </NativeBaseButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     );
   }
 }

@@ -7,7 +7,7 @@ import {NativeModules, Image} from 'react-native';
 import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import type {User, PatientInfo, Visit} from './Types';
 import RNFS from 'react-native-fs';
-import {strings} from './Strings';
+import {getUserLanguage, strings} from './Strings';
 import {createPdf, fetchWinkRest} from './WinkRest';
 import {
   formatDate,
@@ -15,12 +15,13 @@ import {
   officialDateFormat,
   prefix,
   postfix,
-  isEmpty, getDoctorFullName,
+  isEmpty,
+  getDoctorFullName,
 } from './Util';
 import {getExam} from './Exam';
 import {getCachedItem} from './DataCache';
-import {getDoctor, getStore, getAccount} from './DoctorApp';
-import {fetchItemById, searchItems} from './Rest';
+import {getStore, getAccount} from './DoctorApp';
+import {fetchItemById} from './Rest';
 import {
   fetchUpload,
   getJpeg64Dimension,
@@ -30,16 +31,18 @@ import {
 import {getWinkRestUrl} from './WinkRest';
 import {isWeb} from './Styles';
 import {base64ToBlob} from '../src/components/HtmlToPdf';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadBase64ImageForWeb} from './ImageField';
 import {getPatientFullName} from './Patient';
 
 export async function printRx(
   visitId: string,
   printFinalRx: boolean,
-  printPDs: boolean,
+  printVAs: boolean,
+  printMPDs: boolean,
+  printBPDs: boolean,
   printNotesOnRx: boolean,
   drRecommendationArray: string[],
+  binocularPD: ?string = '',
 ) {
   try {
     const filename: string = 'Rx.pdf';
@@ -52,8 +55,12 @@ export async function printRx(
         visitId: visitId,
         rxRecommendations: drRecommendationArray,
         printFinalRx: printFinalRx,
-        printPDs: printPDs,
+        printVAs: printVAs,
+        printMPDs: printMPDs,
+        printBPDs: printBPDs,
+        printPDs: printBPDs || printMPDs,
         printNotesOnRx: printNotesOnRx,
+        binocularPD: binocularPD,
       },
     );
     if (isWeb) {
@@ -104,9 +111,12 @@ export async function printClRx(visitId: string) {
 export async function emailRx(
   visitId: string,
   printFinalRx: boolean,
-  printPDs: boolean,
+  printVAs: boolean,
+  printMPDs: boolean,
+  printBPDs: boolean,
   printNotesOnRx: boolean,
   drRecommendationArray: string[],
+  binocularPD: ?string = '',
 ) {
   try {
     let parameters: {} = {type: 'eye-exam'};
@@ -114,8 +124,12 @@ export async function emailRx(
       visitId: visitId,
       rxRecommendations: drRecommendationArray,
       printFinalRx: printFinalRx,
-      printPDs: printPDs,
+      printVAs: printVAs,
+      printMPDs: printMPDs,
+      printBPDs: printBPDs,
+      printPDs: printBPDs || printMPDs,
       printNotesOnRx: printNotesOnRx,
+      binocularPD: binocularPD,
     };
     let response = await fetchWinkRest(
       'webresources/reports/email',
@@ -216,35 +230,60 @@ async function addLogo(
   }
 }
 
-async function addStoreLogo(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
-  if(isWeb) {
+async function addStoreLogo(
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+  x: number,
+  y: number,
+) {
+  if (isWeb) {
     await addStoreLogoWeb(page, pdfDoc, x, y);
   } else {
     await addStoreLogoIos(page, pdfDoc, x, y);
   }
 }
 
-async function addStoreLogoWeb(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
-  const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
+async function addStoreLogoWeb(
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+  x: number,
+  y: number,
+) {
+  const url: string =
+    getWinkRestUrl() +
+    `webresources/attachement/${getAccount().id}/${
+      getStore().storeId
+    }/storelogo.png`;
   __DEV__ && console.log(`Fetching Store logo: ${url}`);
 
-    const storeLogo = await loadBase64ImageForWeb(url);
+  const storeLogo = await loadBase64ImageForWeb(url);
 
-    if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
-      return;
-    }
-    const imageDim = await getImageDimensions(storeLogo);
-    const image = await pdfDoc.embedPng(storeLogo);
-    page.drawImage(image, {
-      x,
-      y: y - 50,
-      width: imageDim.width ? imageDim.width : 110,
-      height: imageDim.height? imageDim.height : 54,
-    });
+  if (storeLogo === undefined || storeLogo === null || storeLogo === '') {
+    return;
+  }
+  const imageDim = await getImageDimensions(storeLogo);
+  const width: number = imageDim.width ? imageDim.width : 110;
+
+  const image = await pdfDoc.embedPng(storeLogo);
+  page.drawImage(image, {
+    x: x - width,
+    y: y - 50,
+    width,
+    height: imageDim.height ? imageDim.height : 54,
+  });
 }
 
-async function addStoreLogoIos(page: PDFPage, pdfDoc?: PDFDocument, x: number, y: number) {
-  const url: string = getWinkRestUrl() + `webresources/attachement/${getAccount().id}/${getStore().storeId}/storelogo.png`;
+async function addStoreLogoIos(
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+  x: number,
+  y: number,
+) {
+  const url: string =
+    getWinkRestUrl() +
+    `webresources/attachement/${getAccount().id}/${
+      getStore().storeId
+    }/storelogo.png`;
   const fileName = `Store-logo${getAccount().id}${getStore().storeId}.png`;
   __DEV__ && console.log(`Fetching Store logo: ${url}`, fileName);
 
@@ -259,28 +298,85 @@ async function addStoreLogoIos(page: PDFPage, pdfDoc?: PDFDocument, x: number, y
 
   const fPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
   const imageDim = await getImageDimensions(fPath);
+  const width: number = imageDim.width ? imageDim.width : 110;
 
   page.drawImage(fPath, 'png', {
-    x,
+    x: x - width,
     y: y - 50,
-    width: imageDim.width ? imageDim.width : 110,
-    height: imageDim.height? imageDim.height : 54,
+    width,
+    height: imageDim.height ? imageDim.height : 54,
   });
 }
 
-function getImageDimensions(storeLogo: string): Promise<any> {
-  return new Promise(resolve => {
-    Image.getSize(storeLogo, (width, height) => {
-      const ratio = height/width;
-      const imageWidth = 120;
-      const imageHeight = imageWidth * ratio;
-      resolve({width: imageWidth, height: imageHeight});
-    }, (error) => {
-      resolve({});
-    });
+export function getImageDimensions(storeLogo: string): Promise<any> {
+  return new Promise((resolve) => {
+    Image.getSize(
+      storeLogo,
+      (width, height) => {
+        const ratio = height / width;
+        const imageWidth = 120;
+        const imageHeight = imageWidth * ratio;
+        resolve({width: imageWidth, height: imageHeight});
+      },
+      (error) => {
+        resolve({});
+      },
+    );
   });
 }
 
+async function addText(
+  text: string,
+  x: number,
+  y: number,
+  fontSize: number,
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+) {
+  if (isWeb) {
+    await addTextWeb(text, x, y, fontSize, page, pdfDoc);
+  } else {
+    await addTextIos(text, x, y, fontSize, page);
+  }
+}
+async function addTextIos(
+  text: string,
+  x: number,
+  y: number,
+  fontSize: number,
+  page: PDFPage,
+) {
+  const size = await PDFLib.measureText(text, 'Times New Roman', fontSize);
+  let textWidth: number = size.width;
+  if (textWidth > 150) {
+    textWidth += 20;
+  }
+  page.drawText(text, {
+    x: x - textWidth - 15,
+    y: y,
+    size: fontSize,
+    fontName: 'Times New Roman',
+  });
+}
+async function addTextWeb(
+  text: string,
+  x: number,
+  y: number,
+  fontSize: number,
+  page: PDFPage,
+  pdfDoc?: PDFDocument,
+) {
+  const font = await pdfDoc.embedFont('Times-Roman');
+  const textWidth = font.widthOfTextAtSize(text, fontSize);
+  console.log('SIZEEE WEB: ' + JSON.stringify(textWidth));
+
+  page.drawText(text, {
+    x: x - textWidth,
+    y: y,
+    font,
+    size: fontSize,
+  });
+}
 async function addDrHeader(
   visitId: string,
   page: PDFPage,
@@ -301,53 +397,51 @@ async function addDrHeader(
     return;
   }
   const leftBorder: number = pageWidth - 180 - border;
+  const boxWidthTopRight: number = 190;
   const top: number = pageHeight - border;
-  let x: number = leftBorder;
+
   let y: number = top;
+  let x: number = leftBorder + boxWidthTopRight;
   let fontSize: number = 10;
 
-  await addStoreLogo(page, pdfDoc, x, y);
+  await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
 
   y -= fontSize * 2 + 50;
-
   const doctorName: string =
-      getDoctorFullName(doctor) +
-      prefix(doctor.providerType, ' - ') +
-      prefix(doctor.license, ' - ');
-  page.drawText(
-      doctorName,
-    {x, y, size: fontSize},
-  );
+    getDoctorFullName(doctor) +
+    prefix(doctor.providerType, ' - ') +
+    prefix(doctor.license, ' - ');
+  await addText(doctorName, x, y, fontSize, page, pdfDoc);
+
+  //page.drawText('Dr FirstName Latname - License Number', {x,y,fontSize});
+
   y -= fontSize * 2;
   if (!store) {
     return;
   }
-  page.drawText(
-    postfix(store.unit, '-') + store.streetNumber + ' ' + store.streetName,
-    {x, y, size: fontSize},
-  );
+  const storeName: string =
+    postfix(store.unit, '-') + store.streetNumber + ' ' + store.streetName;
+  await addText(storeName, x, y, fontSize, page, pdfDoc);
+
   y -= fontSize * 1.15;
-  page.drawText(store.city + prefix(store.pr, ', '), {
-    x,
-    y,
-    size: fontSize,
-  });
+  const city: string = store.city + prefix(store.pr, ', ');
+  await addText(city, x, y, fontSize, page, pdfDoc);
+
   if (!isEmpty(store.postalCode)) {
     y -= fontSize * 1.15;
-    page.drawText(store.postalCode, {
-      x,
-      y,
-      size: fontSize,
-    });
+    const postalCode: string = store.postalCode;
+    await addText(postalCode, x, y, fontSize, page, pdfDoc);
   }
 
   if (!isEmpty(store.telephone)) {
     y -= 2 * fontSize;
-    page.drawText(prefix(store.telephone, 'T: '), {x, y, size: fontSize});
+    const telephone: string = prefix(store.telephone, 'T: ');
+    await addText(telephone, x, y, fontSize, page, pdfDoc);
   }
   if (!isEmpty(store.fax)) {
     y -= 2 * fontSize;
-    page.drawText(prefix(store.fax, 'F: '), {x, y, size: fontSize});
+    const fax: string = prefix(store.fax, 'F: ');
+    await addText(fax, x, y, fontSize, page, pdfDoc);
   }
 }
 
@@ -450,6 +544,7 @@ function addMedicalRxLines(
   const fontSize: number = 12;
   let x: number = border;
   let y: number = pageHeight - border - 280;
+  let dim = {x, y};
   prescriptions.forEach((prescription, i) => {
     let formattedRxLine: string = !isEmpty(prescription.Label)
       ? prescription.Label
@@ -471,8 +566,8 @@ function addMedicalRxLines(
         !isEmpty(formattedRxLine) ? ', ' : '',
       );
       if (formattedRxLine) {
-        page.drawText(formattedRxLine, {x, y, size: fontSize});
-        y -= fontSize * 1.15;
+        dim.x = x;
+        printWrappedLine(formattedRxLine, page, fontSize, dim);
       }
 
       formattedRxLine = prefix(prescription.Frequency, '       ');
@@ -481,28 +576,73 @@ function addMedicalRxLines(
         ', ' + strings.duration + ': ',
       );
       if (formattedRxLine) {
-        page.drawText(formattedRxLine, {x, y, size: fontSize});
-        y -= fontSize * 1.15;
+        dim.x = x + 20;
+        printWrappedLine(formattedRxLine, page, fontSize, dim);
       }
       formattedRxLine = prefix(prescription.Instructions, '       ');
-      formattedRxLine += prefix(prescription.Refill, ', ');
-      formattedRxLine += prefix(prescription['Do not substitute'], ', ');
+      formattedRxLine += prefix(
+        prescription.Refill,
+        !isEmpty(formattedRxLine.trim()) ? ', ' : '',
+      );
+      formattedRxLine += prefix(
+        prescription['Do not substitute'],
+        !isEmpty(formattedRxLine.trim()) ? ', ' : '',
+      );
       if (formattedRxLine) {
-        page.drawText(formattedRxLine, {x, y, size: fontSize});
-        y -= fontSize * 1.15;
+        dim.x = x + 20;
+        printWrappedLine(formattedRxLine, page, fontSize, dim);
       }
       const commentLine: string = prescription.Comment;
       if (commentLine) {
-        y -= fontSize * 0.5;
+        dim.y = dim.y - fontSize * 0.5;
+        dim.x = x + 20;
         let lines = commentLine.split('\n');
         lines.forEach((line, j) => {
-          page.drawText(prefix(line, '       '), {x, y, size: fontSize});
-          y -= fontSize * 1.15;
+          printWrappedLine(line, page, fontSize, dim);
         });
       }
-      y -= fontSize;
+      dim.y = dim.y - fontSize;
     }
   });
+}
+
+function printWrappedLine(
+  sentence: string,
+  page: PDFPage,
+  fontSize: number,
+  dim: {x: number, y: number},
+) {
+  const wrappedSentence = [];
+  wrapString(sentence, wrappedSentence);
+  wrappedSentence.forEach((newLine) => {
+    page.drawText(newLine.trimStart(), {x: dim.x, y: dim.y, size: fontSize});
+    dim.y = dim.y - fontSize * 1.15;
+  });
+}
+
+function wrapString(sentence: string, splitSentence: []) {
+  const maximumCharLength: number = 90;
+  if (sentence.length > maximumCharLength) {
+    const substr = sentence.substring(0, maximumCharLength);
+    const lastSpaceIndex = substr.lastIndexOf(' ');
+
+    if (lastSpaceIndex === -1 || lastSpaceIndex === maximumCharLength - 1) {
+      //space does not exist and space is not the last character
+      splitSentence.push(substr);
+      return wrapString(sentence.substring(maximumCharLength), splitSentence);
+    } else if (sentence[maximumCharLength] === ' ') {
+      //space exist and next character has space i.e can accommodate the last word
+      splitSentence.push(substr);
+      return wrapString(sentence.substring(maximumCharLength), splitSentence);
+    } else {
+      //last word is too long - split and print excluding the last word
+      splitSentence.push(substr.substring(0, lastSpaceIndex));
+      return wrapString(sentence.substring(lastSpaceIndex + 1), splitSentence);
+    }
+  } else {
+    splitSentence.push(sentence);
+    return;
+  }
 }
 
 async function addSignatureWeb(
@@ -648,7 +788,12 @@ async function addSignature(
   });
 }
 
-function addRxFootNote(visitId: string, page: PDFPage, pageHeight: number, border: number) {
+function addRxFootNote(
+  visitId: string,
+  page: PDFPage,
+  pageHeight: number,
+  border: number,
+) {
   const fontSize: number = 8;
   const visit: Visit = getCachedItem(visitId);
   if (!visit || !visit.userId) {
@@ -656,7 +801,9 @@ function addRxFootNote(visitId: string, page: PDFPage, pageHeight: number, borde
   }
   const vStore: Store = getCachedItem(visit.storeId);
   const store: Store = !isEmpty(vStore) ? vStore : getStore();
-  const footNote = store.defaultMedicationRxNote ? store.defaultMedicationRxNote : '';
+  const footNote = store.defaultMedicationRxNote
+    ? store.defaultMedicationRxNote
+    : '';
   page.drawText(footNote, {
     x: border,
     y: border,
@@ -723,3 +870,4 @@ export async function printBase64Pdf(pdfData: string) {
     await RNFS.unlink(pdfPath);
   }
 }
+

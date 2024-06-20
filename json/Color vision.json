@@ -17,6 +17,32 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Cromatopsia",
+      "fields": [
+        {
+          "name": "Color vision",
+          "label": "Cromatopsia",
+          "fields": [
+            {
+              "name": "Test",
+              "label": "Prueba"
+            },
+            {
+              "name": "Aquired",
+              "label": "Adquirida",
+              "normalValue": "No",
+              "defaultValue": "No",
+              "options": ["No", "Si"]
+            }
+          ]
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
   "name": "Color vision",
@@ -32,6 +58,7 @@
         {
           "name": "Test",
           "freestyle": true,
+          "highlightedLabel": true,
           "options": "colorVisionTestCodes"
         },
         {

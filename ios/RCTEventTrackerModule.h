@@ -15,4 +15,10 @@
 
 - (void)dispatchEvent;
 
+- (void) setKeyCommandsWithJSON:(id)json;
+
+- (NSArray<UIKeyCommand *> *) getKeyCommands;
+
+- (void)sendKeyCommandEvent:(UIKeyCommand *)keyCommand;
+
 @end

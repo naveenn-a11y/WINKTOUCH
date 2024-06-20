@@ -1,0 +1,63 @@
+{
+  "javascript.validate.enable": false,
+  // You can use ${workspaceFolder} it will be replaced by workspaceFolder path
+  "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow",
+  "html.format.wrapLineLength": 0,
+  "html.format.enable": true,
+  "files.refactoring.autoSave": false,
+
+  "editor.formatOnSave": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.organizeImports": "never"
+  },
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    },
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    },
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    },
+  },
+  "html.format.wrapAttributes": "preserve-aligned",
+  "[json]": {
+    "editor.wordWrap": "on",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[xml]": {
+    "editor.wordWrap": "on",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "git.autorefresh": true,
+  "editor.linkedEditing": false,
+  "editor.autoClosingDelete": "never",
+  "search.exclude": {
+    "flow-typed/": true
+  },
+  "files.exclude": {
+    "flow-typed/": true
+  },
+  // highest complexity level will be set when it exceeds 15
+  "codemetrics.basics.ComplexityLevelExtreme" : 15,
+    // Hides code lenses with complexity lesser than the given value
+  "codemetrics.basics.CodeLensHiddenUnder" : 5,
+  "codemetrics.basics.ComplexityLevelHighDescription": "Time to refactor!",
+    // Description for the highest complexity level
+  "codemetrics.basics.ComplexityLevelExtremeDescription" : "Look to split up into smaller functions!",
+    // someone uses 'any', it must be punished
+  "codemetrics.nodeconfiguration.AnyKeyword": 100
+}

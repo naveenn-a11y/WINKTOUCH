@@ -27,7 +27,7 @@ export const diabetesSeverityCodes = [
 
 
 export const diabetesPresentationCodes = [
-    {"code":"less then 6 months"},
+    {"code":"less than 6 months"},
     {"code":"6 - 12 months"},
     {"code":"12 - 18 months"},
     {"code":"18 - 24 months"},

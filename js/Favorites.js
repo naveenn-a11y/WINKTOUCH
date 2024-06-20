@@ -9,12 +9,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
   TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import RNBeep from 'react-native-a-beep';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import type {
   ExamDefinition,
   ExamPredefinedValue,
@@ -31,6 +30,7 @@ import {getVisitTypes} from './Visit';
 import {FormRow, FormTextInput} from './Form';
 import {Button} from './Widgets';
 import {getDoctor} from './DoctorApp';
+import {CustomModal as Modal} from './utilities/Modal';
 
 const examPredefinedValuesCacheKey: string = 'examPredefinedValues';
 
@@ -521,6 +521,7 @@ export class PaperClip extends PureComponent {
   render() {
     return (
       <Icon
+        testID={(this.props?.testID) ? ((this.props?.testID) + '.Attachment') : 'Attachment'}
         name="paperclip"
         style={this.props.style}
         color={this.props.color}
@@ -555,12 +556,11 @@ export class CopyRow extends PureComponent {
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
-        style={styles.bottomEndOfRow}
         testID={this.props.testID}>
         <Icon
           name="doubleright"
-          style={styles.copyRow}
           color={this.props.color}
+          style={styles.copyRow}
         />
       </TouchableOpacity>
     );

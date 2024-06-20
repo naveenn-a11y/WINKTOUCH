@@ -37,6 +37,21 @@
                     "label": "Documents"
                 }
             ]
+        },
+        "es-ES": {
+            "label": "Documentos",
+            "fields": [
+                {
+                    "name": "Documents",
+                    "label": "Documentos",
+                    "fields": [
+                        {
+                            "name": "Notes",
+                            "label": "Notas"
+                        }
+                    ]
+                }
+            ]
         }
     }
 }

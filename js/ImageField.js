@@ -3,66 +3,66 @@
  */
 'use strict';
 
-import type {PatientDocument, ImageDrawing, PatientInfo} from './Types';
+import type { ImageDrawing, PatientDocument, PatientInfo } from './Types';
 
-import React, {Component} from 'react';
-import ReactNative, {
-  View,
-  Text,
+import RNBeep from '@dashdoc/react-native-system-sounds';
+import { curveBasis, line } from 'd3-shape';
+import * as htmlToImage from 'html-to-image';
+import { Component } from 'react';
+import {
   Image,
+  NativeModules,
   ScrollView,
-  Modal,
+  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  NativeModules,
+  View,
 } from 'react-native';
-import mailer from 'react-native-mail';
-import {Svg, Path, Polyline, Circle} from 'react-native-svg';
-import RNBeep from 'react-native-a-beep';
-import {line, curveBasis} from 'd3-shape';
-import simplify from 'simplify-js';
-import ViewShot from 'react-native-view-shot';
-import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
 import RNFS from 'react-native-fs';
+import mailer from 'react-native-mail';
+import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
+import { Circle, Path, Polyline, Svg } from 'react-native-svg';
+import ViewShot from 'react-native-view-shot';
+import simplify from 'simplify-js';
+import { PdfViewer } from '../src/components/PdfViewer';
+import { getCachedItem } from './DataCache';
+import { getDoctor } from './DoctorApp';
+import { DocumentScanner } from './DocumentScanner';
+import { getVisit } from './Exam';
+import { Camera, Garbage, Mail, PaperClip, Pencil, Printer, Undo } from './Favorites';
+import { searchPatientDocuments, storePatientDocument } from './Patient';
+import { strings } from './Strings';
 import {
-  styles,
   fontScale,
   imageStyle,
-  printWidth,
   isWeb,
+  printWidth,
+  styles,
   widthPercentageToDP,
 } from './Styles';
-import {strings} from './Strings';
-import {getDoctor} from './DoctorApp';
+import { fetchUpload, getAspectRatio, getMimeType, storeUpload } from './Upload';
 import {
   formatDate,
-  now,
-  yearDateFormat,
-  jsonDateFormat,
-  replaceFileExtension,
   isEmpty,
+  now,
+  replaceFileExtension,
+  yearDateFormat
 } from './Util';
-import {Camera, PaperClip, Undo, Pencil, Printer, Mail} from './Favorites';
-import {DocumentScanner} from './DocumentScanner';
-import {fetchUpload, getMimeType, getAspectRatio} from './Upload';
-import {getCachedItem} from './DataCache';
-import {searchPatientDocuments, storePatientDocument} from './Patient';
-import {ClearTile, UpdateTile, RefreshTile} from './Widgets';
-import {storeUpload} from './Upload';
-import {getVisit} from './Exam';
-import {PdfViewer} from '../src/components/PdfViewer';
-import * as htmlToImage from 'html-to-image';
+import { CustomModal as Modal } from './utilities/Modal';
+import { ClearTile, RefreshTile, UpdateTile } from './Widgets';
 
 export async function loadDocuments(
   type: string,
   patientId: string,
+  showAllDocuments: boolean = false,
 ): PatientDocument[] {
   if (!type) {
-    return;
+    return [];
   }
   let restResponse: RestResponse = await searchPatientDocuments(
     patientId,
     type,
+    showAllDocuments,
   );
   const patientDocuments: PatientDocument[] = restResponse.patientDocumentList;
   return patientDocuments;
@@ -107,11 +107,41 @@ export async function getBase64Image(image: string) {
   if (image === './image/anteriorSegOS.png') {
     return require('./image/base64/anteriorSegOS');
   }
+  if (image === './image/anteriorOD_faded.png') {
+    return require('./image/base64/anteriorOD_faded');
+  }
+  if (image === './image/anteriorOS_faded.png') {
+    return require('./image/base64/anteriorOS_faded');
+  }
+  if (image === './image/anteriorSegOD_faded.png') {
+    return require('./image/base64/anteriorSegOD_faded');
+  }
+  if (image === './image/anteriorSegOS_faded.png') {
+    return require('./image/base64/anteriorSegOS_faded');
+  }
+  if (image === './image/anteriorSegOD_resized.png') {
+    return require('./image/base64/anteriorSegOD_resized');
+  }
+  if (image === './image/anteriorSegOS_resized.png') {
+    return require('./image/base64/anteriorSegOS_resized');
+  }
   if (image == './image/posteriorOD.png') {
     return require('./image/base64/posteriorOD');
   }
   if (image === './image/posteriorOS.png') {
     return require('./image/base64/posteriorOS');
+  }
+  if (image == './image/fundusOD.png') {
+    return require('./image/base64/fundusOD');
+  }
+  if (image === './image/fundusOS.png') {
+    return require('./image/base64/fundusOS');
+  }
+  if (image === './image/retinaOD.png') {
+    return require('./image/base64/retinaOD');
+  }
+  if (image === './image/retinaOS.png') {
+    return require('./image/base64/retinaOS');
   }
   if (image === './image/gonioscopyOD.png') {
     return require('./image/base64/gonioscopyOD');
@@ -188,7 +218,7 @@ export async function loadBase64ImageForWeb(
       const path: string = format.concat(response);
 
       return path;
-    } catch(error) {
+    } catch (error) {
       __DEV__ && console.log(error);
       return undefined;
     }
@@ -489,7 +519,7 @@ export class ImageField extends Component {
     }
     if (this.state.isActive) {
       this.cancelScrollTimer();
-      RNBeep.beep(false);
+      RNBeep.beep(RNBeep.Beeps.Negative);
       this.setState({isActive: false, eraseMode: false});
       this.props.enableScroll();
       this.commitEdit();
@@ -522,7 +552,7 @@ export class ImageField extends Component {
       let patientDocument: PatientDocument = {
         id: 'patientDocument',
         patientId: this.props.patientId,
-        postedOn: formatDate(now(), jsonDateFormat),
+        postedOn: now(),
         name: label,
         category: isEmpty(type) ? this.props.type : type,
         uploadId,
@@ -862,7 +892,7 @@ export class ImageField extends Component {
     this.cancelScrollTimer();
     if (this.state.isActive) {
       this.setState({isActive: false});
-      RNBeep.beep(false);
+      RNBeep.beep(RNBeep.Beeps.Negative);
     }
     if (this.props.enableScroll) {
       this.props.enableScroll();
@@ -936,16 +966,17 @@ export class ImageField extends Component {
     const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
     const pageHeight: number = pageWidth / pageAspectRatio;
 
-    let fileUri = undefined;
+    let fileUri;
     if (isWeb) {
-      fileUri = this.refs && this.refs.viewShotWeb
-        ? await htmlToImage.toPng(this.refs.viewShotWeb)
-        : undefined;
+      fileUri =
+        this.refs && this.refs.viewShotWeb
+          ? await htmlToImage.toPng(this.refs.viewShotWeb)
+          : undefined;
     } else {
       fileUri =
-      this.refs && this.refs.viewShot
-        ? await this.refs.viewShot.capture()
-        : undefined;
+        this.refs && this.refs.viewShot
+          ? await this.refs.viewShot.capture()
+          : undefined;
     }
 
     if (fileUri === undefined) {
@@ -1128,11 +1159,41 @@ export class ImageField extends Component {
     if (image === './image/anteriorSegOS.png') {
       return require('./image/anteriorSegOS.png');
     }
+    if (image === './image/anteriorOD_faded.png') {
+      return require('./image/anteriorOD_faded.png');
+    }
+    if (image === './image/anteriorOS_faded.png') {
+      return require('./image/anteriorOS_faded.png');
+    }
+    if (image === './image/anteriorSegOD_faded.png') {
+      return require('./image/anteriorSegOD_faded.png');
+    }
+    if (image === './image/anteriorSegOS_faded.png') {
+      return require('./image/anteriorSegOS_faded.png');
+    }
+    if (image === './image/anteriorSegOD_resized.png') {
+      return require('./image/anteriorSegOD_resized.png');
+    }
+    if (image === './image/anteriorSegOS_resized.png') {
+      return require('./image/anteriorSegOS_resized.png');
+    }
     if (image == './image/posteriorOD.png') {
       return require('./image/posteriorOD.png');
     }
     if (image === './image/posteriorOS.png') {
       return require('./image/posteriorOS.png');
+    }
+    if (image == './image/fundusOD.png') {
+      return require('./image/fundusOD.png');
+    }
+    if (image === './image/fundusOS.png') {
+      return require('./image/fundusOS.png');
+    }
+    if (image === './image/retinaOD.png') {
+      return require('./image/retinaOD.png');
+    }
+    if (image === './image/retinaOS.png') {
+      return require('./image/retinaOS.png');
     }
     if (image === './image/gonioscopyOD.png') {
       return require('./image/gonioscopyOD.png');
@@ -1364,7 +1425,7 @@ export class ImageField extends Component {
       );
 
       return (
-        <TouchableWithoutFeedback onPress={isWeb ? {} : this.commitEdit}>
+        <TouchableWithoutFeedback onPress={isWeb ? () => {} : this.commitEdit}>
           <View style={styles.popupBackground}>
             <Text style={styles.modalTitle}>{this.props.label}</Text>
             <View>
@@ -1402,7 +1463,13 @@ export class ImageField extends Component {
         onResponderTerminationRequest={(event) => false}
         onResponderMove={(event) => this.updatePosition(event, scale)}
         onResponderRelease={(event) => this.liftPen()}
-        onResponderTerminate={(event) => (isWeb ? {} : this.cancelEdit())}>
+        onResponderTerminate={(event) => {
+          if (isWeb) {
+            throw new Error('onResponderTerminate'); //this makes it trigger the proper responder i.e. onResponderRelease or onResponderMove
+          } else {
+            this.cancelEdit();
+          }
+        }}>
         <Image source={this.requireImage()} style={style} />
         {this.renderGraph(this.state.lines, style, scale)}
       </View>
@@ -1426,7 +1493,7 @@ export class ImageField extends Component {
           )}
           {this.props.type && (
             <TouchableOpacity onPress={() => this.showDocuments()}>
-              <PaperClip style={styles.screenIcon} />
+              <PaperClip testID={this.props.testID} style={styles.screenIcon} />
             </TouchableOpacity>
           )}
         </View>
@@ -1437,6 +1504,10 @@ export class ImageField extends Component {
         <View style={styles.drawingIcons} key={'drawingIcons'}>
           <TouchableOpacity onPress={() => this.print()}>
             <Printer style={styles.drawIcon} disabled={this.state.isActive} />
+          </TouchableOpacity>
+          <TouchableOpacity
+              onPress={() => this.clearImage()}>
+              <Garbage style={styles.groupIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.email()}>
             <Mail style={styles.drawIcon} disabled={this.state.isActive} />
@@ -1466,7 +1537,12 @@ export class ImageField extends Component {
     }
   }
 
-  renderViewShotChildren(image: any, isPdf: boolean, scale: number,  style: {width: number, height: number} ) {
+  renderViewShotChildren(
+    image: any,
+    isPdf: boolean,
+    scale: number,
+    style: {width: number, height: number},
+  ) {
     return (
       <View
         style={styles.solidWhite}
@@ -1491,15 +1567,9 @@ export class ImageField extends Component {
             disabled={this.state.isActive}>
             <View>
               {image && isPdf && (
-                <PdfViewer
-                  style={style}
-                  source={image.uri}
-                  isPreview={false}
-                />
+                <PdfViewer style={style} source={image.uri} isPreview={false} />
               )}
-              {image && !isPdf && (
-                <Image source={image} style={style} />
-              )}
+              {image && !isPdf && <Image source={image} style={style} />}
               {this.renderGraph(
                 this.state.isActive
                   ? this.state.lines
@@ -1537,8 +1607,8 @@ export class ImageField extends Component {
     ) {
       style = imageStyle('S', this.aspectRatio());
       return (
-        <View style={styles.fieldContainer}>
-          <View>
+        <View style={styles.fieldContainer} testID={this.props.testID}>
+          <View style={styles.imageContainer}>
             <TouchableOpacity
               style={styles.fieldContainer}
               onPress={this.startEditing}

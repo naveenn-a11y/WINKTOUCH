@@ -21,6 +21,19 @@
           "label": "Surréfraction finale"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Sobrerefracción",
+      "fields": [
+        {
+          "name": "Subjective over refraction",
+          "label": "Sobrerefracción subjetiva"
+        },
+        {
+          "name": "Final Rx",
+          "label": "Sobrerefracción final"
+        }
+      ]
     }
   },
   "scrollable": true,

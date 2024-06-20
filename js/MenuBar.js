@@ -29,11 +29,11 @@ import {UpcomingAppointments} from './Appointment';
 import {isAtWink} from './Registration';
 import {getPhoropters} from './DoctorApp';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
-import {getCurrentHost} from '../scripts/Util';
 import {getCachedItem} from './DataCache';
 import {getPrivileges} from './Rest';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileMenu} from './Profile';
+import KeyboardAccessibility from './utilities/KeyboardAccessibility';
 
 export class Notifications extends PureComponent {
   render() {
@@ -105,31 +105,21 @@ export class ExamNavigationMenu extends PureComponent {
 export class MenuBar extends PureComponent {
   props: {
     navigation: any,
-    screenProps: {
-      onLogout: () => void,
-    },
+    onLogout: () => void,
   };
 
   componentDidMount() {
     if (isWeb) {
-      document.addEventListener('keydown', this.handleKeyDown);
       window.onpopstate = () => {
-        this.props.screenProps.onLogout();
+        this.props.onLogout();
       };
     }
+    KeyboardAccessibility.startTracking();
   }
 
   componentWillUnmount() {
-    if (isWeb) {
-      document.removeEventListener('keydown', this.handleKeyDown);
-    }
+    KeyboardAccessibility.stopTracking();
   }
-
-  handleKeyDown = (event) => {
-    if (event && event.keyCode === 37) {
-      this.props.navigation && this.props.navigation.navigate('back');
-    }
-  };
 
   extractExamDefinition(exam: Exam): ExamDefinition {
     let examDefinition = exam.definition;
@@ -163,7 +153,7 @@ export class MenuBar extends PureComponent {
     const patient: PatientInfo | Patient = this.getPatient();
 
     const scene: ?string =
-      this.props.navigation.state && this.props.navigation.state.routeName;
+      this.props.navigation.state && this.props.navigation.state.name;
     const key: ?string =
       this.props.navigation.state && this.props.navigation.state.key;
     const hasConfig: boolean = getPhoropters().length > 1;
@@ -241,13 +231,13 @@ export class MenuBar extends PureComponent {
         {scene !== 'overview' && (
           <BackButton navigation={this.props.navigation} />
         )}
-        {__DEV__ && (
+        {__DEV__ && !isWeb && (
           <Button
             title={strings.restart}
             onPress={() =>
               !isWeb
                 ? codePush.restartApp()
-                : window.location.replace(getCurrentHost())
+                : window.location.reload()
             }
           />
         )}

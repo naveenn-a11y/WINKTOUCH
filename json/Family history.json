@@ -15,9 +15,26 @@
           "label": "Lien"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Antecedentes familiares",
+      "fields": [
+        {
+          "name": "Disease / Condition",
+          "label": "Enfermedad/Afección"
+        },
+        {
+          "name": "Relation",
+          "label": "Parentesco"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
-  "cardFields": ["Disease / Condition"],
+  "cardFields": ["Disease / Condition", "Relation", "Notes"],
   "starable": true,
   "essentialFields": ["Disease / Condition"],
   "type": "selectionLists",

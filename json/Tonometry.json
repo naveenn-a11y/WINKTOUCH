@@ -28,6 +28,26 @@
               "name": "OD",
               "fields": [
                 {
+                  "name": "Tension",
+                  "label": "PIO moyenne"
+                },
+                {
+                  "name": "Tension1",
+                  "label": "PIO mesure 1"
+                },
+                {
+                  "name": "Tension2",
+                  "label": "PIO mesure 2"
+                },
+                {
+                  "name": "Tension3",
+                  "label": "PIO mesure 3"
+                },
+                {
+                  "name": "ADJ TN",
+                  "label": "AJ PIO"
+                },
+                {
                   "name": "Pachymetry",
                   "label": "Pachymétrie"
                 }
@@ -37,12 +57,117 @@
               "name": "OS",
               "fields": [
                 {
+                  "name": "Tension",
+                  "label": "PIO moyenne"
+                },
+                {
+                  "name": "Tension1",
+                  "label": "PIO mesure 1"
+                },
+                {
+                  "name": "Tension2",
+                  "label": "PIO mesure 2"
+                },
+                {
+                  "name": "Tension3",
+                  "label": "PIO mesure 3"
+                },
+                {
+                  "name": "ADJ TN",
+                  "label": "AJ PIO"
+                },
+                {
                   "name": "Pachymetry",
                   "label": "Pachymétrie"
                 }
               ]
             }
           ]
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Tonometría",
+      "fields": [
+        {
+          "name": "IOP",
+          "label": "PIO",
+          "fields": [
+            {
+              "name": "Test",
+              "label": "Prueba"
+            },
+            {
+              "name": "Drug",
+              "label": "Fármaco"
+            },
+            {
+              "name": "Time",
+              "label": "Tiempo"
+            },
+            {
+              "name": "OD",
+              "fields": [
+                {
+                  "name": "Tension",
+                  "label": "PIO promedio"
+                },
+                {
+                  "name": "Tension1",
+                  "label": "Medida 1 de PIO"
+                },
+                {
+                  "name": "Tension2",
+                  "label": "Medida 2 de PIO"
+                },
+                {
+                  "name": "Tension3",
+                  "label": "Medida 3 de PIO"
+                },
+                {
+                  "name": "Pachymetry",
+                  "label": "Paquimetría"
+                },
+                {
+                  "name": "Pach. cor.",
+                  "label": "Corrección \u0394"
+                },
+                {
+                  "name": "ADJ TN",
+                  "label": "AJ PIO"
+                }
+              ]
+            },
+            {
+              "name": "OS",
+              "fields": [
+                {
+                  "name": "Tension",
+                  "label": "Tensión"
+                },
+                {
+                  "name": "Pachymetry",
+                  "label": "Paquimetría"
+                },
+                {
+                  "name": "Pach. cor.",
+                  "label": "Corrección \u0394"
+                },
+                {
+                  "name": "ADJ TN",
+                  "label": "Presión IA"
+                }
+              ]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        },
+        {
+          "name": "Scan",
+          "label": "Escanear"
         }
       ]
     }
@@ -53,10 +178,12 @@
       "import": ["machine.tonoref.iop", "machine.phoropter.iop"],
       "columns": [["OD", ">>", "OS"]],
       "multiValue": true,
+      "importFirstIndexOnly": true,
       "size": "M",
       "fields": [
         {
           "name": "Test",
+          "highlightedLabel": true,
           "freestyle": true,
           "options": "tonometryTestCodes"
         },
@@ -74,25 +201,56 @@
           "fields": [
             {
               "minValue": 0,
+              "name": "Tension1",
+              "label": "IOP Reading 1",
+              "delimiter": "|",
+              "freestyle": true,
+              "maxValue": 39
+            },
+            {
+              "minValue": 0,
+              "name": "Tension2",
+              "label": "IOP Reading 2",
+              "delimiter": "|",
+              "freestyle": true,
+              "maxValue": 39
+            },
+            {
+              "minValue": 0,
+              "name": "Tension3",
+              "label": "IOP Reading 3",
+              "delimiter": "|",
+              "freestyle": true,
+              "maxValue": 39
+            },
+            {
+              "minValue": 0,
               "name": "Tension",
+              "label": "Avg IOP",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 39
             },
             {
               "minValue": 400,
               "name": "Pachymetry",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 600
             },
             {
               "minValue": -7,
               "name": "Pach. cor.",
+              "label": "Correction \u0394",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 7
             },
             {
               "minValue": 0,
               "name": "ADJ TN",
+              "label": "ADJ IOP",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 39
             }
@@ -103,25 +261,56 @@
           "fields": [
             {
               "minValue": 0,
+              "name": "Tension1",
+              "label": "IOP Reading 1",
+              "delimiter": "|",
+              "freestyle": true,
+              "maxValue": 39
+            },
+            {
+              "minValue": 0,
+              "name": "Tension2",
+              "label": "IOP Reading 2",
+              "delimiter": "|",
+              "freestyle": true,
+              "maxValue": 39
+            },
+            {
+              "minValue": 0,
+              "name": "Tension3",
+              "label": "IOP Reading 3",
+              "delimiter": "|",
+              "freestyle": true,
+              "maxValue": 39
+            },
+            {
+              "minValue": 0,
               "name": "Tension",
+              "label": "Avg IOP",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 39
             },
             {
               "minValue": 400,
               "name": "Pachymetry",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 600
             },
             {
               "minValue": -7,
               "name": "Pach. cor.",
+              "label": "Correction \u0394",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 7
             },
             {
               "minValue": 0,
               "name": "ADJ TN",
+              "label": "ADJ IOP",
+              "delimiter": "|",
               "freestyle": true,
               "maxValue": 39
             }

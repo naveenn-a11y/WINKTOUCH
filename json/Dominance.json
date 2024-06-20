@@ -18,6 +18,30 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Dominancia",
+      "fields": [
+        {
+          "name": "Dominance",
+          "label": "Dominancia",
+          "fields": [
+            {
+              "name": "Method",
+              "label": "Método",
+              "options": ["Alineación", "Empañamiento de la lente"]
+            },
+            {
+              "name": "Dominant eye",
+              "label": "Ojo dominante"
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "starable": true,
@@ -31,17 +55,20 @@
         {
           "name": "Method",
           "freestyle": false,
+          "highlightedLabel": true,
           "options": ["Alignment", "Lens fogging"]
         },
         {
           "name": "Dominant eye",
           "freestyle": false,
+          "highlightedLabel": true,
           "options": "dominantEyeCodes"
         },
         {
           "maxLength": 500,
           "name": "Notes",
-          "freestyle": true
+          "freestyle": true,
+          "highlightedLabel": true
         }
       ]
     }

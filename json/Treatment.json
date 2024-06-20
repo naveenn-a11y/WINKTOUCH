@@ -36,6 +36,69 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Retirada",
+      "fields": [
+        {
+          "name": "Recall",
+          "label": "Retirada",
+          "fields": [
+            {
+              "name": "PatientTag1",
+              "label": "Tipo de paciente 1"
+            },
+            {
+              "name": "PatientTag2",
+              "label": "Tipo de paciente 2"
+            },
+            {
+              "name": "PatientTag3",
+              "label": "Tipo de paciente 3"
+            },
+            {
+              "name": "PatientTag4",
+              "label": "Tipo de paciente 4"
+            },
+            {
+              "name": "PatientTag5",
+              "label": "Tipo de paciente 5"
+            },
+            {
+              "name": "Amount",
+              "label": "Retirada en"
+            },
+            {
+              "name": "Unit",
+              "label": "Unidad"
+            },
+            {
+              "name": "RecallDate",
+              "label": "Fecha de retirada"
+            },
+            {
+              "name": "Recall1",
+              "label": "Fecha prevista de retirada 1"
+            },
+            {
+              "name": "Recall2",
+              "label": "Fecha prevista de retirada 2"
+            },
+            {
+              "name": "PatientVisitNextEE",
+              "label": "Fecha de retirada"
+            },
+            {
+              "name": "DefaultRecallFrequencyMonths",
+              "label": "Frecuencia de retirada (meses)"
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "name": "Treatment",
@@ -68,7 +131,6 @@
       "Recall.Recall2Comment"
     ],
     [
-      "Notes:",
       "Recall.Notes"
     ]
   ],

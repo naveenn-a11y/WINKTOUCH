@@ -6,7 +6,7 @@
       "fields": [
         {
           "name": "Unaided acuities",
-          "label": "Acuitités sans aide",
+          "label": "Acuités sans aide",
           "fields": [
             {
               "name": "DVA",
@@ -28,7 +28,7 @@
             },
             {
               "name": "PH",
-              "label": "TE",
+              "label": "TS",
               "fields": [
                 {
                   "name": "OD",
@@ -270,6 +270,75 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "AVsc",
+      "fields": [
+        {
+          "name": "Unaided acuities",
+          "label": "AV no asistidas",
+          "fields": [
+            {
+              "name": "DVA",
+              "label": "AVL",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OU",
+                  "options": ["APL", "Prótesis"]
+                }
+              ]
+            },
+            {
+              "name": "PH",
+              "label": "AE",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL", "Prótesis"]
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "label": "AVC",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OU",
+                  "options": ["APL", "Prótesis"]
+                }
+              ]
+            },
+            {
+              "name": "Scale",
+              "label": "Tabla"
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "starable": true,
@@ -278,16 +347,25 @@
   "fields": [
     {
       "multivalue": true,
+      "showColumnLabel": true,
       "name": "Unaided acuities",
       "import": ["machine.phoropter.va.sc"],
       "columns": [["DVA", "PH", "NVA", ">>"]],
       "size": "M",
       "fields": [
         {
+          "normalValue": "Snellen",
+          "name": "Scale",
+          "label": "Chart",
+          "freestyle": true,
+          "options": "vaScaleCodes"
+        },
+        {
           "name": "DVA",
           "fields": [
             {
               "name": "OD",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -299,6 +377,7 @@
             },
             {
               "name": "OS",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -310,6 +389,7 @@
             },
             {
               "name": "OU",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -326,6 +406,7 @@
           "fields": [
             {
               "name": "OD",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -337,6 +418,7 @@
             },
             {
               "name": "OS",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -353,6 +435,7 @@
           "fields": [
             {
               "name": "OD",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -364,6 +447,7 @@
             },
             {
               "name": "OS",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -375,6 +459,7 @@
             },
             {
               "name": "OU",
+              "highlightedLabel": true,
               "prefix": "6/",
               "minValue": 4.5,
               "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
@@ -387,14 +472,9 @@
           ]
         },
         {
-          "normalValue": "Snellen",
-          "name": "Scale",
-          "freestyle": true,
-          "options": "vaScaleCodes"
-        },
-        {
           "maxLength": 500,
-          "name": "Notes"
+          "name": "Notes",
+          "highlightedLabel": true
         }
       ]
     }

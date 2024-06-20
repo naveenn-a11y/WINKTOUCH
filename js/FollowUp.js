@@ -3,56 +3,57 @@
  */
 'use strict';
 
-import type {Visit} from './Types';
+import type { Visit } from './Types';
 
-import React, {Component} from 'react';
-import ReactNative, {
-  View,
+import React, { Component } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  InteractionManager,
+  Keyboard,
   Text,
-  Modal,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  InteractionManager,
-  TextInput,
-  Keyboard,
-  FlatList,
-  ActivityIndicator,
+  View,
 } from 'react-native';
+import { formatCode, getAllCodes, getCodeDefinition } from './Codes';
+import { cacheItem, getCachedItem } from './DataCache';
+import { FormCode, FormRow, FormTextInput } from './Form';
 import {
-  styles,
   fontScale,
+  isWeb,
   selectionColor,
   selectionFontColor,
-  isWeb,
+  styles,
   windowHeight,
 } from './Styles';
-import {Button, TilesField, Alert, TextField} from './Widgets';
-import {FormRow, FormTextInput, FormCode} from './Form';
-import {getAllCodes, getCodeDefinition, formatCode} from './Codes';
-import {fetchWinkRest} from './WinkRest';
 import type {
-  PatientInfo,
-  ReferralDefinition,
   CodeDefinition,
   EmailDefinition,
   FollowUp,
+  PatientInfo,
+  ReferralDefinition,
   ReferralStatusCode,
   Upload,
 } from './Types';
-import {fetchReferralFollowUpHistory, fetchVisit} from './Visit';
-import {getCachedItem, cacheItem} from './DataCache';
+import { fetchReferralFollowUpHistory, fetchVisit } from './Visit';
+import { Alert, Button, TextField, TilesField } from './Widgets';
+import { fetchWinkRest } from './WinkRest';
 
-import {getPrivileges, stripDataType} from './Rest';
-import RNBeep from 'react-native-a-beep';
-import {getDoctor} from './DoctorApp';
-import {strings} from './Strings';
-import {getMimeType} from './Upload';
-import {printHtml, print} from '../src/components/HtmlToPdf';
-import {deAccent, isEmpty, formatDate, jsonDateFormat} from './Util';
+import RNBeep from '@dashdoc/react-native-system-sounds';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {fetchPatientInfo, getPatientFullName} from './Patient';
-import {getPDFAttachmentFromHtml} from './PatientFormHtml';
-import {printBase64Pdf} from './Print';
+import { print, printHtml } from '../src/components/HtmlToPdf';
+import { getDoctor } from './DoctorApp';
+import { fetchPatientInfo, getPatientFullName } from './Patient';
+import { getPDFAttachmentFromHtml } from './PatientFormHtml';
+import { printBase64Pdf } from './Print';
+import { stripDataType } from './Rest';
+import { strings } from './Strings';
+import { getMimeType } from './Upload';
+import { deAccent, formatDate, isEmpty, jsonDateFormat } from './Util';
+import { CustomModal as Modal } from './utilities/Modal';
+
 const COMMAND = {
   RESEND: 0,
   REPLY: 1,
@@ -86,6 +87,7 @@ type FollowUpScreenProps = {
   patientInfo: PatientInfo,
   isDraft: boolean,
   onUpdateVisitSelection: (selectedVisitId: string) => void,
+  route: any,
 };
 
 type FollowUpScreenState = {
@@ -116,7 +118,7 @@ export class FollowUpScreen extends Component<
       isPopupVisibile: false,
       allFollowUp: [],
       selectedItem: undefined,
-      allRefStatusCode: [],
+      allRefStatusCode: getAllCodes('referralStatus'),
       emailDefinition: {},
       command: undefined,
       isDirty: false,
@@ -163,7 +165,7 @@ export class FollowUpScreen extends Component<
       if (response.errors) {
         alert(response.errors);
       } else {
-        RNBeep.PlaySysSound(RNBeep.iOSSoundIDs.MailSent);
+        RNBeep.play(RNBeep.iOSSoundIDs.MailSent);
         this.setState({isPopupVisibile: false, emailDefinition: {}});
       }
     }
@@ -266,8 +268,8 @@ export class FollowUpScreen extends Component<
     const selectedItem: FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo
+      ? this.props.route.params.patientInfo
       : selectedItem.patientInfo;
     emailDefinition.to = patientInfo ? patientInfo.email : undefined;
     this.setState({
@@ -301,11 +303,11 @@ export class FollowUpScreen extends Component<
         return;
       }
     }
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     const isDraft: Boolean = this.props.isDraft;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo;
+      : this.props.route.params.patientInfo;
     const patientId: string = isEmpty(patientInfo) ? '*' : patientInfo.id;
     if (isDraft && visit) {
       allFollowUp = getCachedItem('referralFollowUpHistory-' + patientId);
@@ -345,7 +347,7 @@ export class FollowUpScreen extends Component<
   onRefresh(refresh: boolean) {}
 
   async componentDidUpdate(prevProps: any) {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     if (params && params.refreshFollowUp) {
       this.props.navigation.setParams({refreshFollowUp: false});
       await this.refreshList();
@@ -356,8 +358,8 @@ export class FollowUpScreen extends Component<
     const selectedItem: FollowUp = this.state.selectedItem;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo !== undefined
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo !== undefined
+      ? this.props.route.params.patientInfo
       : selectedItem !== undefined
       ? getCachedItem(selectedItem.patientInfo.id)
       : undefined;
@@ -394,7 +396,7 @@ export class FollowUpScreen extends Component<
 
       const patientInfo: PatientInfo = this.props.patientInfo
         ? this.props.patientInfo
-        : this.props.navigation.state.params.patientInfo;
+        : this.props.route.params.patientInfo;
 
       const patientId: string = isEmpty(patientInfo)
         ? undefined
@@ -410,8 +412,8 @@ export class FollowUpScreen extends Component<
           const allFollowUp = this.filterFollowUp(response.followUp);
           const combinedFollowUps = this.state.allFollowUp;
 
-          allFollowUp.map((value) => {
-            if (combinedFollowUps.find((item) => item.id === value.id)) {
+          allFollowUp?.forEach((value) => {
+            if (combinedFollowUps?.find((item) => item.id === value.id)) {
               //found duplicates
             } else {
               combinedFollowUps.push(value);
@@ -456,7 +458,7 @@ export class FollowUpScreen extends Component<
 
   filterFollowUp(data: FollowUp[]) {
     let allFollowUp = data;
-    const visit: Visit = this.props.navigation.state.params.visit;
+    const visit: Visit = this.props.route.params.visit;
     const isDraft: Boolean = this.props.isDraft;
 
     if (isDraft && visit) {
@@ -585,14 +587,14 @@ export class FollowUpScreen extends Component<
     }
     let patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo !== undefined
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo !== undefined
+      ? this.props.route.params.patientInfo
       : getCachedItem(selectedItem.patientInfo.id);
     patientInfo =
       patientInfo === undefined
         ? await fetchPatientInfo(selectedItem.patientInfo.id)
         : patientInfo;
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     let visit: Visit = getCachedItem(selectedItem.visitId);
     if (visit === undefined) {
       visit = await fetchVisit(selectedItem.visitId);
@@ -602,7 +604,7 @@ export class FollowUpScreen extends Component<
         this.props.navigation.navigate('appointment', {
           patientInfo: patientInfo,
           selectedVisitId: selectedItem.visitId,
-          refreshStateKey: this.props.navigation.state.key,
+          refreshStateKey: this.props.route.key,
         });
       } else {
         this.props.onUpdateVisitSelection(selectedItem.visitId);
@@ -696,7 +698,7 @@ export class FollowUpScreen extends Component<
     if (!selectedItem) {
       return false;
     }
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     if (params && params.overview) {
       return false;
     }
@@ -741,7 +743,7 @@ export class FollowUpScreen extends Component<
     if (!selectedItem) {
       return false;
     }
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     if (params && params.overview) {
       return false;
     }
@@ -807,7 +809,7 @@ export class FollowUpScreen extends Component<
 
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo;
+      : this.props.route.params.patientInfo;
     const style =
       !isEmpty(patientInfo) && !this.props.isDraft
         ? [
@@ -835,6 +837,7 @@ export class FollowUpScreen extends Component<
           navigation={this.props.navigation}
           loading={this.state.loading}
           handleLoadMore={this.handleLoadMoreFollowUp}
+          allRefStatusCode={this.state.allRefStatusCode}
         />
         {this.renderButtons()}
         <Modal
@@ -863,8 +866,8 @@ export class FollowUpScreen extends Component<
     const isDraft: boolean = this.props.isDraft;
     const patientInfo: PatientInfo = this.props.patientInfo
       ? this.props.patientInfo
-      : this.props.navigation.state.params.patientInfo
-      ? this.props.navigation.state.params.patientInfo
+      : this.props.route.params.patientInfo
+      ? this.props.route.params.patientInfo
       : this.state.selectedItem !== undefined
       ? this.state.selectedItem.patientInfo
       : undefined;
@@ -900,7 +903,7 @@ export class FollowUpScreen extends Component<
                   visit: visit,
                   referral: this.state.selectedItem,
                   followUp: true,
-                  followUpStateKey: this.props.navigation.state.key,
+                  followUpStateKey: this.props.route.key,
                   patientInfo: patientInfo,
                 });
               }}
@@ -918,7 +921,7 @@ export class FollowUpScreen extends Component<
                   visit: visit,
                   referral: this.state.selectedItem,
                   followUp: false,
-                  followUpStateKey: this.props.navigation.state.key,
+                  followUpStateKey: this.props.route.key,
                   patientInfo: patientInfo,
                 });
               }}
@@ -1071,6 +1074,7 @@ export class TableListRow extends React.PureComponent {
     readonly: boolean,
     onLongPress?: () => void,
     isVisible: boolean,
+    allRefStatusCode: ReferralStatusCode[],
   };
   state: {
     commentValue: string,
@@ -1154,18 +1158,31 @@ export class TableListRow extends React.PureComponent {
   }
 
   render() {
+    let referralStatusCode : ReferralStatusCode = this.props?.allRefStatusCode.find(code => code.code == this.props.rowValue?.status)
+    const RECEIVED_STATUS = 3
     const style = this.props.selected
       ? styles.tableListTextSelected
       : styles.tableListText;
-    const textStyle = this.props.rowValue.isParent
+    const textStyle = (this.props.rowValue.isParent || referralStatusCode?.status === RECEIVED_STATUS)
       ? [style, {fontWeight: 'bold'}]
       : style;
+
+    let formCodeStyle = this.props.readonly ? styles.formFieldReadOnly : styles.formField;
+    //make bold if status is received i.e RECEIVED_STATUS
+    formCodeStyle = (referralStatusCode?.status === RECEIVED_STATUS)
+        ? [formCodeStyle, {fontWeight: 'bold'}]
+        : formCodeStyle;
+
     const prefix: string = this.props.selected
       ? this.props.selected === true
         ? undefined
         : '(' + this.props.selected + ') '
       : undefined;
-    const commentStyle = [styles.formField, {minWidth: 150 * fontScale}];
+
+    const commentStyle = (referralStatusCode?.status === RECEIVED_STATUS)
+        ? [styles.formField, {minWidth: 150 * fontScale, fontWeight: 'bold'}]
+        : [styles.formField, {minWidth: 150 * fontScale}];
+
     return (
       <TouchableOpacity
         underlayColor={selectionColor}
@@ -1201,6 +1218,7 @@ export class TableListRow extends React.PureComponent {
             label={'Status'}
             onChangeValue={(code: ?string | ?number) => this.updateValue(code)}
             readonly={this.props.readonly}
+            style={formCodeStyle}
           />
 
           <TextField
@@ -1236,6 +1254,7 @@ export class TableList extends React.PureComponent {
     navigation: any,
     loading: boolean,
     handleLoadMore: () => void,
+    allRefStatusCode : ReferralStatusCode[],
   };
 
   state: {
@@ -1401,7 +1420,7 @@ export class TableList extends React.PureComponent {
       return;
     }
     let data: any[] = [...this.props.items];
-    data.map((followUp: FollowUp, index: number) => {
+    data?.forEach((followUp: FollowUp, index: number) => {
       followUp.ref = followUp.ref.trim();
       followUp.isParent = false;
     });
@@ -1762,10 +1781,9 @@ export class TableList extends React.PureComponent {
     ];
     const commentStyle = [style, {minWidth: 150 * fontScale}];
     const isPatientVisible: boolean =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params &&
-      this.props.navigation.state.params.overview
+      this.props.route &&
+      this.props.route.params &&
+      this.props.route.params.overview
         ? true
         : false;
     return (
@@ -1922,10 +1940,9 @@ export class TableList extends React.PureComponent {
     let data: any[] = this.getItems();
 
     const isVisible: boolean =
-      this.props.navigation &&
-      this.props.navigation.state &&
-      this.props.navigation.state.params &&
-      this.props.navigation.state.params.overview
+      this.props.route &&
+      this.props.route.params &&
+      this.props.route.params.overview
         ? true
         : false;
 
@@ -1952,6 +1969,7 @@ export class TableList extends React.PureComponent {
               testID={this.props.label + '.option' + (item.index + 1)}
               readonly={this.props.isDraft}
               isVisible={isVisible}
+              allRefStatusCode={this.props.allRefStatusCode}
             />
           )}
           ListHeaderComponent={this.renderHeader()}

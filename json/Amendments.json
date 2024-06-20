@@ -10,6 +10,19 @@
           "label": "Amendements"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Enmiendas",
+      "fields": [
+        {
+          "name": "Amendments",
+          "label": "Enmiendas"
+        },
+        {
+          "name": "Scan",
+          "label": "Escanear"
+        }
+      ]
     }
   },
   "scrollable": false,

@@ -4,65 +4,65 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { Component } from 'react';
 import {
-  View,
+  Switch,
   Text,
   TextInput,
   TouchableWithoutFeedback,
-  Switch,
+  View,
 } from 'react-native';
-import {PhoneNumberUtil} from 'google-libphonenumber';
-import type {
-  FieldDefinition,
-  FieldDefinitions,
-  CodeDefinition,
-  GroupDefinition,
-} from './Types';
-import {styles, scaleStyle, fontScale} from './Styles';
-import {strings} from './Strings';
-import {
-  DateField,
-  DurationField,
-  TimeField,
-  TilesField,
-  TextArrayField,
-  ButtonArray,
-  NumberField,
-  ListField,
-  CheckButton,
-  Label,
-} from './Widgets';
-import {ImageField} from './ImageField';
-import {getFieldDefinitions} from './Items';
-import {GroupedForm} from './GroupedForm';
 import {
   formatAllCodes,
   formatCode,
   formatCodeDefinition,
-  parseCode,
   formatOptions,
   getAllCodes,
   getCodeDefinition,
+  parseCode,
 } from './Codes';
+import { GroupedForm } from './GroupedForm';
+import { ImageField } from './ImageField';
+import { formatLabel, getFieldDefinitions, isNumericField } from './Items';
+import { GeneralPrismInput } from './Refraction';
+import { strings } from './Strings';
+import { fontScale, scaleStyle, styles } from './Styles';
+import type {
+  CodeDefinition,
+  FieldDefinition,
+  FieldDefinitions,
+  GroupDefinition,
+} from './Types';
 import {
   capitalize,
-  parseDate,
+  deepClone,
+  deepEqual,
   formatDate,
+  formatRanges,
+  getRanges,
+  getValue,
+  isEmpty,
   jsonDateFormat,
   jsonDateTimeFormat,
-  deepClone,
-  getValue,
-  setValue,
-  getRanges,
-  formatRanges,
-  sort,
+  parseDate,
   passesRangeFilter,
-  deepEqual,
+  setValue,
+  sort,
 } from './Util';
-import {isNumericField, formatLabel} from './Items';
-import {Microphone} from './Voice';
-import {GeneralPrismInput} from './Refraction';
+import { Microphone } from './Voice';
+import {
+  ButtonArray,
+  CheckButton,
+  DateField,
+  DurationField,
+  Label,
+  ListField,
+  NumberField,
+  TextArrayField,
+  TilesField,
+  TimeField,
+} from './Widgets';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -93,6 +93,9 @@ export class FormTextInput extends Component {
     speakable?: boolean,
     style?: any,
     containerStyle?: any,
+    maxLength?: number,
+    maxRows?: number,
+    showTextInfoTip?: boolean,
     testID?: string,
     prefixStyle?: any,
   };
@@ -150,7 +153,7 @@ export class FormTextInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    eval(this.props.validation); // NOSONAR
     this.setState({errorMessage: validationError});
   }
 
@@ -212,8 +215,25 @@ export class FormTextInput extends Component {
   }
 
   updateText = (text: string) => {
-    this.setState({text});
+    const prevText: string = this.state.text;
+    const prevLines: string[] = prevText ? prevText.length : [];
+    const lines: string[] = text.split('\n');
+    if (
+      (this.props.maxRows && lines.length <= this.props.maxRows) ||
+      (this.props.maxRows && lines.length <= prevLines.length) ||
+      !this.props.maxRows
+    ) {
+      this.setState({text});
+    }
   };
+
+  getNumberOfLines(text: string): number {
+    const lines: string[] = text.split('\n');
+    if (lines === undefined || lines === null) {
+      return 0;
+    }
+    return lines.length;
+  }
 
   render() {
     return (
@@ -226,70 +246,88 @@ export class FormTextInput extends Component {
             : this.props.testID + 'FieldDismissError'
         }
         accessible={false}>
-        <View
-          style={
-            this.props.containerStyle
-              ? this.props.containerStyle
-              : styles.formElement
-          }>
-          {this.props.showLabel && (
-            <Label width={this.props.labelWidth} value={this.props.label} />
-          )}
-          {this.props.prefix && (
-            <Text 
-              style={this.props.prefixStyle ? this.props.prefixStyle : styles.formPrefix}
-            >
-              {this.props.prefix}
+        <View style={[styles.flexColumnLayout, {minHeight: this.props.multiline ? 194.2 * fontScale : 45 * fontScale}]}>
+          <View
+            style={
+              this.props.containerStyle
+                ? this.props.containerStyle
+                : styles.formElement
+            }>
+            {this.props.showLabel && (
+              <Label width={this.props.labelWidth} value={this.props.label} />
+            )}
+            {this.props.prefix && (
+              <Text style={this.props.prefixStyle ? this.props.prefixStyle : styles.formPrefix} >
+                {this.props.prefix}
+              </Text>
+            )}
+            <View style={styles.fieldFlexContainer}>
+              <TextInput
+                value={this.state.text}
+                autoCapitalize={
+                  this.props.autoCapitalize != undefined
+                    ? this.props.autoCapitalize
+                    : this.props.multiline === true
+                    ? 'sentences'
+                    : 'none'
+                }
+                autoCorrect={false}
+                autoFocus={this.props.autoFocus === true ? true : false}
+                keyboardType={this.props.type}
+                style={
+                  this.props.style
+                    ? this.props.style
+                    : this.props.multiline
+                    ? styles.formFieldLines
+                    : this.props.readonly
+                    ? styles.formFieldReadOnly
+                    : styles.formField
+                }
+                onFocus={this.dismissError}
+                onChangeText={this.updateText}
+                onBlur={(event) => this.commit(event.nativeEvent.text)}
+                editable={this.props.readonly !== true}
+                multiline={this.props.multiline === true}
+                maxLength={this.props.maxLength}
+                numberOfLines={this.props.maxRows}
+                onTextLayout={this.handleTextLayout}
+                testID={this.props.testID + 'Field'}
+              />
+              {!this.props.readonly &&
+                this.props.freestyle != false &&
+                (this.props.multiline || this.props.speakable) && (
+                  <Microphone
+                    onSpoke={(text: string) => this.appendText(text)}
+                    style={
+                      this.props.multiline
+                        ? styles.voiceIconMulti
+                        : styles.voiceIcon
+                    }
+                  />
+                )}
+            </View>
+            {this.props.suffix && (
+              <Text style={styles.formSuffix}>{this.props.suffix}</Text>
+            )}
+            {this.state.errorMessage && (
+              <Text style={styles.formValidationError}>
+                {this.state.errorMessage}
+              </Text>
+            )}
+          </View>
+
+          {this.props.maxLength && this.props.showTextInfoTip && (
+            <Text style={styles.textRight}>
+              {strings.characters}:{' '}
+              {this.state.text ? this.state.text.length : 0}/
+              {this.props.maxLength}
             </Text>
           )}
-          <View style={styles.fieldFlexContainer}>
-            <TextInput
-              value={this.state.text}
-              autoCapitalize={
-                this.props.autoCapitalize != undefined
-                  ? this.props.autoCapitalize
-                  : this.props.multiline === true
-                  ? 'sentences'
-                  : 'none'
-              }
-              autoCorrect={false}
-              autoFocus={this.props.autoFocus === true ? true : false}
-              keyboardType={this.props.type}
-              style={
-                this.props.style
-                  ? this.props.style
-                  : this.props.multiline
-                  ? styles.formFieldLines
-                  : this.props.readonly
-                  ? styles.formFieldReadOnly
-                  : styles.formField
-              }
-              onFocus={this.dismissError}
-              onChangeText={this.updateText}
-              onBlur={(event) => this.commit(event.nativeEvent.text)}
-              editable={this.props.readonly !== true}
-              multiline={this.props.multiline === true}
-              testID={this.props.testID + 'Field'}
-            />
-            {!this.props.readonly &&
-              this.props.freestyle != false &&
-              (this.props.multiline || this.props.speakable) && (
-                <Microphone
-                  onSpoke={(text: string) => this.appendText(text)}
-                  style={
-                    this.props.multiline
-                      ? styles.voiceIconMulti
-                      : styles.voiceIcon
-                  }
-                />
-              )}
-          </View>
-          {this.props.suffix && (
-            <Text style={styles.formSuffix}>{this.props.suffix}</Text>
-          )}
-          {this.state.errorMessage && (
-            <Text style={styles.formValidationError}>
-              {this.state.errorMessage}
+          {this.props.maxRows && this.props.showTextInfoTip && (
+            <Text style={styles.textRight}>
+              {strings.lines}:{' '}
+              {this.state.text ? this.getNumberOfLines(this.state.text) : 0}/
+              {this.props.maxRows}
             </Text>
           )}
         </View>
@@ -320,6 +358,7 @@ export class FormNumberInput extends Component {
     isTyping?: boolean,
     autoFocus?: boolean,
     testID: string,
+    unit?: string,
   };
   static defaultProps = {
     readonly: false,
@@ -406,7 +445,7 @@ export class FormNumberInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    eval(this.props.validation); // NOSONAR
     this.setState({errorMessage: validationError});
   }
 
@@ -1103,6 +1142,7 @@ export class FormCode extends Component {
     listField?: boolean,
     simpleSelect?: boolean,
     rangeFilter?: {},
+    selectedIndex?: number,
   };
 
   getCodeIdentifier() {
@@ -1123,12 +1163,26 @@ export class FormCode extends Component {
 
   selectedDescription(allDescriptions: string[]): string {
     if (this.props.autoSelect) {
-      if (allDescriptions === undefined || allDescriptions.length != 1) {
+      let selectedIndex: number = 0;
+      if (
+        allDescriptions === undefined ||
+        (this.props.selectedIndex === undefined && allDescriptions.length != 1)
+      ) {
         return '';
+      } else if (
+        this.props.selectedIndex !== undefined &&
+        allDescriptions.length > 0
+      ) {
+        selectedIndex =
+          this.props.selectedIndex >= 0 &&
+          this.props.selectedIndex < allDescriptions.length
+            ? this.props.selectedIndex
+            : 0;
       }
       let description: string = formatCode(this.props.code, this.props.value);
       if (!allDescriptions.includes(description)) {
-        return allDescriptions[0];
+        this.updateValue(allDescriptions[selectedIndex]);
+        return allDescriptions[selectedIndex];
       }
       return description;
     }
@@ -1270,6 +1324,7 @@ export class FormInput extends Component {
     disableScroll?: () => void,
     fieldId: string,
     testID?: string,
+    customOptions?: CodeDefinition[],
   };
   state: {
     validation?: string,
@@ -1596,6 +1651,7 @@ export class FormInput extends Component {
           autoFocus={this.props.autoFocus}
           style={style}
           testID={this.props.testID}
+          unit={this.props.definition.unit}
         />
       );
     } else if (this.props.definition.hasRange) {
@@ -1615,6 +1671,7 @@ export class FormInput extends Component {
             autoFocus={this.props.autoFocus}
             style={style}
             testID={this.props.testID}
+            unit={this.props.definition.unit}
           />
         );
       }
@@ -1650,17 +1707,19 @@ export class FormInput extends Component {
           showLabel={this.props.showLabel}
           readonly={readonly}
           onChangeValue={this.props.onChangeValue}
-          style={style}
           errorMessage={this.props.errorMessage}
           testID={this.props.testID}
           style={this.props.style}
         />
       );
     } else if (
-      this.props.definition.options &&
-      this.props.definition.options.length > 0
+      (this.props.definition.options &&
+        this.props.definition.options.length > 0) ||
+      (this.props.customOptions && this.props.customOptions.length > 0)
     ) {
-      let options = this.props.definition.options;
+      let options = this.props.customOptions
+        ? this.props.customOptions
+        : this.props.definition.options; //custom option overrides field definition if it exists.
       if (this.props.definition.limitedValues) {
         options = this.getLimitedValues();
       }
@@ -1687,6 +1746,7 @@ export class FormInput extends Component {
             listField={this.props.definition.listField}
             simpleSelect={this.props.definition.simpleSelect}
             autoSelect={this.props.definition.autoSelect}
+            selectedIndex={this.props.definition.selectedIndex}
             onChangeValue={this.props.onChangeValue}
             style={style}
             multiline={
@@ -1720,11 +1780,19 @@ export class FormInput extends Component {
           />
         );
       }
+
+      //auto select implementation
+      let value = this.props.value
+      if (this.props.definition.autoSelect && options.length > 0 && isEmpty(value)) {
+        value = options[0]
+        this.props.onChangeValue(value)
+      }
+
       return (
         <FormOptions
           options={options}
           freestyle={this.props.definition.freestyle}
-          value={this.props.value}
+          value={value}
           label={label}
           showLabel={this.props.showLabel}
           errorMessage={this.props.errorMessage}
@@ -1738,6 +1806,8 @@ export class FormInput extends Component {
             this.props.definition.maxLength > 150
           }
           isTyping={this.props.isTyping}
+          listField={this.props.definition.listField}
+          simpleSelect={this.props.definition.simpleSelect}
           testID={this.props.testID}
         />
       );
@@ -1824,7 +1894,7 @@ export class FormInput extends Component {
           forceSync={this.props.definition.forceSync}
           testID={this.props.testID}>
           {this.props.definition.fields &&
-            this.props.definition.fields.map(
+            this.props.definition?.fields.map(
               (groupDefinition: GroupDefinition, index: number) => (
                 <GroupedForm
                   key={groupDefinition.name}
@@ -1873,6 +1943,9 @@ export class FormInput extends Component {
         }
         freestyle={this.props.definition.freestyle}
         style={style}
+        maxLength={this.props.definition.maxLength}
+        maxRows={this.props.definition.maxRows}
+        showTextInfoTip={this.props.definition.showTextInfoTip}
         testID={this.props.testID}
         prefixStyle={prefixStyle}
       />
@@ -1908,6 +1981,7 @@ export class FormField extends Component {
     examId: string,
     enableScroll?: () => void,
     disableScroll?: () => void,
+    customOptions?: CodeDefinition[], //overrides options in field definition.
   };
   state: {
     fieldDefinition: ?FieldDefinition,
@@ -1955,7 +2029,7 @@ export class FormField extends Component {
         (fieldDefinition: FieldDefinition | GroupDefinition) =>
           fieldDefinition.name === fieldNames[i],
       );
-      if (fieldDefinition.fields) {
+      if (fieldDefinition?.fields) {
         fieldDefinitions = fieldDefinition.fields;
       }
     }
@@ -2030,6 +2104,7 @@ export class FormField extends Component {
         enableScroll={this.props.enableScroll}
         disableScroll={this.props.disableScroll}
         testID={this.state.fieldDefinition.name}
+        customOptions={this.props.customOptions}
       />
     );
   }
@@ -2195,7 +2270,7 @@ export class FormCodeNumberInput extends Component {
     }
     const errorMessages = strings;
     let validationError: ?string;
-    eval(this.props.validation);
+    eval(this.props.validation); // NOSONAR
     this.setState({errorMessage: validationError});
   }
 
@@ -2234,21 +2309,21 @@ export class FormCodeNumberInput extends Component {
     const filteredRanges: [] = [];
     let arrRanges: [] = [];
 
-    if (this.props.rangeFilter) {
-      options.map((codeDefinition: CodeDefinition) => {
-        codeDefinition.ranges.map((element: any) => {
+    if (this.props?.rangeFilter) {
+      options?.forEach((codeDefinition: CodeDefinition) => {
+        codeDefinition?.ranges?.forEach((element: any) => {
           if (passesRangeFilter(element, this.props.rangeFilter)) {
             filteredRanges.push(element);
           }
         });
       });
-      filteredRanges.map((element: any) => {
+      filteredRanges?.forEach((element: any) => {
         arrRanges.push(element[key]);
       });
     } else {
-      options.map((code: CodeDefinition) => {
+      options?.forEach((code: CodeDefinition) => {
         code.ranges &&
-          code.ranges.map((element: any) => {
+          code.ranges?.forEach((element: any) => {
             if (element[key]) {
               arrRanges.push(element[key]);
             }
@@ -2258,15 +2333,15 @@ export class FormCodeNumberInput extends Component {
 
     let numRanges: number[] = [];
     const uniqueRanges = new Set();
-    arrRanges.map((element: any) => {
+    arrRanges?.forEach((element: any) => {
       if (element && !element.isValueZero) {
         numRanges = numRanges.concat(
           getRanges(element.minValue, element.maxValue, element.stepSize),
         );
       }
     });
-    if (numRanges.length > 0) {
-      numRanges.map((n: number) => {
+    if (numRanges?.length > 0) {
+      numRanges?.forEach((n: number) => {
         if (!uniqueRanges.has(n)) {
           uniqueRanges.add(n);
         }
@@ -2331,7 +2406,7 @@ export class ErrorCard extends Component {
             ? strings.errorsTitle
             : strings.errorTitle}
         </Text>
-        {this.props.errors.map((error: string, index: number) => (
+        {this.props.errors?.map((error: string, index: number) => (
           <Text style={styles.text} key={index}>
             {error}
           </Text>

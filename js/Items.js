@@ -258,11 +258,12 @@ export function formatFieldValue(
       if (value === undefined || value === null || value.length === 0) {
         return '';
       }
-      const formattedValues: string[] = value.map((code: string) => {
+        const formattedValues: string[] = value.map((code: string, index: number) => {
+        const spacing = index != 0 ? " " : "";
         const prefix: string = selectionPrefix(code);
         const suffix: string = formatSuffix(fieldDefinition);
         return (
-          prefix + formatCode(codeType, stripSelectionPrefix(code)) + suffix
+          spacing + prefix + formatCode(codeType, stripSelectionPrefix(code)) + suffix
         );
       });
       return new String(formattedValues).valueOf();
@@ -335,7 +336,7 @@ export function formatLabel(
     | GroupDefinition
     | {name: string, label: ?string},
 ): string {
-  if (fieldDefinition === undefined) {
+  if (fieldDefinition === undefined) { 
     return '';
   }
   if (fieldDefinition.label !== undefined && fieldDefinition.label !== null) {
@@ -702,11 +703,10 @@ export class ItemsCard extends Component {
         return true;
       }
 
-      if (String(value).startsWith('(-)')) {
-        return false;
-      } //TODO is this a general rule
       return true;
     });
+
+    let abnormalFieldOutput = '';
     return (
       <View
         style={
@@ -759,14 +759,19 @@ export class ItemsCard extends Component {
           if (fieldDefinition === null || fieldDefinition === undefined) {
             return null;
           }
+          const label = this.props.exam.definition.editable
+            ? formatLabel(fieldDefinition) + ': '
+            : '';
+          const valueOutput = `${
+            !isEmpty(abnormalFieldOutput.trim()) && isEmpty(label) ? ', ' : ''
+          }${formatFieldValue(value, fieldDefinition)}`;
+          abnormalFieldOutput += valueOutput;
           return (
             <Text style={styles.textLeft} key={subIndex}>
-              {this.props.exam.definition.editable
-                ? fieldDefinition.label
-                  ? fieldDefinition.label
-                  : fieldDefinition.name + ': '
-                : ''}
-              {formatFieldValue(value, fieldDefinition)}{' '}
+              <Text style={fieldDefinition.highlightedLabel ? styles.labelTitle : ''}>
+                {label}
+              </Text>
+              {valueOutput}
             </Text>
           );
         })}
@@ -848,7 +853,7 @@ export class ItemsList extends Component {
   };
 
   allNormal(): void {
-    this.props.fieldDefinitions.map(
+    this.props.fieldDefinitions?.forEach(
       (fieldDefinition: FieldDefinition, index: number) => {
         if (fieldDefinition.normalValue) {
           if (fieldDefinition.multiValue) {
@@ -867,7 +872,7 @@ export class ItemsList extends Component {
   }
 
   othersNormal(): void {
-    this.props.fieldDefinitions.map(
+    this.props.fieldDefinitions?.forEach(
       (fieldDefinition: FieldDefinition, index: number) => {
         const propertyName: string = fieldDefinition.name;
         if (
@@ -961,12 +966,13 @@ export class ItemsList extends Component {
       }
       return (
         <TouchableHighlight
+          testID={`medication-item-${item?.Label}`}
           key={index}
           onPress={() => this.props.onSelectItem(item)}
           onLongPress={() =>
             item && this.props.onRemoveItem && this.props.onRemoveItem(item)
           }>
-          {this.renderRow(itemView, index)}
+            {this.renderRow(itemView, index)}
         </TouchableHighlight>
       );
     });
@@ -975,7 +981,7 @@ export class ItemsList extends Component {
   render() {
     //const listStyle = this.props.orientation === 'horizontal' ? styles.listRow : styles.centeredColumnLayout;
     return (
-      <View style={this.props.style ? this.props.style : styles.board}>
+      <View testID={`medication-list`} style={this.props.style ? this.props.style : styles.board}>
         {this.props.title && (
           <Text style={styles.cardTitle}>{this.props.title}</Text>
         )}
@@ -1344,7 +1350,7 @@ export class ItemsEditor extends Component {
   render() {
     return (
       <View style={styles.page}>
-        <View style={styles.flowLeft}>
+        <View style={styles.flowLeft} testID={'ItemsListLeft'}>
           <ItemsList
             items={this.props.items}
             fieldDefinitions={this.props.fieldDefinitions}
@@ -1364,7 +1370,7 @@ export class ItemsEditor extends Component {
                 ? styles.boardStretch
                 : styles.boardStretchL
             }
-            testID={this.props.fieldId}
+            testID={this.props.fieldId ?? ''}
           />
           {this.props.onAddFavorite && this.props.editable && (
             <Favorites

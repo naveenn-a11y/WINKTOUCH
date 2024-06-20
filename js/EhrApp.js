@@ -3,25 +3,28 @@
  */
 
 'use strict';
-import React, {Component} from 'react';
-import {View, ActivityIndicator, AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import codePush, {SyncStatus} from 'react-native-code-push';
-import type {Registration, Store, User} from './Types';
-import {LoginScreen} from './LoginScreen';
-import {DoctorApp} from './DoctorApp';
-import {RegisterScreen, fetchTouchVersion} from './Registration';
+import NetInfo from '@react-native-community/netinfo';
+import { Component } from 'react';
+import { ActivityIndicator, AppState, View } from 'react-native';
+import codePush, { SyncStatus } from 'react-native-code-push';
+import { DefaultTheme, Provider } from 'react-native-paper';
+import { AppUpdateScreen } from './AppUpdate';
+import { DoctorApp } from './DoctorApp';
+import { LoginScreen } from './LoginScreen';
+import { RegisterScreen, fetchTouchVersion } from './Registration';
+import { strings } from './Strings';
+import { isIos, isWeb } from './Styles';
+import type { Registration, Store, User } from './Types';
+import { deepClone, sleep } from './Util';
 import {
-  setDeploymentVersion,
   checkBinaryVersion,
-  deploymentVersion,
+  setDeploymentVersion,
 } from './Version';
-import {AppUpdateScreen} from './AppUpdate';
-import {isIos, isWeb} from './Styles';
+import { NetworkInfo, Prompt } from './Widgets';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
 import RemoteConfig from './utilities/RemoteConfig';
-import {deepClone, sleep} from './Util';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -56,9 +59,6 @@ function logUpdateStatus(status: number) {
       break;
     case SyncStatus.UNKNOWN_ERROR:
       console.log('CodePush Unknown error');
-      break;
-    case SyncStatus.INSTALLING_UPDATE:
-      console.log('CodePush Installing update');
       break;
     default:
       console.log('CodePush Status: ' + status);
@@ -105,8 +105,16 @@ async function refreshWebDeployment(codePushEnvironmentKey: String, delaySeconds
   }
   console.log('Refreshing webapp with web bundle for environment '+codePushEnvironmentKey);
   await AsyncStorage.setItem('bundle', codePushEnvironmentKey);
-  location.reload();
+  window.location.reload();
 }
+
+const theme = {
+  ...DefaultTheme,
+  dark: false,
+};
+
+let netInfoListener = null;
+let appStateListener = null;
 
 export class EhrApp extends Component {
   state: {
@@ -122,6 +130,9 @@ export class EhrApp extends Component {
     isUpdateRequired: Boolean,
     latestBuild: number,
     latestVersion: number,
+    showNetworkInfo: boolean,
+    showPrompt: boolean,
+    newAppVersion: string,
   };
 
   constructor() {
@@ -140,6 +151,9 @@ export class EhrApp extends Component {
       isUpdateRequired: false,
       latestBuild: 1,
       latestVersion: 1,
+      showNetworkInfo: false,
+      showPrompt: false,
+      newAppVersion: "",
     };
   }
 
@@ -171,23 +185,22 @@ export class EhrApp extends Component {
     const bundle: string = await AsyncStorage.getItem('bundle');
     const path: string = await AsyncStorage.getItem('path');
     const registration: Registration = {email, bundle, path};
-    console.log('Loading registration from storage: ' + JSON.stringify(registration));
+    __DEV__ && console.log('Loading registration from storage: ' + JSON.stringify(registration));
     this.setRegistration(registration);
   }
 
   async setRegistration(registration?: Registration) {
-    const currentBundle = await AsyncStorage.getItem('bundle');
     const isRegistered: boolean =
-      registration != undefined &&
+      registration !== undefined &&
       registration != null &&
-      registration.email != undefined &&
-      registration.path != undefined &&
+      registration.email !== undefined &&
+      registration.path !== undefined &&
       registration.bundle !== undefined &&
       registration.bundle !== null &&
       registration.bundle.length > 0;
     this.setState(
       {isRegistered, registration, loading: false},
-      () => isRegistered && this.checkForCodepushUpdate(),  
+      () => isRegistered && this.checkForCodepushUpdate(),
     );
   }
 
@@ -267,6 +280,48 @@ export class EhrApp extends Component {
     if (!isWeb) this.checkForCodepushUpdate();
   };
 
+  async checkWinkTouchVersionChanges(registration: ?Registration) {
+    try {
+      let codePushBundleKey = await fetchTouchVersion(registration.path);
+  
+      if (registration.bundle !== codePushBundleKey) {
+        registration.bundle = codePushBundleKey;
+        
+        if (registration.bundle) {
+          AsyncStorage.setItem('bundle', registration.bundle);
+        } else {
+          AsyncStorage.removeItem('bundle');
+        }
+      }
+    } catch (error) {
+      alert('Fetching touch version failed: ' + error);
+    }
+  }
+
+  async isCodePushUpdateAvailable(registration: ?Registration) {
+    let packageVersion = await codePush.checkForUpdate(registration.bundle);
+    const isCodePushUpdateAvailable = (packageVersion != null)
+    return {isCodePushUpdateAvailable, packageVersion}
+  }
+
+  async checkForAppUpdates() {
+    if (__DEV__ || isWeb || !this.state.isLoggedOn || this.state.isLocked) { return; }
+    
+    await this.checkWinkTouchVersionChanges(this.state.registration);
+    const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();
+    const {isCodePushUpdateAvailable, packageVersion} = await this.isCodePushUpdateAvailable(this.state.registration);
+    
+    if (isCodePushUpdateAvailable || isUpdateRequired) {
+      const newAppVersion = `${latestVersion}.${latestBuild}.${packageVersion?.label ?? '0'}`
+      this.setState({showPrompt: true, newAppVersion})
+    }
+  }
+
+  confirmUpdate = () => {
+    this.checkForCodepushUpdate();
+    this.setState({showPrompt: false})
+  }
+
   checkForCodepushUpdate() {
     syncWithCodepush(this.state.registration?.bundle);
     this.checkAppstoreUpdateNeeded();
@@ -274,8 +329,7 @@ export class EhrApp extends Component {
 
   async checkAppstoreUpdateNeeded() {
     if (isIos) {
-      const {isUpdateRequired, latestBuild, latestVersion} =
-        await RemoteConfig.shouldUpdateApp();
+      const {isUpdateRequired, latestBuild, latestVersion} = await RemoteConfig.shouldUpdateApp();
       this.setState({isUpdateRequired, latestBuild, latestVersion});
     }
   }
@@ -287,7 +341,7 @@ export class EhrApp extends Component {
         this.lockScreen();
       },
       onResume: () => {
-        this.unlockScreen();
+        this.state.isLocked && this.unlockScreen();
       },
     });
 
@@ -309,13 +363,30 @@ export class EhrApp extends Component {
 
   onUserLogin = () => {
     this.tracker && this.tracker.start();
+    this.checkForAppUpdates();
   };
+
+  handleConnectivityChange = state => {
+    __DEV__ && console.log("Internet Info: ", state)
+    this.setState({
+      showNetworkInfo: !(state.isConnected && state.isInternetReachable)
+    })
+  }
 
   async componentDidMount() {
     //let updateTimer = setInterval(this.checkForUpdate.bind(this), 1*3600000); //Check every hour in alpha stage
     //this.setState({updateTimer});
+    NetInfo.configure({
+      reachabilityLongTimeout: 60 * 1000, // 60s
+      reachabilityShortTimeout: 3 * 1000, // 5s
+      reachabilityRequestTimeout: 15 * 1000, // 15s
+      reachabilityShouldRun: () => true,
+      shouldFetchWiFiSSID: false, // met iOS requirements to get SSID. Will leak memory if set to true without meeting requirements.
+      useNativeReachability: true
+    });
+    netInfoListener = NetInfo.addEventListener(this.handleConnectivityChange);
     isIos && (await RemoteConfig.activateRemoteConfig());
-    AppState.addEventListener('change', this.onAppStateChange.bind(this));
+    appStateListener = AppState.addEventListener('change', this.onAppStateChange.bind(this));
     await this.loadRegistration();
   }
 
@@ -323,7 +394,8 @@ export class EhrApp extends Component {
     //if (this.state.updateTimer) {
     //  clearInterval(this.state.updateTimer);
     //}
-    AppState.removeEventListener('change', this.onAppStateChange.bind(this));
+    netInfoListener();
+    appStateListener.remove();
   }
 
   componentDidUpdate(prevProp, prevState) {
@@ -343,6 +415,7 @@ export class EhrApp extends Component {
   onAppStateChange(nextState: any) {
     if (nextState === 'active') {
       this.tracker && this.tracker.appIsActive();
+      this.checkForAppUpdates();
     }
     if (nextState === 'background') {
       this.tracker && this.tracker.appIsInBackground();
@@ -363,52 +436,77 @@ export class EhrApp extends Component {
     }
     if (this.state.isUpdateRequired) {
       return (
-        <AppUpdateScreen
-          latestBuild={this.state.latestBuild}
-          latestVersion={this.state.latestVersion}
-        />
+        <Provider theme={theme}>
+          <AppUpdateScreen
+            latestBuild={this.state.latestBuild}
+            latestVersion={this.state.latestVersion}
+          />
+          {this.state.showNetworkInfo && <NetworkInfo />}
+        </Provider>
       );
     }
     if (!this.state.isRegistered) {
       return (
-        <RegisterScreen
-          email={
-            this.state.registration ? this.state.registration.email : undefined
-          }
-          onReset={this.resetApp}
-          onRegistered={(registration: Registration) =>
-            this.safeRegistration(registration)
-          }
-        />
+        <Provider theme={theme}>
+          <RegisterScreen
+            email={
+              this.state.registration ? this.state.registration.email : undefined
+            }
+            onReset={this.resetApp}
+            onRegistered={(registration: Registration) =>
+              this.safeRegistration(registration)
+            }
+          />
+          {this.state.showNetworkInfo && <NetworkInfo />}
+        </Provider>
       );
     }
     if (!this.state.isLoggedOn) {
       return (
-        <LoginScreen
-          registration={this.state.registration}
-          onLogin={(
-            account: Account,
-            user: User,
-            store: Store,
-            token: string,
-          ) => this.userLoggedOn(account, user, store, token)}
-          onMfaRequired={this.mfaRequired}
-          onReset={this.resetApp}
-        />
+        <Provider theme={theme}>
+          <LoginScreen
+            registration={this.state.registration}
+            onLogin={(
+              account: Account,
+              user: User,
+              store: Store,
+              token: string,
+            ) => this.userLoggedOn(account, user, store, token)}
+            onMfaRequired={this.mfaRequired}
+            onReset={this.resetApp}
+          />
+          {this.state.showNetworkInfo && <NetworkInfo />}
+        </Provider>
       );
     }
     return (
-      <DoctorApp
-        registration={this.state.registration}
-        account={this.state.account}
-        user={this.state.user}
-        token={this.state.token}
-        store={this.state.store}
-        onLogout={this.logout}
-        onStartLockingDog={(ttlInMins: number) =>
-          this.startLockingDog(ttlInMins)
-        }
-      />
+      <Provider theme={theme}>
+        <DoctorApp
+          registration={this.state.registration}
+          account={this.state.account}
+          user={this.state.user}
+          token={this.state.token}
+          store={this.state.store}
+          onLogout={this.logout}
+          onStartLockingDog={(ttlInMins: number) =>
+            this.startLockingDog(ttlInMins)
+          }
+        />
+        {this.state.showNetworkInfo && <NetworkInfo />}
+        {this.state.showPrompt &&
+        <Prompt 
+          visible={this.state.showPrompt} 
+          dismissable={false}
+          style={{width: '55%', alignSelf: 'center', backgroundColor: '#fff'}}
+          title={`${strings.appUpdateTitle} (${this.state.newAppVersion})`}
+          content={strings.appUpdateContent}
+          confirmText={strings.update}
+          dismissText={strings.doItLater}
+          onDismiss={() => this.setState({showPrompt: false})}
+          cancelDialog={() => this.setState({showPrompt: false})}
+          confirmDialog={this.confirmUpdate}
+        />}
+      </Provider>
     );
   }
 }

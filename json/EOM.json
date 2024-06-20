@@ -30,9 +30,50 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "MEO",
+      "fields": [
+        {
+          "name": "Extra Ocular Motilities",
+          "label": "Motilidades extraoculares",
+          "fields": [
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        },
+        {
+          "name": "NPC",
+          "label": "PPC",
+          "fields": [
+            {
+              "name": "Break",
+              "label": "Rotura"
+            },
+            {
+              "name": "Recovery",
+              "label": "Recuperación"
+            },
+            {
+              "name": "With effort",
+              "label": "Con esfuerzo",
+              "defaultValue": "No",
+              "options": ["No", "Si"],
+              "normalValue": "No"
+            }
+          ]
+        },
+        {
+          "name": "Broad H test",
+          "label": "Prueba de motilidad ocular H"
+        }
+      ]
     }
   },
   "starable": true,
+  "showSubtitles": true,
   "type": "groupedForm",
   "section": "Entrance testing.15",
   "fields": [

@@ -41,6 +41,51 @@
           "label": "Signes liés"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Queja principal",
+      "fields": [
+        {
+          "name": "Chief complaint",
+          "label": "Queja principal"
+        },
+        {
+          "name": "Location",
+          "label": "Ubicación"
+        },
+        {
+          "name": "Quality",
+          "label": "Calidad"
+        },
+        {
+          "name": "Severity",
+          "label": "Gravedad"
+        },
+        {
+          "name": "Timing",
+          "label": "Fecha"
+        },
+        {
+          "name": "Duration",
+          "label": "Duración"
+        },
+        {
+          "name": "Context",
+          "label": "Contexto"
+        },
+        {
+          "name": "Modifying factor",
+          "label": "Factor modificador"
+        },
+        {
+          "name": "Associated Sign",
+          "label": "Síntoma asociado"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
   "name": "Chief complaint",

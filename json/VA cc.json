@@ -5,7 +5,7 @@
       "fields": [
         {
           "name": "Aided acuities",
-          "label": "Acuitités avec aide",
+          "label": "Acuités avec aide",
           "fields": [
             {
               "name": "DVA",
@@ -27,7 +27,7 @@
             },
             {
               "name": "PH",
-              "label": "TE",
+              "label": "TS",
               "fields": [
                 {
                   "name": "OD",
@@ -74,6 +74,10 @@
         {
           "name": "Aided acuities",
           "fields": [
+            {
+              "name": "Aide",
+              "label": "Aid"
+            },
             {
               "name": "DVA",
               "fields": [
@@ -155,6 +159,10 @@
           "name": "Aided acuities",
           "fields": [
             {
+              "name": "Aide",
+              "label": "Aid"
+            },
+            {
               "name": "DVA",
               "fields": [
                 {
@@ -273,6 +281,80 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "AVcc",
+      "fields": [
+        {
+          "name": "Aided acuities",
+          "label": "AV asistidas",
+          "fields": [
+            {
+              "name": "DVA",
+              "label": "AVL",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OU",
+                  "options": ["APL", "Prótesis"]
+                }
+              ]
+            },
+            {
+              "name": "PH",
+              "label": "AE",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL", "Prótesis"]
+                }
+              ]
+            },
+            {
+              "name": "NVA",
+              "label": "AVC",
+              "fields": [
+                {
+                  "name": "OD",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OS",
+                  "options": ["APL", "Prótesis"]
+                },
+                {
+                  "name": "OU",
+                  "options": ["APL", "Prótesis"]
+                }
+              ]
+            },
+            {
+              "name": "Scale",
+              "label": "Tabla"
+            },
+            {
+              "name": "Aide",
+              "label": "Ayuda",
+              "options": ["Gafas", "LC", "Gafas LC"]
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "name": "VA cc",
@@ -285,15 +367,18 @@
       "import": ["machine.phoropter.va.cc"],
       "columns": [["DVA", "PH", "NVA", ">>"]],
       "multiValue": true,
+      "showColumnLabel": true,
       "fields": [
         {
           "name": "Aide",
+          "label": "Aid",
           "freestyle": true,
           "options": ["Spectacles", "CL", "Spectacles over CL"]
         },
         {
           "normalValue": "Snellen",
           "name": "Scale",
+          "label": "Chart",
           "freestyle": true,
           "options": "vaScaleCodes"
         },
@@ -305,6 +390,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OD",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -316,6 +402,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OS",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -327,6 +414,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OU",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -343,6 +431,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OD",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -354,6 +443,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OS",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -370,6 +460,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OD",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -381,6 +472,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OS",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -392,6 +484,7 @@
               "minValue": 4.5,
               "prefix": "6/",
               "name": "OU",
+              "highlightedLabel": true,
               "groupSize": 0,
               "freestyle": true,
               "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
@@ -402,7 +495,8 @@
         },
         {
           "maxLength": 500,
-          "name": "Notes"
+          "name": "Notes",
+          "highlightedLabel": true
         }
       ],
       "size": "M",

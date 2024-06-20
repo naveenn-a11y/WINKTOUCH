@@ -91,13 +91,12 @@ import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
 import {
   Button as NativeBaseButton,
-  Dialog,
   Portal,
   Title,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
-import {storeDocument} from './CouchDb';
+import Dialog from './utilities/Dialog';
 
 const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
@@ -213,8 +212,9 @@ export async function fetchAppointments(
   cacheItemsById(appointments);
   cacheItemsById(patients);
   cacheItemsById(patientTagList);
-  patients.map((patient: PatientInfo) => {
-    let patientAppts: Appointment[] = appointments.filter(
+
+  patients?.forEach((patient: PatientInfo) => {
+    let patientAppts: Appointment[] = appointments?.filter(
       (appointment: Appointment) => appointment.patientId === patient.id,
     );
 
@@ -1478,7 +1478,7 @@ export class AppointmentScreen extends Component {
 
   constructor(props: any) {
     super(props);
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     this.unmounted = false;
     const appointment: ?Appointment =
       params.appointment && params.appointment.id != undefined
@@ -1507,7 +1507,7 @@ export class AppointmentScreen extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     if (params.refresh === true) {
       this.props.navigation.setParams({refresh: false});
       const appointment: ?Appointment =
@@ -1531,7 +1531,7 @@ export class AppointmentScreen extends Component {
   }
 
   getPatientId(): string {
-    const params = this.props.navigation.state.params;
+    const params = this.props.route.params;
     return params.appointment
       ? params.appointment.patientId
       : params.patientInfo.id;
@@ -1544,27 +1544,8 @@ export class AppointmentScreen extends Component {
   hasAppointment(): boolean {
     return (
       this.state.appointment ||
-      this.props.navigation.state.params.hasAppointment
+      this.props.route.params.hasAppointment
     );
-  }
-
-  async storeAppointment(appointment: ?Appointment) {
-    if (!appointment) {
-      return;
-    }
-    try {
-      appointment = await storeDocument(appointment);
-      if (!this.unmounted) {
-        this.setState({appointment});
-      }
-    } catch (error) {
-      if (this.unmounted) {
-        let params = this.props.navigation.state.params;
-        this.props.navigation.navigate('appointment', params.appointment);
-      } else {
-        this.refreshAppointment();
-      }
-    }
   }
 
   async refreshVisitHistory() {
@@ -1589,7 +1570,7 @@ export class AppointmentScreen extends Component {
   };
 
   async refreshAppointment() {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     if (
       params.appointment === undefined ||
       params.appointment.id === undefined
@@ -1638,7 +1619,7 @@ export class AppointmentScreen extends Component {
   };
 
   render() {
-    let params = this.props.navigation.state.params;
+    let params = this.props.route.params;
     return (
       <KeyboardAwareScrollView scrollEnabled={this.state.scrollEnabled}>
         {this.state.appointment && (
@@ -1647,7 +1628,7 @@ export class AppointmentScreen extends Component {
         <PatientCard
           patientInfo={this.state.patientInfo}
           navigation={this.props.navigation}
-          refreshStateKey={this.props.navigation.state.key}
+          refreshStateKey={this.props.route.key}
         />
         <VisitHistory
           patientInfo={this.state.patientInfo}
@@ -1656,10 +1637,11 @@ export class AppointmentScreen extends Component {
           patientDocumentHistory={this.state.patientDocumentHistory}
           navigation={this.props.navigation}
           onRefresh={this.refreshFromCache}
-          appointmentStateKey={this.props.navigation.state.key}
+          appointmentStateKey={this.props.route.key}
           enableScroll={this.enableScroll}
           disableScroll={this.disableScroll}
           hasAppointment={this.hasAppointment()}
+          route={this.props.route}
         />
       </KeyboardAwareScrollView>
     );

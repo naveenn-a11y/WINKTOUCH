@@ -1,2 +1,0 @@
-"js/*": "copy ${path} \\\\MINI-MAC\\Samuel\\Documents\\POC\\js",
-"*.js": "copy ${path} \\\\MINI-MAC\\Samuel\\Documents\\POC\\"

@@ -4,7 +4,7 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Button as RnButton,
   Image,
@@ -29,8 +29,8 @@ import type {
   AgentAssumption,
 } from './Types';
 import base64 from 'base-64';
-import {styles, fontScale, isWeb} from './Styles';
-import {Button, ListField, TilesField} from './Widgets';
+import { styles, fontScale, isWeb } from './Styles';
+import { Button, ListField, TilesField } from './Widgets';
 import {
   strings,
   switchLanguage,
@@ -42,7 +42,6 @@ import {
   handleHttpError,
   getNextRequestNumber,
   getWinkEmrHostFromAccount,
-  switchEmrHost,
   searchItems,
 } from './Rest';
 import {
@@ -50,17 +49,15 @@ import {
   touchVersion,
   bundleVersion,
   deploymentVersion,
-  ecommVersion,
 } from './Version';
-import {fetchCodeDefinitions} from './Codes';
-import {getCurrentHost} from '../scripts/Util';
-import {isEmpty} from './Util';
-import {cacheItemsById} from './DataCache';
-import {AgentAsumptionScreen} from './Agent';
-import {REACT_APP_ECOMM_URI} from '../env.json';
+import { fetchCodeDefinitions } from './Codes';
+import { isEmpty } from './Util';
+import { cacheItemsById } from './DataCache';
+import { AgentAsumptionScreen } from './Agent';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { WINK_APP_ACCOUNTS_URL } from '@env';
 
-const accountsUrl =
-  REACT_APP_ECOMM_URI + ecommVersion + '/WinkRegistrationAccounts';
+const getAccountsUrl = () => isWeb ? process.env.WINK_APP_ACCOUNTS_URL : WINK_APP_ACCOUNTS_URL;
 
 async function fetchAccounts(path: string) {
   if (!path) {
@@ -69,7 +66,7 @@ async function fetchAccounts(path: string) {
   let privileged: boolean = false;
   let emrOnly: boolean = true;
   const url =
-    accountsUrl +
+    getAccountsUrl() +
     '?dbVersion=' +
     encodeURIComponent(dbVersion) +
     '&path=' +
@@ -364,7 +361,7 @@ export class MfaScreen extends Component {
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
-              : window.location.replace(getCurrentHost())
+              : window.location.reload()
           }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.
@@ -398,6 +395,7 @@ export class LoginScreen extends Component {
     qrImageUrl: ?string,
     agentAssumptionRequired: ?boolean,
     agent: ?AgentAssumption,
+    isSecureTextEntry: boolean,
   };
   constructor(props: any) {
     super(props);
@@ -406,12 +404,13 @@ export class LoginScreen extends Component {
       account: undefined,
       store: undefined,
       userName: undefined,
-      password: __DEV__ ? 'test' : undefined,
+      password: __DEV__ ? '1234' : undefined, // NOSONAR
       isTrial: false,
       isMfaRequired: false,
       qrImageUrl: undefined,
       agentAssumptionRequired: false,
       agent: {},
+      isSecureTextEntry: true,
     };
   }
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -480,11 +479,6 @@ export class LoginScreen extends Component {
     this.props.onReset();
   };
 
-  switchEmrHost = (account: Account) => {
-    switchEmrHost(getWinkEmrHostFromAccount(account));
-    this.forceUpdate();
-  };
-
   async fetchAccountsStores(registration: Registration) {
     if (!registration) {
       return;
@@ -516,7 +510,7 @@ export class LoginScreen extends Component {
 
         if (isTrial) {
           this.setState(
-            {accounts, userName: 'Henry', password: 'Lomb', isTrial},
+            {accounts, userName: 'Henry', password: 'Lomb', isTrial}, // NOSONAR
             this.setAccount(account),
           );
         } else {
@@ -525,7 +519,7 @@ export class LoginScreen extends Component {
       } else {
         if (isTrial) {
           this.setState(
-            {accounts, userName: 'Henry', password: 'Lomb', isTrial},
+            {accounts, userName: 'Henry', password: 'Lomb', isTrial},  // NOSONAR
             this.fetchCodes(),
           );
         } else {
@@ -546,7 +540,6 @@ export class LoginScreen extends Component {
       if (!account || account.id === undefined) {
         return;
       }
-      this.switchEmrHost(account);
       fetchCodeDefinitions(getUserLanguage(), account.id);
     });
   }
@@ -782,6 +775,11 @@ export class LoginScreen extends Component {
     this.setState({agent}, () => this.login());
   }
 
+  toggleSecuredTextState(isSecureTextEntry: boolean) {
+    this.setState({isSecureTextEntry: !isSecureTextEntry});
+    this.focusPasswordField();
+  }
+
   switchLanguage = () => {
     switchLanguage();
     this.forceUpdate();
@@ -850,7 +848,7 @@ export class LoginScreen extends Component {
                   <RnButton
                     title={strings.winkLink}
                     onPress={() => {
-                      Linking.openURL('http://www.downloadwink.com');
+                      Linking.openURL('https://www.downloadwink.com');
                     }}
                   />
                 </View>
@@ -928,7 +926,7 @@ export class LoginScreen extends Component {
                     autoCapitalize="none"
                     autoCorrect={false}
                     returnKeyType="go"
-                    secureTextEntry={true}
+                    secureTextEntry={this.state.isSecureTextEntry}
                     ref="focusField"
                     style={styles.field400}
                     value={this.state.password}
@@ -937,6 +935,18 @@ export class LoginScreen extends Component {
                     onChangeText={this.setPassword}
                     onSubmitEditing={() => this.processLogin()}
                   />
+                  <TouchableOpacity
+                    style={{position: 'absolute', right: 0, alignSelf: 'center'}}
+                    onPress={() => this.toggleSecuredTextState(this.state.isSecureTextEntry)}
+                  >
+                    <View>
+                      {this.state.isSecureTextEntry
+                      ?
+                      <Icon name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />
+                      :
+                      <Icon name="eye-off" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />}
+                    </View>
+                  </TouchableOpacity>
                 </View>
               )}
               <View
@@ -962,7 +972,7 @@ export class LoginScreen extends Component {
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
-              : window.location.replace(getCurrentHost())
+              : window.location.reload()
           }>
           <Text style={styles.versionFont}>
             Version {deploymentVersion}.{touchVersion}.{bundleVersion}.

@@ -11,7 +11,6 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  Modal,
   KeyboardAvoidingView,
 } from 'react-native';
 import {styles, fontScale, isWeb} from './Styles';
@@ -28,15 +27,19 @@ import type {Account, Store, User} from './Types';
 import DeviceInfo from 'react-native-device-info';
 import base64 from 'base-64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {CustomModal as Modal} from './utilities/Modal';
 
 export class LockScreen extends Component {
   state: {
     password: ?string,
+    isSecureTextEntry: boolean,
   };
   constructor(props: any) {
     super(props);
     this.state = {
       password: undefined,
+      isSecureTextEntry: true,
     };
   }
 
@@ -115,8 +118,7 @@ export class LockScreen extends Component {
       }
       let responseJson = await httpResponse.json();
       if (responseJson.success === true || responseJson.user) {
-        this.props.navigation.state.params.onUserLogin(); //restart tracker
-        this.props.navigation.goBack();
+        this.props.route.params.onUserLogin(); //restart tracker
       }
     } catch (error) {
       alert(strings.loginFailed + ': ' + error);
@@ -126,13 +128,23 @@ export class LockScreen extends Component {
   setPassword = (password: ?string) => {
     this.setState({password});
   };
+
+  focusPasswordField = () => {
+    this.refs.focusField.focus();
+  };
+
+  toggleSecuredTextState(isSecureTextEntry: boolean) {
+    this.setState({isSecureTextEntry: !isSecureTextEntry});
+    this.focusPasswordField();
+  }
+
   render() {
     return (
       <Modal>
         <View style={styles.centeredScreenLayout}>
           <View
             style={{
-              width: '80%',
+              width: '100%',
               justifyContent: 'center',
               alignItems: 'center',
             }}>
@@ -161,7 +173,7 @@ export class LockScreen extends Component {
                   />
                 </View>
                 <View style={{marginLeft: 20, marginRight: 20}} />
-                <View>
+                <View style={{ width: 'max-content'}}>
                   <View style={{marginBottom: 10}}>
                     <Text
                       style={{
@@ -174,21 +186,35 @@ export class LockScreen extends Component {
                     <Text style={{fontSize: 12}}>{strings.enterPassword}</Text>
                   </View>
 
-                  <View>
-                    <TextInput
-                      placeholder={strings.password}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      returnKeyType="go"
-                      secureTextEntry={true}
-                      ref="focusField"
-                      style={styles.field400}
-                      value={this.state.password}
-                      selectTextOnFocus={true}
-                      testID="lockscreen.passwordField"
-                      onChangeText={this.setPassword}
-                      onSubmitEditing={() => this.login()}
-                    />
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <TextInput
+                        placeholder={strings.password}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        returnKeyType="go"
+                        secureTextEntry={this.state.isSecureTextEntry}
+                        ref="focusField"
+                        style={styles.field400}
+                        value={this.state.password}
+                        selectTextOnFocus={true}
+                        testID="lockscreen.passwordField"
+                        onChangeText={this.setPassword}
+                        onSubmitEditing={() => this.login()}
+                      />
+                      <TouchableOpacity 
+                        style={{position: 'absolute', right: 0, alignSelf: 'center'}}
+                        onPress={() => this.toggleSecuredTextState(this.state.isSecureTextEntry)}
+                      >
+                        <View>
+                          {this.state.isSecureTextEntry 
+                          ? 
+                          <Icon name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" /> 
+                          : 
+                          <Icon name="eye-off" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />}
+                        </View>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   <View
                     style={
@@ -214,7 +240,7 @@ export class LockScreen extends Component {
                     <TouchableOpacity
                       style={{marginLeft: 10}}
                       onPress={() =>
-                        this.props.navigation.state.params.onUserLogout()
+                        this.props.route.params.onUserLogout()
                       }>
                       <Text>{strings.logout}</Text>
                     </TouchableOpacity>

@@ -32,7 +32,7 @@
         },
         {
           "name": "Head",
-          "label": "TÃªte"
+          "label": "Tête"
         },
         {
           "name": "Neck",
@@ -75,6 +75,83 @@
           "label": "Mental"
         }
       ]
+    },
+    "es-ES": {
+      "label": "Revisión de sistemas",
+      "fields": [
+        {
+          "name": "General/Constitutional",
+          "label": "General/Constitucional"
+        },
+        {
+          "name": "Ears",
+          "label": "Oídos"
+        },
+        {
+          "name": "Nose/Sinuses",
+          "label": "Nariz/Senos"
+        },
+        {
+          "name": "Allergic",
+          "label": "Alérgico"
+        },
+        {
+          "name": "Mouth/Throat",
+          "label": "Boca/Garganta"
+        },
+        {
+          "name": "Skin",
+          "label": "Piel"
+        },
+        {
+          "name": "Head",
+          "label": "Cabeza"
+        },
+        {
+          "name": "Neck",
+          "label": "Cuello"
+        },
+        {
+          "name": "Breast",
+          "label": "Pecho"
+        },
+        {
+          "name": "Respiratory/Cardiac",
+          "label": "Respiratorio/Cardíaco"
+        },
+        {
+          "name": "Urinary",
+          "label": "Urinario"
+        },
+        {
+          "name": "Neurologic",
+          "label": "Neurológico"
+        },
+        {
+          "name": "Musculosketletal",
+          "label": "Locomotor"
+        },
+        {
+          "name": "Endocrine",
+          "label": "Endocrino"
+        },
+        {
+          "name": "Hematologic",
+          "label": "Hematológico"
+        },
+        {
+          "name": "Peripheral/Vascular",
+          "label": "Periférico/Vascular"
+        },
+        {
+          "name": "Psychiatric",
+          "label": "Psiquiátrico"
+        },
+        {
+          "name": "Notes",
+          "label": "Notas"
+        }
+      ]
     }
   },
   "cardFields": [],
@@ -88,6 +165,7 @@
       "name": "General/Constitutional",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosGeneralCodes"
     },
     {
@@ -95,6 +173,7 @@
       "name": "Ears",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosEarCodes"
     },
     {
@@ -102,6 +181,7 @@
       "name": "Nose/Sinuses",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosNoseCodes"
     },
     {
@@ -109,6 +189,7 @@
       "name": "Allergic",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosAllergicCodes"
     },
     {
@@ -116,6 +197,7 @@
       "name": "Mouth/Throat",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosMouthCodes"
     },
     {
@@ -123,6 +205,7 @@
       "name": "Skin",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosSkinCodes"
     },
     {
@@ -130,6 +213,7 @@
       "name": "Head",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosHeadCodes"
     },
     {
@@ -137,6 +221,7 @@
       "name": "Neck",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosNeckCodes"
     },
     {
@@ -144,6 +229,7 @@
       "name": "Breast",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosBreastCodes"
     },
     {
@@ -151,6 +237,7 @@
       "name": "Respiratory/Cardiac",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosRespiratoryCodes"
     },
     {
@@ -158,6 +245,7 @@
       "name": "Gastrointestinal",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosGastroCodes"
     },
     {
@@ -165,6 +253,7 @@
       "name": "Urinary",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosUrinaryCodes"
     },
     {
@@ -172,6 +261,7 @@
       "name": "Musculosketletal",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "label": "Musculoskeletal",
       "options": "rosMusculosketletalCodes"
     },
@@ -180,6 +270,7 @@
       "name": "Neurologic",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosNeurologicCodes"
     },
     {
@@ -187,6 +278,7 @@
       "name": "Endocrine",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosEndocrineCodes"
     },
     {
@@ -194,6 +286,7 @@
       "name": "Hematologic",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosHematologicCodes"
     },
     {
@@ -201,6 +294,7 @@
       "name": "Peripheral/Vascular",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosPeripheralCodes"
     },
     {
@@ -208,7 +302,14 @@
       "name": "Psychiatric",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "rosPshychiatricCodes"
+    },
+    {
+      "name": "Notes",
+      "maxLength": 500,
+      "freestyle": false,
+      "highlightedLabel": true
     }
   ]
 }

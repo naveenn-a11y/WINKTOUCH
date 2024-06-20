@@ -3,29 +3,24 @@
  */
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import { Component } from 'react';
 import {
-  View,
-  TouchableHighlight,
   Text,
-  ScrollView,
   TouchableOpacity,
-  LayoutAnimation,
+  View
 } from 'react-native';
-import type {GlassesRx, Visit, Exam} from './Types';
-import {strings} from './Strings';
-import {styles, fontScale} from './Styles';
-import {GlassesDetail, isPDEmpty} from './Refraction';
-import {FormRow, FormField, FormTextInput} from './Form';
-import {getCachedItem} from './DataCache';
-import {ItemsCard, formatLabel} from './Items';
-import {GroupedCard, GroupedForm} from './GroupedForm';
-import {storeExam} from './Exam';
-import {Microphone} from './Voice';
-import {getDataType} from './Rest';
-import {Label} from './Widgets';
-import {getValue, isEmpty, setValue} from './Util';
-import {formatCode} from './Codes';
+import { formatCode } from './Codes';
+import { storeExam } from './Exam';
+import { FormTextInput } from './Form';
+import { GroupedCard, GroupedForm } from './GroupedForm';
+import { ItemsCard, formatLabel } from './Items';
+import { GlassesDetail, hasBvd, hasPrism, isPDEmpty } from './Refraction';
+import { getDataType } from './Rest';
+import { strings } from './Strings';
+import { fontScale, styles } from './Styles';
+import type { Exam, GlassesRx } from './Types';
+import { getValue, isEmpty, setValue } from './Util';
+import { Label } from './Widgets';
 
 export class AssessmentCard extends Component {
   props: {
@@ -139,7 +134,12 @@ export class PrescriptionCard extends Component {
 
     return (
       <View style={styles.assessmentCard}>
-        <View style={styles.formRow500}>
+        <View
+          style={
+            hasPrism(glassesRx) && hasBvd(glassesRx)
+              ? styles.formRowL
+              : styles.formRow500
+          }>
           <GlassesDetail
             titleStyle={styles.sectionTitle}
             title={strings.finalRx}
@@ -148,6 +148,7 @@ export class PrescriptionCard extends Component {
             style={styles.flexColumnLayout}
             editable={false}
             hasAdd={true}
+            hasBVD={hasBvd(glassesRx)}
             isPrescriptionCard={true}
           />
         </View>
@@ -338,8 +339,8 @@ export class VisitSummaryPlanCard extends Component {
     this.props.navigation.navigate('exam', {
       exam: this.state.exam,
       appointmentStateKey: this.props.appointmentStateKey,
-    })
-  }
+    });
+  };
 
   render() {
     if (!this.state.exam) {
@@ -361,29 +362,37 @@ export class VisitSummaryPlanCard extends Component {
 
     return (
       <View style={styles.assessmentCard}>
-        <TouchableOpacity style={styles.centeredRowLayout} 
-          onPress={this.navigateToExam}
-        >
+        <TouchableOpacity
+          style={styles.centeredRowLayout}
+          onPress={this.navigateToExam}>
           <Text style={styles.sectionTitle}>{strings.summaryTitle}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.columnLayout}
-          onPress={!this.props.editable ? this.navigateToExam : undefined}
-        >
+        <TouchableOpacity
+          style={styles.columnLayout}
+          onPress={!this.props.editable ? this.navigateToExam : undefined}>
           <View style={styles.formRowL}>
-            {this.props.editable && <FormTextInput
-              label=""
-              multiline={true}
-              readonly={!this.props.editable}
-              value={!isEmpty(summary) ? summary : ''}
-              onChangeText={(text: ?string) => this.updateSummary(text)}
-            />}
-            
-            {!this.props.editable && <View style={styles.fieldFlexContainer}>
-              <Text style={[styles.formFieldLines, {minHeight: 36 * 4.7 * fontScale, height: 'auto'}]}>
-                {!isEmpty(summary) ? summary : ''}
-              </Text>
-            </View>}
+            {this.props.editable && (
+              <FormTextInput
+                label=""
+                multiline={true}
+                readonly={!this.props.editable}
+                value={!isEmpty(summary) ? summary : ''}
+                onChangeText={(text: ?string) => this.updateSummary(text)}
+              />
+            )}
+
+            {!this.props.editable && (
+              <View style={styles.fieldFlexContainer}>
+                <Text
+                  style={[
+                    styles.formFieldLines,
+                    {minHeight: 36 * 4.7 * fontScale, height: 'auto'},
+                  ]}>
+                  {!isEmpty(summary) ? summary : ''}
+                </Text>
+              </View>
+            )}
           </View>
         </TouchableOpacity>
 

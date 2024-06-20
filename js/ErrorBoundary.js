@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import {Text, View, SafeAreaView, StyleSheet, Platform} from 'react-native';
 import {Avatar, Button, Card, Title, Paragraph} from 'react-native-paper';
-import {NavigationActions} from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import {isWeb} from './Styles';
 import codePush from 'react-native-code-push';
 import {getUserLanguage, strings} from './Strings';
-import {getCurrentHost} from '../scripts/Util';
 import {getRestUrl, getToken} from './Rest';
 import {bundleVersion, deploymentVersion, touchVersion} from './Version';
 async function postLogService(error: any, errorInfo: any): void {
@@ -55,10 +54,11 @@ export class VisitErrorBoundary extends Component {
   }
 
   navigate() {
-    this.props.navigation.dispatch({
-      type: NavigationActions.NAVIGATE,
-      routeName: 'agenda',
-    });
+    this.props.navigation.dispatch(
+      CommonActions.navigate({
+        name: 'agenda'
+      })
+    );
   }
 
   restart() {
@@ -119,15 +119,16 @@ export class ErrorBoundary extends Component {
   }
 
   navigate() {
-    this.props.navigator.dispatch({
-      type: NavigationActions.NAVIGATE,
-      routeName: 'agenda',
-    });
+    this.props.navigation.dispatch(
+      CommonActions.navigate({
+        name: 'agenda'
+      })
+    );
   }
 
   restart() {
     if (isWeb) {
-      window.location.href = getCurrentHost();
+      window.location.reload();
     } else {
       codePush.restartApp();
     }

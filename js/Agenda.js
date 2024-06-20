@@ -4,65 +4,63 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
+import dayjs from 'dayjs';
+import moment from 'moment';
+import { Component } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Dimensions,
+  InteractionManager,
   ScrollView,
   Text,
   TouchableOpacity,
-  InteractionManager,
-  Modal,
-  ActivityIndicator,
-  Dimensions,
+  View
 } from 'react-native';
-import {Calendar, modeToNum, ICalendarEvent} from 'react-native-big-calendar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {styles, windowHeight, fontScale, isWeb, selectionColor} from './Styles';
-import {NavigationActions} from 'react-navigation';
-import {FormRow, FormInput} from './Form';
-import {strings} from './Strings';
-import dayjs from 'dayjs';
+import { Calendar, ICalendarEvent, modeToNum } from 'react-native-big-calendar';
+import { Menu, Button as NativeBaseButton, Portal } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
-  AppointmentTypes,
+  AppointmentDetails,
   AppointmentIcons,
+  AppointmentTypes,
+  WaitingList,
+  bookAppointment,
+  cancelAppointment,
+  doubleBook,
   fetchAppointments,
   fetchEvents,
-  isAppointmentLocked,
-  AppointmentDetails,
-  bookAppointment,
-  WaitingList,
-  manageAvailability,
-  cancelAppointment,
   hasAppointmentBookAccess,
+  isAppointmentLocked,
+  manageAvailability,
   updateAppointment,
-  doubleBook,
 } from './Appointment';
-import {Appointment, AppointmentType} from './Types';
+import { getAllCodes } from './Codes';
+import { cacheItemsById, getCachedItem } from './DataCache';
+import { getStore } from './DoctorApp';
+import { FormInput, FormRow } from './Form';
+import { CabinetScreen, PatientTags, getPatientFullName } from './Patient';
+import { ProfileHeader } from './Profile';
+import { getPrivileges } from './Rest';
+import { strings } from './Strings';
+import { fontScale, isWeb, selectionColor, styles, windowHeight } from './Styles';
+import type { CodeDefinition, Patient, PatientInfo } from './Types';
+import { Appointment, AppointmentType } from './Types';
+import { convertUserToJson, searchUsers } from './User';
 import {
-  formatDate,
-  now,
-  jsonDateFormat,
-  farDateFormat2,
-  isEmpty,
-  yearDateFormat,
   deepClone,
+  farDateFormat2,
+  formatDate,
   getValue,
+  isEmpty,
+  jsonDateFormat,
+  now,
+  yearDateFormat,
 } from './Util';
-import {getCachedItem, getCachedItems, cacheItemsById} from './DataCache';
-import {CabinetScreen, getPatientFullName, PatientTags} from './Patient';
-import {getStore} from './DoctorApp';
-import {Button as NativeBaseButton, Portal, Dialog} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {fetchVisitForAppointment} from './Visit';
-import {searchUsers} from './User';
-import type {CodeDefinition, Patient, PatientInfo, Visit} from './Types';
-import moment from 'moment';
-import {Button} from './Widgets';
-import {AvailabilityModal} from './agendas';
-import {getAllCodes} from './Codes';
-import {ProfileHeader} from './Profile';
-import {Menu} from 'react-native-paper';
-import {getPrivileges} from './Rest';
+import { Button } from './Widgets';
+import { AvailabilityModal } from './agendas';
+import Dialog from './utilities/Dialog';
 
 const WEEKDAYS = {
   SUNDAY: 0,
@@ -93,7 +91,7 @@ function getOrderOfEvent(event, eventList) {
       }
     });
 
-  var index = events.indexOf(event);
+  var index = events.findIndex(e => e.id === event.id);
   const orderOfEvent = index === -1 ? 0 : index;
   return orderOfEvent;
 }
@@ -194,6 +192,7 @@ export class AgendaScreen extends Component {
   today = new Date();
   lastRefresh: number;
   daysInWeek: number;
+  dimensionListener = null;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -233,23 +232,23 @@ export class AgendaScreen extends Component {
   async componentDidMount() {
     this.getDoctors();
     this.getSelectedDoctorsFromStorage();
-    Dimensions.addEventListener('change', this._onDimensionsChange);
+    this.dimensionListener = Dimensions.addEventListener('change', this._onDimensionsChange);
   }
 
   componentWillUnmount() {
-    Dimensions.removeEventListener('change', this._onDimensionsChange);
+    this.dimensionListener?.remove();
     if (this.state.refresh) {
       this.asyncComponentWillUnmount();
     }
   }
 
   async asyncComponentWillUnmount() {
-    if (this.props.navigation.state.params?.refreshStateKey) {
-      const setParamsAction = NavigationActions.setParams({
+    if (this.props.route.params?.refreshStateKey) {
+      const setParamsAction = CommonActions.setParams({
         params: {refresh: true},
-        key: this.props.navigation.state.params.refreshStateKey,
+        key: this.props.route.params.refreshStateKey,
       });
-      this.props.navigation.dispatch(setParamsAction);
+      this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
     }
   }
   _onDimensionsChange = () => {
@@ -260,18 +259,12 @@ export class AgendaScreen extends Component {
   async getDoctors() {
     let users: User[] = await searchUsers('', false, getStore().id);
     cacheItemsById(users);
-    const doctors = users.map((u) => this.convertUserToJson(u));
-    this.setState({doctors});
-    this.fetchUsersFromAppointments();
+    const doctors = users.map((u) => convertUserToJson(u));
+    this.setState({doctors}, () => {
+      this.fetchUsersFromAppointments();
+    });
   }
 
-  convertUserToJson(user: User): any {
-    const userJson: any = {
-      label: `${user.firstName} ${user.lastName}`,
-      value: user.id,
-    };
-    return userJson;
-  }
   getSelectedDoctorsFromStorage = async () => {
     const doctors = await AsyncStorage.getItem('selectedDoctors');
     if (doctors) {
@@ -353,7 +346,7 @@ export class AgendaScreen extends Component {
     appointments.map((app: Appointment) => {
       const doc: any = doctors.find((doc) => doc.value === app.userId);
       if (doc === undefined || doc === null) {
-        const userJson: any = this.convertUserToJson(getCachedItem(app.userId));
+        const userJson: any = convertUserToJson(getCachedItem(app.userId));
         doctors.push(userJson);
       }
     });
@@ -762,6 +755,11 @@ export class AgendaScreen extends Component {
       alert(strings.closedStoreTimeSlotErrorMessage);
       return;
     }
+    if (!isStoreOpen(new Date(event.end), true)) {
+      this.setState({isLoading: false});
+      alert(strings.closedStoreTimeSlotErrorMessage);
+      return;
+    }
     const {errors, appointment}: Appointment = await manageAvailability(
       event?.userId,
       event.slotType == 1 ? 0 : 3,
@@ -830,6 +828,7 @@ export class AgendaScreen extends Component {
               this.selectPatient(patient)
             }
             navigation={this.props.navigation}
+            route={this.props.route}
             isBookingAppointment={true}
             openWaitingListDialog={
               !isDoubleBooking && this.openWaitingListDialog
@@ -1082,7 +1081,7 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={[styles.AppointmentDialog, {minHeight: '45%'}]}
+          style={[styles.AppointmentDialog]}
           visible={this.state.doubleBookingModal}
           onDismiss={this.cancelDoubleBookDialog}
           dismissable={true}>
@@ -1400,6 +1399,7 @@ export class AgendaScreen extends Component {
                 {options.map((option) => {
                   return (
                     <Menu.Item
+                      key={option.value}
                       onPress={() => this._onSetMode(option.value)}
                       title={option.label}
                     />
@@ -1521,6 +1521,7 @@ class Event extends Component {
     return event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID='calendar-event-unavailable'
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1531,6 +1532,7 @@ class Event extends Component {
     ) : !event.isBusy && !patient ? (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID='calendar-event-available'
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1544,6 +1546,7 @@ class Event extends Component {
     ) : (
       <TouchableOpacity
         {...touchableOpacityProps}
+        testID='calendar-event-booked'
         style={[
           ...(touchableOpacityProps.style: RecursiveArray<ViewStyle>),
           eventStyleProps,
@@ -1556,7 +1559,7 @@ class Event extends Component {
           },
         ]}>
         <View style={[styles.rowLayout, {height: '100%'}]}>
-          <Text style={locked ? styles.grayedText : styles.text}>
+          <Text testID='calendar-event-patient-name' style={locked ? styles.grayedText : styles.text}>
             {patient ? getPatientFullName(patient) : 'Available'}
           </Text>
           {patient && <PatientTags patient={patient} locked={locked} />}
@@ -1604,8 +1607,14 @@ class NativeCalendar extends Component {
     const cellWidth = mode == 'day' ? dayCellWidth : weekCellWidth;
     const eventWidth = mode == 'day' ? dayEventWidth : weekEventWidth;
 
+    const parsedAppointments = appointments.map(({start, end, ...event}) => ({
+      ...event,
+      start: moment(start).toDate(),
+      end: moment(end).toDate()
+    }));
+
     return (
-      <>
+      <View style={{ flex: 1}} testID={'calendar-block'}>
         <Calendar
           ampm
           overlapOffset={OVERLAP_OFFSET}
@@ -1613,7 +1622,7 @@ class NativeCalendar extends Component {
           date={date}
           swipeEnabled={false}
           height={windowHeight}
-          events={appointments}
+          events={parsedAppointments}
           weekStartsOn={0}
           weekEndsOn={6}
           hourRowHeight={90}
@@ -1646,7 +1655,7 @@ class NativeCalendar extends Component {
           ) => (
             <Event
               event={event}
-              eventOrder={getOrderOfEvent(event, appointments)}
+              eventOrder={getOrderOfEvent(event, parsedAppointments)}
               eventWidth={eventWidth}
               touchableOpacityProps={touchableOpacityProps}
               selectedDoctors={this.props.selectedDoctors}
@@ -1655,7 +1664,7 @@ class NativeCalendar extends Component {
           )}
           renderHeader={(header: ICalendarEvent<T>) => {
             return (
-              <View style={agendaStyles.header(calendarWidth)}>
+              <View testID={'calendar-header'} style={agendaStyles.header(calendarWidth)}>
                 {header.dateRange.map((d, index) => (
                   <View style={agendaStyles.cell(cellWidth)} key={index + d}>
                     <Text style={agendaStyles.day}>
@@ -1682,7 +1691,7 @@ class NativeCalendar extends Component {
             );
           }}
         />
-      </>
+      </View>
     );
   }
 }

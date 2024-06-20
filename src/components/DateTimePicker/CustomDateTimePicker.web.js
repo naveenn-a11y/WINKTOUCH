@@ -1,8 +1,11 @@
 import DateTimePicker from 'react-datepicker';
 import React, {Component} from 'react';
-import {Button, Dialog, Portal} from 'react-native-paper';
-
+import {Button, Portal} from 'react-native-paper';
+import Dialog from '../../../js/utilities/Dialog';
 import 'react-datepicker/dist/react-datepicker.css';
+
+const minDate: Date = new Date(2010, 1, 1);
+const maxDate: Date = new Date();
 
 export default class CustomDateTimePicker extends Component {
   props: {
@@ -53,6 +56,11 @@ export default class CustomDateTimePicker extends Component {
               selected={this.state.date}
               onChange={(date) => this.updateDate(date)}
               inline
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              minDate={minDate}
+              maxDate={maxDate}
             />
           </Dialog.Content>
           <Dialog.Actions>

@@ -32,6 +32,36 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Razón de la consulta",
+      "fields": [
+        {
+          "name": "Reason for visit",
+          "label": "Razón de la consulta",
+          "fields": [
+            {
+              "name": "Main Reason",
+              "label": "Motivo principal"
+            },
+            {
+              "name": "Secondary Reason",
+              "label": "Motivo secundario"
+            },
+            {
+              "name": "Last Eye Exam",
+              "label": "Último examen ocular"
+            },
+            {
+              "name": "No show",
+              "label": "No se presentó",
+              "normalValue": "Se presentó",
+              "defaultValue": "Se presentó",
+              "options": ["Se presentó", "No se presentó"]
+            }
+          ]
+        }
+      ]
     }
   },
   "scrollable": false,
@@ -46,17 +76,20 @@
         {
           "maxLength": 500,
           "name": "Main Reason",
-          "freestyle": true
+          "freestyle": true,
+          "highlightedLabel": true
         },
         {
           "maxLength": 500,
           "name": "Secondary Reason",
-          "freestyle": true
+          "freestyle": true,
+          "highlightedLabel": true
         },
         {
           "name": "Last Eye Exam",
           "maxLength": 100,
-          "freestyle": true
+          "freestyle": true,
+          "highlightedLabel": true
         },
         {
           "name": "No show",

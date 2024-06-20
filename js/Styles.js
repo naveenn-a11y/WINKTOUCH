@@ -1,9 +1,9 @@
 import {
-  StyleSheet,
   Dimensions,
-  Platform,
-  UIManager,
   PixelRatio,
+  Platform,
+  StyleSheet,
+  UIManager,
 } from 'react-native';
 
 export const windowWidth: number =
@@ -242,6 +242,10 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     color: 'gray',
   },
+  linkText: {
+    color: selectionFontColor,
+    fontSize: 17 * fontScale,
+  },
   noAccessText: {
     fontSize: 18 * fontScale,
     fontStyle: 'italic',
@@ -250,6 +254,11 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     maxWidth: 400 * fontScale,
     textAlign: 'left',
+  },
+  textRight: {
+    fontSize: 17 * fontScale,
+    alignSelf: 'flex-end',
+    color: '#808080',
   },
   label: {
     fontSize: 28 * fontScale,
@@ -305,7 +314,6 @@ export const styles = StyleSheet.create({
   searchField: {
     fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
-    minWidth: 200 * fontScale,
     padding: 6 * fontScale,
     paddingLeft: 18 * fontScale,
     textAlign: 'left',
@@ -317,7 +325,7 @@ export const styles = StyleSheet.create({
   field400: {
     fontSize: defaultFontSize,
     height: (26 + 15) * fontScale,
-    minWidth: 400 * fontScale,
+    minWidth: 375 * fontScale,
     padding: 6 * fontScale,
     paddingLeft: 18 * fontScale,
     textAlign: 'left',
@@ -327,6 +335,7 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
   },
+
   dropdownButtonIos: {
     fontSize: defaultFontSize,
     padding: 10 * fontScale,
@@ -390,6 +399,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#2dc3c3',
   },
+  loadMoreContainer: {
+     marginTop: 16 * fontScale,
+     padding: 10 * fontScale,
+     alignItems: 'center',
+     justifyContent: 'center',
+  },
+  loadMoreText: {
+    color: '#1db3b3',
+    fontSize: 22 * fontScale,
+
+ },
   menuIcon: {
     color: 'white',
     fontSize: 50 * fontScale,
@@ -481,9 +501,40 @@ export const styles = StyleSheet.create({
   formRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: 'flex-start', 
     padding: 3 * fontScale,
   },
+  formColumn: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    padding: 3 * fontScale,
+  },
+  get formColumnFlex() {
+    return {
+      ...this.formColumn,
+      flex: 1,
+    };
+  },
+  set formColumnFlex(object) {},
+  get FormColumnTop() {
+    return {
+      ...this.formColumn,
+      zIndex: 9999,
+    };
+  },
+  set FormColumnTop(object) {},
+  formColumnItem: {
+    width: '100%',
+    height: 40 * fontScale,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  get formColumnItemHalfHeight(){
+    return {...this.formColumnItem, height:20*fontScale}
+  },
+  set formColumnItemHalfHeight(object){}, 
   formRow500: {
     width: 520 * fontScale,
     flexDirection: 'row',
@@ -644,6 +695,13 @@ export const styles = StyleSheet.create({
     marginTop: 20 * fontScale,
     marginBottom: 0 * fontScale,
   },
+  get formTableColumnHeaderFull() {
+    return {
+      ...this.formTableColumnHeader,
+      width: '100%',
+    };
+  },
+  set formTableColumnHeaderFull(object) {},
   formTableColumnHeaderWide: {
     flex: 240,
     flexDirection: 'row',
@@ -696,7 +754,7 @@ export const styles = StyleSheet.create({
   },
   cardSubTitle: {
     fontSize: 17 * fontScale,
-    fontWeight: '500',
+    fontWeight: 'bold',
     alignItems: 'center',
     marginTop: 1 * fontScale,
   },
@@ -914,6 +972,7 @@ export const styles = StyleSheet.create({
   finishedExamCard: examCardStyle('green'),
   unverifiedExamCard: examCardStyle('red'),
   board: boardStyle('#dddddd'),
+  boardFixedWidth: boardFixedWidthStyle(),
   boardSelected: boardStyle(selectionBorderColor),
   boardS: boardStyle('#dddddd', 'S'),
   boardM: boardStyle('#dddddd', 'M'),
@@ -1068,6 +1127,12 @@ export const styles = StyleSheet.create({
     textAlign: 'left',
     color: selectionFontColor,
   },
+  listTextGrey: {
+    fontSize: 18 * fontScale,
+    flexWrap: 'nowrap',
+    textAlign: 'left',
+    color: '#808080',
+  },
 
   tableListText: {
     flex: 100,
@@ -1165,10 +1230,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     width: '100%',
   },
+  imageContainer: {
+    flexDirection: 'row',
+  },
   drawingIcons: {
     position: 'absolute',
-    top: 40 * fontScale,
     right: -5 * fontScale,
+    justifyContent: 'center',
     flexDirection: 'column',
     backgroundColor: '#ffffffbb',
   },
@@ -1217,9 +1285,10 @@ export const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 0 * fontScale,
-    right: 0 * fontScale,
+    bottom: 2 * fontScale,
+    right: 2 * fontScale,
     backgroundColor: 'orange',
+    borderRadius: 30 * fontScale,
   },
   floatingSubButton: {
     flex: 1,
@@ -1231,29 +1300,30 @@ export const styles = StyleSheet.create({
     },
     backgroundColor: 'orange',
   },
+  copyColumnContainer: {
+    position: 'absolute',
+    width: 56 * fontScale,
+    left: -28 * fontScale,
+    textAlign: 'center',
+  },
   bottomEndOfRow: {
     position: 'absolute',
     bottom: 0 * fontScale,
     right: 0 * fontScale,
   },
   copyRow: {
-    position: 'absolute',
-    bottom: -20 * fontScale,
-    right: -5 * fontScale,
     fontSize: 28 * fontScale,
     fontWeight: 'normal',
-    padding: 5 * fontScale,
-    transform: [{rotate: '90deg'}],
+    borderWidth: 0,
+    textAlign: 'center',
+    transform: [{rotate: '90deg'}], 
   },
   copyColumn: {
-    position: 'absolute',
-    left: -25 * fontScale,
-    top: -12 * fontScale,
     fontSize: 28 * fontScale,
     fontWeight: 'normal',
     borderWidth: 0,
     padding: 8 * fontScale,
-    paddingHorizontal: 15 * fontScale,
+    textAlign: 'center',
   },
   patientDocument: {
     flex: 1,
@@ -1423,8 +1493,12 @@ export const styles = StyleSheet.create({
   },
   AppointmentDialog: {
     width: '55%',
-    minHeight: '40%',
-    maxHeight: '90%',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+  },
+  VisitTypeDialog: {
+    minWidth: '30%',
+    minHeight: '20%',
     alignSelf: 'center',
     backgroundColor: '#fff',
   },
@@ -1503,6 +1577,28 @@ export const styles = StyleSheet.create({
     color: '#1fb3b4',
     fontWeight: 'bold',
   },
+
+  labelTitle: {
+    fontWeight: '500',
+  },
+  attachement: {
+    minHeight: 10 * fontScale,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    padding: 10 * fontScale,
+    borderRadius: 1 * fontScale,
+    margin: 10 * fontScale,
+    backgroundColor: '#fff',
+  },
+  attachementContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    marginBottom: 20 * fontScale,
+  },
+  flatListScroll: {
+    height: 500 * fontScale,
+  },
 });
 
 function cardStyle(color: Color) {
@@ -1566,12 +1662,6 @@ function boardStyle(
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth: minWidth * fontScale,
     minHeight: minHeight * fontScale,
-    maxHeight:
-      isWeb && (size === 'M' || size === 'S') 
-      ? 800 * fontScale 
-      : size === 'MAX'
-      ? '100%'
-      : undefined,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
     borderWidth: 3 * fontScale,
@@ -1586,6 +1676,13 @@ function boardStyle(
     flexGrow: 1,
     flexShrink: 1,
   };
+}
+
+function boardFixedWidthStyle() {
+  let style = boardStyle('#dddddd');
+  style.flexGrow = 0;
+  style.flexShrink = 0;
+  return style;
 }
 
 export function imageWidth(size: string): number {
@@ -1677,6 +1774,9 @@ export function scaleStyle(style: Object): Object {
     return style;
   }
   const scaledStyle: Object = JSON.parse(JSON.stringify(style));
+  if (style.fixedWidth) {
+    return styles.boardFixedWidth;
+  }
   if (style.top) {
     scaledStyle.top = style.top * fontScale;
   }

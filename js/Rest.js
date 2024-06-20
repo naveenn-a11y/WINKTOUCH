@@ -1,7 +1,6 @@
 /**
  * @flow
  */
-
 'use strict';
 
 import type {
@@ -12,8 +11,8 @@ import type {
   Account,
 } from './Types';
 import base64 from 'base-64';
-import {capitalize, deepClone, isEmpty, extractHostname} from './Util';
-import {strings, getUserLanguage} from './Strings';
+import { capitalize, deepClone, isEmpty, extractHostname } from './Util';
+import { strings, getUserLanguage } from './Strings';
 import {
   cacheItemById,
   cacheItemsById,
@@ -22,12 +21,10 @@ import {
   getCachedItem,
   clearCachedItemById,
 } from './DataCache';
-import {restVersion} from './Version';
-import {setWinkRestUrl} from './WinkRest';
+import { setWinkRestUrl } from './WinkRest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {REACT_APP_DEFAULT_HOST, REACT_APP_WEB_URI} from '../env.json';
-
-export const defaultHost: string = REACT_APP_DEFAULT_HOST;
+import { isWeb } from './Styles';
+import { WINK_APP_HOST, WINK_APP_EMR_HOST_REST_URL } from '@env';
 
 let token: string;
 let privileges: Privileges = {
@@ -35,19 +32,20 @@ let privileges: Privileges = {
   medicalDataPrivilege: 'NOACCESS',
   appointmentPrivilege: 'NOACCESS',
   referralPrivilege: 'NOACCESS',
+  finalRxPrivilege: 'NOACCESS',
 };
 
 let requestNumber: number = 0;
 
 export function getWinkEmrHostFromAccount(account: Account) {
   if (account.extraFields instanceof Array) {
-    const winkEmrHost: Object = account.extraFields.find(
+    const winkEmrHostField: Object = account.extraFields.find(
       (extraField: Object) => extraField.key === 'WinkEMRHost',
     );
-    if (!isEmpty(winkEmrHost) && !isEmpty(winkEmrHost.value)) {
-      return winkEmrHost.value;
+    if (!isEmpty(winkEmrHostField) && !isEmpty(winkEmrHostField.value)) {
+      return winkEmrHostField.value;
     }
-    return defaultHost;
+    return isWeb ? process.env.WINK_APP_HOST : WINK_APP_HOST;
   }
 }
 export function getNextRequestNumber(): number {
@@ -59,6 +57,7 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.medicalDataPrivilege = 'NOACCESS';
   privileges.appointmentPrivilege = 'NOACCESS';
   privileges.referralPrivilege = 'NOACCESS';
+  privileges.finalRxPrivilege = 'NOACCESS';
   if (tokenPrivileges === undefined || tokenPrivileges === null) {
     return;
   }
@@ -87,6 +86,18 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
     privileges.referralPrivilege = 'FULLACCESS';
   } else if (tokenPrivileges.ref === 'R') {
     privileges.referralPrivilege = 'READONLY';
+  }
+  //FinalRX permission
+  if (tokenPrivileges.fin === 'F') {
+    privileges.finalRxPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.fin === 'R') {
+    privileges.finalRxPrivilege = 'READONLY';
+  }
+  //Fitting permission
+  if (tokenPrivileges.fit === 'F') {
+    privileges.fittingPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.fit === 'R') {
+    privileges.fittingPrivilege = 'READONLY';
   }
 }
 
@@ -263,7 +274,7 @@ function cacheLists(restResponse) {
     return;
   }
   const fieldNames: string[] = Object.keys(restResponse);
-  fieldNames.map((fieldName: string) => {
+  fieldNames?.forEach((fieldName: string) => {
     if (fieldName.endsWith('List')) {
       cacheItemsById(restResponse[fieldName]);
     }
@@ -310,7 +321,7 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
     const item: any =
       restResponse.id === id
         ? restResponse
-        : restResponse[getItemFieldName(id)];
+        : restResponse?.[getItemFieldName(id)];
     if (!item) {
       throw new Error(
         'The server did not return a ' +
@@ -711,26 +722,15 @@ export async function devDelete(path: string) {
 
 let restUrl: string;
 export function getRestUrl(): string {
-  return REACT_APP_WEB_URI;
-  //return __DEV__ ? REACT_APP_WEB_URI : restUrl;
+  return restUrl;
 }
 
-async function setRestUrl(winkEmrHost: string) {
-  if ('https://' + winkEmrHost + '/' + restVersion + '/' === restUrl) return;
-  restUrl = 'https://' + winkEmrHost + '/' + restVersion + '/';
-  __DEV__ && console.log('Switching emr REST backend server to ' + restUrl);
+function setRestUrl() {
+  const emrHostUrl = isWeb ? process.env.WINK_APP_EMR_HOST_REST_URL : WINK_APP_EMR_HOST_REST_URL;
+  if (emrHostUrl === restUrl) return;
+  restUrl = emrHostUrl;
+  __DEV__ && console.log('Setting EMR backend server to ' + restUrl);
 }
 
-export function switchEmrHost(winkEmrHost: string) {
-  const formattedWinkEmrHost: string = extractHostname(winkEmrHost);
-  AsyncStorage.setItem('winkEmrHost', formattedWinkEmrHost);
-  setRestUrl(formattedWinkEmrHost);
-  setWinkRestUrl(formattedWinkEmrHost);
-}
-
-AsyncStorage.getItem('winkEmrHost').then((winkEmrHost) => {
-  if (winkEmrHost === null || winkEmrHost === undefined || winkEmrHost === '') {
-    winkEmrHost = defaultHost;
-  }
-  setRestUrl(winkEmrHost);
-});
+setRestUrl();
+setWinkRestUrl();

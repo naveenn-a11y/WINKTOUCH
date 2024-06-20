@@ -34,11 +34,49 @@
           ]
         }
       ]
+    },
+    "es-ES": {
+      "label": "Dilatación",
+      "fields": [
+        {
+          "name": "Dilation",
+          "fields": [
+            {
+              "name": "Drug",
+              "label": "Fármaco"
+            },
+            {
+              "name": "Quantity",
+              "label": "Cantidad"
+            },
+            {
+              "name": "Eye",
+              "label": "Ojo"
+            },
+            {
+              "name": "Time",
+              "label": "Tiempo"
+            },
+            {
+              "name": "Informed PT of side effects",
+              "label": "Paciente informado de los efectos secundarios",
+              "defaultValue": "No",
+              "options": ["No", "Si"],
+              "normalValue": "Si"
+            },
+            {
+              "name": "Notes",
+              "label": "Notas"
+            }
+          ]
+        }
+      ]
     }
   },
   "cardFields": [
     ["Dilation.Time", "Dilation.Eye", "Dilation.Drug", "Dilation.Quantity"],
-    ["Dilation.Informed PT of side effects"]
+    ["Dilation.Informed PT of side effects"],
+    ["Dilation.Notes"]
   ],
   "starable": true,
   "type": "groupedForm",
@@ -67,6 +105,7 @@
         },
         {
           "name": "Time",
+          "highlightedValue": true,
           "type": "pastTime"
         },
         {
@@ -77,7 +116,8 @@
         },
         {
           "maxLength": 500,
-          "name": "Notes"
+          "name": "Notes",
+          "highlightedValue": true
         }
       ]
     }

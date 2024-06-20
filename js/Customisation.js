@@ -4,18 +4,26 @@
 'use strict';
 
 import React, {PureComponent} from 'react';
-import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, Keyboard} from 'react-native';
 
-import type {FieldDefinition, ExamDefinition, VisitType} from './Types';
-import {getCachedItem, getCachedItems} from './DataCache';
+import type {FieldDefinition, ExamDefinition, VisitType, User} from './Types';
+import {
+  cacheItem,
+  cacheItemsById,
+  getCachedItem,
+  getCachedItems,
+} from './DataCache';
 import {allExamDefinitions} from './ExamDefinition';
-import {formatLabel} from './Items';
-import {styles} from './Styles';
-import {getVisitTypes} from './Visit';
-import {SelectionList} from './Widgets';
+import {formatLabel, ItemsList} from './Items';
+import {fontScale, isWeb, styles} from './Styles';
+import {fetchVisitTypes, getAllVisitTypes, getVisitTypes} from './Visit';
+import {Button, SelectionList} from './Widgets';
 import {strings} from './Strings';
 import {CheckList} from './GroupedForm';
 import {examSections, getSectionTitle, saveVisitTypes} from './Visit';
+import {saveVisitTypeExams, VisitTypeList} from './VisitType';
+import {convertUserToJson, searchUsers, UserList} from './User';
+import {getStore} from './DoctorApp';
 
 export type DefaultExamCustomisationScreenProps = {};
 type DefaultExamCustomisationScreenState = {
@@ -68,7 +76,7 @@ export class DefaultExamCustomisationScreen extends PureComponent<
     const visitTypes: VisitType[] = this.state.visitTypes.filter(
       (visitType: VisitType) => visitType.isDirty,
     );
-    await saveVisitTypes(visitTypes);
+    await saveVisitTypeExams(visitTypes);
   }
 
   selectVisitType = (visitType: ?string): void => {
@@ -226,6 +234,95 @@ export class DefaultExamCustomisationScreen extends PureComponent<
   }
 }
 
+export type VisitTypeCustomisationScreenProps = {
+  navigation: any,
+};
+type VisitTypeCustomisationScreenState = {
+  visitTypes: VisitType[],
+  visitType: ?VisitType,
+  sectionDefinitions: FieldDefinition[],
+  isDirty: boolean,
+};
+export class VisitTypeCustomisationScreen extends PureComponent<
+  VisitTypeCustomisationScreenProps,
+  VisitTypeCustomisationScreenState,
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      visitTypes: getAllVisitTypes(),
+      visitType: undefined,
+      isDirty: false,
+    };
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    let params = this.props.route.params;
+    if (params && params.refresh === true) {
+      this.setState({visitType: undefined});
+      this.props.navigation.setParams({refresh: false});
+    }
+  }
+
+  selectVisitType = (visitType: ?VisitType): void => {
+    if (visitType) {
+      this.setState({visitType});
+      this.props.navigation.navigate('visitTypeTemplate', {
+        visitType,
+        refreshStateKey: this.props.route.key,
+      });
+    }
+  };
+
+  newVisitType = (): void => {
+    const visitType: VisitType = {
+      id: 'visitType',
+      digital: true,
+      version: 0,
+      inactive: false,
+    };
+    this.props.navigation.navigate('visitTypeTemplate', {
+      visitType,
+      refreshStateKey: this.props.route.key,
+    });
+  };
+
+  render() {
+    const style = isWeb
+      ? [styles.centeredColumnLayout, {alignItems: 'center'}]
+      : styles.centeredColumnLayout;
+    return (
+      <View style={styles.centeredScreenLayout}>
+        <View style={styles.flexColumnLayout}>
+          <Text style={styles.screenTitle}>{strings.visitType}</Text>
+          <View style={style}>
+            <VisitTypeList
+              visitTypes={this.state.visitTypes}
+              visible={true}
+              selectedVisitTypeId={
+                this.state.visitType ? this.state.visitType.id : undefined
+              }
+              onSelectVisitType={this.selectVisitType}
+            />
+
+            <View
+              style={
+                isWeb
+                  ? (styles.buttonsRowLayout, {flex: 1})
+                  : styles.buttonsRowLayout
+              }>
+              <Button
+                title={strings.newVisitType}
+                onPress={() => this.newVisitType()}
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
 export type CustomisationScreenProps = {navigation: any};
 type CustomisationScreenState = {};
 export class CustomisationScreen extends PureComponent<
@@ -235,6 +332,15 @@ export class CustomisationScreen extends PureComponent<
   constructor(props: any) {
     super(props);
     this.state = {};
+  }
+
+  componentDidMount(): * {
+    this.initialiseCustomisation();
+  }
+
+  async initialiseCustomisation() {
+    let users: User[] = await searchUsers('', false, undefined, true);
+    cacheItem('users', users);
   }
 
   render() {
@@ -261,6 +367,15 @@ export class CustomisationScreen extends PureComponent<
                 <Text style={styles.cardTitle}>
                   {strings.customiseExamDefinition}
                 </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                this.props.navigation.navigate('visitTypeCustomisation')
+              }
+              testID="customizeCard2">
+              <View style={styles.tabCardS}>
+                <Text style={styles.cardTitle}>{strings.visitType}</Text>
               </View>
             </TouchableOpacity>
           </View>

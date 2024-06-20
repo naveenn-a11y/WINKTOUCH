@@ -3,6 +3,23 @@
   "locale": {
     "fr-CA": {
       "label": "Occupation"
+    },
+    "es-ES": {
+      "label": "Ocupación",
+      "fields": [
+        {
+          "name": "Occupation",
+          "label": "Ocupación"
+        },
+        {
+          "name": "Hobbies",
+          "label": "Aficiones"
+        },
+        {
+          "name": "Computer use",
+          "label": "Uso de la computadora"
+        }
+      ]
     }
   },
   "name": "Lifestyle",
@@ -16,18 +33,21 @@
       "name": "Occupation",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "occupationCodes"
     },
     {
       "name": "Hobbies",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "hobbyCodes"
     },
     {
       "name": "Computer use",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "computerUseCodes"
     }
   ]

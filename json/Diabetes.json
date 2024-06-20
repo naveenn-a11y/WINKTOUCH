@@ -2,7 +2,70 @@
   "addable": false,
   "locale": {
     "fr-CA": {
-      "label": "Diabète"
+      "label": "Diabète",
+      "fields": [
+        {
+          "name": "Diabetes type",
+          "label": "Type de diabète"
+        },
+        {
+          "name": "Control",
+          "label": "Contrôle"
+        },
+        {
+          "name": "Severity",
+          "label": "Sévérité"
+        },
+        {
+         "name": "Initial presentation",
+         "label": "Présentation initiale"
+        },
+        {
+        "name": "Duration",
+        "label": "Durée"
+        },
+        {
+          "name": "Timing",
+          "label": "Association"
+        },
+        {
+          "name": "Modifying factors",
+          "label": "Facteurs modificateurs"
+        }
+      ]
+    },
+    "es-ES": {
+      "label": "Diabetes",
+      "fields": [
+        {
+          "name": "Diabetes type",
+          "label": "Tipo de diabetes"
+        },
+        {
+          "name": "Control",
+          "label": "Control"
+        },
+        {
+          "name": "Severity",
+          "label": "Gravedad"
+        },
+        {
+         "name": "Initial presentation",
+         "label": "Presentación inicial"
+        },
+        {
+        "name": "Duration",
+        "label": "Duración"
+        },
+        {
+          "name": "Timing",
+          "label": "Fecha"
+        },
+        {
+          "name": "Modifying factors",
+          "label": "Factores modificadores"
+        }
+      ]
     }
   },
   "name": "Diabetes",
@@ -16,42 +79,49 @@
       "name": "Diabetes type",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesTypeCodes"
     },
     {
       "name": "Control",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesControlCodes"
     },
     {
       "name": "Severity",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesSeverityCodes"
     },
     {
       "name": "Initial presentation",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesPresentationCodes"
     },
     {
       "name": "Duration",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesDurationCodes"
     },
     {
       "name": "Timing",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesTimingCodes"
     },
     {
       "name": "Modifying factors",
       "multiValue": true,
       "freestyle": true,
+      "highlightedLabel": true,
       "options": "diabetesModifyingFactorCodes"
     }
   ]
