@@ -80,11 +80,7 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
     return isVisible;
   }
 
-  if (
-    isVisible != undefined &&
-    isVisible.startsWith('[') &&
-    isVisible.endsWith(']')
-  ) {
+  if (isVisible?.startsWith('[') && isVisible.endsWith(']')) {
     let reverseFlag: boolean = false;
     let key: any = isVisible.substring(1, isVisible.length - 1);
     if (key.startsWith('!')) {
@@ -124,11 +120,7 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
             let supplierCode: CodeDefinition = value
               ? getCodeDefinition('insuranceProviders', value)
               : undefined;
-            if (
-              supplierCode != null &&
-              supplierCode.povOnlineId != null &&
-              supplierCode.povOnlineId.toString() === subValue
-            ) {
+            if (supplierCode?.povOnlineId?.toString() === subValue) {
               value = subValue;
             } else {
               value = null;
@@ -336,30 +328,44 @@ export class GroupedForm extends Component {
     }
     if (fieldDefinition.mappedField) {
       let exam: Exam = getCachedItem(this.props.examId);
-      fieldDefinition = Object.assign({}, getExamFieldDefinition(fieldDefinition.mappedField, exam), fieldDefinition);
+      fieldDefinition = {
+        ...getExamFieldDefinition(fieldDefinition.mappedField, exam),
+        ...fieldDefinition
+      };
     }
 
-    let value = this.props.form
-      ? column
-        ? this.props.form[column]
-          ? this.props.form[column][fieldDefinition.name]
-          : undefined
-        : this.props.form[fieldDefinition.name]
-      : undefined;
+    const { form } = this.props;
+    let value;
+
+    if (form) {
+      if (column) {
+        value = form[column]?.[fieldDefinition.name];
+      } else {
+        value = form[fieldDefinition.name];
+      }
+    } else {
+      value = undefined;
+    }
     value = value === undefined ? this.getDefinitionDefaultValue(fieldDefinition) : value;
 
-    const error = this.props.form
-      ? column
-        ? this.props.form[column]
-          ? this.props.form[column][fieldDefinition.name + 'Error']
-          : undefined
-        : this.props.form[fieldDefinition.name + 'Error']
-      : undefined;
+    let error;
+
+    if (form) {
+      if (column) {
+        error = form[column]?.[`${fieldDefinition.name}Error`];
+      } else {
+        error = form[`${fieldDefinition.name}Error`];
+      }
+    } else {
+      error = undefined;
+    }
+
     const label: string =
       formatLabel(this.props.definition) +
       (column !== undefined ? ' ' + this.formatColumnLabel(column) + ' ' : ' ') +
       formatLabel(fieldDefinition);
-    const isTyping = this.context.keyboardMode === ('desktop' || this.state.isTyping) && this.props.editable;
+    const isTyping = this.context.keyboardMode === 'desktop' || (this.state.isTyping && this.props.editable);
+
     return (
       <FormInput
         value={value}
