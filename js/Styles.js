@@ -718,8 +718,8 @@ export const styles = StyleSheet.create({
     marginBottom: 0 * fontScale,
   },
   formTableColumnHeaderSmall: {
-    maxWidth: 20,
-    minWidth: 20,
+    maxWidth: 24,
+    minWidth: 24,
   },
   formTableColumnHeaderFlat: {
     width: 0 * fontScale,
