@@ -19,7 +19,7 @@ import {fontScale, isWeb, styles} from './Styles';
 import {fetchVisitTypes, getAllVisitTypes, getVisitTypes} from './Visit';
 import {Button, SelectionList} from './Widgets';
 import {strings} from './Strings';
-import {CheckList} from './GroupedForm';
+import {CheckList} from './CheckList';
 import {examSections, getSectionTitle, saveVisitTypes} from './Visit';
 import {saveVisitTypeExams, VisitTypeList} from './VisitType';
 import {convertUserToJson, searchUsers, UserList} from './User';

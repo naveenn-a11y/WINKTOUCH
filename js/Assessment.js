@@ -12,7 +12,8 @@ import {
 import { formatCode } from './Codes';
 import { storeExam } from './Exam';
 import { FormTextInput } from './Form';
-import { GroupedCard, GroupedForm } from './GroupedForm';
+import { GroupedCard } from './GroupedCard';
+import { GroupedForm } from './GroupedForm';
 import { ItemsCard, formatLabel } from './Items';
 import { GlassesDetail, hasBvd, hasPrism, isPDEmpty } from './Refraction';
 import { getDataType } from './Rest';
