@@ -1,3 +1,4 @@
+
 /**
  * @flow
  */
@@ -1367,13 +1368,19 @@ export class GroupedForm extends Component {
   }
 
   formatColumnLabel(column: string): string {
-    const columnDefinition: ?GroupDefinition | FieldDefinition = this.props.definition.fields.find(
-      (columnDefinition: GroupDefinition | FieldDefinition) => columnDefinition.name === column,
-    );
+    const columnDefinition: ?GroupDefinition | FieldDefinition =
+      this.props.definition.fields.find(
+        (columnDefinition: GroupDefinition | FieldDefinition) =>
+          columnDefinition.name === column,
+      );
     return formatLabel(columnDefinition);
   }
 
-  changeField(fieldDefinition: FieldDefinition, newValue: any, column: ?string) {
+  changeField(
+    fieldDefinition: FieldDefinition,
+    newValue: any,
+    column: ?string,
+  ) {
     if (fieldDefinition.mappedField) {
       const exam: Exam = getCachedItem(this.props.examId);
       setMappedFieldValue(fieldDefinition.mappedField, newValue, exam);
@@ -1388,14 +1395,19 @@ export class GroupedForm extends Component {
   }
 
   getDefinitionDefaultValue(fieldDefinition: FieldDefinition): any {
-    if (fieldDefinition.defaultValue === undefined || fieldDefinition.defaultValue === null) {
+    if (
+      fieldDefinition.defaultValue === undefined ||
+      fieldDefinition.defaultValue === null
+    ) {
       return;
     }
     const exam: Exam = getCachedItem(this.props.examId);
     const value: string = getDefaultValue(fieldDefinition, exam);
     const isDynamicValue: string =
-      fieldDefinition.defaultValue && typeof fieldDefinition.defaultValue === 'string'
-        ? fieldDefinition.defaultValue.startsWith('[') && fieldDefinition.defaultValue.endsWith(']')
+      fieldDefinition.defaultValue &&
+      typeof fieldDefinition.defaultValue === 'string'
+        ? fieldDefinition.defaultValue.startsWith('[') &&
+          fieldDefinition.defaultValue.endsWith(']')
         : false;
     if (value && isDynamicValue && this.props.onChangeField) {
       this.props.onChangeField(fieldDefinition.name, value);
@@ -1413,14 +1425,21 @@ export class GroupedForm extends Component {
         title={strings.importDataQuestion}
         data={importedData}
         dismissable={true}
-        onConfirmAction={(selectedData: Measurement) => this.importSelectedData(selectedData)}
+        onConfirmAction={(selectedData: Measurement) =>
+          this.importSelectedData(selectedData)
+        }
         onCancelAction={() => this.hideDialog()}
         style={styles.alert}
       />
     );
   }
   renderSnackBar() {
-    return <NativeBar message={strings.importDataNotFound} onDismissAction={() => this.hideSnackBar()} />;
+    return (
+      <NativeBar
+        message={strings.importDataNotFound}
+        onDismissAction={() => this.hideSnackBar()}
+      />
+    );
   }
 
   renderField(fieldDefinition: FieldDefinition, column?: string) {
@@ -1433,7 +1452,11 @@ export class GroupedForm extends Component {
     }
     if (fieldDefinition.mappedField) {
       let exam: Exam = getCachedItem(this.props.examId);
-      fieldDefinition = Object.assign({}, getExamFieldDefinition(fieldDefinition.mappedField, exam), fieldDefinition);
+      fieldDefinition = Object.assign(
+        {},
+        getExamFieldDefinition(fieldDefinition.mappedField, exam),
+        fieldDefinition,
+      );
     }
 
     let value = this.props.form
@@ -1443,7 +1466,10 @@ export class GroupedForm extends Component {
           : undefined
         : this.props.form[fieldDefinition.name]
       : undefined;
-    value = value === undefined ? this.getDefinitionDefaultValue(fieldDefinition) : value;
+    value =
+      value === undefined
+        ? this.getDefinitionDefaultValue(fieldDefinition)
+        : value;
 
     //if (fieldDefinition.mappedField) {
     //  value = getExamFieldValue(fieldDefinition.mappedField, getCachedItem(this.props.examId));
@@ -1462,9 +1488,13 @@ export class GroupedForm extends Component {
       : undefined;
     const label: string =
       formatLabel(this.props.definition) +
-      (column !== undefined ? ' ' + this.formatColumnLabel(column) + ' ' : ' ') +
+      (column !== undefined
+        ? ' ' + this.formatColumnLabel(column) + ' '
+        : ' ') +
       formatLabel(fieldDefinition);
-    const isTyping = this.context.keyboardMode === ('desktop' || this.state.isTyping) && this.props.editable;
+    const isTyping =
+      this.context.keyboardMode === ('desktop' || this.state.isTyping) &&
+      this.props.editable;
     return (
       <FormInput
         value={value}
@@ -1473,15 +1503,27 @@ export class GroupedForm extends Component {
         showLabel={false}
         readonly={!this.props.editable}
         definition={fieldDefinition}
-        onChangeValue={(newValue: string) => this.changeField(fieldDefinition, newValue, column)}
+        onChangeValue={(newValue: string) =>
+          this.changeField(fieldDefinition, newValue, column)
+        }
         errorMessage={error}
         isTyping={isTyping}
         patientId={this.props.patientId}
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
         disableScroll={this.props.disableScroll}
-        fieldId={this.props.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
-        testID={this.props.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
+        fieldId={
+          this.props.fieldId +
+          '.' +
+          fieldDefinition.name +
+          (column === undefined ? '' : column)
+        }
+        testID={
+          this.props.fieldId +
+          '.' +
+          fieldDefinition.name +
+          (column === undefined ? '' : column)
+        }
       />
     );
   }
@@ -1496,9 +1538,14 @@ export class GroupedForm extends Component {
       return this.renderField(fieldDefinition);
     }
     return (
-      <View style={[styles.formRow, {justifyContent: 'center'}]} key={fieldDefinition.name}>
+      <View
+        style={[styles.formRow, {justifyContent: 'center'}]}
+        key={fieldDefinition.name}>
         <View style={styles.formRowHeader}>
-          <Label value={label} fieldId={this.props.fieldId + '.' + fieldDefinition.name} />
+          <Label
+            value={label}
+            fieldId={this.props.fieldId + '.' + fieldDefinition.name}
+          />
         </View>
         {this.renderField(fieldDefinition)}
       </View>
@@ -1512,13 +1559,16 @@ export class GroupedForm extends Component {
 
     let fields: any[] = [];
     const row: string[] = this.props.definition.rows.find(
-      (row: string[]) => row && row.length > 0 && row[0] === fieldDefinition.name,
+      (row: string[]) =>
+        row && row.length > 0 && row[0] === fieldDefinition.name,
     );
     if (row === undefined) {
       return null;
     }
     const fieldDefinitions: FieldDefinition[] = row.map((fieldName: string) =>
-      this.props.definition.fields.find((field: FieldDefinition) => field.name === fieldName),
+      this.props.definition.fields.find(
+        (field: FieldDefinition) => field.name === fieldName,
+      ),
     );
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
       let label: string = formatLabel(fieldDefinition);
@@ -1531,7 +1581,11 @@ export class GroupedForm extends Component {
       );
       fields.push(this.renderField(fieldDefinition));
     });
-    return <View style={styles.formRow}>{fields}</View>;
+    return (
+      <View style={styles.formRow}>
+        {fields}
+      </View>
+    );
   }
 
   renderSimpleRowValue(value: String) {
@@ -1546,7 +1600,12 @@ export class GroupedForm extends Component {
     return hasColumns(this.props.definition);
   }
 
-  copyRow(rowFields: FieldDefinition[], rowIndexFrom: number, rowIndexTo: number, columns: string[]) {
+  copyRow(
+    rowFields: FieldDefinition[],
+    rowIndexFrom: number,
+    rowIndexTo: number,
+    columns: string[],
+  ) {
     if (this.props.form === undefined) {
       return;
     }
@@ -1562,16 +1621,20 @@ export class GroupedForm extends Component {
   }
 
   copyColumn(fromColumn: string, toColumn: string): void {
-    const fieldDefinitions: FieldDefinition[] = this.props.definition.fields.find(
-      (field: FieldDefinition) => field.name === fromColumn,
-    ).fields;
+    const fieldDefinitions: FieldDefinition[] =
+      this.props.definition.fields.find(
+        (field: FieldDefinition) => field.name === fromColumn,
+      ).fields;
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
       const value = this.props.form[fromColumn][fieldDefinition.name];
       this.props.onChangeField(fieldDefinition.name, value, toColumn);
     });
   }
 
-  renderColumn(columnDefinition: GroupDefinition, refColumnDefinition: GroupDefinition) {
+  renderColumn(
+    columnDefinition: GroupDefinition,
+    refColumnDefinition: GroupDefinition,
+  ) {
     return (
       <View style={styles.formColumnFlex}>
         {columnDefinition && (
@@ -1587,9 +1650,14 @@ export class GroupedForm extends Component {
         {refColumnDefinition &&
           refColumnDefinition.fields &&
           refColumnDefinition.fields.map((reffd: FieldDefinition, ind) => {
-            const fd = columnDefinition?.fields.find((f) => f.name === reffd.name);
+            const fd = columnDefinition?.fields.find(
+              (f) => f.name === reffd.name,
+            );
             return fd ? (
-              <View style={styles.formColumnItem}>{this.renderField(fd, columnDefinition.name)}</View>
+              <View
+                style={styles.formColumnItem}>
+                {this.renderField(fd, columnDefinition.name)}
+              </View>
             ) : (
               <View style={styles.formColumnItem} />
             );
@@ -1598,130 +1666,123 @@ export class GroupedForm extends Component {
     );
   }
 
-  renderColumnsHeader(columnDefinition: GroupDefinition, labelWidth) {
-    if (this.hasColumns() === false) {
-      return null;
-    }
-    const columns = this.props.definition.columns.find((columns: string[]) => columns[0] === columnDefinition.name);
-    if (columns === undefined || columns.length === 0) {
-      return null;
-    }
+  renderColumnLabels(refColumnDefinition: GroupDefinition) {
     return (
-      <View style={styles.formRow} key={'columnHeader-' + columnDefinition.name}>
-        <View style={{minWidth: labelWidth}}>
-          <Text style={styles.formTableRowHeader}> </Text>
-        </View>
-        {columns.map((column: string, index: number) => {
-          const columnDefinition: FieldDefinition = this.props.definition.fields.find(
-            (fieldDefinition: FieldDefinition) => fieldDefinition.name === column,
-          );
-          if (columnDefinition) {
-            const columnLabel: string = formatLabel(columnDefinition);
-            return (
-              <Label
-                value={columnLabel}
-                style={styles.formTableColumnHeader}
-                key={index}
-                suffix={''}
-                fieldId={this.props.fieldId + '.' + columnDefinition.name}
-              />
-            );
-          } else {
-            if (column === '>>') {
-              if (index === columns.length - 1) {
-                return <View style={styles.formTableColumnHeaderSmall} key={'header-' + index} />;
-              } else {
-                return (
-                  <View style={styles.formTableColumnHeaderFlat} key={'header-' + index}>
-                    <CopyColumn onPress={() => this.copyColumn(columns[index - 1], columns[index + 1])} />
-                  </View>
-                );
-              }
-            }
-            return null;
-          }
-        })}
+      <View style={styles.formColumn}>
+        {refColumnDefinition && refColumnDefinition.fields && (
+          <>
+            <View style={styles.formColumnItem}>
+              <Label value=" " suffix="" />
+            </View>
+            {refColumnDefinition.fields.map((fd: FieldDefinition) => (
+              <View style={styles.formColumnItem}>
+                <Label
+                  value={formatLabel(fd)}
+                  fieldId={this.props.fieldId + '.' + fd.name}
+                />
+              </View>
+            ))}
+          </>
+        )}
       </View>
     );
   }
 
-  renderColumnedRow(labelId: string, fieldLabel: string, columns: string[], rowIndex: number, maxLabelWidth: Number) {
+  renderColumnCopy(
+    refColumnDefinition: GroupDefinition,
+    colInd: number,
+    columns: string[],
+  ) {
+    return (
+      <View style={styles.FormColumnTop}>
+        <View style={styles.formColumnItem}>
+          <View style={styles.copyColumnContainer}>
+            <CopyColumn
+              onPress={() =>
+                this.copyColumn(columns[colInd - 1], columns[colInd + 1])
+              }
+            />
+          </View>
+        </View>
+        {refColumnDefinition &&
+          refColumnDefinition.fields &&
+          refColumnDefinition.fields.map((fd: FieldDefinition, ind) => (
+            <View style={styles.formColumnItem} />
+          ))}
+      </View>
+    );
+  }
+
+  renderRowCopy(refColumnDefinition: GroupDefinition, columns: string[]) {
+    return (
+      <View style={styles.FormColumnTop}>
+        {refColumnDefinition && refColumnDefinition.fields && (
+          <>
+            <View style={styles.formColumnItem}>
+              <Label value=" " suffix="" />
+            </View>
+            <View style={styles.formColumnItemHalfHeight}>
+              <Label value=" " suffix="" />
+            </View>
+            {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
+              ind < refColumnDefinition.fields.length - 1 ? (
+                <View style={styles.formColumnItem}>
+                  <CopyRow
+                    onPress={() =>
+                      this.copyRow(
+                        refColumnDefinition.fields,
+                        ind,
+                        ind + 1,
+                        columns,
+                      )
+                    }
+                  />
+                </View>
+              ) : (
+                <View style={styles.formColumnItem} />
+              ),
+            )}
+          </>
+        )}
+      </View>
+    );
+  }
+
+  renderColumnedRows(refColumnDefinition: GroupDefinition) {
+    if (this.getIsVisible(refColumnDefinition) === false) {
+      return null;
+    }
+
+    const columns: string[] = this.props.definition.columns.find(
+      (columns: string[]) =>
+        columns.length > 0 && columns[0] === refColumnDefinition.name,
+    );
     return (
       <View style={styles.formRow}>
-        <View style={{minWidth: maxLabelWidth}}>
-          <Label value={fieldLabel} style={styles.formTableRowHeader} fieldId={labelId} />
-        </View>
-        {columns.map((column, columnIndex) => {
-          const columnDefinition: GroupDefinition = this.props.definition.fields.find(
-            (fieldDefinition) => fieldDefinition.name === column,
-          );
+        {this.renderColumnLabels(refColumnDefinition)}
+        {columns.map((column, index) => {
+          const columnDefinition: GroupDefinition =
+            this.props.definition.fields.find(
+              (fieldDefinition) => fieldDefinition.name === column,
+            );
           if (columnDefinition) {
-            const fieldDefinition: FieldDefinition = columnDefinition.fields[rowIndex];
-            return this.renderField(fieldDefinition, column);
+            return this.renderColumn(columnDefinition, refColumnDefinition);
           } else {
-            if (columnIndex === columns.length - 1) {
-              if (rowIndex == 0) {
-                return [
-                  <View style={{width: '20px'}}>
-                    <View style={styles.copyRowContainerAlt}>
-                      <CopyRow
-                        onPress={() => this.copyRow(columnedFields, i, i + 1, columns)}
-                        key={'copyRow-' + rowIndex}
-                      />
-                    </View>
-                  </View>,
-                ];
-              } else {
-                return <View style={styles.formTableColumnHeaderSmall} key={'cpoyRowSpace-' + rowIndex} />;
+            if (column === '>>') {
+              if (index < columns.length - 1 && index > 0) {
+                return this.renderColumnCopy(
+                  refColumnDefinition,
+                  index,
+                  columns,
+                );
+              } else if (index === columns.length - 1) {
+                return this.renderRowCopy(refColumnDefinition, columns);
               }
             }
           }
         })}
       </View>
     );
-  }
-
-  renderColumnedRows(columnDefinition: GroupDefinition) {
-    if (this.getIsVisible(columnDefinition) === false) {
-      return null;
-    }
-
-    const columnedFields: FieldDefinition[] = columnDefinition.fields;
-    const columns: string[] = this.props.definition.columns.find(
-      (columns: string[]) => columns.length > 0 && columns[0] === columnDefinition.name,
-    );
-
-    // calculate the max label width which is used
-    // to set the width of the label column
-    // to be consistent with different length labels
-    let maxLabelWidth = 0;
-    columnedFields.forEach((field: FieldDefinition) => {
-      const label = formatLabel(field);
-      if (label.length > maxLabelWidth) {
-        maxLabelWidth = label.length;
-      }
-    });
-
-    let labelWidth = 0;
-    if (maxLabelWidth > 0) {
-      labelWidth = maxLabelWidth * 11;
-    }
-
-    let rows: any[] = [];
-    rows.push(this.renderColumnsHeader(columnDefinition, labelWidth));
-
-    for (let i: number = 0; i < columnedFields.length; i++) {
-      rows.push(
-        this.renderColumnedRow(
-          this.props.fieldId + '.' + columnDefinition.name + '.' + columnedFields[i].name,
-          formatLabel(columnedFields[i]),
-          columns,
-          i,
-          labelWidth,
-        ),
-      );
-    }
-    return rows;
   }
 
   renderRows() {
@@ -1730,7 +1791,10 @@ export class GroupedForm extends Component {
 
     if (groupDefinition.fields) {
       for (const fieldDefinition: FieldDefinition of groupDefinition.fields) {
-        const columnFieldIndex: number = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
+        const columnFieldIndex: number = getColumnFieldIndex(
+          groupDefinition,
+          fieldDefinition.name,
+        );
         if (columnFieldIndex === 0) {
           rows.push(this.renderColumnedRows(fieldDefinition));
         } else if (columnFieldIndex < 0) {
@@ -1749,8 +1813,14 @@ export class GroupedForm extends Component {
     if (measurement.data) {
       if (this.props.onAdd && measurement.data instanceof Array) {
         if (measurement.data.length > 0) {
-          let endIndex = this.props.definition && this.props.definition.importFirstIndexOnly ? 0 : -1;
-          this.props.onUpdateForm(this.props.definition.name, measurement.data.slice(endIndex)[0]);
+          let endIndex =
+            this.props.definition && this.props.definition.importFirstIndexOnly
+              ? 0
+              : -1;
+          this.props.onUpdateForm(
+            this.props.definition.name,
+            measurement.data.slice(endIndex)[0],
+          );
           let groupValues: {}[] = measurement.data.slice(0, endIndex).reverse();
           groupValues.forEach((groupValue: {}) => this.props.onAdd(groupValue));
         }
@@ -1764,7 +1834,10 @@ export class GroupedForm extends Component {
     if (!this.props.onUpdateForm) {
       return;
     }
-    let measurement: Measurement | Measurement[] = await importData(this.props.definition.import, this.props.examId);
+    let measurement: Measurement | Measurement[] = await importData(
+      this.props.definition.import,
+      this.props.examId,
+    );
     if (measurement === undefined || measurement === null) {
       this.showSnackBar();
     }
@@ -1774,9 +1847,14 @@ export class GroupedForm extends Component {
       if (measurement && measurement.data) {
         if (this.props.onAdd && measurement.data instanceof Array) {
           if (measurement.data.length > 0) {
-            this.props.onUpdateForm(this.props.definition.name, measurement.data.slice(-1)[0]);
+            this.props.onUpdateForm(
+              this.props.definition.name,
+              measurement.data.slice(-1)[0],
+            );
             let groupValues: {}[] = measurement.data.slice(0, -1).reverse();
-            groupValues.forEach((groupValue: {}) => this.props.onAdd(groupValue));
+            groupValues.forEach((groupValue: {}) =>
+              this.props.onAdd(groupValue),
+            );
           }
         } else {
           this.props.onUpdateForm(this.props.definition.name, measurement.data);
@@ -1793,7 +1871,9 @@ export class GroupedForm extends Component {
     return (
       this.props.onCopy &&
       this.props.definition.clone && (
-        <TouchableOpacity onPress={() => this.props.onCopy()} testID={this.props.fieldId + '.copyIcon'}>
+        <TouchableOpacity
+          onPress={() => this.props.onCopy()}
+          testID={this.props.fieldId + '.copyIcon'}>
           <Copy style={styles.groupIcon} />
         </TouchableOpacity>
       )
@@ -1802,23 +1882,33 @@ export class GroupedForm extends Component {
 
   renderIcons() {
     if (this.props.cloneable && this.props.definition.clone) {
-      return <View style={styles.groupIcons}>{this.renderCopyIcon()}</View>;
+      return (
+        <View style={styles.groupIcons}>
+          {this.renderCopyIcon()}
+        </View>
+      );
     }
     if (
       !this.props.editable ||
-      (!this.props.onAddFavorite && !this.props.onClear && !this.props.definition.keyboardEnabled)
+      (!this.props.onAddFavorite &&
+        !this.props.onClear &&
+        !this.props.definition.keyboardEnabled)
     ) {
       return null;
     }
     return [
       <View style={styles.groupIcons}>
         {this.props.onClear && (
-          <TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId + '.garbageIcon'}>
+          <TouchableOpacity
+            onPress={this.props.onClear}
+            testID={this.props.fieldId + '.garbageIcon'}>
             <Garbage style={styles.groupIcon} />
           </TouchableOpacity>
         )}
         {this.props.onAdd && (
-          <TouchableOpacity onPress={() => this.props.onAdd()} testID={this.props.fieldId + '.plusIcon'}>
+          <TouchableOpacity
+            onPress={() => this.props.onAdd()}
+            testID={this.props.fieldId + '.plusIcon'}>
             <Plus style={styles.groupIcon} />
           </TouchableOpacity>
         )}
@@ -1833,7 +1923,9 @@ export class GroupedForm extends Component {
       </View>,
       <View style={styles.groupExtraIcons}>
         {this.props.editable && this.props.definition.import && (
-          <TouchableOpacity onPress={() => this.importData()} testID={this.props.fieldId + '.importIcon'}>
+          <TouchableOpacity
+            onPress={() => this.importData()}
+            testID={this.props.fieldId + '.importIcon'}>
             <ImportIcon style={styles.groupIcon} />
           </TouchableOpacity>
         )}
@@ -2033,7 +2125,6 @@ export class GroupedFormScreen extends Component<
     column: ?string,
     index?: number,
   ) {
-    debugger
     if (column !== undefined) {
       if (index !== undefined) {
         if (fieldName !== undefined) {
@@ -2314,12 +2405,14 @@ export class GroupedFormScreen extends Component<
   }
 
   renderGroup(groupDefinition: GroupDefinition, index: number) {
-    if (!this.getIsVisible(groupDefinition)) {
+    if (this.getIsVisible(groupDefinition) === false) {
       return null;
     }
 
-    const fieldId = `${this.props.exam.definition.name}.${groupDefinition.name}`;
-    let value = this.props.exam[this.props.exam.definition.name];
+    const fieldId: string =
+      this.props.exam.definition.name + '.' + groupDefinition.name;
+    //__DEV__ && console.log('render group '+groupDefinition.name+' for exam: '+JSON.stringify(this.props.exam));
+    let value: any = this.props.exam[this.props.exam.definition.name];
     if (!value) {
       return null;
     }
@@ -2327,107 +2420,272 @@ export class GroupedFormScreen extends Component<
     if (value === undefined && groupDefinition.options === undefined) {
       return null;
     }
-
     if (groupDefinition.mappedField) {
-      groupDefinition = { ...getFieldDefinition(groupDefinition.mappedField), ...groupDefinition };
+      groupDefinition = Object.assign(
+        {},
+        getFieldDefinition(groupDefinition.mappedField),
+        groupDefinition,
+      );
     }
-
-    if (groupDefinition.multiValue && !groupDefinition.options) {
-      groupDefinition = { ...groupDefinition, multiValue: false };
-      if (!Array.isArray(value)) {
+    if (
+      groupDefinition.multiValue === true &&
+      groupDefinition.options === undefined
+    ) {
+      groupDefinition = deepClone(groupDefinition);
+      groupDefinition.multiValue = false;
+      if (value instanceof Array === false) {
         return null;
       }
-      debugger
-      return value.map((childValue, subIndex) => 
-        this.renderGroupContent(groupDefinition, childValue, fieldId, index, subIndex)
+      return value.map((childValue: any, subIndex: number) =>
+        groupDefinition.type === 'SRx' ? (
+          <GlassesDetail
+            title={formatLabel(groupDefinition)}
+            glassesRx={childValue}
+            hasVA={groupDefinition.hasVA}
+            hasBVD={groupDefinition.hasBVD}
+            onCopyToFinalRx={
+              groupDefinition.copyToFinalRx === true
+                ? this.copyToFinal
+                : undefined
+            }
+            onCopyFromFinal={
+              groupDefinition.copyFromFinalRx === true
+                ? this.copyFromFinal
+                : undefined
+            }
+            onCopy={
+              groupDefinition.canBeCopied === true
+                ? this.props.copyData
+                : undefined
+            }
+            onPaste={
+              groupDefinition.canBePaste === true && this.props.copiedData
+                ? (fieldDefinition: FieldDefinition) =>
+                    this.pasteData(fieldDefinition, subIndex)
+                : undefined
+            }
+            onChangeGlassesRx={(glassesRx: GlassesRx) =>
+              this.updateRefraction(groupDefinition.name, glassesRx)
+            }
+            hasAdd={groupDefinition.hasAdd}
+            hasLensType={groupDefinition.hasLensType}
+            hasPD={groupDefinition.hasPD}
+            hasMPD={groupDefinition.hasMPD}
+            hasCustomField={groupDefinition.hasCustomField}
+            hasCurrentWear={groupDefinition.hasCurrentWear}
+            key={groupDefinition.name}
+            onAdd={() => this.addGroupItem(groupDefinition)}
+            onClear={() => this.clear(groupDefinition.name, subIndex)}
+            definition={groupDefinition}
+            examId={this.props.exam.id}
+            fieldId={fieldId + '[' + (value.length - subIndex) + ']'}
+            editable={
+              this.props.editable !== false && groupDefinition.readonly !== true
+            }
+          />
+        ) : (
+          <GroupedForm
+            definition={groupDefinition}
+            key={groupDefinition.name + '-' + index + '.' + subIndex}
+            form={childValue}
+            onChangeField={(
+              fieldName: string,
+              newValue: string,
+              column: ?string,
+            ) =>
+              this.changeField(
+                groupDefinition.name,
+                fieldName,
+                newValue,
+                column,
+                subIndex,
+              )
+            }
+            onClear={() => this.clear(groupDefinition.name, subIndex)}
+            onAdd={(groupValue: ?{}) =>
+              this.addGroupItem(groupDefinition, groupValue, true)
+            }
+            onCopy={(groupValue: ?{}) =>
+              this.addGroupItem(groupDefinition, groupValue)
+            }
+            onAddFavorite={
+              this.props.onAddFavorite && this.isGroupStarable(groupDefinition)
+                ? (favoriteName: string) =>
+                    this.addGroupFavorite(groupDefinition.name, favoriteName)
+                : undefined
+            }
+            enableScroll={this.props.enableScroll}
+            disableScroll={this.props.disableScroll}
+            onUpdateForm={(groupName: string, newValue: any) =>
+              this.updateGroup(groupName, newValue, subIndex)
+            }
+            patientId={this.getPatientId()}
+            examId={this.props.exam.id}
+            fieldId={fieldId + '[' + (value.length - subIndex) + ']'}
+            editable={
+              this.props.editable !== false && groupDefinition.readonly !== true
+            }
+          />
+        ),
+      );
+    } else if (groupDefinition.type === 'SRx') {
+      return (
+        <GlassesDetail
+          title={formatLabel(groupDefinition)}
+          glassesRx={value}
+          hasVA={groupDefinition.hasVA}
+          onCopyToFinalRx={
+            groupDefinition.copyToFinalRx === true
+              ? this.copyToFinal
+              : undefined
+          }
+          onCopyFromFinal={
+            groupDefinition.copyFromFinalRx === true
+              ? this.copyFromFinal
+              : undefined
+          }
+          onCopy={
+            groupDefinition.canBeCopied === true
+              ? this.props.copyData
+              : undefined
+          }
+          onPaste={
+            groupDefinition.canBePaste === true && this.props.copiedData
+              ? this.pasteData
+              : undefined
+          }
+          examId={this.props.exam.id}
+          editable={
+            this.props.editable !== false && groupDefinition.readonly !== true
+          }
+          onChangeGlassesRx={(glassesRx: GlassesRx) =>
+            this.updateRefraction(groupDefinition.name, glassesRx)
+          }
+          onClear={() => this.clear(groupDefinition.name)}
+          hasAdd={groupDefinition.hasAdd}
+          hasLensType={groupDefinition.hasLensType}
+          hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
+          hasCustomField={groupDefinition.hasCustomField}
+          hasBVD={groupDefinition.hasBVD}
+          hasCurrentWear={groupDefinition.hasCurrentWear}
+          key={groupDefinition.name}
+          definition={groupDefinition}
+          fieldId={fieldId}
+          onAddFavorite={(favorite: any, name: string) =>
+            this.props.onAddFavorite(favorite, name)
+          }
+        />
+      );
+    } else if (groupDefinition.type === 'CRx') {
+      return (
+        <GlassesDetail
+          title={formatLabel(groupDefinition)}
+          glassesRx={value}
+          hasVA={groupDefinition.hasVA}
+          onCopyToFinalRx={
+            groupDefinition.copyToFinalRx === true
+              ? this.copyToFinal
+              : undefined
+          }
+          onCopyFromFinal={
+            groupDefinition.copyFromFinalRx === true
+              ? this.copyFromFinal
+              : undefined
+          }
+          onCopy={
+            groupDefinition.canBeCopied === true
+              ? this.props.copyData
+              : undefined
+          }
+          onPaste={
+            groupDefinition.canBePaste === true && this.props.copiedData
+              ? this.pasteData
+              : undefined
+          }
+          examId={this.props.exam.id}
+          editable={
+            this.props.editable !== false && groupDefinition.readonly !== true
+          }
+          onChangeGlassesRx={(glassesRx: GlassesRx) =>
+            this.updateRefraction(groupDefinition.name, glassesRx)
+          }
+          onClear={() => this.clear(groupDefinition.name)}
+          hasAdd={groupDefinition.hasAdd}
+          hasLensType={groupDefinition.hasLensType}
+          hasPD={groupDefinition.hasPD}
+          hasMPD={groupDefinition.hasMPD}
+          hasBVD={groupDefinition.hasBVD}
+          hasCustomField={groupDefinition.hasCustomField}
+          hasCurrentWear={groupDefinition.hasCurrentWear}
+          key={groupDefinition.name}
+          definition={groupDefinition}
+          fieldId={fieldId}
+        />
+      );
+    } else if (groupDefinition.options != undefined) {
+      return (
+        <CheckList
+          definition={groupDefinition}
+          value={value}
+          key={groupDefinition.name + '-' + index}
+          onChangeField={(newValue: string) =>
+            this.changeField(
+              groupDefinition.name,
+              undefined,
+              newValue,
+              undefined,
+            )
+          }
+          onClear={() => this.clear(groupDefinition.name)}
+          patientId={this.getPatientId()}
+          examId={this.props.exam.id}
+          onAddFavorite={
+            this.props.onAddFavorite && this.isGroupStarable(groupDefinition)
+              ? (favoriteName: string) =>
+                  this.addGroupFavorite(groupDefinition.name, favoriteName)
+              : undefined
+          }
+          editable={
+            this.props.editable !== false && groupDefinition.readonly !== true
+          }
+          fieldId={fieldId}
+        />
       );
     } else {
-      debugger
-      return this.renderGroupContent(groupDefinition, value, fieldId, index);
+      return (
+        <GroupedForm
+          definition={groupDefinition}
+          form={value}
+          key={groupDefinition.name + '-' + index}
+          onChangeField={(
+            fieldName: string,
+            newValue: string,
+            column: ?string,
+          ) =>
+            this.changeField(groupDefinition.name, fieldName, newValue, column)
+          }
+          onClear={() => this.clear(groupDefinition.name)}
+          onAddFavorite={
+            this.props.onAddFavorite && this.isGroupStarable(groupDefinition)
+              ? (favoriteName: string) =>
+                  this.addGroupFavorite(groupDefinition.name, favoriteName)
+              : undefined
+          }
+          enableScroll={this.props.enableScroll}
+          disableScroll={this.props.disableScroll}
+          onUpdateForm={(groupName: string, newValue: any) =>
+            this.updateGroup(groupName, newValue)
+          }
+          patientId={this.getPatientId()}
+          examId={this.props.exam.id}
+          editable={
+            this.props.editable !== false && groupDefinition.readonly !== true
+          }
+          fieldId={fieldId}
+        />
+      );
     }
-  }
-
-  renderGroupContent(groupDefinition: GroupDefinition, value: any, fieldId: string, index: number, subIndex: ?number = null) {
-    const commonProps = {
-      key: groupDefinition.name + (subIndex !== null ? `-${index}.${subIndex}` : `-${index}`),
-      editable: this.props.editable !== false && groupDefinition.readonly !== true,
-      fieldId: fieldId + (subIndex !== null ? `[${value.length - subIndex}]` : ''),
-      examId: this.props.exam.id,
-      definition: groupDefinition,
-    };
-
-    debugger
-
-    switch (groupDefinition.type) {
-      case 'SRx':
-      case 'CRx':
-        return this.renderGlassesDetail(groupDefinition, value, commonProps, subIndex);
-      case 'CheckList':
-        return this.renderCheckList(groupDefinition, value, commonProps);
-      default:
-        return this.renderGroupedForm(groupDefinition, value, commonProps, subIndex);
-    }
-  }
-
-  renderGlassesDetail(groupDefinition, value, commonProps, subIndex) {
-    const glassesDetailProps = {
-      ...commonProps,
-      title: formatLabel(groupDefinition),
-      glassesRx: value,
-      hasVA: groupDefinition.hasVA,
-      hasBVD: groupDefinition.hasBVD,
-      onCopyToFinalRx: groupDefinition.copyToFinalRx === true ? this.copyToFinal : undefined,
-      onCopyFromFinalRx: groupDefinition.copyFromFinalRx === true ? this.copyFromFinal : undefined,
-      onCopy: groupDefinition.canBeCopied === true ? this.props.copyData : undefined,
-      onPaste: groupDefinition.canBePaste === true && this.props.copiedData ? this.pasteData : undefined,
-      onChangeGlassesRx: (glassesRx) => this.updateRefraction(groupDefinition.name, glassesRx),
-      onClear: () => this.clear(groupDefinition.name, subIndex),
-      hasAdd: groupDefinition.hasAdd,
-      hasLensType: groupDefinition.hasLensType,
-      hasPD: groupDefinition.hasPD,
-      hasMPD: groupDefinition.hasMPD,
-      hasCustomField: groupDefinition.hasCustomField,
-      hasCurrentWear: groupDefinition.hasCurrentWear,
-      onAdd: () => this.addGroupItem(groupDefinition),
-    };
-
-    return <GlassesDetail {...glassesDetailProps} />;
-  }
-
-  renderCheckList(groupDefinition, value, commonProps) {
-    const checkListProps = {
-      ...commonProps,
-      value,
-      onChangeField: (newValue) => this.changeField(groupDefinition.name, undefined, newValue, undefined),
-      patientId: this.getPatientId(),
-      onClear: () => this.clear(groupDefinition.name),
-      onAddFavorite: this.props.onAddFavorite && this.isGroupStarable(groupDefinition)
-        ? (favoriteName) => this.addGroupFavorite(groupDefinition.name, favoriteName)
-        : undefined,
-    };
-
-    return <CheckList {...checkListProps} />;
-  }
-
-  renderGroupedForm(groupDefinition, value, commonProps, subIndex) {
-    debugger
-    const groupedFormProps = {
-      ...commonProps,
-      form: value,
-      onChangeField: (fieldName, newValue, column) => this.changeField(groupDefinition.name, fieldName, newValue, column, subIndex),
-      onClear: () => this.clear(groupDefinition.name, subIndex),
-      onAdd: (groupValue) => this.addGroupItem(groupDefinition, groupValue, true),
-      onCopy: (groupValue) => this.addGroupItem(groupDefinition, groupValue),
-      onAddFavorite: this.props.onAddFavorite && this.isGroupStarable(groupDefinition)
-        ? (favoriteName) => this.addGroupFavorite(groupDefinition.name, favoriteName)
-        : undefined,
-      enableScroll: this.props.enableScroll,
-      disableScroll: this.props.disableScroll,
-      onUpdateForm: (groupName, newValue) => this.updateGroup(groupName, newValue, subIndex),
-      patientId: this.getPatientId(),
-    };
-
-    return <GroupedForm {...groupedFormProps} />;
   }
 
   renderAddableGroupsButton() {
