@@ -1624,9 +1624,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
   },
-  centeredLabel: {
-    textAlign: 'center',
-  },
   emptyButtonSpace: {
     padding: 4, // Example padding for the button
     minWidth:28,
