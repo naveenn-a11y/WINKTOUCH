@@ -739,7 +739,11 @@ export class GroupedCard extends Component {
 
   render() {
     return (
-      <View style={styles.columnLayout} key={this.props.exam.definition.name}>
+      <View
+        style={styles.columnLayout}
+        key={this.props.exam.definition.name}
+        testID="grouped-form-card"
+      >
         {this.renderTitle()}
         {isEmpty(this.props.exam[this.props.exam.definition.name])
           ? null

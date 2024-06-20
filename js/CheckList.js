@@ -237,7 +237,7 @@ export class CheckList extends PureComponent {
         ? styles['board' + this.props.definition.size]
         : styles.board;
     return (
-      <View style={style}>
+      <View style={style} testID="checklist">
         <Label
           style={styles.sectionTitle}
           suffix=""

@@ -822,7 +822,7 @@ export class GroupedFormScreen extends Component<
 
   render() {
     return (
-      <View style={styles.flow}>
+      <View style={styles.flow} testID="grouped-form-screen">
         {this.props.exam.definition.fields &&
           this.props.exam.definition.fields.map(
             (groupDefinition: GroupDefinition, index: number) =>

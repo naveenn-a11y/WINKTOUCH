@@ -733,7 +733,7 @@ export class GroupedForm extends Component {
   render() {
     const style = this.getStyle();
     return (
-      <View style={style}>
+      <View style={style} testID="grouped-form">
         <Label
           style={styles.sectionTitle}
           suffix=""
