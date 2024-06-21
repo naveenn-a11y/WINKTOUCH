@@ -863,7 +863,6 @@ export class GroupedForm extends Component {
   }
 
   render() {
-    console.log('GroupedForm render')
     const {style, definition} = this.props;
     let boardStyle = styles.board;
 
