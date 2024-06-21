@@ -46,7 +46,8 @@ import {
   jsonDateTimeFormat,
 } from './Util';
 import {allExamIds, fetchVisit, visitHasEnded} from './Visit';
-import {getLensometries, getKeratometry, getAutoRefractor, GlassesDetail, getLensometry} from './Refraction';
+import {getLensometries, getKeratometry, getAutoRefractor, getLensometry} from './Refraction';
+import { GlassesDetail } from './GlassesDetail';
 import {getFavorites, removeFavorite, Star, Refresh, storeFavorite, ExportIcon} from './Favorites';
 import {allExamDefinitions, getExamDefinition} from './ExamDefinition';
 import {Alert, CollapsibleMessage, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
