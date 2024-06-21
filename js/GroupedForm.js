@@ -38,7 +38,6 @@ import type {
 } from './Types';
 import {formatDate, getValue, isEmpty, now, yearDateFormat} from './Util';
 import {Alert, Label, NativeBar} from './Widgets';
-import {generateRandomGUID} from './Helper/GenerateRandomId';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -251,12 +250,15 @@ export class GroupedForm extends Component {
   hideDialog() {
     this.setState({showDialog: false});
   }
+
   showDialog(data: any) {
     this.setState({importedData: data, showDialog: true});
   }
+
   showSnackBar() {
     this.setState({showSnackBar: true});
   }
+
   hideSnackBar() {
     this.setState({showSnackBar: false});
   }
@@ -487,7 +489,6 @@ export class GroupedForm extends Component {
               <Label
                 value={columnLabel}
                 style={styles.formTableColumnHeader}
-                key={generateRandomGUID()}
                 suffix={''}
                 fieldId={this.props.fieldId + '.' + columnDefinition.name}
               />
@@ -495,10 +496,10 @@ export class GroupedForm extends Component {
           } else {
             if (column === '>>') {
               if (index === columns.length - 1) {
-                return <View style={styles.formTableColumnHeaderSmall} key={'header-' + generateRandomGUID()} />;
+                return <View style={styles.formTableColumnHeaderSmall} key={'header-' + index} />;
               } else {
                 return (
-                  <View style={styles.formTableColumnHeaderFlat} key={'header-' + generateRandomGUID()}>
+                  <View style={styles.formTableColumnHeaderFlat} key={'header-' + index}>
                     <CopyColumn onPress={() => this.copyColumn(columns[index - 1], columns[index + 1])} />
                   </View>
                 );
@@ -537,7 +538,7 @@ export class GroupedForm extends Component {
           if (columnIndex === columns.length - 1) {
             if (rowIndex < columnedFields.length - 1) {
               return (
-                <View style={{width: '24px'}} key={generateRandomGUID()}>
+                <View style={{width: '24px'}}>
                   <View style={styles.copyRowContainerAlt}>
                     <CopyRow
                       onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
@@ -601,7 +602,6 @@ export class GroupedForm extends Component {
     return rows;
   }
 
-
   renderColumnLabelsAlt(refColumnDefinition: GroupDefinition) {
     return (
       <View style={styles.formColumn}>
@@ -611,7 +611,7 @@ export class GroupedForm extends Component {
               <Label value=" " suffix="" />
             </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition) => (
-              <View style={styles.formColumnItem} key={generateRandomGUID()}>
+              <View style={styles.formColumnItem}>
                 <Label
                   value={formatLabel(fd)}
                   fieldId={this.props.fieldId + '.' + fd.name}
@@ -641,7 +641,7 @@ export class GroupedForm extends Component {
           </View>
         </View>
         {refColumnDefinition?.fields?.map((fd: FieldDefinition, ind) => (
-          <View key={generateRandomGUID()} style={styles.formColumnItem} />
+          <View style={styles.formColumnItem} />
         ))}
       </View>
     );
@@ -660,7 +660,7 @@ export class GroupedForm extends Component {
             </View>
             {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
               ind < refColumnDefinition.fields.length - 1 ? (
-                <View style={styles.formColumnItem} key={generateRandomGUID()}>
+                <View style={styles.formColumnItem}>
                   <CopyRow
                     onPress={() =>
                       this.copyRow(
@@ -673,7 +673,7 @@ export class GroupedForm extends Component {
                   />
                 </View>
               ) : (
-                <View style={styles.formColumnItem} key={generateRandomGUID()} />
+                <View style={styles.formColumnItem} />
               ),
             )}
           </>
@@ -701,7 +701,7 @@ export class GroupedForm extends Component {
         {refColumnDefinition?.fields?.map((reffd: FieldDefinition, ind) => {
           const fd = columnDefinition?.fields.find(f => f.name === reffd.name);
           return (
-            <View key={generateRandomGUID()} style={styles.formColumnItem}>
+            <View style={styles.formColumnItem}>
               {fd ? this.renderField(fd, columnDefinition.name) : null}
             </View>
           );
@@ -832,7 +832,7 @@ export class GroupedForm extends Component {
       return null;
     }
     return [
-      <View style={styles.groupIcons} key={generateRandomGUID()}>
+      <View style={styles.groupIcons}>
         {this.props.onClear && (
           <TouchableOpacity onPress={this.props.onClear} testID={this.props.fieldId + '.garbageIcon'}>
             <Garbage style={styles.groupIcon} />
@@ -852,7 +852,7 @@ export class GroupedForm extends Component {
           />
         )}
       </View>,
-      <View style={styles.groupExtraIcons} key={generateRandomGUID()}>
+      <View style={styles.groupExtraIcons}>
         {this.props.editable && this.props.definition.import && (
           <TouchableOpacity onPress={() => this.importData()} testID={this.props.fieldId + '.importIcon'}>
             <ImportIcon style={styles.groupIcon} />
@@ -862,7 +862,8 @@ export class GroupedForm extends Component {
     ];
   }
 
-  getStyle() {
+  render() {
+    console.log('GroupedForm render')
     const {style, definition} = this.props;
     let boardStyle = styles.board;
 
@@ -874,13 +875,8 @@ export class GroupedForm extends Component {
       boardStyle = styles['board' + definition.size];
     }
 
-    return boardStyle;
-  }
-
-  render() {
-    const style = this.getStyle();
     return (
-      <View style={style} testID="grouped-form">
+      <View style={boardStyle} testID="grouped-form">
         <Label
           style={styles.sectionTitle}
           suffix=""
