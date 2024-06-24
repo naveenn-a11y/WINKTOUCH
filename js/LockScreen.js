@@ -173,7 +173,7 @@ export class LockScreen extends Component {
                   />
                 </View>
                 <View style={{marginLeft: 20, marginRight: 20}} />
-                <View style={{ width: 450 * fontScale }}>
+                <View style={{ width: 500 * fontScale }}>
                   <View style={{marginBottom: 10}}>
                     <Text
                       style={{
