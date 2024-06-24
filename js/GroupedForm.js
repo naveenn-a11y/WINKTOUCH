@@ -484,11 +484,10 @@ export class GroupedForm extends Component {
     // Render row labels
     columnedFields.forEach((field, rowIndex) => {
       const rowLabel = formatLabel(field);
-      const newRowLabel = rowLabel === 'OD' ? 'sisili sisisitisaas': rowLabel
       const labelId = `${this.props.fieldId}.${columnDefinition.name}.${field.name}`;
       rows.push(
         <View style={styles.formHeadingRow} key={`row-heading-${rowIndex}`}>
-          <Label value={newRowLabel} style={styles.formTableColumnHeaderFitContent} suffix=":" fieldId={labelId} />
+          <Label value={rowLabel} style={styles.formTableColumnHeaderFitContent} suffix=":" fieldId={labelId} />
         </View>,
       );
     });
