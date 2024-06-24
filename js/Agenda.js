@@ -819,7 +819,7 @@ export class AgendaScreen extends Component {
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
-          style={[styles.screeen, {width: this.state.calendarWidth}]}
+          style={[styles.screeen, {width: this.state.calendarWidth, height: '100%' }]}
           visible={this.state.isPatientDialogVisible}
           onDismiss={this.cancelPatientDialog}
           dismissable={true}>

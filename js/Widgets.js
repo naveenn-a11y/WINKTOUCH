@@ -37,7 +37,7 @@ import {
   isWeb,
   selectionColor,
   selectionFontColor,
-  styles,
+  styles
 } from './Styles';
 import {
   addDays,
@@ -3668,7 +3668,7 @@ export class Alert extends Component<AlertProps, AlertState> {
             style={
               isWeb
                 ? {Height: 'auto', maxHeight: 200}
-                : {Height: 'auto', maxHeight: 150}
+                : {Height: 'auto', maxHeight: 200}
             }>
             <Dialog.ScrollArea>
               <ScrollView>
