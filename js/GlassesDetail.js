@@ -634,13 +634,13 @@ export class GlassesDetail extends Component {
                       {column.placeholder && <View style={styles.placeholderElement} />}
                     </View>
                   ))}
-                <View style={styles.contentFitColumn}>
-                  <View style={styles.emptyButtonSpace}>
-                    {row.allowCopy ? (
-                      <CopyRow onPress={() => this.copyOdOs(props)} />
-                    ) : null}
+                {props.editable && (
+                  <View style={styles.contentFitColumn}>
+                    <View style={styles.emptyButtonSpace}>
+                      {row.allowCopy ? <CopyRow onPress={() => this.copyOdOs(props)} /> : null}
+                    </View>
                   </View>
-                </View>
+                )}
               </View>
             ),
         )}
@@ -695,12 +695,7 @@ export class GlassesDetail extends Component {
 
     return (
       <View style={styles.container}>
-        <Label
-          suffix=""
-          style={this.props.titleStyle}
-          value={strings.pd}
-          fieldId={this.props.fieldId}
-        />
+        <Label suffix="" style={this.props.titleStyle} value={strings.pd} fieldId={this.props.fieldId} />
         <View style={styles.row}>
           <View style={styles.contentFitColumn}>
             <Label value=" " suffix="" />
@@ -753,13 +748,13 @@ export class GlassesDetail extends Component {
                       {column.placeholder && <View style={styles.placeholderElement} />}
                     </View>
                   ))}
-                <View style={styles.contentFitColumn}>
-                  <View style={styles.emptyButtonSpace}>
-                    {row.allowCopy ? (
-                      <CopyRow onPress={() => this.copyPDOdOs(props)} />
-                    ) : null}
+                {props.editable && (
+                  <View style={styles.contentFitColumn}>
+                    <View style={styles.emptyButtonSpace}>
+                      {row.allowCopy ? <CopyRow onPress={() => this.copyPDOdOs(props)} /> : null}
+                    </View>
                   </View>
-                </View>
+                )}
               </View>
             ),
         )}
