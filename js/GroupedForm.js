@@ -523,20 +523,29 @@ export class GroupedForm extends Component {
     rows.push(
       <View style={styles.formRow} key={`header-row`}>
         {columns.map((column, index) => {
-          const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
-          if (columnDef) {
-            const columnLabel = formatLabel(columnDef);
-            return (
-              <Label
-                value={columnLabel}
-                style={styles.formTableColumnHeader}
-                suffix=""
-                fieldId={`${this.props.fieldId}.${columnDef.name}`}
-                key={`header-${index}`}
-              />
-            );
+          if (column === '>>') {
+            return null;
+            // return (
+            //   <View style={styles.copyColumnContainerAlt}>
+            //     <CopyColumn onPress={() => this.copyColumn(columns[index - 1], columns[index + 1])} />
+            //   </View>
+            // )
           } else {
-            return <View style={styles.formTableColumnHeaderSmall} key={`header-${index}`} />;
+            const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
+            if (columnDef) {
+              const columnLabel = formatLabel(columnDef);
+              return (
+                <Label
+                  value={columnLabel}
+                  style={styles.formTableColumnHeader}
+                  suffix=""
+                  fieldId={`${this.props.fieldId}.${columnDef.name}`}
+                  key={`header-${index}`}
+                />
+              );
+            } else {
+              return <View style={styles.formTableColumnHeaderSmall} key={`header-${index}`} />;
+            }
           }
         })}
       </View>,
