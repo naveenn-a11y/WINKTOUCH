@@ -1628,12 +1628,12 @@ export const styles = StyleSheet.create({
   },
   copyRowContainer: {
     position: 'absolute',
-    top: 15,
+    top: 4,
     right: 0,
   },
   copyRowContainerAlt: {
     position: 'absolute',
-    top: 10,
+    top: 4,
     right: 4,
   },
   formTableColumnHeaderFitContent: {

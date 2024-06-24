@@ -548,10 +548,18 @@ export class GroupedForm extends Component {
         <View style={styles.formRow} key={`row-${rowIndex}`}>
           {columns.map((column, columnIndex) => {
             const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
-
             if (columnDef) {
-              const fieldDef = columnDef.fields[rowIndex];
-              return this.renderField(fieldDef, column);
+              const rowField = columnedFields[rowIndex] ?? null;
+              // get the field definion from columnDef.fields where the name matches the rowField.name
+              const fieldDef = columnDef.fields.find((fieldDef) => fieldDef.name === rowField?.name);
+              const validField = fieldDef !== undefined;
+              return validField ?
+                this.renderField(fieldDef, column) :
+                <View style={styles.formElement} key={`emptyRowData-${rowField?.name}-${rowIndex}`}>
+                  <View style={styles.formTableColumnHeaderFitContent}>
+                    <Text>{' '}</Text>
+                  </View>
+                </View>;
             }
 
             if (columnIndex === columns.length - 1 && rowIndex < columnedFields.length - 1) {
@@ -705,6 +713,18 @@ export class GroupedForm extends Component {
     );
   }
 
+  renderAsRows(groupDefinition: GroupDefinition, fieldDefinition: FieldDefinition): boolean {
+    if (groupDefinition.name === "Pupils" && fieldDefinition.name === "OD") {
+      return true;
+    }
+
+    if (fieldDefinition.name === "OD" || fieldDefinition.name === "OS") {
+      return false;
+    }
+
+    return true;
+  }
+
   renderRows() {
     let rows: any[] = [];
     const groupDefinition: GroupDefinition = this.props.definition;
@@ -713,9 +733,7 @@ export class GroupedForm extends Component {
       for (const fieldDefinition of groupDefinition.fields) {
         const columnFieldIndex = getColumnFieldIndex(groupDefinition, fieldDefinition.name);
         if (columnFieldIndex === 0) {
-          // set renderAsRows to true if fieldDefinition.name !== 'OD' or 'OS'
-          const renderAsRows: boolean = fieldDefinition.name !== 'OD' && fieldDefinition.name !== 'OS';
-          if (renderAsRows) {
+          if (this.renderAsRows(groupDefinition, fieldDefinition)) {
             rows.push(this.renderColumnedRowsWithHeader(fieldDefinition));
           } else {
             rows.push(this.renderColumnedRowsAlt(fieldDefinition));
