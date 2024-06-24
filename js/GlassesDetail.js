@@ -787,7 +787,7 @@ export class GlassesDetail extends Component {
             this.renderFormInputAlt(this.props, 'currentWear', 'Current wear')
           )}
           {this.props.hasCurrentWear && this.renderFormInput(this.props, 'since', 'Since')}
-          {this.propshasLensType && this.renderFormInput(this.props, 'lensType', 'lensType')}
+          {this.props.hasLensType && this.renderFormInput(this.props, 'lensType', 'lensType')}
           {this.props.hasPD && (
             <View style={styles.centeredColumnLayout}>
               {this.renderFormInput(this.props, 'testingCondition', 'Testing Condition', isTyping, true)}
