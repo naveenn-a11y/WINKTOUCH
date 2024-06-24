@@ -1638,10 +1638,6 @@ export const styles = StyleSheet.create({
     top: 18,
     right: 0,
   },
-  formRowWithHeadings: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   formTableColumnHeaderFitContent: {
     flexShrink: 0,
     flexGrow: 0,
@@ -1649,6 +1645,22 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     textAlign: 'center',
     marginRight: 4 * fontScale,
+  },
+  formRowContainer: {
+    flexDirection: 'row',
+  },
+  formRowHeadingsContainer: {
+    flexShrink: 0,
+    flexGrow: 0,
+  },
+  formHeadingRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+  },
+  formDataContainer: {
+    flex: 1,
   },
 });
 
