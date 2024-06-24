@@ -649,7 +649,9 @@ export class GlassesDetail extends Component {
   }
 
   renderPdSection(props, state) {
-    if (!props.hasPD) return null;
+    if (props.hasPD === undefined) return null;
+    if (props.hasPD === null) return null;
+    if (props.hasPD === false) return null;
 
     const isTyping =
     this.context.keyboardMode === 'desktop' || state.isTyping;
