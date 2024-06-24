@@ -1633,8 +1633,8 @@ export const styles = StyleSheet.create({
   },
   copyRowContainerAlt: {
     position: 'absolute',
-    top: 18,
-    right: 0,
+    top: 10,
+    right: 4,
   },
   formTableColumnHeaderFitContent: {
     flexShrink: 0,

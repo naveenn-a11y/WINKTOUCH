@@ -637,7 +637,7 @@ export class GlassesDetail extends Component {
                 <View style={styles.contentFitColumn}>
                   <View style={styles.emptyButtonSpace}>
                     {row.allowCopy ? (
-                      <View style={styles.copyRowContainer}>
+                      <View style={styles.copyRowContainerAlt}>
                         <CopyRow onPress={() => this.copyOdOs(props)} />
                       </View>
                     ) : null}
