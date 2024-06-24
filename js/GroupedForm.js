@@ -576,7 +576,11 @@ export class GroupedForm extends Component {
                 </View>
               );
             } else {
-              return <View style={styles.formTableColumnHeaderSmall} key={`copyRowSpace-${rowIndex}`} />;
+              return (
+                <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
+                  <View style={styles.emptyButtonSpaceAlt}/>
+                </View>
+              );
             }
           })}
         </View>,
