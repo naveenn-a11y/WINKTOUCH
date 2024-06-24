@@ -503,12 +503,12 @@ export class GlassesDetail extends Component {
     );
   }
 
-  createColumn(props, eye, field, definition, isPrism, isVisible, hasError, isTyping) {
+  createColumn(props, eye, field, definition, isPrism, isVisible, errMsg) {
     return {
       value: props.glassesRx[eye][field],
       definition: getFieldDefinition(definition),
       onChange: (value: ?number) => this.updateGlassesRx(eye, field, value),
-      errorMessage: props.glassesRx[eye][`${field}Error`],
+      errorMessage: errMsg,
       testID: `${props.fieldId}.${eye}.${field}`,
       visible: isVisible,
       isPrism,
