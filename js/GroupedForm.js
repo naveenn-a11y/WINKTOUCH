@@ -564,8 +564,8 @@ export class GroupedForm extends Component {
 
             if (columnIndex === columns.length - 1 && rowIndex < columnedFields.length - 1) {
               return (
-                <View style={{width: '24px'}} key={`copyRowContainer-${rowIndex}`}>
-                  <View style={styles.copyRowContainer}>
+                <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
+                  <View style={styles.emptyButtonSpaceAlt}>
                     <CopyRow
                       onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
                       key={`copyRow-${rowIndex}`}

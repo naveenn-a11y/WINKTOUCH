@@ -1623,18 +1623,13 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   emptyButtonSpace: {
-    padding: 4, // Example padding for the button
-    minWidth:28,
+    minWidth: 24,
   },
-  copyRowContainer: {
+  emptyButtonSpaceAlt: {
+    minWidth: 24,
     position: 'absolute',
     top: 4,
     right: 0,
-  },
-  copyRowContainerAlt: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
   },
   formTableColumnHeaderFitContent: {
     flexShrink: 0,

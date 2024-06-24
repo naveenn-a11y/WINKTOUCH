@@ -637,9 +637,7 @@ export class GlassesDetail extends Component {
                 <View style={styles.contentFitColumn}>
                   <View style={styles.emptyButtonSpace}>
                     {row.allowCopy ? (
-                      <View style={styles.copyRowContainerAlt}>
-                        <CopyRow onPress={() => this.copyOdOs(props)} />
-                      </View>
+                      <CopyRow onPress={() => this.copyOdOs(props)} />
                     ) : null}
                   </View>
                 </View>
@@ -756,9 +754,7 @@ export class GlassesDetail extends Component {
                 <View style={styles.contentFitColumn}>
                   <View style={styles.emptyButtonSpace}>
                     {row.allowCopy ? (
-                      <View style={styles.copyRowContainer}>
-                        <CopyRow onPress={() => this.copyPDOdOs(props)} />
-                      </View>
+                      <CopyRow onPress={() => this.copyPDOdOs(props)} />
                     ) : null}
                   </View>
                 </View>
