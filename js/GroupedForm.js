@@ -400,8 +400,14 @@ export class GroupedForm extends Component {
     }
     return (
       <View style={[styles.formRow, {justifyContent: 'center'}]} key={fieldDefinition.name}>
-        <View style={styles.formRowHeader}>
-          <Label value={label} fieldId={this.props.fieldId + '.' + fieldDefinition.name} />
+        <View>
+          <View style={styles.formHeadingRow2}>
+            <Label
+              testID={`label-${fieldDefinition?.name}`}
+              value={label}
+              fieldId={this.props.fieldId + '.' + fieldDefinition.name}
+            />
+          </View>
         </View>
         {this.renderField(fieldDefinition)}
       </View>
@@ -426,11 +432,15 @@ export class GroupedForm extends Component {
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
       let label: string = formatLabel(fieldDefinition);
       fields.push(
-        <Label
-          testID={`label-${fieldDefinition?.name}`}
-          value={label}
-          fieldId={this.props.fieldId + '.' + fieldDefinition.name}
-        />,
+        <View>
+          <View style={styles.formHeadingRow2}>
+            <Label
+              testID={`label-${fieldDefinition?.name}`}
+              value={label}
+              fieldId={this.props.fieldId + '.' + fieldDefinition.name}
+            />
+          </View>
+        </View>,
       );
       fields.push(this.renderField(fieldDefinition));
     });
@@ -474,12 +484,14 @@ export class GroupedForm extends Component {
     const columnedFields: FieldDefinition[] = columnDefinition.fields;
     let rows: any[] = [];
 
-    // Render the empty header for the first row
-    rows.push(
-      <View style={styles.formHeadingRow} key={`header-row-empty`}>
-        <Label value={' '} style={styles.formTableColumnHeaderFitContent} suffix="" />
-      </View>,
-    );
+    if (columnedFields.length > 1) {
+      // Render the empty header for the first row
+      rows.push(
+        <View style={styles.formHeadingRow} key={`header-row-empty`}>
+          <Label value={' '} style={styles.formTableColumnHeaderFitContent} suffix="" />
+        </View>,
+      );
+    }
 
     // Render row labels
     columnedFields.forEach((field, rowIndex) => {

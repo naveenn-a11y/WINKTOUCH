@@ -1657,6 +1657,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 3 * fontScale,
   },
+  formHeadingRow2: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+    marginTop: 3 * fontScale,
+    paddingLeft: 0,
+  },
   formDataContainer: {
     flex: 1,
   },
