@@ -1628,8 +1628,8 @@ export const styles = StyleSheet.create({
   },
   copyRowContainer: {
     position: 'absolute',
-    top: 10,
-    right: 4,
+    top: 15,
+    right: 0,
   },
   copyRowContainerAlt: {
     position: 'absolute',
