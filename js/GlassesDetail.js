@@ -792,8 +792,8 @@ export class GlassesDetail extends Component {
           {this.props.hasLensType && this.renderFormInput(this.props, 'lensType', 'lensType')}
           {this.props.hasPD && (
             <View style={styles.centeredColumnLayout}>
-              {this.renderFormInput(this.props, 'testingCondition', 'Testing Condition', isTyping, true)}
-              {this.renderFormInput(this.props, 'pd', 'pd', isTyping, true)}
+              {this.renderFormInput(this.props, 'testingCondition', 'Testing Condition', isTyping, false)}
+              {this.renderFormInput(this.props, 'pd', 'pd', isTyping, false)}
             </View>
           )}
           {this.props.hasCustomField && this.renderFormInput(this.props, 'customField', 'customField')}
