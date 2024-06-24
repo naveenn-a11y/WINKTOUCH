@@ -1637,7 +1637,19 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 18,
     right: 0,
-  }
+  },
+  formRowWithHeadings: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  formTableColumnHeaderFitContent: {
+    flexShrink: 0,
+    flexGrow: 0,
+    maxWidth: 'fit-content',
+    fontSize: 18 * fontScale,
+    textAlign: 'center',
+    marginRight: 4 * fontScale,
+  },
 });
 
 function cardStyle(color: Color) {
