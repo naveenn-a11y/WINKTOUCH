@@ -152,7 +152,7 @@ export class LockScreen extends Component {
               behavior="position"
               style={
                 isWeb
-                  ? {flex: 1, justifyContent: 'center', flexWrap: 'wrap'}
+                  ? {alignItems: 'center',flex: 1, justifyContent: 'center'}
                   : {}
               }>
               <View
@@ -173,7 +173,7 @@ export class LockScreen extends Component {
                   />
                 </View>
                 <View style={{marginLeft: 20, marginRight: 20}} />
-                <View style={{ width: 'max-content'}}>
+                <View style={{ width: 500 * fontScale }}>
                   <View style={{marginBottom: 10}}>
                     <Text
                       style={{
