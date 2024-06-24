@@ -505,7 +505,7 @@ export class GlassesDetail extends Component {
 
   createColumn(props, eye, field, definition, isPrism, isVisible, errMsg) {
     return {
-      value: props.glassesRx[eye][field],
+      value: props.glassesRx?.[eye]?.[field] ?? '',
       definition: getFieldDefinition(definition),
       onChange: (value: ?number) => this.updateGlassesRx(eye, field, value),
       errorMessage: errMsg,
@@ -538,14 +538,14 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: true,
         columns: [
-          this.createColumn(props, 'od', 'sph', 'visit.prescription.od.sph', false, true, props.glassesRx.od.sphError),
-          this.createColumn(props, 'od', 'cyl', 'visit.prescription.od.cyl', false, true, props.glassesRx.od.cylError),
-          this.createColumn(props, 'od', 'axis', 'visit.prescription.od.axis', false, true, props.glassesRx.od.axisError),
-          this.createColumn(props, 'od', 'prism', 'visit.prescription.od.prism', true, state.prism, props.glassesRx.od.prismError),
-          this.createColumn(props, 'od', 'va', 'exam.VA cc.Aided acuities.DVA.OD', false, this.hasVA(), props.glassesRx.od.vaError),
-          this.createColumn(props, 'od', 'add', 'visit.prescription.od.add', false, props.hasAdd, props.glassesRx.od.addError),
-          this.createColumn(props, 'od', 'addVa', 'exam.VA cc.Aided acuities.NVA.OD', false, this.hasNVA(), props.glassesRx.od.addVaError),
-          this.createColumn(props, 'od', 'bvd', 'visit.prescription.od.bvd', false, this.hasBvd(), props.glassesRx.od.bvdError)
+          this.createColumn(props, 'od', 'sph', 'visit.prescription.od.sph', false, true, props.glassesRx?.od?.sphError ?? ''),
+          this.createColumn(props, 'od', 'cyl', 'visit.prescription.od.cyl', false, true, props.glassesRx?.od?.cylError ?? ''),
+          this.createColumn(props, 'od', 'axis', 'visit.prescription.od.axis', false, true, props.glassesRx?.od?.axisError ?? ''),
+          this.createColumn(props, 'od', 'prism', 'visit.prescription.od.prism', true, state.prism, props.glassesRx?.od?.prismError ?? ''),
+          this.createColumn(props, 'od', 'va', 'exam.VA cc.Aided acuities.DVA.OD', false, this.hasVA(), props.glassesRx?.od?.vaError ?? ''),
+          this.createColumn(props, 'od', 'add', 'visit.prescription.od.add', false, props.hasAdd, props.glassesRx?.od?.addError ?? ''),
+          this.createColumn(props, 'od', 'addVa', 'exam.VA cc.Aided acuities.NVA.OD', false, this.hasNVA(), props.glassesRx?.od?.addVaError ?? ''),
+          this.createColumn(props, 'od', 'bvd', 'visit.prescription.od.bvd', false, this.hasBvd(), props.glassesRx?.od?.bvdError ?? '')
         ],
       },
       {
@@ -553,14 +553,14 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: false,
         columns: [
-          this.createColumn(props, 'os', 'sph', 'visit.prescription.os.sph', false, true, props.glassesRx.os.sphError),
-          this.createColumn(props, 'os', 'cyl', 'visit.prescription.os.cyl', false, true, props.glassesRx.os.cylError),
-          this.createColumn(props, 'os', 'axis', 'visit.prescription.os.axis', false, true, props.glassesRx.os.axisError),
-          this.createColumn(props, 'os', 'prism', 'visit.prescription.os.prism', true, state.prism, props.glassesRx.os.prismError),
-          this.createColumn(props, 'os', 'va', 'exam.VA cc.Aided acuities.DVA.OS', false, this.hasVA(), props.glassesRx.os.vaError),
-          this.createColumn(props, 'os', 'add', 'visit.prescription.os.add', false, props.hasAdd, props.glassesRx.os.addError),
-          this.createColumn(props, 'os', 'addVa', 'exam.VA cc.Aided acuities.NVA.OS', false, this.hasNVA(), props.glassesRx.os.addVaError),
-          this.createColumn(props, 'os', 'bvd', 'visit.prescription.os.bvd', false, this.hasBvd(), props.glassesRx.os.bvdError)
+          this.createColumn(props, 'os', 'sph', 'visit.prescription.os.sph', false, true, props.glassesRx?.os?.sphError ?? ''),
+          this.createColumn(props, 'os', 'cyl', 'visit.prescription.os.cyl', false, true, props.glassesRx?.os?.cylError ?? ''),
+          this.createColumn(props, 'os', 'axis', 'visit.prescription.os.axis', false, true, props.glassesRx?.os?.axisError ?? ''),
+          this.createColumn(props, 'os', 'prism', 'visit.prescription.os.prism', true, state.prism, props.glassesRx?.os?.prismError ?? ''),
+          this.createColumn(props, 'os', 'va', 'exam.VA cc.Aided acuities.DVA.OS', false, this.hasVA(), props.glassesRx?.os?.vaError ?? ''),
+          this.createColumn(props, 'os', 'add', 'visit.prescription.os.add', false, props.hasAdd, props.glassesRx?.os?.addError ?? ''),
+          this.createColumn(props, 'os', 'addVa', 'exam.VA cc.Aided acuities.NVA.OS', false, this.hasNVA(), props.glassesRx?.os?.addVaError ?? ''),
+          this.createColumn(props, 'os', 'bvd', 'visit.prescription.os.bvd', false, this.hasBvd(), props.glassesRx?.os?.bvdError ?? '')
         ],
       },
       {
@@ -572,9 +572,9 @@ export class GlassesDetail extends Component {
           { visible: true, placeholder: true },
           { visible: true, placeholder: true },
           { visible: state.prism, placeholder: true },
-          this.createColumn(props, 'ou', 'va', 'exam.VA cc.Aided acuities.DVA.OU', false, this.hasVA(), props.glassesRx.ou.vaError),
+          this.createColumn(props, 'ou', 'va', 'exam.VA cc.Aided acuities.DVA.OU', false, this.hasVA(), props.glassesRx?.ou?.vaError ?? ''),
           { visible: props.hasAdd, placeholder: true },
-          this.createColumn(props, 'ou', 'addVa', 'exam.VA cc.Aided acuities.NVA.OU', false, this.hasNVA(), props.glassesRx.ou.addVaError),
+          this.createColumn(props, 'ou', 'addVa', 'exam.VA cc.Aided acuities.NVA.OU', false, this.hasNVA(), props.glassesRx?.ou?.addVaError ?? ''),
           { visible: this.hasBvd(), placeholder: true }
         ],
       },
@@ -669,8 +669,8 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: true,
         columns: [
-          this.createColumn(props, 'od', 'farPD', 'visit.prescription.od.farPD', false, true, props.glassesRx.od.farPDError),
-          this.createColumn(props, 'od', 'closePD', 'visit.prescription.od.closePD', false, true, props.glassesRx.od.closePDError)
+          this.createColumn(props, 'od', 'farPD', 'visit.prescription.od.farPD', false, true, props.glassesRx?.od?.farPDError ?? ''),
+          this.createColumn(props, 'od', 'closePD', 'visit.prescription.od.closePD', false, true, props.glassesRx?.od?.closePDError ?? '')
         ],
       },
       {
@@ -678,8 +678,8 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: false,
         columns: [
-          this.createColumn(props, 'os', 'farPD', 'visit.prescription.os.farPD', false, true, props.glassesRx.os.farPDError),
-          this.createColumn(props, 'os', 'closePD', 'visit.prescription.os.closePD', false, true, props.glassesRx.os.closePDError)
+          this.createColumn(props, 'os', 'farPD', 'visit.prescription.os.farPD', false, true, props.glassesRx?.os?.farPDError ?? ''),
+          this.createColumn(props, 'os', 'closePD', 'visit.prescription.os.closePD', false, true, props.glassesRx?.os?.closePDError ?? '')
         ],
       },
       {
@@ -687,8 +687,8 @@ export class GlassesDetail extends Component {
         visible: true,
         allowCopy: false,
         columns: [
-          this.createColumn(props, 'ou', 'farPD', 'visit.prescription.ou.farPD', false, true, props.glassesRx.ou.farPDError),
-          this.createColumn(props, 'ou', 'closePD', 'visit.prescription.ou.closePD', false, true, props.glassesRx.ou.closePDError)
+          this.createColumn(props, 'ou', 'farPD', 'visit.prescription.ou.farPD', false, true, props.glassesRx?.ou?.farPDError ?? ''),
+          this.createColumn(props, 'ou', 'closePD', 'visit.prescription.ou.closePD', false, true, props.glassesRx?.ou?.closePDError ?? '')
         ],
       },
     ];
