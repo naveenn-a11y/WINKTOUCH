@@ -568,17 +568,19 @@ export class GroupedForm extends Component {
               return (
                 <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
                   <View style={styles.emptyButtonSpaceAlt}>
-                    <CopyRow
-                      onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
-                      key={`copyRow-${rowIndex}`}
-                    />
+                    {props.editable && (
+                      <CopyRow
+                        onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
+                        key={`copyRow-${rowIndex}`}
+                      />
+                    )}
                   </View>
                 </View>
               );
             } else {
               return (
                 <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
-                  <View style={styles.emptyButtonSpaceAlt}/>
+                  <View style={styles.emptyButtonSpaceAlt} />
                 </View>
               );
             }
@@ -650,7 +652,9 @@ export class GroupedForm extends Component {
             {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
               ind < refColumnDefinition.fields.length - 1 ? (
                 <View style={styles.formColumnItem}>
-                  <CopyRow onPress={() => this.copyRow(refColumnDefinition.fields, ind, ind + 1, columns)} />
+                  {props.editable && (
+                    <CopyRow onPress={() => this.copyRow(refColumnDefinition.fields, ind, ind + 1, columns)} />
+                  )}
                 </View>
               ) : (
                 <View style={styles.formColumnItem} />
