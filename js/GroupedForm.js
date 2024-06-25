@@ -568,7 +568,7 @@ export class GroupedForm extends Component {
               return (
                 <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
                   <View style={styles.emptyButtonSpaceAlt}>
-                    {props.editable && (
+                    {this.props.editable && (
                       <CopyRow
                         onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
                         key={`copyRow-${rowIndex}`}
@@ -652,7 +652,7 @@ export class GroupedForm extends Component {
             {refColumnDefinition.fields.map((fd: FieldDefinition, ind) =>
               ind < refColumnDefinition.fields.length - 1 ? (
                 <View style={styles.formColumnItem}>
-                  {props.editable && (
+                  {this.props.editable && (
                     <CopyRow onPress={() => this.copyRow(refColumnDefinition.fields, ind, ind + 1, columns)} />
                   )}
                 </View>
