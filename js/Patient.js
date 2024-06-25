@@ -25,7 +25,7 @@ import {
   pushToHarmony,
 } from './Appointment';
 import { formatCode, getAllCodes } from './Codes';
-import { getCachedItem, getCachedItems } from './DataCache';
+import { getCachedItem, getCachedItems, cacheItemById } from './DataCache';
 import { getStore } from './DoctorApp';
 import { Pdf } from './Document';
 import { PaperClip, Refresh } from './Favorites';
@@ -224,7 +224,11 @@ export class PatientCard extends Component {
     isBookingAppointment: false,
   };
 
+  
   render() {
+    // Patient Info from the cache
+    const cachedPatientInfo = getCachedItem(this.props?.patientInfo?.id);
+    
     if (!this.props.patientInfo) {
       return null;
     }
@@ -232,9 +236,9 @@ export class PatientCard extends Component {
       <TouchableOpacity
         onPress={() =>
           this.props.isBookingAppointment
-            ? this.props.onSelectPatient(this.props.patientInfo)
+            ? this.props.onSelectPatient(cachedPatientInfo)
             : this.props.navigation.navigate(this.props.navigate, {
-                patientInfo: this.props.patientInfo,
+                patientInfo: cachedPatientInfo,
                 refreshStateKey: this.props.refreshStateKey,
                 hasAppointment: this.props.hasAppointment,
               })
@@ -242,56 +246,56 @@ export class PatientCard extends Component {
         testID="patientContact">
         <View style={this.props.style ? this.props.style : styles.paragraph}>
           <Text style={styles.cardTitleLeft}>
-            {getPatientFullName(this.props.patientInfo)}
+            {getPatientFullName(cachedPatientInfo)}
           </Text>
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {formatCode('genderCode', this.props.patientInfo.gender)}
-                {this.props.patientInfo.dateOfBirth
-                  ? this.props.patientInfo.gender === 0
+                {formatCode('genderCode', cachedPatientInfo?.gender)}
+                {cachedPatientInfo?.dateOfBirth
+                  ? cachedPatientInfo?.gender === 0
                     ? ` ${strings.ageM}`
                     : ` ${strings.ageF}`
                   : ''}
-                {this.props.patientInfo.dateOfBirth
-                  ? ' ' + formatAge(this.props.patientInfo.dateOfBirth) +
+                {cachedPatientInfo?.dateOfBirth
+                  ? ' ' + formatAge(cachedPatientInfo?.dateOfBirth) +
                     '  (' +
-                    this.props.patientInfo.dateOfBirth +
+                    cachedPatientInfo?.dateOfBirth +
                     ')'
                   : ''}
-                {this.props.patientInfo.occupation && 
-                !isEmpty(this.props.patientInfo.occupation) &&
-                `, ${this.props.patientInfo.occupation}`}
+                {cachedPatientInfo?.occupation && 
+                !isEmpty(cachedPatientInfo?.occupation) &&
+                `, ${cachedPatientInfo?.occupation}`}
               </Text>
               <Text style={styles.text}>
-                z{stripDataType(this.props.patientInfo.id)}
+                z{stripDataType(cachedPatientInfo?.id)}
               </Text>
               <Text style={styles.text}>
-                {prefix(this.props.patientInfo.medicalCard, '  ')}
-                {prefix(this.props.patientInfo.medicalCardVersion, '-')}
-                {prefix(this.props.patientInfo.medicalCardExp, '-')}
+                {prefix(cachedPatientInfo?.medicalCard, '  ')}
+                {prefix(cachedPatientInfo?.medicalCardVersion, '-')}
+                {prefix(cachedPatientInfo?.medicalCardExp, '-')}
               </Text>
               <PatientTags
-                patient={this.props.patientInfo}
+                patient={cachedPatientInfo}
                 showDescription={true}
               />
             </View>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {this.props.patientInfo.cell
-                  ? this.props.patientInfo.cell + ' '
-                  : this.props.patientInfo.phone}
+                {cachedPatientInfo?.cell
+                  ? cachedPatientInfo?.cell + ' '
+                  : cachedPatientInfo?.phone}
               </Text>
               <Text style={styles.text}>
-                {this.props.patientInfo.streetNumber}{' '}
-                {this.props.patientInfo.streetName
-                  ? this.props.patientInfo.streetName + ','
+                {cachedPatientInfo?.streetNumber}{' '}
+                {cachedPatientInfo?.streetName
+                  ? cachedPatientInfo?.streetName + ','
                   : ''}{' '}
-                {this.props.patientInfo.province}{' '}
-                {this.props.patientInfo.postalCode}{' '}
-                {this.props.patientInfo.city}
+                {cachedPatientInfo?.province}{' '}
+                {cachedPatientInfo?.postalCode}{' '}
+                {cachedPatientInfo?.city}
               </Text>
-              <Text style={styles.text}>{this.props.patientInfo.email}</Text>
+              <Text style={styles.text}>{cachedPatientInfo?.email}</Text>
             </View>
           </View>
         </View>
@@ -861,7 +865,8 @@ export class PatientScreen extends Component {
   }
 
   updatePatientInfo = (patientInfo: PatientInfo) => {
-    this.setState({patientInfo: patientInfo, isDirty: true});
+    this.setState({patientInfo: patientInfo, isDirty: true}, () => cacheItemById(patientInfo));
+    // Updating Cache when updating
   };
 
   showSnackBar() {
