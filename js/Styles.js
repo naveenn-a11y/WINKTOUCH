@@ -1403,7 +1403,10 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f0f0ff',
   },
   alert: {
+    alignSelf: 'center',
+    top: 10 * fontScale,
     backgroundColor: '#fff',
+    justifyContent: 'space-between'
   },
   alertCheckBox: {
     flexDirection: 'column',

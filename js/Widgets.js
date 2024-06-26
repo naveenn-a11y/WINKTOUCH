@@ -3730,9 +3730,9 @@ export class Alert extends Component<AlertProps, AlertState> {
             <Dialog.Content>{this.renderContent()}</Dialog.Content>
           )}
           <Dialog.Actions
-            style={
+            style={[{flexGrow: 0},
               this.props.isActionVertical && {flexDirection: 'column-reverse'}
-            }>
+            ]}>
             <NativeBaseButton onPress={this.cancelDialog}>
               {this.props.cancelActionLabel}
             </NativeBaseButton>
