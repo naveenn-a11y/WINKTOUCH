@@ -10,6 +10,7 @@ import {
   FlatList,
   Image,
   Keyboard,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -1583,6 +1584,7 @@ export class TilesField extends Component {
             transferFocus={this.props.transferFocus}
           />
           <ScrollView horizontal={allOptions.length > 3}>
+            <Pressable onPress={this.commitEdit} >
             <View style={styles.flexColumnLayout}>
               <View style={styles.centeredRowLayout}>
                 {allOptions.map((options: string[], columnIndex: number) => (
@@ -1640,6 +1642,7 @@ export class TilesField extends Component {
                 )}
               </View>
             </View>
+            </Pressable>
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
