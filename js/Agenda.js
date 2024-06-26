@@ -1387,7 +1387,7 @@ export class AgendaScreen extends Component {
               onPress={this.openDoctorsOptions}>
               <Text>{strings.chooseDoctor}</Text>
             </TouchableOpacity>
-            <View>
+            <View testID={'timeline-dropdown-option'}>
               <Menu
                 visible={dropDown}
                 onDismiss={this.closeDropDown}
