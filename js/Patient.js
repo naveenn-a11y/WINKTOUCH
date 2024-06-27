@@ -842,10 +842,10 @@ export class PatientScreen extends Component {
       this.state.patientInfo,
     );
     if (patientInfo.errors) {
-      this.props.navigation.navigate('patient', {patientInfo: patientInfo});
+      this.props.navigation.navigate('patient', {patientInfo: patientInfo, refreshStateKey: this.props.route?.params?.refreshStateKey});
     } else if (this.props.route.params.refreshStateKey) {
       const setParamsAction = CommonActions.setParams({
-        params: {refresh: true},
+        refresh: true,
         key: this.props.route.params.refreshStateKey,
       });
       this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});

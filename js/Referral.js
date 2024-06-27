@@ -570,7 +570,7 @@ export class ReferralScreen extends Component<
       let referralDefinition: ReferralDefinition = response;
       if (this.state.followUpStateKey) {
         const setParamsAction = CommonActions.setParams({
-          params: {refreshFollowUp: true},
+          refreshFollowUp: true,
           key: this.state.followUpStateKey,
         });
       this.props.navigation.dispatch({...setParamsAction, source: this.state.followUpStateKey});

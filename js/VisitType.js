@@ -268,7 +268,7 @@ export class VisitTypeTemplateScreen extends Component {
 
       if (this.props.route.params.refreshStateKey) {
         const setParamsAction = CommonActions.setParams({
-          params: {refresh: true},
+          refresh: true,
           key: this.props.route.params.refreshStateKey,
         });
         this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
