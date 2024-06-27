@@ -25,7 +25,7 @@ import {
   pushToHarmony,
 } from './Appointment';
 import { formatCode, getAllCodes } from './Codes';
-import { getCachedItem, getCachedItems, cacheItemById } from './DataCache';
+import { getCachedItem, getCachedItems } from './DataCache';
 import { getStore } from './DoctorApp';
 import { Pdf } from './Document';
 import { PaperClip, Refresh } from './Favorites';
@@ -224,8 +224,7 @@ export class PatientCard extends Component {
     isBookingAppointment: false,
   };
 
-  
-  render() {    
+  render() {
     if (!this.props.patientInfo) {
       return null;
     }
@@ -248,29 +247,29 @@ export class PatientCard extends Component {
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {formatCode('genderCode', this.props.patientInfo?.gender)}
-                {this.props.patientInfo?.dateOfBirth
-                  ? this.props.patientInfo?.gender === 0
+                {formatCode('genderCode', this.props.patientInfo.gender)}
+                {this.props.patientInfo.dateOfBirth
+                  ? this.props.patientInfo.gender === 0
                     ? ` ${strings.ageM}`
                     : ` ${strings.ageF}`
                   : ''}
-                {this.props.patientInfo?.dateOfBirth
-                  ? ' ' + formatAge(this.props.patientInfo?.dateOfBirth) +
+                {this.props.patientInfo.dateOfBirth
+                  ? ' ' + formatAge(this.props.patientInfo.dateOfBirth) +
                     '  (' +
-                    this.props.patientInfo?.dateOfBirth +
+                    this.props.patientInfo.dateOfBirth +
                     ')'
                   : ''}
-                {this.props.patientInfo?.occupation && 
-                !isEmpty(this.props.patientInfo?.occupation) &&
-                `, ${this.props.patientInfo?.occupation}`}
+                {this.props.patientInfo.occupation && 
+                !isEmpty(this.props.patientInfo.occupation) &&
+                `, ${this.props.patientInfo.occupation}`}
               </Text>
               <Text style={styles.text}>
-                z{stripDataType(this.props.patientInfo?.id)}
+                z{stripDataType(this.props.patientInfo.id)}
               </Text>
               <Text style={styles.text}>
-                {prefix(this.props.patientInfo?.medicalCard, '  ')}
-                {prefix(this.props.patientInfo?.medicalCardVersion, '-')}
-                {prefix(this.props.patientInfo?.medicalCardExp, '-')}
+                {prefix(this.props.patientInfo.medicalCard, '  ')}
+                {prefix(this.props.patientInfo.medicalCardVersion, '-')}
+                {prefix(this.props.patientInfo.medicalCardExp, '-')}
               </Text>
               <PatientTags
                 patient={this.props.patientInfo}
@@ -279,20 +278,20 @@ export class PatientCard extends Component {
             </View>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {this.props.patientInfo?.cell
-                  ? this.props.patientInfo?.cell + ' '
-                  : this.props.patientInfo?.phone}
+                {this.props.patientInfo.cell
+                  ? this.props.patientInfo.cell + ' '
+                  : this.props.patientInfo.phone}
               </Text>
               <Text style={styles.text}>
-                {this.props.patientInfo?.streetNumber}{' '}
-                {this.props.patientInfo?.streetName
-                  ? this.props.patientInfo?.streetName + ','
+                {this.props.patientInfo.streetNumber}{' '}
+                {this.props.patientInfo.streetName
+                  ? this.props.patientInfo.streetName + ','
                   : ''}{' '}
-                {this.props.patientInfo?.province}{' '}
-                {this.props.patientInfo?.postalCode}{' '}
-                {this.props.patientInfo?.city}
+                {this.props.patientInfo.province}{' '}
+                {this.props.patientInfo.postalCode}{' '}
+                {this.props.patientInfo.city}
               </Text>
-              <Text style={styles.text}>{this.props.patientInfo?.email}</Text>
+              <Text style={styles.text}>{this.props.patientInfo.email}</Text>
             </View>
           </View>
         </View>
@@ -863,7 +862,6 @@ export class PatientScreen extends Component {
 
   updatePatientInfo = (patientInfo: PatientInfo) => {
     this.setState({patientInfo: patientInfo, isDirty: true});
-    // Updating Cache when updating
   };
 
   showSnackBar() {
