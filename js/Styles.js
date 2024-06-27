@@ -1628,6 +1628,9 @@ export const styles = StyleSheet.create({
   emptyButtonSpace: {
     minWidth: 24,
   },
+  emptyButtonSpaceWide: {
+    minWidth: 34,
+  },
   emptyButtonSpaceAlt: {
     minWidth: 24,
     position: 'absolute',

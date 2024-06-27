@@ -593,7 +593,7 @@ export class GlassesDetail extends Component {
                 <Label value={column.label} style={styles.formTableColumnHeaderFull} suffix={''} />
               </View>
             ))}
-          <View style={styles.emptyButtonSpace} />
+          {props.editable && <View style={styles.emptyButtonSpaceWide} />}
         </View>
 
         {glassesRows.map(

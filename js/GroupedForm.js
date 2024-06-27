@@ -536,7 +536,9 @@ export class GroupedForm extends Component {
               />
             );
           } else {
-            return <View style={styles.formTableColumnHeaderSmall} key={`header-${index}`} />;
+            return this.props.editable ? (
+              <View style={styles.formTableColumnHeaderSmall} key={`header-${index}`} />
+            ) : null;
           }
         })}
       </View>,
@@ -564,25 +566,25 @@ export class GroupedForm extends Component {
               );
             }
 
-            if (columnIndex === columns.length - 1 && rowIndex < columnedFields.length - 1) {
-              return (
-                <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
-                  <View style={styles.emptyButtonSpaceAlt}>
-                    {this.props.editable && (
+            if (this.props.editable) {
+              if (columnIndex === columns.length - 1 && rowIndex < columnedFields.length - 1) {
+                return (
+                  <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
+                    <View style={styles.emptyButtonSpaceAlt}>
                       <CopyRow
                         onPress={() => this.copyRow(columnedFields, rowIndex, rowIndex + 1, columns)}
                         key={`copyRow-${rowIndex}`}
                       />
-                    )}
+                    </View>
                   </View>
-                </View>
-              );
-            } else {
-              return (
-                <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
-                  <View style={styles.emptyButtonSpaceAlt} />
-                </View>
-              );
+                );
+              } else {
+                return (
+                  <View style={styles.contentFitColumn} key={`copyRowContainer-${rowIndex}`}>
+                    {this.props.editable && <View style={styles.emptyButtonSpaceAlt} />}
+                  </View>
+                );
+              }
             }
           })}
         </View>,
@@ -710,7 +712,7 @@ export class GroupedForm extends Component {
 
           if (column === '>>') {
             if (index < columns.length - 1 && index > 0) {
-              return this.renderColumnCopyAlt(refColumnDefinition, index, columns);
+              return this.props.editable ? this.renderColumnCopyAlt(refColumnDefinition, index, columns) : null;
             }
             if (index === columns.length - 1) {
               return this.renderRowCopyAlt(refColumnDefinition, columns);
