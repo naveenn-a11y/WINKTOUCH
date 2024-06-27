@@ -245,7 +245,7 @@ export class AgendaScreen extends Component {
   async asyncComponentWillUnmount() {
     if (this.props.route.params?.refreshStateKey) {
       const setParamsAction = CommonActions.setParams({
-        params: {refresh: true},
+        refresh: true,
         key: this.props.route.params.refreshStateKey,
       });
       this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
@@ -1387,7 +1387,7 @@ export class AgendaScreen extends Component {
               onPress={this.openDoctorsOptions}>
               <Text>{strings.chooseDoctor}</Text>
             </TouchableOpacity>
-            <View>
+            <View testID={'timeline-dropdown-option'}>
               <Menu
                 visible={dropDown}
                 onDismiss={this.closeDropDown}
