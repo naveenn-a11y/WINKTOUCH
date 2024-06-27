@@ -846,7 +846,7 @@ export class PatientScreen extends Component {
       this.state.patientInfo,
     );
     if (patientInfo.errors) {
-      this.props.navigation.navigate('patient', {patientInfo: patientInfo});
+      this.props.navigation.navigate('patient', {patientInfo: patientInfo, refreshStateKey: this.props.route?.params?.refreshStateKey});
     } else if (this.props.route.params.refreshStateKey) {
       const setParamsAction = CommonActions.setParams({
         params: {refresh: true},
@@ -865,7 +865,7 @@ export class PatientScreen extends Component {
   }
 
   updatePatientInfo = (patientInfo: PatientInfo) => {
-    this.setState({patientInfo: patientInfo, isDirty: true}, () => cacheItemById(patientInfo));
+    this.setState({patientInfo: patientInfo, isDirty: true});
     // Updating Cache when updating
   };
 
