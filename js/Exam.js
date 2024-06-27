@@ -112,7 +112,7 @@ export async function storeExam(
   if (refreshStateKey && navigation) {
     //TODO check if exam has mapped visit fields
     const setParamsAction = CommonActions.setParams({
-      params: {refresh: true},
+      refresh: true,
       key: refreshStateKey,
     });
     navigation.dispatch({...setParamsAction, source: refreshStateKey});

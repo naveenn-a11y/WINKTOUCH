@@ -225,10 +225,7 @@ export class PatientCard extends Component {
   };
 
   
-  render() {
-    // Patient Info from the cache
-    const cachedPatientInfo = getCachedItem(this.props?.patientInfo?.id);
-    
+  render() {    
     if (!this.props.patientInfo) {
       return null;
     }
@@ -236,9 +233,9 @@ export class PatientCard extends Component {
       <TouchableOpacity
         onPress={() =>
           this.props.isBookingAppointment
-            ? this.props.onSelectPatient(cachedPatientInfo)
+            ? this.props.onSelectPatient(this.props.patientInfo)
             : this.props.navigation.navigate(this.props.navigate, {
-                patientInfo: cachedPatientInfo,
+                patientInfo: this.props.patientInfo,
                 refreshStateKey: this.props.refreshStateKey,
                 hasAppointment: this.props.hasAppointment,
               })
@@ -246,56 +243,56 @@ export class PatientCard extends Component {
         testID="patientContact">
         <View style={this.props.style ? this.props.style : styles.paragraph}>
           <Text style={styles.cardTitleLeft}>
-            {getPatientFullName(cachedPatientInfo)}
+            {getPatientFullName(this.props.patientInfo)}
           </Text>
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {formatCode('genderCode', cachedPatientInfo?.gender)}
-                {cachedPatientInfo?.dateOfBirth
-                  ? cachedPatientInfo?.gender === 0
+                {formatCode('genderCode', this.props.patientInfo?.gender)}
+                {this.props.patientInfo?.dateOfBirth
+                  ? this.props.patientInfo?.gender === 0
                     ? ` ${strings.ageM}`
                     : ` ${strings.ageF}`
                   : ''}
-                {cachedPatientInfo?.dateOfBirth
-                  ? ' ' + formatAge(cachedPatientInfo?.dateOfBirth) +
+                {this.props.patientInfo?.dateOfBirth
+                  ? ' ' + formatAge(this.props.patientInfo?.dateOfBirth) +
                     '  (' +
-                    cachedPatientInfo?.dateOfBirth +
+                    this.props.patientInfo?.dateOfBirth +
                     ')'
                   : ''}
-                {cachedPatientInfo?.occupation && 
-                !isEmpty(cachedPatientInfo?.occupation) &&
-                `, ${cachedPatientInfo?.occupation}`}
+                {this.props.patientInfo?.occupation && 
+                !isEmpty(this.props.patientInfo?.occupation) &&
+                `, ${this.props.patientInfo?.occupation}`}
               </Text>
               <Text style={styles.text}>
-                z{stripDataType(cachedPatientInfo?.id)}
+                z{stripDataType(this.props.patientInfo?.id)}
               </Text>
               <Text style={styles.text}>
-                {prefix(cachedPatientInfo?.medicalCard, '  ')}
-                {prefix(cachedPatientInfo?.medicalCardVersion, '-')}
-                {prefix(cachedPatientInfo?.medicalCardExp, '-')}
+                {prefix(this.props.patientInfo?.medicalCard, '  ')}
+                {prefix(this.props.patientInfo?.medicalCardVersion, '-')}
+                {prefix(this.props.patientInfo?.medicalCardExp, '-')}
               </Text>
               <PatientTags
-                patient={cachedPatientInfo}
+                patient={this.props.patientInfo}
                 showDescription={true}
               />
             </View>
             <View style={styles.flexColumnLayout}>
               <Text style={styles.text}>
-                {cachedPatientInfo?.cell
-                  ? cachedPatientInfo?.cell + ' '
-                  : cachedPatientInfo?.phone}
+                {this.props.patientInfo?.cell
+                  ? this.props.patientInfo?.cell + ' '
+                  : this.props.patientInfo?.phone}
               </Text>
               <Text style={styles.text}>
-                {cachedPatientInfo?.streetNumber}{' '}
-                {cachedPatientInfo?.streetName
-                  ? cachedPatientInfo?.streetName + ','
+                {this.props.patientInfo?.streetNumber}{' '}
+                {this.props.patientInfo?.streetName
+                  ? this.props.patientInfo?.streetName + ','
                   : ''}{' '}
-                {cachedPatientInfo?.province}{' '}
-                {cachedPatientInfo?.postalCode}{' '}
-                {cachedPatientInfo?.city}
+                {this.props.patientInfo?.province}{' '}
+                {this.props.patientInfo?.postalCode}{' '}
+                {this.props.patientInfo?.city}
               </Text>
-              <Text style={styles.text}>{cachedPatientInfo?.email}</Text>
+              <Text style={styles.text}>{this.props.patientInfo?.email}</Text>
             </View>
           </View>
         </View>
@@ -849,7 +846,7 @@ export class PatientScreen extends Component {
       this.props.navigation.navigate('patient', {patientInfo: patientInfo, refreshStateKey: this.props.route?.params?.refreshStateKey});
     } else if (this.props.route.params.refreshStateKey) {
       const setParamsAction = CommonActions.setParams({
-        params: {refresh: true},
+        refresh: true,
         key: this.props.route.params.refreshStateKey,
       });
       this.props.navigation.dispatch({...setParamsAction, source: this.props.route.params.refreshStateKey});
