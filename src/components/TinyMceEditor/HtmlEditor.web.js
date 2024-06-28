@@ -86,6 +86,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
           branding: false,
           statusbar: false,
           removed_menuitems: 'newdocument',
+          contextmenu: 'copy paste cut link image table',
           extended_valid_elements:
             'svg[*],defs[*],pattern[*],desc[*],metadata[*],g[*],mask[*],path[*],line[*],marker[*],rect[*],circle[*],ellipse[*],polygon[*],polyline[*],linearGradient[*],radialGradient[*],stop[*],image[*],view[*],text[*],textPath[*],title[*],tspan[*],glyph[*],symbol[*],switch[*],use[*]',
           plugins: [
