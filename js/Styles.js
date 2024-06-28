@@ -567,6 +567,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 3 * fontScale,
   },
+  placeholderElement: {
+    flex: 200,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   formLabel: {
     fontSize: 18 * fontScale,
     padding: 3 * fontScale,
@@ -681,15 +686,16 @@ export const styles = StyleSheet.create({
   inputFieldActiveChanged: inputFieldStyle(true, true),
   formTableRowHeader: {
     flex: 65,
-    fontSize: 20 * fontScale,
+    fontSize: 18 * fontScale,
     paddingHorizontal: 3 * fontScale,
     textAlign: 'right',
-    margin: 4 * fontScale,
+    margin: 5 * fontScale,
+    maxWidth: 'max-content'
   },
   formTableColumnHeader: {
     flex: 100,
     flexDirection: 'row',
-    fontSize: 20 * fontScale,
+    fontSize: 18 * fontScale,
     textAlign: 'center',
     margin: 4 * fontScale,
     marginTop: 20 * fontScale,
@@ -712,7 +718,8 @@ export const styles = StyleSheet.create({
     marginBottom: 0 * fontScale,
   },
   formTableColumnHeaderSmall: {
-    width: 30 * fontScale,
+    maxWidth: 24,
+    minWidth: 24,
   },
   formTableColumnHeaderFlat: {
     width: 0 * fontScale,
@@ -1599,6 +1606,68 @@ export const styles = StyleSheet.create({
   },
   flatListScroll: {
     height: 500 * fontScale,
+  },
+  rowContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  row: {
+    flexDirection: 'row',
+    width: '100%', // Ensures each row takes the full available width
+  },
+  contentFitColumn: {
+    flexShrink: 1, // Ensures the column fits its content
+    justifyContent: 'center',
+    minWidth: 30,
+  },
+  flexColumn: {
+    flex: 1, // Ensures the column flexes to fill remaining space equally
+    justifyContent: 'center',
+    width: '100%',
+  },
+  emptyButtonSpace: {
+    minWidth: 24,
+  },
+  emptyButtonSpaceWide: {
+    minWidth: 34,
+  },
+  emptyButtonSpaceAlt: {
+    minWidth: 24,
+    position: 'absolute',
+    top: 4,
+    right: 0,
+  },
+  formTableColumnHeaderFitContent: {
+    flexShrink: 0,
+    flexGrow: 0,
+    maxWidth: 'fit-content',
+    fontSize: 18 * fontScale,
+    textAlign: 'center',
+    marginRight: 4 * fontScale,
+  },
+  formRowContainer: {
+    flexDirection: 'row',
+  },
+  formRowHeadingsContainer: {
+    flexShrink: 0,
+    flexGrow: 0,
+  },
+  formHeadingRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+  },
+  formHeadingRow2: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+    marginTop: 3 * fontScale,
+    paddingLeft: 0,
+  },
+  formDataContainer: {
+    flex: 1,
   },
 });
 

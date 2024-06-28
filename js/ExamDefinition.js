@@ -27,7 +27,7 @@ import {
   FormTextArrayInput,
   FormTextInput,
 } from './Form';
-import { GroupedFormScreen } from './GroupedForm';
+import { GroupedFormScreen } from './GroupedFormScreen';
 import { ItemsList, SelectionListsScreen, isNumericField } from './Items';
 import { mappedFields } from './MappedField';
 import { PaperFormScreen } from './PaperForm';

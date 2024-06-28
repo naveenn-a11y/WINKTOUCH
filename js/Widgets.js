@@ -321,6 +321,7 @@ export class TextField extends Component {
   };
   static defaultProps = {
     type: 'default',
+    autoFocus: false,
   };
 
   constructor(props: any) {
@@ -596,6 +597,7 @@ export class NumberField extends Component {
   static defaultProps = {
     stepSize: 1,
     groupSize: 10,
+    autoFocus: false,
   };
 
   constructor(props: any) {
@@ -1663,7 +1665,7 @@ export class TilesField extends Component {
       return (
         <TextField
           value={this.props.value}
-          autoFocus={true}
+          autoFocus={false}
           style={style}
           multiline={this.props.multiline}
           onChangeValue={(newValue) => this.commitTyping(newValue)}
@@ -2150,7 +2152,7 @@ export class TimeField extends Component {
           prefix={this.props.prefix}
           value={formattedValue}
           suffix={this.props.suffix}
-          autoFocus={true}
+          autoFocus={false}
           style={style}
           onChangeValue={(newValue) => this.commitTyping(newValue)}
         />

@@ -5,7 +5,7 @@ import {deepClone, isEmpty} from './Util';
 import {performActionOnItem, storeItem} from './Rest';
 import {ExamCard} from './Exam';
 import {SelectionListsScreen} from './Items';
-import {GroupedFormScreen} from './GroupedForm';
+import {GroupedFormScreen} from './GroupedFormScreen';
 import {PaperFormScreen} from './PaperForm';
 import {fontScale, styles} from './Styles';
 import {

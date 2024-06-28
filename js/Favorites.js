@@ -246,7 +246,7 @@ export class Star extends PureComponent {
                       value={this.state.starName}
                       onChangeText={this.changeStarName}
                       autoCapitalize="sentences"
-                      autoFocus={true}
+                      autoFocus={false}
                       testID="star.name"
                     />
                   </FormRow>

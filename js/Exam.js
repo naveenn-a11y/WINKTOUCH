@@ -5,7 +5,7 @@
 
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, Animated, Easing} from 'react-native';
-import { CommonActions } from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
   Exam,
@@ -27,13 +27,10 @@ import {
   ItemsList,
   getFieldDefinition as getItemFieldDefinition,
 } from './Items';
-import {
-  GroupedFormScreen,
-  GroupedForm,
-  GroupedCard,
-  CheckList,
-  addGroupItem,
-} from './GroupedForm';
+import {GroupedForm} from './GroupedForm';
+import {CheckList} from './CheckList';
+import {GroupedCard} from './GroupedCard';
+import {addGroupItem, GroupedFormScreen} from './GroupedFormScreen';
 import {PaperFormScreen} from './PaperForm';
 import {fetchItemById, storeItem} from './Rest';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
@@ -49,30 +46,11 @@ import {
   jsonDateTimeFormat,
 } from './Util';
 import {allExamIds, fetchVisit, visitHasEnded} from './Visit';
-import {
-  getLensometries,
-  getKeratometry,
-  getAutoRefractor,
-  GlassesDetail,
-  getLensometry,
-} from './Refraction';
-import {
-  getFavorites,
-  removeFavorite,
-  Star,
-  Refresh,
-  storeFavorite,
-  ExportIcon,
-} from './Favorites';
+import {getLensometries, getKeratometry, getAutoRefractor, getLensometry} from './Refraction';
+import { GlassesDetail } from './GlassesDetail';
+import {getFavorites, removeFavorite, Star, Refresh, storeFavorite, ExportIcon} from './Favorites';
 import {allExamDefinitions, getExamDefinition} from './ExamDefinition';
-import {
-  Alert,
-  CollapsibleMessage,
-  Lock,
-  NativeBar,
-  NoAccess,
-  Pencil,
-} from './Widgets';
+import {Alert, CollapsibleMessage, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
 
 import {ErrorCard} from './Form';
 import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';

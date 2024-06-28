@@ -63,11 +63,11 @@ import {
   Keyboard,
 } from './Favorites';
 import {
-  GlassesDetail,
   GlassesSummary,
   newRefraction,
   formatPrism,
 } from './Refraction';
+import { GlassesDetail } from './GlassesDetail';
 import {getExamDefinition} from './ExamDefinition';
 import {
   getFieldDefinition as getExamFieldDefinition,
