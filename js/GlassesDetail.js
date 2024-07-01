@@ -606,7 +606,7 @@ export class GlassesDetail extends Component {
                 {row.columns
                   .filter((column) => column.visible)
                   .map((column, idx) => (
-                    <View style={styles.flexColumn} key={column.testId}>
+                    <View style={styles.flexColumn} key={column.testID}>
                       {!column.placeholder && !column.isPrism && (
                         <FormInput
                           value={column.value}
@@ -617,7 +617,7 @@ export class GlassesDetail extends Component {
                           errorMessage={column.errorMessage}
                           isTyping={isTyping}
                           autoFocus={false}
-                          testID={column.testId}
+                          testID={column.testID}
                         />
                       )}
                       {!column.placeholder && column.isPrism && (
@@ -627,7 +627,7 @@ export class GlassesDetail extends Component {
                           showLabel={false}
                           readonly={!this.props.editable}
                           onChangeValue={(value: ?String) => this.updatePrism('os', value)}
-                          testID={column.testId}
+                          testID={column.testID}
                         />
                       )}
                       {/* if column.placeholder, add an empty view that takes up full width */}
@@ -720,7 +720,7 @@ export class GlassesDetail extends Component {
                 {row.columns
                   .filter((column) => column.visible)
                   .map((column, idx) => (
-                    <View style={styles.flexColumn} key={column.testId}>
+                    <View style={styles.flexColumn} key={column.testID}>
                       {!column.placeholder && !column.isPrism && (
                         <FormInput
                           value={column.value}
@@ -731,7 +731,7 @@ export class GlassesDetail extends Component {
                           errorMessage={column.errorMessage}
                           isTyping={isTyping}
                           autoFocus={false}
-                          testID={column.testId}
+                          testID={column.testID}
                         />
                       )}
                       {!column.placeholder && column.isPrism && (
@@ -741,7 +741,7 @@ export class GlassesDetail extends Component {
                           showLabel={false}
                           readonly={!this.props.editable}
                           onChangeValue={(value: ?String) => this.updatePrism('os', value)}
-                          testID={column.testId}
+                          testID={column.testID}
                         />
                       )}
                       {/* if column.placeholder, add an empty view that takes up full width */}
