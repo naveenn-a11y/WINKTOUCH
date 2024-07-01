@@ -39,6 +39,7 @@ export class AssessmentCard extends Component {
     return (
       <TouchableOpacity
         disabled={this.props.disabled}
+        testID={'AssesmentCard-' + this.props?.exam?.definition?.label}
         onPress={() =>
           this.props.navigation.navigate('exam', {
             exam: this.props.exam,
