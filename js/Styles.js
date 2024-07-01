@@ -549,6 +549,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 3 * fontScale,
   },
+  formRow800: {
+    width: 840 * fontScale,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+  },
   formRow1000: {
     width: 1040 * fontScale,
     flexDirection: 'row',
