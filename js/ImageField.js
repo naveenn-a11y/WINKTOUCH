@@ -1394,6 +1394,7 @@ export class ImageField extends Component {
                     <TouchableOpacity onPress={() => this.print()}>
                       <View style={styles.popupTile}>
                         <Printer
+                          testID={this.props.testID + '.Print'}
                           style={styles.drawIcon}
                           disabled={this.state.isActive}
                         />
@@ -1409,7 +1410,7 @@ export class ImageField extends Component {
                     onMoveShouldSetResponder={(event) => true}
                     onResponderTerminationRequest={(event) => false}
                     onResponderTerminate={(event) => this.cancelEdit()}>
-                    <PdfViewer style={style} source={this.requireImage().uri} />
+                    <PdfViewer testID={this.props?.testID} style={style} source={this.requireImage().uri} />
                     {this.renderGraph(this.state.lines, style, scale)}
                   </View>
                 </View>
@@ -1470,7 +1471,7 @@ export class ImageField extends Component {
             this.cancelEdit();
           }
         }}>
-        <Image source={this.requireImage()} style={style} />
+        <Image testID={this.props?.testID + '-image'} source={this.requireImage()} style={style} />
         {this.renderGraph(this.state.lines, style, scale)}
       </View>
     );
@@ -1488,7 +1489,7 @@ export class ImageField extends Component {
         <View style={styles.flowLeft} key={'fieldIcons'}>
           {!isWeb && (
             <TouchableOpacity onPress={this.showCamera}>
-              <Camera style={styles.screenIcon} />
+              <Camera testID={'UploadImage'} style={styles.screenIcon} />
             </TouchableOpacity>
           )}
           {this.props.type && (
@@ -1503,33 +1504,32 @@ export class ImageField extends Component {
       return (
         <View style={styles.drawingIcons} key={'drawingIcons'}>
           <TouchableOpacity onPress={() => this.print()}>
-            <Printer style={styles.drawIcon} disabled={this.state.isActive} />
+            <Printer testID={this.props?.testID + '.Print'} style={styles.drawIcon} disabled={this.state.isActive} />
           </TouchableOpacity>
-          <TouchableOpacity
-              onPress={() => this.clearImage()}>
-              <Garbage style={styles.groupIcon} />
+          <TouchableOpacity onPress={() => this.clearImage()}>
+              <Garbage testID={this.props?.testID + '.Clear'} style={styles.groupIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.email()}>
             <Mail style={styles.drawIcon} disabled={this.state.isActive} />
           </TouchableOpacity>
           {!this.props.readonly && this.props.drawable && (
             <TouchableOpacity onPress={this.toggleEdit}>
-              <Pencil style={styles.drawIcon} disabled={this.state.isActive} />
+              <Pencil testID={this.props?.testID + '.Edit'} style={styles.drawIcon} disabled={this.state.isActive} />
             </TouchableOpacity>
           )}
           {this.props.multiValue && this.props.drawable === false && !isWeb && (
             <TouchableOpacity onPress={this.showCamera}>
-              <Camera style={styles.drawIcon} />
+              <Camera testID={this.props?.testID + '.Camera'} style={styles.drawIcon} />
             </TouchableOpacity>
           )}
           {this.props.multiValue && this.props.drawable === false && isWeb && (
             <TouchableOpacity onPress={() => this.showDocuments()}>
-              <PaperClip style={styles.drawIcon} />
+              <PaperClip testID={this.props?.testID + '.Attachment'} style={styles.drawIcon} />
             </TouchableOpacity>
           )}
           {!this.props.readonly && this.state.isActive && (
             <TouchableOpacity onPress={this.undo}>
-              <Undo style={styles.drawIcon} />
+              <Undo testID={this.props?.testID + '.Undo'} style={styles.drawIcon} />
             </TouchableOpacity>
           )}
         </View>
@@ -1567,9 +1567,9 @@ export class ImageField extends Component {
             disabled={this.state.isActive}>
             <View>
               {image && isPdf && (
-                <PdfViewer style={style} source={image.uri} isPreview={false} />
+                <PdfViewer testID={this.props?.testID} style={style} source={image.uri} isPreview={false} />
               )}
-              {image && !isPdf && <Image source={image} style={style} />}
+              {image && !isPdf && <Image testID={this.props?.testID + '-image'} source={image} style={style} />}
               {this.renderGraph(
                 this.state.isActive
                   ? this.state.lines
@@ -1616,12 +1616,13 @@ export class ImageField extends Component {
               <View>
                 {image && isPdf && (
                   <PdfViewer
+                    testID={this.props?.testID}
                     style={style}
                     source={image.uri}
                     isPreview={true}
                   />
                 )}
-                {image && !isPdf && <Image source={image} style={style} />}
+                {image && !isPdf && <Image testID={this.props?.testID + '-image'} source={image} style={style} />}
                 {this.props.value &&
                   this.renderGraph(this.props.value.lines, style, scale)}
               </View>
@@ -1815,11 +1816,11 @@ export class ImageField extends Component {
             style={styles.fieldContainer}
             onPress={this.startEditing}
             disabled={this.props.readonly}>
-            <View>
+            <View testID={this.props?.testID+'.Attachment'}>
               {image && isPdf && (
-                <PdfViewer style={style} source={image.uri} isPreview={false} />
+                <PdfViewer testID={this.props?.testID} style={style} source={image.uri} isPreview={false} />
               )}
-              {image && !isPdf && <Image source={image} style={style} />}
+              {image && !isPdf && <Image testID={this.props?.testID + '-image'} source={image} style={style} />}
               {this.props.value &&
                 this.renderGraph(this.props.value.lines, style, scale)}
             </View>

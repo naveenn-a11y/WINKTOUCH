@@ -302,7 +302,7 @@ export class Cross extends PureComponent {
   };
   render() {
     return (
-      <Icon name="clear" style={this.props.style} color={selectionFontColor} />
+      <Icon testID={(this.props?.testID ?? 'Cross') + '-Icon'} name="clear" style={this.props.style} color={selectionFontColor} />
     );
   }
 }
@@ -313,7 +313,7 @@ export class Garbage extends PureComponent {
   };
   render() {
     return (
-      <Icon name="delete" style={this.props.style} color={selectionFontColor} />
+      <Icon testID={(this.props?.testID ?? 'Garbage') + '-Icon'} name="delete" style={this.props.style} color={selectionFontColor} />
     );
   }
 }
@@ -327,6 +327,7 @@ export class Pencil extends PureComponent {
     return (
       <Icon
         name="edit"
+        testID={(this.props?.testID ?? 'Edit') + '-Icon'}
         style={this.props.style}
         color={this.props.disabled ? disabledFontColor : selectionFontColor}
       />
@@ -356,7 +357,7 @@ export class Plus extends PureComponent {
   };
   render() {
     return (
-      <Icon name="plus" style={this.props.style} color={selectionFontColor} />
+      <Icon name="plus" testID={(this.props?.testID ?? 'Plus') + '-Icon'} style={this.props.style} color={selectionFontColor} />
     );
   }
 }
@@ -367,7 +368,7 @@ export class Copy extends PureComponent {
   };
   render() {
     return (
-      <Icon name="copy1" style={this.props.style} color={selectionFontColor} />
+      <Icon name="copy1" testID={(this.props?.testID ?? 'Copy') + '-Icon'} style={this.props.style} color={selectionFontColor} />
     );
   }
 }
@@ -380,6 +381,7 @@ export class Paste extends PureComponent {
     return (
       <MaterialIcon
         name="content-paste"
+        testID={(this.props?.testID ?? 'Paste') + '-Icon'}
         style={this.props.style}
       />
     );
@@ -394,6 +396,7 @@ export class Refresh extends PureComponent {
     return (
       <Icon
         name="reload1"
+        testID={(this.props?.testID ?? 'Refresh') + '-Icon'}
         style={this.props.style}
         color={selectionFontColor}
       />
@@ -407,7 +410,7 @@ export class Undo extends PureComponent {
   };
   render() {
     return (
-      <Icon name="back" style={this.props.style} color={selectionFontColor} />
+      <Icon name="back" testID={(this.props?.testID ?? 'Undo') + '-Icon'} style={this.props.style} color={selectionFontColor} />
     );
   }
 }
@@ -419,6 +422,7 @@ export class Camera extends PureComponent {
   render() {
     return (
       <Icon
+      testID={(this.props?.testID ?? 'Camera') + '-Icon'}
         name="camerao"
         style={this.props.style}
         color={selectionFontColor}
@@ -434,6 +438,7 @@ export class Printer extends PureComponent {
   render() {
     return (
       <Icon
+        testID={(this.props?.testID ?? 'Print') + '-Icon'}
         name="printer"
         style={this.props.style}
         color={selectionFontColor}
@@ -451,7 +456,7 @@ export class Mail extends PureComponent {
       return null;
     } else {
       return (
-        <Icon name="mail" style={this.props.style} color={selectionFontColor} />
+        <Icon testID={(this.props?.testID ?? 'Mail') + '-Icon'} name="mail" style={this.props.style} color={selectionFontColor} />
       );
     }
   }
@@ -469,7 +474,7 @@ export class DrawingIcon extends PureComponent {
   render() {
     //return <Icon name='show-chart' style={this.props.style} color={this.props.color}/>
     return (
-      <Icon name="picture" style={this.props.style} color={this.props.color} />
+      <Icon name="picture" testID={(this.props?.testID ?? 'Picture') + '-Icon'} style={this.props.style} color={this.props.color} />
     );
   }
 }
@@ -487,7 +492,7 @@ export class ImportIcon extends PureComponent {
   render() {
     //return <Icon name='show-chart' style={this.props.style} color={this.props.color}/>
     return (
-      <Icon name="download" style={this.props.style} color={this.props.color} />
+      <Icon name="download" testID={(this.props?.testID ?? 'Download') + '-Icon'} style={this.props.style} color={this.props.color} />
     );
   }
 }
@@ -505,7 +510,7 @@ export class ExportIcon extends PureComponent {
   render() {
     //return <Icon name='show-chart' style={this.props.style} color={this.props.color}/>
     return (
-      <Icon name="upload" style={this.props.style} color={this.props.color} />
+      <Icon name="upload" testID={(this.props?.testID ?? 'Upload') + '-Icon'} style={this.props.style} color={this.props.color} />
     );
   }
 }

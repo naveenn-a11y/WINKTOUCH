@@ -46,7 +46,7 @@ export class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
   //Base64 or url
   render() {
     return (
-      <View>
+      <View testID={this.props?.testID + '.Document'}>
         <Document
           file={this.props.source}
           onLoadSuccess={this.onDocumentLoadSuccess}>
