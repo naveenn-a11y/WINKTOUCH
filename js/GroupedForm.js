@@ -1,41 +1,23 @@
-
 /**
  * @flow
  */
 
 'use strict';
 
-import {Component} from 'react';
+import React, {Component} from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
 import {ModeContext} from '../src/components/Context/ModeContextProvider';
 import {getCodeDefinition} from './Codes';
 import {getCachedItem} from './DataCache';
 import {getDoctor} from './DoctorApp';
-import {
-  getFieldDefinition as getExamFieldDefinition,
-  getFieldValue,
-  setMappedFieldValue,
-} from './Exam';
-import {
-  Copy,
-  CopyColumn,
-  CopyRow,
-  Garbage,
-  ImportIcon,
-  Plus,
-  Star,
-} from './Favorites';
+import {getFieldDefinition as getExamFieldDefinition, getFieldValue, setMappedFieldValue} from './Exam';
+import {Copy, CopyColumn, CopyRow, Garbage, ImportIcon, Plus, Star} from './Favorites';
 import {FormInput} from './Form';
 import {formatFieldLabel, formatLabel} from './Items';
 import {importData} from './Machine';
 import {strings} from './Strings';
 import {scaleStyle, styles} from './Styles';
-import type {
-  CodeDefinition,
-  FieldDefinition,
-  GroupDefinition,
-  Measurement,
-} from './Types';
+import type {CodeDefinition, FieldDefinition, GroupDefinition, Measurement} from './Types';
 import {formatDate, getValue, isEmpty, now, yearDateFormat} from './Util';
 import {Alert, Label, NativeBar} from './Widgets';
 
@@ -50,10 +32,7 @@ export function hasColumns(groupDefinition: GroupDefinition): boolean {
   );
 }
 
-export function getColumnFieldIndex(
-  groupDefinition: GroupDefinition,
-  fieldName: string,
-): number {
+export function getColumnFieldIndex(groupDefinition: GroupDefinition, fieldName: string): number {
   if (
     groupDefinition.columns === undefined ||
     groupDefinition.columns === null ||
@@ -95,8 +74,7 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
         const exam: Exam = getCachedItem(item);
         visit = exam !== undefined ? getCachedItem(exam.visitId) : undefined;
       }
-      const value: any =
-        visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
+      const value: any = visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
@@ -108,17 +86,10 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
         const subKey: string = subKeys[0];
         value = exam !== undefined ? getValue(exam, subKey) : undefined;
         if (value === undefined) {
-          const fieldName: string = subKey.substring(
-            subKey.lastIndexOf('.') + 1,
-          );
+          const fieldName: string = subKey.substring(subKey.lastIndexOf('.') + 1);
           if (fieldName.toLowerCase() === 'povonlineid') {
-            value =
-              exam !== undefined
-                ? getValue(exam, 'Diagnosis.Insurer.supplierId')
-                : undefined;
-            let supplierCode: CodeDefinition = value
-              ? getCodeDefinition('insuranceProviders', value)
-              : undefined;
+            value = exam !== undefined ? getValue(exam, 'Diagnosis.Insurer.supplierId') : undefined;
+            let supplierCode: CodeDefinition = value ? getCodeDefinition('insuranceProviders', value) : undefined;
             if (supplierCode?.povOnlineId?.toString() === subValue) {
               value = subValue;
             } else {
@@ -145,17 +116,14 @@ function getDefaultValue(groupDefinition: GroupDefinition, exam: ?Exam): any {
     const keyIdentifier: string[] = key.split('.');
     if (keyIdentifier[0] === 'user') {
       if (keyIdentifier[1] === 'name') {
-        const doctorName: string =
-          getDoctor().firstName + ' ' + getDoctor().lastName;
+        const doctorName: string = getDoctor().firstName + ' ' + getDoctor().lastName;
         return doctorName;
       } else if (keyIdentifier[1] === 'id') {
         const doctorId: string = getDoctor().id;
         return doctorId;
       }
     } else if (key === 'currentDate') {
-      const dateFormat: string = groupDefinition.dateFormat
-        ? groupDefinition.dateFormat
-        : yearDateFormat;
+      const dateFormat: string = groupDefinition.dateFormat ? groupDefinition.dateFormat : yearDateFormat;
       const currentDate: string = formatDate(now(), dateFormat);
       return currentDate;
     } else {
@@ -166,15 +134,8 @@ function getDefaultValue(groupDefinition: GroupDefinition, exam: ?Exam): any {
   }
 }
 
-function isRowField(
-  groupDefinition: GroupDefinition,
-  fieldName: string,
-): boolean | number {
-  if (
-    groupDefinition.rows === undefined ||
-    groupDefinition.rows === null ||
-    groupDefinition.rows.length === 0
-  ) {
+function isRowField(groupDefinition: GroupDefinition, fieldName: string): boolean | number {
+  if (groupDefinition.rows === undefined || groupDefinition.rows === null || groupDefinition.rows.length === 0) {
     return false;
   }
   for (let row of groupDefinition.rows) {
@@ -186,16 +147,12 @@ function isRowField(
   return false;
 }
 
-export function getMultiValueGroup(
-  cardRow: string[],
-  multiValueGroups: GroupDefinitionp[],
-): ?GroupDefinition {
+export function getMultiValueGroup(cardRow: string[], multiValueGroups: GroupDefinitionp[]): ?GroupDefinition {
   for (let field: string of cardRow) {
     const groupName: string = field.substring(0, field.indexOf('.'));
     if (groupName !== undefined) {
       const groupDefinition: ?GroupDefinition = multiValueGroups.find(
-        (groupDefinition: GroupDefinition) =>
-          groupDefinition.name === groupName,
+        (groupDef: GroupDefinition) => groupDef.name === groupName,
       );
       if (groupDefinition !== undefined) {
         return groupDefinition;
@@ -265,7 +222,7 @@ export class GroupedForm extends Component {
 
   formatColumnLabel(column: string): string {
     const columnDefinition: ?GroupDefinition | FieldDefinition = this.props.definition.fields.find(
-      (columnDefinition: GroupDefinition | FieldDefinition) => columnDefinition.name === column,
+      (colDef) => colDef.name === column,
     );
     return formatLabel(columnDefinition);
   }
@@ -421,7 +378,7 @@ export class GroupedForm extends Component {
 
     let fields: any[] = [];
     const row: string[] = this.props.definition.rows.find(
-      (row: string[]) => row && row.length > 0 && row[0] === fieldDefinition.name,
+      (item: string[]) => item && item.length > 0 && item[0] === fieldDefinition.name,
     );
     if (row === undefined) {
       return null;
@@ -429,20 +386,20 @@ export class GroupedForm extends Component {
     const fieldDefinitions: FieldDefinition[] = row.map((fieldName: string) =>
       this.props.definition.fields.find((field: FieldDefinition) => field.name === fieldName),
     );
-    fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
-      let label: string = formatLabel(fieldDefinition);
+    fieldDefinitions.forEach((fieldDef: FieldDefinition) => {
+      let label: string = formatLabel(fieldDef);
       fields.push(
         <View>
           <View style={styles.formHeadingRow2}>
             <Label
-              testID={`label-${fieldDefinition?.name}`}
+              testID={`label-${fieldDef?.name}`}
               value={label}
-              fieldId={this.props.fieldId + '.' + fieldDefinition.name}
+              fieldId={this.props.fieldId + '.' + fieldDef.name}
             />
           </View>
         </View>,
       );
-      fields.push(this.renderField(fieldDefinition));
+      fields.push(this.renderField(fieldDef));
     });
     return <View style={styles.formRow}>{fields}</View>;
   }
@@ -487,7 +444,7 @@ export class GroupedForm extends Component {
     if (columnedFields.length > 1) {
       // Render the empty header for the first row
       rows.push(
-        <View style={styles.formHeadingRow} key={`header-row-empty`}>
+        <View style={styles.formHeadingRow} key={'header-row-empty'}>
           <Label value={' '} style={styles.formTableColumnHeaderFitContent} suffix="" />
         </View>,
       );
@@ -514,14 +471,14 @@ export class GroupedForm extends Component {
 
     const columnedFields: FieldDefinition[] = columnDefinition.fields;
     const columns: string[] = this.props.definition.columns.find(
-      (columns: string[]) => columns.length > 0 && columns[0] === columnDefinition.name,
+      (cols: string[]) => cols.length > 0 && cols[0] === columnDefinition.name,
     );
 
     let rows: any[] = [];
 
     // Render header row
     rows.push(
-      <View style={styles.formRow} key={`header-row`}>
+      <View style={styles.formRow} key={'header-row'}>
         {columns.map((column, index) => {
           const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
           if (columnDef) {
@@ -553,7 +510,7 @@ export class GroupedForm extends Component {
             if (columnDef) {
               const rowField = columnedFields[rowIndex] ?? null;
               // get the field definion from columnDef.fields where the name matches the rowField.name
-              const fieldDef = columnDef.fields.find((fieldDef) => fieldDef.name === rowField?.name);
+              const fieldDef = columnDef.fields.find((item) => item.name === rowField?.name);
               const validField = fieldDef !== undefined;
               return validField ? (
                 this.renderField(fieldDef, column)
@@ -695,7 +652,7 @@ export class GroupedForm extends Component {
     }
 
     const columns = this.props.definition.columns.find(
-      (columns) => columns.length > 0 && columns[0] === refColumnDefinition.name,
+      (cols) => cols.length > 0 && cols[0] === refColumnDefinition.name,
     );
 
     return (
@@ -879,4 +836,3 @@ export class GroupedForm extends Component {
     );
   }
 }
-
