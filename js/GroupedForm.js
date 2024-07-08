@@ -1,3 +1,4 @@
+
 /**
  * @flow
  */
@@ -10,14 +11,31 @@ import {ModeContext} from '../src/components/Context/ModeContextProvider';
 import {getCodeDefinition} from './Codes';
 import {getCachedItem} from './DataCache';
 import {getDoctor} from './DoctorApp';
-import {getFieldDefinition as getExamFieldDefinition, getFieldValue, setMappedFieldValue} from './Exam';
-import {Copy, CopyColumn, CopyRow, Garbage, ImportIcon, Plus, Star} from './Favorites';
+import {
+  getFieldDefinition as getExamFieldDefinition,
+  getFieldValue,
+  setMappedFieldValue,
+} from './Exam';
+import {
+  Copy,
+  CopyColumn,
+  CopyRow,
+  Garbage,
+  ImportIcon,
+  Plus,
+  Star,
+} from './Favorites';
 import {FormInput} from './Form';
 import {formatFieldLabel, formatLabel} from './Items';
 import {importData} from './Machine';
 import {strings} from './Strings';
 import {scaleStyle, styles} from './Styles';
-import type {CodeDefinition, FieldDefinition, GroupDefinition, Measurement} from './Types';
+import type {
+  CodeDefinition,
+  FieldDefinition,
+  GroupDefinition,
+  Measurement,
+} from './Types';
 import {formatDate, getValue, isEmpty, now, yearDateFormat} from './Util';
 import {Alert, Label, NativeBar} from './Widgets';
 
@@ -32,7 +50,10 @@ export function hasColumns(groupDefinition: GroupDefinition): boolean {
   );
 }
 
-export function getColumnFieldIndex(groupDefinition: GroupDefinition, fieldName: string): number {
+export function getColumnFieldIndex(
+  groupDefinition: GroupDefinition,
+  fieldName: string,
+): number {
   if (
     groupDefinition.columns === undefined ||
     groupDefinition.columns === null ||
@@ -74,7 +95,8 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
         const exam: Exam = getCachedItem(item);
         visit = exam !== undefined ? getCachedItem(exam.visitId) : undefined;
       }
-      const value: any = visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
+      const value: any =
+        visit !== undefined ? visit[`${keyIdentifier[1]}`] : undefined;
       return reverseFlag ? isEmpty(value) : !isEmpty(value);
     } else {
       const exam: Exam = getCachedItem(item);
@@ -86,10 +108,17 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
         const subKey: string = subKeys[0];
         value = exam !== undefined ? getValue(exam, subKey) : undefined;
         if (value === undefined) {
-          const fieldName: string = subKey.substring(subKey.lastIndexOf('.') + 1);
+          const fieldName: string = subKey.substring(
+            subKey.lastIndexOf('.') + 1,
+          );
           if (fieldName.toLowerCase() === 'povonlineid') {
-            value = exam !== undefined ? getValue(exam, 'Diagnosis.Insurer.supplierId') : undefined;
-            let supplierCode: CodeDefinition = value ? getCodeDefinition('insuranceProviders', value) : undefined;
+            value =
+              exam !== undefined
+                ? getValue(exam, 'Diagnosis.Insurer.supplierId')
+                : undefined;
+            let supplierCode: CodeDefinition = value
+              ? getCodeDefinition('insuranceProviders', value)
+              : undefined;
             if (supplierCode?.povOnlineId?.toString() === subValue) {
               value = subValue;
             } else {
@@ -836,3 +865,4 @@ export class GroupedForm extends Component {
     );
   }
 }
+

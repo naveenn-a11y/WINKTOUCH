@@ -501,7 +501,7 @@ export const styles = StyleSheet.create({
   formRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'flex-start', 
+    alignItems: 'flex-start',
     padding: 3 * fontScale,
   },
   formColumn: {
@@ -532,9 +532,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   get formColumnItemHalfHeight(){
-    return {...this.formColumnItem, height:20*fontScale}
+    return {...this.formColumnItem, height:20 * fontScale};
   },
-  set formColumnItemHalfHeight(object){}, 
+  set formColumnItemHalfHeight(object){},
   formRow500: {
     width: 520 * fontScale,
     flexDirection: 'row',
@@ -558,6 +558,13 @@ export const styles = StyleSheet.create({
   },
   formRow1000: {
     width: 1040 * fontScale,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+  },
+  formRow1600: {
+    width: 1640 * fontScale,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -609,6 +616,7 @@ export const styles = StyleSheet.create({
     borderRadius: 6 * fontScale,
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
+    width: 'fit-content',
   },
   formFieldError: {
     flex: 100,
@@ -624,6 +632,7 @@ export const styles = StyleSheet.create({
     borderRadius: 6 * fontScale,
     borderColor: '#ff0000',
     margin: 3 * fontScale,
+    width: 'fit-content',
   },
   formFieldReadOnly: {
     flex: 100,
@@ -640,6 +649,7 @@ export const styles = StyleSheet.create({
     borderRadius: 6 * fontScale,
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
+    width: 'fit-content',
   },
   formFieldReadOnlyLines: {
     color: disabledFieldFontColor,
@@ -656,6 +666,7 @@ export const styles = StyleSheet.create({
     borderRadius: 6 * fontScale,
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
+    width: 'fit-content',
   },
   translateField: {
     borderColor: 'purple',
@@ -678,6 +689,7 @@ export const styles = StyleSheet.create({
     borderRadius: 6 * fontScale,
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
+    width: 'fit-content',
   },
   formValidationError: {
     fontSize: 20 * fontScale,
@@ -697,7 +709,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 3 * fontScale,
     textAlign: 'right',
     margin: 5 * fontScale,
-    maxWidth: 'max-content'
+    maxWidth: 'max-content',
   },
   formTableColumnHeader: {
     flex: 100,
@@ -711,7 +723,6 @@ export const styles = StyleSheet.create({
   get formTableColumnHeaderFull() {
     return {
       ...this.formTableColumnHeader,
-      width: '100%',
     };
   },
   set formTableColumnHeaderFull(object) {},
@@ -1330,7 +1341,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'normal',
     borderWidth: 0,
     textAlign: 'center',
-    transform: [{rotate: '90deg'}], 
+    transform: [{rotate: '90deg'}],
   },
   copyColumn: {
     fontSize: 28 * fontScale,
@@ -1420,7 +1431,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     top: 10 * fontScale,
     backgroundColor: '#fff',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   alertCheckBox: {
     flexDirection: 'column',
@@ -1630,7 +1641,9 @@ export const styles = StyleSheet.create({
   flexColumn: {
     flex: 1, // Ensures the column flexes to fill remaining space equally
     justifyContent: 'center',
-    width: '100%',
+    // width: '100%',
+    minWidth: 30,
+    flexGrow: 1,
   },
   emptyButtonSpace: {
     minWidth: 24,
