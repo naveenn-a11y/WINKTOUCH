@@ -587,6 +587,7 @@
       "name": "Phorias",
       "multiValue": true,
       "columns": [["Method"],["Distant vision", "Near vision"]],
+      "noKeyboard": true,
       "fields": [
         {
           "name": "Method",
