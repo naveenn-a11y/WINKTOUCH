@@ -320,6 +320,16 @@ export class GroupedForm extends Component {
     return <NativeBar message={strings.importDataNotFound} onDismissAction={() => this.hideSnackBar()} />;
   }
 
+  getIsTyping() {
+    const defName = this.props.definition.name;
+
+    if (defName === 'Phorias') {
+      return false;
+    }
+
+    return this.context.keyboardMode === 'desktop' || (this.state.isTyping && this.props.editable);
+  }
+
   renderField(fieldDefinition: FieldDefinition, column?: string) {
     if (fieldDefinition === undefined) {
       return (
@@ -366,7 +376,7 @@ export class GroupedForm extends Component {
       formatLabel(this.props.definition) +
       (column !== undefined ? ' ' + this.formatColumnLabel(column) + ' ' : ' ') +
       formatLabel(fieldDefinition);
-    const isTyping = this.context.keyboardMode === 'desktop' || (this.state.isTyping && this.props.editable);
+    const isTyping = this.getIsTyping();
 
     return (
       <FormInput
@@ -879,4 +889,3 @@ export class GroupedForm extends Component {
     );
   }
 }
-

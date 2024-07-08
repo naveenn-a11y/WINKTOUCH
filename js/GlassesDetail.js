@@ -511,6 +511,7 @@ export class GlassesDetail extends Component {
       errorMessage: errMsg,
       testID: `${props.fieldId}.${eye}.${field}`,
       visible: isVisible,
+      eye,
       isPrism,
     }
   };
@@ -626,7 +627,7 @@ export class GlassesDetail extends Component {
                           visible
                           showLabel={false}
                           readonly={!this.props.editable}
-                          onChangeValue={(value: ?String) => this.updatePrism('os', value)}
+                          onChangeValue={(value: ?String) => this.updatePrism(column.eye, value)}
                           testID={column.testID}
                         />
                       )}
@@ -655,8 +656,6 @@ export class GlassesDetail extends Component {
 
     const isTyping =
     this.context.keyboardMode === 'desktop' || state.isTyping;
-
-    const hasOU = this.hasVA() && props.glassesRx.ou !== undefined;
 
     const pdColumns = [
       { label: strings.far, visible: true},
@@ -740,7 +739,7 @@ export class GlassesDetail extends Component {
                           visible
                           showLabel={false}
                           readonly={!this.props.editable}
-                          onChangeValue={(value: ?String) => this.updatePrism('os', value)}
+                          onChangeValue={(value: ?String) => this.updatePrism(column.eye, value)}
                           testID={column.testID}
                         />
                       )}
