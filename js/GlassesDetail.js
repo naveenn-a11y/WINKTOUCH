@@ -735,7 +735,7 @@ export class GlassesDetail extends Component {
                       )}
                       {!column.placeholder && column.isPrism && (
                         <GeneralPrismInput
-                          value={column.Value}
+                          value={column.value}
                           visible
                           showLabel={false}
                           readonly={!this.props.editable}
