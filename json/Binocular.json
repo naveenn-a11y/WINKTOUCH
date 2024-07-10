@@ -587,6 +587,7 @@
       "name": "Phorias",
       "multiValue": true,
       "columns": [["Method"],["Distant vision", "Near vision"]],
+      "noKeyboard": true,
       "fields": [
         {
           "name": "Method",
@@ -595,7 +596,8 @@
             {
               "name": "Method",
               "label": "Method",
-              "options": ["Alternating Cover Test", "Maddox Rod", "Maddox Wing", "Modified Thorington Test", "Von Graefe", "Mallett Fixation Disparity Unit", "Saladin", "Howell"]
+              "options": ["Alternating Cover Test", "Maddox Rod", "Maddox Wing", "Modified Thorington Test", "Von Graefe", "Mallett Fixation Disparity Unit", "Saladin", "Howell"],
+              "freestyle": true
             }
           ]
         },
@@ -609,7 +611,8 @@
               "suffix": "phoriasHCodes",
               "unit": " \u0394",
               "maxValue": 50,
-              "options": ["Ortho"]
+              "options": ["Ortho"],
+              "freestyle": true
             },
             {
               "name": "V",
@@ -619,7 +622,8 @@
               "decimals": 2,
               "stepSize": 0.25,
               "maxValue": 10,
-              "options": ["Ortho"]
+              "options": ["Ortho"],
+              "freestyle": true
             }
           ]
         },
@@ -633,7 +637,8 @@
               "suffix": "phoriasHCodes",
               "unit": " \u0394",
               "maxValue": 50,
-              "options": ["Ortho"]
+              "options": ["Ortho"],
+              "freestyle": true
             },
             {
               "name": "V",
@@ -643,7 +648,8 @@
               "decimals": 2,
               "stepSize": 0.25,
               "maxValue": 10,
-              "options": ["Ortho"]
+              "options": ["Ortho"],
+              "freestyle": true
             }
           ]
         }

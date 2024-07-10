@@ -321,9 +321,9 @@ export class GroupedForm extends Component {
   }
 
   getIsTyping() {
-    const defName = this.props.definition.name;
+    const def = this.props.definition;
 
-    if (defName === 'Phorias') {
+    if (def?.noKeyboard === true) {
       return false;
     }
 
