@@ -82,7 +82,6 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
             return img.hasAttribute('internal-blob');
           },
           entity_encoding: "numeric",
-          // encoding: 'utf-8',
           selector: '#mytextarea',
           height: windowHeight - 150 * fontScale,
           branding: false,
