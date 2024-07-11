@@ -44,7 +44,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
     }
   }
   async getContent(): string {
-    return this.state.activeEditor.getContent({format: 'raw'});
+    return this.state.activeEditor.getContent({format: 'numeric'});
   }
 
   async isDirty(): Boolean {
@@ -58,7 +58,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
 
   setContent(html: string) {
     __DEV__ && console.log('Set raw html: ' + html);
-    this.state.activeEditor.setContent(`${html}`, {format: 'raw'});
+    this.state.activeEditor.setContent(`${html}`);
   }
 
   afterSave() {
@@ -73,7 +73,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
         initialValue={this.props.value}
         init={{
           setup: (editor) => {
-            this.setState({activeEditor: editor}),
+            this.setState({ activeEditor: editor }),
               editor.on('init', function (e) {
                 // editor.setContent(this.props.value, {format: 'raw'});
               });
@@ -81,6 +81,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
           images_dataimg_filter: function (img) {
             return img.hasAttribute('internal-blob');
           },
+          entity_encoding: "numeric",
           selector: '#mytextarea',
           height: windowHeight - 150 * fontScale,
           branding: false,
