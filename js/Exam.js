@@ -32,7 +32,7 @@ import {CheckList} from './CheckList';
 import {GroupedCard} from './GroupedCard';
 import {addGroupItem, GroupedFormScreen} from './GroupedFormScreen';
 import {PaperFormScreen} from './PaperForm';
-import {fetchItemById, storeItem} from './Rest';
+import {fetchItemById, getRestUrl, getToken, storeItem} from './Rest';
 import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {
   deepClone,
@@ -174,6 +174,28 @@ export function getExam(examName: string, visit: Visit): Exam {
   const exam: Exam = getCachedItem(examId);
   return exam;
 }
+
+async function fetchVisitExam(visit: Visit, examName: string): Exam | undefined{
+  if (!visit) {
+    return undefined;
+  }
+  try {
+    const httpResponse = await fetch(getRestUrl() + `Visit/${visit.id}/customExams/name/${examName}`, {
+      method: 'get',
+      headers: {token: getToken(), Accept: 'application/json'},
+    });
+    if (httpResponse.ok) {
+      let restResponse = await httpResponse.json();
+      return restResponse;
+    } else {
+      console.log(error);
+      alert(strings.formatString(strings.fetchItemError, `exam ${examName}`, error));
+      return undefined;
+    }
+  } catch (error) {
+    return undefined;
+  }
+};
 
 export function getFieldValue(fieldIdentifier: string, exam: Exam): any {
   const fieldSrc: string[] = fieldIdentifier.split('.');
@@ -510,7 +532,7 @@ export class ExamCard extends Component {
   }
 }
 
-export function getExamHistory(exam: Exam): Exam[] {
+export async function getExamHistory(exam: Exam): Exam[] {
   const visit = getCachedItem(exam.visitId);
   if (!visit) {
     return [];
@@ -520,22 +542,29 @@ export function getExamHistory(exam: Exam): Exam[] {
   );
   const examDefinitionName: string = exam.definition.name;
   let examArray: Exam[] = [];
-  visitHistory.forEach((visit: Visit) => {
-    if (visit.medicalDataPrivilege === 'NOACCESS') {
-      let noAccessExam: Exam = {
-        noaccess: true,
-        visitId: visit.id,
-      };
-      examArray = [...examArray, noAccessExam];
-    } else {
-      let examIds: string[] = allExamIds(visit);
-      let examLists: Exam[][] = examIds
-        .map((examId: string) => getCachedItem(examId))
-        .filter((exam: Exam) => exam.definition.name === examDefinitionName);
-      examArray = [...examArray, examLists[0]];
-    }
-  });
+  await Promise.all(
+    visitHistory.map(async (visit: Visit) => {
+      if (visit.medicalDataPrivilege === 'NOACCESS') {
+        let noAccessExam: Exam = {
+          noaccess: true,
+          visitId: visit.id,
+        };
+        examArray = [...examArray, noAccessExam];
+      } else {
+        const exam = await fetchVisitExam(visit, examDefinitionName);
+        if(exam){
+          examArray = [...examArray, exam];
+        }
+      }
+    }),
+  );
   examArray = examArray.filter((exam: Exam) => exam != undefined);
+
+  examArray.sort(
+    (exam1, exam2) =>
+      new Date(getCachedItem(exam2.visitId).date).getTime() - new Date(getCachedItem(exam1.visitId).date).getTime(),
+  );
+
   return examArray;
 }
 
@@ -555,13 +584,14 @@ export class ExamHistoryScreen extends Component {
   constructor(props: any) {
     super(props);
     const params = this.props.route.params;
-    let examHistory: Exam[] = getExamHistory(params.exam);
     let patient: Patient = getPatient(params.exam);
+    let examHistory: Exam[] = [];
     this.state = {
-      examHistory,
+      examHistory, 
       patient,
       zoomScale: new Animated.Value(1),
     };
+    getExamHistory(params.exam).then(examHistory=>this.setState({examHistory}));
   }
 
   componentDidMount() {
