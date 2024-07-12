@@ -132,17 +132,7 @@ export function formatOptions(
       formatOptions(subOptions, descriptionIdentifier),
     );
   } else {
-    const includedOptions = new Set();
-    options.forEach((option) => {
-      const formattedOption: string = formatCodeDefinition(
-        option,
-        descriptionIdentifier,
-      );
-      if (!includedOptions.has(formattedOption.trim().toLowerCase())) {
-        includedOptions.add(formattedOption.trim().toLowerCase());
-        formattedOptions.push(formattedOption);
-      }
-    });
+    formattedOptions = options.map((option) => formatCodeDefinition(option, descriptionIdentifier));
   }
   return formattedOptions;
 }

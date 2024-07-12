@@ -230,7 +230,7 @@ export function getSectionTitle(section: string): string {
 }
 
 export async function fetchVisit(visitId: string): Visit {
-  let visit: Visit = await fetchItemById(visitId);
+  let visit: Visit = await fetchItemById(visitId, true);
   return visit;
 }
 
@@ -438,7 +438,7 @@ export async function fetchVisitHistory(patientId: string): string[] {
 
   //    customExams && customExams.forEach((exam: Exam) => overwriteExamDefinition(exam)); //TODO remove after beta
   cacheItemsById(customExams);
-  cacheItemsById(visits);
+  visits.forEach(visit => !getCachedItem(visit.id)?.customExamIds && cacheItemById(visit));
   cacheItemsById(patientDocuments);
   cacheItemsById(users);
   cacheItemsById(stores);
@@ -481,14 +481,12 @@ export function getPreviousVisits(patientId: string): ?(CodeDefinition[]) {
   const dateFormat: string = hasDoubles ? yearDateTime24Format : yearDateFormat;
   //Format the visits as CodeDefinitions
   visitHistory.forEach((visit: Visit) => {
-    if (visit.customExamIds || visit.preCustomExamIds) {
       let readonly: boolean = visit.pretestPrivilege === 'NOACCESS';
       const code: string = visit.id;
       const description: string =
         formatDate(visit.date, dateFormat) + ' - ' + visit.typeName;
       const codeDescription: CodeDefinition = {code, description, readonly};
       codeDescriptions.push(codeDescription);
-    }
   });
   return codeDescriptions;
 }
@@ -2737,6 +2735,7 @@ export class VisitHistory extends Component {
     history: ?(string[]),
     showingDatePicker: boolean,
     isLoading: boolean,
+    isVisitLoading: boolean, 
     showDialog: boolean,
   };
 
@@ -2781,8 +2780,14 @@ export class VisitHistory extends Component {
     });
   }
 
-  showVisit(id: ?string) {
-    this.setState({selectedId: id});
+  async showVisit(id: ?string) {
+    if(this.state.selectedId !== id && !this.state.isVisitLoading){
+      this.setState({isVisitLoading: true});
+      this.setState({selectedId: id});
+      await fetchVisit(id);
+      this.setState({isVisitLoading: false});
+
+    }
   }
 
   async deleteVisit(visitId: string) {
@@ -3155,7 +3160,7 @@ export class VisitHistory extends Component {
         {this.state.selectedId === undefined && this.renderSummary()}
         {this.state.selectedId === 'followup' && this.renderFollowUp()}
 
-        {this.state.selectedId && this.state.selectedId.startsWith('visit') && (
+        {!this.state.isVisitLoading && this.state.selectedId && this.state.selectedId.startsWith('visit') && (
           <VisitErrorBoundary navigation={this.props.navigation}>
             <VisitWorkFlow
               patientInfo={this.props.patientInfo}
