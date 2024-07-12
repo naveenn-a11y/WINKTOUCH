@@ -136,14 +136,14 @@ export class ExamChartScreen extends Component {
     };
   }
 
-  generateGraphSeries(exam: Exam): ChartSeries {
+  async generateGraphSeries(exam: Exam): ChartSeries {
     if (
       exam.definition.graph === undefined ||
       exam.definition.graph.fields === undefined
     ) {
       return undefined;
     }
-    const examHistory: Exam[] = getExamHistory(exam).reverse();
+    const examHistory: Exam[] = await getExamHistory(exam).reverse();
     let labels: string[] = examHistory.map((exam: Exam) =>
       exam ? formatMoment(getCachedItem(exam.visitId).date) : undefined,
     );

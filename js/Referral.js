@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import type {Visit} from './Types';
+import {Visit} from './Types';
 
 import React, {Component} from 'react';
 import {
@@ -37,7 +37,7 @@ import type {
   EmailDefinition,
   FollowUp,
 } from './Types';
-import {allExamIds, getPreviousVisits} from './Visit';
+import {allExamIds, fetchVisit, getPreviousVisits} from './Visit';
 import {getCachedItems, getCachedItem} from './DataCache';
 import {renderExamHtml, getExam, UserAction} from './Exam';
 import {stripDataType} from './Rest';
@@ -114,6 +114,7 @@ type ReferralScreenState = {
   isDirty: boolean,
   followUpStateKey: string,
   isLoading: boolean,
+  isVisitLoading: boolean,
   referralHtml: string,
   selectedVisitId: string,
   referralStarted: boolean,
@@ -180,12 +181,20 @@ export class ReferralScreen extends Component<
       isLoading: false,
       referralHtml: '',
       selectedVisitId: this.props.route.params.visit.id,
+      isVisitLoading: false,
       referralStarted: false,
       builtInTemplates: {},
       showBuiltInDialog: false,
     };
     this.selectedFields = [];
     this.unmounted = false;
+  }
+
+  componentDidMount(){
+    if (this.state.selectedVisitId) {
+      this.setState({isVisitLoading: true});
+      fetchVisit(this.state.selectedVisitId).then((visit) => this.setState({isVisitLoading: false}));
+    }
   }
 
   componentWillUnmount() {
@@ -321,13 +330,16 @@ export class ReferralScreen extends Component<
     });
   }
 
-  selectVisit(visitId: string) {
+  async selectVisit(visitId: string) {
     if (visitId === '' || visitId === undefined) {
       return;
     }
     if (this.state.selectedVisitId === visitId) {
       return;
     }
+    this.setState({isVisitLoading: true});
+    await fetchVisit(visitId);
+    this.setState({isVisitLoading: false});
     this.setState({selectedVisitId: visitId});
     const visit: Visit = getCachedItem(visitId);
     const examIds: string[] = allExamIds(visit);
@@ -732,7 +744,7 @@ export class ReferralScreen extends Component<
   renderFieldSelectionTree() {
     let dropdowns = [];
     let options: ?(CodeDefinition[]) = getAllCodes('dynamicFields');
-
+    
     for (
       let level: number = 0;
       level < this.state.selectedField.length;
@@ -762,20 +774,22 @@ export class ReferralScreen extends Component<
         (field: CodeDefinition) => option?.code !== 'Patient' || field.code !== 'Patient.HealthCardExp',
       );
 
-      options = option ? filteredFields : undefined;
-      if (level === 0 && selectedValue === 'Exam' && options) {
-        options = this.filterEmptyExams(options);
-        let previousVisits: CodeDefinition[] = this.getPreviousVisits();
-        if (previousVisits && previousVisits.length > 0) {
-          dropdowns.push(
-            <FormRow>
-              <FormOptions
-                options={previousVisits}
-                value={this.state.selectedVisitId}
-                onChangeValue={(visitId: string) => this.selectVisit(visitId)}
-              />
-            </FormRow>,
-          );
+      if (!this.state.isVisitLoading) {
+        options = option ? filteredFields : undefined;
+        if (level === 0 && selectedValue === 'Exam' && options) {
+          options = this.filterEmptyExams(options);
+          let previousVisits: CodeDefinition[] = this.getPreviousVisits();
+          if (previousVisits && previousVisits.length > 0) {
+            dropdowns.push(
+              <FormRow>
+                <FormOptions
+                  options={previousVisits}
+                  value={this.state.selectedVisitId}
+                  onChangeValue={(visitId: string) => this.selectVisit(visitId)}
+                />
+              </FormRow>,
+            );
+          }
         }
       }
     }
