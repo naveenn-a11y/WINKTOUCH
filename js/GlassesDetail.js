@@ -444,7 +444,7 @@ export class GlassesDetail extends Component {
           errorMessage={props.glassesRx[`${field}Error`]}
           isTyping={isTyping}
           autoFocus={autoFocus}
-          testID={`${props.fieldId}.${field}`}
+          testID={`${props?.fieldId ?? props?.examId}.${field}`}
         />
       </View>
     )
@@ -464,7 +464,7 @@ export class GlassesDetail extends Component {
           errorMessage={props.glassesRx[`${field}Error`]}
           isTyping={isTyping}
           autoFocus={autoFocus}
-          testID={`${props.fieldId}.${field}`}
+          testID={`${props?.fieldId ?? props?.examId}.${field}`}
         />
       </View>
     );
@@ -497,7 +497,7 @@ export class GlassesDetail extends Component {
           onChangeValue={(value) => this.updateGlassesRx(undefined, 'notes', value)}
           multiline={rxNotesDefinition ? rxNotesDefinition.multiline : false}
           errorMessage={props.glassesRx.notesError}
-          testID={`${props.fieldId}.notes`}
+          testID={`${props?.fieldId ?? props?.examId}.notes`}
         />
       </View>
     );
@@ -509,7 +509,7 @@ export class GlassesDetail extends Component {
       definition: getFieldDefinition(definition),
       onChange: (value: ?number) => this.updateGlassesRx(eye, field, value),
       errorMessage: errMsg,
-      testID: `${props.fieldId}.${eye}.${field}`,
+      testID: `${props?.fieldId ?? props?.examId}.${eye}.${field}`,
       visible: isVisible,
       eye,
       isPrism,
