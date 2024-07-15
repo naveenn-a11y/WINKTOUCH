@@ -685,7 +685,7 @@ export class GroupedForm extends Component {
           <View style={styles.formColumnItem}>
             <Label
               value={formatLabel(columnDefinition)}
-              style={styles.formTableColumnHeaderFull}
+              style={styles.formTableColumnHeader}
               suffix={''}
               fieldId={this.props.fieldId + '.' + columnDefinition.name}
             />
