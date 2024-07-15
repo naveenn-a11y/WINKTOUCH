@@ -1755,28 +1755,28 @@ function boardStyle(
     size === 'XL' || size === 'MAX'
       ? 1200
       : size === 'L'
-      ? 840
+      ? 850
       : size === 'M'
-      ? 520
+      ? 450
       : size === 'S'
-      ? 340
-      : 340;
+      ? 300
+      : 300;
   const maxWidth: number =
     size === 'XL' || size === 'MAX'
-      ? 1200 * fontScale
+      ? 1200
       : size === 'L'
-      ? 840 * fontScale
+      ? 850
       : size === 'M'
-      ? null
+      ? 450
       : size === 'S'
-      ? null
-      : null;
+      ? 325
+      : 325;
   return {
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
-    minWidth: minWidth * fontScale,
+    minWidth,
     maxWidth,
     minHeight: minHeight * fontScale,
     borderRadius: 30 * fontScale,
