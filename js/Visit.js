@@ -2024,6 +2024,7 @@ class VisitWorkFlow extends Component {
           <TouchableOpacity
             key={strings.finalRx}
             disabled={this.props.readonly}
+            testID={'FinalRx-Section'}
             onPress={() =>
               this.state.rxToOrder &&
               this.props.navigation.navigate('exam', {
@@ -2032,6 +2033,7 @@ class VisitWorkFlow extends Component {
               })
             }>
             <PrescriptionCard
+              testID={'PrescriptionCard-Section'}
               title={strings.finalRx}
               exam={this.state.rxToOrder}
               editable={false}

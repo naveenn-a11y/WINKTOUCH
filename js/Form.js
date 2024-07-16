@@ -262,37 +262,39 @@ export class FormTextInput extends Component {
               </Text>
             )}
             <View style={styles.fieldFlexContainer}>
-              <TextInput
-                value={this.state.text}
-                autoCapitalize={
-                  this.props.autoCapitalize != undefined
-                    ? this.props.autoCapitalize
-                    : this.props.multiline === true
-                    ? 'sentences'
-                    : 'none'
-                }
-                autoCorrect={false}
-                autoFocus={this.props.autoFocus === true ? true : false}
-                keyboardType={this.props.type}
-                style={
-                  this.props.style
-                    ? this.props.style
-                    : this.props.multiline
-                    ? styles.formFieldLines
-                    : this.props.readonly
-                    ? styles.formFieldReadOnly
-                    : styles.formField
-                }
-                onFocus={this.dismissError}
-                onChangeText={this.updateText}
-                onBlur={(event) => this.commit(event.nativeEvent.text)}
-                editable={this.props.readonly !== true}
-                multiline={this.props.multiline === true}
-                maxLength={this.props.maxLength}
-                numberOfLines={this.props.maxRows}
-                onTextLayout={this.handleTextLayout}
-                testID={this.props.testID + 'Field'}
-              />
+              <TouchableWithoutFeedback onPress={() => {}}>
+                <TextInput
+                  value={this.state.text}
+                  autoCapitalize={
+                    this.props.autoCapitalize != undefined
+                      ? this.props.autoCapitalize
+                      : this.props.multiline === true
+                      ? 'sentences'
+                      : 'none'
+                  }
+                  autoCorrect={false}
+                  autoFocus={this.props.autoFocus === true ? true : false}
+                  keyboardType={this.props.type}
+                  style={
+                    this.props.style
+                      ? this.props.style
+                      : this.props.multiline
+                      ? styles.formFieldLines
+                      : this.props.readonly
+                      ? styles.formFieldReadOnly
+                      : styles.formField
+                  }
+                  onFocus={this.dismissError}
+                  onChangeText={this.updateText}
+                  onBlur={(event) => this.commit(event.nativeEvent.text)}
+                  editable={this.props.readonly !== true}
+                  multiline={this.props.multiline === true}
+                  maxLength={this.props.maxLength}
+                  numberOfLines={this.props.maxRows}
+                  onTextLayout={this.handleTextLayout}
+                  testID={this.props.testID + 'Field'}
+                />
+                </TouchableWithoutFeedback>
               {!this.props.readonly &&
                 this.props.freestyle != false &&
                 (this.props.multiline || this.props.speakable) && (

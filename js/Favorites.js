@@ -243,6 +243,7 @@ export class Star extends PureComponent {
                 <View style={styles.form}>
                   <FormRow>
                     <FormTextInput
+                      pointerEvents={'box-none'}
                       value={this.state.starName}
                       onChangeText={this.changeStarName}
                       autoCapitalize="sentences"
