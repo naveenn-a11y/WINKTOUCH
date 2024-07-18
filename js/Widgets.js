@@ -1571,7 +1571,7 @@ export class TilesField extends Component {
   }
 
   renderPopup() {
-    const arrayOfArrays = this.isArrayofArrays(this.props.options);
+    const arrayOfArrays = this.isArrayofArrays(this.props.options));
     let allOptions: string[][] = null;
     if (arrayOfArrays) {
       allOptions = this.isMultiColumn() ? this.props.options : [this.props.options];
