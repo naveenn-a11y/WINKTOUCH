@@ -3440,7 +3440,7 @@ export class SelectionList extends React.PureComponent {
   }
 
   itemsToShow(): any[] {
-    const uniqueOptions = Array.from(new Set(this.props.items));
+    const uniqueOptions = Array.from(new Set(this.props.items)
     let data: any[];
     if (this.props.selection instanceof Array) {
       for (let selection: string of this.props.selection) {
