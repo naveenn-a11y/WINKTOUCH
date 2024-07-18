@@ -1576,7 +1576,7 @@ export class TilesField extends Component {
     if (arrayOfArrays) {
       allOptions = this.isMultiColumn() ? this.props.options : [this.props.options];
     } else {
-      const uniqueOptions = this.props.options.filter((item, index) => this.props.options.indexOf(item) === index);
+      const uniqueOptions = Array.from(new Set(this.props.options));
       allOptions = this.isMultiColumn() ? uniqueOptions : [uniqueOptions];
     }
 
@@ -3440,21 +3440,21 @@ export class SelectionList extends React.PureComponent {
   }
 
   itemsToShow(): any[] {
-    const nonDupedItems = Array.from(new Set(this.props.items));
+    const uniqueOptions = Array.from(new Set(this.props.items));
     let data: any[];
     if (this.props.selection instanceof Array) {
       for (let selection: string of this.props.selection) {
-        if (!nonDupedItems.includes(selection)) {
+        if (!uniqueOptions.includes(selection)) {
           if (data === undefined) {
-            data = [].concat(nonDupedItems);
+            data = [].concat(uniqueOptions);
           }
           data.unshift(selection);
         }
       }
     } else if (this.props.selection) {
       let selection: string = stripSelectionPrefix(this.props.selection);
-      if (!nonDupedItems.includes(selection)) {
-        data = [].concat(nonDupedItems);
+      if (!uniqueOptions.includes(selection)) {
+        data = [].concat(uniqueOptions);
         data.unshift(selection);
       }
     }
@@ -3464,7 +3464,7 @@ export class SelectionList extends React.PureComponent {
         : undefined;
     if (filter) {
       if (!data) {
-        data = nonDupedItems;
+        data = uniqueOptions;
       }
       data = data.filter(
         (item: string) =>
@@ -3485,7 +3485,7 @@ export class SelectionList extends React.PureComponent {
       data.push(this.state.filter);
     }
     if (data === undefined) {
-      data = [].concat(nonDupedItems);
+      data = [].concat(uniqueOptions);
     }
     return data;
   }
