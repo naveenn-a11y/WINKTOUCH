@@ -3440,9 +3440,7 @@ export class SelectionList extends React.PureComponent {
   }
 
   itemsToShow(): any[] {
-    const nonDupedItems = this.props.items.filter(
-      (item, index, self) => self.indexOf(item) === index,
-    );
+    const nonDupedItems = Array.from(new Set(this.props.items));
     let data: any[];
     if (this.props.selection instanceof Array) {
       for (let selection: string of this.props.selection) {
