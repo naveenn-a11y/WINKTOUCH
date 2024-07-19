@@ -380,8 +380,6 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
       fields = fieldDefinition.fields;
     }
     if (fieldDefinition === undefined) {
-      __DEV__ &&
-        console.error("No fieldDefinition '" + fieldIdentifier + "' exists.");
       return undefined;
     }
     if (fieldDefinition.mappedField) {
