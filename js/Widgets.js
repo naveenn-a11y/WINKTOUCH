@@ -1561,25 +1561,8 @@ export class TilesField extends Component {
     return this.props.transferFocus !== undefined || this.isMultiColumn();
   }
 
-  isArrayofArrays(variable): boolean {
-    // Check if the variable is an array
-    if (!Array.isArray(variable)) {
-      return false;
-    }
-    // Check if each element in the array is also an array
-    return variable.every(item => Array.isArray(item));
-  }
-
   renderPopup() {
-    const arrayOfArrays = this.isArrayofArrays(this.props.options);
-    let allOptions: string[][] = null;
-    if (arrayOfArrays) {
-      allOptions = this.isMultiColumn() ? this.props.options : [this.props.options];
-    } else {
-      const uniqueOptions = Array.from(new Set(this.props.options));
-      allOptions = this.isMultiColumn() ? uniqueOptions : [uniqueOptions];
-    }
-
+    let allOptions: string[][] = this.isMultiColumn() ? this.props.options : [this.props.options];
     return (
       <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID="popupBackground">
         <View style={styles.popupBackground}>
