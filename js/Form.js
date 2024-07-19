@@ -1196,7 +1196,8 @@ export class FormCode extends Component {
       this.props.code,
       this.props.filter,
     );
-    let selectedDescription: string = this.selectedDescription(allDescriptions);
+    const uniqueOptions: string[] = Array.from(new Set(allDescriptions));
+    let selectedDescription: string = this.selectedDescription(uniqueOptions);
     return (
       <FormOptions
         labelWidth={this.props.labelWidth}
@@ -1206,7 +1207,7 @@ export class FormCode extends Component {
         readonly={this.props.readonly}
         freestyle={this.props.freestyle}
         errorMessage={this.props.errorMessage}
-        options={allDescriptions}
+        options={uniqueOptions}
         value={selectedDescription}
         onChangeValue={this.updateValue}
         prefix={this.props.prefix}
