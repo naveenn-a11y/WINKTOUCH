@@ -23,6 +23,7 @@ module.exports = (env, mode) => {
       'process.env.WINK_APP_EMR_HOST_REST_URL': JSON.stringify(process.env.WINK_APP_EMR_HOST_REST_URL),
       'process.env.WINK_APP_ECOMM_URL': JSON.stringify(process.env.WINK_APP_ECOMM_URL),
       'process.env.WINK_APP_ACCOUNTS_URL': JSON.stringify(process.env.WINK_APP_ACCOUNTS_URL),
+      'process.env.GOOGLE_TAG_ID': JSON.stringify(process.env.GOOGLE_TAG_ID),
     };
   } else {
     const envFile = '.env';
