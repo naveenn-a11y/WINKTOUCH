@@ -900,12 +900,7 @@ export class ExamScreen extends Component {
       this.state.exam.errors === undefined
     ) {
       this.fetchExam();
-      this.focusSubscription = this.props.navigation.addListener(
-        'focus',
-        () => {
-          this.renderRelatedExams();
-        }
-      );
+      this.renderRelatedExams(this.state.exam.definition);
     }
   }
 
@@ -927,6 +922,9 @@ export class ExamScreen extends Component {
       //__DEV__ && console.log('ExamScreen did update with same exam id '+exam.id);
       return;
     }
+
+    const currentExamDefinition = exam.definition;
+    this.renderRelatedExams(currentExamDefinition);
 
     //__DEV__ && console.log('ExamScreen did update after receiving new exam with id '+exam.id);
     if (this.state.isDirty) {
@@ -1580,16 +1578,16 @@ export class ExamScreen extends Component {
     }
   };
 
-  async renderRelatedExams() {
+  async renderRelatedExams(currentDefinition: ExamDefinition) {
     if (
-      this.state.exam.definition.relatedExams === undefined ||
-      this.state.exam.definition.relatedExams === null ||
-      this.state.exam.definition.relatedExams.length === 0
+      currentDefinition.relatedExams === undefined ||
+      currentDefinition.relatedExams === null ||
+      currentDefinition.relatedExams.length === 0
     ) {
       return null;
     }
 
-    let relatedExams =  await Promise.all(this.state.exam.definition.relatedExams.map(
+    let relatedExams =  await Promise.all(currentDefinition.relatedExams.map(
       async (relatedExamName: string, index: number) => {
         const relatedExam: Exam = await this.getRelatedExam(relatedExamName);
         return (
